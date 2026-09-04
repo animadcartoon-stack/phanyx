@@ -1525,7 +1525,12 @@
         "DESEMBARCADO": "Disembarked",
         "TRANSFERIDO": "Transferred",
         "CANCELADO": "Canceled"
-      }
+      },
+      "removePassenger": "Remove passenger",
+      "removingPassenger": "Removing...",
+      "passengerRemoved": "Passenger removed from the vehicle successfully.",
+      "removeError": "The passenger could not be removed from the vehicle.",
+      "cannotRemoveAfterOperation": "This passenger can no longer be removed because segment operations have already started."
     }
   },
   "ProfessorLayout": {
@@ -11250,6 +11255,23 @@
       "notes": "Include academic notes, legends, indexes, totals and closing information.",
       "signature": "Define the text content of the signature area. The digital signature continues to use institutional settings.",
       "footer": "Customize the institutional footer text without removing required validation elements."
+    },
+    "toolbar": {
+      "title": "Editing tools",
+      "font": "Font",
+      "fontSize": "Size",
+      "lineSpacing": "Line spacing",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "left": "Left",
+      "center": "Center",
+      "right": "Right",
+      "justify": "Justify",
+      "heading": "Heading",
+      "subheading": "Subheading",
+      "list": "List",
+      "textColor": "Color"
     }
   }
 }

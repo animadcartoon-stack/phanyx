@@ -1525,7 +1525,12 @@
         "DESEMBARCADO": "Débarqué",
         "TRANSFERIDO": "Transféré",
         "CANCELADO": "Annulé"
-      }
+      },
+      "removePassenger": "Retirer le passager",
+      "removingPassenger": "Suppression...",
+      "passengerRemoved": "Passager retiré du véhicule avec succès.",
+      "removeError": "Impossible de retirer le passager du véhicule.",
+      "cannotRemoveAfterOperation": "Ce passager ne peut plus être retiré car les opérations du trajet ont déjà commencé."
     }
   },
   "ProfessorLayout": {
@@ -11241,6 +11246,23 @@
       "notes": "Ajoutez observations académiques, légende, indices, totaux et informations de clôture.",
       "signature": "Définissez le contenu textuel de la zone de signature. La signature numérique continue d'utiliser les paramètres institutionnels.",
       "footer": "Personnalisez le texte institutionnel du pied de page sans supprimer les éléments de validation obligatoires."
+    },
+    "toolbar": {
+      "title": "Outils d’édition",
+      "font": "Police",
+      "fontSize": "Taille",
+      "lineSpacing": "Interligne",
+      "bold": "Gras",
+      "italic": "Italique",
+      "underline": "Souligné",
+      "left": "Gauche",
+      "center": "Centrer",
+      "right": "Droite",
+      "justify": "Justifier",
+      "heading": "Titre",
+      "subheading": "Sous-titre",
+      "list": "Liste",
+      "textColor": "Couleur"
     }
   }
 }

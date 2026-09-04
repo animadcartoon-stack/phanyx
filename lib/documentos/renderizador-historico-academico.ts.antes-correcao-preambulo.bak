@@ -314,33 +314,9 @@ export function montarConteudoHistoricoAcademico({
     ? montarTabelaComponentes(componentes)
     : textoParaHtml(componentesTexto);
 
-  /*
-   * O conteúdo estruturado normalmente começa diretamente no primeiro
-   * marcador. A versão anterior procurava o primeiro marcador apenas
-   * quando ele vinha depois de uma quebra de linha; quando o arquivo
-   * começava em "[CABEÇALHO INSTITUCIONAL]", toda a primeira seção era
-   * interpretada também como preâmbulo e aparecia duplicada acima do
-   * cabeçalho oficial.
-   *
-   * Aqui preservamos um preâmbulo real somente quando existe texto antes
-   * do primeiro marcador.
-   */
-  const indicePrimeiroMarcador =
-    conteudo.search(
-      /(?:^|\n)\s*\[[^\]\r\n]+\]\s*(?:\n|$)/
-    );
-
-  const preambulo =
-    indicePrimeiroMarcador > 0
-      ? removerMarcadoresDesconhecidos(
-          conteudo
-            .slice(
-              0,
-              indicePrimeiroMarcador
-            )
-            .trim()
-        )
-      : "";
+  const preambulo = removerMarcadoresDesconhecidos(
+    conteudo.split(/\n\s*\[[^\]\r\n]+\]\s*(?:\n|$)/)[0] || ""
+  );
 
   return `
     <style>

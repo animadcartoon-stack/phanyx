@@ -675,10 +675,7 @@ const nomePolo =
 const dadosUnidadeDocumento =
   polo || config;
 
-const agora =
-  new Date();
-
-const codigoValidacao = `PHANYX-${agora.getTime()}-${aluno.id}`;
+const codigoValidacao = `PHANYX-${Date.now()}-${aluno.id}`;
 
 const valoresTemplate = {
   logoInstituicao: "{{logoInstituicao}}",
@@ -841,31 +838,9 @@ blocoPolo: [
     matriculaAtual?.status || "-",
 
   dataAtual:
-    agora.toLocaleDateString(
+    new Date().toLocaleDateString(
       "pt-BR"
     ),
-
-  dataEmissao:
-    agora.toLocaleDateString(
-      "pt-BR"
-    ),
-
-  horaEmissao:
-    agora.toLocaleTimeString(
-      "pt-BR"
-    ),
-
-  dataHoraEmissao:
-    agora.toLocaleString(
-      "pt-BR"
-    ),
-
-  /*
-   * O número definitivo depende do id de DocumentoGerado.
-   * Mantemos a marcação até o create e resolvemos logo em seguida.
-   */
-  numeroDocumento:
-    "{{numeroDocumento}}",
 
   assinaturaDiretor:
     "{{assinaturaDiretor}}",
@@ -1061,7 +1036,7 @@ blocoPolo: [
       : "-",
 };
 
-let conteudoTemplate = substituirTemplate(
+const conteudoTemplate = substituirTemplate(
   templateHistorico?.conteudo ||
     `[CABEÇALHO INSTITUCIONAL]
 {{logoInstituicao}}
@@ -1099,39 +1074,13 @@ const documentoGerado = await prisma.documentoGerado.create({
     conteudo: conteudoTemplate,
     status: "ASSINADO",
     exigeAssinatura: true,
-    assinadoEm: agora,
+    assinadoEm: new Date(),
     instituicaoId: user.instituicaoId,
     alunoId: aluno.id,
     matriculaId: matriculaAtual?.id || null,
     templateId: templateHistorico?.id || null,
     cursoId: curso?.id || null,
     codigoValidacao,
-  },
-});
-
-const numeroDocumento =
-  `DOC-${agora.getFullYear()}-${String(
-    documentoGerado.id
-  ).padStart(6, "0")}`;
-
-conteudoTemplate =
-  conteudoTemplate.replaceAll(
-    "{{numeroDocumento}}",
-    numeroDocumento
-  );
-
-/*
- * Mantém também o conteúdo persistido exatamente igual ao que será
- * renderizado no PDF real.
- */
-await prisma.documentoGerado.update({
-  where: {
-    id: documentoGerado.id,
-  },
-
-  data: {
-    conteudo:
-      conteudoTemplate,
   },
 });
 

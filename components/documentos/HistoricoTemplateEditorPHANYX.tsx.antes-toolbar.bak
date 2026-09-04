@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import EditorSecaoHistoricoPHANYX from "@/components/documentos/EditorSecaoHistoricoPHANYX";
 
 type SecaoHistoricoId =
   | "cabecalho"
@@ -161,7 +160,6 @@ const SECOES: SecaoDef[] = [
       "{{numeroDocumento}}",
       "{{dataEmissao}}",
       "{{horaEmissao}}",
-      "{{dataHoraEmissao}}",
     ],
     sistema: true,
   },
@@ -175,12 +173,14 @@ const COLUNAS_ATUAIS = [
   "SITUAÇÃO",
 ];
 
-function normalizarMarcador(valor: string) {
-  return String(valor || "").trim().toUpperCase();
-}
+function htmlParaTextoEstruturado(valor: string) {
+  const texto = String(valor || "");
 
-function htmlParaTextoLegado(valor: string) {
-  return String(valor || "")
+  if (!/<[a-z][\s\S]*>/i.test(texto)) {
+    return texto.replace(/\r\n/g, "\n");
+  }
+
+  return texto
     .replace(/\r\n/g, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n\n")
@@ -197,6 +197,12 @@ function htmlParaTextoLegado(valor: string) {
     .trim();
 }
 
+function normalizarMarcador(valor: string) {
+  return String(valor || "")
+    .trim()
+    .toUpperCase();
+}
+
 type TemplateEstruturado = {
   preambulo: string;
   secoes: Record<string, string>;
@@ -206,28 +212,13 @@ type TemplateEstruturado = {
   }>;
 };
 
-function extrairTemplateEstruturadoBruto(
-  valor: string
-): TemplateEstruturado {
-  const texto = String(valor || "")
-    .replace(/\r\n/g, "\n")
-    .trim();
-
-  const regex =
-    /(?:^|\n)\s*\[([^\]\r\n]+)\]\s*(?:\n|$)([\s\S]*?)(?=\n\s*\[[^\]\r\n]+\]\s*(?:\n|$)|$)/g;
+function extrairTemplateEstruturado(valor: string): TemplateEstruturado {
+  const texto = htmlParaTextoEstruturado(valor);
+  const regex = /\[([^\]\r\n]+)\]\s*([\s\S]*?)(?=\n\s*\[[^\]\r\n]+\]|\s*$)/g;
 
   const encontrados = Array.from(texto.matchAll(regex));
-
-  if (
-    encontrados.length === 0 &&
-    /<[a-z][\s\S]*>/i.test(texto)
-  ) {
-    return extrairTemplateEstruturadoBruto(
-      htmlParaTextoLegado(texto)
-    );
-  }
-
   const primeiroIndice = encontrados[0]?.index ?? -1;
+
   const preambulo =
     primeiroIndice > 0
       ? texto.slice(0, primeiroIndice).trim()
@@ -248,7 +239,10 @@ function extrairTemplateEstruturadoBruto(
     if (marcadoresConhecidos.has(chave)) {
       secoes[chave] = conteudo;
     } else {
-      extras.push({ marcador, conteudo });
+      extras.push({
+        marcador,
+        conteudo,
+      });
     }
   }
 
@@ -277,37 +271,17 @@ function montarTemplateEstruturado(
       "";
 
     partes.push(
-      `[${secao.marcador}]\n${conteudo.trim()}`
+      `[${secao.marcador}]\n\n${conteudo.trim()}`
     );
   }
 
   for (const extra of estrutura.extras) {
     partes.push(
-      `[${extra.marcador}]\n${extra.conteudo.trim()}`
+      `[${extra.marcador}]\n\n${extra.conteudo.trim()}`
     );
   }
 
   return partes.join("\n\n").trim();
-}
-
-function conteudoParaHtmlDeSecao(valor: string) {
-  const texto = String(valor || "");
-
-  if (/<[a-z][\s\S]*>/i.test(texto)) {
-    return texto;
-  }
-
-  if (!texto.trim()) {
-    return "";
-  }
-
-  return texto
-    .replace(/\r\n/g, "\n")
-    .split(/\n{2,}/)
-    .map((bloco) =>
-      `<p>${bloco.split("\n").join("<br />")}</p>`
-    )
-    .join("");
 }
 
 export default function HistoricoTemplateEditorPHANYX({
@@ -321,19 +295,18 @@ export default function HistoricoTemplateEditorPHANYX({
   );
 
   const estrutura = useMemo(
-    () => extrairTemplateEstruturadoBruto(value),
+    () => extrairTemplateEstruturado(value),
     [value]
   );
 
   const estruturaPadrao = useMemo(
-    () => extrairTemplateEstruturadoBruto(modeloBase),
+    () => extrairTemplateEstruturado(modeloBase),
     [modeloBase]
   );
 
   const faltando = useMemo(() => {
     return SECOES.filter((secao) => {
       const chave = normalizarMarcador(secao.marcador);
-
       return !Object.prototype.hasOwnProperty.call(
         estrutura.secoes,
         chave
@@ -368,17 +341,19 @@ export default function HistoricoTemplateEditorPHANYX({
     tag: string
   ) {
     const chave = normalizarMarcador(marcador);
-
     const atual =
       estrutura.secoes[chave] ??
       estruturaPadrao.secoes[chave] ??
       "";
 
-    const atualHtml = conteudoParaHtmlDeSecao(atual);
+    const separador =
+      atual.trim().length > 0
+        ? "\n"
+        : "";
 
     atualizarSecao(
       marcador,
-      `${atualHtml}<p>${tag}</p>`
+      `${atual}${separador}${tag}`
     );
 
     onCopyTag?.(tag);
@@ -483,17 +458,13 @@ export default function HistoricoTemplateEditorPHANYX({
 
       <div className="space-y-4">
         {SECOES.map((secao, index) => {
-          const chave = normalizarMarcador(secao.marcador);
+          const chave =
+            normalizarMarcador(secao.marcador);
 
           const conteudo =
             estrutura.secoes[chave] ??
             estruturaPadrao.secoes[chave] ??
             "";
-
-          const alturaMinima = Math.max(
-            84,
-            secao.rows * 18
-          );
 
           return (
             <div
@@ -540,22 +511,18 @@ export default function HistoricoTemplateEditorPHANYX({
                 </div>
               ) : null}
 
-              {secao.id === "componentes" ? (
-                <div className="pdoc-input mt-3 rounded-xl border px-3 py-3 font-mono text-xs leading-6">
-                  {conteudo || "{{disciplinas}}"}
-                </div>
-              ) : (
-                <EditorSecaoHistoricoPHANYX
-                  value={conteudo}
-                  onChange={(html) =>
-                    atualizarSecao(
-                      secao.marcador,
-                      html
-                    )
-                  }
-                  minHeightPx={alturaMinima}
-                />
-              )}
+              <textarea
+                value={conteudo}
+                onChange={(event) =>
+                  atualizarSecao(
+                    secao.marcador,
+                    event.target.value
+                  )
+                }
+                rows={secao.rows}
+                spellCheck={false}
+                className="pdoc-input mt-3 w-full rounded-xl border px-3 py-3 font-mono text-xs leading-6 outline-none focus:border-blue-500"
+              />
 
               {secao.tags.length > 0 ? (
                 <div className="mt-3">
@@ -598,7 +565,7 @@ export default function HistoricoTemplateEditorPHANYX({
         </p>
 
         <textarea
-          value={value}
+          value={htmlParaTextoEstruturado(value)}
           onChange={(event) =>
             onChange(event.target.value)
           }

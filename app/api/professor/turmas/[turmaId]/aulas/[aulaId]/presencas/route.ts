@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+  solicitarReanalisePorAlteracaoAcademica,
+} from "@/lib/student-success/solicitar-reanalise-por-alteracao-academica";
 
 type PresencaInput = {
   id?: number | string;
@@ -364,6 +367,66 @@ if (!turma) {
         });
       })
     );
+
+    /*
+ * A chamada já foi persistida neste ponto.
+ *
+ * Uma alteração de presença pode modificar
+ * a frequência e, consequentemente, a
+ * classificação acadêmica do Student Success.
+ *
+ * Reanalisamos todos os alunos enviados
+ * em uma única chamada, evitando executar
+ * o painel uma vez para cada estudante.
+ */
+try {
+  const alunoIdsAfetados =
+    Array.from(
+      new Set(
+        presencas
+          .map(
+            (
+              presenca
+            ) =>
+              Number(
+                presenca.alunoId
+              )
+          )
+          .filter(
+            (
+              alunoId
+            ) =>
+              Number.isInteger(
+                alunoId
+              ) &&
+              alunoId > 0
+          )
+      )
+    );
+
+  await solicitarReanalisePorAlteracaoAcademica({
+    instituicaoId:
+      user.instituicaoId,
+
+    alunoIds:
+      alunoIdsAfetados,
+
+    executadoPorId:
+      user.id,
+  });
+}
+catch (error) {
+  /*
+   * O registro de presença já foi salvo.
+   * Uma eventual falha do Student Success
+   * não pode transformar a chamada em erro
+   * para o professor.
+   */
+  console.error(
+    "[STUDENT_SUCCESS_PRESENCA_REANALISE]",
+    error
+  );
+}
 
     return NextResponse.json({
       message: "Chamada salva com sucesso",

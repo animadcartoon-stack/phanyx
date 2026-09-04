@@ -1730,7 +1730,7 @@ export default function BibliotecaItemPage() {
       !podeGerenciarEmprestimos ||
       impersonacao ||
       exemplar.tipo !== "FISICO" ||
-      exemplar.status !== "DISPONIVEL" ||
+      !(exemplar.status === "DISPONIVEL" || exemplar.status === "RESERVADO") ||
       !exemplar.permiteEmprestimo ||
       exemplar.baixadoEm
     ) {
@@ -2232,8 +2232,8 @@ export default function BibliotecaItemPage() {
         resultado.multa?.gerada === true &&
         Number.isFinite(valorMulta) &&
         valorMulta > 0;
-        const reservaDisponibilizada =
-  resultado.reserva?.disponibilizada === true;
+      const reservaDisponibilizada =
+        resultado.reserva?.disponibilizada === true;
 
       const valorMultaFormatado = new Intl.NumberFormat(locale, {
         minimumFractionDigits: 2,
@@ -2247,32 +2247,21 @@ export default function BibliotecaItemPage() {
       setObservacaoDevolucao("");
 
       setToast({
-  tipo: "sucesso",
+        tipo: "sucesso",
 
-  mensagem:
-    multaGerada &&
-    reservaDisponibilizada
-      ? ui(
-          "returnSuccessWithFineAndReservation",
-          {
-            amount:
-              valorMultaFormatado,
-          }
-        )
-      : multaGerada
-        ? ui(
-            "returnSuccessWithFine",
-            {
-              amount:
-                valorMultaFormatado,
-            }
-          )
-        : reservaDisponibilizada
-          ? ui(
-              "returnSuccessWithReservation"
-            )
-          : ui("returnSuccess"),
-});
+        mensagem:
+          multaGerada && reservaDisponibilizada
+            ? ui("returnSuccessWithFineAndReservation", {
+                amount: valorMultaFormatado,
+              })
+            : multaGerada
+              ? ui("returnSuccessWithFine", {
+                  amount: valorMultaFormatado,
+                })
+              : reservaDisponibilizada
+                ? ui("returnSuccessWithReservation")
+                : ui("returnSuccess"),
+      });
 
       setAtualizacao((valor) => valor + 1);
     } catch (falha) {
@@ -3569,7 +3558,8 @@ export default function BibliotecaItemPage() {
                         {podeGerenciarEmprestimos &&
                         !impersonacao &&
                         exemplar.tipo === "FISICO" &&
-                        exemplar.status === "DISPONIVEL" &&
+                        (exemplar.status === "DISPONIVEL" ||
+                          exemplar.status === "RESERVADO") &&
                         exemplar.permiteEmprestimo &&
                         !exemplar.baixadoEm ? (
                           <button

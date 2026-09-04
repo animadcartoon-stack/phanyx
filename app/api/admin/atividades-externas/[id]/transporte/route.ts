@@ -2221,6 +2221,133 @@ export async function POST(
             );
         }
 
+                if (
+            acao ===
+            "DESVINCULAR_PASSAGEIRO"
+        ) {
+            const passageiroId =
+                Number(
+                    corpo?.passageiroId
+                );
+
+            if (
+                !Number.isInteger(
+                    passageiroId
+                ) ||
+                passageiroId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PASSAGEIRO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const passageiro =
+                await prisma
+                    .atividadeExternaTrechoPassageiro
+                    .findFirst({
+                        where: {
+                            id:
+                                passageiroId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrecho: {
+                                atividadeExternaId:
+                                    atividade.id,
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            status: true,
+
+                            participanteId:
+                                true,
+
+                            trechoVeiculoId:
+                                true,
+
+                            atividadeExternaTrechoId:
+                                true,
+                        },
+                    });
+
+            if (!passageiro) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PASSAGEIRO_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            /*
+             * Depois que a operação da viagem
+             * começar, o vínculo passa a fazer
+             * parte do histórico operacional.
+             */
+            if (
+                passageiro.status !==
+                "PLANEJADO"
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO",
+
+                        statusAtual:
+                            passageiro.status,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            await prisma
+                .atividadeExternaTrechoPassageiro
+                .delete({
+                    where: {
+                        id:
+                            passageiro.id,
+                    },
+                });
+
+            return NextResponse.json({
+                ok: true,
+
+                acao:
+                    "DESVINCULAR_PASSAGEIRO",
+
+                passageiroId:
+                    passageiro.id,
+
+                participanteId:
+                    passageiro
+                        .participanteId,
+
+                trechoVeiculoId:
+                    passageiro
+                        .trechoVeiculoId,
+            });
+        }
+
 
         const modalTexto =
 

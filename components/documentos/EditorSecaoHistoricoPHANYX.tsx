@@ -1,0 +1,387 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Extension } from "@tiptap/core";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import FontFamily from "@tiptap/extension-font-family";
+import { useTranslations } from "next-intl";
+
+const FONTES_WINDOWS = [
+  "Arial","Arial Black","Bahnschrift","Calibri","Cambria","Candara",
+  "Comic Sans MS","Consolas","Constantia","Corbel","Courier New",
+  "Franklin Gothic Medium","Gabriola","Georgia","Impact","Lucida Console",
+  "Lucida Sans Unicode","Microsoft Sans Serif","Palatino Linotype",
+  "Segoe Print","Segoe Script","Segoe UI","Tahoma","Times New Roman",
+  "Trebuchet MS","Verdana",
+];
+
+const TAMANHOS_FONTE = [
+  "8","9","10","11","12","14","16","18","20","22","24","28","32","36","48","72",
+];
+
+const ESPACAMENTOS_LINHA = [
+  { label: "1.0", value: "1" },
+  { label: "1.15", value: "1.15" },
+  { label: "1.5", value: "1.5" },
+  { label: "2.0", value: "2" },
+  { label: "2.5", value: "2.5" },
+  { label: "3.0", value: "3" },
+];
+
+const FontSize = Extension.create({
+  name: "fontSize",
+  addGlobalAttributes() {
+    return [{
+      types: ["textStyle"],
+      attributes: {
+        fontSize: {
+          default: null,
+          parseHTML: (element) => element.style.fontSize || null,
+          renderHTML: (attributes) =>
+            attributes.fontSize ? { style: `font-size: ${attributes.fontSize}` } : {},
+        },
+      },
+    }];
+  },
+});
+
+const LineHeight = Extension.create({
+  name: "lineHeight",
+  addGlobalAttributes() {
+    return [{
+      types: ["paragraph", "heading"],
+      attributes: {
+        lineHeight: {
+          default: null,
+          parseHTML: (element) => element.style.lineHeight || null,
+          renderHTML: (attributes) =>
+            attributes.lineHeight ? { style: `line-height: ${attributes.lineHeight}` } : {},
+        },
+      },
+    }];
+  },
+});
+
+type Props = {
+  value: string;
+  onChange: (html: string) => void;
+  minHeightPx?: number;
+};
+
+function escaparHtml(valor: string) {
+  return valor
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function conteudoParaHtmlSeguro(valor: string) {
+  const texto = String(valor || "");
+
+  if (/<[a-z][\s\S]*>/i.test(texto)) {
+    return texto;
+  }
+
+  const normalizado = texto.replace(/\r\n/g, "\n");
+
+  if (!normalizado.trim()) {
+    return "<p></p>";
+  }
+
+  return normalizado
+    .split(/\n{2,}/)
+    .map((bloco) =>
+      `<p>${bloco.split("\n").map((linha) => escaparHtml(linha)).join("<br />")}</p>`
+    )
+    .join("");
+}
+
+export default function EditorSecaoHistoricoPHANYX({
+  value,
+  onChange,
+  minHeightPx = 110,
+}: Props) {
+  const t = useTranslations("AdminDocumentsTemplatesHistoryEditor");
+  const [fonteAtual, setFonteAtual] = useState("");
+  const [tamanhoAtual, setTamanhoAtual] = useState("");
+  const [formatacaoAtiva, setFormatacaoAtiva] = useState({
+    negrito: false,
+    italico: false,
+    sublinhado: false,
+    esquerda: true,
+    centro: false,
+    direita: false,
+    justificar: false,
+    titulo: false,
+    subtitulo: false,
+    lista: false,
+  });
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TextStyle,
+      FontFamily,
+      FontSize,
+      LineHeight,
+      Color,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+    ],
+    content: conteudoParaHtmlSeguro(value),
+    parseOptions: { preserveWhitespace: "full" },
+    editorProps: {
+      attributes: {
+        class:
+          "min-h-[96px] px-3 py-3 text-sm leading-relaxed text-slate-950 outline-none dark:text-slate-100",
+      },
+      handleKeyDown(view, event) {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          view.dispatch(view.state.tr.insertText("    "));
+          return true;
+        }
+        return false;
+      },
+    },
+    onUpdate({ editor }) {
+      onChange(editor.getHTML());
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    const proximo = conteudoParaHtmlSeguro(value);
+    const atual = editor.getHTML();
+    if (atual === proximo) return;
+
+    editor.commands.setContent(proximo, {
+      emitUpdate: false,
+      preserveWhitespace: "full",
+    } as any);
+  }, [value, editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    function limparFonte(valor: unknown) {
+      return String(valor || "")
+        .replaceAll('"', "")
+        .replaceAll("'", "")
+        .split(",")[0]
+        .trim();
+    }
+
+    function limparTamanho(valor: unknown) {
+      const texto = String(valor || "").trim();
+      if (!texto) return "";
+      if (texto.includes("px")) {
+        const numero = Number(texto.replace("px", ""));
+        return Number.isFinite(numero)
+          ? String(Math.round(numero * 0.75))
+          : "";
+      }
+      return texto.replace("pt", "").trim();
+    }
+
+    function atualizarSelecao() {
+      const attrs = editor.getAttributes("textStyle");
+      const selection = window.getSelection();
+      const node = selection?.anchorNode;
+      const elemento =
+        node?.nodeType === Node.TEXT_NODE
+          ? node.parentElement
+          : (node as HTMLElement | null);
+
+      const computed = elemento ? window.getComputedStyle(elemento) : null;
+
+      setFonteAtual(
+        limparFonte(attrs.fontFamily) ||
+        limparFonte(computed?.fontFamily) ||
+        ""
+      );
+
+      setTamanhoAtual(
+        limparTamanho(attrs.fontSize) ||
+        limparTamanho(computed?.fontSize) ||
+        ""
+      );
+
+      const alinhamentoAtivo = (valor: string) =>
+        editor.isActive("paragraph", { textAlign: valor }) ||
+        editor.isActive("heading", { textAlign: valor });
+
+      const centro = alinhamentoAtivo("center");
+      const direita = alinhamentoAtivo("right");
+      const justificar = alinhamentoAtivo("justify");
+      const esquerda =
+        alinhamentoAtivo("left") || (!centro && !direita && !justificar);
+
+      setFormatacaoAtiva({
+        negrito: editor.isActive("bold"),
+        italico: editor.isActive("italic"),
+        sublinhado: editor.isActive("underline"),
+        esquerda,
+        centro,
+        direita,
+        justificar,
+        titulo: editor.isActive("heading", { level: 1 }),
+        subtitulo: editor.isActive("heading", { level: 2 }),
+        lista: editor.isActive("bulletList"),
+      });
+    }
+
+    editor.on("selectionUpdate", atualizarSelecao);
+    editor.on("transaction", atualizarSelecao);
+    atualizarSelecao();
+
+    return () => {
+      editor.off("selectionUpdate", atualizarSelecao);
+      editor.off("transaction", atualizarSelecao);
+    };
+  }, [editor]);
+
+  if (!editor) return null;
+
+  function classeBotao(ativo: boolean) {
+    return [
+      "rounded-lg border px-2.5 py-2 text-xs font-semibold transition",
+      ativo
+        ? "border-blue-500 bg-blue-600 text-white"
+        : "border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800",
+    ].join(" ");
+  }
+
+  function sincronizar() {
+    onChange(editor.getHTML());
+  }
+
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
+      <div className="border-b border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-900">
+        <div className="mb-2 text-[10px] font-black uppercase tracking-[0.14em] text-slate-700 dark:text-slate-200">
+          {t("toolbar.title")}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <select
+            value={fonteAtual}
+            onChange={(event) => {
+              const fonte = event.target.value;
+              if (!fonte) return;
+              editor.chain().focus().setFontFamily(fonte).run();
+              setFonteAtual(fonte);
+              sincronizar();
+            }}
+            className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          >
+            <option value="">{t("toolbar.font")}</option>
+            {FONTES_WINDOWS.map((fonte) => (
+              <option key={fonte} value={fonte}>{fonte}</option>
+            ))}
+          </select>
+
+          <select
+            value={tamanhoAtual}
+            onChange={(event) => {
+              const tamanho = event.target.value;
+              if (!tamanho) return;
+              editor.chain().focus().setMark("textStyle", {
+                fontSize: `${tamanho}pt`,
+              }).run();
+              setTamanhoAtual(tamanho);
+              sincronizar();
+            }}
+            className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          >
+            <option value="">{t("toolbar.fontSize")}</option>
+            {TAMANHOS_FONTE.map((tamanho) => (
+              <option key={tamanho} value={tamanho}>{tamanho} pt</option>
+            ))}
+          </select>
+
+          <select
+            defaultValue=""
+            onChange={(event) => {
+              const altura = event.target.value;
+              if (!altura) return;
+              editor.chain().focus()
+                .updateAttributes("paragraph", { lineHeight: altura })
+                .updateAttributes("heading", { lineHeight: altura })
+                .run();
+              sincronizar();
+            }}
+            className="rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-semibold text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          >
+            <option value="">{t("toolbar.lineSpacing")}</option>
+            {ESPACAMENTOS_LINHA.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
+
+          <button type="button" onClick={() => { editor.chain().focus().toggleBold().run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.negrito)}>
+            B {t("toolbar.bold")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().toggleItalic().run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.italico)}>
+            I {t("toolbar.italic")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().toggleUnderline().run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.sublinhado)}>
+            U {t("toolbar.underline")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().setTextAlign("left").run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.esquerda)}>
+            ← {t("toolbar.left")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().setTextAlign("center").run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.centro)}>
+            ↔ {t("toolbar.center")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().setTextAlign("right").run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.direita)}>
+            → {t("toolbar.right")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().setTextAlign("justify").run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.justificar)}>
+            ☰ {t("toolbar.justify")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().toggleHeading({ level: 1 }).run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.titulo)}>
+            {t("toolbar.heading")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().toggleHeading({ level: 2 }).run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.subtitulo)}>
+            {t("toolbar.subheading")}
+          </button>
+
+          <button type="button" onClick={() => { editor.chain().focus().toggleBulletList().run(); sincronizar(); }} className={classeBotao(formatacaoAtiva.lista)}>
+            • {t("toolbar.list")}
+          </button>
+
+          <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            {t("toolbar.textColor")}
+            <input
+              type="color"
+              onChange={(event) => {
+                editor.chain().focus().setColor(event.target.value).run();
+                sincronizar();
+              }}
+              className="h-7 w-9 cursor-pointer rounded border-0 bg-transparent p-0"
+              title={t("toolbar.textColor")}
+            />
+          </label>
+        </div>
+      </div>
+
+      <div style={{ minHeight: `${minHeightPx}px` }}>
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  );
+}

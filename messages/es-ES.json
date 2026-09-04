@@ -1525,7 +1525,12 @@
         "DESEMBARCADO": "Desembarcado",
         "TRANSFERIDO": "Transferido",
         "CANCELADO": "Cancelado"
-      }
+      },
+      "removePassenger": "Eliminar pasajero",
+      "removingPassenger": "Eliminando...",
+      "passengerRemoved": "Pasajero eliminado del vehículo correctamente.",
+      "removeError": "No se pudo eliminar el pasajero del vehículo.",
+      "cannotRemoveAfterOperation": "Este pasajero ya no se puede eliminar porque la operación del trayecto ya ha comenzado."
     }
   },
   "ProfessorLayout": {
@@ -11241,6 +11246,23 @@
       "notes": "Incluya observaciones académicas, leyenda, índices, totales y datos de cierre.",
       "signature": "Defina el contenido textual del área de firma. La firma digital sigue usando la configuración institucional.",
       "footer": "Personalice el texto institucional del pie sin quitar los elementos obligatorios de validación."
+    },
+    "toolbar": {
+      "title": "Herramientas de edición",
+      "font": "Fuente",
+      "fontSize": "Tamaño",
+      "lineSpacing": "Interlineado",
+      "bold": "Negrita",
+      "italic": "Cursiva",
+      "underline": "Subrayado",
+      "left": "Izquierda",
+      "center": "Centro",
+      "right": "Derecha",
+      "justify": "Justificar",
+      "heading": "Título",
+      "subheading": "Subtítulo",
+      "list": "Lista",
+      "textColor": "Color"
     }
   }
 }

@@ -1,9 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
-import {
-  solicitarReanalisePorAlteracaoAcademica,
-} from "@/lib/student-success/solicitar-reanalise-por-alteracao-academica";
+
 
 export async function GET(request: Request) {
   const user = await getUserFromToken();
@@ -63,39 +61,6 @@ export async function POST(request: Request) {
         valor: body.valor,
       },
     });
-
-    /*
- * Uma alteração de nota pode modificar:
- * - desempenho;
- * - tendência recente;
- * - classificação de risco.
- *
- * A nota já foi persistida neste ponto.
- * Se o Student Success falhar, não
- * transformamos o lançamento da nota
- * em erro para o professor.
- */
-try {
-  await solicitarReanalisePorAlteracaoAcademica({
-    instituicaoId:
-      user.instituicaoId,
-
-    alunoIds: [
-      Number(
-        body.alunoId
-      ),
-    ],
-
-    executadoPorId:
-      user.id,
-  });
-}
-catch (error) {
-  console.error(
-    "[STUDENT_SUCCESS_NOTA_REANALISE]",
-    error
-  );
-}
 
     return NextResponse.json(nota);
 

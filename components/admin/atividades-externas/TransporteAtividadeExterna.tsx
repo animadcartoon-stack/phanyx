@@ -671,141 +671,83 @@ export default function TransporteAtividadeExterna({
     }
   }
 
-    async function vincularPassageiro(
-    trechoVeiculoId: number
-  ) {
+  async function vincularPassageiro(trechoVeiculoId: number) {
     const participanteIdTexto =
-      participanteSelecionadoPorTrechoVeiculo[
-        trechoVeiculoId
-      ] || "";
+      participanteSelecionadoPorTrechoVeiculo[trechoVeiculoId] || "";
 
-    const participanteId =
-      Number(
-        participanteIdTexto
-      );
+    const participanteId = Number(participanteIdTexto);
 
-    if (
-      !Number.isInteger(
-        participanteId
-      ) ||
-      participanteId <= 0
-    ) {
-      setErro(
-        t(
-          "passengerAssignment.passengerRequired"
-        )
-      );
+    if (!Number.isInteger(participanteId) || participanteId <= 0) {
+      setErro(t("passengerAssignment.passengerRequired"));
 
       setSucesso("");
 
       return;
     }
 
-    setVinculandoPassageiroTrechoVeiculoId(
-      trechoVeiculoId
-    );
+    setVinculandoPassageiroTrechoVeiculoId(trechoVeiculoId);
 
     setErro("");
     setSucesso("");
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/atividades-externas/${atividadeId}/transporte`,
-          {
-            method: "POST",
+      const resposta = await fetch(
+        `/api/admin/atividades-externas/${atividadeId}/transporte`,
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              acao:
-                "VINCULAR_PASSAGEIRO",
+          body: JSON.stringify({
+            acao: "VINCULAR_PASSAGEIRO",
 
-              trechoVeiculoId,
+            trechoVeiculoId,
 
-              participanteId,
+            participanteId,
 
-              assento:
-                assentoPorTrechoVeiculo[
-                  trechoVeiculoId
-                ]?.trim() ||
-                null,
-            }),
-          }
-        );
+            assento: assentoPorTrechoVeiculo[trechoVeiculoId]?.trim() || null,
+          }),
+        },
+      );
 
-      const dados =
-        (await resposta.json()) as {
-          ok?: boolean;
-          error?: string;
-        };
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
 
-      if (
-        !resposta.ok ||
-        !dados.ok
-      ) {
-        if (
-          dados.error ===
-          "PARTICIPANTE_JA_VINCULADO_AO_TRECHO"
-        ) {
-          setErro(
-            t(
-              "passengerAssignment.alreadyLinkedToSegment"
-            )
-          );
+      if (!resposta.ok || !dados.ok) {
+        if (dados.error === "PARTICIPANTE_JA_VINCULADO_AO_TRECHO") {
+          setErro(t("passengerAssignment.alreadyLinkedToSegment"));
 
           return;
         }
 
-        throw new Error(
-          dados.error ||
-            "ERRO_VINCULAR_PASSAGEIRO"
-        );
+        throw new Error(dados.error || "ERRO_VINCULAR_PASSAGEIRO");
       }
 
-      setParticipanteSelecionadoPorTrechoVeiculo(
-        (atual) => ({
-          ...atual,
+      setParticipanteSelecionadoPorTrechoVeiculo((atual) => ({
+        ...atual,
 
-          [trechoVeiculoId]:
-            "",
-        })
-      );
+        [trechoVeiculoId]: "",
+      }));
 
-      setAssentoPorTrechoVeiculo(
-        (atual) => ({
-          ...atual,
+      setAssentoPorTrechoVeiculo((atual) => ({
+        ...atual,
 
-          [trechoVeiculoId]:
-            "",
-        })
-      );
+        [trechoVeiculoId]: "",
+      }));
 
-      setSucesso(
-        t(
-          "passengerAssignment.passengerLinked"
-        )
-      );
+      setSucesso(t("passengerAssignment.passengerLinked"));
 
       await carregar();
     } catch (error) {
-      console.error(
-        "[TRANSPORTE_ATIVIDADE_VINCULAR_PASSAGEIRO]",
-        error
-      );
+      console.error("[TRANSPORTE_ATIVIDADE_VINCULAR_PASSAGEIRO]", error);
 
-      setErro(
-        t(
-          "passengerAssignment.linkError"
-        )
-      );
+      setErro(t("passengerAssignment.linkError"));
     } finally {
-      setVinculandoPassageiroTrechoVeiculoId(
-        null
-      );
+      setVinculandoPassageiroTrechoVeiculoId(null);
     }
   }
 
@@ -1389,6 +1331,15 @@ export default function TransporteAtividadeExterna({
                               ),
                           );
 
+                        const participantesNaoVinculados =
+                          participantesDisponiveis.filter(
+                            (participante) =>
+                              !trecho.passageiros.some(
+                                (passageiro) =>
+                                  passageiro.participanteId === participante.id,
+                              ),
+                          );
+
                         return (
                           <div
                             key={vinculo.id}
@@ -1520,6 +1471,152 @@ export default function TransporteAtividadeExterna({
                                 ) : (
                                   <p className="mt-3 text-sm opacity-70">
                                     {t("driverAssignment.noDriversAvailable")}
+                                  </p>
+                                )
+                              ) : null}
+                            </div>
+
+                            <div className="mt-4 border-t pt-3">
+                              <div className="text-xs font-black uppercase tracking-wide opacity-65">
+                                👥 {t("passengerAssignment.title")}
+                              </div>
+
+                              {vinculo.passageiros.length > 0 ? (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {vinculo.passageiros.map((passageiro) => {
+                                    const participante =
+                                      participantesDisponiveis.find(
+                                        (item) =>
+                                          item.id === passageiro.participanteId,
+                                      );
+
+                                    const nomeParticipante =
+                                      participante?.aluno.nomeSocial?.trim() ||
+                                      participante?.aluno.nome ||
+                                      `#${passageiro.participanteId}`;
+
+                                    return (
+                                      <span
+                                        key={passageiro.id}
+                                        className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold"
+                                      >
+                                        👤 {nomeParticipante}
+                                        {" • "}
+                                        {t(
+                                          `passengerAssignment.status.${passageiro.status}`,
+                                        )}
+                                        {passageiro.assento
+                                          ? ` • ${t(
+                                              "passengerAssignment.seat",
+                                            )}: ${passageiro.assento}`
+                                          : ""}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <p className="mt-2 text-sm opacity-70">
+                                  {t("passengerAssignment.noLinkedPassengers")}
+                                </p>
+                              )}
+
+                              {podeGerenciar ? (
+                                participantesNaoVinculados.length > 0 ? (
+                                  <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_160px_auto] lg:items-end">
+                                    <SelectPhanyx
+                                      value={
+                                        participanteSelecionadoPorTrechoVeiculo[
+                                          vinculo.id
+                                        ] || ""
+                                      }
+                                      onChange={(valor) =>
+                                        setParticipanteSelecionadoPorTrechoVeiculo(
+                                          (atual) => ({
+                                            ...atual,
+
+                                            [vinculo.id]: valor,
+                                          }),
+                                        )
+                                      }
+                                      placeholder={t(
+                                        "passengerAssignment.selectPassenger",
+                                      )}
+                                      options={participantesNaoVinculados.map(
+                                        (participante) => {
+                                          const nome =
+                                            participante.aluno.nomeSocial?.trim() ||
+                                            participante.aluno.nome;
+
+                                          return {
+                                            value: String(participante.id),
+
+                                            label: participante.aluno.matricula
+                                              ? `${nome} • ${participante.aluno.matricula}`
+                                              : nome,
+                                          };
+                                        },
+                                      )}
+                                    />
+
+                                    <div>
+                                      <label className="mb-1.5 block text-xs font-bold opacity-70">
+                                        {t("passengerAssignment.seat")}
+                                      </label>
+
+                                      <input
+                                        type="text"
+                                        maxLength={50}
+                                        value={
+                                          assentoPorTrechoVeiculo[vinculo.id] ||
+                                          ""
+                                        }
+                                        onChange={(event) =>
+                                          setAssentoPorTrechoVeiculo(
+                                            (atual) => ({
+                                              ...atual,
+                                              [vinculo.id]: event.target.value,
+                                            }),
+                                          )
+                                        }
+                                        placeholder={t(
+                                          "passengerAssignment.seatPlaceholder",
+                                        )}
+                                        aria-label={t(
+                                          "passengerAssignment.seat",
+                                        )}
+                                        className="phanyx-transporte-input"
+                                      />
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      disabled={
+                                        vinculandoPassageiroTrechoVeiculoId ===
+                                          vinculo.id ||
+                                        !participanteSelecionadoPorTrechoVeiculo[
+                                          vinculo.id
+                                        ]
+                                      }
+                                      onClick={() =>
+                                        void vincularPassageiro(vinculo.id)
+                                      }
+                                      className="phanyx-transporte-primary-button min-h-[44px] rounded-xl px-4 py-2.5 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                      {vinculandoPassageiroTrechoVeiculoId ===
+                                      vinculo.id
+                                        ? t(
+                                            "passengerAssignment.linkingPassenger",
+                                          )
+                                        : t(
+                                            "passengerAssignment.linkPassenger",
+                                          )}
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <p className="mt-3 text-sm opacity-70">
+                                    {t(
+                                      "passengerAssignment.noPassengersAvailable",
+                                    )}
                                   </p>
                                 )
                               ) : null}
