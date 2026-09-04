@@ -2,6 +2,7 @@ import {
   AcaoAuditoriaBiblioteca,
   StatusEmprestimoBiblioteca,
   StatusExemplarBiblioteca,
+  StatusReservaBiblioteca,
   TipoExemplarBiblioteca,
 } from "@prisma/client";
 
@@ -373,16 +374,24 @@ export async function POST(
             );
           }
 
-          if (
-            exemplar.status !==
-            StatusExemplarBiblioteca.DISPONIVEL
-          ) {
-            falhar(
-              409,
-              `O exemplar não está disponível para empréstimo. Status atual: ${exemplar.status}.`,
-              "EXEMPLAR_NAO_DISPONIVEL"
-            );
-          }
+         const exemplarDisponivel =
+  exemplar.status ===
+  StatusExemplarBiblioteca.DISPONIVEL;
+
+const exemplarReservado =
+  exemplar.status ===
+  StatusExemplarBiblioteca.RESERVADO;
+
+if (
+  !exemplarDisponivel &&
+  !exemplarReservado
+) {
+  falhar(
+    409,
+    `O exemplar não está disponível para empréstimo. Status atual: ${exemplar.status}.`,
+    "EXEMPLAR_NAO_DISPONIVEL"
+  );
+}
 
           /*
            * O tomador precisa pertencer à mesma
@@ -417,6 +426,70 @@ export async function POST(
               "USUARIO_EMPRESTIMO_INVALIDO"
             );
           }
+
+          let reservaAtendidaId:
+  number | null = null;
+
+if (
+  exemplar.status ===
+  StatusExemplarBiblioteca.RESERVADO
+) {
+  const reserva =
+    await transacao
+      .bibliotecaReserva
+      .findFirst({
+        where: {
+          instituicaoId:
+            contexto.instituicaoId,
+
+          exemplarId:
+            exemplar.id,
+
+          usuarioId:
+            tomador.id,
+
+          status:
+            StatusReservaBiblioteca.DISPONIVEL,
+        },
+
+        orderBy: [
+          {
+            disponivelEm: "asc",
+          },
+          {
+            id: "asc",
+          },
+        ],
+
+        select: {
+          id: true,
+          expiraEm: true,
+        },
+      });
+
+  if (!reserva) {
+    falhar(
+      409,
+      "Este exemplar está reservado para outro usuário.",
+      "EXEMPLAR_RESERVADO_OUTRO_USUARIO"
+    );
+  }
+
+  if (
+    reserva.expiraEm &&
+    reserva.expiraEm.getTime() <=
+      Date.now()
+  ) {
+    falhar(
+      409,
+      "O prazo desta reserva já expirou.",
+      "RESERVA_EXPIRADA"
+    );
+  }
+
+  reservaAtendidaId =
+    reserva.id;
+}
 
           /*
            * Proteção adicional contra inconsistência.
@@ -488,6 +561,30 @@ export async function POST(
                     true,
                 },
               });
+
+              if (reservaAtendidaId) {
+  await transacao
+    .bibliotecaReserva
+    .update({
+      where: {
+        id: reservaAtendidaId,
+      },
+
+      data: {
+        status:
+          StatusReservaBiblioteca.ATENDIDA,
+
+        atendidaEm:
+          new Date(),
+
+        atendidaPorId:
+          usuario.id,
+
+        posicaoFila:
+          null,
+      },
+    });
+}
 
           await transacao
             .bibliotecaExemplar
@@ -566,6 +663,8 @@ export async function POST(
 
                   numeroTombo:
                     exemplar.numeroTombo,
+
+                    reservaAtendidaId,
                 },
 
                 ip,

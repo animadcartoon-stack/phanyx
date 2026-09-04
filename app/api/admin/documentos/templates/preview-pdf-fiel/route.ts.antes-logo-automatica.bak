@@ -10,9 +10,6 @@ import {
 import {
   montarConteudoHistoricoAcademico,
 } from "@/lib/documentos/renderizador-historico-academico";
-import {
-  resolverLogoDocumentoInstituicao,
-} from "@/lib/documentos/resolver-logo-documento";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -374,48 +371,9 @@ export async function POST(
         });
     }
 
-    const modoLogo =
-      String(
-        body?.modoLogo ||
-        "AUTOMATICA"
-      ).toUpperCase();
-
-    const logoInstituicaoId =
-      Number.isFinite(
-        Number(body?.logoInstituicaoId)
-      ) &&
-      Number(body?.logoInstituicaoId) > 0
-        ? Number(body.logoInstituicaoId)
-        : null;
-
-    const logoResolvida =
-      await resolverLogoDocumentoInstituicao({
-        instituicaoId:
-          user.instituicaoId,
-
-        modoLogo,
-
-        logoInstituicaoId,
-
-        /*
-         * A área de configurações mantém estes dois campos
-         * sincronizados. O primeiro é a regra histórica dos
-         * contratos; o segundo garante que a prévia acompanhe
-         * o layout efetivamente usado pelo renderizador.
-         */
-        estiloDocumento:
-          config?.estiloDocumento ||
-          config?.estiloPapelTimbrado ||
-          "INSTITUCIONAL",
-
-        fallbackLogoUrl:
-          config?.logoUrl ||
-          null,
-      });
-
     const logoUrl =
       urlFinal(
-        logoResolvida.logoUrl,
+        config?.logoUrl,
         baseUrl
       );
 
