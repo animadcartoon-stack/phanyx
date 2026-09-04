@@ -1502,6 +1502,30 @@
         "SUPERVISOR_AUTONOMO": "Autonomous supervisor",
         "OUTRO": "Other"
       }
+    },
+    "passengerAssignment": {
+      "title": "Passengers",
+      "linkedPassengers": "Linked passengers",
+      "noLinkedPassengers": "No passenger is linked to this vehicle.",
+      "selectPassenger": "Select a participant",
+      "seat": "Seat",
+      "seatPlaceholder": "Ex.: 12A",
+      "linkPassenger": "Link passenger",
+      "linkingPassenger": "Linking...",
+      "noPassengersAvailable": "No other participant is available for this segment.",
+      "passengerLinked": "Passenger linked to the vehicle successfully.",
+      "passengerRequired": "Select a participant to link.",
+      "linkError": "The passenger could not be linked to the vehicle.",
+      "alreadyLinkedToSegment": "This participant is already linked to another vehicle in this segment.",
+      "status": {
+        "PLANEJADO": "Planned",
+        "AGUARDANDO_EMBARQUE": "Waiting to board",
+        "EMBARCADO": "Boarded",
+        "NAO_EMBARCOU": "Did not board",
+        "DESEMBARCADO": "Disembarked",
+        "TRANSFERIDO": "Transferred",
+        "CANCELADO": "Canceled"
+      }
     }
   },
   "ProfessorLayout": {

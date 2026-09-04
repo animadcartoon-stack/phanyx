@@ -1645,6 +1645,582 @@ export async function POST(
             );
         }
 
+                if (
+            acao ===
+            "VINCULAR_PASSAGEIRO"
+        ) {
+            const trechoVeiculoId =
+                Number(
+                    corpo?.trechoVeiculoId
+                );
+
+            if (
+                !Number.isInteger(
+                    trechoVeiculoId
+                ) ||
+                trechoVeiculoId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "TRECHO_VEICULO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const participanteId =
+                Number(
+                    corpo?.participanteId
+                );
+
+            if (
+                !Number.isInteger(
+                    participanteId
+                ) ||
+                participanteId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PARTICIPANTE_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const trechoVeiculo =
+                await prisma
+                    .atividadeExternaTrechoVeiculo
+                    .findFirst({
+                        where: {
+                            id:
+                                trechoVeiculoId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrecho: {
+                                atividadeExternaId:
+                                    atividade.id,
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            atividadeExternaTrechoId:
+                                true,
+
+                            veiculoId: true,
+
+                            capacidadePlanejada:
+                                true,
+                        },
+                    });
+
+            if (!trechoVeiculo) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "VEICULO_DO_TRECHO_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            const participante =
+                await prisma
+                    .atividadeExternaParticipante
+                    .findFirst({
+                        where: {
+                            id:
+                                participanteId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaId:
+                                atividade.id,
+                        },
+
+                        select: {
+                            id: true,
+
+                            alunoId: true,
+
+                            statusParticipacao:
+                                true,
+
+                            aluno: {
+                                select: {
+                                    id: true,
+
+                                    nome: true,
+
+                                    nomeSocial:
+                                        true,
+
+                                    matricula:
+                                        true,
+                                },
+                            },
+                        },
+                    });
+
+            if (!participante) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PARTICIPANTE_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            const passageiroNoTrecho =
+                await prisma
+                    .atividadeExternaTrechoPassageiro
+                    .findFirst({
+                        where: {
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrechoId:
+                                trechoVeiculo
+                                    .atividadeExternaTrechoId,
+
+                            participanteId:
+                                participante.id,
+                        },
+
+                        select: {
+                            id: true,
+
+                            trechoVeiculoId:
+                                true,
+                        },
+                    });
+
+            if (
+                passageiroNoTrecho
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PARTICIPANTE_JA_VINCULADO_AO_TRECHO",
+
+                        trechoVeiculoId:
+                            passageiroNoTrecho
+                                .trechoVeiculoId,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            const assentoTexto =
+                String(
+                    corpo?.assento || ""
+                ).trim();
+
+            const passageiro =
+                await prisma
+                    .atividadeExternaTrechoPassageiro
+                    .create({
+                        data: {
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrechoId:
+                                trechoVeiculo
+                                    .atividadeExternaTrechoId,
+
+                            trechoVeiculoId:
+                                trechoVeiculo.id,
+
+                            participanteId:
+                                participante.id,
+
+                            assento:
+                                assentoTexto ||
+                                null,
+
+                            criadoPorId:
+                                usuario.id,
+
+                            atualizadoPorId:
+                                usuario.id,
+                        },
+
+                        select: {
+                            id: true,
+
+                            atividadeExternaTrechoId:
+                                true,
+
+                            trechoVeiculoId:
+                                true,
+
+                            participanteId:
+                                true,
+
+                            assento: true,
+
+                            status: true,
+
+                            createdAt: true,
+
+                            updatedAt: true,
+
+                            participante: {
+                                select: {
+                                    id: true,
+
+                                    alunoId: true,
+
+                                    statusParticipacao:
+                                        true,
+
+                                    aluno: {
+                                        select: {
+                                            id: true,
+
+                                            nome: true,
+
+                                            nomeSocial:
+                                                true,
+
+                                            matricula:
+                                                true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    });
+
+            return NextResponse.json(
+                {
+                    ok: true,
+
+                    acao:
+                        "VINCULAR_PASSAGEIRO",
+
+                    passageiro,
+                },
+                {
+                    status: 201,
+                }
+            );
+        }
+
+                if (
+            acao ===
+            "VINCULAR_PASSAGEIRO"
+        ) {
+            const trechoVeiculoId =
+                Number(
+                    corpo?.trechoVeiculoId
+                );
+
+            if (
+                !Number.isInteger(
+                    trechoVeiculoId
+                ) ||
+                trechoVeiculoId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "TRECHO_VEICULO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const participanteId =
+                Number(
+                    corpo?.participanteId
+                );
+
+            if (
+                !Number.isInteger(
+                    participanteId
+                ) ||
+                participanteId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PARTICIPANTE_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const trechoVeiculo =
+                await prisma
+                    .atividadeExternaTrechoVeiculo
+                    .findFirst({
+                        where: {
+                            id:
+                                trechoVeiculoId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrecho: {
+                                atividadeExternaId:
+                                    atividade.id,
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            atividadeExternaTrechoId:
+                                true,
+
+                            veiculoId: true,
+
+                            capacidadePlanejada:
+                                true,
+                        },
+                    });
+
+            if (!trechoVeiculo) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "VEICULO_DO_TRECHO_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            const participante =
+                await prisma
+                    .atividadeExternaParticipante
+                    .findFirst({
+                        where: {
+                            id:
+                                participanteId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaId:
+                                atividade.id,
+                        },
+
+                        select: {
+                            id: true,
+
+                            alunoId: true,
+
+                            statusParticipacao:
+                                true,
+
+                            aluno: {
+                                select: {
+                                    id: true,
+
+                                    nome: true,
+
+                                    nomeSocial:
+                                        true,
+
+                                    matricula:
+                                        true,
+                                },
+                            },
+                        },
+                    });
+
+            if (!participante) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PARTICIPANTE_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            const passageiroNoTrecho =
+                await prisma
+                    .atividadeExternaTrechoPassageiro
+                    .findFirst({
+                        where: {
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrechoId:
+                                trechoVeiculo
+                                    .atividadeExternaTrechoId,
+
+                            participanteId:
+                                participante.id,
+                        },
+
+                        select: {
+                            id: true,
+
+                            trechoVeiculoId:
+                                true,
+                        },
+                    });
+
+            if (
+                passageiroNoTrecho
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "PARTICIPANTE_JA_VINCULADO_AO_TRECHO",
+
+                        trechoVeiculoId:
+                            passageiroNoTrecho
+                                .trechoVeiculoId,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            const assento =
+                limparTexto(
+                    corpo?.assento,
+                    50
+                );
+
+            const passageiro =
+                await prisma
+                    .atividadeExternaTrechoPassageiro
+                    .create({
+                        data: {
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrechoId:
+                                trechoVeiculo
+                                    .atividadeExternaTrechoId,
+
+                            trechoVeiculoId:
+                                trechoVeiculo.id,
+
+                            participanteId:
+                                participante.id,
+
+                            assento,
+
+                            criadoPorId:
+                                usuario.id,
+
+                            atualizadoPorId:
+                                usuario.id,
+                        },
+
+                        select: {
+                            id: true,
+
+                            atividadeExternaTrechoId:
+                                true,
+
+                            trechoVeiculoId:
+                                true,
+
+                            participanteId:
+                                true,
+
+                            assento: true,
+
+                            status: true,
+
+                            createdAt: true,
+
+                            updatedAt: true,
+
+                            participante: {
+                                select: {
+                                    id: true,
+
+                                    alunoId: true,
+
+                                    statusParticipacao:
+                                        true,
+
+                                    aluno: {
+                                        select: {
+                                            id: true,
+
+                                            nome: true,
+
+                                            nomeSocial:
+                                                true,
+
+                                            matricula:
+                                                true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    });
+
+            return NextResponse.json(
+                {
+                    ok: true,
+
+                    acao:
+                        "VINCULAR_PASSAGEIRO",
+
+                    passageiro,
+                },
+                {
+                    status: 201,
+                }
+            );
+        }
+
 
         const modalTexto =
 

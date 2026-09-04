@@ -1502,6 +1502,30 @@
         "SUPERVISOR_AUTONOMO": "Supervisor autônomo",
         "OUTRO": "Outro"
       }
+    },
+    "passengerAssignment": {
+      "title": "Passageiros",
+      "linkedPassengers": "Passageiros vinculados",
+      "noLinkedPassengers": "Nenhum passageiro vinculado a este veículo.",
+      "selectPassenger": "Selecione um participante",
+      "seat": "Assento",
+      "seatPlaceholder": "Ex.: 12A",
+      "linkPassenger": "Vincular passageiro",
+      "linkingPassenger": "Vinculando...",
+      "noPassengersAvailable": "Nenhum outro participante disponível para este trecho.",
+      "passengerLinked": "Passageiro vinculado ao veículo com sucesso.",
+      "passengerRequired": "Selecione um participante para vincular.",
+      "linkError": "Não foi possível vincular o passageiro ao veículo.",
+      "alreadyLinkedToSegment": "Este participante já está vinculado a outro veículo neste trecho.",
+      "status": {
+        "PLANEJADO": "Planejado",
+        "AGUARDANDO_EMBARQUE": "Aguardando embarque",
+        "EMBARCADO": "Embarcado",
+        "NAO_EMBARCOU": "Não embarcou",
+        "DESEMBARCADO": "Desembarcado",
+        "TRANSFERIDO": "Transferido",
+        "CANCELADO": "Cancelado"
+      }
     }
   },
   "ProfessorLayout": {
