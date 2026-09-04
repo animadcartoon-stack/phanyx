@@ -1501,7 +1501,15 @@
         "OPERADOR_REMOTO": "Opérateur à distance",
         "SUPERVISOR_AUTONOMO": "Superviseur autonome",
         "OUTRO": "Autre"
-      }
+      },
+      "removeDriver": "Retirer le conducteur",
+      "removingDriver": "Suppression...",
+      "driverRemoved": "Conducteur retiré du véhicule avec succès.",
+      "removeError": "Impossible de retirer le conducteur du véhicule.",
+      "cannotRemoveAfterOperation": "Ce conducteur ne peut plus être retiré car les opérations du véhicule ont déjà commencé.",
+      "removeQuestion": "Retirer ce conducteur du véhicule ?",
+      "confirmRemove": "Confirmer le retrait",
+      "cancelRemove": "Annuler"
     },
     "passengerAssignment": {
       "title": "Passagers",
@@ -5804,7 +5812,15 @@
     "reservationImmediateSuccess": "Réservation enregistrée avec succès. Un exemplaire est déjà disponible et a été réservé pour cet utilisateur.",
     "reservationQueueSuccess": "Réservation enregistrée avec succès. L’utilisateur a été ajouté à la file d’attente.",
     "reservationQueueSuccessWithPosition": "Réservation enregistrée avec succès. L’utilisateur occupe la position {position} dans la file d’attente.",
-    "reservationAction": "Réserver"
+    "reservationAction": "Réserver",
+    "reservationTitle": "Réserver un document",
+    "reservationDescription": "Sélectionnez la personne pour laquelle ce document sera réservé.",
+    "reservationAvailabilityHelp": "Si un exemplaire est disponible, il sera réservé immédiatement. Sinon, l’utilisateur sera ajouté à la file d’attente.",
+    "selectedReservationUser": "Utilisateur de la réservation",
+    "reservationNotes": "Observation de la réservation",
+    "reservationNotesPlaceholder": "Ajoutez une observation si nécessaire.",
+    "optionalReservationNote": "Champ facultatif.",
+    "registerReservationAction": "Confirmer la réservation"
   },
   "AdminCertificates": {
     "status": {

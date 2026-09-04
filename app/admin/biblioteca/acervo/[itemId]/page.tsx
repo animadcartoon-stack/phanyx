@@ -4506,6 +4506,267 @@ export default function BibliotecaItemPage() {
         </div>
       ) : null}
 
+            {modalReservaAberto ? (
+        <div className="bib-modal-backdrop" role="presentation">
+          <section
+            className="bib-modal bib-emprestimo-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-reserva-biblioteca"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  {ui("virtualLibrary")}
+                </span>
+
+                <h2 id="titulo-reserva-biblioteca">
+                  {ui("reservationTitle")}
+                </h2>
+
+                <p>{ui("reservationDescription")}</p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={fecharReserva}
+                disabled={registrandoReserva}
+                aria-label={ui("close")}
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              <div className="bib-feedback">
+                <div>
+                  <strong>
+                    {item?.titulo || ui("collectionItem")}
+                  </strong>
+
+                  <p>{ui("reservationAvailabilityHelp")}</p>
+                </div>
+              </div>
+
+              <label className="bib-field">
+                <span>{ui("searchPerson")}</span>
+
+                <input
+                  type="search"
+                  className="bib-input"
+                  value={buscaUsuarioReserva}
+                  onChange={(evento) => {
+                    setBuscaUsuarioReserva(
+                      evento.target.value
+                    );
+
+                    setUsuarioReservaSelecionado(
+                      null
+                    );
+                  }}
+                  placeholder={ui(
+                    "searchPersonPlaceholder"
+                  )}
+                  autoComplete="off"
+                  autoFocus
+                  disabled={registrandoReserva}
+                />
+
+                <small>{ui("searchMinChars")}</small>
+              </label>
+
+              {usuarioReservaSelecionado ? (
+                <div className="bib-feedback bib-feedback-success">
+                  <div>
+                    <strong>
+                      {ui("selectedReservationUser")}
+                    </strong>
+
+                    <p>
+                      {usuarioReservaSelecionado.nome}
+
+                      {" · "}
+
+                      {rotuloEnumLocalizado(
+                        usuarioReservaSelecionado.tipo
+                      )}
+
+                      {usuarioReservaSelecionado.identificador
+                        ? ` · ${
+                            usuarioReservaSelecionado.tipo ===
+                            "ALUNO"
+                              ? ui("enrollment")
+                              : ui("code")
+                          } ${
+                            usuarioReservaSelecionado.identificador
+                          }`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
+              {usuarioReservaSelecionado ? (
+                <label className="bib-field">
+                  <span>{ui("reservationNotes")}</span>
+
+                  <textarea
+                    className="bib-input bib-textarea"
+                    value={observacaoReserva}
+                    onChange={(evento) =>
+                      setObservacaoReserva(
+                        evento.target.value
+                      )
+                    }
+                    maxLength={5_000}
+                    disabled={registrandoReserva}
+                    placeholder={ui(
+                      "reservationNotesPlaceholder"
+                    )}
+                  />
+
+                  <small>
+                    {ui("optionalReservationNote")}
+                  </small>
+                </label>
+              ) : null}
+
+              {buscandoUsuariosReserva ? (
+                <div className="bib-compact-empty">
+                  {ui("searchingPeople")}
+                </div>
+              ) : null}
+
+              {erroBuscaUsuariosReserva ? (
+                <div className="bib-feedback bib-feedback-danger">
+                  <div>
+                    <strong>{ui("searchFailed")}</strong>
+
+                    <p>{erroBuscaUsuariosReserva}</p>
+                  </div>
+                </div>
+              ) : null}
+
+              {!buscandoUsuariosReserva &&
+              buscaUsuarioReserva.trim().length >= 2 &&
+              !erroBuscaUsuariosReserva &&
+              usuariosReserva.length === 0 ? (
+                <div className="bib-compact-empty">
+                  {ui("noPeopleFound")}
+                </div>
+              ) : null}
+
+              {!buscandoUsuariosReserva &&
+              usuariosReserva.length > 0 ? (
+                <div className="bib-related-list">
+                  {usuariosReserva.map(
+                    (usuarioBusca) => (
+                      <div
+                        className="bib-related-row"
+                        key={usuarioBusca.id}
+                      >
+                        <span aria-hidden="true">
+                          {usuarioBusca.tipo === "ALUNO"
+                            ? "🎓"
+                            : usuarioBusca.tipo ===
+                                "PROFESSOR"
+                              ? "👨‍🏫"
+                              : "👤"}
+                        </span>
+
+                        <div>
+                          <strong>
+                            {usuarioBusca.nome}
+                          </strong>
+
+                          <small>
+                            {rotuloEnumLocalizado(
+                              usuarioBusca.tipo
+                            )}
+
+                            {usuarioBusca.identificador
+                              ? ` · ${
+                                  usuarioBusca.tipo ===
+                                  "ALUNO"
+                                    ? ui("enrollment")
+                                    : ui("code")
+                                } ${
+                                  usuarioBusca.identificador
+                                }`
+                              : ""}
+
+                            {usuarioBusca.cpfMascarado
+                              ? ` · CPF ${usuarioBusca.cpfMascarado}`
+                              : ""}
+                          </small>
+
+                          <small>
+                            {usuarioBusca.email}
+
+                            {usuarioBusca.cargo
+                              ? ` · ${usuarioBusca.cargo}`
+                              : ""}
+                          </small>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="bib-button bib-button-secondary"
+                          onClick={() =>
+                            setUsuarioReservaSelecionado(
+                              usuarioBusca
+                            )
+                          }
+                          disabled={
+                            registrandoReserva
+                          }
+                        >
+                          {usuarioReservaSelecionado
+                            ?.id === usuarioBusca.id
+                            ? ui("selected")
+                            : ui("select")}
+                        </button>
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : null}
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-secondary"
+                onClick={fecharReserva}
+                disabled={registrandoReserva}
+              >
+                {ui("cancel")}
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-primary"
+                onClick={() =>
+                  void registrarReserva()
+                }
+                disabled={
+                  registrandoReserva ||
+                  !usuarioReservaSelecionado
+                }
+              >
+                {registrandoReserva
+                  ? ui("registering")
+                  : ui(
+                      "registerReservationAction"
+                    )}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+
+
       {exemplarParaDevolucao ? (
         <div className="bib-modal-backdrop" role="presentation">
           <section

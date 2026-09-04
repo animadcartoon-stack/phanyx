@@ -2348,6 +2348,140 @@ export async function POST(
             });
         }
 
+                if (
+            acao ===
+            "DESVINCULAR_CONDUTOR"
+        ) {
+            const atribuicaoCondutorId =
+                Number(
+                    corpo?.atribuicaoCondutorId
+                );
+
+            if (
+                !Number.isInteger(
+                    atribuicaoCondutorId
+                ) ||
+                atribuicaoCondutorId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "ATRIBUICAO_CONDUTOR_INVALIDA",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const atribuicao =
+                await prisma
+                    .atividadeExternaTrechoVeiculoCondutor
+                    .findFirst({
+                        where: {
+                            id:
+                                atribuicaoCondutorId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            trechoVeiculo: {
+                                atividadeExternaTrecho: {
+                                    atividadeExternaId:
+                                        atividade.id,
+                                },
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            trechoVeiculoId:
+                                true,
+
+                            condutorId:
+                                true,
+
+                            papel: true,
+
+                            trechoVeiculo: {
+                                select: {
+                                    id: true,
+
+                                    status:
+                                        true,
+                                },
+                            },
+                        },
+                    });
+
+            if (!atribuicao) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "ATRIBUICAO_CONDUTOR_NAO_ENCONTRADA",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            if (
+                atribuicao
+                    .trechoVeiculo
+                    .status !==
+                "PLANEJADO"
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "CONDUTOR_NAO_PODE_SER_DESVINCULADO",
+
+                        statusAtual:
+                            atribuicao
+                                .trechoVeiculo
+                                .status,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            await prisma
+                .atividadeExternaTrechoVeiculoCondutor
+                .delete({
+                    where: {
+                        id:
+                            atribuicao.id,
+                    },
+                });
+
+            return NextResponse.json({
+                ok: true,
+
+                acao:
+                    "DESVINCULAR_CONDUTOR",
+
+                atribuicaoCondutorId:
+                    atribuicao.id,
+
+                trechoVeiculoId:
+                    atribuicao
+                        .trechoVeiculoId,
+
+                condutorId:
+                    atribuicao
+                        .condutorId,
+            });
+        }
+
 
         const modalTexto =
 

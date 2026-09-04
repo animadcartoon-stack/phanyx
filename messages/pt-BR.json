@@ -1501,7 +1501,15 @@
         "OPERADOR_REMOTO": "Operador remoto",
         "SUPERVISOR_AUTONOMO": "Supervisor autônomo",
         "OUTRO": "Outro"
-      }
+      },
+      "removeDriver": "Remover condutor",
+      "removingDriver": "Removendo...",
+      "driverRemoved": "Condutor removido do veículo com sucesso.",
+      "removeError": "Não foi possível remover o condutor do veículo.",
+      "cannotRemoveAfterOperation": "Este condutor não pode mais ser removido porque a operação do veículo já foi iniciada.",
+      "removeQuestion": "Remover este condutor do veículo?",
+      "confirmRemove": "Confirmar remoção",
+      "cancelRemove": "Cancelar"
     },
     "passengerAssignment": {
       "title": "Passageiros",
@@ -5804,7 +5812,15 @@
     "reservationImmediateSuccess": "Reserva registrada com sucesso. Um exemplar já está disponível e foi separado para este usuário.",
     "reservationQueueSuccess": "Reserva registrada com sucesso. O usuário foi incluído na fila de espera.",
     "reservationQueueSuccessWithPosition": "Reserva registrada com sucesso. O usuário ocupa a posição {position} na fila de espera.",
-    "reservationAction": "Reservar"
+    "reservationAction": "Reservar",
+    "reservationTitle": "Reservar item",
+    "reservationDescription": "Selecione a pessoa para quem este item será reservado.",
+    "reservationAvailabilityHelp": "Se houver um exemplar disponível, ele será separado imediatamente. Caso contrário, o usuário entrará na fila de espera.",
+    "selectedReservationUser": "Usuário da reserva",
+    "reservationNotes": "Observação da reserva",
+    "reservationNotesPlaceholder": "Adicione uma observação, se necessário.",
+    "optionalReservationNote": "Campo opcional.",
+    "registerReservationAction": "Confirmar reserva"
   },
   "AdminCertificates": {
     "status": {
