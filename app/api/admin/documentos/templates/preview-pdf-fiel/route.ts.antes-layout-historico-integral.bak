@@ -59,32 +59,7 @@ async function imagemParaDataUri(
 }
 
 function substituirExemplos(texto: string, config: any) {
-  const blocoInstituicao =
-    [
-      config?.nomeFantasia ||
-      "Instituição Exemplo",
-
-      config?.cnpj
-        ? `CNPJ: ${config.cnpj}`
-        : "",
-
-      config?.endereco ||
-      "",
-
-      [
-        config?.telefone ||
-        "",
-        config?.email ||
-        "",
-      ]
-        .filter(Boolean)
-        .join(" • "),
-    ]
-      .filter(Boolean)
-      .join("\n");
-
   const valores: Record<string, string> = {
-    blocoInstituicao,
     logoInstituicao:
       "__PHANYX_LOGO_INSTITUICAO__",
     nomeInstituicao: config?.nomeFantasia || "Instituição Exemplo",
@@ -331,71 +306,73 @@ export async function POST(
           "<p$1><br /></p>"
         );
 
-    const ehHistorico =
-      String(
-        body?.tipo ||
-        ""
-      ).toUpperCase() ===
-      "HISTORICO";
-
     /*
-     * Estes registros são SOMENTE dados de demonstração da prévia.
-     * O documento final deverá chamar o mesmo compositor com os
-     * registros acadêmicos reais do aluno.
+     * HISTÓRICO:
+     * A prévia usa o MESMO compositor estruturado que será
+     * utilizado pelo documento final do aluno. Os dados abaixo
+     * são apenas demonstrativos; o motor visual é compartilhado.
      */
-    const componentesPreviaHistorico =
-      ehHistorico
-        ? [
-          {
-            codigo: "TEO-101",
-            disciplina:
-              "Antigo Testamento A",
-            cargaHoraria: "96h",
-            nota: "8,5",
-            frequencia: "82%",
-            situacao: "Aprovada",
-            periodo: "2026.1",
-            turma: "Turma 2026.01",
-            tipo: "Obrigatória",
-          },
-          {
-            codigo: "TEO-102",
-            disciplina:
-              "Novo Testamento A",
-            cargaHoraria: "96h",
-            nota: "9,0",
-            frequencia: "88%",
-            situacao: "Aprovada",
-            periodo: "2026.1",
-            turma: "Turma 2026.01",
-            tipo: "Obrigatória",
-          },
-          {
-            codigo: "TEO-205",
-            disciplina:
-              "Teologia Bíblica",
-            cargaHoraria: "64h",
-            nota: "-",
-            frequencia: "74%",
-            situacao: "Em curso",
-            periodo: "2026.2",
-            turma: "Turma 2026.02",
-            tipo: "Obrigatória",
-          },
-          {
-            codigo: "TEO-220",
-            disciplina:
-              "Atividade Extracurricular 1",
-            cargaHoraria: "32h",
-            nota: "-",
-            frequencia: "-",
-            situacao: "Cancelada",
-            periodo: "2026.2",
-            turma: "Turma anterior",
-            tipo: "Extracurricular",
-          },
-        ]
-        : [];
+    if (
+      String(body?.tipo || "").toUpperCase() ===
+      "HISTORICO"
+    ) {
+      conteudoHtml =
+        montarConteudoHistoricoAcademico({
+          conteudoEstruturado:
+            conteudoHtml,
+
+          componentes: [
+            {
+              codigo: "TEO-101",
+              disciplina:
+                "Antigo Testamento A",
+              cargaHoraria: "96h",
+              nota: "8,5",
+              frequencia: "82%",
+              situacao: "Aprovada",
+              periodo: "2026.1",
+              turma: "Turma 2026.01",
+              tipo: "Obrigatória",
+            },
+            {
+              codigo: "TEO-102",
+              disciplina:
+                "Novo Testamento A",
+              cargaHoraria: "96h",
+              nota: "9,0",
+              frequencia: "88%",
+              situacao: "Aprovada",
+              periodo: "2026.1",
+              turma: "Turma 2026.01",
+              tipo: "Obrigatória",
+            },
+            {
+              codigo: "TEO-205",
+              disciplina:
+                "Teologia Bíblica",
+              cargaHoraria: "64h",
+              nota: "-",
+              frequencia: "74%",
+              situacao: "Em curso",
+              periodo: "2026.2",
+              turma: "Turma 2026.02",
+              tipo: "Obrigatória",
+            },
+            {
+              codigo: "TEO-220",
+              disciplina:
+                "Atividade Extracurricular 1",
+              cargaHoraria: "32h",
+              nota: "-",
+              frequencia: "-",
+              situacao: "Cancelada",
+              periodo: "2026.2",
+              turma: "Turma anterior",
+              tipo: "Extracurricular",
+            },
+          ],
+        });
+    }
 
     const modoLogo =
       String(
@@ -427,13 +404,9 @@ export async function POST(
          * o layout efetivamente usado pelo renderizador.
          */
         estiloDocumento:
-          ehHistorico
-            ? "INSTITUCIONAL"
-            : (
-              config?.estiloDocumento ||
-              config?.estiloPapelTimbrado ||
-              "INSTITUCIONAL"
-            ),
+          config?.estiloDocumento ||
+          config?.estiloPapelTimbrado ||
+          "INSTITUCIONAL",
 
         fallbackLogoUrl:
           config?.logoUrl ||
@@ -494,36 +467,6 @@ export async function POST(
         }
       );
 
-    /*
-     * O Histórico monta cabeçalho, rodapé e validação dentro
-     * do próprio conteúdo. Assim a prévia não recebe uma segunda
-     * faixa institucional por fora e o QR Code não é empurrado
-     * sozinho para outra página.
-     */
-    if (ehHistorico) {
-      conteudoHtml =
-        montarConteudoHistoricoAcademico({
-          conteudoEstruturado:
-            conteudoHtml,
-
-          componentes:
-            componentesPreviaHistorico,
-
-          validacao: {
-            codigo:
-              codigoPrevia,
-
-            emitidoEm:
-              new Date()
-                .toLocaleString(
-                  "pt-BR"
-                ),
-
-            qrCodeDataUri,
-          },
-        });
-    }
-
     const formatoImpressao =
       body?.formatoImpressao ===
         "DUAS_VIAS_A4"
@@ -541,15 +484,7 @@ export async function POST(
 
         modoPrevia: true,
 
-        /*
-         * No Histórico a validação já foi integrada ao rodapé
-         * estruturado pelo compositor específico.
-         */
-        mostrarValidacao:
-          !ehHistorico,
-
-        layoutConteudoIntegral:
-          ehHistorico,
+        mostrarValidacao: true,
 
         instituicao: {
           nome:

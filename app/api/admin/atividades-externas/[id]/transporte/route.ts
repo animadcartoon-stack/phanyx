@@ -346,11 +346,12 @@ export async function GET(
             );
         }
 
-        const [
+                const [
             trechos,
             prestadores,
             veiculos,
             condutores,
+            participantes,
         ] = await Promise.all([
             prisma.atividadeExternaTrecho.findMany({
                 where: {
@@ -824,6 +825,57 @@ export async function GET(
                     nome: "asc",
                 },
             }),
+                        prisma.atividadeExternaParticipante.findMany({
+                where: {
+                    instituicaoId:
+                        usuario.instituicaoId,
+
+                    atividadeExternaId:
+                        atividade.id,
+                },
+
+                select: {
+                    id: true,
+
+                    alunoId: true,
+
+                    statusParticipacao:
+                        true,
+
+                    statusPresenca:
+                        true,
+
+                    grupoNome: true,
+
+                    aluno: {
+                        select: {
+                            id: true,
+
+                            nome: true,
+
+                            nomeSocial: true,
+
+                            matricula: true,
+
+                            ativo: true,
+
+                            statusAluno:
+                                true,
+                        },
+                    },
+                },
+
+                orderBy: [
+                    {
+                        aluno: {
+                            nome: "asc",
+                        },
+                    },
+                    {
+                        id: "asc",
+                    },
+                ],
+            }),
         ]);
 
         const veiculoIds =
@@ -908,10 +960,11 @@ export async function GET(
 
             trechos,
 
-            opcoes: {
+                        opcoes: {
                 prestadores,
                 veiculos,
                 condutores,
+                participantes,
             },
         });
     } catch (error) {

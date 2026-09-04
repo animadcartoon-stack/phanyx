@@ -3,7 +3,6 @@ import {
   CondicaoDevolucaoBiblioteca,
   StatusEmprestimoBiblioteca,
   StatusExemplarBiblioteca,
-  StatusReservaBiblioteca,
 } from "@prisma/client";
 
 import {
@@ -818,248 +817,6 @@ multaLancamentoFinanceiroId:
                 },
               });
 
-              /*
- * Se o exemplar voltou apto para circulação,
- * verifica a fila de reservas deste item.
- *
- * NORMAL e DESGASTE resultam em DISPONIVEL.
- * Exemplares danificados, incompletos ou
- * perdidos não atendem a fila.
- */
-let statusExemplarFinal:
-  StatusExemplarBiblioteca =
-    estados.statusExemplar;
-
-let reservaDisponibilizadaId:
-  number | null = null;
-
-if (
-  estados.statusExemplar ===
-  StatusExemplarBiblioteca.DISPONIVEL
-) {
-  const proximaReserva =
-    await transacao
-      .bibliotecaReserva
-      .findFirst({
-        where: {
-          instituicaoId:
-            contexto.instituicaoId,
-
-          itemId:
-            exemplar.itemId,
-
-          status:
-            StatusReservaBiblioteca.AGUARDANDO,
-
-          OR: [
-            {
-              exemplarId: null,
-            },
-            {
-              exemplarId:
-                exemplar.id,
-            },
-          ],
-        },
-
-        orderBy: [
-          {
-            posicaoFila:
-              "asc",
-          },
-          {
-            reservadaEm:
-              "asc",
-          },
-          {
-            id:
-              "asc",
-          },
-        ],
-
-        select: {
-          id: true,
-          usuarioId: true,
-          posicaoFila: true,
-        },
-      });
-
-  if (proximaReserva) {
-    const configuracaoReserva =
-      await transacao
-        .bibliotecaConfiguracao
-        .findUnique({
-          where: {
-            instituicaoId:
-              contexto.instituicaoId,
-          },
-
-          select: {
-            diasReservaPadrao:
-              true,
-          },
-        });
-
-    const diasReserva =
-      Math.max(
-        0,
-        configuracaoReserva
-          ?.diasReservaPadrao ??
-          0
-      );
-
-    const expiraEm =
-      diasReserva > 0
-        ? new Date(
-            agora.getTime() +
-              diasReserva *
-                24 *
-                60 *
-                60 *
-                1000
-          )
-        : null;
-
-    await transacao
-      .bibliotecaReserva
-      .update({
-        where: {
-          id:
-            proximaReserva.id,
-        },
-
-        data: {
-          status:
-            StatusReservaBiblioteca.DISPONIVEL,
-
-          exemplarId:
-            exemplar.id,
-
-          posicaoFila:
-            null,
-
-          disponivelEm:
-            agora,
-
-          expiraEm,
-        },
-      });
-
-    /*
-     * Fecha o espaço deixado na fila.
-     */
-    if (
-      proximaReserva.posicaoFila !==
-      null
-    ) {
-      await transacao
-        .bibliotecaReserva
-        .updateMany({
-          where: {
-            instituicaoId:
-              contexto.instituicaoId,
-
-            itemId:
-              exemplar.itemId,
-
-            status:
-              StatusReservaBiblioteca.AGUARDANDO,
-
-            posicaoFila: {
-              gt:
-                proximaReserva
-                  .posicaoFila,
-            },
-          },
-
-          data: {
-            posicaoFila: {
-              decrement: 1,
-            },
-          },
-        });
-    }
-
-    statusExemplarFinal =
-      StatusExemplarBiblioteca.RESERVADO;
-
-    reservaDisponibilizadaId =
-      proximaReserva.id;
-
-    await transacao
-      .bibliotecaAuditoria
-      .create({
-        data: {
-          instituicaoId:
-            contexto.instituicaoId,
-
-          usuarioId:
-            usuario.id,
-
-          entidade:
-            "BibliotecaReserva",
-
-          entidadeId:
-            String(
-              proximaReserva.id
-            ),
-
-          acao:
-            AcaoAuditoriaBiblioteca.RESERVAR,
-
-          descricao:
-            "Reserva disponibilizada automaticamente após devolução de exemplar.",
-
-          dadosAnteriores: {
-            status:
-              StatusReservaBiblioteca.AGUARDANDO,
-
-            posicaoFila:
-              proximaReserva
-                .posicaoFila,
-          },
-
-          dadosPosteriores: {
-            status:
-              StatusReservaBiblioteca.DISPONIVEL,
-
-            exemplarId:
-              exemplar.id,
-
-            disponivelEm:
-              agora.toISOString(),
-
-            expiraEm:
-              expiraEm
-                ?.toISOString() ??
-              null,
-          },
-
-          metadados: {
-            origem:
-              "api_admin_biblioteca_exemplar_devolver",
-
-            itemId:
-              exemplar.itemId,
-
-            exemplarId:
-              exemplar.id,
-
-            emprestimoId:
-              emprestimo.id,
-
-            usuarioReservaId:
-              proximaReserva
-                .usuarioId,
-          },
-
-          ip,
-          userAgent,
-        },
-      });
-  }
-}
-
           const exemplarAtualizado =
             await transacao
               .bibliotecaExemplar
@@ -1071,7 +828,7 @@ if (
 
                 data: {
                   status:
-  statusExemplarFinal,
+                    estados.statusExemplar,
 
                   atualizadoPorId:
                     usuario.id,
@@ -1127,7 +884,7 @@ if (
                     estados.statusEmprestimo,
 
                   exemplarStatus:
-  statusExemplarFinal,
+                    estados.statusExemplar,
 
                   devolvidoEm:
                     agora.toISOString(),
@@ -1203,14 +960,6 @@ multaLancamentoFinanceiroId,
     lancamentoFinanceiroId:
       multaLancamentoFinanceiroId,
   },
-
-  reserva: {
-    disponibilizada:
-      reservaDisponibilizadaId !== null,
-
-    reservaId:
-      reservaDisponibilizadaId,
-  },
 };
         },
         {
@@ -1219,24 +968,21 @@ multaLancamentoFinanceiroId,
         }
       );
 
-   return responder({
-  ok: true,
+    return responder({
+      ok: true,
 
-  mensagem:
-    "Devolução registrada com sucesso.",
+      mensagem:
+        "Devolução registrada com sucesso.",
 
-  emprestimo:
-    resultado.emprestimo,
+      emprestimo:
+        resultado.emprestimo,
 
-  exemplar:
-    resultado.exemplar,
+      exemplar:
+        resultado.exemplar,
 
-  multa:
-    resultado.multa,
-
-  reserva:
-    resultado.reserva,
-});
+        multa:
+  resultado.multa,
+    });
   } catch (erro) {
     return responderErro(
       erro

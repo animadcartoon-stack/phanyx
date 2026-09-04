@@ -1,9 +1,6 @@
 import {
   sanitizarHtmlDocumento,
 } from "@/lib/documentos/renderizador-template-documento";
-import type {
-  DadosValidacaoDocumento,
-} from "@/lib/documentos/renderizador-template-documento";
 
 export type ComponenteHistoricoAcademico = {
   codigo?: string | null;
@@ -24,7 +21,6 @@ export type ComponenteHistoricoAcademico = {
 export type OpcoesHistoricoAcademico = {
   conteudoEstruturado: string;
   componentes?: ComponenteHistoricoAcademico[];
-  validacao?: DadosValidacaoDocumento | null;
 };
 
 const MARCADORES = [
@@ -121,48 +117,6 @@ function formatarValorTabela(
   return String(valor);
 }
 
-function montarValidacaoHistorico(
-  validacao?: DadosValidacaoDocumento | null
-) {
-  if (!validacao) {
-    return "";
-  }
-
-  return `
-    <div class="phanyx-historico-validacao">
-      <div class="phanyx-historico-validacao-texto">
-        <strong>VALIDAÇÃO DO DOCUMENTO</strong>
-
-        <span>
-          Código:
-          ${escaparHtml(validacao.codigo)}
-        </span>
-
-        <span>
-          Emitido em:
-          ${escaparHtml(validacao.emitidoEm)}
-        </span>
-
-        <span>
-          Documento gerado pelo PHANYX
-        </span>
-      </div>
-
-      ${
-        validacao.qrCodeDataUri
-          ? `
-            <img
-              class="phanyx-historico-validacao-qr"
-              src="${escaparHtml(validacao.qrCodeDataUri)}"
-              alt="QR Code de validação"
-            />
-          `
-          : ""
-      }
-    </div>
-  `;
-}
-
 function montarTabelaComponentes(
   componentes: ComponenteHistoricoAcademico[]
 ) {
@@ -242,7 +196,6 @@ function limparLogoDaSecao(valor: string) {
 export function montarConteudoHistoricoAcademico({
   conteudoEstruturado,
   componentes = [],
-  validacao = null,
 }: OpcoesHistoricoAcademico) {
   const conteudo = String(
     conteudoEstruturado || ""
@@ -521,49 +474,10 @@ export function montarConteudoHistoricoAcademico({
       .phanyx-historico-rodape {
         margin-top: 3mm;
         min-height: 10mm;
-        padding: 2.5mm 3mm;
         font-size: 7pt;
-        text-align: left;
+        text-align: center;
         break-inside: avoid;
         page-break-inside: avoid;
-      }
-
-      .phanyx-historico-rodape-texto {
-        text-align: center;
-      }
-
-      .phanyx-historico-validacao {
-        display: flex;
-        width: 100%;
-        min-height: 18mm;
-        margin-top: 2.5mm;
-        padding-top: 2.5mm;
-        align-items: center;
-        justify-content: space-between;
-        gap: 4mm;
-        border-top: 0.3mm solid #cbd5e1;
-      }
-
-      .phanyx-historico-validacao-texto {
-        display: flex;
-        min-width: 0;
-        flex: 1;
-        flex-direction: column;
-        gap: 0.7mm;
-        color: #475569;
-        font-size: 6.5pt;
-        line-height: 1.2;
-      }
-
-      .phanyx-historico-validacao-texto strong {
-        color: #1e3a5f;
-        font-size: 7pt;
-      }
-
-      .phanyx-historico-validacao-qr {
-        width: 16mm;
-        height: 16mm;
-        flex-shrink: 0;
       }
 
       .phanyx-historico-sem-componentes {
@@ -656,20 +570,10 @@ export function montarConteudoHistoricoAcademico({
       </div>
 
       ${
-        rodape || validacao
+        rodape
           ? `
             <footer class="phanyx-historico-rodape">
-              ${
-                rodape
-                  ? `
-                    <div class="phanyx-historico-rodape-texto">
-                      ${textoParaHtml(rodape)}
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${montarValidacaoHistorico(validacao)}
+              ${textoParaHtml(rodape)}
             </footer>
           `
           : ""

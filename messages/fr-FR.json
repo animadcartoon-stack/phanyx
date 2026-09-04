@@ -5765,7 +5765,9 @@
     "enumStudent": "Élève",
     "enumTeacher": "Enseignant",
     "enumEmployee": "Employé",
-    "returnSuccessWithFine": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances."
+    "returnSuccessWithFine": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances.",
+    "returnSuccessWithReservation": "Retour enregistré avec succès. L’exemplaire a été réservé pour le prochain utilisateur de la file d’attente.",
+    "returnSuccessWithFineAndReservation": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances et l’exemplaire a été réservé pour le prochain utilisateur de la file d’attente."
   },
   "AdminCertificates": {
     "status": {

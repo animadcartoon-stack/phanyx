@@ -57,16 +57,6 @@ export type OpcoesRenderizacaoDocumento = {
 
   mostrarValidacao?: boolean;
 
-  /**
-   * Quando true, o próprio conteúdo monta seu cabeçalho,
-   * rodapé institucional e bloco de validação.
-   *
-   * O renderizador geral mantém somente uma paginação mínima
-   * no rodapé do Chromium, sem reservar as faixas grandes do
-   * layout padrão.
-   */
-  layoutConteudoIntegral?: boolean;
-
   camposVisuais?:
   CampoVisualDocumento[] | null;
 };
@@ -1151,35 +1141,6 @@ function montarFooterTemplate(
   `;
 }
 
-function montarFooterPaginacaoSimples() {
-  return `
-    <div
-      style="
-        width: 100%;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 0 18mm 1.5mm;
-        color: #64748b;
-        font-family:
-          Arial,
-          Helvetica,
-          sans-serif;
-        font-size: 6.5pt;
-        line-height: 1;
-      "
-    >
-      <span>
-        Página
-        <span class="pageNumber"></span>
-        de
-        <span class="totalPages"></span>
-      </span>
-    </div>
-  `;
-}
-
 function cssCompartilhado(
   formatoImpressao:
     FormatoImpressaoDocumento
@@ -1980,13 +1941,6 @@ export function montarRenderizacaoDocumento(
     opcoes.mostrarValidacao !==
     false;
 
-  const layoutConteudoIntegral =
-    Boolean(
-      opcoes.layoutConteudoIntegral
-    ) &&
-    formatoImpressao ===
-      "A4_INTEIRA";
-
   let conteudo =
     sanitizarHtmlDocumento(
       opcoes.conteudo
@@ -2035,18 +1989,14 @@ export function montarRenderizacaoDocumento(
     );
 
   const headerTemplate =
-    layoutConteudoIntegral
-      ? "<div></div>"
-      : montarHeaderTemplate(
-          opcoes.instituicao
-        );
+    montarHeaderTemplate(
+      opcoes.instituicao
+    );
 
   const footerTemplate =
-    layoutConteudoIntegral
-      ? montarFooterPaginacaoSimples()
-      : montarFooterTemplate(
-          opcoes.instituicao
-        );
+    montarFooterTemplate(
+      opcoes.instituicao
+    );
 
   const papelA4 =
     montarPapelTimbrado(
@@ -2169,26 +2119,17 @@ export function montarRenderizacaoDocumento(
 
       displayHeaderFooter:
         !duasVias &&
-        (
-          layoutConteudoIntegral ||
-          !papelProprio
-        ),
+        !papelProprio,
 
       headerTemplate:
         duasVias ||
-          (
-            papelProprio &&
-            !layoutConteudoIntegral
-          )
+          papelProprio
           ? "<div></div>"
           : headerTemplate,
 
       footerTemplate:
         duasVias ||
-          (
-            papelProprio &&
-            !layoutConteudoIntegral
-          )
+          papelProprio
           ? "<div></div>"
           : footerTemplate,
 
@@ -2200,19 +2141,12 @@ export function montarRenderizacaoDocumento(
             bottom: "0",
             left: "0",
           }
-          : layoutConteudoIntegral
-            ? {
-              top: "8mm",
-              right: `${MARGEM_LATERAL_MM}mm`,
-              bottom: "10mm",
-              left: `${MARGEM_LATERAL_MM}mm`,
-            }
-            : {
-              top: `${ALTURA_CABECALHO_MM}mm`,
-              right: `${MARGEM_LATERAL_MM}mm`,
-              bottom: `${ALTURA_RODAPE_MM}mm`,
-              left: `${MARGEM_LATERAL_MM}mm`,
-            },
+          : {
+            top: `${ALTURA_CABECALHO_MM}mm`,
+            right: `${MARGEM_LATERAL_MM}mm`,
+            bottom: `${ALTURA_RODAPE_MM}mm`,
+            left: `${MARGEM_LATERAL_MM}mm`,
+          },
 
       scale: 1,
     },

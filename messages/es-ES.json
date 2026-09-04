@@ -5765,7 +5765,9 @@
     "enumStudent": "Alumno",
     "enumTeacher": "Profesor",
     "enumEmployee": "Empleado",
-    "returnSuccessWithFine": "Devolución registrada correctamente. Se generó una multa de {amount} en Finanzas."
+    "returnSuccessWithFine": "Devolución registrada correctamente. Se generó una multa de {amount} en Finanzas.",
+    "returnSuccessWithReservation": "Devolución registrada correctamente. El ejemplar fue reservado para el siguiente usuario de la cola.",
+    "returnSuccessWithFineAndReservation": "Devolución registrada correctamente. Se generó una multa de {amount} en Finanzas y el ejemplar fue reservado para el siguiente usuario de la cola."
   },
   "AdminCertificates": {
     "status": {

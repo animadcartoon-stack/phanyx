@@ -5766,7 +5766,9 @@
     "enumStudent": "Student",
     "enumTeacher": "Teacher",
     "enumEmployee": "Employee",
-    "returnSuccessWithFine": "Return registered successfully. A fine of {amount} was generated in Finance."
+    "returnSuccessWithFine": "Return registered successfully. A fine of {amount} was generated in Finance.",
+    "returnSuccessWithReservation": "Return registered successfully. The copy was reserved for the next user in the queue.",
+    "returnSuccessWithFineAndReservation": "Return registered successfully. A fine of {amount} was generated in Finance and the copy was reserved for the next user in the queue."
   },
   "AdminCertificates": {
     "status": {

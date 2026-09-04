@@ -5765,7 +5765,9 @@
     "enumStudent": "Aluno",
     "enumTeacher": "Professor",
     "enumEmployee": "Funcionário",
-    "returnSuccessWithFine": "Devolução registrada com sucesso. Multa de {amount} gerada no Financeiro."
+    "returnSuccessWithFine": "Devolução registrada com sucesso. Multa de {amount} gerada no Financeiro.",
+    "returnSuccessWithReservation": "Devolução registrada com sucesso. O exemplar foi reservado para o próximo usuário da fila.",
+    "returnSuccessWithFineAndReservation": "Devolução registrada com sucesso. Multa de {amount} gerada no Financeiro e o exemplar foi reservado para o próximo usuário da fila."
   },
   "AdminCertificates": {
     "status": {
