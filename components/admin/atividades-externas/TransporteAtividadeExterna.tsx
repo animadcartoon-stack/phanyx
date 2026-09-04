@@ -102,6 +102,16 @@ type Trecho = {
         tipo: string;
       };
     }>;
+
+    passageiros: Array<{
+      id: number;
+      participanteId: number;
+      assento?: string | null;
+      status: string;
+      embarcadoEm?: string | null;
+      desembarcadoEm?: string | null;
+      observacao?: string | null;
+    }>;
   }>;
 
   passageiros: Array<{
@@ -142,6 +152,23 @@ type RespostaApi = {
       id: number;
       nome: string;
       tipo: string;
+    }>;
+
+    participantes: Array<{
+      id: number;
+      alunoId: number;
+      statusParticipacao: string;
+      statusPresenca: string;
+      grupoNome?: string | null;
+
+      aluno: {
+        id: number;
+        nome: string;
+        nomeSocial?: string | null;
+        matricula?: string | null;
+        ativo: boolean;
+        statusAluno: string;
+      };
     }>;
   };
 
@@ -398,6 +425,24 @@ export default function TransporteAtividadeExterna({
     RespostaApi["opcoes"]["condutores"]
   >([]);
 
+  const [participantesDisponiveis, setParticipantesDisponiveis] = useState<
+    RespostaApi["opcoes"]["participantes"]
+  >([]);
+
+  const [
+    participanteSelecionadoPorTrechoVeiculo,
+    setParticipanteSelecionadoPorTrechoVeiculo,
+  ] = useState<Record<number, string>>({});
+
+  const [assentoPorTrechoVeiculo, setAssentoPorTrechoVeiculo] = useState<
+    Record<number, string>
+  >({});
+
+  const [
+    vinculandoPassageiroTrechoVeiculoId,
+    setVinculandoPassageiroTrechoVeiculoId,
+  ] = useState<number | null>(null);
+
   const [
     condutorSelecionadoPorTrechoVeiculo,
     setCondutorSelecionadoPorTrechoVeiculo,
@@ -465,6 +510,8 @@ export default function TransporteAtividadeExterna({
       setVeiculosDisponiveis(dados.opcoes?.veiculos || []);
 
       setCondutoresDisponiveis(dados.opcoes?.condutores || []);
+
+      setParticipantesDisponiveis(dados.opcoes?.participantes || []);
 
       setResumo({
         totalTrechos: dados.resumo?.totalTrechos || 0,
@@ -621,6 +668,144 @@ export default function TransporteAtividadeExterna({
       setErro(t("driverAssignment.linkError"));
     } finally {
       setVinculandoCondutorTrechoVeiculoId(null);
+    }
+  }
+
+    async function vincularPassageiro(
+    trechoVeiculoId: number
+  ) {
+    const participanteIdTexto =
+      participanteSelecionadoPorTrechoVeiculo[
+        trechoVeiculoId
+      ] || "";
+
+    const participanteId =
+      Number(
+        participanteIdTexto
+      );
+
+    if (
+      !Number.isInteger(
+        participanteId
+      ) ||
+      participanteId <= 0
+    ) {
+      setErro(
+        t(
+          "passengerAssignment.passengerRequired"
+        )
+      );
+
+      setSucesso("");
+
+      return;
+    }
+
+    setVinculandoPassageiroTrechoVeiculoId(
+      trechoVeiculoId
+    );
+
+    setErro("");
+    setSucesso("");
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/atividades-externas/${atividadeId}/transporte`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              acao:
+                "VINCULAR_PASSAGEIRO",
+
+              trechoVeiculoId,
+
+              participanteId,
+
+              assento:
+                assentoPorTrechoVeiculo[
+                  trechoVeiculoId
+                ]?.trim() ||
+                null,
+            }),
+          }
+        );
+
+      const dados =
+        (await resposta.json()) as {
+          ok?: boolean;
+          error?: string;
+        };
+
+      if (
+        !resposta.ok ||
+        !dados.ok
+      ) {
+        if (
+          dados.error ===
+          "PARTICIPANTE_JA_VINCULADO_AO_TRECHO"
+        ) {
+          setErro(
+            t(
+              "passengerAssignment.alreadyLinkedToSegment"
+            )
+          );
+
+          return;
+        }
+
+        throw new Error(
+          dados.error ||
+            "ERRO_VINCULAR_PASSAGEIRO"
+        );
+      }
+
+      setParticipanteSelecionadoPorTrechoVeiculo(
+        (atual) => ({
+          ...atual,
+
+          [trechoVeiculoId]:
+            "",
+        })
+      );
+
+      setAssentoPorTrechoVeiculo(
+        (atual) => ({
+          ...atual,
+
+          [trechoVeiculoId]:
+            "",
+        })
+      );
+
+      setSucesso(
+        t(
+          "passengerAssignment.passengerLinked"
+        )
+      );
+
+      await carregar();
+    } catch (error) {
+      console.error(
+        "[TRANSPORTE_ATIVIDADE_VINCULAR_PASSAGEIRO]",
+        error
+      );
+
+      setErro(
+        t(
+          "passengerAssignment.linkError"
+        )
+      );
+    } finally {
+      setVinculandoPassageiroTrechoVeiculoId(
+        null
+      );
     }
   }
 

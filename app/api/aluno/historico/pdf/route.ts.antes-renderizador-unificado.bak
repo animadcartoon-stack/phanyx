@@ -1,68 +1,58 @@
-import { NextRequest, NextResponse } from "next/server";
-import chromium from "@sparticuz/chromium-min";
-import puppeteer from "puppeteer-core";
-import QRCode from "qrcode";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
-import {
-  montarConteudoHistoricoAcademico,
-} from "@/lib/documentos/renderizador-historico-academico";
-import {
-  montarRenderizacaoDocumento,
-} from "@/lib/documentos/renderizador-template-documento";
-import {
-  resolverLogoDocumentoInstituicao,
-} from "@/lib/documentos/resolver-logo-documento";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const CHROMIUM_PACK =
-  "https://github.com/Sparticuz/chromium/releases/download/v131.0.0/chromium-v131.0.0-pack.tar";
+async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
+  if (!url) return null;
 
-function urlFinal(
-  url?: string | null,
-  baseUrl?: string
-) {
-  if (!url) return "";
-  return url.startsWith("http")
-    ? url
-    : `${baseUrl}${url}`;
-}
-
-async function imagemParaDataUri(
-  url?: string | null
-) {
   try {
-    if (!url) {
-      return "";
-    }
-
-    const resposta =
-      await fetch(url);
+    const resposta = await fetch(url);
 
     if (!resposta.ok) {
-      return "";
+      console.error("Erro ao baixar imagem:", resposta.status, url);
+      return null;
     }
 
-    const tipo =
-      resposta.headers.get(
-        "content-type"
-      ) || "image/png";
+    const contentType = resposta.headers.get("content-type") || "";
+    const bytes = await resposta.arrayBuffer();
 
-    const bytes =
-      Buffer.from(
-        await resposta.arrayBuffer()
-      );
+    if (contentType.includes("png")) {
+      return await pdfDoc.embedPng(bytes);
+    }
 
-    return `data:${tipo};base64,${bytes.toString(
-      "base64"
-    )}`;
-  } catch {
-    return "";
+    if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+      return await pdfDoc.embedJpg(bytes);
+    }
+
+    try {
+      return await pdfDoc.embedPng(bytes);
+    } catch {}
+
+    try {
+      return await pdfDoc.embedJpg(bytes);
+    } catch {}
+
+    console.error("Formato de imagem não suportado para PDF:", contentType, url);
+    return null;
+  } catch (error) {
+    console.error("Erro ao carregar imagem PDF:", error);
+    return null;
   }
+}
+
+function textoSeguro(valor?: string | null) {
+  return valor && valor.trim() ? valor : "-";
+}
+
+function dataBR(data?: Date | string | null) {
+  if (!data) return "-";
+  return new Date(data).toLocaleDateString("pt-BR");
 }
 
 function substituirTemplate(template: string, valores: Record<string, string>) {
@@ -118,11 +108,7 @@ function montarBlocoInstituicao(config: any) {
   .join("\n");
 }
 
-export async function GET(
-  req: NextRequest
-) {
-  let browser: any = null;
-
+export async function GET() {
   try {
     const user = await getUserFromToken();
 
@@ -210,6 +196,8 @@ export async function GET(
         instituicaoId: user.instituicaoId,
       },
     });
+
+    console.log("CONFIG HISTORICO COMPLETA:", config);
 
     /*
      * Escolhe primeiro uma matrícula realmente atual.
@@ -646,6 +634,43 @@ export async function GET(
         ?.numeroMatricula ||
       aluno.matricula ||
       "-";
+
+    const pdfDoc = await PDFDocument.create();
+    let page = pdfDoc.addPage([595.28, 841.89]);
+
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+const logoUrlBruta =
+  config?.logoUrl ||
+  (config as any)?.logotipoUrl ||
+  (config as any)?.logo ||
+  null;
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "http://localhost:3000";
+
+const logoUrl =
+  logoUrlBruta?.startsWith("http")
+    ? logoUrlBruta
+    : `${baseUrl}${logoUrlBruta}`;
+
+console.log("LOGO HISTORICO URL FINAL:", logoUrl);
+
+const logo = await carregarImagemPdf(pdfDoc, logoUrl);
+
+console.log("LOGO HISTORICO CARREGADA:", Boolean(logo));
+
+const assinatura = await carregarImagemPdf(
+  pdfDoc,
+  config?.certificadoAssinaturaUrl
+);
+
+    const preto = rgb(0, 0, 0);
+    const azul = rgb(0.02, 0.12, 0.35);
+    const cinza = rgb(0.35, 0.35, 0.35);
+    const cinzaClaro = rgb(0.92, 0.92, 0.92);
 
     const templateHistorico = await prisma.documentoTemplate.findFirst({
   where: {
@@ -1084,407 +1109,583 @@ const documentoGerado = await prisma.documentoGerado.create({
   },
 });
 
-    /*
-     * A tabela oficial usa TODOS os itens da matrícula atual.
-     * Não filtramos cancelados, trancados, desistentes ou outras
-     * ocorrências acadêmicas: cada vínculo continua representado.
-     */
-    const componentesHistorico =
-      itensHistorico.map(
-        (item) => {
-          const resultado =
-            obterResultadoItem(
-              item
-            );
+function novaPaginaHistorico() {
+  page = pdfDoc.addPage([595.28, 841.89]);
+  drawBox(35, 35, 525, 770);
+  return 760;
+}
 
-          return {
-            codigo:
-              String(
-                (item.disciplina as any)
-                  ?.codigo ||
-                ""
-              ).trim() ||
-              null,
-
-            disciplina:
-              item.disciplina
-                ?.nome ||
-              "Disciplina",
-
-            cargaHoraria:
-              item.disciplina
-                ?.cargaHoraria
-                ? `${item.disciplina.cargaHoraria}h`
-                : "-",
-
-            nota:
-              formatarNumeroAcademico(
-                resultado?.media
-              ),
-
-            frequencia:
-              formatarFrequenciaAcademica(
-                resultado?.frequencia
-              ),
-
-            situacao:
-              situacaoHistoricoItem(
-                item
-              ),
-
-            periodo:
-              item.disciplina
-                ?.semestre ??
-              item.turma
-                ?.semestre ??
-              null,
-
-            turma:
-              item.turma
-                ?.nome ||
-              null,
-          };
-        }
-      );
-
-    const baseUrl =
-      new URL(req.url).origin;
-
-    const configDocumento =
-      config as any;
-
-    /*
-     * O Histórico possui cabeçalho próprio com fundo claro.
-     * Em AUTOMATICA, portanto, a biblioteca deve priorizar
-     * FUNDO_CLARO. Modos explícitos do template continuam
-     * sendo respeitados normalmente.
-     */
-    const logoResolvida =
-      await resolverLogoDocumentoInstituicao({
-        instituicaoId:
-          user.instituicaoId,
-
-        modoLogo:
-          String(
-            templateHistorico
-              ?.modoLogo ||
-            "AUTOMATICA"
-          ),
-
-        logoInstituicaoId:
-          templateHistorico
-            ?.logoInstituicaoId ||
-          null,
-
-        estiloDocumento:
-          "INSTITUCIONAL",
-
-        fallbackLogoUrl:
-          config?.logoUrl ||
-          null,
+    function drawBox(x: number, y: number, w: number, h: number) {
+      page.drawRectangle({
+        x,
+        y,
+        width: w,
+        height: h,
+        borderColor: preto,
+        borderWidth: 0.8,
       });
+    }
 
-    const logoUrl =
-      urlFinal(
-        logoResolvida.logoUrl,
-        baseUrl
-      );
-
-    const assinaturaUrl =
-      urlFinal(
-        configDocumento
-          ?.certificadoAssinaturaUrl,
-        baseUrl
-      );
-
-    const papelTimbradoUrl =
-      urlFinal(
-        config?.papelTimbradoUrl,
-        baseUrl
-      );
-
-    const [
-      logoDataUri,
-      assinaturaDataUri,
-      papelTimbradoDataUri,
-    ] = await Promise.all([
-      imagemParaDataUri(
-        logoUrl
-      ),
-
-      imagemParaDataUri(
-        assinaturaUrl
-      ),
-
-      imagemParaDataUri(
-        papelTimbradoUrl
-      ),
-    ]);
-
-    const linkValidacao =
-      `${baseUrl}/validar-documento?codigo=${encodeURIComponent(
-        codigoValidacao
-      )}`;
-
-    const qrCodeDataUri =
-      await QRCode.toDataURL(
-        linkValidacao,
-        {
-          margin: 1,
-          width: 260,
-        }
-      );
-
-    const validacao = {
-      codigo:
-        documentoGerado
-          .codigoValidacao ||
-        codigoValidacao,
-
-      emitidoEm:
-        new Date()
-          .toLocaleString(
-            "pt-BR"
-          ),
-
-      qrCodeDataUri,
-    };
-
-    /*
-     * ESTE É O PONTO DE UNIFICAÇÃO:
-     * o PDF real do aluno passa pelo mesmo compositor específico
-     * e pelo mesmo renderizador HTML/Puppeteer usados na prévia Admin.
-     */
-    const conteudoHistoricoHtml =
-      montarConteudoHistoricoAcademico({
-        conteudoEstruturado:
-          conteudoTemplate,
-
-        componentes:
-          componentesHistorico,
-
-        validacao,
+    function drawText(
+      texto: string,
+      x: number,
+      y: number,
+      size = 9,
+      bold = false,
+      color = preto
+    ) {
+      page.drawText(textoSeguro(texto), {
+        x,
+        y,
+        size,
+        font: bold ? fontBold : font,
+        color,
       });
+    }
 
-    const camposVisuais =
-      Array.isArray(
-        templateHistorico
-          ?.camposVisuais
-      )
-        ? templateHistorico
-            .camposVisuais
-        : [];
+    // Moldura geral
+drawBox(35, 35, 525, 770);
 
-    const renderizacao =
-      montarRenderizacaoDocumento({
-        conteudo:
-          conteudoHistoricoHtml,
+function pegarSecao(nome: string) {
+  const regex = new RegExp(
+    `\\[${nome}\\]([\\s\\S]*?)(?=\\n\\[[^\\]]+\\]|$)`,
+    "i"
+  );
 
-        /*
-         * Histórico Acadêmico oficial usa folha inteira A4.
-         * O compositor do Histórico já controla todas as seções.
-         */
-        formatoImpressao:
-          "A4_INTEIRA",
+  return conteudoTemplate.match(regex)?.[1]?.trim() || "";
+}
 
-        camposVisuais:
-          camposVisuais as any,
+function limparTextoSecao(texto: string) {
+  return texto
+    .replaceAll("{{logoInstituicao}}", "")
+    .replaceAll("{{assinaturaDiretor}}", "")
+    .replaceAll("{{blocoAssinaturaDiretor}}", "")
+    .trim();
+}
 
-        modoPrevia: false,
+function quebrarLinhas(texto: string, maxChars = 85) {
+  const linhas: string[] = [];
 
-        mostrarValidacao: false,
-
-        layoutConteudoIntegral:
-          true,
-
-        instituicao: {
-          nome:
-            config?.nomeFantasia ||
-            "Instituição",
-
-          cnpj:
-            config?.cnpj ||
-            null,
-
-          telefone:
-            config?.telefone ||
-            null,
-
-          email:
-            config?.email ||
-            null,
-
-          cidade:
-            config?.cidade ||
-            null,
-
-          estado:
-            config?.estado ||
-            null,
-
-          responsavelNome:
-            configDocumento
-              ?.responsavelNome ||
-            "Responsável legal",
-
-          responsavelCargo:
-            configDocumento
-              ?.responsavelCargo ||
-            configDocumento
-              ?.cargoResponsavel ||
-            "Representante legal",
-
-          logoUrl:
-            logoDataUri ||
-            logoUrl ||
-            null,
-
-          logoDataUri:
-            logoDataUri ||
-            null,
-
-          assinaturaDiretorUrl:
-            assinaturaDataUri ||
-            assinaturaUrl ||
-            null,
-
-          papelTimbradoUrl:
-            papelTimbradoDataUri ||
-            null,
-
-          usarPapelTimbrado:
-            Boolean(
-              config
-                ?.usarPapelTimbrado
-            ),
-
-          estiloPapelTimbrado:
-            config
-              ?.estiloPapelTimbrado ||
-            null,
-        },
-
-        validacao,
-      });
-
-    browser =
-      await puppeteer.launch({
-        args:
-          chromium.args,
-
-        executablePath:
-          await chromium
-            .executablePath(
-              CHROMIUM_PACK
-            ),
-
-        headless: true,
-      });
-
-    const page =
-      await browser.newPage();
-
-    await page.setContent(
-      renderizacao.html,
-      {
-        waitUntil:
-          "domcontentloaded",
+  texto
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .forEach((linha) => {
+      if (linha.length <= maxChars) {
+        linhas.push(linha);
+        return;
       }
-    );
 
-    await page.emulateMediaType(
-      "print"
-    );
+      let resto = linha;
 
-    await page.evaluate(
-      async () => {
-        const imagens =
-          Array.from(
-            document.images
-          );
-
-        await Promise.all(
-          imagens.map(
-            (imagem) => {
-              if (
-                imagem.complete
-              ) {
-                return Promise.resolve();
-              }
-
-              return new Promise<void>(
-                (resolve) => {
-                  imagem.addEventListener(
-                    "load",
-                    () => resolve(),
-                    {
-                      once: true,
-                    }
-                  );
-
-                  imagem.addEventListener(
-                    "error",
-                    () => resolve(),
-                    {
-                      once: true,
-                    }
-                  );
-                }
-              );
-            }
-          )
-        );
-
-        await document.fonts.ready;
+      while (resto.length > maxChars) {
+        const corte = resto.lastIndexOf(" ", maxChars);
+        const fim = corte > 20 ? corte : maxChars;
+        linhas.push(resto.slice(0, fim).trim());
+        resto = resto.slice(fim).trim();
       }
-    );
 
-    const pdfBuffer =
-      await page.pdf(
-        renderizacao.pdfOptions
+      if (resto) linhas.push(resto);
+    });
+
+  return linhas;
+}
+
+function desenharLinhas(
+  texto: string,
+  x: number,
+  yInicial: number,
+  size = 8,
+  maxChars = 85
+) {
+  let yTexto = yInicial;
+  const linhas = quebrarLinhas(texto, maxChars);
+
+  linhas.forEach((linha) => {
+    drawText(linha, x, yTexto, size);
+    yTexto -= size + 4;
+  });
+
+  return yTexto;
+}
+
+function alturaDoTexto(texto: string, size = 8, maxChars = 85) {
+  const linhas = quebrarLinhas(texto, maxChars);
+  return Math.max(24, linhas.length * (size + 4) + 20);
+}
+
+// Layout dinâmico vindo do template
+let cursorY = 790;
+
+// Cabeçalho institucional vindo do template
+const cabecalho = pegarSecao("CABEÇALHO INSTITUCIONAL");
+
+console.log(cabecalho);
+
+
+const textoCabecalho = limparTextoSecao(cabecalho);
+
+const temLogoNoCabecalho = Boolean(logo);
+const alturaTextoCabecalho = alturaDoTexto(textoCabecalho, 8, 78);
+const alturaLogo = 100;
+const alturaCabecalho = Math.max(120, alturaTextoCabecalho + 20, alturaLogo + 20);
+
+const cabecalhoY = cursorY - alturaCabecalho;
+
+drawBox(45, cabecalhoY, 505, alturaCabecalho);
+
+// área fixa da logo à esquerda
+drawBox(55, cabecalhoY + 10, 100, 100);
+
+if (logo) {
+  page.drawImage(logo, {
+    x: 65,
+    y: cabecalhoY + 20,
+    width: 80,
+    height: 80,
+  });
+} else {
+  drawText("Logo da", 83, cabecalhoY + 62, 10);
+  drawText("Instituição", 75, cabecalhoY + 45, 10);
+}
+
+// informações sempre à direita
+desenharLinhas(
+  textoCabecalho,
+  175,
+  cabecalhoY + alturaCabecalho - 18,
+  7,
+  78
+);
+
+cursorY = cabecalhoY - 32;
+
+// Título vindo do template
+const titulo =
+  limparTextoSecao(pegarSecao("TÍTULO")) || "HISTÓRICO ACADÊMICO ESCOLAR";
+
+const tituloFinal =
+  titulo.toUpperCase();
+
+/*
+ * O título deixa de ser cortado por caracteres.
+ * A quebra usa a largura real da fonte.
+ */
+function quebrarTituloPorLargura(
+  texto: string,
+  tamanho: number,
+  larguraMaxima: number
+) {
+  const palavras =
+    texto
+      .split(/\s+/)
+      .filter(Boolean);
+
+  const linhas: string[] = [];
+  let atual = "";
+
+  for (const palavra of palavras) {
+    const candidato =
+      atual
+        ? `${atual} ${palavra}`
+        : palavra;
+
+    const largura =
+      fontBold.widthOfTextAtSize(
+        candidato,
+        tamanho
       );
 
-    return new NextResponse(
-      Buffer.from(pdfBuffer),
-      {
-        status: 200,
-        headers: {
-          "Content-Type":
-            "application/pdf",
-          "Content-Disposition":
-            'attachment; filename="historico-academico.pdf"',
-          "Cache-Control":
-            "no-store",
-        },
-      }
+    if (
+      largura <= larguraMaxima ||
+      !atual
+    ) {
+      atual = candidato;
+      continue;
+    }
+
+    linhas.push(atual);
+    atual = palavra;
+  }
+
+  if (atual) {
+    linhas.push(atual);
+  }
+
+  return linhas;
+}
+
+let tamanhoTitulo = 13;
+let linhasTitulo =
+  quebrarTituloPorLargura(
+    tituloFinal,
+    tamanhoTitulo,
+    460
+  );
+
+while (
+  linhasTitulo.length > 2 &&
+  tamanhoTitulo > 9
+) {
+  tamanhoTitulo -= 0.5;
+
+  linhasTitulo =
+    quebrarTituloPorLargura(
+      tituloFinal,
+      tamanhoTitulo,
+      460
     );
+}
+
+for (
+  let indice = 0;
+  indice < linhasTitulo.length;
+  indice += 1
+) {
+  const linha =
+    linhasTitulo[indice];
+
+  const larguraLinha =
+    fontBold.widthOfTextAtSize(
+      linha,
+      tamanhoTitulo
+    );
+
+  drawText(
+    linha,
+    Math.max(
+      45,
+      (595.28 - larguraLinha) /
+        2
+    ),
+    cursorY -
+      indice *
+        (tamanhoTitulo + 4),
+    tamanhoTitulo,
+    true,
+    preto
+  );
+}
+
+cursorY -=
+  20 +
+  linhasTitulo.length *
+    (tamanhoTitulo + 4);
+
+// Dados do aluno vindo do template
+const dadosAluno = limparTextoSecao(pegarSecao("DADOS DO ALUNO"));
+const alturaDadosAluno = alturaDoTexto(dadosAluno, 8, 85) + 20;
+const dadosAlunoY = cursorY - alturaDadosAluno;
+
+drawBox(45, dadosAlunoY, 505, alturaDadosAluno);
+
+page.drawRectangle({
+  x: 45,
+  y: dadosAlunoY + alturaDadosAluno - 20,
+  width: 505,
+  height: 20,
+  color: cinzaClaro,
+  borderColor: preto,
+  borderWidth: 0.8,
+});
+
+drawText("DADOS DO ALUNO", 250, dadosAlunoY + alturaDadosAluno - 14, 9, true);
+
+desenharLinhas(dadosAluno, 55, dadosAlunoY + alturaDadosAluno - 35, 8, 85);
+
+cursorY = dadosAlunoY - 18;
+
+// Dados da matrícula
+const dadosMatricula = limparTextoSecao(pegarSecao("DADOS DA MATRÍCULA"));
+
+if (dadosMatricula) {
+  const alturaDadosMatricula = alturaDoTexto(dadosMatricula, 8, 85) + 20;
+  const dadosMatriculaY = cursorY - alturaDadosMatricula;
+
+  drawBox(45, dadosMatriculaY, 505, alturaDadosMatricula);
+
+  page.drawRectangle({
+    x: 45,
+    y: dadosMatriculaY + alturaDadosMatricula - 20,
+    width: 505,
+    height: 20,
+    color: cinzaClaro,
+    borderColor: preto,
+    borderWidth: 0.8,
+  });
+
+  drawText(
+    "DADOS DA MATRÍCULA",
+    235,
+    dadosMatriculaY + alturaDadosMatricula - 14,
+    9,
+    true
+  );
+
+  desenharLinhas(
+    dadosMatricula,
+    55,
+    dadosMatriculaY + alturaDadosMatricula - 35,
+    8,
+    85
+  );
+
+  cursorY = dadosMatriculaY - 22;
+}
+
+// Tabela de componentes curriculares
+const tabelaX = 45;
+let y = cursorY - 40;
+
+if (y < 135) {
+  y = novaPaginaHistorico();
+  // redesenha cabeçalho da tabela
+}
+
+drawText(
+  "COMPONENTES CURRICULARES",
+  190,
+  y + 28,
+  11,
+  true
+);
+
+const colunas = [
+  { titulo: "DISCIPLINA", x: tabelaX, w: 260 },
+  { titulo: "C.H.", x: tabelaX + 260, w: 55 },
+  { titulo: "NOTA", x: tabelaX + 315, w: 60 },
+  { titulo: "FREQ.", x: tabelaX + 375, w: 60 },
+  { titulo: "SITUAÇÃO", x: tabelaX + 435, w: 70 },
+];
+
+page.drawRectangle({
+  x: tabelaX,
+  y,
+  width: 505,
+  height: 22,
+  color: cinzaClaro,
+  borderColor: preto,
+  borderWidth: 0.8,
+});
+
+for (const col of colunas) {
+  drawBox(col.x, y, col.w, 22);
+  drawText(col.titulo, col.x + 5, y + 8, 8, true);
+}
+
+y -= 22;
+
+const itens = matriculaAtual?.itens || [];
+
+for (const item of itens) {
+
+if (y < 135) {
+  y = novaPaginaHistorico();
+
+  drawText("COMPONENTES CURRICULARES - CONTINUAÇÃO", 160, y + 28, 11, true);
+
+  page.drawRectangle({
+    x: tabelaX,
+    y,
+    width: 505,
+    height: 22,
+    color: cinzaClaro,
+    borderColor: preto,
+    borderWidth: 0.8,
+  });
+
+  for (const col of colunas) {
+    drawBox(col.x, y, col.w, 22);
+    drawText(col.titulo, col.x + 5, y + 8, 8, true);
+  }
+
+  y -= 22;
+}
+
+  const disciplina =
+    item.disciplina;
+
+  const nomeDisciplina =
+    textoSeguro(
+      disciplina?.nome
+    ).slice(0, 45);
+
+  const carga =
+    disciplina?.cargaHoraria
+      ? `${disciplina.cargaHoraria}h`
+      : "-";
+
+  const resultado =
+    obterResultadoItem(item);
+
+  const nota =
+    formatarNumeroAcademico(
+      resultado?.media
+    );
+
+  const frequencia =
+    formatarFrequenciaAcademica(
+      resultado?.frequencia
+    );
+
+  const situacao =
+    situacaoHistoricoItem(
+      item
+    );
+
+  for (const col of colunas) {
+    drawBox(
+      col.x,
+      y,
+      col.w,
+      20
+    );
+  }
+
+  drawText(
+    nomeDisciplina,
+    tabelaX + 5,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    carga,
+    tabelaX + 270,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    nota,
+    tabelaX + 327,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    frequencia,
+    tabelaX + 387,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    situacao.slice(
+      0,
+      13
+    ),
+    tabelaX + 442,
+    y + 7,
+    7.2
+  );
+
+  y -= 20;
+}
+
+// Observações vindas do template
+const observacoes = limparTextoSecao(pegarSecao("OBSERVAÇÕES"));
+
+y -= 28;
+
+if (observacoes) {
+  if (y < 210) {
+    y = novaPaginaHistorico();
+  }
+
+  drawText("OBSERVAÇÕES:", 45, y, 8.5, true);
+
+  const yDepoisObs = desenharLinhas(
+    observacoes,
+    45,
+    y - 14,
+    6.3,
+    118
+  );
+
+  y = yDepoisObs - 35;
+}
+
+// Assinatura institucional dinâmica
+if (y < 155) {
+  y = novaPaginaHistorico();
+}
+
+const assinaturaY = Math.max(105, y - 80);
+
+if (assinatura) {
+  page.drawImage(assinatura, {
+    x: 220,
+    y: assinaturaY + 45,
+    width: 120,
+    height: 38,
+  });
+}
+
+page.drawLine({
+  start: { x: 185, y: assinaturaY + 40 },
+  end: { x: 410, y: assinaturaY + 40 },
+  thickness: 0.8,
+  color: preto,
+});
+
+drawText(textoSeguro(config?.responsavelNome), 230, assinaturaY + 25, 8.5, true);
+drawText(
+  textoSeguro(config?.responsavelCargo || "Responsável Institucional"),
+  260,
+  assinaturaY + 13,
+  7.5
+);
+drawText(textoSeguro(config?.nomeFantasia || "Instituição"), 270, assinaturaY + 2, 7.5);
+
+// Rodapé limpo
+drawText(
+  `${textoSeguro(config?.nomeFantasia || "PHANYX")} - CNPJ ${textoSeguro(config?.cnpj)}`,
+  45,
+  65,
+  7,
+  false,
+  cinza
+);
+
+drawText(
+  `Código de validação: ${documentoGerado.codigoValidacao || codigoValidacao}`,
+  45,
+  52,
+  7,
+  true,
+  cinza
+);
+
+drawText(
+  "Valide em: https://www.phanyx.com.br/validar-documento",
+  45,
+  40,
+  7,
+  false,
+  cinza
+);
+
+    const pdfBytes = await pdfDoc.save();
+
+        return new NextResponse(Buffer.from(pdfBytes), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'attachment; filename="historico-academico.pdf"',
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (error: any) {
-    console.error(
-      "Erro ao gerar histórico acadêmico:",
-      error
-    );
+    console.error("Erro ao gerar histórico acadêmico:", error);
 
     return NextResponse.json(
       {
-        error:
-          error?.message ||
-          String(error),
-        stack:
-          error?.stack ||
-          null,
-        nomeErro:
-          error?.name ||
-          null,
+        error: error?.message || String(error),
+        stack: error?.stack || null,
+        nomeErro: error?.name || null,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
-  } finally {
-    if (browser) {
-      await browser
-        .close()
-        .catch(() => null);
-    }
   }
 }
