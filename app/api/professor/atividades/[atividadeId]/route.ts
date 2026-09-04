@@ -249,21 +249,38 @@ if (
      */
     const itensAfetados =
       await prisma.itemMatricula.findMany({
-        where: {
-          instituicaoId:
-            auth.instituicaoId,
+       where: {
+  instituicaoId:
+    auth.instituicaoId,
 
-          turmaId:
-            publicada.turmaId,
+  turmaId:
+    publicada.turmaId,
 
-          ...(publicada.disciplinaId !==
-          null
-            ? {
-                disciplinaId:
-                  publicada.disciplinaId,
-              }
-            : {}),
-        },
+  status: {
+    in: [
+      "A_CURSAR",
+      "EM_CURSO",
+    ],
+  },
+
+  matricula: {
+    status:
+      "ATIVA",
+
+    aluno: {
+      ativo:
+        true,
+    },
+  },
+
+  ...(publicada.disciplinaId !==
+  null
+    ? {
+        disciplinaId:
+          publicada.disciplinaId,
+      }
+    : {}),
+},
 
         select: {
           matricula: {
@@ -275,27 +292,29 @@ if (
         },
       });
 
-   const alunoIds =
+   const alunoIds:
+  number[] =
   Array.from(
-    new Set(
+    new Set<number>(
       itensAfetados
         .map(
           (
             item
           ) =>
-            item.matricula
-              .alunoId
+            Number(
+              item.matricula
+                .alunoId
+            )
         )
         .filter(
           (
             alunoId
-          ): alunoId is number =>
-            typeof alunoId ===
-              "number" &&
+          ) =>
             Number.isInteger(
               alunoId
             ) &&
-            alunoId > 0
+            alunoId >
+              0
         )
     )
   );
