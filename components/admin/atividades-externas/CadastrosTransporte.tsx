@@ -1765,6 +1765,190 @@ const [
     }
   }
 
+  async function salvarCondutor() {
+  setErro("");
+  setSucesso("");
+
+  if (
+    !formularioCondutor
+      .nome
+      .trim()
+  ) {
+    setErro(
+      t(
+        "registrations.errors.driverNameRequired"
+      )
+    );
+
+    return;
+  }
+
+  setSalvandoCondutor(
+    true
+  );
+
+  try {
+    const resposta =
+      await fetch(
+        "/api/admin/transportes/condutores",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            prestadorTransporteId:
+              formularioCondutor
+                .prestadorTransporteId ||
+              null,
+
+            nome:
+              formularioCondutor
+                .nome,
+
+            tipo:
+              formularioCondutor
+                .tipo,
+
+            telefone:
+              formularioCondutor
+                .telefone,
+
+            paisTelefone:
+              formularioCondutor
+                .paisTelefone,
+
+            email:
+              formularioCondutor
+                .email,
+
+            paisDocumento:
+              formularioCondutor
+                .paisDocumento,
+
+            tipoDocumento:
+              formularioCondutor
+                .tipoDocumento,
+
+            numeroDocumento:
+              formularioCondutor
+                .numeroDocumento,
+
+            numeroLicenca:
+              formularioCondutor
+                .numeroLicenca,
+
+            categoriaLicenca:
+              formularioCondutor
+                .categoriaLicenca,
+
+            licencaValidaAte:
+              formularioCondutor
+                .licencaValidaAte ||
+              null,
+
+            autorizadoTransporteEstudantil:
+              formularioCondutor
+                .autorizadoTransporteEstudantil,
+
+            contatoEmergencia:
+              formularioCondutor
+                .contatoEmergencia,
+
+            telefoneEmergencia:
+              formularioCondutor
+                .telefoneEmergencia,
+
+            paisTelefoneEmergencia:
+              formularioCondutor
+                .paisTelefoneEmergencia,
+
+            observacao:
+              formularioCondutor
+                .observacao,
+          }),
+        }
+      );
+
+    const dados =
+      await resposta.json();
+
+    if (
+      !resposta.ok ||
+      !dados?.ok
+    ) {
+      const codigo =
+        String(
+          dados?.error || ""
+        );
+
+      if (
+        codigo ===
+        "NOME_OBRIGATORIO"
+      ) {
+        throw new Error(
+          "NOME_OBRIGATORIO"
+        );
+      }
+
+      throw new Error(
+        codigo ||
+          "ERRO_SALVAR_CONDUTOR"
+      );
+    }
+
+    setFormularioCondutor(
+      criarFormularioCondutorInicial(
+        locale
+      )
+    );
+
+    setFormularioCondutorAberto(
+      false
+    );
+
+    setSucesso(
+      t(
+        "registrations.success.driverCreated"
+      )
+    );
+
+    await carregar();
+
+    await onCadastrosAlterados?.();
+  } catch (error) {
+    console.error(
+      "[CADASTROS_TRANSPORTE_CONDUTOR_POST]",
+      error
+    );
+
+    if (
+      error instanceof Error &&
+      error.message ===
+        "NOME_OBRIGATORIO"
+    ) {
+      setErro(
+        t(
+          "registrations.errors.driverNameRequired"
+        )
+      );
+    } else {
+      setErro(
+        t(
+          "registrations.errors.saveDriver"
+        )
+      );
+    }
+  } finally {
+    setSalvandoCondutor(
+      false
+    );
+  }
+}
+
   return (
     <div className="phanyx-transporte-cadastros rounded-2xl border p-4 sm:p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -1809,6 +1993,10 @@ const [
               false
             );
 
+            setFormularioCondutorAberto(
+  false
+);
+
             setErro("");
             setSucesso("");
           }}
@@ -1833,6 +2021,10 @@ const [
             setFormularioPrestadorAberto(
               false
             );
+
+            setFormularioCondutorAberto(
+  false
+);
 
             setErro("");
             setSucesso("");
@@ -3255,14 +3447,523 @@ const [
             }
           />
         </div>
-      ) : (
-        <ListaCondutores
-          itens={condutores}
-          vazio={t(
-            "registrations.empty.drivers"
-          )}
-        />
+      ) : abaAtiva ===
+  "condutores" ? (
+  <div className="mt-4 space-y-4">
+    {podeGerenciar ? (
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            setErro("");
+            setSucesso("");
+
+            setFormularioCondutorAberto(
+              (atual) =>
+                !atual
+            );
+          }}
+          className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800"
+        >
+          {formularioCondutorAberto
+            ? t(
+                "registrations.actions.cancel"
+              )
+            : t(
+                "registrations.actions.addDriver"
+              )}
+        </button>
+      </div>
+    ) : null}
+
+    {formularioCondutorAberto ? (
+      <div className="phanyx-transporte-form rounded-2xl border p-4 sm:p-5">
+        <div>
+          <h4 className="text-lg font-black">
+            {t(
+              "registrations.driverForm.title"
+            )}
+          </h4>
+
+          <p className="mt-1 text-sm opacity-75">
+            {t(
+              "registrations.driverForm.description"
+            )}
+          </p>
+        </div>
+
+        <SecaoFormulario
+          titulo={`🧑‍✈️ ${t(
+            "registrations.driverForm.sections.identification"
+          )}`}
+        >
+          <div className="grid gap-4 lg:grid-cols-2">
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.provider"
+              )}
+            >
+              <SelectCadastro
+                value={
+                  formularioCondutor
+                    .prestadorTransporteId
+                }
+                onChange={(
+                  valor
+                ) =>
+                  alterarCondutor(
+                    "prestadorTransporteId",
+                    valor
+                  )
+                }
+                options={[
+                  {
+                    value: "",
+                    label: t(
+                      "registrations.driverForm.noProvider"
+                    ),
+                  },
+
+                  ...prestadores
+                    .filter(
+                      (prestador) =>
+                        prestador.ativo
+                    )
+                    .map(
+                      (
+                        prestador
+                      ) => ({
+                        value:
+                          String(
+                            prestador.id
+                          ),
+
+                        label:
+                          prestador
+                            .nomeFantasia ||
+                          prestador.nome,
+                      })
+                    ),
+                ]}
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.name"
+              )}
+              obrigatorio
+            >
+              <input
+                value={
+                  formularioCondutor
+                    .nome
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "nome",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.type"
+              )}
+              obrigatorio
+            >
+              <SelectCadastro
+                value={
+                  formularioCondutor
+                    .tipo
+                }
+                onChange={(
+                  valor
+                ) =>
+                  alterarCondutor(
+                    "tipo",
+                    valor as TipoCondutor
+                  )
+                }
+                options={TIPOS_CONDUTOR.map(
+                  (tipo) => ({
+                    value: tipo,
+
+                    label: t(
+                      `registrations.driverTypes.${tipo}`
+                    ),
+                  })
+                )}
+              />
+            </CampoCadastro>
+          </div>
+        </SecaoFormulario>
+
+        <SecaoFormulario
+          titulo={`☎️ ${t(
+            "registrations.driverForm.sections.contact"
+          )}`}
+        >
+          <div className="grid gap-4 lg:grid-cols-2">
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.phone"
+              )}
+            >
+              <CampoTelefoneInternacional
+                id="condutor-transporte-telefone"
+                value={
+                  formularioCondutor
+                    .telefone
+                }
+                pais={
+                  formularioCondutor
+                    .paisTelefone
+                }
+                onChange={(
+                  valor,
+                  pais
+                ) =>
+                  setFormularioCondutor(
+                    (atual) => ({
+                      ...atual,
+
+                      telefone:
+                        valor,
+
+                      paisTelefone:
+                        pais,
+                    })
+                  )
+                }
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.email"
+              )}
+            >
+              <input
+                type="email"
+                value={
+                  formularioCondutor
+                    .email
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "email",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+          </div>
+        </SecaoFormulario>
+
+        <SecaoFormulario
+          titulo={`🪪 ${t(
+            "registrations.driverForm.sections.documents"
+          )}`}
+        >
+          <div className="grid gap-4 lg:grid-cols-3">
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.documentCountry"
+              )}
+            >
+              <SelectCadastro
+                value={
+                  formularioCondutor
+                    .paisDocumento
+                }
+                onChange={(
+                  valor
+                ) =>
+                  alterarCondutor(
+                    "paisDocumento",
+                    valor as CountryCode
+                  )
+                }
+                options={paises}
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.documentType"
+              )}
+            >
+              <input
+                value={
+                  formularioCondutor
+                    .tipoDocumento
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "tipoDocumento",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.documentNumber"
+              )}
+            >
+              <input
+                value={
+                  formularioCondutor
+                    .numeroDocumento
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "numeroDocumento",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+          </div>
+        </SecaoFormulario>
+
+        <SecaoFormulario
+          titulo={`🚘 ${t(
+            "registrations.driverForm.sections.license"
+          )}`}
+        >
+          <div className="grid gap-4 lg:grid-cols-3">
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.licenseNumber"
+              )}
+            >
+              <input
+                value={
+                  formularioCondutor
+                    .numeroLicenca
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "numeroLicenca",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.licenseCategory"
+              )}
+            >
+              <input
+                value={
+                  formularioCondutor
+                    .categoriaLicenca
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "categoriaLicenca",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.licenseExpiry"
+              )}
+            >
+              <input
+                type="date"
+                value={
+                  formularioCondutor
+                    .licencaValidaAte
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "licencaValidaAte",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+          </div>
+
+          <div className="mt-4">
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.studentVerification"
+              )}
+            >
+              <SelectCadastro
+                value={
+                  formularioCondutor
+                    .autorizadoTransporteEstudantil
+                }
+                onChange={(
+                  valor
+                ) =>
+                  alterarCondutor(
+                    "autorizadoTransporteEstudantil",
+                    valor as VerificacaoEstudantil
+                  )
+                }
+                options={VERIFICACOES.map(
+                  (
+                    status
+                  ) => ({
+                    value:
+                      status,
+
+                    label:
+                      t(
+                        `registrations.studentVerification.${status}`
+                      ),
+                  })
+                )}
+              />
+            </CampoCadastro>
+          </div>
+        </SecaoFormulario>
+
+        <SecaoFormulario
+          titulo={`🚨 ${t(
+            "registrations.driverForm.sections.emergency"
+          )}`}
+        >
+          <div className="grid gap-4 lg:grid-cols-2">
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.emergencyContact"
+              )}
+            >
+              <input
+                value={
+                  formularioCondutor
+                    .contatoEmergencia
+                }
+                onChange={(e) =>
+                  alterarCondutor(
+                    "contatoEmergencia",
+                    e.target.value
+                  )
+                }
+                className="phanyx-transporte-input"
+              />
+            </CampoCadastro>
+
+            <CampoCadastro
+              label={t(
+                "registrations.driverForm.emergencyPhone"
+              )}
+            >
+              <CampoTelefoneInternacional
+                id="condutor-transporte-telefone-emergencia"
+                value={
+                  formularioCondutor
+                    .telefoneEmergencia
+                }
+                pais={
+                  formularioCondutor
+                    .paisTelefoneEmergencia
+                }
+                onChange={(
+                  valor,
+                  pais
+                ) =>
+                  setFormularioCondutor(
+                    (atual) => ({
+                      ...atual,
+
+                      telefoneEmergencia:
+                        valor,
+
+                      paisTelefoneEmergencia:
+                        pais,
+                    })
+                  )
+                }
+              />
+            </CampoCadastro>
+          </div>
+        </SecaoFormulario>
+
+        <div className="mt-4">
+          <CampoCadastro
+            label={t(
+              "registrations.driverForm.notes"
+            )}
+          >
+            <textarea
+              rows={3}
+              value={
+                formularioCondutor
+                  .observacao
+              }
+              onChange={(e) =>
+                alterarCondutor(
+                  "observacao",
+                  e.target.value
+                )
+              }
+              className="phanyx-transporte-input min-h-[96px] resize-y"
+            />
+          </CampoCadastro>
+        </div>
+
+        <div className="mt-5 flex justify-end">
+          <button
+            type="button"
+            disabled={
+              salvandoCondutor
+            }
+            onClick={() =>
+              void salvarCondutor()
+            }
+            className="rounded-xl bg-blue-700 px-5 py-3 text-sm font-extrabold text-white shadow-sm hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {salvandoCondutor
+              ? t(
+                  "registrations.actions.saving"
+                )
+              : t(
+                  "registrations.actions.saveDriver"
+                )}
+          </button>
+        </div>
+      </div>
+    ) : null}
+
+    <ListaCondutores
+      itens={condutores}
+      vazio={t(
+        "registrations.empty.drivers"
       )}
+      traduzirTipo={(
+        tipo
+      ) =>
+        t(
+          `registrations.driverTypes.${tipo}`
+        )
+      }
+    />
+  </div>
+) : null}
+
     </div>
   );
 }
@@ -3555,9 +4256,14 @@ function ListaVeiculos({
 function ListaCondutores({
   itens,
   vazio,
+  traduzirTipo,
 }: {
   itens: Condutor[];
   vazio: string;
+
+  traduzirTipo: (
+    tipo: TipoCondutor
+  ) => string;
 }) {
   if (!itens.length) {
     return (
@@ -3568,19 +4274,69 @@ function ListaCondutores({
   }
 
   return (
-    <div className="mt-4 space-y-2">
+    <div className="space-y-2">
       {itens.map(
         (item) => (
           <div
             key={item.id}
             className="phanyx-transporte-registration-item rounded-xl border p-3"
           >
-            <div className="font-extrabold">
-              {item.nome}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="font-extrabold">
+                  {item.nome}
+                </div>
+
+                {item.prestadorTransporte ? (
+                  <div className="mt-0.5 text-xs opacity-65">
+                    {
+                      item
+                        .prestadorTransporte
+                        .nomeFantasia ||
+                      item
+                        .prestadorTransporte
+                        .nome
+                    }
+                  </div>
+                ) : null}
+              </div>
+
+              <span className="phanyx-transporte-chip rounded-full border px-2.5 py-1 text-xs font-bold">
+                {traduzirTipo(
+                  item.tipo
+                )}
+              </span>
             </div>
 
-            <div className="mt-1 text-xs opacity-70">
-              {item.tipo}
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-75">
+              {item.telefone ? (
+                <span>
+                  ☎️ {item.telefone}
+                </span>
+              ) : null}
+
+              {item.email ? (
+                <span>
+                  ✉️ {item.email}
+                </span>
+              ) : null}
+
+              {item.numeroLicenca ? (
+                <span>
+                  🪪{" "}
+                  {item.numeroLicenca}
+                  {item.categoriaLicenca
+                    ? ` • ${item.categoriaLicenca}`
+                    : ""}
+                </span>
+              ) : null}
+
+              {item.paisDocumento ? (
+                <span>
+                  🌍{" "}
+                  {item.paisDocumento}
+                </span>
+              ) : null}
             </div>
           </div>
         )

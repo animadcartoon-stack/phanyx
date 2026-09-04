@@ -54,8 +54,6 @@ async function imagemParaDataUri(
 
 function substituirExemplos(texto: string, config: any) {
   const valores: Record<string, string> = {
-    logoInstituicao:
-      "__PHANYX_LOGO_INSTITUICAO__",
     nomeInstituicao: config?.nomeFantasia || "Instituição Exemplo",
     cnpjInstituicao: config?.cnpj || "00.000.000/0001-00",
     enderecoInstituicao: config?.endereco || "Endereço institucional",
@@ -121,17 +119,6 @@ function substituirExemplos(texto: string, config: any) {
       "- Antigo Testamento A — 96h<br>" +
       "- Novo Testamento A — 96h<br>" +
       "- Teologia Bíblica — 64h",
-
-    cursoNome: "Bacharel Livre em Teologia",
-
-
-    disciplinasContratadas:
-
-      "- Antigo Testamento A â€” 96h<br>" +
-
-      "- Novo Testamento A â€” 96h<br>" +
-
-      "- Teologia BÃ­blica â€” 64h",
 
     valorContrato: "R$ 2.000,00",
 

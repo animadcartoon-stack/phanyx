@@ -746,7 +746,8 @@ if (diasAtraso > 0) {
   }
 }
 
-          const emprestimoAtualizado =
+const emprestimoAtualizado =
+
             await transacao
               .bibliotecaEmprestimo
               .update({

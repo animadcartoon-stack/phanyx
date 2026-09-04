@@ -159,20 +159,6 @@ const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
   "diasAfastamento",
   "dataPericia",
   "resultadoPericia",
-
-
-  // RH - holerite selecionado explicitamente
-  "competenciaMes",
-  "competenciaAno",
-  "competenciaHolerite",
-  "eventosHolerite",
-  "totalVencimentos",
-  "totalDescontos",
-  "valorLiquido",
-  "baseInss",
-  "baseFgts",
-  "fgtsMes",
-  "baseIrrf",
 ]);
 
 const DEFINICOES_CAMPOS_MANUAIS: Record<

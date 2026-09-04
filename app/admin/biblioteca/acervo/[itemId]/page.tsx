@@ -5,18 +5,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type {
-  ChangeEvent,
-  FormEvent,
-} from "react";
+import type { ChangeEvent, FormEvent } from "react";
 
 type AutorItem = {
   funcao: string;
@@ -85,13 +76,9 @@ type ArquivoHistorico = {
   arquivadoEm: string | null;
   motivoArquivamento: string | null;
 
-  enviadoPor:
-  | UsuarioHistoricoArquivo
-  | null;
+  enviadoPor: UsuarioHistoricoArquivo | null;
 
-  arquivadoPor:
-  | UsuarioHistoricoArquivo
-  | null;
+  arquivadoPor: UsuarioHistoricoArquivo | null;
 };
 
 type RespostaHistoricoArquivos = {
@@ -175,9 +162,7 @@ type ExemplarItem = {
 
   baixadoEm: string | null;
   motivoBaixa: string | null;
-  manutencaoAberta?:
-  | ManutencaoAbertaExemplar
-  | null;
+  manutencaoAberta?: ManutencaoAbertaExemplar | null;
 
   criadoEm: string;
   atualizadoEm: string;
@@ -239,34 +224,19 @@ type UsuarioEmprestimo = {
   email: string;
   role: string;
 
-  tipo:
-  | "ALUNO"
-  | "PROFESSOR"
-  | "FUNCIONARIO";
+  tipo: "ALUNO" | "PROFESSOR" | "FUNCIONARIO";
 
-  identificador:
-  | string
-  | null;
+  identificador: string | null;
 
-  cpfMascarado:
-  | string
-  | null;
+  cpfMascarado: string | null;
 
-  alunoStatus:
-  | string
-  | null;
+  alunoStatus: string | null;
 
-  professorStatus:
-  | string
-  | null;
+  professorStatus: string | null;
 
-  funcionarioStatus:
-  | string
-  | null;
+  funcionarioStatus: string | null;
 
-  cargo:
-  | string
-  | null;
+  cargo: string | null;
 };
 
 type RespostaUsuariosEmprestimo = {
@@ -434,20 +404,19 @@ const MODALIDADES = [
   "LINK_EXTERNO",
 ] as const;
 
-const EXTENSOES_UPLOAD_BIBLIOTECA =
-  new Set([
-    "pdf",
-    "epub",
+const EXTENSOES_UPLOAD_BIBLIOTECA = new Set([
+  "pdf",
+  "epub",
 
-    "mp3",
-    "m4a",
-    "wav",
-    "ogg",
+  "mp3",
+  "m4a",
+  "wav",
+  "ogg",
 
-    "mp4",
-    "webm",
-    "mov",
-  ]);
+  "mp4",
+  "webm",
+  "mov",
+]);
 
 const ACCEPT_UPLOAD_BIBLIOTECA = [
   ".pdf",
@@ -461,63 +430,35 @@ const ACCEPT_UPLOAD_BIBLIOTECA = [
   ".mov",
 ].join(",");
 
-function obterExtensaoUpload(
-  nomeArquivo: string
-) {
-  const nome =
-    String(nomeArquivo || "").trim();
+function obterExtensaoUpload(nomeArquivo: string) {
+  const nome = String(nomeArquivo || "").trim();
 
-  const ultimaParte =
-    nome
-      .split(".")
-      .pop()
-      ?.toLowerCase() || "";
+  const ultimaParte = nome.split(".").pop()?.toLowerCase() || "";
 
-  if (
-    !ultimaParte ||
-    ultimaParte ===
-    nome.toLowerCase()
-  ) {
+  if (!ultimaParte || ultimaParte === nome.toLowerCase()) {
     return "";
   }
 
   return ultimaParte;
 }
 
-function limparNomeArquivoUpload(
-  nomeArquivo: string
-) {
-  const nomeOriginal =
-    String(nomeArquivo || "").trim();
+function limparNomeArquivoUpload(nomeArquivo: string) {
+  const nomeOriginal = String(nomeArquivo || "").trim();
 
-  const extensao =
-    obterExtensaoUpload(
-      nomeOriginal
-    );
+  const extensao = obterExtensaoUpload(nomeOriginal);
 
-  const semExtensao =
-    extensao
-      ? nomeOriginal.slice(
-        0,
-        -(extensao.length + 1)
-      )
-      : nomeOriginal;
+  const semExtensao = extensao
+    ? nomeOriginal.slice(0, -(extensao.length + 1))
+    : nomeOriginal;
 
   const nomeSeguro =
     semExtensao
       .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      )
-      .replace(
-        /[^a-zA-Z0-9_-]+/g,
-        "-"
-      )
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9_-]+/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "")
-      .slice(0, 120) ||
-    "arquivo";
+      .slice(0, 120) || "arquivo";
 
   if (!extensao) {
     return nomeSeguro;
@@ -537,9 +478,7 @@ function rotuloEnum(valor?: string | null) {
   return valor
     .replaceAll("_", " ")
     .toLocaleLowerCase(locale)
-    .replace(/(^|\s)\p{L}/gu, (letra) =>
-      letra.toLocaleUpperCase(locale)
-    );
+    .replace(/(^|\s)\p{L}/gu, (letra) => letra.toLocaleUpperCase(locale));
 }
 
 function formatarData(valor?: string | null) {
@@ -570,7 +509,7 @@ function formatarBytes(valor: string) {
   const unidades = ["B", "KB", "MB", "GB", "TB"];
   const indice = Math.min(
     Math.floor(Math.log(bytes) / Math.log(1024)),
-    unidades.length - 1
+    unidades.length - 1,
   );
   const quantidade = bytes / 1024 ** indice;
 
@@ -593,10 +532,7 @@ function classeStatus(status: string) {
     return "bib-status bib-status-warning";
   }
 
-  if (
-    status === "ARQUIVADO" ||
-    status === "INDISPONIVEL"
-  ) {
+  if (status === "ARQUIVADO" || status === "INDISPONIVEL") {
     return "bib-status bib-status-danger";
   }
 
@@ -627,30 +563,21 @@ function criarFormulario(item: ItemDetalhe): FormularioItem {
     doi: item.doi || "",
     idioma: item.idioma || "pt-BR",
     paisPublicacao: item.paisPublicacao || "",
-    anoPublicacao: item.anoPublicacao
-      ? String(item.anoPublicacao)
-      : "",
+    anoPublicacao: item.anoPublicacao ? String(item.anoPublicacao) : "",
     dataPublicacao: dataParaInput(item.dataPublicacao),
     edicao: item.edicao || "",
     volume: item.volume || "",
     numero: item.numero || "",
-    numeroPaginas: item.numeroPaginas
-      ? String(item.numeroPaginas)
-      : "",
-    duracaoSegundos: item.duracaoSegundos
-      ? String(item.duracaoSegundos)
-      : "",
-    classificacaoBibliografica:
-      item.classificacaoBibliografica || "",
+    numeroPaginas: item.numeroPaginas ? String(item.numeroPaginas) : "",
+    duracaoSegundos: item.duracaoSegundos ? String(item.duracaoSegundos) : "",
+    classificacaoBibliografica: item.classificacaoBibliografica || "",
     codigoChamada: item.codigoChamada || "",
     cdd: item.cdd || "",
     cdu: item.cdu || "",
     capaUrl: item.capaUrl || "",
     miniaturaUrl: item.miniaturaUrl || "",
-    classificacaoIndicativa:
-      item.classificacaoIndicativa || "",
-    observacoesInternas:
-      item.observacoesInternas || "",
+    classificacaoIndicativa: item.classificacaoIndicativa || "",
+    observacoesInternas: item.observacoesInternas || "",
     destaque: item.destaque,
     permitirDownload: item.permitirDownload,
     permitirAvaliacao: item.permitirAvaliacao,
@@ -658,10 +585,7 @@ function criarFormulario(item: ItemDetalhe): FormularioItem {
   };
 }
 
-function obterMensagemErro(
-  resposta: RespostaItem,
-  padrao: string
-) {
+function obterMensagemErro(resposta: RespostaItem, padrao: string) {
   return resposta.error || padrao;
 }
 
@@ -700,126 +624,158 @@ export default function BibliotecaItemPage() {
 
   function rotuloTipoItem(valor: string) {
     switch (valor) {
-      case "LIVRO": return tDashboard("types.book");
-      case "EBOOK": return tDashboard("types.ebook");
-      case "ARTIGO_CIENTIFICO": return tDashboard("types.scientificArticle");
-      case "REVISTA": return tDashboard("types.magazine");
-      case "PERIODICO": return tDashboard("types.journal");
-      case "APOSTILA": return tDashboard("types.handout");
-      case "TCC": return tDashboard("types.finalPaper");
-      case "MONOGRAFIA": return tDashboard("types.monograph");
-      case "DISSERTACAO": return tDashboard("types.dissertation");
-      case "TESE": return tDashboard("types.thesis");
-      case "PESQUISA": return tDashboard("types.research");
-      case "DOCUMENTO": return tDashboard("types.document");
-      case "VIDEO": return tDashboard("types.video");
-      case "DOCUMENTARIO": return tDashboard("types.documentary");
-      case "AUDIO": return tDashboard("types.audio");
-      case "AUDIOLIVRO": return tDashboard("types.audiobook");
-      case "PODCAST": return tDashboard("types.podcast");
-      case "LINK_EXTERNO": return tDashboard("types.externalLink");
-      case "OUTRO": return tDashboard("types.other");
-      default: return valor;
+      case "LIVRO":
+        return tDashboard("types.book");
+      case "EBOOK":
+        return tDashboard("types.ebook");
+      case "ARTIGO_CIENTIFICO":
+        return tDashboard("types.scientificArticle");
+      case "REVISTA":
+        return tDashboard("types.magazine");
+      case "PERIODICO":
+        return tDashboard("types.journal");
+      case "APOSTILA":
+        return tDashboard("types.handout");
+      case "TCC":
+        return tDashboard("types.finalPaper");
+      case "MONOGRAFIA":
+        return tDashboard("types.monograph");
+      case "DISSERTACAO":
+        return tDashboard("types.dissertation");
+      case "TESE":
+        return tDashboard("types.thesis");
+      case "PESQUISA":
+        return tDashboard("types.research");
+      case "DOCUMENTO":
+        return tDashboard("types.document");
+      case "VIDEO":
+        return tDashboard("types.video");
+      case "DOCUMENTARIO":
+        return tDashboard("types.documentary");
+      case "AUDIO":
+        return tDashboard("types.audio");
+      case "AUDIOLIVRO":
+        return tDashboard("types.audiobook");
+      case "PODCAST":
+        return tDashboard("types.podcast");
+      case "LINK_EXTERNO":
+        return tDashboard("types.externalLink");
+      case "OUTRO":
+        return tDashboard("types.other");
+      default:
+        return valor;
     }
   }
 
   function rotuloStatusItem(valor: string) {
     switch (valor) {
-      case "RASCUNHO": return tDashboard("itemStatus.draft");
-      case "EM_REVISAO": return tDashboard("itemStatus.inReview");
-      case "PUBLICADO": return tDashboard("itemStatus.published");
-      case "RESTRITO": return tDashboard("itemStatus.restricted");
-      case "INDISPONIVEL": return tDashboard("itemStatus.unavailable");
-      case "ARQUIVADO": return tDashboard("itemStatus.archived");
-      default: return valor;
+      case "RASCUNHO":
+        return tDashboard("itemStatus.draft");
+      case "EM_REVISAO":
+        return tDashboard("itemStatus.inReview");
+      case "PUBLICADO":
+        return tDashboard("itemStatus.published");
+      case "RESTRITO":
+        return tDashboard("itemStatus.restricted");
+      case "INDISPONIVEL":
+        return tDashboard("itemStatus.unavailable");
+      case "ARQUIVADO":
+        return tDashboard("itemStatus.archived");
+      default:
+        return valor;
     }
   }
 
   function rotuloModalidade(valor: string) {
     switch (valor) {
-      case "LEITURA_INTERNA": return tCollection("modalities.internalReading");
-      case "ACESSO_LIVRE": return tCollection("modalities.openAccess");
-      case "DOWNLOAD_AUTORIZADO": return tCollection("modalities.authorizedDownload");
-      case "EMPRESTIMO_DIGITAL": return tCollection("modalities.digitalLoan");
-      case "EMPRESTIMO_FISICO": return tCollection("modalities.physicalLoan");
-      case "STREAMING": return tCollection("modalities.streaming");
-      case "LINK_EXTERNO": return tCollection("modalities.externalLink");
-      default: return valor;
+      case "LEITURA_INTERNA":
+        return tCollection("modalities.internalReading");
+      case "ACESSO_LIVRE":
+        return tCollection("modalities.openAccess");
+      case "DOWNLOAD_AUTORIZADO":
+        return tCollection("modalities.authorizedDownload");
+      case "EMPRESTIMO_DIGITAL":
+        return tCollection("modalities.digitalLoan");
+      case "EMPRESTIMO_FISICO":
+        return tCollection("modalities.physicalLoan");
+      case "STREAMING":
+        return tCollection("modalities.streaming");
+      case "LINK_EXTERNO":
+        return tCollection("modalities.externalLink");
+      default:
+        return valor;
     }
   }
 
   function rotuloEnumLocalizado(valor?: string | null) {
     switch (valor) {
-      case "DISPONIVEL": return ui("enumAvailable");
-      case "PROCESSANDO": return ui("enumProcessing");
-      case "ERRO": return ui("enumError");
-      case "EXCLUIDO": return ui("enumDeleted");
-      case "FISICO": return ui("physical");
-      case "DIGITAL": return ui("digital");
-      case "EMPRESTADO": return ui("enumLoaned");
-      case "RESERVADO": return ui("enumReserved");
-      case "MANUTENCAO": return ui("enumMaintenance");
-      case "DANIFICADO": return ui("enumDamaged");
-      case "INDISPONIVEL": return ui("enumUnavailable");
-      case "EXTRAVIADO": return ui("enumLost");
-      case "BAIXADO": return ui("enumWrittenOff");
-      case "AUTOR": return ui("enumAuthor");
-      case "COAUTOR": return ui("enumCoauthor");
-      case "ORGANIZADOR": return ui("enumOrganizer");
-      case "TRADUTOR": return ui("enumTranslator");
-      case "REVISOR": return ui("enumReviewer");
-      case "ILUSTRADOR": return ui("enumIllustrator");
-      case "ALUNO": return ui("enumStudent");
-      case "PROFESSOR": return ui("enumTeacher");
-      case "FUNCIONARIO": return ui("enumEmployee");
-      default: return rotuloEnum(valor);
+      case "DISPONIVEL":
+        return ui("enumAvailable");
+      case "PROCESSANDO":
+        return ui("enumProcessing");
+      case "ERRO":
+        return ui("enumError");
+      case "EXCLUIDO":
+        return ui("enumDeleted");
+      case "FISICO":
+        return ui("physical");
+      case "DIGITAL":
+        return ui("digital");
+      case "EMPRESTADO":
+        return ui("enumLoaned");
+      case "RESERVADO":
+        return ui("enumReserved");
+      case "MANUTENCAO":
+        return ui("enumMaintenance");
+      case "DANIFICADO":
+        return ui("enumDamaged");
+      case "INDISPONIVEL":
+        return ui("enumUnavailable");
+      case "EXTRAVIADO":
+        return ui("enumLost");
+      case "BAIXADO":
+        return ui("enumWrittenOff");
+      case "AUTOR":
+        return ui("enumAuthor");
+      case "COAUTOR":
+        return ui("enumCoauthor");
+      case "ORGANIZADOR":
+        return ui("enumOrganizer");
+      case "TRADUTOR":
+        return ui("enumTranslator");
+      case "REVISOR":
+        return ui("enumReviewer");
+      case "ILUSTRADOR":
+        return ui("enumIllustrator");
+      case "ALUNO":
+        return ui("enumStudent");
+      case "PROFESSOR":
+        return ui("enumTeacher");
+      case "FUNCIONARIO":
+        return ui("enumEmployee");
+      default:
+        return rotuloEnum(valor);
     }
   }
 
   const [item, setItem] = useState<ItemDetalhe | null>(null);
-  const [formulario, setFormulario] =
-    useState<FormularioItem | null>(null);
+  const [formulario, setFormulario] = useState<FormularioItem | null>(null);
   const [podeEditar, setPodeEditar] = useState(false);
   const [impersonacao, setImpersonacao] = useState(false);
-  const [downloadPermitido, setDownloadPermitido] =
-    useState(false);
+  const [downloadPermitido, setDownloadPermitido] = useState(false);
 
-  const [
-    instituicaoId,
-    setInstituicaoId,
-  ] =
-    useState<number | null>(null);
+  const [instituicaoId, setInstituicaoId] = useState<number | null>(null);
 
-  const [
-    podeEnviarArquivo,
-    setPodeEnviarArquivo,
-  ] =
-    useState(false);
+  const [podeEnviarArquivo, setPodeEnviarArquivo] = useState(false);
 
-  const [
-    armazenamento,
-    setArmazenamento,
-  ] =
-    useState<ArmazenamentoBiblioteca | null>(
-      null
-    );
+  const [armazenamento, setArmazenamento] =
+    useState<ArmazenamentoBiblioteca | null>(null);
 
-  const [
-    enviandoArquivo,
-    setEnviandoArquivo,
-  ] =
-    useState(false);
+  const [enviandoArquivo, setEnviandoArquivo] = useState(false);
 
-  const [
-    progressoUpload,
-    setProgressoUpload,
-  ] =
-    useState(0);
+  const [progressoUpload, setProgressoUpload] = useState(0);
 
-  const arquivoInputRef =
-    useRef<HTMLInputElement | null>(
-      null
-    );
+  const arquivoInputRef = useRef<HTMLInputElement | null>(null);
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -828,242 +784,117 @@ export default function BibliotecaItemPage() {
   const [toast, setToast] = useState<Toast>(null);
   const [atualizacao, setAtualizacao] = useState(0);
 
-  const [
-    exemplares,
-    setExemplares,
-  ] = useState<ExemplarItem[]>([]);
+  const [exemplares, setExemplares] = useState<ExemplarItem[]>([]);
 
-  const [
-    podeGerenciarExemplares,
-    setPodeGerenciarExemplares,
-  ] = useState(false);
+  const [podeGerenciarExemplares, setPodeGerenciarExemplares] = useState(false);
 
-  const [
-    podeBaixarExemplares,
-    setPodeBaixarExemplares,
-  ] = useState(false);
+  const [podeBaixarExemplares, setPodeBaixarExemplares] = useState(false);
 
-  const [
-    podeGerenciarManutencao,
-    setPodeGerenciarManutencao,
-  ] = useState(false);
+  const [podeGerenciarManutencao, setPodeGerenciarManutencao] = useState(false);
 
-  const [
-    podeGerenciarEmprestimos,
-    setPodeGerenciarEmprestimos,
-  ] = useState(false);
+  const [podeGerenciarEmprestimos, setPodeGerenciarEmprestimos] =
+    useState(false);
 
-  const [
-    exemplarParaEmprestimo,
-    setExemplarParaEmprestimo,
-  ] = useState<ExemplarItem | null>(
-    null
-  );
+  const [exemplarParaEmprestimo, setExemplarParaEmprestimo] =
+    useState<ExemplarItem | null>(null);
 
-  const [
-    buscaUsuarioEmprestimo,
-    setBuscaUsuarioEmprestimo,
-  ] = useState("");
+  const [buscaUsuarioEmprestimo, setBuscaUsuarioEmprestimo] = useState("");
 
-  const [
-    usuariosEmprestimo,
-    setUsuariosEmprestimo,
-  ] = useState<
+  const [usuariosEmprestimo, setUsuariosEmprestimo] = useState<
     UsuarioEmprestimo[]
   >([]);
 
-  const [
-    usuarioEmprestimoSelecionado,
-    setUsuarioEmprestimoSelecionado,
-  ] =
-    useState<UsuarioEmprestimo | null>(
-      null
-    );
+  const [usuarioEmprestimoSelecionado, setUsuarioEmprestimoSelecionado] =
+    useState<UsuarioEmprestimo | null>(null);
 
-  const [
-    buscandoUsuariosEmprestimo,
-    setBuscandoUsuariosEmprestimo,
-  ] = useState(false);
+  const [buscandoUsuariosEmprestimo, setBuscandoUsuariosEmprestimo] =
+    useState(false);
 
-  const [
-    erroBuscaUsuariosEmprestimo,
-    setErroBuscaUsuariosEmprestimo,
-  ] = useState<string | null>(
-    null
-  );
+  const [erroBuscaUsuariosEmprestimo, setErroBuscaUsuariosEmprestimo] =
+    useState<string | null>(null);
 
-  const [
-    vencimentoEmprestimo,
-    setVencimentoEmprestimo,
-  ] = useState("");
+  const [vencimentoEmprestimo, setVencimentoEmprestimo] = useState("");
 
-  const [
-    observacaoRetirada,
-    setObservacaoRetirada,
-  ] = useState("");
+  const [observacaoRetirada, setObservacaoRetirada] = useState("");
 
-  const [
-    registrandoEmprestimo,
-    setRegistrandoEmprestimo,
-  ] = useState(false);
+  const [registrandoEmprestimo, setRegistrandoEmprestimo] = useState(false);
 
-  const [
-    exemplarParaDevolucao,
-    setExemplarParaDevolucao,
-  ] = useState<ExemplarItem | null>(
-    null
-  );
+  const [exemplarParaDevolucao, setExemplarParaDevolucao] =
+    useState<ExemplarItem | null>(null);
 
-  const [
-    condicaoDevolucao,
-    setCondicaoDevolucao,
-  ] = useState("NORMAL");
+  const [condicaoDevolucao, setCondicaoDevolucao] = useState("NORMAL");
 
-  const [
-    observacaoDevolucao,
-    setObservacaoDevolucao,
-  ] = useState("");
+  const [observacaoDevolucao, setObservacaoDevolucao] = useState("");
 
-  const [
-    devolvendoExemplar,
-    setDevolvendoExemplar,
-  ] = useState(false);
+  const [devolvendoExemplar, setDevolvendoExemplar] = useState(false);
 
-  const [
-    exemplarParaManutencao,
-    setExemplarParaManutencao,
-  ] = useState<ExemplarItem | null>(
-    null
-  );
+  const [exemplarParaManutencao, setExemplarParaManutencao] =
+    useState<ExemplarItem | null>(null);
 
-  const [
-    motivoManutencao,
-    setMotivoManutencao,
-  ] = useState("");
+  const [motivoManutencao, setMotivoManutencao] = useState("");
 
-  const [
-    observacaoEntradaManutencao,
-    setObservacaoEntradaManutencao,
-  ] = useState("");
+  const [observacaoEntradaManutencao, setObservacaoEntradaManutencao] =
+    useState("");
 
-  const [
-    fornecedorManutencao,
-    setFornecedorManutencao,
-  ] = useState("");
+  const [fornecedorManutencao, setFornecedorManutencao] = useState("");
 
-  const [
-    custoEstimadoManutencao,
-    setCustoEstimadoManutencao,
-  ] = useState("");
+  const [custoEstimadoManutencao, setCustoEstimadoManutencao] = useState("");
 
-  const [
-    previsaoRetornoManutencao,
-    setPrevisaoRetornoManutencao,
-  ] = useState("");
+  const [previsaoRetornoManutencao, setPrevisaoRetornoManutencao] =
+    useState("");
 
-  const [
-    enviandoParaManutencao,
-    setEnviandoParaManutencao,
-  ] = useState(false);
+  const [enviandoParaManutencao, setEnviandoParaManutencao] = useState(false);
 
-  const [
-    exemplarParaConclusaoManutencao,
-    setExemplarParaConclusaoManutencao,
-  ] = useState<ExemplarItem | null>(
-    null
-  );
+  const [exemplarParaConclusaoManutencao, setExemplarParaConclusaoManutencao] =
+    useState<ExemplarItem | null>(null);
 
-  const [
-    resultadoManutencao,
-    setResultadoManutencao,
-  ] = useState<
+  const [resultadoManutencao, setResultadoManutencao] = useState<
     "REPARADO" | "IRRECUPERAVEL"
   >("REPARADO");
 
-  const [
-    observacaoConclusaoManutencao,
-    setObservacaoConclusaoManutencao,
-  ] = useState("");
+  const [observacaoConclusaoManutencao, setObservacaoConclusaoManutencao] =
+    useState("");
 
-  const [
-    custoFinalManutencao,
-    setCustoFinalManutencao,
-  ] = useState("");
+  const [custoFinalManutencao, setCustoFinalManutencao] = useState("");
 
-  const [
-    concluindoManutencao,
-    setConcluindoManutencao,
-  ] = useState(false);
+  const [concluindoManutencao, setConcluindoManutencao] = useState(false);
 
   const [
     exemplarParaCancelamentoManutencao,
     setExemplarParaCancelamentoManutencao,
-  ] = useState<ExemplarItem | null>(
-    null
-  );
+  ] = useState<ExemplarItem | null>(null);
 
-  const [
-    motivoCancelamentoManutencao,
-    setMotivoCancelamentoManutencao,
-  ] = useState("");
+  const [motivoCancelamentoManutencao, setMotivoCancelamentoManutencao] =
+    useState("");
 
   const [
     statusRetornoCancelamentoManutencao,
     setStatusRetornoCancelamentoManutencao,
-  ] = useState<
-    "DANIFICADO" | "INDISPONIVEL"
-  >("DANIFICADO");
+  ] = useState<"DANIFICADO" | "INDISPONIVEL">("DANIFICADO");
 
-  const [
-    cancelandoManutencao,
-    setCancelandoManutencao,
-  ] = useState(false);
+  const [cancelandoManutencao, setCancelandoManutencao] = useState(false);
 
-  const [
-    carregandoExemplares,
-    setCarregandoExemplares,
-  ] = useState(false);
+  const [carregandoExemplares, setCarregandoExemplares] = useState(false);
 
-  const [
-    modalExemplarAberto,
-    setModalExemplarAberto,
-  ] = useState(false);
+  const [modalExemplarAberto, setModalExemplarAberto] = useState(false);
 
-  const [
-    exemplarEmEdicao,
-    setExemplarEmEdicao,
-  ] = useState<ExemplarItem | null>(
-    null
+  const [exemplarEmEdicao, setExemplarEmEdicao] = useState<ExemplarItem | null>(
+    null,
   );
 
-  const [
-    salvandoExemplar,
-    setSalvandoExemplar,
-  ] = useState(false);
+  const [salvandoExemplar, setSalvandoExemplar] = useState(false);
 
-  const [
-    formularioExemplar,
-    setFormularioExemplar,
-  ] = useState<FormularioExemplar>({
-    ...FORMULARIO_EXEMPLAR_INICIAL,
-  });
+  const [formularioExemplar, setFormularioExemplar] =
+    useState<FormularioExemplar>({
+      ...FORMULARIO_EXEMPLAR_INICIAL,
+    });
 
-  const [
-    exemplarParaBaixa,
-    setExemplarParaBaixa,
-  ] = useState<ExemplarItem | null>(
-    null
-  );
+  const [exemplarParaBaixa, setExemplarParaBaixa] =
+    useState<ExemplarItem | null>(null);
 
-  const [
-    motivoBaixaExemplar,
-    setMotivoBaixaExemplar,
-  ] = useState("");
+  const [motivoBaixaExemplar, setMotivoBaixaExemplar] = useState("");
 
-  const [
-    baixandoExemplar,
-    setBaixandoExemplar,
-  ] = useState(false);
+  const [baixandoExemplar, setBaixandoExemplar] = useState(false);
 
   const carregarItem = useCallback(
     async (signal?: AbortSignal) => {
@@ -1077,253 +908,156 @@ export default function BibliotecaItemPage() {
       setErro(null);
 
       try {
-        const resposta = await fetch(
-          `/api/admin/biblioteca/acervo/${itemId}`,
-          {
-            method: "GET",
-            cache: "no-store",
-            signal,
-          }
-        );
-        const resultado =
-          (await resposta.json()) as RespostaItem;
+        const resposta = await fetch(`/api/admin/biblioteca/acervo/${itemId}`, {
+          method: "GET",
+          cache: "no-store",
+          signal,
+        });
+        const resultado = (await resposta.json()) as RespostaItem;
 
         if (!resposta.ok || !resultado.item) {
-          throw new Error(
-            obterMensagemErro(
-              resultado,
-              ui("loadItemError")
-            )
-          );
+          throw new Error(obterMensagemErro(resultado, ui("loadItemError")));
         }
 
         setItem(resultado.item);
         setFormulario(criarFormulario(resultado.item));
-        setPodeEditar(
-          resultado.permissoes?.podeEditar === true
-        );
-        setImpersonacao(
-          resultado.permissoes?.impersonacao === true
-        );
-        setDownloadPermitido(
-          resultado.configuracao?.permitirDownload ===
-          true
-        );
+        setPodeEditar(resultado.permissoes?.podeEditar === true);
+        setImpersonacao(resultado.permissoes?.impersonacao === true);
+        setDownloadPermitido(resultado.configuracao?.permitirDownload === true);
         setInstituicaoId(
-          Number.isInteger(
-            resultado.instituicaoId
-          )
+          Number.isInteger(resultado.instituicaoId)
             ? resultado.instituicaoId!
-            : null
+            : null,
         );
 
-        setPodeEnviarArquivo(
-          resultado.permissoes
-            ?.podeEnviarArquivo === true
-        );
+        setPodeEnviarArquivo(resultado.permissoes?.podeEnviarArquivo === true);
 
         setPodeExcluirArquivo(
-          resultado.permissoes
-            ?.podeExcluirArquivo === true
+          resultado.permissoes?.podeExcluirArquivo === true,
         );
 
         setPodeGerenciarArquivo(
-          resultado.permissoes
-            ?.podeGerenciarArquivo === true
+          resultado.permissoes?.podeGerenciarArquivo === true,
         );
 
-        setArmazenamento(
-          resultado.armazenamento ||
-          null
-        );
+        setArmazenamento(resultado.armazenamento || null);
       } catch (falha) {
-        if (
-          falha instanceof DOMException &&
-          falha.name === "AbortError"
-        ) {
+        if (falha instanceof DOMException && falha.name === "AbortError") {
           return;
         }
 
-        setErro(
-          falha instanceof Error
-            ? falha.message
-            : ui("loadItemError")
-        );
+        setErro(falha instanceof Error ? falha.message : ui("loadItemError"));
       } finally {
         if (!signal?.aborted) {
           setCarregando(false);
         }
       }
     },
-    [itemId]
+    [itemId],
   );
 
-  const carregarExemplares =
-    useCallback(
-      async (
-        signal?: AbortSignal
-      ) => {
-        if (
-          !Number.isInteger(itemId) ||
-          itemId <= 0
-        ) {
+  const carregarExemplares = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!Number.isInteger(itemId) || itemId <= 0) {
+        return;
+      }
+
+      setCarregandoExemplares(true);
+
+      try {
+        const resposta = await fetch(
+          `/api/admin/biblioteca/acervo/${itemId}/exemplares`,
+          {
+            method: "GET",
+            cache: "no-store",
+            signal,
+          },
+        );
+
+        const resultado = (await resposta.json()) as RespostaExemplares;
+
+        if (!resposta.ok) {
+          throw new Error(
+            resultado.error || resultado.mensagem || ui("loadCopiesError"),
+          );
+        }
+
+        setExemplares(
+          Array.isArray(resultado.exemplares) ? resultado.exemplares : [],
+        );
+
+        setPodeGerenciarExemplares(
+          resultado.permissoes?.podeGerenciar === true,
+        );
+
+        setPodeBaixarExemplares(resultado.permissoes?.podeBaixar === true);
+        setPodeGerenciarManutencao(
+          resultado.permissoes?.podeGerenciarManutencao === true,
+        );
+      } catch (falha) {
+        if (falha instanceof DOMException && falha.name === "AbortError") {
           return;
         }
 
-        setCarregandoExemplares(true);
+        setExemplares([]);
 
-        try {
-          const resposta =
-            await fetch(
-              `/api/admin/biblioteca/acervo/${itemId}/exemplares`,
-              {
-                method: "GET",
-                cache: "no-store",
-                signal,
-              }
-            );
+        setPodeGerenciarExemplares(false);
 
-          const resultado =
-            (await resposta.json()) as
-            RespostaExemplares;
+        setPodeBaixarExemplares(false);
 
-          if (!resposta.ok) {
-            throw new Error(
-              resultado.error ||
-              resultado.mensagem ||
-              ui("loadCopiesError")
-            );
-          }
+        setPodeGerenciarManutencao(false);
 
-          setExemplares(
-            Array.isArray(
-              resultado.exemplares
-            )
-              ? resultado.exemplares
-              : []
-          );
+        setToast({
+          tipo: "erro",
 
-          setPodeGerenciarExemplares(
-            resultado.permissoes
-              ?.podeGerenciar === true
-          );
-
-          setPodeBaixarExemplares(
-            resultado.permissoes
-              ?.podeBaixar === true
-          );
-          setPodeGerenciarManutencao(
-            resultado.permissoes
-              ?.podeGerenciarManutencao ===
-            true
-          );
-        } catch (falha) {
-          if (
-            falha instanceof
-            DOMException &&
-            falha.name ===
-            "AbortError"
-          ) {
-            return;
-          }
-
-          setExemplares([]);
-
-          setPodeGerenciarExemplares(
-            false
-          );
-
-          setPodeBaixarExemplares(
-            false
-          );
-
-          setPodeGerenciarManutencao(
-            false
-          );
-
-          setToast({
-            tipo: "erro",
-
-            mensagem:
-              falha instanceof Error
-                ? falha.message
-                : ui("loadCopiesError"),
-          });
-        } finally {
-          if (!signal?.aborted) {
-            setCarregandoExemplares(
-              false
-            );
-          }
+          mensagem:
+            falha instanceof Error ? falha.message : ui("loadCopiesError"),
+        });
+      } finally {
+        if (!signal?.aborted) {
+          setCarregandoExemplares(false);
         }
-      },
-      [itemId]
-    );
-
-  const [
-    podeExcluirArquivo,
-    setPodeExcluirArquivo,
-  ] = useState(false);
-
-  const [
-    arquivoParaExcluir,
-    setArquivoParaExcluir,
-  ] = useState<ArquivoItem | null>(
-    null
+      }
+    },
+    [itemId],
   );
 
-  const [
-    motivoExclusao,
-    setMotivoExclusao,
-  ] = useState("");
+  const [podeExcluirArquivo, setPodeExcluirArquivo] = useState(false);
 
-  const [
-    excluindoArquivo,
-    setExcluindoArquivo,
-  ] = useState(false);
+  const [arquivoParaExcluir, setArquivoParaExcluir] =
+    useState<ArquivoItem | null>(null);
 
-  const [
-    podeGerenciarArquivo,
-    setPodeGerenciarArquivo,
-  ] = useState(false);
+  const [motivoExclusao, setMotivoExclusao] = useState("");
 
-  const [
-    definindoPrincipalId,
-    setDefinindoPrincipalId,
-  ] = useState<number | null>(null);
+  const [excluindoArquivo, setExcluindoArquivo] = useState(false);
 
-  const [
-    historicoArquivosAberto,
-    setHistoricoArquivosAberto,
-  ] = useState(false);
+  const [podeGerenciarArquivo, setPodeGerenciarArquivo] = useState(false);
 
-  const [
-    historicoArquivos,
-    setHistoricoArquivos,
-  ] = useState<ArquivoHistorico[]>([]);
+  const [definindoPrincipalId, setDefinindoPrincipalId] = useState<
+    number | null
+  >(null);
 
-  const [
-    resumoHistoricoArquivos,
-    setResumoHistoricoArquivos,
-  ] = useState({
+  const [historicoArquivosAberto, setHistoricoArquivosAberto] = useState(false);
+
+  const [historicoArquivos, setHistoricoArquivos] = useState<
+    ArquivoHistorico[]
+  >([]);
+
+  const [resumoHistoricoArquivos, setResumoHistoricoArquivos] = useState({
     total: 0,
     ativos: 0,
     arquivados: 0,
   });
 
-  const [
-    carregandoHistoricoArquivos,
-    setCarregandoHistoricoArquivos,
-  ] = useState(false);
+  const [carregandoHistoricoArquivos, setCarregandoHistoricoArquivos] =
+    useState(false);
 
-  const [
-    erroHistoricoArquivos,
-    setErroHistoricoArquivos,
-  ] = useState<string | null>(null);
+  const [erroHistoricoArquivos, setErroHistoricoArquivos] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
-    const controle =
-      new AbortController();
+    const controle = new AbortController();
 
     async function verificarPermissaoEmprestimos() {
       try {
@@ -1335,47 +1069,33 @@ export default function BibliotecaItemPage() {
          * e, como não existem 2 caracteres
          * de busca, não carrega pessoas.
          */
-        const resposta =
-          await fetch(
-            "/api/admin/biblioteca/circulacao/usuarios?q=",
-            {
-              method: "GET",
-              cache: "no-store",
-              credentials: "include",
-              signal:
-                controle.signal,
-            }
-          );
+        const resposta = await fetch(
+          "/api/admin/biblioteca/circulacao/usuarios?q=",
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "include",
+            signal: controle.signal,
+          },
+        );
 
-        if (
-          controle.signal.aborted
-        ) {
+        if (controle.signal.aborted) {
           return;
         }
 
-        setPodeGerenciarEmprestimos(
-          resposta.ok
-        );
+        setPodeGerenciarEmprestimos(resposta.ok);
       } catch (falha) {
-        if (
-          falha instanceof
-          DOMException &&
-          falha.name ===
-          "AbortError"
-        ) {
+        if (falha instanceof DOMException && falha.name === "AbortError") {
           return;
         }
 
-        setPodeGerenciarEmprestimos(
-          false
-        );
+        setPodeGerenciarEmprestimos(false);
       }
     }
 
     void verificarPermissaoEmprestimos();
 
-    return () =>
-      controle.abort();
+    return () => controle.abort();
   }, []);
 
   useEffect(() => {
@@ -1387,27 +1107,17 @@ export default function BibliotecaItemPage() {
   }, [carregarItem, atualizacao]);
 
   useEffect(() => {
-    const controlador =
-      new AbortController();
+    const controlador = new AbortController();
 
-    void carregarExemplares(
-      controlador.signal
-    );
+    void carregarExemplares(controlador.signal);
 
-    return () =>
-      controlador.abort();
-  }, [
-    carregarExemplares,
-    atualizacao,
-  ]);
+    return () => controlador.abort();
+  }, [carregarExemplares, atualizacao]);
 
   useEffect(() => {
     if (!toast) return;
 
-    const temporizador = window.setTimeout(
-      () => setToast(null),
-      5_000
-    );
+    const temporizador = window.setTimeout(() => setToast(null), 5_000);
 
     return () => window.clearTimeout(temporizador);
   }, [toast]);
@@ -1417,140 +1127,92 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    const termo =
-      buscaUsuarioEmprestimo.trim();
+    const termo = buscaUsuarioEmprestimo.trim();
 
     if (termo.length < 2) {
       setUsuariosEmprestimo([]);
-      setBuscandoUsuariosEmprestimo(
-        false
-      );
-      setErroBuscaUsuariosEmprestimo(
-        null
-      );
+      setBuscandoUsuariosEmprestimo(false);
+      setErroBuscaUsuariosEmprestimo(null);
 
       return;
     }
 
-    const controle =
-      new AbortController();
+    const controle = new AbortController();
 
-    const temporizador =
-      window.setTimeout(
-        async () => {
-          setBuscandoUsuariosEmprestimo(
-            true
+    const temporizador = window.setTimeout(async () => {
+      setBuscandoUsuariosEmprestimo(true);
+
+      setErroBuscaUsuariosEmprestimo(null);
+
+      try {
+        const resposta = await fetch(
+          `/api/admin/biblioteca/circulacao/usuarios?q=${encodeURIComponent(
+            termo,
+          )}`,
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "include",
+            signal: controle.signal,
+          },
+        );
+
+        const resultado = (await resposta.json()) as RespostaUsuariosEmprestimo;
+
+        if (!resposta.ok) {
+          throw new Error(
+            resultado.error || resultado.mensagem || ui("searchUsersError"),
           );
+        }
 
-          setErroBuscaUsuariosEmprestimo(
-            null
-          );
+        if (controle.signal.aborted) {
+          return;
+        }
 
-          try {
-            const resposta =
-              await fetch(
-                `/api/admin/biblioteca/circulacao/usuarios?q=${encodeURIComponent(
-                  termo
-                )}`,
-                {
-                  method: "GET",
-                  cache: "no-store",
-                  credentials:
-                    "include",
-                  signal:
-                    controle.signal,
-                }
-              );
+        setUsuariosEmprestimo(
+          Array.isArray(resultado.usuarios) ? resultado.usuarios : [],
+        );
+      } catch (falha) {
+        if (falha instanceof DOMException && falha.name === "AbortError") {
+          return;
+        }
 
-            const resultado =
-              (await resposta.json()) as
-              RespostaUsuariosEmprestimo;
+        setUsuariosEmprestimo([]);
 
-            if (!resposta.ok) {
-              throw new Error(
-                resultado.error ||
-                resultado.mensagem ||
-                ui("searchUsersError")
-              );
-            }
-
-            if (
-              controle.signal.aborted
-            ) {
-              return;
-            }
-
-            setUsuariosEmprestimo(
-              Array.isArray(
-                resultado.usuarios
-              )
-                ? resultado.usuarios
-                : []
-            );
-          } catch (falha) {
-            if (
-              falha instanceof
-              DOMException &&
-              falha.name ===
-              "AbortError"
-            ) {
-              return;
-            }
-
-            setUsuariosEmprestimo(
-              []
-            );
-
-            setErroBuscaUsuariosEmprestimo(
-              falha instanceof Error
-                ? falha.message
-                : ui("searchUsersError")
-            );
-          } finally {
-            if (
-              !controle.signal.aborted
-            ) {
-              setBuscandoUsuariosEmprestimo(
-                false
-              );
-            }
-          }
-        },
-        350
-      );
+        setErroBuscaUsuariosEmprestimo(
+          falha instanceof Error ? falha.message : ui("searchUsersError"),
+        );
+      } finally {
+        if (!controle.signal.aborted) {
+          setBuscandoUsuariosEmprestimo(false);
+        }
+      }
+    }, 350);
 
     return () => {
-      window.clearTimeout(
-        temporizador
-      );
+      window.clearTimeout(temporizador);
 
       controle.abort();
     };
-  }, [
-    buscaUsuarioEmprestimo,
-    exemplarParaEmprestimo,
-  ]);
+  }, [buscaUsuarioEmprestimo, exemplarParaEmprestimo]);
 
   const alterado = useMemo(() => {
     if (!item || !formulario) return false;
 
-    return (
-      JSON.stringify(formulario) !==
-      JSON.stringify(criarFormulario(item))
-    );
+    return JSON.stringify(formulario) !== JSON.stringify(criarFormulario(item));
   }, [formulario, item]);
 
   function alterar<K extends keyof FormularioItem>(
     campo: K,
-    valor: FormularioItem[K]
+    valor: FormularioItem[K],
   ) {
     setFormulario((atual) =>
       atual
         ? {
-          ...atual,
-          [campo]: valor,
-        }
-        : atual
+            ...atual,
+            [campo]: valor,
+          }
+        : atual,
     );
   }
 
@@ -1562,11 +1224,8 @@ export default function BibliotecaItemPage() {
     setEditando(false);
   }
 
-  async function enviarArquivo(
-    evento: ChangeEvent<HTMLInputElement>
-  ) {
-    const arquivo =
-      evento.target.files?.[0];
+  async function enviarArquivo(evento: ChangeEvent<HTMLInputElement>) {
+    const arquivo = evento.target.files?.[0];
 
     /*
      * Permite escolher novamente
@@ -1578,23 +1237,14 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    if (
-      enviandoArquivo ||
-      !podeEnviarArquivo
-    ) {
+    if (enviandoArquivo || !podeEnviarArquivo) {
       return;
     }
 
-    if (
-      !instituicaoId ||
-      !Number.isInteger(
-        instituicaoId
-      )
-    ) {
+    if (!instituicaoId || !Number.isInteger(instituicaoId)) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("identifyInstitutionError"),
+        mensagem: ui("identifyInstitutionError"),
       });
 
       return;
@@ -1603,27 +1253,18 @@ export default function BibliotecaItemPage() {
     if (!armazenamento) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("storageQueryError"),
+        mensagem: ui("storageQueryError"),
       });
 
       return;
     }
 
-    const extensao =
-      obterExtensaoUpload(
-        arquivo.name
-      );
+    const extensao = obterExtensaoUpload(arquivo.name);
 
-    if (
-      !EXTENSOES_UPLOAD_BIBLIOTECA.has(
-        extensao
-      )
-    ) {
+    if (!EXTENSOES_UPLOAD_BIBLIOTECA.has(extensao)) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("invalidFileFormat"),
+        mensagem: ui("invalidFileFormat"),
       });
 
       return;
@@ -1632,36 +1273,26 @@ export default function BibliotecaItemPage() {
     let disponivel = 0n;
 
     try {
-      disponivel =
-        BigInt(
-          armazenamento
-            .disponivelBytes ||
-          "0"
-        );
+      disponivel = BigInt(armazenamento.disponivelBytes || "0");
     } catch {
       disponivel = 0n;
     }
 
-    const tamanhoArquivo =
-      BigInt(arquivo.size);
+    const tamanhoArquivo = BigInt(arquivo.size);
 
-    if (
-      tamanhoArquivo >
-      disponivel
-    ) {
+    if (tamanhoArquivo > disponivel) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("insufficientStorage", { fileSize: formatarBytes(String(arquivo.size)), available: formatarBytes(armazenamento.disponivelBytes) }),
+        mensagem: ui("insufficientStorage", {
+          fileSize: formatarBytes(String(arquivo.size)),
+          available: formatarBytes(armazenamento.disponivelBytes),
+        }),
       });
 
       return;
     }
 
-    const nomeSeguro =
-      limparNomeArquivoUpload(
-        arquivo.name
-      );
+    const nomeSeguro = limparNomeArquivoUpload(arquivo.name);
 
     const pathname = [
       "biblioteca",
@@ -1674,115 +1305,69 @@ export default function BibliotecaItemPage() {
     setProgressoUpload(0);
 
     try {
-      await upload(
-        pathname,
-        arquivo,
-        {
-          access: "private",
+      await upload(pathname, arquivo, {
+        access: "private",
 
-          handleUploadUrl:
-            `/api/admin/biblioteca/acervo/${itemId}/arquivos/upload`,
+        handleUploadUrl: `/api/admin/biblioteca/acervo/${itemId}/arquivos/upload`,
 
-          clientPayload:
-            JSON.stringify({
-              nomeOriginal:
-                arquivo.name,
+        clientPayload: JSON.stringify({
+          nomeOriginal: arquivo.name,
 
-              tamanhoBytes:
-                arquivo.size,
+          tamanhoBytes: arquivo.size,
 
-              mimeType:
-                arquivo.type || "",
-            }),
+          mimeType: arquivo.type || "",
+        }),
 
-          multipart: true,
+        multipart: true,
 
-          contentType:
-            arquivo.type ||
-            undefined,
+        contentType: arquivo.type || undefined,
 
-          onUploadProgress(
-            progresso
-          ) {
-            setProgressoUpload(
-              Math.max(
-                0,
-                Math.min(
-                  100,
-                  Math.round(
-                    progresso.percentage
-                  )
-                )
-              )
-            );
-          },
-        }
-      );
+        onUploadProgress(progresso) {
+          setProgressoUpload(
+            Math.max(0, Math.min(100, Math.round(progresso.percentage))),
+          );
+        },
+      });
 
       setProgressoUpload(100);
 
       setToast({
         tipo: "sucesso",
-        mensagem:
-          ui("uploadSuccess"),
+        mensagem: ui("uploadSuccess"),
       });
 
       /*
- * O callback de conclusão do Vercel Blob
- * pode terminar alguns instantes depois
- * que o navegador conclui o envio.
- *
- * Fazemos mais de uma atualização para
- * refletir o arquivo e o consumo sem
- * depender de um único tempo fixo.
- */
-      const temposAtualizacao = [
-        800,
-        2_000,
-        4_000,
-      ];
+       * O callback de conclusão do Vercel Blob
+       * pode terminar alguns instantes depois
+       * que o navegador conclui o envio.
+       *
+       * Fazemos mais de uma atualização para
+       * refletir o arquivo e o consumo sem
+       * depender de um único tempo fixo.
+       */
+      const temposAtualizacao = [800, 2_000, 4_000];
 
-      temposAtualizacao.forEach(
-        (tempo) => {
-          window.setTimeout(
-            () => {
-              setAtualizacao(
-                (valor) =>
-                  valor + 1
-              );
-            },
-            tempo
-          );
-        }
-      );
+      temposAtualizacao.forEach((tempo) => {
+        window.setTimeout(() => {
+          setAtualizacao((valor) => valor + 1);
+        }, tempo);
+      });
     } catch (falha) {
       setToast({
         tipo: "erro",
-        mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("uploadError"),
+        mensagem: falha instanceof Error ? falha.message : ui("uploadError"),
       });
     } finally {
-      setEnviandoArquivo(
-        false
-      );
+      setEnviandoArquivo(false);
     }
   }
 
-  function abrirExclusaoArquivo(
-    arquivo: ArquivoItem
-  ) {
-    if (
-      !podeExcluirArquivo ||
-      impersonacao
-    ) {
+  function abrirExclusaoArquivo(arquivo: ArquivoItem) {
+    if (!podeExcluirArquivo || impersonacao) {
       return;
     }
 
-    setArquivoParaExcluir(
-      arquivo
-    );
+    setArquivoParaExcluir(arquivo);
 
     setMotivoExclusao("");
   }
@@ -1792,106 +1377,76 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setArquivoParaExcluir(
-      null
-    );
+    setArquivoParaExcluir(null);
 
     setMotivoExclusao("");
   }
 
   async function excluirArquivo() {
-    if (
-      !arquivoParaExcluir ||
-      excluindoArquivo ||
-      !podeExcluirArquivo
-    ) {
+    if (!arquivoParaExcluir || excluindoArquivo || !podeExcluirArquivo) {
       return;
     }
 
     setExcluindoArquivo(true);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/arquivos/${arquivoParaExcluir.id}`,
-          {
-            method: "DELETE",
+      const resposta = await fetch(
+        `/api/admin/biblioteca/arquivos/${arquivoParaExcluir.id}`,
+        {
+          method: "DELETE",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              motivo:
-                motivoExclusao.trim() ||
-                ui("defaultFileRemovalReason"),
-            }),
-          }
-        );
+          body: JSON.stringify({
+            motivo: motivoExclusao.trim() || ui("defaultFileRemovalReason"),
+          }),
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
-          armazenamentoLiberadoBytes?: string;
-        };
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+        armazenamentoLiberadoBytes?: string;
+      };
 
       if (!resposta.ok) {
-        throw new Error(
-          resultado.error ||
-          ui("deleteFileError")
-        );
+        throw new Error(resultado.error || ui("deleteFileError"));
       }
 
-      const liberado =
-        resultado.armazenamentoLiberadoBytes
-          ? formatarBytes(
-            resultado.armazenamentoLiberadoBytes
-          )
-          : null;
+      const liberado = resultado.armazenamentoLiberadoBytes
+        ? formatarBytes(resultado.armazenamentoLiberadoBytes)
+        : null;
 
       setToast({
         tipo: "sucesso",
 
         mensagem:
-          liberado &&
-            liberado !== "0 B"
+          liberado && liberado !== "0 B"
             ? ui("storageReleased", { size: liberado })
-            : resultado.mensagem ||
-            ui("deleteFileSuccess"),
+            : resultado.mensagem || ui("deleteFileSuccess"),
       });
 
-      setArquivoParaExcluir(
-        null
-      );
+      setArquivoParaExcluir(null);
 
       setMotivoExclusao("");
 
-      setAtualizacao(
-        (valor) =>
-          valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
         mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("deleteFileError"),
+          falha instanceof Error ? falha.message : ui("deleteFileError"),
       });
     } finally {
-      setExcluindoArquivo(
-        false
-      );
+      setExcluindoArquivo(false);
     }
   }
 
-  async function definirArquivoPrincipal(
-    arquivo: ArquivoItem
-  ) {
+  async function definirArquivoPrincipal(arquivo: ArquivoItem) {
     if (
       arquivo.principal ||
       definindoPrincipalId !== null ||
@@ -1901,72 +1456,51 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setDefinindoPrincipalId(
-      arquivo.id
-    );
+    setDefinindoPrincipalId(arquivo.id);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/arquivos/${arquivo.id}/principal`,
-          {
-            method: "PATCH",
+      const resposta = await fetch(
+        `/api/admin/biblioteca/arquivos/${arquivo.id}/principal`,
+        {
+          method: "PATCH",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-          }
-        );
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
-        };
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+      };
 
       if (!resposta.ok) {
-        throw new Error(
-          resultado.error ||
-          ui("setPrimaryError")
-        );
+        throw new Error(resultado.error || ui("setPrimaryError"));
       }
 
       setToast({
         tipo: "sucesso",
 
-        mensagem:
-          resultado.mensagem ||
-          ui("setPrimarySuccess"),
+        mensagem: resultado.mensagem || ui("setPrimarySuccess"),
       });
 
-      setAtualizacao(
-        (valor) =>
-          valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
         mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("setPrimaryError"),
+          falha instanceof Error ? falha.message : ui("setPrimaryError"),
       });
     } finally {
-      setDefinindoPrincipalId(
-        null
-      );
+      setDefinindoPrincipalId(null);
     }
   }
 
   async function abrirHistoricoArquivos() {
-    if (
-      !podeGerenciarArquivo ||
-      impersonacao ||
-      carregandoHistoricoArquivos
-    ) {
+    if (!podeGerenciarArquivo || impersonacao || carregandoHistoricoArquivos) {
       return;
     }
 
@@ -1975,65 +1509,48 @@ export default function BibliotecaItemPage() {
     setErroHistoricoArquivos(null);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/acervo/${itemId}/arquivos/historico`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
+      const resposta = await fetch(
+        `/api/admin/biblioteca/acervo/${itemId}/arquivos/historico`,
+        {
+          method: "GET",
+          cache: "no-store",
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as
-        RespostaHistoricoArquivos;
+      const resultado = (await resposta.json()) as RespostaHistoricoArquivos;
 
       if (!resposta.ok) {
         throw new Error(
-          resultado.error ||
-          resultado.mensagem ||
-          ui("loadFileHistoryError")
+          resultado.error || resultado.mensagem || ui("loadFileHistoryError"),
         );
       }
 
-      setHistoricoArquivos(
-        resultado.arquivos || []
-      );
+      setHistoricoArquivos(resultado.arquivos || []);
 
       setResumoHistoricoArquivos(
         resultado.resumo || {
           total: 0,
           ativos: 0,
           arquivados: 0,
-        }
+        },
       );
     } catch (falha) {
       setErroHistoricoArquivos(
-        falha instanceof Error
-          ? falha.message
-          : ui("loadFileHistoryError")
+        falha instanceof Error ? falha.message : ui("loadFileHistoryError"),
       );
     } finally {
-      setCarregandoHistoricoArquivos(
-        false
-      );
+      setCarregandoHistoricoArquivos(false);
     }
   }
 
   function fecharHistoricoArquivos() {
-    if (
-      carregandoHistoricoArquivos
-    ) {
+    if (carregandoHistoricoArquivos) {
       return;
     }
 
-    setHistoricoArquivosAberto(
-      false
-    );
+    setHistoricoArquivosAberto(false);
 
-    setErroHistoricoArquivos(
-      null
-    );
+    setErroHistoricoArquivos(null);
   }
 
   async function salvar(evento: FormEvent<HTMLFormElement>) {
@@ -2046,29 +1563,20 @@ export default function BibliotecaItemPage() {
     setSalvando(true);
 
     try {
-      const resposta = await fetch(
-        `/api/admin/biblioteca/acervo/${itemId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...formulario,
-            palavrasChave: formulario.palavrasChave,
-          }),
-        }
-      );
-      const resultado =
-        (await resposta.json()) as RespostaItem;
+      const resposta = await fetch(`/api/admin/biblioteca/acervo/${itemId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formulario,
+          palavrasChave: formulario.palavrasChave,
+        }),
+      });
+      const resultado = (await resposta.json()) as RespostaItem;
 
       if (!resposta.ok || !resultado.item) {
-        throw new Error(
-          obterMensagemErro(
-            resultado,
-            ui("saveItemError")
-          )
-        );
+        throw new Error(obterMensagemErro(resultado, ui("saveItemError")));
       }
 
       setItem(resultado.item);
@@ -2076,17 +1584,12 @@ export default function BibliotecaItemPage() {
       setEditando(false);
       setToast({
         tipo: "sucesso",
-        mensagem:
-          resultado.mensagem ||
-          ui("saveItemSuccess"),
+        mensagem: resultado.mensagem || ui("saveItemSuccess"),
       });
     } catch (falha) {
       setToast({
         tipo: "erro",
-        mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("saveItemError"),
+        mensagem: falha instanceof Error ? falha.message : ui("saveItemError"),
       });
     } finally {
       setSalvando(false);
@@ -2106,8 +1609,12 @@ export default function BibliotecaItemPage() {
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-summary-card,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-modal,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-related-row,
-      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-detail-savebar,
-      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-detail-history {
+      html[data-theme="system"]
+        .phanyx-biblioteca-item-page
+        .bib-detail-savebar,
+      html[data-theme="system"]
+        .phanyx-biblioteca-item-page
+        .bib-detail-history {
         background: #2d2d2d !important;
         border-color: #505050 !important;
         color: #ffffff !important;
@@ -2119,7 +1626,9 @@ export default function BibliotecaItemPage() {
       html[data-theme="system"] .phanyx-biblioteca-item-page option,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-options,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-detail-cover,
-      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-compact-empty {
+      html[data-theme="system"]
+        .phanyx-biblioteca-item-page
+        .bib-compact-empty {
         background: #383838 !important;
         border-color: #606060 !important;
         color: #ffffff !important;
@@ -2138,12 +1647,16 @@ export default function BibliotecaItemPage() {
       html[data-theme="system"] .phanyx-biblioteca-item-page p,
       html[data-theme="system"] .phanyx-biblioteca-item-page small,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-subtitle,
-      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-readonly-chip {
+      html[data-theme="system"]
+        .phanyx-biblioteca-item-page
+        .bib-readonly-chip {
         color: #d1d5db !important;
         -webkit-text-fill-color: #d1d5db !important;
       }
 
-      html[data-theme="system"] .phanyx-biblioteca-item-page .bib-button-secondary,
+      html[data-theme="system"]
+        .phanyx-biblioteca-item-page
+        .bib-button-secondary,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-button-ghost,
       html[data-theme="system"] .phanyx-biblioteca-item-page .bib-file-action {
         background: #383838 !important;
@@ -2156,18 +1669,17 @@ export default function BibliotecaItemPage() {
 
   if (carregando) {
     return (
-      <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page" data-locale={locale}>
+      <main
+        className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page"
+        data-locale={locale}
+      >
         {estilos}
         <div className="bib-page-shell">
           <section className="bib-hero bib-detail-loading">
             <div>
-              <p className="bib-eyebrow">
-                {t("eyebrow")}
-              </p>
+              <p className="bib-eyebrow">{t("eyebrow")}</p>
               <h1>{t("loading.title")}</h1>
-              <p className="bib-hero-description">
-                {t("loading.description")}
-              </p>
+              <p className="bib-hero-description">{t("loading.description")}</p>
             </div>
           </section>
           <section className="bib-card bib-detail-loading-card" />
@@ -2178,15 +1690,18 @@ export default function BibliotecaItemPage() {
 
   if (erro || !item || !formulario) {
     return (
-      <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page" data-locale={locale}>
+      <main
+        className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page"
+        data-locale={locale}
+      >
         {estilos}
         <div className="bib-page-shell">
           <section className="bib-card bib-detail-error">
             <div className="bib-empty-icon" aria-hidden="true">
               ⚠️
             </div>
-              <h1>{t("errors.openTitle")}</h1>
-              <p>{erro || t("errors.notFound")}</p>
+            <h1>{t("errors.openTitle")}</h1>
+            <p>{erro || t("errors.notFound")}</p>
             <div className="bib-detail-error-actions">
               <Link
                 href="/admin/biblioteca/acervo"
@@ -2197,9 +1712,7 @@ export default function BibliotecaItemPage() {
               <button
                 type="button"
                 className="bib-button bib-button-primary"
-                onClick={() =>
-                  setAtualizacao((valor) => valor + 1)
-                }
+                onClick={() => setAtualizacao((valor) => valor + 1)}
               >
                 {t("retry")}
               </button>
@@ -2212,15 +1725,12 @@ export default function BibliotecaItemPage() {
 
   const camposBloqueados = !editando || salvando;
 
-  function abrirEmprestimo(
-    exemplar: ExemplarItem
-  ) {
+  function abrirEmprestimo(exemplar: ExemplarItem) {
     if (
       !podeGerenciarEmprestimos ||
       impersonacao ||
       exemplar.tipo !== "FISICO" ||
-      exemplar.status !==
-      "DISPONIVEL" ||
+      exemplar.status !== "DISPONIVEL" ||
       !exemplar.permiteEmprestimo ||
       exemplar.baixadoEm
     ) {
@@ -2231,47 +1741,29 @@ export default function BibliotecaItemPage() {
     setUsuariosEmprestimo([]);
     setVencimentoEmprestimo("");
     setObservacaoRetirada("");
-    setUsuarioEmprestimoSelecionado(
-      null
-    );
-    setErroBuscaUsuariosEmprestimo(
-      null
-    );
+    setUsuarioEmprestimoSelecionado(null);
+    setErroBuscaUsuariosEmprestimo(null);
 
-    setExemplarParaEmprestimo(
-      exemplar
-    );
+    setExemplarParaEmprestimo(exemplar);
   }
 
   function fecharEmprestimo() {
-    if (
-      buscandoUsuariosEmprestimo ||
-      registrandoEmprestimo
-    ) {
+    if (buscandoUsuariosEmprestimo || registrandoEmprestimo) {
       return;
     }
 
-    setExemplarParaEmprestimo(
-      null
-    );
+    setExemplarParaEmprestimo(null);
 
     setBuscaUsuarioEmprestimo("");
     setUsuariosEmprestimo([]);
     setVencimentoEmprestimo("");
     setObservacaoRetirada("");
-    setUsuarioEmprestimoSelecionado(
-      null
-    );
-    setErroBuscaUsuariosEmprestimo(
-      null
-    );
+    setUsuarioEmprestimoSelecionado(null);
+    setErroBuscaUsuariosEmprestimo(null);
   }
 
   function abrirCadastroExemplar() {
-    if (
-      !podeGerenciarExemplares ||
-      impersonacao
-    ) {
+    if (!podeGerenciarExemplares || impersonacao) {
       return;
     }
 
@@ -2284,77 +1776,49 @@ export default function BibliotecaItemPage() {
     setModalExemplarAberto(true);
   }
 
-  function abrirEdicaoExemplar(
-    exemplar: ExemplarItem
-  ) {
-    if (
-      !podeGerenciarExemplares ||
-      impersonacao ||
-      exemplar.baixadoEm
-    ) {
+  function abrirEdicaoExemplar(exemplar: ExemplarItem) {
+    if (!podeGerenciarExemplares || impersonacao || exemplar.baixadoEm) {
       return;
     }
 
-    setExemplarEmEdicao(
-      exemplar
-    );
+    setExemplarEmEdicao(exemplar);
 
     setFormularioExemplar({
-      tipo:
-        exemplar.tipo,
+      tipo: exemplar.tipo,
 
-      codigoInterno:
-        exemplar.codigoInterno,
+      codigoInterno: exemplar.codigoInterno,
 
-      codigoBarras:
-        exemplar.codigoBarras || "",
+      codigoBarras: exemplar.codigoBarras || "",
 
-      numeroTombo:
-        exemplar.numeroTombo || "",
+      numeroTombo: exemplar.numeroTombo || "",
 
-      patrimonio:
-        exemplar.patrimonio || "",
+      patrimonio: exemplar.patrimonio || "",
 
-      unidadeSnapshot:
-        exemplar.unidadeSnapshot || "",
+      unidadeSnapshot: exemplar.unidadeSnapshot || "",
 
-      setor:
-        exemplar.setor || "",
+      setor: exemplar.setor || "",
 
-      sala:
-        exemplar.sala || "",
+      sala: exemplar.sala || "",
 
-      estante:
-        exemplar.estante || "",
+      estante: exemplar.estante || "",
 
-      prateleira:
-        exemplar.prateleira || "",
+      prateleira: exemplar.prateleira || "",
 
-      localizacaoCompleta:
-        exemplar.localizacaoCompleta || "",
+      localizacaoCompleta: exemplar.localizacaoCompleta || "",
 
-      dataAquisicao:
-        exemplar.dataAquisicao
-          ? exemplar.dataAquisicao.slice(
-            0,
-            10
-          )
-          : "",
+      dataAquisicao: exemplar.dataAquisicao
+        ? exemplar.dataAquisicao.slice(0, 10)
+        : "",
 
-      formaAquisicao:
-        exemplar.formaAquisicao || "",
+      formaAquisicao: exemplar.formaAquisicao || "",
 
-      fornecedor:
-        exemplar.fornecedor || "",
+      fornecedor: exemplar.fornecedor || "",
 
-      valorAquisicao:
-        exemplar.valorAquisicao || "",
+      valorAquisicao: exemplar.valorAquisicao || "",
 
-      permiteEmprestimo:
-        exemplar.permiteEmprestimo,
+      permiteEmprestimo: exemplar.permiteEmprestimo,
 
-      observacoes:
-        exemplar.observacoes || "",
+      observacoes: exemplar.observacoes || "",
     });
 
     setModalExemplarAberto(true);
@@ -2374,20 +1838,12 @@ export default function BibliotecaItemPage() {
     });
   }
 
-  function abrirBaixaExemplar(
-    exemplar: ExemplarItem
-  ) {
-    if (
-      !podeBaixarExemplares ||
-      impersonacao ||
-      exemplar.baixadoEm
-    ) {
+  function abrirBaixaExemplar(exemplar: ExemplarItem) {
+    if (!podeBaixarExemplares || impersonacao || exemplar.baixadoEm) {
       return;
     }
 
-    setExemplarParaBaixa(
-      exemplar
-    );
+    setExemplarParaBaixa(exemplar);
 
     setMotivoBaixaExemplar("");
   }
@@ -2411,14 +1867,12 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    const motivo =
-      motivoBaixaExemplar.trim();
+    const motivo = motivoBaixaExemplar.trim();
 
     if (!motivo) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("writeOffReasonRequired"),
+        mensagem: ui("writeOffReasonRequired"),
       });
 
       return;
@@ -2427,32 +1881,26 @@ export default function BibliotecaItemPage() {
     setBaixandoExemplar(true);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/exemplares/${exemplarParaBaixa.id}/baixa`,
-          {
-            method: "POST",
+      const resposta = await fetch(
+        `/api/admin/biblioteca/exemplares/${exemplarParaBaixa.id}/baixa`,
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              motivo,
-            }),
-          }
-        );
+          body: JSON.stringify({
+            motivo,
+          }),
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as
-        RespostaExemplares;
+      const resultado = (await resposta.json()) as RespostaExemplares;
 
       if (!resposta.ok) {
         throw new Error(
-          resultado.error ||
-          resultado.mensagem ||
-          ui("writeOffError")
+          resultado.error || resultado.mensagem || ui("writeOffError"),
         );
       }
 
@@ -2461,198 +1909,108 @@ export default function BibliotecaItemPage() {
 
       setToast({
         tipo: "sucesso",
-        mensagem:
-          resultado.mensagem ||
-          ui("writeOffSuccess"),
+        mensagem: resultado.mensagem || ui("writeOffSuccess"),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
-        mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("writeOffError"),
+        mensagem: falha instanceof Error ? falha.message : ui("writeOffError"),
       });
     } finally {
       setBaixandoExemplar(false);
     }
   }
 
-  function alterarExemplar<
-    K extends keyof FormularioExemplar
-  >(
+  function alterarExemplar<K extends keyof FormularioExemplar>(
     campo: K,
-    valor: FormularioExemplar[K]
+    valor: FormularioExemplar[K],
   ) {
-    setFormularioExemplar(
-      (atual) => ({
-        ...atual,
-        [campo]: valor,
-      })
-    );
+    setFormularioExemplar((atual) => ({
+      ...atual,
+      [campo]: valor,
+    }));
   }
 
   async function salvarExemplar() {
-    if (
-      salvandoExemplar ||
-      !podeGerenciarExemplares ||
-      impersonacao
-    ) {
+    if (salvandoExemplar || !podeGerenciarExemplares || impersonacao) {
       return;
     }
 
-    const codigoInterno =
-      formularioExemplar
-        .codigoInterno
-        .trim();
+    const codigoInterno = formularioExemplar.codigoInterno.trim();
 
     if (!codigoInterno) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("internalCodeRequired"),
+        mensagem: ui("internalCodeRequired"),
       });
 
       return;
     }
 
-    const editandoExemplar =
-      exemplarEmEdicao !== null;
+    const editandoExemplar = exemplarEmEdicao !== null;
 
     setSalvandoExemplar(true);
 
     try {
-      const url =
-        editandoExemplar
-          ? `/api/admin/biblioteca/exemplares/${exemplarEmEdicao.id}`
-          : `/api/admin/biblioteca/acervo/${itemId}/exemplares`;
+      const url = editandoExemplar
+        ? `/api/admin/biblioteca/exemplares/${exemplarEmEdicao.id}`
+        : `/api/admin/biblioteca/acervo/${itemId}/exemplares`;
 
-      const resposta =
-        await fetch(
-          url,
-          {
-            method:
-              editandoExemplar
-                ? "PATCH"
-                : "POST",
+      const resposta = await fetch(url, {
+        method: editandoExemplar ? "PATCH" : "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-            body: JSON.stringify({
-              tipo:
-                formularioExemplar.tipo,
+        body: JSON.stringify({
+          tipo: formularioExemplar.tipo,
 
-              codigoInterno,
+          codigoInterno,
 
-              codigoBarras:
-                formularioExemplar
-                  .codigoBarras
-                  .trim() ||
-                null,
+          codigoBarras: formularioExemplar.codigoBarras.trim() || null,
 
-              numeroTombo:
-                formularioExemplar
-                  .numeroTombo
-                  .trim() ||
-                null,
+          numeroTombo: formularioExemplar.numeroTombo.trim() || null,
 
-              patrimonio:
-                formularioExemplar
-                  .patrimonio
-                  .trim() ||
-                null,
+          patrimonio: formularioExemplar.patrimonio.trim() || null,
 
-              unidadeSnapshot:
-                formularioExemplar
-                  .unidadeSnapshot
-                  .trim() ||
-                null,
+          unidadeSnapshot: formularioExemplar.unidadeSnapshot.trim() || null,
 
-              setor:
-                formularioExemplar
-                  .setor
-                  .trim() ||
-                null,
+          setor: formularioExemplar.setor.trim() || null,
 
-              sala:
-                formularioExemplar
-                  .sala
-                  .trim() ||
-                null,
+          sala: formularioExemplar.sala.trim() || null,
 
-              estante:
-                formularioExemplar
-                  .estante
-                  .trim() ||
-                null,
+          estante: formularioExemplar.estante.trim() || null,
 
-              prateleira:
-                formularioExemplar
-                  .prateleira
-                  .trim() ||
-                null,
+          prateleira: formularioExemplar.prateleira.trim() || null,
 
-              localizacaoCompleta:
-                formularioExemplar
-                  .localizacaoCompleta
-                  .trim() ||
-                null,
+          localizacaoCompleta:
+            formularioExemplar.localizacaoCompleta.trim() || null,
 
-              dataAquisicao:
-                formularioExemplar
-                  .dataAquisicao ||
-                null,
+          dataAquisicao: formularioExemplar.dataAquisicao || null,
 
-              formaAquisicao:
-                formularioExemplar
-                  .formaAquisicao
-                  .trim() ||
-                null,
+          formaAquisicao: formularioExemplar.formaAquisicao.trim() || null,
 
-              fornecedor:
-                formularioExemplar
-                  .fornecedor
-                  .trim() ||
-                null,
+          fornecedor: formularioExemplar.fornecedor.trim() || null,
 
-              valorAquisicao:
-                formularioExemplar
-                  .valorAquisicao
-                  .trim() ||
-                null,
+          valorAquisicao: formularioExemplar.valorAquisicao.trim() || null,
 
-              permiteEmprestimo:
-                formularioExemplar
-                  .permiteEmprestimo,
+          permiteEmprestimo: formularioExemplar.permiteEmprestimo,
 
-              observacoes:
-                formularioExemplar
-                  .observacoes
-                  .trim() ||
-                null,
-            }),
-          }
-        );
+          observacoes: formularioExemplar.observacoes.trim() || null,
+        }),
+      });
 
-      const resultado =
-        (await resposta.json()) as
-        RespostaExemplares;
+      const resultado = (await resposta.json()) as RespostaExemplares;
 
       if (!resposta.ok) {
         throw new Error(
           resultado.error ||
-          resultado.mensagem ||
-          (editandoExemplar
-            ? ui("updateCopyError")
-            : ui("createCopyError"))
+            resultado.mensagem ||
+            (editandoExemplar ? ui("updateCopyError") : ui("createCopyError")),
         );
       }
 
@@ -2674,17 +2032,12 @@ export default function BibliotecaItemPage() {
             : ui("createCopySuccess")),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
-        mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("saveCopyError"),
+        mensagem: falha instanceof Error ? falha.message : ui("saveCopyError"),
       });
     } finally {
       setSalvandoExemplar(false);
@@ -2705,132 +2058,91 @@ export default function BibliotecaItemPage() {
     if (!vencimentoEmprestimo) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("dueDateRequired"),
+        mensagem: ui("dueDateRequired"),
       });
 
       return;
     }
 
-    const dataVencimento =
-      new Date(
-        `${vencimentoEmprestimo}T23:59:00`
-      );
+    const dataVencimento = new Date(`${vencimentoEmprestimo}T23:59:00`);
 
     if (
-      Number.isNaN(
-        dataVencimento.getTime()
-      ) ||
-      dataVencimento.getTime() <=
-      Date.now()
+      Number.isNaN(dataVencimento.getTime()) ||
+      dataVencimento.getTime() <= Date.now()
     ) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("futureDueDate"),
+        mensagem: ui("futureDueDate"),
       });
 
       return;
     }
 
-    setRegistrandoEmprestimo(
-      true
-    );
+    setRegistrandoEmprestimo(true);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/exemplares/${exemplarParaEmprestimo.id}/emprestar`,
-          {
-            method: "POST",
+      const resposta = await fetch(
+        `/api/admin/biblioteca/exemplares/${exemplarParaEmprestimo.id}/emprestar`,
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              usuarioId:
-                usuarioEmprestimoSelecionado.id,
+          body: JSON.stringify({
+            usuarioId: usuarioEmprestimoSelecionado.id,
 
-              vencimentoEm:
-                dataVencimento.toISOString(),
+            vencimentoEm: dataVencimento.toISOString(),
 
-              observacaoRetirada:
-                observacaoRetirada
-                  .trim() ||
-                null,
-            }),
-          }
-        );
+            observacaoRetirada: observacaoRetirada.trim() || null,
+          }),
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
-        };
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+      };
 
       if (!resposta.ok) {
         throw new Error(
-          resultado.error ||
-          resultado.mensagem ||
-          ui("loanError")
+          resultado.error || resultado.mensagem || ui("loanError"),
         );
       }
 
-      setExemplarParaEmprestimo(
-        null
-      );
+      setExemplarParaEmprestimo(null);
 
-      setBuscaUsuarioEmprestimo(
-        ""
-      );
+      setBuscaUsuarioEmprestimo("");
 
       setUsuariosEmprestimo([]);
 
-      setUsuarioEmprestimoSelecionado(
-        null
-      );
+      setUsuarioEmprestimoSelecionado(null);
 
-      setVencimentoEmprestimo(
-        ""
-      );
+      setVencimentoEmprestimo("");
 
-      setObservacaoRetirada(
-        ""
-      );
+      setObservacaoRetirada("");
 
       setToast({
         tipo: "sucesso",
 
-        mensagem:
-          resultado.mensagem ||
-          ui("loanSuccess"),
+        mensagem: ui("loanSuccess"),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
-        mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("loanError"),
+        mensagem: falha instanceof Error ? falha.message : ui("loanError"),
       });
     } finally {
-      setRegistrandoEmprestimo(
-        false
-      );
+      setRegistrandoEmprestimo(false);
     }
   }
 
-  function abrirDevolucao(
-    exemplar: ExemplarItem
-  ) {
+  function abrirDevolucao(exemplar: ExemplarItem) {
     if (
       !podeGerenciarEmprestimos ||
       impersonacao ||
@@ -2841,17 +2153,11 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setExemplarParaDevolucao(
-      exemplar
-    );
+    setExemplarParaDevolucao(exemplar);
 
-    setCondicaoDevolucao(
-      "NORMAL"
-    );
+    setCondicaoDevolucao("NORMAL");
 
-    setObservacaoDevolucao(
-      ""
-    );
+    setObservacaoDevolucao("");
   }
 
   function fecharDevolucao() {
@@ -2859,17 +2165,11 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setExemplarParaDevolucao(
-      null
-    );
+    setExemplarParaDevolucao(null);
 
-    setCondicaoDevolucao(
-      "NORMAL"
-    );
+    setCondicaoDevolucao("NORMAL");
 
-    setObservacaoDevolucao(
-      ""
-    );
+    setObservacaoDevolucao("");
   }
 
   async function registrarDevolucao() {
@@ -2882,122 +2182,106 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setDevolvendoExemplar(
-      true
-    );
+    setDevolvendoExemplar(true);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/exemplares/${exemplarParaDevolucao.id}/devolver`,
-          {
-            method: "POST",
+      const resposta = await fetch(
+        `/api/admin/biblioteca/exemplares/${exemplarParaDevolucao.id}/devolver`,
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              condicao:
-                condicaoDevolucao,
+          body: JSON.stringify({
+            condicao: condicaoDevolucao,
 
-              observacaoDevolucao:
-                observacaoDevolucao
-                  .trim() ||
-                null,
-            }),
-          }
-        );
+            observacaoDevolucao: observacaoDevolucao.trim() || null,
+          }),
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+
+        multa?: {
+          diasAtraso?: number;
+          diasAtrasoCobrados?: number;
+          valorMultaCalculado?: number | null;
+          gerada?: boolean;
+          lancamentoFinanceiroId?: number | null;
         };
+      };
 
       if (!resposta.ok) {
         throw new Error(
-          resultado.error ||
-          resultado.mensagem ||
-          ui("returnError")
+          resultado.error || resultado.mensagem || ui("returnError"),
         );
       }
 
-      setExemplarParaDevolucao(
-        null
-      );
+      const valorMulta = Number(resultado.multa?.valorMultaCalculado ?? 0);
 
-      setCondicaoDevolucao(
-        "NORMAL"
-      );
+      const multaGerada =
+        resultado.multa?.gerada === true &&
+        Number.isFinite(valorMulta) &&
+        valorMulta > 0;
 
-      setObservacaoDevolucao(
-        ""
-      );
+      const valorMultaFormatado = new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(valorMulta);
+
+      setExemplarParaDevolucao(null);
+
+      setCondicaoDevolucao("NORMAL");
+
+      setObservacaoDevolucao("");
 
       setToast({
         tipo: "sucesso",
 
-        mensagem:
-          resultado.mensagem ||
-          ui("returnSuccess"),
+        mensagem: multaGerada
+          ? ui("returnSuccessWithFine", {
+              amount: valorMultaFormatado,
+            })
+          : ui("returnSuccess"),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
-        mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("returnError"),
+        mensagem: falha instanceof Error ? falha.message : ui("returnError"),
       });
     } finally {
-      setDevolvendoExemplar(
-        false
-      );
+      setDevolvendoExemplar(false);
     }
   }
 
-  function abrirManutencao(
-    exemplar: ExemplarItem
-  ) {
+  function abrirManutencao(exemplar: ExemplarItem) {
     if (
       !podeGerenciarManutencao ||
       impersonacao ||
       exemplar.tipo !== "FISICO" ||
-      (
-        exemplar.status !==
-        "DANIFICADO" &&
-        exemplar.status !==
-        "INDISPONIVEL"
-      ) ||
+      (exemplar.status !== "DANIFICADO" &&
+        exemplar.status !== "INDISPONIVEL") ||
       exemplar.baixadoEm ||
       exemplar.manutencaoAberta
     ) {
       return;
     }
 
-    setExemplarParaManutencao(
-      exemplar
-    );
+    setExemplarParaManutencao(exemplar);
 
     setMotivoManutencao("");
-    setObservacaoEntradaManutencao(
-      ""
-    );
+    setObservacaoEntradaManutencao("");
     setFornecedorManutencao("");
-    setCustoEstimadoManutencao(
-      ""
-    );
-    setPrevisaoRetornoManutencao(
-      ""
-    );
+    setCustoEstimadoManutencao("");
+    setPrevisaoRetornoManutencao("");
   }
 
   function fecharManutencao() {
@@ -3005,21 +2289,13 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setExemplarParaManutencao(
-      null
-    );
+    setExemplarParaManutencao(null);
 
     setMotivoManutencao("");
-    setObservacaoEntradaManutencao(
-      ""
-    );
+    setObservacaoEntradaManutencao("");
     setFornecedorManutencao("");
-    setCustoEstimadoManutencao(
-      ""
-    );
-    setPrevisaoRetornoManutencao(
-      ""
-    );
+    setCustoEstimadoManutencao("");
+    setPrevisaoRetornoManutencao("");
   }
 
   async function iniciarManutencao() {
@@ -3035,134 +2311,91 @@ export default function BibliotecaItemPage() {
     if (!motivoManutencao.trim()) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("maintenanceReasonRequired"),
+        mensagem: ui("maintenanceReasonRequired"),
       });
 
       return;
     }
 
-    setEnviandoParaManutencao(
-      true
-    );
+    setEnviandoParaManutencao(true);
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/biblioteca/exemplares/${exemplarParaManutencao.id}/manutencoes`,
-          {
-            method: "POST",
+      const resposta = await fetch(
+        `/api/admin/biblioteca/exemplares/${exemplarParaManutencao.id}/manutencoes`,
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              motivo:
-                motivoManutencao.trim(),
+          body: JSON.stringify({
+            motivo: motivoManutencao.trim(),
 
-              observacaoEntrada:
-                observacaoEntradaManutencao
-                  .trim() ||
-                null,
+            observacaoEntrada: observacaoEntradaManutencao.trim() || null,
 
-              fornecedor:
-                fornecedorManutencao
-                  .trim() ||
-                null,
+            fornecedor: fornecedorManutencao.trim() || null,
 
-              custoEstimado:
-                custoEstimadoManutencao
-                  .trim() ||
-                null,
+            custoEstimado: custoEstimadoManutencao.trim() || null,
 
-              previsaoRetornoEm:
-                previsaoRetornoManutencao ||
-                null,
-            }),
-          }
-        );
+            previsaoRetornoEm: previsaoRetornoManutencao || null,
+          }),
+        },
+      );
 
-      const resultado =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
-        };
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+      };
 
       if (!resposta.ok) {
         throw new Error(
-          resultado.error ||
-          resultado.mensagem ||
-          ui("maintenanceSendError")
+          resultado.error || resultado.mensagem || ui("maintenanceSendError"),
         );
       }
 
-      setExemplarParaManutencao(
-        null
-      );
+      setExemplarParaManutencao(null);
 
       setMotivoManutencao("");
-      setObservacaoEntradaManutencao(
-        ""
-      );
+      setObservacaoEntradaManutencao("");
       setFornecedorManutencao("");
-      setCustoEstimadoManutencao(
-        ""
-      );
-      setPrevisaoRetornoManutencao(
-        ""
-      );
+      setCustoEstimadoManutencao("");
+      setPrevisaoRetornoManutencao("");
 
       setToast({
         tipo: "sucesso",
 
-        mensagem:
-          resultado.mensagem ||
-          ui("maintenanceSendSuccess"),
+        mensagem: resultado.mensagem || ui("maintenanceSendSuccess"),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
 
         mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("maintenanceSendError"),
+          falha instanceof Error ? falha.message : ui("maintenanceSendError"),
       });
     } finally {
-      setEnviandoParaManutencao(
-        false
-      );
+      setEnviandoParaManutencao(false);
     }
   }
 
-  function abrirConclusaoManutencao(
-    exemplar: ExemplarItem
-  ) {
+  function abrirConclusaoManutencao(exemplar: ExemplarItem) {
     if (!exemplar.manutencaoAberta) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("noOpenMaintenance"),
+        mensagem: ui("noOpenMaintenance"),
       });
 
       return;
     }
 
-    setExemplarParaConclusaoManutencao(
-      exemplar
-    );
+    setExemplarParaConclusaoManutencao(exemplar);
 
     setResultadoManutencao("REPARADO");
-    setObservacaoConclusaoManutencao(
-      ""
-    );
+    setObservacaoConclusaoManutencao("");
     setCustoFinalManutencao("");
   }
 
@@ -3171,21 +2404,15 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setExemplarParaConclusaoManutencao(
-      null
-    );
+    setExemplarParaConclusaoManutencao(null);
 
     setResultadoManutencao("REPARADO");
-    setObservacaoConclusaoManutencao(
-      ""
-    );
+    setObservacaoConclusaoManutencao("");
     setCustoFinalManutencao("");
   }
 
   async function concluirManutencao() {
-    const manutencao =
-      exemplarParaConclusaoManutencao
-        ?.manutencaoAberta;
+    const manutencao = exemplarParaConclusaoManutencao?.manutencaoAberta;
 
     if (
       !exemplarParaConclusaoManutencao ||
@@ -3198,14 +2425,12 @@ export default function BibliotecaItemPage() {
     }
 
     if (
-      resultadoManutencao ===
-      "IRRECUPERAVEL" &&
+      resultadoManutencao === "IRRECUPERAVEL" &&
       !observacaoConclusaoManutencao.trim()
     ) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("irreparableDescriptionRequired"),
+        mensagem: ui("irreparableDescriptionRequired"),
       });
 
       return;
@@ -3220,62 +2445,43 @@ export default function BibliotecaItemPage() {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
-            resultado:
-              resultadoManutencao,
+            resultado: resultadoManutencao,
 
-            observacaoConclusao:
-              observacaoConclusaoManutencao
-                .trim() ||
-              null,
+            observacaoConclusao: observacaoConclusaoManutencao.trim() || null,
 
-            custoFinal:
-              custoFinalManutencao
-                .trim() ||
-              null,
+            custoFinal: custoFinalManutencao.trim() || null,
           }),
-        }
+        },
       );
 
-      const dados =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
-        };
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+      };
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-          dados.mensagem ||
-          ui("maintenanceCompleteError")
+          dados.error || dados.mensagem || ui("maintenanceCompleteError"),
         );
       }
 
-      setExemplarParaConclusaoManutencao(
-        null
-      );
+      setExemplarParaConclusaoManutencao(null);
 
       setResultadoManutencao("REPARADO");
-      setObservacaoConclusaoManutencao(
-        ""
-      );
+      setObservacaoConclusaoManutencao("");
       setCustoFinalManutencao("");
 
       setToast({
         tipo: "sucesso",
-        mensagem:
-          dados.mensagem ||
-          ui("maintenanceCompleteSuccess"),
+        mensagem: dados.mensagem || ui("maintenanceCompleteSuccess"),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
@@ -3289,30 +2495,21 @@ export default function BibliotecaItemPage() {
     }
   }
 
-  function abrirCancelamentoManutencao(
-    exemplar: ExemplarItem
-  ) {
+  function abrirCancelamentoManutencao(exemplar: ExemplarItem) {
     if (!exemplar.manutencaoAberta) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("noOpenMaintenance"),
+        mensagem: ui("noOpenMaintenance"),
       });
 
       return;
     }
 
-    setExemplarParaCancelamentoManutencao(
-      exemplar
-    );
+    setExemplarParaCancelamentoManutencao(exemplar);
 
-    setMotivoCancelamentoManutencao(
-      ""
-    );
+    setMotivoCancelamentoManutencao("");
 
-    setStatusRetornoCancelamentoManutencao(
-      "DANIFICADO"
-    );
+    setStatusRetornoCancelamentoManutencao("DANIFICADO");
   }
 
   function fecharCancelamentoManutencao() {
@@ -3320,23 +2517,15 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    setExemplarParaCancelamentoManutencao(
-      null
-    );
+    setExemplarParaCancelamentoManutencao(null);
 
-    setMotivoCancelamentoManutencao(
-      ""
-    );
+    setMotivoCancelamentoManutencao("");
 
-    setStatusRetornoCancelamentoManutencao(
-      "DANIFICADO"
-    );
+    setStatusRetornoCancelamentoManutencao("DANIFICADO");
   }
 
   async function cancelarManutencao() {
-    const manutencao =
-      exemplarParaCancelamentoManutencao
-        ?.manutencaoAberta;
+    const manutencao = exemplarParaCancelamentoManutencao?.manutencaoAberta;
 
     if (
       !exemplarParaCancelamentoManutencao ||
@@ -3348,13 +2537,10 @@ export default function BibliotecaItemPage() {
       return;
     }
 
-    if (
-      !motivoCancelamentoManutencao.trim()
-    ) {
+    if (!motivoCancelamentoManutencao.trim()) {
       setToast({
         tipo: "erro",
-        mensagem:
-          ui("maintenanceCancelReasonRequired"),
+        mensagem: ui("maintenanceCancelReasonRequired"),
       });
 
       return;
@@ -3369,65 +2555,46 @@ export default function BibliotecaItemPage() {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
-            motivoCancelamento:
-              motivoCancelamentoManutencao
-                .trim(),
+            motivoCancelamento: motivoCancelamentoManutencao.trim(),
 
-            statusRetorno:
-              statusRetornoCancelamentoManutencao,
+            statusRetorno: statusRetornoCancelamentoManutencao,
           }),
-        }
+        },
       );
 
-      const dados =
-        (await resposta.json()) as {
-          ok?: boolean;
-          mensagem?: string;
-          error?: string;
-        };
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+      };
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-          dados.mensagem ||
-          ui("maintenanceCancelError")
+          dados.error || dados.mensagem || ui("maintenanceCancelError"),
         );
       }
 
-      setExemplarParaCancelamentoManutencao(
-        null
-      );
+      setExemplarParaCancelamentoManutencao(null);
 
-      setMotivoCancelamentoManutencao(
-        ""
-      );
+      setMotivoCancelamentoManutencao("");
 
-      setStatusRetornoCancelamentoManutencao(
-        "DANIFICADO"
-      );
+      setStatusRetornoCancelamentoManutencao("DANIFICADO");
 
       setToast({
         tipo: "sucesso",
-        mensagem:
-          dados.mensagem ||
-          ui("maintenanceCancelSuccess"),
+        mensagem: dados.mensagem || ui("maintenanceCancelSuccess"),
       });
 
-      setAtualizacao(
-        (valor) => valor + 1
-      );
+      setAtualizacao((valor) => valor + 1);
     } catch (falha) {
       setToast({
         tipo: "erro",
         mensagem:
-          falha instanceof Error
-            ? falha.message
-            : ui("maintenanceCancelError"),
+          falha instanceof Error ? falha.message : ui("maintenanceCancelError"),
       });
     } finally {
       setCancelandoManutencao(false);
@@ -3435,7 +2602,10 @@ export default function BibliotecaItemPage() {
   }
 
   return (
-    <main className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page" data-locale={locale}>
+    <main
+      className="phanyx-biblioteca-acervo-page phanyx-biblioteca-item-page"
+      data-locale={locale}
+    >
       {estilos}
       <div className="bib-page-shell">
         <section className="bib-hero bib-item-detail-hero">
@@ -3443,10 +2613,7 @@ export default function BibliotecaItemPage() {
             <div className="bib-detail-cover" aria-hidden="true">
               {item.capaUrl || item.miniaturaUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={item.capaUrl || item.miniaturaUrl || ""}
-                  alt=""
-                />
+                <img src={item.capaUrl || item.miniaturaUrl || ""} alt="" />
               ) : (
                 <span>📘</span>
               )}
@@ -3461,9 +2628,7 @@ export default function BibliotecaItemPage() {
                   {rotuloStatusItem(item.status)}
                 </span>
               </div>
-              <p className="bib-hero-description">
-                {t("description")}
-              </p>
+              <p className="bib-hero-description">{t("description")}</p>
             </div>
           </div>
 
@@ -3490,9 +2655,7 @@ export default function BibliotecaItemPage() {
           <div className="bib-feedback bib-feedback-warning">
             <div>
               <strong>{ui("supportTitle")}</strong>
-              <p>
-                {ui("supportDescription")}
-              </p>
+              <p>{ui("supportDescription")}</p>
             </div>
           </div>
         ) : null}
@@ -3543,9 +2706,7 @@ export default function BibliotecaItemPage() {
                 <span aria-hidden="true">📝</span>
                 <div>
                   <h2>{ui("identificationTitle")}</h2>
-                  <p>
-                    {ui("identificationDescription")}
-                  </p>
+                  <p>{ui("identificationDescription")}</p>
                 </div>
               </div>
               <span className="bib-readonly-chip">
@@ -3561,9 +2722,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.titulo}
-                  onChange={(evento) =>
-                    alterar("titulo", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("titulo", evento.target.value)}
                   maxLength={240}
                   required
                   disabled={camposBloqueados}
@@ -3575,9 +2734,7 @@ export default function BibliotecaItemPage() {
                 <select
                   className="bib-input"
                   value={formulario.tipo}
-                  onChange={(evento) =>
-                    alterar("tipo", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("tipo", evento.target.value)}
                   disabled={camposBloqueados}
                 >
                   {TIPOS_ITEM.map((tipo) => (
@@ -3607,10 +2764,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.tituloAlternativo}
                   onChange={(evento) =>
-                    alterar(
-                      "tituloAlternativo",
-                      evento.target.value
-                    )
+                    alterar("tituloAlternativo", evento.target.value)
                   }
                   maxLength={240}
                   disabled={camposBloqueados}
@@ -3622,9 +2776,7 @@ export default function BibliotecaItemPage() {
                 <textarea
                   className="bib-input bib-textarea"
                   value={formulario.sinopse}
-                  onChange={(evento) =>
-                    alterar("sinopse", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("sinopse", evento.target.value)}
                   maxLength={20_000}
                   disabled={camposBloqueados}
                 />
@@ -3654,9 +2806,7 @@ export default function BibliotecaItemPage() {
                   placeholder={ui("keywordsPlaceholder")}
                   disabled={camposBloqueados}
                 />
-                <small>
-                  {ui("keywordsHelp")}
-                </small>
+                <small>{ui("keywordsHelp")}</small>
               </label>
             </div>
           </section>
@@ -3667,9 +2817,7 @@ export default function BibliotecaItemPage() {
                 <span aria-hidden="true">🔎</span>
                 <div>
                   <h2>{ui("publicationTitle")}</h2>
-                  <p>
-                    {ui("publicationDescription")}
-                  </p>
+                  <p>{ui("publicationDescription")}</p>
                 </div>
               </div>
             </header>
@@ -3680,9 +2828,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.isbn10}
-                  onChange={(evento) =>
-                    alterar("isbn10", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("isbn10", evento.target.value)}
                   maxLength={32}
                   disabled={camposBloqueados}
                 />
@@ -3692,9 +2838,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.isbn13}
-                  onChange={(evento) =>
-                    alterar("isbn13", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("isbn13", evento.target.value)}
                   maxLength={32}
                   disabled={camposBloqueados}
                 />
@@ -3704,9 +2848,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.issn}
-                  onChange={(evento) =>
-                    alterar("issn", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("issn", evento.target.value)}
                   maxLength={32}
                   disabled={camposBloqueados}
                 />
@@ -3716,9 +2858,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.doi}
-                  onChange={(evento) =>
-                    alterar("doi", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("doi", evento.target.value)}
                   maxLength={255}
                   disabled={camposBloqueados}
                 />
@@ -3728,9 +2868,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.idioma}
-                  onChange={(evento) =>
-                    alterar("idioma", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("idioma", evento.target.value)}
                   maxLength={30}
                   disabled={camposBloqueados}
                 />
@@ -3741,10 +2879,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.paisPublicacao}
                   onChange={(evento) =>
-                    alterar(
-                      "paisPublicacao",
-                      evento.target.value
-                    )
+                    alterar("paisPublicacao", evento.target.value)
                   }
                   maxLength={100}
                   disabled={camposBloqueados}
@@ -3757,10 +2892,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.anoPublicacao}
                   onChange={(evento) =>
-                    alterar(
-                      "anoPublicacao",
-                      evento.target.value
-                    )
+                    alterar("anoPublicacao", evento.target.value)
                   }
                   min={1}
                   max={new Date().getFullYear() + 2}
@@ -3774,10 +2906,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.dataPublicacao}
                   onChange={(evento) =>
-                    alterar(
-                      "dataPublicacao",
-                      evento.target.value
-                    )
+                    alterar("dataPublicacao", evento.target.value)
                   }
                   disabled={camposBloqueados}
                 />
@@ -3787,9 +2916,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.edicao}
-                  onChange={(evento) =>
-                    alterar("edicao", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("edicao", evento.target.value)}
                   maxLength={80}
                   disabled={camposBloqueados}
                 />
@@ -3799,9 +2926,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.volume}
-                  onChange={(evento) =>
-                    alterar("volume", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("volume", evento.target.value)}
                   maxLength={80}
                   disabled={camposBloqueados}
                 />
@@ -3811,9 +2936,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.numero}
-                  onChange={(evento) =>
-                    alterar("numero", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("numero", evento.target.value)}
                   maxLength={80}
                   disabled={camposBloqueados}
                 />
@@ -3825,10 +2948,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.numeroPaginas}
                   onChange={(evento) =>
-                    alterar(
-                      "numeroPaginas",
-                      evento.target.value
-                    )
+                    alterar("numeroPaginas", evento.target.value)
                   }
                   min={1}
                   disabled={camposBloqueados}
@@ -3841,10 +2961,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.duracaoSegundos}
                   onChange={(evento) =>
-                    alterar(
-                      "duracaoSegundos",
-                      evento.target.value
-                    )
+                    alterar("duracaoSegundos", evento.target.value)
                   }
                   min={1}
                   disabled={camposBloqueados}
@@ -3859,9 +2976,7 @@ export default function BibliotecaItemPage() {
                 <span aria-hidden="true">🗂️</span>
                 <div>
                   <h2>{ui("classificationTitle")}</h2>
-                  <p>
-                    {ui("classificationDescription")}
-                  </p>
+                  <p>{ui("classificationDescription")}</p>
                 </div>
               </div>
             </header>
@@ -3873,10 +2988,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.classificacaoBibliografica}
                   onChange={(evento) =>
-                    alterar(
-                      "classificacaoBibliografica",
-                      evento.target.value
-                    )
+                    alterar("classificacaoBibliografica", evento.target.value)
                   }
                   maxLength={120}
                   disabled={camposBloqueados}
@@ -3888,10 +3000,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.codigoChamada}
                   onChange={(evento) =>
-                    alterar(
-                      "codigoChamada",
-                      evento.target.value
-                    )
+                    alterar("codigoChamada", evento.target.value)
                   }
                   maxLength={120}
                   disabled={camposBloqueados}
@@ -3903,10 +3012,7 @@ export default function BibliotecaItemPage() {
                   className="bib-input"
                   value={formulario.classificacaoIndicativa}
                   onChange={(evento) =>
-                    alterar(
-                      "classificacaoIndicativa",
-                      evento.target.value
-                    )
+                    alterar("classificacaoIndicativa", evento.target.value)
                   }
                   maxLength={80}
                   disabled={camposBloqueados}
@@ -3917,9 +3023,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.cdd}
-                  onChange={(evento) =>
-                    alterar("cdd", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("cdd", evento.target.value)}
                   maxLength={80}
                   disabled={camposBloqueados}
                 />
@@ -3929,9 +3033,7 @@ export default function BibliotecaItemPage() {
                 <input
                   className="bib-input"
                   value={formulario.cdu}
-                  onChange={(evento) =>
-                    alterar("cdu", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("cdu", evento.target.value)}
                   maxLength={80}
                   disabled={camposBloqueados}
                 />
@@ -3943,9 +3045,7 @@ export default function BibliotecaItemPage() {
                   type="url"
                   className="bib-input"
                   value={formulario.capaUrl}
-                  onChange={(evento) =>
-                    alterar("capaUrl", evento.target.value)
-                  }
+                  onChange={(evento) => alterar("capaUrl", evento.target.value)}
                   maxLength={2_048}
                   disabled={camposBloqueados}
                 />
@@ -3972,9 +3072,7 @@ export default function BibliotecaItemPage() {
                 <span aria-hidden="true">🔐</span>
                 <div>
                   <h2>{ui("accessTitle")}</h2>
-                  <p>
-                    {ui("accessDescription")}
-                  </p>
+                  <p>{ui("accessDescription")}</p>
                 </div>
               </div>
             </header>
@@ -4016,9 +3114,7 @@ export default function BibliotecaItemPage() {
                 />
                 <span>
                   <b>{ui("featureCatalog")}</b>
-                  <small>
-                    {ui("featureCatalogHelp")}
-                  </small>
+                  <small>{ui("featureCatalogHelp")}</small>
                 </span>
               </label>
               <label className="bib-check">
@@ -4026,18 +3122,13 @@ export default function BibliotecaItemPage() {
                   type="checkbox"
                   checked={formulario.permitirAvaliacao}
                   onChange={(evento) =>
-                    alterar(
-                      "permitirAvaliacao",
-                      evento.target.checked
-                    )
+                    alterar("permitirAvaliacao", evento.target.checked)
                   }
                   disabled={camposBloqueados}
                 />
                 <span>
                   <b>{ui("allowReviews")}</b>
-                  <small>
-                    {ui("allowReviewsHelp")}
-                  </small>
+                  <small>{ui("allowReviewsHelp")}</small>
                 </span>
               </label>
               <label className="bib-check">
@@ -4051,9 +3142,7 @@ export default function BibliotecaItemPage() {
                 />
                 <span>
                   <b>{ui("openAccess")}</b>
-                  <small>
-                    {ui("openAccessHelp")}
-                  </small>
+                  <small>{ui("openAccessHelp")}</small>
                 </span>
               </label>
               <label className="bib-check">
@@ -4061,14 +3150,9 @@ export default function BibliotecaItemPage() {
                   type="checkbox"
                   checked={formulario.permitirDownload}
                   onChange={(evento) =>
-                    alterar(
-                      "permitirDownload",
-                      evento.target.checked
-                    )
+                    alterar("permitirDownload", evento.target.checked)
                   }
-                  disabled={
-                    camposBloqueados || !downloadPermitido
-                  }
+                  disabled={camposBloqueados || !downloadPermitido}
                 />
                 <span>
                   <b>{ui("allowDownload")}</b>
@@ -4087,17 +3171,12 @@ export default function BibliotecaItemPage() {
                 className="bib-input bib-textarea"
                 value={formulario.observacoesInternas}
                 onChange={(evento) =>
-                  alterar(
-                    "observacoesInternas",
-                    evento.target.value
-                  )
+                  alterar("observacoesInternas", evento.target.value)
                 }
                 maxLength={20_000}
                 disabled={camposBloqueados}
               />
-              <small>
-                {ui("internalNotesHelp")}
-              </small>
+              <small>{ui("internalNotesHelp")}</small>
             </label>
           </section>
 
@@ -4107,9 +3186,7 @@ export default function BibliotecaItemPage() {
                 <span aria-hidden="true">👥</span>
                 <div>
                   <h2>{ui("relationshipsTitle")}</h2>
-                  <p>
-                    {ui("relationshipsDescription")}
-                  </p>
+                  <p>{ui("relationshipsDescription")}</p>
                 </div>
               </div>
               <span className="bib-readonly-chip">
@@ -4121,9 +3198,7 @@ export default function BibliotecaItemPage() {
               <article className="bib-relationship-card">
                 <h3>{ui("publisher")}</h3>
                 {item.editora ? (
-                  <span className="bib-tag">
-                    🏢 {item.editora.nome}
-                  </span>
+                  <span className="bib-tag">🏢 {item.editora.nome}</span>
                 ) : (
                   <p>{ui("noPublisher")}</p>
                 )}
@@ -4137,7 +3212,8 @@ export default function BibliotecaItemPage() {
                         className="bib-tag"
                         key={`${vinculo.autor.id}-${vinculo.funcao}`}
                       >
-                        {vinculo.autor.nome} · {rotuloEnumLocalizado(vinculo.funcao)}
+                        {vinculo.autor.nome} ·{" "}
+                        {rotuloEnumLocalizado(vinculo.funcao)}
                       </span>
                     ))}
                   </div>
@@ -4150,10 +3226,7 @@ export default function BibliotecaItemPage() {
                 {item.categorias.length ? (
                   <div className="bib-tag-list">
                     {item.categorias.map((vinculo) => (
-                      <span
-                        className="bib-tag"
-                        key={vinculo.categoria.id}
-                      >
+                      <span className="bib-tag" key={vinculo.categoria.id}>
                         {vinculo.categoria.icone || "🏷️"}{" "}
                         {vinculo.categoria.nome}
                         {vinculo.principal ? ui("principalSuffix") : ""}
@@ -4171,14 +3244,10 @@ export default function BibliotecaItemPage() {
             <article className="bib-card bib-detail-section">
               <header className="bib-detail-section-heading">
                 <div>
-                  <span aria-hidden="true">
-                    📎
-                  </span>
+                  <span aria-hidden="true">📎</span>
 
                   <div>
-                    <h2>
-                      {ui("digitalFiles")}
-                    </h2>
+                    <h2>{ui("digitalFiles")}</h2>
 
                     <p>
                       {ui("linkedFiles", {
@@ -4188,20 +3257,11 @@ export default function BibliotecaItemPage() {
 
                     {armazenamento ? (
                       <small>
-                        {formatarBytes(
-                          armazenamento
-                            .utilizadoBytes
-                        )}{" "}
+                        {formatarBytes(armazenamento.utilizadoBytes)}{" "}
                         {ui("usedOf")}{" "}
-                        {formatarBytes(
-                          armazenamento
-                            .limiteBytes
-                        )}
+                        {formatarBytes(armazenamento.limiteBytes)}
                         {" · "}
-                        {formatarBytes(
-                          armazenamento
-                            .disponivelBytes
-                        )}{" "}
+                        {formatarBytes(armazenamento.disponivelBytes)}{" "}
                         {ui("storageAvailable")}
                       </small>
                     ) : null}
@@ -4209,48 +3269,32 @@ export default function BibliotecaItemPage() {
                 </div>
 
                 <div className="bib-file-header-actions">
-                  {podeGerenciarArquivo &&
-                    !impersonacao ? (
+                  {podeGerenciarArquivo && !impersonacao ? (
                     <button
                       type="button"
                       className="bib-button bib-button-secondary"
-                      onClick={() =>
-                        void abrirHistoricoArquivos()
-                      }
+                      onClick={() => void abrirHistoricoArquivos()}
                     >
                       {ui("history")}
                     </button>
                   ) : null}
 
-                  {podeEnviarArquivo &&
-                    !impersonacao ? (
+                  {podeEnviarArquivo && !impersonacao ? (
                     <>
                       <input
                         ref={arquivoInputRef}
                         type="file"
-                        accept={
-                          ACCEPT_UPLOAD_BIBLIOTECA
-                        }
+                        accept={ACCEPT_UPLOAD_BIBLIOTECA}
                         hidden
-                        disabled={
-                          enviandoArquivo
-                        }
-                        onChange={
-                          enviarArquivo
-                        }
+                        disabled={enviandoArquivo}
+                        onChange={enviarArquivo}
                       />
 
                       <button
                         type="button"
                         className="bib-button bib-button-primary"
-                        disabled={
-                          enviandoArquivo
-                        }
-                        onClick={() =>
-                          arquivoInputRef
-                            .current
-                            ?.click()
-                        }
+                        disabled={enviandoArquivo}
+                        onClick={() => arquivoInputRef.current?.click()}
                       >
                         {enviandoArquivo
                           ? ui("uploadProgress", { progress: progressoUpload })
@@ -4268,16 +3312,12 @@ export default function BibliotecaItemPage() {
                       width: "100%",
                     }}
                   >
-                    <strong>
-                      {ui("uploadingFile")}
-                    </strong>
+                    <strong>{ui("uploadingFile")}</strong>
 
                     <p>{ui("uploadProgress", { progress: progressoUpload })}</p>
 
                     <progress
-                      value={
-                        progressoUpload
-                      }
+                      value={progressoUpload}
                       max={100}
                       style={{
                         width: "100%",
@@ -4291,10 +3331,7 @@ export default function BibliotecaItemPage() {
               {item.arquivos.length ? (
                 <div className="bib-related-list">
                   {item.arquivos.map((arquivo) => (
-                    <div
-                      className="bib-related-row"
-                      key={arquivo.id}
-                    >
+                    <div className="bib-related-row" key={arquivo.id}>
                       <span aria-hidden="true">
                         {arquivo.tipo === "PDF"
                           ? "📄"
@@ -4308,24 +3345,16 @@ export default function BibliotecaItemPage() {
                       </span>
 
                       <div className="bib-file-info">
-                        <strong>
-                          {arquivo.nomeOriginal}
-                        </strong>
+                        <strong>{arquivo.nomeOriginal}</strong>
 
                         <small>
-                          {rotuloEnumLocalizado(
-                            arquivo.tipo
-                          )}
+                          {rotuloEnumLocalizado(arquivo.tipo)}
                           {" · "}
-                          {formatarBytes(
-                            arquivo.tamanhoBytes
-                          )}
+                          {formatarBytes(arquivo.tamanhoBytes)}
                           {" · "}
                           {ui("version")} {arquivo.versao}
                           {" · "}
-                          {rotuloEnumLocalizado(
-                            arquivo.status
-                          )}
+                          {rotuloEnumLocalizado(arquivo.status)}
                         </small>
 
                         {arquivo.principal ? (
@@ -4334,8 +3363,7 @@ export default function BibliotecaItemPage() {
                           </span>
                         ) : null}
 
-                        {arquivo.status ===
-                          "DISPONIVEL" ? (
+                        {arquivo.status === "DISPONIVEL" ? (
                           <div className="bib-file-actions">
                             <a
                               href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo`}
@@ -4353,46 +3381,33 @@ export default function BibliotecaItemPage() {
                               {ui("download")}
                             </a>
 
-                            {arquivo.status ===
-                              "DISPONIVEL" &&
-                              !arquivo.principal &&
-                              podeGerenciarArquivo &&
-                              !impersonacao ? (
+                            {arquivo.status === "DISPONIVEL" &&
+                            !arquivo.principal &&
+                            podeGerenciarArquivo &&
+                            !impersonacao ? (
                               <button
                                 type="button"
                                 className="bib-file-action bib-file-action-primary"
-                                disabled={
-                                  definindoPrincipalId !==
-                                  null
-                                }
+                                disabled={definindoPrincipalId !== null}
                                 onClick={() =>
-                                  void definirArquivoPrincipal(
-                                    arquivo
-                                  )
+                                  void definirArquivoPrincipal(arquivo)
                                 }
                               >
-                                {definindoPrincipalId ===
-                                  arquivo.id
+                                {definindoPrincipalId === arquivo.id
                                   ? ui("settingPrimary")
                                   : ui("setPrimary")}
                               </button>
                             ) : null}
 
-                            {podeExcluirArquivo &&
-                              !impersonacao ? (
+                            {podeExcluirArquivo && !impersonacao ? (
                               <button
                                 type="button"
                                 className="bib-file-action bib-file-action-danger"
-                                onClick={() =>
-                                  abrirExclusaoArquivo(
-                                    arquivo
-                                  )
-                                }
+                                onClick={() => abrirExclusaoArquivo(arquivo)}
                               >
                                 {ui("delete")}
                               </button>
                             ) : null}
-
                           </div>
                         ) : (
                           <small className="bib-file-unavailable">
@@ -4404,18 +3419,14 @@ export default function BibliotecaItemPage() {
                   ))}
                 </div>
               ) : (
-                <div className="bib-compact-empty">
-                  {ui("noFiles")}
-                </div>
+                <div className="bib-compact-empty">{ui("noFiles")}</div>
               )}
             </article>
 
             <article className="bib-card bib-detail-section">
               <header className="bib-detail-section-heading">
                 <div>
-                  <span aria-hidden="true">
-                    📚
-                  </span>
+                  <span aria-hidden="true">📚</span>
 
                   <div>
                     <h2>{ui("copies")}</h2>
@@ -4430,14 +3441,11 @@ export default function BibliotecaItemPage() {
 
                 <div className="bib-exemplar-actions"></div>
 
-                {podeGerenciarExemplares &&
-                  !impersonacao ? (
+                {podeGerenciarExemplares && !impersonacao ? (
                   <button
                     type="button"
                     className="bib-button bib-button-primary"
-                    onClick={
-                      abrirCadastroExemplar
-                    }
+                    onClick={abrirCadastroExemplar}
                   >
                     {ui("registerCopy")}
                   </button>
@@ -4445,219 +3453,160 @@ export default function BibliotecaItemPage() {
               </header>
 
               {carregandoExemplares ? (
-                <div className="bib-compact-empty">
-                  {ui("loadingCopies")}
-                </div>
+                <div className="bib-compact-empty">{ui("loadingCopies")}</div>
               ) : exemplares.length ? (
                 <div className="bib-related-list">
-                  {exemplares.map(
-                    (exemplar) => (
-                      <div
-                        className="bib-related-row bib-exemplar-row"
-                        key={exemplar.id}
-                      >
-                        <span
-                          aria-hidden="true"
-                        >
-                          {exemplar.tipo ===
-                            "DIGITAL"
-                            ? "💻"
-                            : "📕"}
-                        </span>
+                  {exemplares.map((exemplar) => (
+                    <div
+                      className="bib-related-row bib-exemplar-row"
+                      key={exemplar.id}
+                    >
+                      <span aria-hidden="true">
+                        {exemplar.tipo === "DIGITAL" ? "💻" : "📕"}
+                      </span>
 
-                        <div className="bib-exemplar-info">
-                          <strong>
-                            {
-                              exemplar.codigoInterno
-                            }
-                          </strong>
+                      <div className="bib-exemplar-info">
+                        <strong>{exemplar.codigoInterno}</strong>
 
+                        <small>
+                          {rotuloEnumLocalizado(exemplar.tipo)}
+
+                          {" · "}
+
+                          {rotuloEnumLocalizado(exemplar.status)}
+
+                          {exemplar.numeroTombo
+                            ? ui("tombSuffix", { number: exemplar.numeroTombo })
+                            : ""}
+
+                          {exemplar.localizacaoCompleta
+                            ? ` · ${exemplar.localizacaoCompleta}`
+                            : ""}
+                        </small>
+
+                        {exemplar.baixadoEm ? (
                           <small>
-                            {rotuloEnumLocalizado(
-                              exemplar.tipo
-                            )}
+                            {ui("writtenOffAt", {
+                              date: formatarData(exemplar.baixadoEm),
+                            })}
 
-                            {" · "}
-
-                            {rotuloEnumLocalizado(
-                              exemplar.status
-                            )}
-
-                            {exemplar
-                              .numeroTombo
-                              ? ui("tombSuffix", { number: exemplar.numeroTombo })
-                              : ""}
-
-                            {exemplar
-                              .localizacaoCompleta
-                              ? ` · ${exemplar.localizacaoCompleta}`
+                            {exemplar.motivoBaixa
+                              ? ui("reasonSuffix", {
+                                  reason: exemplar.motivoBaixa,
+                                })
                               : ""}
                           </small>
-
-                          {exemplar.baixadoEm ? (
-                            <small>
-                              {ui("writtenOffAt", {
-                                date: formatarData(
-                                  exemplar.baixadoEm
-                                ),
-                              })}
-
-                              {exemplar.motivoBaixa
-                                ? ui("reasonSuffix", { reason: exemplar.motivoBaixa })
-                                : ""}
-                            </small>
-                          ) : null}
-                        </div>
-
-                        <div className="bib-exemplar-actions">
-                          {podeGerenciarExemplares &&
-                            !impersonacao &&
-                            !exemplar.baixadoEm ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-secondary"
-                              onClick={() =>
-                                abrirEdicaoExemplar(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("edit")}
-                            </button>
-                          ) : null}
-
-                          {podeGerenciarManutencao &&
-                            !impersonacao &&
-                            exemplar.tipo === "FISICO" &&
-                            exemplar.status === "MANUTENCAO" &&
-                            exemplar.manutencaoAberta ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-primary"
-                              onClick={() =>
-                                abrirConclusaoManutencao(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("completeMaintenance")}
-                            </button>
-                          ) : null}
-
-                          {podeGerenciarManutencao &&
-                            !impersonacao &&
-                            exemplar.tipo === "FISICO" &&
-                            exemplar.status === "MANUTENCAO" &&
-                            exemplar.manutencaoAberta ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-secondary bib-button-maintenance"
-                              onClick={() =>
-                                abrirCancelamentoManutencao(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("cancelMaintenance")}
-                            </button>
-                          ) : null}
-
-                          {podeGerenciarEmprestimos &&
-                            !impersonacao &&
-                            exemplar.tipo ===
-                            "FISICO" &&
-                            exemplar.status ===
-                            "DISPONIVEL" &&
-                            exemplar.permiteEmprestimo &&
-                            !exemplar.baixadoEm ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-primary"
-                              onClick={() =>
-                                abrirEmprestimo(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("loan")}
-                            </button>
-                          ) : null}
-
-                          {podeGerenciarEmprestimos &&
-                            !impersonacao &&
-                            exemplar.tipo ===
-                            "FISICO" &&
-                            exemplar.status ===
-                            "EMPRESTADO" &&
-                            !exemplar.baixadoEm ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-primary"
-                              onClick={() =>
-                                abrirDevolucao(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("registerReturn")}
-                            </button>
-                          ) : null}
-
-                          {podeGerenciarManutencao &&
-                            !impersonacao &&
-                            exemplar.tipo ===
-                            "FISICO" &&
-                            (
-                              exemplar.status ===
-                              "DANIFICADO" ||
-                              exemplar.status ===
-                              "INDISPONIVEL"
-                            ) &&
-                            !exemplar.baixadoEm &&
-                            !exemplar
-                              .manutencaoAberta ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-secondary bib-button-maintenance"
-                              onClick={() =>
-                                abrirManutencao(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("sendMaintenance")}
-                            </button>
-                          ) : null}
-
-                          {podeBaixarExemplares &&
-                            !impersonacao &&
-                            !exemplar.baixadoEm &&
-                            exemplar.status !== "EMPRESTADO" &&
-                            exemplar.status !== "RESERVADO" &&
-                            exemplar.status !== "MANUTENCAO" ? (
-                            <button
-                              type="button"
-                              className="bib-button bib-button-danger"
-                              onClick={() =>
-                                abrirBaixaExemplar(
-                                  exemplar
-                                )
-                              }
-                            >
-                              {ui("writeOff")}
-                            </button>
-                          ) : null}
-                        </div>
-
-
+                        ) : null}
                       </div>
-                    )
-                  )}
+
+                      <div className="bib-exemplar-actions">
+                        {podeGerenciarExemplares &&
+                        !impersonacao &&
+                        !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-secondary"
+                            onClick={() => abrirEdicaoExemplar(exemplar)}
+                          >
+                            {ui("edit")}
+                          </button>
+                        ) : null}
+
+                        {podeGerenciarManutencao &&
+                        !impersonacao &&
+                        exemplar.tipo === "FISICO" &&
+                        exemplar.status === "MANUTENCAO" &&
+                        exemplar.manutencaoAberta ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-primary"
+                            onClick={() => abrirConclusaoManutencao(exemplar)}
+                          >
+                            {ui("completeMaintenance")}
+                          </button>
+                        ) : null}
+
+                        {podeGerenciarManutencao &&
+                        !impersonacao &&
+                        exemplar.tipo === "FISICO" &&
+                        exemplar.status === "MANUTENCAO" &&
+                        exemplar.manutencaoAberta ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-secondary bib-button-maintenance"
+                            onClick={() =>
+                              abrirCancelamentoManutencao(exemplar)
+                            }
+                          >
+                            {ui("cancelMaintenance")}
+                          </button>
+                        ) : null}
+
+                        {podeGerenciarEmprestimos &&
+                        !impersonacao &&
+                        exemplar.tipo === "FISICO" &&
+                        exemplar.status === "DISPONIVEL" &&
+                        exemplar.permiteEmprestimo &&
+                        !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-primary"
+                            onClick={() => abrirEmprestimo(exemplar)}
+                          >
+                            {ui("loan")}
+                          </button>
+                        ) : null}
+
+                        {podeGerenciarEmprestimos &&
+                        !impersonacao &&
+                        exemplar.tipo === "FISICO" &&
+                        exemplar.status === "EMPRESTADO" &&
+                        !exemplar.baixadoEm ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-primary"
+                            onClick={() => abrirDevolucao(exemplar)}
+                          >
+                            {ui("registerReturn")}
+                          </button>
+                        ) : null}
+
+                        {podeGerenciarManutencao &&
+                        !impersonacao &&
+                        exemplar.tipo === "FISICO" &&
+                        (exemplar.status === "DANIFICADO" ||
+                          exemplar.status === "INDISPONIVEL") &&
+                        !exemplar.baixadoEm &&
+                        !exemplar.manutencaoAberta ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-secondary bib-button-maintenance"
+                            onClick={() => abrirManutencao(exemplar)}
+                          >
+                            {ui("sendMaintenance")}
+                          </button>
+                        ) : null}
+
+                        {podeBaixarExemplares &&
+                        !impersonacao &&
+                        !exemplar.baixadoEm &&
+                        exemplar.status !== "EMPRESTADO" &&
+                        exemplar.status !== "RESERVADO" &&
+                        exemplar.status !== "MANUTENCAO" ? (
+                          <button
+                            type="button"
+                            className="bib-button bib-button-danger"
+                            onClick={() => abrirBaixaExemplar(exemplar)}
+                          >
+                            {ui("writeOff")}
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
-                <div className="bib-compact-empty">
-                  {ui("noCopies")}
-                </div>
+                <div className="bib-compact-empty">{ui("noCopies")}</div>
               )}
             </article>
           </section>
@@ -4681,13 +3630,9 @@ export default function BibliotecaItemPage() {
             <div className="bib-detail-savebar">
               <div>
                 <strong>
-                  {alterado
-                    ? ui("unsavedChanges")
-                    : ui("noChanges")}
+                  {alterado ? ui("unsavedChanges") : ui("noChanges")}
                 </strong>
-                <span>
-                  {ui("publicationStatusUnchanged")}
-                </span>
+                <span>{ui("publicationStatusUnchanged")}</span>
               </div>
               <div>
                 <button
@@ -4711,10 +3656,7 @@ export default function BibliotecaItemPage() {
         </form>
 
         {historicoArquivosAberto ? (
-          <div
-            className="bib-modal-backdrop"
-            role="presentation"
-          >
+          <div className="bib-modal-backdrop" role="presentation">
             <section
               className="bib-modal bib-file-history-modal"
               role="dialog"
@@ -4727,26 +3669,18 @@ export default function BibliotecaItemPage() {
                     {ui("virtualLibrary")}
                   </span>
 
-                  <h2
-                    id="titulo-historico-arquivos"
-                  >
+                  <h2 id="titulo-historico-arquivos">
                     {ui("fileHistoryTitle")}
                   </h2>
 
-                  <p>
-                    {ui("fileHistoryDescription")}
-                  </p>
+                  <p>{ui("fileHistoryDescription")}</p>
                 </div>
 
                 <button
                   type="button"
                   className="bib-modal-close"
-                  onClick={
-                    fecharHistoricoArquivos
-                  }
-                  disabled={
-                    carregandoHistoricoArquivos
-                  }
+                  onClick={fecharHistoricoArquivos}
+                  disabled={carregandoHistoricoArquivos}
                   aria-label={ui("close")}
                 >
                   ×
@@ -4756,268 +3690,183 @@ export default function BibliotecaItemPage() {
               <div className="bib-modal-body bib-file-history-body">
                 <div className="bib-history-summary">
                   <div>
-                    <small>
-                      {ui("totalVersions")}
-                    </small>
-                    <strong>
-                      {
-                        resumoHistoricoArquivos
-                          .total
-                      }
-                    </strong>
+                    <small>{ui("totalVersions")}</small>
+                    <strong>{resumoHistoricoArquivos.total}</strong>
                   </div>
 
                   <div>
-                    <small>
-                      {ui("active")}
-                    </small>
-                    <strong>
-                      {
-                        resumoHistoricoArquivos
-                          .ativos
-                      }
-                    </strong>
+                    <small>{ui("active")}</small>
+                    <strong>{resumoHistoricoArquivos.ativos}</strong>
                   </div>
 
                   <div>
-                    <small>
-                      {ui("deleted")}
-                    </small>
-                    <strong>
-                      {
-                        resumoHistoricoArquivos
-                          .arquivados
-                      }
-                    </strong>
+                    <small>{ui("deleted")}</small>
+                    <strong>{resumoHistoricoArquivos.arquivados}</strong>
                   </div>
                 </div>
 
                 {carregandoHistoricoArquivos ? (
                   <div className="bib-history-loading">
-                    <strong>
-                      {ui("loadingHistory")}
-                    </strong>
+                    <strong>{ui("loadingHistory")}</strong>
 
-                    <p>
-                      {ui("loadingHistoryDescription")}
-                    </p>
+                    <p>{ui("loadingHistoryDescription")}</p>
                   </div>
                 ) : erroHistoricoArquivos ? (
                   <div className="bib-feedback bib-feedback-error">
                     <div>
-                      <strong>
-                        {ui("historyLoadError")}
-                      </strong>
+                      <strong>{ui("historyLoadError")}</strong>
 
-                      <p>
-                        {
-                          erroHistoricoArquivos
-                        }
-                      </p>
+                      <p>{erroHistoricoArquivos}</p>
                     </div>
 
                     <button
                       type="button"
                       className="bib-button bib-button-secondary"
-                      onClick={() =>
-                        void abrirHistoricoArquivos()
-                      }
+                      onClick={() => void abrirHistoricoArquivos()}
                     >
                       {ui("retry")}
                     </button>
                   </div>
                 ) : historicoArquivos.length ? (
                   <div className="bib-file-history-list">
-                    {historicoArquivos.map(
-                      (arquivo) => (
-                        <article
-                          key={arquivo.id}
-                          className={[
-                            "bib-file-history-entry",
+                    {historicoArquivos.map((arquivo) => (
+                      <article
+                        key={arquivo.id}
+                        className={[
+                          "bib-file-history-entry",
 
-                            arquivo.arquivado
-                              ? "bib-file-history-entry-archived"
-                              : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                        >
-                          <div className="bib-file-history-marker">
-                            <span>
-                              {arquivo.arquivado
-                                ? "🗑️"
-                                : arquivo.principalAtual
-                                  ? "⭐"
-                                  : "📄"}
-                            </span>
-                          </div>
+                          arquivo.arquivado
+                            ? "bib-file-history-entry-archived"
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                      >
+                        <div className="bib-file-history-marker">
+                          <span>
+                            {arquivo.arquivado
+                              ? "🗑️"
+                              : arquivo.principalAtual
+                                ? "⭐"
+                                : "📄"}
+                          </span>
+                        </div>
 
-                          <div className="bib-file-history-content">
-                            <div className="bib-file-history-top">
-                              <div>
-                                <span className="bib-history-version">
-                                  {ui("version")}{" "}
-                                  {
-                                    arquivo.versao
-                                  }
+                        <div className="bib-file-history-content">
+                          <div className="bib-file-history-top">
+                            <div>
+                              <span className="bib-history-version">
+                                {ui("version")} {arquivo.versao}
+                              </span>
+
+                              {arquivo.principalAtual ? (
+                                <span className="bib-history-badge bib-history-badge-primary">
+                                  {ui("currentPrimary")}
                                 </span>
-
-                                {arquivo.principalAtual ? (
-                                  <span className="bib-history-badge bib-history-badge-primary">
-                                    {ui("currentPrimary")}
-                                  </span>
-                                ) : arquivo.arquivado ? (
-                                  <span className="bib-history-badge bib-history-badge-archived">
-                                    {ui("deletedBadge")}
-                                  </span>
-                                ) : (
-                                  <span className="bib-history-badge bib-history-badge-active">
-                                    {ui("activeBadge")}
-                                  </span>
-                                )}
-                              </div>
-
-                              <small>
-                                #
-                                {
-                                  arquivo.id
-                                }
-                              </small>
+                              ) : arquivo.arquivado ? (
+                                <span className="bib-history-badge bib-history-badge-archived">
+                                  {ui("deletedBadge")}
+                                </span>
+                              ) : (
+                                <span className="bib-history-badge bib-history-badge-active">
+                                  {ui("activeBadge")}
+                                </span>
+                              )}
                             </div>
 
-                            <strong className="bib-history-file-name">
-                              {
-                                arquivo.nomeOriginal
-                              }
-                            </strong>
+                            <small>#{arquivo.id}</small>
+                          </div>
 
-                            <div className="bib-history-file-meta">
-                              <span>
-                                {rotuloEnumLocalizado(
-                                  arquivo.tipo
-                                )}
-                              </span>
+                          <strong className="bib-history-file-name">
+                            {arquivo.nomeOriginal}
+                          </strong>
 
-                              <span>
-                                {formatarBytes(
-                                  arquivo.tamanhoBytes
-                                )}
-                              </span>
+                          <div className="bib-history-file-meta">
+                            <span>{rotuloEnumLocalizado(arquivo.tipo)}</span>
 
-                              <span>
-                                {rotuloEnumLocalizado(
-                                  arquivo.status
-                                )}
-                              </span>
+                            <span>{formatarBytes(arquivo.tamanhoBytes)}</span>
+
+                            <span>{rotuloEnumLocalizado(arquivo.status)}</span>
+                          </div>
+
+                          <div className="bib-history-event-grid">
+                            <div>
+                              <small>{ui("sentAt")}</small>
+
+                              <strong>{formatarData(arquivo.enviadoEm)}</strong>
                             </div>
 
-                            <div className="bib-history-event-grid">
-                              <div>
-                                <small>
-                                  {ui("sentAt")}
-                                </small>
+                            <div>
+                              <small>{ui("sentBy")}</small>
 
-                                <strong>
-                                  {formatarData(
-                                    arquivo.enviadoEm
-                                  )}
-                                </strong>
-                              </div>
-
-                              <div>
-                                <small>
-                                  {ui("sentBy")}
-                                </small>
-
-                                <strong>
-                                  {arquivo.enviadoPor?.nome?.trim() ||
-                                    arquivo.enviadoPor?.email?.trim() ||
-                                    ui("userUnavailable")}
-                                </strong>
-                              </div>
-
-                              {arquivo.arquivado ? (
-                                <>
-                                  <div>
-                                    <small>
-                                      {ui("deletedAt")}
-                                    </small>
-
-                                    <strong>
-                                      {formatarData(
-                                        arquivo.arquivadoEm
-                                      )}
-                                    </strong>
-                                  </div>
-
-                                  <div>
-                                    <small>
-                                      {ui("deletedBy")}
-                                    </small>
-
-                                    <strong>
-                                      {arquivo.arquivadoPor?.nome?.trim() ||
-                                        arquivo.arquivadoPor?.email?.trim() ||
-                                        ui("userUnavailable")}
-                                    </strong>
-                                  </div>
-                                </>
-                              ) : null}
+                              <strong>
+                                {arquivo.enviadoPor?.nome?.trim() ||
+                                  arquivo.enviadoPor?.email?.trim() ||
+                                  ui("userUnavailable")}
+                              </strong>
                             </div>
 
-                            {arquivo.arquivado &&
-                              arquivo.motivoArquivamento ? (
-                              <div className="bib-history-reason">
-                                <small>
-                                  {ui("deletionReason")}
-                                </small>
+                            {arquivo.arquivado ? (
+                              <>
+                                <div>
+                                  <small>{ui("deletedAt")}</small>
 
-                                <p>
-                                  {
-                                    arquivo.motivoArquivamento
-                                  }
-                                </p>
-                              </div>
-                            ) : null}
+                                  <strong>
+                                    {formatarData(arquivo.arquivadoEm)}
+                                  </strong>
+                                </div>
 
-                            {!arquivo.arquivado &&
-                              arquivo.disponivel ? (
-                              <div className="bib-file-actions">
-                                <a
-                                  href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bib-file-action"
-                                >
-                                  {ui("view")}
-                                </a>
+                                <div>
+                                  <small>{ui("deletedBy")}</small>
 
-                                <a
-                                  href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo?download=1`}
-                                  className="bib-file-action"
-                                >
-                                  {ui("download")}
-                                </a>
-                              </div>
+                                  <strong>
+                                    {arquivo.arquivadoPor?.nome?.trim() ||
+                                      arquivo.arquivadoPor?.email?.trim() ||
+                                      ui("userUnavailable")}
+                                  </strong>
+                                </div>
+                              </>
                             ) : null}
                           </div>
-                        </article>
-                      )
-                    )}
+
+                          {arquivo.arquivado && arquivo.motivoArquivamento ? (
+                            <div className="bib-history-reason">
+                              <small>{ui("deletionReason")}</small>
+
+                              <p>{arquivo.motivoArquivamento}</p>
+                            </div>
+                          ) : null}
+
+                          {!arquivo.arquivado && arquivo.disponivel ? (
+                            <div className="bib-file-actions">
+                              <a
+                                href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bib-file-action"
+                              >
+                                {ui("view")}
+                              </a>
+
+                              <a
+                                href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo?download=1`}
+                                className="bib-file-action"
+                              >
+                                {ui("download")}
+                              </a>
+                            </div>
+                          ) : null}
+                        </div>
+                      </article>
+                    ))}
                   </div>
                 ) : (
                   <div className="bib-history-empty">
-                    <span aria-hidden="true">
-                      🕘
-                    </span>
+                    <span aria-hidden="true">🕘</span>
 
-                    <strong>
-                      {ui("noVersions")}
-                    </strong>
+                    <strong>{ui("noVersions")}</strong>
 
-                    <p>
-                      {ui("noVersionsDescription")}
-                    </p>
+                    <p>{ui("noVersionsDescription")}</p>
                   </div>
                 )}
               </div>
@@ -5026,12 +3875,8 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharHistoricoArquivos
-                  }
-                  disabled={
-                    carregandoHistoricoArquivos
-                  }
+                  onClick={fecharHistoricoArquivos}
+                  disabled={carregandoHistoricoArquivos}
                 >
                   {ui("close")}
                 </button>
@@ -5042,10 +3887,7 @@ export default function BibliotecaItemPage() {
       </div>
 
       {arquivoParaExcluir ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal bib-delete-file-modal"
             role="dialog"
@@ -5054,30 +3896,18 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
-                <h2
-                  id="titulo-exclusao-arquivo"
-                >
-                  {ui("deleteFileTitle")}
-                </h2>
+                <h2 id="titulo-exclusao-arquivo">{ui("deleteFileTitle")}</h2>
 
-                <p>
-                  {ui("deleteFileDescription")}
-                </p>
+                <p>{ui("deleteFileDescription")}</p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharExclusaoArquivo
-                }
-                disabled={
-                  excluindoArquivo
-                }
+                onClick={fecharExclusaoArquivo}
+                disabled={excluindoArquivo}
                 aria-label={ui("close")}
               >
                 ×
@@ -5092,38 +3922,21 @@ export default function BibliotecaItemPage() {
             >
               <div className="bib-modal-body">
                 <div className="bib-delete-file-summary">
-                  <span
-                    aria-hidden="true"
-                  >
-                    🗑
-                  </span>
+                  <span aria-hidden="true">🗑</span>
 
                   <div>
-                    <strong>
-                      {
-                        arquivoParaExcluir
-                          .nomeOriginal
-                      }
-                    </strong>
+                    <strong>{arquivoParaExcluir.nomeOriginal}</strong>
 
                     <small>
-                      {rotuloEnumLocalizado(
-                        arquivoParaExcluir
-                          .tipo
-                      )}
+                      {rotuloEnumLocalizado(arquivoParaExcluir.tipo)}
                       {" · "}
-                      {formatarBytes(
-                        arquivoParaExcluir
-                          .tamanhoBytes
-                      )}
+                      {formatarBytes(arquivoParaExcluir.tamanhoBytes)}
                     </small>
                   </div>
                 </div>
 
                 <div className="bib-delete-warning">
-                  <strong>
-                    {ui("storageReturned")}
-                  </strong>
+                  <strong>{ui("storageReturned")}</strong>
 
                   <p>
                     {ui("storageReleaseAudit", {
@@ -5133,30 +3946,20 @@ export default function BibliotecaItemPage() {
                 </div>
 
                 <label className="bib-field">
-                  <span>
-                    {ui("deletionReason")}
-                  </span>
+                  <span>{ui("deletionReason")}</span>
 
                   <textarea
                     className="bib-input bib-textarea"
-                    value={
-                      motivoExclusao
-                    }
+                    value={motivoExclusao}
                     onChange={(evento) =>
-                      setMotivoExclusao(
-                        evento.target.value
-                      )
+                      setMotivoExclusao(evento.target.value)
                     }
                     maxLength={2000}
-                    disabled={
-                      excluindoArquivo
-                    }
+                    disabled={excluindoArquivo}
                     placeholder={ui("deleteReasonPlaceholder")}
                   />
 
-                  <small>
-                    {ui("reasonRecorded")}
-                  </small>
+                  <small>{ui("reasonRecorded")}</small>
                 </label>
               </div>
 
@@ -5164,12 +3967,8 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharExclusaoArquivo
-                  }
-                  disabled={
-                    excluindoArquivo
-                  }
+                  onClick={fecharExclusaoArquivo}
+                  disabled={excluindoArquivo}
                 >
                   {ui("cancel")}
                 </button>
@@ -5177,12 +3976,8 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-danger"
-                  onClick={() =>
-                    void excluirArquivo()
-                  }
-                  disabled={
-                    excluindoArquivo
-                  }
+                  onClick={() => void excluirArquivo()}
+                  disabled={excluindoArquivo}
                 >
                   {excluindoArquivo
                     ? ui("deleting")
@@ -5195,10 +3990,7 @@ export default function BibliotecaItemPage() {
       ) : null}
 
       {exemplarParaEmprestimo ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal bib-emprestimo-modal"
             role="dialog"
@@ -5207,27 +3999,17 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
-                <h2
-                  id="titulo-emprestimo-biblioteca"
-                >
-                  {ui("loanTitle")}
-                </h2>
+                <h2 id="titulo-emprestimo-biblioteca">{ui("loanTitle")}</h2>
 
-                <p>
-                  {ui("loanDescription")}
-                </p>
+                <p>{ui("loanDescription")}</p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharEmprestimo
-                }
+                onClick={fecharEmprestimo}
                 aria-label={ui("close")}
               >
                 ×
@@ -5237,81 +4019,58 @@ export default function BibliotecaItemPage() {
             <div className="bib-modal-body">
               <div className="bib-feedback">
                 <div>
-                  <strong>
-                    {
-                      exemplarParaEmprestimo
-                        .codigoInterno
-                    }
-                  </strong>
+                  <strong>{exemplarParaEmprestimo.codigoInterno}</strong>
 
                   <p>
-                    {item?.titulo ||
-                      ui("collectionItem")}
+                    {item?.titulo || ui("collectionItem")}
 
-                    {exemplarParaEmprestimo
-                      .numeroTombo
-                      ? ui("tombSuffix", { number: exemplarParaEmprestimo.numeroTombo })
+                    {exemplarParaEmprestimo.numeroTombo
+                      ? ui("tombSuffix", {
+                          number: exemplarParaEmprestimo.numeroTombo,
+                        })
                       : ""}
                   </p>
                 </div>
               </div>
 
               <label className="bib-field">
-                <span>
-                  {ui("searchPerson")}
-                </span>
+                <span>{ui("searchPerson")}</span>
 
                 <input
                   type="search"
                   className="bib-input"
-                  value={
-                    buscaUsuarioEmprestimo
-                  }
+                  value={buscaUsuarioEmprestimo}
                   onChange={(evento) => {
-                    setBuscaUsuarioEmprestimo(
-                      evento.target.value
-                    );
+                    setBuscaUsuarioEmprestimo(evento.target.value);
 
-                    setUsuarioEmprestimoSelecionado(
-                      null
-                    );
+                    setUsuarioEmprestimoSelecionado(null);
                   }}
                   placeholder={ui("searchPersonPlaceholder")}
                   autoComplete="off"
                   autoFocus
                 />
 
-                <small>
-                  {ui("searchMinChars")}
-                </small>
+                <small>{ui("searchMinChars")}</small>
               </label>
 
               {usuarioEmprestimoSelecionado ? (
                 <div className="bib-feedback bib-feedback-success">
                   <div>
-                    <strong>
-                      {ui("selectedBorrower")}
-                    </strong>
+                    <strong>{ui("selectedBorrower")}</strong>
 
                     <p>
-                      {
-                        usuarioEmprestimoSelecionado.nome
-                      }
+                      {usuarioEmprestimoSelecionado.nome}
 
                       {" · "}
 
-                      {rotuloEnumLocalizado(
-                        usuarioEmprestimoSelecionado.tipo
-                      )}
+                      {rotuloEnumLocalizado(usuarioEmprestimoSelecionado.tipo)}
 
-                      {usuarioEmprestimoSelecionado
-                        .identificador
-                        ? ` · ${usuarioEmprestimoSelecionado.tipo ===
-                          "ALUNO"
-                          ? ui("enrollment")
-                          : ui("code")
-                        } ${usuarioEmprestimoSelecionado.identificador
-                        }`
+                      {usuarioEmprestimoSelecionado.identificador
+                        ? ` · ${
+                            usuarioEmprestimoSelecionado.tipo === "ALUNO"
+                              ? ui("enrollment")
+                              : ui("code")
+                          } ${usuarioEmprestimoSelecionado.identificador}`
                         : ""}
                     </p>
                   </div>
@@ -5322,173 +4081,113 @@ export default function BibliotecaItemPage() {
                 <>
                   <label className="bib-field">
                     <span>
-                      {ui("expectedReturnDate")}{" "}
-                      <b>*</b>
+                      {ui("expectedReturnDate")} <b>*</b>
                     </span>
 
                     <input
                       type="date"
                       className="bib-input"
-                      value={
-                        vencimentoEmprestimo
-                      }
+                      value={vencimentoEmprestimo}
                       onChange={(evento) =>
-                        setVencimentoEmprestimo(
-                          evento.target.value
-                        )
+                        setVencimentoEmprestimo(evento.target.value)
                       }
-                      disabled={
-                        registrandoEmprestimo
-                      }
+                      disabled={registrandoEmprestimo}
                     />
 
-                    <small>
-                      {ui("dueDateHelp")}
-                    </small>
+                    <small>{ui("dueDateHelp")}</small>
                   </label>
 
                   <label className="bib-field">
-                    <span>
-                      {ui("checkoutNotes")}
-                    </span>
+                    <span>{ui("checkoutNotes")}</span>
 
                     <textarea
                       className="bib-input bib-textarea"
-                      value={
-                        observacaoRetirada
-                      }
+                      value={observacaoRetirada}
                       onChange={(evento) =>
-                        setObservacaoRetirada(
-                          evento.target.value
-                        )
+                        setObservacaoRetirada(evento.target.value)
                       }
                       maxLength={5_000}
-                      disabled={
-                        registrandoEmprestimo
-                      }
+                      disabled={registrandoEmprestimo}
                       placeholder={ui("checkoutNotesPlaceholder")}
                     />
 
-                    <small>
-                      {ui("optionalLoanNote")}
-                    </small>
+                    <small>{ui("optionalLoanNote")}</small>
                   </label>
                 </>
               ) : null}
 
               {buscandoUsuariosEmprestimo ? (
-                <div className="bib-compact-empty">
-                  {ui("searchingPeople")}
-                </div>
+                <div className="bib-compact-empty">{ui("searchingPeople")}</div>
               ) : null}
 
               {erroBuscaUsuariosEmprestimo ? (
                 <div className="bib-feedback bib-feedback-danger">
                   <div>
-                    <strong>
-                      {ui("searchFailed")}
-                    </strong>
+                    <strong>{ui("searchFailed")}</strong>
 
-                    <p>
-                      {
-                        erroBuscaUsuariosEmprestimo
-                      }
-                    </p>
+                    <p>{erroBuscaUsuariosEmprestimo}</p>
                   </div>
                 </div>
               ) : null}
 
               {!buscandoUsuariosEmprestimo &&
-                buscaUsuarioEmprestimo
-                  .trim()
-                  .length >= 2 &&
-                !erroBuscaUsuariosEmprestimo &&
-                usuariosEmprestimo.length ===
-                0 ? (
-                <div className="bib-compact-empty">
-                  {ui("noPeopleFound")}
-                </div>
+              buscaUsuarioEmprestimo.trim().length >= 2 &&
+              !erroBuscaUsuariosEmprestimo &&
+              usuariosEmprestimo.length === 0 ? (
+                <div className="bib-compact-empty">{ui("noPeopleFound")}</div>
               ) : null}
 
-              {!buscandoUsuariosEmprestimo &&
-                usuariosEmprestimo.length >
-                0 ? (
+              {!buscandoUsuariosEmprestimo && usuariosEmprestimo.length > 0 ? (
                 <div className="bib-related-list">
-                  {usuariosEmprestimo.map(
-                    (usuarioBusca) => (
-                      <div
-                        className="bib-related-row"
-                        key={usuarioBusca.id}
-                      >
-                        <span
-                          aria-hidden="true"
-                        >
-                          {usuarioBusca.tipo ===
-                            "ALUNO"
-                            ? "🎓"
-                            : usuarioBusca.tipo ===
-                              "PROFESSOR"
-                              ? "👨‍🏫"
-                              : "👤"}
-                        </span>
+                  {usuariosEmprestimo.map((usuarioBusca) => (
+                    <div className="bib-related-row" key={usuarioBusca.id}>
+                      <span aria-hidden="true">
+                        {usuarioBusca.tipo === "ALUNO"
+                          ? "🎓"
+                          : usuarioBusca.tipo === "PROFESSOR"
+                            ? "👨‍🏫"
+                            : "👤"}
+                      </span>
 
-                        <div>
-                          <strong>
-                            {
-                              usuarioBusca.nome
-                            }
-                          </strong>
+                      <div>
+                        <strong>{usuarioBusca.nome}</strong>
 
-                          <small>
-                            {rotuloEnumLocalizado(
-                              usuarioBusca.tipo
-                            )}
+                        <small>
+                          {rotuloEnumLocalizado(usuarioBusca.tipo)}
 
-                            {usuarioBusca
-                              .identificador
-                              ? ` · ${usuarioBusca.tipo ===
-                                "ALUNO"
-                                ? ui("enrollment")
-                                : ui("code")
-                              } ${usuarioBusca.identificador
-                              }`
-                              : ""}
+                          {usuarioBusca.identificador
+                            ? ` · ${
+                                usuarioBusca.tipo === "ALUNO"
+                                  ? ui("enrollment")
+                                  : ui("code")
+                              } ${usuarioBusca.identificador}`
+                            : ""}
 
-                            {usuarioBusca
-                              .cpfMascarado
-                              ? ` · CPF ${usuarioBusca.cpfMascarado}`
-                              : ""}
-                          </small>
+                          {usuarioBusca.cpfMascarado
+                            ? ` · CPF ${usuarioBusca.cpfMascarado}`
+                            : ""}
+                        </small>
 
-                          <small>
-                            {
-                              usuarioBusca.email
-                            }
+                        <small>
+                          {usuarioBusca.email}
 
-                            {usuarioBusca.cargo
-                              ? ` · ${usuarioBusca.cargo}`
-                              : ""}
-                          </small>
-                        </div>
-
-                        <button
-                          type="button"
-                          className="bib-button bib-button-secondary"
-                          onClick={() =>
-                            setUsuarioEmprestimoSelecionado(
-                              usuarioBusca
-                            )
-                          }
-                        >
-                          {usuarioEmprestimoSelecionado
-                            ?.id ===
-                            usuarioBusca.id
-                            ? ui("selected")
-                            : ui("select")}
-                        </button>
+                          {usuarioBusca.cargo ? ` · ${usuarioBusca.cargo}` : ""}
+                        </small>
                       </div>
-                    )
-                  )}
+
+                      <button
+                        type="button"
+                        className="bib-button bib-button-secondary"
+                        onClick={() =>
+                          setUsuarioEmprestimoSelecionado(usuarioBusca)
+                        }
+                      >
+                        {usuarioEmprestimoSelecionado?.id === usuarioBusca.id
+                          ? ui("selected")
+                          : ui("select")}
+                      </button>
+                    </div>
+                  ))}
                 </div>
               ) : null}
             </div>
@@ -5497,12 +4196,8 @@ export default function BibliotecaItemPage() {
               <button
                 type="button"
                 className="bib-button bib-button-secondary"
-                onClick={
-                  fecharEmprestimo
-                }
-                disabled={
-                  registrandoEmprestimo
-                }
+                onClick={fecharEmprestimo}
+                disabled={registrandoEmprestimo}
               >
                 {ui("cancel")}
               </button>
@@ -5510,9 +4205,7 @@ export default function BibliotecaItemPage() {
               <button
                 type="button"
                 className="bib-button bib-button-primary"
-                onClick={() =>
-                  void registrarEmprestimo()
-                }
+                onClick={() => void registrarEmprestimo()}
                 disabled={
                   registrandoEmprestimo ||
                   !usuarioEmprestimoSelecionado ||
@@ -5529,10 +4222,7 @@ export default function BibliotecaItemPage() {
       ) : null}
 
       {exemplarParaDevolucao ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal"
             role="dialog"
@@ -5541,30 +4231,18 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
-                <h2
-                  id="titulo-devolucao-biblioteca"
-                >
-                  {ui("returnTitle")}
-                </h2>
+                <h2 id="titulo-devolucao-biblioteca">{ui("returnTitle")}</h2>
 
-                <p>
-                  {ui("returnDescription")}
-                </p>
+                <p>{ui("returnDescription")}</p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharDevolucao
-                }
-                disabled={
-                  devolvendoExemplar
-                }
+                onClick={fecharDevolucao}
+                disabled={devolvendoExemplar}
                 aria-label={ui("close")}
               >
                 ×
@@ -5581,19 +4259,15 @@ export default function BibliotecaItemPage() {
               <div className="bib-modal-body">
                 <div className="bib-feedback">
                   <div>
-                    <strong>
-                      {
-                        exemplarParaDevolucao
-                          .codigoInterno
-                      }
-                    </strong>
+                    <strong>{exemplarParaDevolucao.codigoInterno}</strong>
 
                     <p>
                       {item.titulo}
 
-                      {exemplarParaDevolucao
-                        .numeroTombo
-                        ? ui("tombSuffix", { number: exemplarParaDevolucao.numeroTombo })
+                      {exemplarParaDevolucao.numeroTombo
+                        ? ui("tombSuffix", {
+                            number: exemplarParaDevolucao.numeroTombo,
+                          })
                         : ""}
                     </p>
                   </div>
@@ -5601,150 +4275,98 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    {ui("returnCondition")}{" "}
-                    <b>*</b>
+                    {ui("returnCondition")} <b>*</b>
                   </span>
 
                   <select
                     className="bib-input"
-                    value={
-                      condicaoDevolucao
-                    }
+                    value={condicaoDevolucao}
                     onChange={(evento) =>
-                      setCondicaoDevolucao(
-                        evento.target.value
-                      )
+                      setCondicaoDevolucao(evento.target.value)
                     }
-                    disabled={
-                      devolvendoExemplar
-                    }
+                    disabled={devolvendoExemplar}
                   >
-                    <option value="NORMAL">
-                      {ui("conditionNormal")}
-                    </option>
+                    <option value="NORMAL">{ui("conditionNormal")}</option>
 
-                    <option value="DESGASTE">
-                      {ui("conditionWear")}
-                    </option>
+                    <option value="DESGASTE">{ui("conditionWear")}</option>
 
-                    <option value="DANIFICADO">
-                      {ui("conditionDamaged")}
-                    </option>
+                    <option value="DANIFICADO">{ui("conditionDamaged")}</option>
 
                     <option value="INCOMPLETO">
                       {ui("conditionIncomplete")}
                     </option>
 
-                    <option value="PERDIDO">
-                      {ui("conditionLost")}
-                    </option>
+                    <option value="PERDIDO">{ui("conditionLost")}</option>
                   </select>
 
-                  <small>
-                    {ui("conditionHelp")}
-                  </small>
+                  <small>{ui("conditionHelp")}</small>
                 </label>
 
-                {condicaoDevolucao ===
-                  "NORMAL" ? (
+                {condicaoDevolucao === "NORMAL" ? (
                   <div className="bib-feedback bib-feedback-success">
                     <div>
-                      <strong>
-                        {ui("availableAgain")}
-                      </strong>
+                      <strong>{ui("availableAgain")}</strong>
 
-                      <p>
-                        {ui("availableAgainHelp")}
-                      </p>
+                      <p>{ui("availableAgainHelp")}</p>
                     </div>
                   </div>
                 ) : null}
 
-                {condicaoDevolucao ===
-                  "DESGASTE" ? (
+                {condicaoDevolucao === "DESGASTE" ? (
                   <div className="bib-feedback bib-feedback-warning">
                     <div>
-                      <strong>
-                        {ui("wearRecorded")}
-                      </strong>
+                      <strong>{ui("wearRecorded")}</strong>
 
-                      <p>
-                        {ui("wearRecordedHelp")}
-                      </p>
+                      <p>{ui("wearRecordedHelp")}</p>
                     </div>
                   </div>
                 ) : null}
 
-                {condicaoDevolucao ===
-                  "DANIFICADO" ? (
+                {condicaoDevolucao === "DANIFICADO" ? (
                   <div className="bib-feedback bib-feedback-warning">
                     <div>
-                      <strong>
-                        {ui("markedDamaged")}
-                      </strong>
+                      <strong>{ui("markedDamaged")}</strong>
 
-                      <p>
-                        {ui("markedDamagedHelp")}
-                      </p>
+                      <p>{ui("markedDamagedHelp")}</p>
                     </div>
                   </div>
                 ) : null}
 
-                {condicaoDevolucao ===
-                  "INCOMPLETO" ? (
+                {condicaoDevolucao === "INCOMPLETO" ? (
                   <div className="bib-feedback bib-feedback-warning">
                     <div>
-                      <strong>
-                        {ui("markedUnavailable")}
-                      </strong>
+                      <strong>{ui("markedUnavailable")}</strong>
 
-                      <p>
-                        {ui("markedUnavailableHelp")}
-                      </p>
+                      <p>{ui("markedUnavailableHelp")}</p>
                     </div>
                   </div>
                 ) : null}
 
-                {condicaoDevolucao ===
-                  "PERDIDO" ? (
+                {condicaoDevolucao === "PERDIDO" ? (
                   <div className="bib-feedback bib-feedback-danger">
                     <div>
-                      <strong>
-                        {ui("markedLost")}
-                      </strong>
+                      <strong>{ui("markedLost")}</strong>
 
-                      <p>
-                        {ui("markedLostHelp")}
-                      </p>
+                      <p>{ui("markedLostHelp")}</p>
                     </div>
                   </div>
                 ) : null}
 
                 <label className="bib-field">
-                  <span>
-                    {ui("returnNotes")}
-                  </span>
+                  <span>{ui("returnNotes")}</span>
 
                   <textarea
                     className="bib-input bib-textarea"
-                    value={
-                      observacaoDevolucao
-                    }
+                    value={observacaoDevolucao}
                     onChange={(evento) =>
-                      setObservacaoDevolucao(
-                        evento.target.value
-                      )
+                      setObservacaoDevolucao(evento.target.value)
                     }
                     maxLength={5_000}
-                    disabled={
-                      devolvendoExemplar
-                    }
+                    disabled={devolvendoExemplar}
                     placeholder={ui("returnNotesPlaceholder")}
                   />
 
-                  <small>
-                    {ui("optionalReturnNote")}
-                  </small>
+                  <small>{ui("optionalReturnNote")}</small>
                 </label>
               </div>
 
@@ -5752,12 +4374,8 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharDevolucao
-                  }
-                  disabled={
-                    devolvendoExemplar
-                  }
+                  onClick={fecharDevolucao}
+                  disabled={devolvendoExemplar}
                 >
                   {ui("cancel")}
                 </button>
@@ -5765,9 +4383,7 @@ export default function BibliotecaItemPage() {
                 <button
                   type="submit"
                   className="bib-button bib-button-primary"
-                  disabled={
-                    devolvendoExemplar
-                  }
+                  disabled={devolvendoExemplar}
                 >
                   {devolvendoExemplar
                     ? ui("registering")
@@ -5780,12 +4396,8 @@ export default function BibliotecaItemPage() {
       ) : null}
 
       {exemplarParaCancelamentoManutencao &&
-        exemplarParaCancelamentoManutencao
-          .manutencaoAberta ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+      exemplarParaCancelamentoManutencao.manutencaoAberta ? (
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal"
             role="dialog"
@@ -5794,25 +4406,19 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
                 <h2 id="titulo-cancelamento-manutencao">
                   {ui("maintenanceCancelTitle")}
                 </h2>
 
-                <p>
-                  {ui("maintenanceCancelDescription")}
-                </p>
+                <p>{ui("maintenanceCancelDescription")}</p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharCancelamentoManutencao
-                }
+                onClick={fecharCancelamentoManutencao}
                 disabled={cancelandoManutencao}
                 aria-label={ui("close")}
               >
@@ -5830,40 +4436,40 @@ export default function BibliotecaItemPage() {
                 <div className="bib-feedback">
                   <div>
                     <strong>
-                      {
-                        exemplarParaCancelamentoManutencao
-                          .codigoInterno
-                      }
+                      {exemplarParaCancelamentoManutencao.codigoInterno}
                     </strong>
 
                     <p>
                       {item.titulo}
 
-                      {exemplarParaCancelamentoManutencao
-                        .numeroTombo
-                        ? ui("tombSuffix", { number: exemplarParaCancelamentoManutencao.numeroTombo })
+                      {exemplarParaCancelamentoManutencao.numeroTombo
+                        ? ui("tombSuffix", {
+                            number:
+                              exemplarParaCancelamentoManutencao.numeroTombo,
+                          })
                         : ""}
                     </p>
 
-                    <p>{ui("currentMaintenance", { reason: exemplarParaCancelamentoManutencao.manutencaoAberta.motivo })}</p>
+                    <p>
+                      {ui("currentMaintenance", {
+                        reason:
+                          exemplarParaCancelamentoManutencao.manutencaoAberta
+                            .motivo,
+                      })}
+                    </p>
                   </div>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    {ui("cancellationReason")}{" "}
-                    <b aria-hidden="true">*</b>
+                    {ui("cancellationReason")} <b aria-hidden="true">*</b>
                   </span>
 
                   <textarea
                     className="bib-input bib-textarea"
-                    value={
-                      motivoCancelamentoManutencao
-                    }
+                    value={motivoCancelamentoManutencao}
                     onChange={(evento) =>
-                      setMotivoCancelamentoManutencao(
-                        evento.target.value
-                      )
+                      setMotivoCancelamentoManutencao(evento.target.value)
                     }
                     placeholder={ui("serviceCancelPlaceholder")}
                     maxLength={5000}
@@ -5875,47 +4481,32 @@ export default function BibliotecaItemPage() {
 
                 <label className="bib-field">
                   <span>
-                    {ui("statusAfterCancellation")}{" "}
-                    <b aria-hidden="true">*</b>
+                    {ui("statusAfterCancellation")} <b aria-hidden="true">*</b>
                   </span>
 
                   <select
                     className="bib-input"
-                    value={
-                      statusRetornoCancelamentoManutencao
-                    }
+                    value={statusRetornoCancelamentoManutencao}
                     onChange={(evento) =>
                       setStatusRetornoCancelamentoManutencao(
-                        evento.target.value as
-                        | "DANIFICADO"
-                        | "INDISPONIVEL"
+                        evento.target.value as "DANIFICADO" | "INDISPONIVEL",
                       )
                     }
                     disabled={cancelandoManutencao}
                   >
-                    <option value="DANIFICADO">
-                      {ui("conditionDamaged")}
-                    </option>
+                    <option value="DANIFICADO">{ui("conditionDamaged")}</option>
 
-                    <option value="INDISPONIVEL">
-                      {ui("unavailable")}
-                    </option>
+                    <option value="INDISPONIVEL">{ui("unavailable")}</option>
                   </select>
 
-                  <small>
-                    {ui("cancelNoAvailability")}
-                  </small>
+                  <small>{ui("cancelNoAvailability")}</small>
                 </label>
 
                 <div className="bib-feedback bib-feedback-warning">
                   <div>
-                    <strong>
-                      {ui("remainOut")}
-                    </strong>
+                    <strong>{ui("remainOut")}</strong>
 
-                    <p>
-                      {ui("remainOutHelp")}
-                    </p>
+                    <p>{ui("remainOutHelp")}</p>
                   </div>
                 </div>
               </div>
@@ -5924,9 +4515,7 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharCancelamentoManutencao
-                  }
+                  onClick={fecharCancelamentoManutencao}
                   disabled={cancelandoManutencao}
                 >
                   {ui("back")}
@@ -5936,8 +4525,7 @@ export default function BibliotecaItemPage() {
                   type="submit"
                   className="bib-button bib-button-danger"
                   disabled={
-                    cancelandoManutencao ||
-                    !motivoCancelamentoManutencao.trim()
+                    cancelandoManutencao || !motivoCancelamentoManutencao.trim()
                   }
                 >
                   {cancelandoManutencao
@@ -5951,12 +4539,8 @@ export default function BibliotecaItemPage() {
       ) : null}
 
       {exemplarParaConclusaoManutencao &&
-        exemplarParaConclusaoManutencao
-          .manutencaoAberta ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+      exemplarParaConclusaoManutencao.manutencaoAberta ? (
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal"
             role="dialog"
@@ -5965,25 +4549,19 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
                 <h2 id="titulo-conclusao-manutencao">
                   {ui("maintenanceCompleteTitle")}
                 </h2>
 
-                <p>
-                  {ui("maintenanceCompleteDescription")}
-                </p>
+                <p>{ui("maintenanceCompleteDescription")}</p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharConclusaoManutencao
-                }
+                onClick={fecharConclusaoManutencao}
                 disabled={concluindoManutencao}
                 aria-label={ui("close")}
               >
@@ -6001,29 +4579,32 @@ export default function BibliotecaItemPage() {
                 <div className="bib-feedback">
                   <div>
                     <strong>
-                      {
-                        exemplarParaConclusaoManutencao
-                          .codigoInterno
-                      }
+                      {exemplarParaConclusaoManutencao.codigoInterno}
                     </strong>
 
                     <p>
                       {item.titulo}
 
-                      {exemplarParaConclusaoManutencao
-                        .numeroTombo
-                        ? ui("tombSuffix", { number: exemplarParaConclusaoManutencao.numeroTombo })
+                      {exemplarParaConclusaoManutencao.numeroTombo
+                        ? ui("tombSuffix", {
+                            number: exemplarParaConclusaoManutencao.numeroTombo,
+                          })
                         : ""}
                     </p>
 
-                    <p>{ui("maintenanceReasonValue", { reason: exemplarParaConclusaoManutencao.manutencaoAberta.motivo })}</p>
+                    <p>
+                      {ui("maintenanceReasonValue", {
+                        reason:
+                          exemplarParaConclusaoManutencao.manutencaoAberta
+                            .motivo,
+                      })}
+                    </p>
                   </div>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    {ui("maintenanceResult")}{" "}
-                    <b aria-hidden="true">*</b>
+                    {ui("maintenanceResult")} <b aria-hidden="true">*</b>
                   </span>
 
                   <select
@@ -6031,52 +4612,33 @@ export default function BibliotecaItemPage() {
                     value={resultadoManutencao}
                     onChange={(evento) =>
                       setResultadoManutencao(
-                        evento.target.value as
-                        | "REPARADO"
-                        | "IRRECUPERAVEL"
+                        evento.target.value as "REPARADO" | "IRRECUPERAVEL",
                       )
                     }
-                    disabled={
-                      concluindoManutencao
-                    }
+                    disabled={concluindoManutencao}
                   >
-                    <option value="REPARADO">
-                      {ui("repaired")}
-                    </option>
+                    <option value="REPARADO">{ui("repaired")}</option>
 
-                    <option value="IRRECUPERAVEL">
-                      {ui("irreparable")}
-                    </option>
+                    <option value="IRRECUPERAVEL">{ui("irreparable")}</option>
                   </select>
 
-                  <small>
-                    {ui("resultHelp")}
-                  </small>
+                  <small>{ui("resultHelp")}</small>
                 </label>
 
-                {resultadoManutencao ===
-                  "REPARADO" ? (
+                {resultadoManutencao === "REPARADO" ? (
                   <div className="bib-feedback bib-feedback-success">
                     <div>
-                      <strong>
-                        {ui("availableAgain")}
-                      </strong>
+                      <strong>{ui("availableAgain")}</strong>
 
-                      <p>
-                        {ui("availableAgainHelp")}
-                      </p>
+                      <p>{ui("availableAgainHelp")}</p>
                     </div>
                   </div>
                 ) : (
                   <div className="bib-feedback bib-feedback-danger">
                     <div>
-                      <strong>
-                        {ui("remainUnavailable")}
-                      </strong>
+                      <strong>{ui("remainUnavailable")}</strong>
 
-                      <p>
-                        {ui("irreparableHelp")}
-                      </p>
+                      <p>{ui("irreparableHelp")}</p>
                     </div>
                   </div>
                 )}
@@ -6085,36 +4647,28 @@ export default function BibliotecaItemPage() {
                   <span>
                     {ui("completionNotes")}
 
-                    {resultadoManutencao ===
-                      "IRRECUPERAVEL" ? (
-                      <> <b aria-hidden="true">*</b></>
+                    {resultadoManutencao === "IRRECUPERAVEL" ? (
+                      <>
+                        {" "}
+                        <b aria-hidden="true">*</b>
+                      </>
                     ) : null}
                   </span>
 
                   <textarea
                     className="bib-input bib-textarea"
-                    value={
-                      observacaoConclusaoManutencao
-                    }
+                    value={observacaoConclusaoManutencao}
                     onChange={(evento) =>
-                      setObservacaoConclusaoManutencao(
-                        evento.target.value
-                      )
+                      setObservacaoConclusaoManutencao(evento.target.value)
                     }
                     placeholder={
-                      resultadoManutencao ===
-                        "IRRECUPERAVEL"
+                      resultadoManutencao === "IRRECUPERAVEL"
                         ? ui("irreparablePlaceholder")
                         : ui("repairPlaceholder")
                     }
                     maxLength={5000}
-                    required={
-                      resultadoManutencao ===
-                      "IRRECUPERAVEL"
-                    }
-                    disabled={
-                      concluindoManutencao
-                    }
+                    required={resultadoManutencao === "IRRECUPERAVEL"}
+                    disabled={concluindoManutencao}
                   />
                 </label>
 
@@ -6127,14 +4681,10 @@ export default function BibliotecaItemPage() {
                     inputMode="decimal"
                     value={custoFinalManutencao}
                     onChange={(evento) =>
-                      setCustoFinalManutencao(
-                        evento.target.value
-                      )
+                      setCustoFinalManutencao(evento.target.value)
                     }
                     placeholder="0,00"
-                    disabled={
-                      concluindoManutencao
-                    }
+                    disabled={concluindoManutencao}
                   />
                 </label>
               </div>
@@ -6143,9 +4693,7 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharConclusaoManutencao
-                  }
+                  onClick={fecharConclusaoManutencao}
                   disabled={concluindoManutencao}
                 >
                   {ui("cancel")}
@@ -6153,22 +4701,20 @@ export default function BibliotecaItemPage() {
 
                 <button
                   type="submit"
-                  className={`bib-button ${resultadoManutencao ===
-                    "IRRECUPERAVEL"
-                    ? "bib-button-danger"
-                    : "bib-button-primary"
-                    }`}
+                  className={`bib-button ${
+                    resultadoManutencao === "IRRECUPERAVEL"
+                      ? "bib-button-danger"
+                      : "bib-button-primary"
+                  }`}
                   disabled={
                     concluindoManutencao ||
-                    (resultadoManutencao ===
-                      "IRRECUPERAVEL" &&
+                    (resultadoManutencao === "IRRECUPERAVEL" &&
                       !observacaoConclusaoManutencao.trim())
                   }
                 >
                   {concluindoManutencao
                     ? ui("completing")
-                    : resultadoManutencao ===
-                      "IRRECUPERAVEL"
+                    : resultadoManutencao === "IRRECUPERAVEL"
                       ? ui("declareIrreparable")
                       : `🛠️ ${ui("completeAsRepaired")}`}
                 </button>
@@ -6194,9 +4740,7 @@ export default function BibliotecaItemPage() {
                   {ui("maintenanceSendTitle")}
                 </h2>
 
-                <p>
-                  {ui("maintenanceSendDescription")}
-                </p>
+                <p>{ui("maintenanceSendDescription")}</p>
               </div>
 
               <button
@@ -6219,37 +4763,38 @@ export default function BibliotecaItemPage() {
               <div className="bib-modal-body">
                 <div className="bib-feedback">
                   <div>
-                    <strong>
-                      {
-                        exemplarParaManutencao.codigoInterno
-                      }
-                    </strong>
+                    <strong>{exemplarParaManutencao.codigoInterno}</strong>
 
                     <p>
                       {item.titulo}
 
                       {exemplarParaManutencao.numeroTombo
-                        ? ui("tombSuffix", { number: exemplarParaManutencao.numeroTombo })
+                        ? ui("tombSuffix", {
+                            number: exemplarParaManutencao.numeroTombo,
+                          })
                         : ""}
                     </p>
 
-                    <p>{ui("currentStatus", { status: rotuloEnumLocalizado(exemplarParaManutencao.status) })}</p>
+                    <p>
+                      {ui("currentStatus", {
+                        status: rotuloEnumLocalizado(
+                          exemplarParaManutencao.status,
+                        ),
+                      })}
+                    </p>
                   </div>
                 </div>
 
                 <label className="bib-field">
                   <span>
-                    {ui("maintenanceReason")}{" "}
-                    <b aria-hidden="true">*</b>
+                    {ui("maintenanceReason")} <b aria-hidden="true">*</b>
                   </span>
 
                   <textarea
                     className="bib-input bib-textarea"
                     value={motivoManutencao}
                     onChange={(evento) =>
-                      setMotivoManutencao(
-                        evento.target.value
-                      )
+                      setMotivoManutencao(evento.target.value)
                     }
                     placeholder={ui("maintenanceReasonPlaceholder")}
                     maxLength={1000}
@@ -6263,13 +4808,9 @@ export default function BibliotecaItemPage() {
 
                   <textarea
                     className="bib-input bib-textarea"
-                    value={
-                      observacaoEntradaManutencao
-                    }
+                    value={observacaoEntradaManutencao}
                     onChange={(evento) =>
-                      setObservacaoEntradaManutencao(
-                        evento.target.value
-                      )
+                      setObservacaoEntradaManutencao(evento.target.value)
                     }
                     placeholder={ui("intakePlaceholder")}
                     maxLength={5000}
@@ -6284,9 +4825,7 @@ export default function BibliotecaItemPage() {
                     type="text"
                     value={fornecedorManutencao}
                     onChange={(evento) =>
-                      setFornecedorManutencao(
-                        evento.target.value
-                      )
+                      setFornecedorManutencao(evento.target.value)
                     }
                     placeholder={ui("providerPlaceholder")}
                     maxLength={200}
@@ -6302,9 +4841,7 @@ export default function BibliotecaItemPage() {
                     inputMode="decimal"
                     value={custoEstimadoManutencao}
                     onChange={(evento) =>
-                      setCustoEstimadoManutencao(
-                        evento.target.value
-                      )
+                      setCustoEstimadoManutencao(evento.target.value)
                     }
                     placeholder="0,00"
                   />
@@ -6318,22 +4855,16 @@ export default function BibliotecaItemPage() {
                     type="date"
                     value={previsaoRetornoManutencao}
                     onChange={(evento) =>
-                      setPrevisaoRetornoManutencao(
-                        evento.target.value
-                      )
+                      setPrevisaoRetornoManutencao(evento.target.value)
                     }
                   />
                 </label>
 
                 <div className="bib-feedback bib-feedback-warning">
                   <div>
-                    <strong>
-                      {ui("inMaintenance")}
-                    </strong>
+                    <strong>{ui("inMaintenance")}</strong>
 
-                    <p>
-                      {ui("inMaintenanceHelp")}
-                    </p>
+                    <p>{ui("inMaintenanceHelp")}</p>
                   </div>
                 </div>
               </div>
@@ -6351,10 +4882,7 @@ export default function BibliotecaItemPage() {
                 <button
                   type="submit"
                   className="bib-button bib-button-primary"
-                  disabled={
-                    enviandoParaManutencao ||
-                    !motivoManutencao.trim()
-                  }
+                  disabled={enviandoParaManutencao || !motivoManutencao.trim()}
                 >
                   {enviandoParaManutencao
                     ? ui("sending")
@@ -6367,10 +4895,7 @@ export default function BibliotecaItemPage() {
       ) : null}
 
       {modalExemplarAberto ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal bib-exemplar-modal"
             role="dialog"
@@ -6379,16 +4904,10 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
-                <h2
-                  id="titulo-cadastro-exemplar"
-                >
-                  {exemplarEmEdicao
-                    ? ui("editCopy")
-                    : ui("createCopy")}
+                <h2 id="titulo-cadastro-exemplar">
+                  {exemplarEmEdicao ? ui("editCopy") : ui("createCopy")}
                 </h2>
                 <p>
                   {exemplarEmEdicao
@@ -6400,12 +4919,8 @@ export default function BibliotecaItemPage() {
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharCadastroExemplar
-                }
-                disabled={
-                  salvandoExemplar
-                }
+                onClick={fecharCadastroExemplar}
+                disabled={salvandoExemplar}
                 aria-label={ui("close")}
               >
                 ×
@@ -6427,29 +4942,18 @@ export default function BibliotecaItemPage() {
 
                     <select
                       className="bib-input"
-                      value={
-                        formularioExemplar.tipo
-                      }
+                      value={formularioExemplar.tipo}
                       onChange={(evento) =>
                         alterarExemplar(
                           "tipo",
-                          evento.target
-                            .value as
-                          | "FISICO"
-                          | "DIGITAL"
+                          evento.target.value as "FISICO" | "DIGITAL",
                         )
                       }
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     >
-                      <option value="FISICO">
-                        {ui("physical")}
-                      </option>
+                      <option value="FISICO">{ui("physical")}</option>
 
-                      <option value="DIGITAL">
-                        {ui("digital")}
-                      </option>
+                      <option value="DIGITAL">{ui("digital")}</option>
                     </select>
                   </label>
 
@@ -6460,45 +4964,27 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .codigoInterno
-                      }
+                      value={formularioExemplar.codigoInterno}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "codigoInterno",
-                          evento.target.value
-                        )
+                        alterarExemplar("codigoInterno", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("internalCodePlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field">
-                    <span>
-                      {ui("barcode")}
-                    </span>
+                    <span>{ui("barcode")}</span>
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .codigoBarras
-                      }
+                      value={formularioExemplar.codigoBarras}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "codigoBarras",
-                          evento.target.value
-                        )
+                        alterarExemplar("codigoBarras", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
                   </label>
 
@@ -6507,20 +4993,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .numeroTombo
-                      }
+                      value={formularioExemplar.numeroTombo}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "numeroTombo",
-                          evento.target.value
-                        )
+                        alterarExemplar("numeroTombo", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
                   </label>
 
@@ -6529,20 +5007,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .patrimonio
-                      }
+                      value={formularioExemplar.patrimonio}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "patrimonio",
-                          evento.target.value
-                        )
+                        alterarExemplar("patrimonio", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
                   </label>
 
@@ -6551,20 +5021,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .unidadeSnapshot
-                      }
+                      value={formularioExemplar.unidadeSnapshot}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "unidadeSnapshot",
-                          evento.target.value
-                        )
+                        alterarExemplar("unidadeSnapshot", evento.target.value)
                       }
                       maxLength={200}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
                   </label>
 
@@ -6573,19 +5035,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar.setor
-                      }
+                      value={formularioExemplar.setor}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "setor",
-                          evento.target.value
-                        )
+                        alterarExemplar("setor", evento.target.value)
                       }
                       maxLength={160}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("libraryPlaceholder")}
                     />
                   </label>
@@ -6595,19 +5050,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar.sala
-                      }
+                      value={formularioExemplar.sala}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "sala",
-                          evento.target.value
-                        )
+                        alterarExemplar("sala", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
                   </label>
 
@@ -6616,20 +5064,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .estante
-                      }
+                      value={formularioExemplar.estante}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "estante",
-                          evento.target.value
-                        )
+                        alterarExemplar("estante", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("shelfUnitPlaceholder")}
                     />
                   </label>
@@ -6639,45 +5079,30 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .prateleira
-                      }
+                      value={formularioExemplar.prateleira}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "prateleira",
-                          evento.target.value
-                        )
+                        alterarExemplar("prateleira", evento.target.value)
                       }
                       maxLength={120}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("shelfPlaceholder")}
                     />
                   </label>
 
                   <label className="bib-field bib-field-span-3">
-                    <span>
-                      {ui("fullLocation")}
-                    </span>
+                    <span>{ui("fullLocation")}</span>
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .localizacaoCompleta
-                      }
+                      value={formularioExemplar.localizacaoCompleta}
                       onChange={(evento) =>
                         alterarExemplar(
                           "localizacaoCompleta",
-                          evento.target.value
+                          evento.target.value,
                         )
                       }
                       maxLength={500}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("locationPlaceholder")}
                     />
                   </label>
@@ -6688,19 +5113,11 @@ export default function BibliotecaItemPage() {
                     <input
                       className="bib-input"
                       type="date"
-                      value={
-                        formularioExemplar
-                          .dataAquisicao
-                      }
+                      value={formularioExemplar.dataAquisicao}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "dataAquisicao",
-                          evento.target.value
-                        )
+                        alterarExemplar("dataAquisicao", evento.target.value)
                       }
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
                   </label>
 
@@ -6709,20 +5126,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .formaAquisicao
-                      }
+                      value={formularioExemplar.formaAquisicao}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "formaAquisicao",
-                          evento.target.value
-                        )
+                        alterarExemplar("formaAquisicao", evento.target.value)
                       }
                       maxLength={160}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("acquisitionPlaceholder")}
                     />
                   </label>
@@ -6732,20 +5141,12 @@ export default function BibliotecaItemPage() {
 
                     <input
                       className="bib-input"
-                      value={
-                        formularioExemplar
-                          .fornecedor
-                      }
+                      value={formularioExemplar.fornecedor}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "fornecedor",
-                          evento.target.value
-                        )
+                        alterarExemplar("fornecedor", evento.target.value)
                       }
                       maxLength={240}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("providerInputPlaceholder")}
                     />
                   </label>
@@ -6756,19 +5157,11 @@ export default function BibliotecaItemPage() {
                     <input
                       className="bib-input"
                       inputMode="decimal"
-                      value={
-                        formularioExemplar
-                          .valorAquisicao
-                      }
+                      value={formularioExemplar.valorAquisicao}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "valorAquisicao",
-                          evento.target.value
-                        )
+                        alterarExemplar("valorAquisicao", evento.target.value)
                       }
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder="0,00"
                     />
                   </label>
@@ -6778,20 +5171,12 @@ export default function BibliotecaItemPage() {
 
                     <textarea
                       className="bib-input bib-textarea"
-                      value={
-                        formularioExemplar
-                          .observacoes
-                      }
+                      value={formularioExemplar.observacoes}
                       onChange={(evento) =>
-                        alterarExemplar(
-                          "observacoes",
-                          evento.target.value
-                        )
+                        alterarExemplar("observacoes", evento.target.value)
                       }
                       maxLength={10_000}
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                       placeholder={ui("copyNotesPlaceholder")}
                     />
                   </label>
@@ -6802,27 +5187,20 @@ export default function BibliotecaItemPage() {
                   <label className="bib-check">
                     <input
                       type="checkbox"
-                      checked={
-                        formularioExemplar
-                          .permiteEmprestimo
-                      }
+                      checked={formularioExemplar.permiteEmprestimo}
                       onChange={(evento) =>
                         alterarExemplar(
                           "permiteEmprestimo",
-                          evento.target.checked
+                          evento.target.checked,
                         )
                       }
-                      disabled={
-                        salvandoExemplar
-                      }
+                      disabled={salvandoExemplar}
                     />
 
                     <span>
                       <b>{ui("allowLoan")}</b>
 
-                      <small>
-                        {ui("allowLoanHelp")}
-                      </small>
+                      <small>{ui("allowLoanHelp")}</small>
                     </span>
                   </label>
                 </fieldset>
@@ -6832,12 +5210,8 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharCadastroExemplar
-                  }
-                  disabled={
-                    salvandoExemplar
-                  }
+                  onClick={fecharCadastroExemplar}
+                  disabled={salvandoExemplar}
                 >
                   {ui("cancel")}
                 </button>
@@ -6846,10 +5220,7 @@ export default function BibliotecaItemPage() {
                   type="submit"
                   className="bib-button bib-button-primary"
                   disabled={
-                    salvandoExemplar ||
-                    !formularioExemplar
-                      .codigoInterno
-                      .trim()
+                    salvandoExemplar || !formularioExemplar.codigoInterno.trim()
                   }
                 >
                   {salvandoExemplar
@@ -6867,10 +5238,7 @@ export default function BibliotecaItemPage() {
       ) : null}
 
       {exemplarParaBaixa ? (
-        <div
-          className="bib-modal-backdrop"
-          role="presentation"
-        >
+        <div className="bib-modal-backdrop" role="presentation">
           <section
             className="bib-modal"
             role="dialog"
@@ -6879,30 +5247,18 @@ export default function BibliotecaItemPage() {
           >
             <header className="bib-modal-header">
               <div>
-                <span className="bib-modal-kicker">
-                  {ui("virtualLibrary")}
-                </span>
+                <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
 
-                <h2
-                  id="titulo-baixa-exemplar"
-                >
-                  {ui("writeOffTitle")}
-                </h2>
+                <h2 id="titulo-baixa-exemplar">{ui("writeOffTitle")}</h2>
 
-                <p>
-                  {ui("writeOffDescription")}
-                </p>
+                <p>{ui("writeOffDescription")}</p>
               </div>
 
               <button
                 type="button"
                 className="bib-modal-close"
-                onClick={
-                  fecharBaixaExemplar
-                }
-                disabled={
-                  baixandoExemplar
-                }
+                onClick={fecharBaixaExemplar}
+                disabled={baixandoExemplar}
                 aria-label={ui("close")}
               >
                 ×
@@ -6918,27 +5274,19 @@ export default function BibliotecaItemPage() {
               <div className="bib-modal-body">
                 <div className="bib-feedback bib-feedback-warning">
                   <div>
-                    <strong>
-                      {
-                        exemplarParaBaixa
-                          .codigoInterno
-                      }
-                    </strong>
+                    <strong>{exemplarParaBaixa.codigoInterno}</strong>
 
                     <p>
-                      {rotuloEnumLocalizado(
-                        exemplarParaBaixa.tipo
-                      )}
+                      {rotuloEnumLocalizado(exemplarParaBaixa.tipo)}
 
                       {" · "}
 
-                      {rotuloEnumLocalizado(
-                        exemplarParaBaixa.status
-                      )}
+                      {rotuloEnumLocalizado(exemplarParaBaixa.status)}
 
-                      {exemplarParaBaixa
-                        .numeroTombo
-                        ? ui("tombSuffix", { number: exemplarParaBaixa.numeroTombo })
+                      {exemplarParaBaixa.numeroTombo
+                        ? ui("tombSuffix", {
+                            number: exemplarParaBaixa.numeroTombo,
+                          })
                         : ""}
                     </p>
                   </div>
@@ -6951,25 +5299,17 @@ export default function BibliotecaItemPage() {
 
                   <textarea
                     className="bib-input bib-textarea"
-                    value={
-                      motivoBaixaExemplar
-                    }
+                    value={motivoBaixaExemplar}
                     onChange={(evento) =>
-                      setMotivoBaixaExemplar(
-                        evento.target.value
-                      )
+                      setMotivoBaixaExemplar(evento.target.value)
                     }
                     maxLength={5_000}
-                    disabled={
-                      baixandoExemplar
-                    }
+                    disabled={baixandoExemplar}
                     placeholder={ui("writeOffPlaceholder")}
                     autoFocus
                   />
 
-                  <small>
-                    {ui("writeOffReasonHelp")}
-                  </small>
+                  <small>{ui("writeOffReasonHelp")}</small>
                 </label>
               </div>
 
@@ -6977,12 +5317,8 @@ export default function BibliotecaItemPage() {
                 <button
                   type="button"
                   className="bib-button bib-button-secondary"
-                  onClick={
-                    fecharBaixaExemplar
-                  }
-                  disabled={
-                    baixandoExemplar
-                  }
+                  onClick={fecharBaixaExemplar}
+                  disabled={baixandoExemplar}
                 >
                   {ui("cancel")}
                 </button>
@@ -6990,11 +5326,7 @@ export default function BibliotecaItemPage() {
                 <button
                   type="submit"
                   className="bib-button bib-button-danger"
-                  disabled={
-                    baixandoExemplar ||
-                    !motivoBaixaExemplar
-                      .trim()
-                  }
+                  disabled={baixandoExemplar || !motivoBaixaExemplar.trim()}
                 >
                   {baixandoExemplar
                     ? ui("writingOff")
@@ -7012,9 +5344,7 @@ export default function BibliotecaItemPage() {
           role="status"
           aria-live="polite"
         >
-          <span aria-hidden="true">
-            {toast.tipo === "sucesso" ? "✓" : "!"}
-          </span>
+          <span aria-hidden="true">{toast.tipo === "sucesso" ? "✓" : "!"}</span>
           <p>{toast.mensagem}</p>
           <button
             type="button"

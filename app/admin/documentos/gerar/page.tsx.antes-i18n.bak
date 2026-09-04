@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type TipoCampoManual =
@@ -91,150 +90,6 @@ const TAGS_HOLERITE_DOCUMENTO = new Set([
   "baseIrrf",
 ]);
 
-const CHAVES_TIPO_DOCUMENTO: Record<string, string> = {
-  CONTRATO: "types.contract",
-  DECLARACAO: "types.declaration",
-  RECIBO: "types.receipt",
-  COMPROVANTE: "types.proof",
-  TRANCAMENTO: "types.withdrawal",
-  COMPARECIMENTO: "types.attendance",
-  HISTORICO: "types.transcript",
-  HOLERITE: "types.payslip",
-  DOCUMENTO_RH: "types.hrDocument",
-  CONTRATO_TRABALHO: "types.employmentContract",
-  CONTRATO_EXPERIENCIA: "types.probationContract",
-  TERMO_LGPD_RH: "types.hrPrivacyTerm",
-  TERMO_EQUIPAMENTOS: "types.equipmentTerm",
-  ADMISSAO: "types.admission",
-  DEMISSAO: "types.dismissal",
-  PEDIDO_DEMISSAO: "types.resignation",
-  AVISO_PREVIO: "types.notice",
-  TRCT: "types.terminationTerm",
-  FERIAS: "types.vacation",
-  AVISO_FERIAS: "types.vacationNotice",
-  RECIBO_FERIAS: "types.vacationReceipt",
-  ADVERTENCIA: "types.warning",
-  SUSPENSAO: "types.suspension",
-  AFASTAMENTO_MEDICO: "types.medicalLeave",
-  AFASTAMENTO_MATERNIDADE: "types.maternityLeave",
-  AFASTAMENTO_PERICIA: "types.medicalAssessmentLeave",
-  RETORNO_TRABALHO: "types.returnToWork",
-  ASO: "types.occupationalHealthCertificate",
-  ASO_ADMISSIONAL: "types.occupationalHealthAdmission",
-  ASO_PERIODICO: "types.occupationalHealthPeriodic",
-  ASO_RETORNO: "types.occupationalHealthReturn",
-  ASO_MUDANCA_FUNCAO: "types.occupationalHealthRoleChange",
-  ASO_DEMISSIONAL: "types.occupationalHealthDismissal",
-  OUTRO: "types.other",
-};
-
-const CHAVES_STATUS_DOCUMENTO: Record<string, string> = {
-  RASCUNHO: "statuses.draft",
-  GERADO: "statuses.generated",
-  ASSINADO: "statuses.signed",
-  CANCELADO: "statuses.cancelled",
-  ABERTO: "statuses.opened",
-};
-
-const CHAVES_CAMPOS_MANUAIS: Record<
-  string,
-  {
-    label: string;
-    placeholder?: string;
-  }
-> = {
-  descricaoDocumento: {
-    label: "generate.manualFields.documentDescription.label",
-    placeholder: "generate.manualFields.documentDescription.placeholder",
-  },
-  finalidadeDocumento: {
-    label: "generate.manualFields.documentPurpose.label",
-    placeholder: "generate.manualFields.documentPurpose.placeholder",
-  },
-  destinatarioDocumento: {
-    label: "generate.manualFields.documentRecipient.label",
-    placeholder: "generate.manualFields.documentRecipient.placeholder",
-  },
-  assuntoDocumento: {
-    label: "generate.manualFields.documentSubject.label",
-    placeholder: "generate.manualFields.documentSubject.placeholder",
-  },
-  observacoesDocumento: {
-    label: "generate.manualFields.documentNotes.label",
-    placeholder: "generate.manualFields.documentNotes.placeholder",
-  },
-  periodoReferencia: {
-    label: "generate.manualFields.referencePeriod.label",
-    placeholder: "generate.manualFields.referencePeriod.placeholder",
-  },
-  competencia: {
-    label: "generate.manualFields.competence.label",
-    placeholder: "generate.manualFields.competence.placeholder",
-  },
-  valorDocumento: {
-    label: "generate.manualFields.documentValue.label",
-    placeholder: "generate.manualFields.documentValue.placeholder",
-  },
-  valorRecebido: {
-    label: "generate.manualFields.receivedValue.label",
-    placeholder: "generate.manualFields.receivedValue.placeholder",
-  },
-  valor: {
-    label: "generate.manualFields.value.label",
-    placeholder: "generate.manualFields.value.placeholder",
-  },
-  nomePagador: {
-    label: "generate.manualFields.payerName.label",
-    placeholder: "generate.manualFields.payerName.placeholder",
-  },
-  documentoPagador: {
-    label: "generate.manualFields.payerDocument.label",
-    placeholder: "generate.manualFields.payerDocument.placeholder",
-  },
-  formaPagamento: {
-    label: "generate.manualFields.paymentMethod.label",
-  },
-  dataPagamento: {
-    label: "generate.manualFields.paymentDate.label",
-  },
-  referenciaPagamento: {
-    label: "generate.manualFields.paymentReference.label",
-    placeholder: "generate.manualFields.paymentReference.placeholder",
-  },
-  nomePrestador: {
-    label: "generate.manualFields.providerName.label",
-    placeholder: "generate.manualFields.providerName.placeholder",
-  },
-  documentoPrestador: {
-    label: "generate.manualFields.providerDocument.label",
-    placeholder: "generate.manualFields.providerDocument.placeholder",
-  },
-  descricaoServico: {
-    label: "generate.manualFields.serviceDescription.label",
-    placeholder: "generate.manualFields.serviceDescription.placeholder",
-  },
-};
-
-const CHAVES_OPCOES_CAMPOS_MANUAIS: Record<string, string> = {
-  PIX: "generate.manualOptions.pix",
-  Dinheiro: "generate.manualOptions.cash",
-  "Cartão de crédito": "generate.manualOptions.creditCard",
-  "Cartão de débito": "generate.manualOptions.debitCard",
-  "Transferência bancária": "generate.manualOptions.bankTransfer",
-  Boleto: "generate.manualOptions.bankSlip",
-  Cheque: "generate.manualOptions.check",
-  Outro: "generate.manualOptions.other",
-};
-
-const CHAVES_ERROS_API: Record<string, string> = {
-  "Templates com tags de holerite precisam usar contexto de funcionário, professor ou RH.":
-    "generate.errors.payslipTemplateRequiresHrContext",
-  "Selecione a competência do holerite antes de gerar este documento.":
-    "generate.errors.selectPayslip",
-  "O holerite selecionado não existe, está cancelado/arquivado ou não pertence ao funcionário escolhido.":
-    "generate.errors.payslipUnavailable",
-};
-
 type Matricula = {
   id: number;
   aluno?: {
@@ -311,117 +166,8 @@ function converterValorMonetario(
 }
 
 export default function GerarDocumentoPage() {
-  const t = useTranslations("AdminDocuments");
-  const locale = useLocale();
-
   const searchParams =
     useSearchParams();
-
-  function labelTipoDocumento(
-    tipo?: string | null
-  ) {
-    const chave =
-      CHAVES_TIPO_DOCUMENTO[
-        String(tipo || "").toUpperCase()
-      ];
-
-    return chave
-      ? t(chave)
-      : tipo || "-";
-  }
-
-  function labelStatusDocumento(
-    status?: string | null
-  ) {
-    const chave =
-      CHAVES_STATUS_DOCUMENTO[
-        String(status || "").toUpperCase()
-      ];
-
-    return chave
-      ? t(chave)
-      : status || "-";
-  }
-
-  function labelCampoManual(
-    campo: CampoManual
-  ) {
-    const chave =
-      CHAVES_CAMPOS_MANUAIS[
-        campo.tag
-      ]?.label;
-
-    if (chave) {
-      return t(chave);
-    }
-
-    return locale === "pt-BR"
-      ? campo.label
-      : campo.tag;
-  }
-
-  function placeholderCampoManual(
-    campo: CampoManual
-  ) {
-    const chave =
-      CHAVES_CAMPOS_MANUAIS[
-        campo.tag
-      ]?.placeholder;
-
-    if (chave) {
-      return t(chave);
-    }
-
-    return t(
-      "generate.manualFields.genericPlaceholder",
-      {
-        tag: campo.tag,
-      }
-    );
-  }
-
-  function labelOpcaoCampoManual(
-    opcao: string
-  ) {
-    const chave =
-      CHAVES_OPCOES_CAMPOS_MANUAIS[
-        opcao
-      ];
-
-    return chave
-      ? t(chave)
-      : opcao;
-  }
-
-  function mensagemErroApi(
-    mensagem: unknown,
-    fallbackKey:
-      | "generate.errors.loadPayslips"
-      | "generate.errors.generate"
-  ) {
-    const texto =
-      typeof mensagem === "string"
-        ? mensagem.trim()
-        : "";
-
-    const chave =
-      CHAVES_ERROS_API[
-        texto
-      ];
-
-    if (chave) {
-      return t(chave);
-    }
-
-    if (
-      texto &&
-      locale === "pt-BR"
-    ) {
-      return texto;
-    }
-
-    return t(fallbackKey);
-  }
 
   const [templates, setTemplates] =
     useState<Template[]>([]);
@@ -719,10 +465,8 @@ export default function GerarDocumentoPage() {
 
         if (!res.ok) {
           throw new Error(
-            mensagemErroApi(
-              data?.error,
-              "generate.errors.loadPayslips"
-            )
+            data?.error ||
+            "Erro ao carregar holerites."
           );
         }
 
@@ -880,7 +624,7 @@ export default function GerarDocumentoPage() {
       setProfessores([]);
 
       setErro(
-        t("generate.errors.loadData")
+        "Erro ao carregar dados para gerar documento."
       );
     }
   }
@@ -932,7 +676,7 @@ export default function GerarDocumentoPage() {
 
       if (!templateId) {
         setErro(
-          t("generate.errors.selectTemplate")
+          "Selecione um template antes de gerar o documento."
         );
         return;
       }
@@ -945,7 +689,7 @@ export default function GerarDocumentoPage() {
       if (ehContratoAcademico) {
         if (!matriculaId) {
           setErro(
-            t("generate.errors.selectEnrollmentForContract")
+            "Selecione a matrícula do aluno para gerar o contrato."
           );
           return;
         }
@@ -960,7 +704,7 @@ export default function GerarDocumentoPage() {
           matriculaNumero <= 0
         ) {
           setErro(
-            t("generate.errors.invalidEnrollment")
+            "A matrícula selecionada é inválida."
           );
           return;
         }
@@ -974,12 +718,12 @@ export default function GerarDocumentoPage() {
         setResultado({
           titulo:
             templateSelecionado?.nome ||
-            t("generate.defaultContractTitle"),
+            "Contrato educacional",
 
           status: "ABERTO",
 
           conteudo:
-            t("generate.contractOpenedMessage"),
+            "O contrato oficial foi aberto pelo módulo de Contratos do PHANYX.",
         });
 
         return;
@@ -998,7 +742,7 @@ export default function GerarDocumentoPage() {
       if (ehDocumentoFuncionario) {
         if (!pessoaRh) {
           setErro(
-            t("generate.errors.selectPerson")
+            "Selecione o funcionário ou professor para emitir este documento."
           );
           return;
         }
@@ -1016,7 +760,7 @@ export default function GerarDocumentoPage() {
           idPessoa <= 0
         ) {
           setErro(
-            t("generate.errors.invalidPerson")
+            "Funcionário ou professor inválido."
           );
           return;
         }
@@ -1035,7 +779,7 @@ export default function GerarDocumentoPage() {
             idPessoa;
         } else {
           setErro(
-            t("generate.errors.invalidPersonType")
+            "Tipo de pessoa inválido."
           );
           return;
         }
@@ -1046,7 +790,7 @@ export default function GerarDocumentoPage() {
         !holeriteId
       ) {
         setErro(
-          t("generate.errors.selectPayslip")
+          "Selecione a competência do holerite para emitir este documento."
         );
         return;
       }
@@ -1117,10 +861,8 @@ export default function GerarDocumentoPage() {
 
       if (!res.ok) {
         setErro(
-          mensagemErroApi(
-            data?.error,
-            "generate.errors.generate"
-          )
+          data?.error ||
+          "Erro ao gerar documento."
         );
 
         return;
@@ -1131,7 +873,7 @@ export default function GerarDocumentoPage() {
       console.error(error);
 
       setErro(
-        t("generate.errors.generate")
+        "Erro ao gerar documento."
       );
     } finally {
       setLoading(false);
@@ -1160,9 +902,7 @@ export default function GerarDocumentoPage() {
             )
           }
           placeholder={
-            placeholderCampoManual(
-              campo
-            )
+            campo.placeholder
           }
           rows={5}
         />
@@ -1184,7 +924,7 @@ export default function GerarDocumentoPage() {
           }
         >
           <option value="">
-            {t("generate.select")}
+            Selecione
           </option>
 
           {(campo.opcoes || []).map(
@@ -1193,9 +933,7 @@ export default function GerarDocumentoPage() {
                 key={opcao}
                 value={opcao}
               >
-                {labelOpcaoCampoManual(
-                  opcao
-                )}
+                {opcao}
               </option>
             )
           )}
@@ -1237,9 +975,8 @@ export default function GerarDocumentoPage() {
             )
           }
           placeholder={
-            placeholderCampoManual(
-              campo
-            )
+            campo.placeholder ||
+            "Ex.: 150,00"
           }
         />
       );
@@ -1257,9 +994,7 @@ export default function GerarDocumentoPage() {
           )
         }
         placeholder={
-          placeholderCampoManual(
-            campo
-          )
+          campo.placeholder
         }
       />
     );
@@ -1269,18 +1004,18 @@ export default function GerarDocumentoPage() {
     <div className="phanyx-docs-page space-y-6">
       <div>
         <h1 className="phanyx-doc-title text-2xl font-bold">
-          {t("generate.title")}
+          📄 Emitir Documento
         </h1>
 
         <p className="phanyx-doc-muted mt-1 text-sm">
-          {t("generate.description")}
+          Selecione o modelo oficial e preencha os dados específicos desta emissão.
         </p>
       </div>
 
       {erro && (
         <PhanyxToast
           tipo="erro"
-          titulo={t("generate.toastErrorTitle")}
+          titulo="Não foi possível gerar"
           mensagem={erro}
           onClose={() =>
             setErro("")
@@ -1291,7 +1026,7 @@ export default function GerarDocumentoPage() {
       <div className="phanyx-doc-card space-y-5 p-6">
         <div>
           <label className="phanyx-doc-label mb-2 block text-sm">
-            {t("generate.template.label")}
+            Modelo do documento
           </label>
 
           <select
@@ -1304,7 +1039,7 @@ export default function GerarDocumentoPage() {
             }
           >
             <option value="">
-              {t("generate.select")}
+              Selecione
             </option>
 
             {templates.map(
@@ -1318,9 +1053,7 @@ export default function GerarDocumentoPage() {
                   }
                 >
                   {template.nome} (
-                  {labelTipoDocumento(
-                    template.tipo
-                  )})
+                  {template.tipo})
                 </option>
               )
             )}
@@ -1336,13 +1069,13 @@ export default function GerarDocumentoPage() {
             </p>
 
             <p className="phanyx-doc-muted mt-1">
-              {t("generate.template.type")}:{" "}
-              {labelTipoDocumento(
+              Tipo:{" "}
+              {
                 templateSelecionado.tipo
-              )}
+              }
               {templateSelecionado
                 .contexto
-                ? ` • ${t("generate.template.context")}: ${templateSelecionado.contexto}`
+                ? ` • Contexto: ${templateSelecionado.contexto}`
                 : ""}
             </p>
           </div>
@@ -1351,7 +1084,7 @@ export default function GerarDocumentoPage() {
         {ehDocumentoFuncionario ? (
           <div>
             <label className="phanyx-doc-label mb-2 block text-sm">
-              {t("generate.person.label")}
+              Funcionário ou professor
             </label>
 
             <select
@@ -1364,11 +1097,11 @@ export default function GerarDocumentoPage() {
               }
             >
               <option value="">
-                {t("generate.person.select")}
+                Selecione o funcionário ou professor
               </option>
 
               {funcionarios.length > 0 && (
-                <optgroup label={t("generate.person.employeesGroup")}>
+                <optgroup label="Funcionários">
                   {funcionarios.map(
                     (funcionario) => (
                       <option
@@ -1389,7 +1122,7 @@ export default function GerarDocumentoPage() {
                 (professor) =>
                   !professor.funcionario?.id
               ) && (
-                  <optgroup label={t("generate.person.professorsWithoutHrGroup")}>
+                  <optgroup label="Professores sem vínculo RH">
                     {professores
                       .filter(
                         (professor) =>
@@ -1404,7 +1137,7 @@ export default function GerarDocumentoPage() {
                             disabled
                           >
                             {professor.nome}
-                            {` — ${t("generate.person.withoutHrSuffix")}`}
+                            {" — sem vínculo RH"}
                           </option>
                         )
                       )}
@@ -1415,7 +1148,7 @@ export default function GerarDocumentoPage() {
             {usaTagsHolerite && (
               <div className="mt-4">
                 <label className="phanyx-doc-label mb-2 block text-sm">
-                  {t("generate.payslip.label")}
+                  Holerite / competência
                 </label>
 
                 <select
@@ -1433,12 +1166,12 @@ export default function GerarDocumentoPage() {
                 >
                   <option value="">
                     {carregandoHolerites
-                      ? t("generate.payslip.loading")
+                      ? "Carregando holerites..."
                       : !funcionarioIdSelecionado
-                        ? t("generate.payslip.selectEmployeeFirst")
+                        ? "Selecione primeiro o funcionário"
                         : holerites.length === 0
-                          ? t("generate.payslip.noneAvailable")
-                          : t("generate.payslip.selectCompetence")}
+                          ? "Nenhum holerite disponível"
+                          : "Selecione a competência"}
                   </option>
 
                   {holerites.map(
@@ -1460,20 +1193,23 @@ export default function GerarDocumentoPage() {
                 </select>
 
                 <p className="phanyx-doc-muted mt-2 text-xs">
-                  {t("generate.payslip.help")}
+                  A competência é escolhida explicitamente para que os valores
+                  sejam retirados do holerite correto.
                 </p>
               </div>
             )}
 
             <p className="phanyx-doc-muted mt-2 text-xs">
-              {t("generate.person.help")}
+              Professores com vínculo RH aparecem na lista de funcionários.
+              Professores sem vínculo RH precisam ser vinculados ao RH antes da
+              emissão de documentos trabalhistas.
             </p>
           </div>
         ) : (
           <>
             <div>
               <label className="phanyx-doc-label mb-2 block text-sm">
-                {t("generate.student.label")}
+                Aluno ou pessoa vinculada
               </label>
 
               <select
@@ -1493,7 +1229,7 @@ export default function GerarDocumentoPage() {
                 }}
               >
                 <option value="">
-                  {t("generate.student.noneSelected")}
+                  Nenhum aluno selecionado
                 </option>
 
                 {alunos.map(
@@ -1511,10 +1247,10 @@ export default function GerarDocumentoPage() {
 
             <div>
               <label className="phanyx-doc-label mb-2 block text-sm">
-                {t("generate.enrollment.label")}
+                Matrícula
                 {ehContratoAcademico
-                  ? t("generate.enrollment.requiredSuffix")
-                  : t("generate.enrollment.optionalSuffix")}
+                  ? " (obrigatória para contrato acadêmico)"
+                  : " (opcional)"}
               </label>
 
               <select
@@ -1528,8 +1264,8 @@ export default function GerarDocumentoPage() {
               >
                 <option value="">
                   {ehContratoAcademico
-                    ? t("generate.enrollment.select")
-                    : t("generate.enrollment.none")}
+                    ? "Selecione a matrícula"
+                    : "Nenhuma"}
                 </option>
 
                 {matriculas.map(
@@ -1540,7 +1276,7 @@ export default function GerarDocumentoPage() {
                     >
                       #{matricula.id} -{" "}
                       {matricula.aluno?.nome ||
-                        t("generate.enrollment.unnamedStudent")}
+                        "Aluno sem nome"}
                     </option>
                   )
                 )}
@@ -1555,11 +1291,11 @@ export default function GerarDocumentoPage() {
             <div className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
               <div>
                 <h2 className="phanyx-doc-section-title text-base font-bold">
-                  {t("generate.manual.title")}
+                  Informações desta emissão
                 </h2>
 
                 <p className="phanyx-doc-muted mt-1 text-sm">
-                  {t("generate.manual.description")}
+                  Estes campos serão inseridos nas tags correspondentes do modelo.
                 </p>
               </div>
 
@@ -1571,9 +1307,9 @@ export default function GerarDocumentoPage() {
                     }
                   >
                     <label className="phanyx-doc-label mb-2 block text-sm">
-                      {labelCampoManual(
-                        campo
-                      )}
+                      {
+                        campo.label
+                      }
                     </label>
 
                     {renderizarCampoManual(
@@ -1590,14 +1326,15 @@ export default function GerarDocumentoPage() {
           camposManuais.length ===
           0 && (
             <div className="phanyx-doc-preview rounded-2xl p-4 text-sm">
-              {t("generate.manual.noFields")}
+              Este modelo não possui campos de preenchimento manual. Os dados serão preenchidos automaticamente pelo PHANYX.
             </div>
           )}
 
         {!ehContratoAcademico && (
           <div>
             <label className="phanyx-doc-label mb-2 block text-sm">
-              {t("generate.titleComplement.label")}
+              Complemento do título
+              (opcional)
             </label>
 
             <input
@@ -1609,7 +1346,7 @@ export default function GerarDocumentoPage() {
                   evento.target.value
                 )
               }
-              placeholder={t("generate.titleComplement.placeholder")}
+              placeholder="Ex.: Serviço realizado em agosto de 2026"
             />
           </div>
         )}
@@ -1618,11 +1355,11 @@ export default function GerarDocumentoPage() {
           <div className="space-y-3">
             <div>
               <h2 className="phanyx-doc-section-title text-base font-bold">
-                {t("generate.print.title")}
+                Formato de impressão
               </h2>
 
               <p className="phanyx-doc-muted mt-1 text-sm">
-                {t("generate.print.description")}
+                Escolha como o documento será organizado na folha A4.
               </p>
             </div>
 
@@ -1646,11 +1383,11 @@ export default function GerarDocumentoPage() {
 
                 <span>
                   <strong className="block">
-                    {t("generate.print.oneCopy.title")}
+                    Uma via
                   </strong>
 
                   <span className="phanyx-doc-muted mt-1 block text-sm">
-                    {t("generate.print.oneCopy.description")}
+                    Um documento ocupando uma folha A4 inteira.
                   </span>
                 </span>
               </label>
@@ -1674,11 +1411,11 @@ export default function GerarDocumentoPage() {
 
                 <span>
                   <strong className="block">
-                    {t("generate.print.twoCopies.title")}
+                    Duas vias
                   </strong>
 
                   <span className="phanyx-doc-muted mt-1 block text-sm">
-                    {t("generate.print.twoCopies.description")}
+                    Via do interessado e via da instituição na mesma folha A4.
                   </span>
                 </span>
               </label>
@@ -1698,10 +1435,10 @@ export default function GerarDocumentoPage() {
             className="phanyx-doc-primary-action disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading
-              ? t("generate.actions.generating")
+              ? "Gerando..."
               : ehContratoAcademico
-                ? t("generate.actions.openOfficialContract")
-                : t("generate.actions.generate")}
+                ? "Abrir contrato oficial"
+                : "Gerar Documento"}
           </button>
         </div>
       </div>
@@ -1709,11 +1446,11 @@ export default function GerarDocumentoPage() {
       {resultado && (
         <div className="phanyx-doc-card space-y-4 p-6">
           <h2 className="phanyx-doc-section-title text-xl font-bold">
-            {t("generate.result.title")}
+            Documento Gerado
           </h2>
 
           <p className="phanyx-doc-value">
-            <b>{t("generate.result.id")}:</b>{" "}
+            <b>ID:</b>{" "}
             {resultado.id ||
               resultado
                 .documento?.id ||
@@ -1721,7 +1458,7 @@ export default function GerarDocumentoPage() {
           </p>
 
           <p className="phanyx-doc-value">
-            <b>{t("generate.result.documentTitle")}:</b>{" "}
+            <b>Título:</b>{" "}
             {resultado.titulo ||
               resultado
                 .documento
@@ -1730,13 +1467,12 @@ export default function GerarDocumentoPage() {
           </p>
 
           <p className="phanyx-doc-value">
-            <b>{t("generate.result.status")}:</b>{" "}
-            {labelStatusDocumento(
-              resultado.status ||
-                resultado
-                  .documento
-                  ?.status
-            )}
+            <b>Status:</b>{" "}
+            {resultado.status ||
+              resultado
+                .documento
+                ?.status ||
+              "-"}
           </p>
 
           <div className="phanyx-doc-preview whitespace-pre-wrap p-4 text-sm leading-7">
@@ -1744,7 +1480,7 @@ export default function GerarDocumentoPage() {
               resultado
                 .documento
                 ?.conteudo ||
-              t("generate.result.noPreview")}
+              "Documento gerado, mas nenhum conteúdo foi retornado para pré-visualização."}
           </div>
 
           {(resultado.id ||
@@ -1768,7 +1504,7 @@ export default function GerarDocumentoPage() {
                     );
                   }}
                 >
-                  {t("generate.result.openPdf")}
+                  Abrir PDF
                 </button>
               </div>
             )}

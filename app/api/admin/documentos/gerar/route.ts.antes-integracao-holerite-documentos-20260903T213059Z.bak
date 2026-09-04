@@ -539,20 +539,6 @@ function valorMonetarioPorExtenso(
   )}`;
 }
 
-const TAGS_HOLERITE_DOCUMENTO = new Set([
-  "competenciaMes",
-  "competenciaAno",
-  "competenciaHolerite",
-  "eventosHolerite",
-  "totalVencimentos",
-  "totalDescontos",
-  "valorLiquido",
-  "baseInss",
-  "baseFgts",
-  "fgtsMes",
-  "baseIrrf",
-]);
-
 export async function POST(req: Request) {
   try {
     const user = await getUserFromToken();
@@ -585,11 +571,6 @@ export async function POST(req: Request) {
     const rescisaoId =
       body?.rescisaoId
         ? Number(body.rescisaoId)
-        : null;
-
-    const holeriteId =
-      body?.holeriteId
-        ? Number(body.holeriteId)
         : null;
 
     const tituloPersonalizado = body?.titulo
@@ -679,12 +660,6 @@ export async function POST(req: Request) {
         extrairTagsTemplate(
           template.conteudo
         )
-      );
-
-    const usaTagsHolerite =
-      Array.from(tagsDoTemplate).some(
-        (tag) =>
-          TAGS_HOLERITE_DOCUMENTO.has(tag)
       );
 
     const dadosPreenchimento:
@@ -811,36 +786,6 @@ export async function POST(req: Request) {
       "rh";
 
     if (
-      usaTagsHolerite &&
-      !ehDocumentoFuncionario
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Templates com tags de holerite precisam usar contexto de funcionário, professor ou RH.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
-      usaTagsHolerite &&
-      (
-        !holeriteId ||
-        !Number.isInteger(holeriteId) ||
-        holeriteId <= 0
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Selecione a competência do holerite antes de gerar este documento.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
       ehContratoAcademico &&
       !matriculaId
     ) {
@@ -881,7 +826,6 @@ export async function POST(req: Request) {
     let matricula = null as any;
     let funcionario = null as any;
     let professor = null as any;
-    let holeriteDocumento = null as any;
     let ferias = null as any;
     let exame = null as any;
     let rescisao = null as any;
@@ -990,44 +934,6 @@ export async function POST(req: Request) {
 
         funcionario =
           professor.funcionario;
-      }
-    }
-
-    if (
-      usaTagsHolerite &&
-      funcionario
-    ) {
-      holeriteDocumento =
-        await prisma.holeriteRH.findFirst({
-          where: {
-            id: holeriteId as number,
-            funcionarioId: funcionario.id,
-            instituicaoId: user.instituicaoId,
-            arquivado: false,
-            cancelado: false,
-          },
-          include: {
-            eventos: {
-              orderBy: { id: "asc" },
-            },
-          },
-        });
-
-      if (
-        !holeriteDocumento ||
-        ["ARQUIVADO", "CANCELADO"].includes(
-          String(
-            holeriteDocumento?.status || ""
-          ).toUpperCase()
-        )
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "O holerite selecionado não existe, está cancelado/arquivado ou não pertence ao funcionário escolhido.",
-          },
-          { status: 404 }
-        );
       }
     }
 
@@ -1521,104 +1427,6 @@ export async function POST(req: Request) {
               professor?.nome ||
               funcionario?.nome ||
               "-",
-
-            competenciaMes:
-              holeriteDocumento
-                ? String(
-                    holeriteDocumento.competenciaMes
-                  ).padStart(2, "0")
-                : "",
-
-            competenciaAno:
-              holeriteDocumento
-                ? String(
-                    holeriteDocumento.competenciaAno
-                  )
-                : "",
-
-            competenciaHolerite:
-              holeriteDocumento
-                ? `${String(
-                    holeriteDocumento.competenciaMes
-                  ).padStart(2, "0")}/${holeriteDocumento.competenciaAno}`
-                : "",
-
-            eventosHolerite:
-              Array.isArray(
-                holeriteDocumento?.eventos
-              ) &&
-              holeriteDocumento.eventos.length > 0
-                ? holeriteDocumento.eventos
-                    .map((evento: any) => {
-                      const partes = [
-                        evento?.codigo || "",
-                        evento?.descricao || "",
-                        evento?.referencia || "",
-                        evento?.tipo || "",
-                        formatarMoeda(
-                          Number(evento?.valor || 0)
-                        ),
-                      ].filter(Boolean);
-
-                      return `- ${partes.join(" | ")}`;
-                    })
-                    .join("\n")
-                : "-",
-
-            totalVencimentos:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(
-                      holeriteDocumento.totalVencimentos || 0
-                    )
-                  )
-                : "",
-
-            totalDescontos:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(
-                      holeriteDocumento.totalDescontos || 0
-                    )
-                  )
-                : "",
-
-            valorLiquido:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(
-                      holeriteDocumento.valorLiquido || 0
-                    )
-                  )
-                : "",
-
-            baseInss:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(holeriteDocumento.baseInss || 0)
-                  )
-                : "",
-
-            baseFgts:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(holeriteDocumento.baseFgts || 0)
-                  )
-                : "",
-
-            fgtsMes:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(holeriteDocumento.fgtsMes || 0)
-                  )
-                : "",
-
-            baseIrrf:
-              holeriteDocumento
-                ? formatarMoeda(
-                    Number(holeriteDocumento.baseIrrf || 0)
-                  )
-                : "",
 
             funcionarioDataDesligamento:
               formatarDataDocumento(

@@ -1300,7 +1300,9 @@
         "load": "Não foi possível carregar os cadastros de transporte.",
         "providerNameRequired": "Informe a razão social ou o nome do prestador.",
         "saveProvider": "Não foi possível cadastrar o prestador.",
-        "saveVehicle": "Não foi possível cadastrar o veículo."
+        "saveVehicle": "Não foi possível cadastrar o veículo.",
+        "driverNameRequired": "Informe o nome do condutor.",
+        "saveDriver": "Não foi possível cadastrar o condutor."
       },
       "actions": {
         "addProvider": "+ Cadastrar prestador",
@@ -1308,7 +1310,9 @@
         "saveProvider": "Cadastrar prestador",
         "saving": "Salvando...",
         "addVehicle": "+ Cadastrar veículo",
-        "saveVehicle": "Cadastrar veículo"
+        "saveVehicle": "Cadastrar veículo",
+        "addDriver": "+ Cadastrar condutor",
+        "saveDriver": "Cadastrar condutor"
       },
       "providerForm": {
         "title": "Cadastrar prestador de transporte",
@@ -1364,7 +1368,8 @@
       },
       "success": {
         "providerCreated": "Prestador cadastrado com sucesso.",
-        "vehicleCreated": "Veículo cadastrado com sucesso."
+        "vehicleCreated": "Veículo cadastrado com sucesso.",
+        "driverCreated": "Condutor cadastrado com sucesso."
       },
       "vehicleForm": {
         "title": "Cadastrar veículo",
@@ -1425,6 +1430,77 @@
         "SUPERVISAO_REMOTA": "Supervisão remota",
         "MISTA": "Mista",
         "NAO_APLICAVEL": "Não aplicável"
+      },
+      "driverForm": {
+        "title": "Cadastrar condutor",
+        "description": "Cadastre motoristas, pilotos, operadores e outros condutores que poderão ser utilizados nas atividades externas.",
+        "sections": {
+          "identification": "Identificação e prestador",
+          "contact": "Contato",
+          "documents": "Documento",
+          "license": "Licença, habilitação e autorização",
+          "emergency": "Contato de emergência"
+        },
+        "provider": "Prestador de transporte",
+        "noProvider": "Sem prestador / condutor próprio",
+        "name": "Nome do condutor",
+        "type": "Tipo de condutor",
+        "phone": "Telefone",
+        "email": "E-mail",
+        "documentCountry": "País do documento / licença",
+        "documentType": "Tipo de documento",
+        "documentNumber": "Número do documento",
+        "licenseNumber": "Número da licença / habilitação",
+        "licenseCategory": "Categoria / classe",
+        "licenseExpiry": "Validade da licença",
+        "studentVerification": "Transporte estudantil",
+        "emergencyContact": "Contato de emergência",
+        "emergencyPhone": "Telefone de emergência",
+        "notes": "Observações"
+      },
+      "driverTypes": {
+        "MOTORISTA": "Motorista",
+        "PILOTO": "Piloto",
+        "MAQUINISTA": "Maquinista",
+        "COMANDANTE_EMBARCACAO": "Comandante de embarcação",
+        "OPERADOR": "Operador",
+        "OPERADOR_REMOTO": "Operador remoto",
+        "SUPERVISOR_AUTONOMO": "Supervisor de veículo autônomo",
+        "OUTRO": "Outro"
+      }
+    },
+    "vehicleAssignment": {
+      "title": "Veículos do trecho",
+      "linkedVehicles": "Veículos vinculados",
+      "noLinkedVehicles": "Nenhum veículo vinculado a este trecho.",
+      "selectVehicle": "Selecione um veículo",
+      "linkVehicle": "Vincular veículo",
+      "linkingVehicle": "Vinculando...",
+      "noVehiclesAvailable": "Nenhum outro veículo disponível para este trecho.",
+      "vehicleLinked": "Veículo vinculado ao trecho com sucesso.",
+      "vehicleRequired": "Selecione um veículo para vincular.",
+      "linkError": "Não foi possível vincular o veículo ao trecho."
+    },
+    "driverAssignment": {
+      "title": "Condutores",
+      "linkedDrivers": "Condutores vinculados",
+      "noLinkedDrivers": "Nenhum condutor vinculado a este veículo.",
+      "selectDriver": "Selecione um condutor",
+      "selectRole": "Selecione a função",
+      "linkDriver": "Vincular condutor",
+      "linkingDriver": "Vinculando...",
+      "noDriversAvailable": "Nenhum outro condutor disponível para este veículo.",
+      "driverLinked": "Condutor vinculado ao veículo com sucesso.",
+      "driverRequired": "Selecione um condutor para vincular.",
+      "linkError": "Não foi possível vincular o condutor ao veículo.",
+      "roles": {
+        "PRINCIPAL": "Principal",
+        "AUXILIAR": "Auxiliar",
+        "RESERVA": "Reserva",
+        "OPERADOR": "Operador",
+        "OPERADOR_REMOTO": "Operador remoto",
+        "SUPERVISOR_AUTONOMO": "Supervisor autônomo",
+        "OUTRO": "Outro"
       }
     }
   },
@@ -4177,7 +4253,8 @@
       "viewDetails": "Ver detalhes",
       "filters": "Filtros",
       "refresh": "Atualizar análise",
-      "clearFilters": "Limpar filtros"
+      "clearFilters": "Limpar filtros",
+      "refreshPanel": "Atualizar painel"
     },
     "filters": {
       "title": "Filtros",
@@ -4416,7 +4493,7 @@
       },
       "timeline": {
         "title": "Linha do tempo do aluno",
-        "description": "Acompanhe cronologicamente as intervenções, retornos programados e encerramentos registrados.",
+        "description": "Acompanhe cronologicamente as análises acadêmicas, intervenções, retornos programados e encerramentos registrados.",
         "loading": "Carregando linha do tempo...",
         "error": "Não foi possível carregar a linha do tempo.",
         "empty": "Ainda não existem eventos registrados para este aluno.",
@@ -4452,8 +4529,32 @@
         "pendingActivities": "Atividades vencidas",
         "mainSignals": "Principais sinais",
         "pendingSignal": "{count, plural, =0 {Nenhuma atividade vencida sem entrega} one {# atividade vencida sem entrega} other {# atividades vencidas sem entrega}}",
-        "executedBy": "Executada por"
+        "executedBy": "Executada por",
+        "analysisEvolution": {
+          "comparisonTitle": "Evolução desde a análise anterior",
+          "previousAnalysis": "Análise anterior",
+          "currentAnalysis": "Análise atual",
+          "riskEvolution": "Evolução do risco",
+          "scoreEvolution": "Pontuação",
+          "attendanceEvolution": "Frequência",
+          "performanceEvolution": "Desempenho",
+          "pendingEvolution": "Atividades vencidas",
+          "improved": "Evolução positiva",
+          "worsened": "Piora observada",
+          "stable": "Situação estável",
+          "notMeasurable": "Evolução ainda não mensurável"
+        }
       }
+    },
+    "reanalysis": {
+      "button": "Reanalisar alunos",
+      "running": "Reanalisando alunos...",
+      "successTitle": "Reanálise concluída",
+      "studentsAnalyzed": "Alunos analisados",
+      "changesRecorded": "Alterações acadêmicas registradas",
+      "noChanges": "Sem alterações",
+      "initialSnapshots": "Fotografias iniciais",
+      "error": "Não foi possível concluir a reanálise acadêmica."
     }
   },
   "AdminBirthdays": {
@@ -5663,7 +5764,8 @@
     "enumIllustrator": "Ilustrador",
     "enumStudent": "Aluno",
     "enumTeacher": "Professor",
-    "enumEmployee": "Funcionário"
+    "enumEmployee": "Funcionário",
+    "returnSuccessWithFine": "Devolução registrada com sucesso. Multa de {amount} gerada no Financeiro."
   },
   "AdminCertificates": {
     "status": {
@@ -10702,6 +10804,381 @@
           "deletePayslips": "Excluir holerites",
           "approveVacations": "Aprovar férias"
         }
+      }
+    }
+  },
+  "AdminSubjects": {
+    "title": "Gestão de Disciplinas",
+    "search": {
+      "placeholder": "Buscar por nome da disciplina, curso ou ID",
+      "empty": "Nenhuma disciplina encontrada para essa busca"
+    },
+    "newSubject": {
+      "openButton": "+ Nova Disciplina",
+      "title": "Nova disciplina",
+      "namePlaceholder": "Nome da disciplina",
+      "createButton": "Criar disciplina"
+    },
+    "common": {
+      "noCourse": "Sem curso vinculado",
+      "noTeacher": "Sem professor vinculado",
+      "creating": "Criando...",
+      "open": "Abrir",
+      "close": "Fechar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "deleting": "Excluindo...",
+      "optional": "Opcional",
+      "saving": "Salvando..."
+    },
+    "list": {
+      "semester": "Semestre {number}",
+      "noSemester": "Sem semestre definido",
+      "noCourse": "Sem curso vinculado",
+      "subjectCount": "{count, plural, =1 {1 disciplina} other {# disciplinas}}"
+    },
+    "table": {
+      "name": "Nome",
+      "teacher": "Professor",
+      "actions": "Ações"
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "question": "Tem certeza que deseja excluir a disciplina “{name}”?",
+      "warning": "Esta ação não pode ser desfeita.",
+      "confirm": "Confirmar exclusão"
+    },
+    "messages": {
+      "created": "Disciplina criada com sucesso.",
+      "deleted": "Disciplina excluída com sucesso.",
+      "updated": "Disciplina atualizada com sucesso."
+    },
+    "errors": {
+      "create": "Erro ao criar disciplina.",
+      "delete": "Erro ao excluir disciplina.",
+      "load": "Erro ao carregar disciplina.",
+      "save": "Erro ao salvar disciplina.",
+      "invalidId": "ID de disciplina inválido."
+    },
+    "toast": {
+      "errorTitle": "Erro",
+      "successTitle": "Tudo certo"
+    },
+    "edit": {
+      "loading": "Carregando disciplina...",
+      "back": "← Voltar para disciplinas",
+      "title": "Editar disciplina",
+      "description": "Atualize os dados da disciplina, defina o curso e o semestre. O vínculo com turma é opcional.",
+      "name": "Nome",
+      "code": "Código",
+      "subjectDescription": "Descrição",
+      "workload": "Carga horária",
+      "semester": "Semestre",
+      "course": "Curso",
+      "enabledTeachers": "Professores habilitados para esta disciplina",
+      "noTeachersFound": "Nenhum professor encontrado.",
+      "enabledTeachersHelp": "Marque todos os professores que podem lecionar esta disciplina.",
+      "prerequisites": "Pré-requisitos desta disciplina",
+      "noSubjectsFound": "Nenhuma disciplina encontrada.",
+      "prerequisitesHelp": "Marque as disciplinas que o aluno precisa concluir antes de cursar esta.",
+      "classes": "Turmas",
+      "noClassesFound": "Nenhuma turma encontrada.",
+      "classFallback": "Turma #{id}",
+      "classSemester": "Semestre: {semester}",
+      "noSemester": "Sem semestre",
+      "classesHelp": "Opcional: vincule esta disciplina a uma turma apenas se a turma já existir.",
+      "saveChanges": "Salvar alterações"
+    }
+  },
+  "AdminDocuments": {
+    "common": {
+      "reload": "Recarregar",
+      "open": "Abrir",
+      "print": "Imprimir",
+      "email": "E-mail",
+      "whatsapp": "WhatsApp",
+      "delete": "Excluir",
+      "deleting": "Excluindo...",
+      "cancel": "Cancelar",
+      "student": "Aluno",
+      "enrollment": "Matrícula",
+      "context": "Contexto",
+      "template": "Template",
+      "cpf": "CPF"
+    },
+    "types": {
+      "contract": "Contrato",
+      "declaration": "Declaração",
+      "receipt": "Recibo",
+      "proof": "Comprovante",
+      "withdrawal": "Trancamento",
+      "attendance": "Comparecimento",
+      "transcript": "Histórico",
+      "payslip": "Holerite",
+      "hrDocument": "RH - Documento geral",
+      "employmentContract": "RH - Contrato de trabalho",
+      "probationContract": "RH - Contrato de experiência",
+      "hrPrivacyTerm": "RH - Termo LGPD",
+      "equipmentTerm": "RH - Termo de uso de equipamentos",
+      "admission": "RH - Documento de admissão",
+      "dismissal": "RH - Documento de demissão",
+      "resignation": "RH - Pedido de demissão",
+      "notice": "RH - Aviso prévio",
+      "terminationTerm": "RH - TRCT",
+      "vacation": "RH - Documento de férias",
+      "vacationNotice": "RH - Aviso de férias",
+      "vacationReceipt": "RH - Recibo de férias",
+      "warning": "RH - Advertência",
+      "suspension": "RH - Suspensão",
+      "medicalLeave": "RH - Afastamento médico",
+      "maternityLeave": "RH - Afastamento maternidade",
+      "medicalAssessmentLeave": "RH - Afastamento perícia",
+      "returnToWork": "RH - Retorno ao trabalho",
+      "occupationalHealthCertificate": "RH - ASO geral",
+      "occupationalHealthAdmission": "RH - ASO admissional",
+      "occupationalHealthPeriodic": "RH - ASO periódico",
+      "occupationalHealthReturn": "RH - ASO retorno ao trabalho",
+      "occupationalHealthRoleChange": "RH - ASO mudança de função",
+      "occupationalHealthDismissal": "RH - ASO demissional",
+      "other": "Outro"
+    },
+    "statuses": {
+      "draft": "Rascunho",
+      "generated": "Gerado",
+      "signed": "Assinado",
+      "cancelled": "Cancelado",
+      "opened": "Aberto"
+    },
+    "generated": {
+      "title": "📚 Documentos gerados",
+      "description": "Visualize o histórico de documentos gerados pela instituição.",
+      "toastErrorTitle": "Não foi possível concluir",
+      "historyTitle": "Histórico documental",
+      "historyDescription": "Contratos, declarações, recibos, comprovantes e outros documentos.",
+      "searchPlaceholder": "Buscar por título, aluno, contexto...",
+      "allTypes": "Todos os tipos",
+      "deleteUnsigned": "Excluir não assinados",
+      "selectAllVisible": "Selecionar todos exibidos",
+      "selected": "selecionado(s)",
+      "selectedCount": "{count} selecionado(s)",
+      "deleteSelected": "Excluir selecionados",
+      "deleteSelectedWithCount": "Excluir selecionados ({count})",
+      "loading": "Carregando documentos...",
+      "empty": "Nenhum documento encontrado.",
+      "selectDocument": "Selecionar documento",
+      "selectDocumentNamed": "Selecionar {title}",
+      "requiresSignature": "Exige assinatura",
+      "noSignature": "Sem assinatura",
+      "generatedAt": "Gerado em",
+      "previewTitle": "Visualização",
+      "previewDescription": "Abra um documento gerado para ver os detalhes.",
+      "loadingDetail": "Carregando documento...",
+      "noSelection": "Nenhum documento selecionado.",
+      "documentContent": "Conteúdo do documento",
+      "deleteDocument": "Excluir documento",
+      "deleteUnsignedTitle": "Excluir documentos não assinados",
+      "deleteSelectedTitle": "Excluir documentos selecionados",
+      "confirmDeleteOne": "Tem certeza que deseja excluir “{title}”? Esta ação não poderá ser desfeita.",
+      "confirmDeleteOneButton": "Sim, excluir",
+      "confirmDeleteUnsigned": "Esta ação excluirá todos os documentos gerados, rascunhos e cancelados que ainda não foram assinados nesta instituição. Documentos assinados serão preservados. Deseja continuar?",
+      "confirmDeleteUnsignedButton": "Sim, excluir todos",
+      "confirmDeleteSelected": "Você selecionou {count} documento(s). Tem certeza que deseja excluí-los? Documentos assinados serão preservados.",
+      "confirmDeleteSelectedButton": "Excluir {count} documento(s)",
+      "share": {
+        "document": "Documento",
+        "type": "Tipo",
+        "student": "Aluno",
+        "enrollment": "Matrícula",
+        "context": "Contexto"
+      },
+      "errors": {
+        "load": "Erro ao carregar documentos.",
+        "loadDetail": "Erro ao carregar documento.",
+        "printWindow": "Não foi possível abrir a janela de impressão. Verifique se o navegador bloqueou pop-ups.",
+        "deleteOne": "Não foi possível excluir o documento.",
+        "deleteMany": "Não foi possível excluir os documentos.",
+        "selectAtLeastOne": "Selecione pelo menos um documento.",
+        "deleteSelected": "Não foi possível excluir os documentos selecionados."
+      },
+      "messages": {
+        "emailCopied": "O conteúdo do documento foi copiado. Se o e-mail não abrir automaticamente, cole o texto no seu e-mail.",
+        "emailOpening": "Tentando abrir o e-mail. Se não abrir, verifique se há um aplicativo de e-mail configurado no computador.",
+        "deletedOne": "Documento excluído com sucesso.",
+        "deletedMany": "Documentos excluídos com sucesso.",
+        "deletedSelected": "Documentos selecionados excluídos com sucesso."
+      }
+    },
+    "generate": {
+      "title": "📄 Emitir Documento",
+      "description": "Selecione o modelo oficial e preencha os dados específicos desta emissão.",
+      "toastErrorTitle": "Não foi possível gerar",
+      "select": "Selecione",
+      "defaultContractTitle": "Contrato educacional",
+      "contractOpenedMessage": "O contrato oficial foi aberto pelo módulo de Contratos do PHANYX.",
+      "template": {
+        "label": "Modelo do documento",
+        "type": "Tipo",
+        "context": "Contexto"
+      },
+      "person": {
+        "label": "Funcionário ou professor",
+        "select": "Selecione o funcionário ou professor",
+        "employeesGroup": "Funcionários",
+        "professorsWithoutHrGroup": "Professores sem vínculo RH",
+        "withoutHrSuffix": "sem vínculo RH",
+        "help": "Professores com vínculo RH aparecem na lista de funcionários. Professores sem vínculo RH precisam ser vinculados ao RH antes da emissão de documentos trabalhistas."
+      },
+      "payslip": {
+        "label": "Holerite / competência",
+        "loading": "Carregando holerites...",
+        "selectEmployeeFirst": "Selecione primeiro o funcionário",
+        "noneAvailable": "Nenhum holerite disponível",
+        "selectCompetence": "Selecione a competência",
+        "help": "A competência é escolhida explicitamente para que os valores sejam retirados do holerite correto."
+      },
+      "student": {
+        "label": "Aluno ou pessoa vinculada",
+        "noneSelected": "Nenhum aluno selecionado"
+      },
+      "enrollment": {
+        "label": "Matrícula",
+        "requiredSuffix": " (obrigatória para contrato acadêmico)",
+        "optionalSuffix": " (opcional)",
+        "select": "Selecione a matrícula",
+        "none": "Nenhuma",
+        "unnamedStudent": "Aluno sem nome"
+      },
+      "manual": {
+        "title": "Informações desta emissão",
+        "description": "Estes campos serão inseridos nas tags correspondentes do modelo.",
+        "noFields": "Este modelo não possui campos de preenchimento manual. Os dados serão preenchidos automaticamente pelo PHANYX."
+      },
+      "titleComplement": {
+        "label": "Complemento do título (opcional)",
+        "placeholder": "Ex.: Serviço realizado em agosto de 2026"
+      },
+      "print": {
+        "title": "Formato de impressão",
+        "description": "Escolha como o documento será organizado na folha A4.",
+        "oneCopy": {
+          "title": "Uma via",
+          "description": "Um documento ocupando uma folha A4 inteira."
+        },
+        "twoCopies": {
+          "title": "Duas vias",
+          "description": "Via do interessado e via da instituição na mesma folha A4."
+        }
+      },
+      "actions": {
+        "generating": "Gerando...",
+        "openOfficialContract": "Abrir contrato oficial",
+        "generate": "Gerar Documento"
+      },
+      "result": {
+        "title": "Documento Gerado",
+        "id": "ID",
+        "documentTitle": "Título",
+        "status": "Status",
+        "noPreview": "Documento gerado, mas nenhum conteúdo foi retornado para pré-visualização.",
+        "openPdf": "Abrir PDF"
+      },
+      "manualFields": {
+        "genericPlaceholder": "Informe {tag}",
+        "documentDescription": {
+          "label": "Descrição ou corpo do documento",
+          "placeholder": "Descreva o serviço, pagamento, finalidade ou conteúdo específico desta emissão."
+        },
+        "documentPurpose": {
+          "label": "Finalidade do documento",
+          "placeholder": "Informe para qual finalidade este documento está sendo emitido."
+        },
+        "documentRecipient": {
+          "label": "Destinatário",
+          "placeholder": "Ex.: À empresa, órgão, pessoa ou setor responsável"
+        },
+        "documentSubject": {
+          "label": "Assunto",
+          "placeholder": "Ex.: Prestação de serviços audiovisuais"
+        },
+        "documentNotes": {
+          "label": "Observações",
+          "placeholder": "Informações complementares desta emissão."
+        },
+        "referencePeriod": {
+          "label": "Período de referência",
+          "placeholder": "Ex.: Agosto de 2026"
+        },
+        "competence": {
+          "label": "Competência",
+          "placeholder": "Ex.: Agosto de 2026"
+        },
+        "documentValue": {
+          "label": "Valor",
+          "placeholder": "Ex.: 150,00"
+        },
+        "receivedValue": {
+          "label": "Valor recebido",
+          "placeholder": "Ex.: 150,00"
+        },
+        "value": {
+          "label": "Valor",
+          "placeholder": "Ex.: 150,00"
+        },
+        "payerName": {
+          "label": "Nome do pagador",
+          "placeholder": "Nome completo ou razão social"
+        },
+        "payerDocument": {
+          "label": "CPF ou CNPJ do pagador",
+          "placeholder": "Informe o CPF ou CNPJ"
+        },
+        "paymentMethod": {
+          "label": "Forma de pagamento"
+        },
+        "paymentDate": {
+          "label": "Data do pagamento"
+        },
+        "paymentReference": {
+          "label": "Referência do pagamento",
+          "placeholder": "Ex.: código PIX, E2E, número do recibo ou identificação interna"
+        },
+        "providerName": {
+          "label": "Nome do prestador",
+          "placeholder": "Nome da pessoa ou empresa que realizou o serviço"
+        },
+        "providerDocument": {
+          "label": "CPF ou CNPJ do prestador",
+          "placeholder": "Informe o CPF ou CNPJ"
+        },
+        "serviceDescription": {
+          "label": "Descrição do serviço",
+          "placeholder": "Descreva o serviço realizado."
+        }
+      },
+      "manualOptions": {
+        "pix": "PIX",
+        "cash": "Dinheiro",
+        "creditCard": "Cartão de crédito",
+        "debitCard": "Cartão de débito",
+        "bankTransfer": "Transferência bancária",
+        "bankSlip": "Boleto",
+        "check": "Cheque",
+        "other": "Outro"
+      },
+      "errors": {
+        "loadPayslips": "Erro ao carregar holerites.",
+        "loadData": "Erro ao carregar dados para gerar documento.",
+        "selectTemplate": "Selecione um template antes de gerar o documento.",
+        "selectEnrollmentForContract": "Selecione a matrícula do aluno para gerar o contrato.",
+        "invalidEnrollment": "A matrícula selecionada é inválida.",
+        "selectPerson": "Selecione o funcionário ou professor para emitir este documento.",
+        "invalidPerson": "Funcionário ou professor inválido.",
+        "invalidPersonType": "Tipo de pessoa inválido.",
+        "selectPayslip": "Selecione a competência do holerite para emitir este documento.",
+        "generate": "Erro ao gerar documento.",
+        "payslipTemplateRequiresHrContext": "Templates com tags de holerite precisam usar contexto de funcionário, professor ou RH.",
+        "payslipUnavailable": "O holerite selecionado não existe, está cancelado/arquivado ou não pertence ao funcionário escolhido."
       }
     }
   }

@@ -143,24 +143,46 @@ export async function GET() {
     }
 
     const aluno = await prisma.aluno.findFirst({
-  where: {
-    userId: user.id,
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-    polo: true,
-    matriculas: {
+      where: {
+        userId: user.id,
+        instituicaoId: user.instituicaoId,
+      },
       include: {
-        curso: true,
-        itens: {
+        polo: true,
+        matriculas: {
+          orderBy: [
+            { updatedAt: "desc" },
+            { createdAt: "desc" },
+          ],
           include: {
-            disciplina: true,
+            curso: {
+              include: {
+                semestres: {
+                  orderBy: {
+                    numero: "asc",
+                  },
+                  include: {
+                    disciplinas: {
+                      include: {
+                        disciplina: true,
+                      },
+                    },
+                  },
+                },
+                disciplinas: true,
+              },
+            },
+            cursoSemestre: true,
+            itens: {
+              include: {
+                disciplina: true,
+                turma: true,
+              },
+            },
           },
         },
       },
-    },
-  },
-});
+    });
 
     if (!aluno) {
       return NextResponse.json(
@@ -177,41 +199,441 @@ export async function GET() {
 
     console.log("CONFIG HISTORICO COMPLETA:", config);
 
-    const matriculaAtual = aluno.matriculas?.[0];
-    const curso = matriculaAtual?.curso;
+    /*
+     * Escolhe primeiro uma matrícula realmente atual.
+     * A rota anterior usava matriculas[0] sem ordenação,
+     * o que podia selecionar uma matrícula antiga.
+     */
+    const matriculaAtual =
+      aluno.matriculas.find((matricula) =>
+        ["ATIVA", "A_INICIAR"].includes(
+          String(matricula.status || "").toUpperCase()
+        )
+      ) ||
+      aluno.matriculas[0] ||
+      null;
 
-    const itensHistorico = matriculaAtual?.itens || [];
+    const curso =
+      matriculaAtual?.curso || null;
 
-const totalDisciplinasCurso = itensHistorico.length;
+    const itensHistorico =
+      matriculaAtual?.itens || [];
 
-const disciplinasConcluidas = itensHistorico.filter((item: any) => {
-  const status = String(item.status || "").toUpperCase();
-  return (
-    status === "CONCLUIDA" ||
-    status === "CONCLUIDO" ||
-    status === "APROVADO" ||
-    status === "APROVADA"
-  );
-});
+    /*
+     * ResultadoFinal é a fonte oficial para média,
+     * frequência e situação final por turma/disciplina.
+     */
+    const resultadosFinais =
+      await prisma.resultadoFinal.findMany({
+        where: {
+          alunoId: aluno.id,
+          instituicaoId:
+            user.instituicaoId,
+        },
+        orderBy: [
+          { updatedAt: "desc" },
+          { id: "desc" },
+        ],
+      });
 
-const cargaHorariaTotalCurso = itensHistorico.reduce((total: number, item: any) => {
-  return total + Number(item.disciplina?.cargaHoraria || 0);
-}, 0);
+    const resultadoPorItem =
+      new Map<
+        string,
+        (typeof resultadosFinais)[number]
+      >();
 
-const cargaHorariaAprovada = disciplinasConcluidas.reduce((total: number, item: any) => {
-  return total + Number(item.disciplina?.cargaHoraria || 0);
-}, 0);
+    for (const resultado of resultadosFinais) {
+      const chave =
+        `${resultado.turmaId}:${resultado.disciplinaId}`;
 
-const percentualConclusaoCalculado =
-  cargaHorariaTotalCurso > 0
-    ? Math.round((cargaHorariaAprovada / cargaHorariaTotalCurso) * 100)
-    : 0;
+      if (!resultadoPorItem.has(chave)) {
+        resultadoPorItem.set(
+          chave,
+          resultado
+        );
+      }
+    }
 
-const semestresCursadosCalculado = new Set(
-  itensHistorico
-    .map((item: any) => item.semestre || item.disciplina?.semestre)
-    .filter(Boolean)
-).size;
+    function obterResultadoItem(
+      item: {
+        turmaId: number;
+        disciplinaId: number;
+      }
+    ) {
+      return resultadoPorItem.get(
+        `${item.turmaId}:${item.disciplinaId}`
+      );
+    }
+
+    function statusItemUpper(
+      item: {
+        status?: unknown;
+      }
+    ) {
+      return String(
+        item.status || ""
+      ).toUpperCase();
+    }
+
+    function itemFoiCursado(
+      item: {
+        turmaId: number;
+        disciplinaId: number;
+        status?: unknown;
+      }
+    ) {
+      const resultado =
+        obterResultadoItem(item);
+
+      const situacaoResultado =
+        String(
+          resultado?.situacao || ""
+        ).toUpperCase();
+
+      if (
+        situacaoResultado &&
+        situacaoResultado !==
+          "EM_ANDAMENTO"
+      ) {
+        return true;
+      }
+
+      return [
+        "CONCLUIDO",
+        "CONCLUIDA",
+        "APROVADO",
+        "APROVADA",
+        "REPROVADO",
+        "REPROVADA",
+      ].includes(
+        statusItemUpper(item)
+      );
+    }
+
+    function itemFoiAprovado(
+      item: {
+        turmaId: number;
+        disciplinaId: number;
+        status?: unknown;
+      }
+    ) {
+      const resultado =
+        obterResultadoItem(item);
+
+      const situacaoResultado =
+        String(
+          resultado?.situacao || ""
+        ).toUpperCase();
+
+      if (situacaoResultado) {
+        return (
+          situacaoResultado ===
+            "APROVADO" ||
+          situacaoResultado ===
+            "APROVADA"
+        );
+      }
+
+      return [
+        "CONCLUIDO",
+        "CONCLUIDA",
+        "APROVADO",
+        "APROVADA",
+      ].includes(
+        statusItemUpper(item)
+      );
+    }
+
+    function formatarNumeroAcademico(
+      valor?: number | null
+    ) {
+      if (
+        valor === null ||
+        valor === undefined ||
+        !Number.isFinite(
+          Number(valor)
+        )
+      ) {
+        return "-";
+      }
+
+      return Number(valor).toLocaleString(
+        "pt-BR",
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        }
+      );
+    }
+
+    function formatarFrequenciaAcademica(
+      valor?: number | null
+    ) {
+      if (
+        valor === null ||
+        valor === undefined
+      ) {
+        return "-";
+      }
+
+      const numero =
+        Number(valor);
+
+      if (!Number.isFinite(numero)) {
+        return "-";
+      }
+
+      return `${numero.toLocaleString(
+        "pt-BR",
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        }
+      )}%`;
+    }
+
+    function situacaoHistoricoItem(
+      item: {
+        turmaId: number;
+        disciplinaId: number;
+        status?: unknown;
+      }
+    ) {
+      const resultado =
+        obterResultadoItem(item);
+
+      const situacaoResultado =
+        String(
+          resultado?.situacao || ""
+        ).toUpperCase();
+
+      if (
+        situacaoResultado ===
+          "APROVADO" ||
+        situacaoResultado ===
+          "APROVADA"
+      ) {
+        return "Aprovada";
+      }
+
+      if (
+        situacaoResultado ===
+          "REPROVADO" ||
+        situacaoResultado ===
+          "REPROVADA"
+      ) {
+        return "Reprovada";
+      }
+
+      const status =
+        statusItemUpper(item);
+
+      if (
+        status === "CONCLUIDA" ||
+        status === "CONCLUIDO"
+      ) {
+        return "Concluída";
+      }
+
+      if (
+        status === "APROVADO" ||
+        status === "APROVADA"
+      ) {
+        return "Aprovada";
+      }
+
+      if (
+        status === "REPROVADO" ||
+        status === "REPROVADA"
+      ) {
+        return "Reprovada";
+      }
+
+      if (
+        status === "CANCELADA" ||
+        status === "CANCELADO"
+      ) {
+        return "Cancelada";
+      }
+
+      if (
+        status === "DESISTENTE" ||
+        status === "DESISTENCIA"
+      ) {
+        return "Desistência";
+      }
+
+      if (
+        status === "TRANCADA" ||
+        status === "TRANCADO"
+      ) {
+        return "Trancada";
+      }
+
+      if (
+        status === "EM_CURSO" ||
+        situacaoResultado ===
+          "EM_ANDAMENTO"
+      ) {
+        return "Em curso";
+      }
+
+      return "A cursar";
+    }
+
+    /*
+     * A carga total do curso vem da grade curricular,
+     * não do número de itens da matrícula do aluno.
+     */
+    const componentesGrade =
+      curso?.semestres?.length
+        ? curso.semestres.flatMap(
+            (semestre) =>
+              semestre.disciplinas.map(
+                (vinculo) =>
+                  vinculo.disciplina
+              )
+          )
+        : curso?.disciplinas || [];
+
+    const cargaHorariaCursoCalculada =
+      componentesGrade.reduce(
+        (total, disciplina) =>
+          total +
+          Number(
+            disciplina?.cargaHoraria ||
+              0
+          ),
+        0
+      );
+
+    const cargasMinimasSemestres =
+      curso?.semestres?.map(
+        (semestre) =>
+          semestre.cargaMinima
+      ) || [];
+
+    const cargasMaximasSemestres =
+      curso?.semestres?.map(
+        (semestre) =>
+          semestre.cargaMaxima
+      ) || [];
+
+    const cargaHorariaMinimaCursoCalculada =
+      cargasMinimasSemestres.length > 0 &&
+      cargasMinimasSemestres.every(
+        (valor) =>
+          valor !== null &&
+          valor !== undefined
+      )
+        ? cargasMinimasSemestres.reduce(
+            (total, valor) =>
+              total + Number(valor || 0),
+            0
+          )
+        : null;
+
+    const cargaHorariaMaximaCursoCalculada =
+      cargasMaximasSemestres.length > 0 &&
+      cargasMaximasSemestres.every(
+        (valor) =>
+          valor !== null &&
+          valor !== undefined
+      )
+        ? cargasMaximasSemestres.reduce(
+            (total, valor) =>
+              total + Number(valor || 0),
+            0
+          )
+        : null;
+
+    const itensCursados =
+      itensHistorico.filter(
+        (item) =>
+          itemFoiCursado(item)
+      );
+
+    const itensAprovados =
+      itensHistorico.filter(
+        (item) =>
+          itemFoiAprovado(item)
+      );
+
+    const cargaHorariaCursada =
+      itensCursados.reduce(
+        (total, item) =>
+          total +
+          Number(
+            item.disciplina
+              ?.cargaHoraria || 0
+          ),
+        0
+      );
+
+    const cargaHorariaAprovada =
+      itensAprovados.reduce(
+        (total, item) =>
+          total +
+          Number(
+            item.disciplina
+              ?.cargaHoraria || 0
+          ),
+        0
+      );
+
+    const percentualConclusaoCalculado =
+      cargaHorariaCursoCalculada > 0
+        ? Math.min(
+            100,
+            Math.round(
+              (
+                cargaHorariaAprovada /
+                cargaHorariaCursoCalculada
+              ) * 100
+            )
+          )
+        : null;
+
+    const semestresCursadosCalculado =
+      new Set(
+        itensCursados
+          .map(
+            (item) =>
+              item.disciplina
+                ?.semestre ??
+              item.turma?.semestre ??
+              null
+          )
+          .filter(
+            (valor) =>
+              valor !== null &&
+              valor !== undefined &&
+              String(valor).trim() !== ""
+          )
+          .map((valor) =>
+            String(valor)
+          )
+      ).size;
+
+    const observacoesAcademicas =
+      Array.from(
+        new Set(
+          resultadosFinais
+            .map((resultado) =>
+              String(
+                resultado.observacao ||
+                  ""
+              ).trim()
+            )
+            .filter(Boolean)
+        )
+      );
+
+    const numeroMatriculaHistorico =
+      matriculaAtual
+        ?.numeroMatricula ||
+      aluno.matricula ||
+      "-";
 
     const pdfDoc = await PDFDocument.create();
     let page = pdfDoc.addPage([595.28, 841.89]);
@@ -329,106 +751,312 @@ blocoPolo: [
   .filter(Boolean)
   .join("\n"),
 
-  nomeAluno: aluno.nome || "-",
-  cpfAluno: aluno.cpf || "-",
-  matriculaAluno: aluno.matricula || "-",
-  numeroMatricula: aluno.matricula || "-",
-  statusAluno: aluno.statusAluno || "-",
+  nomeAluno:
+    aluno.nome || "-",
 
-  rgAluno: aluno.rg || "-",
+  cpfAluno:
+    aluno.cpf || "-",
 
-orgaoExpedidorAluno:
-  (aluno as any)?.orgaoExpedidor || "-",
+  matriculaAluno:
+    numeroMatriculaHistorico,
 
-dataNascimentoAluno:
-  aluno.dataNascimento
-    ? new Date(aluno.dataNascimento).toLocaleDateString("pt-BR")
-    : "-",
+  numeroMatricula:
+    numeroMatriculaHistorico,
 
-sexoAluno:
-  (aluno as any)?.sexo || "-",
+  statusAluno:
+    aluno.statusAluno || "-",
 
-naturalidadeAluno:
-  (aluno as any)?.naturalidade || "-",
+  rgAluno:
+    aluno.rg || "-",
 
-nacionalidadeAluno:
-  (aluno as any)?.nacionalidade || "Brasileira",
+  /*
+   * Estes dados ainda não possuem campos próprios
+   * com o mesmo significado no schema atual.
+   */
+  orgaoExpedidorAluno: "-",
 
-  dataMatricula: matriculaAtual?.createdAt
-  ? new Date(matriculaAtual.createdAt).toLocaleDateString("pt-BR")
-  : "-",
+  dataNascimentoAluno:
+    aluno.dataNascimento
+      ? new Date(
+          aluno.dataNascimento
+        ).toLocaleDateString(
+          "pt-BR"
+        )
+      : "-",
 
-observacoesHistorico:
-  "Histórico acadêmico emitido eletronicamente pelo PHANYX.",
+  sexoAluno:
+    aluno.genero || "-",
 
-legendaHistorico:
-  "A cursar = disciplina ainda não concluída.",
+  naturalidadeAluno: "-",
 
-dataConclusao: (matriculaAtual as any)?.dataConclusao
-  ? new Date((matriculaAtual as any).dataConclusao).toLocaleDateString("pt-BR")
-  : "-",
+  nacionalidadeAluno:
+    aluno.nacionalidade || "-",
 
-dataConclusaoAluno: (matriculaAtual as any)?.dataConclusao
-  ? new Date((matriculaAtual as any).dataConclusao).toLocaleDateString("pt-BR")
-  : "-",
+  formaIngressoAluno: "-",
 
-semestreAtual:
-  (matriculaAtual as any)?.semestreAtual ||
-  (matriculaAtual as any)?.semestre ||
-  "-",
+  curriculoAluno: "-",
 
-cargaHorariaCurso: curso?.cargaHoraria
-  ? `${curso.cargaHoraria}h`
-  : "-",
+  situacaoAcademicaAluno:
+    matriculaAtual?.status ||
+    aluno.statusAluno ||
+    "-",
 
-    codigoValidacao,
-  urlValidacao: "https://www.phanyx.com.br/validar-documento",
-  
-  curso: curso?.nome || "-",
-  statusMatricula: (matriculaAtual as any)?.status || "-",
-  dataAtual: new Date().toLocaleDateString("pt-BR"),
-  assinaturaDiretor: "{{assinaturaDiretor}}",
-  blocoAssinaturaDiretor: "{{blocoAssinaturaDiretor}}",
+  dataMatricula:
+    matriculaAtual?.createdAt
+      ? new Date(
+          matriculaAtual.createdAt
+        ).toLocaleDateString(
+          "pt-BR"
+        )
+      : "-",
+
+  observacoesHistorico:
+    observacoesAcademicas.length > 0
+      ? observacoesAcademicas.join(
+          "\n"
+        )
+      : "-",
+
+  legendaHistorico:
+    "A cursar = disciplina ainda não concluída.",
+
+  /*
+   * Matricula não possui dataConclusao no schema.
+   * Não usamos outra data como se fosse conclusão.
+   */
+  dataConclusao: "-",
+
+  dataConclusaoAluno: "-",
+
+  semestreAtual:
+    matriculaAtual
+      ?.cursoSemestre?.numero ??
+    matriculaAtual?.semestre ??
+    "-",
+
+  cargaHorariaCurso:
+    cargaHorariaCursoCalculada > 0
+      ? `${cargaHorariaCursoCalculada}h`
+      : "-",
+
+  cargaHorariaMinimaCurso:
+    cargaHorariaMinimaCursoCalculada !==
+      null
+      ? `${cargaHorariaMinimaCursoCalculada}h`
+      : "-",
+
+  cargaHorariaMaximaCurso:
+    cargaHorariaMaximaCursoCalculada !==
+      null
+      ? `${cargaHorariaMaximaCursoCalculada}h`
+      : "-",
+
+  codigoValidacao,
+
+  urlValidacao:
+    "https://www.phanyx.com.br/validar-documento",
+
+  curso:
+    curso?.nome || "-",
+
+  statusMatricula:
+    matriculaAtual?.status || "-",
+
+  dataAtual:
+    new Date().toLocaleDateString(
+      "pt-BR"
+    ),
+
+  assinaturaDiretor:
+    "{{assinaturaDiretor}}",
+
+  blocoAssinaturaDiretor:
+    "{{blocoAssinaturaDiretor}}",
 
   disciplinasPorSemestre:
-  itensHistorico.length > 0
-    ? itensHistorico
-        .map((item: any) => {
-          const disciplina = item.disciplina;
-          const nome = disciplina?.nome || "Disciplina";
-          const carga = disciplina?.cargaHoraria ? `${disciplina.cargaHoraria}h` : "-";
-          const status = String(item.status || "A_CURSAR").replaceAll("_", " ");
+    (() => {
+      if (
+        itensHistorico.length === 0
+      ) {
+        return "-";
+      }
 
-          return `- ${nome} | C.H.: ${carga} | Situação: ${status}`;
+      const grupos =
+        new Map<
+          string,
+          typeof itensHistorico
+        >();
+
+      for (
+        const item of itensHistorico
+      ) {
+        const semestre =
+          item.disciplina
+            ?.semestre ??
+          item.turma?.semestre ??
+          "Não informado";
+
+        const chave =
+          String(semestre);
+
+        const lista =
+          grupos.get(chave) || [];
+
+        lista.push(item);
+
+        grupos.set(
+          chave,
+          lista
+        );
+      }
+
+      return Array.from(
+        grupos.entries()
+      )
+        .sort(([a], [b]) => {
+          const numeroA =
+            Number(a);
+
+          const numeroB =
+            Number(b);
+
+          if (
+            Number.isFinite(
+              numeroA
+            ) &&
+            Number.isFinite(
+              numeroB
+            )
+          ) {
+            return (
+              numeroA -
+              numeroB
+            );
+          }
+
+          return a.localeCompare(
+            b,
+            "pt-BR"
+          );
         })
-        .join("\n")
-    : "-",
+        .map(
+          ([semestre, itens]) => {
+            const linhas =
+              itens.map((item) => {
+                const nome =
+                  item.disciplina
+                    ?.nome ||
+                  "Disciplina";
 
-haMaximaCurso: cargaHorariaTotalCurso ? `${cargaHorariaTotalCurso}h` : "-",
-haTotalCursada: cargaHorariaTotalCurso ? `${cargaHorariaTotalCurso}h` : "-",
-haTotalAprovada: cargaHorariaAprovada ? `${cargaHorariaAprovada}h` : "-",
+                const carga =
+                  item.disciplina
+                    ?.cargaHoraria
+                    ? `${item.disciplina.cargaHoraria}h`
+                    : "-";
 
-percentualConclusao: `${percentualConclusaoCalculado}%`,
+                return `- ${nome} | C.H.: ${carga} | Situação: ${situacaoHistoricoItem(
+                  item
+                )}`;
+              });
 
-semestresCursados: semestresCursadosCalculado
-  ? String(semestresCursadosCalculado)
-  : "-",
+            return [
+              `Semestre ${semestre}`,
+              ...linhas,
+            ].join("\n");
+          }
+        )
+        .join("\n\n");
+    })(),
 
-semestresRevalidados: "0",
+  haMaximaCurso:
+    cargaHorariaMaximaCursoCalculada !==
+      null
+      ? `${cargaHorariaMaximaCursoCalculada}h`
+      : "-",
 
-indiceAproveitamentoSemestral: "-",
-indiceAproveitamentoAcumulado: "-",
-indiceAproveitamentoAprovadas: "-",
+  haTotalCursada:
+    cargaHorariaCursada > 0
+      ? `${cargaHorariaCursada}h`
+      : "-",
 
-prazoIntegralizacao: "-",
-provavelSemestreFormatura: "-",
+  haTotalAprovada:
+    cargaHorariaAprovada > 0
+      ? `${cargaHorariaAprovada}h`
+      : "-",
 
-disciplinasParteDiversificada: "-",
+  percentualConclusao:
+    percentualConclusaoCalculado !==
+      null
+      ? `${percentualConclusaoCalculado}%`
+      : "-",
+
+  semestresCursados:
+    semestresCursadosCalculado > 0
+      ? String(
+          semestresCursadosCalculado
+        )
+      : "-",
+
+  semestresRevalidados: "-",
+
+  indiceAproveitamentoSemestral:
+    "-",
+
+  indiceAproveitamentoAcumulado:
+    "-",
+
+  indiceAproveitamentoAprovadas:
+    "-",
+
+  prazoIntegralizacao:
+    curso?.quantidadeSemestres
+      ? `${curso.quantidadeSemestres} semestres`
+      : "-",
+
+  provavelSemestreFormatura:
+    "-",
+
+  atoLegalCriacao: "-",
+
+  numeroAutorizacaoCurso: "-",
+
+  dataPublicacaoAutorizacao:
+    "-",
+
+  diarioOficialAutorizacao:
+    "-",
+
+  disciplinasBaseNacionalComum:
+    "-",
+
+  disciplinasParteDiversificada:
+    "-",
+
+  totalAulasBaseNacionalComum:
+    "-",
+
+  totalAulasParteDiversificada:
+    "-",
+
+  totalCargaHorariaAnualAulas:
+    "-",
+
+  totalCargaHorariaAnualHoras:
+    "-",
+
+  certificacaoDeclaracao:
+    "-",
+
+  escolaOrigem:
+    "-",
 
   disciplinas:
-    matriculaAtual?.itens?.length
-      ? matriculaAtual.itens
-          .map((item: any) => `- ${item.disciplina?.nome || "Disciplina"}`)
+    itensHistorico.length > 0
+      ? itensHistorico
+          .map(
+            (item) =>
+              `- ${item.disciplina?.nome || "Disciplina"}`
+          )
           .join("\n")
       : "-",
 };
@@ -636,18 +1264,113 @@ cursorY = cabecalhoY - 32;
 const titulo =
   limparTextoSecao(pegarSecao("TÍTULO")) || "HISTÓRICO ACADÊMICO ESCOLAR";
 
-const tituloFinal = titulo.toUpperCase();
+const tituloFinal =
+  titulo.toUpperCase();
 
-drawText(
-  tituloFinal.length > 45 ? tituloFinal.slice(0, 45) : tituloFinal,
-  85,
-  cursorY,
-  13,
-  true,
-  preto
-);
+/*
+ * O título deixa de ser cortado por caracteres.
+ * A quebra usa a largura real da fonte.
+ */
+function quebrarTituloPorLargura(
+  texto: string,
+  tamanho: number,
+  larguraMaxima: number
+) {
+  const palavras =
+    texto
+      .split(/\s+/)
+      .filter(Boolean);
 
-cursorY -= 28;
+  const linhas: string[] = [];
+  let atual = "";
+
+  for (const palavra of palavras) {
+    const candidato =
+      atual
+        ? `${atual} ${palavra}`
+        : palavra;
+
+    const largura =
+      fontBold.widthOfTextAtSize(
+        candidato,
+        tamanho
+      );
+
+    if (
+      largura <= larguraMaxima ||
+      !atual
+    ) {
+      atual = candidato;
+      continue;
+    }
+
+    linhas.push(atual);
+    atual = palavra;
+  }
+
+  if (atual) {
+    linhas.push(atual);
+  }
+
+  return linhas;
+}
+
+let tamanhoTitulo = 13;
+let linhasTitulo =
+  quebrarTituloPorLargura(
+    tituloFinal,
+    tamanhoTitulo,
+    460
+  );
+
+while (
+  linhasTitulo.length > 2 &&
+  tamanhoTitulo > 9
+) {
+  tamanhoTitulo -= 0.5;
+
+  linhasTitulo =
+    quebrarTituloPorLargura(
+      tituloFinal,
+      tamanhoTitulo,
+      460
+    );
+}
+
+for (
+  let indice = 0;
+  indice < linhasTitulo.length;
+  indice += 1
+) {
+  const linha =
+    linhasTitulo[indice];
+
+  const larguraLinha =
+    fontBold.widthOfTextAtSize(
+      linha,
+      tamanhoTitulo
+    );
+
+  drawText(
+    linha,
+    Math.max(
+      45,
+      (595.28 - larguraLinha) /
+        2
+    ),
+    cursorY -
+      indice *
+        (tamanhoTitulo + 4),
+    tamanhoTitulo,
+    true,
+    preto
+  );
+}
+
+cursorY -=
+  20 +
+  linhasTitulo.length *
+    (tamanhoTitulo + 4);
 
 // Dados do aluno vindo do template
 const dadosAluno = limparTextoSecao(pegarSecao("DADOS DO ALUNO"));
@@ -779,36 +1502,83 @@ if (y < 135) {
   y -= 22;
 }
 
-  const disciplina = item.disciplina;
-  const nomeDisciplina = textoSeguro(disciplina?.nome).slice(0, 45);
-  const carga = disciplina?.cargaHoraria ? `${disciplina.cargaHoraria}h` : "-";
+  const disciplina =
+    item.disciplina;
 
-  const statusBruto = String((item as any).status || "A_CURSAR");
+  const nomeDisciplina =
+    textoSeguro(
+      disciplina?.nome
+    ).slice(0, 45);
+
+  const carga =
+    disciplina?.cargaHoraria
+      ? `${disciplina.cargaHoraria}h`
+      : "-";
+
+  const resultado =
+    obterResultadoItem(item);
+
+  const nota =
+    formatarNumeroAcademico(
+      resultado?.media
+    );
+
+  const frequencia =
+    formatarFrequenciaAcademica(
+      resultado?.frequencia
+    );
 
   const situacao =
-    statusBruto === "CONCLUIDA" || statusBruto === "CONCLUIDO"
-      ? "Concluída"
-      : statusBruto === "APROVADO"
-        ? "Aprovada"
-        : statusBruto === "REPROVADO"
-          ? "Reprovada"
-          : statusBruto === "CANCELADA" || statusBruto === "CANCELADO"
-            ? "Cancelada"
-            : statusBruto === "DESISTENTE" || statusBruto === "DESISTENCIA"
-              ? "Desistência"
-              : statusBruto === "TRANCADA" || statusBruto === "TRANCADO"
-                ? "Trancada"
-                : "A cursar";
+    situacaoHistoricoItem(
+      item
+    );
 
   for (const col of colunas) {
-    drawBox(col.x, y, col.w, 20);
+    drawBox(
+      col.x,
+      y,
+      col.w,
+      20
+    );
   }
 
-  drawText(nomeDisciplina, tabelaX + 5, y + 7, 7.5);
-  drawText(carga, tabelaX + 270, y + 7, 7.5);
-  drawText("-", tabelaX + 327, y + 7, 7.5);
-  drawText("-", tabelaX + 387, y + 7, 7.5);
-  drawText(situacao.slice(0, 13), tabelaX + 442, y + 7, 7.2);
+  drawText(
+    nomeDisciplina,
+    tabelaX + 5,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    carga,
+    tabelaX + 270,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    nota,
+    tabelaX + 327,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    frequencia,
+    tabelaX + 387,
+    y + 7,
+    7.5
+  );
+
+  drawText(
+    situacao.slice(
+      0,
+      13
+    ),
+    tabelaX + 442,
+    y + 7,
+    7.2
+  );
 
   y -= 20;
 }

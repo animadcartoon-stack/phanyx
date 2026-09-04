@@ -467,6 +467,28 @@ export default function TransporteAtividadeExterna({
     setPrestadores,
   ] = useState<Prestador[]>([]);
 
+    const [
+    veiculosDisponiveis,
+    setVeiculosDisponiveis,
+  ] =
+    useState<
+      RespostaApi["opcoes"]["veiculos"]
+    >([]);
+
+  const [
+    veiculoSelecionadoPorTrecho,
+    setVeiculoSelecionadoPorTrecho,
+  ] = useState<
+    Record<number, string>
+  >({});
+
+  const [
+    vinculandoVeiculoTrechoId,
+    setVinculandoVeiculoTrechoId,
+  ] = useState<number | null>(
+    null
+  );
+
   const [
     resumo,
     setResumo,
@@ -541,6 +563,11 @@ export default function TransporteAtividadeExterna({
           ?.prestadores || []
       );
 
+            setVeiculosDisponiveis(
+        dados.opcoes
+          ?.veiculos || []
+      );
+
       setResumo({
         totalTrechos:
           dados.resumo
@@ -569,6 +596,114 @@ export default function TransporteAtividadeExterna({
       );
     } finally {
       setCarregando(false);
+    }
+  }
+
+    async function vincularVeiculo(
+    trechoId: number
+  ) {
+    const veiculoIdTexto =
+      veiculoSelecionadoPorTrecho[
+        trechoId
+      ] || "";
+
+    const veiculoId =
+      Number(
+        veiculoIdTexto
+      );
+
+    if (
+      !Number.isInteger(
+        veiculoId
+      ) ||
+      veiculoId <= 0
+    ) {
+      setErro(
+        t(
+          "vehicleAssignment.vehicleRequired"
+        )
+      );
+
+      setSucesso("");
+
+      return;
+    }
+
+    setVinculandoVeiculoTrechoId(
+      trechoId
+    );
+
+    setErro("");
+    setSucesso("");
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/atividades-externas/${atividadeId}/transporte`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              acao:
+                "VINCULAR_VEICULO",
+
+              trechoId,
+
+              veiculoId,
+            }),
+          }
+        );
+
+      const dados =
+        (await resposta.json()) as {
+          ok?: boolean;
+          error?: string;
+        };
+
+      if (
+        !resposta.ok ||
+        !dados.ok
+      ) {
+        throw new Error(
+          dados.error ||
+            "ERRO_VINCULAR_VEICULO"
+        );
+      }
+
+      setVeiculoSelecionadoPorTrecho(
+        (atual) => ({
+          ...atual,
+          [trechoId]: "",
+        })
+      );
+
+      setSucesso(
+        t(
+          "vehicleAssignment.vehicleLinked"
+        )
+      );
+
+      await carregar();
+    } catch (error) {
+      console.error(
+        "[TRANSPORTE_ATIVIDADE_VINCULAR_VEICULO]",
+        error
+      );
+
+      setErro(
+        t(
+          "vehicleAssignment.linkError"
+        )
+      );
+    } finally {
+      setVinculandoVeiculoTrechoId(
+        null
+      );
     }
   }
 
@@ -1577,6 +1712,185 @@ export default function TransporteAtividadeExterna({
                       )}
                     />
                   </div>
+
+                                    <div className="mt-4 rounded-2xl border p-4">
+                    <div className="flex flex-col gap-1">
+                      <h5 className="text-sm font-black">
+                        🚐{" "}
+                        {t(
+                          "vehicleAssignment.title"
+                        )}
+                      </h5>
+
+                      <p className="text-xs font-bold opacity-65">
+                        {t(
+                          "vehicleAssignment.linkedVehicles"
+                        )}
+                      </p>
+                    </div>
+
+                    {trecho.veiculos
+                      .length > 0 ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {trecho.veiculos.map(
+                          (vinculo) => (
+                            <span
+                              key={
+                                vinculo.id
+                              }
+                              className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold"
+                            >
+                              🚐{" "}
+                              {vinculo
+                                .veiculo
+                                .nomeIdentificacao ||
+                                vinculo
+                                  .veiculo
+                                  .placa ||
+                                vinculo
+                                  .veiculo
+                                  .tipo}
+
+                              {vinculo
+                                .veiculo
+                                .nomeIdentificacao &&
+                              vinculo
+                                .veiculo
+                                .placa
+                                ? ` • ${
+                                    vinculo
+                                      .veiculo
+                                      .placa
+                                  }`
+                                : ""}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm opacity-70">
+                        {t(
+                          "vehicleAssignment.noLinkedVehicles"
+                        )}
+                      </p>
+                    )}
+
+                    {podeGerenciar ? (
+                      <div className="mt-4">
+                        {veiculosDisponiveis.filter(
+                          (veiculo) =>
+                            !trecho.veiculos.some(
+                              (
+                                vinculo
+                              ) =>
+                                vinculo.veiculoId ===
+                                veiculo.id
+                            )
+                        ).length >
+                        0 ? (
+                          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                            <div>
+                              <SelectPhanyx
+                                value={
+                                  veiculoSelecionadoPorTrecho[
+                                    trecho
+                                      .id
+                                  ] ||
+                                  ""
+                                }
+                                onChange={(
+                                  valor
+                                ) =>
+                                  setVeiculoSelecionadoPorTrecho(
+                                    (
+                                      atual
+                                    ) => ({
+                                      ...atual,
+
+                                      [trecho.id]:
+                                        valor,
+                                    })
+                                  )
+                                }
+                                placeholder={t(
+                                  "vehicleAssignment.selectVehicle"
+                                )}
+                                options={veiculosDisponiveis
+                                  .filter(
+                                    (
+                                      veiculo
+                                    ) =>
+                                      !trecho.veiculos.some(
+                                        (
+                                          vinculo
+                                        ) =>
+                                          vinculo.veiculoId ===
+                                          veiculo.id
+                                      )
+                                  )
+                                  .map(
+                                    (
+                                      veiculo
+                                    ) => ({
+                                      value:
+                                        String(
+                                          veiculo.id
+                                        ),
+
+                                      label: [
+                                        veiculo.nomeIdentificacao ||
+                                          veiculo.tipo,
+
+                                        veiculo.placa,
+                                      ]
+                                        .filter(
+                                          Boolean
+                                        )
+                                        .join(
+                                          " • "
+                                        ),
+                                    })
+                                  )}
+                              />
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={
+                                vinculandoVeiculoTrechoId ===
+                                  trecho.id ||
+                                !veiculoSelecionadoPorTrecho[
+                                  trecho.id
+                                ]
+                              }
+                              onClick={() =>
+                                void vincularVeiculo(
+                                  trecho.id
+                                )
+                              }
+                              className="phanyx-transporte-primary-button min-h-[44px] rounded-xl px-4 py-2.5 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {vinculandoVeiculoTrechoId ===
+                              trecho.id
+                                ? t(
+                                    "vehicleAssignment.linkingVehicle"
+                                  )
+                                : t(
+                                    "vehicleAssignment.linkVehicle"
+                                  )}
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="mt-3 text-sm opacity-70">
+                            {t(
+                              "vehicleAssignment.noVehiclesAvailable"
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+
 
                   {trecho
                     .numeroReferencia ? (

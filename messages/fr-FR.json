@@ -1300,7 +1300,9 @@
         "load": "Impossible de charger les registres de transport.",
         "providerNameRequired": "Indiquez la raison sociale ou le nom du prestataire.",
         "saveProvider": "Impossible d’ajouter le prestataire.",
-        "saveVehicle": "Impossible d’ajouter le véhicule."
+        "saveVehicle": "Impossible d’ajouter le véhicule.",
+        "driverNameRequired": "Indiquez le nom du conducteur.",
+        "saveDriver": "Impossible d’ajouter le conducteur."
       },
       "actions": {
         "addProvider": "+ Ajouter un prestataire",
@@ -1308,7 +1310,9 @@
         "saveProvider": "Ajouter le prestataire",
         "saving": "Enregistrement...",
         "addVehicle": "+ Ajouter un véhicule",
-        "saveVehicle": "Ajouter le véhicule"
+        "saveVehicle": "Ajouter le véhicule",
+        "addDriver": "+ Ajouter un conducteur",
+        "saveDriver": "Ajouter le conducteur"
       },
       "providerForm": {
         "title": "Ajouter un prestataire de transport",
@@ -1364,7 +1368,8 @@
       },
       "success": {
         "providerCreated": "Prestataire ajouté avec succès.",
-        "vehicleCreated": "Véhicule ajouté avec succès."
+        "vehicleCreated": "Véhicule ajouté avec succès.",
+        "driverCreated": "Conducteur ajouté avec succès."
       },
       "vehicleForm": {
         "title": "Ajouter un véhicule",
@@ -1425,6 +1430,77 @@
         "SUPERVISAO_REMOTA": "Supervision à distance",
         "MISTA": "Mixte",
         "NAO_APLICAVEL": "Non applicable"
+      },
+      "driverForm": {
+        "title": "Ajouter un conducteur",
+        "description": "Enregistrez les conducteurs, pilotes, opérateurs et autres responsables pouvant être affectés aux activités extérieures.",
+        "sections": {
+          "identification": "Identification et prestataire",
+          "contact": "Contact",
+          "documents": "Document",
+          "license": "Permis, licence et autorisation",
+          "emergency": "Contact d’urgence"
+        },
+        "provider": "Prestataire de transport",
+        "noProvider": "Sans prestataire / conducteur interne",
+        "name": "Nom du conducteur",
+        "type": "Type de conducteur",
+        "phone": "Téléphone",
+        "email": "E-mail",
+        "documentCountry": "Pays du document / permis",
+        "documentType": "Type de document",
+        "documentNumber": "Numéro du document",
+        "licenseNumber": "Numéro du permis / licence",
+        "licenseCategory": "Catégorie / classe",
+        "licenseExpiry": "Date d’expiration",
+        "studentVerification": "Transport des étudiants",
+        "emergencyContact": "Contact d’urgence",
+        "emergencyPhone": "Téléphone d’urgence",
+        "notes": "Observations"
+      },
+      "driverTypes": {
+        "MOTORISTA": "Conducteur",
+        "PILOTO": "Pilote",
+        "MAQUINISTA": "Conducteur de train",
+        "COMANDANTE_EMBARCACAO": "Commandant de navire",
+        "OPERADOR": "Opérateur",
+        "OPERADOR_REMOTO": "Opérateur à distance",
+        "SUPERVISOR_AUTONOMO": "Superviseur de véhicule autonome",
+        "OUTRO": "Autre"
+      }
+    },
+    "vehicleAssignment": {
+      "title": "Véhicules du trajet",
+      "linkedVehicles": "Véhicules associés",
+      "noLinkedVehicles": "Aucun véhicule n'est associé à ce trajet.",
+      "selectVehicle": "Sélectionnez un véhicule",
+      "linkVehicle": "Associer le véhicule",
+      "linkingVehicle": "Association...",
+      "noVehiclesAvailable": "Aucun autre véhicule n'est disponible pour ce trajet.",
+      "vehicleLinked": "Véhicule associé au trajet avec succès.",
+      "vehicleRequired": "Sélectionnez un véhicule à associer.",
+      "linkError": "Impossible d'associer le véhicule au trajet."
+    },
+    "driverAssignment": {
+      "title": "Conducteurs",
+      "linkedDrivers": "Conducteurs associés",
+      "noLinkedDrivers": "Aucun conducteur n'est associé à ce véhicule.",
+      "selectDriver": "Sélectionnez un conducteur",
+      "selectRole": "Sélectionnez le rôle",
+      "linkDriver": "Associer le conducteur",
+      "linkingDriver": "Association...",
+      "noDriversAvailable": "Aucun autre conducteur n'est disponible pour ce véhicule.",
+      "driverLinked": "Conducteur associé au véhicule avec succès.",
+      "driverRequired": "Sélectionnez un conducteur à associer.",
+      "linkError": "Impossible d'associer le conducteur au véhicule.",
+      "roles": {
+        "PRINCIPAL": "Principal",
+        "AUXILIAR": "Auxiliaire",
+        "RESERVA": "Réserve",
+        "OPERADOR": "Opérateur",
+        "OPERADOR_REMOTO": "Opérateur à distance",
+        "SUPERVISOR_AUTONOMO": "Superviseur autonome",
+        "OUTRO": "Autre"
       }
     }
   },
@@ -4177,7 +4253,8 @@
       "viewDetails": "Voir les détails",
       "filters": "Filtres",
       "refresh": "Actualiser l'analyse",
-      "clearFilters": "Effacer les filtres"
+      "clearFilters": "Effacer les filtres",
+      "refreshPanel": "Actualiser le tableau de bord"
     },
     "filters": {
       "title": "Filtres",
@@ -4416,7 +4493,7 @@
       },
       "timeline": {
         "title": "Chronologie de l'élève",
-        "description": "Suivez chronologiquement les interventions, suivis programmés et clôtures enregistrés.",
+        "description": "Suivez chronologiquement les analyses académiques, les interventions, les suivis programmés et les clôtures enregistrées.",
         "loading": "Chargement de la chronologie...",
         "error": "Impossible de charger la chronologie.",
         "empty": "Aucun événement n'est encore enregistré pour cet élève.",
@@ -4452,8 +4529,32 @@
         "pendingActivities": "Activités en retard",
         "mainSignals": "Signaux principaux",
         "pendingSignal": "{count, plural, =0 {Aucune activité en retard sans remise} one {# activité en retard sans remise} other {# activités en retard sans remise}}",
-        "executedBy": "Effectuée par"
+        "executedBy": "Effectuée par",
+        "analysisEvolution": {
+          "comparisonTitle": "Évolution depuis l’analyse précédente",
+          "previousAnalysis": "Analyse précédente",
+          "currentAnalysis": "Analyse actuelle",
+          "riskEvolution": "Évolution du risque",
+          "scoreEvolution": "Score",
+          "attendanceEvolution": "Assiduité",
+          "performanceEvolution": "Performance",
+          "pendingEvolution": "Activités en retard",
+          "improved": "Évolution positive",
+          "worsened": "Dégradation observée",
+          "stable": "Situation stable",
+          "notMeasurable": "Évolution pas encore mesurable"
+        }
       }
+    },
+    "reanalysis": {
+      "button": "Réanalyser les élèves",
+      "running": "Réanalyse des élèves...",
+      "successTitle": "Réanalyse terminée",
+      "studentsAnalyzed": "Élèves analysés",
+      "changesRecorded": "Modifications académiques enregistrées",
+      "noChanges": "Aucune modification",
+      "initialSnapshots": "Photographies initiales",
+      "error": "La réanalyse académique n'a pas pu être effectuée."
     }
   },
   "AdminBirthdays": {
@@ -5663,7 +5764,8 @@
     "enumIllustrator": "Illustrateur",
     "enumStudent": "Élève",
     "enumTeacher": "Enseignant",
-    "enumEmployee": "Employé"
+    "enumEmployee": "Employé",
+    "returnSuccessWithFine": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances."
   },
   "AdminCertificates": {
     "status": {
@@ -10702,6 +10804,381 @@
           "deletePayslips": "Supprimer les bulletins de paie",
           "approveVacations": "Approuver les congés"
         }
+      }
+    }
+  },
+  "AdminSubjects": {
+    "title": "Gestion des Matières",
+    "search": {
+      "placeholder": "Rechercher par nom de matière, cursus ou ID",
+      "empty": "Aucune matière trouvée pour cette recherche"
+    },
+    "newSubject": {
+      "openButton": "+ Nouvelle Matière",
+      "title": "Nouvelle matière",
+      "namePlaceholder": "Nom de la matière",
+      "createButton": "Créer la matière"
+    },
+    "common": {
+      "noCourse": "Aucun cursus associé",
+      "noTeacher": "Aucun enseignant associé",
+      "creating": "Création...",
+      "open": "Ouvrir",
+      "close": "Fermer",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "deleting": "Suppression...",
+      "optional": "Facultatif",
+      "saving": "Enregistrement..."
+    },
+    "list": {
+      "semester": "Semestre {number}",
+      "noSemester": "Aucun semestre défini",
+      "noCourse": "Aucun cursus associé",
+      "subjectCount": "{count, plural, =1 {1 matière} other {# matières}}"
+    },
+    "table": {
+      "name": "Nom",
+      "teacher": "Enseignant",
+      "actions": "Actions"
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "question": "Voulez-vous vraiment supprimer la matière « {name} » ?",
+      "warning": "Cette action est irréversible.",
+      "confirm": "Confirmer la suppression"
+    },
+    "messages": {
+      "created": "Matière créée avec succès.",
+      "deleted": "Matière supprimée avec succès.",
+      "updated": "Matière mise à jour avec succès."
+    },
+    "errors": {
+      "create": "Impossible de créer la matière.",
+      "delete": "Impossible de supprimer la matière.",
+      "load": "Impossible de charger la matière.",
+      "save": "Impossible d’enregistrer la matière.",
+      "invalidId": "ID de matière non valide."
+    },
+    "toast": {
+      "errorTitle": "Erreur",
+      "successTitle": "Terminé"
+    },
+    "edit": {
+      "loading": "Chargement de la matière...",
+      "back": "← Retour aux matières",
+      "title": "Modifier la matière",
+      "description": "Mettez à jour les informations de la matière et définissez le cursus et le semestre. L’association à un groupe est facultative.",
+      "name": "Nom",
+      "code": "Code",
+      "subjectDescription": "Description",
+      "workload": "Charge horaire",
+      "semester": "Semestre",
+      "course": "Cursus",
+      "enabledTeachers": "Enseignants habilités pour cette matière",
+      "noTeachersFound": "Aucun enseignant trouvé.",
+      "enabledTeachersHelp": "Sélectionnez tous les enseignants habilités à enseigner cette matière.",
+      "prerequisites": "Prérequis de cette matière",
+      "noSubjectsFound": "Aucune matière trouvée.",
+      "prerequisitesHelp": "Sélectionnez les matières que l’étudiant doit valider avant de suivre celle-ci.",
+      "classes": "Groupes",
+      "noClassesFound": "Aucun groupe trouvé.",
+      "classFallback": "Groupe #{id}",
+      "classSemester": "Semestre : {semester}",
+      "noSemester": "Aucun semestre",
+      "classesHelp": "Facultatif : associez cette matière à un groupe uniquement si le groupe existe déjà.",
+      "saveChanges": "Enregistrer les modifications"
+    }
+  },
+  "AdminDocuments": {
+    "common": {
+      "reload": "Recharger",
+      "open": "Ouvrir",
+      "print": "Imprimer",
+      "email": "E-mail",
+      "whatsapp": "WhatsApp",
+      "delete": "Supprimer",
+      "deleting": "Suppression...",
+      "cancel": "Annuler",
+      "student": "Élève",
+      "enrollment": "Inscription",
+      "context": "Contexte",
+      "template": "Modèle",
+      "cpf": "CPF"
+    },
+    "types": {
+      "contract": "Contrat",
+      "declaration": "Déclaration",
+      "receipt": "Reçu",
+      "proof": "Justificatif",
+      "withdrawal": "Suspension d’inscription",
+      "attendance": "Présence",
+      "transcript": "Relevé académique",
+      "payslip": "Bulletin de paie",
+      "hrDocument": "RH - Document général",
+      "employmentContract": "RH - Contrat de travail",
+      "probationContract": "RH - Contrat d’essai",
+      "hrPrivacyTerm": "RH - Accord de protection des données",
+      "equipmentTerm": "RH - Accord d’utilisation du matériel",
+      "admission": "RH - Document d’embauche",
+      "dismissal": "RH - Document de départ",
+      "resignation": "RH - Demande de démission",
+      "notice": "RH - Préavis",
+      "terminationTerm": "RH - Solde de tout compte",
+      "vacation": "RH - Document de congés",
+      "vacationNotice": "RH - Avis de congés",
+      "vacationReceipt": "RH - Reçu de congés",
+      "warning": "RH - Avertissement",
+      "suspension": "RH - Suspension",
+      "medicalLeave": "RH - Arrêt maladie",
+      "maternityLeave": "RH - Congé maternité",
+      "medicalAssessmentLeave": "RH - Arrêt pour expertise médicale",
+      "returnToWork": "RH - Reprise du travail",
+      "occupationalHealthCertificate": "RH - Certificat de santé au travail",
+      "occupationalHealthAdmission": "RH - Visite médicale d’embauche",
+      "occupationalHealthPeriodic": "RH - Visite médicale périodique",
+      "occupationalHealthReturn": "RH - Visite de reprise",
+      "occupationalHealthRoleChange": "RH - Visite de changement de poste",
+      "occupationalHealthDismissal": "RH - Visite médicale de départ",
+      "other": "Autre"
+    },
+    "statuses": {
+      "draft": "Brouillon",
+      "generated": "Généré",
+      "signed": "Signé",
+      "cancelled": "Annulé",
+      "opened": "Ouvert"
+    },
+    "generated": {
+      "title": "📚 Documents générés",
+      "description": "Consultez l’historique des documents générés par l’établissement.",
+      "toastErrorTitle": "Impossible de terminer",
+      "historyTitle": "Historique documentaire",
+      "historyDescription": "Contrats, déclarations, reçus, justificatifs et autres documents.",
+      "searchPlaceholder": "Rechercher par titre, élève, contexte...",
+      "allTypes": "Tous les types",
+      "deleteUnsigned": "Supprimer les non signés",
+      "selectAllVisible": "Sélectionner tous les éléments affichés",
+      "selected": "sélectionné(s)",
+      "selectedCount": "{count} sélectionné(s)",
+      "deleteSelected": "Supprimer la sélection",
+      "deleteSelectedWithCount": "Supprimer la sélection ({count})",
+      "loading": "Chargement des documents...",
+      "empty": "Aucun document trouvé.",
+      "selectDocument": "Sélectionner le document",
+      "selectDocumentNamed": "Sélectionner {title}",
+      "requiresSignature": "Signature requise",
+      "noSignature": "Sans signature",
+      "generatedAt": "Généré le",
+      "previewTitle": "Aperçu",
+      "previewDescription": "Ouvrez un document généré pour afficher ses détails.",
+      "loadingDetail": "Chargement du document...",
+      "noSelection": "Aucun document sélectionné.",
+      "documentContent": "Contenu du document",
+      "deleteDocument": "Supprimer le document",
+      "deleteUnsignedTitle": "Supprimer les documents non signés",
+      "deleteSelectedTitle": "Supprimer les documents sélectionnés",
+      "confirmDeleteOne": "Voulez-vous vraiment supprimer « {title} » ? Cette action est irréversible.",
+      "confirmDeleteOneButton": "Oui, supprimer",
+      "confirmDeleteUnsigned": "Cette action supprimera tous les documents générés, brouillons et annulés de cet établissement qui n’ont pas encore été signés. Les documents signés seront conservés. Continuer ?",
+      "confirmDeleteUnsignedButton": "Oui, tout supprimer",
+      "confirmDeleteSelected": "Vous avez sélectionné {count} document(s). Voulez-vous vraiment les supprimer ? Les documents signés seront conservés.",
+      "confirmDeleteSelectedButton": "Supprimer {count} document(s)",
+      "share": {
+        "document": "Document",
+        "type": "Type",
+        "student": "Élève",
+        "enrollment": "Inscription",
+        "context": "Contexte"
+      },
+      "errors": {
+        "load": "Impossible de charger les documents.",
+        "loadDetail": "Impossible de charger le document.",
+        "printWindow": "Impossible d’ouvrir la fenêtre d’impression. Vérifiez si le navigateur a bloqué les fenêtres contextuelles.",
+        "deleteOne": "Impossible de supprimer le document.",
+        "deleteMany": "Impossible de supprimer les documents.",
+        "selectAtLeastOne": "Sélectionnez au moins un document.",
+        "deleteSelected": "Impossible de supprimer les documents sélectionnés."
+      },
+      "messages": {
+        "emailCopied": "Le contenu du document a été copié. Si votre application de messagerie ne s’ouvre pas automatiquement, collez le texte dans votre e-mail.",
+        "emailOpening": "Tentative d’ouverture de votre messagerie. Si elle ne s’ouvre pas, vérifiez qu’une application de messagerie est configurée sur cet ordinateur.",
+        "deletedOne": "Document supprimé avec succès.",
+        "deletedMany": "Documents supprimés avec succès.",
+        "deletedSelected": "Documents sélectionnés supprimés avec succès."
+      }
+    },
+    "generate": {
+      "title": "📄 Émettre un document",
+      "description": "Sélectionnez le modèle officiel et renseignez les données propres à cette émission.",
+      "toastErrorTitle": "Impossible de générer",
+      "select": "Sélectionner",
+      "defaultContractTitle": "Contrat de formation",
+      "contractOpenedMessage": "Le contrat officiel a été ouvert via le module Contrats de PHANYX.",
+      "template": {
+        "label": "Modèle du document",
+        "type": "Type",
+        "context": "Contexte"
+      },
+      "person": {
+        "label": "Employé ou enseignant",
+        "select": "Sélectionnez l’employé ou l’enseignant",
+        "employeesGroup": "Employés",
+        "professorsWithoutHrGroup": "Enseignants sans lien RH",
+        "withoutHrSuffix": "sans lien RH",
+        "help": "Les enseignants liés aux RH apparaissent dans la liste des employés. Les enseignants sans lien RH doivent être rattachés aux RH avant l’émission de documents de travail."
+      },
+      "payslip": {
+        "label": "Bulletin de paie / période",
+        "loading": "Chargement des bulletins de paie...",
+        "selectEmployeeFirst": "Sélectionnez d’abord l’employé",
+        "noneAvailable": "Aucun bulletin de paie disponible",
+        "selectCompetence": "Sélectionnez la période",
+        "help": "La période est choisie explicitement afin que les montants proviennent du bon bulletin de paie."
+      },
+      "student": {
+        "label": "Élève ou personne associée",
+        "noneSelected": "Aucun élève sélectionné"
+      },
+      "enrollment": {
+        "label": "Inscription",
+        "requiredSuffix": " (obligatoire pour un contrat académique)",
+        "optionalSuffix": " (facultatif)",
+        "select": "Sélectionnez l’inscription",
+        "none": "Aucune",
+        "unnamedStudent": "Élève sans nom"
+      },
+      "manual": {
+        "title": "Informations de cette émission",
+        "description": "Ces champs seront insérés dans les balises correspondantes du modèle.",
+        "noFields": "Ce modèle ne comporte aucun champ à renseigner manuellement. PHANYX remplira automatiquement les données."
+      },
+      "titleComplement": {
+        "label": "Complément du titre (facultatif)",
+        "placeholder": "Ex. : Service réalisé en août 2026"
+      },
+      "print": {
+        "title": "Format d’impression",
+        "description": "Choisissez la disposition du document sur la feuille A4.",
+        "oneCopy": {
+          "title": "Un exemplaire",
+          "description": "Un document occupant une feuille A4 entière."
+        },
+        "twoCopies": {
+          "title": "Deux exemplaires",
+          "description": "Exemplaire de l’intéressé et exemplaire de l’établissement sur la même feuille A4."
+        }
+      },
+      "actions": {
+        "generating": "Génération...",
+        "openOfficialContract": "Ouvrir le contrat officiel",
+        "generate": "Générer le document"
+      },
+      "result": {
+        "title": "Document généré",
+        "id": "ID",
+        "documentTitle": "Titre",
+        "status": "Statut",
+        "noPreview": "Le document a été généré, mais aucun contenu n’a été renvoyé pour l’aperçu.",
+        "openPdf": "Ouvrir le PDF"
+      },
+      "manualFields": {
+        "genericPlaceholder": "Saisissez {tag}",
+        "documentDescription": {
+          "label": "Description ou corps du document",
+          "placeholder": "Décrivez le service, le paiement, l’objet ou le contenu spécifique de cette émission."
+        },
+        "documentPurpose": {
+          "label": "Objet du document",
+          "placeholder": "Indiquez l’objet pour lequel ce document est émis."
+        },
+        "documentRecipient": {
+          "label": "Destinataire",
+          "placeholder": "Ex. : entreprise, organisme, personne ou service responsable"
+        },
+        "documentSubject": {
+          "label": "Objet",
+          "placeholder": "Ex. : prestation de services audiovisuels"
+        },
+        "documentNotes": {
+          "label": "Observations",
+          "placeholder": "Informations complémentaires pour cette émission."
+        },
+        "referencePeriod": {
+          "label": "Période de référence",
+          "placeholder": "Ex. : août 2026"
+        },
+        "competence": {
+          "label": "Période",
+          "placeholder": "Ex. : août 2026"
+        },
+        "documentValue": {
+          "label": "Montant",
+          "placeholder": "Ex. : 150,00"
+        },
+        "receivedValue": {
+          "label": "Montant reçu",
+          "placeholder": "Ex. : 150,00"
+        },
+        "value": {
+          "label": "Montant",
+          "placeholder": "Ex. : 150,00"
+        },
+        "payerName": {
+          "label": "Nom du payeur",
+          "placeholder": "Nom complet ou raison sociale"
+        },
+        "payerDocument": {
+          "label": "CPF ou CNPJ du payeur",
+          "placeholder": "Saisissez le CPF ou le CNPJ"
+        },
+        "paymentMethod": {
+          "label": "Mode de paiement"
+        },
+        "paymentDate": {
+          "label": "Date du paiement"
+        },
+        "paymentReference": {
+          "label": "Référence du paiement",
+          "placeholder": "Ex. : code PIX, E2E, numéro de reçu ou identifiant interne"
+        },
+        "providerName": {
+          "label": "Nom du prestataire",
+          "placeholder": "Nom de la personne ou de l’entreprise ayant réalisé le service"
+        },
+        "providerDocument": {
+          "label": "CPF ou CNPJ du prestataire",
+          "placeholder": "Saisissez le CPF ou le CNPJ"
+        },
+        "serviceDescription": {
+          "label": "Description du service",
+          "placeholder": "Décrivez le service réalisé."
+        }
+      },
+      "manualOptions": {
+        "pix": "PIX",
+        "cash": "Espèces",
+        "creditCard": "Carte de crédit",
+        "debitCard": "Carte de débit",
+        "bankTransfer": "Virement bancaire",
+        "bankSlip": "Boleto",
+        "check": "Chèque",
+        "other": "Autre"
+      },
+      "errors": {
+        "loadPayslips": "Impossible de charger les bulletins de paie.",
+        "loadData": "Impossible de charger les données nécessaires à la génération du document.",
+        "selectTemplate": "Sélectionnez un modèle avant de générer le document.",
+        "selectEnrollmentForContract": "Sélectionnez l’inscription de l’élève pour générer le contrat.",
+        "invalidEnrollment": "L’inscription sélectionnée est invalide.",
+        "selectPerson": "Sélectionnez l’employé ou l’enseignant pour émettre ce document.",
+        "invalidPerson": "Employé ou enseignant invalide.",
+        "invalidPersonType": "Type de personne invalide.",
+        "selectPayslip": "Sélectionnez la période du bulletin de paie pour émettre ce document.",
+        "generate": "Impossible de générer le document.",
+        "payslipTemplateRequiresHrContext": "Les modèles contenant des balises de bulletin de paie doivent utiliser un contexte employé, enseignant ou RH.",
+        "payslipUnavailable": "Le bulletin de paie sélectionné n’existe pas, est annulé/archivé ou n’appartient pas à l’employé sélectionné."
       }
     }
   }

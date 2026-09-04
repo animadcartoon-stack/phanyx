@@ -1,15 +1,8 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  useTranslations,
-} from "next-intl";
+import { useTranslations } from "next-intl";
 
 type NivelRisco =
   | "NORMAL"
@@ -18,14 +11,9 @@ type NivelRisco =
   | "CRITICO"
   | "DADOS_INSUFICIENTES";
 
-type Confiabilidade =
-  | "BAIXA"
-  | "MEDIA"
-  | "ALTA";
+type Confiabilidade = "BAIXA" | "MEDIA" | "ALTA";
 
-type FiltroNivel =
-  | "TODOS"
-  | NivelRisco;
+type FiltroNivel = "TODOS" | NivelRisco;
 
 type TipoIntervencao =
   | "CONTATO"
@@ -72,13 +60,9 @@ type PeriodoIntervencoes =
   | "ULTIMOS_30_DIAS"
   | "PERSONALIZADO";
 
-type FiltroStatusIntervencao =
-  | "TODOS"
-  | StatusIntervencao;
+type FiltroStatusIntervencao = "TODOS" | StatusIntervencao;
 
-type FiltroTipoIntervencao =
-  | "TODOS"
-  | TipoIntervencao;
+type FiltroTipoIntervencao = "TODOS" | TipoIntervencao;
 
 type StudentSuccessIntervencao = {
   id: number;
@@ -89,148 +73,94 @@ type StudentSuccessIntervencao = {
 
   observacao: string;
 
-  retornoEm:
-  | string
-  | null;
+  retornoEm: string | null;
 
-  resultado:
-  | string
-  | null;
+  resultado: string | null;
 
   /* Fotografia no registro */
 
   nivelRiscoNoRegistro: string;
 
-  pontuacaoNoRegistro:
-  | number
-  | null;
+  pontuacaoNoRegistro: number | null;
 
   coberturaNoRegistro: number;
 
   confiabilidadeNoRegistro: string;
 
-  fatoresNoRegistro:
-  | unknown[]
-  | null;
+  fatoresNoRegistro: unknown[] | null;
 
-  indicadoresNoRegistro:
-  | {
-    frequenciaPercentual:
-    | number
-    | null;
+  indicadoresNoRegistro: {
+    frequenciaPercentual: number | null;
 
-    quantidadeAulas:
-    number;
+    quantidadeAulas: number;
 
-    mediaPercentual:
-    | number
-    | null;
+    mediaPercentual: number | null;
 
-    quantidadeAvaliacoes:
-    number;
+    quantidadeAvaliacoes: number;
 
-    atividadesVencidas:
-    number;
+    atividadesVencidas: number;
 
-    totalAtividadesConsideradas:
-    number;
+    totalAtividadesConsideradas: number;
 
-    mediaAnteriorPercentual:
-    | number
-    | null;
+    mediaAnteriorPercentual: number | null;
 
-    mediaRecentePercentual:
-    | number
-    | null;
+    mediaRecentePercentual: number | null;
 
-    quedaDesempenhoPercentual:
-    | number
-    | null;
-  }
-  | null;
+    quedaDesempenhoPercentual: number | null;
+  } | null;
 
   /* Fotografia no encerramento */
 
-  nivelRiscoNoEncerramento:
-  | string
-  | null;
+  nivelRiscoNoEncerramento: string | null;
 
-  pontuacaoNoEncerramento:
-  | number
-  | null;
+  pontuacaoNoEncerramento: number | null;
 
-  coberturaNoEncerramento:
-  | number
-  | null;
+  coberturaNoEncerramento: number | null;
 
-  confiabilidadeNoEncerramento:
-  | string
-  | null;
+  confiabilidadeNoEncerramento: string | null;
 
-  fatoresNoEncerramento:
-  | unknown[]
-  | null;
+  fatoresNoEncerramento: unknown[] | null;
 
-  indicadoresNoEncerramento:
-  | {
-    frequenciaPercentual:
-    | number
-    | null;
+  indicadoresNoEncerramento: {
+    frequenciaPercentual: number | null;
 
-    quantidadeAulas:
-    number;
+    quantidadeAulas: number;
 
-    mediaPercentual:
-    | number
-    | null;
+    mediaPercentual: number | null;
 
-    quantidadeAvaliacoes:
-    number;
+    quantidadeAvaliacoes: number;
 
-    atividadesVencidas:
-    number;
+    atividadesVencidas: number;
 
-    totalAtividadesConsideradas:
-    number;
+    totalAtividadesConsideradas: number;
 
-    mediaAnteriorPercentual:
-    | number
-    | null;
+    mediaAnteriorPercentual: number | null;
 
-    mediaRecentePercentual:
-    | number
-    | null;
+    mediaRecentePercentual: number | null;
 
-    quedaDesempenhoPercentual:
-    | number
-    | null;
-  }
-  | null;
+    quedaDesempenhoPercentual: number | null;
+  } | null;
 
   criadoEm: string;
 
   atualizadoEm: string;
 
-  concluidoEm:
-  | string
-  | null;
+  concluidoEm: string | null;
 
-  criadoPor:
-  | {
+  criadoPor: {
     id: number;
     nome: string;
     email?: string;
-  }
-  | null;
+  } | null;
 };
 
 type ComponenteAnalise = {
   codigo:
-  | "FREQUENCIA"
-  | "DESEMPENHO"
-  | "PENDENCIAS"
-  | "QUEDA_DESEMPENHO"
-  | "PARTICIPACAO";
+    | "FREQUENCIA"
+    | "DESEMPENHO"
+    | "PENDENCIAS"
+    | "QUEDA_DESEMPENHO"
+    | "PARTICIPACAO";
 
   titulo: string;
   pontos: number;
@@ -244,152 +174,117 @@ type AlunoStudentSuccess = {
 
   nome: string;
 
-  matricula:
-  | string
-  | null;
+  matricula: string | null;
 
   contato: {
-    telefone:
-    | string
-    | null;
+    telefone: string | null;
 
-    paisTelefone:
-    | string
-    | null;
+    paisTelefone: string | null;
 
-    email:
-    | string
-    | null;
+    email: string | null;
 
     responsavel: {
-      nome:
-      | string
-      | null;
+      nome: string | null;
 
-      parentesco:
-      | string
-      | null;
+      parentesco: string | null;
 
-      telefone:
-      | string
-      | null;
+      telefone: string | null;
 
-      paisTelefone:
-      | string
-      | null;
+      paisTelefone: string | null;
 
-      email:
-      | string
-      | null;
+      email: string | null;
     };
   };
 
   indicadores: {
-    frequenciaPercentual:
-    | number
-    | null;
+    frequenciaPercentual: number | null;
 
-    quantidadeAulas:
-    number;
+    quantidadeAulas: number;
 
-    mediaPercentual:
-    | number
-    | null;
+    mediaPercentual: number | null;
 
-    quantidadeAvaliacoes:
-    number;
+    quantidadeAvaliacoes: number;
 
-    atividadesVencidas:
-    number;
+    atividadesVencidas: number;
 
-    totalAtividadesConsideradas:
-    number;
+    totalAtividadesConsideradas: number;
 
-    mediaAnteriorPercentual:
-    | number
-    | null;
+    mediaAnteriorPercentual: number | null;
 
-    mediaRecentePercentual:
-    | number
-    | null;
+    mediaRecentePercentual: number | null;
 
-    quedaDesempenhoPercentual:
-    | number
-    | null;
+    quedaDesempenhoPercentual: number | null;
   };
 
   analise: {
     pontuacao: number;
 
-    pontuacaoBruta:
-    number;
+    pontuacaoBruta: number;
 
-    maximoDisponivel:
-    number;
+    maximoDisponivel: number;
 
-    nivel:
-    NivelRisco;
+    nivel: NivelRisco;
 
-    coberturaPercentual:
-    number;
+    coberturaPercentual: number;
 
-    confiabilidade:
-    Confiabilidade;
+    confiabilidade: Confiabilidade;
 
-    componentes:
-    ComponenteAnalise[];
+    componentes: ComponenteAnalise[];
 
-    fatoresPrincipais:
-    ComponenteAnalise[];
+    fatoresPrincipais: ComponenteAnalise[];
   };
 };
 
 type StudentSuccessResponse = {
   ok: boolean;
 
-  geradoEm:
-  string;
+  geradoEm: string;
 
   resumo: {
-    monitorados:
-    number;
+    monitorados: number;
 
-    critico:
-    number;
+    critico: number;
 
-    risco:
-    number;
+    risco: number;
 
-    atencao:
-    number;
+    atencao: number;
 
-    normal:
-    number;
+    normal: number;
 
-    dadosInsuficientes:
-    number;
+    dadosInsuficientes: number;
 
-    alunosComSinais:
-    number;
+    alunosComSinais: number;
   };
 
-  alunos:
-  AlunoStudentSuccess[];
+  alunos: AlunoStudentSuccess[];
+};
+
+type ReanaliseStudentSuccessResponse = {
+  ok: boolean;
+
+  reanalisadoEm: string;
+
+  versaoMotor: string;
+
+  resumo: {
+    monitorados: number;
+
+    gravadas: number;
+
+    semAlteracao: number;
+
+    iniciais: number;
+
+    alteracoes: number;
+  };
 };
 
 type CardResumoProps = {
-  valor:
-  string;
+  valor: string;
 
-  titulo:
-  string;
+  titulo: string;
 
-  variante:
-  | "critical"
-  | "risk"
-  | "attention"
-  | "normal"
-  | "insufficient";
+  variante: "critical" | "risk" | "attention" | "normal" | "insufficient";
 };
 
 type ResumoIntervencoesStudentSuccess = {
@@ -422,21 +317,15 @@ type ResumoIntervencoesStudentSuccess = {
 
     naoMensuravel: number;
 
-    percentualEvolucaoPositiva:
-    | number
-    | null;
+    percentualEvolucaoPositiva: number | null;
 
-    tempoMedioResolucaoDias:
-    | number
-    | null;
+    tempoMedioResolucaoDias: number | null;
 
     alunosComPiora: number;
 
-    amostraSuficiente:
-    boolean;
+    amostraSuficiente: boolean;
 
-    amostraMinima:
-    number;
+    amostraMinima: number;
   };
 };
 
@@ -445,45 +334,33 @@ type RetornoStudentSuccess = {
 
   alunoId: number;
 
-  tipo:
-  TipoIntervencao;
+  tipo: TipoIntervencao;
 
-  canal:
-  CanalIntervencao;
+  canal: CanalIntervencao;
 
-  status:
-  StatusIntervencao;
+  status: StatusIntervencao;
 
-  observacao:
-  string;
+  observacao: string;
 
-  retornoEm:
-  | string
-  | null;
+  retornoEm: string | null;
 
-  criadoEm:
-  string;
+  criadoEm: string;
 
-  atualizadoEm:
-  string;
+  atualizadoEm: string;
 
   aluno: {
     id: number;
 
     nome: string;
 
-    matricula:
-    | string
-    | null;
+    matricula: string | null;
   };
 
-  criadoPor:
-  | {
+  criadoPor: {
     id: number;
     nome: string;
     email?: string;
-  }
-  | null;
+  } | null;
 };
 
 type RetornosStudentSuccessResponse = {
@@ -497,8 +374,7 @@ type RetornosStudentSuccessResponse = {
     semRetorno: number;
   };
 
-  intervencoes:
-  RetornoStudentSuccess[];
+  intervencoes: RetornoStudentSuccess[];
 };
 
 type PrioridadeIntervencaoAberta = {
@@ -506,36 +382,26 @@ type PrioridadeIntervencaoAberta = {
 
   alunoId: number;
 
-  tipo:
-  TipoIntervencao;
+  tipo: TipoIntervencao;
 
-  canal:
-  CanalIntervencao;
+  canal: CanalIntervencao;
 
-  status:
-  StatusIntervencao;
+  status: StatusIntervencao;
 
-  observacao:
-  string;
+  observacao: string;
 
-  retornoEm:
-  | string
-  | null;
+  retornoEm: string | null;
 
-  criadoEm:
-  string;
+  criadoEm: string;
 
-  atualizadoEm:
-  string;
+  atualizadoEm: string;
 
   aluno: {
     id: number;
 
     nome: string;
 
-    matricula:
-    | string
-    | null;
+    matricula: string | null;
   };
 };
 
@@ -544,41 +410,29 @@ type PrioridadePioraIntervencao = {
 
   alunoId: number;
 
-  tipo:
-  TipoIntervencao;
+  tipo: TipoIntervencao;
 
-  canal:
-  CanalIntervencao;
+  canal: CanalIntervencao;
 
-  status:
-  StatusIntervencao;
+  status: StatusIntervencao;
 
-  observacao:
-  string;
+  observacao: string;
 
-  resultado:
-  | string
-  | null;
+  resultado: string | null;
 
-  criadoEm:
-  string;
+  criadoEm: string;
 
-  concluidoEm:
-  | string
-  | null;
+  concluidoEm: string | null;
 
   aluno: {
     id: number;
 
     nome: string;
 
-    matricula:
-    | string
-    | null;
+    matricula: string | null;
   };
 
-  evolucao:
-  unknown;
+  evolucao: unknown;
 };
 
 type PrioridadesStudentSuccessResponse = {
@@ -594,14 +448,11 @@ type PrioridadesStudentSuccessResponse = {
     pioraAposIntervencao: number;
   };
 
-  comRetorno:
-  PrioridadeIntervencaoAberta[];
+  comRetorno: PrioridadeIntervencaoAberta[];
 
-  semRetorno:
-  PrioridadeIntervencaoAberta[];
+  semRetorno: PrioridadeIntervencaoAberta[];
 
-  pioraAposIntervencao:
-  PrioridadePioraIntervencao[];
+  pioraAposIntervencao: PrioridadePioraIntervencao[];
 };
 
 type TipoEventoTimeline =
@@ -613,146 +464,124 @@ type TipoEventoTimeline =
 type EventoTimelineStudentSuccess = {
   id: string;
 
-  tipo:
-  TipoEventoTimeline;
+  tipo: TipoEventoTimeline;
 
-  data:
-  string;
+  data: string;
 
-  intervencaoId:
-  number;
+  intervencaoId: number | null;
 
-  tipoIntervencao:
-  TipoIntervencao;
+  analiseHistoricoId: number | null;
 
-  canal:
-  CanalIntervencao;
+  tipoIntervencao: TipoIntervencao | null;
 
-  status:
-  StatusIntervencao |
-  null;
+  canal: CanalIntervencao | null;
 
-  observacao:
-  string |
-  null;
+  status: StatusIntervencao | null;
 
-  resultado:
-  string |
-  null;
+  observacao: string | null;
 
-  risco:
-  | {
-    nivel:
-    string |
-    null;
+  resultado: string | null;
 
-    pontuacao:
-    number |
-    null;
+  origemAnalise:
+    | "INICIAL"
+    | "AUTOMATICA"
+    | "MANUAL"
+    | "ALTERACAO_ACADEMICA"
+    | null;
 
-    cobertura:
-    number |
-    null;
+  versaoMotor: string | null;
 
-    confiabilidade:
-    string |
-    null;
-  }
-  | null;
+  executadoPor: {
+    id: number;
 
-  indicadores:
-  | {
-    frequenciaPercentual?:
-    number |
-    null;
+    nome: string;
 
-    mediaPercentual?:
-    number |
-    null;
+    email: string | null;
+  } | null;
 
-    atividadesVencidas?:
-    number;
+  risco: {
+    nivel: string | null;
 
-    quantidadeAulas?:
-    number;
+    pontuacao: number | null;
 
-    quantidadeAvaliacoes?:
-    number;
-  }
-  | null;
+    pontuacaoBruta: number | null;
 
-  evolucao:
-  | {
-    classificacao:
-    | "POSITIVA"
-    | "NEGATIVA"
-    | "NEUTRA"
-    | "NAO_MENSURAVEL";
+    maximoDisponivel: number | null;
 
-    saldo:
-    number;
+    cobertura: number | null;
 
-    criteriosComparados:
-    number;
+    confiabilidade: string | null;
+  } | null;
 
-    melhorias:
-    unknown[];
+  indicadores: {
+    frequenciaPercentual?: number | null;
 
-    pioras:
-    unknown[];
-  }
-  | null;
+    quantidadeAulas?: number;
+
+    mediaPercentual?: number | null;
+
+    quantidadeAvaliacoes?: number;
+
+    atividadesVencidas?: number;
+
+    totalAtividadesConsideradas?: number;
+
+    mediaAnteriorPercentual?: number | null;
+
+    mediaRecentePercentual?: number | null;
+
+    quedaDesempenhoPercentual?: number | null;
+  } | null;
+
+  componentes: ComponenteAnalise[] | null;
+
+  fatoresPrincipais: ComponenteAnalise[] | null;
+
+  evolucao: {
+    classificacao: "POSITIVA" | "NEGATIVA" | "NEUTRA" | "NAO_MENSURAVEL";
+
+    saldo: number;
+
+    criteriosComparados: number;
+
+    melhorias: unknown[];
+
+    pioras: unknown[];
+  } | null;
 };
 
 type TimelineStudentSuccessResponse = {
-  ok:
-  boolean;
+  ok: boolean;
 
   aluno: {
-    id:
-    number;
+    id: number;
 
-    nome:
-    string;
+    nome: string;
 
-    matricula:
-    string |
-    null;
+    matricula: string | null;
   };
 
-    resumo: {
-    intervencoes:
-    number;
+  resumo: {
+    intervencoes: number;
 
-    analisesAcademicas:
-    number;
+    analisesAcademicas: number;
 
-    eventos:
-    number;
+    eventos: number;
 
-    abertas:
-    number;
+    abertas: number;
 
-    encerradas:
-    number;
+    encerradas: number;
   };
 
-  eventos:
-  EventoTimelineStudentSuccess[];
+  eventos: EventoTimelineStudentSuccess[];
 };
 
-function CardResumo({
-  valor,
-  titulo,
-  variante,
-}: CardResumoProps) {
-
+function CardResumo({ valor, titulo, variante }: CardResumoProps) {
   const estilos = {
     critical:
       "border-red-200 bg-red-50 text-red-950 dark:border-red-900/70 dark:bg-red-950/35 dark:text-red-100",
 
-    risk:
-      "border-orange-200 bg-orange-50 text-orange-950 dark:border-orange-900/70 dark:bg-orange-950/35 dark:text-orange-100",
+    risk: "border-orange-200 bg-orange-50 text-orange-950 dark:border-orange-900/70 dark:bg-orange-950/35 dark:text-orange-100",
 
     attention:
       "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-900/70 dark:bg-amber-950/35 dark:text-amber-100",
@@ -796,31 +625,15 @@ function CardResumo({
   );
 }
 
-function formatarPercentual(
-  valor:
-    | number
-    | null
-) {
-
-  if (
-    valor === null ||
-    !Number.isFinite(
-      valor
-    )
-  ) {
+function formatarPercentual(valor: number | null) {
+  if (valor === null || !Number.isFinite(valor)) {
     return "—";
   }
 
-  return `${Math.round(
-    valor
-  )}%`;
+  return `${Math.round(valor)}%`;
 }
 
-function classeNivel(
-  nivel:
-    NivelRisco
-) {
-
+function classeNivel(nivel: NivelRisco) {
   switch (nivel) {
     case "CRITICO":
       return "border-red-300 bg-red-100 text-red-900 dark:border-red-900 dark:bg-red-950/60 dark:text-red-200";
@@ -840,1695 +653,858 @@ function classeNivel(
   }
 }
 
-function emailPodeSerUsado(
-  email:
-    | string
-    | null
-) {
-
+function emailPodeSerUsado(email: string | null) {
   if (!email) {
     return false;
   }
 
-  const normalizado =
-    email
-      .trim()
-      .toLowerCase();
+  const normalizado = email.trim().toLowerCase();
 
-  if (
-    !normalizado ||
-    normalizado.endsWith(
-      "@px.local"
-    )
-  ) {
+  if (!normalizado || normalizado.endsWith("@px.local")) {
     return false;
   }
 
-  return normalizado.includes(
-    "@"
-  );
+  return normalizado.includes("@");
 }
 
-function telefoneParaLink(
-  telefone:
-    | string
-    | null
-) {
-
+function telefoneParaLink(telefone: string | null) {
   if (!telefone) {
     return null;
   }
 
-  const limpo =
-    telefone.replace(
-      /[^\d+]/g,
-      ""
-    );
+  const limpo = telefone.replace(/[^\d+]/g, "");
 
-  return (
-    limpo ||
-    null
-  );
+  return limpo || null;
 }
 
-function calcularDiasSemAtualizacao(
-  data:
-    string
-) {
-  const agora =
-    new Date();
+function calcularDiasSemAtualizacao(data: string) {
+  const agora = new Date();
 
-  const atualizadoEm =
-    new Date(
-      data
-    );
+  const atualizadoEm = new Date(data);
 
-  const inicioHoje =
-    new Date(
-      agora.getFullYear(),
-      agora.getMonth(),
-      agora.getDate()
-    );
-
-  const inicioAtualizacao =
-    new Date(
-      atualizadoEm.getFullYear(),
-      atualizadoEm.getMonth(),
-      atualizadoEm.getDate()
-    );
-
-  const diferenca =
-    inicioHoje.getTime() -
-    inicioAtualizacao.getTime();
-
-  return Math.max(
-    0,
-    Math.floor(
-      diferenca /
-      (
-        1000 *
-        60 *
-        60 *
-        24
-      )
-    )
+  const inicioHoje = new Date(
+    agora.getFullYear(),
+    agora.getMonth(),
+    agora.getDate(),
   );
+
+  const inicioAtualizacao = new Date(
+    atualizadoEm.getFullYear(),
+    atualizadoEm.getMonth(),
+    atualizadoEm.getDate(),
+  );
+
+  const diferenca = inicioHoje.getTime() - inicioAtualizacao.getTime();
+
+  return Math.max(0, Math.floor(diferenca / (1000 * 60 * 60 * 24)));
 }
 
 export default function AdminStudentSuccessPage() {
-  const t =
-    useTranslations(
-      "AdminStudentSuccess"
-    );
+  const t = useTranslations("AdminStudentSuccess");
 
-  const [
-    dados,
-    setDados,
-  ] =
-    useState<StudentSuccessResponse | null>(
-      null
-    );
+  const [dados, setDados] = useState<StudentSuccessResponse | null>(null);
 
-  const [
-    carregando,
-    setCarregando,
-  ] =
-    useState(
-      true
-    );
+  const [carregando, setCarregando] = useState(true);
 
-  const [
-    erro,
-    setErro,
-  ] =
-    useState(
-      false
-    );
+  const [erro, setErro] = useState(false);
 
-  const [
-    busca,
-    setBusca,
-  ] =
+  const [reanalisando, setReanalisando] = useState(false);
+
+  const [resultadoReanalise, setResultadoReanalise] =
+    useState<ReanaliseStudentSuccessResponse | null>(null);
+
+  const [erroReanalise, setErroReanalise] = useState<string | null>(null);
+
+  const [versaoAnalises, setVersaoAnalises] = useState(0);
+
+  const [busca, setBusca] = useState("");
+
+  const [filtroNivel, setFiltroNivel] = useState<FiltroNivel>("TODOS");
+
+  const [alunoSelecionado, setAlunoSelecionado] =
+    useState<AlunoStudentSuccess | null>(null);
+
+  const [modalIntervencaoAberto, setModalIntervencaoAberto] = useState(false);
+
+  const [tipoIntervencao, setTipoIntervencao] =
+    useState<TipoIntervencao>("CONTATO");
+
+  const [canalIntervencao, setCanalIntervencao] =
+    useState<CanalIntervencao>("LIGACAO");
+
+  const [statusIntervencao, setStatusIntervencao] =
+    useState<StatusIntervencao>("REGISTRADA");
+
+  const [observacaoIntervencao, setObservacaoIntervencao] = useState("");
+
+  const [retornoIntervencao, setRetornoIntervencao] = useState("");
+
+  const [prioridades, setPrioridades] =
+    useState<PrioridadesStudentSuccessResponse | null>(null);
+
+  const [filtroPrioridades, setFiltroPrioridades] =
+    useState<FiltroPrioridade>("TODOS");
+
+  const [carregandoPrioridades, setCarregandoPrioridades] = useState(true);
+
+  const [erroPrioridades, setErroPrioridades] = useState<string | null>(null);
+
+  const [intervencoes, setIntervencoes] = useState<StudentSuccessIntervencao[]>(
+    [],
+  );
+
+  const [timeline, setTimeline] = useState<EventoTimelineStudentSuccess[]>([]);
+
+  const [resumoTimeline, setResumoTimeline] = useState<
+    TimelineStudentSuccessResponse["resumo"] | null
+  >(null);
+
+  const [carregandoTimeline, setCarregandoTimeline] = useState(false);
+
+  const [erroTimeline, setErroTimeline] = useState<string | null>(null);
+
+  const [carregandoIntervencoes, setCarregandoIntervencoes] = useState(false);
+
+  const [erroIntervencoes, setErroIntervencoes] = useState<string | null>(null);
+
+  const [versaoIntervencoes, setVersaoIntervencoes] = useState(0);
+
+  const [salvandoIntervencao, setSalvandoIntervencao] = useState(false);
+
+  const [mensagemIntervencao, setMensagemIntervencao] = useState<{
+    tipo: "sucesso" | "erro";
+
+    texto: string;
+  } | null>(null);
+
+  const [intervencaoEmEdicao, setIntervencaoEmEdicao] =
+    useState<StudentSuccessIntervencao | null>(null);
+
+  const [alunoAtualizacaoIntervencao, setAlunoAtualizacaoIntervencao] =
+    useState<AlunoStudentSuccess | null>(null);
+
+  const [statusAtualizacaoIntervencao, setStatusAtualizacaoIntervencao] =
+    useState<StatusIntervencao>("REGISTRADA");
+
+  const [retornoAtualizacaoIntervencao, setRetornoAtualizacaoIntervencao] =
     useState("");
 
-  const [
-    filtroNivel,
-    setFiltroNivel,
-  ] =
-    useState<FiltroNivel>(
-      "TODOS"
-    );
+  const [resultadoAtualizacaoIntervencao, setResultadoAtualizacaoIntervencao] =
+    useState("");
 
-  const [
-    alunoSelecionado,
-    setAlunoSelecionado,
-  ] =
-    useState<AlunoStudentSuccess | null>(
-      null
-    );
-
-  const [
-    modalIntervencaoAberto,
-    setModalIntervencaoAberto,
-  ] =
+  const [salvandoAtualizacaoIntervencao, setSalvandoAtualizacaoIntervencao] =
     useState(false);
 
-  const [
-    tipoIntervencao,
-    setTipoIntervencao,
-  ] =
-    useState<TipoIntervencao>(
-      "CONTATO"
-    );
+  const [mensagemAtualizacaoIntervencao, setMensagemAtualizacaoIntervencao] =
+    useState<{
+      tipo: "sucesso" | "erro";
 
-  const [
-    canalIntervencao,
-    setCanalIntervencao,
-  ] =
-    useState<CanalIntervencao>(
-      "LIGACAO"
-    );
+      texto: string;
+    } | null>(null);
 
-  const [
-    statusIntervencao,
-    setStatusIntervencao,
-  ] =
-    useState<StatusIntervencao>(
-      "REGISTRADA"
-    );
+  const [resumoIntervencoes, setResumoIntervencoes] =
+    useState<ResumoIntervencoesStudentSuccess | null>(null);
 
-  const [
-    observacaoIntervencao,
-    setObservacaoIntervencao,
-  ] =
-    useState("");
+  const [periodoIntervencoes, setPeriodoIntervencoes] =
+    useState<PeriodoIntervencoes>("TODOS");
 
-  const [
-    retornoIntervencao,
-    setRetornoIntervencao,
-  ] =
-    useState("");
+  const [filtroStatusIntervencoes, setFiltroStatusIntervencoes] =
+    useState<FiltroStatusIntervencao>("TODOS");
 
-  const [
-    prioridades,
-    setPrioridades,
-  ] =
-    useState<PrioridadesStudentSuccessResponse | null>(
-      null
-    );
+  const [filtroTipoIntervencoes, setFiltroTipoIntervencoes] =
+    useState<FiltroTipoIntervencao>("TODOS");
 
-  const [
-    filtroPrioridades,
-    setFiltroPrioridades,
-  ] =
-    useState<FiltroPrioridade>(
-      "TODOS"
-    );
+  const [dataInicialIntervencoes, setDataInicialIntervencoes] = useState("");
 
-  const [
-    carregandoPrioridades,
-    setCarregandoPrioridades,
-  ] =
+  const [dataFinalIntervencoes, setDataFinalIntervencoes] = useState("");
+
+  const [carregandoResumoIntervencoes, setCarregandoResumoIntervencoes] =
     useState(true);
 
-  const [
-    erroPrioridades,
-    setErroPrioridades,
-  ] =
-    useState<string | null>(
-      null
-    );
+  const [erroResumoIntervencoes, setErroResumoIntervencoes] = useState<
+    string | null
+  >(null);
 
-  const [
-    intervencoes,
-    setIntervencoes,
-  ] =
-    useState<
-      StudentSuccessIntervencao[]
-    >([]);
+  const [retornos, setRetornos] = useState<RetornoStudentSuccess[]>([]);
 
-  const [
-    timeline,
-    setTimeline,
-  ] =
-    useState<
-      EventoTimelineStudentSuccess[]
-    >([]);
+  const [carregandoRetornos, setCarregandoRetornos] = useState(true);
 
-  const [
-    resumoTimeline,
-    setResumoTimeline,
-  ] =
-    useState<
-      TimelineStudentSuccessResponse["resumo"] |
-      null
-    >(null);
+  const [erroRetornos, setErroRetornos] = useState<string | null>(null);
 
-  const [
-    carregandoTimeline,
-    setCarregandoTimeline,
-  ] =
-    useState(
-      false
-    );
+  const [filtroRetornos, setFiltroRetornos] = useState<FiltroRetorno>("TODOS");
 
-  const [
-    erroTimeline,
-    setErroTimeline,
-  ] =
-    useState<
-      string |
-      null
-    >(
-      null
-    );
+  const carregarDados = useCallback(async () => {
+    setCarregando(true);
 
-  const [
-    carregandoIntervencoes,
-    setCarregandoIntervencoes,
-  ] =
-    useState(false);
+    setErro(false);
 
-  const [
-    erroIntervencoes,
-    setErroIntervencoes,
-  ] =
-    useState<string | null>(
-      null
-    );
+    try {
+      const resposta = await fetch("/api/admin/student-success", {
+        method: "GET",
 
-  const [
-    versaoIntervencoes,
-    setVersaoIntervencoes,
-  ] =
-    useState(0);
+        credentials: "include",
 
-  const [
-    salvandoIntervencao,
-    setSalvandoIntervencao,
-  ] =
-    useState(false);
+        cache: "no-store",
+      });
 
-  const [
-    mensagemIntervencao,
-    setMensagemIntervencao,
-  ] =
-    useState<
-      | {
-        tipo:
-        | "sucesso"
-        | "erro";
-
-        texto: string;
-      }
-      | null
-    >(null);
-
-  const [
-    intervencaoEmEdicao,
-    setIntervencaoEmEdicao,
-  ] =
-    useState<StudentSuccessIntervencao | null>(
-      null
-    );
-
-  const [
-    alunoAtualizacaoIntervencao,
-    setAlunoAtualizacaoIntervencao,
-  ] =
-    useState<AlunoStudentSuccess | null>(
-      null
-    );
-
-  const [
-    statusAtualizacaoIntervencao,
-    setStatusAtualizacaoIntervencao,
-  ] =
-    useState<StatusIntervencao>(
-      "REGISTRADA"
-    );
-
-  const [
-    retornoAtualizacaoIntervencao,
-    setRetornoAtualizacaoIntervencao,
-  ] =
-    useState("");
-
-  const [
-    resultadoAtualizacaoIntervencao,
-    setResultadoAtualizacaoIntervencao,
-  ] =
-    useState("");
-
-  const [
-    salvandoAtualizacaoIntervencao,
-    setSalvandoAtualizacaoIntervencao,
-  ] =
-    useState(false);
-
-  const [
-    mensagemAtualizacaoIntervencao,
-    setMensagemAtualizacaoIntervencao,
-  ] =
-    useState<
-      | {
-        tipo:
-        | "sucesso"
-        | "erro";
-
-        texto: string;
-      }
-      | null
-    >(null);
-
-  const [
-    resumoIntervencoes,
-    setResumoIntervencoes,
-  ] =
-    useState<ResumoIntervencoesStudentSuccess | null>(
-      null
-    );
-
-  const [
-    periodoIntervencoes,
-    setPeriodoIntervencoes,
-  ] =
-    useState<PeriodoIntervencoes>(
-      "TODOS"
-    );
-
-  const [
-    filtroStatusIntervencoes,
-    setFiltroStatusIntervencoes,
-  ] =
-    useState<FiltroStatusIntervencao>(
-      "TODOS"
-    );
-
-  const [
-    filtroTipoIntervencoes,
-    setFiltroTipoIntervencoes,
-  ] =
-    useState<FiltroTipoIntervencao>(
-      "TODOS"
-    );
-
-  const [
-    dataInicialIntervencoes,
-    setDataInicialIntervencoes,
-  ] =
-    useState("");
-
-  const [
-    dataFinalIntervencoes,
-    setDataFinalIntervencoes,
-  ] =
-    useState("");
-
-  const [
-    carregandoResumoIntervencoes,
-    setCarregandoResumoIntervencoes,
-  ] =
-    useState(true);
-
-  const [
-    erroResumoIntervencoes,
-    setErroResumoIntervencoes,
-  ] =
-    useState<string | null>(
-      null
-    );
-
-  const [
-    retornos,
-    setRetornos,
-  ] =
-    useState<
-      RetornoStudentSuccess[]
-    >([]);
-
-  const [
-    carregandoRetornos,
-    setCarregandoRetornos,
-  ] =
-    useState(true);
-
-  const [
-    erroRetornos,
-    setErroRetornos,
-  ] =
-    useState<string | null>(
-      null
-    );
-
-  const [
-    filtroRetornos,
-    setFiltroRetornos,
-  ] =
-    useState<FiltroRetorno>(
-      "TODOS"
-    );
-
-  const carregarDados =
-    useCallback(
-      async () => {
-        setCarregando(
-          true
-        );
-
-        setErro(
-          false
-        );
-
-        try {
-          const resposta =
-            await fetch(
-              "/api/admin/student-success",
-              {
-                method:
-                  "GET",
-
-                credentials:
-                  "include",
-
-                cache:
-                  "no-store",
-              }
-            );
-
-          if (
-            !resposta.ok
-          ) {
-            throw new Error(
-              `HTTP ${resposta.status}`
-            );
-          }
-
-          const json =
-            (
-              await resposta.json()
-            ) as StudentSuccessResponse;
-
-          if (
-            !json.ok
-          ) {
-            throw new Error(
-              "STUDENT_SUCCESS_LOAD_ERROR"
-            );
-          }
-
-          setDados(
-            json
-          );
-        }
-        catch (
-        error
-        ) {
-          console.error(
-            "[STUDENT_SUCCESS_PAGE]",
-            error
-          );
-
-          setErro(
-            true
-          );
-        }
-        finally {
-          setCarregando(
-            false
-          );
-        }
-      },
-      []
-    );
-
-  useEffect(
-    () => {
-      void carregarDados();
-    },
-    [
-      carregarDados,
-    ]
-  );
-
-  useEffect(
-    () => {
-      if (
-        !alunoSelecionado
-      ) {
-        return;
+      if (!resposta.ok) {
+        throw new Error(`HTTP ${resposta.status}`);
       }
 
-      const fecharComEsc =
-        (
-          event:
-            KeyboardEvent
-        ) => {
-          if (
-            event.key ===
-            "Escape"
-          ) {
-            setAlunoSelecionado(
-              null
-            );
-          }
-        };
+      const json = (await resposta.json()) as StudentSuccessResponse;
 
-      const overflowAnterior =
-        document.body.style
-          .overflow;
-
-      document.body.style.overflow =
-        "hidden";
-
-      window.addEventListener(
-        "keydown",
-        fecharComEsc
-      );
-
-      return () => {
-        document.body.style.overflow =
-          overflowAnterior;
-
-        window.removeEventListener(
-          "keydown",
-          fecharComEsc
-        );
-      };
-    },
-    [
-      alunoSelecionado,
-    ]
-  );
-
-  useEffect(
-    () => {
-      if (
-        !alunoSelecionado
-      ) {
-        setIntervencoes(
-          []
-        );
-
-        return;
+      if (!json.ok) {
+        throw new Error("STUDENT_SUCCESS_LOAD_ERROR");
       }
 
-      let cancelado =
-        false;
+      setDados(json);
+    } catch (error) {
+      console.error("[STUDENT_SUCCESS_PAGE]", error);
 
-      const carregar =
-        async () => {
-          setCarregandoIntervencoes(
-            true
-          );
+      setErro(true);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
 
-          setErroIntervencoes(
-            null
-          );
+  const reanalisarAlunos = async () => {
+    if (reanalisando) {
+      return;
+    }
 
-          try {
-            const resposta =
-              await fetch(
-                `/api/admin/student-success/intervencoes?alunoId=${alunoSelecionado.alunoId}`,
-                {
-                  credentials:
-                    "include",
-                }
-              );
+    setReanalisando(true);
 
-            const json =
-              await resposta.json();
+    setResultadoReanalise(null);
 
-            if (
-              !resposta.ok ||
-              !json?.ok
-            ) {
-              throw new Error(
-                json?.error ??
-                "INTERVENTIONS_ERROR"
-              );
-            }
+    setErroReanalise(null);
 
-            if (
-              !cancelado
-            ) {
-              setIntervencoes(
-                Array.isArray(
-                  json.intervencoes
-                )
-                  ? json.intervencoes
-                  : []
-              );
-            }
-          }
-          catch (error) {
-            console.error(
-              "[STUDENT_SUCCESS_INTERVENTIONS_LOAD]",
-              error
-            );
+    try {
+      const resposta = await fetch("/api/admin/student-success/reanalisar", {
+        method: "POST",
 
-            if (
-              !cancelado
-            ) {
-              setIntervencoes(
-                []
-              );
+        credentials: "include",
 
-              setErroIntervencoes(
-                t(
-                  "intervention.error"
-                )
-              );
-            }
-          }
-          finally {
-            if (
-              !cancelado
-            ) {
-              setCarregandoIntervencoes(
-                false
-              );
-            }
-          }
-        };
+        cache: "no-store",
+      });
 
-      void carregar();
+      const json = (await resposta.json()) as ReanaliseStudentSuccessResponse;
 
-      return () => {
-        cancelado =
-          true;
-      };
-    },
-    [
-      alunoSelecionado,
-      versaoIntervencoes,
-      t,
-    ]
-  );
-
-  useEffect(
-    () => {
-      if (
-        !alunoSelecionado
-      ) {
-        setTimeline(
-          []
-        );
-
-        setResumoTimeline(
-          null
-        );
-
-        setErroTimeline(
-          null
-        );
-
-        return;
+      if (!resposta.ok || !json?.ok) {
+        throw new Error("STUDENT_SUCCESS_REANALYSIS_ERROR");
       }
 
-      let cancelado =
-        false;
-
-      const carregarTimeline =
-        async () => {
-          setCarregandoTimeline(
-            true
-          );
-
-          setErroTimeline(
-            null
-          );
-
-          try {
-            const resposta =
-              await fetch(
-                `/api/admin/student-success/alunos/${alunoSelecionado.alunoId}/timeline`,
-                {
-                  method:
-                    "GET",
-
-                  credentials:
-                    "include",
-
-                  cache:
-                    "no-store",
-                }
-              );
-
-            const json =
-              (
-                await resposta.json()
-              ) as TimelineStudentSuccessResponse;
-
-            if (
-              !resposta.ok ||
-              !json?.ok
-            ) {
-              throw new Error(
-                "TIMELINE_LOAD_ERROR"
-              );
-            }
-
-            if (
-              cancelado
-            ) {
-              return;
-            }
-
-            setTimeline(
-              Array.isArray(
-                json.eventos
-              )
-                ? json.eventos
-                : []
-            );
-
-            setResumoTimeline(
-              json.resumo ??
-              null
-            );
-          }
-          catch (error) {
-            console.error(
-              "[STUDENT_SUCCESS_TIMELINE]",
-              error
-            );
-
-            if (
-              !cancelado
-            ) {
-              setTimeline(
-                []
-              );
-
-              setResumoTimeline(
-                null
-              );
-
-              setErroTimeline(
-                "TIMELINE_LOAD_ERROR"
-              );
-            }
-          }
-          finally {
-            if (
-              !cancelado
-            ) {
-              setCarregandoTimeline(
-                false
-              );
-            }
-          }
-        };
-
-      void carregarTimeline();
-
-      return () => {
-        cancelado =
-          true;
-      };
-    },
-    [
-      alunoSelecionado,
-      versaoIntervencoes,
-    ]
-  );
-
-  useEffect(
-    () => {
-      let cancelado =
-        false;
-
-      const carregarResumoIntervencoes =
-        async () => {
-          setCarregandoResumoIntervencoes(
-            true
-          );
-
-          setErroResumoIntervencoes(
-            null
-          );
-
-          try {
-            const parametros =
-              new URLSearchParams();
-
-            if (
-              filtroStatusIntervencoes !==
-              "TODOS"
-            ) {
-              parametros.set(
-                "status",
-                filtroStatusIntervencoes
-              );
-            }
-
-            if (
-              filtroTipoIntervencoes !==
-              "TODOS"
-            ) {
-              parametros.set(
-                "tipo",
-                filtroTipoIntervencoes
-              );
-            }
-
-            /*
-             * Datas sempre calculadas no horário
-             * local do navegador.
-             *
-             * O backend recebe ISO em UTC,
-             * mas representando corretamente o
-             * início/fim do dia local do usuário.
-             */
-            const hoje =
-              new Date();
-
-            const inicioHoje =
-              new Date(
-                hoje.getFullYear(),
-                hoje.getMonth(),
-                hoje.getDate()
-              );
-
-            const inicioAmanha =
-              new Date(
-                inicioHoje
-              );
-
-            inicioAmanha.setDate(
-              inicioAmanha.getDate() +
-              1
-            );
-
-            let inicioPeriodo:
-              Date |
-              null =
-              null;
-
-            let fimPeriodo:
-              Date |
-              null =
-              null;
-
-            if (
-              periodoIntervencoes ===
-              "HOJE"
-            ) {
-              inicioPeriodo =
-                inicioHoje;
-
-              fimPeriodo =
-                inicioAmanha;
-            }
-
-            if (
-              periodoIntervencoes ===
-              "ULTIMOS_7_DIAS"
-            ) {
-              inicioPeriodo =
-                new Date(
-                  inicioHoje
-                );
-
-              inicioPeriodo.setDate(
-                inicioPeriodo.getDate() -
-                6
-              );
-
-              fimPeriodo =
-                inicioAmanha;
-            }
-
-            if (
-              periodoIntervencoes ===
-              "ULTIMOS_30_DIAS"
-            ) {
-              inicioPeriodo =
-                new Date(
-                  inicioHoje
-                );
-
-              inicioPeriodo.setDate(
-                inicioPeriodo.getDate() -
-                29
-              );
-
-              fimPeriodo =
-                inicioAmanha;
-            }
-
-            if (
-              periodoIntervencoes ===
-              "PERSONALIZADO"
-            ) {
-              if (
-                dataInicialIntervencoes
-              ) {
-                inicioPeriodo =
-                  new Date(
-                    `${dataInicialIntervencoes}T00:00:00`
-                  );
-              }
-
-              if (
-                dataFinalIntervencoes
-              ) {
-                fimPeriodo =
-                  new Date(
-                    `${dataFinalIntervencoes}T00:00:00`
-                  );
-
-                fimPeriodo.setDate(
-                  fimPeriodo.getDate() +
-                  1
-                );
-              }
-            }
-
-            if (
-              inicioPeriodo
-            ) {
-              parametros.set(
-                "inicio",
-                inicioPeriodo.toISOString()
-              );
-            }
-
-            if (
-              fimPeriodo
-            ) {
-              parametros.set(
-                "fim",
-                fimPeriodo.toISOString()
-              );
-            }
-
-            const query =
-              parametros.toString();
-
-            const url =
-              query
-                ? `/api/admin/student-success/intervencoes/resumo?${query}`
-                : "/api/admin/student-success/intervencoes/resumo";
-
-            const resposta =
-              await fetch(
-                url,
-                {
-                  credentials:
-                    "include",
-
-                  cache:
-                    "no-store",
-                }
-              );
-
-            const json =
-              await resposta.json();
-
-            if (
-              !resposta.ok ||
-              !json?.ok
-            ) {
-              throw new Error(
-                json?.error ??
-                "INTERVENTION_SUMMARY_ERROR"
-              );
-            }
-
-            if (
-              !cancelado
-            ) {
-              setResumoIntervencoes(
-                json
-              );
-            }
-          }
-          catch (error) {
-            console.error(
-              "[STUDENT_SUCCESS_INTERVENTION_SUMMARY]",
-              error
-            );
-
-            if (
-              !cancelado
-            ) {
-              setResumoIntervencoes(
-                null
-              );
-
-              setErroResumoIntervencoes(
-                t(
-                  "intervention.dashboard.error"
-                )
-              );
-            }
-          }
-          finally {
-            if (
-              !cancelado
-            ) {
-              setCarregandoResumoIntervencoes(
-                false
-              );
-            }
-          }
-        };
-
-      void carregarResumoIntervencoes();
-
-      return () => {
-        cancelado =
-          true;
-      };
-    },
-    [
-      versaoIntervencoes,
-      periodoIntervencoes,
-      filtroStatusIntervencoes,
-      filtroTipoIntervencoes,
-      dataInicialIntervencoes,
-      dataFinalIntervencoes,
-      t,
-    ]
-  );
-
-  useEffect(
-    () => {
-      let cancelado =
-        false;
-
-      const carregarRetornos =
-        async () => {
-          setCarregandoRetornos(
-            true
-          );
-
-          setErroRetornos(
-            null
-          );
-
-          try {
-            const resposta =
-              await fetch(
-                "/api/admin/student-success/intervencoes/retornos",
-                {
-                  credentials:
-                    "include",
-
-                  cache:
-                    "no-store",
-                }
-              );
-
-            const json =
-              (
-                await resposta.json()
-              ) as RetornosStudentSuccessResponse;
-
-            if (
-              !resposta.ok ||
-              !json?.ok
-            ) {
-              throw new Error(
-                "RETURNS_LOAD_ERROR"
-              );
-            }
-
-            if (
-              !cancelado
-            ) {
-              setRetornos(
-                Array.isArray(
-                  json.intervencoes
-                )
-                  ? json.intervencoes
-                  : []
-              );
-            }
-          }
-          catch (error) {
-            console.error(
-              "[STUDENT_SUCCESS_RETURNS]",
-              error
-            );
-
-            if (
-              !cancelado
-            ) {
-              setRetornos(
-                []
-              );
-
-              setErroRetornos(
-                t(
-                  "intervention.returns.error"
-                )
-              );
-            }
-          }
-          finally {
-            if (
-              !cancelado
-            ) {
-              setCarregandoRetornos(
-                false
-              );
-            }
-          }
-        };
-
-      void carregarRetornos();
-
-      return () => {
-        cancelado =
-          true;
-      };
-    },
-    [
-      versaoIntervencoes,
-      t,
-    ]
-  );
-
-  useEffect(
-    () => {
-      let cancelado =
-        false;
-
-      const carregarPrioridades =
-        async () => {
-          setCarregandoPrioridades(
-            true
-          );
-
-          setErroPrioridades(
-            null
-          );
-
-          try {
-            const resposta =
-              await fetch(
-                "/api/admin/student-success/intervencoes/prioridades",
-                {
-                  credentials:
-                    "include",
-
-                  cache:
-                    "no-store",
-                }
-              );
-
-            const json =
-              (
-                await resposta.json()
-              ) as PrioridadesStudentSuccessResponse;
-
-            if (
-              !resposta.ok ||
-              !json?.ok
-            ) {
-              throw new Error(
-                "PRIORITIES_LOAD_ERROR"
-              );
-            }
-
-            if (
-              !cancelado
-            ) {
-              setPrioridades(
-                json
-              );
-            }
-          }
-          catch (error) {
-            console.error(
-              "[STUDENT_SUCCESS_PRIORITIES]",
-              error
-            );
-
-            if (
-              !cancelado
-            ) {
-              setPrioridades(
-                null
-              );
-
-              setErroPrioridades(
-                "PRIORITIES_LOAD_ERROR"
-              );
-            }
-          }
-          finally {
-            if (
-              !cancelado
-            ) {
-              setCarregandoPrioridades(
-                false
-              );
-            }
-          }
-        };
-
-      void carregarPrioridades();
-
-      return () => {
-        cancelado =
-          true;
-      };
-    },
-    [
-      versaoIntervencoes,
-    ]
-  );
-
-  const retornosClassificados =
-    useMemo(
-      () => {
-        const agora =
-          new Date();
-
-        const inicioHoje =
-          new Date(
-            agora.getFullYear(),
-            agora.getMonth(),
-            agora.getDate()
-          );
-
-        const inicioAmanha =
-          new Date(
-            inicioHoje
-          );
-
-        inicioAmanha.setDate(
-          inicioAmanha.getDate() +
-          1
-        );
-
-        const limite7Dias =
-          new Date(
-            inicioHoje
-          );
-
-        limite7Dias.setDate(
-          limite7Dias.getDate() +
-          8
-        );
-
-        const atrasados:
-          RetornoStudentSuccess[] =
-          [];
-
-        const hoje:
-          RetornoStudentSuccess[] =
-          [];
-
-        const proximos7Dias:
-          RetornoStudentSuccess[] =
-          [];
-
-        const semRetorno:
-          RetornoStudentSuccess[] =
-          [];
-
-        for (
-          const intervencao
-          of retornos
-        ) {
-          if (
-            !intervencao.retornoEm
-          ) {
-            semRetorno.push(
-              intervencao
-            );
-
-            continue;
-          }
-
-          const data =
-            new Date(
-              intervencao.retornoEm
-            );
-
-          if (
-            data <
-            inicioHoje
-          ) {
-            atrasados.push(
-              intervencao
-            );
-
-            continue;
-          }
-
-          if (
-            data <
-            inicioAmanha
-          ) {
-            hoje.push(
-              intervencao
-            );
-
-            continue;
-          }
-
-          if (
-            data <
-            limite7Dias
-          ) {
-            proximos7Dias.push(
-              intervencao
-            );
-          }
-        }
-
-        return {
-          atrasados,
-          hoje,
-          proximos7Dias,
-          semRetorno,
-        };
-      },
-      [
-        retornos,
-      ]
-    );
-
-  const prioridadesClassificadas =
-    useMemo(
-      () => {
-        const agora =
-          new Date();
-
-        const inicioHoje =
-          new Date(
-            agora.getFullYear(),
-            agora.getMonth(),
-            agora.getDate()
-          );
-
-        const inicioAmanha =
-          new Date(
-            inicioHoje
-          );
-
-        inicioAmanha.setDate(
-          inicioAmanha.getDate() +
-          1
-        );
-
-        const atrasados:
-          PrioridadeIntervencaoAberta[] =
-          [];
-
-        const hoje:
-          PrioridadeIntervencaoAberta[] =
-          [];
-
-        for (
-          const intervencao
-          of prioridades
-            ?.comRetorno ??
-          []
-        ) {
-          if (
-            !intervencao.retornoEm
-          ) {
-            continue;
-          }
-
-          const retorno =
-            new Date(
-              intervencao.retornoEm
-            );
-
-          if (
-            retorno <
-            inicioHoje
-          ) {
-            atrasados.push(
-              intervencao
-            );
-
-            continue;
-          }
-
-          if (
-            retorno <
-            inicioAmanha
-          ) {
-            hoje.push(
-              intervencao
-            );
-          }
-        }
-
-        return {
-          atrasados,
-
-          hoje,
-
-          semRetorno:
-            prioridades
-              ?.semRetorno ??
-            [],
-
-          pioraAposIntervencao:
-            prioridades
-              ?.pioraAposIntervencao ??
-            [],
-
-          maisAntigaSemRetorno:
-            prioridades
-              ?.semRetorno
-            ?.[0] ??
-            null,
-        };
-      },
-      [
-        prioridades,
-      ]
-    );
-
-  const alternarFiltroPrioridades =
-    (
-      filtro:
-        Exclude<
-          FiltroPrioridade,
-          "TODOS"
-        >
-    ) => {
-      setFiltroPrioridades(
-        (
-          atual
-        ) =>
-          atual === filtro
-            ? "TODOS"
-            : filtro
-      );
+      setResultadoReanalise(json);
+
+      /*
+       * Atualiza o painel principal,
+       * pois os indicadores acadêmicos
+       * podem ter mudado.
+       */
+      await carregarDados();
+
+      /*
+       * Se houver um aluno com o drawer
+       * aberto, a timeline precisa buscar
+       * novamente as fotografias persistidas.
+       */
+      setVersaoAnalises((valor) => valor + 1);
+    } catch (error) {
+      console.error("[STUDENT_SUCCESS_REANALYSIS]", error);
+
+      setErroReanalise(t("reanalysis.error"));
+    } finally {
+      setReanalisando(false);
+    }
+  };
+
+  useEffect(() => {
+    void carregarDados();
+  }, [carregarDados]);
+
+  useEffect(() => {
+    if (!alunoSelecionado) {
+      return;
+    }
+
+    const fecharComEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setAlunoSelecionado(null);
+      }
     };
 
-  const existeFiltroPrioridadeAtivo =
-    filtroPrioridades !==
-    "TODOS";
+    const overflowAnterior = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    window.addEventListener("keydown", fecharComEsc);
+
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+
+      window.removeEventListener("keydown", fecharComEsc);
+    };
+  }, [alunoSelecionado]);
+
+  useEffect(() => {
+    if (!alunoSelecionado) {
+      setIntervencoes([]);
+
+      return;
+    }
+
+    let cancelado = false;
+
+    const carregar = async () => {
+      setCarregandoIntervencoes(true);
+
+      setErroIntervencoes(null);
+
+      try {
+        const resposta = await fetch(
+          `/api/admin/student-success/intervencoes?alunoId=${alunoSelecionado.alunoId}`,
+          {
+            credentials: "include",
+          },
+        );
+
+        const json = await resposta.json();
+
+        if (!resposta.ok || !json?.ok) {
+          throw new Error(json?.error ?? "INTERVENTIONS_ERROR");
+        }
+
+        if (!cancelado) {
+          setIntervencoes(
+            Array.isArray(json.intervencoes) ? json.intervencoes : [],
+          );
+        }
+      } catch (error) {
+        console.error("[STUDENT_SUCCESS_INTERVENTIONS_LOAD]", error);
+
+        if (!cancelado) {
+          setIntervencoes([]);
+
+          setErroIntervencoes(t("intervention.error"));
+        }
+      } finally {
+        if (!cancelado) {
+          setCarregandoIntervencoes(false);
+        }
+      }
+    };
+
+    void carregar();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [alunoSelecionado, versaoIntervencoes, t]);
+
+  useEffect(() => {
+    if (!alunoSelecionado) {
+      setTimeline([]);
+
+      setResumoTimeline(null);
+
+      setErroTimeline(null);
+
+      return;
+    }
+
+    let cancelado = false;
+
+    const carregarTimeline = async () => {
+      setCarregandoTimeline(true);
+
+      setErroTimeline(null);
+
+      try {
+        const resposta = await fetch(
+          `/api/admin/student-success/alunos/${alunoSelecionado.alunoId}/timeline`,
+          {
+            method: "GET",
+
+            credentials: "include",
+
+            cache: "no-store",
+          },
+        );
+
+        const json = (await resposta.json()) as TimelineStudentSuccessResponse;
+
+        if (!resposta.ok || !json?.ok) {
+          throw new Error("TIMELINE_LOAD_ERROR");
+        }
+
+        if (cancelado) {
+          return;
+        }
+
+        setTimeline(Array.isArray(json.eventos) ? json.eventos : []);
+
+        setResumoTimeline(json.resumo ?? null);
+      } catch (error) {
+        console.error("[STUDENT_SUCCESS_TIMELINE]", error);
+
+        if (!cancelado) {
+          setTimeline([]);
+
+          setResumoTimeline(null);
+
+          setErroTimeline("TIMELINE_LOAD_ERROR");
+        }
+      } finally {
+        if (!cancelado) {
+          setCarregandoTimeline(false);
+        }
+      }
+    };
+
+    void carregarTimeline();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [alunoSelecionado, versaoIntervencoes, versaoAnalises]);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    const carregarResumoIntervencoes = async () => {
+      setCarregandoResumoIntervencoes(true);
+
+      setErroResumoIntervencoes(null);
+
+      try {
+        const parametros = new URLSearchParams();
+
+        if (filtroStatusIntervencoes !== "TODOS") {
+          parametros.set("status", filtroStatusIntervencoes);
+        }
+
+        if (filtroTipoIntervencoes !== "TODOS") {
+          parametros.set("tipo", filtroTipoIntervencoes);
+        }
+
+        /*
+         * Datas sempre calculadas no horário
+         * local do navegador.
+         *
+         * O backend recebe ISO em UTC,
+         * mas representando corretamente o
+         * início/fim do dia local do usuário.
+         */
+        const hoje = new Date();
+
+        const inicioHoje = new Date(
+          hoje.getFullYear(),
+          hoje.getMonth(),
+          hoje.getDate(),
+        );
+
+        const inicioAmanha = new Date(inicioHoje);
+
+        inicioAmanha.setDate(inicioAmanha.getDate() + 1);
+
+        let inicioPeriodo: Date | null = null;
+
+        let fimPeriodo: Date | null = null;
+
+        if (periodoIntervencoes === "HOJE") {
+          inicioPeriodo = inicioHoje;
+
+          fimPeriodo = inicioAmanha;
+        }
+
+        if (periodoIntervencoes === "ULTIMOS_7_DIAS") {
+          inicioPeriodo = new Date(inicioHoje);
+
+          inicioPeriodo.setDate(inicioPeriodo.getDate() - 6);
+
+          fimPeriodo = inicioAmanha;
+        }
+
+        if (periodoIntervencoes === "ULTIMOS_30_DIAS") {
+          inicioPeriodo = new Date(inicioHoje);
+
+          inicioPeriodo.setDate(inicioPeriodo.getDate() - 29);
+
+          fimPeriodo = inicioAmanha;
+        }
+
+        if (periodoIntervencoes === "PERSONALIZADO") {
+          if (dataInicialIntervencoes) {
+            inicioPeriodo = new Date(`${dataInicialIntervencoes}T00:00:00`);
+          }
+
+          if (dataFinalIntervencoes) {
+            fimPeriodo = new Date(`${dataFinalIntervencoes}T00:00:00`);
+
+            fimPeriodo.setDate(fimPeriodo.getDate() + 1);
+          }
+        }
+
+        if (inicioPeriodo) {
+          parametros.set("inicio", inicioPeriodo.toISOString());
+        }
+
+        if (fimPeriodo) {
+          parametros.set("fim", fimPeriodo.toISOString());
+        }
+
+        const query = parametros.toString();
+
+        const url = query
+          ? `/api/admin/student-success/intervencoes/resumo?${query}`
+          : "/api/admin/student-success/intervencoes/resumo";
+
+        const resposta = await fetch(url, {
+          credentials: "include",
+
+          cache: "no-store",
+        });
+
+        const json = await resposta.json();
+
+        if (!resposta.ok || !json?.ok) {
+          throw new Error(json?.error ?? "INTERVENTION_SUMMARY_ERROR");
+        }
+
+        if (!cancelado) {
+          setResumoIntervencoes(json);
+        }
+      } catch (error) {
+        console.error("[STUDENT_SUCCESS_INTERVENTION_SUMMARY]", error);
+
+        if (!cancelado) {
+          setResumoIntervencoes(null);
+
+          setErroResumoIntervencoes(t("intervention.dashboard.error"));
+        }
+      } finally {
+        if (!cancelado) {
+          setCarregandoResumoIntervencoes(false);
+        }
+      }
+    };
+
+    void carregarResumoIntervencoes();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [
+    versaoIntervencoes,
+    periodoIntervencoes,
+    filtroStatusIntervencoes,
+    filtroTipoIntervencoes,
+    dataInicialIntervencoes,
+    dataFinalIntervencoes,
+    t,
+  ]);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    const carregarRetornos = async () => {
+      setCarregandoRetornos(true);
+
+      setErroRetornos(null);
+
+      try {
+        const resposta = await fetch(
+          "/api/admin/student-success/intervencoes/retornos",
+          {
+            credentials: "include",
+
+            cache: "no-store",
+          },
+        );
+
+        const json = (await resposta.json()) as RetornosStudentSuccessResponse;
+
+        if (!resposta.ok || !json?.ok) {
+          throw new Error("RETURNS_LOAD_ERROR");
+        }
+
+        if (!cancelado) {
+          setRetornos(
+            Array.isArray(json.intervencoes) ? json.intervencoes : [],
+          );
+        }
+      } catch (error) {
+        console.error("[STUDENT_SUCCESS_RETURNS]", error);
+
+        if (!cancelado) {
+          setRetornos([]);
+
+          setErroRetornos(t("intervention.returns.error"));
+        }
+      } finally {
+        if (!cancelado) {
+          setCarregandoRetornos(false);
+        }
+      }
+    };
+
+    void carregarRetornos();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [versaoIntervencoes, t]);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    const carregarPrioridades = async () => {
+      setCarregandoPrioridades(true);
+
+      setErroPrioridades(null);
+
+      try {
+        const resposta = await fetch(
+          "/api/admin/student-success/intervencoes/prioridades",
+          {
+            credentials: "include",
+
+            cache: "no-store",
+          },
+        );
+
+        const json =
+          (await resposta.json()) as PrioridadesStudentSuccessResponse;
+
+        if (!resposta.ok || !json?.ok) {
+          throw new Error("PRIORITIES_LOAD_ERROR");
+        }
+
+        if (!cancelado) {
+          setPrioridades(json);
+        }
+      } catch (error) {
+        console.error("[STUDENT_SUCCESS_PRIORITIES]", error);
+
+        if (!cancelado) {
+          setPrioridades(null);
+
+          setErroPrioridades("PRIORITIES_LOAD_ERROR");
+        }
+      } finally {
+        if (!cancelado) {
+          setCarregandoPrioridades(false);
+        }
+      }
+    };
+
+    void carregarPrioridades();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [versaoIntervencoes]);
+
+  const retornosClassificados = useMemo(() => {
+    const agora = new Date();
+
+    const inicioHoje = new Date(
+      agora.getFullYear(),
+      agora.getMonth(),
+      agora.getDate(),
+    );
+
+    const inicioAmanha = new Date(inicioHoje);
+
+    inicioAmanha.setDate(inicioAmanha.getDate() + 1);
+
+    const limite7Dias = new Date(inicioHoje);
+
+    limite7Dias.setDate(limite7Dias.getDate() + 8);
+
+    const atrasados: RetornoStudentSuccess[] = [];
+
+    const hoje: RetornoStudentSuccess[] = [];
+
+    const proximos7Dias: RetornoStudentSuccess[] = [];
+
+    const semRetorno: RetornoStudentSuccess[] = [];
+
+    for (const intervencao of retornos) {
+      if (!intervencao.retornoEm) {
+        semRetorno.push(intervencao);
+
+        continue;
+      }
+
+      const data = new Date(intervencao.retornoEm);
+
+      if (data < inicioHoje) {
+        atrasados.push(intervencao);
+
+        continue;
+      }
+
+      if (data < inicioAmanha) {
+        hoje.push(intervencao);
+
+        continue;
+      }
+
+      if (data < limite7Dias) {
+        proximos7Dias.push(intervencao);
+      }
+    }
+
+    return {
+      atrasados,
+      hoje,
+      proximos7Dias,
+      semRetorno,
+    };
+  }, [retornos]);
+
+  const prioridadesClassificadas = useMemo(() => {
+    const agora = new Date();
+
+    const inicioHoje = new Date(
+      agora.getFullYear(),
+      agora.getMonth(),
+      agora.getDate(),
+    );
+
+    const inicioAmanha = new Date(inicioHoje);
+
+    inicioAmanha.setDate(inicioAmanha.getDate() + 1);
+
+    const atrasados: PrioridadeIntervencaoAberta[] = [];
+
+    const hoje: PrioridadeIntervencaoAberta[] = [];
+
+    for (const intervencao of prioridades?.comRetorno ?? []) {
+      if (!intervencao.retornoEm) {
+        continue;
+      }
+
+      const retorno = new Date(intervencao.retornoEm);
+
+      if (retorno < inicioHoje) {
+        atrasados.push(intervencao);
+
+        continue;
+      }
+
+      if (retorno < inicioAmanha) {
+        hoje.push(intervencao);
+      }
+    }
+
+    return {
+      atrasados,
+
+      hoje,
+
+      semRetorno: prioridades?.semRetorno ?? [],
+
+      pioraAposIntervencao: prioridades?.pioraAposIntervencao ?? [],
+
+      maisAntigaSemRetorno: prioridades?.semRetorno?.[0] ?? null,
+    };
+  }, [prioridades]);
+
+  const alternarFiltroPrioridades = (
+    filtro: Exclude<FiltroPrioridade, "TODOS">,
+  ) => {
+    setFiltroPrioridades((atual) => (atual === filtro ? "TODOS" : filtro));
+  };
+
+  const existeFiltroPrioridadeAtivo = filtroPrioridades !== "TODOS";
 
   const prioridadeFiltradaVazia =
-    filtroPrioridades ===
-      "HOJE"
-      ? prioridadesClassificadas
-        .hoje.length ===
-      0
+    filtroPrioridades === "HOJE"
+      ? prioridadesClassificadas.hoje.length === 0
+      : filtroPrioridades === "ATRASADOS"
+        ? prioridadesClassificadas.atrasados.length === 0
+        : filtroPrioridades === "PIORA"
+          ? prioridadesClassificadas.pioraAposIntervencao.length === 0
+          : filtroPrioridades === "SEM_RETORNO"
+            ? prioridadesClassificadas.semRetorno.length === 0
+            : prioridadesClassificadas.hoje.length === 0 &&
+              prioridadesClassificadas.atrasados.length === 0 &&
+              prioridadesClassificadas.pioraAposIntervencao.length === 0 &&
+              prioridadesClassificadas.semRetorno.length === 0;
 
-      : filtroPrioridades ===
-        "ATRASADOS"
-        ? prioridadesClassificadas
-          .atrasados
-          .length ===
-        0
+  const quantidadeGruposPrioridadeVisiveis = [
+    filtroPrioridades === "TODOS" || filtroPrioridades === "HOJE"
+      ? prioridadesClassificadas.hoje.length
+      : 0,
 
-        : filtroPrioridades ===
-          "PIORA"
-          ? prioridadesClassificadas
-            .pioraAposIntervencao
-            .length ===
-          0
+    filtroPrioridades === "TODOS" || filtroPrioridades === "ATRASADOS"
+      ? prioridadesClassificadas.atrasados.length
+      : 0,
 
-          : filtroPrioridades ===
-            "SEM_RETORNO"
-            ? prioridadesClassificadas
-              .semRetorno
-              .length ===
-            0
+    filtroPrioridades === "TODOS" || filtroPrioridades === "PIORA"
+      ? prioridadesClassificadas.pioraAposIntervencao.length
+      : 0,
 
-            : prioridadesClassificadas
-              .hoje.length ===
-            0 &&
-            prioridadesClassificadas
-              .atrasados
-              .length ===
-            0 &&
-            prioridadesClassificadas
-              .pioraAposIntervencao
-              .length ===
-            0 &&
-            prioridadesClassificadas
-              .semRetorno
-              .length ===
-            0;
+    filtroPrioridades === "TODOS" || filtroPrioridades === "SEM_RETORNO"
+      ? prioridadesClassificadas.semRetorno.length
+      : 0,
+  ].filter((quantidade) => quantidade > 0).length;
 
-  const quantidadeGruposPrioridadeVisiveis =
-    [
-      filtroPrioridades ===
-        "TODOS" ||
-        filtroPrioridades ===
-        "HOJE"
-        ? prioridadesClassificadas
-          .hoje.length
-        : 0,
+  const gruposRetornos = [
+    {
+      chave: "ATRASADOS" as const,
 
-      filtroPrioridades ===
-        "TODOS" ||
-        filtroPrioridades ===
-        "ATRASADOS"
-        ? prioridadesClassificadas
-          .atrasados.length
-        : 0,
+      titulo: t("intervention.returns.overdue"),
 
-      filtroPrioridades ===
-        "TODOS" ||
-        filtroPrioridades ===
-        "PIORA"
-        ? prioridadesClassificadas
-          .pioraAposIntervencao
-          .length
-        : 0,
+      itens: retornosClassificados.atrasados,
 
-      filtroPrioridades ===
-        "TODOS" ||
-        filtroPrioridades ===
-        "SEM_RETORNO"
-        ? prioridadesClassificadas
-          .semRetorno.length
-        : 0,
-    ].filter(
-      (
-        quantidade
-      ) =>
-        quantidade >
-        0
-    ).length;
+      classe: "phanyx-student-success-return-group-overdue",
+    },
 
-  const gruposRetornos =
-    [
-      {
-        chave:
-          "ATRASADOS" as const,
+    {
+      chave: "HOJE" as const,
 
-        titulo:
-          t(
-            "intervention.returns.overdue"
-          ),
+      titulo: t("intervention.returns.today"),
 
-        itens:
-          retornosClassificados
-            .atrasados,
+      itens: retornosClassificados.hoje,
 
-        classe:
-          "phanyx-student-success-return-group-overdue",
-      },
+      classe: "phanyx-student-success-return-group-today",
+    },
 
-      {
-        chave:
-          "HOJE" as const,
+    {
+      chave: "PROXIMOS_7_DIAS" as const,
 
-        titulo:
-          t(
-            "intervention.returns.today"
-          ),
+      titulo: t("intervention.returns.next7Days"),
 
-        itens:
-          retornosClassificados
-            .hoje,
+      itens: retornosClassificados.proximos7Dias,
 
-        classe:
-          "phanyx-student-success-return-group-today",
-      },
+      classe: "phanyx-student-success-return-group-upcoming",
+    },
 
-      {
-        chave:
-          "PROXIMOS_7_DIAS" as const,
+    {
+      chave: "SEM_RETORNO" as const,
 
-        titulo:
-          t(
-            "intervention.returns.next7Days"
-          ),
+      titulo: t("intervention.returns.unscheduled"),
 
-        itens:
-          retornosClassificados
-            .proximos7Dias,
+      itens: retornosClassificados.semRetorno,
 
-        classe:
-          "phanyx-student-success-return-group-upcoming",
-      },
-
-      {
-        chave:
-          "SEM_RETORNO" as const,
-
-        titulo:
-          t(
-            "intervention.returns.unscheduled"
-          ),
-
-
-        itens:
-          retornosClassificados
-            .semRetorno,
-
-        classe:
-          "phanyx-student-success-return-group-unscheduled",
-      },
-    ];
+      classe: "phanyx-student-success-return-group-unscheduled",
+    },
+  ];
 
   const gruposRetornosVisiveis =
-    filtroRetornos ===
-      "TODOS"
+    filtroRetornos === "TODOS"
       ? gruposRetornos
-      : gruposRetornos.filter(
-        (
-          grupo
-        ) =>
-          grupo.chave ===
-          filtroRetornos
-      );
+      : gruposRetornos.filter((grupo) => grupo.chave === filtroRetornos);
 
-  const filtroRetornosVazio =
-    gruposRetornosVisiveis.every(
-      (
-        grupo
-      ) =>
-        grupo.itens.length ===
-        0
-    );
+  const filtroRetornosVazio = gruposRetornosVisiveis.every(
+    (grupo) => grupo.itens.length === 0,
+  );
 
-  const alternarFiltroRetornos =
-    (
-      filtro:
-        Exclude<
-          FiltroRetorno,
-          "TODOS"
-        >
-    ) => {
-      setFiltroRetornos(
-        (
-          atual
-        ) =>
-          atual === filtro
-            ? "TODOS"
-            : filtro
-      );
-    };
+  const alternarFiltroRetornos = (filtro: Exclude<FiltroRetorno, "TODOS">) => {
+    setFiltroRetornos((atual) => (atual === filtro ? "TODOS" : filtro));
+  };
 
   /*
    * Mostramos aqui:
@@ -2546,1263 +1522,777 @@ export default function AdminStudentSuccessPage() {
    * não possuem dados suficientes para
    * uma análise confiável.
    */
-  const alunosFiltrados =
-    useMemo(
-      () => {
-        const termo =
-          busca
-            .trim()
-            .toLocaleLowerCase();
+  const alunosFiltrados = useMemo(() => {
+    const termo = busca.trim().toLocaleLowerCase();
 
-        return (
-          dados?.alunos ??
-          []
-        ).filter(
-          (aluno) => {
-            const correspondeNivel =
-              filtroNivel ===
-              "TODOS" ||
-              aluno.analise
-                .nivel ===
-              filtroNivel;
+    return (dados?.alunos ?? []).filter((aluno) => {
+      const correspondeNivel =
+        filtroNivel === "TODOS" || aluno.analise.nivel === filtroNivel;
 
-            if (
-              !correspondeNivel
-            ) {
-              return false;
-            }
+      if (!correspondeNivel) {
+        return false;
+      }
 
-            if (!termo) {
-              return true;
-            }
+      if (!termo) {
+        return true;
+      }
 
-            const nome =
-              aluno.nome
-                .toLocaleLowerCase();
+      const nome = aluno.nome.toLocaleLowerCase();
 
-            const matricula =
-              (
-                aluno.matricula ??
-                ""
-              )
-                .toLocaleLowerCase();
+      const matricula = (aluno.matricula ?? "").toLocaleLowerCase();
 
-            const telefone =
-              (
-                aluno.contato
-                  ?.telefone ??
-                ""
-              )
-                .toLocaleLowerCase();
+      const telefone = (aluno.contato?.telefone ?? "").toLocaleLowerCase();
 
-            return (
-              nome.includes(
-                termo
-              ) ||
-              matricula.includes(
-                termo
-              ) ||
-              telefone.includes(
-                termo
-              )
-            );
-          }
-        );
-      },
-      [
-        busca,
-        dados,
-        filtroNivel,
-      ]
+      return (
+        nome.includes(termo) ||
+        matricula.includes(termo) ||
+        telefone.includes(termo)
+      );
+    });
+  }, [busca, dados, filtroNivel]);
+
+  const abrirAlunoDaFila = (alunoId: number) => {
+    const aluno = dados?.alunos.find((item) => item.alunoId === alunoId);
+
+    if (!aluno) {
+      return;
+    }
+
+    setAlunoSelecionado(aluno);
+  };
+
+  const atualizarIntervencaoDaFila = async (retorno: {
+    id: number;
+    alunoId: number;
+  }) => {
+    const aluno = dados?.alunos.find(
+      (item) => item.alunoId === retorno.alunoId,
     );
 
-  const abrirAlunoDaFila =
-    (
-      alunoId:
-        number
-    ) => {
-      const aluno =
-        dados?.alunos.find(
-          (
-            item
-          ) =>
-            item.alunoId ===
-            alunoId
-        );
+    if (!aluno) {
+      return;
+    }
 
-      if (!aluno) {
-        return;
-      }
+    /*
+     * Precisamos do objeto completo da intervenção,
+     * porque a fila possui apenas os dados resumidos.
+     */
+    try {
+      const resposta = await fetch(
+        `/api/admin/student-success/intervencoes?alunoId=${retorno.alunoId}`,
+        {
+          credentials: "include",
 
-      setAlunoSelecionado(
-        aluno
+          cache: "no-store",
+        },
       );
-    };
 
-  const atualizarIntervencaoDaFila =
-    async (
-      retorno: {
-        id: number;
-        alunoId: number;
+      const json = await resposta.json();
+
+      if (!resposta.ok || !json?.ok || !Array.isArray(json.intervencoes)) {
+        throw new Error("INTERVENTION_LOAD_ERROR");
       }
-    ) => {
-      const aluno =
-        dados?.alunos.find(
-          (
-            item
-          ) =>
-            item.alunoId ===
-            retorno.alunoId
-        );
 
-      if (!aluno) {
-        return;
+      const intervencao = (
+        json.intervencoes as StudentSuccessIntervencao[]
+      ).find((item) => item.id === retorno.id);
+
+      if (!intervencao) {
+        throw new Error("INTERVENTION_NOT_FOUND");
       }
 
       /*
-       * Precisamos do objeto completo da intervenção,
-       * porque a fila possui apenas os dados resumidos.
+       * O aluno precisa estar selecionado
+       * para que, ao encerrar a intervenção,
+       * a fotografia acadêmica atual seja
+       * enviada ao PATCH.
        */
-      try {
-        const resposta =
-          await fetch(
-            `/api/admin/student-success/intervencoes?alunoId=${retorno.alunoId}`,
-            {
-              credentials:
-                "include",
+      abrirAtualizacaoIntervencao(intervencao, aluno);
+    } catch (error) {
+      console.error("[STUDENT_SUCCESS_RETURN_UPDATE]", error);
+    }
+  };
 
-              cache:
-                "no-store",
-            }
-          );
+  const registrarIntervencao = async () => {
+    if (!alunoSelecionado || salvandoIntervencao) {
+      return;
+    }
 
-        const json =
-          await resposta.json();
+    const observacao = observacaoIntervencao.trim();
 
-        if (
-          !resposta.ok ||
-          !json?.ok ||
-          !Array.isArray(
-            json.intervencoes
-          )
-        ) {
-          throw new Error(
-            "INTERVENTION_LOAD_ERROR"
-          );
-        }
+    if (observacao.length < 3) {
+      setMensagemIntervencao({
+        tipo: "erro",
 
-        const intervencao =
-          (
-            json.intervencoes as
-            StudentSuccessIntervencao[]
-          ).find(
-            (
-              item
-            ) =>
-              item.id ===
-              retorno.id
-          );
+        texto: t("intervention.error"),
+      });
 
-        if (!intervencao) {
-          throw new Error(
-            "INTERVENTION_NOT_FOUND"
-          );
-        }
+      return;
+    }
 
-        /*
-         * O aluno precisa estar selecionado
-         * para que, ao encerrar a intervenção,
-         * a fotografia acadêmica atual seja
-         * enviada ao PATCH.
-         */
-        abrirAtualizacaoIntervencao(
-          intervencao,
-          aluno
-        );
-      }
-      catch (error) {
-        console.error(
-          "[STUDENT_SUCCESS_RETURN_UPDATE]",
-          error
-        );
-      }
-    };
+    setSalvandoIntervencao(true);
 
-  const registrarIntervencao =
-    async () => {
-      if (
-        !alunoSelecionado ||
-        salvandoIntervencao
-      ) {
-        return;
-      }
+    setMensagemIntervencao(null);
 
-      const observacao =
-        observacaoIntervencao
-          .trim();
+    try {
+      const retornoEm = retornoIntervencao
+        ? new Date(`${retornoIntervencao}T12:00:00`).toISOString()
+        : null;
 
-      if (
-        observacao.length < 3
-      ) {
-        setMensagemIntervencao({
-          tipo:
-            "erro",
+      const resposta = await fetch("/api/admin/student-success/intervencoes", {
+        method: "POST",
 
-          texto:
-            t(
-              "intervention.error"
-            ),
-        });
+        credentials: "include",
 
-        return;
-      }
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-      setSalvandoIntervencao(
-        true
-      );
+        body: JSON.stringify({
+          alunoId: alunoSelecionado.alunoId,
 
-      setMensagemIntervencao(
-        null
-      );
+          tipo: tipoIntervencao,
 
-      try {
-        const retornoEm =
-          retornoIntervencao
-            ? new Date(
-              `${retornoIntervencao}T12:00:00`
-            ).toISOString()
-            : null;
+          canal: canalIntervencao,
 
-        const resposta =
-          await fetch(
-            "/api/admin/student-success/intervencoes",
-            {
-              method:
-                "POST",
+          status: statusIntervencao,
 
-              credentials:
-                "include",
+          observacao,
 
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
+          retornoEm,
 
-              body:
-                JSON.stringify({
-                  alunoId:
-                    alunoSelecionado
-                      .alunoId,
+          analise: {
+            nivel: alunoSelecionado.analise.nivel,
 
-                  tipo:
-                    tipoIntervencao,
+            pontuacao: alunoSelecionado.analise.pontuacao,
 
-                  canal:
-                    canalIntervencao,
+            coberturaPercentual: alunoSelecionado.analise.coberturaPercentual,
 
-                  status:
-                    statusIntervencao,
+            confiabilidade: alunoSelecionado.analise.confiabilidade,
 
-                  observacao,
-
-                  retornoEm,
-
-                  analise: {
-                    nivel:
-                      alunoSelecionado
-                        .analise
-                        .nivel,
-
-                    pontuacao:
-                      alunoSelecionado
-                        .analise
-                        .pontuacao,
-
-                    coberturaPercentual:
-                      alunoSelecionado
-                        .analise
-                        .coberturaPercentual,
-
-                    confiabilidade:
-                      alunoSelecionado
-                        .analise
-                        .confiabilidade,
-
-                    fatoresPrincipais:
-                      alunoSelecionado
-                        .analise
-                        .fatoresPrincipais,
-                  },
-
-                  indicadores:
-                    alunoSelecionado
-                      .indicadores,
-                }),
-            }
-          );
-
-        const json =
-          await resposta.json();
-
-        if (
-          !resposta.ok ||
-          !json?.ok
-        ) {
-          throw new Error(
-            json?.error ??
-            "INTERVENTION_ERROR"
-          );
-        }
-
-        setMensagemIntervencao({
-          tipo:
-            "sucesso",
-
-          texto:
-            t(
-              "intervention.success"
-            ),
-        });
-
-        setVersaoIntervencoes(
-          (valor) =>
-            valor + 1
-        );
-
-        setObservacaoIntervencao(
-          ""
-        );
-
-        setRetornoIntervencao(
-          ""
-        );
-
-        setTimeout(
-          () => {
-            setModalIntervencaoAberto(
-              false
-            );
-
-            setMensagemIntervencao(
-              null
-            );
+            fatoresPrincipais: alunoSelecionado.analise.fatoresPrincipais,
           },
-          900
-        );
-      }
-      catch (error) {
-        console.error(
-          "[STUDENT_SUCCESS_INTERVENTION]",
-          error
-        );
 
-        setMensagemIntervencao({
-          tipo:
-            "erro",
+          indicadores: alunoSelecionado.indicadores,
+        }),
+      });
 
-          texto:
-            t(
-              "intervention.error"
-            ),
-        });
-      }
-      finally {
-        setSalvandoIntervencao(
-          false
-        );
-      }
-    };
+      const json = await resposta.json();
 
-  const abrirAtualizacaoIntervencao =
-    (
-      intervencao:
-        StudentSuccessIntervencao,
-
-      alunoContexto?:
-        AlunoStudentSuccess | null
-    ) => {
-      setIntervencaoEmEdicao(
-        intervencao
-      );
-
-      setAlunoAtualizacaoIntervencao(
-        alunoContexto ??
-        alunoSelecionado
-      );
-
-      setStatusAtualizacaoIntervencao(
-        intervencao.status
-      );
-
-      setRetornoAtualizacaoIntervencao(
-        intervencao.retornoEm
-          ? intervencao.retornoEm.slice(
-            0,
-            10
-          )
-          : ""
-      );
-
-      setResultadoAtualizacaoIntervencao(
-        intervencao.resultado ??
-        ""
-      );
-
-      setMensagemAtualizacaoIntervencao(
-        null
-      );
-    };
-
-  const salvarAtualizacaoIntervencao =
-    async () => {
-      if (
-        !intervencaoEmEdicao ||
-        salvandoAtualizacaoIntervencao
-      ) {
-        return;
+      if (!resposta.ok || !json?.ok) {
+        throw new Error(json?.error ?? "INTERVENTION_ERROR");
       }
 
-      const resultado =
-        resultadoAtualizacaoIntervencao
-          .trim();
+      setMensagemIntervencao({
+        tipo: "sucesso",
 
-      const exigeResultado =
-        statusAtualizacaoIntervencao ===
-        "RESOLVIDA" ||
-        statusAtualizacaoIntervencao ===
-        "CANCELADA";
+        texto: t("intervention.success"),
+      });
 
-      if (
-        exigeResultado &&
-        resultado.length < 3
-      ) {
-        setMensagemAtualizacaoIntervencao({
-          tipo:
-            "erro",
+      setVersaoIntervencoes((valor) => valor + 1);
 
-          texto:
-            statusAtualizacaoIntervencao ===
-              "RESOLVIDA"
-              ? t(
-                "intervention.update.resultRequiredResolved"
-              )
-              : t(
-                "intervention.update.resultRequiredCancelled"
-              ),
-        });
+      setObservacaoIntervencao("");
 
-        return;
-      }
+      setRetornoIntervencao("");
 
-      setSalvandoAtualizacaoIntervencao(
-        true
-      );
+      setTimeout(() => {
+        setModalIntervencaoAberto(false);
 
-      setMensagemAtualizacaoIntervencao(
-        null
-      );
+        setMensagemIntervencao(null);
+      }, 900);
+    } catch (error) {
+      console.error("[STUDENT_SUCCESS_INTERVENTION]", error);
 
-      try {
-        const retornoEm =
-          retornoAtualizacaoIntervencao
-            ? new Date(
-              `${retornoAtualizacaoIntervencao}T12:00:00`
-            ).toISOString()
-            : null;
+      setMensagemIntervencao({
+        tipo: "erro",
 
-        const resposta =
-          await fetch(
-            `/api/admin/student-success/intervencoes/${intervencaoEmEdicao.id}`,
-            {
-              method:
-                "PATCH",
+        texto: t("intervention.error"),
+      });
+    } finally {
+      setSalvandoIntervencao(false);
+    }
+  };
 
-              credentials:
-                "include",
+  const abrirAtualizacaoIntervencao = (
+    intervencao: StudentSuccessIntervencao,
 
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
+    alunoContexto?: AlunoStudentSuccess | null,
+  ) => {
+    setIntervencaoEmEdicao(intervencao);
 
-              body:
-                JSON.stringify({
-                  status:
-                    statusAtualizacaoIntervencao,
+    setAlunoAtualizacaoIntervencao(alunoContexto ?? alunoSelecionado);
 
-                  retornoEm,
+    setStatusAtualizacaoIntervencao(intervencao.status);
 
-                  resultado,
+    setRetornoAtualizacaoIntervencao(
+      intervencao.retornoEm ? intervencao.retornoEm.slice(0, 10) : "",
+    );
 
-                  analiseAtual:
-                    alunoAtualizacaoIntervencao
-                      ? {
-                        nivel:
-                          alunoAtualizacaoIntervencao
-                            .analise
-                            .nivel,
+    setResultadoAtualizacaoIntervencao(intervencao.resultado ?? "");
 
-                        pontuacao:
-                          alunoAtualizacaoIntervencao
-                            .analise
-                            .pontuacao,
+    setMensagemAtualizacaoIntervencao(null);
+  };
 
-                        coberturaPercentual:
-                          alunoAtualizacaoIntervencao
-                            .analise
-                            .coberturaPercentual,
+  const salvarAtualizacaoIntervencao = async () => {
+    if (!intervencaoEmEdicao || salvandoAtualizacaoIntervencao) {
+      return;
+    }
 
-                        confiabilidade:
-                          alunoAtualizacaoIntervencao
-                            .analise
-                            .confiabilidade,
+    const resultado = resultadoAtualizacaoIntervencao.trim();
 
-                        fatoresPrincipais:
-                          alunoAtualizacaoIntervencao
-                            .analise
-                            .fatoresPrincipais,
-                      }
-                      : null,
+    const exigeResultado =
+      statusAtualizacaoIntervencao === "RESOLVIDA" ||
+      statusAtualizacaoIntervencao === "CANCELADA";
 
-                  indicadoresAtuais:
-                    alunoAtualizacaoIntervencao
-                      ?.indicadores ??
-                    null,
-                }),
-            }
-          );
+    if (exigeResultado && resultado.length < 3) {
+      setMensagemAtualizacaoIntervencao({
+        tipo: "erro",
 
-        const json =
-          await resposta.json();
+        texto:
+          statusAtualizacaoIntervencao === "RESOLVIDA"
+            ? t("intervention.update.resultRequiredResolved")
+            : t("intervention.update.resultRequiredCancelled"),
+      });
 
-        if (
-          !resposta.ok ||
-          !json?.ok
-        ) {
-          throw new Error(
-            json?.error ??
-            "INTERVENTION_UPDATE_ERROR"
-          );
-        }
+      return;
+    }
 
-        setIntervencoes(
-          (
-            atuais
-          ) =>
-            atuais.map(
-              (
-                item
-              ) =>
-                item.id ===
-                  json.intervencao.id
-                  ? json.intervencao
-                  : item
-            )
-        );
+    setSalvandoAtualizacaoIntervencao(true);
 
-        setMensagemAtualizacaoIntervencao({
-          tipo:
-            "sucesso",
+    setMensagemAtualizacaoIntervencao(null);
 
-          texto:
-            t(
-              "intervention.update.success"
-            ),
-        });
+    try {
+      const retornoEm = retornoAtualizacaoIntervencao
+        ? new Date(`${retornoAtualizacaoIntervencao}T12:00:00`).toISOString()
+        : null;
 
-        setVersaoIntervencoes(
-          (
-            valor
-          ) =>
-            valor + 1
-        );
+      const resposta = await fetch(
+        `/api/admin/student-success/intervencoes/${intervencaoEmEdicao.id}`,
+        {
+          method: "PATCH",
 
-        setTimeout(
-          () => {
-            setIntervencaoEmEdicao(
-              null
-            );
+          credentials: "include",
 
-            setAlunoAtualizacaoIntervencao(
-              null
-            );
-
-            setMensagemAtualizacaoIntervencao(
-              null
-            );
+          headers: {
+            "Content-Type": "application/json",
           },
-          800
-        );
-      }
-      catch (error) {
-        console.error(
-          "[STUDENT_SUCCESS_INTERVENTION_UPDATE]",
-          error
-        );
 
-        setMensagemAtualizacaoIntervencao({
-          tipo:
-            "erro",
+          body: JSON.stringify({
+            status: statusAtualizacaoIntervencao,
 
-          texto:
-            t(
-              "intervention.update.error"
-            ),
-        });
+            retornoEm,
+
+            resultado,
+
+            analiseAtual: alunoAtualizacaoIntervencao
+              ? {
+                  nivel: alunoAtualizacaoIntervencao.analise.nivel,
+
+                  pontuacao: alunoAtualizacaoIntervencao.analise.pontuacao,
+
+                  coberturaPercentual:
+                    alunoAtualizacaoIntervencao.analise.coberturaPercentual,
+
+                  confiabilidade:
+                    alunoAtualizacaoIntervencao.analise.confiabilidade,
+
+                  fatoresPrincipais:
+                    alunoAtualizacaoIntervencao.analise.fatoresPrincipais,
+                }
+              : null,
+
+            indicadoresAtuais: alunoAtualizacaoIntervencao?.indicadores ?? null,
+          }),
+        },
+      );
+
+      const json = await resposta.json();
+
+      if (!resposta.ok || !json?.ok) {
+        throw new Error(json?.error ?? "INTERVENTION_UPDATE_ERROR");
       }
-      finally {
-        setSalvandoAtualizacaoIntervencao(
-          false
-        );
-      }
+
+      setIntervencoes((atuais) =>
+        atuais.map((item) =>
+          item.id === json.intervencao.id ? json.intervencao : item,
+        ),
+      );
+
+      setMensagemAtualizacaoIntervencao({
+        tipo: "sucesso",
+
+        texto: t("intervention.update.success"),
+      });
+
+      setVersaoIntervencoes((valor) => valor + 1);
+
+      setTimeout(() => {
+        setIntervencaoEmEdicao(null);
+
+        setAlunoAtualizacaoIntervencao(null);
+
+        setMensagemAtualizacaoIntervencao(null);
+      }, 800);
+    } catch (error) {
+      console.error("[STUDENT_SUCCESS_INTERVENTION_UPDATE]", error);
+
+      setMensagemAtualizacaoIntervencao({
+        tipo: "erro",
+
+        texto: t("intervention.update.error"),
+      });
+    } finally {
+      setSalvandoAtualizacaoIntervencao(false);
+    }
+  };
+
+  const renderComparacaoAcademica = (
+    intervencao: StudentSuccessIntervencao,
+  ) => {
+    /*
+     * Só existe comparação quando
+     * a intervenção possui uma fotografia
+     * acadêmica de encerramento.
+     *
+     * Intervenções antigas continuam
+     * funcionando normalmente.
+     */
+    if (!intervencao.nivelRiscoNoEncerramento) {
+      return null;
+    }
+
+    const inicio = intervencao.indicadoresNoRegistro;
+
+    const fim = intervencao.indicadoresNoEncerramento;
+
+    type Mudanca = {
+      texto: string;
+
+      tipo: "positiva" | "negativa";
     };
 
-  const renderComparacaoAcademica =
-    (
-      intervencao:
-        StudentSuccessIntervencao
-    ) => {
-      /*
-       * Só existe comparação quando
-       * a intervenção possui uma fotografia
-       * acadêmica de encerramento.
-       *
-       * Intervenções antigas continuam
-       * funcionando normalmente.
-       */
-      if (
-        !intervencao
-          .nivelRiscoNoEncerramento
-      ) {
-        return null;
-      }
+    const mudancas: Mudanca[] = [];
 
-      const inicio =
-        intervencao
-          .indicadoresNoRegistro;
-
-      const fim =
-        intervencao
-          .indicadoresNoEncerramento;
-
-      type Mudanca = {
-        texto: string;
-
-        tipo:
-        | "positiva"
-        | "negativa";
-      };
-
-      const mudancas:
-        Mudanca[] =
-        [];
-
-      /* ---------------------------------------
+    /* ---------------------------------------
    NÍVEL DE RISCO
    --------------------------------------- */
 
-      /*
-       * DADOS_INSUFICIENTES não é considerado
-       * um nível de risco maior ou menor.
-       *
-       * Ele representa ausência de evidência
-       * suficiente para classificar o aluno.
-       */
-      const ordemRisco:
-        Partial<
-          Record<
-            NivelRisco,
-            number
-          >
-        > = {
-        NORMAL: 0,
-        ATENCAO: 1,
-        RISCO: 2,
-        CRITICO: 3,
-      };
+    /*
+     * DADOS_INSUFICIENTES não é considerado
+     * um nível de risco maior ou menor.
+     *
+     * Ele representa ausência de evidência
+     * suficiente para classificar o aluno.
+     */
+    const ordemRisco: Partial<Record<NivelRisco, number>> = {
+      NORMAL: 0,
+      ATENCAO: 1,
+      RISCO: 2,
+      CRITICO: 3,
+    };
 
-      const nivelAntes =
-        intervencao
-          .nivelRiscoNoRegistro as NivelRisco;
+    const nivelAntes = intervencao.nivelRiscoNoRegistro as NivelRisco;
 
-      const nivelDepois =
-        intervencao
-          .nivelRiscoNoEncerramento as NivelRisco;
+    const nivelDepois = intervencao.nivelRiscoNoEncerramento as NivelRisco;
 
-      const ordemAntes =
-        ordemRisco[
-        nivelAntes
-        ];
+    const ordemAntes = ordemRisco[nivelAntes];
 
-      const ordemDepois =
-        ordemRisco[
-        nivelDepois
-        ];
+    const ordemDepois = ordemRisco[nivelDepois];
 
-      if (
-        ordemAntes !==
-        undefined &&
-        ordemDepois !==
-        undefined &&
-        ordemAntes !==
-        ordemDepois
-      ) {
-        if (
-          ordemDepois <
-          ordemAntes
-        ) {
-          mudancas.push({
-            tipo:
-              "positiva",
+    if (
+      ordemAntes !== undefined &&
+      ordemDepois !== undefined &&
+      ordemAntes !== ordemDepois
+    ) {
+      if (ordemDepois < ordemAntes) {
+        mudancas.push({
+          tipo: "positiva",
 
-            texto:
-              `${t(
-                "intervention.comparison.riskImproved"
-              )}: ${t(
-                `levels.${nivelAntes}`
-              )} → ${t(
-                `levels.${nivelDepois}`
-              )}`,
-          });
-        }
-        else {
-          mudancas.push({
-            tipo:
-              "negativa",
+          texto: `${t("intervention.comparison.riskImproved")}: ${t(
+            `levels.${nivelAntes}`,
+          )} → ${t(`levels.${nivelDepois}`)}`,
+        });
+      } else {
+        mudancas.push({
+          tipo: "negativa",
 
-            texto:
-              `${t(
-                "intervention.comparison.riskIncreased"
-              )}: ${t(
-                `levels.${nivelAntes}`
-              )} → ${t(
-                `levels.${nivelDepois}`
-              )}`,
-          });
-        }
+          texto: `${t("intervention.comparison.riskIncreased")}: ${t(
+            `levels.${nivelAntes}`,
+          )} → ${t(`levels.${nivelDepois}`)}`,
+        });
       }
+    }
 
-      /* ---------------------------------------
+    /* ---------------------------------------
          PONTUAÇÃO DE RISCO
          --------------------------------------- */
 
-      if (
-        intervencao
-          .pontuacaoNoRegistro !==
-        null &&
-        intervencao
-          .pontuacaoNoEncerramento !==
-        null
-      ) {
-        const antes =
-          intervencao
-            .pontuacaoNoRegistro;
+    if (
+      intervencao.pontuacaoNoRegistro !== null &&
+      intervencao.pontuacaoNoEncerramento !== null
+    ) {
+      const antes = intervencao.pontuacaoNoRegistro;
 
-        const depois =
-          intervencao
-            .pontuacaoNoEncerramento;
+      const depois = intervencao.pontuacaoNoEncerramento;
 
-        const diferenca =
-          depois -
-          antes;
+      const diferenca = depois - antes;
 
-        /*
-         * Na pontuação de risco:
-         * quanto menor, melhor.
-         */
-        if (
-          diferenca < 0
-        ) {
-          mudancas.push({
-            tipo:
-              "positiva",
+      /*
+       * Na pontuação de risco:
+       * quanto menor, melhor.
+       */
+      if (diferenca < 0) {
+        mudancas.push({
+          tipo: "positiva",
 
-            texto:
-              `${t(
-                "intervention.comparison.scoreReduced"
-              )}: ${antes} → ${depois} (${diferenca})`,
-          });
-        }
-
-        if (
-          diferenca > 0
-        ) {
-          mudancas.push({
-            tipo:
-              "negativa",
-
-            texto:
-              `${t(
-                "intervention.comparison.scoreIncreased"
-              )}: ${antes} → ${depois} (+${diferenca})`,
-          });
-        }
+          texto: `${t(
+            "intervention.comparison.scoreReduced",
+          )}: ${antes} → ${depois} (${diferenca})`,
+        });
       }
 
-      /* ---------------------------------------
+      if (diferenca > 0) {
+        mudancas.push({
+          tipo: "negativa",
+
+          texto: `${t(
+            "intervention.comparison.scoreIncreased",
+          )}: ${antes} → ${depois} (+${diferenca})`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
          COBERTURA
          --------------------------------------- */
 
-      if (
-        intervencao
-          .coberturaNoEncerramento !==
-        null
-      ) {
-        const antes =
-          intervencao
-            .coberturaNoRegistro;
+    if (intervencao.coberturaNoEncerramento !== null) {
+      const antes = intervencao.coberturaNoRegistro;
 
-        const depois =
-          intervencao
-            .coberturaNoEncerramento;
+      const depois = intervencao.coberturaNoEncerramento;
 
-        const diferenca =
-          depois -
-          antes;
+      const diferenca = depois - antes;
 
-        if (
-          diferenca > 0
-        ) {
-          mudancas.push({
-            tipo:
-              "positiva",
+      if (diferenca > 0) {
+        mudancas.push({
+          tipo: "positiva",
 
-            texto:
-              `${t(
-                "intervention.comparison.coverageImproved"
-              )}: ${antes}% → ${depois}% (+${diferenca} ${t(
-                "intervention.comparison.percentagePoints"
-              )})`,
-          });
-        }
-
-        if (
-          diferenca < 0
-        ) {
-          mudancas.push({
-            tipo:
-              "negativa",
-
-            texto:
-              `${t(
-                "intervention.comparison.coverageReduced"
-              )}: ${antes}% → ${depois}% (${diferenca} ${t(
-                "intervention.comparison.percentagePoints"
-              )})`,
-          });
-        }
+          texto: `${t(
+            "intervention.comparison.coverageImproved",
+          )}: ${antes}% → ${depois}% (+${diferenca} ${t(
+            "intervention.comparison.percentagePoints",
+          )})`,
+        });
       }
 
-      /* ---------------------------------------
+      if (diferenca < 0) {
+        mudancas.push({
+          tipo: "negativa",
+
+          texto: `${t(
+            "intervention.comparison.coverageReduced",
+          )}: ${antes}% → ${depois}% (${diferenca} ${t(
+            "intervention.comparison.percentagePoints",
+          )})`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
          ATIVIDADES PENDENTES
          --------------------------------------- */
 
-      if (
-        inicio &&
-        fim
-      ) {
-        const antes =
-          inicio
-            .atividadesVencidas;
+    if (inicio && fim) {
+      const antes = inicio.atividadesVencidas;
 
-        const depois =
-          fim
-            .atividadesVencidas;
+      const depois = fim.atividadesVencidas;
 
-        if (
-          depois <
-          antes
-        ) {
-          mudancas.push({
-            tipo:
-              "positiva",
+      if (depois < antes) {
+        mudancas.push({
+          tipo: "positiva",
 
-            texto:
-              `${t(
-                "intervention.comparison.pendingReduced"
-              )}: ${antes} → ${depois}`,
-          });
-        }
-
-        if (
-          depois >
-          antes
-        ) {
-          mudancas.push({
-            tipo:
-              "negativa",
-
-            texto:
-              `${t(
-                "intervention.comparison.pendingIncreased"
-              )}: ${antes} → ${depois}`,
-          });
-        }
+          texto: `${t(
+            "intervention.comparison.pendingReduced",
+          )}: ${antes} → ${depois}`,
+        });
       }
 
-      /* ---------------------------------------
+      if (depois > antes) {
+        mudancas.push({
+          tipo: "negativa",
+
+          texto: `${t(
+            "intervention.comparison.pendingIncreased",
+          )}: ${antes} → ${depois}`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
          FREQUÊNCIA
          --------------------------------------- */
 
-      if (
-        inicio
-          ?.frequenciaPercentual !==
-        null &&
-        inicio
-          ?.frequenciaPercentual !==
-        undefined &&
-        fim
-          ?.frequenciaPercentual !==
-        null &&
-        fim
-          ?.frequenciaPercentual !==
-        undefined
-      ) {
-        const antes =
-          inicio
-            .frequenciaPercentual;
+    if (
+      inicio?.frequenciaPercentual !== null &&
+      inicio?.frequenciaPercentual !== undefined &&
+      fim?.frequenciaPercentual !== null &&
+      fim?.frequenciaPercentual !== undefined
+    ) {
+      const antes = inicio.frequenciaPercentual;
 
-        const depois =
-          fim
-            .frequenciaPercentual;
+      const depois = fim.frequenciaPercentual;
 
-        const diferenca =
-          Math.round(
-            depois -
-            antes
-          );
+      const diferenca = Math.round(depois - antes);
 
-        if (
-          diferenca > 0
-        ) {
-          mudancas.push({
-            tipo:
-              "positiva",
+      if (diferenca > 0) {
+        mudancas.push({
+          tipo: "positiva",
 
-            texto:
-              `${t(
-                "intervention.comparison.attendanceImproved"
-              )}: ${Math.round(
-                antes
-              )}% → ${Math.round(
-                depois
-              )}% (+${diferenca} ${t(
-                "intervention.comparison.percentagePoints"
-              )})`,
-          });
-        }
-
-        if (
-          diferenca < 0
-        ) {
-          mudancas.push({
-            tipo:
-              "negativa",
-
-            texto:
-              `${t(
-                "intervention.comparison.attendanceReduced"
-              )}: ${Math.round(
-                antes
-              )}% → ${Math.round(
-                depois
-              )}% (${diferenca} ${t(
-                "intervention.comparison.percentagePoints"
-              )})`,
-          });
-        }
+          texto: `${t(
+            "intervention.comparison.attendanceImproved",
+          )}: ${Math.round(antes)}% → ${Math.round(depois)}% (+${diferenca} ${t(
+            "intervention.comparison.percentagePoints",
+          )})`,
+        });
       }
 
-      /* ---------------------------------------
+      if (diferenca < 0) {
+        mudancas.push({
+          tipo: "negativa",
+
+          texto: `${t(
+            "intervention.comparison.attendanceReduced",
+          )}: ${Math.round(antes)}% → ${Math.round(depois)}% (${diferenca} ${t(
+            "intervention.comparison.percentagePoints",
+          )})`,
+        });
+      }
+    }
+
+    /* ---------------------------------------
          DESEMPENHO
          --------------------------------------- */
 
-      if (
-        inicio
-          ?.mediaPercentual !==
-        null &&
-        inicio
-          ?.mediaPercentual !==
-        undefined &&
-        fim
-          ?.mediaPercentual !==
-        null &&
-        fim
-          ?.mediaPercentual !==
-        undefined
-      ) {
-        const antes =
-          inicio
-            .mediaPercentual;
+    if (
+      inicio?.mediaPercentual !== null &&
+      inicio?.mediaPercentual !== undefined &&
+      fim?.mediaPercentual !== null &&
+      fim?.mediaPercentual !== undefined
+    ) {
+      const antes = inicio.mediaPercentual;
 
-        const depois =
-          fim
-            .mediaPercentual;
+      const depois = fim.mediaPercentual;
 
-        const diferenca =
-          Math.round(
-            depois -
-            antes
-          );
+      const diferenca = Math.round(depois - antes);
 
-        if (
-          diferenca > 0
-        ) {
-          mudancas.push({
-            tipo:
-              "positiva",
+      if (diferenca > 0) {
+        mudancas.push({
+          tipo: "positiva",
 
-            texto:
-              `${t(
-                "intervention.comparison.performanceImproved"
-              )}: ${Math.round(
-                antes
-              )}% → ${Math.round(
-                depois
-              )}% (+${diferenca} ${t(
-                "intervention.comparison.percentagePoints"
-              )})`,
-          });
-        }
-
-        if (
-          diferenca < 0
-        ) {
-          mudancas.push({
-            tipo:
-              "negativa",
-
-            texto:
-              `${t(
-                "intervention.comparison.performanceReduced"
-              )}: ${Math.round(
-                antes
-              )}% → ${Math.round(
-                depois
-              )}% (${diferenca} ${t(
-                "intervention.comparison.percentagePoints"
-              )})`,
-          });
-        }
+          texto: `${t(
+            "intervention.comparison.performanceImproved",
+          )}: ${Math.round(antes)}% → ${Math.round(depois)}% (+${diferenca} ${t(
+            "intervention.comparison.percentagePoints",
+          )})`,
+        });
       }
 
-      return (
-        <div
-          className="
+      if (diferenca < 0) {
+        mudancas.push({
+          tipo: "negativa",
+
+          texto: `${t(
+            "intervention.comparison.performanceReduced",
+          )}: ${Math.round(antes)}% → ${Math.round(depois)}% (${diferenca} ${t(
+            "intervention.comparison.percentagePoints",
+          )})`,
+        });
+      }
+    }
+
+    return (
+      <div
+        className="
           phanyx-student-success-comparison
           mt-4
           rounded-xl
           border
           p-3
         "
-        >
-          <div
-            className="
+      >
+        <div
+          className="
             phanyx-student-success-comparison-title
             text-xs
             font-bold
             uppercase
             tracking-wide
           "
-          >
-            {t(
-              "intervention.comparison.title"
-            )}
-          </div>
+        >
+          {t("intervention.comparison.title")}
+        </div>
 
-          <div
-            className="
+        <div
+          className="
             mt-3
             grid
             gap-3
             sm:grid-cols-[1fr_auto_1fr]
             sm:items-stretch
           "
-          >
-            {/* NO REGISTRO */}
+        >
+          {/* NO REGISTRO */}
 
-            <div
-              className="
+          <div
+            className="
               phanyx-student-success-comparison-snapshot
               rounded-xl
               border
               p-3
             "
-            >
-              <div
-                className="
+          >
+            <div
+              className="
                 text-xs
                 font-bold
                 uppercase
                 tracking-wide
               "
-              >
-                {t(
-                  "intervention.comparison.registration"
-                )}
-              </div>
+            >
+              {t("intervention.comparison.registration")}
+            </div>
 
-              <dl
-                className="
+            <dl
+              className="
                 mt-3
                 space-y-2
                 text-xs
               "
-              >
-                <div>
-                  <dt
-                    className="
+            >
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.risk"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.risk")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {t(
-                      `levels.${intervencao.nivelRiscoNoRegistro as NivelRisco}`
-                    )}
-                  </dd>
-                </div>
+                >
+                  {t(
+                    `levels.${intervencao.nivelRiscoNoRegistro as NivelRisco}`,
+                  )}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
       font-semibold
     "
-                  >
-                    {t(
-                      "intervention.comparison.score"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.score")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
       mt-0.5
       font-bold
     "
-                  >
-                    {intervencao
-                      .pontuacaoNoRegistro !==
-                      null
-                      ? intervencao
-                        .pontuacaoNoRegistro
-                      : "—"}
-                  </dd>
-                </div>
+                >
+                  {intervencao.pontuacaoNoRegistro !== null
+                    ? intervencao.pontuacaoNoRegistro
+                    : "—"}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.coverage"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.coverage")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {
-                      intervencao
-                        .coberturaNoRegistro
-                    }
-                    %
-                  </dd>
-                </div>
+                >
+                  {intervencao.coberturaNoRegistro}%
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.attendance"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.attendance")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {formatarPercentual(
-                      inicio
-                        ?.frequenciaPercentual ??
-                      null
-                    )}
-                  </dd>
-                </div>
+                >
+                  {formatarPercentual(inicio?.frequenciaPercentual ?? null)}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.performance"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.performance")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {formatarPercentual(
-                      inicio
-                        ?.mediaPercentual ??
-                      null
-                    )}
-                  </dd>
-                </div>
+                >
+                  {formatarPercentual(inicio?.mediaPercentual ?? null)}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.pending"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.pending")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {inicio
-                      ? inicio
-                        .atividadesVencidas
-                      : "—"}
-                  </dd>
-                </div>
-              </dl>
-            </div>
+                >
+                  {inicio ? inicio.atividadesVencidas : "—"}
+                </dd>
+              </div>
+            </dl>
+          </div>
 
-            {/* SETA */}
+          {/* SETA */}
 
-            <div
-              className="
+          <div
+            className="
               phanyx-student-success-comparison-arrow
               flex
               items-center
@@ -3810,312 +2300,242 @@ export default function AdminStudentSuccessPage() {
               text-xl
               font-bold
             "
-              aria-hidden="true"
-            >
-              →
-            </div>
+            aria-hidden="true"
+          >
+            →
+          </div>
 
-            {/* NO ENCERRAMENTO */}
+          {/* NO ENCERRAMENTO */}
 
-            <div
-              className="
+          <div
+            className="
               phanyx-student-success-comparison-snapshot
               rounded-xl
               border
               p-3
             "
-            >
-              <div
-                className="
+          >
+            <div
+              className="
                 text-xs
                 font-bold
                 uppercase
                 tracking-wide
               "
-              >
-                {t(
-                  "intervention.comparison.closure"
-                )}
-              </div>
+            >
+              {t("intervention.comparison.closure")}
+            </div>
 
-              <dl
-                className="
+            <dl
+              className="
                 mt-3
                 space-y-2
                 text-xs
               "
-              >
-                <div>
-                  <dt
-                    className="
+            >
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.risk"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.risk")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {t(
-                      `levels.${intervencao.nivelRiscoNoEncerramento as NivelRisco}`
-                    )}
-                  </dd>
-                </div>
+                >
+                  {t(
+                    `levels.${intervencao.nivelRiscoNoEncerramento as NivelRisco}`,
+                  )}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
       font-semibold
     "
-                  >
-                    {t(
-                      "intervention.comparison.score"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.score")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
       mt-0.5
       font-bold
     "
-                  >
-                    {intervencao
-                      .pontuacaoNoEncerramento !==
-                      null
-                      ? intervencao
-                        .pontuacaoNoEncerramento
-                      : "—"}
-                  </dd>
-                </div>
+                >
+                  {intervencao.pontuacaoNoEncerramento !== null
+                    ? intervencao.pontuacaoNoEncerramento
+                    : "—"}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.coverage"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.coverage")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {
-                      intervencao
-                        .coberturaNoEncerramento ??
-                      0
-                    }
-                    %
-                  </dd>
-                </div>
+                >
+                  {intervencao.coberturaNoEncerramento ?? 0}%
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.attendance"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.attendance")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {formatarPercentual(
-                      fim
-                        ?.frequenciaPercentual ??
-                      null
-                    )}
-                  </dd>
-                </div>
+                >
+                  {formatarPercentual(fim?.frequenciaPercentual ?? null)}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.performance"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.performance")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {formatarPercentual(
-                      fim
-                        ?.mediaPercentual ??
-                      null
-                    )}
-                  </dd>
-                </div>
+                >
+                  {formatarPercentual(fim?.mediaPercentual ?? null)}
+                </dd>
+              </div>
 
-                <div>
-                  <dt
-                    className="
+              <div>
+                <dt
+                  className="
                     font-semibold
                   "
-                  >
-                    {t(
-                      "intervention.comparison.pending"
-                    )}
-                  </dt>
+                >
+                  {t("intervention.comparison.pending")}
+                </dt>
 
-                  <dd
-                    className="
+                <dd
+                  className="
                     mt-0.5
                     font-bold
                   "
-                  >
-                    {fim
-                      ? fim
-                        .atividadesVencidas
-                      : "—"}
-                  </dd>
-                </div>
-              </dl>
-            </div>
+                >
+                  {fim ? fim.atividadesVencidas : "—"}
+                </dd>
+              </div>
+            </dl>
           </div>
+        </div>
 
-          {/* EVOLUÇÃO CALCULADA */}
+        {/* EVOLUÇÃO CALCULADA */}
 
-          <div
-            className="
+        <div
+          className="
             phanyx-student-success-comparison-evolution
             mt-3
             rounded-xl
             border
             p-3
           "
-          >
-            <div
-              className="
+        >
+          <div
+            className="
               text-xs
               font-bold
               uppercase
               tracking-wide
             "
-            >
-              {t(
-                "intervention.comparison.evolution"
-              )}
-            </div>
+          >
+            {t("intervention.comparison.evolution")}
+          </div>
 
-            {mudancas.length >
-              0 ? (
-              <div
-                className="
+          {mudancas.length > 0 ? (
+            <div
+              className="
                 mt-2
                 space-y-2
               "
-              >
-                {mudancas.map(
-                  (
-                    mudanca,
-                    indice
-                  ) => (
-                    <div
-                      key={
-                        `${mudanca.tipo}-${indice}`
-                      }
-                      className={[
-                        "phanyx-student-success-comparison-change rounded-lg border px-3 py-2 text-xs font-semibold",
+            >
+              {mudancas.map((mudanca, indice) => (
+                <div
+                  key={`${mudanca.tipo}-${indice}`}
+                  className={[
+                    "phanyx-student-success-comparison-change rounded-lg border px-3 py-2 text-xs font-semibold",
 
-                        mudanca.tipo ===
-                          "positiva"
-                          ? "phanyx-student-success-comparison-positive"
-                          : "phanyx-student-success-comparison-negative",
-                      ].join(
-                        " "
-                      )}
-                    >
-                      <span
-                        aria-hidden="true"
-                      >
-                        {mudanca.tipo ===
-                          "positiva"
-                          ? "✓"
-                          : "⚠"}
-                      </span>{" "}
-                      {
-                        mudanca.texto
-                      }
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <p
-                className="
+                    mudanca.tipo === "positiva"
+                      ? "phanyx-student-success-comparison-positive"
+                      : "phanyx-student-success-comparison-negative",
+                  ].join(" ")}
+                >
+                  <span aria-hidden="true">
+                    {mudanca.tipo === "positiva" ? "✓" : "⚠"}
+                  </span>{" "}
+                  {mudanca.texto}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p
+              className="
                 phanyx-student-success-comparison-neutral
                 mt-2
                 text-xs
                 font-semibold
               "
-              >
-                {t(
-                  "intervention.comparison.noMeasurableChange"
-                )}
-              </p>
-            )}
-          </div>
+            >
+              {t("intervention.comparison.noMeasurableChange")}
+            </p>
+          )}
         </div>
-      );
-    };
+      </div>
+    );
+  };
 
-  const limparFiltrosIntervencoes =
-    () => {
-      setPeriodoIntervencoes(
-        "TODOS"
-      );
+  const limparFiltrosIntervencoes = () => {
+    setPeriodoIntervencoes("TODOS");
 
-      setFiltroStatusIntervencoes(
-        "TODOS"
-      );
+    setFiltroStatusIntervencoes("TODOS");
 
-      setFiltroTipoIntervencoes(
-        "TODOS"
-      );
+    setFiltroTipoIntervencoes("TODOS");
 
-      setDataInicialIntervencoes(
-        ""
-      );
+    setDataInicialIntervencoes("");
 
-      setDataFinalIntervencoes(
-        ""
-      );
-    };
+    setDataFinalIntervencoes("");
+  };
 
   const existemFiltrosIntervencoes =
-    periodoIntervencoes !==
-    "TODOS" ||
-    filtroStatusIntervencoes !==
-    "TODOS" ||
-    filtroTipoIntervencoes !==
-    "TODOS";
+    periodoIntervencoes !== "TODOS" ||
+    filtroStatusIntervencoes !== "TODOS" ||
+    filtroTipoIntervencoes !== "TODOS";
 
-  const resumo =
-    dados?.resumo;
+  const resumo = dados?.resumo;
 
   return (
     <main
@@ -4199,9 +2619,7 @@ export default function AdminStudentSuccessPage() {
                   sm:text-3xl
                 "
               >
-                {t(
-                  "title"
-                )}
+                {t("title")}
               </h1>
 
               <p
@@ -4213,9 +2631,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-blue-300
                 "
               >
-                {t(
-                  "subtitle"
-                )}
+                {t("subtitle")}
               </p>
 
               <p
@@ -4229,9 +2645,7 @@ export default function AdminStudentSuccessPage() {
                   sm:text-base
                 "
               >
-                {t(
-                  "description"
-                )}
+                {t("description")}
               </p>
             </div>
 
@@ -4305,50 +2719,283 @@ export default function AdminStudentSuccessPage() {
                 dark:text-white
               "
             >
-              {t(
-                "overview.title"
-              )}
+              {t("overview.title")}
             </h2>
 
-            <button
-              type="button"
-              onClick={
-                () =>
-                  void carregarDados()
-              }
-              disabled={
-                carregando
-              }
+            <div
               className="
-              phanyx-student-success-refresh-button
-                inline-flex
-                items-center
-                justify-center
-                rounded-xl
-                border
-                border-slate-300
-                bg-white
-                px-4
-                py-2
-                text-sm
-                font-semibold
-                text-slate-700
-                shadow-sm
-                transition
-                hover:bg-slate-50
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-                dark:border-slate-700
-                dark:bg-slate-900
-                dark:text-slate-200
-                dark:hover:bg-slate-800
-              "
+    flex
+    flex-wrap
+    gap-2
+  "
             >
-              {t(
-                "actions.refresh"
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => void carregarDados()}
+                disabled={carregando || reanalisando}
+                className="
+      phanyx-student-success-refresh-button
+      inline-flex
+      items-center
+      justify-center
+      rounded-xl
+      border
+      border-slate-300
+      bg-white
+      px-4
+      py-2
+      text-sm
+      font-semibold
+      text-slate-700
+      shadow-sm
+      transition
+      hover:bg-slate-50
+      disabled:cursor-not-allowed
+      disabled:opacity-50
+      dark:border-slate-700
+      dark:bg-slate-900
+      dark:text-slate-200
+      dark:hover:bg-slate-800
+    "
+              >
+                {t(
+  "actions.refreshPanel"
+)}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void reanalisarAlunos()}
+                disabled={reanalisando || carregando}
+                className="
+      inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      bg-blue-700
+      px-4
+      py-2
+      text-sm
+      font-bold
+      text-white
+      shadow-sm
+      transition
+      hover:bg-blue-800
+      disabled:cursor-not-allowed
+      disabled:opacity-50
+    "
+              >
+                {reanalisando ? (
+                  <>
+                    <span
+                      className="
+            h-4
+            w-4
+            animate-spin
+            rounded-full
+            border-2
+            border-white/40
+            border-t-white
+          "
+                      aria-hidden="true"
+                    />
+
+                    {t("reanalysis.running")}
+                  </>
+                ) : (
+                  <>
+                    <span aria-hidden="true">↻</span>
+
+                    {t("reanalysis.button")}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
+
+          {erroReanalise ? (
+            <div
+              className="
+      mb-4
+      rounded-2xl
+      border
+      border-red-300
+      bg-red-50
+      p-4
+      text-sm
+      font-semibold
+      text-red-800
+      dark:border-red-900
+      dark:bg-red-950/30
+      dark:text-red-200
+    "
+            >
+              {erroReanalise}
+            </div>
+          ) : resultadoReanalise ? (
+            <div
+              className="
+      mb-4
+      rounded-2xl
+      border
+      border-emerald-200
+      bg-emerald-50
+      p-4
+      text-emerald-950
+      dark:border-emerald-900/70
+      dark:bg-emerald-950/30
+      dark:text-emerald-100
+    "
+            >
+              <div
+                className="
+        flex
+        items-center
+        gap-2
+        font-bold
+      "
+              >
+                <span aria-hidden="true">✓</span>
+
+                {t("reanalysis.successTitle")}
+              </div>
+
+              <div
+                className="
+        mt-4
+        grid
+        gap-3
+        sm:grid-cols-2
+        xl:grid-cols-4
+      "
+              >
+                <div
+                  className="
+          rounded-xl
+          border
+          border-emerald-200
+          bg-white/70
+          p-3
+          dark:border-emerald-900/60
+          dark:bg-slate-950/40
+        "
+                >
+                  <div
+                    className="
+            text-xl
+            font-bold
+          "
+                  >
+                    {resultadoReanalise.resumo.monitorados}
+                  </div>
+
+                  <div
+                    className="
+            mt-1
+            text-xs
+            font-semibold
+          "
+                  >
+                    {t("reanalysis.studentsAnalyzed")}
+                  </div>
+                </div>
+
+                <div
+                  className="
+          rounded-xl
+          border
+          border-emerald-200
+          bg-white/70
+          p-3
+          dark:border-emerald-900/60
+          dark:bg-slate-950/40
+        "
+                >
+                  <div
+                    className="
+            text-xl
+            font-bold
+          "
+                  >
+                    {resultadoReanalise.resumo.alteracoes}
+                  </div>
+
+                  <div
+                    className="
+            mt-1
+            text-xs
+            font-semibold
+          "
+                  >
+                    {t("reanalysis.changesRecorded")}
+                  </div>
+                </div>
+
+                <div
+                  className="
+          rounded-xl
+          border
+          border-emerald-200
+          bg-white/70
+          p-3
+          dark:border-emerald-900/60
+          dark:bg-slate-950/40
+        "
+                >
+                  <div
+                    className="
+            text-xl
+            font-bold
+          "
+                  >
+                    {resultadoReanalise.resumo.semAlteracao}
+                  </div>
+
+                  <div
+                    className="
+            mt-1
+            text-xs
+            font-semibold
+          "
+                  >
+                    {t("reanalysis.noChanges")}
+                  </div>
+                </div>
+
+                <div
+                  className="
+          rounded-xl
+          border
+          border-emerald-200
+          bg-white/70
+          p-3
+          dark:border-emerald-900/60
+          dark:bg-slate-950/40
+        "
+                >
+                  <div
+                    className="
+            text-xl
+            font-bold
+          "
+                  >
+                    {resultadoReanalise.resumo.iniciais}
+                  </div>
+
+                  <div
+                    className="
+            mt-1
+            text-xs
+            font-semibold
+          "
+                  >
+                    {t("reanalysis.initialSnapshots")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div
             className="
@@ -4359,82 +3006,32 @@ export default function AdminStudentSuccessPage() {
             "
           >
             <CardResumo
-              valor={
-                carregando
-                  ? "—"
-                  : String(
-                    resumo
-                      ?.critico ??
-                    0
-                  )
-              }
-              titulo={t(
-                "cards.critical"
-              )}
+              valor={carregando ? "—" : String(resumo?.critico ?? 0)}
+              titulo={t("cards.critical")}
               variante="critical"
             />
 
             <CardResumo
-              valor={
-                carregando
-                  ? "—"
-                  : String(
-                    resumo
-                      ?.risco ??
-                    0
-                  )
-              }
-              titulo={t(
-                "cards.risk"
-              )}
+              valor={carregando ? "—" : String(resumo?.risco ?? 0)}
+              titulo={t("cards.risk")}
               variante="risk"
             />
 
             <CardResumo
-              valor={
-                carregando
-                  ? "—"
-                  : String(
-                    resumo
-                      ?.atencao ??
-                    0
-                  )
-              }
-              titulo={t(
-                "cards.attention"
-              )}
+              valor={carregando ? "—" : String(resumo?.atencao ?? 0)}
+              titulo={t("cards.attention")}
               variante="attention"
             />
 
             <CardResumo
-              valor={
-                carregando
-                  ? "—"
-                  : String(
-                    resumo
-                      ?.normal ??
-                    0
-                  )
-              }
-              titulo={t(
-                "cards.normal"
-              )}
+              valor={carregando ? "—" : String(resumo?.normal ?? 0)}
+              titulo={t("cards.normal")}
               variante="normal"
             />
 
             <CardResumo
-              valor={
-                carregando
-                  ? "—"
-                  : String(
-                    resumo
-                      ?.dadosInsuficientes ??
-                    0
-                  )
-              }
-              titulo={t(
-                "cards.insufficient"
-              )}
+              valor={carregando ? "—" : String(resumo?.dadosInsuficientes ?? 0)}
+              titulo={t("cards.insufficient")}
               variante="insufficient"
             />
           </div>
@@ -4457,9 +3054,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
             >
-              {t(
-                "intervention.dashboard.title"
-              )}
+              {t("intervention.dashboard.title")}
             </h2>
 
             <p
@@ -4469,9 +3064,7 @@ export default function AdminStudentSuccessPage() {
         text-sm
       "
             >
-              {t(
-                "intervention.dashboard.description"
-              )}
+              {t("intervention.dashboard.description")}
             </p>
           </div>
 
@@ -4502,9 +3095,7 @@ export default function AdminStudentSuccessPage() {
           font-bold
         "
                 >
-                  {t(
-                    "intervention.dashboard.filters.title"
-                  )}
+                  {t("intervention.dashboard.filters.title")}
                 </h3>
 
                 <p
@@ -4514,18 +3105,14 @@ export default function AdminStudentSuccessPage() {
           text-xs
         "
                 >
-                  {t(
-                    "intervention.dashboard.filters.description"
-                  )}
+                  {t("intervention.dashboard.filters.description")}
                 </p>
               </div>
 
               {existemFiltrosIntervencoes ? (
                 <button
                   type="button"
-                  onClick={
-                    limparFiltrosIntervencoes
-                  }
+                  onClick={limparFiltrosIntervencoes}
                   className="
           phanyx-student-success-management-clear
           inline-flex
@@ -4541,10 +3128,7 @@ export default function AdminStudentSuccessPage() {
           transition
         "
                 >
-                  ×{" "}
-                  {t(
-                    "intervention.dashboard.filters.clear"
-                  )}
+                  × {t("intervention.dashboard.filters.clear")}
                 </button>
               ) : null}
             </div>
@@ -4573,41 +3157,22 @@ export default function AdminStudentSuccessPage() {
           font-bold
         "
                 >
-                  {t(
-                    "intervention.dashboard.filters.period"
-                  )}
+                  {t("intervention.dashboard.filters.period")}
                 </span>
 
                 <select
-                  value={
-                    periodoIntervencoes
-                  }
-                  onChange={
-                    (
-                      event
-                    ) => {
-                      const valor =
-                        event.target
-                          .value as PeriodoIntervencoes;
+                  value={periodoIntervencoes}
+                  onChange={(event) => {
+                    const valor = event.target.value as PeriodoIntervencoes;
 
-                      setPeriodoIntervencoes(
-                        valor
-                      );
+                    setPeriodoIntervencoes(valor);
 
-                      if (
-                        valor !==
-                        "PERSONALIZADO"
-                      ) {
-                        setDataInicialIntervencoes(
-                          ""
-                        );
+                    if (valor !== "PERSONALIZADO") {
+                      setDataInicialIntervencoes("");
 
-                        setDataFinalIntervencoes(
-                          ""
-                        );
-                      }
+                      setDataFinalIntervencoes("");
                     }
-                  }
+                  }}
                   className="
           phanyx-student-success-management-filter-field
           w-full
@@ -4621,33 +3186,23 @@ export default function AdminStudentSuccessPage() {
         "
                 >
                   <option value="TODOS">
-                    {t(
-                      "intervention.dashboard.filters.allPeriods"
-                    )}
+                    {t("intervention.dashboard.filters.allPeriods")}
                   </option>
 
                   <option value="HOJE">
-                    {t(
-                      "intervention.dashboard.filters.today"
-                    )}
+                    {t("intervention.dashboard.filters.today")}
                   </option>
 
                   <option value="ULTIMOS_7_DIAS">
-                    {t(
-                      "intervention.dashboard.filters.last7Days"
-                    )}
+                    {t("intervention.dashboard.filters.last7Days")}
                   </option>
 
                   <option value="ULTIMOS_30_DIAS">
-                    {t(
-                      "intervention.dashboard.filters.last30Days"
-                    )}
+                    {t("intervention.dashboard.filters.last30Days")}
                   </option>
 
                   <option value="PERSONALIZADO">
-                    {t(
-                      "intervention.dashboard.filters.custom"
-                    )}
+                    {t("intervention.dashboard.filters.custom")}
                   </option>
                 </select>
               </label>
@@ -4667,23 +3222,15 @@ export default function AdminStudentSuccessPage() {
           font-bold
         "
                 >
-                  {t(
-                    "intervention.dashboard.filters.status"
-                  )}
+                  {t("intervention.dashboard.filters.status")}
                 </span>
 
                 <select
-                  value={
-                    filtroStatusIntervencoes
-                  }
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setFiltroStatusIntervencoes(
-                        event.target
-                          .value as FiltroStatusIntervencao
-                      )
+                  value={filtroStatusIntervencoes}
+                  onChange={(event) =>
+                    setFiltroStatusIntervencoes(
+                      event.target.value as FiltroStatusIntervencao,
+                    )
                   }
                   className="
           phanyx-student-success-management-filter-field
@@ -4698,9 +3245,7 @@ export default function AdminStudentSuccessPage() {
         "
                 >
                   <option value="TODOS">
-                    {t(
-                      "intervention.dashboard.filters.allStatuses"
-                    )}
+                    {t("intervention.dashboard.filters.allStatuses")}
                   </option>
 
                   {[
@@ -4709,24 +3254,11 @@ export default function AdminStudentSuccessPage() {
                     "EM_ACOMPANHAMENTO",
                     "RESOLVIDA",
                     "CANCELADA",
-                  ].map(
-                    (
-                      status
-                    ) => (
-                      <option
-                        key={
-                          status
-                        }
-                        value={
-                          status
-                        }
-                      >
-                        {t(
-                          `intervention.statuses.${status}`
-                        )}
-                      </option>
-                    )
-                  )}
+                  ].map((status) => (
+                    <option key={status} value={status}>
+                      {t(`intervention.statuses.${status}`)}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -4745,23 +3277,15 @@ export default function AdminStudentSuccessPage() {
           font-bold
         "
                 >
-                  {t(
-                    "intervention.dashboard.filters.type"
-                  )}
+                  {t("intervention.dashboard.filters.type")}
                 </span>
 
                 <select
-                  value={
-                    filtroTipoIntervencoes
-                  }
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setFiltroTipoIntervencoes(
-                        event.target
-                          .value as FiltroTipoIntervencao
-                      )
+                  value={filtroTipoIntervencoes}
+                  onChange={(event) =>
+                    setFiltroTipoIntervencoes(
+                      event.target.value as FiltroTipoIntervencao,
+                    )
                   }
                   className="
           phanyx-student-success-management-filter-field
@@ -4776,9 +3300,7 @@ export default function AdminStudentSuccessPage() {
         "
                 >
                   <option value="TODOS">
-                    {t(
-                      "intervention.dashboard.filters.allTypes"
-                    )}
+                    {t("intervention.dashboard.filters.allTypes")}
                   </option>
 
                   {[
@@ -4788,30 +3310,16 @@ export default function AdminStudentSuccessPage() {
                     "ENCAMINHAMENTO",
                     "ACOMPANHAMENTO",
                     "OUTRO",
-                  ].map(
-                    (
-                      tipo
-                    ) => (
-                      <option
-                        key={
-                          tipo
-                        }
-                        value={
-                          tipo
-                        }
-                      >
-                        {t(
-                          `intervention.types.${tipo}`
-                        )}
-                      </option>
-                    )
-                  )}
+                  ].map((tipo) => (
+                    <option key={tipo} value={tipo}>
+                      {t(`intervention.types.${tipo}`)}
+                    </option>
+                  ))}
                 </select>
               </label>
             </div>
 
-            {periodoIntervencoes ===
-              "PERSONALIZADO" ? (
+            {periodoIntervencoes === "PERSONALIZADO" ? (
               <div
                 className="
         mt-4
@@ -4834,28 +3342,15 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                   >
-                    {t(
-                      "intervention.dashboard.filters.startDate"
-                    )}
+                    {t("intervention.dashboard.filters.startDate")}
                   </span>
 
                   <input
                     type="date"
-                    value={
-                      dataInicialIntervencoes
-                    }
-                    max={
-                      dataFinalIntervencoes ||
-                      undefined
-                    }
-                    onChange={
-                      (
-                        event
-                      ) =>
-                        setDataInicialIntervencoes(
-                          event.target
-                            .value
-                        )
+                    value={dataInicialIntervencoes}
+                    max={dataFinalIntervencoes || undefined}
+                    onChange={(event) =>
+                      setDataInicialIntervencoes(event.target.value)
                     }
                     className="
             phanyx-student-success-management-filter-field
@@ -4885,28 +3380,15 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                   >
-                    {t(
-                      "intervention.dashboard.filters.endDate"
-                    )}
+                    {t("intervention.dashboard.filters.endDate")}
                   </span>
 
                   <input
                     type="date"
-                    value={
-                      dataFinalIntervencoes
-                    }
-                    min={
-                      dataInicialIntervencoes ||
-                      undefined
-                    }
-                    onChange={
-                      (
-                        event
-                      ) =>
-                        setDataFinalIntervencoes(
-                          event.target
-                            .value
-                        )
+                    value={dataFinalIntervencoes}
+                    min={dataInicialIntervencoes || undefined}
+                    onChange={(event) =>
+                      setDataFinalIntervencoes(event.target.value)
                     }
                     className="
             phanyx-student-success-management-filter-field
@@ -4936,9 +3418,7 @@ export default function AdminStudentSuccessPage() {
         text-sm
       "
             >
-              {t(
-                "intervention.dashboard.loading"
-              )}
+              {t("intervention.dashboard.loading")}
             </div>
           ) : erroResumoIntervencoes ? (
             <div
@@ -4954,9 +3434,7 @@ export default function AdminStudentSuccessPage() {
         text-red-800
       "
             >
-              {
-                erroResumoIntervencoes
-              }
+              {erroResumoIntervencoes}
             </div>
           ) : resumoIntervencoes ? (
             <>
@@ -4983,11 +3461,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .acompanhamento
-                        .total
-                    }
+                    {resumoIntervencoes.acompanhamento.total}
                   </div>
 
                   <div
@@ -4997,9 +3471,7 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                   >
-                    {t(
-                      "intervention.dashboard.total"
-                    )}
+                    {t("intervention.dashboard.total")}
                   </div>
                 </div>
 
@@ -5017,11 +3489,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .acompanhamento
-                        .abertas
-                    }
+                    {resumoIntervencoes.acompanhamento.abertas}
                   </div>
 
                   <div
@@ -5031,9 +3499,7 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                   >
-                    {t(
-                      "intervention.dashboard.open"
-                    )}
+                    {t("intervention.dashboard.open")}
                   </div>
                 </div>
 
@@ -5051,11 +3517,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .acompanhamento
-                        .aguardandoRetorno
-                    }
+                    {resumoIntervencoes.acompanhamento.aguardandoRetorno}
                   </div>
 
                   <div
@@ -5065,9 +3527,7 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                   >
-                    {t(
-                      "intervention.dashboard.awaitingResponse"
-                    )}
+                    {t("intervention.dashboard.awaitingResponse")}
                   </div>
                 </div>
 
@@ -5085,11 +3545,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .acompanhamento
-                        .emAcompanhamento
-                    }
+                    {resumoIntervencoes.acompanhamento.emAcompanhamento}
                   </div>
 
                   <div
@@ -5099,9 +3555,7 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                   >
-                    {t(
-                      "intervention.dashboard.inProgress"
-                    )}
+                    {t("intervention.dashboard.inProgress")}
                   </div>
                 </div>
 
@@ -5119,11 +3573,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .acompanhamento
-                        .resolvidas
-                    }
+                    {resumoIntervencoes.acompanhamento.resolvidas}
                   </div>
 
                   <div
@@ -5133,9 +3583,7 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                   >
-                    {t(
-                      "intervention.dashboard.resolved"
-                    )}
+                    {t("intervention.dashboard.resolved")}
                   </div>
                 </div>
               </div>
@@ -5152,9 +3600,7 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                 >
-                  {t(
-                    "intervention.dashboard.effectivenessTitle"
-                  )}
+                  {t("intervention.dashboard.effectivenessTitle")}
                 </h3>
 
                 <p
@@ -5164,9 +3610,7 @@ export default function AdminStudentSuccessPage() {
             text-sm
           "
                 >
-                  {t(
-                    "intervention.dashboard.effectivenessDescription"
-                  )}
+                  {t("intervention.dashboard.effectivenessDescription")}
                 </p>
               </div>
 
@@ -5194,14 +3638,10 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {resumoIntervencoes
-                      .efetividade
-                      .percentualEvolucaoPositiva !==
-                      null
+                    {resumoIntervencoes.efetividade
+                      .percentualEvolucaoPositiva !== null
                       ? `${resumoIntervencoes.efetividade.percentualEvolucaoPositiva}%`
-                      : t(
-                        "intervention.dashboard.unavailable"
-                      )}
+                      : t("intervention.dashboard.unavailable")}
                   </div>
 
                   <div
@@ -5211,9 +3651,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {t(
-                      "intervention.dashboard.positiveEvolution"
-                    )}
+                    {t("intervention.dashboard.positiveEvolution")}
                   </div>
 
                   <div
@@ -5222,27 +3660,17 @@ export default function AdminStudentSuccessPage() {
     text-xs
   "
                   >
-                    {resumoIntervencoes
-                      .efetividade
-                      .amostraSuficiente
-                      ? t(
-                        "intervention.dashboard.positiveEvolutionSubtitle",
-                        {
+                    {resumoIntervencoes.efetividade.amostraSuficiente
+                      ? t("intervention.dashboard.positiveEvolutionSubtitle", {
                           count:
-                            resumoIntervencoes
-                              .efetividade
+                            resumoIntervencoes.efetividade
                               .resolvidasMensuraveis,
-                        }
-                      )
-                      : t(
-                        "intervention.dashboard.sampleInsufficient",
-                        {
+                        })
+                      : t("intervention.dashboard.sampleInsufficient", {
                           count:
-                            resumoIntervencoes
-                              .efetividade
+                            resumoIntervencoes.efetividade
                               .resolvidasMensuraveis,
-                        }
-                      )}
+                        })}
                   </div>
                 </div>
 
@@ -5260,33 +3688,19 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {resumoIntervencoes
-                      .efetividade
-                      .tempoMedioResolucaoDias ===
-                      null
-                      ? t(
-                        "intervention.dashboard.unavailable"
-                      )
-                      : resumoIntervencoes
-                        .efetividade
-                        .tempoMedioResolucaoDias <
-                        1
-                        ? t(
-                          "intervention.dashboard.lessThanOneDay"
-                        )
-                        : t(
-                          "intervention.dashboard.days",
-                          {
+                    {resumoIntervencoes.efetividade.tempoMedioResolucaoDias ===
+                    null
+                      ? t("intervention.dashboard.unavailable")
+                      : resumoIntervencoes.efetividade.tempoMedioResolucaoDias <
+                          1
+                        ? t("intervention.dashboard.lessThanOneDay")
+                        : t("intervention.dashboard.days", {
                             value:
                               Math.round(
-                                resumoIntervencoes
-                                  .efetividade
-                                  .tempoMedioResolucaoDias *
-                                10
-                              ) /
-                              10,
-                          }
-                        )}
+                                resumoIntervencoes.efetividade
+                                  .tempoMedioResolucaoDias * 10,
+                              ) / 10,
+                          })}
                   </div>
 
                   <div
@@ -5296,9 +3710,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {t(
-                      "intervention.dashboard.averageResolutionTime"
-                    )}
+                    {t("intervention.dashboard.averageResolutionTime")}
                   </div>
                 </div>
 
@@ -5317,11 +3729,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .efetividade
-                        .alunosComPiora
-                    }
+                    {resumoIntervencoes.efetividade.alunosComPiora}
                   </div>
 
                   <div
@@ -5331,9 +3739,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {t(
-                      "intervention.dashboard.studentsWorsened"
-                    )}
+                    {t("intervention.dashboard.studentsWorsened")}
                   </div>
 
                   <div
@@ -5342,9 +3748,7 @@ export default function AdminStudentSuccessPage() {
               text-xs
             "
                   >
-                    {t(
-                      "intervention.dashboard.studentsWorsenedSubtitle"
-                    )}
+                    {t("intervention.dashboard.studentsWorsenedSubtitle")}
                   </div>
                 </div>
 
@@ -5362,11 +3766,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {
-                      resumoIntervencoes
-                        .efetividade
-                        .naoMensuravel
-                    }
+                    {resumoIntervencoes.efetividade.naoMensuravel}
                   </div>
 
                   <div
@@ -5376,9 +3776,7 @@ export default function AdminStudentSuccessPage() {
               font-bold
             "
                   >
-                    {t(
-                      "intervention.dashboard.notMeasurable"
-                    )}
+                    {t("intervention.dashboard.notMeasurable")}
                   </div>
 
                   <div
@@ -5387,9 +3785,7 @@ export default function AdminStudentSuccessPage() {
               text-xs
             "
                   >
-                    {t(
-                      "intervention.dashboard.notMeasurableSubtitle"
-                    )}
+                    {t("intervention.dashboard.notMeasurableSubtitle")}
                   </div>
                 </div>
               </div>
@@ -5414,9 +3810,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
             >
-              {t(
-                "intervention.priorities.title"
-              )}
+              {t("intervention.priorities.title")}
             </h2>
 
             <p
@@ -5426,9 +3820,7 @@ export default function AdminStudentSuccessPage() {
         text-sm
       "
             >
-              {t(
-                "intervention.priorities.description"
-              )}
+              {t("intervention.priorities.description")}
             </p>
           </div>
 
@@ -5444,9 +3836,7 @@ export default function AdminStudentSuccessPage() {
         font-semibold
       "
             >
-              {t(
-                "intervention.priorities.loading"
-              )}
+              {t("intervention.priorities.loading")}
             </div>
           ) : erroPrioridades ? (
             <div
@@ -5462,9 +3852,7 @@ export default function AdminStudentSuccessPage() {
         text-red-800
       "
             >
-              {t(
-                "intervention.priorities.error"
-              )}
+              {t("intervention.priorities.error")}
             </div>
           ) : (
             <>
@@ -5481,15 +3869,8 @@ export default function AdminStudentSuccessPage() {
               >
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroPrioridades ===
-                    "HOJE"
-                  }
-                  onClick={() =>
-                    alternarFiltroPrioridades(
-                      "HOJE"
-                    )
-                  }
+                  aria-pressed={filtroPrioridades === "HOJE"}
+                  onClick={() => alternarFiltroPrioridades("HOJE")}
                   className="
       phanyx-student-success-priority-summary
       phanyx-student-success-priority-summary-button
@@ -5508,10 +3889,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      prioridadesClassificadas
-                        .hoje.length
-                    }
+                    {prioridadesClassificadas.hoje.length}
                   </div>
 
                   <div
@@ -5521,23 +3899,14 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.priorities.today"
-                    )}
+                    {t("intervention.priorities.today")}
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroPrioridades ===
-                    "ATRASADOS"
-                  }
-                  onClick={() =>
-                    alternarFiltroPrioridades(
-                      "ATRASADOS"
-                    )
-                  }
+                  aria-pressed={filtroPrioridades === "ATRASADOS"}
+                  onClick={() => alternarFiltroPrioridades("ATRASADOS")}
                   className="
       phanyx-student-success-priority-summary
       phanyx-student-success-priority-summary-button
@@ -5556,10 +3925,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      prioridadesClassificadas
-                        .atrasados.length
-                    }
+                    {prioridadesClassificadas.atrasados.length}
                   </div>
 
                   <div
@@ -5569,23 +3935,14 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.priorities.overdue"
-                    )}
+                    {t("intervention.priorities.overdue")}
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroPrioridades ===
-                    "PIORA"
-                  }
-                  onClick={() =>
-                    alternarFiltroPrioridades(
-                      "PIORA"
-                    )
-                  }
+                  aria-pressed={filtroPrioridades === "PIORA"}
+                  onClick={() => alternarFiltroPrioridades("PIORA")}
                   className="
       phanyx-student-success-priority-summary
       phanyx-student-success-priority-summary-button
@@ -5604,11 +3961,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      prioridadesClassificadas
-                        .pioraAposIntervencao
-                        .length
-                    }
+                    {prioridadesClassificadas.pioraAposIntervencao.length}
                   </div>
 
                   <div
@@ -5618,23 +3971,14 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.priorities.worsened"
-                    )}
+                    {t("intervention.priorities.worsened")}
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroPrioridades ===
-                    "SEM_RETORNO"
-                  }
-                  onClick={() =>
-                    alternarFiltroPrioridades(
-                      "SEM_RETORNO"
-                    )
-                  }
+                  aria-pressed={filtroPrioridades === "SEM_RETORNO"}
+                  onClick={() => alternarFiltroPrioridades("SEM_RETORNO")}
                   className="
       phanyx-student-success-priority-summary
       phanyx-student-success-priority-summary-button
@@ -5653,10 +3997,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      prioridadesClassificadas
-                        .semRetorno.length
-                    }
+                    {prioridadesClassificadas.semRetorno.length}
                   </div>
 
                   <div
@@ -5666,9 +4007,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.priorities.unscheduled"
-                    )}
+                    {t("intervention.priorities.unscheduled")}
                   </div>
                 </button>
               </div>
@@ -5683,11 +4022,7 @@ export default function AdminStudentSuccessPage() {
                 >
                   <button
                     type="button"
-                    onClick={() =>
-                      setFiltroPrioridades(
-                        "TODOS"
-                      )
-                    }
+                    onClick={() => setFiltroPrioridades("TODOS")}
                     className="
         phanyx-student-success-priority-clear-filter
         rounded-lg
@@ -5699,10 +4034,7 @@ export default function AdminStudentSuccessPage() {
         transition
       "
                   >
-                    ×{" "}
-                    {t(
-                      "intervention.priorities.showAll"
-                    )}
+                    × {t("intervention.priorities.showAll")}
                   </button>
                 </div>
               ) : null}
@@ -5719,231 +4051,156 @@ export default function AdminStudentSuccessPage() {
             font-semibold
           "
                 >
-                  {t(
-                    "intervention.priorities.empty"
-                  )}
+                  {t("intervention.priorities.empty")}
                 </div>
               ) : (
                 <div
                   className={[
                     "mt-5 grid gap-4",
 
-                    quantidadeGruposPrioridadeVisiveis ===
-                      1
+                    quantidadeGruposPrioridadeVisiveis === 1
                       ? "grid-cols-1"
                       : "xl:grid-cols-2",
-                  ].join(
-                    " "
-                  )}
+                  ].join(" ")}
                 >
                   {[
                     {
-                      chave:
-                        "today",
+                      chave: "today",
 
-                      filtro:
-                        "HOJE" as const,
+                      filtro: "HOJE" as const,
 
-                      titulo:
-                        t(
-                          "intervention.priorities.today"
-                        ),
+                      titulo: t("intervention.priorities.today"),
 
-                      descricao:
-                        t(
-                          "intervention.priorities.todayDescription"
-                        ),
+                      descricao: t("intervention.priorities.todayDescription"),
 
-                      itens:
-                        prioridadesClassificadas
-                          .hoje,
+                      itens: prioridadesClassificadas.hoje,
 
-                      classe:
-                        "phanyx-student-success-priority-group-today",
+                      classe: "phanyx-student-success-priority-group-today",
 
-                      piora:
-                        false,
+                      piora: false,
                     },
 
                     {
-                      chave:
-                        "overdue",
+                      chave: "overdue",
 
-                      filtro:
-                        "ATRASADOS" as const,
+                      filtro: "ATRASADOS" as const,
 
+                      titulo: t("intervention.priorities.overdue"),
 
-                      titulo:
-                        t(
-                          "intervention.priorities.overdue"
-                        ),
+                      descricao: t(
+                        "intervention.priorities.overdueDescription",
+                      ),
 
-                      descricao:
-                        t(
-                          "intervention.priorities.overdueDescription"
-                        ),
+                      itens: prioridadesClassificadas.atrasados,
 
-                      itens:
-                        prioridadesClassificadas
-                          .atrasados,
+                      classe: "phanyx-student-success-priority-group-overdue",
 
-                      classe:
-                        "phanyx-student-success-priority-group-overdue",
-
-                      piora:
-                        false,
+                      piora: false,
                     },
 
                     {
-                      chave:
-                        "unscheduled",
+                      chave: "unscheduled",
 
-                      filtro:
-                        "SEM_RETORNO" as const,
+                      filtro: "SEM_RETORNO" as const,
 
-                      titulo:
-                        t(
-                          "intervention.priorities.unscheduled"
-                        ),
+                      titulo: t("intervention.priorities.unscheduled"),
 
-                      descricao:
-                        t(
-                          "intervention.priorities.unscheduledDescription"
-                        ),
+                      descricao: t(
+                        "intervention.priorities.unscheduledDescription",
+                      ),
 
-                      itens:
-                        prioridadesClassificadas
-                          .semRetorno,
+                      itens: prioridadesClassificadas.semRetorno,
 
                       classe:
                         "phanyx-student-success-priority-group-unscheduled",
 
-                      piora:
-                        false,
+                      piora: false,
                     },
                   ]
                     .filter(
-                      (
-                        grupo
-                      ) =>
-                        grupo.itens.length >
-                        0 &&
-                        (
-                          filtroPrioridades ===
-                          "TODOS" ||
-                          filtroPrioridades ===
-                          grupo.filtro
-                        )
-                    ).filter(
-                      (
-                        grupo
-                      ) =>
-                        grupo.itens.length >
-                        0
+                      (grupo) =>
+                        grupo.itens.length > 0 &&
+                        (filtroPrioridades === "TODOS" ||
+                          filtroPrioridades === grupo.filtro),
                     )
-                    .map(
-                      (
-                        grupo
-                      ) => (
-                        <div
-                          key={
-                            grupo.chave
-                          }
-                          className={[
-                            "phanyx-student-success-priority-group rounded-xl border p-4",
-                            grupo.classe,
-                          ].join(
-                            " "
-                          )}
-                        >
-                          <h3
-                            className="
+                    .filter((grupo) => grupo.itens.length > 0)
+                    .map((grupo) => (
+                      <div
+                        key={grupo.chave}
+                        className={[
+                          "phanyx-student-success-priority-group rounded-xl border p-4",
+                          grupo.classe,
+                        ].join(" ")}
+                      >
+                        <h3
+                          className="
                       text-sm
                       font-bold
                     "
-                          >
-                            {
-                              grupo.titulo
-                            }
-                          </h3>
+                        >
+                          {grupo.titulo}
+                        </h3>
 
-                          <p
-                            className="
+                        <p
+                          className="
                       phanyx-student-success-priority-muted
                       mt-1
                       text-xs
                     "
-                          >
-                            {
-                              grupo.descricao
-                            }
-                          </p>
+                        >
+                          {grupo.descricao}
+                        </p>
 
-                          <div
-                            className="
+                        <div
+                          className="
                       mt-3
                       space-y-3
                     "
-                          >
-                            {grupo.itens.map(
-                              (
-                                item
-                              ) => (
-                                <article
-                                  key={
-                                    item.id
-                                  }
-                                  className="
+                        >
+                          {grupo.itens.map((item) => (
+                            <article
+                              key={item.id}
+                              className="
                             phanyx-student-success-priority-item
                             rounded-xl
                             border
                             p-3
                           "
-                                >
-                                  <div
-                                    className="
+                            >
+                              <div
+                                className="
                               flex
                               flex-wrap
                               items-start
                               justify-between
                               gap-2
                             "
-                                  >
-                                    <div>
-                                      <div
-                                        className="
+                              >
+                                <div>
+                                  <div
+                                    className="
                                   phanyx-student-success-priority-student
                                   font-bold
                                 "
-                                      >
-                                        {
-                                          item
-                                            .aluno
-                                            .nome
-                                        }
-                                      </div>
+                                  >
+                                    {item.aluno.nome}
+                                  </div>
 
-                                      {item
-                                        .aluno
-                                        .matricula ? (
-                                        <div
-                                          className="
+                                  {item.aluno.matricula ? (
+                                    <div
+                                      className="
                                     phanyx-student-success-priority-muted
                                     mt-0.5
                                     text-xs
                                   "
-                                        >
-                                          {
-                                            item
-                                              .aluno
-                                              .matricula
-                                          }
-                                        </div>
-                                      ) : null}
+                                    >
+                                      {item.aluno.matricula}
                                     </div>
+                                  ) : null}
+                                </div>
 
-                                    <span
-                                      className="
+                                <span
+                                  className="
                                 phanyx-student-success-priority-status
                                 rounded-full
                                 border
@@ -5952,85 +4209,66 @@ export default function AdminStudentSuccessPage() {
                                 text-xs
                                 font-bold
                               "
-                                    >
-                                      {t(
-                                        `intervention.statuses.${item.status}`
-                                      )}
-                                    </span>
-                                  </div>
+                                >
+                                  {t(`intervention.statuses.${item.status}`)}
+                                </span>
+                              </div>
 
-                                  <div
-                                    className="
+                              <div
+                                className="
                               phanyx-student-success-priority-muted
                               mt-3
                               text-xs
                             "
-                                  >
-                                    {item.retornoEm ? (
-                                      <>
-                                        {t(
-                                          grupo.chave ===
-                                            "overdue"
-                                            ? "intervention.priorities.overdueSince"
-                                            : "intervention.priorities.scheduledFor"
-                                        )}
-                                        :{" "}
-
-                                        {new Intl.DateTimeFormat(
-                                          undefined,
-                                          {
-                                            dateStyle:
-                                              "medium",
-                                          }
-                                        ).format(
-                                          new Date(
-                                            item.retornoEm
-                                          )
-                                        )}
-                                      </>
-                                    ) : (
-                                      <>
-                                        {t(
-                                          "intervention.priorities.withoutDate"
-                                        )}
-
-                                        {" · "}
-
-                                        {calcularDiasSemAtualizacao(
-                                          item.atualizadoEm
-                                        ) === 0
-                                          ? t(
-                                            "intervention.priorities.updatedToday"
-                                          )
-                                          : t(
-                                            "intervention.priorities.daysWithoutUpdate",
-                                            {
-                                              count:
-                                                calcularDiasSemAtualizacao(
-                                                  item.atualizadoEm
-                                                ),
-                                            }
-                                          )}
-                                      </>
+                              >
+                                {item.retornoEm ? (
+                                  <>
+                                    {t(
+                                      grupo.chave === "overdue"
+                                        ? "intervention.priorities.overdueSince"
+                                        : "intervention.priorities.scheduledFor",
                                     )}
-                                  </div>
+                                    :{" "}
+                                    {new Intl.DateTimeFormat(undefined, {
+                                      dateStyle: "medium",
+                                    }).format(new Date(item.retornoEm))}
+                                  </>
+                                ) : (
+                                  <>
+                                    {t("intervention.priorities.withoutDate")}
 
-                                  <div
-                                    className="
+                                    {" · "}
+
+                                    {calcularDiasSemAtualizacao(
+                                      item.atualizadoEm,
+                                    ) === 0
+                                      ? t(
+                                          "intervention.priorities.updatedToday",
+                                        )
+                                      : t(
+                                          "intervention.priorities.daysWithoutUpdate",
+                                          {
+                                            count: calcularDiasSemAtualizacao(
+                                              item.atualizadoEm,
+                                            ),
+                                          },
+                                        )}
+                                  </>
+                                )}
+                              </div>
+
+                              <div
+                                className="
                               mt-3
                               grid
                               gap-2
                               sm:grid-cols-2
                             "
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        abrirAlunoDaFila(
-                                          item.alunoId
-                                        )
-                                      }
-                                      className="
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => abrirAlunoDaFila(item.alunoId)}
+                                  className="
                                 phanyx-student-success-priority-view
                                 rounded-lg
                                 border
@@ -6040,20 +4278,16 @@ export default function AdminStudentSuccessPage() {
                                 font-bold
                                 transition
                               "
-                                    >
-                                      {t(
-                                        "intervention.priorities.viewStudent"
-                                      )}
-                                    </button>
+                                >
+                                  {t("intervention.priorities.viewStudent")}
+                                </button>
 
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        void atualizarIntervencaoDaFila(
-                                          item
-                                        )
-                                      }
-                                      className="
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    void atualizarIntervencaoDaFila(item)
+                                  }
+                                  className="
                                 phanyx-student-success-priority-update
                                 rounded-lg
                                 border
@@ -6063,31 +4297,20 @@ export default function AdminStudentSuccessPage() {
                                 font-bold
                                 transition
                               "
-                                    >
-                                      {t(
-                                        "intervention.priorities.update"
-                                      )}
-                                    </button>
-                                  </div>
-                                </article>
-                              )
-                            )}
-                          </div>
+                                >
+                                  {t("intervention.priorities.update")}
+                                </button>
+                              </div>
+                            </article>
+                          ))}
                         </div>
-                      )
-                    )}
+                      </div>
+                    ))}
 
                   {/* PIORA APÓS INTERVENÇÃO */}
-                  {(
-                    filtroPrioridades ===
-                    "TODOS" ||
-                    filtroPrioridades ===
-                    "PIORA"
-                  ) &&
-                    prioridadesClassificadas
-                      .pioraAposIntervencao
-                      .length >
-                    0 ? (
+                  {(filtroPrioridades === "TODOS" ||
+                    filtroPrioridades === "PIORA") &&
+                  prioridadesClassificadas.pioraAposIntervencao.length > 0 ? (
                     <div
                       className="
                 phanyx-student-success-priority-group
@@ -6103,9 +4326,7 @@ export default function AdminStudentSuccessPage() {
                   font-bold
                 "
                       >
-                        {t(
-                          "intervention.priorities.worsened"
-                        )}
+                        {t("intervention.priorities.worsened")}
                       </h3>
 
                       <p
@@ -6115,9 +4336,7 @@ export default function AdminStudentSuccessPage() {
                   text-xs
                 "
                       >
-                        {t(
-                          "intervention.priorities.worsenedDescription"
-                        )}
+                        {t("intervention.priorities.worsenedDescription")}
                       </p>
 
                       <div
@@ -6126,56 +4345,40 @@ export default function AdminStudentSuccessPage() {
                   space-y-3
                 "
                       >
-                        {prioridadesClassificadas
-                          .pioraAposIntervencao
-                          .map(
-                            (
-                              item
-                            ) => (
-                              <article
-                                key={
-                                  item.id
-                                }
-                                className="
+                        {prioridadesClassificadas.pioraAposIntervencao.map(
+                          (item) => (
+                            <article
+                              key={item.id}
+                              className="
                           phanyx-student-success-priority-item
                           rounded-xl
                           border
                           p-3
                         "
-                              >
-                                <div
-                                  className="
+                            >
+                              <div
+                                className="
                             phanyx-student-success-priority-student
                             font-bold
                           "
-                                >
-                                  {
-                                    item
-                                      .aluno
-                                      .nome
-                                  }
-                                </div>
+                              >
+                                {item.aluno.nome}
+                              </div>
 
-                                {item
-                                  .aluno
-                                  .matricula ? (
-                                  <div
-                                    className="
+                              {item.aluno.matricula ? (
+                                <div
+                                  className="
                               phanyx-student-success-priority-muted
                               mt-0.5
                               text-xs
                             "
-                                  >
-                                    {
-                                      item
-                                        .aluno
-                                        .matricula
-                                    }
-                                  </div>
-                                ) : null}
+                                >
+                                  {item.aluno.matricula}
+                                </div>
+                              ) : null}
 
-                                <div
-                                  className="
+                              <div
+                                className="
                             phanyx-student-success-priority-warning
                             mt-3
                             rounded-lg
@@ -6185,48 +4388,29 @@ export default function AdminStudentSuccessPage() {
                             text-xs
                             font-semibold
                           "
-                                >
-                                  ⚠{" "}
-                                  {t(
-                                    "intervention.priorities.needsReview"
-                                  )}
-                                </div>
+                              >
+                                ⚠ {t("intervention.priorities.needsReview")}
+                              </div>
 
-                                {item.concluidoEm ? (
-                                  <div
-                                    className="
+                              {item.concluidoEm ? (
+                                <div
+                                  className="
                               phanyx-student-success-priority-muted
                               mt-2
                               text-xs
                             "
-                                  >
-                                    {t(
-                                      "intervention.priorities.completedAt"
-                                    )}
-                                    :{" "}
+                                >
+                                  {t("intervention.priorities.completedAt")}:{" "}
+                                  {new Intl.DateTimeFormat(undefined, {
+                                    dateStyle: "medium",
+                                  }).format(new Date(item.concluidoEm))}
+                                </div>
+                              ) : null}
 
-                                    {new Intl.DateTimeFormat(
-                                      undefined,
-                                      {
-                                        dateStyle:
-                                          "medium",
-                                      }
-                                    ).format(
-                                      new Date(
-                                        item.concluidoEm
-                                      )
-                                    )}
-                                  </div>
-                                ) : null}
-
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    abrirAlunoDaFila(
-                                      item.alunoId
-                                    )
-                                  }
-                                  className="
+                              <button
+                                type="button"
+                                onClick={() => abrirAlunoDaFila(item.alunoId)}
+                                className="
                             phanyx-student-success-priority-view
                             mt-3
                             w-full
@@ -6238,14 +4422,12 @@ export default function AdminStudentSuccessPage() {
                             font-bold
                             transition
                           "
-                                >
-                                  {t(
-                                    "intervention.priorities.viewStudent"
-                                  )}
-                                </button>
-                              </article>
-                            )
-                          )}
+                              >
+                                {t("intervention.priorities.viewStudent")}
+                              </button>
+                            </article>
+                          ),
+                        )}
                       </div>
                     </div>
                   ) : null}
@@ -6272,9 +4454,7 @@ export default function AdminStudentSuccessPage() {
                 font-bold
               "
             >
-              {t(
-                "intervention.returns.title"
-              )}
+              {t("intervention.returns.title")}
             </h2>
 
             <p
@@ -6284,9 +4464,7 @@ export default function AdminStudentSuccessPage() {
                 text-sm
               "
             >
-              {t(
-                "intervention.returns.description"
-              )}
+              {t("intervention.returns.description")}
             </p>
           </div>
 
@@ -6301,9 +4479,7 @@ export default function AdminStudentSuccessPage() {
                 text-sm
               "
             >
-              {t(
-                "intervention.returns.loading"
-              )}
+              {t("intervention.returns.loading")}
             </div>
           ) : erroRetornos ? (
             <div
@@ -6319,9 +4495,7 @@ export default function AdminStudentSuccessPage() {
                 text-red-800
               "
             >
-              {
-                erroRetornos
-              }
+              {erroRetornos}
             </div>
           ) : (
             <>
@@ -6338,15 +4512,8 @@ export default function AdminStudentSuccessPage() {
               >
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroRetornos ===
-                    "ATRASADOS"
-                  }
-                  onClick={() =>
-                    alternarFiltroRetornos(
-                      "ATRASADOS"
-                    )
-                  }
+                  aria-pressed={filtroRetornos === "ATRASADOS"}
+                  onClick={() => alternarFiltroRetornos("ATRASADOS")}
                   className="
       phanyx-student-success-return-summary
       phanyx-student-success-return-summary-button
@@ -6364,11 +4531,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      retornosClassificados
-                        .atrasados
-                        .length
-                    }
+                    {retornosClassificados.atrasados.length}
                   </div>
 
                   <div
@@ -6378,23 +4541,14 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.returns.overdue"
-                    )}
+                    {t("intervention.returns.overdue")}
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroRetornos ===
-                    "HOJE"
-                  }
-                  onClick={() =>
-                    alternarFiltroRetornos(
-                      "HOJE"
-                    )
-                  }
+                  aria-pressed={filtroRetornos === "HOJE"}
+                  onClick={() => alternarFiltroRetornos("HOJE")}
                   className="
       phanyx-student-success-return-summary
       phanyx-student-success-return-summary-button
@@ -6412,11 +4566,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      retornosClassificados
-                        .hoje
-                        .length
-                    }
+                    {retornosClassificados.hoje.length}
                   </div>
 
                   <div
@@ -6426,23 +4576,14 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.returns.today"
-                    )}
+                    {t("intervention.returns.today")}
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroRetornos ===
-                    "PROXIMOS_7_DIAS"
-                  }
-                  onClick={() =>
-                    alternarFiltroRetornos(
-                      "PROXIMOS_7_DIAS"
-                    )
-                  }
+                  aria-pressed={filtroRetornos === "PROXIMOS_7_DIAS"}
+                  onClick={() => alternarFiltroRetornos("PROXIMOS_7_DIAS")}
                   className="
       phanyx-student-success-return-summary
       phanyx-student-success-return-summary-button
@@ -6460,11 +4601,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      retornosClassificados
-                        .proximos7Dias
-                        .length
-                    }
+                    {retornosClassificados.proximos7Dias.length}
                   </div>
 
                   <div
@@ -6474,23 +4611,14 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.returns.next7Days"
-                    )}
+                    {t("intervention.returns.next7Days")}
                   </div>
                 </button>
 
                 <button
                   type="button"
-                  aria-pressed={
-                    filtroRetornos ===
-                    "SEM_RETORNO"
-                  }
-                  onClick={() =>
-                    alternarFiltroRetornos(
-                      "SEM_RETORNO"
-                    )
-                  }
+                  aria-pressed={filtroRetornos === "SEM_RETORNO"}
+                  onClick={() => alternarFiltroRetornos("SEM_RETORNO")}
                   className="
       phanyx-student-success-return-summary
       phanyx-student-success-return-summary-button
@@ -6508,11 +4636,7 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {
-                      retornosClassificados
-                        .semRetorno
-                        .length
-                    }
+                    {retornosClassificados.semRetorno.length}
                   </div>
 
                   <div
@@ -6522,16 +4646,12 @@ export default function AdminStudentSuccessPage() {
         font-bold
       "
                   >
-                    {t(
-                      "intervention.returns.unscheduled"
-                    )}
-
+                    {t("intervention.returns.unscheduled")}
                   </div>
                 </button>
               </div>
 
-              {filtroRetornos !==
-                "TODOS" ? (
+              {filtroRetornos !== "TODOS" ? (
                 <div
                   className="
       mt-3
@@ -6541,11 +4661,7 @@ export default function AdminStudentSuccessPage() {
                 >
                   <button
                     type="button"
-                    onClick={() =>
-                      setFiltroRetornos(
-                        "TODOS"
-                      )
-                    }
+                    onClick={() => setFiltroRetornos("TODOS")}
                     className="
         phanyx-student-success-return-clear-filter
         inline-flex
@@ -6569,9 +4685,7 @@ export default function AdminStudentSuccessPage() {
                       ×
                     </span>
 
-                    {t(
-                      "intervention.returns.showAll"
-                    )}
+                    {t("intervention.returns.showAll")}
                   </button>
                 </div>
               ) : null}
@@ -6589,74 +4703,49 @@ export default function AdminStudentSuccessPage() {
                     font-semibold
                   "
                 >
-                  {t(
-                    "intervention.returns.empty"
-                  )}
+                  {t("intervention.returns.empty")}
                 </div>
               ) : (
                 <div
                   className={[
                     "mt-5 grid gap-4",
 
-                    gruposRetornosVisiveis
-                      .filter(
-                        (
-                          grupo
-                        ) =>
-                          grupo.itens.length >
-                          0
-                      )
-                      .length === 1
+                    gruposRetornosVisiveis.filter(
+                      (grupo) => grupo.itens.length > 0,
+                    ).length === 1
                       ? "grid-cols-1"
                       : "xl:grid-cols-2",
-                  ].join(
-                    " "
-                  )}
+                  ].join(" ")}
                 >
                   {gruposRetornosVisiveis
-                    .filter(
-                      (
-                        grupo
-                      ) =>
-                        grupo.itens.length >
-                        0
-                    )
-                    .map(
-                      (
-                        grupo
-                      ) => (
+                    .filter((grupo) => grupo.itens.length > 0)
+                    .map((grupo) => (
+                      <div
+                        key={grupo.chave}
+                        className={[
+                          "phanyx-student-success-return-group rounded-xl border p-4",
+                          grupo.classe,
+                        ].join(" ")}
+                      >
                         <div
-                          key={
-                            grupo.chave
-                          }
-                          className={[
-                            "phanyx-student-success-return-group rounded-xl border p-4",
-                            grupo.classe,
-                          ].join(
-                            " "
-                          )}
-                        >
-                          <div
-                            className="
+                          className="
                               flex
                               items-center
                               justify-between
                               gap-3
                             "
-                          >
-                            <h3
-                              className="
+                        >
+                          <h3
+                            className="
                                 text-sm
                                 font-bold
                               "
-                            >
-                              {
-                                grupo.titulo
-                              }
-                            </h3>
+                          >
+                            {grupo.titulo}
+                          </h3>
 
-                            <span
-                              className="
+                          <span
+                            className="
                                 phanyx-student-success-return-count
                                 inline-flex
                                 min-w-7
@@ -6669,38 +4758,29 @@ export default function AdminStudentSuccessPage() {
                                 text-xs
                                 font-bold
                               "
-                            >
-                              {
-                                grupo
-                                  .itens
-                                  .length
-                              }
-                            </span>
-                          </div>
+                          >
+                            {grupo.itens.length}
+                          </span>
+                        </div>
 
-                          <div
-                            className="
+                        <div
+                          className="
                               mt-3
                               space-y-2
                             "
-                          >
-                            {grupo.itens.map(
-                              (
-                                intervencao
-                              ) => (
-                                <div
-                                  key={
-                                    intervencao.id
-                                  }
-                                  className="
+                        >
+                          {grupo.itens.map((intervencao) => (
+                            <div
+                              key={intervencao.id}
+                              className="
                                     phanyx-student-success-return-item
                                     rounded-xl
                                     border
                                     p-3
                                   "
-                                >
-                                  <div
-                                    className="
+                            >
+                              <div
+                                className="
                                       flex
                                       flex-col
                                       gap-2
@@ -6708,46 +4788,36 @@ export default function AdminStudentSuccessPage() {
                                       sm:items-start
                                       sm:justify-between
                                     "
-                                  >
-                                    <div
-                                      className="
+                              >
+                                <div
+                                  className="
                                         min-w-0
                                       "
-                                    >
-                                      <div
-                                        className="
+                                >
+                                  <div
+                                    className="
                                           phanyx-student-success-return-student
                                           font-bold
                                         "
-                                      >
-                                        {
-                                          intervencao
-                                            .aluno
-                                            .nome
-                                        }
-                                      </div>
+                                  >
+                                    {intervencao.aluno.nome}
+                                  </div>
 
-                                      {intervencao
-                                        .aluno
-                                        .matricula ? (
-                                        <div
-                                          className="
+                                  {intervencao.aluno.matricula ? (
+                                    <div
+                                      className="
                                             phanyx-student-success-return-muted
                                             mt-0.5
                                             text-xs
                                           "
-                                        >
-                                          {
-                                            intervencao
-                                              .aluno
-                                              .matricula
-                                          }
-                                        </div>
-                                      ) : null}
+                                    >
+                                      {intervencao.aluno.matricula}
                                     </div>
+                                  ) : null}
+                                </div>
 
-                                    <span
-                                      className="
+                                <span
+                                  className="
                                         phanyx-student-success-return-status
                                         inline-flex
                                         self-start
@@ -6758,84 +4828,64 @@ export default function AdminStudentSuccessPage() {
                                         text-xs
                                         font-bold
                                       "
-                                    >
-                                      {t(
-                                        `intervention.statuses.${intervencao.status}`
-                                      )}
-                                    </span>
-                                  </div>
+                                >
+                                  {t(
+                                    `intervention.statuses.${intervencao.status}`,
+                                  )}
+                                </span>
+                              </div>
 
-                                  <div
-                                    className="
+                              <div
+                                className="
                                       phanyx-student-success-return-muted
                                       mt-3
                                       text-xs
                                     "
-                                  >
-                                    {intervencao
-                                      .retornoEm ? (
-                                      <>
-                                        <strong>
-                                          {t(
-                                            "intervention.returns.scheduledFor"
-                                          )}
-                                          :
-                                        </strong>{" "}
+                              >
+                                {intervencao.retornoEm ? (
+                                  <>
+                                    <strong>
+                                      {t("intervention.returns.scheduledFor")}:
+                                    </strong>{" "}
+                                    {new Intl.DateTimeFormat(undefined, {
+                                      dateStyle: "medium",
+                                    }).format(new Date(intervencao.retornoEm))}
+                                  </>
+                                ) : (
+                                  t("intervention.returns.noScheduledDate")
+                                )}
+                              </div>
 
-                                        {new Intl.DateTimeFormat(
-                                          undefined,
-                                          {
-                                            dateStyle:
-                                              "medium",
-                                          }
-                                        ).format(
-                                          new Date(
-                                            intervencao
-                                              .retornoEm
-                                          )
-                                        )}
-                                      </>
-                                    ) : (
-                                      t(
-                                        "intervention.returns.noScheduledDate"
-                                      )
-                                    )}
-                                  </div>
-
-                                  <div
-                                    className="
+                              <div
+                                className="
                                       phanyx-student-success-return-muted
                                       mt-2
                                       text-xs
                                       font-semibold
                                     "
-                                  >
-                                    {t(
-                                      `intervention.types.${intervencao.tipo}`
-                                    )}
+                              >
+                                {t(`intervention.types.${intervencao.tipo}`)}
 
-                                    {" · "}
+                                {" · "}
 
-                                    {t(
-                                      `intervention.channels.${intervencao.canal}`
-                                    )}
-                                  </div>
-                                  <div
-                                    className="
+                                {t(
+                                  `intervention.channels.${intervencao.canal}`,
+                                )}
+                              </div>
+                              <div
+                                className="
     mt-3
     grid
     gap-2
     sm:grid-cols-2
   "
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        abrirAlunoDaFila(
-                                          intervencao.alunoId
-                                        )
-                                      }
-                                      className="
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    abrirAlunoDaFila(intervencao.alunoId)
+                                  }
+                                  className="
       phanyx-student-success-return-action
       phanyx-student-success-return-view
       rounded-lg
@@ -6846,20 +4896,16 @@ export default function AdminStudentSuccessPage() {
       font-bold
       transition
     "
-                                    >
-                                      {t(
-                                        "intervention.returns.viewStudent"
-                                      )}
-                                    </button>
+                                >
+                                  {t("intervention.returns.viewStudent")}
+                                </button>
 
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        void atualizarIntervencaoDaFila(
-                                          intervencao
-                                        )
-                                      }
-                                      className="
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    void atualizarIntervencaoDaFila(intervencao)
+                                  }
+                                  className="
       phanyx-student-success-return-action
       phanyx-student-success-return-update
       rounded-lg
@@ -6870,19 +4916,15 @@ export default function AdminStudentSuccessPage() {
       font-bold
       transition
     "
-                                    >
-                                      {t(
-                                        "intervention.returns.update"
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              )
-                            )}
-                          </div>
+                                >
+                                  {t("intervention.returns.update")}
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      )
-                    )}
+                      </div>
+                    ))}
                 </div>
               )}
             </>
@@ -6922,9 +4964,7 @@ export default function AdminStudentSuccessPage() {
                 dark:text-white
               "
             >
-              {t(
-                "studentsAttention.title"
-              )}
+              {t("studentsAttention.title")}
             </h2>
 
             <p
@@ -6937,14 +4977,11 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-300
               "
             >
-              {t(
-                "studentsAttention.description"
-              )}
+              {t("studentsAttention.description")}
             </p>
           </div>
 
-          {!carregando &&
-            !erro ? (
+          {!carregando && !erro ? (
             <div
               className="
       border-b
@@ -6981,24 +5018,10 @@ export default function AdminStudentSuccessPage() {
                   </span>
 
                   <input
-
                     type="search"
-                    value={
-                      busca
-                    }
-                    onChange={
-                      (
-                        event
-                      ) =>
-                        setBusca(
-                          event
-                            .target
-                            .value
-                        )
-                    }
-                    placeholder={t(
-                      "filters.searchPlaceholder"
-                    )}
+                    value={busca}
+                    onChange={(event) => setBusca(event.target.value)}
+                    placeholder={t("filters.searchPlaceholder")}
                     className="
                      phanyx-student-success-search
             w-full
@@ -7044,64 +5067,45 @@ export default function AdminStudentSuccessPage() {
                         t("levels.CRITICO"),
                         dados?.resumo.critico ?? 0,
                       ],
-                      [
-                        "RISCO",
-                        t("levels.RISCO"),
-                        dados?.resumo.risco ?? 0,
-                      ],
+                      ["RISCO", t("levels.RISCO"), dados?.resumo.risco ?? 0],
                       [
                         "ATENCAO",
                         t("levels.ATENCAO"),
                         dados?.resumo.atencao ?? 0,
                       ],
-                      [
-                        "NORMAL",
-                        t("levels.NORMAL"),
-                        dados?.resumo.normal ?? 0,
-                      ],
+                      ["NORMAL", t("levels.NORMAL"), dados?.resumo.normal ?? 0],
                       [
                         "DADOS_INSUFICIENTES",
                         t("levels.DADOS_INSUFICIENTES"),
                         dados?.resumo.dadosInsuficientes ?? 0,
                       ],
                     ] as const
-                  ).map(
-                    ([
-                      valor,
-                      titulo,
-                      quantidade,
-                    ]) => (
-                      <button
-                        key={valor}
-                        type="button"
-                        onClick={() =>
-                          setFiltroNivel(
-                            valor
-                          )
-                        }
-                        className={[
-                          "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
+                  ).map(([valor, titulo, quantidade]) => (
+                    <button
+                      key={valor}
+                      type="button"
+                      onClick={() => setFiltroNivel(valor)}
+                      className={[
+                        "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
 
-                          filtroNivel === valor
-                            ? "phanyx-student-success-filter-active"
-                            : "phanyx-student-success-filter-inactive",
-                        ].join(" ")}
-                      >
-                        {titulo}
+                        filtroNivel === valor
+                          ? "phanyx-student-success-filter-active"
+                          : "phanyx-student-success-filter-inactive",
+                      ].join(" ")}
+                    >
+                      {titulo}
 
-                        <span
-                          className="
+                      <span
+                        className="
             ml-2
             opacity-100
           "
-                        >
-                          {quantidade}
-                        </span>
-                      </button>
-                    )
-                  )}
+                      >
+                        {quantidade}
+                      </span>
+                    </button>
+                  ))}
                 </div>
-
               </div>
             </div>
           ) : null}
@@ -7148,9 +5152,7 @@ export default function AdminStudentSuccessPage() {
                     dark:text-slate-200
                   "
                 >
-                  {t(
-                    "states.loading"
-                  )}
+                  {t("states.loading")}
                 </p>
               </div>
             </div>
@@ -7177,17 +5179,12 @@ export default function AdminStudentSuccessPage() {
                     dark:text-red-300
                   "
                 >
-                  {t(
-                    "states.error"
-                  )}
+                  {t("states.error")}
                 </p>
 
                 <button
                   type="button"
-                  onClick={
-                    () =>
-                      void carregarDados()
-                  }
+                  onClick={() => void carregarDados()}
                   className="
                     mt-4
                     rounded-xl
@@ -7201,14 +5198,11 @@ export default function AdminStudentSuccessPage() {
                     hover:bg-blue-800
                   "
                 >
-                  {t(
-                    "actions.refresh"
-                  )}
+                  {t("actions.refresh")}
                 </button>
               </div>
             </div>
-          ) : alunosFiltrados.length ===
-            0 ? (
+          ) : alunosFiltrados.length === 0 ? (
             <div
               className="
                 flex
@@ -7228,9 +5222,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-200
                 "
               >
-                {t(
-                  "states.noRisk"
-                )}
+                {t("states.noRisk")}
               </p>
             </div>
           ) : (
@@ -7267,9 +5259,7 @@ export default function AdminStudentSuccessPage() {
                         dark:text-slate-300
                       "
                     >
-                      {t(
-                        "table.student"
-                      )}
+                      {t("table.student")}
                     </th>
 
                     <th
@@ -7285,9 +5275,7 @@ export default function AdminStudentSuccessPage() {
                         dark:text-slate-300
                       "
                     >
-                      {t(
-                        "table.risk"
-                      )}
+                      {t("table.risk")}
                     </th>
 
                     <th
@@ -7303,9 +5291,7 @@ export default function AdminStudentSuccessPage() {
                         dark:text-slate-300
                       "
                     >
-                      {t(
-                        "table.score"
-                      )}
+                      {t("table.score")}
                     </th>
 
                     <th
@@ -7321,9 +5307,7 @@ export default function AdminStudentSuccessPage() {
                         dark:text-slate-300
                       "
                     >
-                      {t(
-                        "table.frequency"
-                      )}
+                      {t("table.frequency")}
                     </th>
 
                     <th
@@ -7339,9 +5323,7 @@ export default function AdminStudentSuccessPage() {
                         dark:text-slate-300
                       "
                     >
-                      {t(
-                        "table.performance"
-                      )}
+                      {t("table.performance")}
                     </th>
 
                     <th
@@ -7357,9 +5339,7 @@ export default function AdminStudentSuccessPage() {
                         dark:text-slate-300
                       "
                     >
-                      {t(
-                        "table.pendingActivities"
-                      )}
+                      {t("table.pendingActivities")}
                     </th>
                   </tr>
                 </thead>
@@ -7371,46 +5351,23 @@ export default function AdminStudentSuccessPage() {
                     dark:divide-slate-800
                   "
                 >
-                  {alunosFiltrados.map(
-                    (
-                      aluno
-                    ) => {
-                      const dadosInsuficientes =
-                        aluno
-                          .analise
-                          .nivel ===
-                        "DADOS_INSUFICIENTES";
+                  {alunosFiltrados.map((aluno) => {
+                    const dadosInsuficientes =
+                      aluno.analise.nivel === "DADOS_INSUFICIENTES";
 
-                      return (
-                        <tr
-                          key={
-                            aluno.alunoId
-                          }
-                          onClick={() =>
-                            setAlunoSelecionado(
-                              aluno
-                            )
-                          }
-                          onKeyDown={
-                            (
-                              event
-                            ) => {
-                              if (
-                                event.key ===
-                                "Enter" ||
-                                event.key ===
-                                " "
-                              ) {
-                                event.preventDefault();
+                    return (
+                      <tr
+                        key={aluno.alunoId}
+                        onClick={() => setAlunoSelecionado(aluno)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
 
-                                setAlunoSelecionado(
-                                  aluno
-                                );
-                              }
-                            }
+                            setAlunoSelecionado(aluno);
                           }
-                          tabIndex={0}
-                          className="
+                        }}
+                        tabIndex={0}
+                        className="
   phanyx-student-success-row
   cursor-pointer
   transition-colors
@@ -7419,70 +5376,57 @@ export default function AdminStudentSuccessPage() {
   focus:ring-inset
   focus:ring-blue-500
 "
-                        >
-
-                          <td
-                            className="
+                      >
+                        <td
+                          className="
                               px-5
                               py-4
                             "
-                          >
-                            <div
-                              className="
+                        >
+                          <div
+                            className="
     phanyx-student-success-student-name
     font-semibold
     text-slate-950
     dark:text-white
   "
-                            >
-                              {
-                                aluno.nome
-                              }
-                            </div>
+                          >
+                            {aluno.nome}
+                          </div>
 
-                            {aluno.matricula ? (
-                              <div
-                                className="
+                          {aluno.matricula ? (
+                            <div
+                              className="
     phanyx-student-success-student-registration
     mt-1
     text-xs
     text-slate-500
     dark:text-slate-400
   "
-                              >
-                                {
-                                  aluno.matricula
-                                }
-                              </div>
-                            ) : null}
-                          </td>
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                            "
-                          >
-                            <span
-                              className={[
-                                "phanyx-student-success-risk-badge inline-flex rounded-full border px-3 py-1 text-xs font-bold",
-                                classeNivel(
-                                  aluno
-                                    .analise
-                                    .nivel
-                                ),
-                              ].join(
-                                " "
-                              )}
                             >
-                              {t(
-                                `levels.${aluno.analise.nivel}`
-                              )}
-                            </span>
-                          </td>
+                              {aluno.matricula}
+                            </div>
+                          ) : null}
+                        </td>
 
-                          <td
-                            className="
+                        <td
+                          className="
+                              px-4
+                              py-4
+                            "
+                        >
+                          <span
+                            className={[
+                              "phanyx-student-success-risk-badge inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                              classeNivel(aluno.analise.nivel),
+                            ].join(" ")}
+                          >
+                            {t(`levels.${aluno.analise.nivel}`)}
+                          </span>
+                        </td>
+
+                        <td
+                          className="
                               px-4
                               py-4
                               text-center
@@ -7491,16 +5435,12 @@ export default function AdminStudentSuccessPage() {
                               text-slate-800
                               dark:text-slate-100
                             "
-                          >
-                            {dadosInsuficientes
-                              ? "—"
-                              : aluno
-                                .analise
-                                .pontuacao}
-                          </td>
+                        >
+                          {dadosInsuficientes ? "—" : aluno.analise.pontuacao}
+                        </td>
 
-                          <td
-                            className="
+                        <td
+                          className="
                               px-4
                               py-4
                               text-center
@@ -7509,16 +5449,14 @@ export default function AdminStudentSuccessPage() {
                               text-slate-700
                               dark:text-slate-200
                             "
-                          >
-                            {formatarPercentual(
-                              aluno
-                                .indicadores
-                                .frequenciaPercentual
-                            )}
-                          </td>
+                        >
+                          {formatarPercentual(
+                            aluno.indicadores.frequenciaPercentual,
+                          )}
+                        </td>
 
-                          <td
-                            className="
+                        <td
+                          className="
                               px-4
                               py-4
                               text-center
@@ -7527,16 +5465,14 @@ export default function AdminStudentSuccessPage() {
                               text-slate-700
                               dark:text-slate-200
                             "
-                          >
-                            {formatarPercentual(
-                              aluno
-                                .indicadores
-                                .mediaPercentual
-                            )}
-                          </td>
+                        >
+                          {formatarPercentual(
+                            aluno.indicadores.mediaPercentual,
+                          )}
+                        </td>
 
-                          <td
-                            className="
+                        <td
+                          className="
                               px-4
                               py-4
                               text-center
@@ -7545,17 +5481,12 @@ export default function AdminStudentSuccessPage() {
                               text-slate-800
                               dark:text-slate-100
                             "
-                          >
-                            {
-                              aluno
-                                .indicadores
-                                .atividadesVencidas
-                            }
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
+                        >
+                          {aluno.indicadores.atividadesVencidas}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -7612,21 +5543,11 @@ export default function AdminStudentSuccessPage() {
                 stroke="currentColor"
                 strokeWidth="2"
               >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="9"
-                />
+                <circle cx="12" cy="12" r="9" />
 
-                <path
-                  strokeLinecap="round"
-                  d="M12 10v6"
-                />
+                <path strokeLinecap="round" d="M12 10v6" />
 
-                <path
-                  strokeLinecap="round"
-                  d="M12 7h.01"
-                />
+                <path strokeLinecap="round" d="M12 7h.01" />
               </svg>
             </div>
 
@@ -7637,9 +5558,7 @@ export default function AdminStudentSuccessPage() {
     font-bold
   "
               >
-                {t(
-                  "disclaimer.title"
-                )}
+                {t("disclaimer.title")}
               </h3>
 
               <p
@@ -7652,14 +5571,12 @@ export default function AdminStudentSuccessPage() {
                   dark:text-blue-200
                 "
               >
-                {t(
-                  "disclaimer.text"
-                )}
+                {t("disclaimer.text")}
               </p>
             </div>
           </div>
         </section>
-      </div >
+      </div>
       {alunoSelecionado ? (
         <div
           className="
@@ -7674,14 +5591,8 @@ export default function AdminStudentSuccessPage() {
           {/* FUNDO */}
           <button
             type="button"
-            aria-label={t(
-              "drawer.close"
-            )}
-            onClick={() =>
-              setAlunoSelecionado(
-                null
-              )
-            }
+            aria-label={t("drawer.close")}
+            onClick={() => setAlunoSelecionado(null)}
             className="
         absolute
         inset-0
@@ -7745,9 +5656,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-blue-300
             "
                 >
-                  {t(
-                    "drawer.analysis"
-                  )}
+                  {t("drawer.analysis")}
                 </p>
 
                 <h2
@@ -7762,9 +5671,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {
-                    alunoSelecionado.nome
-                  }
+                  {alunoSelecionado.nome}
                 </h2>
 
                 {alunoSelecionado.matricula ? (
@@ -7777,23 +5684,15 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-400
               "
                   >
-                    {
-                      alunoSelecionado.matricula
-                    }
+                    {alunoSelecionado.matricula}
                   </p>
                 ) : null}
               </div>
 
               <button
                 type="button"
-                onClick={() =>
-                  setAlunoSelecionado(
-                    null
-                  )
-                }
-                aria-label={t(
-                  "drawer.close"
-                )}
+                onClick={() => setAlunoSelecionado(null)}
+                aria-label={t("drawer.close")}
                 className="
             phanyx-student-success-drawer-close
             flex
@@ -7856,23 +5755,13 @@ export default function AdminStudentSuccessPage() {
                   <span
                     className={[
                       "inline-flex rounded-full border px-3 py-1.5 text-xs font-bold",
-                      classeNivel(
-                        alunoSelecionado
-                          .analise
-                          .nivel
-                      ),
-                    ].join(
-                      " "
-                    )}
+                      classeNivel(alunoSelecionado.analise.nivel),
+                    ].join(" ")}
                   >
-                    {t(
-                      `levels.${alunoSelecionado.analise.nivel}`
-                    )}
+                    {t(`levels.${alunoSelecionado.analise.nivel}`)}
                   </span>
 
-                  {alunoSelecionado.analise
-                    .nivel !==
-                    "DADOS_INSUFICIENTES" ? (
+                  {alunoSelecionado.analise.nivel !== "DADOS_INSUFICIENTES" ? (
                     <div
                       className="
                   text-right
@@ -7887,9 +5776,7 @@ export default function AdminStudentSuccessPage() {
                     dark:text-slate-400
                   "
                       >
-                        {t(
-                          "drawer.score"
-                        )}
+                        {t("drawer.score")}
                       </div>
 
                       <div
@@ -7900,19 +5787,13 @@ export default function AdminStudentSuccessPage() {
                     dark:text-white
                   "
                       >
-                        {
-                          alunoSelecionado
-                            .analise
-                            .pontuacao
-                        }
+                        {alunoSelecionado.analise.pontuacao}
                       </div>
                     </div>
                   ) : null}
                 </div>
 
-                {alunoSelecionado.analise
-                  .nivel ===
-                  "DADOS_INSUFICIENTES" ? (
+                {alunoSelecionado.analise.nivel === "DADOS_INSUFICIENTES" ? (
                   <p
                     className="
                 phanyx-student-success-drawer-muted
@@ -7923,9 +5804,7 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-300
               "
                   >
-                    {t(
-                      "drawer.scoreUnavailable"
-                    )}
+                    {t("drawer.scoreUnavailable")}
                   </p>
                 ) : null}
 
@@ -7958,9 +5837,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "drawer.dataCoverage"
-                      )}
+                      {t("drawer.dataCoverage")}
                     </div>
 
                     <div
@@ -7972,11 +5849,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-white
                 "
                     >
-                      {
-                        alunoSelecionado
-                          .analise
-                          .coberturaPercentual
-                      }%
+                      {alunoSelecionado.analise.coberturaPercentual}%
                     </div>
                   </div>
 
@@ -8001,9 +5874,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "drawer.reliability"
-                      )}
+                      {t("drawer.reliability")}
                     </div>
 
                     <div
@@ -8016,7 +5887,7 @@ export default function AdminStudentSuccessPage() {
                 "
                     >
                       {t(
-                        `reliability.${alunoSelecionado.analise.confiabilidade}`
+                        `reliability.${alunoSelecionado.analise.confiabilidade}`,
                       )}
                     </div>
                   </div>
@@ -8039,16 +5910,13 @@ export default function AdminStudentSuccessPage() {
                 transition-all
               "
                     style={{
-                      width:
-                        `${Math.max(
-                          0,
-                          Math.min(
-                            100,
-                            alunoSelecionado
-                              .analise
-                              .coberturaPercentual
-                          )
-                        )}%`,
+                      width: `${Math.max(
+                        0,
+                        Math.min(
+                          100,
+                          alunoSelecionado.analise.coberturaPercentual,
+                        ),
+                      )}%`,
                     }}
                   />
                 </div>
@@ -8067,9 +5935,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {t(
-                    "drawer.indicators"
-                  )}
+                  {t("drawer.indicators")}
                 </h3>
 
                 <div
@@ -8101,9 +5967,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "components.FREQUENCIA"
-                      )}
+                      {t("components.FREQUENCIA")}
                     </div>
 
                     <div
@@ -8116,9 +5980,7 @@ export default function AdminStudentSuccessPage() {
                 "
                     >
                       {formatarPercentual(
-                        alunoSelecionado
-                          .indicadores
-                          .frequenciaPercentual
+                        alunoSelecionado.indicadores.frequenciaPercentual,
                       )}
                     </div>
 
@@ -8131,14 +5993,8 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "drawer.classes"
-                      )}:{" "}
-                      {
-                        alunoSelecionado
-                          .indicadores
-                          .quantidadeAulas
-                      }
+                      {t("drawer.classes")}:{" "}
+                      {alunoSelecionado.indicadores.quantidadeAulas}
                     </div>
                   </div>
 
@@ -8163,9 +6019,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "components.DESEMPENHO"
-                      )}
+                      {t("components.DESEMPENHO")}
                     </div>
 
                     <div
@@ -8178,9 +6032,7 @@ export default function AdminStudentSuccessPage() {
                 "
                     >
                       {formatarPercentual(
-                        alunoSelecionado
-                          .indicadores
-                          .mediaPercentual
+                        alunoSelecionado.indicadores.mediaPercentual,
                       )}
                     </div>
 
@@ -8193,14 +6045,8 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "drawer.assessments"
-                      )}:{" "}
-                      {
-                        alunoSelecionado
-                          .indicadores
-                          .quantidadeAvaliacoes
-                      }
+                      {t("drawer.assessments")}:{" "}
+                      {alunoSelecionado.indicadores.quantidadeAvaliacoes}
                     </div>
                   </div>
 
@@ -8225,9 +6071,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "drawer.pendingActivities"
-                      )}
+                      {t("drawer.pendingActivities")}
                     </div>
 
                     <div
@@ -8239,11 +6083,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-white
                 "
                     >
-                      {
-                        alunoSelecionado
-                          .indicadores
-                          .atividadesVencidas
-                      }
+                      {alunoSelecionado.indicadores.atividadesVencidas}
                     </div>
                   </div>
 
@@ -8268,9 +6108,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-400
                 "
                     >
-                      {t(
-                        "drawer.recentEvolution"
-                      )}
+                      {t("drawer.recentEvolution")}
                     </div>
 
                     <div
@@ -8282,16 +6120,13 @@ export default function AdminStudentSuccessPage() {
                   dark:text-white
                 "
                     >
-                      {alunoSelecionado
-                        .indicadores
-                        .quedaDesempenhoPercentual ===
-                        null
+                      {alunoSelecionado.indicadores
+                        .quedaDesempenhoPercentual === null
                         ? "—"
                         : `${Math.round(
-                          alunoSelecionado
-                            .indicadores
-                            .quedaDesempenhoPercentual
-                        )}%`}
+                            alunoSelecionado.indicadores
+                              .quedaDesempenhoPercentual,
+                          )}%`}
                     </div>
                   </div>
                 </div>
@@ -8310,9 +6145,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {t(
-                    "drawer.mainSignals"
-                  )}
+                  {t("drawer.mainSignals")}
                 </h3>
 
                 <div
@@ -8321,22 +6154,11 @@ export default function AdminStudentSuccessPage() {
               space-y-2
             "
                 >
-                  {alunoSelecionado
-                    .analise
-                    .fatoresPrincipais
-                    .length > 0 ? (
-                    alunoSelecionado
-                      .analise
-                      .fatoresPrincipais
-                      .map(
-                        (
-                          fator
-                        ) => (
-                          <div
-                            key={
-                              fator.codigo
-                            }
-                            className="
+                  {alunoSelecionado.analise.fatoresPrincipais.length > 0 ? (
+                    alunoSelecionado.analise.fatoresPrincipais.map((fator) => (
+                      <div
+                        key={fator.codigo}
+                        className="
                         phanyx-student-success-drawer-signal
                         flex
                         items-start
@@ -8351,46 +6173,34 @@ export default function AdminStudentSuccessPage() {
                         dark:bg-amber-950/30
                         dark:text-amber-100
                       "
-                          >
-                            <span
-                              aria-hidden="true"
-                            >
-                              ⚠️
-                            </span>
+                      >
+                        <span aria-hidden="true">⚠️</span>
 
-                            <div>
-                              <div
-                                className="
+                        <div>
+                          <div
+                            className="
                             font-semibold
                           "
-                              >
-                                {t(
-                                  `components.${fator.codigo}`
-                                )}
-                              </div>
+                          >
+                            {t(`components.${fator.codigo}`)}
+                          </div>
 
-                              {fator.codigo ===
-                                "PENDENCIAS" ? (
-                                <div
-                                  className="
+                          {fator.codigo === "PENDENCIAS" ? (
+                            <div
+                              className="
                               mt-1
                               text-sm
                             "
-                                >
-                                  {
-                                    alunoSelecionado
-                                      .indicadores
-                                      .atividadesVencidas
-                                  }{" "}
-                                  {t(
-                                    "drawer.pendingActivities"
-                                  ).toLocaleLowerCase()}
-                                </div>
-                              ) : null}
+                            >
+                              {alunoSelecionado.indicadores.atividadesVencidas}{" "}
+                              {t(
+                                "drawer.pendingActivities",
+                              ).toLocaleLowerCase()}
                             </div>
-                          </div>
-                        )
-                      )
+                          ) : null}
+                        </div>
+                      </div>
+                    ))
                   ) : (
                     <div
                       className="
@@ -8407,22 +6217,14 @@ export default function AdminStudentSuccessPage() {
                   dark:text-slate-300
                 "
                     >
-                      {t(
-                        "drawer.noMainSignals"
-                      )}
+                      {t("drawer.noMainSignals")}
                     </div>
                   )}
                 </div>
 
-                {alunoSelecionado
-                  .analise
-                  .componentes
-                  .some(
-                    (
-                      componente
-                    ) =>
-                      !componente.disponivel
-                  ) ? (
+                {alunoSelecionado.analise.componentes.some(
+                  (componente) => !componente.disponivel,
+                ) ? (
                   <div
                     className="
                 phanyx-student-success-drawer-empty
@@ -8445,9 +6247,7 @@ export default function AdminStudentSuccessPage() {
                   dark:text-white
                 "
                     >
-                      {t(
-                        "drawer.missingData"
-                      )}
+                      {t("drawer.missingData")}
                     </div>
 
                     <div
@@ -8458,24 +6258,12 @@ export default function AdminStudentSuccessPage() {
                   gap-2
                 "
                     >
-                      {alunoSelecionado
-                        .analise
-                        .componentes
-                        .filter(
-                          (
-                            componente
-                          ) =>
-                            !componente.disponivel
-                        )
-                        .map(
-                          (
-                            componente
-                          ) => (
-                            <span
-                              key={
-                                componente.codigo
-                              }
-                              className="
+                      {alunoSelecionado.analise.componentes
+                        .filter((componente) => !componente.disponivel)
+                        .map((componente) => (
+                          <span
+                            key={componente.codigo}
+                            className="
                           rounded-full
                           border
                           border-slate-300
@@ -8489,13 +6277,10 @@ export default function AdminStudentSuccessPage() {
                           dark:bg-slate-950
                           dark:text-slate-200
                         "
-                            >
-                              {t(
-                                `components.${componente.codigo}`
-                              )}
-                            </span>
-                          )
-                        )}
+                          >
+                            {t(`components.${componente.codigo}`)}
+                          </span>
+                        ))}
                     </div>
                   </div>
                 ) : null}
@@ -8514,9 +6299,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {t(
-                    "drawer.contact"
-                  )}
+                  {t("drawer.contact")}
                 </h3>
 
                 <div
@@ -8539,9 +6322,7 @@ export default function AdminStudentSuccessPage() {
                 dark:text-white
               "
                   >
-                    {t(
-                      "drawer.studentContact"
-                    )}
+                    {t("drawer.studentContact")}
                   </h4>
 
                   <dl
@@ -8561,9 +6342,7 @@ export default function AdminStudentSuccessPage() {
                     dark:text-slate-400
                   "
                       >
-                        {t(
-                          "drawer.phone"
-                        )}
+                        {t("drawer.phone")}
                       </dt>
 
                       <dd
@@ -8574,12 +6353,8 @@ export default function AdminStudentSuccessPage() {
                     dark:text-white
                   "
                       >
-                        {alunoSelecionado
-                          .contato
-                          .telefone ??
-                          t(
-                            "drawer.unavailable"
-                          )}
+                        {alunoSelecionado.contato.telefone ??
+                          t("drawer.unavailable")}
                       </dd>
                     </div>
 
@@ -8593,9 +6368,7 @@ export default function AdminStudentSuccessPage() {
                     dark:text-slate-400
                   "
                       >
-                        {t(
-                          "drawer.email"
-                        )}
+                        {t("drawer.email")}
                       </dt>
 
                       <dd
@@ -8607,33 +6380,16 @@ export default function AdminStudentSuccessPage() {
                     dark:text-white
                   "
                       >
-                        {emailPodeSerUsado(
-                          alunoSelecionado
-                            .contato
-                            .email
-                        )
-                          ? alunoSelecionado
-                            .contato
-                            .email
-                          : t(
-                            "drawer.unavailable"
-                          )}
+                        {emailPodeSerUsado(alunoSelecionado.contato.email)
+                          ? alunoSelecionado.contato.email
+                          : t("drawer.unavailable")}
                       </dd>
                     </div>
                   </dl>
 
-                  {alunoSelecionado
-                    .contato
-                    .responsavel
-                    .nome ||
-                    alunoSelecionado
-                      .contato
-                      .responsavel
-                      .telefone ||
-                    alunoSelecionado
-                      .contato
-                      .responsavel
-                      .email ? (
+                  {alunoSelecionado.contato.responsavel.nome ||
+                  alunoSelecionado.contato.responsavel.telefone ||
+                  alunoSelecionado.contato.responsavel.email ? (
                     <div
                       className="
                   mt-5
@@ -8650,9 +6406,7 @@ export default function AdminStudentSuccessPage() {
                     dark:text-white
                   "
                       >
-                        {t(
-                          "drawer.responsibleContact"
-                        )}
+                        {t("drawer.responsibleContact")}
                       </h4>
 
                       <div
@@ -8665,63 +6419,27 @@ export default function AdminStudentSuccessPage() {
                   "
                       >
                         <p>
-                          <strong>
-                            {t(
-                              "drawer.responsible"
-                            )}:
-                          </strong>{" "}
-                          {alunoSelecionado
-                            .contato
-                            .responsavel
-                            .nome ??
-                            t(
-                              "drawer.unavailable"
-                            )}
+                          <strong>{t("drawer.responsible")}:</strong>{" "}
+                          {alunoSelecionado.contato.responsavel.nome ??
+                            t("drawer.unavailable")}
                         </p>
 
                         <p>
-                          <strong>
-                            {t(
-                              "drawer.relationship"
-                            )}:
-                          </strong>{" "}
-                          {alunoSelecionado
-                            .contato
-                            .responsavel
-                            .parentesco ??
-                            t(
-                              "drawer.unavailable"
-                            )}
+                          <strong>{t("drawer.relationship")}:</strong>{" "}
+                          {alunoSelecionado.contato.responsavel.parentesco ??
+                            t("drawer.unavailable")}
                         </p>
 
                         <p>
-                          <strong>
-                            {t(
-                              "drawer.phone"
-                            )}:
-                          </strong>{" "}
-                          {alunoSelecionado
-                            .contato
-                            .responsavel
-                            .telefone ??
-                            t(
-                              "drawer.unavailable"
-                            )}
+                          <strong>{t("drawer.phone")}:</strong>{" "}
+                          {alunoSelecionado.contato.responsavel.telefone ??
+                            t("drawer.unavailable")}
                         </p>
 
                         <p>
-                          <strong>
-                            {t(
-                              "drawer.email"
-                            )}:
-                          </strong>{" "}
-                          {alunoSelecionado
-                            .contato
-                            .responsavel
-                            .email ??
-                            t(
-                              "drawer.unavailable"
-                            )}
+                          <strong>{t("drawer.email")}:</strong>{" "}
+                          {alunoSelecionado.contato.responsavel.email ??
+                            t("drawer.unavailable")}
                         </p>
                       </div>
                     </div>
@@ -8742,9 +6460,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {t(
-                    "drawer.actions"
-                  )}
+                  {t("drawer.actions")}
                 </h3>
 
                 <div
@@ -8758,9 +6474,7 @@ export default function AdminStudentSuccessPage() {
                   <button
                     type="button"
                     disabled
-                    title={t(
-                      "drawer.actionComingSoon"
-                    )}
+                    title={t("drawer.actionComingSoon")}
                     className="
                     phanyx-student-success-action
   phanyx-student-success-action-disabled
@@ -8779,35 +6493,24 @@ export default function AdminStudentSuccessPage() {
                 dark:text-emerald-200
               "
                   >
-                    💬{" "}
-                    {t(
-                      "drawer.whatsapp"
-                    )}
+                    💬 {t("drawer.whatsapp")}
                   </button>
 
                   <button
                     type="button"
                     disabled={
-                      !telefoneParaLink(
-                        alunoSelecionado
-                          .contato
-                          .telefone
-                      )
+                      !telefoneParaLink(alunoSelecionado.contato.telefone)
                     }
                     onClick={() => {
-                      const telefone =
-                        telefoneParaLink(
-                          alunoSelecionado
-                            .contato
-                            .telefone
-                        );
+                      const telefone = telefoneParaLink(
+                        alunoSelecionado.contato.telefone,
+                      );
 
                       if (!telefone) {
                         return;
                       }
 
-                      window.location.href =
-                        `tel:${telefone}`;
+                      window.location.href = `tel:${telefone}`;
                     }}
                     className="
                     phanyx-student-success-action
@@ -8830,38 +6533,22 @@ export default function AdminStudentSuccessPage() {
                 dark:text-blue-200
               "
                   >
-                    📞{" "}
-                    {t(
-                      "drawer.call"
-                    )}
+                    📞 {t("drawer.call")}
                   </button>
 
                   <button
                     type="button"
                     disabled={
-                      !emailPodeSerUsado(
-                        alunoSelecionado
-                          .contato
-                          .email
-                      )
+                      !emailPodeSerUsado(alunoSelecionado.contato.email)
                     }
                     onClick={() => {
-                      const email =
-                        alunoSelecionado
-                          .contato
-                          .email;
+                      const email = alunoSelecionado.contato.email;
 
-                      if (
-                        !emailPodeSerUsado(
-                          email
-                        ) ||
-                        !email
-                      ) {
+                      if (!emailPodeSerUsado(email) || !email) {
                         return;
                       }
 
-                      window.location.href =
-                        `mailto:${email}`;
+                      window.location.href = `mailto:${email}`;
                     }}
                     className="
                     phanyx-student-success-action
@@ -8884,47 +6571,28 @@ export default function AdminStudentSuccessPage() {
                 dark:text-violet-200
               "
                   >
-                    ✉️{" "}
-                    {t(
-                      "drawer.sendEmail"
-                    )}
+                    ✉️ {t("drawer.sendEmail")}
                   </button>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => {
-                    setMensagemIntervencao(
-                      null
-                    );
+                    setMensagemIntervencao(null);
 
-                    setTipoIntervencao(
-                      "CONTATO"
-                    );
+                    setTipoIntervencao("CONTATO");
 
                     setCanalIntervencao(
-                      alunoSelecionado
-                        .contato
-                        .telefone
-                        ? "LIGACAO"
-                        : "EMAIL"
+                      alunoSelecionado.contato.telefone ? "LIGACAO" : "EMAIL",
                     );
 
-                    setStatusIntervencao(
-                      "REGISTRADA"
-                    );
+                    setStatusIntervencao("REGISTRADA");
 
-                    setObservacaoIntervencao(
-                      ""
-                    );
+                    setObservacaoIntervencao("");
 
-                    setRetornoIntervencao(
-                      ""
-                    );
+                    setRetornoIntervencao("");
 
-                    setModalIntervencaoAberto(
-                      true
-                    );
+                    setModalIntervencaoAberto(true);
                   }}
                   className="
     mt-3
@@ -8940,10 +6608,7 @@ export default function AdminStudentSuccessPage() {
     hover:bg-blue-800
   "
                 >
-                  +{" "}
-                  {t(
-                    "drawer.registerIntervention"
-                  )}
+                  + {t("drawer.registerIntervention")}
                 </button>
               </section>
               {/* LINHA DO TEMPO DO ALUNO */}
@@ -8974,9 +6639,7 @@ export default function AdminStudentSuccessPage() {
           tracking-wide
         "
                     >
-                      {t(
-                        "intervention.timeline.title"
-                      )}
+                      {t("intervention.timeline.title")}
                     </h3>
 
                     <p
@@ -8987,14 +6650,11 @@ export default function AdminStudentSuccessPage() {
           leading-5
         "
                     >
-                      {t(
-                        "intervention.timeline.description"
-                      )}
+                      {t("intervention.timeline.description")}
                     </p>
                   </div>
 
-                  {!carregandoTimeline &&
-                    resumoTimeline ? (
+                  {!carregandoTimeline && resumoTimeline ? (
                     <span
                       className="
           phanyx-student-success-timeline-count
@@ -9010,24 +6670,20 @@ export default function AdminStudentSuccessPage() {
           font-bold
         "
                     >
-                      {
-                        resumoTimeline
-                          .eventos
-                      }
+                      {resumoTimeline.eventos}
                     </span>
                   ) : null}
                 </div>
 
                 {/* RESUMO */}
-                {!carregandoTimeline &&
-                  resumoTimeline ? (
+                {!carregandoTimeline && resumoTimeline ? (
                   <div
                     className="
         mb-5
         grid
         grid-cols-2
         gap-2
-        sm:grid-cols-4
+        sm:grid-cols-5
       "
                   >
                     <div
@@ -9044,10 +6700,7 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                       >
-                        {
-                          resumoTimeline
-                            .intervencoes
-                        }
+                        {resumoTimeline.intervencoes}
                       </div>
 
                       <div
@@ -9057,9 +6710,35 @@ export default function AdminStudentSuccessPage() {
             font-semibold
           "
                       >
-                        {t(
-                          "intervention.timeline.summaryInterventions"
-                        )}
+                        {t("intervention.timeline.summaryInterventions")}
+                      </div>
+                    </div>
+
+                    <div
+                      className="
+    phanyx-student-success-timeline-summary
+    rounded-xl
+    border
+    p-3
+  "
+                    >
+                      <div
+                        className="
+      text-lg
+      font-bold
+    "
+                      >
+                        {resumoTimeline.analisesAcademicas}
+                      </div>
+
+                      <div
+                        className="
+      mt-0.5
+      text-[11px]
+      font-semibold
+    "
+                      >
+                        {t("intervention.timeline.summaryAnalyses")}
                       </div>
                     </div>
 
@@ -9077,10 +6756,7 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                       >
-                        {
-                          resumoTimeline
-                            .eventos
-                        }
+                        {resumoTimeline.eventos}
                       </div>
 
                       <div
@@ -9090,9 +6766,7 @@ export default function AdminStudentSuccessPage() {
             font-semibold
           "
                       >
-                        {t(
-                          "intervention.timeline.summaryEvents"
-                        )}
+                        {t("intervention.timeline.summaryEvents")}
                       </div>
                     </div>
 
@@ -9110,10 +6784,7 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                       >
-                        {
-                          resumoTimeline
-                            .abertas
-                        }
+                        {resumoTimeline.abertas}
                       </div>
 
                       <div
@@ -9123,9 +6794,7 @@ export default function AdminStudentSuccessPage() {
             font-semibold
           "
                       >
-                        {t(
-                          "intervention.timeline.summaryOpen"
-                        )}
+                        {t("intervention.timeline.summaryOpen")}
                       </div>
                     </div>
 
@@ -9143,10 +6812,7 @@ export default function AdminStudentSuccessPage() {
             font-bold
           "
                       >
-                        {
-                          resumoTimeline
-                            .encerradas
-                        }
+                        {resumoTimeline.encerradas}
                       </div>
 
                       <div
@@ -9156,9 +6822,7 @@ export default function AdminStudentSuccessPage() {
             font-semibold
           "
                       >
-                        {t(
-                          "intervention.timeline.summaryClosed"
-                        )}
+                        {t("intervention.timeline.summaryClosed")}
                       </div>
                     </div>
                   </div>
@@ -9175,9 +6839,7 @@ export default function AdminStudentSuccessPage() {
         font-semibold
       "
                   >
-                    {t(
-                      "intervention.timeline.loading"
-                    )}
+                    {t("intervention.timeline.loading")}
                   </div>
                 ) : erroTimeline ? (
                   <div
@@ -9195,12 +6857,9 @@ export default function AdminStudentSuccessPage() {
         dark:text-red-200
       "
                   >
-                    {t(
-                      "intervention.timeline.error"
-                    )}
+                    {t("intervention.timeline.error")}
                   </div>
-                ) : timeline.length ===
-                  0 ? (
+                ) : timeline.length === 0 ? (
                   <div
                     className="
         phanyx-student-success-timeline-state
@@ -9210,9 +6869,7 @@ export default function AdminStudentSuccessPage() {
         text-sm
       "
                   >
-                    {t(
-                      "intervention.timeline.empty"
-                    )}
+                    {t("intervention.timeline.empty")}
                   </div>
                 ) : (
                   <div
@@ -9221,86 +6878,63 @@ export default function AdminStudentSuccessPage() {
         space-y-0
       "
                   >
-                    {timeline.map(
-                      (
-                        evento,
-                        indice
-                      ) => {
-                        const intervencao =
-                          intervencoes.find(
-                            (
-                              item
-                            ) =>
-                              item.id ===
-                              evento.intervencaoId
-                          );
+                    {timeline.map((evento, indice) => {
+                      const analiseAcademica =
+                        evento.tipo === "ANALISE_ACADEMICA";
 
-                        const encerrada =
-                          evento.tipo ===
-                          "INTERVENCAO_ENCERRADA";
+                      const intervencao = intervencoes.find(
+                        (item) => item.id === evento.intervencaoId,
+                      );
 
-                        const retorno =
-                          evento.tipo ===
-                          "RETORNO_AGENDADO";
+                      const encerrada = evento.tipo === "INTERVENCAO_ENCERRADA";
 
-                        const registrada =
-                          evento.tipo ===
-                          "INTERVENCAO_REGISTRADA";
+                      const retorno = evento.tipo === "RETORNO_AGENDADO";
 
-                        const tituloEvento =
-                          registrada
-                            ? t(
-                              "intervention.timeline.registered"
-                            )
-                            : retorno
-                              ? t(
-                                "intervention.timeline.returnScheduled"
-                              )
-                              : t(
-                                "intervention.timeline.closed"
-                              );
+                      const registrada =
+                        evento.tipo === "INTERVENCAO_REGISTRADA";
 
-                        const possuiFotografiaAcademica =
-                          evento.risco !==
-                          null &&
-                          (
-                            evento.risco.nivel !==
-                            null ||
-                            evento.risco.pontuacao !==
-                            null ||
-                            evento.risco.cobertura !==
-                            null ||
-                            evento.risco.confiabilidade !==
-                            null
-                          );
+                      const tituloEvento = analiseAcademica
+                        ? evento.origemAnalise === "INICIAL"
+                          ? t("intervention.timeline.academicInitial")
+                          : evento.origemAnalise === "MANUAL"
+                            ? t("intervention.timeline.academicManual")
+                            : evento.origemAnalise === "ALTERACAO_ACADEMICA"
+                              ? t("intervention.timeline.academicChange")
+                              : t("intervention.timeline.academicAutomatic")
+                        : registrada
+                          ? t("intervention.timeline.registered")
+                          : retorno
+                            ? t("intervention.timeline.returnScheduled")
+                            : t("intervention.timeline.closed");
 
-                        const podeAtualizar =
-                          registrada &&
-                          intervencao &&
-                          intervencao.status !==
-                          "RESOLVIDA" &&
-                          intervencao.status !==
-                          "CANCELADA";
+                      const possuiFotografiaAcademica =
+                        evento.risco !== null &&
+                        (evento.risco.nivel !== null ||
+                          evento.risco.pontuacao !== null ||
+                          evento.risco.cobertura !== null ||
+                          evento.risco.confiabilidade !== null);
 
-                        return (
-                          <div
-                            key={
-                              evento.id
-                            }
-                            className="
+                      const podeAtualizar =
+                        registrada &&
+                        intervencao &&
+                        intervencao.status !== "RESOLVIDA" &&
+                        intervencao.status !== "CANCELADA";
+
+                      return (
+                        <div
+                          key={evento.id}
+                          className="
                 phanyx-student-success-timeline-row
                 relative
                 flex
                 gap-3
                 pb-5
               "
-                          >
-                            {/* LINHA VERTICAL */}
-                            {indice <
-                              timeline.length -
-                              1 ? (
-                              <div
-                                className="
+                        >
+                          {/* LINHA VERTICAL */}
+                          {indice < timeline.length - 1 ? (
+                            <div
+                              className="
                     phanyx-student-success-timeline-line
                     absolute
                     bottom-0
@@ -9308,35 +6942,37 @@ export default function AdminStudentSuccessPage() {
                     top-8
                     w-px
                   "
-                                aria-hidden="true"
-                              />
-                            ) : null}
+                              aria-hidden="true"
+                            />
+                          ) : null}
 
-                            {/* MARCADOR */}
-                            <div
-                              className={[
-                                "phanyx-student-success-timeline-dot relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
+                          {/* MARCADOR */}
+                          <div
+                            className={[
+                              "phanyx-student-success-timeline-dot relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
 
-                                registrada
+                              analiseAcademica
+                                ? "border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200"
+                                : registrada
                                   ? "phanyx-student-success-timeline-dot-registered"
                                   : retorno
                                     ? "phanyx-student-success-timeline-dot-return"
                                     : "phanyx-student-success-timeline-dot-closed",
-                              ].join(
-                                " "
-                              )}
-                              aria-hidden="true"
-                            >
-                              {registrada
+                            ].join(" ")}
+                            aria-hidden="true"
+                          >
+                            {analiseAcademica
+                              ? "◉"
+                              : registrada
                                 ? "+"
                                 : retorno
                                   ? "↗"
                                   : "✓"}
-                            </div>
+                          </div>
 
-                            {/* EVENTO */}
-                            <article
-                              className="
+                          {/* EVENTO */}
+                          <article
+                            className="
                   phanyx-student-success-timeline-card
                   min-w-0
                   flex-1
@@ -9344,9 +6980,9 @@ export default function AdminStudentSuccessPage() {
                   border
                   p-4
                 "
-                            >
-                              <div
-                                className="
+                          >
+                            <div
+                              className="
                     flex
                     flex-col
                     gap-2
@@ -9354,80 +6990,93 @@ export default function AdminStudentSuccessPage() {
                     sm:items-start
                     sm:justify-between
                   "
+                            >
+                              <div
+                                className="
+                      min-w-0
+                    "
                               >
                                 <div
                                   className="
-                      min-w-0
-                    "
-                                >
-                                  <div
-                                    className="
                         phanyx-student-success-timeline-event-title
                         font-bold
                       "
-                                  >
-                                    {
-                                      tituloEvento
-                                    }
-                                  </div>
+                                >
+                                  {tituloEvento}
+                                </div>
 
+                                {analiseAcademica ? (
                                   <div
                                     className="
-                        phanyx-student-success-timeline-muted
-                        mt-1
-                        text-xs
-                        font-semibold
-                      "
+      phanyx-student-success-timeline-muted
+      mt-1
+      text-xs
+      font-semibold
+    "
                                   >
                                     {t(
-                                      `intervention.types.${evento.tipoIntervencao}`
+                                      "intervention.timeline.academicAnalysis",
+                                    )}
+
+                                    {evento.executadoPor &&
+                                    (evento.executadoPor.nome?.trim() ||
+                                      evento.executadoPor.email?.trim()) ? (
+                                      <>
+                                        {" · "}
+                                        {t(
+                                          "intervention.timeline.executedBy",
+                                        )}:{" "}
+                                        {evento.executadoPor.nome?.trim() ||
+                                          evento.executadoPor.email?.trim()}
+                                      </>
+                                    ) : null}
+                                  </div>
+                                ) : evento.tipoIntervencao && evento.canal ? (
+                                  <div
+                                    className="
+      phanyx-student-success-timeline-muted
+      mt-1
+      text-xs
+      font-semibold
+    "
+                                  >
+                                    {t(
+                                      `intervention.types.${evento.tipoIntervencao}`,
                                     )}
 
                                     {" · "}
 
-                                    {t(
-                                      `intervention.channels.${evento.canal}`
-                                    )}
+                                    {t(`intervention.channels.${evento.canal}`)}
                                   </div>
-                                </div>
+                                ) : null}
+                              </div>
 
-                                <time
-                                  dateTime={
-                                    evento.data
-                                  }
-                                  className="
+                              <time
+                                dateTime={evento.data}
+                                className="
                       phanyx-student-success-timeline-date
                       shrink-0
                       text-xs
                       font-semibold
                     "
-                                >
-                                  {new Intl.DateTimeFormat(
-                                    undefined,
-                                    {
-                                      dateStyle:
-                                        "medium",
+                              >
+                                {new Intl.DateTimeFormat(undefined, {
+                                  dateStyle: "medium",
 
-                                      timeStyle:
-                                        "short",
-                                    }
-                                  ).format(
-                                    new Date(
-                                      evento.data
-                                    )
-                                  )}
-                                </time>
-                              </div>
+                                  timeStyle: "short",
+                                }).format(new Date(evento.data))}
+                              </time>
+                            </div>
 
-                              {/* STATUS SOMENTE QUANDO HISTORICAMENTE CONHECIDO */}
-                              {evento.status ? (
-                                <div
-                                  className="
+                            {/* STATUS SOMENTE QUANDO HISTORICAMENTE CONHECIDO */}
+                            {evento.status ? (
+                              <div
+                                className="
                       mt-3
                     "
-                                >
-                                  <span
-                                    className="
+                              >
+                                <span
+                                  className="
                         phanyx-student-success-timeline-status
                         inline-flex
                         rounded-full
@@ -9437,18 +7086,16 @@ export default function AdminStudentSuccessPage() {
                         text-xs
                         font-bold
                       "
-                                  >
-                                    {t(
-                                      `intervention.statuses.${evento.status}`
-                                    )}
-                                  </span>
-                                </div>
-                              ) : null}
+                                >
+                                  {t(`intervention.statuses.${evento.status}`)}
+                                </span>
+                              </div>
+                            ) : null}
 
-                              {/* RETORNO PROGRAMADO */}
-                              {retorno ? (
-                                <div
-                                  className="
+                            {/* RETORNO PROGRAMADO */}
+                            {retorno ? (
+                              <div
+                                className="
                       phanyx-student-success-timeline-scheduled
                       mt-3
                       rounded-lg
@@ -9458,275 +7105,471 @@ export default function AdminStudentSuccessPage() {
                       text-xs
                       font-semibold
                     "
-                                >
-                                  {t(
-                                    "intervention.timeline.scheduledFor"
-                                  )}
-                                  :{" "}
+                              >
+                                {t("intervention.timeline.scheduledFor")}:{" "}
+                                {new Intl.DateTimeFormat(undefined, {
+                                  dateStyle: "long",
+                                }).format(new Date(evento.data))}
+                              </div>
+                            ) : null}
 
-                                  {new Intl.DateTimeFormat(
-                                    undefined,
-                                    {
-                                      dateStyle:
-                                        "long",
-                                    }
-                                  ).format(
-                                    new Date(
-                                      evento.data
-                                    )
-                                  )}
-                                </div>
-                              ) : null}
-
-                              {/* OBSERVAÇÃO */}
-                              {evento.observacao &&
-                                !retorno ? (
-                                <div
-                                  className="
+                            {/* OBSERVAÇÃO */}
+                            {evento.observacao && !retorno ? (
+                              <div
+                                className="
                       mt-3
                     "
-                                >
-                                  <div
-                                    className="
+                              >
+                                <div
+                                  className="
                         phanyx-student-success-timeline-label
                         text-[11px]
                         font-bold
                         uppercase
                         tracking-wide
                       "
-                                  >
-                                    {t(
-                                      "intervention.timeline.observation"
-                                    )}
-                                  </div>
+                                >
+                                  {t("intervention.timeline.observation")}
+                                </div>
 
-                                  <p
-                                    className="
+                                <p
+                                  className="
                         phanyx-student-success-timeline-text
                         mt-1
                         whitespace-pre-wrap
                         text-sm
                         leading-5
                       "
-                                  >
-                                    {
-                                      evento.observacao
-                                    }
-                                  </p>
-                                </div>
-                              ) : null}
+                                >
+                                  {evento.observacao}
+                                </p>
+                              </div>
+                            ) : null}
 
-                              {/* FOTOGRAFIA ACADÊMICA */}
-                              {possuiFotografiaAcademica &&
-                                evento.risco ? (
-                                <div
-                                  className="
+                            {/* FOTOGRAFIA ACADÊMICA */}
+                            {possuiFotografiaAcademica && evento.risco ? (
+                              <div
+                                className="
                       phanyx-student-success-timeline-snapshot
                       mt-4
                       rounded-xl
                       border
                       p-3
                     "
-                                >
-                                  <div
-                                    className="
+                              >
+                                <div
+                                  className="
                         phanyx-student-success-timeline-label
                         text-[11px]
                         font-bold
                         uppercase
                         tracking-wide
                       "
-                                  >
-                                    {t(
-                                      "intervention.timeline.academicSnapshot"
-                                    )}
-                                  </div>
+                                >
+                                  {t("intervention.timeline.academicSnapshot")}
+                                </div>
 
-                                  <div
-                                    className="
+                                <div
+                                  className="
                         mt-3
                         grid
                         grid-cols-2
                         gap-3
                       "
-                                  >
-                                    <div>
-                                      <div
-                                        className="
+                                >
+                                  <div>
+                                    <div
+                                      className="
                             phanyx-student-success-timeline-muted
                             text-[11px]
                             font-semibold
                           "
-                                      >
-                                        {t(
-                                          "intervention.timeline.risk"
-                                        )}
-                                      </div>
+                                    >
+                                      {t("intervention.timeline.risk")}
+                                    </div>
 
-                                      <div
-                                        className="
+                                    <div
+                                      className="
                             mt-0.5
                             text-xs
                             font-bold
                           "
-                                      >
-                                        {evento
-                                          .risco
-                                          .nivel
-                                          ? t(
-                                            `levels.${evento.risco.nivel as NivelRisco}`
+                                    >
+                                      {evento.risco.nivel
+                                        ? t(
+                                            `levels.${evento.risco.nivel as NivelRisco}`,
                                           )
-                                          : "—"}
-                                      </div>
+                                        : "—"}
                                     </div>
+                                  </div>
 
-                                    <div>
-                                      <div
-                                        className="
+                                  <div>
+                                    <div
+                                      className="
                             phanyx-student-success-timeline-muted
                             text-[11px]
                             font-semibold
                           "
-                                      >
-                                        {t(
-                                          "intervention.timeline.score"
-                                        )}
-                                      </div>
+                                    >
+                                      {t("intervention.timeline.score")}
+                                    </div>
 
-                                      <div
-                                        className="
+                                    <div
+                                      className="
                             mt-0.5
                             text-xs
                             font-bold
                           "
-                                      >
-                                        {evento
-                                          .risco
-                                          .pontuacao ??
-                                          "—"}
-                                      </div>
+                                    >
+                                      {evento.risco.pontuacao ?? "—"}
                                     </div>
+                                  </div>
 
-                                    <div>
-                                      <div
-                                        className="
+                                  <div>
+                                    <div
+                                      className="
                             phanyx-student-success-timeline-muted
                             text-[11px]
                             font-semibold
                           "
-                                      >
-                                        {t(
-                                          "intervention.timeline.coverage"
-                                        )}
-                                      </div>
+                                    >
+                                      {t("intervention.timeline.coverage")}
+                                    </div>
 
-                                      <div
-                                        className="
+                                    <div
+                                      className="
                             mt-0.5
                             text-xs
                             font-bold
                           "
-                                      >
-                                        {evento
-                                          .risco
-                                          .cobertura !==
-                                          null
-                                          ? `${evento.risco.cobertura}%`
-                                          : "—"}
-                                      </div>
+                                    >
+                                      {evento.risco.cobertura !== null
+                                        ? `${evento.risco.cobertura}%`
+                                        : "—"}
                                     </div>
+                                  </div>
 
-                                    <div>
-                                      <div
-                                        className="
+                                  <div>
+                                    <div
+                                      className="
                             phanyx-student-success-timeline-muted
                             text-[11px]
                             font-semibold
                           "
-                                      >
-                                        {t(
-                                          "intervention.timeline.reliability"
-                                        )}
-                                      </div>
+                                    >
+                                      {t("intervention.timeline.reliability")}
+                                    </div>
 
-                                      <div
-                                        className="
+                                    <div
+                                      className="
                             mt-0.5
                             text-xs
                             font-bold
                           "
-                                      >
-                                        {evento
-                                          .risco
-                                          .confiabilidade
-                                          ? t(
-                                            `reliability.${evento.risco.confiabilidade as Confiabilidade}`
+                                    >
+                                      {evento.risco.confiabilidade
+                                        ? t(
+                                            `reliability.${evento.risco.confiabilidade as Confiabilidade}`,
                                           )
-                                          : "—"}
-                                      </div>
+                                        : "—"}
                                     </div>
                                   </div>
                                 </div>
-                              ) : null}
+                              </div>
+                            ) : null}
 
-                              {/* RESULTADO */}
-                              {evento.resultado ? (
+                            {/* INDICADORES DA REANÁLISE ACADÊMICA */}
+                            {analiseAcademica && evento.indicadores ? (
+                              <div
+                                className="
+      phanyx-student-success-timeline-snapshot
+      mt-3
+      rounded-xl
+      border
+      p-3
+    "
+                              >
                                 <div
                                   className="
+        phanyx-student-success-timeline-label
+        text-[11px]
+        font-bold
+        uppercase
+        tracking-wide
+      "
+                                >
+                                  {t(
+                                    "intervention.timeline.academicIndicators",
+                                  )}
+                                </div>
+
+                                <div
+                                  className="
+        mt-3
+        grid
+        grid-cols-2
+        gap-3
+      "
+                                >
+                                  <div>
+                                    <div
+                                      className="
+            phanyx-student-success-timeline-muted
+            text-[11px]
+            font-semibold
+          "
+                                    >
+                                      {t("components.FREQUENCIA")}
+                                    </div>
+
+                                    <div
+                                      className="
+            mt-0.5
+            text-xs
+            font-bold
+          "
+                                    >
+                                      {formatarPercentual(
+                                        evento.indicadores
+                                          .frequenciaPercentual ?? null,
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <div
+                                      className="
+            phanyx-student-success-timeline-muted
+            text-[11px]
+            font-semibold
+          "
+                                    >
+                                      {t("components.DESEMPENHO")}
+                                    </div>
+
+                                    <div
+                                      className="
+            mt-0.5
+            text-xs
+            font-bold
+          "
+                                    >
+                                      {formatarPercentual(
+                                        evento.indicadores.mediaPercentual ??
+                                          null,
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <div
+                                      className="
+            phanyx-student-success-timeline-muted
+            text-[11px]
+            font-semibold
+          "
+                                    >
+                                      {t(
+                                        "intervention.timeline.classesAnalyzed",
+                                      )}
+                                    </div>
+
+                                    <div
+                                      className="
+            mt-0.5
+            text-xs
+            font-bold
+          "
+                                    >
+                                      {evento.indicadores.quantidadeAulas ?? 0}
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <div
+                                      className="
+            phanyx-student-success-timeline-muted
+            text-[11px]
+            font-semibold
+          "
+                                    >
+                                      {t(
+                                        "intervention.timeline.assessmentsAnalyzed",
+                                      )}
+                                    </div>
+
+                                    <div
+                                      className="
+            mt-0.5
+            text-xs
+            font-bold
+          "
+                                    >
+                                      {evento.indicadores
+                                        .quantidadeAvaliacoes ?? 0}
+                                    </div>
+                                  </div>
+
+                                  <div
+                                    className="
+          col-span-2
+        "
+                                  >
+                                    <div
+                                      className="
+            phanyx-student-success-timeline-muted
+            text-[11px]
+            font-semibold
+          "
+                                    >
+                                      {t(
+                                        "intervention.timeline.pendingActivities",
+                                      )}
+                                    </div>
+
+                                    <div
+                                      className="
+            mt-0.5
+            text-xs
+            font-bold
+          "
+                                    >
+                                      {evento.indicadores.atividadesVencidas ??
+                                        0}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {/* PRINCIPAIS SINAIS DA REANÁLISE */}
+                            {analiseAcademica &&
+                            evento.fatoresPrincipais &&
+                            evento.fatoresPrincipais.length > 0 ? (
+                              <div
+                                className="
+      phanyx-student-success-timeline-snapshot
+      mt-3
+      rounded-xl
+      border
+      p-3
+    "
+                              >
+                                <div
+                                  className="
+        phanyx-student-success-timeline-label
+        text-[11px]
+        font-bold
+        uppercase
+        tracking-wide
+      "
+                                >
+                                  {t("intervention.timeline.mainSignals")}
+                                </div>
+
+                                <div
+                                  className="
+        mt-2
+        space-y-2
+      "
+                                >
+                                  {evento.fatoresPrincipais.map((fator) => (
+                                    <div
+                                      key={fator.codigo}
+                                      className="
+                rounded-lg
+                border
+                border-amber-200
+                bg-amber-50
+                px-3
+                py-2
+                text-xs
+                text-amber-950
+                dark:border-amber-900/70
+                dark:bg-amber-950/30
+                dark:text-amber-100
+              "
+                                    >
+                                      <div
+                                        className="
+                  font-bold
+                "
+                                      >
+                                        {t(`components.${fator.codigo}`)}
+                                      </div>
+
+                                      {fator.codigo === "PENDENCIAS" &&
+                                      evento.indicadores ? (
+                                        <div
+                                          className="
+                    mt-1
+                    font-semibold
+                  "
+                                        >
+                                          {t(
+                                            "intervention.timeline.pendingSignal",
+                                            {
+                                              count:
+                                                evento.indicadores
+                                                  .atividadesVencidas ?? 0,
+                                            },
+                                          )}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {/* RESULTADO */}
+                            {evento.resultado ? (
+                              <div
+                                className="
                       phanyx-student-success-timeline-result
                       mt-4
                       rounded-xl
                       border
                       p-3
                     "
-                                >
-                                  <div
-                                    className="
+                              >
+                                <div
+                                  className="
                         text-[11px]
                         font-bold
                         uppercase
                         tracking-wide
                       "
-                                  >
-                                    {t(
-                                      "intervention.timeline.result"
-                                    )}
-                                  </div>
+                                >
+                                  {t("intervention.timeline.result")}
+                                </div>
 
-                                  <p
-                                    className="
+                                <p
+                                  className="
                         mt-1
                         whitespace-pre-wrap
                         text-sm
                         leading-5
                       "
-                                  >
-                                    {
-                                      evento.resultado
-                                    }
-                                  </p>
-                                </div>
-                              ) : null}
+                                >
+                                  {evento.resultado}
+                                </p>
+                              </div>
+                            ) : null}
 
-                              {/* COMPARAÇÃO COMPLETA JÁ EXISTENTE */}
-                              {encerrada &&
-                                intervencao ? (
-                                renderComparacaoAcademica(
-                                  intervencao
-                                )
-                              ) : null}
+                            {/* COMPARAÇÃO COMPLETA JÁ EXISTENTE */}
+                            {encerrada && intervencao
+                              ? renderComparacaoAcademica(intervencao)
+                              : null}
 
-                              {/* ATUALIZAÇÃO SOMENTE PARA INTERVENÇÃO ABERTA */}
-                              {podeAtualizar &&
-                                intervencao ? (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    abrirAtualizacaoIntervencao(
-                                      intervencao
-                                    )
-                                  }
-                                  className="
+                            {/* ATUALIZAÇÃO SOMENTE PARA INTERVENÇÃO ABERTA */}
+                            {podeAtualizar && intervencao ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  abrirAtualizacaoIntervencao(intervencao)
+                                }
+                                className="
                       phanyx-student-success-timeline-update
                       mt-4
                       w-full
@@ -9738,17 +7581,14 @@ export default function AdminStudentSuccessPage() {
                       font-bold
                       transition
                     "
-                                >
-                                  {t(
-                                    "intervention.history.update"
-                                  )}
-                                </button>
-                              ) : null}
-                            </article>
-                          </div>
-                        );
-                      }
-                    )}
+                              >
+                                {t("intervention.history.update")}
+                              </button>
+                            ) : null}
+                          </article>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </section>
@@ -9757,8 +7597,7 @@ export default function AdminStudentSuccessPage() {
         </div>
       ) : null}
 
-      {modalIntervencaoAberto &&
-        alunoSelecionado ? (
+      {modalIntervencaoAberto && alunoSelecionado ? (
         <div
           className="
       fixed
@@ -9808,9 +7647,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {t(
-                    "intervention.title"
-                  )}
+                  {t("intervention.title")}
                 </h2>
 
                 <p
@@ -9832,23 +7669,15 @@ export default function AdminStudentSuccessPage() {
               dark:text-slate-400
             "
                 >
-                  {t(
-                    "intervention.description"
-                  )}
+                  {t("intervention.description")}
                 </p>
               </div>
 
               <button
                 type="button"
                 aria-label={t("drawer.close")}
-                disabled={
-                  salvandoIntervencao
-                }
-                onClick={() =>
-                  setModalIntervencaoAberto(
-                    false
-                  )
-                }
+                disabled={salvandoIntervencao}
+                onClick={() => setModalIntervencaoAberto(false)}
                 className="
     flex
     h-9
@@ -9899,21 +7728,13 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-200
               "
                   >
-                    {t(
-                      "intervention.type"
-                    )}
+                    {t("intervention.type")}
                   </span>
 
                   <select
-                    value={
-                      tipoIntervencao
-                    }
-                    onChange={
-                      (event) =>
-                        setTipoIntervencao(
-                          event.target
-                            .value as TipoIntervencao
-                        )
+                    value={tipoIntervencao}
+                    onChange={(event) =>
+                      setTipoIntervencao(event.target.value as TipoIntervencao)
                     }
                     className="
                 w-full
@@ -9937,22 +7758,11 @@ export default function AdminStudentSuccessPage() {
                       "ENCAMINHAMENTO",
                       "ACOMPANHAMENTO",
                       "OUTRO",
-                    ].map(
-                      (tipo) => (
-                        <option
-                          key={
-                            tipo
-                          }
-                          value={
-                            tipo
-                          }
-                        >
-                          {t(
-                            `intervention.types.${tipo}`
-                          )}
-                        </option>
-                      )
-                    )}
+                    ].map((tipo) => (
+                      <option key={tipo} value={tipo}>
+                        {t(`intervention.types.${tipo}`)}
+                      </option>
+                    ))}
                   </select>
                 </label>
 
@@ -9971,21 +7781,15 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-200
               "
                   >
-                    {t(
-                      "intervention.channel"
-                    )}
+                    {t("intervention.channel")}
                   </span>
 
                   <select
-                    value={
-                      canalIntervencao
-                    }
-                    onChange={
-                      (event) =>
-                        setCanalIntervencao(
-                          event.target
-                            .value as CanalIntervencao
-                        )
+                    value={canalIntervencao}
+                    onChange={(event) =>
+                      setCanalIntervencao(
+                        event.target.value as CanalIntervencao,
+                      )
                     }
                     className="
                 w-full
@@ -10010,22 +7814,11 @@ export default function AdminStudentSuccessPage() {
                       "VIDEOCHAMADA",
                       "SISTEMA",
                       "OUTRO",
-                    ].map(
-                      (canal) => (
-                        <option
-                          key={
-                            canal
-                          }
-                          value={
-                            canal
-                          }
-                        >
-                          {t(
-                            `intervention.channels.${canal}`
-                          )}
-                        </option>
-                      )
-                    )}
+                    ].map((canal) => (
+                      <option key={canal} value={canal}>
+                        {t(`intervention.channels.${canal}`)}
+                      </option>
+                    ))}
                   </select>
                 </label>
 
@@ -10044,21 +7837,15 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-200
               "
                   >
-                    {t(
-                      "intervention.status"
-                    )}
+                    {t("intervention.status")}
                   </span>
 
                   <select
-                    value={
-                      statusIntervencao
-                    }
-                    onChange={
-                      (event) =>
-                        setStatusIntervencao(
-                          event.target
-                            .value as StatusIntervencao
-                        )
+                    value={statusIntervencao}
+                    onChange={(event) =>
+                      setStatusIntervencao(
+                        event.target.value as StatusIntervencao,
+                      )
                     }
                     className="
                 w-full
@@ -10081,22 +7868,11 @@ export default function AdminStudentSuccessPage() {
                       "EM_ACOMPANHAMENTO",
                       "RESOLVIDA",
                       "CANCELADA",
-                    ].map(
-                      (status) => (
-                        <option
-                          key={
-                            status
-                          }
-                          value={
-                            status
-                          }
-                        >
-                          {t(
-                            `intervention.statuses.${status}`
-                          )}
-                        </option>
-                      )
-                    )}
+                    ].map((status) => (
+                      <option key={status} value={status}>
+                        {t(`intervention.statuses.${status}`)}
+                      </option>
+                    ))}
                   </select>
                 </label>
 
@@ -10117,9 +7893,7 @@ export default function AdminStudentSuccessPage() {
                 dark:text-slate-200
               "
                   >
-                    {t(
-                      "intervention.returnDate"
-                    )}
+                    {t("intervention.returnDate")}
 
                     <span
                       className="
@@ -10128,23 +7902,15 @@ export default function AdminStudentSuccessPage() {
                   text-slate-500
                 "
                     >
-                      {t(
-                        "intervention.returnDateOptional"
-                      )}
+                      {t("intervention.returnDateOptional")}
                     </span>
                   </span>
 
                   <input
                     type="date"
-                    value={
-                      retornoIntervencao
-                    }
-                    onChange={
-                      (event) =>
-                        setRetornoIntervencao(
-                          event.target
-                            .value
-                        )
+                    value={retornoIntervencao}
+                    onChange={(event) =>
+                      setRetornoIntervencao(event.target.value)
                     }
                     className="
                 w-full
@@ -10179,27 +7945,17 @@ export default function AdminStudentSuccessPage() {
               dark:text-slate-200
             "
                 >
-                  {t(
-                    "intervention.observation"
-                  )}
+                  {t("intervention.observation")}
                 </span>
 
                 <textarea
-                  value={
-                    observacaoIntervencao
-                  }
-                  onChange={
-                    (event) =>
-                      setObservacaoIntervencao(
-                        event.target
-                          .value
-                      )
+                  value={observacaoIntervencao}
+                  onChange={(event) =>
+                    setObservacaoIntervencao(event.target.value)
                   }
                   rows={5}
                   maxLength={5000}
-                  placeholder={t(
-                    "intervention.observationPlaceholder"
-                  )}
+                  placeholder={t("intervention.observationPlaceholder")}
                   className="
               w-full
               resize-y
@@ -10224,19 +7980,12 @@ export default function AdminStudentSuccessPage() {
                   className={[
                     "rounded-xl border px-4 py-3 text-sm font-semibold",
 
-                    mensagemIntervencao
-                      .tipo ===
-                      "sucesso"
+                    mensagemIntervencao.tipo === "sucesso"
                       ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
                       : "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200",
-                  ].join(
-                    " "
-                  )}
+                  ].join(" ")}
                 >
-                  {
-                    mensagemIntervencao
-                      .texto
-                  }
+                  {mensagemIntervencao.texto}
                 </div>
               ) : null}
             </div>
@@ -10254,14 +8003,8 @@ export default function AdminStudentSuccessPage() {
             >
               <button
                 type="button"
-                disabled={
-                  salvandoIntervencao
-                }
-                onClick={() =>
-                  setModalIntervencaoAberto(
-                    false
-                  )
-                }
+                disabled={salvandoIntervencao}
+                onClick={() => setModalIntervencaoAberto(false)}
                 className="
     phanyx-student-success-intervention-cancel
     rounded-xl
@@ -10278,22 +8021,15 @@ export default function AdminStudentSuccessPage() {
     dark:text-slate-200
   "
               >
-                {t(
-                  "intervention.cancel"
-                )}
+                {t("intervention.cancel")}
               </button>
 
               <button
                 type="button"
                 disabled={
-                  salvandoIntervencao ||
-                  observacaoIntervencao
-                    .trim()
-                    .length < 3
+                  salvandoIntervencao || observacaoIntervencao.trim().length < 3
                 }
-                onClick={() =>
-                  void registrarIntervencao()
-                }
+                onClick={() => void registrarIntervencao()}
                 className="
     phanyx-student-success-intervention-save
     rounded-xl
@@ -10310,14 +8046,9 @@ export default function AdminStudentSuccessPage() {
   "
               >
                 {salvandoIntervencao
-                  ? t(
-                    "intervention.saving"
-                  )
-                  : t(
-                    "intervention.save"
-                  )}
+                  ? t("intervention.saving")
+                  : t("intervention.save")}
               </button>
-
             </div>
           </div>
         </div>
@@ -10372,9 +8103,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-white
             "
                 >
-                  {t(
-                    "intervention.update.edit"
-                  )}
+                  {t("intervention.update.edit")}
                 </h2>
 
                 <p
@@ -10385,32 +8114,20 @@ export default function AdminStudentSuccessPage() {
               dark:text-slate-300
             "
                 >
-                  {t(
-                    `intervention.types.${intervencaoEmEdicao.tipo}`
-                  )}
+                  {t(`intervention.types.${intervencaoEmEdicao.tipo}`)}
                   {" · "}
-                  {t(
-                    `intervention.channels.${intervencaoEmEdicao.canal}`
-                  )}
+                  {t(`intervention.channels.${intervencaoEmEdicao.canal}`)}
                 </p>
               </div>
 
               <button
                 type="button"
-                aria-label={t(
-                  "drawer.close"
-                )}
-                disabled={
-                  salvandoAtualizacaoIntervencao
-                }
+                aria-label={t("drawer.close")}
+                disabled={salvandoAtualizacaoIntervencao}
                 onClick={() => {
-                  setIntervencaoEmEdicao(
-                    null
-                  );
+                  setIntervencaoEmEdicao(null);
 
-                  setAlunoAtualizacaoIntervencao(
-                    null
-                  );
+                  setAlunoAtualizacaoIntervencao(null);
                 }}
                 className="
               flex
@@ -10453,23 +8170,15 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                 >
-                  {t(
-                    "intervention.status"
-                  )}
+                  {t("intervention.status")}
                 </span>
 
                 <select
-                  value={
-                    statusAtualizacaoIntervencao
-                  }
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setStatusAtualizacaoIntervencao(
-                        event.target
-                          .value as StatusIntervencao
-                      )
+                  value={statusAtualizacaoIntervencao}
+                  onChange={(event) =>
+                    setStatusAtualizacaoIntervencao(
+                      event.target.value as StatusIntervencao,
+                    )
                   }
                   className="
               w-full
@@ -10492,24 +8201,11 @@ export default function AdminStudentSuccessPage() {
                     "EM_ACOMPANHAMENTO",
                     "RESOLVIDA",
                     "CANCELADA",
-                  ].map(
-                    (
-                      status
-                    ) => (
-                      <option
-                        key={
-                          status
-                        }
-                        value={
-                          status
-                        }
-                      >
-                        {t(
-                          `intervention.statuses.${status}`
-                        )}
-                      </option>
-                    )
-                  )}
+                  ].map((status) => (
+                    <option key={status} value={status}>
+                      {t(`intervention.statuses.${status}`)}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -10526,24 +8222,14 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                 >
-                  {t(
-                    "intervention.returnDate"
-                  )}
+                  {t("intervention.returnDate")}
                 </span>
 
                 <input
                   type="date"
-                  value={
-                    retornoAtualizacaoIntervencao
-                  }
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setRetornoAtualizacaoIntervencao(
-                        event.target
-                          .value
-                      )
+                  value={retornoAtualizacaoIntervencao}
+                  onChange={(event) =>
+                    setRetornoAtualizacaoIntervencao(event.target.value)
                   }
                   className="
               w-full
@@ -10575,29 +8261,17 @@ export default function AdminStudentSuccessPage() {
               font-semibold
             "
                 >
-                  {t(
-                    "intervention.update.result"
-                  )}
+                  {t("intervention.update.result")}
                 </span>
 
                 <textarea
-                  value={
-                    resultadoAtualizacaoIntervencao
-                  }
-                  onChange={
-                    (
-                      event
-                    ) =>
-                      setResultadoAtualizacaoIntervencao(
-                        event.target
-                          .value
-                      )
+                  value={resultadoAtualizacaoIntervencao}
+                  onChange={(event) =>
+                    setResultadoAtualizacaoIntervencao(event.target.value)
                   }
                   rows={5}
                   maxLength={5000}
-                  placeholder={t(
-                    "intervention.update.resultPlaceholder"
-                  )}
+                  placeholder={t("intervention.update.resultPlaceholder")}
                   className="
               w-full
               resize-y
@@ -10617,11 +8291,8 @@ export default function AdminStudentSuccessPage() {
                 />
               </label>
 
-              {statusAtualizacaoIntervencao ===
-                "RESOLVIDA" &&
-                resultadoAtualizacaoIntervencao
-                  .trim()
-                  .length < 3 ? (
+              {statusAtualizacaoIntervencao === "RESOLVIDA" &&
+              resultadoAtualizacaoIntervencao.trim().length < 3 ? (
                 <p
                   className="
               text-sm
@@ -10630,17 +8301,12 @@ export default function AdminStudentSuccessPage() {
               dark:text-amber-300
             "
                 >
-                  {t(
-                    "intervention.update.resultRequiredResolved"
-                  )}
+                  {t("intervention.update.resultRequiredResolved")}
                 </p>
               ) : null}
 
-              {statusAtualizacaoIntervencao ===
-                "CANCELADA" &&
-                resultadoAtualizacaoIntervencao
-                  .trim()
-                  .length < 3 ? (
+              {statusAtualizacaoIntervencao === "CANCELADA" &&
+              resultadoAtualizacaoIntervencao.trim().length < 3 ? (
                 <p
                   className="
               text-sm
@@ -10649,9 +8315,7 @@ export default function AdminStudentSuccessPage() {
               dark:text-amber-300
             "
                 >
-                  {t(
-                    "intervention.update.resultRequiredCancelled"
-                  )}
+                  {t("intervention.update.resultRequiredCancelled")}
                 </p>
               ) : null}
 
@@ -10660,19 +8324,12 @@ export default function AdminStudentSuccessPage() {
                   className={[
                     "rounded-xl border px-4 py-3 text-sm font-semibold",
 
-                    mensagemAtualizacaoIntervencao
-                      .tipo ===
-                      "sucesso"
+                    mensagemAtualizacaoIntervencao.tipo === "sucesso"
                       ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
                       : "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200",
-                  ].join(
-                    " "
-                  )}
+                  ].join(" ")}
                 >
-                  {
-                    mensagemAtualizacaoIntervencao
-                      .texto
-                  }
+                  {mensagemAtualizacaoIntervencao.texto}
                 </div>
               ) : null}
             </div>
@@ -10690,17 +8347,11 @@ export default function AdminStudentSuccessPage() {
             >
               <button
                 type="button"
-                disabled={
-                  salvandoAtualizacaoIntervencao
-                }
+                disabled={salvandoAtualizacaoIntervencao}
                 onClick={() => {
-                  setIntervencaoEmEdicao(
-                    null
-                  );
+                  setIntervencaoEmEdicao(null);
 
-                  setAlunoAtualizacaoIntervencao(
-                    null
-                  );
+                  setAlunoAtualizacaoIntervencao(null);
                 }}
                 className="
             phanyx-student-success-intervention-cancel
@@ -10712,30 +8363,18 @@ export default function AdminStudentSuccessPage() {
             font-semibold
             "
               >
-                {t(
-                  "intervention.cancel"
-                )}
+                {t("intervention.cancel")}
               </button>
 
               <button
                 type="button"
                 disabled={
                   salvandoAtualizacaoIntervencao ||
-                  (
-                    (
-                      statusAtualizacaoIntervencao ===
-                      "RESOLVIDA" ||
-                      statusAtualizacaoIntervencao ===
-                      "CANCELADA"
-                    ) &&
-                    resultadoAtualizacaoIntervencao
-                      .trim()
-                      .length < 3
-                  )
+                  ((statusAtualizacaoIntervencao === "RESOLVIDA" ||
+                    statusAtualizacaoIntervencao === "CANCELADA") &&
+                    resultadoAtualizacaoIntervencao.trim().length < 3)
                 }
-                onClick={() =>
-                  void salvarAtualizacaoIntervencao()
-                }
+                onClick={() => void salvarAtualizacaoIntervencao()}
                 className="
             phanyx-student-success-intervention-save
             rounded-xl
@@ -10748,18 +8387,13 @@ export default function AdminStudentSuccessPage() {
           "
               >
                 {salvandoAtualizacaoIntervencao
-                  ? t(
-                    "intervention.update.saving"
-                  )
-                  : t(
-                    "intervention.update.save"
-                  )}
+                  ? t("intervention.update.saving")
+                  : t("intervention.update.save")}
               </button>
             </div>
           </div>
-        </div >
-      ) : null
-      }
-    </main >
+        </div>
+      ) : null}
+    </main>
   );
 }

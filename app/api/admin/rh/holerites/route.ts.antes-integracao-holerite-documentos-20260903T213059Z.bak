@@ -199,7 +199,7 @@ async function recalcularTotaisHolerite(tx: any, holeriteId: number) {
   };
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const user = await getUserFromToken();
 
@@ -207,24 +207,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-
-    const funcionarioIdFiltro = Number(
-      searchParams.get("funcionarioId"),
-    );
-
-    const usarFiltroFuncionario =
-      Number.isInteger(funcionarioIdFiltro) &&
-      funcionarioIdFiltro > 0;
-
     const holerites = await prisma.holeriteRH.findMany({
       where: {
         instituicaoId: user.instituicaoId,
         arquivado: false,
-
-        ...(usarFiltroFuncionario
-          ? { funcionarioId: funcionarioIdFiltro }
-          : {}),
       },
       include: {
   funcionario: {

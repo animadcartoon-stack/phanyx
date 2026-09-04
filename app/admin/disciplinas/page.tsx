@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
+import { useTranslations } from "next-intl";
 
 interface Curso {
   id: number;
@@ -28,6 +29,7 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 function AdminDisciplinasPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations("AdminSubjects");
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -77,15 +79,16 @@ function AdminDisciplinasPage() {
     } catch {
       setCursos([]);
     }
+
     try {
-  const resProfessores = await fetch("/api/professor", {
-    credentials: "include",
-  });
-  const dataProfessores = await resProfessores.json();
-  setProfessores(Array.isArray(dataProfessores) ? dataProfessores : []);
-} catch {
-  setProfessores([]);
-}
+      const resProfessores = await fetch("/api/professor", {
+        credentials: "include",
+      });
+      const dataProfessores = await resProfessores.json();
+      setProfessores(Array.isArray(dataProfessores) ? dataProfessores : []);
+    } catch {
+      setProfessores([]);
+    }
   }
 
   async function handleCriarDisciplina(e: React.FormEvent) {
@@ -99,16 +102,17 @@ function AdminDisciplinasPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-  nome,
-  cursoId: cursoId ? Number(cursoId) : null,
-  professorId: professorId ? Number(professorId) : null,
-}),
+          nome,
+          cursoId: cursoId ? Number(cursoId) : null,
+          professorId: professorId ? Number(professorId) : null,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar disciplina");
+        console.error("Erro da API ao criar disciplina:", data?.error);
+        throw new Error(t("errors.create"));
       }
 
       setNome("");
@@ -116,9 +120,9 @@ function AdminDisciplinasPage() {
       setProfessorId("");
       setMostrarForm(false);
       await carregarDados();
-      mostrarFeedback("sucesso", "Disciplina criada com sucesso.");
+      mostrarFeedback("sucesso", t("messages.created"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao criar disciplina");
+      mostrarFeedback("erro", error?.message || t("errors.create"));
     } finally {
       setCriando(false);
     }
@@ -138,21 +142,22 @@ function AdminDisciplinasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao excluir disciplina");
+        console.error("Erro da API ao excluir disciplina:", data?.error);
+        throw new Error(t("errors.delete"));
       }
 
       setDisciplinaParaExcluir(null);
       await carregarDados();
-      mostrarFeedback("sucesso", "Disciplina excluída com sucesso.");
+      mostrarFeedback("sucesso", t("messages.deleted"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao excluir disciplina");
+      mostrarFeedback("erro", error?.message || t("errors.delete"));
     } finally {
       setExcluindoId(null);
     }
   }
 
   useEffect(() => {
-    carregarDados();
+    void carregarDados();
   }, []);
 
   useEffect(() => {
@@ -178,15 +183,16 @@ function AdminDisciplinasPage() {
       );
     });
   }, [disciplinas, busca]);
+
   const disciplinasPorCursoESemestre = useMemo(() => {
     const grupos: Record<string, Record<string, Disciplina[]>> = {};
 
     disciplinasFiltradas.forEach((disciplina) => {
-      const cursoNome = disciplina.curso?.nome || "Sem curso vinculado";
+      const cursoNome = disciplina.curso?.nome || t("list.noCourse");
       const semestreNome =
         disciplina.semestre !== null && disciplina.semestre !== undefined
-          ? `Semestre ${disciplina.semestre}`
-          : "Sem semestre definido";
+          ? t("list.semester", { number: disciplina.semestre })
+          : t("list.noSemester");
 
       if (!grupos[cursoNome]) {
         grupos[cursoNome] = {};
@@ -200,9 +206,10 @@ function AdminDisciplinasPage() {
     });
 
     return grupos;
-  }, [disciplinasFiltradas]);
+  }, [disciplinasFiltradas, t]);
+
   return (
-    <>
+    <div className="phanyx-disciplinas-page">
       <div className="space-y-6">
         {feedback && (
           <div
@@ -217,22 +224,22 @@ function AdminDisciplinasPage() {
         )}
 
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-2xl font-bold">📚 Gestão de Disciplinas</h1>
+          <h1 className="text-2xl font-bold">📚 {t("title")}</h1>
 
           <div className="flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center">
             <input
               type="text"
-              placeholder="Buscar por nome da disciplina, curso ou ID"
+              placeholder={t("search.placeholder")}
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full rounded p-2 border md:w-[380px]"
+              className="w-full rounded border p-2 md:w-[380px]"
             />
 
             <button
               onClick={() => setMostrarForm(!mostrarForm)}
               className="rounded bg-purple-600 px-4 py-2 text-white"
             >
-              + Nova Disciplina
+              {t("newSubject.openButton")}
             </button>
           </div>
         </div>
@@ -242,11 +249,11 @@ function AdminDisciplinasPage() {
             onSubmit={handleCriarDisciplina}
             className="space-y-4 rounded-lg bg-white p-6 shadow"
           >
-            <h2 className="font-semibold">Nova disciplina</h2>
+            <h2 className="font-semibold">{t("newSubject.title")}</h2>
 
             <input
               type="text"
-              placeholder="Nome da disciplina"
+              placeholder={t("newSubject.namePlaceholder")}
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               className="w-full rounded border p-2"
@@ -258,7 +265,7 @@ function AdminDisciplinasPage() {
               onChange={(e) => setCursoId(e.target.value)}
               className="w-full rounded border p-2"
             >
-              <option value="">Sem curso vinculado</option>
+              <option value="">{t("common.noCourse")}</option>
               {cursos.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.nome}
@@ -266,116 +273,131 @@ function AdminDisciplinasPage() {
               ))}
             </select>
 
-<select
-  value={professorId}
-  onChange={(e) => setProfessorId(e.target.value)}
-  className="w-full rounded border p-2"
->
-  <option value="">Sem professor vinculado</option>
-  {professores.map((professor) => (
-    <option key={professor.id} value={professor.id}>
-      {professor.nome}
-    </option>
-  ))}
-</select>
+            <select
+              value={professorId}
+              onChange={(e) => setProfessorId(e.target.value)}
+              className="w-full rounded border p-2"
+            >
+              <option value="">{t("common.noTeacher")}</option>
+              {professores.map((professor) => (
+                <option key={professor.id} value={professor.id}>
+                  {professor.nome}
+                </option>
+              ))}
+            </select>
 
             <button
               disabled={criando}
               className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
             >
-              {criando ? "Criando..." : "Criar disciplina"}
+              {criando ? t("common.creating") : t("newSubject.createButton")}
             </button>
           </form>
         )}
 
-                <div className="space-y-4">
+        <div className="space-y-4">
           {Object.entries(disciplinasPorCursoESemestre).map(
             ([cursoNome, semestres]) => (
-              <div key={cursoNome} className="rounded-lg border bg-white p-4 shadow">
+              <div
+                key={cursoNome}
+                className="rounded-lg border bg-white p-4 shadow"
+              >
                 <button
-  type="button"
-  onClick={() =>
-    setCursosAbertos((prev) => ({
-      ...prev,
-      [cursoNome]: !prev[cursoNome],
-    }))
-  }
-  className="flex w-full items-center justify-between text-left text-base font-bold text-slate-900"
->
-  <span>🎓 {cursoNome}</span>
-  <span className="text-sm text-slate-500">
-    {cursosAbertos[cursoNome] ? "▲ Fechar" : "▼ Abrir"}
-  </span>
-</button>
+                  type="button"
+                  onClick={() =>
+                    setCursosAbertos((prev) => ({
+                      ...prev,
+                      [cursoNome]: !prev[cursoNome],
+                    }))
+                  }
+                  className="flex w-full items-center justify-between text-left text-base font-bold text-slate-900"
+                >
+                  <span>🎓 {cursoNome}</span>
+                  <span className="text-sm text-slate-500">
+                    {cursosAbertos[cursoNome]
+                      ? `▲ ${t("common.close")}`
+                      : `▼ ${t("common.open")}`}
+                  </span>
+                </button>
 
-{cursosAbertos[cursoNome] && (
-  <div className="mt-3 space-y-2">
-                  {Object.entries(semestres)
-  .sort(([a], [b]) => {
-    const numeroA = Number(a.replace(/\D/g, ""));
-    const numeroB = Number(b.replace(/\D/g, ""));
+                {cursosAbertos[cursoNome] && (
+                  <div className="mt-3 space-y-2">
+                    {Object.entries(semestres)
+                      .sort(([a], [b]) => {
+                        const numeroA = Number(a.replace(/\D/g, ""));
+                        const numeroB = Number(b.replace(/\D/g, ""));
 
-    return numeroA - numeroB;
-  })
-  .map(([semestreNome, lista]) => (
-                    <details
-  key={semestreNome}
-  className="rounded-lg border bg-slate-50 p-3"
->
-                      <summary className="cursor-pointer font-semibold text-slate-800">
-                        {semestreNome} — {lista.length} disciplina(s)
-                      </summary>
+                        return numeroA - numeroB;
+                      })
+                      .map(([semestreNome, lista]) => (
+                        <details
+                          key={semestreNome}
+                          className="rounded-lg border bg-slate-50 p-3"
+                        >
+                          <summary className="cursor-pointer font-semibold text-slate-800">
+                            {semestreNome} —{" "}
+                            {t("list.subjectCount", { count: lista.length })}
+                          </summary>
 
-                      <div className="mt-3 overflow-hidden rounded-lg border bg-white">
-                        <table className="w-full text-left text-sm">
-                          <thead className="bg-gray-100">
-                            <tr>
-                              <th className="p-3">ID</th>
-                              <th className="p-3">Nome</th>
-                              <th className="p-3">Professor</th>
-                              <th className="p-3">Ações</th>
-                            </tr>
-                          </thead>
+                          <div className="mt-3 overflow-hidden rounded-lg border bg-white">
+                            <table className="w-full text-left text-sm">
+                              <thead className="bg-gray-100">
+                                <tr>
+                                  <th className="p-3">ID</th>
+                                  <th className="p-3">{t("table.name")}</th>
+                                  <th className="p-3">{t("table.teacher")}</th>
+                                  <th className="p-3">{t("table.actions")}</th>
+                                </tr>
+                              </thead>
 
-                          <tbody>
-                            {lista.map((d) => (
-                              <tr key={d.id} className="border-t hover:bg-gray-50">
-                                <td className="p-3">{d.id}</td>
-                                <td className="p-3">{d.nome}</td>
-                                <td className="p-3">{d.professor?.nome ?? "—"}</td>
-                                <td className="space-x-2 p-3">
-                                  <button
-                                    onClick={() =>
-                                      router.push(`/admin/disciplinas/${d.id}`)
-                                    }
-                                    className="text-blue-600 hover:underline"
+                              <tbody>
+                                {lista.map((d) => (
+                                  <tr
+                                    key={d.id}
+                                    className="border-t hover:bg-gray-50"
                                   >
-                                    Editar
-                                  </button>
+                                    <td className="p-3">{d.id}</td>
+                                    <td className="p-3">{d.nome}</td>
+                                    <td className="p-3">
+                                      {d.professor?.nome ?? "—"}
+                                    </td>
+                                    <td className="space-x-2 p-3">
+                                      <button
+                                        onClick={() =>
+                                          router.push(
+                                            `/admin/disciplinas/${d.id}`
+                                          )
+                                        }
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        {t("common.edit")}
+                                      </button>
 
-                                  <button
-                                    onClick={() => setDisciplinaParaExcluir(d)}
-                                    className="text-red-600 hover:underline"
-                                  >
-                                    Excluir
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
-                  ))}
+                                      <button
+                                        onClick={() =>
+                                          setDisciplinaParaExcluir(d)
+                                        }
+                                        className="text-red-600 hover:underline"
+                                      >
+                                        {t("common.delete")}
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </details>
+                      ))}
                   </div>
-)}
+                )}
               </div>
             )
           )}
 
           {disciplinasFiltradas.length === 0 && (
             <div className="rounded-lg bg-white p-4 text-gray-500 shadow">
-              Nenhuma disciplina encontrada para essa busca.
+              {t("search.empty")}
             </div>
           )}
         </div>
@@ -391,14 +413,15 @@ function AdminDisciplinasPage() {
 
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar exclusão
+                  {t("deleteModal.title")}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja excluir a disciplina{" "}
-                  <strong>"{disciplinaParaExcluir.nome}"</strong>?
+                  {t("deleteModal.question", {
+                    name: disciplinaParaExcluir.nome,
+                  })}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Esta ação não pode ser desfeita.
+                  {t("deleteModal.warning")}
                 </p>
               </div>
             </div>
@@ -410,7 +433,7 @@ function AdminDisciplinasPage() {
                 disabled={excluindoId === disciplinaParaExcluir.id}
                 className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
+                {t("common.cancel")}
               </button>
 
               <button
@@ -420,14 +443,210 @@ function AdminDisciplinasPage() {
                 className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {excluindoId === disciplinaParaExcluir.id
-                  ? "Excluindo..."
-                  : "Confirmar exclusão"}
+                  ? t("common.deleting")
+                  : t("deleteModal.confirm")}
               </button>
             </div>
           </div>
         </div>
       )}
-    </>
+
+      <style jsx global>{`
+        .phanyx-disciplinas-page {
+          color: #0f172a;
+        }
+
+        .phanyx-disciplinas-page input,
+        .phanyx-disciplinas-page select,
+        .phanyx-disciplinas-page textarea {
+          background: #ffffff;
+          color: #0f172a;
+          border-color: #cbd5e1;
+        }
+
+        html[data-theme-choice="dark"] .phanyx-disciplinas-page,
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page {
+          color: #f8fafc;
+        }
+
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="bg-white"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="bg-white"] {
+          background-color: #0b2a57 !important;
+          border-color: #2d5aa0 !important;
+        }
+
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="bg-slate-50"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="bg-slate-50"] {
+          background-color: #102a4c !important;
+          border-color: #31506f !important;
+        }
+
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="bg-gray-100"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="bg-gray-100"] {
+          background-color: #12386d !important;
+        }
+
+        html[data-theme-choice="dark"] .phanyx-disciplinas-page input,
+        html[data-theme-choice="dark"] .phanyx-disciplinas-page select,
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          input,
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          select {
+          background: #0f2746 !important;
+          color: #ffffff !important;
+          border-color: #31506f !important;
+          color-scheme: dark;
+        }
+
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          select
+          option,
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          select
+          option {
+          background: #0f2746 !important;
+          color: #ffffff !important;
+        }
+
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-9"],
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-8"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="text-slate-9"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="text-slate-8"] {
+          color: #f8fafc !important;
+        }
+
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-6"],
+        html[data-theme-choice="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-5"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="text-slate-6"],
+        html[data-theme="dark"]:not([data-theme-choice="system"])
+          .phanyx-disciplinas-page
+          [class*="text-slate-5"] {
+          color: #bfd2e8 !important;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page,
+        html[data-theme="system"].dark .phanyx-disciplinas-page {
+          color: #fafafa;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="bg-white"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="bg-white"] {
+          background-color: #18181b !important;
+          border-color: #3f3f46 !important;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="bg-slate-50"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="bg-slate-50"] {
+          background-color: #202024 !important;
+          border-color: #52525b !important;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="bg-gray-100"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="bg-gray-100"] {
+          background-color: #27272a !important;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          input,
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          select,
+        html[data-theme="system"].dark .phanyx-disciplinas-page input,
+        html[data-theme="system"].dark .phanyx-disciplinas-page select {
+          background: #202024 !important;
+          color: #fafafa !important;
+          border-color: #52525b !important;
+          color-scheme: dark;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          select
+          option,
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          select
+          option {
+          background: #18181b !important;
+          color: #fafafa !important;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-9"],
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-8"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="text-slate-9"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="text-slate-8"] {
+          color: #fafafa !important;
+        }
+
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-6"],
+        html[data-theme-choice="system"][data-theme="dark"]
+          .phanyx-disciplinas-page
+          [class*="text-slate-5"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="text-slate-6"],
+        html[data-theme="system"].dark
+          .phanyx-disciplinas-page
+          [class*="text-slate-5"] {
+          color: #a1a1aa !important;
+        }
+      `}</style>
+    </div>
   );
 }
 

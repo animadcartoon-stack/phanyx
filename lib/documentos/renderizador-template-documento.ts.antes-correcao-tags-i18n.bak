@@ -613,79 +613,6 @@ function criarBlocoAssinatura({
   `;
 }
 
-function criarLogoInstituicaoDocumento({
-  instituicao,
-  modoPrevia,
-}: {
-  instituicao:
-    DadosInstituicaoDocumento;
-
-  modoPrevia: boolean;
-}) {
-  const logoUrl =
-    String(
-      instituicao.logoDataUri ||
-      instituicao.logoUrl ||
-      ""
-    ).trim();
-
-  if (!logoUrl) {
-    if (!modoPrevia) {
-      return "";
-    }
-
-    return `
-      <span
-        class="phanyx-logo-instituicao-placeholder"
-      >
-        Logo da instituiÃ§Ã£o
-      </span>
-    `;
-  }
-
-  return `
-    <span
-      class="phanyx-logo-instituicao-inline"
-    >
-      <img
-        src="${escaparHtml(
-          logoUrl
-        )}"
-        alt="Logo da instituiÃ§Ã£o"
-      />
-    </span>
-  `;
-}
-
-export function aplicarLogoInstituicaoDocumento({
-  conteudo,
-  instituicao,
-  modoPrevia = false,
-}: {
-  conteudo: string;
-
-  instituicao:
-    DadosInstituicaoDocumento;
-
-  modoPrevia?: boolean;
-}) {
-  const logo =
-    criarLogoInstituicaoDocumento({
-      instituicao,
-      modoPrevia,
-    });
-
-  return String(conteudo || "")
-    .replaceAll(
-      "__PHANYX_LOGO_INSTITUICAO__",
-      logo
-    )
-    .replace(
-      /{{\s*logoInstituicao\s*}}/gi,
-      logo
-    );
-}
-
 export function aplicarAssinaturasDocumento({
   conteudo,
   instituicao,
@@ -1287,40 +1214,6 @@ function cssCompartilhado(
       display: none !important;
       break-before: auto !important;
       page-break-before: auto !important;
-    }
-    .phanyx-logo-instituicao-inline {
-      display: inline-block;
-      max-width: 36mm;
-      max-height: 24mm;
-      margin: 0;
-      padding: 0;
-      vertical-align: middle;
-      line-height: 0;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-
-    .phanyx-logo-instituicao-inline img {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 36mm;
-      max-height: 24mm;
-      object-fit: contain;
-    }
-
-    .phanyx-logo-instituicao-placeholder {
-      display: inline-flex;
-      width: 36mm;
-      height: 20mm;
-      align-items: center;
-      justify-content: center;
-      border: 0.3mm dashed #94a3b8;
-      color: #64748b;
-      font-size: 7.5pt;
-      line-height: 1.2;
-      text-align: center;
-      vertical-align: middle;
     }
 
     .phanyx-assinatura-imagem {

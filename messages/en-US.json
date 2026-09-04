@@ -1300,7 +1300,9 @@
         "load": "Transportation records could not be loaded.",
         "providerNameRequired": "Enter the provider's legal name or name.",
         "saveProvider": "The provider could not be added.",
-        "saveVehicle": "The vehicle could not be added."
+        "saveVehicle": "The vehicle could not be added.",
+        "driverNameRequired": "Enter the driver or operator name.",
+        "saveDriver": "The driver could not be added."
       },
       "actions": {
         "addProvider": "+ Add provider",
@@ -1308,7 +1310,9 @@
         "saveProvider": "Add provider",
         "saving": "Saving...",
         "addVehicle": "+ Add vehicle",
-        "saveVehicle": "Add vehicle"
+        "saveVehicle": "Add vehicle",
+        "addDriver": "+ Add driver",
+        "saveDriver": "Add driver"
       },
       "providerForm": {
         "title": "Add transportation provider",
@@ -1364,7 +1368,8 @@
       },
       "success": {
         "providerCreated": "Provider added successfully.",
-        "vehicleCreated": "Vehicle added successfully."
+        "vehicleCreated": "Vehicle added successfully.",
+        "driverCreated": "Driver added successfully."
       },
       "vehicleForm": {
         "title": "Add vehicle",
@@ -1425,6 +1430,77 @@
         "SUPERVISAO_REMOTA": "Remote supervision",
         "MISTA": "Mixed",
         "NAO_APLICAVEL": "Not applicable"
+      },
+      "driverForm": {
+        "title": "Add driver",
+        "description": "Register drivers, pilots, operators and other vehicle operators who may be assigned to off-site activities.",
+        "sections": {
+          "identification": "Identification and provider",
+          "contact": "Contact",
+          "documents": "Document",
+          "license": "License and authorization",
+          "emergency": "Emergency contact"
+        },
+        "provider": "Transportation provider",
+        "noProvider": "No provider / institution driver",
+        "name": "Driver / operator name",
+        "type": "Driver type",
+        "phone": "Phone",
+        "email": "Email",
+        "documentCountry": "Document / license country",
+        "documentType": "Document type",
+        "documentNumber": "Document number",
+        "licenseNumber": "License number",
+        "licenseCategory": "License class / category",
+        "licenseExpiry": "License expiration",
+        "studentVerification": "Student transportation",
+        "emergencyContact": "Emergency contact",
+        "emergencyPhone": "Emergency phone",
+        "notes": "Notes"
+      },
+      "driverTypes": {
+        "MOTORISTA": "Driver",
+        "PILOTO": "Pilot",
+        "MAQUINISTA": "Train operator",
+        "COMANDANTE_EMBARCACAO": "Vessel master",
+        "OPERADOR": "Operator",
+        "OPERADOR_REMOTO": "Remote operator",
+        "SUPERVISOR_AUTONOMO": "Autonomous vehicle supervisor",
+        "OUTRO": "Other"
+      }
+    },
+    "vehicleAssignment": {
+      "title": "Segment vehicles",
+      "linkedVehicles": "Linked vehicles",
+      "noLinkedVehicles": "No vehicle is linked to this segment.",
+      "selectVehicle": "Select a vehicle",
+      "linkVehicle": "Link vehicle",
+      "linkingVehicle": "Linking...",
+      "noVehiclesAvailable": "No other vehicle is available for this segment.",
+      "vehicleLinked": "Vehicle linked to the segment successfully.",
+      "vehicleRequired": "Select a vehicle to link.",
+      "linkError": "The vehicle could not be linked to the segment."
+    },
+    "driverAssignment": {
+      "title": "Drivers",
+      "linkedDrivers": "Linked drivers",
+      "noLinkedDrivers": "No driver is linked to this vehicle.",
+      "selectDriver": "Select a driver",
+      "selectRole": "Select a role",
+      "linkDriver": "Link driver",
+      "linkingDriver": "Linking...",
+      "noDriversAvailable": "No other driver is available for this vehicle.",
+      "driverLinked": "Driver linked to the vehicle successfully.",
+      "driverRequired": "Select a driver to link.",
+      "linkError": "The driver could not be linked to the vehicle.",
+      "roles": {
+        "PRINCIPAL": "Primary",
+        "AUXILIAR": "Assistant",
+        "RESERVA": "Reserve",
+        "OPERADOR": "Operator",
+        "OPERADOR_REMOTO": "Remote operator",
+        "SUPERVISOR_AUTONOMO": "Autonomous supervisor",
+        "OUTRO": "Other"
       }
     }
   },
@@ -4178,7 +4254,8 @@
       "viewDetails": "View details",
       "filters": "Filters",
       "refresh": "Refresh analysis",
-      "clearFilters": "Clear filters"
+      "clearFilters": "Clear filters",
+      "refreshPanel": "Refresh dashboard"
     },
     "filters": {
       "title": "Filters",
@@ -4417,7 +4494,7 @@
       },
       "timeline": {
         "title": "Student timeline",
-        "description": "Follow recorded interventions, scheduled follow-ups, and closures chronologically.",
+        "description": "Follow academic analyses, interventions, scheduled follow-ups, and recorded closures chronologically.",
         "loading": "Loading timeline...",
         "error": "The timeline could not be loaded.",
         "empty": "There are no recorded events for this student yet.",
@@ -4453,8 +4530,32 @@
         "pendingActivities": "Overdue activities",
         "mainSignals": "Main signals",
         "pendingSignal": "{count, plural, =0 {No overdue activity without submission} one {# overdue activity without submission} other {# overdue activities without submission}}",
-        "executedBy": "Performed by"
+        "executedBy": "Performed by",
+        "analysisEvolution": {
+          "comparisonTitle": "Evolution since the previous analysis",
+          "previousAnalysis": "Previous analysis",
+          "currentAnalysis": "Current analysis",
+          "riskEvolution": "Risk evolution",
+          "scoreEvolution": "Score",
+          "attendanceEvolution": "Attendance",
+          "performanceEvolution": "Performance",
+          "pendingEvolution": "Overdue activities",
+          "improved": "Positive evolution",
+          "worsened": "Worsening observed",
+          "stable": "Stable situation",
+          "notMeasurable": "Evolution not yet measurable"
+        }
       }
+    },
+    "reanalysis": {
+      "button": "Reanalyze students",
+      "running": "Reanalyzing students...",
+      "successTitle": "Reanalysis completed",
+      "studentsAnalyzed": "Students analyzed",
+      "changesRecorded": "Academic changes recorded",
+      "noChanges": "No changes",
+      "initialSnapshots": "Initial snapshots",
+      "error": "The academic reanalysis could not be completed."
     }
   },
   "AdminBirthdays": {
@@ -5664,7 +5765,8 @@
     "enumIllustrator": "Illustrator",
     "enumStudent": "Student",
     "enumTeacher": "Teacher",
-    "enumEmployee": "Employee"
+    "enumEmployee": "Employee",
+    "returnSuccessWithFine": "Return registered successfully. A fine of {amount} was generated in Finance."
   },
   "AdminCertificates": {
     "status": {
@@ -10711,6 +10813,381 @@
           "deletePayslips": "Delete payslips",
           "approveVacations": "Approve vacations"
         }
+      }
+    }
+  },
+  "AdminSubjects": {
+    "title": "Subject Management",
+    "search": {
+      "placeholder": "Search by subject name, course, or ID",
+      "empty": "No subjects were found for this search"
+    },
+    "newSubject": {
+      "openButton": "+ New Subject",
+      "title": "New subject",
+      "namePlaceholder": "Subject name",
+      "createButton": "Create subject"
+    },
+    "common": {
+      "noCourse": "No course linked",
+      "noTeacher": "No teacher linked",
+      "creating": "Creating...",
+      "open": "Open",
+      "close": "Close",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "optional": "Optional",
+      "saving": "Saving..."
+    },
+    "list": {
+      "semester": "Semester {number}",
+      "noSemester": "No semester defined",
+      "noCourse": "No course linked",
+      "subjectCount": "{count, plural, =1 {1 subject} other {# subjects}}"
+    },
+    "table": {
+      "name": "Name",
+      "teacher": "Teacher",
+      "actions": "Actions"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "question": "Are you sure you want to delete the subject “{name}”?",
+      "warning": "This action cannot be undone.",
+      "confirm": "Confirm deletion"
+    },
+    "messages": {
+      "created": "Subject created successfully.",
+      "deleted": "Subject deleted successfully.",
+      "updated": "Subject updated successfully."
+    },
+    "errors": {
+      "create": "Unable to create the subject.",
+      "delete": "Unable to delete the subject.",
+      "load": "Unable to load the subject.",
+      "save": "Unable to save the subject.",
+      "invalidId": "Invalid subject ID."
+    },
+    "toast": {
+      "errorTitle": "Error",
+      "successTitle": "All set"
+    },
+    "edit": {
+      "loading": "Loading subject...",
+      "back": "← Back to subjects",
+      "title": "Edit subject",
+      "description": "Update the subject information and define its course and semester. Linking a class is optional.",
+      "name": "Name",
+      "code": "Code",
+      "subjectDescription": "Description",
+      "workload": "Workload",
+      "semester": "Semester",
+      "course": "Course",
+      "enabledTeachers": "Teachers qualified to teach this subject",
+      "noTeachersFound": "No teachers found.",
+      "enabledTeachersHelp": "Select all teachers who are qualified to teach this subject.",
+      "prerequisites": "Subject prerequisites",
+      "noSubjectsFound": "No subjects found.",
+      "prerequisitesHelp": "Select the subjects students must complete before taking this one.",
+      "classes": "Classes",
+      "noClassesFound": "No classes found.",
+      "classFallback": "Class #{id}",
+      "classSemester": "Semester: {semester}",
+      "noSemester": "No semester",
+      "classesHelp": "Optional: link this subject to a class only if the class already exists.",
+      "saveChanges": "Save changes"
+    }
+  },
+  "AdminDocuments": {
+    "common": {
+      "reload": "Reload",
+      "open": "Open",
+      "print": "Print",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "cancel": "Cancel",
+      "student": "Student",
+      "enrollment": "Enrollment",
+      "context": "Context",
+      "template": "Template",
+      "cpf": "CPF"
+    },
+    "types": {
+      "contract": "Contract",
+      "declaration": "Declaration",
+      "receipt": "Receipt",
+      "proof": "Proof",
+      "withdrawal": "Enrollment withdrawal",
+      "attendance": "Attendance",
+      "transcript": "Transcript",
+      "payslip": "Payslip",
+      "hrDocument": "HR - General document",
+      "employmentContract": "HR - Employment contract",
+      "probationContract": "HR - Probation contract",
+      "hrPrivacyTerm": "HR - Data privacy agreement",
+      "equipmentTerm": "HR - Equipment use agreement",
+      "admission": "HR - Hiring document",
+      "dismissal": "HR - Termination document",
+      "resignation": "HR - Resignation request",
+      "notice": "HR - Notice",
+      "terminationTerm": "HR - Termination statement",
+      "vacation": "HR - Vacation document",
+      "vacationNotice": "HR - Vacation notice",
+      "vacationReceipt": "HR - Vacation receipt",
+      "warning": "HR - Warning",
+      "suspension": "HR - Suspension",
+      "medicalLeave": "HR - Medical leave",
+      "maternityLeave": "HR - Maternity leave",
+      "medicalAssessmentLeave": "HR - Medical assessment leave",
+      "returnToWork": "HR - Return to work",
+      "occupationalHealthCertificate": "HR - Occupational health certificate",
+      "occupationalHealthAdmission": "HR - Pre-employment health certificate",
+      "occupationalHealthPeriodic": "HR - Periodic health certificate",
+      "occupationalHealthReturn": "HR - Return-to-work health certificate",
+      "occupationalHealthRoleChange": "HR - Role-change health certificate",
+      "occupationalHealthDismissal": "HR - Exit health certificate",
+      "other": "Other"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "generated": "Generated",
+      "signed": "Signed",
+      "cancelled": "Cancelled",
+      "opened": "Opened"
+    },
+    "generated": {
+      "title": "📚 Generated documents",
+      "description": "View the history of documents generated by the institution.",
+      "toastErrorTitle": "Unable to complete",
+      "historyTitle": "Document history",
+      "historyDescription": "Contracts, declarations, receipts, proofs, and other documents.",
+      "searchPlaceholder": "Search by title, student, context...",
+      "allTypes": "All types",
+      "deleteUnsigned": "Delete unsigned",
+      "selectAllVisible": "Select all displayed",
+      "selected": "selected",
+      "selectedCount": "{count} selected",
+      "deleteSelected": "Delete selected",
+      "deleteSelectedWithCount": "Delete selected ({count})",
+      "loading": "Loading documents...",
+      "empty": "No documents found.",
+      "selectDocument": "Select document",
+      "selectDocumentNamed": "Select {title}",
+      "requiresSignature": "Signature required",
+      "noSignature": "No signature",
+      "generatedAt": "Generated on",
+      "previewTitle": "Preview",
+      "previewDescription": "Open a generated document to view its details.",
+      "loadingDetail": "Loading document...",
+      "noSelection": "No document selected.",
+      "documentContent": "Document content",
+      "deleteDocument": "Delete document",
+      "deleteUnsignedTitle": "Delete unsigned documents",
+      "deleteSelectedTitle": "Delete selected documents",
+      "confirmDeleteOne": "Are you sure you want to delete “{title}”? This action cannot be undone.",
+      "confirmDeleteOneButton": "Yes, delete",
+      "confirmDeleteUnsigned": "This will delete all generated, draft, and cancelled documents in this institution that have not been signed yet. Signed documents will be preserved. Continue?",
+      "confirmDeleteUnsignedButton": "Yes, delete all",
+      "confirmDeleteSelected": "You selected {count} document(s). Are you sure you want to delete them? Signed documents will be preserved.",
+      "confirmDeleteSelectedButton": "Delete {count} document(s)",
+      "share": {
+        "document": "Document",
+        "type": "Type",
+        "student": "Student",
+        "enrollment": "Enrollment",
+        "context": "Context"
+      },
+      "errors": {
+        "load": "Unable to load documents.",
+        "loadDetail": "Unable to load the document.",
+        "printWindow": "Unable to open the print window. Check whether your browser blocked pop-ups.",
+        "deleteOne": "Unable to delete the document.",
+        "deleteMany": "Unable to delete the documents.",
+        "selectAtLeastOne": "Select at least one document.",
+        "deleteSelected": "Unable to delete the selected documents."
+      },
+      "messages": {
+        "emailCopied": "The document content was copied. If your email app does not open automatically, paste the text into your email.",
+        "emailOpening": "Trying to open your email app. If it does not open, check whether an email application is configured on this computer.",
+        "deletedOne": "Document deleted successfully.",
+        "deletedMany": "Documents deleted successfully.",
+        "deletedSelected": "Selected documents deleted successfully."
+      }
+    },
+    "generate": {
+      "title": "📄 Issue Document",
+      "description": "Select the official template and fill in the information specific to this issuance.",
+      "toastErrorTitle": "Unable to generate",
+      "select": "Select",
+      "defaultContractTitle": "Education agreement",
+      "contractOpenedMessage": "The official agreement was opened through the PHANYX Contracts module.",
+      "template": {
+        "label": "Document template",
+        "type": "Type",
+        "context": "Context"
+      },
+      "person": {
+        "label": "Employee or teacher",
+        "select": "Select the employee or teacher",
+        "employeesGroup": "Employees",
+        "professorsWithoutHrGroup": "Teachers without an HR link",
+        "withoutHrSuffix": "no HR link",
+        "help": "Teachers linked to HR appear in the employee list. Teachers without an HR link must be linked to HR before employment documents can be issued."
+      },
+      "payslip": {
+        "label": "Payslip / pay period",
+        "loading": "Loading payslips...",
+        "selectEmployeeFirst": "Select the employee first",
+        "noneAvailable": "No payslips available",
+        "selectCompetence": "Select the pay period",
+        "help": "The pay period is selected explicitly so the values come from the correct payslip."
+      },
+      "student": {
+        "label": "Student or linked person",
+        "noneSelected": "No student selected"
+      },
+      "enrollment": {
+        "label": "Enrollment",
+        "requiredSuffix": " (required for an academic agreement)",
+        "optionalSuffix": " (optional)",
+        "select": "Select the enrollment",
+        "none": "None",
+        "unnamedStudent": "Unnamed student"
+      },
+      "manual": {
+        "title": "Issuance information",
+        "description": "These fields will be inserted into the corresponding template tags.",
+        "noFields": "This template has no manual-entry fields. PHANYX will fill in the data automatically."
+      },
+      "titleComplement": {
+        "label": "Title supplement (optional)",
+        "placeholder": "E.g. Service performed in August 2026"
+      },
+      "print": {
+        "title": "Print format",
+        "description": "Choose how the document will be arranged on the A4 sheet.",
+        "oneCopy": {
+          "title": "One copy",
+          "description": "One document using a full A4 sheet."
+        },
+        "twoCopies": {
+          "title": "Two copies",
+          "description": "Recipient copy and institution copy on the same A4 sheet."
+        }
+      },
+      "actions": {
+        "generating": "Generating...",
+        "openOfficialContract": "Open official agreement",
+        "generate": "Generate Document"
+      },
+      "result": {
+        "title": "Generated Document",
+        "id": "ID",
+        "documentTitle": "Title",
+        "status": "Status",
+        "noPreview": "The document was generated, but no content was returned for preview.",
+        "openPdf": "Open PDF"
+      },
+      "manualFields": {
+        "genericPlaceholder": "Enter {tag}",
+        "documentDescription": {
+          "label": "Document description or body",
+          "placeholder": "Describe the service, payment, purpose, or specific content for this issuance."
+        },
+        "documentPurpose": {
+          "label": "Document purpose",
+          "placeholder": "Enter the purpose for which this document is being issued."
+        },
+        "documentRecipient": {
+          "label": "Recipient",
+          "placeholder": "E.g. Company, agency, person, or responsible department"
+        },
+        "documentSubject": {
+          "label": "Subject",
+          "placeholder": "E.g. Audiovisual services"
+        },
+        "documentNotes": {
+          "label": "Notes",
+          "placeholder": "Additional information for this issuance."
+        },
+        "referencePeriod": {
+          "label": "Reference period",
+          "placeholder": "E.g. August 2026"
+        },
+        "competence": {
+          "label": "Pay/reference period",
+          "placeholder": "E.g. August 2026"
+        },
+        "documentValue": {
+          "label": "Amount",
+          "placeholder": "E.g. 150.00"
+        },
+        "receivedValue": {
+          "label": "Amount received",
+          "placeholder": "E.g. 150.00"
+        },
+        "value": {
+          "label": "Amount",
+          "placeholder": "E.g. 150.00"
+        },
+        "payerName": {
+          "label": "Payer name",
+          "placeholder": "Full name or legal business name"
+        },
+        "payerDocument": {
+          "label": "Payer CPF or CNPJ",
+          "placeholder": "Enter the CPF or CNPJ"
+        },
+        "paymentMethod": {
+          "label": "Payment method"
+        },
+        "paymentDate": {
+          "label": "Payment date"
+        },
+        "paymentReference": {
+          "label": "Payment reference",
+          "placeholder": "E.g. PIX code, E2E, receipt number, or internal identifier"
+        },
+        "providerName": {
+          "label": "Service provider name",
+          "placeholder": "Name of the person or company that provided the service"
+        },
+        "providerDocument": {
+          "label": "Provider CPF or CNPJ",
+          "placeholder": "Enter the CPF or CNPJ"
+        },
+        "serviceDescription": {
+          "label": "Service description",
+          "placeholder": "Describe the service provided."
+        }
+      },
+      "manualOptions": {
+        "pix": "PIX",
+        "cash": "Cash",
+        "creditCard": "Credit card",
+        "debitCard": "Debit card",
+        "bankTransfer": "Bank transfer",
+        "bankSlip": "Bank slip",
+        "check": "Check",
+        "other": "Other"
+      },
+      "errors": {
+        "loadPayslips": "Unable to load payslips.",
+        "loadData": "Unable to load the data required to generate the document.",
+        "selectTemplate": "Select a template before generating the document.",
+        "selectEnrollmentForContract": "Select the student's enrollment to generate the agreement.",
+        "invalidEnrollment": "The selected enrollment is invalid.",
+        "selectPerson": "Select the employee or teacher for this document.",
+        "invalidPerson": "Invalid employee or teacher.",
+        "invalidPersonType": "Invalid person type.",
+        "selectPayslip": "Select the payslip pay period for this document.",
+        "generate": "Unable to generate the document.",
+        "payslipTemplateRequiresHrContext": "Templates with payslip tags must use an employee, teacher, or HR context.",
+        "payslipUnavailable": "The selected payslip does not exist, is cancelled/archived, or does not belong to the selected employee."
       }
     }
   }

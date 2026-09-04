@@ -26,6 +26,523 @@ type ContextoRota = {
     };
 };
 
+type IndicadoresComparacaoAnalise = {
+    frequenciaPercentual:
+    number | null;
+
+    mediaPercentual:
+    number | null;
+
+    atividadesVencidas:
+    number | null;
+};
+
+type FotografiaComparacaoAnalise = {
+    analiseHistoricoId:
+    number;
+
+    data:
+    string;
+
+    nivelRisco:
+    string | null;
+
+    pontuacao:
+    number | null;
+
+    cobertura:
+    number | null;
+
+    confiabilidade:
+    string | null;
+
+    indicadores:
+    IndicadoresComparacaoAnalise;
+};
+
+type EvolucaoAnaliseAcademica = {
+    classificacao:
+    | "POSITIVA"
+    | "NEGATIVA"
+    | "NEUTRA"
+    | "NAO_MENSURAVEL";
+
+    saldo:
+    number;
+
+    criteriosComparados:
+    number;
+
+    melhorias:
+    string[];
+
+    pioras:
+    string[];
+
+    anterior:
+    FotografiaComparacaoAnalise;
+
+    atual:
+    FotografiaComparacaoAnalise;
+};
+
+type AnaliseAcademicaParaComparacao = {
+    id:
+    number;
+
+    analisadoEm:
+    Date;
+
+    nivelRisco:
+    string;
+
+    pontuacaoRisco:
+    number | null;
+
+    coberturaPercentual:
+    number;
+
+    confiabilidade:
+    string;
+
+    indicadores:
+    unknown;
+};
+
+function numeroOuNull(
+    valor:
+        unknown
+): number | null {
+    return (
+        typeof valor ===
+            "number" &&
+        Number.isFinite(
+            valor
+        )
+    )
+        ? valor
+        : null;
+}
+
+function extrairIndicadoresComparacao(
+    valor:
+        unknown
+): IndicadoresComparacaoAnalise {
+    if (
+        !valor ||
+        typeof valor !==
+        "object" ||
+        Array.isArray(
+            valor
+        )
+    ) {
+        return {
+            frequenciaPercentual:
+                null,
+
+            mediaPercentual:
+                null,
+
+            atividadesVencidas:
+                null,
+        };
+    }
+
+    const objeto =
+        valor as Record<
+            string,
+            unknown
+        >;
+
+    return {
+        frequenciaPercentual:
+            numeroOuNull(
+                objeto
+                    .frequenciaPercentual
+            ),
+
+        mediaPercentual:
+            numeroOuNull(
+                objeto
+                    .mediaPercentual
+            ),
+
+        atividadesVencidas:
+            numeroOuNull(
+                objeto
+                    .atividadesVencidas
+            ),
+    };
+}
+
+function criarFotografiaComparacao(
+    analise:
+        AnaliseAcademicaParaComparacao
+): FotografiaComparacaoAnalise {
+    return {
+        analiseHistoricoId:
+            analise.id,
+
+        data:
+            analise
+                .analisadoEm
+                .toISOString(),
+
+        nivelRisco:
+            analise
+                .nivelRisco ??
+            null,
+
+        pontuacao:
+            analise
+                .pontuacaoRisco,
+
+        cobertura:
+            analise
+                .coberturaPercentual,
+
+        confiabilidade:
+            analise
+                .confiabilidade ??
+            null,
+
+        indicadores:
+            extrairIndicadoresComparacao(
+                analise
+                    .indicadores
+            ),
+    };
+}
+
+const ORDEM_RISCO_ANALISE:
+    Record<
+        string,
+        number
+    > = {
+        NORMAL:
+            0,
+
+        ATENCAO:
+            1,
+
+        RISCO:
+            2,
+
+        CRITICO:
+            3,
+    };
+
+function compararAnalisesAcademicas(
+    anterior:
+        AnaliseAcademicaParaComparacao,
+
+    atual:
+        AnaliseAcademicaParaComparacao
+): EvolucaoAnaliseAcademica {
+    const fotografiaAnterior =
+        criarFotografiaComparacao(
+            anterior
+        );
+
+    const fotografiaAtual =
+        criarFotografiaComparacao(
+            atual
+        );
+
+    const melhorias:
+        string[] =
+        [];
+
+    const pioras:
+        string[] =
+        [];
+
+    let criteriosComparados =
+        0;
+
+    /*
+     * =====================================================
+     * RISCO
+     * =====================================================
+     *
+     * DADOS_INSUFICIENTES não entra como nível ordinal.
+     * Só comparamos quando os dois momentos possuem
+     * classificação acadêmica efetivamente mensurável.
+     */
+
+    const riscoAnterior =
+        fotografiaAnterior
+            .nivelRisco
+            ? ORDEM_RISCO_ANALISE[
+                fotografiaAnterior
+                    .nivelRisco
+            ]
+            : undefined;
+
+    const riscoAtual =
+        fotografiaAtual
+            .nivelRisco
+            ? ORDEM_RISCO_ANALISE[
+                fotografiaAtual
+                    .nivelRisco
+            ]
+            : undefined;
+
+    if (
+        riscoAnterior !==
+            undefined &&
+        riscoAtual !==
+            undefined
+    ) {
+        criteriosComparados +=
+            1;
+
+        if (
+            riscoAtual <
+            riscoAnterior
+        ) {
+            melhorias.push(
+                "RISCO"
+            );
+        }
+        else if (
+            riscoAtual >
+            riscoAnterior
+        ) {
+            pioras.push(
+                "RISCO"
+            );
+        }
+    }
+
+    /*
+     * =====================================================
+     * PONTUAÇÃO DE RISCO
+     * =====================================================
+     *
+     * Quanto menor, melhor.
+     */
+
+    if (
+        fotografiaAnterior
+            .pontuacao !==
+            null &&
+        fotografiaAtual
+            .pontuacao !==
+            null
+    ) {
+        criteriosComparados +=
+            1;
+
+        if (
+            fotografiaAtual
+                .pontuacao <
+            fotografiaAnterior
+                .pontuacao
+        ) {
+            melhorias.push(
+                "PONTUACAO"
+            );
+        }
+        else if (
+            fotografiaAtual
+                .pontuacao >
+            fotografiaAnterior
+                .pontuacao
+        ) {
+            pioras.push(
+                "PONTUACAO"
+            );
+        }
+    }
+
+    /*
+     * =====================================================
+     * FREQUÊNCIA
+     * =====================================================
+     *
+     * Quanto maior, melhor.
+     */
+
+    const frequenciaAnterior =
+        fotografiaAnterior
+            .indicadores
+            .frequenciaPercentual;
+
+    const frequenciaAtual =
+        fotografiaAtual
+            .indicadores
+            .frequenciaPercentual;
+
+    if (
+        frequenciaAnterior !==
+            null &&
+        frequenciaAtual !==
+            null
+    ) {
+        criteriosComparados +=
+            1;
+
+        if (
+            frequenciaAtual >
+            frequenciaAnterior
+        ) {
+            melhorias.push(
+                "FREQUENCIA"
+            );
+        }
+        else if (
+            frequenciaAtual <
+            frequenciaAnterior
+        ) {
+            pioras.push(
+                "FREQUENCIA"
+            );
+        }
+    }
+
+    /*
+     * =====================================================
+     * DESEMPENHO
+     * =====================================================
+     *
+     * Quanto maior, melhor.
+     */
+
+    const desempenhoAnterior =
+        fotografiaAnterior
+            .indicadores
+            .mediaPercentual;
+
+    const desempenhoAtual =
+        fotografiaAtual
+            .indicadores
+            .mediaPercentual;
+
+    if (
+        desempenhoAnterior !==
+            null &&
+        desempenhoAtual !==
+            null
+    ) {
+        criteriosComparados +=
+            1;
+
+        if (
+            desempenhoAtual >
+            desempenhoAnterior
+        ) {
+            melhorias.push(
+                "DESEMPENHO"
+            );
+        }
+        else if (
+            desempenhoAtual <
+            desempenhoAnterior
+        ) {
+            pioras.push(
+                "DESEMPENHO"
+            );
+        }
+    }
+
+    /*
+     * =====================================================
+     * ATIVIDADES VENCIDAS
+     * =====================================================
+     *
+     * Quanto menor, melhor.
+     */
+
+    const pendenciasAnteriores =
+        fotografiaAnterior
+            .indicadores
+            .atividadesVencidas;
+
+    const pendenciasAtuais =
+        fotografiaAtual
+            .indicadores
+            .atividadesVencidas;
+
+    if (
+        pendenciasAnteriores !==
+            null &&
+        pendenciasAtuais !==
+            null
+    ) {
+        criteriosComparados +=
+            1;
+
+        if (
+            pendenciasAtuais <
+            pendenciasAnteriores
+        ) {
+            melhorias.push(
+                "PENDENCIAS"
+            );
+        }
+        else if (
+            pendenciasAtuais >
+            pendenciasAnteriores
+        ) {
+            pioras.push(
+                "PENDENCIAS"
+            );
+        }
+    }
+
+    const saldo =
+        melhorias.length -
+        pioras.length;
+
+    let classificacao:
+        EvolucaoAnaliseAcademica[
+            "classificacao"
+        ];
+
+    if (
+        criteriosComparados ===
+        0
+    ) {
+        classificacao =
+            "NAO_MENSURAVEL";
+    }
+    else if (
+        saldo > 0
+    ) {
+        classificacao =
+            "POSITIVA";
+    }
+    else if (
+        saldo < 0
+    ) {
+        classificacao =
+            "NEGATIVA";
+    }
+    else {
+        classificacao =
+            "NEUTRA";
+    }
+
+    return {
+        classificacao,
+
+        saldo,
+
+        criteriosComparados,
+
+        melhorias,
+
+        pioras,
+
+        anterior:
+            fotografiaAnterior,
+
+        atual:
+            fotografiaAtual,
+    };
+}
+
 type EventoTimeline = {
     id:
     string;
@@ -120,6 +637,9 @@ type EventoTimeline = {
     ReturnType<
         typeof avaliarEvolucaoIntervencao
     > | null;
+
+    evolucaoAnalise?:
+EvolucaoAnaliseAcademica | null;
 };
 
 export async function GET(
@@ -408,11 +928,33 @@ export async function GET(
          * =====================================================
          */
 
-        for (
-            const analise
-            of analisesAcademicas
-        ) {
-            eventos.push({
+       for (
+    let indice = 0;
+    indice <
+    analisesAcademicas.length;
+    indice += 1
+) {
+    const analise =
+        analisesAcademicas[
+            indice
+        ]!;
+
+    const analiseAnterior =
+        indice > 0
+            ? analisesAcademicas[
+                indice - 1
+            ]!
+            : null;
+
+    const evolucaoAnalise =
+        analiseAnterior
+            ? compararAnalisesAcademicas(
+                analiseAnterior,
+                analise
+            )
+            : null;
+
+    eventos.push({
                 id:
                     `analise-${analise.id}`,
 
@@ -512,6 +1054,8 @@ export async function GET(
 
                 evolucao:
                     null,
+
+                    evolucaoAnalise,
             });
         }
 
