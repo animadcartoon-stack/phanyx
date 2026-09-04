@@ -443,6 +443,13 @@ export default function TransporteAtividadeExterna({
     setVinculandoPassageiroTrechoVeiculoId,
   ] = useState<number | null>(null);
 
+    const [
+    removendoPassageiroId,
+    setRemovendoPassageiroId,
+  ] = useState<number | null>(
+    null
+  );
+
   const [
     condutorSelecionadoPorTrechoVeiculo,
     setCondutorSelecionadoPorTrechoVeiculo,
@@ -748,6 +755,100 @@ export default function TransporteAtividadeExterna({
       setErro(t("passengerAssignment.linkError"));
     } finally {
       setVinculandoPassageiroTrechoVeiculoId(null);
+    }
+  }
+
+    async function desvincularPassageiro(
+    passageiroId: number
+  ) {
+    if (
+      !Number.isInteger(
+        passageiroId
+      ) ||
+      passageiroId <= 0
+    ) {
+      return;
+    }
+
+    setRemovendoPassageiroId(
+      passageiroId
+    );
+
+    setErro("");
+    setSucesso("");
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/atividades-externas/${atividadeId}/transporte`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              acao:
+                "DESVINCULAR_PASSAGEIRO",
+
+              passageiroId,
+            }),
+          }
+        );
+
+      const dados =
+        (await resposta.json()) as {
+          ok?: boolean;
+          error?: string;
+        };
+
+      if (
+        !resposta.ok ||
+        !dados.ok
+      ) {
+        if (
+          dados.error ===
+          "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO"
+        ) {
+          setErro(
+            t(
+              "passengerAssignment.cannotRemoveAfterOperation"
+            )
+          );
+
+          return;
+        }
+
+        throw new Error(
+          dados.error ||
+            "ERRO_DESVINCULAR_PASSAGEIRO"
+        );
+      }
+
+      setSucesso(
+        t(
+          "passengerAssignment.passengerRemoved"
+        )
+      );
+
+      await carregar();
+    } catch (error) {
+      console.error(
+        "[TRANSPORTE_ATIVIDADE_DESVINCULAR_PASSAGEIRO]",
+        error
+      );
+
+      setErro(
+        t(
+          "passengerAssignment.removeError"
+        )
+      );
+    } finally {
+      setRemovendoPassageiroId(
+        null
+      );
     }
   }
 

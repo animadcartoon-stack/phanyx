@@ -151,6 +151,12 @@ function componenteIndisponivel(
   };
 }
 
+const MINIMO_AULAS_FREQUENCIA =
+  3;
+
+const MINIMO_AVALIACOES_DESEMPENHO =
+  2;
+
 function calcularFrequencia(
   entrada: EntradaRiscoAcademico
 ): ComponenteRiscoAcademico {
@@ -163,15 +169,16 @@ function calcularFrequencia(
     entrada.quantidadeAulas ?? 0;
 
   if (
-    frequencia === null ||
-    frequencia === undefined ||
-    quantidadeAulas <= 0
-  ) {
+  frequencia === null ||
+  frequencia === undefined ||
+  quantidadeAulas <
+    MINIMO_AULAS_FREQUENCIA
+){
     return componenteIndisponivel(
       "FREQUENCIA",
       "Frequência",
       maximo,
-      "Ainda não há aulas suficientes para analisar a frequência."
+      `São necessárias pelo menos ${MINIMO_AULAS_FREQUENCIA} aulas para analisar a frequência.`
     );
   }
 
@@ -228,15 +235,16 @@ function calcularDesempenho(
     entrada.quantidadeAvaliacoes ?? 0;
 
   if (
-    media === null ||
-    media === undefined ||
-    quantidadeAvaliacoes <= 0
-  ) {
+  media === null ||
+  media === undefined ||
+  quantidadeAvaliacoes <
+    MINIMO_AVALIACOES_DESEMPENHO
+) {
     return componenteIndisponivel(
       "DESEMPENHO",
       "Desempenho",
       maximo,
-      "Ainda não há avaliações suficientes para analisar o desempenho."
+      `São necessárias pelo menos ${MINIMO_AVALIACOES_DESEMPENHO} avaliações para analisar o desempenho.`
     );
   }
 

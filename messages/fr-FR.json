@@ -1530,7 +1530,10 @@
       "removingPassenger": "Suppression...",
       "passengerRemoved": "Passager retiré du véhicule avec succès.",
       "removeError": "Impossible de retirer le passager du véhicule.",
-      "cannotRemoveAfterOperation": "Ce passager ne peut plus être retiré car les opérations du trajet ont déjà commencé."
+      "cannotRemoveAfterOperation": "Ce passager ne peut plus être retiré car les opérations du trajet ont déjà commencé.",
+      "removeQuestion": "Retirer ce passager du véhicule ?",
+      "confirmRemove": "Confirmer le retrait",
+      "cancelRemove": "Annuler"
     }
   },
   "ProfessorLayout": {
@@ -5796,7 +5799,11 @@
     "enumEmployee": "Employé",
     "returnSuccessWithFine": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances.",
     "returnSuccessWithReservation": "Retour enregistré avec succès. L’exemplaire a été réservé pour le prochain utilisateur de la file d’attente.",
-    "returnSuccessWithFineAndReservation": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances et l’exemplaire a été réservé pour le prochain utilisateur de la file d’attente."
+    "returnSuccessWithFineAndReservation": "Retour enregistré avec succès. Une pénalité de {amount} a été générée dans les Finances et l’exemplaire a été réservé pour le prochain utilisateur de la file d’attente.",
+    "reservationError": "La réservation n’a pas pu être enregistrée.",
+    "reservationImmediateSuccess": "Réservation enregistrée avec succès. Un exemplaire est déjà disponible et a été réservé pour cet utilisateur.",
+    "reservationQueueSuccess": "Réservation enregistrée avec succès. L’utilisateur a été ajouté à la file d’attente.",
+    "reservationQueueSuccessWithPosition": "Réservation enregistrée avec succès. L’utilisateur occupe la position {position} dans la file d’attente."
   },
   "AdminCertificates": {
     "status": {
@@ -11263,6 +11270,25 @@
       "subheading": "Sous-titre",
       "list": "Liste",
       "textColor": "Couleur"
+    }
+  },
+  "AdminDocumentsTemplatesVisualFields": {
+    "academicContract": {
+      "title": "Signatures automatiques dans le contrat académique",
+      "description": "Pour les contrats académiques d’adhésion, les zones de signature de l’élève ou du responsable ainsi que la signature institutionnelle sont insérées automatiquement par PHANYX dans le document final. Il n’est pas nécessaire d’ajouter ou de positionner manuellement la signature du directeur.",
+      "badge": "Signature automatique",
+      "help": "Modifiez et mettez en forme normalement le contenu du contrat. Les lignes et champs de signature sont appliqués par le système lors de l’inscription, tout en préservant le standard du document."
+    },
+    "visualFields": {
+      "title": "Champs visuels du document",
+      "description": "Faites glisser et redimensionnez la signature institutionnelle jusqu’à la position souhaitée dans la zone de signature.",
+      "addDirectorSignature": "🖋 Ajouter la signature du directeur",
+      "signatureAreaTitle": "Zone réelle de signature du directeur",
+      "directorNamePlaceholder": "Nom du directeur/responsable",
+      "directorSignatureAlt": "Signature du directeur",
+      "signaturePlaceholder": "🖋 Signature du directeur",
+      "resizeSignature": "Redimensionner la signature",
+      "positionHelp": "Positionnez la signature exactement comme elle devra apparaître au-dessus de la ligne du directeur dans le document."
     }
   }
 }

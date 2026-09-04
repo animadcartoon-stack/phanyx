@@ -1530,7 +1530,10 @@
       "removingPassenger": "Removing...",
       "passengerRemoved": "Passenger removed from the vehicle successfully.",
       "removeError": "The passenger could not be removed from the vehicle.",
-      "cannotRemoveAfterOperation": "This passenger can no longer be removed because segment operations have already started."
+      "cannotRemoveAfterOperation": "This passenger can no longer be removed because segment operations have already started.",
+      "removeQuestion": "Remove this passenger from the vehicle?",
+      "confirmRemove": "Confirm removal",
+      "cancelRemove": "Cancel"
     }
   },
   "ProfessorLayout": {
@@ -5797,7 +5800,11 @@
     "enumEmployee": "Employee",
     "returnSuccessWithFine": "Return registered successfully. A fine of {amount} was generated in Finance.",
     "returnSuccessWithReservation": "Return registered successfully. The copy was reserved for the next user in the queue.",
-    "returnSuccessWithFineAndReservation": "Return registered successfully. A fine of {amount} was generated in Finance and the copy was reserved for the next user in the queue."
+    "returnSuccessWithFineAndReservation": "Return registered successfully. A fine of {amount} was generated in Finance and the copy was reserved for the next user in the queue.",
+    "reservationError": "The reservation could not be registered.",
+    "reservationImmediateSuccess": "Reservation registered successfully. A copy is already available and has been held for this user.",
+    "reservationQueueSuccess": "Reservation registered successfully. The user was added to the waiting queue.",
+    "reservationQueueSuccessWithPosition": "Reservation registered successfully. The user is number {position} in the waiting queue."
   },
   "AdminCertificates": {
     "status": {
@@ -11272,6 +11279,25 @@
       "subheading": "Subheading",
       "list": "List",
       "textColor": "Color"
+    }
+  },
+  "AdminDocumentsTemplatesVisualFields": {
+    "academicContract": {
+      "title": "Automatic signatures in the academic contract",
+      "description": "For academic enrollment agreements, the student or guardian signature areas and the institutional signature are automatically inserted by PHANYX in the final document. There is no need to manually add or position the director's signature.",
+      "badge": "Automatic signature",
+      "help": "Edit and format the contract content normally. Signature lines and fields are applied by the system during enrollment, preserving the document standard."
+    },
+    "visualFields": {
+      "title": "Document visual fields",
+      "description": "Drag and resize the institutional signature to the desired position in the signature area.",
+      "addDirectorSignature": "🖋 Add director signature",
+      "signatureAreaTitle": "Actual director signature area",
+      "directorNamePlaceholder": "Director/responsible person name",
+      "directorSignatureAlt": "Director signature",
+      "signaturePlaceholder": "🖋 Director signature",
+      "resizeSignature": "Resize signature",
+      "positionHelp": "Position the signature exactly as it should appear over the director's signature line in the document."
     }
   }
 }

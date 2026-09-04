@@ -1530,7 +1530,10 @@
       "removingPassenger": "Eliminando...",
       "passengerRemoved": "Pasajero eliminado del vehículo correctamente.",
       "removeError": "No se pudo eliminar el pasajero del vehículo.",
-      "cannotRemoveAfterOperation": "Este pasajero ya no se puede eliminar porque la operación del trayecto ya ha comenzado."
+      "cannotRemoveAfterOperation": "Este pasajero ya no se puede eliminar porque la operación del trayecto ya ha comenzado.",
+      "removeQuestion": "¿Eliminar este pasajero del vehículo?",
+      "confirmRemove": "Confirmar eliminación",
+      "cancelRemove": "Cancelar"
     }
   },
   "ProfessorLayout": {
@@ -5796,7 +5799,11 @@
     "enumEmployee": "Empleado",
     "returnSuccessWithFine": "Devolución registrada correctamente. Se generó una multa de {amount} en Finanzas.",
     "returnSuccessWithReservation": "Devolución registrada correctamente. El ejemplar fue reservado para el siguiente usuario de la cola.",
-    "returnSuccessWithFineAndReservation": "Devolución registrada correctamente. Se generó una multa de {amount} en Finanzas y el ejemplar fue reservado para el siguiente usuario de la cola."
+    "returnSuccessWithFineAndReservation": "Devolución registrada correctamente. Se generó una multa de {amount} en Finanzas y el ejemplar fue reservado para el siguiente usuario de la cola.",
+    "reservationError": "No se pudo registrar la reserva.",
+    "reservationImmediateSuccess": "Reserva registrada correctamente. Ya hay un ejemplar disponible y fue reservado para este usuario.",
+    "reservationQueueSuccess": "Reserva registrada correctamente. El usuario fue incluido en la lista de espera.",
+    "reservationQueueSuccessWithPosition": "Reserva registrada correctamente. El usuario ocupa la posición {position} en la lista de espera."
   },
   "AdminCertificates": {
     "status": {
@@ -11263,6 +11270,25 @@
       "subheading": "Subtítulo",
       "list": "Lista",
       "textColor": "Color"
+    }
+  },
+  "AdminDocumentsTemplatesVisualFields": {
+    "academicContract": {
+      "title": "Firmas automáticas en el contrato académico",
+      "description": "En los contratos académicos de adhesión, las áreas de firma del alumno o responsable y la firma institucional son insertadas automáticamente por PHANYX en el documento final. No es necesario añadir ni posicionar manualmente la firma del director.",
+      "badge": "Firma automática",
+      "help": "Edite y formatee normalmente el contenido del contrato. Las líneas y campos de firma son aplicados por el sistema durante la contratación, preservando el estándar del documento."
+    },
+    "visualFields": {
+      "title": "Campos visuales del documento",
+      "description": "Arrastre y cambie el tamaño de la firma institucional hasta la posición deseada del área de firma.",
+      "addDirectorSignature": "🖋 Añadir firma del director",
+      "signatureAreaTitle": "Área real de la firma del director",
+      "directorNamePlaceholder": "Nombre del director/responsable",
+      "directorSignatureAlt": "Firma del director",
+      "signaturePlaceholder": "🖋 Firma del director",
+      "resizeSignature": "Cambiar tamaño de la firma",
+      "positionHelp": "Coloque la firma exactamente como deberá aparecer sobre la línea del director en el documento."
     }
   }
 }

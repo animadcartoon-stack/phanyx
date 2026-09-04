@@ -1530,7 +1530,10 @@
       "removingPassenger": "A remover...",
       "passengerRemoved": "Passageiro removido do veículo com sucesso.",
       "removeError": "Não foi possível remover o passageiro do veículo.",
-      "cannotRemoveAfterOperation": "Este passageiro já não pode ser removido porque a operação do trajeto já foi iniciada."
+      "cannotRemoveAfterOperation": "Este passageiro já não pode ser removido porque a operação do trajeto já foi iniciada.",
+      "removeQuestion": "Remover este passageiro do veículo?",
+      "confirmRemove": "Confirmar remoção",
+      "cancelRemove": "Cancelar"
     }
   },
   "ProfessorLayout": {
@@ -5796,7 +5799,11 @@
     "enumEmployee": "Funcionário",
     "returnSuccessWithFine": "Devolução registada com sucesso. Multa de {amount} gerada no Financeiro.",
     "returnSuccessWithReservation": "Devolução registada com sucesso. O exemplar foi reservado para o próximo utilizador da fila.",
-    "returnSuccessWithFineAndReservation": "Devolução registada com sucesso. Multa de {amount} gerada nas Finanças e o exemplar foi reservado para o próximo utilizador da fila."
+    "returnSuccessWithFineAndReservation": "Devolução registada com sucesso. Multa de {amount} gerada nas Finanças e o exemplar foi reservado para o próximo utilizador da fila.",
+    "reservationError": "Não foi possível registar a reserva.",
+    "reservationImmediateSuccess": "Reserva registada com sucesso. Um exemplar já está disponível e foi reservado para este utilizador.",
+    "reservationQueueSuccess": "Reserva registada com sucesso. O utilizador foi incluído na lista de espera.",
+    "reservationQueueSuccessWithPosition": "Reserva registada com sucesso. O utilizador ocupa a posição {position} na lista de espera."
   },
   "AdminCertificates": {
     "status": {
@@ -11264,6 +11271,25 @@
       "subheading": "Subtítulo",
       "list": "Lista",
       "textColor": "Cor"
+    }
+  },
+  "AdminDocumentsTemplatesVisualFields": {
+    "academicContract": {
+      "title": "Assinaturas automáticas no contrato académico",
+      "description": "Nos contratos académicos de adesão, as áreas de assinatura do aluno ou responsável e a assinatura institucional são inseridas automaticamente pelo PHANYX no documento final. Não é necessário adicionar ou posicionar manualmente a assinatura do diretor.",
+      "badge": "Assinatura automática",
+      "help": "Edite e formate normalmente o conteúdo do contrato. As linhas e os campos de assinatura são aplicados pelo sistema na etapa de contratação, preservando o padrão do documento."
+    },
+    "visualFields": {
+      "title": "Campos visuais do documento",
+      "description": "Arraste e redimensione a assinatura institucional para o ponto desejado da área de assinatura.",
+      "addDirectorSignature": "🖋 Adicionar assinatura do diretor",
+      "signatureAreaTitle": "Área real da assinatura do diretor",
+      "directorNamePlaceholder": "Nome do diretor/responsável",
+      "directorSignatureAlt": "Assinatura do diretor",
+      "signaturePlaceholder": "🖋 Assinatura do diretor",
+      "resizeSignature": "Redimensionar assinatura",
+      "positionHelp": "Posicione a assinatura exatamente como deverá aparecer sobre a linha do diretor no documento."
     }
   }
 }

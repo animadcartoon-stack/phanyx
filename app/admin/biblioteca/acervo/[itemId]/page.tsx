@@ -795,6 +795,29 @@ export default function BibliotecaItemPage() {
   const [podeGerenciarEmprestimos, setPodeGerenciarEmprestimos] =
     useState(false);
 
+  const [podeGerenciarReservas, setPodeGerenciarReservas] = useState(false);
+
+  const [modalReservaAberto, setModalReservaAberto] = useState(false);
+
+  const [buscaUsuarioReserva, setBuscaUsuarioReserva] = useState("");
+
+  const [usuariosReserva, setUsuariosReserva] = useState<UsuarioEmprestimo[]>(
+    [],
+  );
+
+  const [usuarioReservaSelecionado, setUsuarioReservaSelecionado] =
+    useState<UsuarioEmprestimo | null>(null);
+
+  const [buscandoUsuariosReserva, setBuscandoUsuariosReserva] = useState(false);
+
+  const [erroBuscaUsuariosReserva, setErroBuscaUsuariosReserva] = useState<
+    string | null
+  >(null);
+
+  const [observacaoReserva, setObservacaoReserva] = useState("");
+
+  const [registrandoReserva, setRegistrandoReserva] = useState(false);
+
   const [exemplarParaEmprestimo, setExemplarParaEmprestimo] =
     useState<ExemplarItem | null>(null);
 
@@ -1099,6 +1122,47 @@ export default function BibliotecaItemPage() {
   }, []);
 
   useEffect(() => {
+    const controle = new AbortController();
+
+    async function verificarPermissaoReservas() {
+      try {
+        /*
+         * A API valida primeiro a permissão
+         * biblioteca.reservas.gerenciar.
+         *
+         * Sem termo de busca, nenhuma pessoa
+         * é carregada.
+         */
+        const resposta = await fetch(
+          "/api/admin/biblioteca/reservas/usuarios?q=",
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "include",
+            signal: controle.signal,
+          },
+        );
+
+        if (controle.signal.aborted) {
+          return;
+        }
+
+        setPodeGerenciarReservas(resposta.ok);
+      } catch (falha) {
+        if (falha instanceof DOMException && falha.name === "AbortError") {
+          return;
+        }
+
+        setPodeGerenciarReservas(false);
+      }
+    }
+
+    void verificarPermissaoReservas();
+
+    return () => controle.abort();
+  }, []);
+
+  useEffect(() => {
     const controlador = new AbortController();
 
     void carregarItem(controlador.signal);
@@ -1195,6 +1259,113 @@ export default function BibliotecaItemPage() {
       controle.abort();
     };
   }, [buscaUsuarioEmprestimo, exemplarParaEmprestimo]);
+
+  useEffect(() => {
+  if (!modalReservaAberto) {
+    return;
+  }
+
+  const termo =
+    buscaUsuarioReserva.trim();
+
+  if (termo.length < 2) {
+    setUsuariosReserva([]);
+    setBuscandoUsuariosReserva(false);
+    setErroBuscaUsuariosReserva(null);
+
+    return;
+  }
+
+  const controle =
+    new AbortController();
+
+  const temporizador =
+    window.setTimeout(
+      async () => {
+        setBuscandoUsuariosReserva(true);
+        setErroBuscaUsuariosReserva(null);
+
+        try {
+          const resposta =
+            await fetch(
+              `/api/admin/biblioteca/reservas/usuarios?q=${encodeURIComponent(
+                termo
+              )}`,
+              {
+                method: "GET",
+                cache: "no-store",
+                credentials: "include",
+                signal:
+                  controle.signal,
+              }
+            );
+
+          const resultado =
+            (await resposta.json()) as
+              RespostaUsuariosEmprestimo;
+
+          if (!resposta.ok) {
+            throw new Error(
+              resultado.error ||
+                resultado.mensagem ||
+                ui("searchUsersError")
+            );
+          }
+
+          if (
+            controle.signal.aborted
+          ) {
+            return;
+          }
+
+          setUsuariosReserva(
+            Array.isArray(
+              resultado.usuarios
+            )
+              ? resultado.usuarios
+              : []
+          );
+        } catch (falha) {
+          if (
+            falha instanceof
+              DOMException &&
+            falha.name ===
+              "AbortError"
+          ) {
+            return;
+          }
+
+          setUsuariosReserva([]);
+
+          setErroBuscaUsuariosReserva(
+            falha instanceof Error
+              ? falha.message
+              : ui("searchUsersError")
+          );
+        } finally {
+          if (
+            !controle.signal.aborted
+          ) {
+            setBuscandoUsuariosReserva(
+              false
+            );
+          }
+        }
+      },
+      350
+    );
+
+  return () => {
+    window.clearTimeout(
+      temporizador
+    );
+
+    controle.abort();
+  };
+}, [
+  buscaUsuarioReserva,
+  modalReservaAberto,
+]);
 
   const alterado = useMemo(() => {
     if (!item || !formulario) return false;
@@ -1762,6 +1933,40 @@ export default function BibliotecaItemPage() {
     setErroBuscaUsuariosEmprestimo(null);
   }
 
+  function abrirReserva() {
+  if (
+    !item ||
+    !podeGerenciarReservas ||
+    impersonacao
+  ) {
+    return;
+  }
+
+  setBuscaUsuarioReserva("");
+  setUsuariosReserva([]);
+  setUsuarioReservaSelecionado(null);
+  setErroBuscaUsuariosReserva(null);
+  setObservacaoReserva("");
+
+  setModalReservaAberto(true);
+}
+
+function fecharReserva() {
+  if (
+    buscandoUsuariosReserva ||
+    registrandoReserva
+  ) {
+    return;
+  }
+
+  setModalReservaAberto(false);
+  setBuscaUsuarioReserva("");
+  setUsuariosReserva([]);
+  setUsuarioReservaSelecionado(null);
+  setErroBuscaUsuariosReserva(null);
+  setObservacaoReserva("");
+}
+
   function abrirCadastroExemplar() {
     if (!podeGerenciarExemplares || impersonacao) {
       return;
@@ -2141,6 +2346,131 @@ export default function BibliotecaItemPage() {
       setRegistrandoEmprestimo(false);
     }
   }
+
+  async function registrarReserva() {
+  if (
+    !item ||
+    !usuarioReservaSelecionado ||
+    registrandoReserva ||
+    !podeGerenciarReservas ||
+    impersonacao
+  ) {
+    return;
+  }
+
+  setRegistrandoReserva(true);
+
+  try {
+    const resposta =
+      await fetch(
+        "/api/admin/biblioteca/reservas",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            itemId:
+              item.id,
+
+            usuarioId:
+              usuarioReservaSelecionado.id,
+
+            observacao:
+              observacaoReserva.trim() ||
+              null,
+          }),
+        }
+      );
+
+    const resultado =
+      (await resposta.json()) as {
+        ok?: boolean;
+
+        mensagem?: string;
+        error?: string;
+        codigo?: string;
+
+        disponibilidade?:
+          | "IMEDIATA"
+          | "FILA";
+
+        reserva?: {
+          id?: number;
+          status?: string;
+          posicaoFila?: number | null;
+          exemplarId?: number | null;
+          expiraEm?: string | null;
+        };
+      };
+
+    if (!resposta.ok) {
+      throw new Error(
+        ui("reservationError")
+      );
+    }
+
+    const posicaoFila =
+      Number(
+        resultado.reserva
+          ?.posicaoFila ?? 0
+      );
+
+    setModalReservaAberto(false);
+    setBuscaUsuarioReserva("");
+    setUsuariosReserva([]);
+    setUsuarioReservaSelecionado(null);
+    setErroBuscaUsuariosReserva(null);
+    setObservacaoReserva("");
+
+    setToast({
+      tipo: "sucesso",
+
+      mensagem:
+        resultado.disponibilidade ===
+        "IMEDIATA"
+          ? ui(
+              "reservationImmediateSuccess"
+            )
+          : Number.isInteger(
+                posicaoFila
+              ) &&
+              posicaoFila > 0
+            ? ui(
+                "reservationQueueSuccessWithPosition",
+                {
+                  position:
+                    posicaoFila,
+                }
+              )
+            : ui(
+                "reservationQueueSuccess"
+              ),
+    });
+
+    setAtualizacao(
+      (valor) => valor + 1
+    );
+  } catch (falha) {
+    setToast({
+      tipo: "erro",
+
+      mensagem:
+        falha instanceof Error
+          ? falha.message
+          : ui(
+              "reservationError"
+            ),
+    });
+  } finally {
+    setRegistrandoReserva(false);
+  }
+}
 
   function abrirDevolucao(exemplar: ExemplarItem) {
     if (

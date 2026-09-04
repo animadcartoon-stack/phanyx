@@ -6,7 +6,6 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
 import HistoricoTemplateEditorPHANYX from "@/components/documentos/HistoricoTemplateEditorPHANYX";
-import { useTranslations } from "next-intl";
 
 type TipoDocumentoTemplate =
   | "CONTRATO"
@@ -895,9 +894,6 @@ function normalizarCamposVisuaisAssinatura(
 }
 
 function AdminDocumentosTemplatesPage() {
-  const tVisual = useTranslations(
-    "AdminDocumentsTemplatesVisualFields"
-  );
   const [templates, setTemplates] = useState<TemplateDocumento[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1173,11 +1169,9 @@ function AdminDocumentosTemplatesPage() {
         exigeAssinatura,
         formatoImpressao,
         camposVisuais:
-          tipo === "CONTRATO"
-            ? []
-            : normalizarCamposVisuaisAssinatura(
-                camposVisuais
-              ),
+          normalizarCamposVisuaisAssinatura(
+            camposVisuais
+          ),
       };
 
       const url = editingId
@@ -1318,11 +1312,9 @@ function AdminDocumentosTemplatesPage() {
           formatoImpressao,
 
           camposVisuais:
-            tipo === "CONTRATO"
-              ? []
-              : normalizarCamposVisuaisAssinatura(
-                  camposVisuais
-                ),
+            normalizarCamposVisuaisAssinatura(
+              camposVisuais
+            ),
         }),
       });
 
@@ -1405,10 +1397,6 @@ function AdminDocumentosTemplatesPage() {
   }
 
   function adicionarAssinaturaDiretor() {
-    if (tipo === "CONTRATO") {
-      return;
-    }
-
     setCamposVisuais((atuais) => {
       const normalizados =
         normalizarCamposVisuaisAssinatura(
@@ -3517,252 +3505,147 @@ function AdminDocumentosTemplatesPage() {
                 </div>
               </div>
 
-              {tipo === "CONTRATO" ? (
-                <div className="pdoc-soft rounded-2xl border p-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-lg"
-                          aria-hidden="true"
-                        >
-                          🔒
-                        </span>
-
-                        <h3 className="pdoc-label font-semibold">
-                          {tVisual(
-                            "academicContract.title"
-                          )}
-                        </h3>
-                      </div>
-
-                      <p className="pdoc-muted mt-2 max-w-4xl text-sm leading-relaxed">
-                        {tVisual(
-                          "academicContract.description"
-                        )}
-                      </p>
-                    </div>
-
-                    <span className="pdoc-badge-green inline-flex shrink-0 rounded-full px-3 py-1.5 text-xs font-bold">
-                      {tVisual(
-                        "academicContract.badge"
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="pdoc-card mt-3 rounded-xl border p-3">
-                    <p className="pdoc-muted text-xs leading-relaxed">
-                      {tVisual(
-                        "academicContract.help"
-                      )}
+              <div className="rounded-2xl border bg-slate-50 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold text-slate-800">
+                      Campos visuais do contrato
+                    </h3>
+                    <p className="text-xs text-slate-600">
+                      Arraste a assinatura para o ponto desejado da página.
                     </p>
                   </div>
-                </div>
-              ) : (
-                <div className="pdoc-soft rounded-2xl border p-4">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="pdoc-label font-semibold">
-                        {tVisual(
-                          "visualFields.title"
-                        )}
-                      </h3>
 
-                      <p className="pdoc-muted text-xs">
-                        {tVisual(
-                          "visualFields.description"
-                        )}
-                      </p>
+                  <button
+                    type="button"
+                    onClick={adicionarAssinaturaDiretor}
+                    className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                  >
+                    🖋 Adicionar assinatura do diretor
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border bg-white p-5">
+                  <div className="mx-auto w-full max-w-[520px] rounded-2xl border bg-slate-50 p-5">
+                    <div className="mb-3 text-sm font-semibold text-slate-800">
+                      Área real da assinatura do diretor
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={adicionarAssinaturaDiretor}
-                      className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                    >
-                      {tVisual(
-                        "visualFields.addDirectorSignature"
-                      )}
-                    </button>
-                  </div>
+                    <div className="relative h-[150px] rounded-xl border bg-white">
+                      <div className="absolute left-10 right-10 top-[92px] border-t border-slate-700" />
 
-                  <div className="pdoc-card rounded-2xl border p-5">
-                    <div className="pdoc-soft mx-auto w-full max-w-[520px] rounded-2xl border p-5">
-                      <div className="pdoc-label mb-3 text-sm font-semibold">
-                        {tVisual(
-                          "visualFields.signatureAreaTitle"
-                        )}
+                      <div className="absolute left-10 top-[100px] text-xs text-slate-600">
+                        Nome do diretor/responsável
                       </div>
 
-                      <div className="relative h-[150px] rounded-xl border bg-white">
-                        <div className="absolute left-10 right-10 top-[92px] border-t border-slate-700" />
+                      {camposVisuais.map((campo) => (
+                        <div
+                          key={campo.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
 
-                        <div className="absolute left-10 top-[100px] text-xs text-slate-600">
-                          {tVisual(
-                            "visualFields.directorNamePlaceholder"
+                            const elemento = e.currentTarget;
+                            const area = elemento.parentElement;
+                            if (!area) return;
+
+                            const areaRect = area.getBoundingClientRect();
+                            const elementoRect = elemento.getBoundingClientRect();
+
+                            const offsetX = e.clientX - elementoRect.left;
+                            const offsetY = e.clientY - elementoRect.top;
+
+                            function aoMover(ev: MouseEvent) {
+                              const novoX = ev.clientX - areaRect.left - offsetX;
+                              const novoY = ev.clientY - areaRect.top - offsetY;
+
+                              moverCampoVisual(campo.id, novoX, novoY);
+                            }
+
+                            function aoSoltar() {
+                              window.removeEventListener("mousemove", aoMover);
+                              window.removeEventListener("mouseup", aoSoltar);
+                            }
+
+                            window.addEventListener("mousemove", aoMover);
+                            window.addEventListener("mouseup", aoSoltar);
+                          }}
+                          className="absolute cursor-move select-none rounded border-2 border-blue-500 bg-blue-50/20"
+                          style={{
+                            left: campo.x,
+                            top: campo.y,
+                            width: campo.largura,
+                            height: campo.altura,
+                          }}
+                        >
+                          {configInstituicao?.certificadoAssinaturaUrl ? (
+                            <img
+                              src={configInstituicao.certificadoAssinaturaUrl}
+                              alt="Assinatura do diretor"
+                              className="h-full w-full object-contain pointer-events-none contrast-200 brightness-75 saturate-0"
+                              draggable={false}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-blue-400 bg-blue-50 text-center text-[9px] font-semibold text-blue-700">
+                              🖋 Assinatura do diretor
+                            </div>
                           )}
-                        </div>
 
-                        {camposVisuais.map((campo) => (
-                          <div
-                            key={campo.id}
+                          <button
+                            type="button"
                             onMouseDown={(e) => {
                               e.preventDefault();
+                              e.stopPropagation();
 
-                              const elemento = e.currentTarget;
-                              const area = elemento.parentElement;
-                              if (!area) return;
-
-                              const areaRect = area.getBoundingClientRect();
-                              const elementoRect = elemento.getBoundingClientRect();
-
-                              const offsetX = e.clientX - elementoRect.left;
-                              const offsetY = e.clientY - elementoRect.top;
+                              const inicioX = e.clientX;
+                              const inicioY = e.clientY;
+                              const larguraInicial = campo.largura;
+                              const alturaInicial = campo.altura;
 
                               function aoMover(ev: MouseEvent) {
-                                const novoX =
-                                  ev.clientX -
-                                  areaRect.left -
-                                  offsetX;
+                                const novaLargura = Math.max(
+                                  60,
+                                  larguraInicial + (ev.clientX - inicioX)
+                                );
 
-                                const novoY =
-                                  ev.clientY -
-                                  areaRect.top -
-                                  offsetY;
+                                const novaAltura = Math.max(
+                                  20,
+                                  alturaInicial + (ev.clientY - inicioY)
+                                );
 
-                                moverCampoVisual(
-                                  campo.id,
-                                  novoX,
-                                  novoY
+                                setCamposVisuais((atuais) =>
+                                  atuais.map((item) =>
+                                    item.id === campo.id
+                                      ? {
+                                        ...item,
+                                        largura: novaLargura,
+                                        altura: novaAltura,
+                                      }
+                                      : item
+                                  )
                                 );
                               }
 
                               function aoSoltar() {
-                                window.removeEventListener(
-                                  "mousemove",
-                                  aoMover
-                                );
-
-                                window.removeEventListener(
-                                  "mouseup",
-                                  aoSoltar
-                                );
+                                window.removeEventListener("mousemove", aoMover);
+                                window.removeEventListener("mouseup", aoSoltar);
                               }
 
-                              window.addEventListener(
-                                "mousemove",
-                                aoMover
-                              );
-
-                              window.addEventListener(
-                                "mouseup",
-                                aoSoltar
-                              );
+                              window.addEventListener("mousemove", aoMover);
+                              window.addEventListener("mouseup", aoSoltar);
                             }}
-                            className="absolute cursor-move select-none rounded border-2 border-blue-500 bg-blue-50/20"
-                            style={{
-                              left: campo.x,
-                              top: campo.y,
-                              width: campo.largura,
-                              height: campo.altura,
-                            }}
-                          >
-                            {configInstituicao?.certificadoAssinaturaUrl ? (
-                              <img
-                                src={
-                                  configInstituicao.certificadoAssinaturaUrl
-                                }
-                                alt={tVisual(
-                                  "visualFields.directorSignatureAlt"
-                                )}
-                                className="pointer-events-none h-full w-full object-contain contrast-200 brightness-75 saturate-0"
-                                draggable={false}
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-blue-400 bg-blue-50 text-center text-[9px] font-semibold text-blue-700">
-                                {tVisual(
-                                  "visualFields.signaturePlaceholder"
-                                )}
-                              </div>
-                            )}
-
-                            <button
-                              type="button"
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-
-                                const inicioX = e.clientX;
-                                const inicioY = e.clientY;
-                                const larguraInicial = campo.largura;
-                                const alturaInicial = campo.altura;
-
-                                function aoMover(ev: MouseEvent) {
-                                  const novaLargura = Math.max(
-                                    60,
-                                    larguraInicial +
-                                      (ev.clientX - inicioX)
-                                  );
-
-                                  const novaAltura = Math.max(
-                                    20,
-                                    alturaInicial +
-                                      (ev.clientY - inicioY)
-                                  );
-
-                                  setCamposVisuais((atuais) =>
-                                    atuais.map((item) =>
-                                      item.id === campo.id
-                                        ? {
-                                            ...item,
-                                            largura: novaLargura,
-                                            altura: novaAltura,
-                                          }
-                                        : item
-                                    )
-                                  );
-                                }
-
-                                function aoSoltar() {
-                                  window.removeEventListener(
-                                    "mousemove",
-                                    aoMover
-                                  );
-
-                                  window.removeEventListener(
-                                    "mouseup",
-                                    aoSoltar
-                                  );
-                                }
-
-                                window.addEventListener(
-                                  "mousemove",
-                                  aoMover
-                                );
-
-                                window.addEventListener(
-                                  "mouseup",
-                                  aoSoltar
-                                );
-                              }}
-                              className="absolute -bottom-2 -right-2 h-5 w-5 cursor-se-resize rounded-full border-2 border-blue-700 bg-white shadow"
-                              title={tVisual(
-                                "visualFields.resizeSignature"
-                              )}
-                            />
-                          </div>
-                        ))}
-                      </div>
-
-                      <p className="pdoc-muted mt-3 text-xs">
-                        {tVisual(
-                          "visualFields.positionHelp"
-                        )}
-                      </p>
+                            className="absolute -bottom-2 -right-2 h-5 w-5 cursor-se-resize rounded-full border-2 border-blue-700 bg-white shadow"
+                            title="Redimensionar assinatura"
+                          />
+                        </div>
+                      ))}
                     </div>
+
+                    <p className="mt-3 text-xs text-slate-500">
+                      Posicione a assinatura exatamente como ela deverá aparecer sobre a linha do diretor no contrato.
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
 
               <div className="flex flex-wrap gap-3">
                 <button
