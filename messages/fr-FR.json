@@ -11181,5 +11181,40 @@
         "payslipUnavailable": "Le bulletin de paie sélectionné n’existe pas, est annulé/archivé ou n’appartient pas à l’employé sélectionné."
       }
     }
+  },
+  "AdminDocumentsTemplatesHistoryEditor": {
+    "title": "Éditeur structuré du relevé académique",
+    "subtitle": "Modifiez le contenu de chaque section. Les marqueurs structurels restent fixes afin que PHANYX sache où construire l'en-tête, les données, le tableau, la signature et le pied de page.",
+    "protectedStructure": "Structure protégée",
+    "missingSections": "{count} section(s) manquante(s) seront restaurée(s) lors de la modification.",
+    "visualMapTitle": "Carte visuelle du relevé",
+    "visualMapHelp": "Utilisez cette carte pour comprendre où chaque champ sera utilisé dans le document final.",
+    "restoreSection": "Restaurer la section",
+    "suggestedVariables": "Variables suggérées pour cette section",
+    "insertVariable": "Insérer la variable dans cette section",
+    "advancedTitle": "Code avancé du relevé",
+    "advancedHelp": "À utiliser uniquement si vous devez modifier la structure manuellement. Conservez les marqueurs entre crochets.",
+    "systemTableNotice": "Le tableau du cursus est construit par le système à partir des dossiers académiques. À cette étape, conservez le marqueur de cette section ; la configuration détaillée des colonnes sera reliée au générateur à l'étape suivante.",
+    "systemFooterNotice": "Le code de validation et les éléments d'authentification obligatoires restent protégés par le système même si le texte du pied de page est personnalisé.",
+    "sections": {
+      "header": "En-tête de l'établissement",
+      "title": "Titre du document",
+      "student": "Informations de l'étudiant",
+      "enrollment": "Inscription / formation",
+      "curriculum": "Composantes du cursus",
+      "notes": "Observations et synthèse académique",
+      "signature": "Signature institutionnelle",
+      "footer": "Pied de page et validation"
+    },
+    "help": {
+      "header": "Définissez les informations institutionnelles affichées en haut. Le logo reste inséré par le système.",
+      "title": "Modifiez le titre principal du relevé. Il peut varier selon le niveau ou le type de formation.",
+      "student": "Composez les lignes d'identification de l'étudiant et choisissez les variables à afficher.",
+      "enrollment": "Composez les données de formation, inscription, campus, période, volume horaire et progression.",
+      "curriculum": "Zone réservée au tableau académique. Le système renseigne inscriptions, notes, assiduité et statut à partir des données réelles.",
+      "notes": "Ajoutez observations académiques, légende, indices, totaux et informations de clôture.",
+      "signature": "Définissez le contenu textuel de la zone de signature. La signature numérique continue d'utiliser les paramètres institutionnels.",
+      "footer": "Personnalisez le texte institutionnel du pied de page sans supprimer les éléments de validation obligatoires."
+    }
   }
 }

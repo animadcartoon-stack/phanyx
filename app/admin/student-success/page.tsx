@@ -461,6 +461,44 @@ type TipoEventoTimeline =
   | "RETORNO_AGENDADO"
   | "INTERVENCAO_ENCERRADA";
 
+type FotografiaEvolucaoAnalise = {
+  analiseHistoricoId: number;
+
+  data: string;
+
+  nivelRisco: string | null;
+
+  pontuacao: number | null;
+
+  cobertura: number | null;
+
+  confiabilidade: string | null;
+
+  indicadores: {
+    frequenciaPercentual: number | null;
+
+    mediaPercentual: number | null;
+
+    atividadesVencidas: number | null;
+  };
+};
+
+type EvolucaoAnaliseAcademicaTimeline = {
+  classificacao: "POSITIVA" | "NEGATIVA" | "NEUTRA" | "NAO_MENSURAVEL";
+
+  saldo: number;
+
+  criteriosComparados: number;
+
+  melhorias: string[];
+
+  pioras: string[];
+
+  anterior: FotografiaEvolucaoAnalise;
+
+  atual: FotografiaEvolucaoAnalise;
+};
+
 type EventoTimelineStudentSuccess = {
   id: string;
 
@@ -548,6 +586,8 @@ type EventoTimelineStudentSuccess = {
 
     pioras: unknown[];
   } | null;
+
+  evolucaoAnalise?: EvolucaoAnaliseAcademicaTimeline | null;
 };
 
 type TimelineStudentSuccessResponse = {
@@ -2758,9 +2798,7 @@ export default function AdminStudentSuccessPage() {
       dark:hover:bg-slate-800
     "
               >
-                {t(
-  "actions.refreshPanel"
-)}
+                {t("actions.refreshPanel")}
               </button>
 
               <button
@@ -7521,6 +7559,422 @@ export default function AdminStudentSuccessPage() {
                                 </div>
                               </div>
                             ) : null}
+
+                           {/* EVOLUÇÃO ENTRE ANÁLISES ACADÊMICAS */}
+{analiseAcademica &&
+evento.evolucaoAnalise ? (
+  <div
+    className="
+      phanyx-student-success-timeline-snapshot
+      mt-3
+      rounded-xl
+      border
+      p-3
+    "
+  >
+    <div
+      className="
+        flex
+        flex-wrap
+        items-start
+        justify-between
+        gap-2
+      "
+    >
+      <div
+        className="
+          phanyx-student-success-timeline-label
+          text-[11px]
+          font-bold
+          uppercase
+          tracking-wide
+        "
+      >
+        {t(
+          "intervention.timeline.analysisEvolution.comparisonTitle",
+        )}
+      </div>
+
+      <span
+        className={[
+          "inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold",
+
+          evento.evolucaoAnalise
+            .classificacao ===
+          "POSITIVA"
+            ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
+            : evento
+                  .evolucaoAnalise
+                  .classificacao ===
+                "NEGATIVA"
+              ? "border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"
+              : evento
+                    .evolucaoAnalise
+                    .classificacao ===
+                  "NEUTRA"
+                ? "border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
+        ].join(" ")}
+      >
+        {evento.evolucaoAnalise
+          .classificacao ===
+        "POSITIVA"
+          ? t(
+              "intervention.timeline.analysisEvolution.improved",
+            )
+          : evento
+                .evolucaoAnalise
+                .classificacao ===
+              "NEGATIVA"
+            ? t(
+                "intervention.timeline.analysisEvolution.worsened",
+              )
+            : evento
+                  .evolucaoAnalise
+                  .classificacao ===
+                "NEUTRA"
+              ? t(
+                  "intervention.timeline.analysisEvolution.stable",
+                )
+              : t(
+                  "intervention.timeline.analysisEvolution.notMeasurable",
+                )}
+      </span>
+    </div>
+
+    <div
+      className="
+        mt-3
+        space-y-2
+      "
+    >
+      {/* RISCO */}
+      <div
+        className="
+          rounded-lg
+          border
+          border-slate-200
+          bg-white/60
+          px-3
+          py-2.5
+          dark:border-slate-700
+          dark:bg-slate-950/30
+        "
+      >
+        <div
+          className="
+            phanyx-student-success-timeline-muted
+            text-[10px]
+            font-bold
+            uppercase
+          "
+        >
+          {t(
+            "intervention.timeline.analysisEvolution.riskEvolution",
+          )}
+        </div>
+
+        <div
+          className="
+            mt-1.5
+            flex
+            items-center
+            justify-between
+            gap-2
+            text-xs
+            font-bold
+          "
+        >
+          <span className="min-w-0 flex-1">
+            {evento.evolucaoAnalise
+              .anterior
+              .nivelRisco
+              ? t(
+                  `levels.${evento.evolucaoAnalise.anterior.nivelRisco as NivelRisco}`,
+                )
+              : "—"}
+          </span>
+
+          <span
+            className="
+              shrink-0
+              opacity-50
+            "
+            aria-hidden="true"
+          >
+            →
+          </span>
+
+          <span
+            className="
+              min-w-0
+              flex-1
+              text-right
+            "
+          >
+            {evento.evolucaoAnalise
+              .atual
+              .nivelRisco
+              ? t(
+                  `levels.${evento.evolucaoAnalise.atual.nivelRisco as NivelRisco}`,
+                )
+              : "—"}
+          </span>
+        </div>
+      </div>
+
+      {/* PONTUAÇÃO */}
+      <div
+        className="
+          rounded-lg
+          border
+          border-slate-200
+          bg-white/60
+          px-3
+          py-2.5
+          dark:border-slate-700
+          dark:bg-slate-950/30
+        "
+      >
+        <div
+          className="
+            phanyx-student-success-timeline-muted
+            text-[10px]
+            font-bold
+            uppercase
+          "
+        >
+          {t(
+            "intervention.timeline.analysisEvolution.scoreEvolution",
+          )}
+        </div>
+
+        <div
+          className="
+            mt-1.5
+            flex
+            items-center
+            justify-between
+            gap-2
+            text-xs
+            font-bold
+          "
+        >
+          <span>
+            {evento.evolucaoAnalise
+              .anterior
+              .pontuacao ??
+              "—"}
+          </span>
+
+          <span
+            className="opacity-50"
+            aria-hidden="true"
+          >
+            →
+          </span>
+
+          <span>
+            {evento.evolucaoAnalise
+              .atual
+              .pontuacao ??
+              "—"}
+          </span>
+        </div>
+      </div>
+
+      {/* FREQUÊNCIA */}
+      <div
+        className="
+          rounded-lg
+          border
+          border-slate-200
+          bg-white/60
+          px-3
+          py-2.5
+          dark:border-slate-700
+          dark:bg-slate-950/30
+        "
+      >
+        <div
+          className="
+            phanyx-student-success-timeline-muted
+            text-[10px]
+            font-bold
+            uppercase
+          "
+        >
+          {t(
+            "intervention.timeline.analysisEvolution.attendanceEvolution",
+          )}
+        </div>
+
+        <div
+          className="
+            mt-1.5
+            flex
+            items-center
+            justify-between
+            gap-2
+            text-xs
+            font-bold
+          "
+        >
+          <span>
+            {formatarPercentual(
+              evento.evolucaoAnalise
+                .anterior
+                .indicadores
+                .frequenciaPercentual,
+            )}
+          </span>
+
+          <span
+            className="opacity-50"
+            aria-hidden="true"
+          >
+            →
+          </span>
+
+          <span>
+            {formatarPercentual(
+              evento.evolucaoAnalise
+                .atual
+                .indicadores
+                .frequenciaPercentual,
+            )}
+          </span>
+        </div>
+      </div>
+
+      {/* DESEMPENHO */}
+      <div
+        className="
+          rounded-lg
+          border
+          border-slate-200
+          bg-white/60
+          px-3
+          py-2.5
+          dark:border-slate-700
+          dark:bg-slate-950/30
+        "
+      >
+        <div
+          className="
+            phanyx-student-success-timeline-muted
+            text-[10px]
+            font-bold
+            uppercase
+          "
+        >
+          {t(
+            "intervention.timeline.analysisEvolution.performanceEvolution",
+          )}
+        </div>
+
+        <div
+          className="
+            mt-1.5
+            flex
+            items-center
+            justify-between
+            gap-2
+            text-xs
+            font-bold
+          "
+        >
+          <span>
+            {formatarPercentual(
+              evento.evolucaoAnalise
+                .anterior
+                .indicadores
+                .mediaPercentual,
+            )}
+          </span>
+
+          <span
+            className="opacity-50"
+            aria-hidden="true"
+          >
+            →
+          </span>
+
+          <span>
+            {formatarPercentual(
+              evento.evolucaoAnalise
+                .atual
+                .indicadores
+                .mediaPercentual,
+            )}
+          </span>
+        </div>
+      </div>
+
+      {/* ATIVIDADES VENCIDAS */}
+      <div
+        className="
+          rounded-lg
+          border
+          border-slate-200
+          bg-white/60
+          px-3
+          py-2.5
+          dark:border-slate-700
+          dark:bg-slate-950/30
+        "
+      >
+        <div
+          className="
+            phanyx-student-success-timeline-muted
+            text-[10px]
+            font-bold
+            uppercase
+          "
+        >
+          {t(
+            "intervention.timeline.analysisEvolution.pendingEvolution",
+          )}
+        </div>
+
+        <div
+          className="
+            mt-1.5
+            flex
+            items-center
+            justify-between
+            gap-2
+            text-xs
+            font-bold
+          "
+        >
+          <span>
+            {evento.evolucaoAnalise
+              .anterior
+              .indicadores
+              .atividadesVencidas ??
+              "—"}
+          </span>
+
+          <span
+            className="opacity-50"
+            aria-hidden="true"
+          >
+            →
+          </span>
+
+          <span>
+            {evento.evolucaoAnalise
+              .atual
+              .indicadores
+              .atividadesVencidas ??
+              "—"}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+) : null}
 
                             {/* RESULTADO */}
                             {evento.resultado ? (

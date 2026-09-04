@@ -11190,5 +11190,40 @@
         "payslipUnavailable": "The selected payslip does not exist, is cancelled/archived, or does not belong to the selected employee."
       }
     }
+  },
+  "AdminDocumentsTemplatesHistoryEditor": {
+    "title": "Structured Academic Transcript Editor",
+    "subtitle": "Edit the content inside each section. Structural markers stay fixed so PHANYX knows where to build the header, data blocks, table, signature and footer.",
+    "protectedStructure": "Protected structure",
+    "missingSections": "{count} missing section(s) will be restored when editing.",
+    "visualMapTitle": "Transcript visual map",
+    "visualMapHelp": "Use this map to understand where each field is used in the final document.",
+    "restoreSection": "Restore section",
+    "suggestedVariables": "Suggested variables for this section",
+    "insertVariable": "Insert variable in this section",
+    "advancedTitle": "Advanced transcript code",
+    "advancedHelp": "Use only when you need to edit the structure manually. Keep the bracketed section markers.",
+    "systemTableNotice": "The curriculum table is built by the system from academic records. At this stage, keep this section marker; detailed column configuration will be connected to the transcript generator in the next step.",
+    "systemFooterNotice": "Validation codes and required authentication elements remain system-protected even when the footer text is customized.",
+    "sections": {
+      "header": "Institution header",
+      "title": "Document title",
+      "student": "Student information",
+      "enrollment": "Enrollment / course information",
+      "curriculum": "Curriculum components",
+      "notes": "Notes and academic summary",
+      "signature": "Institutional signature",
+      "footer": "Footer and validation"
+    },
+    "help": {
+      "header": "Choose the institutional information shown at the top. The logo is still inserted by the system.",
+      "title": "Edit the main transcript title. It may vary by education level or program.",
+      "student": "Build the student identification lines and choose which variables should appear.",
+      "enrollment": "Build course, enrollment, campus, period, workload and progress information.",
+      "curriculum": "Reserved area for the academic table. The system fills enrollments, grades, attendance and status from real data.",
+      "notes": "Include academic notes, legends, indexes, totals and closing information.",
+      "signature": "Define the text content of the signature area. The digital signature continues to use institutional settings.",
+      "footer": "Customize the institutional footer text without removing required validation elements."
+    }
   }
 }

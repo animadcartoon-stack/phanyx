@@ -11181,5 +11181,40 @@
         "payslipUnavailable": "O holerite selecionado não existe, está cancelado/arquivado ou não pertence ao funcionário escolhido."
       }
     }
+  },
+  "AdminDocumentsTemplatesHistoryEditor": {
+    "title": "Editor estruturado do Histórico Acadêmico",
+    "subtitle": "Edite o conteúdo dentro de cada seção. Os marcadores estruturais permanecem fixos para que o PHANYX saiba onde montar cabeçalho, dados, tabela, assinatura e rodapé.",
+    "protectedStructure": "Estrutura protegida",
+    "missingSections": "{count} seção(ões) ausente(s) será(ão) recomposta(s) ao editar.",
+    "visualMapTitle": "Mapa visual do histórico",
+    "visualMapHelp": "Use este mapa para entender onde cada campo será utilizado no documento final.",
+    "restoreSection": "Restaurar seção",
+    "suggestedVariables": "Variáveis sugeridas para esta seção",
+    "insertVariable": "Inserir variável nesta seção",
+    "advancedTitle": "Código avançado do histórico",
+    "advancedHelp": "Use somente se precisar editar a estrutura manualmente. Preserve os marcadores entre colchetes.",
+    "systemTableNotice": "A tabela curricular é montada pelo sistema a partir dos registros acadêmicos. Nesta etapa, preserve o marcador desta seção; a configuração detalhada de colunas será conectada ao gerador do histórico na etapa seguinte.",
+    "systemFooterNotice": "Código de validação e elementos obrigatórios de autenticação continuam protegidos pelo sistema, mesmo que o texto do rodapé seja personalizado.",
+    "sections": {
+      "header": "Cabeçalho institucional",
+      "title": "Título do documento",
+      "student": "Dados do aluno",
+      "enrollment": "Dados da matrícula / curso",
+      "curriculum": "Componentes curriculares",
+      "notes": "Observações e resumo acadêmico",
+      "signature": "Assinatura institucional",
+      "footer": "Rodapé e validação"
+    },
+    "help": {
+      "header": "Defina os dados institucionais que devem aparecer no topo. A logo continua sendo inserida pelo sistema.",
+      "title": "Edite o título principal do histórico. O título pode variar conforme a modalidade de ensino.",
+      "student": "Monte as linhas de identificação do aluno e escolha quais variáveis devem aparecer.",
+      "enrollment": "Monte os dados de curso, matrícula, polo, período, carga horária e progresso.",
+      "curriculum": "Área reservada para a tabela acadêmica. O sistema preenche os vínculos, notas, frequência e situação com dados reais.",
+      "notes": "Inclua observações acadêmicas, legenda, índices, totais e demais informações de fechamento.",
+      "signature": "Defina o conteúdo textual da área de assinatura. A assinatura digital continua usando a configuração institucional.",
+      "footer": "Defina o texto institucional do rodapé sem remover os elementos obrigatórios de validação."
+    }
   }
 }

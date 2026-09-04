@@ -11181,5 +11181,40 @@
         "payslipUnavailable": "La nómina seleccionada no existe, está cancelada/archivada o no pertenece al empleado seleccionado."
       }
     }
+  },
+  "AdminDocumentsTemplatesHistoryEditor": {
+    "title": "Editor estructurado del Historial Académico",
+    "subtitle": "Edite el contenido dentro de cada sección. Los marcadores estructurales permanecen fijos para que PHANYX sepa dónde montar encabezado, datos, tabla, firma y pie de página.",
+    "protectedStructure": "Estructura protegida",
+    "missingSections": "{count} sección(es) faltante(s) se restaurará(n) al editar.",
+    "visualMapTitle": "Mapa visual del historial",
+    "visualMapHelp": "Use este mapa para entender dónde se utilizará cada campo en el documento final.",
+    "restoreSection": "Restaurar sección",
+    "suggestedVariables": "Variables sugeridas para esta sección",
+    "insertVariable": "Insertar variable en esta sección",
+    "advancedTitle": "Código avanzado del historial",
+    "advancedHelp": "Úselo solo si necesita editar la estructura manualmente. Conserve los marcadores entre corchetes.",
+    "systemTableNotice": "La tabla curricular es generada por el sistema a partir de los registros académicos. En esta etapa, conserve el marcador de esta sección; la configuración detallada de columnas se conectará al generador en el siguiente paso.",
+    "systemFooterNotice": "El código de validación y los elementos obligatorios de autenticación siguen protegidos por el sistema aunque el texto del pie sea personalizado.",
+    "sections": {
+      "header": "Encabezado institucional",
+      "title": "Título del documento",
+      "student": "Datos del alumno",
+      "enrollment": "Datos de matrícula / curso",
+      "curriculum": "Componentes curriculares",
+      "notes": "Observaciones y resumen académico",
+      "signature": "Firma institucional",
+      "footer": "Pie y validación"
+    },
+    "help": {
+      "header": "Defina los datos institucionales que deben aparecer arriba. El logotipo sigue siendo insertado por el sistema.",
+      "title": "Edite el título principal del historial. Puede variar según la modalidad educativa.",
+      "student": "Configure las líneas de identificación del alumno y elija qué variables deben aparecer.",
+      "enrollment": "Configure curso, matrícula, sede, período, carga horaria y progreso.",
+      "curriculum": "Área reservada para la tabla académica. El sistema completa vínculos, notas, asistencia y situación con datos reales.",
+      "notes": "Incluya observaciones académicas, leyenda, índices, totales y datos de cierre.",
+      "signature": "Defina el contenido textual del área de firma. La firma digital sigue usando la configuración institucional.",
+      "footer": "Personalice el texto institucional del pie sin quitar los elementos obligatorios de validación."
+    }
   }
 }

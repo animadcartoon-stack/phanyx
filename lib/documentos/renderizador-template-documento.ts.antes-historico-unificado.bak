@@ -638,7 +638,7 @@ function criarLogoInstituicaoDocumento({
       <span
         class="phanyx-logo-instituicao-placeholder"
       >
-        Logo da instituição
+        Logo da instituiÃ§Ã£o
       </span>
     `;
   }
@@ -651,7 +651,7 @@ function criarLogoInstituicaoDocumento({
         src="${escaparHtml(
           logoUrl
         )}"
-        alt="Logo da instituição"
+        alt="Logo da instituiÃ§Ã£o"
       />
     </span>
   `;
@@ -1950,22 +1950,6 @@ export function montarRenderizacaoDocumento(
     normalizarParagrafosVazios(
       conteudo
     );
-
-  /*
-   * Resolve a logo inline com o mesmo mecanismo usado
-   * pela assinatura. Antes desta correção o marcador
-   * __PHANYX_LOGO_INSTITUICAO__ podia permanecer no HTML
-   * da prévia/documento.
-   */
-  conteudo =
-    aplicarLogoInstituicaoDocumento({
-      conteudo,
-
-      instituicao:
-        opcoes.instituicao,
-
-      modoPrevia,
-    });
 
   conteudo =
     aplicarAssinaturasDocumento({
