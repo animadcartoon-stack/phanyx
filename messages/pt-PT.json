@@ -5803,7 +5803,8 @@
     "reservationError": "Não foi possível registar a reserva.",
     "reservationImmediateSuccess": "Reserva registada com sucesso. Um exemplar já está disponível e foi reservado para este utilizador.",
     "reservationQueueSuccess": "Reserva registada com sucesso. O utilizador foi incluído na lista de espera.",
-    "reservationQueueSuccessWithPosition": "Reserva registada com sucesso. O utilizador ocupa a posição {position} na lista de espera."
+    "reservationQueueSuccessWithPosition": "Reserva registada com sucesso. O utilizador ocupa a posição {position} na lista de espera.",
+    "reservationAction": "Reservar"
   },
   "AdminCertificates": {
     "status": {
@@ -7438,6 +7439,14 @@
         "newSecret": "Novo segredo",
         "copyKey": "Copiar chave",
         "copySecret": "Copiar segredo"
+      },
+      "persistedErrors": {
+        "fields": {
+          "fullName": "Nome completo",
+          "email": "E-mail",
+          "phone": "Telefone"
+        },
+        "requiredField": "O campo \"{field}\" é obrigatório."
       }
     },
     "errors": {

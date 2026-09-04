@@ -2435,7 +2435,7 @@ export default function EditorTemplatePHANYX({
               />
 
               <div className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-                <span className="!text-slate-900 !opacity-100 dark:!text-white">
+                <span>
                   {tToolbar("highlight")}
                 </span>
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useEffect,
@@ -290,7 +290,7 @@ function criarBotaoRemoverAssinatura(
     );
 
   botao.type = "button";
-  botao.textContent = "×";
+  botao.textContent = "Ã—";
 
   botao.title =
     tipo === "IMAGEM"
@@ -364,8 +364,8 @@ function criarBotaoRemoverAssinatura(
 
   container.title =
     tipo === "IMAGEM"
-      ? "{{assinaturaDiretor}} — assinatura digital"
-      : "{{blocoAssinaturaDiretor}} — bloco completo";
+      ? "{{assinaturaDiretor}} â€” assinatura digital"
+      : "{{blocoAssinaturaDiretor}} â€” bloco completo";
 
   aplicarEstilos(container, {
     position: "relative",
@@ -410,15 +410,15 @@ function criarBotaoRemoverAssinatura(
   }
 
   /*
-   * BLOCO COMPLETO — mesma geometria do PDF.
+   * BLOCO COMPLETO â€” mesma geometria do PDF.
    *
-   * A área de configuração possui 480 x 150 px.
-   * A linha-guia dessa área começa em x=40 px, tem
+   * A Ã¡rea de configuraÃ§Ã£o possui 480 x 150 px.
+   * A linha-guia dessa Ã¡rea comeÃ§a em x=40 px, tem
    * 400 px e cruza y=92 px.
    *
    * No bloco impresso, a linha tem 72 mm e fica
    * centralizada dentro de 78 mm. Assim, x/y/largura/
-   * altura configurados pelo usuário são projetados
+   * altura configurados pelo usuÃ¡rio sÃ£o projetados
    * sobre a MESMA linha que aparece no bloco final.
    */
   aplicarEstilos(container, {
@@ -575,7 +575,7 @@ function criarBotaoRemoverAssinatura(
     document.createElement("strong");
   nome.textContent =
     dados.responsavelNome ||
-    "Responsável legal";
+    "ResponsÃ¡vel legal";
 
   const cargo =
     document.createElement("span");
@@ -587,7 +587,7 @@ function criarBotaoRemoverAssinatura(
     document.createElement("span");
   instituicao.textContent =
     dados.nomeInstituicao ||
-    "Instituição";
+    "InstituiÃ§Ã£o";
 
   const estilizarLinhaIdentificacao = (
     elemento: HTMLElement,
@@ -739,7 +739,7 @@ const AssinaturaPreviewPHANYX =
                       /*
                        * Esconde visualmente
                        * o texto da tag, mas
-                       * mantém o texto real
+                       * mantÃ©m o texto real
                        * salvo pelo editor.
                        */
                       decoracoes.push(
@@ -758,7 +758,7 @@ const AssinaturaPreviewPHANYX =
                       );
 
                       /*
-                       * Coloca a representação
+                       * Coloca a representaÃ§Ã£o
                        * visual com o tamanho
                        * real da assinatura.
                        */
@@ -810,9 +810,9 @@ const AssinaturaPreviewPHANYX =
                                   fimSeguro;
 
                                 /*
-                                 * Quando a tag está sozinha
-                                 * em um parágrafo, remove
-                                 * também o parágrafo para não
+                                 * Quando a tag estÃ¡ sozinha
+                                 * em um parÃ¡grafo, remove
+                                 * tambÃ©m o parÃ¡grafo para nÃ£o
                                  * deixar uma linha vazia.
                                  */
                                 if (
@@ -987,13 +987,13 @@ const PageBreakPHANYX =
           [
             "span",
             {},
-            "Área reservada para rodapé",
+            "Ãrea reservada para rodapÃ©",
           ],
 
           [
             "span",
             {},
-            `Página ${paginaAnterior}`,
+            `PÃ¡gina ${paginaAnterior}`,
           ],
         ],
 
@@ -1015,13 +1015,13 @@ const PageBreakPHANYX =
           [
             "span",
             {},
-            "Área reservada para cabeçalho e logo",
+            "Ãrea reservada para cabeÃ§alho e logo",
           ],
 
           [
             "span",
             {},
-            `Página ${paginaSeguinte}`,
+            `PÃ¡gina ${paginaSeguinte}`,
           ],
         ],
       ];
@@ -1308,8 +1308,8 @@ export default function EditorTemplatePHANYX({
   ]);
 
   /*
-   * Atualiza somente a decoração visual da assinatura quando o
-   * usuário arrasta/redimensiona o campo, sem recriar o TipTap a
+   * Atualiza somente a decoraÃ§Ã£o visual da assinatura quando o
+   * usuÃ¡rio arrasta/redimensiona o campo, sem recriar o TipTap a
    * cada mousemove.
    */
   useEffect(() => {
@@ -1754,7 +1754,7 @@ export default function EditorTemplatePHANYX({
             quebra.posicao
         );
 
-      const paginaçãoJaCorreta =
+      const paginaÃ§Ã£oJaCorreta =
         posicoesAtuais.length ===
         posicoesDesejadas.length &&
         posicoesAtuais.every(
@@ -1765,7 +1765,7 @@ export default function EditorTemplatePHANYX({
             ]
         );
 
-      if (paginaçãoJaCorreta) {
+      if (paginaÃ§Ã£oJaCorreta) {
         return;
       }
 
@@ -1944,10 +1944,10 @@ export default function EditorTemplatePHANYX({
         estavaFlutuando;
 
       /*
-       * A barra começa a flutuar somente
-       * depois que o começo do editor
+       * A barra comeÃ§a a flutuar somente
+       * depois que o comeÃ§o do editor
        * saiu da tela e ainda existe uma
-       * boa área do editor abaixo.
+       * boa Ã¡rea do editor abaixo.
        */
       if (!estavaFlutuando) {
         deveFlutuar =
@@ -1957,7 +1957,7 @@ export default function EditorTemplatePHANYX({
       }
 
       /*
-       * Depois de aberta, ela só fecha
+       * Depois de aberta, ela sÃ³ fecha
        * quando o editor realmente acabou
        * ou quando voltamos ao topo.
        */
@@ -2058,7 +2058,7 @@ export default function EditorTemplatePHANYX({
     }
 
     /*
-     * O true captura também a rolagem
+     * O true captura tambÃ©m a rolagem
      * interna do painel administrativo.
      */
     document.addEventListener(
@@ -2150,7 +2150,7 @@ export default function EditorTemplatePHANYX({
             }
           >
             <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-950 dark:text-white">
-              Ferramentas de edição
+              Ferramentas de ediÃ§Ã£o
             </div>
             <div className="flex flex-wrap gap-2">
               <select
@@ -2222,7 +2222,7 @@ export default function EditorTemplatePHANYX({
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
                 <option value="">
-                  Espaçamento
+                  EspaÃ§amento
                 </option>
                 {ESPACAMENTOS_LINHA.map((item) => (
                   <option key={item.value} value={item.value}>
@@ -2247,7 +2247,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.negrito
                 )}
               >
-                🅱️ Negrito
+                ðŸ…±ï¸ Negrito
               </button>
 
               <button
@@ -2266,7 +2266,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.italico
                 )}
               >
-                𝑰 Itálico
+                ð‘° ItÃ¡lico
               </button>
 
               <button
@@ -2285,7 +2285,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.sublinhado
                 )}
               >
-                U̲ Sublinhado
+                UÌ² Sublinhado
               </button>
 
               <button
@@ -2304,7 +2304,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.esquerda
                 )}
               >
-                ← Esquerda
+                â† Esquerda
               </button>
 
               <button
@@ -2323,7 +2323,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.centro
                 )}
               >
-                ↔ Centro
+                â†” Centro
               </button>
 
               <button
@@ -2342,7 +2342,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.direita
                 )}
               >
-                → Direita
+                â†’ Direita
               </button>
 
               <button
@@ -2361,7 +2361,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.justificar
                 )}
               >
-                ☰ Justificar
+                â˜° Justificar
               </button>
 
               <button
@@ -2382,7 +2382,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.titulo
                 )}
               >
-                Título
+                TÃ­tulo
               </button>
 
               <button
@@ -2403,7 +2403,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.subtitulo
                 )}
               >
-                Subtítulo
+                SubtÃ­tulo
               </button>
 
               <button
@@ -2422,7 +2422,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.lista
                 )}
               >
-                • Lista
+                â€¢ Lista
               </button>
 
               <input
@@ -2435,7 +2435,7 @@ export default function EditorTemplatePHANYX({
               />
 
               <div className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-                <span className="!text-slate-900 !opacity-100 dark:!text-white">
+                <span>
                   {tToolbar("highlight")}
                 </span>
 
@@ -2478,7 +2478,7 @@ export default function EditorTemplatePHANYX({
                     "clearHighlight"
                   )}
                 >
-                  ×
+                  Ã—
                 </button>
               </div>
 
@@ -2539,13 +2539,13 @@ export default function EditorTemplatePHANYX({
             }}
           >
             <span>
-              Área reservada para cabeçalho e logo
+              Ãrea reservada para cabeÃ§alho e logo
             </span>
 
             <span>
               {duasVias
                 ? "MODELO DE UMA VIA"
-                : "PÁGINA 1"}
+                : "PÃGINA 1"}
             </span>
           </div>
 
@@ -2597,8 +2597,8 @@ export default function EditorTemplatePHANYX({
             contentEditable={false}
             aria-label={
               duasVias
-                ? "Área bloqueada e reservada para validação do documento"
-                : "Área reservada para rodapé"
+                ? "Ãrea bloqueada e reservada para validaÃ§Ã£o do documento"
+                : "Ãrea reservada para rodapÃ©"
             }
           >
             {duasVias ? (
@@ -2608,35 +2608,35 @@ export default function EditorTemplatePHANYX({
                     className="text-lg"
                     aria-hidden="true"
                   >
-                    🔒
+                    ðŸ”’
                   </span>
 
                   <div className="min-w-0">
                     <strong className="block text-[11px] font-black uppercase tracking-[0.08em]">
-                      Área reservada para validação
+                      Ãrea reservada para validaÃ§Ã£o
                       do documento
                     </strong>
 
                     <span className="mt-1 block text-[9px] font-semibold normal-case tracking-normal">
-                      Código, data de emissão e QR
-                      Code. Não é permitido inserir
-                      conteúdo nesta área.
+                      CÃ³digo, data de emissÃ£o e QR
+                      Code. NÃ£o Ã© permitido inserir
+                      conteÃºdo nesta Ã¡rea.
                     </span>
                   </div>
                 </div>
 
                 <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.08em]">
-                  Será duplicada no PDF
+                  SerÃ¡ duplicada no PDF
                 </span>
               </>
             ) : (
               <>
                 <span>
-                  Área reservada para rodapé
+                  Ãrea reservada para rodapÃ©
                 </span>
 
                 <span>
-                  Página {totalPaginas}
+                  PÃ¡gina {totalPaginas}
                 </span>
               </>
             )}

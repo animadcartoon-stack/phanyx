@@ -443,12 +443,12 @@ export default function TransporteAtividadeExterna({
     setVinculandoPassageiroTrechoVeiculoId,
   ] = useState<number | null>(null);
 
-    const [
-    removendoPassageiroId,
-    setRemovendoPassageiroId,
-  ] = useState<number | null>(
-    null
-  );
+  const [removendoPassageiroId, setRemovendoPassageiroId] = useState<
+    number | null
+  >(null);
+
+  const [confirmandoRemocaoPassageiroId, setConfirmandoRemocaoPassageiroId] =
+    useState<number | null>(null);
 
   const [
     condutorSelecionadoPorTrechoVeiculo,
@@ -758,97 +758,60 @@ export default function TransporteAtividadeExterna({
     }
   }
 
-    async function desvincularPassageiro(
-    passageiroId: number
-  ) {
-    if (
-      !Number.isInteger(
-        passageiroId
-      ) ||
-      passageiroId <= 0
-    ) {
+  async function desvincularPassageiro(passageiroId: number) {
+    if (!Number.isInteger(passageiroId) || passageiroId <= 0) {
       return;
     }
 
-    setRemovendoPassageiroId(
-      passageiroId
-    );
+    setRemovendoPassageiroId(passageiroId);
 
     setErro("");
     setSucesso("");
 
     try {
-      const resposta =
-        await fetch(
-          `/api/admin/atividades-externas/${atividadeId}/transporte`,
-          {
-            method: "POST",
+      const resposta = await fetch(
+        `/api/admin/atividades-externas/${atividadeId}/transporte`,
+        {
+          method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          headers: {
+            "Content-Type": "application/json",
+          },
 
-            body: JSON.stringify({
-              acao:
-                "DESVINCULAR_PASSAGEIRO",
+          body: JSON.stringify({
+            acao: "DESVINCULAR_PASSAGEIRO",
 
-              passageiroId,
-            }),
-          }
-        );
+            passageiroId,
+          }),
+        },
+      );
 
-      const dados =
-        (await resposta.json()) as {
-          ok?: boolean;
-          error?: string;
-        };
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
 
-      if (
-        !resposta.ok ||
-        !dados.ok
-      ) {
-        if (
-          dados.error ===
-          "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO"
-        ) {
-          setErro(
-            t(
-              "passengerAssignment.cannotRemoveAfterOperation"
-            )
-          );
+      if (!resposta.ok || !dados.ok) {
+        if (dados.error === "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO") {
+          setErro(t("passengerAssignment.cannotRemoveAfterOperation"));
 
           return;
         }
 
-        throw new Error(
-          dados.error ||
-            "ERRO_DESVINCULAR_PASSAGEIRO"
-        );
+        throw new Error(dados.error || "ERRO_DESVINCULAR_PASSAGEIRO");
       }
 
-      setSucesso(
-        t(
-          "passengerAssignment.passengerRemoved"
-        )
-      );
+      setSucesso(t("passengerAssignment.passengerRemoved"));
+
+      setConfirmandoRemocaoPassageiroId(null);
 
       await carregar();
     } catch (error) {
-      console.error(
-        "[TRANSPORTE_ATIVIDADE_DESVINCULAR_PASSAGEIRO]",
-        error
-      );
+      console.error("[TRANSPORTE_ATIVIDADE_DESVINCULAR_PASSAGEIRO]", error);
 
-      setErro(
-        t(
-          "passengerAssignment.removeError"
-        )
-      );
+      setErro(t("passengerAssignment.removeError"));
     } finally {
-      setRemovendoPassageiroId(
-        null
-      );
+      setRemovendoPassageiroId(null);
     }
   }
 
@@ -1597,21 +1560,104 @@ export default function TransporteAtividadeExterna({
                                       `#${passageiro.participanteId}`;
 
                                     return (
-                                      <span
+                                      <div
                                         key={passageiro.id}
-                                        className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold"
+                                        className="flex flex-col gap-2"
                                       >
-                                        👤 {nomeParticipante}
-                                        {" • "}
-                                        {t(
-                                          `passengerAssignment.status.${passageiro.status}`,
-                                        )}
-                                        {passageiro.assento
-                                          ? ` • ${t(
-                                              "passengerAssignment.seat",
-                                            )}: ${passageiro.assento}`
-                                          : ""}
-                                      </span>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                          <span className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold">
+                                            👤 {nomeParticipante}
+                                            {" • "}
+                                            {t(
+                                              `passengerAssignment.status.${passageiro.status}`,
+                                            )}
+                                            {passageiro.assento
+                                              ? ` • ${t(
+                                                  "passengerAssignment.seat",
+                                                )}: ${passageiro.assento}`
+                                              : ""}
+                                          </span>
+
+                                          {podeGerenciar &&
+                                          passageiro.status === "PLANEJADO" ? (
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setConfirmandoRemocaoPassageiroId(
+                                                  passageiro.id,
+                                                )
+                                              }
+                                              disabled={
+                                                removendoPassageiroId ===
+                                                passageiro.id
+                                              }
+                                              title={t(
+                                                "passengerAssignment.removePassenger",
+                                              )}
+                                              aria-label={t(
+                                                "passengerAssignment.removePassenger",
+                                              )}
+                                              className="flex h-7 w-7 items-center justify-center rounded-full border text-sm font-black opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                            >
+                                              ×
+                                            </button>
+                                          ) : null}
+                                        </div>
+
+                                        {confirmandoRemocaoPassageiroId ===
+                                        passageiro.id ? (
+                                          <div className="rounded-xl border p-3">
+                                            <p className="text-sm font-bold">
+                                              {t(
+                                                "passengerAssignment.removeQuestion",
+                                              )}
+                                            </p>
+
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                              <button
+                                                type="button"
+                                                disabled={
+                                                  removendoPassageiroId ===
+                                                  passageiro.id
+                                                }
+                                                onClick={() =>
+                                                  setConfirmandoRemocaoPassageiroId(
+                                                    null,
+                                                  )
+                                                }
+                                                className="phanyx-transporte-chip rounded-xl border px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                              >
+                                                {t(
+                                                  "passengerAssignment.cancelRemove",
+                                                )}
+                                              </button>
+
+                                              <button
+                                                type="button"
+                                                disabled={
+                                                  removendoPassageiroId ===
+                                                  passageiro.id
+                                                }
+                                                onClick={() =>
+                                                  void desvincularPassageiro(
+                                                    passageiro.id,
+                                                  )
+                                                }
+                                                className="rounded-xl border border-red-300 px-3 py-2 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                                              >
+                                                {removendoPassageiroId ===
+                                                passageiro.id
+                                                  ? t(
+                                                      "passengerAssignment.removingPassenger",
+                                                    )
+                                                  : t(
+                                                      "passengerAssignment.confirmRemove",
+                                                    )}
+                                              </button>
+                                            </div>
+                                          </div>
+                                        ) : null}
+                                      </div>
                                     );
                                   })}
                                 </div>

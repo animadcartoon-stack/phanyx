@@ -5803,7 +5803,8 @@
     "reservationError": "La réservation n’a pas pu être enregistrée.",
     "reservationImmediateSuccess": "Réservation enregistrée avec succès. Un exemplaire est déjà disponible et a été réservé pour cet utilisateur.",
     "reservationQueueSuccess": "Réservation enregistrée avec succès. L’utilisateur a été ajouté à la file d’attente.",
-    "reservationQueueSuccessWithPosition": "Réservation enregistrée avec succès. L’utilisateur occupe la position {position} dans la file d’attente."
+    "reservationQueueSuccessWithPosition": "Réservation enregistrée avec succès. L’utilisateur occupe la position {position} dans la file d’attente.",
+    "reservationAction": "Réserver"
   },
   "AdminCertificates": {
     "status": {
@@ -7438,6 +7439,14 @@
         "newSecret": "Nouveau secret",
         "copyKey": "Copier la clé",
         "copySecret": "Copier le secret"
+      },
+      "persistedErrors": {
+        "fields": {
+          "fullName": "Nom complet",
+          "email": "Adresse e-mail",
+          "phone": "Téléphone"
+        },
+        "requiredField": "Le champ « {field} » est obligatoire."
       }
     },
     "errors": {

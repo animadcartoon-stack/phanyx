@@ -5804,7 +5804,8 @@
     "reservationError": "The reservation could not be registered.",
     "reservationImmediateSuccess": "Reservation registered successfully. A copy is already available and has been held for this user.",
     "reservationQueueSuccess": "Reservation registered successfully. The user was added to the waiting queue.",
-    "reservationQueueSuccessWithPosition": "Reservation registered successfully. The user is number {position} in the waiting queue."
+    "reservationQueueSuccessWithPosition": "Reservation registered successfully. The user is number {position} in the waiting queue.",
+    "reservationAction": "Reserve"
   },
   "AdminCertificates": {
     "status": {
