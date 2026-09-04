@@ -1,0 +1,2559 @@
+"use client";
+
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  Extension,
+  mergeAttributes,
+  Node as TiptapNode,
+} from "@tiptap/core";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import FontFamily from "@tiptap/extension-font-family";
+import { createPortal } from "react-dom";
+import {
+  Plugin,
+  PluginKey,
+} from "@tiptap/pm/state";
+
+import {
+  Decoration,
+  DecorationSet,
+} from "@tiptap/pm/view";
+
+const FONTES_WINDOWS = [
+  "Arial",
+  "Arial Black",
+  "Bahnschrift",
+  "Calibri",
+  "Cambria",
+  "Candara",
+  "Comic Sans MS",
+  "Consolas",
+  "Constantia",
+  "Corbel",
+  "Courier New",
+  "Franklin Gothic Medium",
+  "Gabriola",
+  "Georgia",
+  "Impact",
+  "Lucida Console",
+  "Lucida Sans Unicode",
+  "Microsoft Sans Serif",
+  "Palatino Linotype",
+  "Segoe Print",
+  "Segoe Script",
+  "Segoe UI",
+  "Tahoma",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana",
+];
+
+const TAMANHOS_FONTE = [
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "14",
+  "16",
+  "18",
+  "20",
+  "22",
+  "24",
+  "28",
+  "32",
+  "36",
+  "48",
+  "72",
+];
+
+const ESPACAMENTOS_LINHA = [
+  { label: "Linha 1.0", value: "1" },
+  { label: "Linha 1.15", value: "1.15" },
+  { label: "Linha 1.5", value: "1.5" },
+  { label: "Linha 2.0", value: "2" },
+  { label: "Linha 2.5", value: "2.5" },
+  { label: "Linha 3.0", value: "3" },
+];
+
+const FontSize = Extension.create({
+  name: "fontSize",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["textStyle"],
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => element.style.fontSize || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize) return {};
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+const LineHeight = Extension.create({
+  name: "lineHeight",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph", "heading"],
+        attributes: {
+          lineHeight: {
+            default: null,
+            parseHTML: (element) => element.style.lineHeight || null,
+            renderHTML: (attributes) => {
+              if (!attributes.lineHeight) return {};
+              return {
+                style: `line-height: ${attributes.lineHeight}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+type CampoVisualAssinaturaPreview = {
+  id: string;
+  tipo: "ASSINATURA_DIRETOR";
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  pagina: number;
+};
+
+type DadosAssinaturaPreview = {
+  assinaturaUrl?: string | null;
+  responsavelNome?: string | null;
+  responsavelCargo?: string | null;
+  nomeInstituicao?: string | null;
+  cnpjInstituicao?: string | null;
+  campoVisual?: CampoVisualAssinaturaPreview | null;
+};
+
+type TipoAssinaturaPreview =
+  | "IMAGEM"
+  | "BLOCO";
+
+function aplicarEstilos(
+  elemento: HTMLElement,
+  estilos: Partial<CSSStyleDeclaration>
+) {
+  Object.assign(
+    elemento.style,
+    estilos
+  );
+}
+
+function criarImagemAssinaturaPreview(
+  assinaturaUrl?: string | null
+) {
+  const caixa =
+    document.createElement("span");
+
+  aplicarEstilos(caixa, {
+    display: "flex",
+    width: "48mm",
+    height: "16mm",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    overflow: "hidden",
+    backgroundColor: "#ffffff",
+  });
+
+  const placeholder =
+    document.createElement("span");
+
+  placeholder.textContent =
+    "Imagem da assinatura do diretor";
+
+  aplicarEstilos(placeholder, {
+    display: assinaturaUrl
+      ? "none"
+      : "flex",
+    width: "48mm",
+    height: "16mm",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px dashed #64748b",
+    color: "#475569",
+    fontSize: "8pt",
+    lineHeight: "1.2",
+    textAlign: "center",
+    backgroundColor: "#f8fafc",
+  });
+
+  caixa.appendChild(
+    placeholder
+  );
+
+  if (assinaturaUrl) {
+    const imagem =
+      document.createElement("img");
+
+    imagem.src =
+      assinaturaUrl;
+
+    imagem.alt =
+      "Assinatura do diretor";
+
+    aplicarEstilos(imagem, {
+      display: "block",
+      width: "48mm",
+      height: "16mm",
+      objectFit: "contain",
+      objectPosition:
+        "left center",
+    });
+
+    imagem.addEventListener(
+      "error",
+      () => {
+        imagem.style.display =
+          "none";
+
+        placeholder.style.display =
+          "flex";
+      }
+    );
+
+    caixa.appendChild(
+      imagem
+    );
+  }
+
+  return caixa;
+}
+
+function criarBotaoRemoverAssinatura(
+  tipo: TipoAssinaturaPreview,
+  aoRemover: () => void
+) {
+  const botao =
+    document.createElement(
+      "button"
+    );
+
+  botao.type = "button";
+  botao.textContent = "×";
+
+  botao.title =
+    tipo === "IMAGEM"
+      ? "Remover assinatura digital"
+      : "Remover bloco de assinatura";
+
+  botao.setAttribute(
+    "aria-label",
+    botao.title
+  );
+
+  aplicarEstilos(botao, {
+    position: "absolute",
+    top: "-10px",
+    right: "-10px",
+    zIndex: "20",
+    display: "flex",
+    width: "24px",
+    height: "24px",
+    padding: "0",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px solid #fecaca",
+    borderRadius: "9999px",
+    backgroundColor: "#dc2626",
+    color: "#ffffff",
+    fontSize: "17px",
+    fontWeight: "700",
+    lineHeight: "1",
+    cursor: "pointer",
+    pointerEvents: "auto",
+    boxShadow:
+      "0 2px 8px rgba(15, 23, 42, 0.25)",
+  });
+
+  botao.addEventListener(
+    "mousedown",
+    (evento) => {
+      evento.preventDefault();
+      evento.stopPropagation();
+    }
+  );
+
+  botao.addEventListener(
+    "click",
+    (evento) => {
+      evento.preventDefault();
+      evento.stopPropagation();
+
+      aoRemover();
+    }
+  );
+
+  return botao;
+
+} function criarElementoAssinaturaPreview(
+  tipo: TipoAssinaturaPreview,
+  dados: DadosAssinaturaPreview,
+  aoRemover: () => void
+) {
+  const container =
+    document.createElement("span");
+
+  container.contentEditable =
+    "false";
+
+  container.setAttribute(
+    "data-phanyx-assinatura-preview",
+    tipo
+  );
+
+  container.title =
+    tipo === "IMAGEM"
+      ? "{{assinaturaDiretor}} — assinatura digital"
+      : "{{blocoAssinaturaDiretor}} — bloco completo";
+
+  aplicarEstilos(container, {
+    position: "relative",
+    verticalAlign: "top",
+    breakInside: "avoid",
+    pageBreakInside: "avoid",
+    pointerEvents: "auto",
+    userSelect: "none",
+    backgroundColor: "#ffffff",
+    color: "#0f172a",
+    outline:
+      "1px dashed #94a3b8",
+    outlineOffset: "2px",
+    borderRadius: "4px",
+  });
+
+  if (tipo === "IMAGEM") {
+    const imagem =
+      criarImagemAssinaturaPreview(
+        dados.assinaturaUrl
+      );
+
+    aplicarEstilos(container, {
+      display: "inline-flex",
+      width: "58mm",
+      minHeight: "19mm",
+      marginTop: "3mm",
+      alignItems: "flex-start",
+      justifyContent:
+        "flex-start",
+    });
+
+    container.appendChild(imagem);
+    container.appendChild(
+      criarBotaoRemoverAssinatura(
+        tipo,
+        aoRemover
+      )
+    );
+
+    return container;
+  }
+
+  /*
+   * BLOCO COMPLETO — mesma geometria do PDF.
+   *
+   * A área de configuração possui 480 x 150 px.
+   * A linha-guia dessa área começa em x=40 px, tem
+   * 400 px e cruza y=92 px.
+   *
+   * No bloco impresso, a linha tem 72 mm e fica
+   * centralizada dentro de 78 mm. Assim, x/y/largura/
+   * altura configurados pelo usuário são projetados
+   * sobre a MESMA linha que aparece no bloco final.
+   */
+  aplicarEstilos(container, {
+    display: "inline-block",
+    width: "78mm",
+    height: "36mm",
+    minHeight: "36mm",
+    marginTop: "5mm",
+    fontSize: "9pt",
+    lineHeight: "1.25",
+    textAlign: "center",
+    overflow: "visible",
+  });
+
+  const areaVisual =
+    document.createElement("span");
+
+  aplicarEstilos(areaVisual, {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "78mm",
+    height: "24.375mm",
+  });
+
+  const campo =
+    dados.campoVisual || {
+      id: "assinatura-diretor-padrao",
+      tipo: "ASSINATURA_DIRETOR" as const,
+      x: 70,
+      y: 18,
+      largura: 180,
+      altura: 55,
+      pagina: 1,
+    };
+
+  /* 40..440 px da linha-guia => 3..75 mm da linha final. */
+  const escalaX = 72 / 400;
+  const esquerdaMm =
+    3 + (Number(campo.x) - 40) * escalaX;
+  const larguraMm =
+    Math.max(0.2, Number(campo.largura) * escalaX);
+
+  /* y=92 px da guia => y=15 mm da linha final. */
+  const escalaY = 15 / 92;
+  const topoMm =
+    Math.max(0, Number(campo.y)) * escalaY;
+  const alturaMm =
+    Math.max(0.2, Number(campo.altura) * escalaY);
+
+  const caixaImagem =
+    document.createElement("span");
+
+  aplicarEstilos(caixaImagem, {
+    position: "absolute",
+    zIndex: "2",
+    display: "block",
+    left: `${esquerdaMm}mm`,
+    top: `${topoMm}mm`,
+    width: `${larguraMm}mm`,
+    height: `${alturaMm}mm`,
+    minHeight: "0",
+    margin: "0",
+    overflow: "hidden",
+  });
+
+  const placeholder =
+    document.createElement("span");
+  placeholder.textContent =
+    "Assinatura do diretor";
+
+  aplicarEstilos(placeholder, {
+    display: dados.assinaturaUrl
+      ? "none"
+      : "flex",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "1px dashed #64748b",
+    color: "#475569",
+    fontSize: "7pt",
+    lineHeight: "1.1",
+    textAlign: "center",
+    backgroundColor: "#f8fafc",
+  });
+
+  caixaImagem.appendChild(placeholder);
+
+  if (dados.assinaturaUrl) {
+    const imagem =
+      document.createElement("img");
+
+    imagem.src = dados.assinaturaUrl;
+    imagem.alt = "Assinatura do diretor";
+
+    aplicarEstilos(imagem, {
+      display: "block",
+      width: "100%",
+      height: "100%",
+      objectFit: "contain",
+      objectPosition: "center",
+    });
+
+    imagem.addEventListener(
+      "error",
+      () => {
+        imagem.style.display = "none";
+        placeholder.style.display = "flex";
+      }
+    );
+
+    caixaImagem.appendChild(imagem);
+  }
+
+  const linha =
+    document.createElement("span");
+
+  aplicarEstilos(linha, {
+    position: "absolute",
+    top: "15mm",
+    left: "3mm",
+    width: "72mm",
+    height: "0",
+    margin: "0",
+    borderTop:
+      "1px solid #111827",
+  });
+
+  areaVisual.appendChild(caixaImagem);
+  areaVisual.appendChild(linha);
+  container.appendChild(areaVisual);
+
+  const identificacao =
+    document.createElement("span");
+
+  aplicarEstilos(identificacao, {
+    position: "absolute",
+    zIndex: "3",
+    top: "0",
+    left: "0",
+    width: "78mm",
+    height: "31mm",
+    display: "block",
+    margin: "0",
+    padding: "0",
+    color: "#111827",
+    textAlign: "center",
+    overflow: "visible",
+    pointerEvents: "none",
+  });
+
+  const nome =
+    document.createElement("strong");
+  nome.textContent =
+    dados.responsavelNome ||
+    "Responsável legal";
+
+  const cargo =
+    document.createElement("span");
+  cargo.textContent =
+    dados.responsavelCargo ||
+    "Representante legal";
+
+  const instituicao =
+    document.createElement("span");
+  instituicao.textContent =
+    dados.nomeInstituicao ||
+    "Instituição";
+
+  const estilizarLinhaIdentificacao = (
+    elemento: HTMLElement,
+    top: string,
+    negrito = false
+  ) => {
+    aplicarEstilos(elemento, {
+      position: "absolute",
+      zIndex: "3",
+      top,
+      left: "3mm",
+      width: "72mm",
+      height: "3.2mm",
+      margin: "0",
+      padding: "0",
+      whiteSpace: "nowrap",
+      overflow: "visible",
+      color: "#111827",
+      fontSize: negrito ? "8.8pt" : "8.5pt",
+      fontWeight: negrito ? "700" : "400",
+      lineHeight: "3.2mm",
+      textAlign: "center",
+    });
+  };
+
+  estilizarLinhaIdentificacao(nome, "16.0mm", true);
+  estilizarLinhaIdentificacao(cargo, "19.2mm");
+  estilizarLinhaIdentificacao(instituicao, "22.4mm");
+
+  identificacao.appendChild(nome);
+  identificacao.appendChild(cargo);
+  identificacao.appendChild(instituicao);
+
+  if (dados.cnpjInstituicao) {
+    const cnpj =
+      document.createElement("span");
+    cnpj.textContent =
+      `CNPJ: ${dados.cnpjInstituicao}`;
+    estilizarLinhaIdentificacao(cnpj, "25.6mm");
+    identificacao.appendChild(cnpj);
+  }
+
+  container.appendChild(identificacao);
+  container.appendChild(
+    criarBotaoRemoverAssinatura(
+      tipo,
+      aoRemover
+    )
+  );
+
+  return container;
+}
+
+const AssinaturaPreviewPHANYX =
+  Extension.create<DadosAssinaturaPreview>({
+    name:
+      "assinaturaPreviewPHANYX",
+
+    addOptions() {
+      return {
+        assinaturaUrl: null,
+        responsavelNome: null,
+        responsavelCargo: null,
+        nomeInstituicao: null,
+        cnpjInstituicao: null,
+        campoVisual: null,
+      };
+    },
+
+    addProseMirrorPlugins() {
+      const dados =
+        this.options;
+
+      return [
+        new Plugin({
+          key: new PluginKey(
+            "assinaturaPreviewPHANYX"
+          ),
+
+          props: {
+            decorations(state) {
+              const decoracoes:
+                Decoration[] = [];
+
+              const padroes: Array<{
+                regex: RegExp;
+                tipo:
+                TipoAssinaturaPreview;
+              }> = [
+                  {
+                    regex:
+                      /{{\s*assinaturaDiretor\s*}}/gi,
+
+                    tipo:
+                      "IMAGEM",
+                  },
+
+                  {
+                    regex:
+                      /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+
+                    tipo:
+                      "BLOCO",
+                  },
+                ];
+
+              state.doc.descendants(
+                (
+                  node,
+                  posicao
+                ) => {
+                  if (
+                    !node.isText ||
+                    !node.text
+                  ) {
+                    return;
+                  }
+
+                  for (
+                    const padrao
+                    of padroes
+                  ) {
+                    padrao.regex.lastIndex =
+                      0;
+
+                    let resultado:
+                      RegExpExecArray |
+                      null = null;
+
+                    while (
+                      (
+                        resultado =
+                        padrao.regex.exec(
+                          node.text
+                        )
+                      ) !== null
+                    ) {
+                      const textoTag =
+                        resultado[0];
+
+                      const inicio =
+                        posicao +
+                        resultado.index;
+
+                      const fim =
+                        inicio +
+                        textoTag.length;
+
+                      /*
+                       * Esconde visualmente
+                       * o texto da tag, mas
+                       * mantém o texto real
+                       * salvo pelo editor.
+                       */
+                      decoracoes.push(
+                        Decoration.inline(
+                          inicio,
+                          fim,
+                          {
+                            style: [
+                              "font-size:0!important",
+                              "line-height:0!important",
+                              "letter-spacing:0!important",
+                              "color:transparent!important",
+                            ].join(";"),
+                          }
+                        )
+                      );
+
+                      /*
+                       * Coloca a representação
+                       * visual com o tamanho
+                       * real da assinatura.
+                       */
+                      decoracoes.push(
+                        Decoration.widget(
+                          inicio,
+
+                          (view) =>
+                            criarElementoAssinaturaPreview(
+                              padrao.tipo,
+                              dados,
+
+                              () => {
+                                const documentoAtual =
+                                  view.state.doc;
+
+                                const inicioSeguro =
+                                  Math.min(
+                                    inicio,
+                                    documentoAtual
+                                      .content.size
+                                  );
+
+                                const fimSeguro =
+                                  Math.min(
+                                    fim,
+                                    documentoAtual
+                                      .content.size
+                                  );
+
+                                const posicaoResolvida =
+                                  documentoAtual.resolve(
+                                    inicioSeguro
+                                  );
+
+                                const paragrafoPossuiSomenteTag =
+                                  posicaoResolvida
+                                    .parent.type.name ===
+                                  "paragraph" &&
+                                  posicaoResolvida
+                                    .parent.textContent
+                                    .trim() ===
+                                  textoTag.trim();
+
+                                let apagarDe =
+                                  inicioSeguro;
+
+                                let apagarAte =
+                                  fimSeguro;
+
+                                /*
+                                 * Quando a tag está sozinha
+                                 * em um parágrafo, remove
+                                 * também o parágrafo para não
+                                 * deixar uma linha vazia.
+                                 */
+                                if (
+                                  paragrafoPossuiSomenteTag &&
+                                  posicaoResolvida.depth ===
+                                  1 &&
+                                  documentoAtual.childCount >
+                                  1
+                                ) {
+                                  apagarDe =
+                                    posicaoResolvida.before(
+                                      posicaoResolvida.depth
+                                    );
+
+                                  apagarAte =
+                                    posicaoResolvida.after(
+                                      posicaoResolvida.depth
+                                    );
+                                }
+
+                                view.dispatch(
+                                  view.state.tr
+                                    .delete(
+                                      apagarDe,
+                                      apagarAte
+                                    )
+                                    .scrollIntoView()
+                                );
+
+                                view.focus();
+                              }
+                            ),
+
+                          {
+                            side: -1,
+
+                            key:
+                              `${padrao.tipo}-${inicio}`,
+                          }
+                        )
+                      );
+                    }
+                  }
+                }
+              );
+
+              return DecorationSet.create(
+                state.doc,
+                decoracoes
+              );
+            },
+          },
+        }),
+      ];
+    },
+  });
+
+const ALTURA_A4_INTEIRA_MM = 297;
+const ALTURA_DUAS_VIAS_MM = 148.5;
+
+const ALTURA_CABECALHO_A4_MM = 42;
+const ALTURA_RODAPE_A4_MM = 28;
+
+const ALTURA_CABECALHO_DUAS_VIAS_MM = 17;
+const ALTURA_RODAPE_DUAS_VIAS_MM = 20;
+
+function mmParaPx(valor: number) {
+  return (
+    valor *
+    (96 / 25.4)
+  );
+}
+
+const PageBreakPHANYX =
+  TiptapNode.create({
+    name: "pageBreak",
+
+    group: "block",
+
+    atom: true,
+
+    selectable: false,
+
+    draggable: false,
+
+    addAttributes() {
+      return {
+        paginaAnterior: {
+          default: 1,
+
+          parseHTML: (element) =>
+            Number(
+              element.getAttribute(
+                "data-pagina-anterior"
+              ) || 1
+            ),
+
+          renderHTML: (attributes) => ({
+            "data-pagina-anterior":
+              attributes.paginaAnterior,
+          }),
+        },
+
+        paginaSeguinte: {
+          default: 2,
+
+          parseHTML: (element) =>
+            Number(
+              element.getAttribute(
+                "data-pagina-seguinte"
+              ) || 2
+            ),
+
+          renderHTML: (attributes) => ({
+            "data-pagina-seguinte":
+              attributes.paginaSeguinte,
+          }),
+        },
+      };
+    },
+
+    parseHTML() {
+      return [
+        {
+          tag:
+            'div[data-phanyx-page-break="true"]',
+        },
+      ];
+    },
+
+    renderHTML({
+      HTMLAttributes,
+    }) {
+      const paginaAnterior =
+        Number(
+          HTMLAttributes[
+          "data-pagina-anterior"
+          ] || 1
+        );
+
+      const paginaSeguinte =
+        Number(
+          HTMLAttributes[
+          "data-pagina-seguinte"
+          ] || paginaAnterior + 1
+        );
+
+      return [
+        "div",
+
+        mergeAttributes(
+          HTMLAttributes,
+          {
+            "data-phanyx-page-break":
+              "true",
+
+            contenteditable:
+              "false",
+
+            class:
+              "phanyx-page-break",
+          }
+        ),
+
+        [
+          "div",
+          {
+            class:
+              "phanyx-page-break__rodape",
+          },
+
+          [
+            "span",
+            {},
+            "Área reservada para rodapé",
+          ],
+
+          [
+            "span",
+            {},
+            `Página ${paginaAnterior}`,
+          ],
+        ],
+
+        [
+          "div",
+          {
+            class:
+              "phanyx-page-break__intervalo",
+          },
+        ],
+
+        [
+          "div",
+          {
+            class:
+              "phanyx-page-break__cabecalho",
+          },
+
+          [
+            "span",
+            {},
+            "Área reservada para cabeçalho e logo",
+          ],
+
+          [
+            "span",
+            {},
+            `Página ${paginaSeguinte}`,
+          ],
+        ],
+      ];
+    },
+  });
+
+type FormatoImpressaoDocumento =
+  | "A4_INTEIRA"
+  | "DUAS_VIAS_A4";
+
+type Props = {
+  value: string;
+
+  onChange: (
+    html: string
+  ) => void;
+
+  formatoImpressao?:
+  FormatoImpressaoDocumento;
+
+  assinaturaDiretorUrl?:
+  string | null;
+
+  responsavelNome?:
+  string | null;
+
+  responsavelCargo?:
+  string | null;
+
+  nomeInstituicao?:
+  string | null;
+
+  cnpjInstituicao?:
+  string | null;
+
+  camposVisuais?:
+  CampoVisualAssinaturaPreview[] | null;
+};
+
+function conteudoParaHtmlSeguro(valor: string) {
+  const texto = String(valor || "");
+
+  const pareceHtml =
+    texto.includes("<p") ||
+    texto.includes("<div") ||
+    texto.includes("<h1") ||
+    texto.includes("<h2") ||
+    texto.includes("<strong") ||
+    texto.includes("<span") ||
+    texto.includes("<br");
+
+  if (pareceHtml) return texto;
+
+  return texto
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((bloco) => bloco.trim())
+    .filter(Boolean)
+    .map((bloco) => {
+      const linhas = bloco
+        .split("\n")
+        .map((linha) => linha.trim())
+        .filter(Boolean);
+
+      return `<p>${linhas.join("<br />")}</p>`;
+    })
+    .join("\n");
+}
+
+function blocoPossuiConteudoVisivel(
+  node: any
+) {
+  const texto =
+    String(
+      node?.textContent || ""
+    ).trim();
+
+  if (texto) {
+    return true;
+  }
+
+  return [
+    "horizontalRule",
+    "image",
+    "table",
+  ].includes(
+    String(
+      node?.type?.name || ""
+    )
+  );
+}
+
+export default function EditorTemplatePHANYX({
+  value,
+  onChange,
+
+  formatoImpressao =
+  "A4_INTEIRA",
+
+  assinaturaDiretorUrl =
+  null,
+
+  responsavelNome =
+  null,
+
+  responsavelCargo =
+  null,
+
+  nomeInstituicao =
+  null,
+
+  cnpjInstituicao =
+  null,
+
+  camposVisuais =
+  [],
+}: Props) {
+  const duasVias =
+    formatoImpressao ===
+    "DUAS_VIAS_A4";
+
+  const alturaPaginaMm =
+    duasVias
+      ? ALTURA_DUAS_VIAS_MM
+      : ALTURA_A4_INTEIRA_MM;
+
+  const alturaCabecalhoMm =
+    duasVias
+      ? ALTURA_CABECALHO_DUAS_VIAS_MM
+      : ALTURA_CABECALHO_A4_MM;
+
+  const alturaRodapeMm =
+    duasVias
+      ? ALTURA_RODAPE_DUAS_VIAS_MM
+      : ALTURA_RODAPE_A4_MM;
+
+  const alturaUtilPaginaMm =
+    alturaPaginaMm -
+    alturaCabecalhoMm -
+    alturaRodapeMm;
+
+  const campoVisualAssinatura =
+    Array.isArray(camposVisuais)
+      ? [...camposVisuais]
+        .reverse()
+        .find(
+          (campo) =>
+            campo?.tipo ===
+            "ASSINATURA_DIRETOR"
+        ) || null
+      : null;
+
+  const chaveCampoVisualAssinatura =
+    campoVisualAssinatura
+      ? [
+        campoVisualAssinatura.x,
+        campoVisualAssinatura.y,
+        campoVisualAssinatura.largura,
+        campoVisualAssinatura.altura,
+      ].join("|")
+      : "sem-campo-visual";
+
+  const [fonteAtual, setFonteAtual] = useState("");
+  const [tamanhoAtual, setTamanhoAtual] = useState("");
+
+  const [
+    formatacaoAtiva,
+    setFormatacaoAtiva,
+  ] = useState({
+    negrito: false,
+    italico: false,
+    sublinhado: false,
+    esquerda: true,
+    centro: false,
+    direita: false,
+    justificar: false,
+    titulo: false,
+    subtitulo: false,
+    lista: false,
+  });
+
+  const [
+    totalPaginas,
+    setTotalPaginas,
+  ] = useState(1);
+
+  const [
+    espacoFinalPx,
+    setEspacoFinalPx,
+  ] = useState(
+    mmParaPx(
+      alturaUtilPaginaMm
+    )
+  );
+
+  const barraOriginalRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const barraContainerRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const [portalPronto, setPortalPronto] =
+    useState(false);
+
+  const [barraFlutuante, setBarraFlutuante] =
+    useState(false);
+
+  const barraFlutuanteRef =
+    useRef(false);
+
+  const [barraMedidas, setBarraMedidas] =
+    useState({
+      left: 8,
+      width: 640,
+    });
+
+  const editor = useEditor({
+
+    extensions: [
+      StarterKit,
+
+      PageBreakPHANYX,
+
+      AssinaturaPreviewPHANYX.configure({
+        assinaturaUrl:
+          assinaturaDiretorUrl,
+
+        responsavelNome,
+
+        responsavelCargo,
+
+        nomeInstituicao,
+
+        cnpjInstituicao,
+
+        campoVisual:
+          campoVisualAssinatura,
+      }),
+
+      Underline,
+      TextStyle,
+      FontFamily,
+      FontSize,
+      LineHeight,
+      Color,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
+    ],
+    content: conteudoParaHtmlSeguro(value) || "<p></p>",
+    parseOptions: {
+      preserveWhitespace: "full",
+    },
+    editorProps: {
+      attributes: {
+        class:
+          "editor-template-phanyx text-[11pt] leading-[normal] text-slate-900 outline-none",
+      },
+      handleKeyDown(view, event) {
+        if (event.key === "Tab") {
+          event.preventDefault();
+          view.dispatch(view.state.tr.insertText("    "));
+          return true;
+        }
+
+        return false;
+      },
+    },
+    onUpdate({ editor }) {
+      onChange(editor.getHTML());
+    },
+  }, [
+    assinaturaDiretorUrl,
+    responsavelNome,
+    responsavelCargo,
+    nomeInstituicao,
+    cnpjInstituicao,
+  ]);
+
+  /*
+   * Atualiza somente a decoração visual da assinatura quando o
+   * usuário arrasta/redimensiona o campo, sem recriar o TipTap a
+   * cada mousemove.
+   */
+  useEffect(() => {
+    if (!editor) return;
+
+    const extensao =
+      editor.extensionManager.extensions.find(
+        (item) =>
+          item.name ===
+          "assinaturaPreviewPHANYX"
+      );
+
+    if (!extensao) return;
+
+    (
+      extensao.options as
+      DadosAssinaturaPreview
+    ).campoVisual =
+      campoVisualAssinatura;
+
+    const tr =
+      editor.state.tr.setMeta(
+        "phanyxAtualizarAssinaturaPreview",
+        chaveCampoVisualAssinatura
+      );
+
+    tr.setMeta(
+      "addToHistory",
+      false
+    );
+
+    editor.view.dispatch(tr);
+  }, [
+    editor,
+    chaveCampoVisualAssinatura,
+  ]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const novoConteudo = conteudoParaHtmlSeguro(value);
+    const atual = editor.getHTML();
+
+    if (atual === novoConteudo) return;
+
+    editor.commands.setContent(novoConteudo || "<p></p>", {
+      emitUpdate: false,
+      preserveWhitespace: "full",
+    } as any);
+  }, [value, editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    function limparFonte(valor: any) {
+      return String(valor || "")
+        .replaceAll('"', "")
+        .replaceAll("'", "")
+        .split(",")[0]
+        .trim();
+    }
+
+    function limparTamanho(valor: any) {
+      const texto = String(valor || "").trim();
+      if (!texto) return "";
+
+      if (texto.includes("px")) {
+        const numero = Number(texto.replace("px", ""));
+        return Number.isFinite(numero) ? String(Math.round(numero * 0.75)) : "";
+      }
+
+      return texto.replace("pt", "").trim();
+    }
+
+    function atualizarSelecao() {
+      const attrs = editor.getAttributes("textStyle");
+
+      let fonte = limparFonte(attrs.fontFamily);
+      let tamanho = limparTamanho(attrs.fontSize);
+
+      const selection = window.getSelection();
+      const node = selection?.anchorNode;
+
+      const elemento =
+        node?.nodeType === Node.TEXT_NODE
+          ? node.parentElement
+          : (node as HTMLElement | null);
+
+      const computed =
+        elemento
+          ? window.getComputedStyle(
+            elemento
+          )
+          : null;
+
+      if (computed) {
+        if (!fonte) {
+          fonte =
+            limparFonte(
+              computed.fontFamily
+            );
+        }
+
+        if (!tamanho) {
+          tamanho =
+            limparTamanho(
+              computed.fontSize
+            );
+        }
+      }
+
+      setFonteAtual(fonte || "");
+      setTamanhoAtual(tamanho || "");
+
+      const pesoFonte =
+        String(
+          computed?.fontWeight || ""
+        ).toLowerCase();
+
+      const pesoFonteNumerico =
+        Number.parseInt(
+          pesoFonte,
+          10
+        );
+
+      const negritoVisual =
+        pesoFonte === "bold" ||
+        pesoFonte === "bolder" ||
+        (
+          Number.isFinite(
+            pesoFonteNumerico
+          ) &&
+          pesoFonteNumerico >= 600
+        );
+
+      const italicoVisual =
+        String(
+          computed?.fontStyle || ""
+        ).toLowerCase() === "italic";
+
+      const sublinhadoVisual =
+        String(
+          computed?.textDecorationLine ||
+          computed?.textDecoration ||
+          ""
+        )
+          .toLowerCase()
+          .includes("underline");
+      const alinhamentoAtivo = (
+        valor: string
+      ) =>
+        editor.isActive(
+          "paragraph",
+          {
+            textAlign: valor,
+          }
+        ) ||
+        editor.isActive(
+          "heading",
+          {
+            textAlign: valor,
+          }
+        );
+
+      const centro =
+        alinhamentoAtivo("center");
+
+      const direita =
+        alinhamentoAtivo("right");
+
+      const justificar =
+        alinhamentoAtivo("justify");
+
+      const esquerda =
+        alinhamentoAtivo("left") ||
+        (
+          !centro &&
+          !direita &&
+          !justificar
+        );
+
+      setFormatacaoAtiva({
+        negrito:
+          editor.isActive("bold") ||
+          negritoVisual,
+
+        italico:
+          editor.isActive("italic") ||
+          italicoVisual,
+
+        sublinhado:
+          editor.isActive("underline") ||
+          sublinhadoVisual,
+
+        esquerda,
+
+        centro,
+
+        direita,
+
+        justificar,
+
+        titulo:
+          editor.isActive(
+            "heading",
+            {
+              level: 1,
+            }
+          ),
+
+        subtitulo:
+          editor.isActive(
+            "heading",
+            {
+              level: 2,
+            }
+          ),
+
+        lista:
+          editor.isActive(
+            "bulletList"
+          ),
+      });
+    }
+
+    editor.on("selectionUpdate", atualizarSelecao);
+    editor.on("transaction", atualizarSelecao);
+    document.addEventListener("selectionchange", atualizarSelecao);
+
+    atualizarSelecao();
+
+    return () => {
+      editor.off("selectionUpdate", atualizarSelecao);
+      editor.off("transaction", atualizarSelecao);
+      document.removeEventListener("selectionchange", atualizarSelecao);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    let frame:
+      number | null = null;
+
+    const alturaUtilPx =
+      mmParaPx(
+        alturaUtilPaginaMm
+      );
+
+    function paginarConteudo() {
+      frame = null;
+
+      const elementos =
+        Array.from(
+          editor.view.dom.children
+        ) as HTMLElement[];
+
+      const blocosDocumento: Array<{
+        node: any;
+        offset: number;
+        index: number;
+      }> = [];
+
+      editor.state.doc.forEach(
+        (
+          node,
+          offset,
+          index
+        ) => {
+          blocosDocumento.push({
+            node,
+            offset,
+            index,
+          });
+        }
+      );
+
+      let ultimoBlocoComConteudo =
+        -1;
+
+      for (
+        let index =
+          blocosDocumento.length - 1;
+        index >= 0;
+        index -= 1
+      ) {
+        const bloco =
+          blocosDocumento[index];
+
+        if (
+          bloco.node.type.name !==
+          "pageBreak" &&
+          blocoPossuiConteudoVisivel(
+            bloco.node
+          )
+        ) {
+          ultimoBlocoComConteudo =
+            index;
+
+          break;
+        }
+      }
+
+      const quebrasAtuais:
+        Array<{
+          posicaoReal: number;
+          posicaoLimpa: number;
+          tamanho: number;
+        }> = [];
+
+      const quebrasDesejadas:
+        Array<{
+          posicao: number;
+          paginaAnterior: number;
+          paginaSeguinte: number;
+        }> = [];
+
+      let alturaPaginaAtual = 0;
+      let posicaoSemQuebras = 0;
+      let paginaAtual = 1;
+
+      blocosDocumento.forEach(
+        (
+          {
+            node,
+            offset,
+            index,
+          },
+          indiceBloco
+        ) => {
+          if (
+            node.type.name ===
+            "pageBreak"
+          ) {
+            quebrasAtuais.push({
+              posicaoReal:
+                offset,
+
+              posicaoLimpa:
+                posicaoSemQuebras,
+
+              tamanho:
+                node.nodeSize,
+            });
+
+            return;
+          }
+
+          const elemento =
+            elementos[index];
+
+          let alturaElemento = 0;
+
+          if (elemento) {
+            const retangulo =
+              elemento.getBoundingClientRect();
+
+            const estilos =
+              window.getComputedStyle(
+                elemento
+              );
+
+            const margemSuperior =
+              Number.parseFloat(
+                estilos.marginTop || "0"
+              ) || 0;
+
+            const margemInferior =
+              Number.parseFloat(
+                estilos.marginBottom || "0"
+              ) || 0;
+
+            alturaElemento =
+              retangulo.height +
+              margemSuperior +
+              margemInferior;
+          }
+
+          const blocoVazioNoFinal =
+            indiceBloco >
+            ultimoBlocoComConteudo &&
+            !blocoPossuiConteudoVisivel(
+              node
+            );
+
+          if (
+            !blocoVazioNoFinal &&
+            alturaPaginaAtual > 0 &&
+            alturaPaginaAtual +
+            alturaElemento >
+            alturaUtilPx
+          ) {
+            quebrasDesejadas.push({
+              posicao:
+                posicaoSemQuebras,
+
+              paginaAnterior:
+                paginaAtual,
+
+              paginaSeguinte:
+                paginaAtual + 1,
+            });
+
+            paginaAtual += 1;
+            alturaPaginaAtual = 0;
+          }
+
+          alturaPaginaAtual +=
+            alturaElemento;
+
+          posicaoSemQuebras +=
+            node.nodeSize;
+        }
+      );
+
+      setTotalPaginas(
+        Math.max(
+          paginaAtual,
+          1
+        )
+      );
+
+      setEspacoFinalPx(
+        Math.max(
+          0,
+          alturaUtilPx -
+          alturaPaginaAtual
+        )
+      );
+
+      const posicoesAtuais =
+        quebrasAtuais.map(
+          (quebra) =>
+            quebra.posicaoLimpa
+        );
+
+      const posicoesDesejadas =
+        quebrasDesejadas.map(
+          (quebra) =>
+            quebra.posicao
+        );
+
+      const paginaçãoJaCorreta =
+        posicoesAtuais.length ===
+        posicoesDesejadas.length &&
+        posicoesAtuais.every(
+          (posicao, index) =>
+            posicao ===
+            posicoesDesejadas[
+            index
+            ]
+        );
+
+      if (paginaçãoJaCorreta) {
+        return;
+      }
+
+      const tipoQuebra =
+        editor.schema.nodes
+          .pageBreak;
+
+      if (!tipoQuebra) {
+        return;
+      }
+
+      let transaction =
+        editor.state.tr;
+
+      for (
+        let index =
+          quebrasAtuais.length - 1;
+        index >= 0;
+        index -= 1
+      ) {
+        const quebra =
+          quebrasAtuais[index];
+
+        transaction =
+          transaction.delete(
+            quebra.posicaoReal,
+            quebra.posicaoReal +
+            quebra.tamanho
+          );
+      }
+
+      for (
+        let index =
+          quebrasDesejadas.length -
+          1;
+        index >= 0;
+        index -= 1
+      ) {
+        const quebra =
+          quebrasDesejadas[index];
+
+        transaction =
+          transaction.insert(
+            quebra.posicao,
+
+            tipoQuebra.create({
+              paginaAnterior:
+                quebra.paginaAnterior,
+
+              paginaSeguinte:
+                quebra.paginaSeguinte,
+            })
+          );
+      }
+
+      transaction.setMeta(
+        "addToHistory",
+        false
+      );
+
+      transaction.setMeta(
+        "phanyxPagination",
+        true
+      );
+
+      editor.view.dispatch(
+        transaction
+      );
+    }
+
+    function agendarPaginacao() {
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
+
+      frame =
+        window.requestAnimationFrame(
+          () => {
+            frame =
+              window.requestAnimationFrame(
+                paginarConteudo
+              );
+          }
+        );
+    }
+
+    function aoAlterarEditor({
+      transaction,
+    }: {
+      transaction: any;
+    }) {
+      if (
+        transaction.getMeta(
+          "phanyxPagination"
+        )
+      ) {
+        return;
+      }
+
+      agendarPaginacao();
+    }
+
+    editor.on(
+      "transaction",
+      aoAlterarEditor
+    );
+
+    window.addEventListener(
+      "resize",
+      agendarPaginacao
+    );
+
+    agendarPaginacao();
+
+    return () => {
+      editor.off(
+        "transaction",
+        aoAlterarEditor
+      );
+
+      window.removeEventListener(
+        "resize",
+        agendarPaginacao
+      );
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
+    };
+  }, [
+    editor,
+    alturaUtilPaginaMm,
+  ]);
+
+  useEffect(() => {
+    setPortalPronto(true);
+
+    return () => {
+      setPortalPronto(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    const container =
+      barraContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    let frame:
+      number | null = null;
+
+    /*
+     * Dois limites diferentes impedem
+     * a barra de ficar ligando e
+     * desligando no mesmo ponto.
+     */
+    const LIMITE_PARA_MOSTRAR = 180;
+    const LIMITE_PARA_ESCONDER = 60;
+
+    function atualizarBarra() {
+      frame = null;
+
+      const retangulo =
+        container.getBoundingClientRect();
+
+      const estavaFlutuando =
+        barraFlutuanteRef.current;
+
+      let deveFlutuar =
+        estavaFlutuando;
+
+      /*
+       * A barra começa a flutuar somente
+       * depois que o começo do editor
+       * saiu da tela e ainda existe uma
+       * boa área do editor abaixo.
+       */
+      if (!estavaFlutuando) {
+        deveFlutuar =
+          retangulo.top <= -8 &&
+          retangulo.bottom >
+          LIMITE_PARA_MOSTRAR;
+      }
+
+      /*
+       * Depois de aberta, ela só fecha
+       * quando o editor realmente acabou
+       * ou quando voltamos ao topo.
+       */
+      if (
+        estavaFlutuando &&
+        (
+          retangulo.top > -8 ||
+          retangulo.bottom <=
+          LIMITE_PARA_ESCONDER
+        )
+      ) {
+        deveFlutuar = false;
+      }
+
+      if (
+        deveFlutuar !==
+        estavaFlutuando
+      ) {
+        barraFlutuanteRef.current =
+          deveFlutuar;
+
+        setBarraFlutuante(
+          deveFlutuar
+        );
+      }
+
+      if (!deveFlutuar) {
+        return;
+      }
+
+      const esquerda =
+        Math.max(
+          Math.round(
+            retangulo.left
+          ),
+          8
+        );
+
+      const larguraDisponivel =
+        Math.max(
+          320,
+          window.innerWidth -
+          esquerda -
+          8
+        );
+
+      const largura =
+        Math.max(
+          320,
+          Math.floor(
+            Math.min(
+              retangulo.width,
+              larguraDisponivel
+            )
+          )
+        );
+
+      setBarraMedidas(
+        (medidasAtuais) => {
+          const mesmaEsquerda =
+            Math.abs(
+              medidasAtuais.left -
+              esquerda
+            ) < 2;
+
+          const mesmaLargura =
+            Math.abs(
+              medidasAtuais.width -
+              largura
+            ) < 2;
+
+          if (
+            mesmaEsquerda &&
+            mesmaLargura
+          ) {
+            return medidasAtuais;
+          }
+
+          return {
+            left: esquerda,
+            width: largura,
+          };
+        }
+      );
+    }
+
+    function agendarAtualizacao() {
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
+
+      frame =
+        window.requestAnimationFrame(
+          atualizarBarra
+        );
+    }
+
+    /*
+     * O true captura também a rolagem
+     * interna do painel administrativo.
+     */
+    document.addEventListener(
+      "scroll",
+      agendarAtualizacao,
+      true
+    );
+
+    window.addEventListener(
+      "resize",
+      agendarAtualizacao
+    );
+
+    const observadorTamanho =
+      new ResizeObserver(
+        agendarAtualizacao
+      );
+
+    observadorTamanho.observe(
+      container
+    );
+
+    agendarAtualizacao();
+
+    return () => {
+      document.removeEventListener(
+        "scroll",
+        agendarAtualizacao,
+        true
+      );
+
+      window.removeEventListener(
+        "resize",
+        agendarAtualizacao
+      );
+
+      observadorTamanho.disconnect();
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(
+          frame
+        );
+      }
+    };
+  }, []);
+
+  if (!editor) return null;
+
+  function classeBotaoFormatacao(
+    ativo: boolean
+  ) {
+    return [
+      "rounded-xl",
+      "border",
+      "px-3",
+      "py-2",
+      "text-sm",
+      "transition",
+
+      ativo
+        ? "phanyx-toolbar-ativo font-bold"
+        : "border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800",
+    ].join(" ");
+  }
+
+  function renderizarFerramentas() {
+    return (
+      <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
+        <div className="flex flex-wrap gap-2">
+          <div
+            className={`w-full border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
+              ? "z-[999999] shadow-2xl"
+              : "relative z-40"
+              }`}
+            style={
+              barraFlutuante
+                ? {
+                  position: "fixed",
+                  top: "8px",
+                  left:
+                    `${barraMedidas.left}px`,
+                  width:
+                    `${barraMedidas.width}px`,
+                  maxHeight:
+                    "calc(100vh - 16px)",
+                  overflowY: "auto",
+                }
+                : undefined
+            }
+          >
+            <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-950 dark:text-white">
+              Ferramentas de edição
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={fonteAtual}
+                onChange={(e) => {
+                  const fonte = e.target.value;
+                  if (!fonte) return;
+
+                  editor.chain().focus().setFontFamily(fonte).run();
+                  setFonteAtual(fonte);
+                  onChange(editor.getHTML());
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+              >
+                <option value="">
+                  Fonte
+                </option>
+                {FONTES_WINDOWS.map((fonte) => (
+                  <option key={fonte} value={fonte}>
+                    {fonte}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={tamanhoAtual}
+                onChange={(e) => {
+                  const tamanho = e.target.value;
+                  if (!tamanho) return;
+
+                  editor
+                    .chain()
+                    .focus()
+                    .setMark("textStyle", {
+                      fontSize: `${tamanho}pt`,
+                    })
+                    .run();
+
+                  setTamanhoAtual(tamanho);
+                  onChange(editor.getHTML());
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+              >
+                <option value="">
+                  Tamanho
+                </option>
+                {TAMANHOS_FONTE.map((tamanho) => (
+                  <option key={tamanho} value={tamanho}>
+                    {tamanho} pt
+                  </option>
+                ))}
+              </select>
+
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  const lineHeight = e.target.value;
+                  if (!lineHeight) return;
+
+                  editor
+                    .chain()
+                    .focus()
+                    .updateAttributes("paragraph", { lineHeight })
+                    .updateAttributes("heading", { lineHeight })
+                    .run();
+
+                  onChange(editor.getHTML());
+                }}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+              >
+                <option value="">
+                  Espaçamento
+                </option>
+                {ESPACAMENTOS_LINHA.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.negrito
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleBold()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.negrito
+                )}
+              >
+                🅱️ Negrito
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.italico
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleItalic()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.italico
+                )}
+              >
+                𝑰 Itálico
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.sublinhado
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleUnderline()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.sublinhado
+                )}
+              >
+                U̲ Sublinhado
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.esquerda
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("left")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.esquerda
+                )}
+              >
+                ← Esquerda
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.centro
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("center")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.centro
+                )}
+              >
+                ↔ Centro
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.direita
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("right")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.direita
+                )}
+              >
+                → Direita
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.justificar
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .setTextAlign("justify")
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.justificar
+                )}
+              >
+                ☰ Justificar
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.titulo
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHeading({
+                      level: 1,
+                    })
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.titulo
+                )}
+              >
+                Título
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.subtitulo
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHeading({
+                      level: 2,
+                    })
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.subtitulo
+                )}
+              >
+                Subtítulo
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  formatacaoAtiva.lista
+                }
+                onClick={() =>
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleBulletList()
+                    .run()
+                }
+                className={classeBotaoFormatacao(
+                  formatacaoAtiva.lista
+                )}
+              >
+                • Lista
+              </button>
+
+              <input
+                type="color"
+                onChange={(e) =>
+                  editor.chain().focus().setColor(e.target.value).run()
+                }
+                className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+                title="Cor do texto"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={barraContainerRef}
+      className="relative rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+    >
+      <div
+        ref={barraOriginalRef}
+        className={
+          barraFlutuante
+            ? "invisible"
+            : ""
+        }
+        aria-hidden={
+          barraFlutuante
+        }
+      >
+        {renderizarFerramentas()}
+      </div>
+
+      {portalPronto &&
+        barraFlutuante &&
+        createPortal(
+          <div
+            className="phanyx-editor-toolbar-portal overflow-hidden rounded-2xl shadow-2xl"
+            style={{
+              position: "fixed",
+              top: "8px",
+              left: `${barraMedidas.left}px`,
+              width: `${barraMedidas.width}px`,
+              maxHeight: "calc(100vh - 16px)",
+              overflowY: "auto",
+              zIndex: 2147483000,
+              overflowX: "hidden",
+            }}
+          >
+            {renderizarFerramentas()}
+          </div>,
+          document.body
+        )}
+
+      <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
+        <div className="mx-auto w-[210mm] shadow-2xl">
+          <div
+            className="phanyx-a4-guia-cabecalho"
+            style={{
+              height:
+                `${alturaCabecalhoMm}mm`,
+            }}
+          >
+            <span>
+              Área reservada para cabeçalho e logo
+            </span>
+
+            <span>
+              {duasVias
+                ? "MODELO DE UMA VIA"
+                : "PÁGINA 1"}
+            </span>
+          </div>
+
+          <div
+            className="bg-white text-black"
+            style={{
+              minHeight:
+                `${alturaUtilPaginaMm}mm`,
+
+              ...(duasVias
+                ? {
+                  height:
+                    `${alturaUtilPaginaMm}mm`,
+                  overflow: "hidden",
+                }
+                : {}),
+            }}
+          >
+            <EditorContent editor={editor} />
+
+            <div
+              aria-hidden="true"
+              style={{
+                height: `${espacoFinalPx}px`,
+              }}
+            />
+          </div>
+
+          <div
+            className={[
+              "phanyx-a4-guia-rodape",
+              duasVias
+                ? "pointer-events-none select-none"
+                : "",
+            ].join(" ")}
+            style={{
+              height:
+                `${alturaRodapeMm}mm`,
+
+              ...(duasVias
+                ? {
+                  background: "#fff7ed",
+                  color: "#9a3412",
+                  borderTop:
+                    "2px solid #f97316",
+                }
+                : {}),
+            }}
+            contentEditable={false}
+            aria-label={
+              duasVias
+                ? "Área bloqueada e reservada para validação do documento"
+                : "Área reservada para rodapé"
+            }
+          >
+            {duasVias ? (
+              <>
+                <div className="flex min-w-0 items-center gap-3">
+                  <span
+                    className="text-lg"
+                    aria-hidden="true"
+                  >
+                    🔒
+                  </span>
+
+                  <div className="min-w-0">
+                    <strong className="block text-[11px] font-black uppercase tracking-[0.08em]">
+                      Área reservada para validação
+                      do documento
+                    </strong>
+
+                    <span className="mt-1 block text-[9px] font-semibold normal-case tracking-normal">
+                      Código, data de emissão e QR
+                      Code. Não é permitido inserir
+                      conteúdo nesta área.
+                    </span>
+                  </div>
+                </div>
+
+                <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.08em]">
+                  Será duplicada no PDF
+                </span>
+              </>
+            ) : (
+              <>
+                <span>
+                  Área reservada para rodapé
+                </span>
+
+                <span>
+                  Página {totalPaginas}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
