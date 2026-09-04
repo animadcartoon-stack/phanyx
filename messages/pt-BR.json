@@ -11269,7 +11269,9 @@
       "heading": "Título",
       "subheading": "Subtítulo",
       "list": "Lista",
-      "textColor": "Cor"
+      "textColor": "Cor",
+      "highlight": "Marca-texto",
+      "clearHighlight": "Remover destaque"
     }
   },
   "AdminDocumentsTemplatesVisualFields": {
@@ -11290,5 +11292,9 @@
       "resizeSignature": "Redimensionar assinatura",
       "positionHelp": "Posicione a assinatura exatamente como ela deverá aparecer sobre a linha do diretor no documento."
     }
+  },
+  "AdminDocumentsEditorToolbar": {
+    "highlight": "Marca-texto",
+    "clearHighlight": "Remover destaque"
   }
 }

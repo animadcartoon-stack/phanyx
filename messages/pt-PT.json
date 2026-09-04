@@ -11270,7 +11270,9 @@
       "heading": "Título",
       "subheading": "Subtítulo",
       "list": "Lista",
-      "textColor": "Cor"
+      "textColor": "Cor",
+      "highlight": "Realce",
+      "clearHighlight": "Remover realce"
     }
   },
   "AdminDocumentsTemplatesVisualFields": {
@@ -11291,5 +11293,9 @@
       "resizeSignature": "Redimensionar assinatura",
       "positionHelp": "Posicione a assinatura exatamente como deverá aparecer sobre a linha do diretor no documento."
     }
+  },
+  "AdminDocumentsEditorToolbar": {
+    "highlight": "Realce",
+    "clearHighlight": "Remover realce"
   }
 }

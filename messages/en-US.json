@@ -11278,7 +11278,9 @@
       "heading": "Heading",
       "subheading": "Subheading",
       "list": "List",
-      "textColor": "Color"
+      "textColor": "Color",
+      "highlight": "Highlight",
+      "clearHighlight": "Remove highlight"
     }
   },
   "AdminDocumentsTemplatesVisualFields": {
@@ -11299,5 +11301,9 @@
       "resizeSignature": "Resize signature",
       "positionHelp": "Position the signature exactly as it should appear over the director's signature line in the document."
     }
+  },
+  "AdminDocumentsEditorToolbar": {
+    "highlight": "Highlight",
+    "clearHighlight": "Remove highlight"
   }
 }

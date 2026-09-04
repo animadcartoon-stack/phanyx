@@ -33,6 +33,39 @@ const ESPACAMENTOS_LINHA = [
   { label: "3.0", value: "3" },
 ];
 
+const BackgroundColorPHANYX = Extension.create({
+  name: "backgroundColorPHANYX",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["textStyle"],
+
+        attributes: {
+          backgroundColor: {
+            default: null,
+
+            parseHTML: (element) =>
+              element.style.backgroundColor ||
+              null,
+
+            renderHTML: (attributes) => {
+              if (!attributes.backgroundColor) {
+                return {};
+              }
+
+              return {
+                style:
+                  `background-color: ${attributes.backgroundColor}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
 const FontSize = Extension.create({
   name: "fontSize",
   addGlobalAttributes() {
@@ -131,6 +164,7 @@ export default function EditorSecaoHistoricoPHANYX({
       FontSize,
       LineHeight,
       Color,
+      BackgroundColorPHANYX,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content: conteudoParaHtmlSeguro(value),
@@ -376,6 +410,58 @@ export default function EditorSecaoHistoricoPHANYX({
               title={t("toolbar.textColor")}
             />
           </label>
+
+          <div className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            <span>
+              {t("toolbar.highlight")}
+            </span>
+
+            <input
+              type="color"
+              defaultValue="#fff59d"
+              onChange={(event) => {
+                editor
+                  .chain()
+                  .focus()
+                  .setMark("textStyle", {
+                    backgroundColor:
+                      event.target.value,
+                  })
+                  .run();
+
+                sincronizar();
+              }}
+              className="h-7 w-9 cursor-pointer rounded border-0 bg-transparent p-0"
+              title={t(
+                "toolbar.highlight"
+              )}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                editor
+                  .chain()
+                  .focus()
+                  .setMark("textStyle", {
+                    backgroundColor:
+                      null,
+                  })
+                  .run();
+
+                sincronizar();
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white text-xs font-black text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+              title={t(
+                "toolbar.clearHighlight"
+              )}
+              aria-label={t(
+                "toolbar.clearHighlight"
+              )}
+            >
+              ×
+            </button>
+          </div>
         </div>
       </div>
 

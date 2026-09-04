@@ -18,6 +18,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   Plugin,
   PluginKey,
@@ -84,6 +85,39 @@ const ESPACAMENTOS_LINHA = [
   { label: "Linha 2.5", value: "2.5" },
   { label: "Linha 3.0", value: "3" },
 ];
+
+const BackgroundColorPHANYX = Extension.create({
+  name: "backgroundColorPHANYX",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["textStyle"],
+
+        attributes: {
+          backgroundColor: {
+            default: null,
+
+            parseHTML: (element) =>
+              element.style.backgroundColor ||
+              null,
+
+            renderHTML: (attributes) => {
+              if (!attributes.backgroundColor) {
+                return {};
+              }
+
+              return {
+                style:
+                  `background-color: ${attributes.backgroundColor}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 
 const FontSize = Extension.create({
   name: "fontSize",
@@ -1105,6 +1139,11 @@ export default function EditorTemplatePHANYX({
   camposVisuais =
   [],
 }: Props) {
+  const tToolbar =
+    useTranslations(
+      "AdminDocumentsEditorToolbar"
+    );
+
   const duasVias =
     formatoImpressao ===
     "DUAS_VIAS_A4";
@@ -1233,6 +1272,7 @@ export default function EditorTemplatePHANYX({
       FontSize,
       LineHeight,
       Color,
+      BackgroundColorPHANYX,
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
@@ -2393,6 +2433,55 @@ export default function EditorTemplatePHANYX({
                 className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
                 title="Cor do texto"
               />
+
+              <div className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+                <span>
+                  {tToolbar("highlight")}
+                </span>
+
+                <input
+                  type="color"
+                  defaultValue="#fff59d"
+                  onChange={(e) =>
+                    editor
+                      .chain()
+                      .focus()
+                      .setMark("textStyle", {
+                        backgroundColor:
+                          e.target.value,
+                      })
+                      .run()
+                  }
+                  className="h-7 w-9 cursor-pointer rounded border-0 bg-transparent p-0"
+                  title={tToolbar(
+                    "highlight"
+                  )}
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor
+                      .chain()
+                      .focus()
+                      .setMark("textStyle", {
+                        backgroundColor:
+                          null,
+                      })
+                      .run()
+                  }
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white text-sm font-black text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                  title={tToolbar(
+                    "clearHighlight"
+                  )}
+                  aria-label={tToolbar(
+                    "clearHighlight"
+                  )}
+                >
+                  ×
+                </button>
+              </div>
+
             </div>
           </div>
         </div>

@@ -11269,7 +11269,9 @@
       "heading": "Titre",
       "subheading": "Sous-titre",
       "list": "Liste",
-      "textColor": "Couleur"
+      "textColor": "Couleur",
+      "highlight": "Surlignage",
+      "clearHighlight": "Supprimer le surlignage"
     }
   },
   "AdminDocumentsTemplatesVisualFields": {
@@ -11290,5 +11292,9 @@
       "resizeSignature": "Redimensionner la signature",
       "positionHelp": "Positionnez la signature exactement comme elle devra apparaître au-dessus de la ligne du directeur dans le document."
     }
+  },
+  "AdminDocumentsEditorToolbar": {
+    "highlight": "Surlignage",
+    "clearHighlight": "Supprimer le surlignage"
   }
 }
