@@ -79,6 +79,7 @@ type Trecho = {
   veiculos: Array<{
     id: number;
     veiculoId: number;
+    status: string;
 
     veiculo: {
       id: number;
@@ -447,6 +448,13 @@ export default function TransporteAtividadeExterna({
     number | null
   >(null);
 
+  const [removendoCondutorId, setRemovendoCondutorId] = useState<number | null>(
+    null,
+  );
+
+  const [confirmandoRemocaoCondutorId, setConfirmandoRemocaoCondutorId] =
+    useState<number | null>(null);
+
   const [confirmandoRemocaoPassageiroId, setConfirmandoRemocaoPassageiroId] =
     useState<number | null>(null);
 
@@ -812,6 +820,63 @@ export default function TransporteAtividadeExterna({
       setErro(t("passengerAssignment.removeError"));
     } finally {
       setRemovendoPassageiroId(null);
+    }
+  }
+
+  async function desvincularCondutor(atribuicaoCondutorId: number) {
+    if (!Number.isInteger(atribuicaoCondutorId) || atribuicaoCondutorId <= 0) {
+      return;
+    }
+
+    setRemovendoCondutorId(atribuicaoCondutorId);
+
+    setErro("");
+    setSucesso("");
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/atividades-externas/${atividadeId}/transporte`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            acao: "DESVINCULAR_CONDUTOR",
+
+            atribuicaoCondutorId,
+          }),
+        },
+      );
+
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      if (!resposta.ok || !dados.ok) {
+        if (dados.error === "CONDUTOR_NAO_PODE_SER_DESVINCULADO") {
+          setErro(t("driverAssignment.cannotRemoveAfterOperation"));
+
+          return;
+        }
+
+        throw new Error(dados.error || "ERRO_DESVINCULAR_CONDUTOR");
+      }
+
+      setSucesso(t("driverAssignment.driverRemoved"));
+
+      setConfirmandoRemocaoCondutorId(null);
+
+      await carregar();
+    } catch (error) {
+      console.error("[TRANSPORTE_ATIVIDADE_DESVINCULAR_CONDUTOR]", error);
+
+      setErro(t("driverAssignment.removeError"));
+    } finally {
+      setRemovendoCondutorId(null);
     }
   }
 
@@ -1430,15 +1495,98 @@ export default function TransporteAtividadeExterna({
                               {vinculo.condutores.length > 0 ? (
                                 <div className="mt-2 flex flex-wrap gap-2">
                                   {vinculo.condutores.map((atribuicao) => (
-                                    <span
+                                    <div
                                       key={atribuicao.id}
-                                      className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold"
+                                      className="flex flex-col gap-2"
                                     >
-                                      🧑‍✈️ {atribuicao.condutor.nome} •{" "}
-                                      {t(
-                                        `driverAssignment.roles.${atribuicao.papel}`,
-                                      )}
-                                    </span>
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <span className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold">
+                                          🧑‍✈️ {atribuicao.condutor.nome} •{" "}
+                                          {t(
+                                            `driverAssignment.roles.${atribuicao.papel}`,
+                                          )}
+                                        </span>
+
+                                        {podeGerenciar &&
+                                        vinculo.status === "PLANEJADO" ? (
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setConfirmandoRemocaoCondutorId(
+                                                atribuicao.id,
+                                              )
+                                            }
+                                            disabled={
+                                              removendoCondutorId ===
+                                              atribuicao.id
+                                            }
+                                            title={t(
+                                              "driverAssignment.removeDriver",
+                                            )}
+                                            aria-label={t(
+                                              "driverAssignment.removeDriver",
+                                            )}
+                                            className="flex h-7 w-7 items-center justify-center rounded-full border text-sm font-black opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                          >
+                                            ×
+                                          </button>
+                                        ) : null}
+                                      </div>
+
+                                      {confirmandoRemocaoCondutorId ===
+                                      atribuicao.id ? (
+                                        <div className="rounded-xl border p-3">
+                                          <p className="text-sm font-bold">
+                                            {t(
+                                              "driverAssignment.removeQuestion",
+                                            )}
+                                          </p>
+
+                                          <div className="mt-3 flex flex-wrap gap-2">
+                                            <button
+                                              type="button"
+                                              disabled={
+                                                removendoCondutorId ===
+                                                atribuicao.id
+                                              }
+                                              onClick={() =>
+                                                setConfirmandoRemocaoCondutorId(
+                                                  null,
+                                                )
+                                              }
+                                              className="phanyx-transporte-chip rounded-xl border px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                            >
+                                              {t(
+                                                "driverAssignment.cancelRemove",
+                                              )}
+                                            </button>
+
+                                            <button
+                                              type="button"
+                                              disabled={
+                                                removendoCondutorId ===
+                                                atribuicao.id
+                                              }
+                                              onClick={() =>
+                                                void desvincularCondutor(
+                                                  atribuicao.id,
+                                                )
+                                              }
+                                              className="rounded-xl border border-red-300 px-3 py-2 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                                            >
+                                              {removendoCondutorId ===
+                                              atribuicao.id
+                                                ? t(
+                                                    "driverAssignment.removingDriver",
+                                                  )
+                                                : t(
+                                                    "driverAssignment.confirmRemove",
+                                                  )}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : null}
+                                    </div>
                                   ))}
                                 </div>
                               ) : (

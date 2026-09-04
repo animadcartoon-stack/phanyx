@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getAuth, assertProfessor } from "@/lib/auth/getAuth";
 import { updateAtividadeSchema } from "@/lib/validators/atividade";
 import { atividadePertenceAoProfessor } from "@/lib/services/atividadeProfessor.service";
+import {
+  solicitarReanalisePorAlteracaoAcademica,
+} from "@/lib/student-success/solicitar-reanalise-por-alteracao-academica";
 
 export async function GET(
   req: NextRequest,
@@ -220,6 +223,112 @@ export async function PUT(
         disciplina: true,
       },
     });
+
+    /*
+ * Uma atividade recém-publicada só altera
+ * imediatamente as pendências do Student
+ * Success quando o prazo já está vencido.
+ *
+ * Se o prazo estiver no futuro, o vencimento
+ * será percebido pelo processamento periódico.
+ */
+if (
+  publicada.prazo &&
+  publicada.prazo <
+    new Date()
+) {
+  try {
+    /*
+     * Localizamos somente alunos realmente
+     * vinculados à turma da atividade.
+     *
+     * Quando a atividade possui disciplina,
+     * exigimos também o vínculo específico
+     * turma + disciplina, exatamente como
+     * o motor do Student Success faz.
+     */
+    const itensAfetados =
+      await prisma.itemMatricula.findMany({
+        where: {
+          instituicaoId:
+            auth.instituicaoId,
+
+          turmaId:
+            publicada.turmaId,
+
+          ...(publicada.disciplinaId !==
+          null
+            ? {
+                disciplinaId:
+                  publicada.disciplinaId,
+              }
+            : {}),
+        },
+
+        select: {
+          matricula: {
+            select: {
+              alunoId:
+                true,
+            },
+          },
+        },
+      });
+
+   const alunoIds =
+  Array.from(
+    new Set(
+      itensAfetados
+        .map(
+          (
+            item
+          ) =>
+            item.matricula
+              .alunoId
+        )
+        .filter(
+          (
+            alunoId
+          ): alunoId is number =>
+            typeof alunoId ===
+              "number" &&
+            Number.isInteger(
+              alunoId
+            ) &&
+            alunoId > 0
+        )
+    )
+  );
+
+    if (
+      alunoIds.length >
+      0
+    ) {
+      await solicitarReanalisePorAlteracaoAcademica({
+        instituicaoId:
+          auth.instituicaoId,
+
+        alunoIds,
+
+        executadoPorId:
+          auth.userId,
+      });
+    }
+  }
+  catch (error) {
+    /*
+     * A atividade já foi publicada.
+     *
+     * Uma eventual falha do Student Success
+     * não pode transformar a publicação
+     * da atividade em erro para o professor.
+     */
+    console.error(
+      "[STUDENT_SUCCESS_ATIVIDADE_PUBLICADA_REANALISE]",
+      error
+    );
+  }
+}
 
     return NextResponse.json(publicada);
   } catch (e: any) {
