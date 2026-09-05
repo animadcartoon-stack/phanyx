@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getUserFromToken, type UsuarioLogado } from "@/lib/server-auth";
+
 import {
-  getUserFromToken,
-  type UsuarioLogado,
-} from "@/lib/server-auth";
+  EVENTOS_SAIDA_CAPTACAO,
+  enfileirarEventoSaidaCaptacaoSeguro,
+} from "@/lib/comercial/captacao/enfileirar-evento-saida";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -107,8 +109,7 @@ function ehMasterReal(user: UsuarioLogado) {
   return (
     user.isMasterAdmin === true &&
     user.impersonacao === false &&
-    user.email.trim().toLowerCase() ===
-    "academicophanyx@gmail.com"
+    user.email.trim().toLowerCase() === "academicophanyx@gmail.com"
   );
 }
 
@@ -116,14 +117,10 @@ function podeGerenciar(user: UsuarioLogado | null) {
   if (!user) return false;
   if (ehMasterReal(user)) return true;
 
-  return ["ADMIN", "SECRETARIA", "FINANCEIRO"].includes(
-    user.role
-  );
+  return ["ADMIN", "SECRETARIA", "FINANCEIRO"].includes(user.role);
 }
 
-function obterEscopoLead(
-  user: UsuarioLogado
-): Prisma.LeadWhereInput {
+function obterEscopoLead(user: UsuarioLogado): Prisma.LeadWhereInput {
   if (ehMasterReal(user)) {
     return {
       instituicaoGestoraId: null,
@@ -143,10 +140,7 @@ function parseId(valor: string) {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-function campoFoiInformado(
-  objeto: Record<string, unknown>,
-  campo: string
-) {
+function campoFoiInformado(objeto: Record<string, unknown>, campo: string) {
   return Object.prototype.hasOwnProperty.call(objeto, campo);
 }
 
@@ -160,9 +154,7 @@ function normalizarStatus(valor: unknown) {
     .trim()
     .toUpperCase();
 
-  return STATUS_VALIDOS.includes(
-    texto as (typeof STATUS_VALIDOS)[number]
-  )
+  return STATUS_VALIDOS.includes(texto as (typeof STATUS_VALIDOS)[number])
     ? texto
     : "NOVO";
 }
@@ -173,7 +165,7 @@ function normalizarPrioridade(valor: unknown) {
     .toUpperCase();
 
   return PRIORIDADES_VALIDAS.includes(
-    texto as (typeof PRIORIDADES_VALIDAS)[number]
+    texto as (typeof PRIORIDADES_VALIDAS)[number],
   )
     ? texto
     : "MEDIA";
@@ -256,43 +248,25 @@ function lerDataOpcional(valor: unknown) {
   };
 }
 
-function serializarLead(
-  lead: any
-) {
+function serializarLead(lead: any) {
   const captacaoMaisRecente =
-    Array.isArray(
-      lead.submissoesCaptacao
-    ) &&
-      lead.submissoesCaptacao
-        .length > 0
-      ? lead
-        .submissoesCaptacao[0]
+    Array.isArray(lead.submissoesCaptacao) && lead.submissoesCaptacao.length > 0
+      ? lead.submissoesCaptacao[0]
       : null;
 
   return {
     ...lead,
 
-    matriculaConvertida:
-      lead.matriculaConvertida ??
-      null,
+    matriculaConvertida: lead.matriculaConvertida ?? null,
 
     responsavelNome:
-      lead
-        .responsavelFuncionario
-        ?.nome ||
-      lead
-        .responsavelNomeSnapshot ||
-      null,
+      lead.responsavelFuncionario?.nome || lead.responsavelNomeSnapshot || null,
 
-    instituicaoId:
-      lead
-        .instituicaoInteressadaId ??
-      null,
+    instituicaoId: lead.instituicaoInteressadaId ?? null,
 
     captacaoMaisRecente,
 
-    submissoesCaptacao:
-      undefined,
+    submissoesCaptacao: undefined,
   };
 }
 
@@ -304,7 +278,7 @@ async function validarUsuario() {
       user: null,
       resposta: NextResponse.json(
         { error: "Usuário não autenticado." },
-        { status: 401 }
+        { status: 401 },
       ),
     };
   }
@@ -312,10 +286,7 @@ async function validarUsuario() {
   if (!podeGerenciar(user)) {
     return {
       user: null,
-      resposta: NextResponse.json(
-        { error: "Sem permissão." },
-        { status: 403 }
-      ),
+      resposta: NextResponse.json({ error: "Sem permissão." }, { status: 403 }),
     };
   }
 
@@ -324,10 +295,9 @@ async function validarUsuario() {
       user: null,
       resposta: NextResponse.json(
         {
-          error:
-            "O usuário não está vinculado a uma instituição.",
+          error: "O usuário não está vinculado a uma instituição.",
         },
-        { status: 403 }
+        { status: 403 },
       ),
     };
   }
@@ -340,7 +310,7 @@ async function validarUsuario() {
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const autenticacao = await validarUsuario();
@@ -353,10 +323,7 @@ export async function GET(
     const id = parseId(params.id);
 
     if (!id) {
-      return NextResponse.json(
-        { error: "ID inválido." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "ID inválido." }, { status: 400 });
     }
 
     const lead = await prisma.lead.findFirst({
@@ -370,34 +337,31 @@ export async function GET(
     if (!lead) {
       return NextResponse.json(
         { error: "Lead não encontrado." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    return NextResponse.json(
-      serializarLead(lead),
-      {
-        headers: {
-          "Cache-Control":
-            "no-store, no-cache, must-revalidate, proxy-revalidate",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      }
-    );
+    return NextResponse.json(serializarLead(lead), {
+      headers: {
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    });
   } catch (error) {
     console.error("Erro ao buscar lead:", error);
 
     return NextResponse.json(
       { error: "Não foi possível buscar o lead." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const autenticacao = await validarUsuario();
@@ -412,66 +376,59 @@ export async function PATCH(
     const id = parseId(params.id);
 
     if (!id) {
-      return NextResponse.json(
-        { error: "ID inválido." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "ID inválido." }, { status: 400 });
     }
 
-    const leadExistente =
-      await prisma.lead.findFirst({
-        where: {
-          id,
-          ...escopo,
-        },
+    const leadExistente = await prisma.lead.findFirst({
+      where: {
+        id,
+        ...escopo,
+      },
 
-        select: {
-          id: true,
-          status: true,
+      select: {
+        id: true,
+        status: true,
 
-          matriculaConvertida: {
-            select: {
-              id: true,
-            },
+        responsavelFuncionarioId: true,
+
+        responsavelNomeSnapshot: true,
+
+        matriculaConvertida: {
+          select: {
+            id: true,
           },
         },
-      });
+      },
+    });
 
     if (!leadExistente) {
       return NextResponse.json(
         { error: "Lead não encontrado." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const body = (await req.json()) as Record<
-      string,
-      unknown
-    >;
+    const body = (await req.json()) as Record<string, unknown>;
 
     if (
       leadExistente.matriculaConvertida &&
       campoFoiInformado(body, "status")
     ) {
-      const statusSolicitado =
-        normalizarStatus(body.status);
+      const statusSolicitado = normalizarStatus(body.status);
 
       if (statusSolicitado !== "FECHADO") {
         return NextResponse.json(
           {
-            codigo:
-              "LEAD_JA_CONVERTIDO",
+            codigo: "LEAD_JA_CONVERTIDO",
 
             error:
               "Este lead já foi convertido em matrícula e deve permanecer fechado.",
 
-            matriculaId:
-              leadExistente
-                .matriculaConvertida.id,
+            matriculaId: leadExistente.matriculaConvertida.id,
           },
           {
             status: 409,
-          }
+          },
         );
       }
     }
@@ -486,7 +443,7 @@ export async function PATCH(
       if (!nome) {
         return NextResponse.json(
           { error: "O nome é obrigatório." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -501,7 +458,7 @@ export async function PATCH(
       if (!email || !email.includes("@")) {
         return NextResponse.json(
           { error: "Informe um e-mail válido." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -513,9 +470,7 @@ export async function PATCH(
     }
 
     if (campoFoiInformado(body, "instituicaoNome")) {
-      data.instituicaoNome = textoOuNull(
-        body.instituicaoNome
-      );
+      data.instituicaoNome = textoOuNull(body.instituicaoNome);
     }
 
     if (campoFoiInformado(body, "cargo")) {
@@ -539,15 +494,11 @@ export async function PATCH(
     }
 
     if (campoFoiInformado(body, "prioridade")) {
-      data.prioridade = normalizarPrioridade(
-        body.prioridade
-      );
+      data.prioridade = normalizarPrioridade(body.prioridade);
     }
 
     if (campoFoiInformado(body, "valorEstimado")) {
-      const valorEstimado = lerValorMonetarioOpcional(
-        body.valorEstimado
-      );
+      const valorEstimado = lerValorMonetarioOpcional(body.valorEstimado);
 
       if (!valorEstimado.valido) {
         return NextResponse.json(
@@ -555,7 +506,7 @@ export async function PATCH(
             error:
               "O valor estimado precisa ser um número válido e não negativo.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -563,17 +514,14 @@ export async function PATCH(
     }
 
     if (campoFoiInformado(body, "proximoContatoEm")) {
-      const proximoContatoEm = lerDataOpcional(
-        body.proximoContatoEm
-      );
+      const proximoContatoEm = lerDataOpcional(body.proximoContatoEm);
 
       if (!proximoContatoEm.valido) {
         return NextResponse.json(
           {
-            error:
-              "A data do próximo contato é inválida.",
+            error: "A data do próximo contato é inválida.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -581,28 +529,20 @@ export async function PATCH(
     }
 
     /*
- * ultimoContatoEm é controlado exclusivamente pelo sistema.
- * Ele é atualizado quando uma interação comercial é registrada
- * e não pode ser alterado manualmente pela edição do lead.
- */
+     * ultimoContatoEm é controlado exclusivamente pelo sistema.
+     * Ele é atualizado quando uma interação comercial é registrada
+     * e não pode ser alterado manualmente pela edição do lead.
+     */
 
-    if (
-      campoFoiInformado(
-        body,
-        "responsavelFuncionarioId"
-      )
-    ) {
-      const responsavelInformado = lerIdOpcional(
-        body.responsavelFuncionarioId
-      );
+    if (campoFoiInformado(body, "responsavelFuncionarioId")) {
+      const responsavelInformado = lerIdOpcional(body.responsavelFuncionarioId);
 
       if (!responsavelInformado.valido) {
         return NextResponse.json(
           {
-            error:
-              "O funcionário responsável informado é inválido.",
+            error: "O funcionário responsável informado é inválido.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -612,7 +552,7 @@ export async function PATCH(
             error:
               "O CRM global da PHANYX não permite vincular um funcionário institucional.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -620,19 +560,18 @@ export async function PATCH(
         data.responsavelFuncionarioId = null;
         data.responsavelNomeSnapshot = null;
       } else {
-        const responsavelFuncionario =
-          await prisma.funcionario.findFirst({
-            where: {
-              id: responsavelInformado.valor,
-              instituicaoId: user.instituicaoId!,
-              ativo: true,
-              statusFuncionario: "ATIVO",
-            },
-            select: {
-              id: true,
-              nome: true,
-            },
-          });
+        const responsavelFuncionario = await prisma.funcionario.findFirst({
+          where: {
+            id: responsavelInformado.valor,
+            instituicaoId: user.instituicaoId!,
+            ativo: true,
+            statusFuncionario: "ATIVO",
+          },
+          select: {
+            id: true,
+            nome: true,
+          },
+        });
 
         if (!responsavelFuncionario) {
           return NextResponse.json(
@@ -640,132 +579,162 @@ export async function PATCH(
               error:
                 "O funcionário responsável não foi encontrado ou não está ativo nesta instituição.",
             },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
-        data.responsavelFuncionarioId =
-          responsavelFuncionario.id;
+        data.responsavelFuncionarioId = responsavelFuncionario.id;
 
-        data.responsavelNomeSnapshot =
-          responsavelFuncionario.nome;
+        data.responsavelNomeSnapshot = responsavelFuncionario.nome;
       }
-    } else if (
-      masterReal &&
-      campoFoiInformado(body, "responsavelNome")
-    ) {
+    } else if (masterReal && campoFoiInformado(body, "responsavelNome")) {
       /*
        * Compatibilidade temporária com o CRM global atual.
        * A instituição usa obrigatoriamente funcionario.id.
        */
-      data.responsavelNomeSnapshot = textoOuNull(
-        body.responsavelNome
-      );
+      data.responsavelNomeSnapshot = textoOuNull(body.responsavelNome);
     }
 
     const informouInstituicaoInteressada =
-      campoFoiInformado(
-        body,
-        "instituicaoInteressadaId"
-      ) || campoFoiInformado(body, "instituicaoId");
+      campoFoiInformado(body, "instituicaoInteressadaId") ||
+      campoFoiInformado(body, "instituicaoId");
 
     if (masterReal && informouInstituicaoInteressada) {
-      const valorInformado = campoFoiInformado(
-        body,
-        "instituicaoInteressadaId"
-      )
+      const valorInformado = campoFoiInformado(body, "instituicaoInteressadaId")
         ? body.instituicaoInteressadaId
         : body.instituicaoId;
 
-      const instituicaoInteressada =
-        lerIdOpcional(valorInformado);
+      const instituicaoInteressada = lerIdOpcional(valorInformado);
 
       if (!instituicaoInteressada.valido) {
         return NextResponse.json(
           {
-            error:
-              "A instituição interessada informada é inválida.",
+            error: "A instituição interessada informada é inválida.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (instituicaoInteressada.valor) {
-        const instituicaoExiste =
-          await prisma.instituicao.findUnique({
-            where: {
-              id: instituicaoInteressada.valor,
-            },
-            select: {
-              id: true,
-            },
-          });
+        const instituicaoExiste = await prisma.instituicao.findUnique({
+          where: {
+            id: instituicaoInteressada.valor,
+          },
+          select: {
+            id: true,
+          },
+        });
 
         if (!instituicaoExiste) {
           return NextResponse.json(
             {
-              error:
-                "A instituição interessada informada não foi encontrada.",
+              error: "A instituição interessada informada não foi encontrada.",
             },
-            { status: 400 }
+            { status: 400 },
           );
         }
       }
 
-      data.instituicaoInteressadaId =
-        instituicaoInteressada.valor;
+      data.instituicaoInteressadaId = instituicaoInteressada.valor;
     }
 
-    const leadAtualizado = await prisma.$transaction(
-      async (tx) => {
-        const resultado = await tx.lead.updateMany({
-          where: {
-            id,
-            ...escopo,
-          },
-          data,
-        });
+    const leadAtualizado = await prisma.$transaction(async (tx) => {
+      const resultado = await tx.lead.updateMany({
+        where: {
+          id,
+          ...escopo,
+        },
+        data,
+      });
 
-        if (resultado.count !== 1) {
-          return null;
-        }
-
-        return tx.lead.findFirst({
-          where: {
-            id,
-            ...escopo,
-          },
-          include: INCLUDE_LEAD,
-        });
+      if (resultado.count !== 1) {
+        return null;
       }
-    );
+
+      return tx.lead.findFirst({
+        where: {
+          id,
+          ...escopo,
+        },
+        include: INCLUDE_LEAD,
+      });
+    });
 
     if (!leadAtualizado) {
       return NextResponse.json(
         {
-          error:
-            "O lead não foi encontrado ou não pôde ser atualizado.",
+          error: "O lead não foi encontrado ou não pôde ser atualizado.",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    return NextResponse.json(
-      serializarLead(leadAtualizado)
-    );
+    /*
+     * Alteração real do responsável comercial.
+     *
+     * A atribuição inicial do responsável ocorre
+     * na criação do lead e não passa por este
+     * evento.
+     *
+     * O webhook somente é emitido depois que
+     * a atualização do lead foi persistida.
+     */
+    const responsavelFoiAlterado =
+      !masterReal &&
+      campoFoiInformado(body, "responsavelFuncionarioId") &&
+      leadExistente.responsavelFuncionarioId !==
+        leadAtualizado.responsavelFuncionarioId;
+
+    if (responsavelFoiAlterado && user.instituicaoId) {
+      await enfileirarEventoSaidaCaptacaoSeguro({
+        instituicaoId: user.instituicaoId,
+
+        tipoEvento: EVENTOS_SAIDA_CAPTACAO.LEAD_RESPONSAVEL_ALTERADO,
+
+        chaveEvento: `lead:${leadAtualizado.id}:responsavel:${leadExistente.responsavelFuncionarioId ?? "sem"}:${leadAtualizado.responsavelFuncionarioId ?? "sem"}:${leadAtualizado.updatedAt.toISOString()}`,
+
+        payload: {
+          lead: {
+            id: leadAtualizado.id,
+          },
+
+          responsavelAnterior: {
+            id: leadExistente.responsavelFuncionarioId,
+
+            nome: leadExistente.responsavelNomeSnapshot,
+          },
+
+          responsavelNovo: {
+            id: leadAtualizado.responsavelFuncionarioId,
+
+            nome: leadAtualizado.responsavelNomeSnapshot,
+          },
+
+          alteracao: {
+            usuarioId: user.id,
+
+            origem: "EDICAO_MANUAL_LEAD",
+
+            alteradoEm: leadAtualizado.updatedAt,
+          },
+        },
+      });
+    }
+
+    return NextResponse.json(serializarLead(leadAtualizado));
   } catch (error) {
     console.error("Erro ao atualizar lead:", error);
 
     return NextResponse.json(
       { error: "Não foi possível atualizar o lead." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const autenticacao = await validarUsuario();
@@ -778,60 +747,50 @@ export async function DELETE(
     const id = parseId(params.id);
 
     if (!id) {
-      return NextResponse.json(
-        { error: "ID inválido." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "ID inválido." }, { status: 400 });
     }
 
-    const leadExistente =
-      await prisma.lead.findFirst({
-        where: {
-          id,
-          ...obterEscopoLead(user),
-        },
+    const leadExistente = await prisma.lead.findFirst({
+      where: {
+        id,
+        ...obterEscopoLead(user),
+      },
 
-        select: {
-          id: true,
+      select: {
+        id: true,
 
-          matriculaConvertida: {
-            select: {
-              id: true,
-            },
+        matriculaConvertida: {
+          select: {
+            id: true,
           },
         },
-      });
+      },
+    });
 
     if (!leadExistente) {
       return NextResponse.json(
         {
-          error:
-            "Lead não encontrado.",
+          error: "Lead não encontrado.",
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
-    if (
-      leadExistente.matriculaConvertida
-    ) {
+    if (leadExistente.matriculaConvertida) {
       return NextResponse.json(
         {
-          codigo:
-            "LEAD_JA_CONVERTIDO",
+          codigo: "LEAD_JA_CONVERTIDO",
 
           error:
             "Este lead não pode ser excluído porque já originou uma matrícula.",
 
-          matriculaId:
-            leadExistente
-              .matriculaConvertida.id,
+          matriculaId: leadExistente.matriculaConvertida.id,
         },
         {
           status: 409,
-        }
+        },
       );
     }
 
@@ -845,7 +804,7 @@ export async function DELETE(
     if (resultado.count !== 1) {
       return NextResponse.json(
         { error: "Lead não encontrado." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -855,7 +814,7 @@ export async function DELETE(
 
     return NextResponse.json(
       { error: "Não foi possível excluir o lead." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

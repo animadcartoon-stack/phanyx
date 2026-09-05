@@ -11,6 +11,11 @@ import {
 
 import { prisma } from "@/lib/prisma";
 
+import {
+  EVENTOS_SAIDA_CAPTACAO,
+  enfileirarEventoSaidaCaptacaoSeguro,
+} from "@/lib/comercial/captacao/enfileirar-evento-saida";
+
 const STATUS_MATRICULA_CONVERTIDA =
   new Set<StatusMatricula>([
     StatusMatricula.ATIVA,
@@ -249,7 +254,8 @@ export async function movimentarLeadNoFunil(
     );
   }
 
-  return prisma.$transaction(
+  const resultado =
+  await prisma.$transaction(
     async (tx) => {
       const agora = new Date();
 
@@ -872,9 +878,165 @@ export async function movimentarLeadNoFunil(
         tarefaCriada,
       };
     },
-    {
+       {
       maxWait: 10_000,
       timeout: 30_000,
     }
   );
+
+/*
+ * A movimentação comercial já foi
+ * definitivamente persistida.
+ *
+ * Qualquer falha de integração externa
+ * não pode desfazer a movimentação.
+ */
+await enfileirarEventoSaidaCaptacaoSeguro({
+  instituicaoId,
+
+  tipoEvento:
+    EVENTOS_SAIDA_CAPTACAO.LEAD_ETAPA_ALTERADA,
+
+  chaveEvento:
+    `movimentacao:${resultado.movimentacao.id}`,
+
+  payload: {
+    lead: {
+      id:
+        resultado.leadId,
+
+      status:
+        resultado.statusLegado,
+    },
+
+    funil: {
+      etapaAnterior:
+        resultado.etapaAnterior,
+
+      etapaNova:
+        resultado.etapaNova,
+    },
+
+    movimentacao: {
+      id:
+        resultado.movimentacao.id,
+
+      origem:
+        resultado.movimentacao.origem,
+
+      criadoEm:
+        resultado.movimentacao.criadoEm,
+    },
+  },
+});
+
+/*
+ * PERDIDA e DESCARTADA representam
+ * encerramento comercial sem conversão.
+ *
+ * O identificador continua baseado na
+ * movimentação, portanto permanece
+ * idempotente.
+ */
+if (
+  resultado.etapaNova.resultado ===
+    ResultadoEtapaFunilComercial.PERDIDA ||
+  resultado.etapaNova.resultado ===
+    ResultadoEtapaFunilComercial.DESCARTADA
+) {
+  await enfileirarEventoSaidaCaptacaoSeguro({
+    instituicaoId,
+
+    tipoEvento:
+      EVENTOS_SAIDA_CAPTACAO.LEAD_PERDIDO,
+
+    chaveEvento:
+      `movimentacao:${resultado.movimentacao.id}`,
+
+    payload: {
+      lead: {
+        id:
+          resultado.leadId,
+
+        status:
+          resultado.statusLegado,
+      },
+
+      funil: {
+        etapaAnterior:
+          resultado.etapaAnterior,
+
+        etapaPerda:
+          resultado.etapaNova,
+      },
+
+      movimentacao: {
+        id:
+          resultado.movimentacao.id,
+
+        origem:
+          resultado.movimentacao.origem,
+
+        criadoEm:
+          resultado.movimentacao.criadoEm,
+      },
+    },
+  });
+}
+
+/*
+ * Se a movimentação criou uma
+ * próxima ação automaticamente,
+ * também emitimos o evento da tarefa.
+ *
+ * A tarefa já foi persistida dentro
+ * da transação neste ponto.
+ */
+if (resultado.tarefaCriada) {
+  await enfileirarEventoSaidaCaptacaoSeguro({
+    instituicaoId,
+
+    tipoEvento:
+      EVENTOS_SAIDA_CAPTACAO.TAREFA_CRIADA,
+
+    chaveEvento:
+      `tarefa:${resultado.tarefaCriada.id}`,
+
+    payload: {
+      tarefa: {
+        id:
+          resultado.tarefaCriada.id,
+
+        titulo:
+          resultado.tarefaCriada.titulo,
+
+        agendadaPara:
+          resultado.tarefaCriada.agendadaPara,
+      },
+
+      lead: {
+        id:
+          resultado.leadId,
+      },
+
+      origem: {
+        tipo:
+          "MOVIMENTACAO_FUNIL",
+
+        movimentacaoId:
+          resultado.movimentacao.id,
+      },
+
+      funil: {
+        etapaAnterior:
+          resultado.etapaAnterior,
+
+        etapaNova:
+          resultado.etapaNova,
+      },
+    },
+  });
+}
+
+return resultado;
 }

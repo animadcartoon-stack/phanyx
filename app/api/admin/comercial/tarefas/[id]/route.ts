@@ -13,6 +13,11 @@ import {
 } from "@/lib/server-auth";
 import { usuarioPossuiPermissao } from "@/lib/server-permissions";
 
+import {
+  EVENTOS_SAIDA_CAPTACAO,
+  enfileirarEventoSaidaCaptacaoSeguro,
+} from "@/lib/comercial/captacao/enfileirar-evento-saida";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -643,6 +648,72 @@ export async function PATCH(
 
       return atualizada;
     });
+
+    /*
+ * Emitimos somente quando houve
+ * transição real para CONCLUIDA.
+ *
+ * A atualização já foi persistida;
+ * falha externa não desfaz a tarefa.
+ */
+if (
+  alteraStatus &&
+  statusNovo === StatusTarefaComercial.CONCLUIDA
+) {
+  await enfileirarEventoSaidaCaptacaoSeguro({
+    instituicaoId,
+
+    tipoEvento:
+      EVENTOS_SAIDA_CAPTACAO.TAREFA_CONCLUIDA,
+
+    chaveEvento:
+      `tarefa:${tarefaAtualizada.id}:concluida`,
+
+    payload: {
+      tarefa: {
+        id:
+          tarefaAtualizada.id,
+
+        leadId:
+          tarefaAtualizada.leadId,
+
+        tipo:
+          tarefaAtualizada.tipo,
+
+        status:
+          tarefaAtualizada.status,
+
+        prioridade:
+          tarefaAtualizada.prioridade,
+
+        titulo:
+          tarefaAtualizada.titulo,
+
+        resultado:
+          tarefaAtualizada.resultado,
+
+        concluidaEm:
+          tarefaAtualizada.concluidaEm,
+
+        concluidaPorId:
+          tarefaAtualizada.concluidaPorId,
+      },
+
+      alteracao: {
+        statusAnterior:
+          tarefaAtual.status,
+
+        statusNovo:
+          tarefaAtualizada.status,
+      },
+
+      origem: {
+        tipo:
+          "AGENDA_COMERCIAL",
+      },
+    },
+  });
+}
 
     return NextResponse.json({
       success: true,

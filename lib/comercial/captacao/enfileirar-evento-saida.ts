@@ -24,8 +24,23 @@ export const EVENTOS_SAIDA_CAPTACAO = {
   LEAD_ATUALIZADO:
     "LEAD_ATUALIZADO",
 
+  LEAD_ETAPA_ALTERADA:
+    "LEAD_ETAPA_ALTERADA",
+
+  LEAD_PERDIDO:
+    "LEAD_PERDIDO",
+
+  LEAD_CONVERTIDO:
+    "LEAD_CONVERTIDO",
+
+  LEAD_RESPONSAVEL_ALTERADO:
+    "LEAD_RESPONSAVEL_ALTERADO",
+
   TAREFA_CRIADA:
     "TAREFA_CRIADA",
+
+  TAREFA_CONCLUIDA:
+    "TAREFA_CONCLUIDA",
 } as const;
 
 export type TipoEventoSaidaCaptacao =
@@ -583,4 +598,27 @@ export async function enfileirarEventoSaidaCaptacao(
 
     eventos,
   };
+}
+
+export async function enfileirarEventoSaidaCaptacaoSeguro(
+  params: Parameters<
+    typeof enfileirarEventoSaidaCaptacao
+  >[0]
+): Promise<
+  ResultadoEnfileiramentoSaida | null
+> {
+  try {
+    return await enfileirarEventoSaidaCaptacao(
+      params
+    );
+  } catch (error) {
+    console.error(
+      `Erro ao enfileirar evento de saída ${String(
+        params.tipoEvento
+      )}:`,
+      error
+    );
+
+    return null;
+  }
 }

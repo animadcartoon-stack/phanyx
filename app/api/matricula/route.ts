@@ -15,6 +15,11 @@ import {
   processarComissaoAutomatica,
 } from "@/lib/comercial/processar-comissao";
 
+import {
+  EVENTOS_SAIDA_CAPTACAO,
+  enfileirarEventoSaidaCaptacaoSeguro,
+} from "@/lib/comercial/captacao/enfileirar-evento-saida";
+
 function addMonths(date: Date, months: number) {
   const diaOriginal = date.getDate();
 
@@ -2875,9 +2880,90 @@ Assinatura da instituição: ________________________________
           maxWait: 5000,
           timeout: 20000,
         }
-      );
+            );
 
-    return NextResponse.json({
+/*
+ * Se esta matrícula nasceu da
+ * conversão de um lead comercial,
+ * emitimos o evento somente depois
+ * que toda a transação foi concluída.
+ *
+ * Neste ponto já estão persistidos:
+ * - a matrícula;
+ * - o vínculo leadOrigemId;
+ * - o fechamento do lead;
+ * - a interação de CONVERSAO.
+ *
+ * Uma falha externa nunca poderá
+ * desfazer a matrícula.
+ */
+if (
+  leadId &&
+  leadParaConversao
+) {
+  await enfileirarEventoSaidaCaptacaoSeguro({
+    instituicaoId:
+      user.instituicaoId,
+
+    tipoEvento:
+      EVENTOS_SAIDA_CAPTACAO.LEAD_CONVERTIDO,
+
+    chaveEvento:
+      `matricula:${matricula.id}:lead:${leadId}`,
+
+    payload: {
+      lead: {
+        id:
+          leadParaConversao.id,
+
+        nome:
+          leadParaConversao.nome,
+
+        statusAnterior:
+          leadParaConversao.status,
+
+        statusNovo:
+          "FECHADO",
+
+        responsavelFuncionarioId:
+          leadParaConversao.responsavelFuncionarioId,
+      },
+
+      matricula: {
+        id:
+          matricula.id,
+
+        alunoId:
+          matricula.alunoId,
+
+        cursoId:
+          matricula.cursoId,
+
+        poloId:
+          matricula.poloId,
+
+        status:
+          matricula.status,
+
+        confirmadaEm:
+          matricula.confirmadaEm,
+
+        leadOrigemId:
+          matricula.leadOrigemId,
+      },
+
+      conversao: {
+        origem:
+          "CRM_LEADS",
+
+        usuarioId:
+          user.id,
+      },
+    },
+  });
+}
+
+return NextResponse.json({
       message: "Matrícula criada com sucesso",
       matricula,
       financeiro: {

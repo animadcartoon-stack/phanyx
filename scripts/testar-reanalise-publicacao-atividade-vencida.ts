@@ -176,19 +176,36 @@ async function executar() {
     const itensAfetados =
       await prisma.itemMatricula.findMany({
         where: {
-          instituicaoId,
+  instituicaoId,
 
-          turmaId:
-            publicada.turmaId,
+  turmaId:
+    publicada.turmaId,
 
-          ...(publicada.disciplinaId !==
-          null
-            ? {
-                disciplinaId:
-                  publicada.disciplinaId,
-              }
-            : {}),
-        },
+  status: {
+    in: [
+      "A_CURSAR",
+      "EM_CURSO",
+    ],
+  },
+
+  matricula: {
+    status:
+      "ATIVA",
+
+    aluno: {
+      ativo:
+        true,
+    },
+  },
+
+  ...(publicada.disciplinaId !==
+  null
+    ? {
+        disciplinaId:
+          publicada.disciplinaId,
+      }
+    : {}),
+},
 
         select: {
           matricula: {
@@ -200,31 +217,38 @@ async function executar() {
         },
       });
 
-    const alunoIds =
-      Array.from(
-        new Set(
-          itensAfetados
-            .map(
-              (
-                item
-              ) =>
-                item.matricula
-                  .alunoId
-            )
-            .filter(
-              (
-                alunoId
-              ): alunoId is number =>
-                typeof alunoId ===
-                  "number" &&
-                Number.isInteger(
-                  alunoId
-                ) &&
-                alunoId >
-                  0
+  const alunoIds:
+  number[] =
+  Array.from(
+    new Set<number>(
+      itensAfetados
+        .map(
+          (
+            item: {
+              matricula: {
+                alunoId:
+                  unknown;
+              };
+            }
+          ) =>
+            Number(
+              item.matricula
+                .alunoId
             )
         )
-      );
+        .filter(
+          (
+            alunoId:
+              number
+          ) =>
+            Number.isInteger(
+              alunoId
+            ) &&
+            alunoId >
+              0
+        )
+    )
+  );
 
     console.log(
       "\n=== ALUNOS LOCALIZADOS PARA REANÁLISE ==="

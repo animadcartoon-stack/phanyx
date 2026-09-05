@@ -13,6 +13,11 @@ import {
 } from "@/lib/server-auth";
 import { usuarioPossuiPermissao } from "@/lib/server-permissions";
 
+import {
+  EVENTOS_SAIDA_CAPTACAO,
+  enfileirarEventoSaidaCaptacaoSeguro,
+} from "@/lib/comercial/captacao/enfileirar-evento-saida";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -814,6 +819,84 @@ export async function POST(req: NextRequest) {
 
       return criada;
     });
+
+    /*
+ * A tarefa já foi definitivamente
+ * persistida neste ponto.
+ *
+ * Uma falha do webhook externo nunca
+ * deve impedir a criação da tarefa.
+ */
+await enfileirarEventoSaidaCaptacaoSeguro({
+  instituicaoId,
+
+  tipoEvento:
+    EVENTOS_SAIDA_CAPTACAO.TAREFA_CRIADA,
+
+  chaveEvento:
+    `tarefa:${tarefa.id}`,
+
+  payload: {
+    tarefa: {
+      id:
+        tarefa.id,
+
+      tipo:
+        tarefa.tipo,
+
+      status:
+        tarefa.status,
+
+      prioridade:
+        tarefa.prioridade,
+
+      titulo:
+        tarefa.titulo,
+
+      descricao:
+        tarefa.descricao,
+
+      proximaAcao:
+        tarefa.proximaAcao,
+
+      agendadaPara:
+        tarefa.agendadaPara,
+
+      prazoEm:
+        tarefa.prazoEm,
+
+      lembreteEm:
+        tarefa.lembreteEm,
+    },
+
+    lead: {
+      id:
+        lead.id,
+
+      nome:
+        lead.nome,
+
+      email:
+        lead.email,
+
+      telefone:
+        lead.telefone,
+    },
+
+    responsavel: {
+      id:
+        responsavel.id,
+
+      nome:
+        responsavel.nome,
+    },
+
+    origem: {
+      tipo:
+        "AGENDA_COMERCIAL",
+    },
+  },
+});
 
     return NextResponse.json(
       {
