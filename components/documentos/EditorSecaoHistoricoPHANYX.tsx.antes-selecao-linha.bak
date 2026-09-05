@@ -428,14 +428,14 @@ function aplicarAlturaLinhasPHANYX(
       new Set(posicoes)
     )
   ) {
-    const linha =
+    const node =
       state.doc.nodeAt(
         posicao
       );
 
     if (
-      !linha ||
-      linha.type?.name !==
+      !node ||
+      node.type?.name !==
         "tableRow"
     ) {
       continue;
@@ -446,49 +446,11 @@ function aplicarAlturaLinhasPHANYX(
         posicao,
         undefined,
         {
-          ...linha.attrs,
+          ...node.attrs,
           rowHeight:
             altura,
         }
       );
-
-    /*
-     * A altura também é persistida em cada
-     * célula da linha. Alguns navegadores
-     * respeitam a altura do <td>/<th> com
-     * mais consistência do que a do <tr>.
-     */
-    linha.forEach(
-      (
-        celula: any,
-        offset: number
-      ) => {
-        if (
-          celula.type?.name !==
-            "tableCell" &&
-          celula.type?.name !==
-            "tableHeader"
-        ) {
-          return;
-        }
-
-        const posicaoCelula =
-          posicao +
-          1 +
-          offset;
-
-        transaction =
-          transaction.setNodeMarkup(
-            posicaoCelula,
-            undefined,
-            {
-              ...celula.attrs,
-              cellHeight:
-                altura,
-            }
-          );
-      }
-    );
 
     alterou = true;
   }
@@ -500,83 +462,6 @@ function aplicarAlturaLinhasPHANYX(
   }
 
   return alterou;
-}
-
-function obterPosicaoDocumentoDaTabelaPHANYX(
-  view: any,
-  tabela: HTMLTableElement
-) {
-  const posicaoDentro =
-    view.posAtDOM(
-      tabela,
-      0
-    );
-
-  const posicaoSegura =
-    Math.max(
-      0,
-      Math.min(
-        posicaoDentro,
-        view.state.doc
-          .content.size
-      )
-    );
-
-  const $pos =
-    view.state.doc.resolve(
-      posicaoSegura
-    );
-
-  for (
-    let depth = $pos.depth;
-    depth > 0;
-    depth -= 1
-  ) {
-    if (
-      $pos.node(depth)?.type
-        ?.name === "table"
-    ) {
-      return $pos.before(
-        depth
-      );
-    }
-  }
-
-  return null;
-}
-
-function aplicarDestaqueLinhasPersistentesPHANYX(
-  view: any,
-  posicoes: number[]
-) {
-  view.dom
-    .querySelectorAll(
-      ".phanyx-row-selected"
-    )
-    .forEach(
-      (elemento: Element) =>
-        elemento.classList.remove(
-          "phanyx-row-selected"
-        )
-    );
-
-  for (
-    const posicao of posicoes
-  ) {
-    const elemento =
-      view.nodeDOM(
-        posicao
-      );
-
-    if (
-      elemento instanceof
-      HTMLElement
-    ) {
-      elemento.classList.add(
-        "phanyx-row-selected"
-      );
-    }
-  }
 }
 
 function obterLinhaNaBordaHorizontalPHANYX(
@@ -866,15 +751,28 @@ const RowResizePHANYX =
                     arrastando =
                       false;
 
-                    aplicarAlturaLinhasPHANYX(
-                      {
-                        state:
-                          view.state,
-                        view,
-                      },
-                      [posicaoLinha],
-                      `${alturaAtual}px`
-                    );
+                    const node =
+                      view.state.doc.nodeAt(
+                        posicaoLinha
+                      );
+
+                    if (
+                      node?.type
+                        ?.name ===
+                      "tableRow"
+                    ) {
+                      view.dispatch(
+                        view.state.tr.setNodeMarkup(
+                          posicaoLinha,
+                          undefined,
+                          {
+                            ...node.attrs,
+                            rowHeight:
+                              `${alturaAtual}px`,
+                          }
+                        )
+                      );
+                    }
 
                     limparDestaqueRedimensionamentoLinhaPHANYX(
                       view
@@ -1053,15 +951,6 @@ export default function EditorSecaoHistoricoPHANYX({
   const ultimasPosicoesLinhasSelecionadasRef =
     useRef<number[]>([]);
 
-  const [
-    linhaTabelaSelecionada,
-    setLinhaTabelaSelecionada,
-  ] = useState<{
-    indice: number;
-    total: number;
-    quantidade: number;
-  } | null>(null);
-
   const [formatacaoAtiva, setFormatacaoAtiva] = useState({
     negrito: false,
     italico: false,
@@ -1217,46 +1106,6 @@ export default function EditorSecaoHistoricoPHANYX({
     };
   }, [editor]);
 
-
-  useEffect(() => {
-    if (!editor) {
-      return;
-    }
-
-    const reaplicarDestaque =
-      () => {
-        const posicoes =
-          ultimasPosicoesLinhasSelecionadasRef.current;
-
-        if (
-          posicoes.length ===
-          0
-        ) {
-          return;
-        }
-
-        window.requestAnimationFrame(
-          () =>
-            aplicarDestaqueLinhasPersistentesPHANYX(
-              editor.view,
-              posicoes
-            )
-        );
-      };
-
-    editor.on(
-      "transaction",
-      reaplicarDestaque
-    );
-
-    return () => {
-      editor.off(
-        "transaction",
-        reaplicarDestaque
-      );
-    };
-  }, [editor]);
-
   if (!editor) return null;
 
   function classeBotao(ativo: boolean) {
@@ -1272,133 +1121,6 @@ export default function EditorSecaoHistoricoPHANYX({
     onChange(editor.getHTML());
   }
 
-
-  function selecionarLinhaTabelaPersistente(
-    event: any
-  ) {
-    const target =
-      event.target;
-
-    if (
-      !(target instanceof HTMLElement)
-    ) {
-      return;
-    }
-
-    const celula =
-      target.closest(
-        "td, th"
-      ) as HTMLTableCellElement | null;
-
-    if (
-      !celula ||
-      !editor.view.dom.contains(
-        celula
-      )
-    ) {
-      return;
-    }
-
-    const linha =
-      celula.closest(
-        "tr"
-      ) as HTMLTableRowElement | null;
-
-    const tabela =
-      celula.closest(
-        "table"
-      ) as HTMLTableElement | null;
-
-    if (
-      !linha ||
-      !tabela
-    ) {
-      return;
-    }
-
-    const posicaoLinha =
-      obterPosicaoDocumentoDaLinhaPHANYX(
-        editor.view,
-        linha
-      );
-
-    const posicaoTabela =
-      obterPosicaoDocumentoDaTabelaPHANYX(
-        editor.view,
-        tabela
-      );
-
-    if (
-      posicaoLinha === null ||
-      posicaoTabela === null
-    ) {
-      return;
-    }
-
-    const linhasDom =
-      Array.from(
-        tabela.rows
-      );
-
-    const indiceLinha =
-      linhasDom.indexOf(
-        linha
-      );
-
-    const mesmaTabela =
-      ultimaPosicaoTabelaRef.current ===
-      posicaoTabela;
-
-    const anteriores =
-      mesmaTabela
-        ? ultimasPosicoesLinhasSelecionadasRef.current
-        : [];
-
-    let selecionadas =
-      [posicaoLinha];
-
-    if (
-      event.shiftKey &&
-      mesmaTabela
-    ) {
-      selecionadas =
-        Array.from(
-          new Set([
-            ...anteriores,
-            posicaoLinha,
-          ])
-        );
-    }
-
-    ultimaPosicaoLinhaTabelaRef.current =
-      posicaoLinha;
-
-    ultimaPosicaoTabelaRef.current =
-      posicaoTabela;
-
-    ultimasPosicoesLinhasSelecionadasRef.current =
-      selecionadas;
-
-    setLinhaTabelaSelecionada({
-      indice:
-        Math.max(
-          0,
-          indiceLinha
-        ) + 1,
-      total:
-        linhasDom.length,
-      quantidade:
-        selecionadas.length,
-    });
-
-    window.requestAnimationFrame(
-      () =>
-        aplicarDestaqueLinhasPersistentesPHANYX(
-          editor.view,
-          selecionadas
-        )
-    );
-  }
 
   function memorizarContextoTabela() {
     const posicaoLinha =
@@ -1520,8 +1242,8 @@ export default function EditorSecaoHistoricoPHANYX({
       modo === "atual"
     ) {
       const posicao =
-        ultimaPosicaoLinhaTabelaRef.current ??
-        posicaoLinhaAtual;
+        posicaoLinhaAtual ??
+        ultimaPosicaoLinhaTabelaRef.current;
 
       posicoes =
         posicao === null
@@ -1532,27 +1254,21 @@ export default function EditorSecaoHistoricoPHANYX({
       modo ===
       "selecionadas"
     ) {
-      const persistentes =
-        ultimasPosicoesLinhasSelecionadasRef.current;
-
       const selecionadasAtuais =
         obterPosicoesLinhasSelecionadasPHANYX(
           editor.state
         );
 
       posicoes =
-        persistentes.length >
-        1
-          ? persistentes
-          : selecionadasAtuais.length >
-            0
-            ? selecionadasAtuais
-            : persistentes;
+        selecionadasAtuais.length >
+        0
+          ? selecionadasAtuais
+          : ultimasPosicoesLinhasSelecionadasRef.current;
     }
     else {
       const posicaoTabela =
-        ultimaPosicaoTabelaRef.current ??
-        posicaoTabelaAtual;
+        posicaoTabelaAtual ??
+        ultimaPosicaoTabelaRef.current;
 
       posicoes =
         obterPosicoesLinhasTabelaPorPosicaoPHANYX(
@@ -1592,13 +1308,7 @@ export default function EditorSecaoHistoricoPHANYX({
       sincronizar();
     }
 
-    window.requestAnimationFrame(
-      () =>
-        aplicarDestaqueLinhasPersistentesPHANYX(
-          editor.view,
-          ultimasPosicoesLinhasSelecionadasRef.current
-        )
-    );
+    editor.commands.focus();
   }
 
 
@@ -2193,36 +1903,6 @@ export default function EditorSecaoHistoricoPHANYX({
                     </label>
 
                     <div className="rounded-xl border border-slate-200 p-3 sm:col-span-2 dark:border-slate-800">
-                      <div className="mb-2">
-                        {linhaTabelaSelecionada ? (
-                          <div className="inline-flex rounded-lg border border-blue-300 bg-blue-50 px-2.5 py-1.5 text-[10px] font-black text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200">
-                            {linhaTabelaSelecionada.quantidade > 1
-                              ? t(
-                                  "toolbar.table.selectedRows",
-                                  {
-                                    count:
-                                      linhaTabelaSelecionada.quantidade,
-                                  }
-                                )
-                              : t(
-                                  "toolbar.table.selectedRow",
-                                  {
-                                    row:
-                                      linhaTabelaSelecionada.indice,
-                                    total:
-                                      linhaTabelaSelecionada.total,
-                                  }
-                                )}
-                          </div>
-                        ) : (
-                          <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                            {t(
-                              "toolbar.table.selectRowHelp"
-                            )}
-                          </div>
-                        )}
-                      </div>
-
                       <div className="flex flex-wrap items-end gap-2">
                         <label className="text-[11px] font-semibold">
                           <span className="mb-1 block">
@@ -2448,29 +2128,6 @@ export default function EditorSecaoHistoricoPHANYX({
         }
 
 
-        .phanyx-doc-table-row.phanyx-row-selected
-          > td,
-        .phanyx-doc-table-row.phanyx-row-selected
-          > th {
-          box-shadow:
-            inset 0 2px 0 #2563eb,
-            inset 0 -2px 0 #2563eb;
-        }
-
-        .phanyx-doc-table-row.phanyx-row-selected
-          > td:first-child,
-        .phanyx-doc-table-row.phanyx-row-selected
-          > th:first-child {
-          border-left-color: #2563eb !important;
-        }
-
-        .phanyx-doc-table-row.phanyx-row-selected
-          > td:last-child,
-        .phanyx-doc-table-row.phanyx-row-selected
-          > th:last-child {
-          border-right-color: #2563eb !important;
-        }
-
         .phanyx-doc-table-row.phanyx-row-resize-hover
           > td,
         .phanyx-doc-table-row.phanyx-row-resize-hover
@@ -2489,12 +2146,7 @@ export default function EditorSecaoHistoricoPHANYX({
         }
       `}</style>
 
-      <div
-        style={{ minHeight: `${minHeightPx}px` }}
-        onMouseDownCapture={
-          selecionarLinhaTabelaPersistente
-        }
-      >
+      <div style={{ minHeight: `${minHeightPx}px` }}>
         <EditorContent editor={editor} />
       </div>
     </div>

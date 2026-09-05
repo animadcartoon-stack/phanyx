@@ -1479,7 +1479,16 @@
       "noVehiclesAvailable": "No other vehicle is available for this segment.",
       "vehicleLinked": "Vehicle linked to the segment successfully.",
       "vehicleRequired": "Select a vehicle to link.",
-      "linkError": "The vehicle could not be linked to the segment."
+      "linkError": "The vehicle could not be linked to the segment.",
+      "removeVehicle": "Remove vehicle",
+      "removingVehicle": "Removing...",
+      "vehicleRemoved": "Vehicle removed from the segment successfully.",
+      "removeError": "The vehicle could not be removed from the segment.",
+      "cannotRemoveAfterOperation": "This vehicle can no longer be removed because operations have already started.",
+      "hasLinks": "Remove the drivers and passengers linked to this vehicle first.",
+      "removeQuestion": "Remove this vehicle from the segment?",
+      "confirmRemove": "Confirm removal",
+      "cancelRemove": "Cancel"
     },
     "driverAssignment": {
       "title": "Drivers",
@@ -5821,7 +5830,9 @@
     "reservationNotes": "Reservation notes",
     "reservationNotesPlaceholder": "Add a note if necessary.",
     "optionalReservationNote": "Optional field.",
-    "registerReservationAction": "Confirm reservation"
+    "registerReservationAction": "Confirm reservation",
+    "reservedForAnotherUser": "This copy is reserved for another user.",
+    "reservationExpired": "This reservation has expired."
   },
   "AdminCertificates": {
     "status": {
@@ -7304,7 +7315,26 @@
         "captureOrganizationHelp": "These links help PHANYX identify where prospects came from.",
         "activateNow": "Activate integration now",
         "activateHelp": "If left unchecked, the integration will be saved as inactive so you can finish configuring it later.",
-        "create": "Create integration"
+        "create": "Create integration",
+        "webhookEvents": {
+          "title": "Events sent by the webhook",
+          "help": "Choose which commercial events will be sent to the destination endpoint.",
+          "selectAll": "Select all",
+          "clearAll": "Clear all",
+          "items": {
+            "submissionProcessed": "Submission processed",
+            "submissionDuplicated": "Duplicate submission",
+            "submissionRejected": "Submission rejected",
+            "leadCreated": "Lead created",
+            "leadUpdated": "Lead updated",
+            "leadStageChanged": "Lead stage changed",
+            "leadLost": "Lead lost",
+            "leadConverted": "Lead converted",
+            "leadOwnerChanged": "Lead owner changed",
+            "taskCreated": "Task created",
+            "taskCompleted": "Task completed"
+          }
+        }
       }
     },
     "credentials": {
@@ -7485,7 +7515,8 @@
       "noAuditPermission": "You do not have permission to view the technical details of this event.",
       "loadEventDetail": "Could not load event details.",
       "cannotReprocess": "This submission cannot be processed again.",
-      "reprocess": "Could not retry processing."
+      "reprocess": "Could not retry processing.",
+      "atLeastOneWebhookEvent": "Select at least one event for the outgoing webhook."
     },
     "success": {
       "created": "Integration created successfully.",
@@ -11341,7 +11372,10 @@
         "applyAllExceptHeader": "All except header",
         "autoCurrentRow": "Auto — current row",
         "autoAllRows": "Auto — all rows",
-        "rowResizeHelp": "You can also drag the horizontal divider between two rows. To make rows the same height, enter a value and choose Apply to all rows; to keep the header different, choose All except header."
+        "rowResizeHelp": "You can also drag the horizontal divider between two rows. To make rows the same height, enter a value and choose Apply to all rows; to keep the header different, choose All except header.",
+        "selectedRow": "Row {row} of {total} selected",
+        "selectedRows": "{count} rows selected",
+        "selectRowHelp": "Click a cell to select its row. Use Shift + click to keep multiple rows selected."
       }
     }
   },
@@ -11410,7 +11444,10 @@
       "applyAllExceptHeader": "All except header",
       "autoCurrentRow": "Auto — current row",
       "autoAllRows": "Auto — all rows",
-      "rowResizeHelp": "You can also drag the horizontal divider between two rows. To make rows the same height, enter a value and choose Apply to all rows; to keep the header different, choose All except header."
+      "rowResizeHelp": "You can also drag the horizontal divider between two rows. To make rows the same height, enter a value and choose Apply to all rows; to keep the header different, choose All except header.",
+      "selectedRow": "Row {row} of {total} selected",
+      "selectedRows": "{count} rows selected",
+      "selectRowHelp": "Click a cell to select its row. Use Shift + click to keep multiple rows selected."
     }
   }
 }

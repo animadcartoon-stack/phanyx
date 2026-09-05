@@ -1479,7 +1479,16 @@
       "noVehiclesAvailable": "Nenhum outro veículo disponível para este trecho.",
       "vehicleLinked": "Veículo vinculado ao trecho com sucesso.",
       "vehicleRequired": "Selecione um veículo para vincular.",
-      "linkError": "Não foi possível vincular o veículo ao trecho."
+      "linkError": "Não foi possível vincular o veículo ao trecho.",
+      "removeVehicle": "Remover veículo",
+      "removingVehicle": "Removendo...",
+      "vehicleRemoved": "Veículo removido do trecho com sucesso.",
+      "removeError": "Não foi possível remover o veículo do trecho.",
+      "cannotRemoveAfterOperation": "Este veículo não pode mais ser removido porque a operação já foi iniciada.",
+      "hasLinks": "Remova primeiro os condutores e passageiros vinculados a este veículo.",
+      "removeQuestion": "Remover este veículo do trecho?",
+      "confirmRemove": "Confirmar remoção",
+      "cancelRemove": "Cancelar"
     },
     "driverAssignment": {
       "title": "Condutores",
@@ -5820,7 +5829,9 @@
     "reservationNotes": "Observação da reserva",
     "reservationNotesPlaceholder": "Adicione uma observação, se necessário.",
     "optionalReservationNote": "Campo opcional.",
-    "registerReservationAction": "Confirmar reserva"
+    "registerReservationAction": "Confirmar reserva",
+    "reservedForAnotherUser": "Este exemplar está reservado para outro usuário.",
+    "reservationExpired": "O prazo desta reserva já expirou."
   },
   "AdminCertificates": {
     "status": {
@@ -7303,7 +7314,26 @@
         "captureOrganizationHelp": "Estes vínculos ajudam o PHANYX a saber de onde os interessados chegaram.",
         "activateNow": "Ativar integração agora",
         "activateHelp": "Se deixar desmarcado, a integração será salva como inativa para você concluir a configuração depois.",
-        "create": "Criar integração"
+        "create": "Criar integração",
+        "webhookEvents": {
+          "title": "Eventos enviados pelo webhook",
+          "help": "Escolha quais eventos comerciais serão enviados para o endereço de destino.",
+          "selectAll": "Selecionar todos",
+          "clearAll": "Desmarcar todos",
+          "items": {
+            "submissionProcessed": "Submissão processada",
+            "submissionDuplicated": "Submissão duplicada",
+            "submissionRejected": "Submissão rejeitada",
+            "leadCreated": "Lead criado",
+            "leadUpdated": "Lead atualizado",
+            "leadStageChanged": "Etapa do lead alterada",
+            "leadLost": "Lead perdido",
+            "leadConverted": "Lead convertido",
+            "leadOwnerChanged": "Responsável do lead alterado",
+            "taskCreated": "Tarefa criada",
+            "taskCompleted": "Tarefa concluída"
+          }
+        }
       }
     },
     "credentials": {
@@ -7484,7 +7514,8 @@
       "noAuditPermission": "Você não possui permissão para consultar os detalhes técnicos deste evento.",
       "loadEventDetail": "Não foi possível carregar os detalhes do evento.",
       "cannotReprocess": "Esta submissão não pode ser processada novamente.",
-      "reprocess": "Não foi possível tentar o processamento novamente."
+      "reprocess": "Não foi possível tentar o processamento novamente.",
+      "atLeastOneWebhookEvent": "Selecione pelo menos um evento para o webhook de saída."
     },
     "success": {
       "created": "Integração criada com sucesso.",
@@ -11340,7 +11371,10 @@
         "applyAllExceptHeader": "Todas exceto cabeçalho",
         "autoCurrentRow": "Automática — linha atual",
         "autoAllRows": "Automática — todas",
-        "rowResizeHelp": "Você também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas do mesmo tamanho, informe a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho."
+        "rowResizeHelp": "Você também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas do mesmo tamanho, informe a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho.",
+        "selectedRow": "Linha {row} de {total} selecionada",
+        "selectedRows": "{count} linhas selecionadas",
+        "selectRowHelp": "Clique em uma célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas."
       }
     }
   },
@@ -11409,7 +11443,10 @@
       "applyAllExceptHeader": "Todas exceto cabeçalho",
       "autoCurrentRow": "Automática — linha atual",
       "autoAllRows": "Automática — todas",
-      "rowResizeHelp": "Você também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas do mesmo tamanho, informe a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho."
+      "rowResizeHelp": "Você também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas do mesmo tamanho, informe a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho.",
+      "selectedRow": "Linha {row} de {total} selecionada",
+      "selectedRows": "{count} linhas selecionadas",
+      "selectRowHelp": "Clique em uma célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas."
     }
   }
 }

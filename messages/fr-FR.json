@@ -1479,7 +1479,16 @@
       "noVehiclesAvailable": "Aucun autre véhicule n'est disponible pour ce trajet.",
       "vehicleLinked": "Véhicule associé au trajet avec succès.",
       "vehicleRequired": "Sélectionnez un véhicule à associer.",
-      "linkError": "Impossible d'associer le véhicule au trajet."
+      "linkError": "Impossible d'associer le véhicule au trajet.",
+      "removeVehicle": "Retirer le véhicule",
+      "removingVehicle": "Suppression...",
+      "vehicleRemoved": "Véhicule retiré du trajet avec succès.",
+      "removeError": "Impossible de retirer le véhicule du trajet.",
+      "cannotRemoveAfterOperation": "Ce véhicule ne peut plus être retiré car les opérations ont déjà commencé.",
+      "hasLinks": "Retirez d’abord les conducteurs et les passagers liés à ce véhicule.",
+      "removeQuestion": "Retirer ce véhicule du trajet ?",
+      "confirmRemove": "Confirmer le retrait",
+      "cancelRemove": "Annuler"
     },
     "driverAssignment": {
       "title": "Conducteurs",
@@ -5820,7 +5829,9 @@
     "reservationNotes": "Observation de la réservation",
     "reservationNotesPlaceholder": "Ajoutez une observation si nécessaire.",
     "optionalReservationNote": "Champ facultatif.",
-    "registerReservationAction": "Confirmer la réservation"
+    "registerReservationAction": "Confirmer la réservation",
+    "reservedForAnotherUser": "Cet exemplaire est réservé pour un autre utilisateur.",
+    "reservationExpired": "Cette réservation a expiré."
   },
   "AdminCertificates": {
     "status": {
@@ -7303,7 +7314,26 @@
         "captureOrganizationHelp": "Ces liens aident PHANYX à identifier l’origine des prospects.",
         "activateNow": "Activer l’intégration maintenant",
         "activateHelp": "Si cette option reste décochée, l’intégration sera enregistrée comme inactive afin que vous puissiez terminer la configuration plus tard.",
-        "create": "Créer l’intégration"
+        "create": "Créer l’intégration",
+        "webhookEvents": {
+          "title": "Événements envoyés par le webhook",
+          "help": "Choisissez les événements commerciaux qui seront envoyés au point de terminaison de destination.",
+          "selectAll": "Tout sélectionner",
+          "clearAll": "Tout désélectionner",
+          "items": {
+            "submissionProcessed": "Soumission traitée",
+            "submissionDuplicated": "Soumission en double",
+            "submissionRejected": "Soumission rejetée",
+            "leadCreated": "Lead créé",
+            "leadUpdated": "Lead mis à jour",
+            "leadStageChanged": "Étape du lead modifiée",
+            "leadLost": "Lead perdu",
+            "leadConverted": "Lead converti",
+            "leadOwnerChanged": "Responsable du lead modifié",
+            "taskCreated": "Tâche créée",
+            "taskCompleted": "Tâche terminée"
+          }
+        }
       }
     },
     "credentials": {
@@ -7484,7 +7514,8 @@
       "noAuditPermission": "Vous n’avez pas l’autorisation de consulter les détails techniques de cet événement.",
       "loadEventDetail": "Impossible de charger les détails de l’événement.",
       "cannotReprocess": "Cette soumission ne peut pas être traitée à nouveau.",
-      "reprocess": "Impossible de relancer le traitement."
+      "reprocess": "Impossible de relancer le traitement.",
+      "atLeastOneWebhookEvent": "Sélectionnez au moins un événement pour le webhook sortant."
     },
     "success": {
       "created": "Intégration créée avec succès.",
@@ -11340,7 +11371,10 @@
         "applyAllExceptHeader": "Toutes sauf l’en-tête",
         "autoCurrentRow": "Auto — ligne actuelle",
         "autoAllRows": "Auto — toutes les lignes",
-        "rowResizeHelp": "Vous pouvez aussi faire glisser directement le séparateur horizontal entre deux lignes. Pour obtenir la même hauteur partout, saisissez une valeur et choisissez Appliquer à toutes ; pour conserver un en-tête différent, choisissez Toutes sauf l’en-tête."
+        "rowResizeHelp": "Vous pouvez aussi faire glisser directement le séparateur horizontal entre deux lignes. Pour obtenir la même hauteur partout, saisissez une valeur et choisissez Appliquer à toutes ; pour conserver un en-tête différent, choisissez Toutes sauf l’en-tête.",
+        "selectedRow": "Ligne {row} sur {total} sélectionnée",
+        "selectedRows": "{count} lignes sélectionnées",
+        "selectRowHelp": "Cliquez sur une cellule pour sélectionner sa ligne. Utilisez Maj + clic pour conserver plusieurs lignes sélectionnées."
       }
     }
   },
@@ -11409,7 +11443,10 @@
       "applyAllExceptHeader": "Toutes sauf l’en-tête",
       "autoCurrentRow": "Auto — ligne actuelle",
       "autoAllRows": "Auto — toutes les lignes",
-      "rowResizeHelp": "Vous pouvez aussi faire glisser directement le séparateur horizontal entre deux lignes. Pour obtenir la même hauteur partout, saisissez une valeur et choisissez Appliquer à toutes ; pour conserver un en-tête différent, choisissez Toutes sauf l’en-tête."
+      "rowResizeHelp": "Vous pouvez aussi faire glisser directement le séparateur horizontal entre deux lignes. Pour obtenir la même hauteur partout, saisissez une valeur et choisissez Appliquer à toutes ; pour conserver un en-tête différent, choisissez Toutes sauf l’en-tête.",
+      "selectedRow": "Ligne {row} sur {total} sélectionnée",
+      "selectedRows": "{count} lignes sélectionnées",
+      "selectRowHelp": "Cliquez sur une cellule pour sélectionner sa ligne. Utilisez Maj + clic pour conserver plusieurs lignes sélectionnées."
     }
   }
 }

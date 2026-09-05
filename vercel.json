@@ -25,6 +25,10 @@
     {
       "path": "/api/internal/comercial/captacao/integracoes/processar-fila",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/internal/student-success/reanalisar-prazos",
+      "schedule": "0 * * * *"
     }
   ]
 }

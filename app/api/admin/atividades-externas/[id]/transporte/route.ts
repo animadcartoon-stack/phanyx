@@ -2482,6 +2482,157 @@ export async function POST(
             });
         }
 
+                if (
+            acao ===
+            "DESVINCULAR_VEICULO"
+        ) {
+            const trechoVeiculoId =
+                Number(
+                    corpo?.trechoVeiculoId
+                );
+
+            if (
+                !Number.isInteger(
+                    trechoVeiculoId
+                ) ||
+                trechoVeiculoId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "TRECHO_VEICULO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const trechoVeiculo =
+                await prisma
+                    .atividadeExternaTrechoVeiculo
+                    .findFirst({
+                        where: {
+                            id:
+                                trechoVeiculoId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrecho: {
+                                atividadeExternaId:
+                                    atividade.id,
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            veiculoId:
+                                true,
+
+                            status:
+                                true,
+
+                            _count: {
+                                select: {
+                                    condutores:
+                                        true,
+
+                                    passageiros:
+                                        true,
+                                },
+                            },
+                        },
+                    });
+
+            if (!trechoVeiculo) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "VEICULO_DO_TRECHO_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            if (
+                trechoVeiculo.status !==
+                "PLANEJADO"
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "VEICULO_NAO_PODE_SER_DESVINCULADO",
+
+                        statusAtual:
+                            trechoVeiculo.status,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            if (
+                trechoVeiculo._count
+                    .condutores > 0 ||
+                trechoVeiculo._count
+                    .passageiros > 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "VEICULO_POSSUI_VINCULOS",
+
+                        totalCondutores:
+                            trechoVeiculo
+                                ._count
+                                .condutores,
+
+                        totalPassageiros:
+                            trechoVeiculo
+                                ._count
+                                .passageiros,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            await prisma
+                .atividadeExternaTrechoVeiculo
+                .delete({
+                    where: {
+                        id:
+                            trechoVeiculo.id,
+                    },
+                });
+
+            return NextResponse.json({
+                ok: true,
+
+                acao:
+                    "DESVINCULAR_VEICULO",
+
+                trechoVeiculoId:
+                    trechoVeiculo.id,
+
+                veiculoId:
+                    trechoVeiculo
+                        .veiculoId,
+            });
+        }
 
         const modalTexto =
 

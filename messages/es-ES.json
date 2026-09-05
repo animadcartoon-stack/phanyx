@@ -1479,7 +1479,16 @@
       "noVehiclesAvailable": "No hay otro vehículo disponible para este trayecto.",
       "vehicleLinked": "Vehículo vinculado al trayecto correctamente.",
       "vehicleRequired": "Seleccione un vehículo para vincular.",
-      "linkError": "No se pudo vincular el vehículo al trayecto."
+      "linkError": "No se pudo vincular el vehículo al trayecto.",
+      "removeVehicle": "Eliminar vehículo",
+      "removingVehicle": "Eliminando...",
+      "vehicleRemoved": "Vehículo eliminado del trayecto correctamente.",
+      "removeError": "No se pudo eliminar el vehículo del trayecto.",
+      "cannotRemoveAfterOperation": "Este vehículo ya no se puede eliminar porque la operación ya ha comenzado.",
+      "hasLinks": "Elimina primero los conductores y pasajeros vinculados a este vehículo.",
+      "removeQuestion": "¿Eliminar este vehículo del trayecto?",
+      "confirmRemove": "Confirmar eliminación",
+      "cancelRemove": "Cancelar"
     },
     "driverAssignment": {
       "title": "Conductores",
@@ -5820,7 +5829,9 @@
     "reservationNotes": "Observación de la reserva",
     "reservationNotesPlaceholder": "Añada una observación si es necesario.",
     "optionalReservationNote": "Campo opcional.",
-    "registerReservationAction": "Confirmar reserva"
+    "registerReservationAction": "Confirmar reserva",
+    "reservedForAnotherUser": "Este ejemplar está reservado para otro usuario.",
+    "reservationExpired": "El plazo de esta reserva ya ha vencido."
   },
   "AdminCertificates": {
     "status": {
@@ -7303,7 +7314,26 @@
         "captureOrganizationHelp": "Estos vínculos ayudan a PHANYX a saber de dónde llegaron los interesados.",
         "activateNow": "Activar la integración ahora",
         "activateHelp": "Si lo dejas desmarcado, la integración se guardará como inactiva para que termines la configuración después.",
-        "create": "Crear integración"
+        "create": "Crear integración",
+        "webhookEvents": {
+          "title": "Eventos enviados por el webhook",
+          "help": "Elige qué eventos comerciales se enviarán al endpoint de destino.",
+          "selectAll": "Seleccionar todos",
+          "clearAll": "Desmarcar todos",
+          "items": {
+            "submissionProcessed": "Envío procesado",
+            "submissionDuplicated": "Envío duplicado",
+            "submissionRejected": "Envío rechazado",
+            "leadCreated": "Lead creado",
+            "leadUpdated": "Lead actualizado",
+            "leadStageChanged": "Etapa del lead modificada",
+            "leadLost": "Lead perdido",
+            "leadConverted": "Lead convertido",
+            "leadOwnerChanged": "Responsable del lead modificado",
+            "taskCreated": "Tarea creada",
+            "taskCompleted": "Tarea completada"
+          }
+        }
       }
     },
     "credentials": {
@@ -7484,7 +7514,8 @@
       "noAuditPermission": "No tienes permiso para consultar los detalles técnicos de este evento.",
       "loadEventDetail": "No se pudieron cargar los detalles del evento.",
       "cannotReprocess": "Este envío no puede procesarse de nuevo.",
-      "reprocess": "No se pudo volver a intentar el procesamiento."
+      "reprocess": "No se pudo volver a intentar el procesamiento.",
+      "atLeastOneWebhookEvent": "Selecciona al menos un evento para el webhook de salida."
     },
     "success": {
       "created": "Integración creada correctamente.",
@@ -11340,7 +11371,10 @@
         "applyAllExceptHeader": "Todas excepto encabezado",
         "autoCurrentRow": "Automática — fila actual",
         "autoAllRows": "Automática — todas",
-        "rowResizeHelp": "También puede arrastrar directamente el divisor horizontal entre dos filas. Para dejar todas con la misma altura, indique el valor y use Aplicar a todas; para mantener el encabezado diferente, use Todas excepto encabezado."
+        "rowResizeHelp": "También puede arrastrar directamente el divisor horizontal entre dos filas. Para dejar todas con la misma altura, indique el valor y use Aplicar a todas; para mantener el encabezado diferente, use Todas excepto encabezado.",
+        "selectedRow": "Fila {row} de {total} seleccionada",
+        "selectedRows": "{count} filas seleccionadas",
+        "selectRowHelp": "Haga clic en una celda para seleccionar su fila. Use Mayús + clic para mantener varias filas seleccionadas."
       }
     }
   },
@@ -11409,7 +11443,10 @@
       "applyAllExceptHeader": "Todas excepto encabezado",
       "autoCurrentRow": "Automática — fila actual",
       "autoAllRows": "Automática — todas",
-      "rowResizeHelp": "También puede arrastrar directamente el divisor horizontal entre dos filas. Para dejar todas con la misma altura, indique el valor y use Aplicar a todas; para mantener el encabezado diferente, use Todas excepto encabezado."
+      "rowResizeHelp": "También puede arrastrar directamente el divisor horizontal entre dos filas. Para dejar todas con la misma altura, indique el valor y use Aplicar a todas; para mantener el encabezado diferente, use Todas excepto encabezado.",
+      "selectedRow": "Fila {row} de {total} seleccionada",
+      "selectedRows": "{count} filas seleccionadas",
+      "selectRowHelp": "Haga clic en una celda para seleccionar su fila. Use Mayús + clic para mantener varias filas seleccionadas."
     }
   }
 }
