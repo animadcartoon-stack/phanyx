@@ -2730,7 +2730,7 @@ export default function EditorTemplatePHANYX({
               </button>
 
               {mostrarPainelTabela ? (
-                <div className="w-full rounded-2xl border border-slate-300 bg-white p-3 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+                <div className="phanyx-table-tools-panel w-full rounded-2xl border border-slate-300 bg-white p-3 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white">
                   {!editor.isActive("table") ? (
                     <div className="space-y-3">
                       <div className="text-sm font-black">
@@ -3292,6 +3292,51 @@ export default function EditorTemplatePHANYX({
         )}
 
       <style jsx global>{`
+        /* Contraste do painel da ferramenta Tabela */
+        .phanyx-table-tools-panel {
+          color: #0f172a !important;
+          background-color: #ffffff !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-table-tools-panel :where(div, span, label):not(button *) {
+          color: #0f172a !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-table-tools-panel p {
+          color: #475569 !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-table-tools-panel input[type="number"],
+        .phanyx-table-tools-panel select {
+          color: #0f172a !important;
+          background-color: #ffffff !important;
+          opacity: 1 !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+
+        .dark .phanyx-table-tools-panel {
+          color: #ffffff !important;
+          background-color: #020617 !important;
+        }
+
+        .dark .phanyx-table-tools-panel :where(div, span, label):not(button *) {
+          color: #ffffff !important;
+        }
+
+        .dark .phanyx-table-tools-panel p {
+          color: #cbd5e1 !important;
+        }
+
+        .dark .phanyx-table-tools-panel input[type="number"],
+        .dark .phanyx-table-tools-panel select {
+          color: #ffffff !important;
+          background-color: #0f172a !important;
+          -webkit-text-fill-color: #ffffff !important;
+        }
+
         .editor-template-phanyx table.phanyx-doc-table {
           border-collapse: collapse;
           table-layout: fixed;
