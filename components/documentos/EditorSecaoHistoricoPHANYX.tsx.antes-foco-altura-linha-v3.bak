@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Extension } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -197,89 +197,6 @@ function obterPosicaoLinhaAtualPHANYX(
   }
 
   return null;
-}
-
-
-function obterPosicaoTabelaAtualPHANYX(
-  state: any
-) {
-  const { $from } =
-    state.selection;
-
-  for (
-    let depth = $from.depth;
-    depth > 0;
-    depth -= 1
-  ) {
-    if (
-      $from.node(depth)?.type
-        ?.name === "table"
-    ) {
-      return $from.before(
-        depth
-      );
-    }
-  }
-
-  return null;
-}
-
-function obterPosicoesLinhasTabelaPorPosicaoPHANYX(
-  state: any,
-  tablePos: number | null,
-  excetoCabecalho = false
-) {
-  if (
-    tablePos === null
-  ) {
-    return [];
-  }
-
-  const tabela =
-    state.doc.nodeAt(
-      tablePos
-    );
-
-  if (
-    !tabela ||
-    tabela.type?.name !==
-      "table"
-  ) {
-    return [];
-  }
-
-  const posicoes:
-    number[] = [];
-
-  tabela.forEach(
-    (
-      linha: any,
-      offset: number
-    ) => {
-      const primeiraCelula =
-        linha.firstChild;
-
-      const ehCabecalho =
-        primeiraCelula?.type
-          ?.name ===
-        "tableHeader";
-
-      if (
-        excetoCabecalho &&
-        ehCabecalho
-      ) {
-        return;
-      }
-
-      posicoes.push(
-        tablePos +
-          1 +
-          offset
-      );
-    }
-  );
-
-  return posicoes;
 }
 
 function obterPosicoesLinhasSelecionadasPHANYX(
@@ -937,20 +854,6 @@ export default function EditorSecaoHistoricoPHANYX({
   const [colunasNovaTabela, setColunasNovaTabela] = useState(3);
   const [novaTabelaComCabecalho, setNovaTabelaComCabecalho] = useState(true);
   const [alturaCelulaTabela, setAlturaCelulaTabela] = useState(32);
-
-  const ultimaPosicaoLinhaTabelaRef =
-    useRef<number | null>(
-      null
-    );
-
-  const ultimaPosicaoTabelaRef =
-    useRef<number | null>(
-      null
-    );
-
-  const ultimasPosicoesLinhasSelecionadasRef =
-    useRef<number[]>([]);
-
   const [formatacaoAtiva, setFormatacaoAtiva] = useState({
     negrito: false,
     italico: false,
@@ -1121,46 +1024,6 @@ export default function EditorSecaoHistoricoPHANYX({
     onChange(editor.getHTML());
   }
 
-
-  function memorizarContextoTabela() {
-    const posicaoLinha =
-      obterPosicaoLinhaAtualPHANYX(
-        editor.state
-      );
-
-    const posicaoTabela =
-      obterPosicaoTabelaAtualPHANYX(
-        editor.state
-      );
-
-    if (
-      posicaoLinha !== null
-    ) {
-      ultimaPosicaoLinhaTabelaRef.current =
-        posicaoLinha;
-    }
-
-    if (
-      posicaoTabela !== null
-    ) {
-      ultimaPosicaoTabelaRef.current =
-        posicaoTabela;
-    }
-
-    const selecionadas =
-      obterPosicoesLinhasSelecionadasPHANYX(
-        editor.state
-      );
-
-    if (
-      selecionadas.length >
-      0
-    ) {
-      ultimasPosicoesLinhasSelecionadasRef.current =
-        selecionadas;
-    }
-  }
-
   function inserirNovaTabela() {
     const rows = Math.min(
       30,
@@ -1216,7 +1079,6 @@ export default function EditorSecaoHistoricoPHANYX({
   }
 
 
-
   function alterarAlturaLinhasTabela(
     modo:
       | "atual"
@@ -1225,15 +1087,7 @@ export default function EditorSecaoHistoricoPHANYX({
       | "semCabecalho",
     automatico = false
   ) {
-    const posicaoLinhaAtual =
-      obterPosicaoLinhaAtualPHANYX(
-        editor.state
-      );
-
-    const posicaoTabelaAtual =
-      obterPosicaoTabelaAtualPHANYX(
-        editor.state
-      );
+    editor.commands.focus();
 
     let posicoes:
       number[] = [];
@@ -1242,8 +1096,9 @@ export default function EditorSecaoHistoricoPHANYX({
       modo === "atual"
     ) {
       const posicao =
-        posicaoLinhaAtual ??
-        ultimaPosicaoLinhaTabelaRef.current;
+        obterPosicaoLinhaAtualPHANYX(
+          editor.state
+        );
 
       posicoes =
         posicao === null
@@ -1254,63 +1109,41 @@ export default function EditorSecaoHistoricoPHANYX({
       modo ===
       "selecionadas"
     ) {
-      const selecionadasAtuais =
+      posicoes =
         obterPosicoesLinhasSelecionadasPHANYX(
           editor.state
         );
-
-      posicoes =
-        selecionadasAtuais.length >
-        0
-          ? selecionadasAtuais
-          : ultimasPosicoesLinhasSelecionadasRef.current;
     }
     else {
-      const posicaoTabela =
-        posicaoTabelaAtual ??
-        ultimaPosicaoTabelaRef.current;
-
       posicoes =
-        obterPosicoesLinhasTabelaPorPosicaoPHANYX(
+        obterPosicoesLinhasTabelaAtualPHANYX(
           editor.state,
-          posicaoTabela,
           modo ===
             "semCabecalho"
         );
     }
 
-    const alturaNumero =
-      Math.max(
-        20,
-        Math.min(
-          500,
-          Number(
-            alturaCelulaTabela
-          ) || 32
-        )
-      );
-
     const valor =
       automatico
         ? null
-        : String(
-            alturaNumero
-          ) + "px";
+        : `${Math.max(
+            20,
+            Math.min(
+              500,
+              Number(
+                alturaCelulaTabela
+              ) || 32
+            )
+          )}px`;
 
-    const alterou =
-      aplicarAlturaLinhasPHANYX(
-        editor,
-        posicoes,
-        valor
-      );
+    aplicarAlturaLinhasPHANYX(
+      editor,
+      posicoes,
+      valor
+    );
 
-    if (alterou) {
-      sincronizar();
-    }
-
-    editor.commands.focus();
+    sincronizar();
   }
-
 
   return (
     <div className="phanyx-history-section-editor mt-3 overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
@@ -1919,7 +1752,6 @@ export default function EditorSecaoHistoricoPHANYX({
                               value={
                                 alturaCelulaTabela
                               }
-                              onMouseDown={memorizarContextoTabela}
                               onChange={(event) =>
                                 setAlturaCelulaTabela(
                                   Number(
