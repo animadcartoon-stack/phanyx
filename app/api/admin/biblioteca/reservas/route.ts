@@ -277,14 +277,29 @@ export async function POST(
     const agora =
       new Date();
 
-    const diasReserva =
-      Math.max(
-        0,
-        Number(
-          contexto.configuracao
-            .diasReservaPadrao ?? 0,
-        ),
-      );
+    const configuracaoReserva =
+  await prisma
+    .bibliotecaConfiguracao
+    .findUnique({
+      where: {
+        instituicaoId:
+          contexto.instituicaoId,
+      },
+
+      select: {
+        diasReservaPadrao:
+          true,
+      },
+    });
+
+const diasReserva =
+  Math.max(
+    0,
+    Number(
+      configuracaoReserva
+        ?.diasReservaPadrao ?? 0
+    )
+  );
 
     const resultado =
       await prisma.$transaction(
