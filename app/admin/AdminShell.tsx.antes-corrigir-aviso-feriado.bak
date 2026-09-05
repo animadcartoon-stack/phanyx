@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
@@ -2259,6 +2260,8 @@ export default function AdminShell({
               : "flex-1 w-full px-3 py-4 pb-24 lg:ml-72 lg:p-10"
           }
         >
+          {!esconderSidebar && <PhanyxFeriadoAviso />}
+
           {!esconderSidebar && (
             <div className="mb-4 flex justify-end">
               <div className="relative">

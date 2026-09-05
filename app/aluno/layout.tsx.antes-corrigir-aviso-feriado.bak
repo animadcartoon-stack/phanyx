@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import Header from "@/components/layout/Header";
 import AlunoSidebar from "@/components/layout/AlunoSidebar";
 import { AlunoProvider } from "@/app/context/AlunoContext";
+import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import { paginaVisivel } from "@/lib/portal-config";
@@ -536,6 +537,8 @@ export default async function AlunoLayout({
           </form>
 
           <main className="phanyx-aluno-conteudo flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
+            <PhanyxFeriadoAviso />
+
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
               <SeletorIdioma className="phanyx-aluno-seletor-idioma w-full sm:w-64" />
 

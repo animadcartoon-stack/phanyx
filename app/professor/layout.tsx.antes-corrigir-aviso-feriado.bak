@@ -8,6 +8,7 @@ import ProfessorSidebar from "@/components/layout/ProfessorSidebar";
 import { ProfessorProvider } from "@/app/context/ProfessorContext";
 import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
@@ -429,6 +430,8 @@ export default async function ProfessorLayout({
               </nav>
 
               <main className="w-full px-3 py-4 pb-32 lg:min-w-0 lg:flex-1 lg:p-8">
+                <PhanyxFeriadoAviso />
+
                 <div className="mb-4 flex flex-wrap items-center justify-end gap-3 lg:mb-6">
                   <div className="w-full sm:w-auto">
                     <SeletorIdioma />
