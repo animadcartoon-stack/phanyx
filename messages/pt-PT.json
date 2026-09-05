@@ -11306,7 +11306,7 @@
         "headerRow": "Primeira linha como cabeçalho",
         "insert": "Inserir tabela",
         "editTitle": "Ferramentas da tabela",
-        "resizeHelp": "Arraste as divisórias das colunas para ajustar a largura.",
+        "resizeHelp": "Arraste as divisórias verticais para ajustar colunas e as horizontais para ajustar a altura das linhas.",
         "addColumnBefore": "Coluna antes",
         "addColumnAfter": "Coluna depois",
         "deleteColumn": "Eliminar coluna",
@@ -11333,7 +11333,15 @@
         "alignBottom": "Inferior",
         "cellHeight": "Altura da célula",
         "apply": "Aplicar",
-        "alignmentHelp": "Para alinhar o texto dentro das células, utilize Esquerda, Centro, Direita ou Justificar na barra principal. Selecione várias células para aplicar fundo ou contorno em conjunto."
+        "alignmentHelp": "Para alinhar o texto dentro das células, utilize Esquerda, Centro, Direita ou Justificar na barra principal. Selecione várias células para aplicar fundo ou contorno em conjunto.",
+        "rowHeight": "Altura da linha",
+        "applyCurrentRow": "Aplicar à linha atual",
+        "applySelectedRows": "Igualar linhas selecionadas",
+        "applyAllRows": "Aplicar a todas",
+        "applyAllExceptHeader": "Todas exceto cabeçalho",
+        "autoCurrentRow": "Automática — linha atual",
+        "autoAllRows": "Automática — todas",
+        "rowResizeHelp": "Também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas com o mesmo tamanho, indique a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho."
       }
     }
   },
@@ -11367,7 +11375,7 @@
       "headerRow": "Primeira linha como cabeçalho",
       "insert": "Inserir tabela",
       "editTitle": "Ferramentas da tabela",
-      "resizeHelp": "Arraste as divisórias das colunas para ajustar a largura.",
+      "resizeHelp": "Arraste as divisórias verticais para ajustar colunas e as horizontais para ajustar a altura das linhas.",
       "addColumnBefore": "Coluna antes",
       "addColumnAfter": "Coluna depois",
       "deleteColumn": "Eliminar coluna",
@@ -11394,7 +11402,15 @@
       "alignBottom": "Inferior",
       "cellHeight": "Altura da célula",
       "apply": "Aplicar",
-      "alignmentHelp": "Para alinhar o texto dentro das células, utilize Esquerda, Centro, Direita ou Justificar na barra principal. Selecione várias células para aplicar fundo ou contorno em conjunto."
+      "alignmentHelp": "Para alinhar o texto dentro das células, utilize Esquerda, Centro, Direita ou Justificar na barra principal. Selecione várias células para aplicar fundo ou contorno em conjunto.",
+      "rowHeight": "Altura da linha",
+      "applyCurrentRow": "Aplicar à linha atual",
+      "applySelectedRows": "Igualar linhas selecionadas",
+      "applyAllRows": "Aplicar a todas",
+      "applyAllExceptHeader": "Todas exceto cabeçalho",
+      "autoCurrentRow": "Automática — linha atual",
+      "autoAllRows": "Automática — todas",
+      "rowResizeHelp": "Também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas com o mesmo tamanho, indique a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho."
     }
   }
 }

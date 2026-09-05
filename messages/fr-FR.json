@@ -11305,7 +11305,7 @@
         "headerRow": "Première ligne comme en-tête",
         "insert": "Insérer le tableau",
         "editTitle": "Outils du tableau",
-        "resizeHelp": "Faites glisser les séparateurs de colonnes pour ajuster leur largeur.",
+        "resizeHelp": "Faites glisser les séparateurs verticaux pour redimensionner les colonnes et les séparateurs horizontaux pour régler la hauteur des lignes.",
         "addColumnBefore": "Colonne avant",
         "addColumnAfter": "Colonne après",
         "deleteColumn": "Supprimer la colonne",
@@ -11332,7 +11332,15 @@
         "alignBottom": "Bas",
         "cellHeight": "Hauteur de cellule",
         "apply": "Appliquer",
-        "alignmentHelp": "Pour aligner le texte dans les cellules, utilisez Gauche, Centre, Droite ou Justifier dans la barre principale. Sélectionnez plusieurs cellules pour appliquer un fond ou des bordures ensemble."
+        "alignmentHelp": "Pour aligner le texte dans les cellules, utilisez Gauche, Centre, Droite ou Justifier dans la barre principale. Sélectionnez plusieurs cellules pour appliquer un fond ou des bordures ensemble.",
+        "rowHeight": "Hauteur de ligne",
+        "applyCurrentRow": "Appliquer à la ligne actuelle",
+        "applySelectedRows": "Uniformiser les lignes sélectionnées",
+        "applyAllRows": "Appliquer à toutes",
+        "applyAllExceptHeader": "Toutes sauf l’en-tête",
+        "autoCurrentRow": "Auto — ligne actuelle",
+        "autoAllRows": "Auto — toutes les lignes",
+        "rowResizeHelp": "Vous pouvez aussi faire glisser directement le séparateur horizontal entre deux lignes. Pour obtenir la même hauteur partout, saisissez une valeur et choisissez Appliquer à toutes ; pour conserver un en-tête différent, choisissez Toutes sauf l’en-tête."
       }
     }
   },
@@ -11366,7 +11374,7 @@
       "headerRow": "Première ligne comme en-tête",
       "insert": "Insérer le tableau",
       "editTitle": "Outils du tableau",
-      "resizeHelp": "Faites glisser les séparateurs de colonnes pour ajuster leur largeur.",
+      "resizeHelp": "Faites glisser les séparateurs verticaux pour redimensionner les colonnes et les séparateurs horizontaux pour régler la hauteur des lignes.",
       "addColumnBefore": "Colonne avant",
       "addColumnAfter": "Colonne après",
       "deleteColumn": "Supprimer la colonne",
@@ -11393,7 +11401,15 @@
       "alignBottom": "Bas",
       "cellHeight": "Hauteur de cellule",
       "apply": "Appliquer",
-      "alignmentHelp": "Pour aligner le texte dans les cellules, utilisez Gauche, Centre, Droite ou Justifier dans la barre principale. Sélectionnez plusieurs cellules pour appliquer un fond ou des bordures ensemble."
+      "alignmentHelp": "Pour aligner le texte dans les cellules, utilisez Gauche, Centre, Droite ou Justifier dans la barre principale. Sélectionnez plusieurs cellules pour appliquer un fond ou des bordures ensemble.",
+      "rowHeight": "Hauteur de ligne",
+      "applyCurrentRow": "Appliquer à la ligne actuelle",
+      "applySelectedRows": "Uniformiser les lignes sélectionnées",
+      "applyAllRows": "Appliquer à toutes",
+      "applyAllExceptHeader": "Toutes sauf l’en-tête",
+      "autoCurrentRow": "Auto — ligne actuelle",
+      "autoAllRows": "Auto — toutes les lignes",
+      "rowResizeHelp": "Vous pouvez aussi faire glisser directement le séparateur horizontal entre deux lignes. Pour obtenir la même hauteur partout, saisissez une valeur et choisissez Appliquer à toutes ; pour conserver un en-tête différent, choisissez Toutes sauf l’en-tête."
     }
   }
 }

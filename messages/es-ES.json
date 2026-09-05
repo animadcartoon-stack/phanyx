@@ -11305,7 +11305,7 @@
         "headerRow": "Primera fila como encabezado",
         "insert": "Insertar tabla",
         "editTitle": "Herramientas de tabla",
-        "resizeHelp": "Arrastre los divisores de las columnas para ajustar el ancho.",
+        "resizeHelp": "Arrastre los divisores verticales para ajustar columnas y los horizontales para ajustar la altura de las filas.",
         "addColumnBefore": "Columna antes",
         "addColumnAfter": "Columna después",
         "deleteColumn": "Eliminar columna",
@@ -11332,7 +11332,15 @@
         "alignBottom": "Inferior",
         "cellHeight": "Altura de celda",
         "apply": "Aplicar",
-        "alignmentHelp": "Para alinear el texto dentro de las celdas, use Izquierda, Centro, Derecha o Justificar en la barra principal. Seleccione varias celdas para aplicar fondo o bordes en conjunto."
+        "alignmentHelp": "Para alinear el texto dentro de las celdas, use Izquierda, Centro, Derecha o Justificar en la barra principal. Seleccione varias celdas para aplicar fondo o bordes en conjunto.",
+        "rowHeight": "Altura de la fila",
+        "applyCurrentRow": "Aplicar a la fila actual",
+        "applySelectedRows": "Igualar filas seleccionadas",
+        "applyAllRows": "Aplicar a todas",
+        "applyAllExceptHeader": "Todas excepto encabezado",
+        "autoCurrentRow": "Automática — fila actual",
+        "autoAllRows": "Automática — todas",
+        "rowResizeHelp": "También puede arrastrar directamente el divisor horizontal entre dos filas. Para dejar todas con la misma altura, indique el valor y use Aplicar a todas; para mantener el encabezado diferente, use Todas excepto encabezado."
       }
     }
   },
@@ -11366,7 +11374,7 @@
       "headerRow": "Primera fila como encabezado",
       "insert": "Insertar tabla",
       "editTitle": "Herramientas de tabla",
-      "resizeHelp": "Arrastre los divisores de las columnas para ajustar el ancho.",
+      "resizeHelp": "Arrastre los divisores verticales para ajustar columnas y los horizontales para ajustar la altura de las filas.",
       "addColumnBefore": "Columna antes",
       "addColumnAfter": "Columna después",
       "deleteColumn": "Eliminar columna",
@@ -11393,7 +11401,15 @@
       "alignBottom": "Inferior",
       "cellHeight": "Altura de celda",
       "apply": "Aplicar",
-      "alignmentHelp": "Para alinear el texto dentro de las celdas, use Izquierda, Centro, Derecha o Justificar en la barra principal. Seleccione varias celdas para aplicar fondo o bordes en conjunto."
+      "alignmentHelp": "Para alinear el texto dentro de las celdas, use Izquierda, Centro, Derecha o Justificar en la barra principal. Seleccione varias celdas para aplicar fondo o bordes en conjunto.",
+      "rowHeight": "Altura de la fila",
+      "applyCurrentRow": "Aplicar a la fila actual",
+      "applySelectedRows": "Igualar filas seleccionadas",
+      "applyAllRows": "Aplicar a todas",
+      "applyAllExceptHeader": "Todas excepto encabezado",
+      "autoCurrentRow": "Automática — fila actual",
+      "autoAllRows": "Automática — todas",
+      "rowResizeHelp": "También puede arrastrar directamente el divisor horizontal entre dos filas. Para dejar todas con la misma altura, indique el valor y use Aplicar a todas; para mantener el encabezado diferente, use Todas excepto encabezado."
     }
   }
 }

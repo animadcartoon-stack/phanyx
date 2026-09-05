@@ -11,7 +11,6 @@ import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
 import { useTranslations } from "next-intl";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
 
 const FONTES_WINDOWS = [
   "Arial","Arial Black","Bahnschrift","Calibri","Cambria","Candara",
@@ -137,585 +136,6 @@ const TablePHANYX = Table.configure({
       "border-collapse: collapse; table-layout: fixed; width: 100%; margin: 8px 0;",
   },
 });
-
-
-const TableRowPHANYX = TableRow.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-
-      rowHeight: {
-        default: null,
-
-        parseHTML: (
-          element: HTMLElement
-        ) =>
-          element.style.height ||
-          null,
-
-        renderHTML: (
-          attributes: Record<
-            string,
-            any
-          >
-        ) =>
-          attributes.rowHeight
-            ? {
-                style:
-                  `height: ${attributes.rowHeight}`,
-              }
-            : {},
-      },
-    };
-  },
-}).configure({
-  HTMLAttributes: {
-    class:
-      "phanyx-doc-table-row",
-  },
-});
-
-function obterPosicaoLinhaAtualPHANYX(
-  state: any
-) {
-  const { $from } =
-    state.selection;
-
-  for (
-    let depth = $from.depth;
-    depth > 0;
-    depth -= 1
-  ) {
-    if (
-      $from.node(depth)?.type
-        ?.name === "tableRow"
-    ) {
-      return $from.before(
-        depth
-      );
-    }
-  }
-
-  return null;
-}
-
-function obterPosicoesLinhasSelecionadasPHANYX(
-  state: any
-) {
-  const posicoes =
-    new Set<number>();
-
-  const adicionarAncestral = (
-    $pos: any
-  ) => {
-    for (
-      let depth = $pos.depth;
-      depth > 0;
-      depth -= 1
-    ) {
-      if (
-        $pos.node(depth)?.type
-          ?.name === "tableRow"
-      ) {
-        posicoes.add(
-          $pos.before(depth)
-        );
-        return;
-      }
-    }
-  };
-
-  adicionarAncestral(
-    state.selection.$from
-  );
-
-  adicionarAncestral(
-    state.selection.$to
-  );
-
-  state.doc.nodesBetween(
-    state.selection.from,
-    state.selection.to,
-    (
-      node: any,
-      pos: number
-    ) => {
-      if (
-        node.type?.name ===
-        "tableRow"
-      ) {
-        posicoes.add(pos);
-      }
-    }
-  );
-
-  return Array.from(
-    posicoes
-  ).sort(
-    (a, b) => a - b
-  );
-}
-
-function obterPosicoesLinhasTabelaAtualPHANYX(
-  state: any,
-  excetoCabecalho = false
-) {
-  const { $from } =
-    state.selection;
-
-  for (
-    let depth = $from.depth;
-    depth > 0;
-    depth -= 1
-  ) {
-    const node =
-      $from.node(depth);
-
-    if (
-      node?.type?.name !==
-      "table"
-    ) {
-      continue;
-    }
-
-    const posicaoTabela =
-      $from.before(depth);
-
-    const posicoes:
-      number[] = [];
-
-    node.forEach(
-      (
-        linha: any,
-        offset: number
-      ) => {
-        const primeiraCelula =
-          linha.firstChild;
-
-        const ehCabecalho =
-          primeiraCelula?.type
-            ?.name ===
-          "tableHeader";
-
-        if (
-          excetoCabecalho &&
-          ehCabecalho
-        ) {
-          return;
-        }
-
-        posicoes.push(
-          posicaoTabela +
-            1 +
-            offset
-        );
-      }
-    );
-
-    return posicoes;
-  }
-
-  return [];
-}
-
-function aplicarAlturaLinhasPHANYX(
-  editor: any,
-  posicoes: number[],
-  altura: string | null
-) {
-  if (
-    posicoes.length === 0
-  ) {
-    return false;
-  }
-
-  const {
-    state,
-    view,
-  } = editor;
-
-  let transaction =
-    state.tr;
-
-  let alterou = false;
-
-  for (
-    const posicao of
-    Array.from(
-      new Set(posicoes)
-    )
-  ) {
-    const node =
-      state.doc.nodeAt(
-        posicao
-      );
-
-    if (
-      !node ||
-      node.type?.name !==
-        "tableRow"
-    ) {
-      continue;
-    }
-
-    transaction =
-      transaction.setNodeMarkup(
-        posicao,
-        undefined,
-        {
-          ...node.attrs,
-          rowHeight:
-            altura,
-        }
-      );
-
-    alterou = true;
-  }
-
-  if (alterou) {
-    view.dispatch(
-      transaction
-    );
-  }
-
-  return alterou;
-}
-
-function obterLinhaNaBordaHorizontalPHANYX(
-  view: any,
-  event: MouseEvent
-) {
-  const target =
-    event.target;
-
-  if (
-    !(target instanceof HTMLElement)
-  ) {
-    return null;
-  }
-
-  if (
-    target.closest(
-      ".column-resize-handle"
-    )
-  ) {
-    return null;
-  }
-
-  const celula =
-    target.closest(
-      "td, th"
-    ) as HTMLTableCellElement | null;
-
-  if (
-    !celula ||
-    !view.dom.contains(
-      celula
-    )
-  ) {
-    return null;
-  }
-
-  const rect =
-    celula.getBoundingClientRect();
-
-  const pertoDaBordaInferior =
-    Math.abs(
-      event.clientY -
-        rect.bottom
-    ) <= 6;
-
-  const pertoDaBordaDireita =
-    Math.abs(
-      event.clientX -
-        rect.right
-    ) <= 9;
-
-  if (
-    !pertoDaBordaInferior ||
-    pertoDaBordaDireita
-  ) {
-    return null;
-  }
-
-  return celula.closest(
-    "tr"
-  ) as HTMLTableRowElement | null;
-}
-
-function obterPosicaoDocumentoDaLinhaPHANYX(
-  view: any,
-  linha: HTMLTableRowElement
-) {
-  const posicaoDentro =
-    view.posAtDOM(
-      linha,
-      0
-    );
-
-  const posicaoSegura =
-    Math.max(
-      0,
-      Math.min(
-        posicaoDentro,
-        view.state.doc
-          .content.size
-      )
-    );
-
-  const $pos =
-    view.state.doc.resolve(
-      posicaoSegura
-    );
-
-  for (
-    let depth = $pos.depth;
-    depth > 0;
-    depth -= 1
-  ) {
-    if (
-      $pos.node(depth)?.type
-        ?.name === "tableRow"
-    ) {
-      return $pos.before(
-        depth
-      );
-    }
-  }
-
-  return null;
-}
-
-function limparDestaqueRedimensionamentoLinhaPHANYX(
-  view: any
-) {
-  view.dom
-    .querySelectorAll(
-      ".phanyx-row-resize-hover"
-    )
-    .forEach(
-      (elemento: Element) =>
-        elemento.classList.remove(
-          "phanyx-row-resize-hover"
-        )
-    );
-
-  view.dom.classList.remove(
-    "phanyx-row-resize-cursor"
-  );
-}
-
-const RowResizePHANYX =
-  Extension.create({
-    name: "rowResizePHANYX",
-
-    addProseMirrorPlugins() {
-      let arrastando = false;
-
-      return [
-        new Plugin({
-          key:
-            new PluginKey(
-              "rowResizePHANYX"
-            ),
-
-          props: {
-            handleDOMEvents: {
-              mousemove: (
-                view,
-                rawEvent
-              ) => {
-                if (
-                  arrastando
-                ) {
-                  return false;
-                }
-
-                const event =
-                  rawEvent as MouseEvent;
-
-                limparDestaqueRedimensionamentoLinhaPHANYX(
-                  view
-                );
-
-                const linha =
-                  obterLinhaNaBordaHorizontalPHANYX(
-                    view,
-                    event
-                  );
-
-                if (!linha) {
-                  return false;
-                }
-
-                linha.classList.add(
-                  "phanyx-row-resize-hover"
-                );
-
-                view.dom.classList.add(
-                  "phanyx-row-resize-cursor"
-                );
-
-                return false;
-              },
-
-              mouseleave: (
-                view
-              ) => {
-                if (
-                  !arrastando
-                ) {
-                  limparDestaqueRedimensionamentoLinhaPHANYX(
-                    view
-                  );
-                }
-
-                return false;
-              },
-
-              mousedown: (
-                view,
-                rawEvent
-              ) => {
-                const event =
-                  rawEvent as MouseEvent;
-
-                const linha =
-                  obterLinhaNaBordaHorizontalPHANYX(
-                    view,
-                    event
-                  );
-
-                if (!linha) {
-                  return false;
-                }
-
-                const posicaoLinha =
-                  obterPosicaoDocumentoDaLinhaPHANYX(
-                    view,
-                    linha
-                  );
-
-                if (
-                  posicaoLinha ===
-                  null
-                ) {
-                  return false;
-                }
-
-                event.preventDefault();
-
-                arrastando =
-                  true;
-
-                const inicioY =
-                  event.clientY;
-
-                const alturaInicial =
-                  linha
-                    .getBoundingClientRect()
-                    .height;
-
-                let alturaAtual =
-                  Math.round(
-                    alturaInicial
-                  );
-
-                linha.classList.add(
-                  "phanyx-row-resize-hover"
-                );
-
-                view.dom.classList.add(
-                  "phanyx-row-resize-cursor"
-                );
-
-                const mover = (
-                  moveEvent:
-                    MouseEvent
-                ) => {
-                  const delta =
-                    moveEvent.clientY -
-                    inicioY;
-
-                  alturaAtual =
-                    Math.max(
-                      20,
-                      Math.min(
-                        500,
-                        Math.round(
-                          alturaInicial +
-                            delta
-                        )
-                      )
-                    );
-
-                  linha.style.height =
-                    `${alturaAtual}px`;
-                };
-
-                const finalizar =
-                  () => {
-                    window.removeEventListener(
-                      "mousemove",
-                      mover
-                    );
-
-                    window.removeEventListener(
-                      "mouseup",
-                      finalizar
-                    );
-
-                    arrastando =
-                      false;
-
-                    const node =
-                      view.state.doc.nodeAt(
-                        posicaoLinha
-                      );
-
-                    if (
-                      node?.type
-                        ?.name ===
-                      "tableRow"
-                    ) {
-                      view.dispatch(
-                        view.state.tr.setNodeMarkup(
-                          posicaoLinha,
-                          undefined,
-                          {
-                            ...node.attrs,
-                            rowHeight:
-                              `${alturaAtual}px`,
-                          }
-                        )
-                      );
-                    }
-
-                    limparDestaqueRedimensionamentoLinhaPHANYX(
-                      view
-                    );
-
-                    view.focus();
-                  };
-
-                window.addEventListener(
-                  "mousemove",
-                  mover
-                );
-
-                window.addEventListener(
-                  "mouseup",
-                  finalizar
-                );
-
-                return true;
-              },
-            },
-          },
-        }),
-      ];
-    },
-  });
 
 const TableCellPHANYX = TableCell.extend({
   addAttributes() {
@@ -878,8 +298,7 @@ export default function EditorSecaoHistoricoPHANYX({
       Color,
       BackgroundColorPHANYX,
       TablePHANYX,
-      TableRowPHANYX,
-      RowResizePHANYX,
+      TableRow,
       TableHeaderPHANYX,
       TableCellPHANYX,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -1074,73 +493,6 @@ export default function EditorSecaoHistoricoPHANYX({
         valor
       )
       .run();
-
-    sincronizar();
-  }
-
-
-  function alterarAlturaLinhasTabela(
-    modo:
-      | "atual"
-      | "selecionadas"
-      | "todas"
-      | "semCabecalho",
-    automatico = false
-  ) {
-    editor.commands.focus();
-
-    let posicoes:
-      number[] = [];
-
-    if (
-      modo === "atual"
-    ) {
-      const posicao =
-        obterPosicaoLinhaAtualPHANYX(
-          editor.state
-        );
-
-      posicoes =
-        posicao === null
-          ? []
-          : [posicao];
-    }
-    else if (
-      modo ===
-      "selecionadas"
-    ) {
-      posicoes =
-        obterPosicoesLinhasSelecionadasPHANYX(
-          editor.state
-        );
-    }
-    else {
-      posicoes =
-        obterPosicoesLinhasTabelaAtualPHANYX(
-          editor.state,
-          modo ===
-            "semCabecalho"
-        );
-    }
-
-    const valor =
-      automatico
-        ? null
-        : `${Math.max(
-            20,
-            Math.min(
-              500,
-              Number(
-                alturaCelulaTabela
-              ) || 32
-            )
-          )}px`;
-
-    aplicarAlturaLinhasPHANYX(
-      editor,
-      posicoes,
-      valor
-    );
 
     sincronizar();
   }
@@ -1735,132 +1087,50 @@ export default function EditorSecaoHistoricoPHANYX({
                       </select>
                     </label>
 
-                    <div className="rounded-xl border border-slate-200 p-3 sm:col-span-2 dark:border-slate-800">
-                      <div className="flex flex-wrap items-end gap-2">
-                        <label className="text-[11px] font-semibold">
-                          <span className="mb-1 block">
-                            {t(
-                              "toolbar.table.rowHeight"
-                            )}
-                          </span>
+                    <label className="text-[11px] font-semibold">
+                      <span className="mb-1 block">
+                        {t(
+                          "toolbar.table.cellHeight"
+                        )}
+                      </span>
 
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min={20}
-                              max={500}
-                              value={
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={20}
+                          max={240}
+                          value={
+                            alturaCelulaTabela
+                          }
+                          onChange={(event) =>
+                            setAlturaCelulaTabela(
+                              Number(
+                                event.target.value
+                              )
+                            )
+                          }
+                          className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-2 text-[11px] text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            aplicarAtributoCelulaTabela(
+                              "cellHeight",
+                              `${Math.max(
+                                20,
                                 alturaCelulaTabela
-                              }
-                              onChange={(event) =>
-                                setAlturaCelulaTabela(
-                                  Number(
-                                    event.target.value
-                                  )
-                                )
-                              }
-                              className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-2 text-[11px] text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                            />
-
-                            <span className="text-[10px] font-bold">
-                              px
-                            </span>
-                          </div>
-                        </label>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alterarAlturaLinhasTabela(
-                              "atual"
+                              )}px`
                             )
                           }
-                          className={classeBotao(false)}
+                          className="rounded-lg bg-slate-800 px-2.5 py-2 text-[10px] font-bold text-white hover:bg-slate-700"
                         >
                           {t(
-                            "toolbar.table.applyCurrentRow"
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alterarAlturaLinhasTabela(
-                              "selecionadas"
-                            )
-                          }
-                          className={classeBotao(false)}
-                        >
-                          {t(
-                            "toolbar.table.applySelectedRows"
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alterarAlturaLinhasTabela(
-                              "todas"
-                            )
-                          }
-                          className={classeBotao(false)}
-                        >
-                          {t(
-                            "toolbar.table.applyAllRows"
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alterarAlturaLinhasTabela(
-                              "semCabecalho"
-                            )
-                          }
-                          className={classeBotao(false)}
-                        >
-                          {t(
-                            "toolbar.table.applyAllExceptHeader"
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alterarAlturaLinhasTabela(
-                              "atual",
-                              true
-                            )
-                          }
-                          className={classeBotao(false)}
-                        >
-                          {t(
-                            "toolbar.table.autoCurrentRow"
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            alterarAlturaLinhasTabela(
-                              "todas",
-                              true
-                            )
-                          }
-                          className={classeBotao(false)}
-                        >
-                          {t(
-                            "toolbar.table.autoAllRows"
+                            "toolbar.table.apply"
                           )}
                         </button>
                       </div>
-
-                      <p className="mt-2 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
-                        {t(
-                          "toolbar.table.rowResizeHelp"
-                        )}
-                      </p>
-                    </div>
+                    </label>
                   </div>
 
                   <p className="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
@@ -1957,20 +1227,6 @@ export default function EditorSecaoHistoricoPHANYX({
           z-index: 20;
           background: #3b82f6;
           pointer-events: none;
-        }
-
-
-        .phanyx-doc-table-row.phanyx-row-resize-hover
-          > td,
-        .phanyx-doc-table-row.phanyx-row-resize-hover
-          > th {
-          box-shadow:
-            inset 0 -3px 0 #3b82f6;
-        }
-
-        .ProseMirror.phanyx-row-resize-cursor,
-        .ProseMirror.phanyx-row-resize-cursor * {
-          cursor: row-resize !important;
         }
 
         .resize-cursor {

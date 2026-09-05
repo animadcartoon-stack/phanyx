@@ -11306,7 +11306,7 @@
         "headerRow": "Use first row as header",
         "insert": "Insert table",
         "editTitle": "Table tools",
-        "resizeHelp": "Drag column dividers to adjust column widths.",
+        "resizeHelp": "Drag vertical dividers to resize columns and horizontal dividers to adjust row height.",
         "addColumnBefore": "Column before",
         "addColumnAfter": "Column after",
         "deleteColumn": "Delete column",
@@ -11333,7 +11333,15 @@
         "alignBottom": "Bottom",
         "cellHeight": "Cell height",
         "apply": "Apply",
-        "alignmentHelp": "Use Left, Center, Right, or Justify in the main toolbar to align text inside cells. Select multiple cells to apply fill or borders together."
+        "alignmentHelp": "Use Left, Center, Right, or Justify in the main toolbar to align text inside cells. Select multiple cells to apply fill or borders together.",
+        "rowHeight": "Row height",
+        "applyCurrentRow": "Apply to current row",
+        "applySelectedRows": "Equalize selected rows",
+        "applyAllRows": "Apply to all rows",
+        "applyAllExceptHeader": "All except header",
+        "autoCurrentRow": "Auto — current row",
+        "autoAllRows": "Auto — all rows",
+        "rowResizeHelp": "You can also drag the horizontal divider between two rows. To make rows the same height, enter a value and choose Apply to all rows; to keep the header different, choose All except header."
       }
     }
   },
@@ -11367,7 +11375,7 @@
       "headerRow": "Use first row as header",
       "insert": "Insert table",
       "editTitle": "Table tools",
-      "resizeHelp": "Drag column dividers to adjust column widths.",
+      "resizeHelp": "Drag vertical dividers to resize columns and horizontal dividers to adjust row height.",
       "addColumnBefore": "Column before",
       "addColumnAfter": "Column after",
       "deleteColumn": "Delete column",
@@ -11394,7 +11402,15 @@
       "alignBottom": "Bottom",
       "cellHeight": "Cell height",
       "apply": "Apply",
-      "alignmentHelp": "Use Left, Center, Right, or Justify in the main toolbar to align text inside cells. Select multiple cells to apply fill or borders together."
+      "alignmentHelp": "Use Left, Center, Right, or Justify in the main toolbar to align text inside cells. Select multiple cells to apply fill or borders together.",
+      "rowHeight": "Row height",
+      "applyCurrentRow": "Apply to current row",
+      "applySelectedRows": "Equalize selected rows",
+      "applyAllRows": "Apply to all rows",
+      "applyAllExceptHeader": "All except header",
+      "autoCurrentRow": "Auto — current row",
+      "autoAllRows": "Auto — all rows",
+      "rowResizeHelp": "You can also drag the horizontal divider between two rows. To make rows the same height, enter a value and choose Apply to all rows; to keep the header different, choose All except header."
     }
   }
 }
