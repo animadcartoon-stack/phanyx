@@ -28,7 +28,7 @@
     },
     {
       "path": "/api/internal/student-success/reanalisar-prazos",
-      "schedule": "0 * * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
