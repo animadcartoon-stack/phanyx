@@ -1,5 +1,7 @@
 "use client";
 
+/* PHANYX: força deploy da seleção persistente de linhas da tabela */
+
 import {
   useEffect,
   useRef,
