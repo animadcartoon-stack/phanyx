@@ -1291,6 +1291,30 @@ function cssCompartilhado(
       vertical-align: top;
     }
 
+    /*
+     * Tabelas manuais criadas pelo editor PHANYX
+     * preservam a geometria salva no template.
+     */
+    .phanyx-conteudo
+      table:has(> tbody > tr.phanyx-doc-table-row) {
+      width: auto;
+      max-width: 100%;
+      table-layout: auto;
+    }
+
+    /*
+     * Tabelas manuais criadas pelo editor PHANYX
+     * devem preservar a geometria salva no template.
+     * A regra gen?rica acima continua v?lida para
+     * tabelas legadas/oficiais.
+     */
+    .phanyx-conteudo
+      table:has(> tbody > tr.phanyx-doc-table-row) {
+      width: auto;
+      max-width: 100%;
+      table-layout: auto;
+    }
+
     .phanyx-conteudo ul,
     .phanyx-conteudo ol {
       margin-top: 0;
