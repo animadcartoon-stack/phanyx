@@ -603,34 +603,123 @@ function aplicarDestaqueLinhasPersistentesPHANYX(
   view: any,
   posicoes: number[]
 ) {
-  view.dom
-    .querySelectorAll(
-      ".phanyx-row-selected"
-    )
-    .forEach(
-      (elemento: Element) =>
-        elemento.classList.remove(
-          "phanyx-row-selected"
-        )
-    );
+  const reaplicar = () => {
+    if (
+      !view?.dom ||
+      !view?.state
+    ) {
+      return;
+    }
 
-  for (
-    const posicao of posicoes
-  ) {
-    const elemento =
-      view.nodeDOM(
-        posicao
+    view.dom
+      .querySelectorAll(
+        ".phanyx-row-selected"
+      )
+      .forEach(
+        (elemento: Element) =>
+          elemento.classList.remove(
+            "phanyx-row-selected"
+          )
       );
 
     if (
-      elemento instanceof
-      HTMLElement
+      posicoes.length === 0
     ) {
-      elemento.classList.add(
-        "phanyx-row-selected"
+      return;
+    }
+
+    const selecionadas =
+      new Set(
+        posicoes
+      );
+
+    const tabelas =
+      Array.from(
+        view.dom.querySelectorAll(
+          "table.phanyx-doc-table"
+        )
+      ) as HTMLTableElement[];
+
+    for (
+      const tabela of tabelas
+    ) {
+      const posicaoTabela =
+        obterPosicaoDocumentoDaTabelaPHANYX(
+          view,
+          tabela
+        );
+
+      if (
+        posicaoTabela === null
+      ) {
+        continue;
+      }
+
+      const posicoesDaTabela =
+        obterPosicoesLinhasTabelaPorPosicaoPHANYX(
+          view.state,
+          posicaoTabela,
+          false
+        );
+
+      const linhasDom =
+        Array.from(
+          tabela.rows
+        );
+
+      for (
+        let indice = 0;
+        indice <
+        posicoesDaTabela.length;
+        indice += 1
+      ) {
+        if (
+          selecionadas.has(
+            posicoesDaTabela[
+              indice
+            ]
+          ) &&
+          linhasDom[indice]
+        ) {
+          linhasDom[
+            indice
+          ].classList.add(
+            "phanyx-row-selected"
+          );
+        }
+      }
+    }
+  };
+
+  /*
+   * O TipTap pode reconstruir o <tr> depois de uma
+   * transação e o componente pai também pode renderizar
+   * novamente após onChange(). Reaplicamos o destaque
+   * usando a posição real das linhas na tabela, e não
+   * view.nodeDOM(posicao), em alguns ciclos curtos.
+   */
+  reaplicar();
+
+  window.requestAnimationFrame(
+    () => {
+      reaplicar();
+
+      window.setTimeout(
+        reaplicar,
+        0
+      );
+
+      window.setTimeout(
+        reaplicar,
+        60
+      );
+
+      window.setTimeout(
+        reaplicar,
+        160
       );
     }
-  }
+  );
 }
 
 function obterLinhaNaBordaHorizontalPHANYX(

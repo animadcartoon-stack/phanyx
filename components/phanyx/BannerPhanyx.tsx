@@ -39,8 +39,10 @@ type Props = {
 export default function BannerPhanyx({
   aviso,
   variant = "dashboard",
+
 }: Props) {
   const tCommon = useTranslations("Common");
+  
   const cores: Record<BannerPhanyxCor, string> = {
     rosa:
       "border-pink-300 bg-pink-50 text-pink-950 dark:border-pink-400/40 dark:bg-pink-500/10 dark:text-pink-100",
