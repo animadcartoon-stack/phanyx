@@ -210,7 +210,9 @@
     "campusManagementDisabledDescription": "Este ID institucional não tem autorização para criar ou gerir polos. Esta permissão é controlada pela instituição contratante da rede.",
     "backToDashboard": "Voltar ao painel",
     "studentSuccess": "Student Success",
-    "validationAudit": "Auditoria de validações"
+    "validationAudit": "Auditoria de validações",
+    "internationalMobility": "Mobilidade Internacional",
+    "partnerInstitutions": "Instituições parceiras"
   },
   "MonthlyCampaign": {
     "origin": "Campanha mensal",
@@ -11448,6 +11450,169 @@
       "selectedRow": "Linha {row} de {total} selecionada",
       "selectedRows": "{count} linhas selecionadas",
       "selectRowHelp": "Clique numa célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas."
+    }
+  },
+  "AdminMobilityDashboard": {
+    "eyebrow": "Mobilidade académica",
+    "title": "Mobilidade Internacional",
+    "subtitle": "Gira instituições parceiras, protocolos, programas, oportunidades e candidaturas de mobilidade académica num único local.",
+    "loading": "A carregar o painel de mobilidade...",
+    "metrics": {
+      "partners": "Instituições parceiras",
+      "agreements": "Protocolos ativos",
+      "programs": "Programas ativos",
+      "openOffers": "Candidaturas abertas",
+      "applications": "Candidaturas",
+      "pendingApplications": "Candidaturas pendentes",
+      "approvedApplications": "Candidaturas aprovadas",
+      "pendingDocuments": "Documentos pendentes"
+    },
+    "sections": {
+      "indicators": "Indicadores de Mobilidade Internacional",
+      "deadlines": "Próximos prazos",
+      "deadlinesDescription": "Oportunidades com candidaturas programadas ou abertas.",
+      "recentApplications": "Candidaturas recentes",
+      "recentApplicationsDescription": "Últimas candidaturas registadas no setor.",
+      "quickActions": "Áreas da Mobilidade",
+      "quickActionsDescription": "Os próximos módulos serão ativados à medida que forem implementados."
+    },
+    "empty": {
+      "deadlines": "Não existem prazos de candidatura próximos.",
+      "applications": "Ainda não existem candidaturas registadas."
+    },
+    "deadline": {
+      "until": "Candidaturas até {date}"
+    },
+    "actions": {
+      "refresh": "Atualizar",
+      "retry": "Tentar novamente",
+      "partners": "Instituições Parceiras",
+      "agreements": "Protocolos",
+      "programs": "Programas",
+      "offers": "Ofertas / Editais",
+      "applications": "Candidaturas",
+      "comingSoon": "Em implementação"
+    },
+    "statuses": {
+      "draft": "Rascunho",
+      "submitted": "Enviada",
+      "underReview": "Em análise",
+      "documentsPending": "Documentação pendente",
+      "eligible": "Elegível",
+      "ineligible": "Não elegível",
+      "selection": "Em seleção",
+      "ranked": "Classificada",
+      "waitingList": "Lista de espera",
+      "approved": "Aprovada",
+      "rejected": "Reprovada",
+      "withdrawn": "Desistência",
+      "cancelled": "Cancelada"
+    },
+    "errors": {
+      "title": "Não foi possível carregar a Mobilidade Internacional",
+      "load": "O painel de Mobilidade Internacional não pôde ser carregado.",
+      "unauthorized": "A sua sessão não está autenticada.",
+      "forbidden": "Não possui permissão para aceder a este setor."
+    }
+  },
+  "AdminMobilityPartners": {
+    "back": "Mobilidade Internacional",
+    "title": "Instituições Parceiras",
+    "subtitle": "Registe e gira universidades, escolas e organizações parceiras dos programas de mobilidade académica.",
+    "summary": {
+      "total": "Total de instituições",
+      "active": "Instituições ativas",
+      "inactive": "Instituições inativas"
+    },
+    "filters": {
+      "search": "Pesquisar por nome, sigla, código, cidade ou e-mail...",
+      "allCountries": "Todos os países",
+      "all": "Todas",
+      "active": "Ativas",
+      "inactive": "Inativas"
+    },
+    "table": {
+      "institution": "Instituição",
+      "location": "Localização",
+      "contact": "Contacto internacional",
+      "agreements": "Protocolos",
+      "status": "Estado",
+      "actions": "Ações"
+    },
+    "status": {
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "actions": {
+      "new": "Nova instituição parceira",
+      "refresh": "Atualizar",
+      "edit": "Editar",
+      "activate": "Ativar",
+      "deactivate": "Desativar",
+      "website": "Site",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "A guardar..."
+    },
+    "sections": {
+      "institution": "Dados institucionais",
+      "contact": "Contacto internacional",
+      "management": "Gestão"
+    },
+    "fields": {
+      "name": "Nome da instituição",
+      "acronym": "Sigla",
+      "code": "Código interno",
+      "country": "País",
+      "state": "Distrito / Região / Província",
+      "city": "Cidade",
+      "postalCode": "Código postal",
+      "address": "Morada",
+      "website": "Site",
+      "generalEmail": "E-mail geral",
+      "generalPhone": "Telefone geral",
+      "contactName": "Nome do responsável",
+      "contactRole": "Cargo / Função",
+      "contactEmail": "E-mail do responsável",
+      "contactPhone": "Telefone do responsável",
+      "notes": "Observações",
+      "active": "Instituição ativa",
+      "activeDescription": "As instituições inativas permanecem no histórico, mas não devem ser usadas em novos programas."
+    },
+    "modal": {
+      "newTitle": "Nova instituição parceira",
+      "editTitle": "Editar instituição parceira",
+      "description": "Registe os dados institucionais e o principal contacto internacional."
+    },
+    "mobile": {
+      "agreements": "{count, plural, =0 {Nenhum protocolo} =1 {1 protocolo} other {# protocolos}}"
+    },
+    "empty": {
+      "title": "Nenhuma instituição encontrada",
+      "description": "Registe a primeira instituição parceira ou ajuste os filtros."
+    },
+    "messages": {
+      "created": "Instituição parceira registada com sucesso.",
+      "updated": "Instituição parceira atualizada com sucesso.",
+      "activated": "Instituição parceira ativada.",
+      "deactivated": "Instituição parceira desativada."
+    },
+    "errors": {
+      "load": "Não foi possível carregar as instituições parceiras.",
+      "save": "Não foi possível guardar a instituição parceira.",
+      "status": "Não foi possível alterar o estado.",
+      "generic": "Ocorreu um erro ao processar o pedido.",
+      "unauthorized": "A sua sessão não está autenticada.",
+      "forbidden": "Não possui permissão para aceder a esta área.",
+      "forbiddenManage": "Não possui permissão para gerir instituições parceiras.",
+      "nameRequired": "Indique o nome da instituição.",
+      "invalidCountry": "Selecione um país válido.",
+      "invalidEmail": "Indique um endereço de e-mail válido.",
+      "invalidWebsite": "Indique um endereço de site válido.",
+      "duplicate": "Já existe uma instituição parceira com este nome neste país.",
+      "notFound": "Instituição parceira não encontrada.",
+      "invalidId": "Identificação inválida.",
+      "invalidStatus": "Estado inválido."
     }
   }
 }

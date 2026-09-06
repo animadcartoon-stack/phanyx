@@ -210,7 +210,9 @@
     "campusManagementDisabledDescription": "This institution ID is not authorized to create or manage campuses or units. This permission is controlled by the network's contracting institution.",
     "backToDashboard": "Back to dashboard",
     "studentSuccess": "Student Success",
-    "validationAudit": "Validation audit"
+    "validationAudit": "Validation audit",
+    "internationalMobility": "International Mobility",
+    "partnerInstitutions": "Partner institutions"
   },
   "MonthlyCampaign": {
     "origin": "Monthly Awareness Campaign",
@@ -11448,6 +11450,169 @@
       "selectedRow": "Row {row} of {total} selected",
       "selectedRows": "{count} rows selected",
       "selectRowHelp": "Click a cell to select its row. Use Shift + click to keep multiple rows selected."
+    }
+  },
+  "AdminMobilityDashboard": {
+    "eyebrow": "Academic mobility",
+    "title": "International Mobility",
+    "subtitle": "Manage partner institutions, agreements, programs, opportunities, and academic mobility applications in one place.",
+    "loading": "Loading mobility dashboard...",
+    "metrics": {
+      "partners": "Partner institutions",
+      "agreements": "Active agreements",
+      "programs": "Active programs",
+      "openOffers": "Open applications",
+      "applications": "Applications",
+      "pendingApplications": "Pending applications",
+      "approvedApplications": "Approved applications",
+      "pendingDocuments": "Pending documents"
+    },
+    "sections": {
+      "indicators": "International Mobility indicators",
+      "deadlines": "Upcoming deadlines",
+      "deadlinesDescription": "Opportunities with scheduled or currently open application periods.",
+      "recentApplications": "Recent applications",
+      "recentApplicationsDescription": "Latest applications registered in the mobility sector.",
+      "quickActions": "Mobility areas",
+      "quickActionsDescription": "Additional modules will become available as they are implemented."
+    },
+    "empty": {
+      "deadlines": "There are no upcoming application deadlines.",
+      "applications": "No applications have been registered yet."
+    },
+    "deadline": {
+      "until": "Applications close {date}"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "retry": "Try again",
+      "partners": "Partner Institutions",
+      "agreements": "Agreements",
+      "programs": "Programs",
+      "offers": "Opportunities / Calls",
+      "applications": "Applications",
+      "comingSoon": "Being implemented"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "underReview": "Under review",
+      "documentsPending": "Documents pending",
+      "eligible": "Eligible",
+      "ineligible": "Ineligible",
+      "selection": "In selection",
+      "ranked": "Ranked",
+      "waitingList": "Waiting list",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn",
+      "cancelled": "Cancelled"
+    },
+    "errors": {
+      "title": "International Mobility could not be loaded",
+      "load": "The International Mobility dashboard could not be loaded.",
+      "unauthorized": "Your session is not authenticated.",
+      "forbidden": "You do not have permission to access this area."
+    }
+  },
+  "AdminMobilityPartners": {
+    "back": "International Mobility",
+    "title": "Partner Institutions",
+    "subtitle": "Register and manage universities, schools, and organizations that partner in academic mobility programs.",
+    "summary": {
+      "total": "Total institutions",
+      "active": "Active institutions",
+      "inactive": "Inactive institutions"
+    },
+    "filters": {
+      "search": "Search by name, acronym, code, city, or email...",
+      "allCountries": "All countries",
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "table": {
+      "institution": "Institution",
+      "location": "Location",
+      "contact": "International contact",
+      "agreements": "Agreements",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "new": "New partner institution",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "website": "Website",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "sections": {
+      "institution": "Institution details",
+      "contact": "International contact",
+      "management": "Management"
+    },
+    "fields": {
+      "name": "Institution name",
+      "acronym": "Acronym",
+      "code": "Internal code",
+      "country": "Country",
+      "state": "State / Province / Region",
+      "city": "City",
+      "postalCode": "Postal code",
+      "address": "Address",
+      "website": "Website",
+      "generalEmail": "General email",
+      "generalPhone": "General phone",
+      "contactName": "Contact name",
+      "contactRole": "Title / Role",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "notes": "Notes",
+      "active": "Active institution",
+      "activeDescription": "Inactive institutions remain in historical records but should not be used in new programs."
+    },
+    "modal": {
+      "newTitle": "New partner institution",
+      "editTitle": "Edit partner institution",
+      "description": "Enter the institution details and its primary international contact."
+    },
+    "mobile": {
+      "agreements": "{count, plural, =0 {No agreements} =1 {1 agreement} other {# agreements}}"
+    },
+    "empty": {
+      "title": "No institutions found",
+      "description": "Register the first partner institution or adjust the search filters."
+    },
+    "messages": {
+      "created": "Partner institution created successfully.",
+      "updated": "Partner institution updated successfully.",
+      "activated": "Partner institution activated.",
+      "deactivated": "Partner institution deactivated."
+    },
+    "errors": {
+      "load": "Partner institutions could not be loaded.",
+      "save": "The partner institution could not be saved.",
+      "status": "The status could not be changed.",
+      "generic": "An error occurred while processing the request.",
+      "unauthorized": "Your session is not authenticated.",
+      "forbidden": "You do not have permission to access this area.",
+      "forbiddenManage": "You do not have permission to manage partner institutions.",
+      "nameRequired": "Enter the institution name.",
+      "invalidCountry": "Select a valid country.",
+      "invalidEmail": "Enter a valid email address.",
+      "invalidWebsite": "Enter a valid website address.",
+      "duplicate": "A partner institution with this name already exists in this country.",
+      "notFound": "Partner institution not found.",
+      "invalidId": "Invalid identifier.",
+      "invalidStatus": "Invalid status."
     }
   }
 }

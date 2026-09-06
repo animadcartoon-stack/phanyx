@@ -210,7 +210,9 @@
     "campusManagementDisabledDescription": "Este identificador institucional no está autorizado para crear o gestionar sedes o unidades. Este permiso está controlado por la institución contratante de la red.",
     "backToDashboard": "Volver al panel",
     "studentSuccess": "Student Success",
-    "validationAudit": "Auditoría de validaciones"
+    "validationAudit": "Auditoría de validaciones",
+    "internationalMobility": "Movilidad Internacional",
+    "partnerInstitutions": "Instituciones asociadas"
   },
   "MonthlyCampaign": {
     "origin": "Campaña mensual de concienciación",
@@ -11447,6 +11449,169 @@
       "selectedRow": "Fila {row} de {total} seleccionada",
       "selectedRows": "{count} filas seleccionadas",
       "selectRowHelp": "Haga clic en una celda para seleccionar su fila. Use Mayús + clic para mantener varias filas seleccionadas."
+    }
+  },
+  "AdminMobilityDashboard": {
+    "eyebrow": "Movilidad académica",
+    "title": "Movilidad Internacional",
+    "subtitle": "Gestiona instituciones asociadas, convenios, programas, oportunidades y solicitudes de movilidad académica en un solo lugar.",
+    "loading": "Cargando el panel de movilidad...",
+    "metrics": {
+      "partners": "Instituciones asociadas",
+      "agreements": "Convenios activos",
+      "programs": "Programas activos",
+      "openOffers": "Convocatorias abiertas",
+      "applications": "Solicitudes",
+      "pendingApplications": "Solicitudes pendientes",
+      "approvedApplications": "Solicitudes aprobadas",
+      "pendingDocuments": "Documentos pendientes"
+    },
+    "sections": {
+      "indicators": "Indicadores de Movilidad Internacional",
+      "deadlines": "Próximos plazos",
+      "deadlinesDescription": "Oportunidades con inscripciones programadas o abiertas.",
+      "recentApplications": "Solicitudes recientes",
+      "recentApplicationsDescription": "Últimas solicitudes registradas en el sector.",
+      "quickActions": "Áreas de Movilidad",
+      "quickActionsDescription": "Los próximos módulos se activarán a medida que sean implementados."
+    },
+    "empty": {
+      "deadlines": "No hay próximos plazos de inscripción.",
+      "applications": "Todavía no hay solicitudes registradas."
+    },
+    "deadline": {
+      "until": "Inscripciones hasta {date}"
+    },
+    "actions": {
+      "refresh": "Actualizar",
+      "retry": "Intentar de nuevo",
+      "partners": "Instituciones Asociadas",
+      "agreements": "Convenios",
+      "programs": "Programas",
+      "offers": "Oportunidades / Convocatorias",
+      "applications": "Solicitudes",
+      "comingSoon": "En implementación"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "submitted": "Enviada",
+      "underReview": "En revisión",
+      "documentsPending": "Documentación pendiente",
+      "eligible": "Elegible",
+      "ineligible": "No elegible",
+      "selection": "En selección",
+      "ranked": "Clasificada",
+      "waitingList": "Lista de espera",
+      "approved": "Aprobada",
+      "rejected": "Rechazada",
+      "withdrawn": "Retirada",
+      "cancelled": "Cancelada"
+    },
+    "errors": {
+      "title": "No se pudo cargar la Movilidad Internacional",
+      "load": "No se pudo cargar el panel de Movilidad Internacional.",
+      "unauthorized": "Tu sesión no está autenticada.",
+      "forbidden": "No tienes permiso para acceder a este sector."
+    }
+  },
+  "AdminMobilityPartners": {
+    "back": "Movilidad Internacional",
+    "title": "Instituciones Asociadas",
+    "subtitle": "Registra y gestiona universidades, centros educativos y organizaciones asociadas a los programas de movilidad académica.",
+    "summary": {
+      "total": "Total de instituciones",
+      "active": "Instituciones activas",
+      "inactive": "Instituciones inactivas"
+    },
+    "filters": {
+      "search": "Buscar por nombre, sigla, código, ciudad o correo...",
+      "allCountries": "Todos los países",
+      "all": "Todas",
+      "active": "Activas",
+      "inactive": "Inactivas"
+    },
+    "table": {
+      "institution": "Institución",
+      "location": "Ubicación",
+      "contact": "Contacto internacional",
+      "agreements": "Convenios",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "actions": {
+      "new": "Nueva institución asociada",
+      "refresh": "Actualizar",
+      "edit": "Editar",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "website": "Sitio web",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "sections": {
+      "institution": "Datos institucionales",
+      "contact": "Contacto internacional",
+      "management": "Gestión"
+    },
+    "fields": {
+      "name": "Nombre de la institución",
+      "acronym": "Sigla",
+      "code": "Código interno",
+      "country": "País",
+      "state": "Estado / Provincia / Región",
+      "city": "Ciudad",
+      "postalCode": "Código postal",
+      "address": "Dirección",
+      "website": "Sitio web",
+      "generalEmail": "Correo general",
+      "generalPhone": "Teléfono general",
+      "contactName": "Nombre del responsable",
+      "contactRole": "Cargo / Función",
+      "contactEmail": "Correo del responsable",
+      "contactPhone": "Teléfono del responsable",
+      "notes": "Observaciones",
+      "active": "Institución activa",
+      "activeDescription": "Las instituciones inactivas permanecen en el historial, pero no deben utilizarse en nuevos programas."
+    },
+    "modal": {
+      "newTitle": "Nueva institución asociada",
+      "editTitle": "Editar institución asociada",
+      "description": "Registra los datos institucionales y el contacto internacional principal."
+    },
+    "mobile": {
+      "agreements": "{count, plural, =0 {Ningún convenio} =1 {1 convenio} other {# convenios}}"
+    },
+    "empty": {
+      "title": "No se encontraron instituciones",
+      "description": "Registra la primera institución asociada o ajusta los filtros."
+    },
+    "messages": {
+      "created": "Institución asociada registrada correctamente.",
+      "updated": "Institución asociada actualizada correctamente.",
+      "activated": "Institución asociada activada.",
+      "deactivated": "Institución asociada desactivada."
+    },
+    "errors": {
+      "load": "No se pudieron cargar las instituciones asociadas.",
+      "save": "No se pudo guardar la institución asociada.",
+      "status": "No se pudo cambiar el estado.",
+      "generic": "Se produjo un error al procesar la solicitud.",
+      "unauthorized": "Tu sesión no está autenticada.",
+      "forbidden": "No tienes permiso para acceder a esta área.",
+      "forbiddenManage": "No tienes permiso para gestionar instituciones asociadas.",
+      "nameRequired": "Indica el nombre de la institución.",
+      "invalidCountry": "Selecciona un país válido.",
+      "invalidEmail": "Indica una dirección de correo válida.",
+      "invalidWebsite": "Indica una dirección web válida.",
+      "duplicate": "Ya existe una institución asociada con este nombre en este país.",
+      "notFound": "Institución asociada no encontrada.",
+      "invalidId": "Identificador no válido.",
+      "invalidStatus": "Estado no válido."
     }
   }
 }

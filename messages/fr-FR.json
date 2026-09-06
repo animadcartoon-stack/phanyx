@@ -210,7 +210,9 @@
     "campusManagementDisabledDescription": "Cet identifiant institutionnel n'est pas autorisé à créer ou gérer des sites ou des unités. Cette autorisation est contrôlée par l'établissement contractant du réseau.",
     "backToDashboard": "Retour au tableau de bord",
     "studentSuccess": "Student Success",
-    "validationAudit": "Audit des validations"
+    "validationAudit": "Audit des validations",
+    "internationalMobility": "Mobilité Internationale",
+    "partnerInstitutions": "Établissements partenaires"
   },
   "MonthlyCampaign": {
     "origin": "Campagne mensuelle de sensibilisation",
@@ -11447,6 +11449,169 @@
       "selectedRow": "Ligne {row} sur {total} sélectionnée",
       "selectedRows": "{count} lignes sélectionnées",
       "selectRowHelp": "Cliquez sur une cellule pour sélectionner sa ligne. Utilisez Maj + clic pour conserver plusieurs lignes sélectionnées."
+    }
+  },
+  "AdminMobilityDashboard": {
+    "eyebrow": "Mobilité académique",
+    "title": "Mobilité Internationale",
+    "subtitle": "Gérez les établissements partenaires, accords, programmes, opportunités et candidatures de mobilité académique depuis un espace unique.",
+    "loading": "Chargement du tableau de bord de mobilité...",
+    "metrics": {
+      "partners": "Établissements partenaires",
+      "agreements": "Accords actifs",
+      "programs": "Programmes actifs",
+      "openOffers": "Candidatures ouvertes",
+      "applications": "Candidatures",
+      "pendingApplications": "Candidatures en attente",
+      "approvedApplications": "Candidatures approuvées",
+      "pendingDocuments": "Documents en attente"
+    },
+    "sections": {
+      "indicators": "Indicateurs de Mobilité Internationale",
+      "deadlines": "Prochaines échéances",
+      "deadlinesDescription": "Opportunités dont les périodes de candidature sont programmées ou ouvertes.",
+      "recentApplications": "Candidatures récentes",
+      "recentApplicationsDescription": "Dernières candidatures enregistrées dans le secteur.",
+      "quickActions": "Domaines de Mobilité",
+      "quickActionsDescription": "Les prochains modules seront activés au fur et à mesure de leur mise en œuvre."
+    },
+    "empty": {
+      "deadlines": "Aucune échéance de candidature à venir.",
+      "applications": "Aucune candidature n'a encore été enregistrée."
+    },
+    "deadline": {
+      "until": "Candidatures jusqu'au {date}"
+    },
+    "actions": {
+      "refresh": "Actualiser",
+      "retry": "Réessayer",
+      "partners": "Établissements Partenaires",
+      "agreements": "Accords",
+      "programs": "Programmes",
+      "offers": "Opportunités / Appels",
+      "applications": "Candidatures",
+      "comingSoon": "En cours de mise en œuvre"
+    },
+    "statuses": {
+      "draft": "Brouillon",
+      "submitted": "Envoyée",
+      "underReview": "En cours d'analyse",
+      "documentsPending": "Documents en attente",
+      "eligible": "Éligible",
+      "ineligible": "Non éligible",
+      "selection": "En sélection",
+      "ranked": "Classée",
+      "waitingList": "Liste d'attente",
+      "approved": "Approuvée",
+      "rejected": "Refusée",
+      "withdrawn": "Retirée",
+      "cancelled": "Annulée"
+    },
+    "errors": {
+      "title": "Impossible de charger la Mobilité Internationale",
+      "load": "Le tableau de bord de Mobilité Internationale n'a pas pu être chargé.",
+      "unauthorized": "Votre session n'est pas authentifiée.",
+      "forbidden": "Vous n'êtes pas autorisé à accéder à ce secteur."
+    }
+  },
+  "AdminMobilityPartners": {
+    "back": "Mobilité Internationale",
+    "title": "Établissements Partenaires",
+    "subtitle": "Enregistrez et gérez les universités, établissements et organisations partenaires des programmes de mobilité académique.",
+    "summary": {
+      "total": "Total des établissements",
+      "active": "Établissements actifs",
+      "inactive": "Établissements inactifs"
+    },
+    "filters": {
+      "search": "Rechercher par nom, sigle, code, ville ou e-mail...",
+      "allCountries": "Tous les pays",
+      "all": "Tous",
+      "active": "Actifs",
+      "inactive": "Inactifs"
+    },
+    "table": {
+      "institution": "Établissement",
+      "location": "Localisation",
+      "contact": "Contact international",
+      "agreements": "Accords",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "actions": {
+      "new": "Nouvel établissement partenaire",
+      "refresh": "Actualiser",
+      "edit": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "website": "Site",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement..."
+    },
+    "sections": {
+      "institution": "Informations institutionnelles",
+      "contact": "Contact international",
+      "management": "Gestion"
+    },
+    "fields": {
+      "name": "Nom de l'établissement",
+      "acronym": "Sigle",
+      "code": "Code interne",
+      "country": "Pays",
+      "state": "État / Province / Région",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "address": "Adresse",
+      "website": "Site",
+      "generalEmail": "E-mail général",
+      "generalPhone": "Téléphone général",
+      "contactName": "Nom du responsable",
+      "contactRole": "Fonction",
+      "contactEmail": "E-mail du responsable",
+      "contactPhone": "Téléphone du responsable",
+      "notes": "Observations",
+      "active": "Établissement actif",
+      "activeDescription": "Les établissements inactifs restent dans l'historique mais ne doivent pas être utilisés pour de nouveaux programmes."
+    },
+    "modal": {
+      "newTitle": "Nouvel établissement partenaire",
+      "editTitle": "Modifier l'établissement partenaire",
+      "description": "Enregistrez les informations institutionnelles et le contact international principal."
+    },
+    "mobile": {
+      "agreements": "{count, plural, =0 {Aucun accord} =1 {1 accord} other {# accords}}"
+    },
+    "empty": {
+      "title": "Aucun établissement trouvé",
+      "description": "Enregistrez le premier établissement partenaire ou modifiez les filtres."
+    },
+    "messages": {
+      "created": "Établissement partenaire enregistré avec succès.",
+      "updated": "Établissement partenaire mis à jour avec succès.",
+      "activated": "Établissement partenaire activé.",
+      "deactivated": "Établissement partenaire désactivé."
+    },
+    "errors": {
+      "load": "Impossible de charger les établissements partenaires.",
+      "save": "Impossible d'enregistrer l'établissement partenaire.",
+      "status": "Impossible de modifier le statut.",
+      "generic": "Une erreur s'est produite lors du traitement de la demande.",
+      "unauthorized": "Votre session n'est pas authentifiée.",
+      "forbidden": "Vous n'êtes pas autorisé à accéder à cette zone.",
+      "forbiddenManage": "Vous n'êtes pas autorisé à gérer les établissements partenaires.",
+      "nameRequired": "Indiquez le nom de l'établissement.",
+      "invalidCountry": "Sélectionnez un pays valide.",
+      "invalidEmail": "Indiquez une adresse e-mail valide.",
+      "invalidWebsite": "Indiquez une adresse de site valide.",
+      "duplicate": "Un établissement partenaire portant ce nom existe déjà dans ce pays.",
+      "notFound": "Établissement partenaire introuvable.",
+      "invalidId": "Identifiant non valide.",
+      "invalidStatus": "Statut non valide."
     }
   }
 }

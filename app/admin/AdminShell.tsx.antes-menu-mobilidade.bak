@@ -644,11 +644,6 @@ export default function AdminShell({
       "biblioteca.configuracoes.gerenciar"
     );
 
-  const podeVerMobilidade =
-    podeAcessar("mobilidade.ver") ||
-    podeAcessar("mobilidade.dashboard.ver") ||
-    podeAcessar("mobilidade.gerenciar");
-
   const podeGerenciarEmailInstitucional =
     podeAcessar("integracoes.email.gerenciar");
 
@@ -658,10 +653,6 @@ export default function AdminShell({
   function isActive(path: string) {
     if (path === "/admin") {
       return pathname === "/admin";
-    }
-
-    if (path === "/admin/mobilidade") {
-      return pathname === "/admin/mobilidade";
     }
 
     if (path === "/admin/biblioteca") {
@@ -1177,44 +1168,6 @@ export default function AdminShell({
                     </div>
                   )}
                 </div>
-
-                {podeVerMobilidade && (
-                  <div className="mt-2 border-t pt-2">
-                    <button
-                      type="button"
-                      onClick={() => toggleMenu("mobilidade")}
-                      className={buttonClass}
-                    >
-                      <span className={sectionTitleClass}>
-                        🌍 {tNav("internationalMobility")}
-                      </span>
-
-                      <span>
-                        {menuAberto === "mobilidade" ? "▾" : "▸"}
-                      </span>
-                    </button>
-
-                    {menuAberto === "mobilidade" && (
-                      <div className="ml-3 mt-2 flex flex-col space-y-1">
-                        <Link
-                          href="/admin/mobilidade"
-                          className={getLinkClass("/admin/mobilidade")}
-                        >
-                          📊 {tNav("overview")}
-                        </Link>
-
-                        <Link
-                          href="/admin/mobilidade/instituicoes-parceiras"
-                          className={getLinkClass(
-                            "/admin/mobilidade/instituicoes-parceiras"
-                          )}
-                        >
-                          🌐 {tNav("partnerInstitutions")}
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )}
 
                 {podeVerBiblioteca && (
                   <div className="mt-2 border-t pt-2">
@@ -1830,25 +1783,6 @@ export default function AdminShell({
                         📚 {tNav("academicPublications")}
                       </Link>
                     )}
-                    {podeVerMobilidade && (
-                      <>
-                        <Link
-                          href="/admin/mobilidade"
-                          data-mobile-mobilidade="true"
-                          className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                        >
-                          🌍 {tNav("internationalMobility")}
-                        </Link>
-
-                        <Link
-                          href="/admin/mobilidade/instituicoes-parceiras"
-                          className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                        >
-                          🌐 {tNav("partnerInstitutions")}
-                        </Link>
-                      </>
-                    )}
-
                     {podeVerBiblioteca && (
                       <>
                         <Link
