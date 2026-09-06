@@ -212,7 +212,11 @@
     "studentSuccess": "Student Success",
     "validationAudit": "Auditoría de validaciones",
     "internationalMobility": "Movilidad Internacional",
-    "partnerInstitutions": "Instituciones asociadas"
+    "partnerInstitutions": "Instituciones asociadas",
+    "mobilityAgreements": "Convenios",
+    "mobilityPrograms": "Programas",
+    "mobilityOffers": "Ofertas / Convocatorias",
+    "mobilityApplications": "Candidaturas"
   },
   "MonthlyCampaign": {
     "origin": "Campaña mensual de concienciación",
@@ -1490,7 +1494,34 @@
       "hasLinks": "Elimina primero los conductores y pasajeros vinculados a este vehículo.",
       "removeQuestion": "¿Eliminar este vehículo del trayecto?",
       "confirmRemove": "Confirmar eliminación",
-      "cancelRemove": "Cancelar"
+      "cancelRemove": "Cancelar",
+      "confirmVehicle": "Confirmar vehículo",
+      "confirmingVehicle": "Confirmando...",
+      "startBoardingOperation": "Iniciar embarque",
+      "startingBoardingOperation": "Iniciando...",
+      "startTrip": "Iniciar viaje",
+      "startingTrip": "Iniciando...",
+      "markArrived": "Registrar llegada",
+      "markingArrived": "Registrando...",
+      "vehicleConfirmed": "Vehículo confirmado para el trayecto correctamente.",
+      "boardingStarted": "Operación de embarque iniciada correctamente.",
+      "tripStarted": "Viaje iniciado correctamente.",
+      "arrivalRegistered": "Llegada del vehículo registrada correctamente.",
+      "statusUpdateError": "No se pudo actualizar el estado del vehículo.",
+      "invalidStatusTransition": "Este cambio de estado no está permitido para el vehículo.",
+      "noDriver": "Vincula al menos un conductor antes de confirmar el vehículo.",
+      "pendingPassengers": "Todavía hay pasajeros pendientes de definición de embarque. Confirma el embarque o registra quién no embarcó antes de iniciar el viaje.",
+      "segmentNotOperational": "Este trayecto ya no permite cambios operativos.",
+      "boardingAt": "Embarque iniciado el",
+      "arrivedAt": "Llegada registrada el",
+      "status": {
+        "PLANEJADO": "Planificado",
+        "CONFIRMADO": "Confirmado",
+        "EM_EMBARQUE": "En embarque",
+        "EM_TRANSITO": "En tránsito",
+        "CHEGOU": "Llegó",
+        "CANCELADO": "Cancelado"
+      }
     },
     "driverAssignment": {
       "title": "Conductores",
@@ -1552,7 +1583,23 @@
       "cannotRemoveAfterOperation": "Este pasajero ya no se puede eliminar porque la operación del trayecto ya ha comenzado.",
       "removeQuestion": "¿Eliminar este pasajero del vehículo?",
       "confirmRemove": "Confirmar eliminación",
-      "cancelRemove": "Cancelar"
+      "cancelRemove": "Cancelar",
+      "startBoarding": "Iniciar embarque",
+      "startingBoarding": "Iniciando...",
+      "markBoarded": "Confirmar embarque",
+      "markingBoarded": "Confirmando...",
+      "markNoShow": "No embarcó",
+      "markingNoShow": "Registrando...",
+      "markDisembarked": "Confirmar desembarque",
+      "markingDisembarked": "Confirmando...",
+      "waitingBoardingSet": "Pasajero puesto en espera de embarque.",
+      "boardedSet": "Embarque del pasajero confirmado correctamente.",
+      "noShowSet": "Pasajero registrado como no embarcó.",
+      "disembarkedSet": "Desembarque del pasajero confirmado correctamente.",
+      "statusUpdateError": "No se pudo actualizar el estado del pasajero.",
+      "invalidStatusTransition": "Este cambio de estado no está permitido para el pasajero.",
+      "boardedAt": "Embarcado el",
+      "disembarkedAt": "Desembarcado el"
     }
   },
   "ProfessorLayout": {
@@ -11612,6 +11659,592 @@
       "notFound": "Institución asociada no encontrada.",
       "invalidId": "Identificador no válido.",
       "invalidStatus": "Estado no válido."
+    }
+  },
+  "MasterHolidays": {
+    "title": "Calendarios y Festivos",
+    "subtitle": "Registra y publica los festivos que se distribuirán a las instituciones PHANYX de cada país.",
+    "actions": {
+      "newHoliday": "Nuevo festivo",
+      "refresh": "Actualizar",
+      "edit": "Editar",
+      "publish": "Publicar",
+      "archive": "Archivar",
+      "deleteDraft": "Eliminar borrador",
+      "cancel": "Cancelar",
+      "saveDraft": "Guardar borrador",
+      "saveChanges": "Guardar cambios",
+      "close": "Cerrar"
+    },
+    "summary": {
+      "total": "Total de festivos",
+      "published": "Publicados",
+      "drafts": "Borradores",
+      "archived": "Archivados"
+    },
+    "filters": {
+      "country": "País",
+      "allCountries": "Todos los países",
+      "status": "Estado",
+      "allStatuses": "Todos los estados",
+      "year": "Año",
+      "clear": "Limpiar filtros"
+    },
+    "status": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "archived": "Archivado"
+    },
+    "table": {
+      "holiday": "Festivo",
+      "country": "País",
+      "date": "Fecha",
+      "displayPeriod": "Periodo de visualización",
+      "status": "Estado",
+      "priority": "Prioridad",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron festivos",
+      "description": "Registra un festivo o cambia los filtros para ver otros registros."
+    },
+    "form": {
+      "newTitle": "Registrar festivo",
+      "editTitle": "Editar festivo",
+      "general": "Información general",
+      "translations": "Contenido traducido",
+      "translationsHint": "Las pestañas siguientes son traducciones del mismo festivo. Cambia solo el idioma del texto; el país del festivo permanece igual.",
+      "preview": "Vista previa",
+      "country": "País",
+      "countryValidity": "País donde se aplica el festivo",
+      "countryHint": "Este país determina qué instituciones recibirán el aviso. No cambia al cambiar el idioma de la traducción.",
+      "date": "Fecha del festivo",
+      "displayStart": "Inicio de visualización",
+      "displayEnd": "Fin de visualización",
+      "type": "Ámbito",
+      "priority": "Prioridad",
+      "emoji": "Icono del aviso",
+      "iconHint": "La bandera del país se selecciona automáticamente. Elige otro icono si lo prefieres.",
+      "region": "Estado / región",
+      "city": "Ciudad",
+      "national": "Nacional",
+      "regional": "Regional",
+      "local": "Local",
+      "name": "Nombre del festivo",
+      "bannerTitle": "Título del aviso",
+      "message": "Mensaje",
+      "optional": "Opcional",
+      "publicationHint": "Para publicar el festivo, completa los cinco idiomas.",
+      "draftHint": "Los borradores pueden guardarse con al menos un idioma completo."
+    },
+    "preview": {
+      "origin": "Calendario Nacional",
+      "category": "Festivo",
+      "viewCalendar": "Ver calendario",
+      "noContent": "Completa el contenido de este idioma para visualizar el aviso."
+    },
+    "confirmDelete": {
+      "title": "¿Eliminar borrador?",
+      "description": "Este borrador se eliminará definitivamente. Esta acción no se puede deshacer.",
+      "confirm": "Eliminar"
+    },
+    "messages": {
+      "loadError": "No se pudieron cargar los festivos.",
+      "saveError": "No se pudo guardar el festivo.",
+      "saved": "Festivo guardado correctamente.",
+      "deleted": "Borrador eliminado correctamente.",
+      "published": "Festivo publicado correctamente.",
+      "archived": "Festivo archivado correctamente.",
+      "permission": "No tienes permiso para administrar festivos globales.",
+      "publishTranslations": "Completa los cinco idiomas antes de publicar.",
+      "invalidPeriod": "Revisa el periodo de visualización indicado.",
+      "genericError": "No se pudo completar la operación."
+    }
+  },
+  "AdminMobilityAgreements": {
+    "back": "Movilidad Internacional",
+    "title": "Convenios",
+    "subtitle": "Gestiona los acuerdos institucionales que sustentan los programas de movilidad académica.",
+    "summary": {
+      "total": "Total de convenios",
+      "active": "Convenios activos",
+      "drafts": "Borradores",
+      "suspended": "Suspendidos"
+    },
+    "filters": {
+      "search": "Buscar convenios...",
+      "allStatuses": "Todos los estados",
+      "allDirections": "Todas las direcciones",
+      "allPartners": "Todas las instituciones"
+    },
+    "table": {
+      "agreement": "Convenio",
+      "partner": "Institución asociada",
+      "direction": "Dirección",
+      "validity": "Vigencia",
+      "courses": "Cursos",
+      "status": "Estado",
+      "actions": "Acciones",
+      "allCourses": "Todos los cursos",
+      "courseCount": "{count} curso(s)"
+    },
+    "directions": {
+      "outgoing": "Salida",
+      "incoming": "Entrada",
+      "bilateral": "Bidireccional"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "active": "Activo",
+      "suspended": "Suspendido",
+      "closed": "Finalizado",
+      "expired": "Expirado"
+    },
+    "actions": {
+      "new": "Nuevo convenio",
+      "refresh": "Actualizar",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "sections": {
+      "identification": "Datos del convenio",
+      "validity": "Vigencia y plazas",
+      "courses": "Cursos",
+      "coursesDescription": "Selecciona los cursos cubiertos. Deja todos sin marcar para una cobertura institucional general.",
+      "notes": "Observaciones"
+    },
+    "fields": {
+      "partner": "Institución asociada",
+      "selectPartner": "Selecciona una institución",
+      "inactivePartner": "Inactiva",
+      "name": "Nombre del convenio",
+      "code": "Código interno",
+      "description": "Descripción",
+      "direction": "Dirección",
+      "status": "Estado",
+      "startDate": "Fecha inicial",
+      "endDate": "Fecha final",
+      "outgoingSeats": "Plazas de salida por año",
+      "incomingSeats": "Plazas de entrada por año",
+      "reciprocity": "Acuerdo de reciprocidad",
+      "reciprocityDescription": "Ambas instituciones intercambian estudiantes bajo condiciones recíprocas.",
+      "tuitionWaiver": "Exención de tasas académicas",
+      "tuitionWaiverDescription": "Los estudiantes están exentos de tasas académicas según el convenio.",
+      "searchCourses": "Buscar cursos...",
+      "noCourses": "No se encontraron cursos.",
+      "inactiveCourse": "Inactivo",
+      "allCoursesSelected": "Ningún curso específico: cobertura institucional general.",
+      "selectedCourses": "{count} curso(s) seleccionado(s)"
+    },
+    "modal": {
+      "newTitle": "Nuevo convenio",
+      "editTitle": "Editar convenio",
+      "description": "Registra las condiciones institucionales, vigencia, plazas y cursos cubiertos."
+    },
+    "empty": {
+      "title": "No se encontraron convenios",
+      "description": "Crea el primer convenio de movilidad o ajusta los filtros."
+    },
+    "messages": {
+      "created": "Convenio registrado correctamente.",
+      "updated": "Convenio actualizado correctamente."
+    },
+    "errors": {
+      "load": "No se pudieron cargar los convenios.",
+      "save": "No se pudo guardar el convenio.",
+      "generic": "Se produjo un error.",
+      "unauthorized": "Sessão não autenticada.",
+      "forbidden": "Você não possui permissão para acessar esta área.",
+      "forbiddenManage": "Você não possui permissão para gerenciar convênios.",
+      "nameRequired": "Informe o nome do convênio.",
+      "invalidPartner": "Selecione uma instituição parceira ativa válida.",
+      "invalidDirection": "Selecione uma direção válida.",
+      "invalidStatus": "Selecione um status válido.",
+      "invalidDate": "Informe uma data válida.",
+      "invalidValidity": "O fim da vigência não pode ser anterior ao início.",
+      "invalidSeats": "Informe uma quantidade de vagas válida.",
+      "invalidCourse": "Um ou mais cursos selecionados são inválidos.",
+      "duplicateCode": "Este código de convênio já está em uso.",
+      "notFound": "Convênio não encontrado.",
+      "invalidId": "Identificação inválida."
+    }
+  },
+  "AdminMobilityPrograms": {
+    "back": "Movilidad Internacional",
+    "title": "Programas de Movilidad",
+    "subtitle": "Estructura intercambios, prácticas, investigación, programas de idiomas y otras experiencias internacionales.",
+    "summary": {
+      "total": "Total de programas",
+      "active": "Programas activos",
+      "drafts": "Borradores",
+      "inactive": "Programas inactivos"
+    },
+    "filters": {
+      "search": "Buscar programas...",
+      "allTypes": "Todos los tipos",
+      "allStatuses": "Todos los estados",
+      "allDirections": "Todas las direcciones"
+    },
+    "table": {
+      "program": "Programa",
+      "type": "Tipo",
+      "partner": "Institución asociada",
+      "direction": "Dirección",
+      "language": "Idioma",
+      "duration": "Duración",
+      "offers": "Ofertas",
+      "status": "Estado",
+      "actions": "Acciones",
+      "noPartner": "Sin institución asociada",
+      "minimumLevel": "Nivel mínimo:"
+    },
+    "types": {
+      "academicSemester": "Semestre académico",
+      "academicYear": "Año académico",
+      "shortTerm": "Corta duración",
+      "language": "Programa de idiomas",
+      "internship": "Prácticas",
+      "research": "Investigación",
+      "summerSchool": "Summer School",
+      "winterSchool": "Winter School",
+      "doubleDegree": "Doble titulación",
+      "hybrid": "Híbrido",
+      "virtual": "Virtual",
+      "other": "Otro"
+    },
+    "directions": {
+      "outgoing": "Salida",
+      "incoming": "Entrada",
+      "bilateral": "Bidireccional"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "archived": "Archivado"
+    },
+    "duration": {
+      "days": "{count} días",
+      "range": "{min} a {max} días",
+      "minimum": "Mínimo {count} días",
+      "maximum": "Máximo {count} días"
+    },
+    "actions": {
+      "new": "Nuevo programa",
+      "refresh": "Actualizar",
+      "edit": "Editar",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "empty": {
+      "title": "No se encontraron programas",
+      "description": "Registra el primer programa de movilidad o ajusta los filtros."
+    },
+    "sections": {
+      "identification": "Datos del programa",
+      "language": "Requisitos lingüísticos",
+      "duration": "Duración del programa",
+      "durationDescription": "Indica la duración mínima y máxima prevista en días."
+    },
+    "fields": {
+      "agreement": "Convenio",
+      "noAgreement": "Sin convenio específico",
+      "agreementHelp": "Al seleccionar un convenio, su institución asociada se vincula automáticamente.",
+      "partner": "Institución asociada",
+      "noPartner": "Sin institución asociada específica",
+      "partnerFromAgreement": "Institución asociada definida automáticamente por el convenio seleccionado.",
+      "inactive": "Inactiva",
+      "name": "Nombre del programa",
+      "code": "Código interno",
+      "type": "Tipo",
+      "direction": "Dirección",
+      "status": "Estado",
+      "description": "Descripción",
+      "language": "Idioma",
+      "languagePlaceholder": "Ej.: francés, inglés, español",
+      "minimumLanguageLevel": "Nivel mínimo del idioma",
+      "minimumLanguageLevelPlaceholder": "Ej.: B2 MCER, TOEFL 80",
+      "minimumDays": "Duración mínima (días)",
+      "maximumDays": "Duración máxima (días)"
+    },
+    "modal": {
+      "newTitle": "Nuevo programa",
+      "editTitle": "Editar programa",
+      "description": "Define la modalidad, el vínculo institucional, los requisitos lingüísticos y la duración prevista."
+    },
+    "messages": {
+      "created": "Programa registrado correctamente.",
+      "updated": "Programa actualizado correctamente.",
+      "activated": "Programa activado.",
+      "deactivated": "Programa desactivado."
+    },
+    "errors": {
+      "load": "No se pudieron cargar los programas.",
+      "save": "No se pudo guardar el programa.",
+      "statusChange": "No se pudo cambiar el estado del programa.",
+      "generic": "Se produjo un error al procesar la solicitud.",
+      "unauthorized": "Tu sesión no está autenticada.",
+      "forbidden": "No tienes permiso para acceder a esta área.",
+      "forbiddenManage": "No tienes permiso para gestionar programas de movilidad.",
+      "nameRequired": "Indica el nombre del programa.",
+      "invalidType": "Selecciona un tipo de programa válido.",
+      "invalidDirection": "Selecciona una dirección válida.",
+      "invalidStatus": "Selecciona un estado válido.",
+      "invalidAgreement": "Selecciona un convenio válido.",
+      "invalidPartner": "Selecciona una institución asociada válida.",
+      "invalidLink": "El vínculo institucional no es válido.",
+      "invalidDuration": "Indica una duración válida.",
+      "invalidDurationRange": "La duración máxima no puede ser inferior a la mínima.",
+      "duplicateCode": "Este código de programa ya está en uso.",
+      "notFound": "Programa no encontrado.",
+      "invalidId": "Identificador no válido.",
+      "invalidActive": "Disponibilidad del programa no válida."
+    }
+  },
+  "AdminMobilityOffers": {
+    "back": "Movilidad Internacional",
+    "title": "Ofertas / Convocatorias",
+    "subtitle": "Publica oportunidades de movilidad y organiza inscripciones, plazas, criterios de elegibilidad y períodos de movilidad.",
+    "summary": {
+      "total": "Total de ofertas",
+      "scheduled": "Inscripciones programadas",
+      "open": "Inscripciones abiertas",
+      "selection": "En selección"
+    },
+    "filters": {
+      "search": "Buscar ofertas...",
+      "allStatuses": "Todos los estados",
+      "allPrograms": "Todos los programas"
+    },
+    "table": {
+      "offer": "Oferta / Convocatoria",
+      "program": "Programa",
+      "applications": "Inscripciones",
+      "mobility": "Movilidad",
+      "seats": "Plazas",
+      "courses": "Cursos",
+      "candidates": "Candidaturas",
+      "status": "Estado",
+      "actions": "Acciones",
+      "waitingList": "Lista de espera",
+      "generalCoverage": "Cobertura general",
+      "courseCount": "{count} curso(s)"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "scheduled": "Inscripciones programadas",
+      "open": "Inscripciones abiertas",
+      "closed": "Inscripciones cerradas",
+      "selection": "En selección",
+      "finished": "Finalizada",
+      "cancelled": "Cancelada"
+    },
+    "actions": {
+      "new": "Nueva oferta / convocatoria",
+      "refresh": "Actualizar",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "empty": {
+      "title": "No se encontraron ofertas",
+      "description": "Registra la primera oportunidad de movilidad o ajusta los filtros."
+    },
+    "sections": {
+      "identification": "Datos de la oferta / convocatoria",
+      "dates": "Inscripciones y período de movilidad",
+      "courses": "Cursos",
+      "coursesDescription": "Selecciona los cursos elegibles. Deja todos sin marcar para una cobertura general.",
+      "eligibility": "Criterios de elegibilidad",
+      "instructions": "Instrucciones al candidato"
+    },
+    "fields": {
+      "program": "Programa",
+      "selectProgram": "Selecciona un programa",
+      "title": "Título de la oferta / convocatoria",
+      "code": "Código interno",
+      "year": "Año",
+      "period": "Período",
+      "periodPlaceholder": "Ej.: 1.er semestre de 2027",
+      "status": "Estado",
+      "statusHelp": "Los borradores no se consideran publicados. Los demás estados registran la publicación de la oportunidad.",
+      "seats": "Plazas",
+      "description": "Descripción",
+      "applicationsStart": "Inicio de inscripciones",
+      "applicationsEnd": "Fin de inscripciones",
+      "mobilityStart": "Inicio de la movilidad",
+      "mobilityEnd": "Fin de la movilidad",
+      "waitingList": "Lista de espera",
+      "waitingListDescription": "Permite mantener candidatos clasificados más allá del número inicial de plazas.",
+      "searchCourses": "Buscar cursos...",
+      "noCourses": "No se encontraron cursos.",
+      "generalCoverage": "Ningún curso específico seleccionado: cobertura general.",
+      "selectedCourses": "{count} curso(s) seleccionado(s)",
+      "average": "Promedio mínimo",
+      "attendance": "Asistencia mínima (%)",
+      "minSemester": "Semestre/período mínimo",
+      "maxSemester": "Semestre/período máximo",
+      "minAge": "Edad mínima",
+      "maxAge": "Edad máxima",
+      "academicRegularity": "Exigir regularidad académica",
+      "academicRegularityDescription": "El candidato debe estar académicamente regular.",
+      "financialRegularity": "Exigir regularidad financiera",
+      "financialRegularityDescription": "El candidato debe cumplir las reglas de regularidad financiera de la institución.",
+      "eligibilityNotes": "Otros criterios / observaciones",
+      "instructionsPlaceholder": "Indica documentos, etapas, orientaciones y demás instrucciones importantes para la candidatura."
+    },
+    "modal": {
+      "newTitle": "Nueva oferta / convocatoria",
+      "editTitle": "Editar oferta / convocatoria",
+      "description": "Define el período de inscripción, plazas, movilidad, cursos elegibles y criterios de candidatura."
+    },
+    "messages": {
+      "created": "Oferta / convocatoria registrada correctamente.",
+      "updated": "Oferta / convocatoria actualizada correctamente."
+    },
+    "errors": {
+      "load": "No se pudieron cargar las ofertas.",
+      "save": "No se pudo guardar la oferta.",
+      "generic": "Se produjo un error al procesar la solicitud.",
+      "unauthorized": "Tu sesión no está autenticada.",
+      "forbidden": "No tienes permiso para acceder a esta área.",
+      "forbiddenManage": "No tienes permiso para gestionar ofertas de movilidad.",
+      "titleRequired": "Indica el título de la oferta / convocatoria.",
+      "invalidProgram": "Selecciona un programa válido.",
+      "invalidStatus": "Selecciona un estado válido.",
+      "invalidYear": "Indica un año válido.",
+      "invalidSeats": "Indica una cantidad de plazas válida.",
+      "invalidDate": "Una o más fechas no son válidas.",
+      "invalidApplicationsPeriod": "El fin de las inscripciones no puede ser anterior al inicio.",
+      "invalidMobilityPeriod": "El fin de la movilidad no puede ser anterior al inicio.",
+      "invalidChronology": "Las inscripciones deben finalizar antes del inicio de la movilidad.",
+      "invalidCourse": "Uno o más cursos seleccionados no son válidos.",
+      "invalidCriteria": "Revisa los criterios de elegibilidad.",
+      "duplicateCode": "Este código de oferta ya está en uso.",
+      "notFound": "Oferta no encontrada.",
+      "invalidId": "Identificador no válido."
+    }
+  },
+  "AdminMobilityApplications": {
+    "back": "Movilidad Internacional",
+    "title": "Candidaturas",
+    "subtitle": "Gestiona candidatos, documentación, elegibilidad, selección, clasificación y resultados de movilidad internacional.",
+    "summary": {
+      "total": "Total de candidaturas",
+      "pending": "Candidaturas pendientes",
+      "approved": "Candidaturas aprobadas",
+      "notApproved": "No aprobadas"
+    },
+    "filters": {
+      "search": "Buscar candidato...",
+      "allStatuses": "Todos los estados",
+      "allTypes": "Todos los tipos",
+      "allOffers": "Todas las ofertas"
+    },
+    "types": {
+      "phanyx": "Alumno PHANYX",
+      "external": "Candidato externo"
+    },
+    "table": {
+      "candidate": "Candidato",
+      "type": "Tipo",
+      "offer": "Oferta / Convocatoria",
+      "academicLink": "Vínculo académico / origen",
+      "documents": "Documentos",
+      "result": "Resultado",
+      "status": "Estado",
+      "date": "Fecha",
+      "actions": "Acciones",
+      "pendingDocuments": "{count} pendiente(s)",
+      "ranking": "{value}.º puesto"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "submitted": "Enviada",
+      "review": "En análisis",
+      "documentsPending": "Documentación pendiente",
+      "eligible": "Elegible",
+      "ineligible": "No elegible",
+      "selection": "En selección",
+      "ranked": "Clasificada",
+      "waitingList": "Lista de espera",
+      "approved": "Aprobada",
+      "rejected": "Rechazada",
+      "withdrawn": "Desistida",
+      "cancelled": "Cancelada"
+    },
+    "actions": {
+      "new": "Nueva candidatura",
+      "refresh": "Actualizar",
+      "process": "Procesar",
+      "changeStudent": "Cambiar alumno",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando..."
+    },
+    "empty": {
+      "title": "No se encontraron candidaturas",
+      "description": "Registra la primera candidatura o ajusta los filtros."
+    },
+    "modal": {
+      "newTitle": "Nueva candidatura",
+      "newDescription": "Selecciona una oferta y registra un alumno PHANYX o un candidato externo.",
+      "processTitle": "Procesar candidatura"
+    },
+    "fields": {
+      "offer": "Oferta / Convocatoria",
+      "selectOffer": "Selecciona una oferta",
+      "searchStudent": "Buscar alumno",
+      "searchStudentPlaceholder": "Escribe nombre, correo o matrícula...",
+      "searching": "Buscando alumnos...",
+      "enrollment": "Matrícula académica",
+      "noEnrollments": "Este alumno no tiene matrícula académica disponible.",
+      "noCourse": "Curso no informado",
+      "courseNotEligible": "Curso no contemplado en esta oferta",
+      "name": "Nombre completo",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "originInstitution": "Institución de origen",
+      "originCountry": "País de origen — código ISO",
+      "initialStatus": "Estado inicial",
+      "status": "Estado de la candidatura",
+      "score": "Nota final",
+      "ranking": "Clasificación",
+      "statusReason": "Motivo / observaciones del estado"
+    },
+    "messages": {
+      "created": "Candidatura registrada correctamente.",
+      "updated": "Candidatura actualizada correctamente."
+    },
+    "errors": {
+      "load": "No se pudieron cargar las candidaturas.",
+      "save": "No se pudo guardar la candidatura.",
+      "studentSearch": "No se pudieron buscar los alumnos.",
+      "generic": "Se produjo un error al procesar la solicitud.",
+      "unauthorized": "Tu sesión no está autenticada.",
+      "forbidden": "No tienes permiso para acceder a esta área.",
+      "forbiddenManage": "No tienes permiso para gestionar candidaturas.",
+      "invalidOffer": "Selecciona una oferta válida.",
+      "invalidType": "Selecciona un tipo de candidato válido.",
+      "invalidStatus": "Selecciona un estado válido.",
+      "invalidStudent": "Selecciona un alumno válido.",
+      "invalidEnrollment": "Selecciona una matrícula válida.",
+      "enrollmentRequired": "Selecciona la matrícula académica del alumno.",
+      "ineligibleCourse": "El curso de la matrícula no está contemplado en esta oferta.",
+      "nameRequired": "Indica el nombre del candidato.",
+      "invalidEmail": "Indica un correo electrónico válido.",
+      "invalidCountry": "Indica un código ISO de país válido.",
+      "invalidScore": "Indica una nota válida.",
+      "invalidRanking": "Indica una clasificación válida.",
+      "duplicate": "Ya existe una candidatura de este candidato para esta oferta.",
+      "notFound": "Candidatura no encontrada.",
+      "invalidId": "Identificador no válido."
     }
   }
 }

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+import { getCountries, type CountryCode } from "libphonenumber-js";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -11,6 +13,48 @@ function texto(valor: unknown) {
 
 function booleano(valor: unknown) {
   return typeof valor === "boolean" ? valor : undefined;
+}
+
+const PAISES_VALIDOS = new Set(getCountries());
+
+function paisCodigo(valor: unknown) {
+  if (typeof valor !== "string") {
+    return undefined;
+  }
+
+  const codigo = valor.trim().toUpperCase();
+
+  if (!codigo) {
+    return null;
+  }
+
+  if (!PAISES_VALIDOS.has(codigo as CountryCode)) {
+    throw new Error("Código de país inválido.");
+  }
+
+  return codigo;
+}
+
+function fusoHorario(valor: unknown) {
+  if (typeof valor !== "string") {
+    return undefined;
+  }
+
+  const fuso = valor.trim();
+
+  if (!fuso) {
+    return undefined;
+  }
+
+  try {
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: fuso,
+    }).format();
+
+    return fuso;
+  } catch {
+    throw new Error("Fuso horário inválido.");
+  }
 }
 
 function montarDadosPermitidos(body: Record<string, unknown>) {
@@ -26,6 +70,10 @@ function montarDadosPermitidos(body: Record<string, unknown>) {
     numero: texto(body.numero),
     cidade: texto(body.cidade),
     estado: texto(body.estado),
+
+    paisCodigo: paisCodigo(body.paisCodigo),
+
+    fusoHorario: fusoHorario(body.fusoHorario),
 
     responsavelNome: texto(body.responsavelNome),
     responsavelCargo: texto(body.responsavelCargo),
@@ -54,7 +102,7 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         { error: "Sessão não encontrada. Entre novamente no PHANYX." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -66,7 +114,7 @@ export async function GET() {
           error:
             "Seu usuário não está vinculado corretamente a uma instituição.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -78,10 +126,7 @@ export async function GET() {
 
     return NextResponse.json(config || {});
   } catch (error) {
-    console.error(
-      "ERRO AO CARREGAR CONFIGURAÇÕES DA INSTITUIÇÃO:",
-      error
-    );
+    console.error("ERRO AO CARREGAR CONFIGURAÇÕES DA INSTITUIÇÃO:", error);
 
     return NextResponse.json(
       {
@@ -90,7 +135,7 @@ export async function GET() {
             ? error.message
             : "Erro interno ao carregar as configurações.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -102,19 +147,22 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "Sessão não encontrada. Entre novamente no PHANYX." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const role = String(user.role || "").trim().toUpperCase();
+    const role = String(user.role || "")
+      .trim()
+      .toUpperCase();
 
     if (role !== "ADMIN") {
       return NextResponse.json(
         {
-          error: `Seu perfil atual é ${role || "não identificado"
-            }. Somente o administrador da instituição pode alterar estes dados.`,
+          error: `Seu perfil atual é ${
+            role || "não identificado"
+          }. Somente o administrador da instituição pode alterar estes dados.`,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -126,7 +174,7 @@ export async function POST(req: Request) {
           error:
             "Seu usuário não está vinculado corretamente a uma instituição.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -135,13 +183,11 @@ export async function POST(req: Request) {
     if (!body || typeof body !== "object" || Array.isArray(body)) {
       return NextResponse.json(
         { error: "Os dados enviados são inválidos." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const dados = montarDadosPermitidos(
-      body as Record<string, unknown>
-    );
+    const dados = montarDadosPermitidos(body as Record<string, unknown>);
 
     const config = await prisma.configuracaoInstituicao.upsert({
       where: {
@@ -159,10 +205,7 @@ export async function POST(req: Request) {
       config,
     });
   } catch (error) {
-    console.error(
-      "ERRO AO SALVAR CONFIGURAÇÕES DA INSTITUIÇÃO:",
-      error
-    );
+    console.error("ERRO AO SALVAR CONFIGURAÇÕES DA INSTITUIÇÃO:", error);
 
     return NextResponse.json(
       {
@@ -171,7 +214,7 @@ export async function POST(req: Request) {
             ? error.message
             : "Erro interno ao salvar as configurações.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

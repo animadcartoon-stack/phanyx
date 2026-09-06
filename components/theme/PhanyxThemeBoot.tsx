@@ -9,9 +9,10 @@ function aplicarTema(tema: Tema) {
   const rotaAtual = window.location.pathname;
 
   const rotaComTemaPrivado =
-    rotaAtual.startsWith("/admin") ||
-    rotaAtual.startsWith("/professor") ||
-    rotaAtual.startsWith("/aluno");
+  rotaAtual.startsWith("/admin") ||
+  rotaAtual.startsWith("/professor") ||
+  rotaAtual.startsWith("/aluno") ||
+  rotaAtual.startsWith("/master");
 
   if (!rotaComTemaPrivado) {
   root.removeAttribute("data-theme");

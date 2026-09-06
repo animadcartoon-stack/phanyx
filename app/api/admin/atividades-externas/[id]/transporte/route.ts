@@ -2634,6 +2634,916 @@ export async function POST(
             });
         }
 
+                if (
+            acao ===
+            "ATUALIZAR_STATUS_PASSAGEIRO"
+        ) {
+            const passageiroId =
+                Number(
+                    corpo?.passageiroId
+                );
+
+            if (
+                !Number.isInteger(
+                    passageiroId
+                ) ||
+                passageiroId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PASSAGEIRO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const novoStatus =
+                String(
+                    corpo?.status || ""
+                )
+                    .trim()
+                    .toUpperCase();
+
+            const statusValido =
+                novoStatus ===
+                    "AGUARDANDO_EMBARQUE" ||
+                novoStatus ===
+                    "EMBARCADO" ||
+                novoStatus ===
+                    "NAO_EMBARCOU" ||
+                novoStatus ===
+                    "DESEMBARCADO";
+
+            if (!statusValido) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "STATUS_PASSAGEIRO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const passageiro =
+                await prisma
+                    .atividadeExternaTrechoPassageiro
+                    .findFirst({
+                        where: {
+                            id:
+                                passageiroId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrecho: {
+                                atividadeExternaId:
+                                    atividade.id,
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            participanteId:
+                                true,
+
+                            trechoVeiculoId:
+                                true,
+
+                            atividadeExternaTrechoId:
+                                true,
+
+                            status: true,
+
+                            embarcadoEm:
+                                true,
+
+                            desembarcadoEm:
+                                true,
+                        },
+                    });
+
+            if (!passageiro) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "PASSAGEIRO_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            const transicaoPermitida =
+                (
+                    passageiro.status ===
+                        "PLANEJADO" &&
+                    novoStatus ===
+                        "AGUARDANDO_EMBARQUE"
+                ) ||
+                (
+                    passageiro.status ===
+                        "AGUARDANDO_EMBARQUE" &&
+                    novoStatus ===
+                        "EMBARCADO"
+                ) ||
+                (
+                    passageiro.status ===
+                        "AGUARDANDO_EMBARQUE" &&
+                    novoStatus ===
+                        "NAO_EMBARCOU"
+                ) ||
+                (
+                    passageiro.status ===
+                        "EMBARCADO" &&
+                    novoStatus ===
+                        "DESEMBARCADO"
+                );
+
+            if (!transicaoPermitida) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "TRANSICAO_STATUS_PASSAGEIRO_INVALIDA",
+
+                        statusAtual:
+                            passageiro.status,
+
+                        statusSolicitado:
+                            novoStatus,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            const agora =
+                new Date();
+
+            let passageiroAtualizado;
+
+            if (
+                novoStatus ===
+                "AGUARDANDO_EMBARQUE"
+            ) {
+                passageiroAtualizado =
+                    await prisma
+                        .atividadeExternaTrechoPassageiro
+                        .update({
+                            where: {
+                                id:
+                                    passageiro.id,
+                            },
+
+                            data: {
+                                status:
+                                    "AGUARDANDO_EMBARQUE",
+
+                                atualizadoPorId:
+                                    usuario.id,
+                            },
+
+                            select: {
+                                id: true,
+                                participanteId:
+                                    true,
+                                trechoVeiculoId:
+                                    true,
+                                status: true,
+                                embarcadoEm:
+                                    true,
+                                desembarcadoEm:
+                                    true,
+                                embarqueConfirmadoPorId:
+                                    true,
+                                desembarqueConfirmadoPorId:
+                                    true,
+                                updatedAt:
+                                    true,
+                            },
+                        });
+            } else if (
+                novoStatus ===
+                "EMBARCADO"
+            ) {
+                passageiroAtualizado =
+                    await prisma
+                        .atividadeExternaTrechoPassageiro
+                        .update({
+                            where: {
+                                id:
+                                    passageiro.id,
+                            },
+
+                            data: {
+                                status:
+                                    "EMBARCADO",
+
+                                embarcadoEm:
+                                    agora,
+
+                                embarqueConfirmadoPorId:
+                                    usuario.id,
+
+                                atualizadoPorId:
+                                    usuario.id,
+                            },
+
+                            select: {
+                                id: true,
+                                participanteId:
+                                    true,
+                                trechoVeiculoId:
+                                    true,
+                                status: true,
+                                embarcadoEm:
+                                    true,
+                                desembarcadoEm:
+                                    true,
+                                embarqueConfirmadoPorId:
+                                    true,
+                                desembarqueConfirmadoPorId:
+                                    true,
+                                updatedAt:
+                                    true,
+                            },
+                        });
+            } else if (
+                novoStatus ===
+                "NAO_EMBARCOU"
+            ) {
+                passageiroAtualizado =
+                    await prisma
+                        .atividadeExternaTrechoPassageiro
+                        .update({
+                            where: {
+                                id:
+                                    passageiro.id,
+                            },
+
+                            data: {
+                                status:
+                                    "NAO_EMBARCOU",
+
+                                atualizadoPorId:
+                                    usuario.id,
+                            },
+
+                            select: {
+                                id: true,
+                                participanteId:
+                                    true,
+                                trechoVeiculoId:
+                                    true,
+                                status: true,
+                                embarcadoEm:
+                                    true,
+                                desembarcadoEm:
+                                    true,
+                                embarqueConfirmadoPorId:
+                                    true,
+                                desembarqueConfirmadoPorId:
+                                    true,
+                                updatedAt:
+                                    true,
+                            },
+                        });
+            } else {
+                passageiroAtualizado =
+                    await prisma
+                        .atividadeExternaTrechoPassageiro
+                        .update({
+                            where: {
+                                id:
+                                    passageiro.id,
+                            },
+
+                            data: {
+                                status:
+                                    "DESEMBARCADO",
+
+                                desembarcadoEm:
+                                    agora,
+
+                                desembarqueConfirmadoPorId:
+                                    usuario.id,
+
+                                atualizadoPorId:
+                                    usuario.id,
+                            },
+
+                            select: {
+                                id: true,
+                                participanteId:
+                                    true,
+                                trechoVeiculoId:
+                                    true,
+                                status: true,
+                                embarcadoEm:
+                                    true,
+                                desembarcadoEm:
+                                    true,
+                                embarqueConfirmadoPorId:
+                                    true,
+                                desembarqueConfirmadoPorId:
+                                    true,
+                                updatedAt:
+                                    true,
+                            },
+                        });
+            }
+
+            return NextResponse.json({
+                ok: true,
+
+                acao:
+                    "ATUALIZAR_STATUS_PASSAGEIRO",
+
+                statusAnterior:
+                    passageiro.status,
+
+                passageiro:
+                    passageiroAtualizado,
+            });
+        }
+
+                if (
+            acao ===
+            "ATUALIZAR_STATUS_VEICULO"
+        ) {
+            const trechoVeiculoId =
+                Number(
+                    corpo?.trechoVeiculoId
+                );
+
+            if (
+                !Number.isInteger(
+                    trechoVeiculoId
+                ) ||
+                trechoVeiculoId <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "TRECHO_VEICULO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const novoStatus =
+                String(
+                    corpo?.status || ""
+                )
+                    .trim()
+                    .toUpperCase();
+
+            const statusValido =
+                novoStatus ===
+                    "CONFIRMADO" ||
+                novoStatus ===
+                    "EM_EMBARQUE" ||
+                novoStatus ===
+                    "EM_TRANSITO" ||
+                novoStatus ===
+                    "CHEGOU";
+
+            if (!statusValido) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "STATUS_VEICULO_INVALIDO",
+                    },
+                    {
+                        status: 400,
+                    }
+                );
+            }
+
+            const trechoVeiculo =
+                await prisma
+                    .atividadeExternaTrechoVeiculo
+                    .findFirst({
+                        where: {
+                            id:
+                                trechoVeiculoId,
+
+                            instituicaoId:
+                                usuario
+                                    .instituicaoId,
+
+                            atividadeExternaTrecho: {
+                                atividadeExternaId:
+                                    atividade.id,
+                            },
+                        },
+
+                        select: {
+                            id: true,
+
+                            atividadeExternaTrechoId:
+                                true,
+
+                            veiculoId:
+                                true,
+
+                            status:
+                                true,
+
+                            embarqueReal:
+                                true,
+
+                            desembarqueReal:
+                                true,
+
+                            _count: {
+                                select: {
+                                    condutores:
+                                        true,
+
+                                    passageiros:
+                                        true,
+                                },
+                            },
+
+                            atividadeExternaTrecho: {
+                                select: {
+                                    id: true,
+
+                                    status:
+                                        true,
+
+                                    partidaReal:
+                                        true,
+
+                                    chegadaReal:
+                                        true,
+                                },
+                            },
+                        },
+                    });
+
+            if (!trechoVeiculo) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "VEICULO_DO_TRECHO_NAO_ENCONTRADO",
+                    },
+                    {
+                        status: 404,
+                    }
+                );
+            }
+
+            if (
+                trechoVeiculo
+                    .atividadeExternaTrecho
+                    .status ===
+                    "CANCELADO" ||
+                trechoVeiculo
+                    .atividadeExternaTrecho
+                    .status ===
+                    "CONCLUIDO"
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "TRECHO_NAO_PERMITE_OPERACAO",
+
+                        statusTrecho:
+                            trechoVeiculo
+                                .atividadeExternaTrecho
+                                .status,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            const transicaoPermitida =
+                (
+                    trechoVeiculo.status ===
+                        "PLANEJADO" &&
+                    novoStatus ===
+                        "CONFIRMADO"
+                ) ||
+                (
+                    trechoVeiculo.status ===
+                        "CONFIRMADO" &&
+                    novoStatus ===
+                        "EM_EMBARQUE"
+                ) ||
+                (
+                    trechoVeiculo.status ===
+                        "EM_EMBARQUE" &&
+                    novoStatus ===
+                        "EM_TRANSITO"
+                ) ||
+                (
+                    trechoVeiculo.status ===
+                        "EM_TRANSITO" &&
+                    novoStatus ===
+                        "CHEGOU"
+                );
+
+            if (!transicaoPermitida) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+
+                        error:
+                            "TRANSICAO_STATUS_VEICULO_INVALIDA",
+
+                        statusAtual:
+                            trechoVeiculo.status,
+
+                        statusSolicitado:
+                            novoStatus,
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            if (
+                novoStatus ===
+                    "CONFIRMADO" &&
+                trechoVeiculo
+                    ._count
+                    .condutores <= 0
+            ) {
+                return NextResponse.json(
+                    {
+                        ok: false,
+                        error:
+                            "VEICULO_SEM_CONDUTOR",
+                    },
+                    {
+                        status: 409,
+                    }
+                );
+            }
+
+            if (
+                novoStatus ===
+                "EM_TRANSITO"
+            ) {
+                const passageirosPendentes =
+                    await prisma
+                        .atividadeExternaTrechoPassageiro
+                        .count({
+                            where: {
+                                instituicaoId:
+                                    usuario
+                                        .instituicaoId,
+
+                                trechoVeiculoId:
+                                    trechoVeiculo.id,
+
+                                status: {
+                                    in: [
+                                        "PLANEJADO",
+                                        "AGUARDANDO_EMBARQUE",
+                                    ],
+                                },
+                            },
+                        });
+
+                if (
+                    passageirosPendentes >
+                    0
+                ) {
+                    return NextResponse.json(
+                        {
+                            ok: false,
+
+                            error:
+                                "PASSAGEIROS_PENDENTES_EMBARQUE",
+
+                            totalPendentes:
+                                passageirosPendentes,
+                        },
+                        {
+                            status: 409,
+                        }
+                    );
+                }
+            }
+
+            const agora =
+                new Date();
+
+            const resultado =
+                await prisma.$transaction(
+                    async (tx) => {
+                        const dadosVeiculo =
+                            novoStatus ===
+                            "CONFIRMADO"
+                                ? {
+                                      status:
+                                          "CONFIRMADO" as const,
+
+                                      atualizadoPorId:
+                                          usuario.id,
+                                  }
+                                : novoStatus ===
+                                    "EM_EMBARQUE"
+                                  ? {
+                                        status:
+                                            "EM_EMBARQUE" as const,
+
+                                        embarqueReal:
+                                            trechoVeiculo
+                                                .embarqueReal ??
+                                            agora,
+
+                                        atualizadoPorId:
+                                            usuario.id,
+                                    }
+                                  : novoStatus ===
+                                      "EM_TRANSITO"
+                                    ? {
+                                          status:
+                                              "EM_TRANSITO" as const,
+
+                                          atualizadoPorId:
+                                              usuario.id,
+                                      }
+                                    : {
+                                          status:
+                                              "CHEGOU" as const,
+
+                                          desembarqueReal:
+                                              trechoVeiculo
+                                                  .desembarqueReal ??
+                                              agora,
+
+                                          atualizadoPorId:
+                                              usuario.id,
+                                      };
+
+                        const veiculoAtualizado =
+                            await tx
+                                .atividadeExternaTrechoVeiculo
+                                .update({
+                                    where: {
+                                        id:
+                                            trechoVeiculo.id,
+                                    },
+
+                                    data:
+                                        dadosVeiculo,
+
+                                    select: {
+                                        id: true,
+
+                                        atividadeExternaTrechoId:
+                                            true,
+
+                                        veiculoId:
+                                            true,
+
+                                        status:
+                                            true,
+
+                                        embarqueReal:
+                                            true,
+
+                                        desembarqueReal:
+                                            true,
+
+                                        updatedAt:
+                                            true,
+                                    },
+                                });
+
+                        if (
+                            novoStatus ===
+                            "EM_EMBARQUE"
+                        ) {
+                            await tx
+                                .atividadeExternaTrechoPassageiro
+                                .updateMany({
+                                    where: {
+                                        instituicaoId:
+                                            usuario
+                                                .instituicaoId,
+
+                                        trechoVeiculoId:
+                                            trechoVeiculo.id,
+
+                                        status:
+                                            "PLANEJADO",
+                                    },
+
+                                    data: {
+                                        status:
+                                            "AGUARDANDO_EMBARQUE",
+
+                                        atualizadoPorId:
+                                            usuario.id,
+                                    },
+                                });
+                        }
+
+                        const veiculosDoTrecho =
+                            await tx
+                                .atividadeExternaTrechoVeiculo
+                                .findMany({
+                                    where: {
+                                        instituicaoId:
+                                            usuario
+                                                .instituicaoId,
+
+                                        atividadeExternaTrechoId:
+                                            trechoVeiculo
+                                                .atividadeExternaTrechoId,
+                                    },
+
+                                    select: {
+                                        id: true,
+
+                                        status:
+                                            true,
+                                    },
+                                });
+
+                        const veiculosAtivos =
+                            veiculosDoTrecho.filter(
+                                (item) =>
+                                    item.status !==
+                                    "CANCELADO"
+                            );
+
+                        let statusTrechoCalculado:
+                            | "PLANEJADO"
+                            | "CONFIRMADO"
+                            | "EM_EMBARQUE"
+                            | "EM_TRANSITO"
+                            | "CONCLUIDO" =
+                            "PLANEJADO";
+
+                        if (
+                            veiculosAtivos.length >
+                                0 &&
+                            veiculosAtivos.every(
+                                (item) =>
+                                    item.status ===
+                                    "CHEGOU"
+                            )
+                        ) {
+                            statusTrechoCalculado =
+                                "CONCLUIDO";
+                        } else if (
+                            veiculosAtivos.some(
+                                (item) =>
+                                    item.status ===
+                                        "EM_TRANSITO" ||
+                                    item.status ===
+                                        "CHEGOU"
+                            )
+                        ) {
+                            statusTrechoCalculado =
+                                "EM_TRANSITO";
+                        } else if (
+                            veiculosAtivos.some(
+                                (item) =>
+                                    item.status ===
+                                    "EM_EMBARQUE"
+                            )
+                        ) {
+                            statusTrechoCalculado =
+                                "EM_EMBARQUE";
+                        } else if (
+                            veiculosAtivos.length >
+                                0 &&
+                            veiculosAtivos.every(
+                                (item) =>
+                                    item.status ===
+                                    "CONFIRMADO"
+                            )
+                        ) {
+                            statusTrechoCalculado =
+                                "CONFIRMADO";
+                        }
+
+                        const dadosTrecho =
+                            statusTrechoCalculado ===
+                            "EM_TRANSITO"
+                                ? {
+                                      status:
+                                          "EM_TRANSITO" as const,
+
+                                      partidaReal:
+                                          trechoVeiculo
+                                              .atividadeExternaTrecho
+                                              .partidaReal ??
+                                          agora,
+
+                                      atualizadoPorId:
+                                          usuario.id,
+                                  }
+                                : statusTrechoCalculado ===
+                                    "CONCLUIDO"
+                                  ? {
+                                        status:
+                                            "CONCLUIDO" as const,
+
+                                        chegadaReal:
+                                            trechoVeiculo
+                                                .atividadeExternaTrecho
+                                                .chegadaReal ??
+                                            agora,
+
+                                        atualizadoPorId:
+                                            usuario.id,
+                                    }
+                                  : {
+                                        status:
+                                            statusTrechoCalculado,
+
+                                        atualizadoPorId:
+                                            usuario.id,
+                                    };
+
+                        const trechoAtualizado =
+                            await tx
+                                .atividadeExternaTrecho
+                                .update({
+                                    where: {
+                                        id:
+                                            trechoVeiculo
+                                                .atividadeExternaTrechoId,
+                                    },
+
+                                    data:
+                                        dadosTrecho,
+
+                                    select: {
+                                        id: true,
+
+                                        status:
+                                            true,
+
+                                        partidaReal:
+                                            true,
+
+                                        chegadaReal:
+                                            true,
+
+                                        updatedAt:
+                                            true,
+                                    },
+                                });
+
+                        return {
+                            veiculoAtualizado,
+                            trechoAtualizado,
+                        };
+                    }
+                );
+
+            return NextResponse.json({
+                ok: true,
+
+                acao:
+                    "ATUALIZAR_STATUS_VEICULO",
+
+                statusAnterior:
+                    trechoVeiculo.status,
+
+                veiculo:
+                    resultado
+                        .veiculoAtualizado,
+
+                trecho:
+                    resultado
+                        .trechoAtualizado,
+            });
+        }
+
         const modalTexto =
 
             String(

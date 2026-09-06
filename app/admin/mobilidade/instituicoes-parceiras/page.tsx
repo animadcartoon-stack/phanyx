@@ -5,7 +5,6 @@ import {
   FormEvent,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import {
@@ -312,26 +311,36 @@ export default function InstituicoesParceirasPage() {
     Toast | null
   >(null);
 
-  const paises =
-    useMemo(() => {
-      let displayNames:
-        | Intl.DisplayNames
-        | null = null;
+  const [
+    paises,
+    setPaises,
+  ] = useState<
+    Array<{
+      codigo: CountryCode;
+      nome: string;
+    }>
+  >([]);
 
-      try {
-        displayNames =
-          new Intl.DisplayNames(
-            [locale],
-            {
-              type: "region",
-            }
-          );
-      } catch {
-        displayNames =
-          null;
-      }
+  useEffect(() => {
+    let displayNames:
+      | Intl.DisplayNames
+      | null = null;
 
-      return getCountries()
+    try {
+      displayNames =
+        new Intl.DisplayNames(
+          [locale],
+          {
+            type: "region",
+          }
+        );
+    } catch {
+      displayNames =
+        null;
+    }
+
+    const lista =
+      getCountries()
         .map(
           (codigo) => ({
             codigo,
@@ -349,7 +358,9 @@ export default function InstituicoesParceirasPage() {
               locale
             )
         );
-    }, [locale]);
+
+    setPaises(lista);
+  }, [locale]);
 
   const nomePais =
     useCallback(

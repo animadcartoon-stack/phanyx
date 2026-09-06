@@ -458,6 +458,12 @@ export default function TransporteAtividadeExterna({
   const [confirmandoRemocaoPassageiroId, setConfirmandoRemocaoPassageiroId] =
     useState<number | null>(null);
 
+  const [atualizandoStatusPassageiro, setAtualizandoStatusPassageiro] =
+    useState<{
+      passageiroId: number;
+      novoStatus: string;
+    } | null>(null);
+
   const [
     condutorSelecionadoPorTrechoVeiculo,
     setCondutorSelecionadoPorTrechoVeiculo,
@@ -484,6 +490,11 @@ export default function TransporteAtividadeExterna({
 
   const [confirmandoRemocaoVeiculoId, setConfirmandoRemocaoVeiculoId] =
     useState<number | null>(null);
+
+  const [atualizandoStatusVeiculo, setAtualizandoStatusVeiculo] = useState<{
+    trechoVeiculoId: number;
+    novoStatus: "CONFIRMADO" | "EM_EMBARQUE" | "EM_TRANSITO" | "CHEGOU";
+  } | null>(null);
 
   const [resumo, setResumo] = useState({
     totalTrechos: 0,
@@ -830,6 +841,84 @@ export default function TransporteAtividadeExterna({
     }
   }
 
+  async function atualizarStatusPassageiro(
+    passageiroId: number,
+    novoStatus:
+      | "AGUARDANDO_EMBARQUE"
+      | "EMBARCADO"
+      | "NAO_EMBARCOU"
+      | "DESEMBARCADO",
+  ) {
+    if (!Number.isInteger(passageiroId) || passageiroId <= 0) {
+      return;
+    }
+
+    setAtualizandoStatusPassageiro({
+      passageiroId,
+      novoStatus,
+    });
+
+    setErro("");
+    setSucesso("");
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/atividades-externas/${atividadeId}/transporte`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            acao: "ATUALIZAR_STATUS_PASSAGEIRO",
+
+            passageiroId,
+
+            status: novoStatus,
+          }),
+        },
+      );
+
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      if (!resposta.ok || !dados.ok) {
+        if (dados.error === "TRANSICAO_STATUS_PASSAGEIRO_INVALIDA") {
+          setErro(t("passengerAssignment.invalidStatusTransition"));
+
+          return;
+        }
+
+        throw new Error(dados.error || "ERRO_ATUALIZAR_STATUS_PASSAGEIRO");
+      }
+
+      if (novoStatus === "AGUARDANDO_EMBARQUE") {
+        setSucesso(t("passengerAssignment.waitingBoardingSet"));
+      } else if (novoStatus === "EMBARCADO") {
+        setSucesso(t("passengerAssignment.boardedSet"));
+      } else if (novoStatus === "NAO_EMBARCOU") {
+        setSucesso(t("passengerAssignment.noShowSet"));
+      } else {
+        setSucesso(t("passengerAssignment.disembarkedSet"));
+      }
+
+      await carregar();
+    } catch (error) {
+      console.error(
+        "[TRANSPORTE_ATIVIDADE_ATUALIZAR_STATUS_PASSAGEIRO]",
+        error,
+      );
+
+      setErro(t("passengerAssignment.statusUpdateError"));
+    } finally {
+      setAtualizandoStatusPassageiro(null);
+    }
+  }
+
   async function desvincularCondutor(atribuicaoCondutorId: number) {
     if (!Number.isInteger(atribuicaoCondutorId) || atribuicaoCondutorId <= 0) {
       return;
@@ -947,6 +1036,95 @@ export default function TransporteAtividadeExterna({
       setErro(t("vehicleAssignment.removeError"));
     } finally {
       setRemovendoVeiculoId(null);
+    }
+  }
+
+  async function atualizarStatusVeiculo(
+    trechoVeiculoId: number,
+    novoStatus: "CONFIRMADO" | "EM_EMBARQUE" | "EM_TRANSITO" | "CHEGOU",
+  ) {
+    if (!Number.isInteger(trechoVeiculoId) || trechoVeiculoId <= 0) {
+      return;
+    }
+
+    setAtualizandoStatusVeiculo({
+      trechoVeiculoId,
+      novoStatus,
+    });
+
+    setErro("");
+    setSucesso("");
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/atividades-externas/${atividadeId}/transporte`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            acao: "ATUALIZAR_STATUS_VEICULO",
+
+            trechoVeiculoId,
+
+            status: novoStatus,
+          }),
+        },
+      );
+
+      const dados = (await resposta.json()) as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      if (!resposta.ok || !dados.ok) {
+        if (dados.error === "TRANSICAO_STATUS_VEICULO_INVALIDA") {
+          setErro(t("vehicleAssignment.invalidStatusTransition"));
+
+          return;
+        }
+
+        if (dados.error === "VEICULO_SEM_CONDUTOR") {
+          setErro(t("vehicleAssignment.noDriver"));
+
+          return;
+        }
+
+        if (dados.error === "PASSAGEIROS_PENDENTES_EMBARQUE") {
+          setErro(t("vehicleAssignment.pendingPassengers"));
+
+          return;
+        }
+
+        if (dados.error === "TRECHO_NAO_PERMITE_OPERACAO") {
+          setErro(t("vehicleAssignment.segmentNotOperational"));
+
+          return;
+        }
+
+        throw new Error(dados.error || "ERRO_ATUALIZAR_STATUS_VEICULO");
+      }
+
+      if (novoStatus === "CONFIRMADO") {
+        setSucesso(t("vehicleAssignment.vehicleConfirmed"));
+      } else if (novoStatus === "EM_EMBARQUE") {
+        setSucesso(t("vehicleAssignment.boardingStarted"));
+      } else if (novoStatus === "EM_TRANSITO") {
+        setSucesso(t("vehicleAssignment.tripStarted"));
+      } else {
+        setSucesso(t("vehicleAssignment.arrivalRegistered"));
+      }
+
+      await carregar();
+    } catch (error) {
+      console.error("[TRANSPORTE_ATIVIDADE_ATUALIZAR_STATUS_VEICULO]", error);
+
+      setErro(t("vehicleAssignment.statusUpdateError"));
+    } finally {
+      setAtualizandoStatusVeiculo(null);
     }
   }
 
@@ -1539,6 +1717,14 @@ export default function TransporteAtividadeExterna({
                               ),
                           );
 
+                        const atualizandoEsteVeiculo =
+                          atualizandoStatusVeiculo?.trechoVeiculoId ===
+                          vinculo.id;
+
+                        const statusVeiculoSolicitado = atualizandoEsteVeiculo
+                          ? atualizandoStatusVeiculo?.novoStatus
+                          : null;
+
                         return (
                           <div
                             key={vinculo.id}
@@ -1555,6 +1741,12 @@ export default function TransporteAtividadeExterna({
                                   vinculo.veiculo.placa
                                     ? ` • ${vinculo.veiculo.placa}`
                                     : ""}
+                                </span>
+
+                                <span className="phanyx-transporte-status rounded-full border px-2.5 py-1 text-xs font-black">
+                                  {t(
+                                    `vehicleAssignment.status.${vinculo.status}`,
+                                  )}
                                 </span>
 
                                 {podeGerenciar &&
@@ -1613,6 +1805,94 @@ export default function TransporteAtividadeExterna({
                                         : t("vehicleAssignment.confirmRemove")}
                                     </button>
                                   </div>
+                                </div>
+                              ) : null}
+
+                              {podeGerenciar &&
+                              confirmandoRemocaoVeiculoId !== vinculo.id &&
+                              vinculo.status !== "CHEGOU" &&
+                              vinculo.status !== "CANCELADO" ? (
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {vinculo.status === "PLANEJADO" ? (
+                                    <button
+                                      type="button"
+                                      disabled={
+                                        atualizandoEsteVeiculo ||
+                                        removendoVeiculoId === vinculo.id
+                                      }
+                                      onClick={() =>
+                                        void atualizarStatusVeiculo(
+                                          vinculo.id,
+                                          "CONFIRMADO",
+                                        )
+                                      }
+                                      className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                      {statusVeiculoSolicitado === "CONFIRMADO"
+                                        ? t(
+                                            "vehicleAssignment.confirmingVehicle",
+                                          )
+                                        : t("vehicleAssignment.confirmVehicle")}
+                                    </button>
+                                  ) : null}
+
+                                  {vinculo.status === "CONFIRMADO" ? (
+                                    <button
+                                      type="button"
+                                      disabled={atualizandoEsteVeiculo}
+                                      onClick={() =>
+                                        void atualizarStatusVeiculo(
+                                          vinculo.id,
+                                          "EM_EMBARQUE",
+                                        )
+                                      }
+                                      className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                      {statusVeiculoSolicitado === "EM_EMBARQUE"
+                                        ? t(
+                                            "vehicleAssignment.startingBoardingOperation",
+                                          )
+                                        : t(
+                                            "vehicleAssignment.startBoardingOperation",
+                                          )}
+                                    </button>
+                                  ) : null}
+
+                                  {vinculo.status === "EM_EMBARQUE" ? (
+                                    <button
+                                      type="button"
+                                      disabled={atualizandoEsteVeiculo}
+                                      onClick={() =>
+                                        void atualizarStatusVeiculo(
+                                          vinculo.id,
+                                          "EM_TRANSITO",
+                                        )
+                                      }
+                                      className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                      {statusVeiculoSolicitado === "EM_TRANSITO"
+                                        ? t("vehicleAssignment.startingTrip")
+                                        : t("vehicleAssignment.startTrip")}
+                                    </button>
+                                  ) : null}
+
+                                  {vinculo.status === "EM_TRANSITO" ? (
+                                    <button
+                                      type="button"
+                                      disabled={atualizandoEsteVeiculo}
+                                      onClick={() =>
+                                        void atualizarStatusVeiculo(
+                                          vinculo.id,
+                                          "CHEGOU",
+                                        )
+                                      }
+                                      className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                      {statusVeiculoSolicitado === "CHEGOU"
+                                        ? t("vehicleAssignment.markingArrived")
+                                        : t("vehicleAssignment.markArrived")}
+                                    </button>
+                                  ) : null}
                                 </div>
                               ) : null}
                             </div>
@@ -1837,6 +2117,15 @@ export default function TransporteAtividadeExterna({
                                       participante?.aluno.nome ||
                                       `#${passageiro.participanteId}`;
 
+                                    const atualizandoEstePassageiro =
+                                      atualizandoStatusPassageiro?.passageiroId ===
+                                      passageiro.id;
+
+                                    const statusSolicitado =
+                                      atualizandoEstePassageiro
+                                        ? atualizandoStatusPassageiro?.novoStatus
+                                        : null;
+
                                     return (
                                       <div
                                         key={passageiro.id}
@@ -1933,6 +2222,142 @@ export default function TransporteAtividadeExterna({
                                                     )}
                                               </button>
                                             </div>
+                                          </div>
+                                        ) : null}
+                                        {podeGerenciar &&
+                                        confirmandoRemocaoPassageiroId !==
+                                          passageiro.id ? (
+                                          <div className="flex flex-wrap items-center gap-2">
+                                            {passageiro.status ===
+                                            "PLANEJADO" ? (
+                                              <button
+                                                type="button"
+                                                disabled={
+                                                  atualizandoEstePassageiro
+                                                }
+                                                onClick={() =>
+                                                  void atualizarStatusPassageiro(
+                                                    passageiro.id,
+                                                    "AGUARDANDO_EMBARQUE",
+                                                  )
+                                                }
+                                                className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                              >
+                                                {statusSolicitado ===
+                                                "AGUARDANDO_EMBARQUE"
+                                                  ? t(
+                                                      "passengerAssignment.startingBoarding",
+                                                    )
+                                                  : t(
+                                                      "passengerAssignment.startBoarding",
+                                                    )}
+                                              </button>
+                                            ) : null}
+
+                                            {passageiro.status ===
+                                            "AGUARDANDO_EMBARQUE" ? (
+                                              <>
+                                                <button
+                                                  type="button"
+                                                  disabled={
+                                                    atualizandoEstePassageiro
+                                                  }
+                                                  onClick={() =>
+                                                    void atualizarStatusPassageiro(
+                                                      passageiro.id,
+                                                      "EMBARCADO",
+                                                    )
+                                                  }
+                                                  className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                  {statusSolicitado ===
+                                                  "EMBARCADO"
+                                                    ? t(
+                                                        "passengerAssignment.markingBoarded",
+                                                      )
+                                                    : t(
+                                                        "passengerAssignment.markBoarded",
+                                                      )}
+                                                </button>
+
+                                                <button
+                                                  type="button"
+                                                  disabled={
+                                                    atualizandoEstePassageiro
+                                                  }
+                                                  onClick={() =>
+                                                    void atualizarStatusPassageiro(
+                                                      passageiro.id,
+                                                      "NAO_EMBARCOU",
+                                                    )
+                                                  }
+                                                  className="rounded-xl border border-red-300 px-3 py-2 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+                                                >
+                                                  {statusSolicitado ===
+                                                  "NAO_EMBARCOU"
+                                                    ? t(
+                                                        "passengerAssignment.markingNoShow",
+                                                      )
+                                                    : t(
+                                                        "passengerAssignment.markNoShow",
+                                                      )}
+                                                </button>
+                                              </>
+                                            ) : null}
+
+                                            {passageiro.status ===
+                                            "EMBARCADO" ? (
+                                              <button
+                                                type="button"
+                                                disabled={
+                                                  atualizandoEstePassageiro
+                                                }
+                                                onClick={() =>
+                                                  void atualizarStatusPassageiro(
+                                                    passageiro.id,
+                                                    "DESEMBARCADO",
+                                                  )
+                                                }
+                                                className="phanyx-transporte-primary-button rounded-xl px-3 py-2 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50"
+                                              >
+                                                {statusSolicitado ===
+                                                "DESEMBARCADO"
+                                                  ? t(
+                                                      "passengerAssignment.markingDisembarked",
+                                                    )
+                                                  : t(
+                                                      "passengerAssignment.markDisembarked",
+                                                    )}
+                                              </button>
+                                            ) : null}
+                                          </div>
+                                        ) : null}
+
+                                        {passageiro.embarcadoEm ? (
+                                          <div className="text-xs font-medium opacity-70">
+                                            <strong>
+                                              {t(
+                                                "passengerAssignment.boardedAt",
+                                              )}
+                                              :
+                                            </strong>{" "}
+                                            {formatarDataHora(
+                                              passageiro.embarcadoEm,
+                                            )}
+                                          </div>
+                                        ) : null}
+
+                                        {passageiro.desembarcadoEm ? (
+                                          <div className="text-xs font-medium opacity-70">
+                                            <strong>
+                                              {t(
+                                                "passengerAssignment.disembarkedAt",
+                                              )}
+                                              :
+                                            </strong>{" "}
+                                            {formatarDataHora(
+                                              passageiro.desembarcadoEm,
+                                            )}
                                           </div>
                                         ) : null}
                                       </div>

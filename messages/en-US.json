@@ -212,7 +212,11 @@
     "studentSuccess": "Student Success",
     "validationAudit": "Validation audit",
     "internationalMobility": "International Mobility",
-    "partnerInstitutions": "Partner institutions"
+    "partnerInstitutions": "Partner institutions",
+    "mobilityAgreements": "Agreements",
+    "mobilityPrograms": "Programs",
+    "mobilityOffers": "Offers / Calls",
+    "mobilityApplications": "Applications"
   },
   "MonthlyCampaign": {
     "origin": "Monthly Awareness Campaign",
@@ -1490,7 +1494,34 @@
       "hasLinks": "Remove the drivers and passengers linked to this vehicle first.",
       "removeQuestion": "Remove this vehicle from the segment?",
       "confirmRemove": "Confirm removal",
-      "cancelRemove": "Cancel"
+      "cancelRemove": "Cancel",
+      "confirmVehicle": "Confirm vehicle",
+      "confirmingVehicle": "Confirming...",
+      "startBoardingOperation": "Start boarding",
+      "startingBoardingOperation": "Starting...",
+      "startTrip": "Start trip",
+      "startingTrip": "Starting...",
+      "markArrived": "Register arrival",
+      "markingArrived": "Registering...",
+      "vehicleConfirmed": "Vehicle confirmed for the segment successfully.",
+      "boardingStarted": "Boarding operation started successfully.",
+      "tripStarted": "Trip started successfully.",
+      "arrivalRegistered": "Vehicle arrival registered successfully.",
+      "statusUpdateError": "The vehicle status could not be updated.",
+      "invalidStatusTransition": "This vehicle status change is not allowed.",
+      "noDriver": "Link at least one driver before confirming the vehicle.",
+      "pendingPassengers": "There are still passengers awaiting a boarding decision. Confirm boarding or record who did not board before starting the trip.",
+      "segmentNotOperational": "This segment no longer allows operational changes.",
+      "boardingAt": "Boarding started at",
+      "arrivedAt": "Arrival registered at",
+      "status": {
+        "PLANEJADO": "Planned",
+        "CONFIRMADO": "Confirmed",
+        "EM_EMBARQUE": "Boarding",
+        "EM_TRANSITO": "In transit",
+        "CHEGOU": "Arrived",
+        "CANCELADO": "Cancelled"
+      }
     },
     "driverAssignment": {
       "title": "Drivers",
@@ -1552,7 +1583,23 @@
       "cannotRemoveAfterOperation": "This passenger can no longer be removed because segment operations have already started.",
       "removeQuestion": "Remove this passenger from the vehicle?",
       "confirmRemove": "Confirm removal",
-      "cancelRemove": "Cancel"
+      "cancelRemove": "Cancel",
+      "startBoarding": "Start boarding",
+      "startingBoarding": "Starting...",
+      "markBoarded": "Confirm boarding",
+      "markingBoarded": "Confirming...",
+      "markNoShow": "Did not board",
+      "markingNoShow": "Recording...",
+      "markDisembarked": "Confirm disembarkation",
+      "markingDisembarked": "Confirming...",
+      "waitingBoardingSet": "Passenger set to awaiting boarding.",
+      "boardedSet": "Passenger boarding confirmed successfully.",
+      "noShowSet": "Passenger recorded as did not board.",
+      "disembarkedSet": "Passenger disembarkation confirmed successfully.",
+      "statusUpdateError": "The passenger status could not be updated.",
+      "invalidStatusTransition": "This passenger status change is not allowed.",
+      "boardedAt": "Boarded at",
+      "disembarkedAt": "Disembarked at"
     }
   },
   "ProfessorLayout": {
@@ -11613,6 +11660,592 @@
       "notFound": "Partner institution not found.",
       "invalidId": "Invalid identifier.",
       "invalidStatus": "Invalid status."
+    }
+  },
+  "MasterHolidays": {
+    "title": "Calendars and Holidays",
+    "subtitle": "Create and publish holidays that will be distributed to PHANYX institutions in each country.",
+    "actions": {
+      "newHoliday": "New holiday",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "publish": "Publish",
+      "archive": "Archive",
+      "deleteDraft": "Delete draft",
+      "cancel": "Cancel",
+      "saveDraft": "Save draft",
+      "saveChanges": "Save changes",
+      "close": "Close"
+    },
+    "summary": {
+      "total": "Total holidays",
+      "published": "Published",
+      "drafts": "Drafts",
+      "archived": "Archived"
+    },
+    "filters": {
+      "country": "Country",
+      "allCountries": "All countries",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "year": "Year",
+      "clear": "Clear filters"
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "table": {
+      "holiday": "Holiday",
+      "country": "Country",
+      "date": "Date",
+      "displayPeriod": "Display period",
+      "status": "Status",
+      "priority": "Priority",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No holidays found",
+      "description": "Create a holiday or change the filters to view other records."
+    },
+    "form": {
+      "newTitle": "Create holiday",
+      "editTitle": "Edit holiday",
+      "general": "General information",
+      "translations": "Translated content",
+      "translationsHint": "The tabs below are translations of the same holiday. Change only the text language; the holiday country remains the same.",
+      "preview": "Preview",
+      "country": "Country",
+      "countryValidity": "Country where the holiday applies",
+      "countryHint": "This country determines which institutions receive the notice. It does not change when you switch translation language.",
+      "date": "Holiday date",
+      "displayStart": "Display starts",
+      "displayEnd": "Display ends",
+      "type": "Scope",
+      "priority": "Priority",
+      "emoji": "Notice icon",
+      "iconHint": "The country's flag is selected automatically. Choose another icon if you prefer.",
+      "region": "State / region",
+      "city": "City",
+      "national": "National",
+      "regional": "Regional",
+      "local": "Local",
+      "name": "Holiday name",
+      "bannerTitle": "Notice title",
+      "message": "Message",
+      "optional": "Optional",
+      "publicationHint": "Complete all five languages before publishing the holiday.",
+      "draftHint": "Drafts may be saved with at least one complete language."
+    },
+    "preview": {
+      "origin": "National Calendar",
+      "category": "Holiday",
+      "viewCalendar": "View calendar",
+      "noContent": "Fill in the content for this language to preview the notice."
+    },
+    "confirmDelete": {
+      "title": "Delete draft?",
+      "description": "This draft will be permanently deleted. This action cannot be undone.",
+      "confirm": "Delete"
+    },
+    "messages": {
+      "loadError": "Unable to load holidays.",
+      "saveError": "Unable to save the holiday.",
+      "saved": "Holiday saved successfully.",
+      "deleted": "Draft deleted successfully.",
+      "published": "Holiday published successfully.",
+      "archived": "Holiday archived successfully.",
+      "permission": "You do not have permission to manage global holidays.",
+      "publishTranslations": "Complete all five languages before publishing.",
+      "invalidPeriod": "Check the selected display period.",
+      "genericError": "Unable to complete the operation."
+    }
+  },
+  "AdminMobilityAgreements": {
+    "back": "International Mobility",
+    "title": "Agreements",
+    "subtitle": "Manage the institutional agreements that support academic mobility programs.",
+    "summary": {
+      "total": "Total agreements",
+      "active": "Active agreements",
+      "drafts": "Drafts",
+      "suspended": "Suspended"
+    },
+    "filters": {
+      "search": "Search agreements...",
+      "allStatuses": "All statuses",
+      "allDirections": "All directions",
+      "allPartners": "All partner institutions"
+    },
+    "table": {
+      "agreement": "Agreement",
+      "partner": "Partner institution",
+      "direction": "Direction",
+      "validity": "Validity",
+      "courses": "Programs / Courses",
+      "status": "Status",
+      "actions": "Actions",
+      "allCourses": "Institution-wide",
+      "courseCount": "{count} course(s)"
+    },
+    "directions": {
+      "outgoing": "Outgoing",
+      "incoming": "Incoming",
+      "bilateral": "Bilateral"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "suspended": "Suspended",
+      "closed": "Closed",
+      "expired": "Expired"
+    },
+    "actions": {
+      "new": "New agreement",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "sections": {
+      "identification": "Agreement details",
+      "validity": "Validity and seats",
+      "courses": "Programs / Courses",
+      "coursesDescription": "Select the courses covered by this agreement. Leave all unchecked for institution-wide coverage.",
+      "notes": "Notes"
+    },
+    "fields": {
+      "partner": "Partner institution",
+      "selectPartner": "Select a partner institution",
+      "inactivePartner": "Inactive",
+      "name": "Agreement name",
+      "code": "Internal code",
+      "description": "Description",
+      "direction": "Direction",
+      "status": "Status",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "outgoingSeats": "Outgoing seats per year",
+      "incomingSeats": "Incoming seats per year",
+      "reciprocity": "Reciprocity agreement",
+      "reciprocityDescription": "Both institutions exchange students under reciprocal conditions.",
+      "tuitionWaiver": "Academic tuition waiver",
+      "tuitionWaiverDescription": "Students are exempt from academic tuition at the host institution according to this agreement.",
+      "searchCourses": "Search courses...",
+      "noCourses": "No courses found.",
+      "inactiveCourse": "Inactive",
+      "allCoursesSelected": "No specific course selected: institution-wide coverage.",
+      "selectedCourses": "{count} course(s) selected"
+    },
+    "modal": {
+      "newTitle": "New agreement",
+      "editTitle": "Edit agreement",
+      "description": "Register the institutional terms, validity, seats and covered courses."
+    },
+    "empty": {
+      "title": "No agreements found",
+      "description": "Create the first mobility agreement or adjust the filters."
+    },
+    "messages": {
+      "created": "Agreement created successfully.",
+      "updated": "Agreement updated successfully."
+    },
+    "errors": {
+      "load": "Agreements could not be loaded.",
+      "save": "The agreement could not be saved.",
+      "generic": "An error occurred while processing the request.",
+      "unauthorized": "Your session is not authenticated.",
+      "forbidden": "You do not have permission to access this area.",
+      "forbiddenManage": "You do not have permission to manage agreements.",
+      "nameRequired": "Enter the agreement name.",
+      "invalidPartner": "Select a valid active partner institution.",
+      "invalidDirection": "Select a valid direction.",
+      "invalidStatus": "Select a valid status.",
+      "invalidDate": "Enter a valid date.",
+      "invalidValidity": "The end date cannot be before the start date.",
+      "invalidSeats": "Enter a valid number of seats.",
+      "invalidCourse": "One or more selected courses are invalid.",
+      "duplicateCode": "This agreement code is already in use.",
+      "notFound": "Agreement not found.",
+      "invalidId": "Invalid identifier."
+    }
+  },
+  "AdminMobilityPrograms": {
+    "back": "International Mobility",
+    "title": "Mobility Programs",
+    "subtitle": "Structure exchanges, internships, research, language programs, and other international experiences.",
+    "summary": {
+      "total": "Total programs",
+      "active": "Active programs",
+      "drafts": "Drafts",
+      "inactive": "Inactive programs"
+    },
+    "filters": {
+      "search": "Search programs...",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "allDirections": "All directions"
+    },
+    "table": {
+      "program": "Program",
+      "type": "Type",
+      "partner": "Partner institution",
+      "direction": "Direction",
+      "language": "Language",
+      "duration": "Duration",
+      "offers": "Offers",
+      "status": "Status",
+      "actions": "Actions",
+      "noPartner": "No linked institution",
+      "minimumLevel": "Minimum level:"
+    },
+    "types": {
+      "academicSemester": "Academic semester",
+      "academicYear": "Academic year",
+      "shortTerm": "Short-term program",
+      "language": "Language program",
+      "internship": "Internship",
+      "research": "Research",
+      "summerSchool": "Summer School",
+      "winterSchool": "Winter School",
+      "doubleDegree": "Double degree",
+      "hybrid": "Hybrid",
+      "virtual": "Virtual",
+      "other": "Other"
+    },
+    "directions": {
+      "outgoing": "Outgoing",
+      "incoming": "Incoming",
+      "bilateral": "Bilateral"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "inactive": "Inactive",
+      "archived": "Archived"
+    },
+    "duration": {
+      "days": "{count} days",
+      "range": "{min} to {max} days",
+      "minimum": "At least {count} days",
+      "maximum": "Up to {count} days"
+    },
+    "actions": {
+      "new": "New program",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "empty": {
+      "title": "No programs found",
+      "description": "Create the first mobility program or adjust the filters."
+    },
+    "sections": {
+      "identification": "Program details",
+      "language": "Language requirements",
+      "duration": "Program duration",
+      "durationDescription": "Enter the expected minimum and maximum duration in days."
+    },
+    "fields": {
+      "agreement": "Agreement",
+      "noAgreement": "No specific agreement",
+      "agreementHelp": "When an agreement is selected, its partner institution is linked automatically.",
+      "partner": "Partner institution",
+      "noPartner": "No specific partner institution",
+      "partnerFromAgreement": "Partner institution defined automatically by the selected agreement.",
+      "inactive": "Inactive",
+      "name": "Program name",
+      "code": "Internal code",
+      "type": "Type",
+      "direction": "Direction",
+      "status": "Status",
+      "description": "Description",
+      "language": "Language",
+      "languagePlaceholder": "e.g. French, English, Spanish",
+      "minimumLanguageLevel": "Minimum language level",
+      "minimumLanguageLevelPlaceholder": "e.g. B2 CEFR, TOEFL 80",
+      "minimumDays": "Minimum duration (days)",
+      "maximumDays": "Maximum duration (days)"
+    },
+    "modal": {
+      "newTitle": "New program",
+      "editTitle": "Edit program",
+      "description": "Define the mobility model, institutional link, language requirements, and expected duration."
+    },
+    "messages": {
+      "created": "Program created successfully.",
+      "updated": "Program updated successfully.",
+      "activated": "Program activated.",
+      "deactivated": "Program deactivated."
+    },
+    "errors": {
+      "load": "Programs could not be loaded.",
+      "save": "The program could not be saved.",
+      "statusChange": "The program status could not be changed.",
+      "generic": "An error occurred while processing the request.",
+      "unauthorized": "Your session is not authenticated.",
+      "forbidden": "You do not have permission to access this area.",
+      "forbiddenManage": "You do not have permission to manage mobility programs.",
+      "nameRequired": "Enter the program name.",
+      "invalidType": "Select a valid program type.",
+      "invalidDirection": "Select a valid direction.",
+      "invalidStatus": "Select a valid status.",
+      "invalidAgreement": "Select a valid agreement.",
+      "invalidPartner": "Select a valid partner institution.",
+      "invalidLink": "The institutional link is invalid.",
+      "invalidDuration": "Enter a valid duration.",
+      "invalidDurationRange": "Maximum duration cannot be shorter than minimum duration.",
+      "duplicateCode": "This program code is already in use.",
+      "notFound": "Program not found.",
+      "invalidId": "Invalid identifier.",
+      "invalidActive": "Invalid program availability."
+    }
+  },
+  "AdminMobilityOffers": {
+    "back": "International Mobility",
+    "title": "Offers / Calls",
+    "subtitle": "Publish mobility opportunities and manage applications, seats, eligibility criteria, and mobility periods.",
+    "summary": {
+      "total": "Total offers",
+      "scheduled": "Scheduled applications",
+      "open": "Open applications",
+      "selection": "In selection"
+    },
+    "filters": {
+      "search": "Search offers...",
+      "allStatuses": "All statuses",
+      "allPrograms": "All programs"
+    },
+    "table": {
+      "offer": "Offer / Call",
+      "program": "Program",
+      "applications": "Applications",
+      "mobility": "Mobility",
+      "seats": "Seats",
+      "courses": "Courses",
+      "candidates": "Candidates",
+      "status": "Status",
+      "actions": "Actions",
+      "waitingList": "Waiting list",
+      "generalCoverage": "Institution-wide",
+      "courseCount": "{count} course(s)"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "scheduled": "Applications scheduled",
+      "open": "Applications open",
+      "closed": "Applications closed",
+      "selection": "In selection",
+      "finished": "Finished",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "new": "New offer / call",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "empty": {
+      "title": "No offers found",
+      "description": "Create the first mobility opportunity or adjust the filters."
+    },
+    "sections": {
+      "identification": "Offer / call details",
+      "dates": "Applications and mobility period",
+      "courses": "Courses",
+      "coursesDescription": "Select eligible courses. Leave all unchecked for institution-wide eligibility.",
+      "eligibility": "Eligibility criteria",
+      "instructions": "Applicant instructions"
+    },
+    "fields": {
+      "program": "Program",
+      "selectProgram": "Select a program",
+      "title": "Offer / call title",
+      "code": "Internal code",
+      "year": "Year",
+      "period": "Period",
+      "periodPlaceholder": "e.g. Spring 2027",
+      "status": "Status",
+      "statusHelp": "Drafts are not considered published. Other statuses register the opportunity as published.",
+      "seats": "Seats",
+      "description": "Description",
+      "applicationsStart": "Applications open",
+      "applicationsEnd": "Applications close",
+      "mobilityStart": "Mobility starts",
+      "mobilityEnd": "Mobility ends",
+      "waitingList": "Waiting list",
+      "waitingListDescription": "Allows ranked candidates to remain available beyond the initial number of seats.",
+      "searchCourses": "Search courses...",
+      "noCourses": "No courses found.",
+      "generalCoverage": "No specific course selected: institution-wide eligibility.",
+      "selectedCourses": "{count} course(s) selected",
+      "average": "Minimum average",
+      "attendance": "Minimum attendance (%)",
+      "minSemester": "Minimum semester/period",
+      "maxSemester": "Maximum semester/period",
+      "minAge": "Minimum age",
+      "maxAge": "Maximum age",
+      "academicRegularity": "Require academic good standing",
+      "academicRegularityDescription": "The applicant must be in academic good standing.",
+      "financialRegularity": "Require financial good standing",
+      "financialRegularityDescription": "The applicant must meet the institution's financial good-standing rules.",
+      "eligibilityNotes": "Other criteria / notes",
+      "instructionsPlaceholder": "Enter required documents, steps, guidance, and other important application instructions."
+    },
+    "modal": {
+      "newTitle": "New offer / call",
+      "editTitle": "Edit offer / call",
+      "description": "Define application dates, seats, mobility period, eligible courses, and application criteria."
+    },
+    "messages": {
+      "created": "Offer / call created successfully.",
+      "updated": "Offer / call updated successfully."
+    },
+    "errors": {
+      "load": "Offers could not be loaded.",
+      "save": "The offer could not be saved.",
+      "generic": "An error occurred while processing the request.",
+      "unauthorized": "Your session is not authenticated.",
+      "forbidden": "You do not have permission to access this area.",
+      "forbiddenManage": "You do not have permission to manage mobility offers.",
+      "titleRequired": "Enter the offer / call title.",
+      "invalidProgram": "Select a valid program.",
+      "invalidStatus": "Select a valid status.",
+      "invalidYear": "Enter a valid year.",
+      "invalidSeats": "Enter a valid number of seats.",
+      "invalidDate": "One or more dates are invalid.",
+      "invalidApplicationsPeriod": "Applications cannot close before they open.",
+      "invalidMobilityPeriod": "Mobility cannot end before it starts.",
+      "invalidChronology": "Applications must close before mobility begins.",
+      "invalidCourse": "One or more selected courses are invalid.",
+      "invalidCriteria": "Review the eligibility criteria.",
+      "duplicateCode": "This offer code is already in use.",
+      "notFound": "Offer not found.",
+      "invalidId": "Invalid identifier."
+    }
+  },
+  "AdminMobilityApplications": {
+    "back": "International Mobility",
+    "title": "Applications",
+    "subtitle": "Manage applicants, documentation, eligibility, selection, ranking, and international mobility results.",
+    "summary": {
+      "total": "Total applications",
+      "pending": "Pending applications",
+      "approved": "Approved applications",
+      "notApproved": "Not approved"
+    },
+    "filters": {
+      "search": "Search applicant...",
+      "allStatuses": "All statuses",
+      "allTypes": "All applicant types",
+      "allOffers": "All offers"
+    },
+    "types": {
+      "phanyx": "PHANYX student",
+      "external": "External applicant"
+    },
+    "table": {
+      "candidate": "Applicant",
+      "type": "Type",
+      "offer": "Offer / Call",
+      "academicLink": "Academic link / origin",
+      "documents": "Documents",
+      "result": "Result",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions",
+      "pendingDocuments": "{count} pending",
+      "ranking": "Rank #{value}"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "review": "Under review",
+      "documentsPending": "Documents pending",
+      "eligible": "Eligible",
+      "ineligible": "Ineligible",
+      "selection": "In selection",
+      "ranked": "Ranked",
+      "waitingList": "Waiting list",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "new": "New application",
+      "refresh": "Refresh",
+      "process": "Process",
+      "changeStudent": "Change student",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "empty": {
+      "title": "No applications found",
+      "description": "Create the first application or adjust the filters."
+    },
+    "modal": {
+      "newTitle": "New application",
+      "newDescription": "Select an offer and register a PHANYX student or an external applicant.",
+      "processTitle": "Process application"
+    },
+    "fields": {
+      "offer": "Offer / Call",
+      "selectOffer": "Select an offer",
+      "searchStudent": "Search student",
+      "searchStudentPlaceholder": "Enter name, email, or enrollment number...",
+      "searching": "Searching students...",
+      "enrollment": "Academic enrollment",
+      "noEnrollments": "This student has no academic enrollment available.",
+      "noCourse": "Course not specified",
+      "courseNotEligible": "Course is not eligible for this offer",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "originInstitution": "Home institution",
+      "originCountry": "Country of origin — ISO code",
+      "initialStatus": "Initial status",
+      "status": "Application status",
+      "score": "Final score",
+      "ranking": "Ranking",
+      "statusReason": "Status reason / notes"
+    },
+    "messages": {
+      "created": "Application created successfully.",
+      "updated": "Application updated successfully."
+    },
+    "errors": {
+      "load": "Applications could not be loaded.",
+      "save": "The application could not be saved.",
+      "studentSearch": "Students could not be searched.",
+      "generic": "An error occurred while processing the request.",
+      "unauthorized": "Your session is not authenticated.",
+      "forbidden": "You do not have permission to access this area.",
+      "forbiddenManage": "You do not have permission to manage applications.",
+      "invalidOffer": "Select a valid offer.",
+      "invalidType": "Select a valid applicant type.",
+      "invalidStatus": "Select a valid status.",
+      "invalidStudent": "Select a valid student.",
+      "invalidEnrollment": "Select a valid enrollment.",
+      "enrollmentRequired": "Select the student's academic enrollment.",
+      "ineligibleCourse": "The enrollment course is not eligible for this offer.",
+      "nameRequired": "Enter the applicant's name.",
+      "invalidEmail": "Enter a valid email.",
+      "invalidCountry": "Enter a valid ISO country code.",
+      "invalidScore": "Enter a valid score.",
+      "invalidRanking": "Enter a valid ranking.",
+      "duplicate": "This applicant already has an application for this offer.",
+      "notFound": "Application not found.",
+      "invalidId": "Invalid identifier."
     }
   }
 }
