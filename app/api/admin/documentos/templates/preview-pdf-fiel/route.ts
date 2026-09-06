@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "node:fs";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { prisma } from "@/lib/prisma";
@@ -19,6 +20,67 @@ export const revalidate = 0;
 
 const CHROMIUM_PACK =
   "https://github.com/Sparticuz/chromium/releases/download/v131.0.0/chromium-v131.0.0-pack.tar";
+
+function localizarChromeLocal() {
+  const caminhos = [
+    process.env
+      .CHROME_EXECUTABLE_PATH,
+
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+
+    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+
+    "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+
+    "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  ].filter(
+    (valor): valor is string =>
+      Boolean(valor)
+  );
+
+  return (
+    caminhos.find((caminho) =>
+      fs.existsSync(caminho)
+    ) || null
+  );
+}
+
+async function abrirNavegador() {
+  const chromeLocal =
+    localizarChromeLocal();
+
+  if (
+    process.env.NODE_ENV !==
+    "production" &&
+    chromeLocal
+  ) {
+    return puppeteer.launch({
+      executablePath:
+        chromeLocal,
+
+      headless: true,
+
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
+    });
+  }
+
+  return puppeteer.launch({
+    args:
+      chromium.args,
+
+    executablePath:
+      await chromium
+        .executablePath(
+          CHROMIUM_PACK
+        ),
+
+    headless: true,
+  });
+}
 
 function urlFinal(url?: string | null, baseUrl?: string) {
   if (!url) return "";
@@ -629,18 +691,7 @@ export async function POST(
       });
 
     browser =
-      await puppeteer.launch({
-        args:
-          chromium.args,
-
-        executablePath:
-          await chromium
-            .executablePath(
-              CHROMIUM_PACK
-            ),
-
-        headless: true,
-      });
+      await abrirNavegador();
 
     const page =
       await browser.newPage();

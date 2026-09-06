@@ -1297,21 +1297,8 @@ function cssCompartilhado(
      */
     .phanyx-conteudo
       table:has(> tbody > tr.phanyx-doc-table-row) {
-      width: auto;
-      max-width: 100%;
-      table-layout: auto;
-    }
-
-    /*
-     * Tabelas manuais criadas pelo editor PHANYX
-     * devem preservar a geometria salva no template.
-     * A regra gen?rica acima continua v?lida para
-     * tabelas legadas/oficiais.
-     */
-    .phanyx-conteudo
-      table:has(> tbody > tr.phanyx-doc-table-row) {
-      width: auto;
-      max-width: 100%;
+      width: min-content !important;
+      max-width: 100% !important;
       table-layout: auto;
     }
 
