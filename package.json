@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node --max-old-space-size=8192 node_modules/next/dist/bin/next build",
+    "build": "prisma generate && npm run lint && npm run typecheck && npm run build:next",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "node --max-old-space-size=4096 node_modules/next/dist/bin/next lint",
+    "typecheck": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit",
+    "build:next": "node --max-old-space-size=5120 node_modules/next/dist/bin/next build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1003.0",
