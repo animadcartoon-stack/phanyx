@@ -12254,6 +12254,9 @@
     "timezone": "Zona horaria",
     "selectTimezone": "Selecciona la zona horaria",
     "timezoneHint": "Determina cuándo comienza y termina el día local de la institución.",
-    "useDeviceTimezone": "Usar la zona horaria de este dispositivo"
+    "useDeviceTimezone": "Usar la zona horaria de este dispositivo",
+    "phone": "Teléfono",
+    "phoneHint": "Selecciona el país del número. El teléfono se almacenará en formato internacional.",
+    "phoneInvalid": "Introduce un número de teléfono internacional válido."
   }
 }

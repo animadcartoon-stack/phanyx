@@ -12255,6 +12255,9 @@
     "timezone": "Fuso horário",
     "selectTimezone": "Selecione o fuso horário",
     "timezoneHint": "Define quando começa e termina o dia local da instituição.",
-    "useDeviceTimezone": "Usar fuso deste dispositivo"
+    "useDeviceTimezone": "Usar fuso deste dispositivo",
+    "phone": "Telefone",
+    "phoneHint": "Selecione o país do número. O telefone será guardado no formato internacional.",
+    "phoneInvalid": "Introduza um telefone internacional válido."
   }
 }

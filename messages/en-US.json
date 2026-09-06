@@ -12255,6 +12255,9 @@
     "timezone": "Time zone",
     "selectTimezone": "Select time zone",
     "timezoneHint": "Determines when the institution's local day starts and ends.",
-    "useDeviceTimezone": "Use this device's time zone"
+    "useDeviceTimezone": "Use this device's time zone",
+    "phone": "Phone",
+    "phoneHint": "Select the phone number's country. The number will be stored in international format.",
+    "phoneInvalid": "Enter a valid international phone number."
   }
 }

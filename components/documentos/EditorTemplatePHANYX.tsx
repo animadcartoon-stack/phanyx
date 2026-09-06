@@ -3155,104 +3155,151 @@ export default function EditorTemplatePHANYX({
       return;
     }
 
-    const linha =
-      celula.closest(
-        "tr"
-      ) as HTMLTableRowElement | null;
-
     const tabela =
       celula.closest(
         "table"
       ) as HTMLTableElement | null;
 
-    if (
-      !linha ||
-      !tabela
-    ) {
+    if (!tabela) {
       return;
     }
 
-    const posicaoLinha =
-      obterPosicaoDocumentoDaLinhaPHANYX(
-        editor.view,
-        linha
+    const shiftPressionado =
+      Boolean(
+        event.shiftKey
       );
 
-    const posicaoTabela =
-      obterPosicaoDocumentoDaTabelaPHANYX(
-        editor.view,
-        tabela
-      );
-
-    if (
-      posicaoLinha === null ||
-      posicaoTabela === null
-    ) {
-      return;
-    }
-
-    const linhasDom =
-      Array.from(
-        tabela.rows
-      );
-
-    const indiceLinha =
-      linhasDom.indexOf(
-        linha
-      );
-
-    const mesmaTabela =
-      ultimaPosicaoTabelaRef.current ===
-      posicaoTabela;
-
-    const anteriores =
-      mesmaTabela
-        ? ultimasPosicoesLinhasSelecionadasRef.current
-        : [];
-
-    let selecionadas =
-      [posicaoLinha];
-
-    if (
-      event.shiftKey &&
-      mesmaTabela
-    ) {
-      selecionadas =
-        Array.from(
-          new Set([
-            ...anteriores,
-            posicaoLinha,
-          ])
-        );
-    }
-
-    ultimaPosicaoLinhaTabelaRef.current =
-      posicaoLinha;
-
-    ultimaPosicaoTabelaRef.current =
-      posicaoTabela;
-
-    ultimasPosicoesLinhasSelecionadasRef.current =
-      selecionadas;
-
-    setLinhaTabelaSelecionada({
-      indice:
-        Math.max(
-          0,
-          indiceLinha
-        ) + 1,
-      total:
-        linhasDom.length,
-      quantidade:
-        selecionadas.length,
-    });
-
+    /*
+     * O clique normal do TipTap precisa terminar primeiro.
+     * Só depois lemos editor.state.selection, que então
+     * já aponta para a célula realmente clicada.
+     */
     window.requestAnimationFrame(
-      () =>
-        aplicarDestaqueLinhasPersistentesPHANYX(
-          editor.view,
-          selecionadas
-        )
+      () => {
+        const posicaoLinha =
+          obterPosicaoLinhaAtualPHANYX(
+            editor.state
+          );
+
+        const posicaoTabela =
+          obterPosicaoTabelaAtualPHANYX(
+            editor.state
+          );
+
+        if (
+          posicaoLinha === null ||
+          posicaoTabela === null
+        ) {
+          return;
+        }
+
+        const posicoesDaTabela =
+          obterPosicoesLinhasTabelaPorPosicaoPHANYX(
+            editor.state,
+            posicaoTabela,
+            false
+          );
+
+        const indiceLinha =
+          posicoesDaTabela.indexOf(
+            posicaoLinha
+          );
+
+        if (
+          indiceLinha < 0
+        ) {
+          return;
+        }
+
+        const mesmaTabela =
+          ultimaPosicaoTabelaRef.current ===
+          posicaoTabela;
+
+        const anteriores =
+          mesmaTabela
+            ? ultimasPosicoesLinhasSelecionadasRef.current
+            : [];
+
+        let selecionadas =
+          [posicaoLinha];
+
+        if (
+          shiftPressionado &&
+          mesmaTabela
+        ) {
+          selecionadas =
+            Array.from(
+              new Set([
+                ...anteriores,
+                posicaoLinha,
+              ])
+            );
+        }
+
+        ultimaPosicaoLinhaTabelaRef.current =
+          posicaoLinha;
+
+        ultimaPosicaoTabelaRef.current =
+          posicaoTabela;
+
+        ultimasPosicoesLinhasSelecionadasRef.current =
+          selecionadas;
+
+        /*
+         * Remove qualquer marca anterior e aplica a nova
+         * seleção visual somente nas linhas desta tabela.
+         */
+        editor.view.dom
+          .querySelectorAll(
+            ".phanyx-row-selected"
+          )
+          .forEach(
+            (
+              elemento: Element
+            ) => {
+              elemento.classList.remove(
+                "phanyx-row-selected"
+              );
+            }
+          );
+
+        const linhasDom =
+          Array.from(
+            tabela.rows
+          );
+
+        for (
+          const posicaoSelecionada
+          of selecionadas
+        ) {
+          const indice =
+            posicoesDaTabela.indexOf(
+              posicaoSelecionada
+            );
+
+          if (
+            indice >= 0 &&
+            linhasDom[indice]
+          ) {
+            linhasDom[
+              indice
+            ].classList.add(
+              "phanyx-row-selected"
+            );
+          }
+        }
+
+        setLinhaTabelaSelecionada({
+          indice:
+            indiceLinha + 1,
+
+          total:
+            posicoesDaTabela.length,
+
+          quantidade:
+            selecionadas.length,
+        });
+      }
     );
   }
 
@@ -4658,7 +4705,7 @@ export default function EditorTemplatePHANYX({
 
           <div
             className="bg-white text-black"
-            onMouseDownCapture={
+            onClickCapture={
               selecionarLinhaTabelaPersistente
             }
             style={{

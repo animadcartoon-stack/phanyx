@@ -10,12 +10,6 @@ import {
   useTranslations,
 } from "next-intl";
 import BandeiraPais from "@/components/internacionalizacao/BandeiraPais";
-import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
-import {
-  normalizarTelefoneE164,
-  prepararTelefoneParaFormulario,
-  telefoneValidoInternacional,
-} from "@/lib/internacionalizacao/telefone";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type LayoutProfissional =
@@ -32,7 +26,6 @@ type ConfigInstituicao = {
   razaoSocial?: string;
   cnpj?: string;
   telefone?: string;
-  paisTelefone?: CountryCode;
   email?: string;
   cep?: string;
   endereco?: string;
@@ -253,27 +246,12 @@ export default function ConfigInstituicaoPage() {
       dados.estiloPapelTimbrado || dados.estiloDocumento
     );
 
-    const paisTelefone =
-      (
-        dados.paisTelefone ||
-        dados.paisCodigo ||
-        "BR"
-      ) as CountryCode;
-
-    const telefoneParaSalvar =
-      dados.telefone
-        ? normalizarTelefoneE164(
-            dados.telefone,
-            paisTelefone
-          ) || dados.telefone
-        : "";
-
     return {
       nomeFantasia: dados.nomeFantasia || "",
       nomeUnidadePrincipal: dados.nomeUnidadePrincipal || "",
       razaoSocial: dados.razaoSocial || "",
       cnpj: dados.cnpj || "",
-      telefone: telefoneParaSalvar,
+      telefone: dados.telefone || "",
       email: dados.email || "",
       cep: dados.cep || "",
       endereco: dados.endereco || "",
@@ -328,34 +306,8 @@ export default function ConfigInstituicaoPage() {
         json?.estiloPapelTimbrado || json?.estiloDocumento
       );
 
-      const codigoPaisCarregado =
-        String(
-          json?.paisCodigo || ""
-        )
-          .trim()
-          .toUpperCase();
-
-      const paisPadraoTelefone =
-        getCountries().includes(
-          codigoPaisCarregado as CountryCode
-        )
-          ? (
-              codigoPaisCarregado as CountryCode
-            )
-          : "BR";
-
-      const telefonePreparado =
-        prepararTelefoneParaFormulario(
-          json?.telefone,
-          paisPadraoTelefone
-        );
-
       setForm({
         ...json,
-        telefone:
-          telefonePreparado.valor,
-        paisTelefone:
-          telefonePreparado.pais,
         estiloDocumento: layout,
         estiloPapelTimbrado: layout,
         usarPapelTimbrado: json?.usarPapelTimbrado ?? false,
@@ -387,39 +339,12 @@ export default function ConfigInstituicaoPage() {
         form.estiloPapelTimbrado || form.estiloDocumento
       );
 
-      const paisTelefoneAtual =
-        (
-          form.paisTelefone ||
-          form.paisCodigo ||
-          "BR"
-        ) as CountryCode;
-
-      if (
-        form.telefone &&
-        !telefoneValidoInternacional(
-          form.telefone,
-          paisTelefoneAtual
-        )
-      ) {
-        throw new Error(
-          tGeo("phoneInvalid")
-        );
-      }
-
-      const telefoneE164 =
-        form.telefone
-          ? normalizarTelefoneE164(
-              form.telefone,
-              paisTelefoneAtual
-            )
-          : "";
-
       const payload = {
         nomeFantasia: form.nomeFantasia || "",
         nomeUnidadePrincipal: form.nomeUnidadePrincipal || "",
         razaoSocial: form.razaoSocial || "",
         cnpj: form.cnpj || "",
-        telefone: telefoneE164,
+        telefone: form.telefone || "",
         email: form.email || "",
         cep: form.cep || "",
         endereco: form.endereco || "",
@@ -1467,36 +1392,16 @@ export default function ConfigInstituicaoPage() {
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {tGeo("phone")}
+                  Telefone
                 </label>
-
-                <CampoTelefoneInternacional
-                  id="telefone-instituicao"
-                  value={
-                    form.telefone || ""
+                <input
+                  value={form.telefone || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, telefone: e.target.value }))
                   }
-                  pais={
-                    (
-                      form.paisTelefone ||
-                      form.paisCodigo ||
-                      "BR"
-                    ) as CountryCode
-                  }
-                  onChange={(
-                    valor,
-                    pais
-                  ) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      telefone: valor,
-                      paisTelefone: pais,
-                    }))
-                  }
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  placeholder="(00) 00000-0000"
                 />
-
-                <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                  {tGeo("phoneHint")}
-                </p>
               </div>
 
               <div>
