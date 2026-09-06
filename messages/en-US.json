@@ -12247,5 +12247,14 @@
       "notFound": "Application not found.",
       "invalidId": "Invalid identifier."
     }
+  },
+  "InstitutionGeoSettings": {
+    "country": "Institution country",
+    "selectCountry": "Select country",
+    "countryHint": "Determines which national holidays and international features apply to the institution.",
+    "timezone": "Time zone",
+    "selectTimezone": "Select time zone",
+    "timezoneHint": "Determines when the institution's local day starts and ends.",
+    "useDeviceTimezone": "Use this device's time zone"
   }
 }

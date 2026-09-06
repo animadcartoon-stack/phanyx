@@ -12246,5 +12246,14 @@
       "notFound": "Candidatura não encontrada.",
       "invalidId": "Identificação inválida."
     }
+  },
+  "InstitutionGeoSettings": {
+    "country": "País da instituição",
+    "selectCountry": "Selecione o país",
+    "countryHint": "Define quais feriados nacionais e recursos internacionais se aplicam à instituição.",
+    "timezone": "Fuso horário",
+    "selectTimezone": "Selecione o fuso horário",
+    "timezoneHint": "Define quando começa e termina o dia local da instituição.",
+    "useDeviceTimezone": "Usar fuso deste dispositivo"
   }
 }
