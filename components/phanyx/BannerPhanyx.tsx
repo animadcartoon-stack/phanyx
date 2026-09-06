@@ -120,7 +120,7 @@ export default function BannerPhanyx({
 
             {aviso.frase && (
               <p className="border-l-2 border-current pl-3 text-sm font-medium italic text-slate-800 dark:text-slate-100">
-                "{aviso.frase}"
+                &quot;{aviso.frase}&quot;
               </p>
             )}
           </div>

@@ -2636,7 +2636,7 @@ setPopupComprarCreditosAberto(false);
               <div>
                 <strong className="text-cyan-300">Objetos complexos:</strong>
                 <br />
-                Ative "Manter apenas objeto principal".
+                Ative &quot;Manter apenas objeto principal&quot;.
               </div>
             </div>
           </div>

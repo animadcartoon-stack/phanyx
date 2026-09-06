@@ -3885,7 +3885,7 @@ function AdminProfessoresPage() {
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   Tem certeza que deseja excluir o professor{" "}
-                  <strong>"{professorParaExcluir.nome}"</strong>?
+                  <strong>&quot;{professorParaExcluir.nome}&quot;</strong>?
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
                   Esta ação não pode ser desfeita.
