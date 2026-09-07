@@ -276,14 +276,61 @@ export async function GET(request: NextRequest) {
      */
     const agora = Date.now();
 
-    const ativas = reservasAtivas.map((reserva) => ({
-      ...reserva,
+    const ativas = reservasAtivas
+      .map((reserva) => ({
+        ...reserva,
 
-      prazoExpirado:
-        reserva.status === StatusReservaBiblioteca.DISPONIVEL &&
-        reserva.expiraEm !== null &&
-        reserva.expiraEm.getTime() <= agora,
-    }));
+        prazoExpirado:
+          reserva.status === StatusReservaBiblioteca.DISPONIVEL &&
+          reserva.expiraEm !== null &&
+          reserva.expiraEm.getTime() <= agora,
+      }))
+      .sort((a, b) => {
+        /*
+         * Primeiro: reservas já disponíveis
+         * para retirada.
+         *
+         * Depois: fila de espera pela posição.
+         */
+        const prioridadeA =
+          a.status === StatusReservaBiblioteca.DISPONIVEL ? 0 : 1;
+
+        const prioridadeB =
+          b.status === StatusReservaBiblioteca.DISPONIVEL ? 0 : 1;
+
+        if (prioridadeA !== prioridadeB) {
+          return prioridadeA - prioridadeB;
+        }
+
+        /*
+         * Entre reservas disponíveis,
+         * preserva a mais antiga primeiro.
+         */
+        if (
+          a.status === StatusReservaBiblioteca.DISPONIVEL &&
+          b.status === StatusReservaBiblioteca.DISPONIVEL
+        ) {
+          const dataA = a.disponivelEm?.getTime() ?? a.reservadaEm.getTime();
+
+          const dataB = b.disponivelEm?.getTime() ?? b.reservadaEm.getTime();
+
+          return dataA - dataB;
+        }
+
+        /*
+         * Na fila, posição 1 vem antes
+         * da posição 2, e assim por diante.
+         */
+        const posicaoA = a.posicaoFila ?? Number.MAX_SAFE_INTEGER;
+
+        const posicaoB = b.posicaoFila ?? Number.MAX_SAFE_INTEGER;
+
+        if (posicaoA !== posicaoB) {
+          return posicaoA - posicaoB;
+        }
+
+        return a.reservadaEm.getTime() - b.reservadaEm.getTime();
+      });
 
     return responder({
       ok: true,
