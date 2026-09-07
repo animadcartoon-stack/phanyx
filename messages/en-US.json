@@ -12335,5 +12335,30 @@
     "messageTomorrow": "Tomorrow is a holiday: {name}. {message}",
     "messageUpcoming": "{name} will be observed on {date}. {message}",
     "compact": "Holiday: {name}"
+  },
+  "AdminSettingsDocuments": {
+    "eyebrow": "Settings",
+    "title": "Institutional documents",
+    "description": "Configure letterhead, contracts, document templates, signatures, and institutional document rules in one place.",
+    "institution": {
+      "title": "Institution identity and letterhead",
+      "description": "Institution details, header, footer, address, legal representative, and the visual style of documents."
+    },
+    "templates": {
+      "title": "Document templates",
+      "description": "Contracts, declarations, receipts, payment confirmations, enrollment suspension documents, and other templates with dynamic variables."
+    },
+    "contracts": {
+      "title": "Contracts",
+      "description": "Generate, view, and track enrollment contracts with signatures from the student, director, and administrative office."
+    },
+    "certificates": {
+      "title": "Certificates",
+      "description": "Configure templates, fields, signatures, and certificate issuance."
+    },
+    "googleIntegrations": {
+      "title": "Google integrations",
+      "description": "Configure Google Analytics, Tag Manager, Search Console, Google Ads, and the institution's local presence."
+    }
   }
 }

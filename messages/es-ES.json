@@ -12334,5 +12334,30 @@
     "messageTomorrow": "Mañana será festivo: {name}. {message}",
     "messageUpcoming": "El {date} será festivo: {name}. {message}",
     "compact": "Festivo: {name}"
+  },
+  "AdminSettingsDocuments": {
+    "eyebrow": "Configuración",
+    "title": "Documentos institucionales",
+    "description": "Configure membretes, contratos, plantillas, firmas y reglas de los documentos de la institución en un solo lugar.",
+    "institution": {
+      "title": "Identidad y membrete",
+      "description": "Datos de la institución, encabezado, pie de página, dirección, representante legal y modelo visual de los documentos."
+    },
+    "templates": {
+      "title": "Plantillas de documentos",
+      "description": "Contratos, declaraciones, recibos, comprobantes, suspensiones de matrícula y otros modelos con variables dinámicas."
+    },
+    "contracts": {
+      "title": "Contratos",
+      "description": "Genere, visualice y haga seguimiento de los contratos de matrícula con firma del alumno, director y secretaría."
+    },
+    "certificates": {
+      "title": "Certificados",
+      "description": "Configure modelos, campos, firmas y emisión de certificados."
+    },
+    "googleIntegrations": {
+      "title": "Integraciones de Google",
+      "description": "Configure Google Analytics, Tag Manager, Search Console, Google Ads y la presencia local de la institución."
+    }
   }
 }

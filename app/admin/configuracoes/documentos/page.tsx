@@ -1,76 +1,154 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function ConfiguracoesDocumentosPage() {
+  const t =
+    useTranslations(
+      "AdminSettingsDocuments"
+    );
+
+  const cards = [
+    {
+      href:
+        "/admin/configuracoes/instituicao",
+      icon:
+        "\u{1F3DB}\uFE0F",
+      title:
+        t(
+          "institution.title"
+        ),
+      description:
+        t(
+          "institution.description"
+        ),
+    },
+    {
+      href:
+        "/admin/documentos/templates",
+      icon:
+        "\u{1F4DD}",
+      title:
+        t(
+          "templates.title"
+        ),
+      description:
+        t(
+          "templates.description"
+        ),
+    },
+    {
+      href:
+        "/admin/contratos",
+      icon:
+        "\u{1F4D1}",
+      title:
+        t(
+          "contracts.title"
+        ),
+      description:
+        t(
+          "contracts.description"
+        ),
+    },
+    {
+      href:
+        "/admin/configuracoes/certificado",
+      icon:
+        "\u{1F3C5}",
+      title:
+        t(
+          "certificates.title"
+        ),
+      description:
+        t(
+          "certificates.description"
+        ),
+    },
+    {
+      href:
+        "/admin/integracoes",
+      icon:
+        "\u{1F517}",
+      title:
+        t(
+          "googleIntegrations.title"
+        ),
+      description:
+        t(
+          "googleIntegrations.description"
+        ),
+    },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-slate-950 dark:text-slate-100">
       <div>
-        <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
-          CONFIGURAÇÕES
+        <p className="text-sm font-bold tracking-[0.25em] text-blue-700 dark:text-blue-300">
+          {t(
+            "eyebrow"
+          )}
         </p>
-        <h1 className="text-2xl font-bold text-slate-900">
-          📄 Documentos institucionais
+
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-950 dark:text-white">
+          <span
+            aria-hidden="true"
+          >
+            {"\u{1F4C4}"}
+          </span>
+
+          <span>
+            {t(
+              "title"
+            )}
+          </span>
         </h1>
-        <p className="mt-1 text-slate-600">
-          Configure papel timbrado, contratos, templates, assinaturas e regras
-          dos documentos da instituição em um único lugar.
+
+        <p className="mt-1 max-w-4xl text-slate-600 dark:text-slate-300">
+          {t(
+            "description"
+          )}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Link
-          href="/admin/configuracoes/instituicao"
-          className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
-        >
-          <h2 className="text-lg font-bold">🏛️ Identidade e papel timbrado</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Dados da instituição, cabeçalho, rodapé, endereço, responsável legal
-            e modelo visual dos documentos.
-          </p>
-        </Link>
+        {cards.map(
+          (
+            card
+          ) => (
+            <Link
+              key={
+                card.href
+              }
+              href={
+                card.href
+              }
+              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-500 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-400"
+            >
+              <h2 className="flex items-center gap-2 text-lg font-bold text-slate-950 dark:text-white">
+                <span
+                  aria-hidden="true"
+                >
+                  {
+                    card.icon
+                  }
+                </span>
 
-        <Link
-          href="/admin/documentos/templates"
-          className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
-        >
-          <h2 className="text-lg font-bold">📝 Templates de documentos</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Contratos, declarações, recibos, comprovantes, trancamentos e outros
-            modelos com variáveis dinâmicas.
-          </p>
-        </Link>
+                <span>
+                  {
+                    card.title
+                  }
+                </span>
+              </h2>
 
-        <Link
-          href="/admin/contratos"
-          className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
-        >
-          <h2 className="text-lg font-bold">📑 Contratos</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Gere, visualize e acompanhe contratos de matrícula com assinatura do
-            aluno, diretor e secretaria.
-          </p>
-        </Link>
-
-        <Link
-          href="/admin/configuracoes/certificado"
-          className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
-        >
-          <h2 className="text-lg font-bold">🏅 Certificados</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Configure modelos, campos, assinaturas e emissão de certificados.
-          </p>
-        </Link>
-        <Link
-          href="/admin/integracoes"
-          className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
-        >
-          <h2 className="text-lg font-bold">🔗 Integrações Google</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Configure Google Analytics, Tag Manager, Search Console, Google Ads
-            e presença local da instituição.
-          </p>
-        </Link>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                {
+                  card.description
+                }
+              </p>
+            </Link>
+          )
+        )}
       </div>
     </div>
   );
 }
-

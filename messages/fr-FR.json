@@ -12334,5 +12334,30 @@
     "messageTomorrow": "Demain sera férié : {name}. {message}",
     "messageUpcoming": "Le {date} sera férié : {name}. {message}",
     "compact": "Jour férié : {name}"
+  },
+  "AdminSettingsDocuments": {
+    "eyebrow": "Paramètres",
+    "title": "Documents institutionnels",
+    "description": "Configurez le papier à en-tête, les contrats, les modèles, les signatures et les règles des documents de l'établissement depuis un seul endroit.",
+    "institution": {
+      "title": "Identité et papier à en-tête",
+      "description": "Informations de l'établissement, en-tête, pied de page, adresse, représentant légal et présentation visuelle des documents."
+    },
+    "templates": {
+      "title": "Modèles de documents",
+      "description": "Contrats, déclarations, reçus, justificatifs, suspensions d'inscription et autres modèles avec variables dynamiques."
+    },
+    "contracts": {
+      "title": "Contrats",
+      "description": "Générez, consultez et suivez les contrats d'inscription avec les signatures de l'étudiant, du directeur et du secrétariat."
+    },
+    "certificates": {
+      "title": "Certificats",
+      "description": "Configurez les modèles, les champs, les signatures et l'émission des certificats."
+    },
+    "googleIntegrations": {
+      "title": "Intégrations Google",
+      "description": "Configurez Google Analytics, Tag Manager, Search Console, Google Ads et la présence locale de l'établissement."
+    }
   }
 }

@@ -12335,5 +12335,30 @@
     "messageTomorrow": "Amanhã será feriado: {name}. {message}",
     "messageUpcoming": "Em {date}, será feriado: {name}. {message}",
     "compact": "Feriado: {name}"
+  },
+  "AdminSettingsDocuments": {
+    "eyebrow": "Configurações",
+    "title": "Documentos institucionais",
+    "description": "Configure papel timbrado, contratos, modelos, assinaturas e regras dos documentos da instituição num único local.",
+    "institution": {
+      "title": "Identidade e papel timbrado",
+      "description": "Dados da instituição, cabeçalho, rodapé, morada, responsável legal e modelo visual dos documentos."
+    },
+    "templates": {
+      "title": "Modelos de documentos",
+      "description": "Contratos, declarações, recibos, comprovativos, trancamentos e outros modelos com variáveis dinâmicas."
+    },
+    "contracts": {
+      "title": "Contratos",
+      "description": "Gere, visualize e acompanhe contratos de matrícula com assinatura do aluno, diretor e secretaria."
+    },
+    "certificates": {
+      "title": "Certificados",
+      "description": "Configure modelos, campos, assinaturas e emissão de certificados."
+    },
+    "googleIntegrations": {
+      "title": "Integrações Google",
+      "description": "Configure Google Analytics, Tag Manager, Search Console, Google Ads e a presença local da instituição."
+    }
   }
 }
