@@ -367,6 +367,62 @@ type RespostaItem = {
   armazenamento?: ArmazenamentoBiblioteca;
 };
 
+
+type ReservaGerenciamento = {
+  id: number;
+
+  status:
+    | "AGUARDANDO"
+    | "DISPONIVEL"
+    | "ATENDIDA"
+    | "EXPIRADA"
+    | "CANCELADA"
+    | string;
+
+  posicaoFila: number | null;
+
+  reservadaEm: string;
+  disponivelEm: string | null;
+  expiraEm: string | null;
+  atendidaEm: string | null;
+  canceladaEm: string | null;
+
+  origem: string;
+  observacao: string | null;
+  motivoCancelamento?: string | null;
+  atualizadoEm?: string;
+
+  prazoExpirado?: boolean;
+
+  usuario: {
+    id: number;
+    nome: string;
+    email: string | null;
+    role: string;
+  };
+
+  exemplar: {
+    id: number;
+    codigoInterno: string;
+    status: string;
+  } | null;
+};
+
+type RespostaReservasGerenciamento = {
+  ok?: boolean;
+  error?: string;
+  mensagem?: string;
+
+  resumo?: {
+    ativas?: number;
+    disponiveis?: number;
+    aguardando?: number;
+  };
+
+  reservas?: ReservaGerenciamento[];
+  historico?: ReservaGerenciamento[];
+};
+
 type Toast = {
   tipo: "sucesso" | "erro";
   mensagem: string;
@@ -818,6 +874,35 @@ export default function BibliotecaItemPage() {
 
   const [registrandoReserva, setRegistrandoReserva] = useState(false);
 
+  const [reservasAtivas, setReservasAtivas] =
+    useState<ReservaGerenciamento[]>([]);
+
+  const [historicoReservas, setHistoricoReservas] =
+    useState<ReservaGerenciamento[]>([]);
+
+  const [resumoReservas, setResumoReservas] = useState({
+    ativas: 0,
+    disponiveis: 0,
+    aguardando: 0,
+  });
+
+  const [carregandoReservas, setCarregandoReservas] =
+    useState(false);
+
+  const [erroReservas, setErroReservas] =
+    useState<string | null>(null);
+
+  const [reservaParaCancelar, setReservaParaCancelar] =
+    useState<ReservaGerenciamento | null>(null);
+
+  const [
+    motivoCancelamentoReserva,
+    setMotivoCancelamentoReserva,
+  ] = useState("");
+
+  const [cancelandoReserva, setCancelandoReserva] =
+    useState(false);
+
   const [exemplarParaEmprestimo, setExemplarParaEmprestimo] =
     useState<ExemplarItem | null>(null);
 
@@ -1045,6 +1130,104 @@ export default function BibliotecaItemPage() {
     [itemId],
   );
 
+
+  const carregarReservas = useCallback(
+    async (signal?: AbortSignal) => {
+      if (
+        !Number.isInteger(itemId) ||
+        itemId <= 0
+      ) {
+        return;
+      }
+
+      setCarregandoReservas(true);
+      setErroReservas(null);
+
+      try {
+        const resposta = await fetch(
+          `/api/admin/biblioteca/reservas?itemId=${itemId}`,
+          {
+            method: "GET",
+            cache: "no-store",
+            credentials: "include",
+            signal,
+          },
+        );
+
+        const resultado =
+          (await resposta.json()) as RespostaReservasGerenciamento;
+
+        if (!resposta.ok) {
+          throw new Error(
+            resultado.error ||
+              resultado.mensagem ||
+              ui("reservationError"),
+          );
+        }
+
+        if (signal?.aborted) {
+          return;
+        }
+
+        setReservasAtivas(
+          Array.isArray(resultado.reservas)
+            ? resultado.reservas
+            : [],
+        );
+
+        setHistoricoReservas(
+          Array.isArray(resultado.historico)
+            ? resultado.historico
+            : [],
+        );
+
+        setResumoReservas({
+          ativas:
+            Number(
+              resultado.resumo?.ativas
+            ) || 0,
+
+          disponiveis:
+            Number(
+              resultado.resumo?.disponiveis
+            ) || 0,
+
+          aguardando:
+            Number(
+              resultado.resumo?.aguardando
+            ) || 0,
+        });
+      } catch (falha) {
+        if (
+          falha instanceof DOMException &&
+          falha.name === "AbortError"
+        ) {
+          return;
+        }
+
+        setReservasAtivas([]);
+        setHistoricoReservas([]);
+
+        setResumoReservas({
+          ativas: 0,
+          disponiveis: 0,
+          aguardando: 0,
+        });
+
+        setErroReservas(
+          falha instanceof Error
+            ? falha.message
+            : ui("reservationError"),
+        );
+      } finally {
+        if (!signal?.aborted) {
+          setCarregandoReservas(false);
+        }
+      }
+    },
+    [itemId],
+  );
+
   const [podeExcluirArquivo, setPodeExcluirArquivo] = useState(false);
 
   const [arquivoParaExcluir, setArquivoParaExcluir] =
@@ -1177,6 +1360,37 @@ export default function BibliotecaItemPage() {
 
     return () => controlador.abort();
   }, [carregarExemplares, atualizacao]);
+
+  useEffect(() => {
+    if (!podeGerenciarReservas) {
+      setReservasAtivas([]);
+      setHistoricoReservas([]);
+
+      setResumoReservas({
+        ativas: 0,
+        disponiveis: 0,
+        aguardando: 0,
+      });
+
+      setErroReservas(null);
+
+      return;
+    }
+
+    const controlador =
+      new AbortController();
+
+    void carregarReservas(
+      controlador.signal
+    );
+
+    return () =>
+      controlador.abort();
+  }, [
+    carregarReservas,
+    podeGerenciarReservas,
+    atualizacao,
+  ]);
 
   useEffect(() => {
     if (!toast) return;
@@ -1897,6 +2111,181 @@ export default function BibliotecaItemPage() {
     setObservacaoRetirada("");
     setUsuarioEmprestimoSelecionado(null);
     setErroBuscaUsuariosEmprestimo(null);
+  }
+
+
+  function rotuloStatusReservaGerenciamento(
+    status: string,
+  ) {
+    switch (status) {
+      case "AGUARDANDO":
+        return ui("reservationStatusWaiting");
+
+      case "DISPONIVEL":
+        return ui("reservationStatusReady");
+
+      case "ATENDIDA":
+        return ui("reservationStatusServed");
+
+      case "EXPIRADA":
+        return ui("reservationStatusExpired");
+
+      case "CANCELADA":
+        return ui("reservationStatusCancelled");
+
+      default:
+        return status;
+    }
+  }
+
+  function formatarDataHoraReserva(
+    valor: string | null | undefined,
+  ) {
+    if (!valor) {
+      return ui("notInformed");
+    }
+
+    const data = new Date(valor);
+
+    if (
+      Number.isNaN(
+        data.getTime(),
+      )
+    ) {
+      return ui("notInformed");
+    }
+
+    return new Intl.DateTimeFormat(
+      locale,
+      {
+        dateStyle: "short",
+        timeStyle: "short",
+      },
+    ).format(data);
+  }
+
+
+  function abrirCancelamentoReserva(
+    reserva: ReservaGerenciamento,
+  ) {
+    if (
+      !podeGerenciarReservas ||
+      impersonacao ||
+      !["AGUARDANDO", "DISPONIVEL"].includes(
+        reserva.status,
+      )
+    ) {
+      return;
+    }
+
+    setReservaParaCancelar(reserva);
+    setMotivoCancelamentoReserva("");
+  }
+
+  function fecharCancelamentoReserva() {
+    if (cancelandoReserva) {
+      return;
+    }
+
+    setReservaParaCancelar(null);
+    setMotivoCancelamentoReserva("");
+  }
+
+  async function confirmarCancelamentoReserva() {
+    if (
+      !reservaParaCancelar ||
+      cancelandoReserva ||
+      !podeGerenciarReservas ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    setCancelandoReserva(true);
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/biblioteca/reservas/${reservaParaCancelar.id}/cancelar`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          credentials: "include",
+
+          body: JSON.stringify({
+            motivo:
+              motivoCancelamentoReserva.trim() ||
+              null,
+          }),
+        },
+      );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          codigo?: string;
+          proximaReservaId?: number | null;
+        };
+
+      if (!resposta.ok) {
+        const mensagemErro =
+          resultado.codigo ===
+          "RESERVA_NAO_ENCONTRADA"
+            ? ui("reservationCancelNotFound")
+            : resultado.codigo ===
+                "RESERVA_NAO_CANCELAVEL"
+              ? ui("reservationCancelNotAllowed")
+              : ui("reservationCancelError");
+
+        throw new Error(
+          mensagemErro,
+        );
+      }
+
+      const houvePromocao =
+        Number.isInteger(
+          resultado.proximaReservaId,
+        ) &&
+        Number(
+          resultado.proximaReservaId,
+        ) > 0;
+
+      setReservaParaCancelar(null);
+      setMotivoCancelamentoReserva("");
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          houvePromocao
+            ? ui(
+                "reservationCancelSuccessWithPromotion",
+              )
+            : ui(
+                "reservationCancelSuccess",
+              ),
+      });
+
+      setAtualizacao(
+        (valor) => valor + 1,
+      );
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : ui(
+                "reservationCancelError",
+              ),
+      });
+    } finally {
+      setCancelandoReserva(false);
+    }
   }
 
   function abrirReserva() {
@@ -3902,6 +4291,325 @@ export default function BibliotecaItemPage() {
             </article>
           </section>
 
+
+          {podeGerenciarReservas ? (
+            <section
+              className="bib-card bib-detail-section"
+              aria-label={ui("reservationManagementTitle")}
+            >
+              <header className="bib-detail-section-heading">
+                <div>
+                  <span aria-hidden="true">
+                    {"\u23F3"}
+                  </span>
+
+                  <div>
+                    <h2>
+                      {ui("reservationManagementTitle")}
+                    </h2>
+
+                    <p>
+                      {ui("reservationManagementDescription")}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={() =>
+                    void carregarReservas()
+                  }
+                  disabled={carregandoReservas}
+                >
+                  {ui("refreshReservations")}
+                </button>
+              </header>
+
+              <div
+                className="bib-detail-summary"
+                aria-label={ui("reservationSummaryLabel")}
+              >
+                <article className="bib-summary-card">
+                  <span
+                    className="bib-summary-icon"
+                    aria-hidden="true"
+                  >
+                    {"\uD83D\uDCCC"}
+                  </span>
+
+                  <div>
+                    <span>
+                      {ui("reservationActiveCount")}
+                    </span>
+
+                    <strong>
+                      {resumoReservas.ativas}
+                    </strong>
+                  </div>
+                </article>
+
+                <article className="bib-summary-card">
+                  <span
+                    className="bib-summary-icon"
+                    aria-hidden="true"
+                  >
+                    {"\u2705"}
+                  </span>
+
+                  <div>
+                    <span>
+                      {ui("reservationReadyCount")}
+                    </span>
+
+                    <strong>
+                      {resumoReservas.disponiveis}
+                    </strong>
+                  </div>
+                </article>
+
+                <article className="bib-summary-card">
+                  <span
+                    className="bib-summary-icon"
+                    aria-hidden="true"
+                  >
+                    {"\u23F1\uFE0F"}
+                  </span>
+
+                  <div>
+                    <span>
+                      {ui("reservationWaitingCount")}
+                    </span>
+
+                    <strong>
+                      {resumoReservas.aguardando}
+                    </strong>
+                  </div>
+                </article>
+              </div>
+
+              {carregandoReservas ? (
+                <div className="bib-compact-empty">
+                  {ui("loadingReservations")}
+                </div>
+              ) : null}
+
+              {!carregandoReservas && erroReservas ? (
+                <div className="bib-feedback bib-feedback-danger">
+                  <div>
+                    <strong>
+                      {ui("reservationLoadFailed")}
+                    </strong>
+
+                    <p>{erroReservas}</p>
+                  </div>
+                </div>
+              ) : null}
+
+              {!carregandoReservas && !erroReservas ? (
+                <>
+                  <div>
+                    <strong>
+                      {ui("activeReservationsTitle")}
+                    </strong>
+
+                    <p>
+                      {ui("activeReservationsDescription")}
+                    </p>
+                  </div>
+
+                  {reservasAtivas.length ? (
+                    <div className="bib-related-list">
+                      {reservasAtivas.map((reserva) => (
+                        <div
+                          className="bib-related-row"
+                          key={reserva.id}
+                        >
+                          <span aria-hidden="true">
+                            {reserva.status === "DISPONIVEL"
+                              ? "\u2705"
+                              : "\u23F1\uFE0F"}
+                          </span>
+
+                          <div className="bib-exemplar-info">
+                            <strong>
+                              {reserva.usuario.nome}
+                            </strong>
+
+                            <small>
+                              {rotuloStatusReservaGerenciamento(
+                                reserva.status,
+                              )}
+
+                              {reserva.usuario.email
+                                ? ` ? ${reserva.usuario.email}`
+                                : ""}
+                            </small>
+
+                            <small>
+                              {reserva.status === "AGUARDANDO" &&
+                              reserva.posicaoFila
+                                ? ui(
+                                    "reservationQueuePosition",
+                                    {
+                                      position:
+                                        reserva.posicaoFila,
+                                    },
+                                  )
+                                : reserva.exemplar
+                                  ? ui(
+                                      "reservationCopy",
+                                      {
+                                        code:
+                                          reserva.exemplar
+                                            .codigoInterno,
+                                      },
+                                    )
+                                  : ui(
+                                      "reservationNoCopy",
+                                    )}
+                            </small>
+
+                            <small>
+                              {reserva.status === "DISPONIVEL" &&
+                              reserva.expiraEm
+                                ? ui(
+                                    "reservationPickupUntil",
+                                    {
+                                      date:
+                                        formatarDataHoraReserva(
+                                          reserva.expiraEm,
+                                        ),
+                                    },
+                                  )
+                                : ui(
+                                    "reservationRequestedAt",
+                                    {
+                                      date:
+                                        formatarDataHoraReserva(
+                                          reserva.reservadaEm,
+                                        ),
+                                    },
+                                  )}
+                            </small>
+
+                            {reserva.prazoExpirado ? (
+                              <small>
+                                {"\u26A0\uFE0F"}{" "}
+                                {ui(
+                                  "reservationExpiredPendingCleanup",
+                                )}
+                              </small>
+                            ) : null}
+
+                            {reserva.observacao ? (
+                              <small>
+                                {ui("reservationNoteLabel")}:{" "}
+                                {reserva.observacao}
+                              </small>
+                            ) : null}
+                          </div>
+
+                          {!impersonacao ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-danger"
+                              onClick={() =>
+                                abrirCancelamentoReserva(
+                                  reserva,
+                                )
+                              }
+                            >
+                              {ui("cancelReservationAction")}
+                            </button>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bib-compact-empty">
+                      {ui("noActiveReservations")}
+                    </div>
+                  )}
+
+                  <div>
+                    <strong>
+                      {ui("reservationHistoryTitle")}
+                    </strong>
+
+                    <p>
+                      {ui("reservationHistoryDescription")}
+                    </p>
+                  </div>
+
+                  {historicoReservas.length ? (
+                    <div className="bib-related-list">
+                      {historicoReservas.map((reserva) => (
+                        <div
+                          className="bib-related-row"
+                          key={reserva.id}
+                        >
+                          <span aria-hidden="true">
+                            {reserva.status === "ATENDIDA"
+                              ? "\uD83D\uDCDA"
+                              : reserva.status === "CANCELADA"
+                                ? "\uD83D\uDEAB"
+                                : "\u231B"}
+                          </span>
+
+                          <div className="bib-exemplar-info">
+                            <strong>
+                              {reserva.usuario.nome}
+                            </strong>
+
+                            <small>
+                              {rotuloStatusReservaGerenciamento(
+                                reserva.status,
+                              )}
+
+                              {reserva.exemplar
+                                ? ` ? ${reserva.exemplar.codigoInterno}`
+                                : ""}
+                            </small>
+
+                            <small>
+                              {ui(
+                                "reservationUpdatedAt",
+                                {
+                                  date:
+                                    formatarDataHoraReserva(
+                                      reserva.canceladaEm ||
+                                        reserva.atendidaEm ||
+                                        reserva.disponivelEm ||
+                                        reserva.reservadaEm,
+                                    ),
+                                },
+                              )}
+                            </small>
+
+                            {reserva.motivoCancelamento ? (
+                              <small>
+                                {ui(
+                                  "reservationCancellationReason",
+                                )}
+                                :{" "}
+                                {reserva.motivoCancelamento}
+                              </small>
+                            ) : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bib-compact-empty">
+                      {ui("noReservationHistory")}
+                    </div>
+                  )}
+                </>
+              ) : null}
+            </section>
+          ) : null}
+
           <section className="bib-card bib-detail-history">
             <div>
               <span>{ui("createdAt")}</span>
@@ -4506,6 +5214,165 @@ export default function BibliotecaItemPage() {
                 {registrandoEmprestimo
                   ? ui("registering")
                   : ui("registerLoanAction")}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+
+      {reservaParaCancelar ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+        >
+          <section
+            className="bib-modal bib-emprestimo-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-cancelamento-reserva-biblioteca"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  {ui("virtualLibrary")}
+                </span>
+
+                <h2
+                  id="titulo-cancelamento-reserva-biblioteca"
+                >
+                  {ui("cancelReservationTitle")}
+                </h2>
+
+                <p>
+                  {ui("cancelReservationDescription")}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={fecharCancelamentoReserva}
+                disabled={cancelandoReserva}
+                aria-label={ui("close")}
+              >
+                {"\u00D7"}
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              <div className="bib-feedback">
+                <div>
+                  <strong>
+                    {reservaParaCancelar.usuario.nome}
+                  </strong>
+
+                  <p>
+                    {rotuloStatusReservaGerenciamento(
+                      reservaParaCancelar.status,
+                    )}
+
+                    {reservaParaCancelar.status ===
+                      "AGUARDANDO" &&
+                    reservaParaCancelar.posicaoFila
+                      ? ` \u00B7 ${ui(
+                          "reservationQueuePosition",
+                          {
+                            position:
+                              reservaParaCancelar
+                                .posicaoFila,
+                          },
+                        )}`
+                      : ""}
+
+                    {reservaParaCancelar.exemplar
+                      ? ` \u00B7 ${ui(
+                          "reservationCopy",
+                          {
+                            code:
+                              reservaParaCancelar
+                                .exemplar
+                                .codigoInterno,
+                          },
+                        )}`
+                      : ""}
+                  </p>
+                </div>
+              </div>
+
+              <label className="bib-field">
+                <span>
+                  {ui(
+                    "reservationCancellationReasonInput",
+                  )}
+                </span>
+
+                <textarea
+                  className="bib-input bib-textarea"
+                  value={motivoCancelamentoReserva}
+                  onChange={(evento) =>
+                    setMotivoCancelamentoReserva(
+                      evento.target.value,
+                    )
+                  }
+                  maxLength={5_000}
+                  disabled={cancelandoReserva}
+                  placeholder={ui(
+                    "reservationCancellationReasonPlaceholder",
+                  )}
+                />
+
+                <small>
+                  {ui(
+                    "reservationCancellationReasonHelp",
+                  )}
+                </small>
+              </label>
+
+              <div className="bib-feedback bib-feedback-danger">
+                <div>
+                  <strong>
+                    {ui(
+                      "cancelReservationWarningTitle",
+                    )}
+                  </strong>
+
+                  <p>
+                    {reservaParaCancelar.status ===
+                    "DISPONIVEL"
+                      ? ui(
+                          "cancelReservationReadyWarning",
+                        )
+                      : ui(
+                          "cancelReservationWaitingWarning",
+                        )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-secondary"
+                onClick={fecharCancelamentoReserva}
+                disabled={cancelandoReserva}
+              >
+                {ui("back")}
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-danger"
+                onClick={() =>
+                  void confirmarCancelamentoReserva()
+                }
+                disabled={cancelandoReserva}
+              >
+                {cancelandoReserva
+                  ? ui("cancelingReservation")
+                  : ui(
+                      "confirmCancelReservation",
+                    )}
               </button>
             </footer>
           </section>
