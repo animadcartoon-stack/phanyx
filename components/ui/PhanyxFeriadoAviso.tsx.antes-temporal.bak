@@ -9,7 +9,6 @@ export type FeriadoAtivoPhanyx = {
   id: number;
   paisCodigo: string;
   dataFeriado: string;
-  diasRestantes: number;
   inicioExibicao: string;
   fimExibicao: string;
   prioridade: number;
@@ -85,68 +84,6 @@ export default function PhanyxFeriadoAviso({
       locale
     );
 
-  const tituloInteligente =
-    feriado.diasRestantes === 0
-      ? t(
-          "titleToday",
-          {
-            name:
-              feriado.nome,
-          }
-        )
-      : feriado.diasRestantes === 1
-      ? t(
-          "titleTomorrow",
-          {
-            name:
-              feriado.nome,
-          }
-        )
-      : feriado.diasRestantes > 1
-      ? t(
-          "titleUpcoming",
-          {
-            name:
-              feriado.nome,
-          }
-        )
-      : feriado.titulo;
-
-  const fraseInteligente =
-    feriado.diasRestantes === 0
-      ? t(
-          "messageToday",
-          {
-            name:
-              feriado.nome,
-            message:
-              feriado.mensagem,
-          }
-        )
-      : feriado.diasRestantes === 1
-      ? t(
-          "messageTomorrow",
-          {
-            name:
-              feriado.nome,
-            message:
-              feriado.mensagem,
-          }
-        )
-      : feriado.diasRestantes > 1
-      ? t(
-          "messageUpcoming",
-          {
-            name:
-              feriado.nome,
-            date:
-              dataTexto,
-            message:
-              feriado.mensagem,
-          }
-        )
-      : feriado.mensagem;
-
   const icone =
     feriado.emoji ? (
       feriado.emoji
@@ -169,13 +106,13 @@ export default function PhanyxFeriadoAviso({
           id:
             `feriado-global-${feriado.id}`,
           titulo:
-            tituloInteligente,
+            feriado.titulo,
           descricao:
             dataTexto,
           origem:
             t("origin"),
           frase:
-            fraseInteligente,
+            feriado.mensagem,
           icone,
           categoria:
             t("category"),

@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  PreviewVariaveisPHANYX,
+  type DadosPreviewVariaveisPHANYX,
+} from "@/components/documentos/PreviewVariaveisPHANYX";
+
+import {
+  montarValoresPreviewDocumento,
+} from "@/lib/documentos/variaveis-preview-documento";
+
 /* PHANYX: força deploy da seleção persistente de linhas da tabela */
 
 import {
@@ -2179,6 +2188,9 @@ type Props = {
 
   camposVisuais?:
   CampoVisualAssinaturaPreview[] | null;
+
+  configPreview?:
+    Record<string, unknown> | null;
 };
 
 function conteudoParaHtmlSeguro(valor: string) {
@@ -2663,10 +2675,36 @@ export default function EditorTemplatePHANYX({
 
   camposVisuais =
   [],
+
+  configPreview =
+  null,
 }: Props) {
   const tToolbar =
     useTranslations(
       "AdminDocumentsEditorToolbar"
+    );
+
+
+  const valoresPreviewVariaveis =
+    montarValoresPreviewDocumento({
+      ...(configPreview || {}),
+
+      nomeFantasia:
+        nomeInstituicao ||
+        configPreview?.nomeFantasia,
+
+      cnpj:
+        cnpjInstituicao ||
+        configPreview?.cnpj,
+
+      responsavelNome:
+        responsavelNome ||
+        configPreview?.responsavelNome,
+    });
+
+  const chaveValoresPreviewVariaveis =
+    JSON.stringify(
+      valoresPreviewVariaveis
     );
 
   const duasVias =
@@ -2822,6 +2860,12 @@ export default function EditorTemplatePHANYX({
       StarterKit,
 
       PageBreakPHANYX,
+
+
+      PreviewVariaveisPHANYX.configure({
+        valores:
+          valoresPreviewVariaveis,
+      }),
 
       AssinaturaPreviewPHANYX.configure({
         assinaturaUrl:
@@ -3212,6 +3256,53 @@ export default function EditorTemplatePHANYX({
    * usuário arrasta/redimensiona o campo, sem recriar o TipTap a
    * cada mousemove.
    */
+  /*
+   * Atualiza somente as Decorations.
+   * As tags {{...}} permanecem intactas
+   * no HTML salvo pelo TipTap.
+   */
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const extensao =
+      editor.extensionManager
+        .extensions.find(
+          (item) =>
+            item.name ===
+            "previewVariaveisPHANYX"
+        );
+
+    if (!extensao) {
+      return;
+    }
+
+    (
+      extensao.options as
+        DadosPreviewVariaveisPHANYX
+    ).valores =
+      valoresPreviewVariaveis;
+
+    const transacao =
+      editor.state.tr.setMeta(
+        "phanyxAtualizarPreviewVariaveis",
+        chaveValoresPreviewVariaveis
+      );
+
+    transacao.setMeta(
+      "addToHistory",
+      false
+    );
+
+    editor.view.dispatch(
+      transacao
+    );
+  }, [
+    editor,
+    chaveValoresPreviewVariaveis,
+  ]);
+
   useEffect(() => {
     if (!editor) return;
 

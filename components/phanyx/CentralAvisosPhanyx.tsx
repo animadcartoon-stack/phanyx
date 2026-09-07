@@ -1,39 +1,174 @@
 "use client";
 
-import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
+
 import AvisoInteligenteBanner from "@/components/phanyx/AvisoInteligenteBanner";
-import { feriadoNacionalHoje } from "@/lib/phanyx/feriados";
-import { useLocale, useTranslations } from "next-intl";
+
+import PhanyxFeriadoAviso, {
+  type FeriadoAtivoPhanyx,
+} from "@/components/ui/PhanyxFeriadoAviso";
 
 type Props = {
-  variante?: "dashboard" | "compacta";
+  variante?:
+    | "dashboard"
+    | "compacta";
+};
+
+type RespostaFeriadoAtual = {
+  ok?: boolean;
+  feriado?:
+    | FeriadoAtivoPhanyx
+    | null;
 };
 
 export default function CentralAvisosPhanyx({
   variante = "dashboard",
 }: Props) {
-  const locale = useLocale();
-  const t = useTranslations("MonthlyCampaign");
+  const locale =
+    useLocale();
+
+  const tMonthly =
+    useTranslations(
+      "MonthlyCampaign"
+    );
+
+  const tHoliday =
+    useTranslations(
+      "PublicHolidayBanner"
+    );
+
+  const [
+    feriado,
+    setFeriado,
+  ] =
+    useState<FeriadoAtivoPhanyx | null>(
+      null
+    );
+
+  const [
+    carregando,
+    setCarregando,
+  ] =
+    useState(true);
+
+  useEffect(() => {
+    const controller =
+      new AbortController();
+
+    let ativo = true;
+
+    async function carregarFeriado() {
+      try {
+        setCarregando(true);
+
+        const resposta =
+          await fetch(
+            `/api/phanyx/feriado-atual?locale=${encodeURIComponent(
+              locale
+            )}`,
+            {
+              cache: "no-store",
+              credentials:
+                "include",
+              signal:
+                controller.signal,
+            }
+          );
+
+        if (!resposta.ok) {
+          if (ativo) {
+            setFeriado(null);
+          }
+
+          return;
+        }
+
+        const dados =
+          (await resposta.json()) as
+            RespostaFeriadoAtual;
+
+        if (!ativo) {
+          return;
+        }
+
+        setFeriado(
+          dados?.feriado ||
+            null
+        );
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name ===
+            "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Erro ao carregar feriado PHANYX:",
+          error
+        );
+
+        if (ativo) {
+          setFeriado(null);
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    carregarFeriado();
+
+    return () => {
+      ativo = false;
+      controller.abort();
+    };
+  }, [locale]);
 
   /*
-   * Enquanto o país da instituição ainda não estiver cadastrado,
-   * feriados nacionais brasileiros aparecem somente no pt-BR.
+   * Evita mostrar o aviso mensal por
+   * alguns milissegundos antes de saber
+   * se existe feriado ativo.
    */
-  const existeFeriado =
-    locale === "pt-BR" && Boolean(feriadoNacionalHoje());
+  if (carregando) {
+    return null;
+  }
 
-  if (variante === "compacta") {
+  if (
+    variante ===
+    "compacta"
+  ) {
     return (
       <div className="text-xs text-slate-500 dark:text-slate-400">
-        {existeFeriado
-          ? `🇧🇷 ${t("upcomingHoliday")}`
-          : `🎗️ ${t("monthlyCampaign")}`}
+        {feriado
+          ? tHoliday(
+              "compact",
+              {
+                name:
+                  feriado.nome,
+              }
+            )
+          : `🎗️ ${tMonthly(
+              "monthlyCampaign"
+            )}`}
       </div>
     );
   }
 
-  return existeFeriado ? (
-    <PhanyxFeriadoAviso />
+  return feriado ? (
+    <PhanyxFeriadoAviso
+      feriado={feriado}
+    />
   ) : (
     <AvisoInteligenteBanner />
   );

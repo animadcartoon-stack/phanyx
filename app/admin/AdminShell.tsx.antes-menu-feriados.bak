@@ -878,8 +878,6 @@ export default function AdminShell({
                       <div className="ml-3 mt-2 flex flex-col space-y-1">
                         <Link
                           href="/master"
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className={getLinkClass("/master")}
                         >
                           🚀 {tNav("masterDashboard")}
@@ -887,8 +885,6 @@ export default function AdminShell({
 
                         <Link
                           href="/master#suporte-usuario"
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="flex items-center gap-2 rounded p-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50"
                         >
                           🛠️ {tNav("signInAsUser")}
@@ -896,26 +892,13 @@ export default function AdminShell({
 
                         <Link
                           href="/master/plataforma"
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className={getLinkClass("/master/plataforma")}
                         >
                           🧠 {tNav("phanyxPlatform")}
                         </Link>
 
                         <Link
-                          href="/master/feriados"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={getLinkClass("/master/feriados")}
-                        >
-                          📅 {tNav("holidayCalendars")}
-                        </Link>
-
-                        <Link
                           href="/master/boletos-ibe"
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className={getLinkClass("/master/boletos-ibe")}
                         >
                           🧾 {tNav("generateIbeInvoice")}

@@ -205,6 +205,7 @@
     "masterDashboard": "Master Dashboard",
     "signInAsUser": "Sign in as user",
     "phanyxPlatform": "PHANYX Platform",
+    "holidayCalendars": "Calendars and Holidays",
     "generateIbeInvoice": "Generate IBE payment slip",
     "campusManagementDisabled": "Campus and unit management is unavailable",
     "campusManagementDisabledDescription": "This institution ID is not authorized to create or manage campuses or units. This permission is controlled by the network's contracting institution.",
@@ -1243,7 +1244,9 @@
       "arrival": "Scheduled arrival",
       "provider": "Provider",
       "vehicles": "Vehicles",
-      "reference": "Reference"
+      "reference": "Reference",
+      "actualDeparture": "Actual departure",
+      "actualArrival": "Actual arrival"
     },
     "common": {
       "notInformed": "Not provided",
@@ -11582,7 +11585,7 @@
       "recentApplications": "Recent applications",
       "recentApplicationsDescription": "Latest applications registered in the mobility sector.",
       "quickActions": "Mobility areas",
-      "quickActionsDescription": "Additional modules will become available as they are implemented."
+      "quickActionsDescription": "Access the main areas of International Mobility."
     },
     "empty": {
       "deadlines": "There are no upcoming application deadlines.",
@@ -11599,7 +11602,8 @@
       "programs": "Programs",
       "offers": "Opportunities / Calls",
       "applications": "Applications",
-      "comingSoon": "Being implemented"
+      "comingSoon": "Being implemented",
+      "available": "Available"
     },
     "statuses": {
       "draft": "Draft",
@@ -12320,5 +12324,16 @@
     "phone": "Phone",
     "phoneHint": "Select the phone number's country. The number will be stored in international format.",
     "phoneInvalid": "Enter a valid international phone number."
+  },
+  "PublicHolidayBanner": {
+    "origin": "National Calendar",
+    "category": "Holiday",
+    "titleToday": "Today is a holiday: {name}",
+    "titleTomorrow": "Tomorrow is a holiday: {name}",
+    "titleUpcoming": "Upcoming holiday: {name}",
+    "messageToday": "Today is a holiday: {name}. Enjoy the day! {message}",
+    "messageTomorrow": "Tomorrow is a holiday: {name}. {message}",
+    "messageUpcoming": "{name} will be observed on {date}. {message}",
+    "compact": "Holiday: {name}"
   }
 }

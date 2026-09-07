@@ -1,3 +1,6 @@
+import {
+  substituirVariaveisPreviewDocumento,
+} from "@/lib/documentos/variaveis-preview-documento";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import chromium from "@sparticuz/chromium-min";
@@ -120,203 +123,26 @@ async function imagemParaDataUri(
   }
 }
 
-function substituirExemplos(texto: string, config: any) {
-  const blocoInstituicao =
-    [
-      config?.nomeFantasia ||
-      "Instituição Exemplo",
-
-      config?.cnpj
-        ? `CNPJ: ${config.cnpj}`
-        : "",
-
-      config?.endereco ||
-      "",
-
-      [
-        config?.telefone ||
-        "",
-        config?.email ||
-        "",
-      ]
-        .filter(Boolean)
-        .join(" • "),
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-  const valores: Record<string, string> = {
-    blocoInstituicao,
-    logoInstituicao:
-      "__PHANYX_LOGO_INSTITUICAO__",
-    nomeInstituicao: config?.nomeFantasia || "Instituição Exemplo",
-    cnpjInstituicao: config?.cnpj || "00.000.000/0001-00",
-    enderecoInstituicao: config?.endereco || "Endereço institucional",
-    telefoneInstituicao: config?.telefone || "(00) 00000-0000",
-    emailInstituicao: config?.email || "contato@instituicao.com",
-    cidadeInstituicao: config?.cidade || "Cidade",
-    estadoInstituicao: config?.estado || "UF",
-    cepInstituicao: config?.cep || "00000-000",
-
-    dataAtual: new Date().toLocaleDateString("pt-BR"),
-    cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "Cidade",
-    responsavelLegal: config?.responsavelNome || "Responsável legal",
-
-    nomeAluno: "Aluno Exemplo",
-    cpfAluno: "000.000.000-00",
-    rgAluno: "00.000.000-0",
-    matriculaAluno: "2026-0001",
-    numeroMatricula: "2026-0001",
-    curso: "Bacharel Livre em Teologia",
-    statusAluno: "ATIVO",
-    statusMatricula: "ATIVA",
-
-    dataMatricula: "03/06/2026",
-    dataInicioAluno: "03/06/2026",
-    dataConclusao: "-",
-    dataConclusaoAluno: "-",
-
-    semestreAtual: "1º semestre",
-
-    cargaHorariaCurso: "3.200h",
-    cargaHorariaMinimaCurso: "20h",
-    cargaHorariaMaximaCurso: "550h",
-
-    percentualConclusao: "25%",
-
-    nomePolo: "Não informado",
-    enderecoPolo: "Não informado",
-    telefonePolo: "Não informado",
-    emailPolo: "Não informado",
-    cidadePolo: "Não informado",
-    estadoPolo: "Não informado",
-    cepPolo: "Não informado",
-
-    nomeTitularContrato:
-      "Nome do titular do contrato",
-
-    cpfTitularContrato:
-      "CPF do titular",
-
-    emailTitularContrato:
-      "E-mail do titular",
-
-    telefoneTitularContrato:
-      "Telefone do titular",
-
-    parentescoTitularContrato:
-      "Vínculo ou parentesco",
-
-    tipoTitularContrato:
-      "Tipo de titular",
-
-    disciplinas:
-      "- Antigo Testamento A — 96h<br>" +
-      "- Novo Testamento A — 96h<br>" +
-      "- Teologia Bíblica — 64h",
-
-    cursoNome: "Bacharel Livre em Teologia",
-
-
-    disciplinasContratadas:
-
-      "- Antigo Testamento A â€” 96h<br>" +
-
-      "- Novo Testamento A â€” 96h<br>" +
-
-      "- Teologia BÃ­blica â€” 64h",
-
-    valorContrato: "R$ 2.000,00",
-
-    codigoValidacao:
-      "PHANYX-PREVIA-000001",
-
-    urlValidacao:
-      "https://www.phanyx.com.br/validar-documento",
-
-    numeroDocumento:
-      "CONTRATO-PREVIA-000001",
-
-    dataEmissao:
-      new Date().toLocaleDateString(
-        "pt-BR"
-      ),
-
-    horaEmissao:
-      new Date().toLocaleTimeString(
-        "pt-BR"
-      ),
-
-    dataHoraEmissao:
-      new Date().toLocaleString(
-        "pt-BR"
-      ),
-
-    nomeFuncionario: "Funcionário Exemplo",
-    funcionarioNome: "Funcionário Exemplo",
-    cpfFuncionario: "000.000.000-00",
-    funcionarioCpf: "000.000.000-00",
-    rgFuncionario: "00.000.000-0",
-    funcionarioRg: "00.000.000-0",
-    cargoFuncionario: "Auxiliar Administrativo",
-    funcionarioCargo: "Auxiliar Administrativo",
-    departamentoFuncionario: "Departamento Exemplo",
-    funcionarioDepartamento: "Departamento Exemplo",
-    dataAdmissaoFuncionario: "-",
-    funcionarioDataAdmissao: "-",
-    dataDesligamentoFuncionario: "-",
-    funcionarioDataDesligamento: "-",
-
-    motivoDemissao: "Motivo exemplo",
-    tipoRescisao: "Sem justa causa",
-    dataDemissao: "-",
-    saldoSalario: "R$ 0,00",
-    feriasVencidas: "R$ 0,00",
-    feriasProporcionais: "R$ 0,00",
-    decimoTerceiroProporcional: "R$ 0,00",
-    avisoPrevio: "R$ 0,00",
-    multaFgts: "-",
-    valorBrutoRescisao: "-",
-    descontoInss: "-",
-    descontoIrrf: "-",
-    outrosDescontos: "-",
-    valorLiquidoRescisao: "R$ 0,00",
-    valorRescisao: "R$ 0,00",
-  };
-
-  let final = texto || "";
-
-  for (
-    const [chave, valor]
-    of Object.entries(valores)
-  ) {
-    const chaveSegura =
-      chave.replace(
-        /[.*+?^${}()|[\]\\]/g,
-        "\\$&"
-      );
-
-    const padrao =
-      new RegExp(
-        `{{\\s*${chaveSegura}\\s*}}`,
-        "g"
-      );
-
-    final = final.replace(
-      padrao,
-      () => valor || ""
+function substituirExemplos(
+  texto: string,
+  config: any
+) {
+  let final =
+    substituirVariaveisPreviewDocumento(
+      texto,
+      config
     );
-  }
 
-  final = final
-    .replace(
-      /{{\s*assinaturaDiretor\s*}}/gi,
-      "__PHANYX_ASSINATURA_DIRETOR__"
-    )
-    .replace(
-      /{{\s*blocoAssinaturaDiretor\s*}}/gi,
-      "__PHANYX_BLOCO_ASSINATURA_DIRETOR__"
-    );
+  final =
+    final
+      .replace(
+        /{{\s*assinaturaDiretor\s*}}/gi,
+        "__PHANYX_ASSINATURA_DIRETOR__"
+      )
+      .replace(
+        /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+        "__PHANYX_BLOCO_ASSINATURA_DIRETOR__"
+      );
 
   return final.replace(
     /{{[^}]+}}/g,

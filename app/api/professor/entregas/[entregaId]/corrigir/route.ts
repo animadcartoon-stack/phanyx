@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuth, assertProfessor } from "@/lib/auth/getAuth";
 import { corrigirEntregaSchema } from "@/lib/validators/atividade";
+import { solicitarReanalisePorAlteracaoAcademica } from "@/lib/student-success/solicitar-reanalise-por-alteracao-academica";
 
 export async function PATCH(
   req: NextRequest,
@@ -69,6 +70,32 @@ export async function PATCH(
         corrigidaEm: new Date(),
       },
     });
+
+    /*
+     * A correcao da atividade altera o desempenho academico
+     * do aluno e deve gerar nova analise do Student Success.
+     *
+     * A falha da reanalise nao pode impedir a correcao
+     * da entrega, por isso ela fica isolada.
+     */
+    try {
+      await solicitarReanalisePorAlteracaoAcademica({
+        instituicaoId: auth.instituicaoId,
+
+        alunoIds: [
+          entrega.alunoId,
+        ],
+
+        executadoPorId:
+          auth.userId,
+      });
+    }
+    catch (error) {
+      console.error(
+        "[STUDENT_SUCCESS_CORRECAO_ATIVIDADE_REANALISE]",
+        error
+      );
+    }
 
     return NextResponse.json(updated);
   } catch (e: any) {

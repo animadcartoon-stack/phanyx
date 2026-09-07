@@ -205,6 +205,7 @@
     "masterDashboard": "Panel Master",
     "signInAsUser": "Iniciar sesión como usuario",
     "phanyxPlatform": "Plataforma PHANYX",
+    "holidayCalendars": "Calendarios y Festivos",
     "generateIbeInvoice": "Generar recibo de pago IBE",
     "campusManagementDisabled": "Gestión de sedes no habilitada",
     "campusManagementDisabledDescription": "Este identificador institucional no está autorizado para crear o gestionar sedes o unidades. Este permiso está controlado por la institución contratante de la red.",
@@ -1243,7 +1244,9 @@
       "arrival": "Llegada prevista",
       "provider": "Proveedor",
       "vehicles": "Vehículos",
-      "reference": "Referencia"
+      "reference": "Referencia",
+      "actualDeparture": "Salida real",
+      "actualArrival": "Llegada real"
     },
     "common": {
       "notInformed": "No informado",
@@ -11581,7 +11584,7 @@
       "recentApplications": "Solicitudes recientes",
       "recentApplicationsDescription": "Últimas solicitudes registradas en el sector.",
       "quickActions": "Áreas de Movilidad",
-      "quickActionsDescription": "Los próximos módulos se activarán a medida que sean implementados."
+      "quickActionsDescription": "Accede a las principales áreas de Movilidad Internacional."
     },
     "empty": {
       "deadlines": "No hay próximos plazos de inscripción.",
@@ -11598,7 +11601,8 @@
       "programs": "Programas",
       "offers": "Oportunidades / Convocatorias",
       "applications": "Solicitudes",
-      "comingSoon": "En implementación"
+      "comingSoon": "En implementación",
+      "available": "Disponible"
     },
     "statuses": {
       "draft": "Borrador",
@@ -12319,5 +12323,16 @@
     "phone": "Teléfono",
     "phoneHint": "Selecciona el país del número. El teléfono se almacenará en formato internacional.",
     "phoneInvalid": "Introduce un número de teléfono internacional válido."
+  },
+  "PublicHolidayBanner": {
+    "origin": "Calendario Nacional",
+    "category": "Festivo",
+    "titleToday": "Hoy es festivo: {name}",
+    "titleTomorrow": "Mañana será festivo: {name}",
+    "titleUpcoming": "Próximo festivo: {name}",
+    "messageToday": "Hoy es festivo: {name}. ¡Disfruta del día! {message}",
+    "messageTomorrow": "Mañana será festivo: {name}. {message}",
+    "messageUpcoming": "El {date} será festivo: {name}. {message}",
+    "compact": "Festivo: {name}"
   }
 }

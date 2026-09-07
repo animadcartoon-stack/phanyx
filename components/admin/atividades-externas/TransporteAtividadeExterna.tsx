@@ -79,7 +79,11 @@ type Trecho = {
   veiculos: Array<{
     id: number;
     veiculoId: number;
+
     status: string;
+
+    embarqueReal?: string | null;
+    desembarqueReal?: string | null;
 
     veiculo: {
       id: number;
@@ -1685,6 +1689,24 @@ export default function TransporteAtividadeExterna({
                   />
                 </div>
 
+                {trecho.partidaReal || trecho.chegadaReal ? (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {trecho.partidaReal ? (
+                      <InfoCard
+                        rotulo={t("segments.actualDeparture")}
+                        valor={formatarDataHora(trecho.partidaReal)}
+                      />
+                    ) : null}
+
+                    {trecho.chegadaReal ? (
+                      <InfoCard
+                        rotulo={t("segments.actualArrival")}
+                        valor={formatarDataHora(trecho.chegadaReal)}
+                      />
+                    ) : null}
+                  </div>
+                ) : null}
+
                 <div className="mt-4 rounded-2xl border p-4">
                   <div className="flex flex-col gap-1">
                     <h5 className="text-sm font-black">
@@ -1836,6 +1858,8 @@ export default function TransporteAtividadeExterna({
                                     </button>
                                   ) : null}
 
+                                 
+
                                   {vinculo.status === "CONFIRMADO" ? (
                                     <button
                                       type="button"
@@ -1896,6 +1920,33 @@ export default function TransporteAtividadeExterna({
                                 </div>
                               ) : null}
                             </div>
+
+                             {vinculo.embarqueReal ||
+                                  vinculo.desembarqueReal ? (
+                                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium opacity-70">
+                                      {vinculo.embarqueReal ? (
+                                        <div>
+                                          <strong>
+                                            {t("vehicleAssignment.boardingAt")}:
+                                          </strong>{" "}
+                                          {formatarDataHora(
+                                            vinculo.embarqueReal,
+                                          )}
+                                        </div>
+                                      ) : null}
+
+                                      {vinculo.desembarqueReal ? (
+                                        <div>
+                                          <strong>
+                                            {t("vehicleAssignment.arrivedAt")}:
+                                          </strong>{" "}
+                                          {formatarDataHora(
+                                            vinculo.desembarqueReal,
+                                          )}
+                                        </div>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
 
                             <div className="mt-3 border-t pt-3">
                               <div className="text-xs font-black uppercase tracking-wide opacity-65">

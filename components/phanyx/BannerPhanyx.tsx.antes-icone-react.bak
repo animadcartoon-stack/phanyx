@@ -1,7 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import { useTranslations } from "next-intl";
 
 export type BannerPhanyxCor =
@@ -20,7 +18,7 @@ export type BannerPhanyxAviso = {
   titulo: string;
   descricao: string;
   frase?: string;
-  icone: ReactNode;
+  icone: string;
   categoria: string;
   cor: BannerPhanyxCor;
   prioridade?: number;

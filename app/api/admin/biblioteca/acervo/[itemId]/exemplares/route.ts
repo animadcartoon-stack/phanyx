@@ -1,6 +1,7 @@
 import {
     AcaoAuditoriaBiblioteca,
     Prisma,
+    StatusEmprestimoBiblioteca,
     StatusExemplarBiblioteca,
     StatusManutencaoExemplarBiblioteca,
     TipoExemplarBiblioteca,
@@ -110,6 +111,39 @@ const EXEMPLAR_SELECT = {
             iniciadoPorId: true,
             concluidoPorId: true,
             canceladoPorId: true,
+        },
+    },
+
+    emprestimos: {
+        where: {
+            status:
+                StatusEmprestimoBiblioteca.ATIVO,
+        },
+
+        orderBy: {
+            emprestadoEm: "desc",
+        },
+
+        take: 1,
+
+        select: {
+            id: true,
+            status: true,
+            usuarioId: true,
+
+            emprestadoEm: true,
+            vencimentoEm: true,
+
+            quantidadeRenovacoes: true,
+
+            usuario: {
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    role: true,
+                },
+            },
         },
     },
 } satisfies Prisma.BibliotecaExemplarSelect;
@@ -571,6 +605,21 @@ export async function GET(
             }
         }
 
+        let podeGerenciarRenovacoes =
+            !usuario.impersonacao;
+
+        if (podeGerenciarRenovacoes) {
+            try {
+                exigirPermissaoBiblioteca(
+                    usuario,
+                    contexto,
+                    "biblioteca.renovacoes.gerenciar"
+                );
+            } catch {
+                podeGerenciarRenovacoes = false;
+            }
+        }
+
         const exemplares =
             await prisma.bibliotecaExemplar.findMany(
                 {
@@ -595,12 +644,17 @@ export async function GET(
             exemplares.map(
                 ({
                     manutencoes,
+                    emprestimos,
                     ...exemplar
                 }) => ({
                     ...exemplar,
 
                     manutencaoAberta:
                         manutencoes[0] ??
+                        null,
+
+                    emprestimoAtivo:
+                        emprestimos[0] ??
                         null,
                 })
             );
@@ -623,6 +677,7 @@ export async function GET(
                 podeGerenciar,
                 podeBaixar,
                 podeGerenciarManutencao,
+                podeGerenciarRenovacoes,
 
                 impersonacao:
                     usuario.impersonacao,

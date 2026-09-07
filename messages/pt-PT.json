@@ -205,6 +205,7 @@
     "masterDashboard": "Painel Master",
     "signInAsUser": "Entrar como utilizador",
     "phanyxPlatform": "Plataforma PHANYX",
+    "holidayCalendars": "Calendários e Feriados",
     "generateIbeInvoice": "Gerar referência de pagamento IBE",
     "campusManagementDisabled": "Gestão de polos não ativada",
     "campusManagementDisabledDescription": "Este ID institucional não tem autorização para criar ou gerir polos. Esta permissão é controlada pela instituição contratante da rede.",
@@ -1243,7 +1244,9 @@
       "arrival": "Chegada prevista",
       "provider": "Prestador",
       "vehicles": "Veículos",
-      "reference": "Referência"
+      "reference": "Referência",
+      "actualDeparture": "Saída real",
+      "actualArrival": "Chegada real"
     },
     "common": {
       "notInformed": "Não informado",
@@ -11582,7 +11585,7 @@
       "recentApplications": "Candidaturas recentes",
       "recentApplicationsDescription": "Últimas candidaturas registadas no setor.",
       "quickActions": "Áreas da Mobilidade",
-      "quickActionsDescription": "Os próximos módulos serão ativados à medida que forem implementados."
+      "quickActionsDescription": "Aceda às principais áreas da Mobilidade Internacional."
     },
     "empty": {
       "deadlines": "Não existem prazos de candidatura próximos.",
@@ -11599,7 +11602,8 @@
       "programs": "Programas",
       "offers": "Ofertas / Editais",
       "applications": "Candidaturas",
-      "comingSoon": "Em implementação"
+      "comingSoon": "Em implementação",
+      "available": "Disponível"
     },
     "statuses": {
       "draft": "Rascunho",
@@ -12320,5 +12324,16 @@
     "phone": "Telefone",
     "phoneHint": "Selecione o país do número. O telefone será guardado no formato internacional.",
     "phoneInvalid": "Introduza um telefone internacional válido."
+  },
+  "PublicHolidayBanner": {
+    "origin": "Calendário Nacional",
+    "category": "Feriado",
+    "titleToday": "Hoje é feriado: {name}",
+    "titleTomorrow": "Amanhã será feriado: {name}",
+    "titleUpcoming": "Feriado a chegar: {name}",
+    "messageToday": "Hoje é feriado: {name}. Aproveite o dia! {message}",
+    "messageTomorrow": "Amanhã será feriado: {name}. {message}",
+    "messageUpcoming": "Em {date}, será feriado: {name}. {message}",
+    "compact": "Feriado: {name}"
   }
 }

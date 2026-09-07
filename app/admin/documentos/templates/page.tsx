@@ -3512,6 +3512,10 @@ function AdminDocumentosTemplatesPage() {
                       camposVisuais={
                         camposVisuais
                       }
+
+                      configPreview={
+                        configInstituicao
+                      }
                     />
                   ) : null}
                 </div>

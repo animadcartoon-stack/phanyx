@@ -205,6 +205,7 @@
     "masterDashboard": "Tableau de bord Master",
     "signInAsUser": "Se connecter en tant qu'utilisateur",
     "phanyxPlatform": "Plateforme PHANYX",
+    "holidayCalendars": "Calendriers et jours fériés",
     "generateIbeInvoice": "Générer le bordereau de paiement IBE",
     "campusManagementDisabled": "Gestion des sites non activée",
     "campusManagementDisabledDescription": "Cet identifiant institutionnel n'est pas autorisé à créer ou gérer des sites ou des unités. Cette autorisation est contrôlée par l'établissement contractant du réseau.",
@@ -1243,7 +1244,9 @@
       "arrival": "Arrivée prévue",
       "provider": "Prestataire",
       "vehicles": "Véhicules",
-      "reference": "Référence"
+      "reference": "Référence",
+      "actualDeparture": "Départ réel",
+      "actualArrival": "Arrivée réelle"
     },
     "common": {
       "notInformed": "Non renseigné",
@@ -11581,7 +11584,7 @@
       "recentApplications": "Candidatures récentes",
       "recentApplicationsDescription": "Dernières candidatures enregistrées dans le secteur.",
       "quickActions": "Domaines de Mobilité",
-      "quickActionsDescription": "Les prochains modules seront activés au fur et à mesure de leur mise en œuvre."
+      "quickActionsDescription": "Accédez aux principaux espaces de la Mobilité Internationale."
     },
     "empty": {
       "deadlines": "Aucune échéance de candidature à venir.",
@@ -11598,7 +11601,8 @@
       "programs": "Programmes",
       "offers": "Opportunités / Appels",
       "applications": "Candidatures",
-      "comingSoon": "En cours de mise en œuvre"
+      "comingSoon": "En cours de mise en œuvre",
+      "available": "Disponible"
     },
     "statuses": {
       "draft": "Brouillon",
@@ -12319,5 +12323,16 @@
     "phone": "Téléphone",
     "phoneHint": "Sélectionnez le pays du numéro. Le téléphone sera enregistré au format international.",
     "phoneInvalid": "Saisissez un numéro de téléphone international valide."
+  },
+  "PublicHolidayBanner": {
+    "origin": "Calendrier national",
+    "category": "Jour férié",
+    "titleToday": "Aujourd’hui est un jour férié : {name}",
+    "titleTomorrow": "Demain sera férié : {name}",
+    "titleUpcoming": "Jour férié à venir : {name}",
+    "messageToday": "Aujourd’hui est un jour férié : {name}. Profitez de cette journée ! {message}",
+    "messageTomorrow": "Demain sera férié : {name}. {message}",
+    "messageUpcoming": "Le {date} sera férié : {name}. {message}",
+    "compact": "Jour férié : {name}"
   }
 }
