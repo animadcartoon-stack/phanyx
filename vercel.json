@@ -32,7 +32,7 @@
     },
     {
       "path": "/api/internal/biblioteca/reservas/processar-expiradas",
-      "schedule": "0 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
