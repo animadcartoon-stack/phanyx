@@ -1,17 +1,31 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useRef } from "react";
 import { Extension } from "@tiptap/core";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent,
+  useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
-import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
+import { Table,
+  TableRow,
+  TableCell,
+  TableHeader } from "@tiptap/extension-table";
 import { useTranslations } from "next-intl";
-import { Plugin, PluginKey } from "@tiptap/pm/state";
+import { Plugin,
+  PluginKey,
+  NodeSelection,
+} from "@tiptap/pm/state";
+import {
+  Decoration,
+  DecorationSet,
+} from "@tiptap/pm/view";
 
 const FONTES_WINDOWS = [
   "Arial","Arial Black","Bahnschrift","Calibri","Cambria","Candara",
@@ -126,7 +140,140 @@ const atributosCelulaTabelaPHANYX = {
   },
 };
 
-const TablePHANYX = Table.configure({
+const TablePHANYX = Table.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+
+      tableMode: {
+        default: "flow",
+
+        parseHTML: (
+          element: HTMLElement
+        ) =>
+          element.getAttribute(
+            "data-phanyx-table-mode"
+          ) === "free"
+            ? "free"
+            : "flow",
+
+        renderHTML: (
+          attributes: Record<
+            string,
+            any
+          >
+        ) => {
+          const livre =
+            attributes.tableMode ===
+            "free";
+
+          const x =
+            Math.max(
+              0,
+              Number(
+                attributes.tableX
+              ) || 0
+            );
+
+          const y =
+            Math.max(
+              0,
+              Number(
+                attributes.tableY
+              ) || 0
+            );
+
+          return {
+            "data-phanyx-table-mode":
+              livre
+                ? "free"
+                : "flow",
+
+            ...(livre
+              ? {
+                  style:
+                    [
+                      "position:absolute!important",
+                      `left:${x}px!important`,
+                      `top:${y}px!important`,
+                      "margin:0!important",
+                      "width:max-content!important",
+                      "z-index:20",
+                    ].join(";"),
+                }
+              : {}),
+          };
+        },
+      },
+
+      tableX: {
+        default: 0,
+
+        parseHTML: (
+          element: HTMLElement
+        ) => {
+          const valor =
+            Number(
+              element.getAttribute(
+                "data-phanyx-table-x"
+              )
+            );
+
+          return Number.isFinite(
+            valor
+          )
+            ? valor
+            : 0;
+        },
+
+        renderHTML: (
+          attributes: Record<
+            string,
+            any
+          >
+        ) => ({
+          "data-phanyx-table-x":
+            Number(
+              attributes.tableX
+            ) || 0,
+        }),
+      },
+
+      tableY: {
+        default: 0,
+
+        parseHTML: (
+          element: HTMLElement
+        ) => {
+          const valor =
+            Number(
+              element.getAttribute(
+                "data-phanyx-table-y"
+              )
+            );
+
+          return Number.isFinite(
+            valor
+          )
+            ? valor
+            : 0;
+        },
+
+        renderHTML: (
+          attributes: Record<
+            string,
+            any
+          >
+        ) => ({
+          "data-phanyx-table-y":
+            Number(
+              attributes.tableY
+            ) || 0,
+        }),
+      },
+    };
+  },
+}).configure({
   resizable: true,
   handleWidth: 6,
   cellMinWidth: 50,
@@ -1115,6 +1262,411 @@ function conteudoParaHtmlSeguro(valor: string) {
     .join("");
 }
 
+
+const FreeTablePositionPHANYX =
+  Extension.create({
+    name:
+      "freeTablePositionPHANYX",
+
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          key:
+            new PluginKey(
+              "freeTablePositionPHANYX"
+            ),
+
+          props: {
+            decorations(state) {
+              const decoracoes:
+                Decoration[] = [];
+
+              state.doc.descendants(
+                (
+                  node,
+                  posicao
+                ) => {
+                  if (
+                    node.type.name !==
+                      "table" ||
+                    node.attrs
+                      ?.tableMode !==
+                      "free"
+                  ) {
+                    return;
+                  }
+
+                  const x =
+                    Math.max(
+                      0,
+                      Number(
+                        node.attrs
+                          ?.tableX
+                      ) || 0
+                    );
+
+                  const y =
+                    Math.max(
+                      0,
+                      Number(
+                        node.attrs
+                          ?.tableY
+                      ) || 0
+                    );
+
+                  decoracoes.push(
+                    Decoration.node(
+                      posicao,
+                      posicao +
+                        node.nodeSize,
+                      {
+                        class:
+                          "phanyx-doc-table-free-wrapper",
+
+                        style:
+                          [
+                            "position:absolute!important",
+                            `left:${x}px!important`,
+                            `top:${y}px!important`,
+                            "margin:0!important",
+                            "width:max-content!important",
+                            "z-index:30",
+                          ].join(";"),
+                      }
+                    )
+                  );
+
+                  decoracoes.push(
+                    Decoration.widget(
+                      posicao,
+
+                      (
+                        view
+                      ) => {
+                        const alca =
+                          document.createElement(
+                            "button"
+                          );
+
+                        alca.type =
+                          "button";
+
+                        alca.contentEditable =
+                          "false";
+
+                        alca.className =
+                          "phanyx-table-move-handle";
+
+                        alca.textContent =
+                          "✥";
+
+                        alca.setAttribute(
+                          "data-phanyx-table-move-handle",
+                          "true"
+                        );
+
+                        alca.style.left =
+                          `${x}px`;
+
+                        alca.style.top =
+                          `${Math.max(
+                            0,
+                            y - 28
+                          )}px`;
+
+                        alca.addEventListener(
+                          "pointerdown",
+
+                          (
+                            rawEvent
+                          ) => {
+                            const event =
+                              rawEvent;
+
+                            if (
+                              !(
+                                event instanceof
+                                PointerEvent
+                              )
+                            ) {
+                              return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            view.dom.setAttribute(
+                              "data-phanyx-selected-table-pos",
+                              String(posicao)
+                            );
+
+                            view.dispatch(
+                              view.state.tr
+                                .setSelection(
+                                  NodeSelection.create(
+                                    view.state.doc,
+                                    posicao
+                                  )
+                                )
+                            );
+
+                            view.focus();
+
+                            const nodeAtual =
+                              view.state.doc.nodeAt(
+                                posicao
+                              );
+
+                            if (
+                              !nodeAtual ||
+                              nodeAtual
+                                .type.name !==
+                                "table"
+                            ) {
+                              return;
+                            }
+
+                            const inicioMouseX =
+                              event.clientX;
+
+                            const inicioMouseY =
+                              event.clientY;
+
+                            const inicioX =
+                              Math.max(
+                                0,
+                                Number(
+                                  nodeAtual
+                                    .attrs
+                                    ?.tableX
+                                ) || 0
+                              );
+
+                            const inicioY =
+                              Math.max(
+                                0,
+                                Number(
+                                  nodeAtual
+                                    .attrs
+                                    ?.tableY
+                                ) || 0
+                              );
+
+                            const domNo =
+                              view.nodeDOM(
+                                posicao
+                              );
+
+                            const wrapper =
+                              domNo instanceof
+                              HTMLElement
+                                ? domNo
+                                : null;
+
+                            const tabela =
+                              wrapper instanceof
+                              HTMLTableElement
+                                ? wrapper
+                                : wrapper
+                                  ?.querySelector(
+                                    "table"
+                                  ) || null;
+
+                            const larguraTabela =
+                              tabela
+                                ?.getBoundingClientRect()
+                                .width ||
+                              wrapper
+                                ?.getBoundingClientRect()
+                                .width ||
+                              0;
+
+                            const alturaTabela =
+                              tabela
+                                ?.getBoundingClientRect()
+                                .height ||
+                              wrapper
+                                ?.getBoundingClientRect()
+                                .height ||
+                              0;
+
+                            let xFinal =
+                              inicioX;
+
+                            let yFinal =
+                              inicioY;
+
+                            const mover = (
+                              moveEvent
+                            ) => {
+                              const editorDom =
+                                view.dom;
+
+                              const larguraEditor =
+                                editorDom
+                                  .clientWidth;
+
+                              const alturaEditor =
+                                Math.max(
+                                  editorDom
+                                    .scrollHeight,
+                                  editorDom
+                                    .clientHeight
+                                );
+
+                              const maxX =
+                                Math.max(
+                                  0,
+                                  larguraEditor -
+                                    larguraTabela
+                                );
+
+                              const maxY =
+                                Math.max(
+                                  0,
+                                  alturaEditor -
+                                    alturaTabela
+                                );
+
+                              xFinal =
+                                Math.round(
+                                  Math.max(
+                                    0,
+                                    Math.min(
+                                      maxX,
+                                      inicioX +
+                                        (
+                                          moveEvent
+                                            .clientX -
+                                          inicioMouseX
+                                        )
+                                    )
+                                  )
+                                );
+
+                              yFinal =
+                                Math.round(
+                                  Math.max(
+                                    0,
+                                    Math.min(
+                                      maxY,
+                                      inicioY +
+                                        (
+                                          moveEvent
+                                            .clientY -
+                                          inicioMouseY
+                                        )
+                                    )
+                                  )
+                                );
+
+                              if (
+                                wrapper
+                              ) {
+                                wrapper.style
+                                  .left =
+                                  `${xFinal}px`;
+
+                                wrapper.style
+                                  .top =
+                                  `${yFinal}px`;
+                              }
+
+                              alca.style.left =
+                                `${xFinal}px`;
+
+                              alca.style.top =
+                                `${Math.max(
+                                  0,
+                                  yFinal - 28
+                                )}px`;
+                            };
+
+                            const soltar =
+                              () => {
+                                window.removeEventListener(
+                                  "pointermove",
+                                  mover
+                                );
+
+                                window.removeEventListener(
+                                  "pointerup",
+                                  soltar
+                                );
+
+                                const tabelaAtual =
+                                  view.state.doc.nodeAt(
+                                    posicao
+                                  );
+
+                                if (
+                                  !tabelaAtual ||
+                                  tabelaAtual
+                                    .type.name !==
+                                    "table"
+                                ) {
+                                  return;
+                                }
+
+                                view.dispatch(
+                                  view.state.tr
+                                    .setNodeMarkup(
+                                      posicao,
+                                      undefined,
+                                      {
+                                        ...tabelaAtual
+                                          .attrs,
+
+                                        tableMode:
+                                          "free",
+
+                                        tableX:
+                                          xFinal,
+
+                                        tableY:
+                                          yFinal,
+                                      }
+                                    )
+                                );
+                              };
+
+                            window.addEventListener(
+                              "pointermove",
+                              mover
+                            );
+
+                            window.addEventListener(
+                              "pointerup",
+                              soltar,
+                              {
+                                once: true,
+                              }
+                            );
+                          }
+                        );
+
+                        return alca;
+                      },
+
+                      {
+                        side: -1,
+                      }
+                    )
+                  );
+                }
+              );
+
+              return DecorationSet.create(
+                state.doc,
+                decoracoes
+              );
+            },
+          },
+        }),
+      ];
+    },
+  });
+
 export default function EditorSecaoHistoricoPHANYX({
   value,
   onChange,
@@ -1177,6 +1729,7 @@ export default function EditorSecaoHistoricoPHANYX({
       TablePHANYX,
       TableRowPHANYX,
       RowResizePHANYX,
+      FreeTablePositionPHANYX,
       TableHeaderPHANYX,
       TableCellPHANYX,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -1186,9 +1739,170 @@ export default function EditorSecaoHistoricoPHANYX({
     editorProps: {
       attributes: {
         class:
-          "min-h-[96px] px-3 py-3 text-sm leading-relaxed text-slate-950 outline-none dark:text-slate-100",
+          "relative min-h-[96px] px-3 py-3 text-sm leading-relaxed text-slate-950 outline-none dark:text-slate-100",
       },
       handleKeyDown(view, event) {
+        const selecao =
+          view.state.selection;
+
+        const tabelaSelecionadaComoObjeto =
+          selecao instanceof
+            NodeSelection &&
+          selecao.node.type.name ===
+            "table";
+
+        if (
+          tabelaSelecionadaComoObjeto &&
+          (
+            event.ctrlKey ||
+            event.metaKey
+          ) &&
+          event.key
+            .toLowerCase() ===
+            "x"
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const domNo =
+            view.nodeDOM(
+              selecao.from
+            );
+
+          const elemento =
+            domNo instanceof
+              HTMLElement
+              ? domNo
+              : null;
+
+          const tabelaDom =
+            elemento instanceof
+              HTMLTableElement
+              ? elemento
+              : elemento
+                ?.querySelector(
+                  "table"
+                ) || null;
+
+          if (
+            tabelaDom &&
+            navigator.clipboard
+          ) {
+            const html =
+              tabelaDom.outerHTML;
+
+            const texto =
+              tabelaDom.innerText;
+
+            if (
+              typeof ClipboardItem !==
+                "undefined" &&
+              navigator.clipboard.write
+            ) {
+              void navigator.clipboard
+                .write([
+                  new ClipboardItem({
+                    "text/html":
+                      new Blob(
+                        [html],
+                        {
+                          type:
+                            "text/html",
+                        }
+                      ),
+
+                    "text/plain":
+                      new Blob(
+                        [texto],
+                        {
+                          type:
+                            "text/plain",
+                        }
+                      ),
+                  }),
+                ])
+                .catch(() =>
+                  navigator.clipboard
+                    .writeText(
+                      texto
+                    )
+                    .catch(
+                      () => undefined
+                    )
+                );
+            }
+            else {
+              void navigator.clipboard
+                .writeText(
+                  texto
+                )
+                .catch(
+                  () => undefined
+                );
+            }
+          }
+
+          view.dispatch(
+            view.state.tr
+              .delete(
+                selecao.from,
+                selecao.to
+              )
+              .scrollIntoView()
+          );
+
+          ultimaPosicaoLinhaTabelaRef.current =
+            null;
+
+          ultimaPosicaoTabelaRef.current =
+            null;
+
+          ultimasPosicoesLinhasSelecionadasRef.current =
+            [];
+
+          setLinhaTabelaSelecionada(
+            null
+          );
+
+          return true;
+        }
+
+        if (
+          tabelaSelecionadaComoObjeto &&
+          (
+            event.key ===
+              "Delete" ||
+            event.key ===
+              "Backspace"
+          )
+        ) {
+          event.preventDefault();
+
+          view.dispatch(
+            view.state.tr
+              .delete(
+                selecao.from,
+                selecao.to
+              )
+              .scrollIntoView()
+          );
+
+          ultimaPosicaoLinhaTabelaRef.current =
+            null;
+
+          ultimaPosicaoTabelaRef.current =
+            null;
+
+          ultimasPosicoesLinhasSelecionadasRef.current =
+            [];
+
+          setLinhaTabelaSelecionada(
+            null
+          );
+
+          return true;
+        }
+
         if (event.key === "Tab") {
           if (
             selecaoEstaDentroDeTabela(
@@ -1207,6 +1921,152 @@ export default function EditorSecaoHistoricoPHANYX({
           return true;
         }
         return false;
+      },
+
+      handleDOMEvents: {
+        mousedown(view, event) {
+          const alvo =
+            event.target instanceof
+              HTMLElement
+              ? event.target
+              : null;
+
+          /*
+           * A alça mantém a tabela marcada como
+           * objeto. Clique normal dentro do editor
+           * devolve Ctrl+X ao texto/célula.
+           */
+          if (
+            alvo?.closest(
+              '[data-phanyx-table-move-handle="true"]'
+            )
+          ) {
+            return false;
+          }
+
+          view.dom.removeAttribute(
+            "data-phanyx-selected-table-pos"
+          );
+
+          return false;
+        },
+
+        cut(view, event) {
+          const valorPosicao =
+            view.dom.getAttribute(
+              "data-phanyx-selected-table-pos"
+            );
+
+          if (
+            valorPosicao ===
+            null
+          ) {
+            return false;
+          }
+
+          const posicao =
+            Number(
+              valorPosicao
+            );
+
+          if (
+            !Number.isInteger(
+              posicao
+            ) ||
+            posicao < 0
+          ) {
+            view.dom.removeAttribute(
+              "data-phanyx-selected-table-pos"
+            );
+
+            return false;
+          }
+
+          const tabela =
+            view.state.doc.nodeAt(
+              posicao
+            );
+
+          if (
+            !tabela ||
+            tabela.type.name !==
+              "table"
+          ) {
+            view.dom.removeAttribute(
+              "data-phanyx-selected-table-pos"
+            );
+
+            return false;
+          }
+
+          const domNo =
+            view.nodeDOM(
+              posicao
+            );
+
+          const elemento =
+            domNo instanceof
+              HTMLElement
+              ? domNo
+              : null;
+
+          const tabelaDom =
+            elemento instanceof
+              HTMLTableElement
+              ? elemento
+              : elemento
+                ?.querySelector(
+                  "table"
+                ) || null;
+
+          if (
+            event.clipboardData &&
+            tabelaDom
+          ) {
+            event.clipboardData
+              .setData(
+                "text/html",
+                tabelaDom.outerHTML
+              );
+
+            event.clipboardData
+              .setData(
+                "text/plain",
+                tabelaDom.innerText
+              );
+          }
+
+          event.preventDefault();
+
+          view.dispatch(
+            view.state.tr
+              .delete(
+                posicao,
+                posicao +
+                  tabela.nodeSize
+              )
+              .scrollIntoView()
+          );
+
+          view.dom.removeAttribute(
+            "data-phanyx-selected-table-pos"
+          );
+
+          ultimaPosicaoLinhaTabelaRef.current =
+            null;
+
+          ultimaPosicaoTabelaRef.current =
+            null;
+
+          ultimasPosicoesLinhasSelecionadasRef.current =
+            [];
+
+          setLinhaTabelaSelecionada(
+            null
+          );
+
+          return true;
+        },
       },
     },
     onUpdate({ editor }) {
@@ -1631,6 +2491,302 @@ export default function EditorSecaoHistoricoPHANYX({
 
 
 
+
+
+  function selecionarTabelaComoObjetoPHANYX() {
+    const posicao =
+      ultimaPosicaoTabelaRef.current ??
+      obterPosicaoTabelaAtualPHANYX(
+        editor.state
+      );
+
+    if (
+      posicao === null
+    ) {
+      return;
+    }
+
+    const tabela =
+      editor.state.doc.nodeAt(
+        posicao
+      );
+
+    if (
+      !tabela ||
+      tabela.type.name !==
+        "table"
+    ) {
+      return;
+    }
+
+    editor.view.dom.setAttribute(
+      "data-phanyx-selected-table-pos",
+      String(posicao)
+    );
+
+    editor.view.dispatch(
+      editor.state.tr
+        .setSelection(
+          NodeSelection.create(
+            editor.state.doc,
+            posicao
+          )
+        )
+        .scrollIntoView()
+    );
+
+    editor.view.focus();
+  }
+
+  function excluirTabelaAtualPHANYX() {
+    const selecao =
+      editor.state.selection;
+
+    if (
+      selecao instanceof
+        NodeSelection &&
+      selecao.node.type.name ===
+        "table"
+    ) {
+      editor.view.dispatch(
+        editor.state.tr
+          .delete(
+            selecao.from,
+            selecao.to
+          )
+          .scrollIntoView()
+      );
+    }
+    else {
+      const posicao =
+        ultimaPosicaoTabelaRef.current ??
+        obterPosicaoTabelaAtualPHANYX(
+          editor.state
+        );
+
+      if (
+        posicao === null
+      ) {
+        return;
+      }
+
+      const tabela =
+        editor.state.doc.nodeAt(
+          posicao
+        );
+
+      if (
+        !tabela ||
+        tabela.type.name !==
+          "table"
+      ) {
+        return;
+      }
+
+      editor.view.dispatch(
+        editor.state.tr
+          .delete(
+            posicao,
+            posicao +
+              tabela.nodeSize
+          )
+          .scrollIntoView()
+      );
+    }
+
+    editor.view.dom.removeAttribute(
+      "data-phanyx-selected-table-pos"
+    );
+
+    ultimaPosicaoLinhaTabelaRef.current =
+      null;
+
+    ultimaPosicaoTabelaRef.current =
+      null;
+
+    ultimasPosicoesLinhasSelecionadasRef.current =
+      [];
+
+    setLinhaTabelaSelecionada(
+      null
+    );
+
+    editor.view.focus();
+  }
+
+  function obterEstadoPosicaoLivreTabela() {
+    const posicao =
+      ultimaPosicaoTabelaRef.current ??
+      obterPosicaoTabelaAtualPHANYX(
+        editor.state
+      );
+
+    if (
+      posicao === null
+    ) {
+      return {
+        modo: "flow" as
+          | "flow"
+          | "free",
+        x: 0,
+        y: 0,
+      };
+    }
+
+    const tabela =
+      editor.state.doc.nodeAt(
+        posicao
+      );
+
+    if (
+      !tabela ||
+      tabela.type?.name !==
+        "table"
+    ) {
+      return {
+        modo: "flow" as
+          | "flow"
+          | "free",
+        x: 0,
+        y: 0,
+      };
+    }
+
+    return {
+      modo:
+        tabela.attrs
+          ?.tableMode ===
+        "free"
+          ? "free" as const
+          : "flow" as const,
+
+      x:
+        Math.max(
+          0,
+          Number(
+            tabela.attrs
+              ?.tableX
+          ) || 0
+        ),
+
+      y:
+        Math.max(
+          0,
+          Number(
+            tabela.attrs
+              ?.tableY
+          ) || 0
+        ),
+    };
+  }
+
+  function atualizarPosicaoLivreTabela(
+    parcial: {
+      tableMode?:
+        | "flow"
+        | "free";
+      tableX?: number;
+      tableY?: number;
+    }
+  ) {
+    const posicao =
+      ultimaPosicaoTabelaRef.current ??
+      obterPosicaoTabelaAtualPHANYX(
+        editor.state
+      );
+
+    if (
+      posicao === null
+    ) {
+      return;
+    }
+
+    const tabela =
+      editor.state.doc.nodeAt(
+        posicao
+      );
+
+    if (
+      !tabela ||
+      tabela.type?.name !==
+        "table"
+    ) {
+      return;
+    }
+
+    const proximos = {
+      ...tabela.attrs,
+      ...parcial,
+    };
+
+    if (
+      parcial.tableMode ===
+        "free" &&
+      tabela.attrs
+        ?.tableMode !==
+        "free"
+    ) {
+      const domNo =
+        editor.view.nodeDOM(
+          posicao
+        );
+
+      const wrapper =
+        domNo instanceof
+        HTMLElement
+          ? domNo
+          : null;
+
+      const tabelaDom =
+        wrapper instanceof
+        HTMLTableElement
+          ? wrapper
+          : wrapper
+            ?.querySelector(
+              "table"
+            ) || null;
+
+      if (
+        tabelaDom
+      ) {
+        const editorRect =
+          editor.view.dom
+            .getBoundingClientRect();
+
+        const tabelaRect =
+          tabelaDom
+            .getBoundingClientRect();
+
+        proximos.tableX =
+          Math.max(
+            0,
+            Math.round(
+              tabelaRect.left -
+                editorRect.left
+            )
+          );
+
+        proximos.tableY =
+          Math.max(
+            0,
+            Math.round(
+              tabelaRect.top -
+                editorRect.top
+            )
+          );
+      }
+    }
+
+    editor.view.dispatch(
+      editor.state.tr
+        .setNodeMarkup(
+          posicao,
+          undefined,
+          proximos
+        )
+    );
+  }
+
   function alterarAlturaLinhasTabela(
     modo:
       | "atual"
@@ -1737,6 +2893,9 @@ export default function EditorSecaoHistoricoPHANYX({
     );
   }
 
+
+  const estadoPosicaoLivreTabela =
+    obterEstadoPosicaoLivreTabela();
 
   return (
     <div className="phanyx-history-section-editor mt-3 overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
@@ -2030,21 +3189,6 @@ export default function EditorSecaoHistoricoPHANYX({
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        executarComandoTabela(
-                          () =>
-                            editor.commands
-                              .deleteTable()
-                        )
-                      }
-                      className="rounded-lg border border-red-300 bg-red-50 px-2.5 py-2 text-[11px] font-bold text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
-                    >
-                      {t(
-                        "toolbar.table.deleteTable"
-                      )}
-                    </button>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
@@ -2359,7 +3503,185 @@ export default function EditorSecaoHistoricoPHANYX({
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-end gap-2">
+
+                      <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-900/60">
+                        <div className="mb-2 text-[11px] font-black text-slate-800 dark:text-slate-100">
+                          {t(
+                            "toolbar.table.positionMode"
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onMouseDown={
+                              memorizarContextoTabela
+                            }
+                            onClick={() =>
+                              atualizarPosicaoLivreTabela(
+                                {
+                                  tableMode:
+                                    "flow",
+                                }
+                              )
+                            }
+                            className={classeBotao(
+                              estadoPosicaoLivreTabela.modo ===
+                                "flow"
+                            )}
+                          >
+                            {t(
+                              "toolbar.table.flowMode"
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onMouseDown={
+                              memorizarContextoTabela
+                            }
+                            onClick={() =>
+                              atualizarPosicaoLivreTabela(
+                                {
+                                  tableMode:
+                                    "free",
+                                }
+                              )
+                            }
+                            className={classeBotao(
+                              estadoPosicaoLivreTabela.modo ===
+                                "free"
+                            )}
+                          >
+                            {t(
+                              "toolbar.table.freeMode"
+                            )}
+                          </button>
+
+                          {estadoPosicaoLivreTabela.modo ===
+                            "free" && (
+                            <>
+                              <label className="flex items-center gap-1 text-[10px] font-bold">
+                                <span>
+                                  {t(
+                                    "toolbar.table.positionX"
+                                  )}
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={
+                                    estadoPosicaoLivreTabela.x
+                                  }
+                                  onMouseDown={
+                                    memorizarContextoTabela
+                                  }
+                                  onChange={(event) =>
+                                    atualizarPosicaoLivreTabela(
+                                      {
+                                        tableX:
+                                          Math.max(
+                                            0,
+                                            Number(
+                                              event
+                                                .target
+                                                .value
+                                            ) || 0
+                                          ),
+                                      }
+                                    )
+                                  }
+                                  className="w-16 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[10px] text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                                />
+                              </label>
+
+                              <label className="flex items-center gap-1 text-[10px] font-bold">
+                                <span>
+                                  {t(
+                                    "toolbar.table.positionY"
+                                  )}
+                                </span>
+
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={
+                                    estadoPosicaoLivreTabela.y
+                                  }
+                                  onMouseDown={
+                                    memorizarContextoTabela
+                                  }
+                                  onChange={(event) =>
+                                    atualizarPosicaoLivreTabela(
+                                      {
+                                        tableY:
+                                          Math.max(
+                                            0,
+                                            Number(
+                                              event
+                                                .target
+                                                .value
+                                            ) || 0
+                                          ),
+                                      }
+                                    )
+                                  }
+                                  className="w-16 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-[10px] text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                                />
+                              </label>
+
+                              <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                                ✥{" "}
+                                {t(
+                                  "toolbar.table.moveTableHelp"
+                                )}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onMouseDown={
+                            memorizarContextoTabela
+                          }
+                          onClick={
+                            selecionarTabelaComoObjetoPHANYX
+                          }
+                          className={classeBotao(false)}
+                        >
+                          {t(
+                            "toolbar.table.selectTableObject"
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onMouseDown={
+                            memorizarContextoTabela
+                          }
+                          onClick={
+                            excluirTabelaAtualPHANYX
+                          }
+                          className="rounded-lg border border-red-300 bg-red-50 px-2.5 py-2 text-[11px] font-black text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+                        >
+                          {t(
+                            "toolbar.table.deleteTable"
+                          )}
+                        </button>
+
+                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                          {t(
+                            "toolbar.table.deleteTableShortcutHelp"
+                          )}
+                        </span>
+                      </div>
+
+<div className="flex flex-wrap items-end gap-2">
                         <label className="text-[11px] font-semibold">
                           <span className="mb-1 block">
                             {t(
@@ -2618,6 +3940,50 @@ export default function EditorSecaoHistoricoPHANYX({
         .ProseMirror.phanyx-row-resize-cursor,
         .ProseMirror.phanyx-row-resize-cursor * {
           cursor: row-resize !important;
+        }
+
+        table.phanyx-doc-table.ProseMirror-selectednode,
+        .ProseMirror-selectednode:has(> table.phanyx-doc-table),
+        .ProseMirror-selectednode:has(table.phanyx-doc-table) {
+          outline: 2px solid #2563eb !important;
+          outline-offset: 3px;
+        }
+
+        /*
+         * Marcador de versão para evitar
+         * reaplicação acidental deste bloco.
+         */
+        .phanyx-table-object-selected {
+          display: contents;
+        }
+
+        .phanyx-table-move-handle {
+          position: absolute;
+          z-index: 60;
+          display: inline-flex;
+          width: 24px;
+          height: 24px;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #2563eb;
+          border-radius: 7px;
+          background: #2563eb;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 900;
+          line-height: 1;
+          cursor: grab;
+          user-select: none;
+          touch-action: none;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.24);
+        }
+
+        .phanyx-table-move-handle:active {
+          cursor: grabbing;
+        }
+
+        .phanyx-doc-table-free-wrapper {
+          max-width: 100%;
         }
 
         .resize-cursor {

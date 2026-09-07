@@ -5880,7 +5880,36 @@
     "optionalReservationNote": "Campo opcional.",
     "registerReservationAction": "Confirmar reserva",
     "reservedForAnotherUser": "Este exemplar está reservado para outro usuário.",
-    "reservationExpired": "O prazo desta reserva já expirou."
+    "reservationExpired": "O prazo desta reserva já expirou.",
+    "reservationManagementTitle": "Reservas e fila de espera",
+    "reservationManagementDescription": "Acompanhe reservas disponíveis para retirada, usuários aguardando e o histórico recente deste item.",
+    "reservationSummaryLabel": "Resumo das reservas",
+    "reservationActiveCount": "Reservas ativas",
+    "reservationReadyCount": "Para retirada",
+    "reservationWaitingCount": "Na fila",
+    "refreshReservations": "Atualizar reservas",
+    "loadingReservations": "Carregando reservas...",
+    "reservationLoadFailed": "Não foi possível carregar as reservas",
+    "activeReservationsTitle": "Reservas ativas",
+    "activeReservationsDescription": "Usuários com exemplar separado ou aguardando disponibilidade.",
+    "noActiveReservations": "Não há reservas ativas para este item.",
+    "reservationHistoryTitle": "Histórico recente",
+    "reservationHistoryDescription": "Últimas reservas atendidas, canceladas ou expiradas.",
+    "noReservationHistory": "Ainda não há histórico de reservas.",
+    "reservationStatusWaiting": "Aguardando",
+    "reservationStatusReady": "Disponível para retirada",
+    "reservationStatusServed": "Atendida",
+    "reservationStatusExpired": "Expirada",
+    "reservationStatusCancelled": "Cancelada",
+    "reservationQueuePosition": "Posição {position} na fila",
+    "reservationCopy": "Exemplar {code}",
+    "reservationNoCopy": "Aguardando definição de exemplar",
+    "reservationPickupUntil": "Retirada até {date}",
+    "reservationRequestedAt": "Reservada em {date}",
+    "reservationUpdatedAt": "Atualizada em {date}",
+    "reservationExpiredPendingCleanup": "O prazo terminou e a reserva aguarda processamento automático.",
+    "reservationNoteLabel": "Observação",
+    "reservationCancellationReason": "Motivo do cancelamento"
   },
   "AdminCertificates": {
     "status": {
@@ -11423,7 +11452,15 @@
         "rowResizeHelp": "Você também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas do mesmo tamanho, informe a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho.",
         "selectedRow": "Linha {row} de {total} selecionada",
         "selectedRows": "{count} linhas selecionadas",
-        "selectRowHelp": "Clique em uma célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas."
+        "selectRowHelp": "Clique em uma célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas.",
+        "positionMode": "Posição da tabela",
+        "flowMode": "Em fluxo",
+        "freeMode": "Posição livre",
+        "positionX": "X",
+        "positionY": "Y",
+        "moveTableHelp": "Arraste pela alça azul ✥ acima da tabela.",
+        "selectTableObject": "Selecionar tabela",
+        "deleteTableShortcutHelp": "Tabela selecionada: use Delete/Backspace ou Ctrl+X para recortar."
       }
     }
   },
@@ -11495,7 +11532,15 @@
       "rowResizeHelp": "Você também pode arrastar diretamente a divisória horizontal entre duas linhas. Para deixar todas do mesmo tamanho, informe a altura e use Aplicar a todas; para manter o cabeçalho diferente, use Todas exceto cabeçalho.",
       "selectedRow": "Linha {row} de {total} selecionada",
       "selectedRows": "{count} linhas selecionadas",
-      "selectRowHelp": "Clique em uma célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas."
+      "selectRowHelp": "Clique em uma célula para selecionar a linha. Use Shift + clique para manter várias linhas selecionadas.",
+      "positionMode": "Posição da tabela",
+      "flowMode": "Em fluxo",
+      "freeMode": "Posição livre",
+      "positionX": "X",
+      "positionY": "Y",
+      "moveTableHelp": "Arraste pela alça azul ✥ acima da tabela.",
+      "selectTableObject": "Selecionar tabela",
+      "deleteTableShortcutHelp": "Tabela selecionada: use Delete/Backspace ou Ctrl+X para recortar."
     }
   },
   "AdminMobilityDashboard": {

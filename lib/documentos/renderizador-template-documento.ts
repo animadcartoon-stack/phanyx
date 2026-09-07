@@ -1302,6 +1302,43 @@ function cssCompartilhado(
       table-layout: auto;
     }
 
+    /*
+     * Tabelas manuais em posicao livre usam
+     * as coordenadas persistidas pelo editor.
+     */
+    .phanyx-conteudo {
+      position: relative;
+    }
+
+    .phanyx-conteudo
+      table[data-phanyx-table-mode="free"] {
+      position: absolute !important;
+
+      /*
+       * O X salvo pelo editor e relativo a folha A4.
+       * No PDF, .phanyx-conteudo ja comeca depois
+       * da margem lateral de 18 mm.
+       */
+      /*
+       * O editor posiciona o wrapper da tabela
+       * na coordenada salva e mant?m 2 px de
+       * padding superior antes do TABLE.
+       *
+       * No PDF n?o existe esse wrapper visual,
+       * portanto reproduzimos os mesmos 2 px.
+       */
+      transform:
+        translate(
+          -18mm,
+          2px
+        ) !important;
+
+      margin: 0 !important;
+      width: min-content !important;
+      max-width: 100% !important;
+      table-layout: auto;
+    }
+
     .phanyx-conteudo ul,
     .phanyx-conteudo ol {
       margin-top: 0;
@@ -1785,6 +1822,15 @@ function cssCompartilhado(
       page-break-inside: avoid;
     }
 
+    .phanyx-validacao-ancora {
+      display: block;
+      width: 100%;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
     .phanyx-validacao-texto {
       display: flex;
       min-width: 0;
@@ -1974,6 +2020,313 @@ function cssCompartilhado(
   `;
 }
 
+
+function montarScriptValidacaoFinalPaginaPHANYX(
+  alturaUtilPaginaMm: number
+) {
+  return `
+    <script>
+      (() => {
+        const alturaPaginaPx =
+          __ALTURA_UTIL_MM__ *
+          (96 / 25.4);
+
+        /*
+         * Mant?m uma pequena margem t?cnica antes
+         * do limite inferior da ?rea imprim?vel.
+         *
+         * Sem essa folga, o Chromium pode entender
+         * que a valida??o ultrapassou a p?gina por
+         * uma fra??o de pixel e empurr?-la inteira
+         * para uma folha adicional.
+         */
+        const gapInferiorPx =
+          6 *
+          (96 / 25.4);
+
+        const gapTabelaPx =
+          2 *
+          (96 / 25.4);
+
+        function ajustarValidacaoPHANYX() {
+          const conteudo =
+            document.querySelector(
+              "main.phanyx-conteudo"
+            );
+
+          if (!conteudo) {
+            return;
+          }
+
+          const validacao =
+            conteudo.querySelector(
+              ":scope > .phanyx-validacao:not(.phanyx-validacao-compacta)"
+            );
+
+          const ancora =
+            conteudo.querySelector(
+              ":scope > .phanyx-validacao-ancora"
+            );
+
+          if (
+            !validacao ||
+            !ancora
+          ) {
+            return;
+          }
+
+          /*
+           * Zera primeiro para que uma segunda
+           * medi??o nunca acumule o ajuste anterior.
+           */
+          ancora.style.height =
+            "0px";
+
+          const conteudoRect =
+            conteudo
+              .getBoundingClientRect();
+
+          const validacaoRect =
+            validacao
+              .getBoundingClientRect();
+
+          const estiloValidacao =
+            window.getComputedStyle(
+              validacao
+            );
+
+          const margemSuperior =
+            Number.parseFloat(
+              estiloValidacao
+                .marginTop
+            ) || 0;
+
+          const alturaValidacao =
+            validacaoRect.height;
+
+          /*
+           * Posi??o do fim do conte?do normal,
+           * antes da margem superior da valida??o.
+           */
+          const fimFluxoTela =
+            Math.max(
+              0,
+              validacaoRect.top -
+                conteudoRect.top -
+                margemSuperior
+            );
+
+          /*
+           * Converte quebras manuais do editor
+           * para o espa?o f?sico real das p?ginas.
+           */
+          let fimFluxoEfetivo =
+            0;
+
+          let inicioSegmentoTela =
+            0;
+
+          const quebras =
+            Array.from(
+              conteudo.querySelectorAll(
+                ":scope > .phanyx-page-break"
+              )
+            );
+
+          for (
+            const quebra of quebras
+          ) {
+            const estiloQuebra =
+              window.getComputedStyle(
+                quebra
+              );
+
+            if (
+              estiloQuebra.display ===
+              "none"
+            ) {
+              continue;
+            }
+
+            const quebraRect =
+              quebra
+                .getBoundingClientRect();
+
+            const yTela =
+              Math.max(
+                inicioSegmentoTela,
+                quebraRect.top -
+                  conteudoRect.top
+              );
+
+            const alturaSegmento =
+              Math.max(
+                0,
+                yTela -
+                  inicioSegmentoTela
+              );
+
+            fimFluxoEfetivo +=
+              alturaSegmento;
+
+            /*
+             * A quebra for?a o conte?do seguinte
+             * a come?ar na pr?xima p?gina f?sica.
+             */
+            fimFluxoEfetivo =
+              Math.ceil(
+                fimFluxoEfetivo /
+                  alturaPaginaPx
+              ) *
+              alturaPaginaPx;
+
+            inicioSegmentoTela =
+              yTela;
+          }
+
+          fimFluxoEfetivo +=
+            Math.max(
+              0,
+              fimFluxoTela -
+                inicioSegmentoTela
+            );
+
+          /*
+           * Uma tabela absoluta n?o ocupa espa?o
+           * no fluxo. Mesmo assim ela deve ser
+           * respeitada para a valida??o n?o ficar
+           * sobreposta a ela.
+           */
+          let ocupadoAte =
+            fimFluxoEfetivo;
+
+          const tabelasLivres =
+            conteudo.querySelectorAll(
+              'table[data-phanyx-table-mode="free"]'
+            );
+
+          for (
+            const tabela of tabelasLivres
+          ) {
+            const tabelaRect =
+              tabela
+                .getBoundingClientRect();
+
+            const fundoTabela =
+              tabelaRect.bottom -
+              conteudoRect.top;
+
+            ocupadoAte =
+              Math.max(
+                ocupadoAte,
+                fundoTabela +
+                  gapTabelaPx
+              );
+          }
+
+          const minimoTopoValidacao =
+            Math.max(
+              fimFluxoEfetivo +
+                margemSuperior,
+              ocupadoAte
+            );
+
+          /*
+           * Descobre em qual p?gina cabe:
+           * conte?do + valida??o + pequena folga.
+           */
+          const alturaNecessaria =
+            minimoTopoValidacao +
+            alturaValidacao +
+            gapInferiorPx;
+
+          const paginaFinal =
+            Math.max(
+              1,
+              Math.ceil(
+                alturaNecessaria /
+                  alturaPaginaPx
+              )
+            );
+
+          /*
+           * Topo ideal para fazer a borda inferior
+           * da valida??o terminar no final da
+           * ?rea ?til da ?ltima folha.
+           */
+          const topoFinal =
+            paginaFinal *
+              alturaPaginaPx -
+            gapInferiorPx -
+            alturaValidacao;
+
+          const topoAtualSemAncora =
+            fimFluxoEfetivo +
+            margemSuperior;
+
+          const espaco =
+            Math.max(
+              0,
+              topoFinal -
+                topoAtualSemAncora
+            );
+
+          ancora.style.height =
+            Math.round(
+              espaco
+            ) + "px";
+        }
+
+        /*
+         * Executa imediatamente e repete depois
+         * que fontes/imagens terminarem de ajustar
+         * as dimens?es do documento.
+         */
+        ajustarValidacaoPHANYX();
+
+        requestAnimationFrame(
+          () =>
+            requestAnimationFrame(
+              ajustarValidacaoPHANYX
+            )
+        );
+
+        if (
+          document.fonts &&
+          document.fonts.ready
+        ) {
+          document.fonts.ready
+            .then(
+              () =>
+                requestAnimationFrame(
+                  ajustarValidacaoPHANYX
+                )
+            )
+            .catch(
+              () => null
+            );
+        }
+
+        window.addEventListener(
+          "load",
+          () =>
+            requestAnimationFrame(
+              ajustarValidacaoPHANYX
+            ),
+          {
+            once: true,
+          }
+        );
+      })();
+    </script>
+  `.replace(
+    "__ALTURA_UTIL_MM__",
+    String(
+      alturaUtilPaginaMm
+    )
+  );
+}
+
 export function montarRenderizacaoDocumento(
   opcoes:
     OpcoesRenderizacaoDocumento
@@ -2112,6 +2465,11 @@ export function montarRenderizacaoDocumento(
         >
           ${conteudo}
 
+          <div
+            class="phanyx-validacao-ancora"
+            aria-hidden="true"
+          ></div>
+
           ${montarValidacao({
         validacao:
           opcoes.validacao,
@@ -2120,6 +2478,31 @@ export function montarRenderizacaoDocumento(
       })}
         </main>
       `;
+
+  const alturaUtilPaginaMm =
+    layoutConteudoIntegral
+      ? (
+        ALTURA_A4_MM -
+        8 -
+        10
+      )
+      : (
+        ALTURA_A4_MM -
+        ALTURA_CABECALHO_MM -
+        ALTURA_RODAPE_MM
+      );
+
+  const scriptValidacaoFinalPagina =
+    formatoImpressao ===
+      "A4_INTEIRA" &&
+    mostrarValidacao &&
+    Boolean(
+      opcoes.validacao
+    )
+      ? montarScriptValidacaoFinalPaginaPHANYX(
+        alturaUtilPaginaMm
+      )
+      : "";
 
   const html = `
     <!doctype html>
@@ -2142,6 +2525,8 @@ export function montarRenderizacaoDocumento(
 
       <body>
         ${corpo}
+
+        ${scriptValidacaoFinalPagina}
       </body>
     </html>
   `;

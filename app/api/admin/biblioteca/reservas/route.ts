@@ -6,10 +6,7 @@ import {
   TipoExemplarBiblioteca,
 } from "@prisma/client";
 
-import {
-  NextRequest,
-  NextResponse,
-} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import {
   ErroBiblioteca,
@@ -24,100 +21,51 @@ import { getUserFromToken } from "@/lib/server-auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function responder(
-  corpo: Record<string, unknown>,
-  status = 200,
-) {
+function responder(corpo: Record<string, unknown>, status = 200) {
   return NextResponse.json(corpo, {
     status,
 
     headers: {
-      "Cache-Control":
-        "no-store, max-age=0",
+      "Cache-Control": "no-store, max-age=0",
     },
   });
 }
 
-function falhar(
-  status: number,
-  mensagem: string,
-  codigo: string,
-): never {
-  throw new ErroBiblioteca(
-    status,
-    mensagem,
-    codigo,
-  );
+function falhar(status: number, mensagem: string, codigo: string): never {
+  throw new ErroBiblioteca(status, mensagem, codigo);
 }
 
-function responderErro(
-  erro: unknown,
-) {
-  const resposta =
-    respostaErroBiblioteca(erro);
+function responderErro(erro: unknown) {
+  const resposta = respostaErroBiblioteca(erro);
 
-  return responder(
-    resposta.corpo,
-    resposta.status,
-  );
+  return responder(resposta.corpo, resposta.status);
 }
 
-function inteiroPositivo(
-  valor: unknown,
-  campo: string,
-) {
+function inteiroPositivo(valor: unknown, campo: string) {
   const numero = Number(valor);
 
-  if (
-    !Number.isInteger(numero) ||
-    numero <= 0
-  ) {
-    falhar(
-      400,
-      `O campo ${campo} é inválido.`,
-      "CAMPO_INVALIDO",
-    );
+  if (!Number.isInteger(numero) || numero <= 0) {
+    falhar(400, `O campo ${campo} é inválido.`, "CAMPO_INVALIDO");
   }
 
   return numero;
 }
 
-function inteiroPositivoOpcional(
-  valor: unknown,
-  campo: string,
-) {
-  if (
-    valor === undefined ||
-    valor === null ||
-    valor === ""
-  ) {
+function inteiroPositivoOpcional(valor: unknown, campo: string) {
+  if (valor === undefined || valor === null || valor === "") {
     return null;
   }
 
-  return inteiroPositivo(
-    valor,
-    campo,
-  );
+  return inteiroPositivo(valor, campo);
 }
 
-function textoOpcional(
-  valor: unknown,
-  limite: number,
-) {
-  if (
-    valor === undefined ||
-    valor === null ||
-    valor === ""
-  ) {
+function textoOpcional(valor: unknown, limite: number) {
+  if (valor === undefined || valor === null || valor === "") {
     return null;
   }
 
   if (typeof valor !== "string") {
-    falhar(
-      400,
-      "A observação informada é inválida.",
-      "OBSERVACAO_INVALIDA",
-    );
+    falhar(400, "A observação informada é inválida.", "OBSERVACAO_INVALIDA");
   }
 
   const texto = valor.trim();
@@ -137,40 +85,230 @@ function textoOpcional(
   return texto;
 }
 
-function obterIp(
-  request: NextRequest,
-) {
-  const encaminhado =
-    request.headers.get(
-      "x-forwarded-for",
-    );
+function obterIp(request: NextRequest) {
+  const encaminhado = request.headers.get("x-forwarded-for");
 
   return (
-    encaminhado
-      ?.split(",")[0]
-      ?.trim() ||
-    request.headers.get(
-      "x-real-ip",
-    ) ||
+    encaminhado?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
     null
   );
 }
 
-function calcularExpiracao(
-  inicio: Date,
-  dias: number,
-) {
-  if (
-    !Number.isInteger(dias) ||
-    dias <= 0
-  ) {
+function calcularExpiracao(inicio: Date, dias: number) {
+  if (!Number.isInteger(dias) || dias <= 0) {
     return null;
   }
 
-  return new Date(
-    inicio.getTime() +
-      dias * 24 * 60 * 60 * 1000,
-  );
+  return new Date(inicio.getTime() + dias * 24 * 60 * 60 * 1000);
+}
+
+/* =========================================================
+   GET
+   Lista reservas e fila de espera de um item
+   ========================================================= */
+
+export async function GET(request: NextRequest) {
+  try {
+    const usuario = await getUserFromToken();
+
+    if (!usuario) {
+      falhar(401, "Usuário não autenticado.", "NAO_AUTENTICADO");
+    }
+
+    const contexto = await obterContextoBiblioteca(usuario);
+
+    exigirPermissaoBiblioteca(
+      usuario,
+      contexto,
+      "biblioteca.reservas.gerenciar",
+    );
+
+    const url = new URL(request.url);
+
+    const itemId = Number(url.searchParams.get("itemId"));
+
+    if (!Number.isInteger(itemId) || itemId <= 0) {
+      falhar(400, "Informe um item válido.", "ITEM_INVALIDO");
+    }
+
+    const item = await prisma.bibliotecaItem.findFirst({
+      where: {
+        id: itemId,
+
+        instituicaoId: contexto.instituicaoId,
+      },
+
+      select: {
+        id: true,
+        titulo: true,
+      },
+    });
+
+    if (!item) {
+      falhar(404, "Item não encontrado.", "ITEM_NAO_ENCONTRADO");
+    }
+
+    const [reservasAtivas, historico] = await prisma.$transaction([
+      prisma.bibliotecaReserva.findMany({
+        where: {
+          instituicaoId: contexto.instituicaoId,
+
+          itemId,
+
+          status: {
+            in: [
+              StatusReservaBiblioteca.DISPONIVEL,
+              StatusReservaBiblioteca.AGUARDANDO,
+            ],
+          },
+        },
+
+        orderBy: [
+          {
+            posicaoFila: "asc",
+          },
+          {
+            reservadaEm: "asc",
+          },
+          {
+            id: "asc",
+          },
+        ],
+
+        select: {
+          id: true,
+          status: true,
+          posicaoFila: true,
+
+          reservadaEm: true,
+          disponivelEm: true,
+          expiraEm: true,
+          atendidaEm: true,
+          canceladaEm: true,
+
+          origem: true,
+          observacao: true,
+
+          usuario: {
+            select: {
+              id: true,
+              nome: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          exemplar: {
+            select: {
+              id: true,
+              codigoInterno: true,
+              status: true,
+            },
+          },
+        },
+      }),
+
+      prisma.bibliotecaReserva.findMany({
+        where: {
+          instituicaoId: contexto.instituicaoId,
+
+          itemId,
+
+          status: {
+            in: [
+              StatusReservaBiblioteca.ATENDIDA,
+              StatusReservaBiblioteca.EXPIRADA,
+              StatusReservaBiblioteca.CANCELADA,
+            ],
+          },
+        },
+
+        orderBy: {
+          atualizadoEm: "desc",
+        },
+
+        take: 20,
+
+        select: {
+          id: true,
+          status: true,
+          posicaoFila: true,
+
+          reservadaEm: true,
+          disponivelEm: true,
+          expiraEm: true,
+          atendidaEm: true,
+          canceladaEm: true,
+
+          origem: true,
+          observacao: true,
+          motivoCancelamento: true,
+
+          atualizadoEm: true,
+
+          usuario: {
+            select: {
+              id: true,
+              nome: true,
+              email: true,
+              role: true,
+            },
+          },
+
+          exemplar: {
+            select: {
+              id: true,
+              codigoInterno: true,
+              status: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    /*
+     * Uma reserva pode vencer alguns
+     * minutos antes do próximo cron.
+     *
+     * O GET permanece somente leitura;
+     * apenas sinalizamos esta condição.
+     */
+    const agora = Date.now();
+
+    const ativas = reservasAtivas.map((reserva) => ({
+      ...reserva,
+
+      prazoExpirado:
+        reserva.status === StatusReservaBiblioteca.DISPONIVEL &&
+        reserva.expiraEm !== null &&
+        reserva.expiraEm.getTime() <= agora,
+    }));
+
+    return responder({
+      ok: true,
+
+      item,
+
+      resumo: {
+        ativas: ativas.length,
+
+        disponiveis: ativas.filter(
+          (reserva) => reserva.status === StatusReservaBiblioteca.DISPONIVEL,
+        ).length,
+
+        aguardando: ativas.filter(
+          (reserva) => reserva.status === StatusReservaBiblioteca.AGUARDANDO,
+        ).length,
+      },
+
+      reservas: ativas,
+
+      historico,
+    });
+  } catch (erro) {
+    return responderErro(erro);
+  }
 }
 
 /* =========================================================
@@ -178,25 +316,15 @@ function calcularExpiracao(
    Cria uma reserva administrativa da Biblioteca
    ========================================================= */
 
-export async function POST(
-  request: NextRequest,
-) {
+export async function POST(request: NextRequest) {
   try {
-    const usuario =
-      await getUserFromToken();
+    const usuario = await getUserFromToken();
 
     if (!usuario) {
-      falhar(
-        401,
-        "Usuário não autenticado.",
-        "NAO_AUTENTICADO",
-      );
+      falhar(401, "Usuário não autenticado.", "NAO_AUTENTICADO");
     }
 
-    const contexto =
-      await obterContextoBiblioteca(
-        usuario,
-      );
+    const contexto = await obterContextoBiblioteca(usuario);
 
     if (usuario.impersonacao) {
       falhar(
@@ -212,11 +340,7 @@ export async function POST(
       "biblioteca.reservas.gerenciar",
     );
 
-    if (
-      !contexto.configuracao ||
-      !contexto.configuracao
-        .permitirReserva
-    ) {
+    if (!contexto.configuracao || !contexto.configuracao.permitirReserva) {
       falhar(
         409,
         "As reservas estão desativadas nas configurações da Biblioteca.",
@@ -232,8 +356,7 @@ export async function POST(
     };
 
     try {
-      corpo =
-        await request.json();
+      corpo = await request.json();
     } catch {
       falhar(
         400,
@@ -242,73 +365,42 @@ export async function POST(
       );
     }
 
-    const itemId =
-      inteiroPositivo(
-        corpo.itemId,
-        "itemId",
-      );
+    const itemId = inteiroPositivo(corpo.itemId, "itemId");
 
-    const usuarioId =
-      inteiroPositivo(
-        corpo.usuarioId,
-        "usuarioId",
-      );
+    const usuarioId = inteiroPositivo(corpo.usuarioId, "usuarioId");
 
-    const exemplarId =
-      inteiroPositivoOpcional(
-        corpo.exemplarId,
-        "exemplarId",
-      );
+    const exemplarId = inteiroPositivoOpcional(corpo.exemplarId, "exemplarId");
 
-    const observacao =
-      textoOpcional(
-        corpo.observacao,
-        5_000,
-      );
+    const observacao = textoOpcional(corpo.observacao, 5_000);
 
-    const ip =
-      obterIp(request);
+    const ip = obterIp(request);
 
-    const userAgent =
-      request.headers.get(
-        "user-agent",
-      );
+    const userAgent = request.headers.get("user-agent");
 
-    const agora =
-      new Date();
+    const agora = new Date();
 
-    const configuracaoReserva =
-  await prisma
-    .bibliotecaConfiguracao
-    .findUnique({
+    const configuracaoReserva = await prisma.bibliotecaConfiguracao.findUnique({
       where: {
-        instituicaoId:
-          contexto.instituicaoId,
+        instituicaoId: contexto.instituicaoId,
       },
 
       select: {
-        diasReservaPadrao:
-          true,
+        diasReservaPadrao: true,
       },
     });
 
-const diasReserva =
-  Math.max(
-    0,
-    Number(
-      configuracaoReserva
-        ?.diasReservaPadrao ?? 0
-    )
-  );
+    const diasReserva = Math.max(
+      0,
+      Number(configuracaoReserva?.diasReservaPadrao ?? 0),
+    );
 
-    const resultado =
-      await prisma.$transaction(
-        async (transacao) => {
-          /*
-           * Serializa a fila de reservas
-           * do mesmo item.
-           */
-          await transacao.$queryRaw`
+    const resultado = await prisma.$transaction(
+      async (transacao) => {
+        /*
+         * Serializa a fila de reservas
+         * do mesmo item.
+         */
+        await transacao.$queryRaw`
             SELECT "id"
             FROM "BibliotecaItem"
             WHERE "id" = ${itemId}
@@ -316,264 +408,225 @@ const diasReserva =
             FOR UPDATE
           `;
 
-          const item =
-            await transacao
-              .bibliotecaItem
-              .findFirst({
-                where: {
-                  id: itemId,
+        const item = await transacao.bibliotecaItem.findFirst({
+          where: {
+            id: itemId,
 
-                  instituicaoId:
-                    contexto.instituicaoId,
-                },
+            instituicaoId: contexto.instituicaoId,
+          },
 
-                select: {
-                  id: true,
-                  titulo: true,
-                  arquivadoEm: true,
-                },
-              });
+          select: {
+            id: true,
+            titulo: true,
+            arquivadoEm: true,
+          },
+        });
 
-          if (!item) {
+        if (!item) {
+          falhar(
+            404,
+            "Item não encontrado nesta biblioteca.",
+            "ITEM_NAO_ENCONTRADO",
+          );
+        }
+
+        if (item.arquivadoEm) {
+          falhar(
+            409,
+            "Não é possível reservar um item arquivado.",
+            "ITEM_ARQUIVADO",
+          );
+        }
+
+        const tomador = await transacao.user.findFirst({
+          where: {
+            id: usuarioId,
+
+            instituicaoId: contexto.instituicaoId,
+
+            ativo: true,
+          },
+
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            role: true,
+          },
+        });
+
+        if (!tomador) {
+          falhar(
+            404,
+            "O usuário selecionado não foi encontrado ou está inativo.",
+            "USUARIO_RESERVA_INVALIDO",
+          );
+        }
+
+        /*
+         * A mesma pessoa não pode ocupar
+         * duas posições ativas na fila
+         * do mesmo item.
+         */
+        const reservaExistente = await transacao.bibliotecaReserva.findFirst({
+          where: {
+            instituicaoId: contexto.instituicaoId,
+
+            itemId,
+
+            usuarioId: tomador.id,
+
+            status: {
+              in: [
+                StatusReservaBiblioteca.AGUARDANDO,
+                StatusReservaBiblioteca.DISPONIVEL,
+              ],
+            },
+          },
+
+          select: {
+            id: true,
+            status: true,
+            posicaoFila: true,
+          },
+        });
+
+        if (reservaExistente) {
+          falhar(
+            409,
+            "Este usuário já possui uma reserva ativa para este item.",
+            "RESERVA_ATIVA_JA_EXISTE",
+          );
+        }
+
+        let exemplarEscolhido: {
+          id: number;
+          tipo: TipoExemplarBiblioteca;
+          status: StatusExemplarBiblioteca;
+          permiteEmprestimo: boolean;
+          baixadoEm: Date | null;
+        } | null = null;
+
+        if (exemplarId) {
+          exemplarEscolhido = await transacao.bibliotecaExemplar.findFirst({
+            where: {
+              id: exemplarId,
+
+              instituicaoId: contexto.instituicaoId,
+
+              itemId,
+            },
+
+            select: {
+              id: true,
+              tipo: true,
+              status: true,
+              permiteEmprestimo: true,
+              baixadoEm: true,
+            },
+          });
+
+          if (!exemplarEscolhido) {
             falhar(
               404,
-              "Item não encontrado nesta biblioteca.",
-              "ITEM_NAO_ENCONTRADO",
+              "O exemplar informado não pertence a este item.",
+              "EXEMPLAR_RESERVA_NAO_ENCONTRADO",
             );
           }
-
-          if (item.arquivadoEm) {
-            falhar(
-              409,
-              "Não é possível reservar um item arquivado.",
-              "ITEM_ARQUIVADO",
-            );
-          }
-
-          const tomador =
-            await transacao
-              .user
-              .findFirst({
-                where: {
-                  id: usuarioId,
-
-                  instituicaoId:
-                    contexto.instituicaoId,
-
-                  ativo: true,
-                },
-
-                select: {
-                  id: true,
-                  nome: true,
-                  email: true,
-                  role: true,
-                },
-              });
-
-          if (!tomador) {
-            falhar(
-              404,
-              "O usuário selecionado não foi encontrado ou está inativo.",
-              "USUARIO_RESERVA_INVALIDO",
-            );
-          }
-
-          /*
-           * A mesma pessoa não pode ocupar
-           * duas posições ativas na fila
-           * do mesmo item.
-           */
-          const reservaExistente =
-            await transacao
-              .bibliotecaReserva
-              .findFirst({
-                where: {
-                  instituicaoId:
-                    contexto.instituicaoId,
-
-                  itemId,
-
-                  usuarioId:
-                    tomador.id,
-
-                  status: {
-                    in: [
-                      StatusReservaBiblioteca.AGUARDANDO,
-                      StatusReservaBiblioteca.DISPONIVEL,
-                    ],
-                  },
-                },
-
-                select: {
-                  id: true,
-                  status: true,
-                  posicaoFila: true,
-                },
-              });
-
-          if (reservaExistente) {
-            falhar(
-              409,
-              "Este usuário já possui uma reserva ativa para este item.",
-              "RESERVA_ATIVA_JA_EXISTE",
-            );
-          }
-
-          let exemplarEscolhido:
-            | {
-                id: number;
-                tipo: TipoExemplarBiblioteca;
-                status: StatusExemplarBiblioteca;
-                permiteEmprestimo: boolean;
-                baixadoEm: Date | null;
-              }
-            | null = null;
-
-          if (exemplarId) {
-            exemplarEscolhido =
-              await transacao
-                .bibliotecaExemplar
-                .findFirst({
-                  where: {
-                    id: exemplarId,
-
-                    instituicaoId:
-                      contexto.instituicaoId,
-
-                    itemId,
-                  },
-
-                  select: {
-                    id: true,
-                    tipo: true,
-                    status: true,
-                    permiteEmprestimo:
-                      true,
-                    baixadoEm: true,
-                  },
-                });
-
-            if (!exemplarEscolhido) {
-              falhar(
-                404,
-                "O exemplar informado não pertence a este item.",
-                "EXEMPLAR_RESERVA_NAO_ENCONTRADO",
-              );
-            }
-
-            if (
-              exemplarEscolhido.tipo !==
-                TipoExemplarBiblioteca.FISICO ||
-              !exemplarEscolhido
-                .permiteEmprestimo ||
-              exemplarEscolhido
-                .baixadoEm
-            ) {
-              falhar(
-                409,
-                "O exemplar informado não pode ser reservado.",
-                "EXEMPLAR_NAO_RESERVAVEL",
-              );
-            }
-          } else {
-            /*
-             * Procura primeiro um exemplar que
-             * já possa ser separado imediatamente.
-             */
-            exemplarEscolhido =
-              await transacao
-                .bibliotecaExemplar
-                .findFirst({
-                  where: {
-                    instituicaoId:
-                      contexto.instituicaoId,
-
-                    itemId,
-
-                    tipo:
-                      TipoExemplarBiblioteca.FISICO,
-
-                    permiteEmprestimo:
-                      true,
-
-                    baixadoEm: null,
-
-                    status:
-                      StatusExemplarBiblioteca.DISPONIVEL,
-                  },
-
-                  orderBy: {
-                    id: "asc",
-                  },
-
-                  select: {
-                    id: true,
-                    tipo: true,
-                    status: true,
-                    permiteEmprestimo:
-                      true,
-                    baixadoEm: true,
-                  },
-                });
-
-            /*
-             * Se não há exemplar disponível,
-             * confirma que o item possui pelo
-             * menos um exemplar físico elegível.
-             */
-            if (!exemplarEscolhido) {
-              const algumExemplar =
-                await transacao
-                  .bibliotecaExemplar
-                  .findFirst({
-                    where: {
-                      instituicaoId:
-                        contexto.instituicaoId,
-
-                      itemId,
-
-                      tipo:
-                        TipoExemplarBiblioteca.FISICO,
-
-                      permiteEmprestimo:
-                        true,
-
-                      baixadoEm: null,
-                    },
-
-                    select: {
-                      id: true,
-                      tipo: true,
-                      status: true,
-                      permiteEmprestimo:
-                        true,
-                      baixadoEm: true,
-                    },
-                  });
-
-              if (!algumExemplar) {
-                falhar(
-                  409,
-                  "Este item não possui exemplar físico disponível para circulação.",
-                  "ITEM_SEM_EXEMPLAR_RESERVAVEL",
-                );
-              }
-            }
-          }
-
-          let reservarAgora = false;
 
           if (
-            exemplarEscolhido &&
-            exemplarEscolhido.status ===
-              StatusExemplarBiblioteca.DISPONIVEL
+            exemplarEscolhido.tipo !== TipoExemplarBiblioteca.FISICO ||
+            !exemplarEscolhido.permiteEmprestimo ||
+            exemplarEscolhido.baixadoEm
           ) {
-            /*
-             * Trava o exemplar antes de
-             * transformá-lo em RESERVADO.
-             */
-            await transacao.$queryRaw`
+            falhar(
+              409,
+              "O exemplar informado não pode ser reservado.",
+              "EXEMPLAR_NAO_RESERVAVEL",
+            );
+          }
+        } else {
+          /*
+           * Procura primeiro um exemplar que
+           * já possa ser separado imediatamente.
+           */
+          exemplarEscolhido = await transacao.bibliotecaExemplar.findFirst({
+            where: {
+              instituicaoId: contexto.instituicaoId,
+
+              itemId,
+
+              tipo: TipoExemplarBiblioteca.FISICO,
+
+              permiteEmprestimo: true,
+
+              baixadoEm: null,
+
+              status: StatusExemplarBiblioteca.DISPONIVEL,
+            },
+
+            orderBy: {
+              id: "asc",
+            },
+
+            select: {
+              id: true,
+              tipo: true,
+              status: true,
+              permiteEmprestimo: true,
+              baixadoEm: true,
+            },
+          });
+
+          /*
+           * Se não há exemplar disponível,
+           * confirma que o item possui pelo
+           * menos um exemplar físico elegível.
+           */
+          if (!exemplarEscolhido) {
+            const algumExemplar = await transacao.bibliotecaExemplar.findFirst({
+              where: {
+                instituicaoId: contexto.instituicaoId,
+
+                itemId,
+
+                tipo: TipoExemplarBiblioteca.FISICO,
+
+                permiteEmprestimo: true,
+
+                baixadoEm: null,
+              },
+
+              select: {
+                id: true,
+                tipo: true,
+                status: true,
+                permiteEmprestimo: true,
+                baixadoEm: true,
+              },
+            });
+
+            if (!algumExemplar) {
+              falhar(
+                409,
+                "Este item não possui exemplar físico disponível para circulação.",
+                "ITEM_SEM_EXEMPLAR_RESERVAVEL",
+              );
+            }
+          }
+        }
+
+        let reservarAgora = false;
+
+        if (
+          exemplarEscolhido &&
+          exemplarEscolhido.status === StatusExemplarBiblioteca.DISPONIVEL
+        ) {
+          /*
+           * Trava o exemplar antes de
+           * transformá-lo em RESERVADO.
+           */
+          await transacao.$queryRaw`
               SELECT "id"
               FROM "BibliotecaExemplar"
               WHERE "id" = ${exemplarEscolhido.id}
@@ -581,321 +634,231 @@ const diasReserva =
               FOR UPDATE
             `;
 
-            const exemplarAtual =
-              await transacao
-                .bibliotecaExemplar
-                .findFirst({
-                  where: {
-                    id:
-                      exemplarEscolhido.id,
-
-                    instituicaoId:
-                      contexto.instituicaoId,
-                  },
-
-                  select: {
-                    status: true,
-                    baixadoEm: true,
-                    permiteEmprestimo:
-                      true,
-                  },
-                });
-
-            reservarAgora =
-              exemplarAtual?.status ===
-                StatusExemplarBiblioteca.DISPONIVEL &&
-              exemplarAtual
-                .baixadoEm === null &&
-              exemplarAtual
-                .permiteEmprestimo === true;
-          }
-
-          if (reservarAgora) {
-            const expiraEm =
-              calcularExpiracao(
-                agora,
-                diasReserva,
-              );
-
-            const reserva =
-              await transacao
-                .bibliotecaReserva
-                .create({
-                  data: {
-                    instituicaoId:
-                      contexto.instituicaoId,
-
-                    itemId:
-                      item.id,
-
-                    exemplarId:
-                      exemplarEscolhido!.id,
-
-                    usuarioId:
-                      tomador.id,
-
-                    status:
-                      StatusReservaBiblioteca.DISPONIVEL,
-
-                    posicaoFila: null,
-
-                    reservadaEm:
-                      agora,
-
-                    disponivelEm:
-                      agora,
-
-                    expiraEm,
-
-                    origem:
-                      OrigemReservaBiblioteca.OPERADOR,
-
-                    observacao,
-
-                    criadaPorId:
-                      usuario.id,
-                  },
-                });
-
-            await transacao
-              .bibliotecaExemplar
-              .update({
-                where: {
-                  id:
-                    exemplarEscolhido!.id,
-                },
-
-                data: {
-                  status:
-                    StatusExemplarBiblioteca.RESERVADO,
-
-                  atualizadoPorId:
-                    usuario.id,
-                },
-              });
-
-            await transacao
-              .bibliotecaAuditoria
-              .create({
-                data: {
-                  instituicaoId:
-                    contexto.instituicaoId,
-
-                  usuarioId:
-                    usuario.id,
-
-                  entidade:
-                    "BibliotecaReserva",
-
-                  entidadeId:
-                    String(
-                      reserva.id,
-                    ),
-
-                  acao:
-                    AcaoAuditoriaBiblioteca.RESERVAR,
-
-                  descricao:
-                    "Reserva disponibilizada imediatamente na Biblioteca Virtual.",
+          const exemplarAtual = await transacao.bibliotecaExemplar.findFirst({
+            where: {
+              id: exemplarEscolhido.id,
 
-                  dadosPosteriores: {
-                    reservaId:
-                      reserva.id,
+              instituicaoId: contexto.instituicaoId,
+            },
 
-                    itemId:
-                      item.id,
+            select: {
+              status: true,
+              baixadoEm: true,
+              permiteEmprestimo: true,
+            },
+          });
 
-                    exemplarId:
-                      exemplarEscolhido!.id,
-
-                    usuarioId:
-                      tomador.id,
-
-                    status:
-                      reserva.status,
+          reservarAgora =
+            exemplarAtual?.status === StatusExemplarBiblioteca.DISPONIVEL &&
+            exemplarAtual.baixadoEm === null &&
+            exemplarAtual.permiteEmprestimo === true;
+        }
 
-                    expiraEm,
-                  },
+        if (reservarAgora) {
+          const expiraEm = calcularExpiracao(agora, diasReserva);
 
-                  metadados: {
-                    origem:
-                      "api_admin_biblioteca_reservas",
-
-                    itemTitulo:
-                      item.titulo,
-                  },
+          const reserva = await transacao.bibliotecaReserva.create({
+            data: {
+              instituicaoId: contexto.instituicaoId,
 
-                  ip,
-                  userAgent,
-                },
-              });
+              itemId: item.id,
 
-            return {
-              reserva,
-              tomador,
+              exemplarId: exemplarEscolhido!.id,
 
-              disponibilidade:
-                "IMEDIATA" as const,
-            };
-          }
+              usuarioId: tomador.id,
 
-          /*
-           * Nenhum exemplar pôde ser separado
-           * agora. Entra no final da fila.
-           */
-          const fila =
-            await transacao
-              .bibliotecaReserva
-              .aggregate({
-                where: {
-                  instituicaoId:
-                    contexto.instituicaoId,
+              status: StatusReservaBiblioteca.DISPONIVEL,
 
-                  itemId,
+              posicaoFila: null,
 
-                  status:
-                    StatusReservaBiblioteca.AGUARDANDO,
-                },
+              reservadaEm: agora,
 
-                _max: {
-                  posicaoFila: true,
-                },
-              });
+              disponivelEm: agora,
 
-          const posicaoFila =
-            Number(
-              fila._max
-                .posicaoFila ?? 0,
-            ) + 1;
+              expiraEm,
 
-          const reserva =
-            await transacao
-              .bibliotecaReserva
-              .create({
-                data: {
-                  instituicaoId:
-                    contexto.instituicaoId,
+              origem: OrigemReservaBiblioteca.OPERADOR,
 
-                  itemId:
-                    item.id,
+              observacao,
 
-                  exemplarId:
-                    exemplarId,
+              criadaPorId: usuario.id,
+            },
+          });
 
-                  usuarioId:
-                    tomador.id,
+          await transacao.bibliotecaExemplar.update({
+            where: {
+              id: exemplarEscolhido!.id,
+            },
 
-                  status:
-                    StatusReservaBiblioteca.AGUARDANDO,
+            data: {
+              status: StatusExemplarBiblioteca.RESERVADO,
 
-                  posicaoFila,
+              atualizadoPorId: usuario.id,
+            },
+          });
 
-                  reservadaEm:
-                    agora,
+          await transacao.bibliotecaAuditoria.create({
+            data: {
+              instituicaoId: contexto.instituicaoId,
 
-                  origem:
-                    OrigemReservaBiblioteca.OPERADOR,
+              usuarioId: usuario.id,
 
-                  observacao,
+              entidade: "BibliotecaReserva",
 
-                  criadaPorId:
-                    usuario.id,
-                },
-              });
+              entidadeId: String(reserva.id),
 
-          await transacao
-            .bibliotecaAuditoria
-            .create({
-              data: {
-                instituicaoId:
-                  contexto.instituicaoId,
+              acao: AcaoAuditoriaBiblioteca.RESERVAR,
 
-                usuarioId:
-                  usuario.id,
+              descricao:
+                "Reserva disponibilizada imediatamente na Biblioteca Virtual.",
 
-                entidade:
-                  "BibliotecaReserva",
+              dadosPosteriores: {
+                reservaId: reserva.id,
 
-                entidadeId:
-                  String(
-                    reserva.id,
-                  ),
+                itemId: item.id,
 
-                acao:
-                  AcaoAuditoriaBiblioteca.RESERVAR,
+                exemplarId: exemplarEscolhido!.id,
 
-                descricao:
-                  "Reserva adicionada à fila da Biblioteca Virtual.",
+                usuarioId: tomador.id,
 
-                dadosPosteriores: {
-                  reservaId:
-                    reserva.id,
+                status: reserva.status,
 
-                  itemId:
-                    item.id,
-
-                  exemplarId,
-
-                  usuarioId:
-                    tomador.id,
-
-                  status:
-                    reserva.status,
-
-                  posicaoFila,
-                },
-
-                metadados: {
-                  origem:
-                    "api_admin_biblioteca_reservas",
-
-                  itemTitulo:
-                    item.titulo,
-                },
-
-                ip,
-                userAgent,
+                expiraEm,
               },
-            });
+
+              metadados: {
+                origem: "api_admin_biblioteca_reservas",
+
+                itemTitulo: item.titulo,
+              },
+
+              ip,
+              userAgent,
+            },
+          });
 
           return {
             reserva,
             tomador,
 
-            disponibilidade:
-              "FILA" as const,
+            disponibilidade: "IMEDIATA" as const,
           };
-        },
-        {
-          maxWait: 5_000,
-          timeout: 10_000,
-        },
-      );
+        }
+
+        /*
+         * Nenhum exemplar pôde ser separado
+         * agora. Entra no final da fila.
+         */
+        const fila = await transacao.bibliotecaReserva.aggregate({
+          where: {
+            instituicaoId: contexto.instituicaoId,
+
+            itemId,
+
+            status: StatusReservaBiblioteca.AGUARDANDO,
+          },
+
+          _max: {
+            posicaoFila: true,
+          },
+        });
+
+        const posicaoFila = Number(fila._max.posicaoFila ?? 0) + 1;
+
+        const reserva = await transacao.bibliotecaReserva.create({
+          data: {
+            instituicaoId: contexto.instituicaoId,
+
+            itemId: item.id,
+
+            exemplarId: exemplarId,
+
+            usuarioId: tomador.id,
+
+            status: StatusReservaBiblioteca.AGUARDANDO,
+
+            posicaoFila,
+
+            reservadaEm: agora,
+
+            origem: OrigemReservaBiblioteca.OPERADOR,
+
+            observacao,
+
+            criadaPorId: usuario.id,
+          },
+        });
+
+        await transacao.bibliotecaAuditoria.create({
+          data: {
+            instituicaoId: contexto.instituicaoId,
+
+            usuarioId: usuario.id,
+
+            entidade: "BibliotecaReserva",
+
+            entidadeId: String(reserva.id),
+
+            acao: AcaoAuditoriaBiblioteca.RESERVAR,
+
+            descricao: "Reserva adicionada à fila da Biblioteca Virtual.",
+
+            dadosPosteriores: {
+              reservaId: reserva.id,
+
+              itemId: item.id,
+
+              exemplarId,
+
+              usuarioId: tomador.id,
+
+              status: reserva.status,
+
+              posicaoFila,
+            },
+
+            metadados: {
+              origem: "api_admin_biblioteca_reservas",
+
+              itemTitulo: item.titulo,
+            },
+
+            ip,
+            userAgent,
+          },
+        });
+
+        return {
+          reserva,
+          tomador,
+
+          disponibilidade: "FILA" as const,
+        };
+      },
+      {
+        maxWait: 5_000,
+        timeout: 10_000,
+      },
+    );
 
     return responder(
       {
         ok: true,
 
         mensagem:
-          resultado.disponibilidade ===
-          "IMEDIATA"
+          resultado.disponibilidade === "IMEDIATA"
             ? "Reserva criada. O exemplar já está separado para retirada."
             : `Reserva criada na posição ${resultado.reserva.posicaoFila} da fila.`,
 
-        reserva:
-          resultado.reserva,
+        reserva: resultado.reserva,
 
-        usuario:
-          resultado.tomador,
+        usuario: resultado.tomador,
 
-        disponibilidade:
-          resultado.disponibilidade,
+        disponibilidade: resultado.disponibilidade,
       },
       201,
     );
   } catch (erro) {
-    return responderErro(
-      erro,
-    );
+    return responderErro(erro);
   }
 }
