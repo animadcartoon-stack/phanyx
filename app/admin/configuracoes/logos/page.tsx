@@ -8,6 +8,7 @@ import {
     useState,
 } from "react";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import { useTranslations } from "next-intl";
 
 type TipoLogo =
     | "PRINCIPAL"
@@ -45,51 +46,13 @@ type ToastState = {
 
 const TIPOS_LOGO: Array<{
     value: TipoLogo;
-    label: string;
-    descricao: string;
 }> = [
-        {
-            value: "PRINCIPAL",
-            label: "Logo principal",
-            descricao:
-                "Versão institucional padrão usada no sistema.",
-        },
-        {
-            value: "FUNDO_CLARO",
-            label: "Para fundo claro",
-            descricao:
-                "Indicada para folhas brancas ou fundos claros.",
-        },
-        {
-            value: "FUNDO_ESCURO",
-            label: "Para fundo escuro",
-            descricao:
-                "Indicada para cabeçalhos pretos, azuis ou escuros.",
-        },
-        {
-            value: "MONOCROMATICA",
-            label: "Monocromática",
-            descricao:
-                "Versão em uma única cor para documentos específicos.",
-        },
-        {
-            value: "OUTRA",
-            label: "Outra versão",
-            descricao:
-                "Logo horizontal, compacta ou para finalidade específica.",
-        },
-    ];
-
-function nomeTipo(
-    tipo: TipoLogo
-) {
-    return (
-        TIPOS_LOGO.find(
-            (item) =>
-                item.value === tipo
-        )?.label || tipo
-    );
-}
+    { value: "PRINCIPAL" },
+    { value: "FUNDO_CLARO" },
+    { value: "FUNDO_ESCURO" },
+    { value: "MONOCROMATICA" },
+    { value: "OUTRA" },
+];
 
 function classeTipo(
     tipo: TipoLogo
@@ -168,6 +131,73 @@ function obterDimensoesImagem(
 }
 
 export default function LogosInstitucionaisPage() {
+    const t =
+        useTranslations(
+            "AdminInstitutionLogos"
+        );
+
+    function nomeTipo(
+        tipo: TipoLogo
+    ) {
+        switch (tipo) {
+            case "PRINCIPAL":
+                return t(
+                    "types.principal.label"
+                );
+
+            case "FUNDO_CLARO":
+                return t(
+                    "types.light.label"
+                );
+
+            case "FUNDO_ESCURO":
+                return t(
+                    "types.dark.label"
+                );
+
+            case "MONOCROMATICA":
+                return t(
+                    "types.monochrome.label"
+                );
+
+            default:
+                return t(
+                    "types.other.label"
+                );
+        }
+    }
+
+    function descricaoTipo(
+        tipo: TipoLogo
+    ) {
+        switch (tipo) {
+            case "PRINCIPAL":
+                return t(
+                    "types.principal.description"
+                );
+
+            case "FUNDO_CLARO":
+                return t(
+                    "types.light.description"
+                );
+
+            case "FUNDO_ESCURO":
+                return t(
+                    "types.dark.description"
+                );
+
+            case "MONOCROMATICA":
+                return t(
+                    "types.monochrome.description"
+                );
+
+            default:
+                return t(
+                    "types.other.description"
+                );
+        }
+    }
+
     const [
         logos,
         setLogos,
@@ -272,7 +302,7 @@ export default function LogosInstitucionaisPage() {
                     ) {
                         throw new Error(
                             data?.error ||
-                            "Erro ao carregar logos."
+                            t("messages.loadError")
                         );
                     }
 
@@ -289,10 +319,10 @@ export default function LogosInstitucionaisPage() {
                     setToast({
                         tipo: "erro",
                         titulo:
-                            "Não foi possível carregar",
+                            t("messages.loadFailureTitle"),
                         mensagem:
                             error?.message ||
-                            "Erro ao carregar as logos da instituição.",
+                            t("messages.loadFailureMessage"),
                     });
                 } finally {
                     setCarregando(
@@ -300,7 +330,7 @@ export default function LogosInstitucionaisPage() {
                     );
                 }
             },
-            []
+            [t]
         );
 
     useEffect(() => {
@@ -377,7 +407,7 @@ export default function LogosInstitucionaisPage() {
 
             setNome(
                 nomeInicial ||
-                "Nova logo"
+                t("defaults.newLogo")
             );
         }
     }
@@ -408,9 +438,9 @@ export default function LogosInstitucionaisPage() {
                 setToast({
                     tipo: "aviso",
                     titulo:
-                        "Selecione uma imagem",
+                        t("messages.selectImageTitle"),
                     mensagem:
-                        "Envie o arquivo da logo antes de cadastrar.",
+                        t("messages.selectImageMessage"),
                 });
 
                 return;
@@ -423,9 +453,9 @@ export default function LogosInstitucionaisPage() {
                 setToast({
                     tipo: "aviso",
                     titulo:
-                        "Informe o nome",
+                        t("messages.nameRequiredTitle"),
                     mensagem:
-                        "Informe um nome para identificar esta versão da logo.",
+                        t("messages.nameRequiredMessage"),
                 });
 
                 return;
@@ -467,7 +497,7 @@ export default function LogosInstitucionaisPage() {
             if (!uploadRes.ok) {
                 throw new Error(
                     uploadData?.error ||
-                    "Erro ao enviar a imagem."
+                    t("messages.uploadImageError")
                 );
             }
 
@@ -525,17 +555,17 @@ export default function LogosInstitucionaisPage() {
             ) {
                 throw new Error(
                     cadastroData?.error ||
-                    "Erro ao cadastrar a logo."
+                    t("messages.registerError")
                 );
             }
 
             setToast({
                 tipo: "sucesso",
                 titulo:
-                    "Logo cadastrada",
+                    t("messages.registerSuccessTitle"),
                 mensagem:
                     cadastroData?.mensagem ||
-                    "A nova versão da logo foi cadastrada.",
+                    t("messages.registerSuccessMessage"),
             });
 
             limparFormulario();
@@ -546,10 +576,10 @@ export default function LogosInstitucionaisPage() {
             setToast({
                 tipo: "erro",
                 titulo:
-                    "Não foi possível cadastrar",
+                    t("messages.registerFailureTitle"),
                 mensagem:
                     error?.message ||
-                    "Erro ao cadastrar a logo.",
+                    t("messages.registerError"),
             });
         } finally {
             setSalvando(false);
@@ -598,17 +628,17 @@ export default function LogosInstitucionaisPage() {
             ) {
                 throw new Error(
                     data?.error ||
-                    "Erro ao atualizar a logo."
+                    t("messages.updateError")
                 );
             }
 
             setToast({
                 tipo: "sucesso",
                 titulo:
-                    "Logo atualizada",
+                    t("messages.updateSuccessTitle"),
                 mensagem:
                     data?.mensagem ||
-                    "A logo foi atualizada.",
+                    t("messages.updateSuccessMessage"),
             });
 
             await carregarLogos();
@@ -618,10 +648,10 @@ export default function LogosInstitucionaisPage() {
             setToast({
                 tipo: "erro",
                 titulo:
-                    "Não foi possível atualizar",
+                    t("messages.updateFailureTitle"),
                 mensagem:
                     error?.message ||
-                    "Erro ao atualizar a logo.",
+                    t("messages.updateError"),
             });
         } finally {
             setAtualizandoId(
@@ -662,17 +692,17 @@ export default function LogosInstitucionaisPage() {
             ) {
                 throw new Error(
                     data?.error ||
-                    "Erro ao excluir a logo."
+                    t("messages.deleteError")
                 );
             }
 
             setToast({
                 tipo: "sucesso",
                 titulo:
-                    "Logo excluída",
+                    t("messages.deleteSuccessTitle"),
                 mensagem:
                     data?.mensagem ||
-                    "A logo foi excluída.",
+                    t("messages.deleteSuccessMessage"),
             });
 
             setLogoExcluir(
@@ -686,10 +716,10 @@ export default function LogosInstitucionaisPage() {
             setToast({
                 tipo: "erro",
                 titulo:
-                    "Não foi possível excluir",
+                    t("messages.deleteFailureTitle"),
                 mensagem:
                     error?.message ||
-                    "Erro ao excluir a logo.",
+                    t("messages.deleteError"),
             });
         } finally {
             setExcluindo(false);
@@ -713,14 +743,11 @@ export default function LogosInstitucionaisPage() {
 
             <header>
                 <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
-                    Logos institucionais
+                    {t("page.title")}
                 </h1>
 
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    Cadastre versões da
-                    marca para fundos
-                    claros, escuros e
-                    diferentes documentos.
+                    {t("page.description")}
                 </p>
             </header>
 
@@ -729,19 +756,18 @@ export default function LogosInstitucionaisPage() {
                     <div className="space-y-5">
                         <div>
                             <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-                                Adicionar nova logo
+                                {t("form.title")}
                             </h2>
 
                             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                                Envie PNG, JPG ou
-                                WEBP com até 5 MB.
+                                {t("form.description")}
                             </p>
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2">
                             <div>
                                 <label className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                    Nome da versão
+                                    {t("form.nameLabel")}
                                 </label>
 
                                 <input
@@ -753,14 +779,14 @@ export default function LogosInstitucionaisPage() {
                                         )
                                     }
                                     maxLength={80}
-                                    placeholder="Ex.: Logo cinza para fundo escuro"
+                                    placeholder={t("form.namePlaceholder")}
                                     className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:focus:ring-blue-900"
                                 />
                             </div>
 
                             <div>
                                 <label className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                    Finalidade
+                                    {t("form.purposeLabel")}
                                 </label>
 
                                 <select
@@ -783,37 +809,52 @@ export default function LogosInstitucionaisPage() {
                                                     item.value
                                                 }
                                             >
-                                                {item.label}
+                                                {nomeTipo(item.value)}
                                             </option>
                                         )
                                     )}
                                 </select>
 
                                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                                    {
-                                        TIPOS_LOGO.find(
-                                            (item) =>
-                                                item.value ===
-                                                tipo
-                                        )?.descricao
-                                    }
+                                    {descricaoTipo(tipo)}
                                 </p>
                             </div>
                         </div>
 
                         <div>
                             <label className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                Arquivo da logo
+                                {t("form.fileLabel")}
                             </label>
 
                             <input
+                                id="arquivo-logo-institucional"
+                                key={
+                                    arquivo
+                                        ? `${arquivo.name}-${arquivo.lastModified}`
+                                        : "sem-arquivo"
+                                }
                                 type="file"
                                 accept="image/png,image/jpeg,image/jpg,image/webp"
                                 onChange={
                                     selecionarArquivo
                                 }
-                                className="block w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                                className="sr-only"
                             />
+
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                <label
+                                    htmlFor="arquivo-logo-institucional"
+                                    className="inline-flex w-fit cursor-pointer items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus-within:ring-2 focus-within:ring-blue-300 dark:focus-within:ring-blue-900"
+                                >
+                                    {t("form.chooseFile")}
+                                </label>
+
+                                <span className="min-w-0 break-all text-sm text-slate-600 dark:text-slate-300">
+                                    {arquivo
+                                        ? arquivo.name
+                                        : t("form.noFileSelected")}
+                                </span>
+                            </div>
                         </div>
 
                         <label className="phanyx-logos-principal-card flex cursor-pointer items-start gap-3 rounded-xl border p-4">
@@ -833,15 +874,11 @@ export default function LogosInstitucionaisPage() {
 
                             <span>
                                 <span className="block font-semibold text-slate-900 dark:text-white">
-                                    Tornar esta a
-                                    logo principal
+                                    {t("form.makePrimaryTitle")}
                                 </span>
 
                                 <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">
-                                    A logo principal
-                                    também será usada
-                                    pelas áreas antigas
-                                    do PHANYX.
+                                    {t("form.makePrimaryDescription")}
                                 </span>
                             </span>
                         </label>
@@ -857,7 +894,7 @@ export default function LogosInstitucionaisPage() {
                                 }
                                 className="phanyx-logos-secondary rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
                             >
-                                Limpar
+                                {t("form.clear")}
                             </button>
 
                             <button
@@ -868,8 +905,8 @@ export default function LogosInstitucionaisPage() {
                             >
                                 <span className="phanyx-logo-button-label">
                                     {salvando
-                                        ? "Enviando..."
-                                        : "Cadastrar logo"}
+                                        ? t("form.uploading")
+                                        : t("form.register")}
                                 </span>
                             </button>
                         </div>
@@ -877,7 +914,7 @@ export default function LogosInstitucionaisPage() {
 
                     <div>
                         <p className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                            Pré-visualização
+                            {t("preview.title")}
                         </p>
 
                         <div className="grid gap-3">
@@ -887,12 +924,12 @@ export default function LogosInstitucionaisPage() {
                                         src={
                                             previewArquivo
                                         }
-                                        alt="Prévia em fundo claro"
+                                        alt={t("preview.lightAlt")}
                                         className="max-h-36 max-w-full object-contain"
                                     />
                                 ) : (
                                     <span className="text-sm text-slate-400">
-                                        Fundo claro
+                                        {t("preview.light")}
                                     </span>
                                 )}
                             </div>
@@ -903,12 +940,12 @@ export default function LogosInstitucionaisPage() {
                                         src={
                                             previewArquivo
                                         }
-                                        alt="Prévia em fundo escuro"
+                                        alt={t("preview.darkAlt")}
                                         className="max-h-36 max-w-full object-contain"
                                     />
                                 ) : (
                                     <span className="text-sm text-slate-500">
-                                        Fundo escuro
+                                        {t("preview.dark")}
                                     </span>
                                 )}
                             </div>
@@ -921,14 +958,14 @@ export default function LogosInstitucionaisPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-6 dark:border-slate-700">
                     <div>
                         <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-                            Biblioteca de logos
+                            {t("library.title")}
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
   {logos.length}{" "}
   {logos.length === 1
-    ? "versão cadastrada"
-    : "versões cadastradas"}.
+  ? t("library.registeredOne")
+  : t("library.registeredMany")}.
 </p>
                     </div>
 
@@ -942,18 +979,17 @@ export default function LogosInstitucionaisPage() {
                         }
                         className="phanyx-logo-action phanyx-logo-action-neutral rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:opacity-60"
                     >
-                        Recarregar
+                        {t("library.reload")}
                     </button>
                 </div>
 
                 {carregando ? (
                     <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                        Carregando logos...
+                        {t("library.loading")}
                     </div>
                 ) : logos.length === 0 ? (
                     <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                        Nenhuma logo
-                        cadastrada.
+                        {t("library.empty")}
                     </div>
                 ) : (
                     <div className="grid gap-5 p-6 md:grid-cols-2 2xl:grid-cols-3">
@@ -1017,7 +1053,7 @@ export default function LogosInstitucionaisPage() {
 
                                                     {logo.principal && (
                                                         <span className="phanyx-logo-badge phanyx-logo-badge-principal rounded-full border px-2 py-1 text-[10px] font-bold uppercase">
-                                                            Principal
+                                                            {t("badges.principal")}
                                                         </span>
                                                     )}
                                                 </div>
@@ -1041,8 +1077,8 @@ export default function LogosInstitucionaisPage() {
                                                             }`}
                                                     >
                                                         {logo.ativa
-                                                            ? "Ativa"
-                                                            : "Inativa"}
+                                                        ? t("badges.active")
+                                                        : t("badges.inactive")}
                                                     </span>
                                                 </div>
                                             </div>
@@ -1051,23 +1087,19 @@ export default function LogosInstitucionaisPage() {
                                                 {logo.largura &&
                                                     logo.altura
                                                     ? `${logo.largura} × ${logo.altura}px`
-                                                    : "Dimensões não informadas"}
+                                                    : t("meta.dimensionsUnknown")}
 
                                                 <br />
 
-                                                Usada por{" "}
-                                                {logo._count
-                                                    ?.templates ||
-                                                    0}{" "}
-                                                template
                                                 {Number(
-                                                    logo._count
-                                                        ?.templates ||
-                                                    0
+                                                  logo._count?.templates || 0
                                                 ) === 1
-                                                    ? ""
-                                                    : "s"}
-                                                .
+                                                  ? t("meta.usedByOne")
+                                                  : t("meta.usedByMany", {
+                                                      count: Number(
+                                                        logo._count?.templates || 0
+                                                      ),
+                                                    })}
                                             </div>
 
                                             <div className="grid gap-2 sm:grid-cols-2">
@@ -1089,7 +1121,7 @@ export default function LogosInstitucionaisPage() {
                                                         className="phanyx-logo-action phanyx-logo-action-primary rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
                                                     >
                                                         <span className="phanyx-logo-button-label">
-                                                            Definir principal
+                                                            {t("actions.setPrimary")}
                                                         </span>
                                                     </button>
                                                 )}
@@ -1110,8 +1142,8 @@ export default function LogosInstitucionaisPage() {
                                                 >
                                                     <span className="phanyx-logo-button-label">
                                                         {logo.ativa
-                                                            ? "Desativar"
-                                                            : "Ativar"}
+                                                        ? t("actions.deactivate")
+                                                        : t("actions.activate")}
                                                     </span>
                                                 </button>
 
@@ -1143,7 +1175,7 @@ export default function LogosInstitucionaisPage() {
                                                     className="phanyx-logo-action phanyx-logo-action-secondary rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
                                                     <span className="phanyx-logo-button-label">
-                                                        Alterar finalidade
+                                                        {t("actions.changePurpose")}
                                                     </span>
                                                 </button>
 
@@ -1161,17 +1193,14 @@ export default function LogosInstitucionaisPage() {
                                                     className="phanyx-logo-action phanyx-logo-action-danger rounded-xl border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
                                                     <span className="phanyx-logo-button-label">
-                                                        Excluir
+                                                        {t("actions.delete")}
                                                     </span>
                                                 </button>
                                             </div>
 
                                             {ocupada && (
                                                 <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
-                                                    Esta logo está
-                                                    vinculada a
-                                                    templates e não
-                                                    pode ser excluída.
+                                                    {t("linkedWarning")}
                                                 </p>
                                             )}
                                         </div>
@@ -1196,24 +1225,19 @@ export default function LogosInstitucionaisPage() {
                                 id="titulo-excluir-logo"
                                 className="text-xl font-bold text-red-900 dark:text-red-100"
                             >
-                                Excluir logo
+                                {t("modal.title")}
                             </h2>
 
                             <p className="mt-2 text-sm text-red-800 dark:text-red-200">
-                                A logo será removida
-                                da biblioteca desta
-                                instituição.
+                                {t("modal.description")}
                             </p>
                         </div>
 
                         <div className="p-6">
                             <p className="text-slate-700 dark:text-slate-200">
-                                Tem certeza que deseja
-                                excluir{" "}
-                                <strong>
-                                    {logoExcluir.nome}
-                                </strong>
-                                ?
+                                {t("modal.question", {
+                                    name: logoExcluir.nome,
+                                })}
                             </p>
                         </div>
 
@@ -1229,7 +1253,7 @@ export default function LogosInstitucionaisPage() {
                                 className="phanyx-logo-modal-cancel rounded-xl border px-5 py-3 font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <span className="phanyx-logo-modal-cancel-label">
-                                    Cancelar
+                                    {t("modal.cancel")}
                                 </span>
                             </button>
 
@@ -1244,8 +1268,8 @@ export default function LogosInstitucionaisPage() {
                                 className="rounded-xl bg-red-600 px-5 py-3 font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {excluindo
-                                    ? "Excluindo..."
-                                    : "Excluir logo"}
+                                    ? t("modal.deleting")
+                                    : t("modal.delete")}
                             </button>
                         </div>
                     </div>
@@ -1254,11 +1278,9 @@ export default function LogosInstitucionaisPage() {
 
             {logoPrincipal && (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Logo principal atual:{" "}
-                    <strong>
-                        {logoPrincipal.nome}
-                    </strong>
-                    .
+                    {t("currentPrimary", {
+                        name: logoPrincipal.nome,
+                    })}
                 </p>
             )}
         </div>

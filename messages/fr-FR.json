@@ -12359,5 +12359,454 @@
       "title": "Intégrations Google",
       "description": "Configurez Google Analytics, Tag Manager, Search Console, Google Ads et la présence locale de l'établissement."
     }
+  },
+  "AdminInstitutionSettings": {
+    "page": {
+      "title": "Paramètres de l'établissement",
+      "description": "Définissez les informations institutionnelles utilisées dans les documents, rapports, PDF et contrats.",
+      "loading": "Chargement des paramètres de l'établissement..."
+    },
+    "sections": {
+      "institutionalData": "Informations institutionnelles"
+    },
+    "fields": {
+      "tradeName": {
+        "label": "Nom d'usage",
+        "placeholder": "Ex. : IBE"
+      },
+      "mainUnitName": {
+        "label": "Nom de l'unité principale",
+        "placeholder": "Ex. : CAMPUS PRINCIPAL",
+        "hint": "Utilisé par la variable {tag} lorsque l'étudiant n'est rattaché à aucun autre campus."
+      },
+      "legalName": {
+        "label": "Raison sociale",
+        "placeholder": "Ex. : Institut Baptiste d'Éducation"
+      },
+      "taxId": {
+        "label": "Identifiant fiscal"
+      },
+      "email": {
+        "label": "E-mail",
+        "placeholder": "contact@etablissement.fr"
+      },
+      "postalCode": {
+        "label": "Code postal",
+        "placeholder": "00000",
+        "searching": "Recherche de l'adresse..."
+      },
+      "state": {
+        "label": "Région",
+        "placeholder": "Région"
+      },
+      "address": {
+        "label": "Adresse",
+        "placeholder": "Rue, numéro, quartier"
+      },
+      "number": {
+        "label": "Numéro",
+        "placeholder": "Ex. : 398"
+      },
+      "city": {
+        "label": "Ville",
+        "placeholder": "Ville"
+      },
+      "legalRepresentative": {
+        "label": "Représentant légal",
+        "placeholder": "Nom du responsable"
+      },
+      "representativeRole": {
+        "label": "Fonction du responsable",
+        "placeholder": "Directeur / Directrice"
+      },
+      "signatureCity": {
+        "label": "Lieu de signature",
+        "placeholder": "Ex. : Paris"
+      },
+      "contractNotes": {
+        "label": "Observations contractuelles",
+        "placeholder": "Informations complémentaires du contrat"
+      }
+    },
+    "contractTemplates": {
+      "title": "Modèles de contrats",
+      "description": "Gérez les modèles institutionnels dans Paramètres → Documents institutionnels → Modèles de documents. Ces modèles sont utilisés pour les contrats, déclarations, justificatifs, reçus et autres documents générés par PHANYX.",
+      "action": "Gérer les modèles de documents"
+    },
+    "actions": {
+      "save": "Enregistrer les paramètres",
+      "saving": "Enregistrement..."
+    },
+    "messages": {
+      "loadError": "Impossible de charger les paramètres de l'établissement.",
+      "saveError": "Impossible d'enregistrer les paramètres.",
+      "saveUnknownError": "Erreur inconnue lors de l'enregistrement des paramètres.",
+      "saveSuccess": "Paramètres enregistrés avec succès.",
+      "postalCodeInvalid": "Saisissez un code postal valide.",
+      "postalCodeNotFound": "Code postal introuvable. Vérifiez les informations ou saisissez l'adresse manuellement.",
+      "postalCodeLookupError": "Impossible de rechercher l'adresse. Vous pouvez la saisir manuellement."
+    },
+    "common": {
+      "selectedFile": "Fichier sélectionné : {name}",
+      "openBackgroundRemover": "Ouvrir le suppresseur d'arrière-plan PHANYX",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleting": "Suppression..."
+    },
+    "logo": {
+      "title": "Logo",
+      "edit": "Modifier le logo",
+      "change": "Changer le logo",
+      "delete": "Supprimer le logo",
+      "empty": "Aucun logo envoyé",
+      "select": "Sélectionner un logo",
+      "sending": "Envoi du logo...",
+      "acceptedFormatsLabel": "Formats acceptés :",
+      "acceptedFormats": "PNG, JPG, JPEG et WEBP",
+      "recommendedSizeLabel": "Taille recommandée :",
+      "recommendedSize": "entre 800 et 1 500 pixels",
+      "backgroundRemoval": {
+        "before": "Si le logo comporte un fond blanc ou coloré, supprimez-le d'abord :",
+        "after": "Puis envoyez l'image transparente."
+      },
+      "deleteModal": {
+        "title": "Supprimer le logo ?",
+        "description": "Le logo n'apparaîtra plus dans les documents, rapports et autres espaces institutionnels."
+      },
+      "messages": {
+        "uploadStatusError": "Échec de l'envoi du logo ({status}).",
+        "urlMissing": "L'image a été envoyée, mais l'URL du logo n'a pas été renvoyée.",
+        "success": "Logo envoyé et enregistré avec succès.",
+        "error": "Échec de l'envoi du logo.",
+        "deleteSuccess": "Logo supprimé avec succès."
+      }
+    },
+    "signature": {
+      "title": "Signature du directeur",
+      "edit": "Modifier la signature du directeur",
+      "change": "Changer la signature",
+      "delete": "Supprimer la signature",
+      "empty": "Aucune signature envoyée",
+      "select": "Sélectionner une signature",
+      "sending": "Envoi de la signature...",
+      "alt": "Signature du directeur",
+      "acceptedFormats": "Formats acceptés : PNG, JPG et JPEG. Le format PNG avec fond transparent est recommandé.",
+      "backgroundRemoval": {
+        "before": "Si la signature comporte un fond blanc ou coloré, supprimez-le d'abord :",
+        "after": "Puis envoyez la signature transparente."
+      },
+      "deleteModal": {
+        "title": "Supprimer la signature du directeur ?",
+        "description": "La signature n'apparaîtra plus sur les certificats et documents institutionnels."
+      },
+      "messages": {
+        "uploadError": "Échec de l'envoi de la signature.",
+        "urlMissing": "L'envoi n'a pas renvoyé l'URL de la signature.",
+        "saveError": "La signature a été envoyée, mais n'a pas pu être enregistrée pour l'établissement.",
+        "success": "Signature du directeur envoyée et enregistrée avec succès.",
+        "error": "Échec de l'envoi de la signature du directeur.",
+        "deleteSuccess": "Signature du directeur supprimée avec succès."
+      }
+    },
+    "letterhead": {
+      "title": "Papier à en-tête et mise en page",
+      "modes": {
+        "simple": {
+          "title": "Sans papier à en-tête",
+          "subtitle": "Mise en page simple"
+        },
+        "phanyx": {
+          "title": "Modèle PHANYX",
+          "subtitle": "Prêt à l'emploi"
+        },
+        "custom": {
+          "title": "Papier à en-tête personnalisé",
+          "subtitle": "Visuel institutionnel"
+        }
+      },
+      "activateUploaded": "Utiliser l'image envoyée",
+      "select": "Sélectionner le papier à en-tête",
+      "sending": "Envoi du papier à en-tête...",
+      "noFile": "Aucun fichier envoyé",
+      "simpleDescription": "Document sans papier à en-tête ni identité visuelle.",
+      "previewEmpty": "L'aperçu du papier à en-tête apparaîtra après la sélection d'une image.",
+      "previewAlt": "Aperçu du papier à en-tête",
+      "messages": {
+        "generateUploadError": "Échec de la préparation de l'envoi.",
+        "storageError": "Échec de l'envoi du fichier vers le stockage.",
+        "success": "Papier à en-tête envoyé avec succès.",
+        "error": "Échec de l'envoi du papier à en-tête."
+      },
+      "presets": {
+        "phanyx": {
+          "executive": {
+            "title": "PHANYX — Exécutif",
+            "subtitle": "Moderne",
+            "bullets": {
+              "first": "Bande sombre",
+              "second": "Barre latérale",
+              "third": "Premium"
+            }
+          },
+          "academic": {
+            "title": "PHANYX — Académique",
+            "subtitle": "Élégant",
+            "bullets": {
+              "first": "Lignes fines",
+              "second": "Plus épuré",
+              "third": "Formel"
+            }
+          },
+          "classic": {
+            "title": "PHANYX — Classique",
+            "subtitle": "Institutionnel",
+            "bullets": {
+              "first": "En-tête marqué",
+              "second": "Pied de page marqué",
+              "third": "Premium"
+            }
+          }
+        },
+        "custom": {
+          "classic": {
+            "title": "Personnalisé — Classique",
+            "subtitle": "Discret",
+            "bullets": {
+              "first": "Sobre",
+              "second": "Palette neutre"
+            }
+          },
+          "modern": {
+            "title": "Personnalisé — Moderne",
+            "subtitle": "Plus visuel",
+            "bullets": {
+              "first": "Coloré",
+              "second": "Plus affirmé"
+            }
+          },
+          "watermark": {
+            "title": "Personnalisé — Filigrane",
+            "subtitle": "Élégant",
+            "bullets": {
+              "first": "Fond léger",
+              "second": "Bonne lisibilité"
+            }
+          }
+        }
+      }
+    },
+    "reports": {
+      "colorLabel": "Couleur des rapports (PDF et Excel)",
+      "colorHelp": "Cette couleur sera automatiquement utilisée dans l'en-tête des PDF et feuilles Excel de l'établissement.",
+      "preview": "Aperçu",
+      "enlarge": "Agrandir",
+      "previewCaption": "L'aperçu change selon le modèle sélectionné.",
+      "institutionalDocument": "Document institutionnel",
+      "institutionalDocumentPremium": "Document institutionnel premium",
+      "colors": {
+        "blue": "Bleu",
+        "green": "Vert",
+        "purple": "Violet",
+        "red": "Rouge",
+        "orange": "Orange",
+        "gray": "Gris",
+        "black": "Noir",
+        "yellow": "Jaune",
+        "pink": "Rose"
+      }
+    },
+    "poles": {
+      "title": "Campus / Unités",
+      "description": "Si l'établissement dispose de sites, campus ou unités, enregistrez les campus qui seront ensuite utilisés pour les classes et les enseignants.",
+      "action": "Gérer les campus"
+    },
+    "preview": {
+      "cityState": "Ville / R?gion",
+      "thumbnailAlt": "Miniature",
+      "noImage": "Aucune image"
+    }
+  },
+  "AdminInstitutionLogos": {
+    "page": {
+      "title": "Logos institutionnels",
+      "description": "Enregistrez des versions de la marque pour les fonds clairs, sombres et différents documents."
+    },
+    "types": {
+      "principal": {
+        "label": "Logo principal",
+        "description": "Version institutionnelle par défaut utilisée dans le système."
+      },
+      "light": {
+        "label": "Pour fond clair",
+        "description": "Recommandée pour les pages blanches ou les fonds clairs."
+      },
+      "dark": {
+        "label": "Pour fond sombre",
+        "description": "Recommandée pour les en-têtes noirs, bleus ou sombres."
+      },
+      "monochrome": {
+        "label": "Monochrome",
+        "description": "Version monochrome destinée à certains documents."
+      },
+      "other": {
+        "label": "Autre version",
+        "description": "Logo horizontal, compact ou destiné à un usage particulier."
+      }
+    },
+    "form": {
+      "title": "Ajouter un nouveau logo",
+      "description": "Envoyez un PNG, JPG ou WEBP de 5 Mo maximum.",
+      "nameLabel": "Nom de la version",
+      "namePlaceholder": "Ex. : Logo gris pour fond sombre",
+      "purposeLabel": "Usage",
+      "fileLabel": "Fichier du logo",
+      "makePrimaryTitle": "Définir comme logo principal",
+      "makePrimaryDescription": "Le logo principal sera également utilisé dans les anciennes zones de PHANYX.",
+      "clear": "Effacer",
+      "uploading": "Envoi...",
+      "register": "Ajouter le logo",
+      "chooseFile": "Choisir un fichier",
+      "noFileSelected": "Aucun fichier sélectionné"
+    },
+    "preview": {
+      "lightAlt": "Aperçu sur fond clair",
+      "light": "Fond clair",
+      "darkAlt": "Aperçu sur fond sombre",
+      "dark": "Fond sombre",
+      "title": "Aperçu"
+    },
+    "library": {
+      "title": "Bibliothèque de logos",
+      "registeredOne": "version enregistrée",
+      "registeredMany": "versions enregistrées",
+      "reload": "Recharger",
+      "loading": "Chargement des logos...",
+      "empty": "Aucun logo enregistré."
+    },
+    "badges": {
+      "principal": "Principal",
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "meta": {
+      "dimensionsUnknown": "Dimensions non renseignées",
+      "usedByOne": "Utilisé par 1 modèle",
+      "usedByMany": "Utilisé par {count} modèles"
+    },
+    "actions": {
+      "setPrimary": "Définir comme principal",
+      "deactivate": "Désactiver",
+      "activate": "Activer",
+      "changePurpose": "Modifier l'usage",
+      "delete": "Supprimer"
+    },
+    "linkedWarning": "Ce logo est associé à des modèles et ne peut pas être supprimé.",
+    "modal": {
+      "title": "Supprimer le logo",
+      "description": "Le logo sera supprimé de la bibliothèque de cet établissement.",
+      "question": "Voulez-vous vraiment supprimer {name} ?",
+      "cancel": "Annuler",
+      "deleting": "Suppression...",
+      "delete": "Supprimer le logo"
+    },
+    "currentPrimary": "Logo principal actuel : {name}.",
+    "defaults": {
+      "newLogo": "Nouveau logo"
+    },
+    "messages": {
+      "loadError": "Échec du chargement des logos.",
+      "loadFailureTitle": "Impossible de charger",
+      "loadFailureMessage": "Échec du chargement des logos de l'établissement.",
+      "selectImageTitle": "Sélectionnez une image",
+      "selectImageMessage": "Envoyez le fichier du logo avant de l'ajouter.",
+      "nameRequiredTitle": "Indiquez un nom",
+      "nameRequiredMessage": "Indiquez un nom permettant d'identifier cette version du logo.",
+      "uploadImageError": "Échec de l'envoi de l'image.",
+      "registerError": "Échec de l'ajout du logo.",
+      "registerSuccessTitle": "Logo ajouté",
+      "registerSuccessMessage": "La nouvelle version du logo a été ajoutée.",
+      "registerFailureTitle": "Impossible d'ajouter le logo",
+      "updateError": "Échec de la mise à jour du logo.",
+      "updateSuccessTitle": "Logo mis à jour",
+      "updateSuccessMessage": "Le logo a été mis à jour.",
+      "updateFailureTitle": "Impossible de mettre à jour",
+      "deleteError": "Échec de la suppression du logo.",
+      "deleteSuccessTitle": "Logo supprimé",
+      "deleteSuccessMessage": "Le logo a été supprimé.",
+      "deleteFailureTitle": "Impossible de supprimer"
+    }
+  },
+  "AdminPortalVisibilitySettings": {
+    "page": {
+      "kicker": "Paramètres",
+      "title": "Visibilité des portails",
+      "description": "Définissez les pages affichées aux étudiants et aux professeurs de cet établissement. Les pages liées à des périodes académiques peuvent également être affichées automatiquement pendant les dates configurées.",
+      "loading": "Chargement des paramètres..."
+    },
+    "sections": {
+      "student": {
+        "title": "Espace étudiant",
+        "description": "Gérez les pages visibles dans le portail étudiant."
+      },
+      "professor": {
+        "title": "Espace professeur",
+        "description": "Gérez les pages visibles dans le portail professeur."
+      }
+    },
+    "actions": {
+      "saving": "Enregistrement...",
+      "save": "Enregistrer les paramètres"
+    },
+    "messages": {
+      "loadError": "Impossible de charger les paramètres.",
+      "saveError": "Impossible d'enregistrer les paramètres.",
+      "saveSuccess": "Paramètres enregistrés avec succès."
+    },
+    "rematriculation": {
+      "name": "Réinscription semestrielle",
+      "description": "Permet à l'étudiant de consulter et d'effectuer sa réinscription pour le semestre suivant.",
+      "smartControl": "Contrôle intelligent",
+      "modes": {
+        "automatic": {
+          "title": "Automatique",
+          "description": "S'affiche uniquement lorsqu'une période publiée est ouverte à l'étudiant."
+        },
+        "always": {
+          "title": "Toujours visible",
+          "description": "La page reste visible même lorsqu'aucune période de réinscription n'est ouverte."
+        },
+        "hidden": {
+          "title": "Masquer temporairement",
+          "description": "La page n'est pas affichée dans le portail, même lorsqu'une période ouverte et publiée existe."
+        }
+      }
+    },
+    "pages": {
+      "student": {
+        "dashboard": "Tableau de bord",
+        "rematriculation": "Réinscription semestrielle",
+        "subjects": "Matières",
+        "progress": "Progression",
+        "assignments": "Travaux",
+        "attendance": "Présence",
+        "reportCard": "Bulletin",
+        "certificates": "Certificats",
+        "academicHistory": "Relevé académique",
+        "meetings": "Réunions",
+        "ombudsman": "Médiation",
+        "data": "Mettre à jour mes informations"
+      },
+      "professor": {
+        "dashboard": "Tableau de bord",
+        "substitutions": "Remplacements d'enseignants",
+        "students": "Étudiants",
+        "activities": "Activités",
+        "assessments": "Évaluations/Examens",
+        "assignments": "Travaux",
+        "meetings": "Réunions",
+        "ombudsman": "Médiation",
+        "materials": "Supports/Cours"
+      }
+    }
   }
 }

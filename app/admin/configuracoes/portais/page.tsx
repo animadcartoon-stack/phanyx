@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type ModoVisibilidadePortal =
   | "AUTOMATICO"
@@ -80,6 +81,7 @@ function normalizarPaginasPortal(
 }
 
 export default function ConfiguracaoPortaisPage() {
+  const t = useTranslations("AdminPortalVisibilitySettings");
   const [paginas, setPaginas] = useState<PaginaPortal[]>([]);
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -99,7 +101,7 @@ export default function ConfiguracaoPortaisPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar configurações");
+        throw new Error(data?.error || t("messages.loadError"));
       }
 
       const paginasRecebidas = Array.isArray(data?.paginas)
@@ -108,7 +110,7 @@ export default function ConfiguracaoPortaisPage() {
 
       setPaginas(normalizarPaginasPortal(paginasRecebidas));
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar configurações");
+      setErro(e?.message || t("messages.loadError"));
       setPaginas([]);
     } finally {
       setLoading(false);
@@ -143,13 +145,13 @@ export default function ConfiguracaoPortaisPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao salvar configurações");
+        throw new Error(data?.error || t("messages.saveError"));
       }
 
-      setMensagem("Configurações salvas com sucesso.");
+      setMensagem(t("messages.saveSuccess"));
       await carregar();
     } catch (e: any) {
-      setErro(e?.message || "Erro ao salvar configurações");
+      setErro(e?.message || t("messages.saveError"));
     } finally {
       setSalvando(false);
     }
@@ -203,17 +205,15 @@ export default function ConfiguracaoPortaisPage() {
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="phanyx-config-card p-6 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-            Configurações
+            {t("page.kicker")}
           </p>
 
           <h1 className="phanyx-config-title mt-2 text-2xl font-black">
-            Visibilidade dos Portais
+            {t("page.title")}
           </h1>
 
           <p className="phanyx-config-muted mt-2 text-sm leading-6">
-            Defina quais páginas aparecem para alunos e professores desta
-            instituição. Páginas vinculadas a períodos acadêmicos também podem ser
-            exibidas automaticamente durante as datas configuradas.
+            {t("page.description")}
           </p>
         </section>
 
@@ -231,21 +231,21 @@ export default function ConfiguracaoPortaisPage() {
 
         {loading ? (
           <div className="phanyx-config-card p-6 text-sm shadow-sm">
-            Carregando configurações...
+            {t("page.loading")}
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-2">
             <BlocoPortal
-              titulo="Área do Aluno"
-              descricao="Controle as páginas visíveis no portal do aluno."
+              titulo={t("sections.student.title")}
+              descricao={t("sections.student.description")}
               paginas={paginasAluno}
               onAlternar={alternar}
               onAlterarModo={alterarModoVisibilidade}
             />
 
             <BlocoPortal
-              titulo="Área do Professor"
-              descricao="Controle as páginas visíveis no portal do professor."
+              titulo={t("sections.professor.title")}
+              descricao={t("sections.professor.description")}
               paginas={paginasProfessor}
               onAlternar={alternar}
               onAlterarModo={alterarModoVisibilidade}
@@ -260,7 +260,7 @@ export default function ConfiguracaoPortaisPage() {
             disabled={salvando || loading}
             className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {salvando ? "Salvando..." : "Salvar configurações"}
+            {salvando ? t("actions.saving") : t("actions.save")}
           </button>
         </div>
       </div>
@@ -284,6 +284,58 @@ function BlocoPortal({
     modo: ModoVisibilidadePortal,
   ) => void;
 }) {
+  const t = useTranslations("AdminPortalVisibilitySettings");
+
+  function nomePaginaTraduzido(
+    pagina: PaginaPortal,
+  ) {
+    switch (pagina.chavePagina) {
+      case "aluno.painel":
+        return t("pages.student.dashboard");
+      case CHAVE_REMATRICULA_ALUNO:
+        return t("pages.student.rematriculation");
+      case "aluno.disciplinas":
+        return t("pages.student.subjects");
+      case "aluno.progresso":
+        return t("pages.student.progress");
+      case "aluno.trabalhos":
+        return t("pages.student.assignments");
+      case "aluno.presenca":
+        return t("pages.student.attendance");
+      case "aluno.boletim":
+        return t("pages.student.reportCard");
+      case "aluno.certificados":
+        return t("pages.student.certificates");
+      case "aluno.historico":
+        return t("pages.student.academicHistory");
+      case "aluno.reunioes":
+        return t("pages.student.meetings");
+      case "aluno.ouvidoria":
+        return t("pages.student.ombudsman");
+      case "aluno.dados":
+        return t("pages.student.data");
+      case "professor.painel":
+        return t("pages.professor.dashboard");
+      case "professor.substituicoes":
+        return t("pages.professor.substitutions");
+      case "professor.alunos":
+        return t("pages.professor.students");
+      case "professor.atividades":
+        return t("pages.professor.activities");
+      case "professor.provas":
+        return t("pages.professor.assessments");
+      case "professor.trabalhos":
+        return t("pages.professor.assignments");
+      case "professor.reunioes":
+        return t("pages.professor.meetings");
+      case "professor.ouvidoria":
+        return t("pages.professor.ombudsman");
+      case "professor.materiais":
+        return t("pages.professor.materials");
+      default:
+        return pagina.nome;
+    }
+  }
   return (
     <section className="phanyx-config-card p-6 shadow-sm">
       <div>
@@ -315,16 +367,16 @@ function BlocoPortal({
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-bold">
-                      {pagina.nome}
+                      {t("rematriculation.name")}
                     </p>
 
                     <span className="rounded-full border border-emerald-500 bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-                      Controle inteligente
+                      {t("rematriculation.smartControl")}
                     </span>
                   </div>
 
                   <p className="phanyx-config-muted mt-1 text-xs leading-5">
-                    {pagina.descricao}
+                    {t("rematriculation.description")}
                   </p>
 
                   <p className="phanyx-portal-key mt-1 text-xs">
@@ -347,11 +399,11 @@ function BlocoPortal({
                       }`}
                   >
                     <span className="phanyx-portal-modo-titulo block text-sm font-black">
-                      Automático
+                      {t("rematriculation.modes.automatic.title")}
                     </span>
 
                     <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
-                      Aparece somente quando houver período publicado e aberto para o aluno.
+                      {t("rematriculation.modes.automatic.description")}
                     </span>
                   </button>
 
@@ -369,11 +421,11 @@ function BlocoPortal({
                       }`}
                   >
                     <span className="phanyx-portal-modo-titulo block text-sm font-black">
-                      Sempre visível
+                      {t("rematriculation.modes.always.title")}
                     </span>
 
                     <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
-                      A página aparece mesmo quando não existe período de rematrícula aberto.
+                      {t("rematriculation.modes.always.description")}
                     </span>
                   </button>
 
@@ -391,11 +443,11 @@ function BlocoPortal({
                       }`}
                   >
                     <span className="phanyx-portal-modo-titulo block text-sm font-black">
-                      Ocultar temporariamente
+                      {t("rematriculation.modes.hidden.title")}
                     </span>
 
                     <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
-                      Não aparece no portal, mesmo que exista um período aberto e publicado.
+                      {t("rematriculation.modes.hidden.description")}
                     </span>
                   </button>
                 </div>
@@ -414,7 +466,7 @@ function BlocoPortal({
             >
               <div>
                 <p className="font-bold">
-                  {pagina.nome}
+                  {nomePaginaTraduzido(pagina)}
                 </p>
 
                 <p className="phanyx-portal-key mt-1 text-xs">

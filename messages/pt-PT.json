@@ -12360,5 +12360,454 @@
       "title": "Integrações Google",
       "description": "Configure Google Analytics, Tag Manager, Search Console, Google Ads e a presença local da instituição."
     }
+  },
+  "AdminInstitutionSettings": {
+    "page": {
+      "title": "Configurações da Instituição",
+      "description": "Defina os dados institucionais utilizados em documentos, relatórios, PDFs e contratos.",
+      "loading": "A carregar as configurações da instituição..."
+    },
+    "sections": {
+      "institutionalData": "Dados institucionais"
+    },
+    "fields": {
+      "tradeName": {
+        "label": "Nome comercial",
+        "placeholder": "Ex.: IBE"
+      },
+      "mainUnitName": {
+        "label": "Nome da unidade principal",
+        "placeholder": "Ex.: SEDE - Lisboa",
+        "hint": "Utilizado na tag {tag} quando o aluno não estiver associado a outro polo."
+      },
+      "legalName": {
+        "label": "Denominação social",
+        "placeholder": "Ex.: Instituto Batista de Educação"
+      },
+      "taxId": {
+        "label": "NIF / Identificação fiscal"
+      },
+      "email": {
+        "label": "E-mail",
+        "placeholder": "contacto@instituicao.pt"
+      },
+      "postalCode": {
+        "label": "Código postal",
+        "placeholder": "0000-000",
+        "searching": "A procurar a morada..."
+      },
+      "state": {
+        "label": "Distrito / Região",
+        "placeholder": "Lisboa"
+      },
+      "address": {
+        "label": "Morada",
+        "placeholder": "Rua, número, localidade"
+      },
+      "number": {
+        "label": "Número",
+        "placeholder": "Ex.: 398"
+      },
+      "city": {
+        "label": "Localidade",
+        "placeholder": "Lisboa"
+      },
+      "legalRepresentative": {
+        "label": "Responsável legal",
+        "placeholder": "Nome do responsável"
+      },
+      "representativeRole": {
+        "label": "Cargo do responsável",
+        "placeholder": "Diretor(a)"
+      },
+      "signatureCity": {
+        "label": "Local da assinatura",
+        "placeholder": "Ex.: Lisboa"
+      },
+      "contractNotes": {
+        "label": "Observações contratuais",
+        "placeholder": "Informações adicionais do contrato"
+      }
+    },
+    "contractTemplates": {
+      "title": "Modelos de contrato",
+      "description": "Gerencie os modelos institucionais em Configurações → Documentos Institucionais → Modelos de Documentos. Estes modelos serão utilizados em contratos, declarações, comprovativos, recibos e outros documentos gerados pelo PHANYX.",
+      "action": "Gerir modelos de documentos"
+    },
+    "actions": {
+      "save": "Guardar configurações",
+      "saving": "A guardar..."
+    },
+    "messages": {
+      "loadError": "Erro ao carregar as configurações da instituição.",
+      "saveError": "Erro ao guardar as configurações.",
+      "saveUnknownError": "Erro desconhecido ao guardar as configurações.",
+      "saveSuccess": "Configurações guardadas com sucesso.",
+      "postalCodeInvalid": "Introduza um código postal válido.",
+      "postalCodeNotFound": "Código postal não encontrado. Verifique os dados ou preencha a morada manualmente.",
+      "postalCodeLookupError": "Não foi possível procurar a morada. Pode preenchê-la manualmente."
+    },
+    "common": {
+      "selectedFile": "Ficheiro selecionado: {name}",
+      "openBackgroundRemover": "Abrir removedor PHANYX",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "deleting": "A eliminar..."
+    },
+    "logo": {
+      "title": "Logótipo",
+      "edit": "Editar logótipo",
+      "change": "Alterar logótipo",
+      "delete": "Eliminar logótipo",
+      "empty": "Nenhum logótipo enviado",
+      "select": "Selecionar logótipo",
+      "sending": "A enviar logótipo...",
+      "acceptedFormatsLabel": "Formatos aceites:",
+      "acceptedFormats": "PNG, JPG, JPEG e WEBP",
+      "recommendedSizeLabel": "Tamanho recomendado:",
+      "recommendedSize": "entre 800 e 1.500 pixels",
+      "backgroundRemoval": {
+        "before": "Se o logótipo tiver fundo branco ou colorido, remova o fundo antes:",
+        "after": "Depois carregue a imagem transparente."
+      },
+      "deleteModal": {
+        "title": "Eliminar logótipo?",
+        "description": "O logótipo deixará de aparecer nos documentos, relatórios e restantes áreas institucionais."
+      },
+      "messages": {
+        "uploadStatusError": "Erro ao enviar o logótipo ({status}).",
+        "urlMissing": "A imagem foi enviada, mas o URL do logótipo não foi devolvido.",
+        "success": "Logótipo enviado e guardado com sucesso.",
+        "error": "Erro ao enviar o logótipo.",
+        "deleteSuccess": "Logótipo eliminado com sucesso."
+      }
+    },
+    "signature": {
+      "title": "Assinatura do diretor",
+      "edit": "Editar assinatura do diretor",
+      "change": "Alterar assinatura",
+      "delete": "Eliminar assinatura",
+      "empty": "Nenhuma assinatura enviada",
+      "select": "Selecionar assinatura",
+      "sending": "A enviar assinatura...",
+      "alt": "Assinatura do diretor",
+      "acceptedFormats": "Formatos aceites: PNG, JPG e JPEG. Dê preferência a PNG com fundo transparente.",
+      "backgroundRemoval": {
+        "before": "Se a assinatura tiver fundo branco ou colorido, remova o fundo antes:",
+        "after": "Depois carregue a assinatura transparente."
+      },
+      "deleteModal": {
+        "title": "Eliminar assinatura do diretor?",
+        "description": "A assinatura deixará de aparecer nos certificados e documentos institucionais."
+      },
+      "messages": {
+        "uploadError": "Erro ao enviar a assinatura.",
+        "urlMissing": "O envio não devolveu o URL da assinatura.",
+        "saveError": "A assinatura foi enviada, mas não foi guardada na instituição.",
+        "success": "Assinatura do diretor enviada e guardada com sucesso.",
+        "error": "Erro ao enviar a assinatura do diretor.",
+        "deleteSuccess": "Assinatura do diretor eliminada com sucesso."
+      }
+    },
+    "letterhead": {
+      "title": "Papel timbrado e layout",
+      "modes": {
+        "simple": {
+          "title": "Sem papel timbrado",
+          "subtitle": "Layout simples"
+        },
+        "phanyx": {
+          "title": "Modelo PHANYX",
+          "subtitle": "Pronto a utilizar"
+        },
+        "custom": {
+          "title": "Papel próprio",
+          "subtitle": "Imagem institucional"
+        }
+      },
+      "activateUploaded": "Ativar utilização da imagem enviada",
+      "select": "Selecionar papel timbrado",
+      "sending": "A enviar papel timbrado...",
+      "noFile": "Nenhum ficheiro enviado",
+      "simpleDescription": "Documento sem papel timbrado nem identidade visual.",
+      "previewEmpty": "A pré-visualização do papel timbrado aparecerá ao selecionar uma imagem.",
+      "previewAlt": "Pré-visualização do papel timbrado",
+      "messages": {
+        "generateUploadError": "Erro ao preparar o envio.",
+        "storageError": "Erro ao enviar o ficheiro para o armazenamento.",
+        "success": "Papel timbrado enviado com sucesso.",
+        "error": "Erro ao enviar o papel timbrado."
+      },
+      "presets": {
+        "phanyx": {
+          "executive": {
+            "title": "PHANYX — Executivo",
+            "subtitle": "Moderno",
+            "bullets": {
+              "first": "Faixa escura",
+              "second": "Barra lateral",
+              "third": "Premium"
+            }
+          },
+          "academic": {
+            "title": "PHANYX — Académico",
+            "subtitle": "Elegante",
+            "bullets": {
+              "first": "Linhas finas",
+              "second": "Mais limpo",
+              "third": "Formal"
+            }
+          },
+          "classic": {
+            "title": "PHANYX — Clássico",
+            "subtitle": "Institucional",
+            "bullets": {
+              "first": "Cabeçalho forte",
+              "second": "Rodapé forte",
+              "third": "Premium"
+            }
+          }
+        },
+        "custom": {
+          "classic": {
+            "title": "Personalizado — Clássico",
+            "subtitle": "Discreto",
+            "bullets": {
+              "first": "Sóbrio",
+              "second": "Escala neutra"
+            }
+          },
+          "modern": {
+            "title": "Personalizado — Moderno",
+            "subtitle": "Mais visual",
+            "bullets": {
+              "first": "Colorido",
+              "second": "Mais forte"
+            }
+          },
+          "watermark": {
+            "title": "Personalizado — Marca de água",
+            "subtitle": "Elegante",
+            "bullets": {
+              "first": "Fundo leve",
+              "second": "Boa leitura"
+            }
+          }
+        }
+      }
+    },
+    "reports": {
+      "colorLabel": "Cor dos relatórios (PDF e Excel)",
+      "colorHelp": "Esta cor será utilizada automaticamente no cabeçalho dos PDFs e folhas Excel da instituição.",
+      "preview": "Pré-visualização",
+      "enlarge": "Ampliar",
+      "previewCaption": "A pré-visualização muda de acordo com o modelo selecionado.",
+      "institutionalDocument": "Documento institucional",
+      "institutionalDocumentPremium": "Documento institucional premium",
+      "colors": {
+        "blue": "Azul",
+        "green": "Verde",
+        "purple": "Roxo",
+        "red": "Vermelho",
+        "orange": "Laranja",
+        "gray": "Cinzento",
+        "black": "Preto",
+        "yellow": "Amarelo",
+        "pink": "Rosa"
+      }
+    },
+    "poles": {
+      "title": "Polos / Unidades",
+      "description": "Se a instituição possuir filiais, campi ou unidades, registe os polos que serão utilizados posteriormente em turmas e professores.",
+      "action": "Gerir polos"
+    },
+    "preview": {
+      "cityState": "Localidade / Distrito",
+      "thumbnailAlt": "Miniatura",
+      "noImage": "Sem imagem"
+    }
+  },
+  "AdminInstitutionLogos": {
+    "page": {
+      "title": "Logótipos institucionais",
+      "description": "Registe versões da marca para fundos claros, escuros e diferentes documentos."
+    },
+    "types": {
+      "principal": {
+        "label": "Logótipo principal",
+        "description": "Versão institucional predefinida utilizada no sistema."
+      },
+      "light": {
+        "label": "Para fundo claro",
+        "description": "Indicada para folhas brancas ou fundos claros."
+      },
+      "dark": {
+        "label": "Para fundo escuro",
+        "description": "Indicada para cabeçalhos pretos, azuis ou escuros."
+      },
+      "monochrome": {
+        "label": "Monocromática",
+        "description": "Versão numa única cor para documentos específicos."
+      },
+      "other": {
+        "label": "Outra versão",
+        "description": "Logótipo horizontal, compacto ou para uma finalidade específica."
+      }
+    },
+    "form": {
+      "title": "Adicionar novo logótipo",
+      "description": "Envie PNG, JPG ou WEBP até 5 MB.",
+      "nameLabel": "Nome da versão",
+      "namePlaceholder": "Ex.: Logótipo cinzento para fundo escuro",
+      "purposeLabel": "Finalidade",
+      "fileLabel": "Ficheiro do logótipo",
+      "makePrimaryTitle": "Tornar este o logótipo principal",
+      "makePrimaryDescription": "O logótipo principal também será utilizado pelas áreas antigas do PHANYX.",
+      "clear": "Limpar",
+      "uploading": "A enviar...",
+      "register": "Registar logótipo",
+      "chooseFile": "Escolher ficheiro",
+      "noFileSelected": "Nenhum ficheiro selecionado"
+    },
+    "preview": {
+      "lightAlt": "Pré-visualização em fundo claro",
+      "light": "Fundo claro",
+      "darkAlt": "Pré-visualização em fundo escuro",
+      "dark": "Fundo escuro",
+      "title": "Pré-visualização"
+    },
+    "library": {
+      "title": "Biblioteca de logótipos",
+      "registeredOne": "versão registada",
+      "registeredMany": "versões registadas",
+      "reload": "Recarregar",
+      "loading": "A carregar logótipos...",
+      "empty": "Nenhum logótipo registado."
+    },
+    "badges": {
+      "principal": "Principal",
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "meta": {
+      "dimensionsUnknown": "Dimensões não indicadas",
+      "usedByOne": "Utilizado por 1 modelo",
+      "usedByMany": "Utilizado por {count} modelos"
+    },
+    "actions": {
+      "setPrimary": "Definir como principal",
+      "deactivate": "Desativar",
+      "activate": "Ativar",
+      "changePurpose": "Alterar finalidade",
+      "delete": "Eliminar"
+    },
+    "linkedWarning": "Este logótipo está associado a modelos e não pode ser eliminado.",
+    "modal": {
+      "title": "Eliminar logótipo",
+      "description": "O logótipo será removido da biblioteca desta instituição.",
+      "question": "Tem a certeza de que pretende eliminar {name}?",
+      "cancel": "Cancelar",
+      "deleting": "A eliminar...",
+      "delete": "Eliminar logótipo"
+    },
+    "currentPrimary": "Logótipo principal atual: {name}.",
+    "defaults": {
+      "newLogo": "Novo logótipo"
+    },
+    "messages": {
+      "loadError": "Erro ao carregar os logótipos.",
+      "loadFailureTitle": "Não foi possível carregar",
+      "loadFailureMessage": "Erro ao carregar os logótipos da instituição.",
+      "selectImageTitle": "Selecione uma imagem",
+      "selectImageMessage": "Envie o ficheiro do logótipo antes de o registar.",
+      "nameRequiredTitle": "Indique o nome",
+      "nameRequiredMessage": "Indique um nome para identificar esta versão do logótipo.",
+      "uploadImageError": "Erro ao enviar a imagem.",
+      "registerError": "Erro ao registar o logótipo.",
+      "registerSuccessTitle": "Logótipo registado",
+      "registerSuccessMessage": "A nova versão do logótipo foi registada.",
+      "registerFailureTitle": "Não foi possível registar",
+      "updateError": "Erro ao atualizar o logótipo.",
+      "updateSuccessTitle": "Logótipo atualizado",
+      "updateSuccessMessage": "O logótipo foi atualizado.",
+      "updateFailureTitle": "Não foi possível atualizar",
+      "deleteError": "Erro ao eliminar o logótipo.",
+      "deleteSuccessTitle": "Logótipo eliminado",
+      "deleteSuccessMessage": "O logótipo foi eliminado.",
+      "deleteFailureTitle": "Não foi possível eliminar"
+    }
+  },
+  "AdminPortalVisibilitySettings": {
+    "page": {
+      "kicker": "Configurações",
+      "title": "Visibilidade dos Portais",
+      "description": "Defina quais páginas aparecem para alunos e professores desta instituição. As páginas associadas a períodos académicos também podem ser apresentadas automaticamente durante as datas configuradas.",
+      "loading": "A carregar configurações..."
+    },
+    "sections": {
+      "student": {
+        "title": "Área do Aluno",
+        "description": "Controle as páginas visíveis no portal do aluno."
+      },
+      "professor": {
+        "title": "Área do Professor",
+        "description": "Controle as páginas visíveis no portal do professor."
+      }
+    },
+    "actions": {
+      "saving": "A guardar...",
+      "save": "Guardar configurações"
+    },
+    "messages": {
+      "loadError": "Erro ao carregar as configurações.",
+      "saveError": "Erro ao guardar as configurações.",
+      "saveSuccess": "Configurações guardadas com sucesso."
+    },
+    "rematriculation": {
+      "name": "Renovação semestral da matrícula",
+      "description": "Permite ao aluno consultar e efetuar a renovação da matrícula para o semestre seguinte.",
+      "smartControl": "Controlo inteligente",
+      "modes": {
+        "automatic": {
+          "title": "Automático",
+          "description": "É apresentado apenas quando existir um período publicado e aberto para o aluno."
+        },
+        "always": {
+          "title": "Sempre visível",
+          "description": "A página é apresentada mesmo quando não existe um período de renovação de matrícula aberto."
+        },
+        "hidden": {
+          "title": "Ocultar temporariamente",
+          "description": "Não é apresentada no portal, mesmo que exista um período aberto e publicado."
+        }
+      }
+    },
+    "pages": {
+      "student": {
+        "dashboard": "Painel",
+        "rematriculation": "Renovação semestral da matrícula",
+        "subjects": "Disciplinas",
+        "progress": "Progresso",
+        "assignments": "Trabalhos",
+        "attendance": "Presença",
+        "reportCard": "Boletim",
+        "certificates": "Certificados",
+        "academicHistory": "Histórico Académico",
+        "meetings": "Reuniões",
+        "ombudsman": "Provedoria",
+        "data": "Atualizar os meus dados"
+      },
+      "professor": {
+        "dashboard": "Painel",
+        "substitutions": "Substituições de docentes",
+        "students": "Alunos",
+        "activities": "Atividades",
+        "assessments": "Avaliações/Testes",
+        "assignments": "Trabalhos",
+        "meetings": "Reuniões",
+        "ombudsman": "Provedoria",
+        "materials": "Materiais/Aulas"
+      }
+    }
   }
 }

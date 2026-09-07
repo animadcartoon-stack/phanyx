@@ -93,6 +93,11 @@ export default function ConfigInstituicaoPage() {
   const tGeo =
     useTranslations("InstitutionGeoSettings");
 
+  const t =
+    useTranslations(
+      "AdminInstitutionSettings"
+    );
+
   const locale = useLocale();
 
   const [montado, setMontado] =
@@ -320,7 +325,7 @@ export default function ConfigInstituicaoPage() {
         throw new Error(
           json?.error ||
           json?.message ||
-          "Erro ao carregar configurações da instituição."
+          t("messages.loadError")
         );
       }
 
@@ -371,7 +376,7 @@ export default function ConfigInstituicaoPage() {
 
       setMensagem(
         error?.message ||
-        "Erro ao carregar configurações da instituição."
+        t("messages.loadError")
       );
     } finally {
       setLoading(false);
@@ -465,7 +470,7 @@ export default function ConfigInstituicaoPage() {
         throw new Error(
           dataErro?.error ||
           dataErro?.message ||
-          "Erro desconhecido ao salvar configurações."
+          t("messages.saveUnknownError")
         );
       }
 
@@ -483,12 +488,12 @@ export default function ConfigInstituicaoPage() {
         estiloPapelTimbrado: layout,
       }));
 
-      setMensagem("Configurações salvas com sucesso.");
+      setMensagem(t("messages.saveSuccess"));
     } catch (error: any) {
       console.error("ERRO AO SALVAR CONFIGURAÇÕES:", error);
 
       setMensagem(
-        error?.message || "Erro ao salvar configurações."
+        error?.message || t("messages.saveError")
       );
     } finally {
       setSalvando(false);
@@ -544,7 +549,7 @@ export default function ConfigInstituicaoPage() {
         throw new Error(
           data?.error ||
           data?.message ||
-          `Erro ao enviar logo (${res.status}).`
+          t("logo.messages.uploadStatusError", { status: res.status })
         );
       }
 
@@ -556,7 +561,7 @@ export default function ConfigInstituicaoPage() {
 
       if (!logoUrl) {
         throw new Error(
-          "A imagem foi enviada, mas a URL da logo não foi retornada."
+          t("logo.messages.urlMissing")
         );
       }
 
@@ -565,14 +570,14 @@ export default function ConfigInstituicaoPage() {
         logoUrl,
       }));
 
-      setMensagem("Logo enviada e salva com sucesso.");
+      setMensagem(t("logo.messages.success"));
       setMenuLogoAberto(false);
     } catch (error: any) {
       console.error("ERRO AO ENVIAR LOGO:", error);
 
       setMensagem(
         error?.message ||
-        "Não foi possível enviar a logo da instituição."
+        t("logo.messages.error")
       );
     } finally {
       setEnviandoLogo(false);
@@ -607,7 +612,7 @@ export default function ConfigInstituicaoPage() {
       const jsonUploadUrl = await resUploadUrl.json();
 
       if (!resUploadUrl.ok) {
-        throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
+        throw new Error(jsonUploadUrl?.error || t("letterhead.messages.generateUploadError"));
       }
 
       const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
@@ -619,7 +624,7 @@ export default function ConfigInstituicaoPage() {
       });
 
       if (!resUploadDireto.ok) {
-        throw new Error("Erro ao enviar arquivo para o storage");
+        throw new Error(t("letterhead.messages.storageError"));
       }
 
       setForm((prev) => ({
@@ -627,9 +632,9 @@ export default function ConfigInstituicaoPage() {
         papelTimbradoUrl: jsonUploadUrl.arquivoUrl,
       }));
 
-      setMensagem("Papel timbrado enviado com sucesso.");
+      setMensagem(t("letterhead.messages.success"));
     } catch {
-      setMensagem("Erro ao enviar papel timbrado.");
+      setMensagem(t("letterhead.messages.error"));
     } finally {
       setEnviandoPapelTimbrado(false);
     }
@@ -657,13 +662,13 @@ export default function ConfigInstituicaoPage() {
       const dataUpload = await resUpload.json();
 
       if (!resUpload.ok) {
-        throw new Error(dataUpload?.error || "Erro ao enviar assinatura.");
+        throw new Error(dataUpload?.error || t("signature.messages.uploadError"));
       }
 
       const assinaturaUrl = dataUpload?.url || dataUpload?.arquivo?.url;
 
       if (!assinaturaUrl) {
-        throw new Error("O upload não retornou a URL da assinatura.");
+        throw new Error(t("signature.messages.urlMissing"));
       }
 
       setForm((prev) => ({
@@ -684,13 +689,13 @@ export default function ConfigInstituicaoPage() {
       });
 
       if (!resSalvar.ok) {
-        throw new Error("A assinatura foi enviada, mas não foi salva na instituição.");
+        throw new Error(t("signature.messages.saveError"));
       }
 
-      setMensagem("Assinatura do diretor enviada e salva com sucesso.");
+      setMensagem(t("signature.messages.success"));
       setMenuAssinaturaAberto(false);
     } catch (error: any) {
-      setMensagem(error?.message || "Erro ao enviar assinatura do diretor.");
+      setMensagem(error?.message || t("signature.messages.error"));
     } finally {
       setEnviandoAssinatura(false);
     }
@@ -756,7 +761,7 @@ export default function ConfigInstituicaoPage() {
 
         setNomeArquivoLogo("");
         setMenuLogoAberto(false);
-        setMensagem("Logo excluída com sucesso.");
+        setMensagem(t("logo.messages.deleteSuccess"));
       } else {
         setForm((prev) => ({
           ...prev,
@@ -803,7 +808,7 @@ export default function ConfigInstituicaoPage() {
     }));
 
     if (cepLimpo.length !== 8) {
-      setMensagem("Informe um CEP com 8 números.");
+      setMensagem(t("messages.postalCodeInvalid"));
       return;
     }
 
@@ -828,7 +833,7 @@ export default function ConfigInstituicaoPage() {
 
       if (data?.erro === true) {
         setMensagem(
-          "CEP não encontrado. Confira os números ou preencha o endereço manualmente."
+          t("messages.postalCodeNotFound")
         );
         return;
       }
@@ -860,7 +865,7 @@ export default function ConfigInstituicaoPage() {
 
       setMensagem(
         error?.message ||
-        "Não foi possível buscar o endereço pelo CEP. Você pode preencher o endereço manualmente."
+        t("messages.postalCodeLookupError")
       );
     } finally {
       setBuscandoCep(false);
@@ -919,7 +924,7 @@ export default function ConfigInstituicaoPage() {
             className={`truncate text-[8px] ${claro ? "text-slate-200" : "text-slate-400"
               }`}
           >
-            {cidadeEstadoPreview || "Cidade / Estado"}
+            {cidadeEstadoPreview || t("preview.cityState")}
           </div>
         </div>
       </div>
@@ -963,14 +968,14 @@ export default function ConfigInstituicaoPage() {
                 {nomePreview}
               </div>
               <div className="text-[8px] text-slate-500">
-                {cidadeEstadoPreview || "Cidade / Estado"}
+                {cidadeEstadoPreview || t("preview.cityState")}
               </div>
             </div>
           </div>
 
           <div className="mt-8">
             <div className="mb-4 text-[11px] font-semibold text-slate-900">
-              Documento institucional
+              {t("reports.institutionalDocument")}
             </div>
             {renderLinhasTexto()}
           </div>
@@ -995,7 +1000,7 @@ export default function ConfigInstituicaoPage() {
 
             <div className="ml-6 mr-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="mb-4 text-[11px] font-semibold text-slate-800">
-                Documento institucional
+                {t("reports.institutionalDocument")}
               </div>
               {renderLinhasTexto()}
             </div>
@@ -1038,7 +1043,7 @@ export default function ConfigInstituicaoPage() {
                 {nomePreview}
               </div>
               <div className="mt-1 text-[8px] text-slate-500">
-                {cidadeEstadoPreview || "Cidade / Estado"}
+                {cidadeEstadoPreview || t("preview.cityState")}
               </div>
             </div>
 
@@ -1071,7 +1076,7 @@ export default function ConfigInstituicaoPage() {
               </div>
 
               <div className="mt-6 text-[11px] font-semibold text-slate-800">
-                Documento institucional premium
+                {t("reports.institutionalDocumentPremium")}
               </div>
 
               <div className="mt-4">{renderLinhasTexto()}</div>
@@ -1088,7 +1093,7 @@ export default function ConfigInstituicaoPage() {
     if (!previewSrc) {
       return (
         <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs text-slate-400">
-          A prévia do papel timbrado aparecerá ao selecionar uma imagem.
+          {t("letterhead.previewEmpty")}
         </div>
       );
     }
@@ -1098,7 +1103,7 @@ export default function ConfigInstituicaoPage() {
         <div className="phanyx-paper-surface relative h-full w-full bg-white">
           <img
             src={previewSrc}
-            alt="Prévia do papel timbrado"
+            alt={t("letterhead.previewAlt")}
             className="absolute inset-0 m-auto max-h-[75%] max-w-[75%] object-contain opacity-15"
           />
 
@@ -1119,7 +1124,7 @@ export default function ConfigInstituicaoPage() {
           <div className="absolute left-0 top-0 h-full w-5 bg-slate-200" />
           <img
             src={previewSrc}
-            alt="Prévia do papel timbrado"
+            alt={t("letterhead.previewAlt")}
             className="absolute inset-0 m-auto max-h-[75%] max-w-[75%] object-contain opacity-15"
           />
           <div className="absolute left-8 right-3 top-3 rounded-lg bg-white p-2">
@@ -1137,7 +1142,7 @@ export default function ConfigInstituicaoPage() {
         <div className="absolute top-0 h-4 w-full bg-slate-300" />
         <img
           src={previewSrc}
-          alt="Prévia do papel timbrado"
+          alt={t("letterhead.previewAlt")}
           className="absolute left-0 right-0 top-5 bottom-10 m-auto h-[calc(100%-52px)] w-full object-contain grayscale"
         />
         <div className="absolute left-4 right-4 top-6 rounded-lg bg-white/85 p-2">
@@ -1252,12 +1257,12 @@ export default function ConfigInstituicaoPage() {
           {previewSrc ? (
             <img
               src={previewSrc}
-              alt="Miniatura"
+              alt={t("preview.thumbnailAlt")}
               className="absolute inset-0 m-auto max-h-[70%] max-w-[70%] object-contain opacity-15"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400">
-              Sem imagem
+              {t("preview.noImage")}
             </div>
           )}
           <div className="absolute left-3 right-3 top-3 h-1.5 rounded bg-slate-300" />
@@ -1273,12 +1278,12 @@ export default function ConfigInstituicaoPage() {
           {previewSrc ? (
             <img
               src={previewSrc}
-              alt="Miniatura"
+              alt={t("preview.thumbnailAlt")}
               className="absolute left-3 top-0 h-full w-[calc(100%-12px)] object-cover"
             />
           ) : (
             <div className="absolute left-3 right-0 top-0 bottom-0 flex items-center justify-center text-[10px] text-slate-400">
-              Sem imagem
+              {t("preview.noImage")}
             </div>
           )}
         </div>
@@ -1291,12 +1296,12 @@ export default function ConfigInstituicaoPage() {
         {previewSrc ? (
           <img
             src={previewSrc}
-            alt="Miniatura"
+            alt={t("preview.thumbnailAlt")}
             className="absolute inset-0 m-auto h-[75%] w-[85%] object-contain grayscale"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400">
-            Sem imagem
+            {t("preview.noImage")}
           </div>
         )}
       </div>
@@ -1304,7 +1309,11 @@ export default function ConfigInstituicaoPage() {
   }
 
   if (loading) {
-    return <div className="p-6">Carregando configurações da instituição...</div>;
+    return (
+      <div className="p-6 text-slate-700 dark:text-slate-200">
+        {t("page.loading")}
+      </div>
+    );
   }
 
   return (
@@ -1320,14 +1329,22 @@ export default function ConfigInstituicaoPage() {
               <div className="min-w-0 flex-1">
                 <h2 className="phanyx-modal-imagem-titulo text-lg font-bold">
                   {confirmacaoExclusao === "logo"
-                    ? "Excluir logo?"
-                    : "Excluir assinatura do diretor?"}
+                    ? t(
+                        "logo.deleteModal.title"
+                      )
+                    : t(
+                        "signature.deleteModal.title"
+                      )}
                 </h2>
 
                 <p className="phanyx-modal-imagem-texto mt-2 text-sm leading-6">
                   {confirmacaoExclusao === "logo"
-                    ? "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
-                    : "A assinatura deixará de aparecer nos certificados e documentos institucionais."}
+                    ? t(
+                        "logo.deleteModal.description"
+                      )
+                    : t(
+                        "signature.deleteModal.description"
+                      )}
                 </p>
               </div>
             </div>
@@ -1339,7 +1356,9 @@ export default function ConfigInstituicaoPage() {
                 disabled={excluindoImagem}
                 className="phanyx-modal-imagem-cancelar rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Cancelar
+                {t(
+                  "common.cancel"
+                )}
               </button>
 
               <button
@@ -1350,7 +1369,13 @@ export default function ConfigInstituicaoPage() {
                 disabled={excluindoImagem}
                 className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {excluindoImagem ? "Excluindo..." : "Excluir"}
+                {excluindoImagem
+                  ? t(
+                      "common.deleting"
+                    )
+                  : t(
+                      "common.delete"
+                    )}
               </button>
             </div>
           </div>
@@ -1380,16 +1405,19 @@ export default function ConfigInstituicaoPage() {
 
       <div className="phanyx-config-instituicao max-w-7xl space-y-6 p-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            🏢 Configurações da Instituição
+          <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
+            {"\u{1F3E2}"}{" "}
+            {t("page.title")}
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Defina os dados institucionais usados em documentos, relatórios, PDFs e contratos.
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {t(
+              "page.description"
+            )}
           </p>
         </div>
 
         {mensagem && (
-          <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
             {mensagem}
           </div>
         )}
@@ -1397,13 +1425,15 @@ export default function ConfigInstituicaoPage() {
         <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
             <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
-              Dados institucionais
+              {t(
+                "sections.institutionalData"
+              )}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Nome fantasia
+                  {t("fields.tradeName.label")}
                 </label>
                 <input
                   value={form.nomeFantasia || ""}
@@ -1411,13 +1441,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, nomeFantasia: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Ex.: IBE"
+                  placeholder={t("fields.tradeName.placeholder")}
                 />
               </div>
 
               <div className="md:col-span-2">
   <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-    Nome da unidade principal
+    {t("fields.mainUnitName.label")}
   </label>
 
   <input
@@ -1429,17 +1459,22 @@ export default function ConfigInstituicaoPage() {
       }))
     }
     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-    placeholder="Ex.: SEDE - São José"
+    placeholder={t("fields.mainUnitName.placeholder")}
   />
 
   <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-    Usado na tag {"{{nomePolo}}"} quando o aluno não estiver vinculado a outro polo.
+    {t(
+      "fields.mainUnitName.hint",
+      {
+        tag: "{{nomePolo}}",
+      }
+    )}
   </p>
 </div>
 
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Razão social
+                  {t("fields.legalName.label")}
                 </label>
                 <input
                   value={form.razaoSocial || ""}
@@ -1447,13 +1482,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, razaoSocial: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Ex.: Instituto Batista de Educação"
+                  placeholder={t("fields.legalName.placeholder")}
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  CNPJ
+                  {t("fields.taxId.label")}
                 </label>
                 <input
                   value={form.cnpj || ""}
@@ -1501,7 +1536,7 @@ export default function ConfigInstituicaoPage() {
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  E-mail
+                  {t("fields.email.label")}
                 </label>
                 <input
                   value={form.email || ""}
@@ -1509,13 +1544,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, email: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="contato@instituicao.com"
+                  placeholder={t("fields.email.placeholder")}
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  CEP
+                  {t("fields.postalCode.label")}
                 </label>
                 <input
                   value={form.cep || ""}
@@ -1524,11 +1559,13 @@ export default function ConfigInstituicaoPage() {
                   }
                   onBlur={(e) => buscarEnderecoPorCep(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="00000-000"
+                  placeholder={t("fields.postalCode.placeholder")}
                 />
                 {buscandoCep && (
                   <p className="mt-1 text-xs text-slate-500">
-                    Buscando endereço pelo CEP...
+                    {t(
+                      "fields.postalCode.searching"
+                    )}
                   </p>
                 )}
               </div>
@@ -1659,7 +1696,7 @@ export default function ConfigInstituicaoPage() {
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Estado
+                  {t("fields.state.label")}
                 </label>
                 <input
                   value={form.estado || ""}
@@ -1667,13 +1704,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, estado: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="SC"
+                  placeholder={t("fields.state.placeholder")}
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Endereço
+                  {t("fields.address.label")}
                 </label>
                 <input
                   value={form.endereco || ""}
@@ -1681,13 +1718,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, endereco: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Rua, número, bairro"
+                  placeholder={t("fields.address.placeholder")}
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Número
+                  {t("fields.number.label")}
                 </label>
                 <input
                   value={form.numero || ""}
@@ -1695,13 +1732,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, numero: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Ex.: 398"
+                  placeholder={t("fields.number.placeholder")}
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Cidade
+                  {t("fields.city.label")}
                 </label>
                 <input
                   value={form.cidade || ""}
@@ -1709,13 +1746,13 @@ export default function ConfigInstituicaoPage() {
                     setForm((prev) => ({ ...prev, cidade: e.target.value }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="São José"
+                  placeholder={t("fields.city.placeholder")}
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Responsável legal
+                  {t("fields.legalRepresentative.label")}
                 </label>
                 <input
                   value={form.responsavelNome || ""}
@@ -1726,13 +1763,13 @@ export default function ConfigInstituicaoPage() {
                     }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Nome do responsável"
+                  placeholder={t("fields.legalRepresentative.placeholder")}
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Cargo do responsável
+                  {t("fields.representativeRole.label")}
                 </label>
                 <input
                   value={form.responsavelCargo || ""}
@@ -1743,13 +1780,13 @@ export default function ConfigInstituicaoPage() {
                     }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Diretor(a)"
+                  placeholder={t("fields.representativeRole.placeholder")}
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Cidade de assinatura
+                  {t("fields.signatureCity.label")}
                 </label>
                 <input
                   value={form.cidadeAssinatura || ""}
@@ -1760,13 +1797,13 @@ export default function ConfigInstituicaoPage() {
                     }))
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Ex.: Florianópolis"
+                  placeholder={t("fields.signatureCity.placeholder")}
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Observações contratuais
+                  {t("fields.contractNotes.label")}
                 </label>
                 <textarea
                   value={form.observacoesContrato || ""}
@@ -1778,25 +1815,30 @@ export default function ConfigInstituicaoPage() {
                   }
                   rows={3}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="Informações adicionais do contrato"
+                  placeholder={t("fields.contractNotes.placeholder")}
                 />
               </div>
 
-              <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+              <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30">
                 <h3 className="text-sm font-bold text-blue-900">
-                  Modelos de contrato
+                  {t(
+                    "contractTemplates.title"
+                  )}
                 </h3>
 
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  Gerencie os modelos institucionais em Configurações → Documentos Institucionais → Templates de Documentos.
-                  Esses templates serão usados para contratos, declarações, comprovantes, recibos e demais documentos gerados pelo PHANYX.
+                  {t(
+                    "contractTemplates.description"
+                  )}
                 </p>
 
                 <Link
                   href="/admin/documentos/templates"
                   className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                 >
-                  Gerenciar templates de documentos
+                  {t(
+                    "contractTemplates.action"
+                  )}
                 </Link>
               </div>
             </div>
@@ -1807,16 +1849,20 @@ export default function ConfigInstituicaoPage() {
                 disabled={salvando}
                 className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {salvando ? "Salvando..." : "Salvar configurações"}
+                {salvando
+                  ? t("actions.saving")
+                  : t(
+                      "actions.save"
+                    )}
               </button>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div className="relative mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                  Logo
+                  {t("logo.title")}
                 </h2>
 
                 <div className="flex items-center gap-2">
@@ -1845,8 +1891,8 @@ export default function ConfigInstituicaoPage() {
                           setMenuLogoAberto((aberto) => !aberto);
                           setMenuAssinaturaAberto(false);
                         }}
-                        aria-label="Editar logo"
-                        title="Editar logo"
+                        aria-label={t("logo.edit")}
+                        title={t("logo.edit")}
                         className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
                       >
                         ✏️
@@ -1863,7 +1909,7 @@ export default function ConfigInstituicaoPage() {
                             className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
                           >
                             <span aria-hidden="true">🔄</span>
-                            <span>Trocar logo</span>
+                            <span>{t("logo.change")}</span>
                           </button>
 
                           <button
@@ -1875,7 +1921,7 @@ export default function ConfigInstituicaoPage() {
                             className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
                           >
                             <span aria-hidden="true">🗑️</span>
-                            <span>Excluir logo</span>
+                            <span>{t("logo.delete")}</span>
                           </button>
                         </div>
                       )}
@@ -1906,11 +1952,11 @@ export default function ConfigInstituicaoPage() {
                     </p>
 
                     <p>
-                      <strong>Formatos aceitos:</strong> PNG, JPG, JPEG e WEBP.
+                      <strong>{t("logo.acceptedFormatsLabel")}</strong>{" "}{t("logo.acceptedFormats")}.
                     </p>
 
                     <p>
-                      <strong>Tamanho recomendado:</strong> entre 800 e 1.500 pixels
+                      <strong>{t("logo.recommendedSizeLabel")}</strong>{" "}{t("logo.recommendedSize")}
                       no lado maior.
                     </p>
 
@@ -1946,7 +1992,7 @@ export default function ConfigInstituicaoPage() {
                   />
                 ) : (
                   <span className="text-sm text-slate-500">
-                    Nenhuma logo enviada
+                    {t("logo.empty")}
                   </span>
                 )}
               </div>
@@ -1968,38 +2014,38 @@ export default function ConfigInstituicaoPage() {
                   type="button"
                   onClick={() => inputFileLogoRef.current?.click()}
                   disabled={enviandoLogo}
-                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
                 >
-                  {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
+                  {enviandoLogo ? t("logo.sending") : t("logo.select")}
                 </button>
               )}
 
-              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
+              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2 dark:bg-slate-800 dark:text-slate-300">
                 <div>
                   {nomeArquivoLogo
-                    ? `Arquivo selecionado: ${nomeArquivoLogo}`
-                    : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
+                    ? t("common.selectedFile", { name: nomeArquivoLogo })
+                    : t("logo.acceptedFormats")}
                 </div>
 
-                <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
-                  Se sua logo estiver com fundo branco ou colorido, remova o fundo antes:
+                <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-100">
+                  {t("logo.backgroundRemoval.before")}
                   <a
                     href="https://phanyx.com.br/removedor-de-fundo"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 font-bold underline"
                   >
-                    Abrir removedor PHANYX
+                    {t("common.openBackgroundRemover")}
                   </a>
-                  . Depois faça o upload da imagem transparente.
+                  {" "}{t("logo.backgroundRemoval.after")}
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div className="relative mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                  Assinatura do diretor
+                  {t("signature.title")}
                 </h2>
 
                 {form.certificadoAssinaturaUrl && (
@@ -2012,8 +2058,8 @@ export default function ConfigInstituicaoPage() {
                         );
                         setMenuLogoAberto(false);
                       }}
-                      aria-label="Editar assinatura do diretor"
-                      title="Editar assinatura do diretor"
+                      aria-label={t("signature.edit")}
+                      title={t("signature.edit")}
                       className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
                     >
                       ✏️
@@ -2030,7 +2076,7 @@ export default function ConfigInstituicaoPage() {
                           className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
                         >
                           <span aria-hidden="true">🔄</span>
-                          <span>Trocar assinatura</span>
+                          <span>{t("signature.change")}</span>
                         </button>
 
                         <button
@@ -2042,7 +2088,7 @@ export default function ConfigInstituicaoPage() {
                           className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
                         >
                           <span aria-hidden="true">🗑️</span>
-                          <span>Excluir assinatura</span>
+                          <span>{t("signature.delete")}</span>
                         </button>
                       </div>
                     )}
@@ -2054,12 +2100,12 @@ export default function ConfigInstituicaoPage() {
                 {form.certificadoAssinaturaUrl ? (
                   <img
                     src={form.certificadoAssinaturaUrl}
-                    alt="Assinatura do diretor"
+                    alt={t("signature.alt")}
                     className="max-h-24 max-w-full object-contain"
                   />
                 ) : (
                   <span className="text-sm text-slate-500">
-                    Nenhuma assinatura enviada
+                    {t("signature.empty")}
                   </span>
                 )}
               </div>
@@ -2083,39 +2129,39 @@ export default function ConfigInstituicaoPage() {
                     inputFileAssinaturaRef.current?.click()
                   }
                   disabled={enviandoAssinatura}
-                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
                 >
                   {enviandoAssinatura
-                    ? "Enviando assinatura..."
-                    : "Selecionar assinatura"}
+                    ? t("signature.sending")
+                    : t("signature.select")}
                 </button>
               )}
 
-              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
+              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2 dark:bg-slate-800 dark:text-slate-300">
                 <div>
                   {nomeArquivoAssinatura
-                    ? `Arquivo selecionado: ${nomeArquivoAssinatura}`
-                    : "Formatos aceitos: PNG, JPG e JPEG. Dê preferência para PNG com fundo transparente."}
+                    ? t("common.selectedFile", { name: nomeArquivoAssinatura })
+                    : t("signature.acceptedFormats")}
                 </div>
 
-                <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
-                  Se sua assinatura estiver com fundo branco ou colorido, remova o fundo antes:
+                <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-100">
+                  {t("signature.backgroundRemoval.before")}
                   <a
                     href="https://phanyx.com.br/removedor-de-fundo"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 font-bold underline"
                   >
-                    Abrir removedor PHANYX
+                    {t("common.openBackgroundRemover")}
                   </a>
-                  . Depois faça o upload da assinatura transparente.
+                  {" "}{t("signature.backgroundRemoval.after")}
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="mb-3 text-lg font-semibold text-slate-800">
-                Papel Timbrado e Layout
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <h3 className="mb-3 text-lg font-semibold text-slate-800 dark:text-white">
+                {t("letterhead.title")}
               </h3>
 
               <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -2125,8 +2171,8 @@ export default function ConfigInstituicaoPage() {
                   onClick={() => setModoLayout("SIMPLES")}
                   className={`cfg-layout-card ${modoLayout === "SIMPLES" ? "ativo" : ""}`}
                 >
-                  <div className="text-sm font-semibold">Sem papel</div>
-                  <p className="mt-1 text-[11px]">Layout simples</p>
+                  <div className="text-sm font-semibold">{t("letterhead.modes.simple.title")}</div>
+                  <p className="mt-1 text-[11px]">{t("letterhead.modes.simple.subtitle")}</p>
                 </button>
 
                 <button
@@ -2134,8 +2180,8 @@ export default function ConfigInstituicaoPage() {
                   onClick={() => setModoLayout("PHANYX")}
                   className={`cfg-layout-card ${modoLayout === "PHANYX" ? "ativo" : ""}`}
                 >
-                  <div className="text-sm font-semibold">Modelo PHANYX</div>
-                  <p className="mt-1 text-[11px]">Pronto para uso</p>
+                  <div className="text-sm font-semibold">{t("letterhead.modes.phanyx.title")}</div>
+                  <p className="mt-1 text-[11px]">{t("letterhead.modes.phanyx.subtitle")}</p>
                 </button>
 
                 <button
@@ -2143,8 +2189,8 @@ export default function ConfigInstituicaoPage() {
                   onClick={() => setModoLayout("PERSONALIZADO")}
                   className={`cfg-layout-card ${modoLayout === "PERSONALIZADO" ? "ativo" : ""}`}
                 >
-                  <div className="text-sm font-semibold">Papel próprio</div>
-                  <p className="mt-1 text-[11px]">Arte institucional</p>
+                  <div className="text-sm font-semibold">{t("letterhead.modes.custom.title")}</div>
+                  <p className="mt-1 text-[11px]">{t("letterhead.modes.custom.subtitle")}</p>
                 </button>
 
               </div>
@@ -2153,30 +2199,30 @@ export default function ConfigInstituicaoPage() {
                 <div className="grid gap-3">
                   <LayoutCard
                     value="PHANYX_MODERNO"
-                    titulo="PHANYX — Executivo"
-                    subtitulo="Moderno"
-                    bullets={["Faixa escura", "Barra lateral", "Premium"]}
+                    titulo={t("letterhead.presets.phanyx.executive.title")}
+                    subtitulo={t("letterhead.presets.phanyx.executive.subtitle")}
+                    bullets={[t("letterhead.presets.phanyx.executive.bullets.first"), t("letterhead.presets.phanyx.executive.bullets.second"), t("letterhead.presets.phanyx.executive.bullets.third")]}
                   />
 
                   <LayoutCard
                     value="PHANYX_ACADEMICO"
-                    titulo="PHANYX — Acadêmico"
-                    subtitulo="Elegante"
-                    bullets={["Linhas finas", "Mais limpo", "Formal"]}
+                    titulo={t("letterhead.presets.phanyx.academic.title")}
+                    subtitulo={t("letterhead.presets.phanyx.academic.subtitle")}
+                    bullets={[t("letterhead.presets.phanyx.academic.bullets.first"), t("letterhead.presets.phanyx.academic.bullets.second"), t("letterhead.presets.phanyx.academic.bullets.third")]}
                   />
 
                   <LayoutCard
                     value="PHANYX_CLASSICO"
-                    titulo="PHANYX — Clássico"
-                    subtitulo="Institucional"
-                    bullets={["Cabeçalho forte", "Rodapé forte", "Premium"]}
+                    titulo={t("letterhead.presets.phanyx.classic.title")}
+                    subtitulo={t("letterhead.presets.phanyx.classic.subtitle")}
+                    bullets={[t("letterhead.presets.phanyx.classic.bullets.first"), t("letterhead.presets.phanyx.classic.bullets.second"), t("letterhead.presets.phanyx.classic.bullets.third")]}
                   />
                 </div>
               )}
 
               {modoLayout === "PERSONALIZADO" && (
                 <div className="space-y-4">
-                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
                     <input
                       type="checkbox"
                       checked={form.usarPapelTimbrado || false}
@@ -2187,29 +2233,29 @@ export default function ConfigInstituicaoPage() {
                         }))
                       }
                     />
-                    Ativar uso da imagem enviada
+                    {t("letterhead.activateUploaded")}
                   </label>
 
                   <div className="grid gap-3">
                     <LayoutCard
                       value="PERSONALIZADO_CLASSICO"
-                      titulo="Personalizado — Clássico"
-                      subtitulo="Discreto"
-                      bullets={["Sóbrio", "Escala neutra"]}
+                      titulo={t("letterhead.presets.custom.classic.title")}
+                      subtitulo={t("letterhead.presets.custom.classic.subtitle")}
+                      bullets={[t("letterhead.presets.custom.classic.bullets.first"), t("letterhead.presets.custom.classic.bullets.second")]}
                     />
 
                     <LayoutCard
                       value="PERSONALIZADO_MODERNO"
-                      titulo="Personalizado — Moderno"
-                      subtitulo="Mais visual"
-                      bullets={["Colorido", "Mais forte"]}
+                      titulo={t("letterhead.presets.custom.modern.title")}
+                      subtitulo={t("letterhead.presets.custom.modern.subtitle")}
+                      bullets={[t("letterhead.presets.custom.modern.bullets.first"), t("letterhead.presets.custom.modern.bullets.second")]}
                     />
 
                     <LayoutCard
                       value="PERSONALIZADO_MARCA"
-                      titulo="Personalizado — Marca d'água"
-                      subtitulo="Elegante"
-                      bullets={["Fundo leve", "Boa leitura"]}
+                      titulo={t("letterhead.presets.custom.watermark.title")}
+                      subtitulo={t("letterhead.presets.custom.watermark.subtitle")}
+                      bullets={[t("letterhead.presets.custom.watermark.bullets.first"), t("letterhead.presets.custom.watermark.bullets.second")]}
                     />
                   </div>
 
@@ -2232,27 +2278,27 @@ export default function ConfigInstituicaoPage() {
                     className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                   >
                     {enviandoPapelTimbrado
-                      ? "Enviando papel timbrado..."
-                      : "Selecionar papel timbrado"}
+                      ? t("letterhead.sending")
+                      : t("letterhead.select")}
                   </button>
 
-                  <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                  <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                     {nomeArquivoPapelTimbrado
-                      ? `Arquivo selecionado: ${nomeArquivoPapelTimbrado}`
-                      : "Nenhum arquivo enviado ainda"}
+                      ? t("common.selectedFile", { name: nomeArquivoPapelTimbrado })
+                      : t("letterhead.noFile")}
                   </div>
                 </div>
               )}
 
               {modoLayout === "SIMPLES" && (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
-                  Documento sem papel timbrado e sem identidade visual.
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  {t("letterhead.simpleDescription")}
                 </div>
               )}
 
               <div className="mt-5">
                 <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Cor dos relatórios (PDF e Excel)
+                  {t("reports.colorLabel")}
                 </label>
 
                 <select
@@ -2265,33 +2311,33 @@ export default function ConfigInstituicaoPage() {
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 >
-                  <option value="AZUL">🔵 Azul</option>
-                  <option value="VERDE">🟢 Verde</option>
-                  <option value="PRETO">⚫ Preto</option>
-                  <option value="CINZA">⚪ Cinza</option>
-                  <option value="AMARELO">🟡 Amarelo</option>
-                  <option value="ROXO">🟣 Roxo</option>
-                  <option value="ROSA">🌸 Rosa</option>
-                  <option value="VERMELHO">🔴 Vermelho</option>
+                  <option value="AZUL">{"\u{1F535}"} {t("reports.colors.blue")}</option>
+                  <option value="VERDE">{"\u{1F7E2}"} {t("reports.colors.green")}</option>
+                  <option value="PRETO">{"\u26AB"} {t("reports.colors.black")}</option>
+                  <option value="CINZA">{"\u26AA"} {t("reports.colors.gray")}</option>
+                  <option value="AMARELO">{"\u{1F7E1}"} {t("reports.colors.yellow")}</option>
+                  <option value="ROXO">{"\u{1F7E3}"} {t("reports.colors.purple")}</option>
+                  <option value="ROSA">{"\u{1F338}"} {t("reports.colors.pink")}</option>
+                  <option value="VERMELHO">{"\u{1F534}"} {t("reports.colors.red")}</option>
                 </select>
 
-                <p className="mt-2 text-xs text-slate-500">
-                  Esta cor será utilizada automaticamente no cabeçalho dos PDFs e planilhas Excel da instituição.
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  {t("reports.colorHelp")}
                 </p>
               </div>
 
               <div className="mt-5">
                 <div className="mb-2 flex items-center justify-between">
-                  <label className="block text-sm font-medium text-slate-700">
-                    Pré-visualização
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("reports.preview")}
                   </label>
 
                   <button
                     type="button"
                     onClick={() => setPreviewAmpliada(true)}
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
-                    Ampliar
+                    {t("reports.enlarge")}
                   </button>
                 </div>
 
@@ -2301,8 +2347,8 @@ export default function ConfigInstituicaoPage() {
                   </div>
                 </div>
 
-                <p className="mt-2 text-center text-xs text-slate-500">
-                  A prévia muda conforme o modelo selecionado.
+                <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+                  {t("reports.previewCaption")}
                 </p>
 
               </div>
@@ -2310,15 +2356,19 @@ export default function ConfigInstituicaoPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="max-w-3xl">
-              <h2 className="text-lg font-semibold text-slate-800">
-                🏢 Polos / Unidades
+              <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                {"\u{1F3E2}"}{" "}
+                {t(
+                  "poles.title"
+                )}
               </h2>
-              <p className="mt-1 text-sm text-slate-600">
-                Se sua instituição possui filiais, campi ou unidades, cadastre os
-                polos que serão usados depois em turmas e professores.
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {t(
+                  "poles.description"
+                )}
               </p>
             </div>
 
@@ -2326,7 +2376,9 @@ export default function ConfigInstituicaoPage() {
               href="/admin/polos"
               className="phanyx-primary-action"
             >
-              Gerenciar polos
+              {t(
+                "poles.action"
+              )}
             </Link>
           </div>
         </div>
