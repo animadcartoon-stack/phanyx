@@ -2898,8 +2898,8 @@ export default function EditorSecaoHistoricoPHANYX({
     obterEstadoPosicaoLivreTabela();
 
   return (
-    <div className="phanyx-history-section-editor mt-3 overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
-      <div className="border-b border-slate-200 bg-slate-50 p-2.5 dark:border-slate-700 dark:bg-slate-900">
+    <div className="phanyx-history-section-editor mt-3 overflow-visible rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
+      <div className="phanyx-history-toolbar-sticky sticky top-2 z-[2147482000] rounded-t-xl border-b border-slate-200 bg-slate-50 p-2.5 shadow-lg dark:border-slate-700 dark:bg-slate-900">
         <div className="mb-2 text-[10px] font-black uppercase tracking-[0.14em] text-slate-700 dark:text-slate-200">
           {t("toolbar.title")}
         </div>
@@ -3801,7 +3801,7 @@ export default function EditorSecaoHistoricoPHANYX({
                         </button>
                       </div>
 
-                      <p className="mt-2 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      <p className="phanyx-table-help-strong mt-2 text-[10px] font-semibold leading-relaxed">
                         {t(
                           "toolbar.table.rowResizeHelp"
                         )}
@@ -3809,7 +3809,7 @@ export default function EditorSecaoHistoricoPHANYX({
                     </div>
                   </div>
 
-                  <p className="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+                  <p className="phanyx-table-help-strong text-[10px] font-semibold leading-relaxed">
                     {t(
                       "toolbar.table.alignmentHelp"
                     )}
@@ -3832,6 +3832,21 @@ export default function EditorSecaoHistoricoPHANYX({
         .phanyx-table-tools-panel :where(div, span, label):not(button *) {
           color: #0f172a !important;
           opacity: 1 !important;
+        }
+
+        
+        .phanyx-table-tools-panel p.phanyx-table-help-strong {
+          color: #334155 !important;
+          opacity: 1 !important;
+          -webkit-text-fill-color: #334155 !important;
+        }
+
+        .dark
+          .phanyx-table-tools-panel
+          p.phanyx-table-help-strong {
+          color: #cbd5e1 !important;
+          opacity: 1 !important;
+          -webkit-text-fill-color: #cbd5e1 !important;
         }
 
         .phanyx-table-tools-panel p {
@@ -3865,6 +3880,26 @@ export default function EditorSecaoHistoricoPHANYX({
           color: #ffffff !important;
           background-color: #0f172a !important;
           -webkit-text-fill-color: #ffffff !important;
+        }
+
+                /*
+         * Quando a barra acompanha a rolagem,
+         * o painel da tabela nao deve ocupar
+         * quase toda a altura da tela.
+         */
+        .phanyx-history-toolbar-sticky
+          .phanyx-table-tools-panel {
+          max-height: 34vh !important;
+          overflow-y: auto !important;
+          overscroll-behavior: contain;
+          scrollbar-gutter: stable;
+        }
+
+        @media (max-height: 760px) {
+          .phanyx-history-toolbar-sticky
+            .phanyx-table-tools-panel {
+            max-height: 28vh !important;
+          }
         }
 
         .phanyx-history-section-editor table.phanyx-doc-table {

@@ -3580,32 +3580,15 @@ export default function EditorTemplatePHANYX({
         }
       );
 
-      let ultimoBlocoComConteudo =
-        -1;
-
-      for (
-        let index =
-          blocosDocumento.length - 1;
-        index >= 0;
-        index -= 1
-      ) {
-        const bloco =
-          blocosDocumento[index];
-
-        if (
-          bloco.node.type.name !==
-          "pageBreak" &&
-          blocoPossuiConteudoVisivel(
-            bloco.node
-          )
-        ) {
-          ultimoBlocoComConteudo =
-            index;
-
-          break;
-        }
-      }
-
+      /*
+       * Todos os blocos visuais contam para a
+       * pagina??o, inclusive par?grafos vazios.
+       *
+       * Isso ? necess?rio para que, ao pressionar
+       * Enter durante a edi??o, o editor crie a
+       * pr?xima folha assim que a ?rea ?til A4
+       * for ultrapassada.
+       */
       const quebrasAtuais:
         Array<{
           posicaoReal: number;
@@ -3681,15 +3664,7 @@ export default function EditorTemplatePHANYX({
               margemInferior;
           }
 
-          const blocoVazioNoFinal =
-            indiceBloco >
-            ultimoBlocoComConteudo &&
-            !blocoPossuiConteudoVisivel(
-              node
-            );
-
           if (
-            !blocoVazioNoFinal &&
             alturaPaginaAtual > 0 &&
             alturaPaginaAtual +
             alturaElemento >
@@ -3904,6 +3879,10 @@ export default function EditorTemplatePHANYX({
   }, []);
 
   useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
     const container =
       barraContainerRef.current;
 
@@ -4094,7 +4073,7 @@ export default function EditorTemplatePHANYX({
         );
       }
     };
-  }, []);
+  }, [editor]);
 
 
   useEffect(() => {
@@ -4842,25 +4821,7 @@ export default function EditorTemplatePHANYX({
       <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
         <div className="flex flex-wrap gap-2">
           <div
-            className={`w-full border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800 ${barraFlutuante
-              ? "z-[999999] shadow-2xl"
-              : "relative z-40"
-              }`}
-            style={
-              barraFlutuante
-                ? {
-                  position: "fixed",
-                  top: "8px",
-                  left:
-                    `${barraMedidas.left}px`,
-                  width:
-                    `${barraMedidas.width}px`,
-                  maxHeight:
-                    "calc(100vh - 16px)",
-                  overflowY: "auto",
-                }
-                : undefined
-            }
+            className="relative z-40 w-full border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
           >
             <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-950 dark:text-white">
               Ferramentas de edição
@@ -5985,7 +5946,7 @@ export default function EditorTemplatePHANYX({
                             </button>
                           </div>
 
-                          <p className="mt-2 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                          <p className="phanyx-table-help-strong mt-2 text-[11px] font-semibold leading-relaxed">
                             {tToolbar(
                               "table.rowResizeHelp"
                             )}
@@ -5993,7 +5954,7 @@ export default function EditorTemplatePHANYX({
                         </div>
                       </div>
 
-                      <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      <p className="phanyx-table-help-strong text-[11px] font-semibold leading-relaxed">
                         {tToolbar(
                           "table.alignmentHelp"
                         )}
@@ -6051,6 +6012,32 @@ export default function EditorTemplatePHANYX({
         )}
 
       <style jsx global>{`
+        /*
+         * Na barra flutuante, a ferramenta de tabela
+         * ganha sua propria area de rolagem.
+         *
+         * Assim os controles continuam acessiveis sem
+         * esconder quase toda a folha A4 em edicao.
+         */
+        .phanyx-editor-toolbar-portal
+          .phanyx-table-tools-panel {
+          max-height: 34vh !important;
+          overflow-y: auto !important;
+          overscroll-behavior: contain;
+          scrollbar-gutter: stable;
+        }
+
+        /*
+         * Em telas de menor altura deixamos ainda mais
+         * espaco livre para visualizar a folha.
+         */
+        @media (max-height: 760px) {
+          .phanyx-editor-toolbar-portal
+            .phanyx-table-tools-panel {
+            max-height: 28vh !important;
+          }
+        }
+
         /* Contraste do painel da ferramenta Tabela */
         .phanyx-table-tools-panel {
           color: #0f172a !important;
@@ -6061,6 +6048,21 @@ export default function EditorTemplatePHANYX({
         .phanyx-table-tools-panel :where(div, span, label):not(button *) {
           color: #0f172a !important;
           opacity: 1 !important;
+        }
+
+        
+        .phanyx-table-tools-panel p.phanyx-table-help-strong {
+          color: #334155 !important;
+          opacity: 1 !important;
+          -webkit-text-fill-color: #334155 !important;
+        }
+
+        .dark
+          .phanyx-table-tools-panel
+          p.phanyx-table-help-strong {
+          color: #cbd5e1 !important;
+          opacity: 1 !important;
+          -webkit-text-fill-color: #cbd5e1 !important;
         }
 
         .phanyx-table-tools-panel p {
