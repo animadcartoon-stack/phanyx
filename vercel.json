@@ -29,6 +29,10 @@
     {
       "path": "/api/internal/student-success/reanalisar-prazos",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/internal/biblioteca/reservas/processar-expiradas",
+      "schedule": "0 * * * *"
     }
   ]
 }

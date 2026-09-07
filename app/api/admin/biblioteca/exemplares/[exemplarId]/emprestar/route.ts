@@ -18,6 +18,8 @@ import {
   respostaErroBiblioteca,
 } from "@/lib/biblioteca-acesso";
 
+import { processarExpiracaoReservaDisponivel } from "@/lib/biblioteca/processar-expiracao-reserva";
+
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -289,6 +291,91 @@ export async function POST(
       request.headers.get(
         "user-agent"
       );
+    /*
+     * Antes de iniciar o emprestimo,
+     * trata uma eventual reserva vencida
+     * que ainda esteja segurando este exemplar.
+     *
+     * A expiracao ocorre em uma transacao
+     * propria para que seja confirmada no
+     * banco antes de retornarmos o erro 409.
+     */
+    const agoraReserva =
+      new Date();
+
+    const reservaVencidaDoExemplar =
+      await prisma.bibliotecaReserva.findFirst({
+        where: {
+          instituicaoId:
+            contexto.instituicaoId,
+
+          exemplarId,
+
+          status:
+            StatusReservaBiblioteca.DISPONIVEL,
+
+          expiraEm: {
+            not: null,
+            lte: agoraReserva,
+          },
+        },
+
+        orderBy: [
+          {
+            expiraEm: "asc",
+          },
+          {
+            id: "asc",
+          },
+        ],
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (reservaVencidaDoExemplar) {
+      const resultadoExpiracao =
+        await prisma.$transaction(
+          async (transacao) => {
+            return processarExpiracaoReservaDisponivel({
+              transacao,
+
+              reservaId:
+                reservaVencidaDoExemplar.id,
+
+              agora:
+                agoraReserva,
+
+              origem:
+                "api_admin_biblioteca_exemplar_emprestar",
+
+              usuarioId:
+                usuario.id,
+
+              ip,
+
+              userAgent,
+            });
+          },
+          {
+            maxWait: 5_000,
+            timeout: 10_000,
+          }
+        );
+
+      if (
+        resultadoExpiracao.processada
+      ) {
+        falhar(
+          409,
+          "O prazo desta reserva ja expirou. A situacao do exemplar foi atualizada.",
+          "RESERVA_EXPIRADA"
+        );
+      }
+    }
+
+
 
     const resultado =
       await prisma.$transaction(
