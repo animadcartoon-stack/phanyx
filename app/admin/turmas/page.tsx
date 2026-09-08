@@ -76,6 +76,7 @@ interface Turma {
   professorId?: number | null;
   professor?: Professor | null;
   disciplinas?: Disciplina[];
+  matriculados?: number;
   _count?: {
     itensMatricula: number;
   };
@@ -1706,7 +1707,7 @@ function AdminTurmasPage() {
             </div>
           ) : (
             turmasFiltradas.map((turma) => {
-              const matriculados = turma._count?.itensMatricula || 0;
+              const matriculados = turma.matriculados ?? 0;
               const capacidadeMinima = turma.capacidadeMinima ?? null;
               const capacidadeMaxima = turma.capacidadeMaxima ?? null;
               const vagasRestantes =

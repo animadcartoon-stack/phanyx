@@ -74,8 +74,48 @@ export async function GET() {
       },
     });
 
+    // Quantidade REAL de matrículas por turma.
+    // ItemMatricula representa disciplina x matrícula, portanto
+    // não pode ser usado diretamente como quantidade de alunos.
+    const turmaIds = turmas.map((turma) => turma.id);
+
+    const ocupacoes =
+      turmaIds.length > 0
+        ? await prisma.itemMatricula.findMany({
+            where: {
+              instituicaoId: user.instituicaoId,
+              turmaId: {
+                in: turmaIds,
+              },
+              status: {
+                not: "CANCELADO",
+              },
+            },
+            select: {
+              turmaId: true,
+              matriculaId: true,
+            },
+            distinct: ["turmaId", "matriculaId"],
+          })
+        : [];
+
+    const matriculadosPorTurma = new Map<number, number>();
+
+    for (const item of ocupacoes) {
+      if (typeof item.turmaId !== "number") {
+        continue;
+      }
+
+      matriculadosPorTurma.set(
+        item.turmaId,
+        (matriculadosPorTurma.get(item.turmaId) ?? 0) + 1
+      );
+    }
+
     const turmasFormatadas =
       turmas.map((turma) => ({
+        matriculados:
+          matriculadosPorTurma.get(turma.id) ?? 0,
         ...turma,
 
         disciplinas:
