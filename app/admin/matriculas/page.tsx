@@ -1506,9 +1506,17 @@ function AdminMatriculasPage() {
               : null,
 
           valorMensalidade:
-            Number(valorMensalidade || 0),
-          quantidadeParcelas: Number(quantidadeParcelas || 0),
-          dataPrimeiroVencimento,
+            valorMensalidade.trim() === ""
+              ? null
+              : Number(valorMensalidade),
+
+          quantidadeParcelas:
+            quantidadeParcelas.trim() === ""
+              ? null
+              : Number(quantidadeParcelas),
+
+          dataPrimeiroVencimento:
+            dataPrimeiroVencimento || null,
         }),
       });
 

@@ -530,11 +530,11 @@ type MatriculaBody = {
   valorMatricula?: number | string;
   valorPagoMatricula?: number | string;
   formaPagamentoMatricula?: string | null;
-  valorMensalidade?: number | string;
-  quantidadeParcelas?: number | string;
-  quantidadeMensalidades?: number | string;
-  dataPrimeiroVencimento?: string;
-  primeiroVencimento?: string;
+  valorMensalidade?: number | string | null;
+  quantidadeParcelas?: number | string | null;
+  quantidadeMensalidades?: number | string | null;
+  dataPrimeiroVencimento?: string | null;
+  primeiroVencimento?: string | null;
   nomeSocial?: string;
   genero?: string;
   status?: string;
@@ -2379,21 +2379,71 @@ export async function POST(request: Request) {
       0
     );
 
-    const valorMensalidade = Number(
-      body.valorMensalidade ?? curso?.valorMensalidade ?? 0
-    );
+    const valorMensalidadeFoiInformado =
+      body.valorMensalidade !== undefined &&
+      body.valorMensalidade !== null &&
+      String(body.valorMensalidade).trim() !== "";
 
-    const quantidadeParcelas = Number(
+    const quantidadeMensalidadesBruta =
       body.quantidadeParcelas ??
-      body.quantidadeMensalidades ??
-      curso?.quantidadeParcelas ??
-      0
-    );
+      body.quantidadeMensalidades;
+
+    const quantidadeMensalidadesFoiInformada =
+      quantidadeMensalidadesBruta !== undefined &&
+      quantidadeMensalidadesBruta !== null &&
+      String(quantidadeMensalidadesBruta).trim() !== "";
+
+    const primeiroVencimentoBruto =
+      body.dataPrimeiroVencimento ??
+      body.primeiroVencimento;
+
+    const primeiroVencimentoFoiInformado =
+      primeiroVencimentoBruto !== undefined &&
+      primeiroVencimentoBruto !== null &&
+      String(primeiroVencimentoBruto).trim() !== "";
+
+    const informouPlanoMensalidades =
+      valorMensalidadeFoiInformado ||
+      quantidadeMensalidadesFoiInformada ||
+      primeiroVencimentoFoiInformado;
+
+    const valorMensalidade =
+      valorMensalidadeFoiInformado
+        ? Number(body.valorMensalidade)
+        : null;
+
+    const quantidadeParcelas =
+      quantidadeMensalidadesFoiInformada
+        ? Number(quantidadeMensalidadesBruta)
+        : null;
 
     const dataPrimeiroVencimento =
-      toDateOrNull(body.dataPrimeiroVencimento) ??
-      toDateOrNull(body.primeiroVencimento) ??
-      new Date();
+      primeiroVencimentoFoiInformado
+        ? toDateOrNull(primeiroVencimentoBruto)
+        : null;
+
+    if (
+      informouPlanoMensalidades &&
+      (
+        valorMensalidade === null ||
+        !Number.isFinite(valorMensalidade) ||
+        valorMensalidade <= 0 ||
+        quantidadeParcelas === null ||
+        !Number.isInteger(quantidadeParcelas) ||
+        quantidadeParcelas <= 0 ||
+        !dataPrimeiroVencimento
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Para gerar as mensalidades, informe um valor maior que zero, uma quantidade inteira maior que zero e o primeiro vencimento.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
     const statusRecebido = String(body.status || "ATIVA").trim().toUpperCase();
 
@@ -2522,18 +2572,10 @@ export async function POST(request: Request) {
                     : null,
 
                 valorMensalidade:
-                  Number.isFinite(
-                    valorMensalidade
-                  )
-                    ? valorMensalidade
-                    : null,
+                  valorMensalidade,
 
                 quantidadeMensalidades:
-                  Number.isFinite(
-                    quantidadeParcelas
-                  )
-                    ? quantidadeParcelas
-                    : null,
+                  quantidadeParcelas,
 
                 primeiroVencimento:
                   dataPrimeiroVencimento,
@@ -2739,8 +2781,11 @@ Assinatura da instituição: ________________________________
            * Geração das mensalidades.
            */
           if (
+            valorMensalidade !== null &&
             valorMensalidade > 0 &&
-            quantidadeParcelas > 0
+            quantidadeParcelas !== null &&
+            quantidadeParcelas > 0 &&
+            dataPrimeiroVencimento
           ) {
             for (
               let indice = 0;
