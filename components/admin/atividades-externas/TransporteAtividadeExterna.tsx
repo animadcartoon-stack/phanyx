@@ -891,6 +891,12 @@ export default function TransporteAtividadeExterna({
       };
 
       if (!resposta.ok || !dados.ok) {
+        if (dados.error === "STATUS_VEICULO_INCOMPATIVEL_COM_PASSAGEIRO") {
+          setErro(t("passengerAssignment.vehicleStatusIncompatible"));
+
+          return;
+        }
+
         if (dados.error === "TRANSICAO_STATUS_PASSAGEIRO_INVALIDA") {
           setErro(t("passengerAssignment.invalidStatusTransition"));
 
@@ -1858,8 +1864,6 @@ export default function TransporteAtividadeExterna({
                                     </button>
                                   ) : null}
 
-                                 
-
                                   {vinculo.status === "CONFIRMADO" ? (
                                     <button
                                       type="button"
@@ -1921,32 +1925,27 @@ export default function TransporteAtividadeExterna({
                               ) : null}
                             </div>
 
-                             {vinculo.embarqueReal ||
-                                  vinculo.desembarqueReal ? (
-                                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium opacity-70">
-                                      {vinculo.embarqueReal ? (
-                                        <div>
-                                          <strong>
-                                            {t("vehicleAssignment.boardingAt")}:
-                                          </strong>{" "}
-                                          {formatarDataHora(
-                                            vinculo.embarqueReal,
-                                          )}
-                                        </div>
-                                      ) : null}
+                            {vinculo.embarqueReal || vinculo.desembarqueReal ? (
+                              <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium opacity-70">
+                                {vinculo.embarqueReal ? (
+                                  <div>
+                                    <strong>
+                                      {t("vehicleAssignment.boardingAt")}:
+                                    </strong>{" "}
+                                    {formatarDataHora(vinculo.embarqueReal)}
+                                  </div>
+                                ) : null}
 
-                                      {vinculo.desembarqueReal ? (
-                                        <div>
-                                          <strong>
-                                            {t("vehicleAssignment.arrivedAt")}:
-                                          </strong>{" "}
-                                          {formatarDataHora(
-                                            vinculo.desembarqueReal,
-                                          )}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  ) : null}
+                                {vinculo.desembarqueReal ? (
+                                  <div>
+                                    <strong>
+                                      {t("vehicleAssignment.arrivedAt")}:
+                                    </strong>{" "}
+                                    {formatarDataHora(vinculo.desembarqueReal)}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
 
                             <div className="mt-3 border-t pt-3">
                               <div className="text-xs font-black uppercase tracking-wide opacity-65">

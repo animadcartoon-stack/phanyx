@@ -39,9 +39,3 @@ ALTER TABLE "MobilidadeOfertaDocumentoRequisito" ADD CONSTRAINT "MobilidadeOfert
 
 -- AddForeignKey
 ALTER TABLE "MobilidadeOfertaDocumentoRequisito" ADD CONSTRAINT "MobilidadeOfertaDocumentoRequisito_ofertaId_fkey" FOREIGN KEY ("ofertaId") REFERENCES "MobilidadeOferta"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- RenameIndex
-ALTER INDEX "StudentSuccessAnaliseHistorico_instituicaoId_alunoId_analisadoE" RENAME TO "StudentSuccessAnaliseHistorico_instituicaoId_alunoId_analis_idx";
-
--- RenameIndex
-ALTER INDEX "StudentSuccessAnaliseHistorico_instituicaoId_nivelRisco_analisa" RENAME TO "StudentSuccessAnaliseHistorico_instituicaoId_nivelRisco_ana_idx";
