@@ -528,15 +528,15 @@ export default function CursoDetalhePage() {
       : "";
 
   if (loading) {
-    return <p className="text-gray-500">{t("detail.loading")}</p>;
+    return <p className="text-gray-500 dark:text-slate-400">{t("detail.loading")}</p>;
   }
 
   if (!curso) {
-    return <p className="text-red-600">{t("detail.notFound")}</p>;
+    return <p className="text-red-600 dark:text-red-300">{t("detail.notFound")}</p>;
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-slate-900 dark:text-slate-100">
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
@@ -550,10 +550,10 @@ export default function CursoDetalhePage() {
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             🎓 {t("detail.header.title")}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-slate-300">
             {t("detail.header.description")}
           </p>
         </div>
@@ -599,7 +599,7 @@ export default function CursoDetalhePage() {
             </div>
 
             <div className="shrink-0 rounded-xl border border-blue-200 bg-white p-3 text-sm text-slate-700 dark:border-blue-800 dark:bg-slate-950 dark:text-slate-300">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {t("detail.network.originCourse")}
               </p>
 
@@ -619,7 +619,7 @@ export default function CursoDetalhePage() {
         </div>
       )}
 
-      <div className="bg-white border rounded-xl p-6 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             {editandoCurso ? (
@@ -636,13 +636,13 @@ export default function CursoDetalhePage() {
                   onChange={(e) =>
                     setFormCurso({ ...formCurso, nome: e.target.value })
                   }
-                  className={`w-full rounded-lg border px-4 py-2 text-2xl font-semibold ${classeCampoAcademico}`}
+                  className={`w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-2xl font-semibold text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${classeCampoAcademico}`}
                   placeholder={t("detail.courseForm.namePlaceholder")}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.code")}
                     </label>
                     <input
@@ -652,13 +652,13 @@ export default function CursoDetalhePage() {
                       onChange={(e) =>
                         setFormCurso({ ...formCurso, codigo: e.target.value })
                       }
-                      className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
-                      placeholder="Ex: TEO-001"
+                      className={`w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${classeCampoAcademico}`}
+                      placeholder={t("detail.courseForm.examples.code")}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.modality")}
                     </label>
 
@@ -672,7 +672,7 @@ export default function CursoDetalhePage() {
                             e.target.value as ModalidadeCertificado,
                         })
                       }
-                      className={`phanyx-curso-modalidade-select phanyx-course-native-select w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
+                      className={`phanyx-curso-modalidade-select phanyx-course-native-select w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${classeCampoAcademico}`}
                     >
                       {OPCOES_MODALIDADE_CERTIFICADO.map((valor) => (
                         <option key={valor} value={valor}>
@@ -683,7 +683,7 @@ export default function CursoDetalhePage() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("detail.courseForm.semestersCount")}
                     </label>
                     <input
@@ -696,13 +696,13 @@ export default function CursoDetalhePage() {
                           quantidadeSemestres: e.target.value,
                         })
                       }
-                      className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
-                      placeholder="Ex: 6"
+                      className={`w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${classeCampoAcademico}`}
+                      placeholder={t("detail.courseForm.examples.semesters")}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.enrollmentValue")}
                     </label>
                     <input
@@ -715,13 +715,13 @@ export default function CursoDetalhePage() {
                           valorMatricula: e.target.value,
                         })
                       }
-                      className="w-full border rounded-lg px-4 py-2"
-                      placeholder="Ex: 20"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                      placeholder={t("detail.courseForm.examples.enrollmentValue")}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.monthlyValue")}
                     </label>
                     <input
@@ -734,13 +734,13 @@ export default function CursoDetalhePage() {
                           valorMensalidade: e.target.value,
                         })
                       }
-                      className="w-full border rounded-lg px-4 py-2"
-                      placeholder="Ex: 99.50"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                      placeholder={t("detail.courseForm.examples.monthlyValue")}
                     />
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.installments")}
                     </label>
                     <input
@@ -752,12 +752,12 @@ export default function CursoDetalhePage() {
                           quantidadeParcelas: e.target.value,
                         })
                       }
-                      className="w-full border rounded-lg px-4 py-2"
-                      placeholder="Ex: 6"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                      placeholder={t("detail.courseForm.examples.installments")}
                     />
                   </div>
 
-                  <label className={`mt-6 flex items-center gap-2 rounded-lg border px-4 py-2 ${cursoRecebidoDaRede
+                  <label className={`mt-6 flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 ${cursoRecebidoDaRede
                     ? "cursor-not-allowed bg-slate-100 text-slate-500 opacity-80 dark:bg-slate-900 dark:text-slate-400"
                     : ""
                     }`}>
@@ -782,7 +782,7 @@ export default function CursoDetalhePage() {
                   onChange={(e) =>
                     setFormCurso({ ...formCurso, descricao: e.target.value })
                   }
-                  className={`w-full rounded-lg border px-4 py-2 ${classeCampoAcademico}`}
+                  className={`w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${classeCampoAcademico}`}
                   rows={4}
                   placeholder={t("detail.courseForm.descriptionPlaceholder")}
                 />
@@ -804,7 +804,7 @@ export default function CursoDetalhePage() {
                   <button
                     type="button"
                     onClick={() => setEditandoCurso(false)}
-                    className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg"
+                    className="rounded-lg bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
                   >
                     {t("common.cancel")}
                   </button>
@@ -817,12 +817,12 @@ export default function CursoDetalhePage() {
                   onClick={() => setEditandoCurso(true)}
                   className="text-left"
                 >
-                  <h2 className="text-2xl font-semibold text-gray-900 hover:text-blue-700">
+                  <h2 className="text-2xl font-semibold text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-300">
                     {curso.nome}
                   </h2>
                 </button>
 
-                <div className="mt-3 space-y-1 text-sm text-gray-700">
+                <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-slate-300">
                   <p>{t("common.code")}: {curso.codigo || t("common.notInformed")}</p>
 
                   <p>
@@ -884,7 +884,7 @@ export default function CursoDetalhePage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white border rounded-xl p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <h3 className="text-xl font-semibold mb-4">+ {t("detail.semesters.addTitle")}</h3>
 
           <form
@@ -894,7 +894,7 @@ export default function CursoDetalhePage() {
             <input
               type="number"
               placeholder={t("detail.semesters.numberPlaceholder")}
-              className="border rounded-lg px-4 py-2"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
               value={novoSemestre.numero}
               onChange={(e) =>
                 setNovoSemestre({ ...novoSemestre, numero: e.target.value })
@@ -905,7 +905,7 @@ export default function CursoDetalhePage() {
             <input
               type="text"
               placeholder={t("detail.semesters.titlePlaceholder")}
-              className="border rounded-lg px-4 py-2"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
               value={novoSemestre.titulo}
               onChange={(e) =>
                 setNovoSemestre({ ...novoSemestre, titulo: e.target.value })
@@ -915,7 +915,7 @@ export default function CursoDetalhePage() {
             <input
               type="text"
               placeholder={t("detail.semesters.descriptionPlaceholder")}
-              className="border rounded-lg px-4 py-2"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
               value={novoSemestre.descricao}
               onChange={(e) =>
                 setNovoSemestre({ ...novoSemestre, descricao: e.target.value })
@@ -936,8 +936,8 @@ export default function CursoDetalhePage() {
       )}
 
       {semestresOrdenados.length === 0 ? (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-          <p className="text-yellow-800">
+        <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6 dark:border-yellow-900 dark:bg-yellow-950/40">
+          <p className="text-yellow-800 dark:text-yellow-200">
             {t("detail.semesters.none")}
           </p>
         </div>
@@ -948,7 +948,7 @@ export default function CursoDetalhePage() {
           return (
             <div
               key={semestre.id}
-              className="bg-white border rounded-xl p-6 shadow-sm"
+              className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
             >
               <button
                 type="button"
@@ -958,33 +958,33 @@ export default function CursoDetalhePage() {
                     [semestre.id]: !prev[semestre.id],
                   }))
                 }
-                className="mb-4 flex w-full items-center justify-between rounded-lg border bg-slate-50 px-4 py-3 text-left"
+                className="mb-4 flex w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-left dark:border-slate-700 dark:bg-slate-950"
               >
-                <span className="font-bold text-gray-900">
+                <span className="font-bold text-gray-900 dark:text-white">
                   {t("detail.semesters.semesterLabel", { number: semestre.numero })}
                   {semestre.titulo ? ` - ${semestre.titulo}` : ""}
                 </span>
 
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-slate-400">
                   {semestresAbertos[semestre.id] ? t("common.closeWithArrow") : t("common.openWithArrow")}
                 </span>
               </button>
               {semestresAbertos[semestre.id] && (
                 <>
                   <div className="mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
 
                       <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                             {t("detail.semesters.minimumWorkload")}
                           </label>
                           <input
                             type="number"
                             disabled={cursoRecebidoDaRede}
-                            placeholder="Ex: 200"
-                            className={`w-full rounded-lg border px-3 py-2 text-sm ${cursoRecebidoDaRede
+                            placeholder={t("detail.semesters.examples.minimumWorkload")}
+                            className={`w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${cursoRecebidoDaRede
                               ? "cursor-not-allowed bg-slate-100 opacity-80 dark:bg-slate-900"
                               : ""
                               }`}
@@ -1004,14 +1004,14 @@ export default function CursoDetalhePage() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                             {t("detail.semesters.maximumWorkload")}
                           </label>
                           <input
                             type="number"
                             disabled={cursoRecebidoDaRede}
-                            placeholder="Ex: 400"
-                            className={`w-full rounded-lg border px-3 py-2 text-sm ${cursoRecebidoDaRede
+                            placeholder={t("detail.semesters.examples.maximumWorkload")}
+                            className={`w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${cursoRecebidoDaRede
                               ? "cursor-not-allowed bg-slate-100 opacity-80 dark:bg-slate-900"
                               : ""
                               }`}
@@ -1037,19 +1037,19 @@ export default function CursoDetalhePage() {
                     </h3>
 
                     {semestre.descricao ? (
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="mt-1 text-sm text-gray-600 dark:text-slate-300">
                         {semestre.descricao}
                       </p>
                     ) : null}
                   </div>
 
                   <div className="mb-5">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                    <h4 className="mb-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
                       {t("detail.subjects.linkedTitle")}
                     </h4>
 
                     {semestre.disciplinas.length === 0 ? (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-slate-400">
                         {t("detail.subjects.noneLinked")}
                       </p>
                     ) : (
@@ -1057,7 +1057,7 @@ export default function CursoDetalhePage() {
                         {semestre.disciplinas.map((item) => (
                           <span
                             key={item.id}
-                            className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full"
+                            className="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-950/50 dark:text-green-200"
                           >
                             {item.disciplina.nome}
                           </span>
@@ -1067,7 +1067,7 @@ export default function CursoDetalhePage() {
                   </div>
 
                   {disciplinas.length === 0 ? (
-                    <p className="text-gray-500">{t("detail.subjects.noneRegistered")}</p>
+                    <p className="text-gray-500 dark:text-slate-400">{t("detail.subjects.noneRegistered")}</p>
                   ) : (
                     <>
                       {cursoRecebidoDaRede && (
@@ -1099,8 +1099,8 @@ export default function CursoDetalhePage() {
                                   ? "cursor-default opacity-80"
                                   : "cursor-pointer"
                                 } ${marcada
-                                  ? "border-blue-500 bg-blue-50"
-                                  : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40"
+                                  ? "border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950/50"
+                                  : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-blue-700 dark:hover:bg-blue-950/30"
                                 }`}
                             >
                               <div className="flex items-start gap-3">
@@ -1112,10 +1112,10 @@ export default function CursoDetalhePage() {
                                 />
 
                                 <div>
-                                  <p className="font-medium text-gray-900">
+                                  <p className="font-medium text-gray-900 dark:text-slate-100">
                                     {disciplina.nome}
                                   </p>
-                                  <p className="text-sm text-gray-500">
+                                  <p className="text-sm text-gray-500 dark:text-slate-400">
                                     {t("common.code")}: {disciplina.codigo || t("common.notInformed")}
                                   </p>
                                 </div>

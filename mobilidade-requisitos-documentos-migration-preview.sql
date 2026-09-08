@@ -1,0 +1,5 @@
+-- RenameIndex
+ALTER INDEX "StudentSuccessAnaliseHistorico_instituicaoId_alunoId_analisadoE" RENAME TO "StudentSuccessAnaliseHistorico_instituicaoId_alunoId_analis_idx";
+
+-- RenameIndex
+ALTER INDEX "StudentSuccessAnaliseHistorico_instituicaoId_nivelRisco_analisa" RENAME TO "StudentSuccessAnaliseHistorico_instituicaoId_nivelRisco_ana_idx";

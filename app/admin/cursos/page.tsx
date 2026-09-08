@@ -578,13 +578,13 @@ if (!termoTexto) return cursosPorStatus;
   }, [cursos, busca, filtroStatus, t]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-slate-900 dark:text-slate-100">
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
             feedbackTipo === "sucesso"
-              ? "border-green-200 bg-green-50 text-green-700"
-              : "border-red-200 bg-red-50 text-red-700"
+              ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200"
+              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
           }`}
         >
           {feedback}
@@ -593,8 +593,8 @@ if (!termoTexto) return cursosPorStatus;
 
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">🎓 {t("list.header.title")}</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">🎓 {t("list.header.title")}</h1>
+          <p className="text-gray-600 dark:text-slate-300">
             {t("list.header.description")}
           </p>
         </div>
@@ -607,7 +607,7 @@ if (!termoTexto) return cursosPorStatus;
         </Link>
       </div>
 
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <h2 className="mb-4 text-xl font-semibold">{t("list.create.title")}</h2>
 
         <form
@@ -617,7 +617,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="text"
             placeholder={t("list.create.namePlaceholder")}
-            className="rounded-lg border px-4 py-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             value={form.nome}
             onChange={(e) => setForm({ ...form, nome: e.target.value })}
             required
@@ -626,7 +626,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="text"
             placeholder={t("list.create.codePlaceholder")}
-            className="rounded-lg border px-4 py-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             value={form.codigo}
             onChange={(e) => setForm({ ...form, codigo: e.target.value })}
           />
@@ -645,7 +645,7 @@ if (!termoTexto) return cursosPorStatus;
           e.target.value as ModalidadeCertificado,
       })
     }
-    className="phanyx-curso-modalidade-select phanyx-course-native-select w-full rounded-lg border px-4 py-2"
+    className="phanyx-curso-modalidade-select phanyx-course-native-select w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
   >
     {OPCOES_MODALIDADE_CERTIFICADO.map((valor) => (
       <option key={valor} value={valor}>
@@ -654,14 +654,14 @@ if (!termoTexto) return cursosPorStatus;
     ))}
   </select>
 
-  <p className="mt-1 text-xs text-gray-500">
+  <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
     {t("list.create.modalityHelp")}
   </p>
 </div>
 
           <textarea
             placeholder={t("list.create.descriptionPlaceholder")}
-            className="rounded-lg border px-4 py-2 md:col-span-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 md:col-span-2"
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
             rows={4}
@@ -670,7 +670,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="number"
             placeholder={t("list.create.semestersPlaceholder")}
-            className="rounded-lg border px-4 py-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             value={form.quantidadeSemestres}
             onChange={(e) =>
               setForm({ ...form, quantidadeSemestres: e.target.value })
@@ -681,7 +681,7 @@ if (!termoTexto) return cursosPorStatus;
             type="number"
             step="0.01"
             placeholder={t("list.create.enrollmentValuePlaceholder")}
-            className="rounded-lg border px-4 py-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             value={form.valorMatricula}
             onChange={(e) =>
               setForm({ ...form, valorMatricula: e.target.value })
@@ -692,7 +692,7 @@ if (!termoTexto) return cursosPorStatus;
             type="number"
             step="0.01"
             placeholder={t("list.create.monthlyValuePlaceholder")}
-            className="rounded-lg border px-4 py-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             value={form.valorMensalidade}
             onChange={(e) =>
               setForm({ ...form, valorMensalidade: e.target.value })
@@ -702,7 +702,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="number"
             placeholder={t("list.create.installmentsPlaceholder")}
-            className="rounded-lg border px-4 py-2"
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             value={form.quantidadeParcelas}
             onChange={(e) =>
               setForm({ ...form, quantidadeParcelas: e.target.value })
@@ -713,9 +713,9 @@ if (!termoTexto) return cursosPorStatus;
             <button
               type="button"
               onClick={() => setPolosAbertos((prev) => !prev)}
-              className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left"
+              className="flex w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-4 py-3 text-left dark:border-slate-700 dark:bg-slate-950"
             >
-              <span className="font-medium text-gray-800">
+              <span className="font-medium text-gray-800 dark:text-slate-200">
                 {t("list.create.poles.label")}
                 {polosSelecionados.length > 0
                   ? ` (${t("list.create.poles.selectedCount", {
@@ -723,15 +723,15 @@ if (!termoTexto) return cursosPorStatus;
                     })})`
                   : ""}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-slate-400">
                 {polosAbertos ? t("common.closeWithArrow") : t("common.openWithArrow")}
               </span>
             </button>
 
             {polosAbertos && (
-              <div className="mt-2 max-h-52 overflow-auto rounded-lg border p-3">
+              <div className="mt-2 max-h-52 overflow-auto rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
                 {polos.length === 0 ? (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     {t("list.create.poles.none")}
                   </p>
                 ) : (
@@ -739,7 +739,7 @@ if (!termoTexto) return cursosPorStatus;
                     {polos.map((polo) => (
                       <label
                         key={polo.id}
-                        className="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-50"
+                        className="flex items-center gap-2 rounded px-2 py-1 text-slate-800 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
                         <input
                           type="checkbox"
@@ -757,7 +757,7 @@ if (!termoTexto) return cursosPorStatus;
               </div>
             )}
 
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               {t("list.create.poles.help")}
             </p>
           </div>
@@ -774,7 +774,7 @@ if (!termoTexto) return cursosPorStatus;
         </form>
       </div>
 
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h2 className="text-xl font-semibold">{t("list.registered.title")}</h2>
 
@@ -783,7 +783,7 @@ if (!termoTexto) return cursosPorStatus;
             placeholder={t("list.registered.searchPlaceholder")}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="w-full rounded-lg border p-2 md:w-[460px]"
+            className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 md:w-[460px]"
           />
 
 <select
@@ -791,7 +791,7 @@ if (!termoTexto) return cursosPorStatus;
   onChange={(e) =>
     setFiltroStatus(e.target.value as "ATIVOS" | "EXCLUIDOS" | "TODOS")
   }
-  className="phanyx-course-native-select w-full rounded-lg border p-2 md:w-[180px]"
+  className="phanyx-course-native-select w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 md:w-[180px]"
 >
   <option value="ATIVOS">{t("filters.active")}</option>
   <option value="EXCLUIDOS">{t("filters.deleted")}</option>
@@ -801,35 +801,35 @@ if (!termoTexto) return cursosPorStatus;
         </div>
 
         {loading ? (
-          <p className="text-gray-500">{t("list.registered.loading")}</p>
+          <p className="text-gray-500 dark:text-slate-400">{t("list.registered.loading")}</p>
         ) : cursosFiltrados.length === 0 ? (
-          <p className="text-gray-500">{t("list.registered.empty")}</p>
+          <p className="text-gray-500 dark:text-slate-400">{t("list.registered.empty")}</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {cursosFiltrados.map((curso) => (
               <div
                 key={curso.id}
-                className="rounded-xl border p-4 transition hover:shadow-sm"
+                className="rounded-xl border border-slate-200 bg-white p-4 transition hover:shadow-sm dark:border-slate-700 dark:bg-slate-950/50"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {curso.nome}
                     </h3>
 
                     {curso.codigo ? (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-slate-400">
                         {t("common.code")}: {curso.codigo}
                       </p>
                     ) : null}
 
                     {curso.descricao ? (
-                      <p className="mt-2 text-sm text-gray-600">
+                      <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
                         {curso.descricao}
                       </p>
                     ) : null}
 
-                    <div className="mt-3 space-y-1 text-sm text-gray-700">
+                    <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-slate-300">
                       <p>
                         {t("common.semesters")}:{" "}
                         {curso.quantidadeSemestres != null
@@ -897,8 +897,8 @@ if (!termoTexto) return cursosPorStatus;
       <div
         className={`mt-3 rounded-xl border p-3 text-sm ${
           estaNoUltimoDia(expiraCurso)
-            ? "border-red-200 bg-red-50 text-red-700"
-            : "border-amber-200 bg-amber-50 text-amber-800"
+            ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+            : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
         }`}
       >
         {estaNoUltimoDia(expiraCurso)
@@ -961,8 +961,8 @@ if (!termoTexto) return cursosPorStatus;
                   <span
                     className={`rounded-full px-3 py-1 text-xs ${
                       curso.ativo
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-200"
+                        : "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-200"
                     }`}
                   >
                     {curso.ativo ? t("status.active") : t("status.inactive")}
@@ -1057,13 +1057,13 @@ if (!termoTexto) return cursosPorStatus;
 
       {cursoParaExcluir && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
-    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+    <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-slate-900">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
           {t("list.deleteModal.title")}
         </h3>
 
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
           {t.rich("list.deleteModal.confirmation", {
             course: cursoParaExcluir.nome,
             strong: (chunks) => (
@@ -1072,7 +1072,7 @@ if (!termoTexto) return cursosPorStatus;
           })}
         </p>
 
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
           {t("list.deleteModal.help")}
         </p>
       </div>
@@ -1082,7 +1082,7 @@ if (!termoTexto) return cursosPorStatus;
           type="button"
           onClick={() => setCursoParaExcluir(null)}
           disabled={excluindoCurso}
-          className="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50"
+          className="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           {t("common.cancel")}
         </button>
@@ -1101,13 +1101,13 @@ if (!termoTexto) return cursosPorStatus;
 )}
 {modalErro && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
-    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+    <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-red-700">
+        <h3 className="text-xl font-bold text-red-700 dark:text-red-300">
           {t("errors.couldNotSave")}
         </h3>
 
-        <p className="mt-3 text-sm text-slate-700">
+        <p className="mt-3 text-sm text-slate-700 dark:text-slate-200">
           {modalErro}
         </p>
       </div>

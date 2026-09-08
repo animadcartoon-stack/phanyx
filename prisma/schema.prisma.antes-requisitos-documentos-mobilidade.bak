@@ -286,7 +286,6 @@ model Instituicao {
   mobilidadeOfertaCursos                      MobilidadeOfertaCurso[]
   mobilidadeCandidaturas                      MobilidadeCandidatura[]
   mobilidadeCandidaturaDocumentos             MobilidadeCandidaturaDocumento[]
-  mobilidadeOfertaDocumentosRequisitos        MobilidadeOfertaDocumentoRequisito[]
 
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
@@ -10347,9 +10346,8 @@ model MobilidadeOferta {
   programa    MobilidadePrograma @relation(fields: [programaId], references: [id], onDelete: Cascade)
   criadoPor   User?              @relation("MobilidadeOfertaCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
 
-  cursos               MobilidadeOfertaCurso[]
-  candidaturas         MobilidadeCandidatura[]
-  requisitosDocumentos MobilidadeOfertaDocumentoRequisito[]
+  cursos       MobilidadeOfertaCurso[]
+  candidaturas MobilidadeCandidatura[]
 
   @@unique([instituicaoId, codigo])
   @@index([instituicaoId])
@@ -10360,31 +10358,6 @@ model MobilidadeOferta {
   @@index([mobilidadeInicio])
   @@index([mobilidadeFim])
   @@index([criadoPorId])
-}
-
-model MobilidadeOfertaDocumentoRequisito {
-  id            Int                     @id @default(autoincrement())
-  instituicaoId Int
-  ofertaId      Int
-  tipo          MobilidadeTipoDocumento
-  titulo        String
-  descricao     String?                 @db.Text
-  obrigatorio   Boolean                 @default(true)
-  exigeValidade Boolean                 @default(false)
-  ordem         Int                     @default(0)
-  ativo         Boolean                 @default(true)
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
-
-  instituicao Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  oferta      MobilidadeOferta @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
-
-  @@unique([ofertaId, tipo, titulo])
-  @@index([instituicaoId])
-  @@index([ofertaId])
-  @@index([tipo])
-  @@index([ativo])
-  @@index([ordem])
 }
 
 model MobilidadeOfertaCurso {
@@ -10497,7 +10470,7 @@ enum TipoFeriadoGlobal {
 model FeriadoGlobal {
   id Int @id @default(autoincrement())
 
-  paisCodigo   String  @db.VarChar(2)
+  paisCodigo   String @db.VarChar(2)
   regiaoCodigo String? @db.VarChar(30)
   cidade       String?
 

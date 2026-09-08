@@ -116,8 +116,12 @@ const EXEMPLAR_SELECT = {
 
     emprestimos: {
         where: {
-            status:
-                StatusEmprestimoBiblioteca.ATIVO,
+            status: {
+                in: [
+                    StatusEmprestimoBiblioteca.ATIVO,
+                    StatusEmprestimoBiblioteca.ATRASADO,
+                ],
+            },
         },
 
         orderBy: {
@@ -620,6 +624,19 @@ export async function GET(
             }
         }
 
+        const configuracaoRenovacao =
+            await prisma.bibliotecaConfiguracao.findUnique({
+                where: {
+                    instituicaoId:
+                        contexto.instituicaoId,
+                },
+
+                select: {
+                    permitirRenovacao: true,
+                    limiteRenovacoes: true,
+                },
+            });
+
         const exemplares =
             await prisma.bibliotecaExemplar.findMany(
                 {
@@ -672,6 +689,19 @@ export async function GET(
 
             total:
                 exemplaresComManutencao.length,
+
+            renovacao: {
+                permitirRenovacao:
+                    configuracaoRenovacao
+                        ?.permitirRenovacao === true,
+
+                limiteRenovacoes:
+                    Math.max(
+                        0,
+                        configuracaoRenovacao
+                            ?.limiteRenovacoes ?? 0
+                    ),
+            },
 
             permissoes: {
                 podeGerenciar,

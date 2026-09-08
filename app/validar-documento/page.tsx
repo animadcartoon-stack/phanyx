@@ -1,4 +1,8 @@
-import { headers } from "next/headers";
+﻿import { headers } from "next/headers";
+import {
+  getLocale,
+  getTranslations,
+} from "next-intl/server";
 
 type ValidacaoResponse = {
   valido?: boolean;
@@ -6,6 +10,9 @@ type ValidacaoResponse = {
   statusValidacao?: string;
   mensagem?: string;
   error?: string;
+  bloqueado?: boolean;
+  risco?: number;
+
   documento?: {
     id: number;
     titulo: string;
@@ -14,6 +21,7 @@ type ValidacaoResponse = {
     criadoEm?: string;
     atualizadoEm?: string;
     exigeAssinatura?: boolean;
+
     aluno?: {
       id: number;
       nome: string;
@@ -21,19 +29,23 @@ type ValidacaoResponse = {
       matricula?: string | null;
       cpf?: string | null;
     } | null;
+
     matricula?: {
       id: number;
       semestre?: number | null;
       status?: string | null;
+
       curso?: {
         id: number;
         nome: string;
       } | null;
     } | null;
+
     template?: {
       id: number;
       nome: string;
     } | null;
+
     instituicao?: {
       id: number;
       nome?: string | null;
@@ -43,111 +55,197 @@ type ValidacaoResponse = {
   };
 };
 
-function formatarData(data?: string) {
-  if (!data) return "-";
-  const d = new Date(data);
-  if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleString("pt-BR");
-}
-
-function labelTipo(tipo?: string) {
-  switch (tipo) {
-    case "CONTRATO":
-      return "Contrato";
-    case "DECLARACAO":
-      return "Declaração";
-    case "RECIBO":
-      return "Recibo";
-    case "COMPROVANTE":
-      return "Comprovante";
-    case "TRANCAMENTO":
-      return "Trancamento";
-    case "COMPARECIMENTO":
-      return "Comparecimento";
-    case "HISTORICO":
-      return "Histórico";
-    default:
-      return tipo || "-";
+function formatarData(
+  data: string | undefined,
+  locale: string,
+  indisponivel: string,
+) {
+  if (!data) {
+    return indisponivel;
   }
+
+  const valor =
+    new Date(data);
+
+  if (
+    Number.isNaN(
+      valor.getTime()
+    )
+  ) {
+    return indisponivel;
+  }
+
+  return valor.toLocaleString(
+    locale
+  );
 }
 
-async function buscarValidacao(codigo: string): Promise<ValidacaoResponse> {
+async function buscarValidacao(
+  codigo: string
+): Promise<ValidacaoResponse> {
   const h = headers();
-  const host = h.get("host") || "localhost:3000";
-  const proto = host.includes("localhost") ? "http" : "https";
 
-  const url = `${proto}://${host}/api/validar-documento?codigo=${encodeURIComponent(
-    codigo
-  )}`;
+  const host =
+    h.get("host") ||
+    "localhost:3000";
 
-  const res = await fetch(url, {
-    cache: "no-store",
-  });
+  const proto =
+    host.includes("localhost")
+      ? "http"
+      : "https";
+
+  const url =
+    `${proto}://${host}` +
+    `/api/validar-documento?codigo=${encodeURIComponent(
+      codigo
+    )}`;
+
+  const res =
+    await fetch(
+      url,
+      {
+        cache: "no-store",
+      }
+    );
 
   return res.json();
-}
-
-function StatusBadge({
-  valido,
-  statusValidacao,
-}: {
-  valido?: boolean;
-  statusValidacao?: string;
-}) {
-  if (valido) {
-    return (
-      <div className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-        ✔ Documento válido
-      </div>
-    );
-  }
-
-  if (statusValidacao === "INVALIDADO") {
-    return (
-      <div className="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-        ⚠ Documento localizado, porém inválido
-      </div>
-    );
-  }
-
-  return (
-    <div className="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
-      ✖ Documento não encontrado
-    </div>
-  );
 }
 
 export default async function ValidarDocumentoPage({
   searchParams,
 }: {
-  searchParams: { codigo?: string };
+  searchParams: {
+    codigo?: string;
+  };
 }) {
-  const codigo = (searchParams?.codigo || "").trim();
+  const t =
+    await getTranslations(
+      "PublicDocumentValidation"
+    );
+
+  const locale =
+    await getLocale();
+
+  const codigo =
+    (
+      searchParams?.codigo ||
+      ""
+    ).trim();
 
   if (!codigo) {
     return (
       <div className="min-h-screen bg-slate-50 px-6 py-12">
         <div className="mx-auto max-w-4xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Validação de documento
+            {t("eyebrow")}
           </p>
+
           <h1 className="mt-3 text-3xl font-bold text-slate-900">
-            Informe um código para validar
+            {t("missingCodeTitle")}
           </h1>
+
           <p className="mt-4 text-slate-600">
-            Use o QR Code do documento ou acesse esta página com o parâmetro
-            <strong> codigo</strong>.
+            {t(
+              "missingCodeDescription"
+            )}
           </p>
         </div>
       </div>
     );
   }
 
-  const data = await buscarValidacao(codigo);
-  const doc = data.documento;
+  const data =
+    await buscarValidacao(
+      codigo
+    );
+
+  const doc =
+    data.documento;
+
   const nomeExibicao =
-    doc?.aluno?.nomeSocial?.trim() || doc?.aluno?.nome || "-";
-  const nomeInstituicao = doc?.instituicao?.nome || "Instituição";
+    doc?.aluno?.nomeSocial
+      ?.trim() ||
+    doc?.aluno?.nome ||
+    t("notAvailable");
+
+  const nomeInstituicao =
+    doc?.instituicao?.nome ||
+    t("institutionFallback");
+
+  const tipos: Record<
+    string,
+    string
+  > = {
+    CONTRATO:
+      t("documentTypes.CONTRATO"),
+
+    DECLARACAO:
+      t(
+        "documentTypes.DECLARACAO"
+      ),
+
+    RECIBO:
+      t("documentTypes.RECIBO"),
+
+    COMPROVANTE:
+      t(
+        "documentTypes.COMPROVANTE"
+      ),
+
+    TRANCAMENTO:
+      t(
+        "documentTypes.TRANCAMENTO"
+      ),
+
+    COMPARECIMENTO:
+      t(
+        "documentTypes.COMPARECIMENTO"
+      ),
+
+    HISTORICO:
+      t(
+        "documentTypes.HISTORICO"
+      ),
+  };
+
+  const tipoDocumento =
+    tipos[
+      String(
+        doc?.tipo || ""
+      ).toUpperCase()
+    ] ||
+    doc?.tipo ||
+    t("notAvailable");
+
+  let mensagemInvalida =
+    t(
+      "invalid.genericMessage"
+    );
+
+  if (
+    data.statusValidacao ===
+    "INVALIDADO"
+  ) {
+    mensagemInvalida =
+      t(
+        "invalid.invalidatedMessage"
+      );
+  } else if (
+    data.statusValidacao ===
+    "NAO_ENCONTRADO"
+  ) {
+    mensagemInvalida =
+      t(
+        "invalid.notFoundMessage"
+      );
+  } else if (
+    data.bloqueado
+  ) {
+    mensagemInvalida =
+      t(
+        "invalid.suspiciousBlocked"
+      );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 px-6 py-12">
@@ -156,128 +254,311 @@ export default async function ValidarDocumentoPage({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Central de validação
+                {t(
+                  "validationCenter"
+                )}
               </p>
+
               <h1 className="mt-3 text-3xl font-bold text-slate-900">
-                Verificação de autenticidade
+                {t(
+                  "authenticityTitle"
+                )}
               </h1>
+
               <p className="mt-4 max-w-2xl text-slate-600">
-                Consulte a autenticidade de documentos emitidos pelo sistema por
-                meio do código de validação.
+                {t(
+                  "authenticityDescription"
+                )}
               </p>
             </div>
 
-            <StatusBadge
-              valido={data.valido}
-              statusValidacao={data.statusValidacao}
-            />
+            {data.valido ? (
+              <div className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+                {"\u2714"}{" "}
+                {t("badges.valid")}
+              </div>
+            ) : data.statusValidacao ===
+              "INVALIDADO" ? (
+              <div className="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                {"\u26A0"}{" "}
+                {t(
+                  "badges.invalidated"
+                )}
+              </div>
+            ) : (
+              <div className="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
+                {"\u2716"}{" "}
+                {t(
+                  "badges.notFound"
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Código consultado
+              {t(
+                "consultedCode"
+              )}
             </p>
-            <p className="mt-2 text-lg font-bold text-slate-900">{codigo}</p>
+
+            <p className="mt-2 text-lg font-bold text-slate-900">
+              {codigo}
+            </p>
           </div>
         </div>
 
-        {!data.valido && (
+        {!data.valido ? (
           <div
-            className={`rounded-3xl border bg-white p-8 shadow-sm ${data.statusValidacao === "INVALIDADO"
-                ? "border-amber-200"
-                : "border-red-200"
-              }`}
+            className={
+              "rounded-3xl border bg-white p-8 shadow-sm " +
+              (
+                data.statusValidacao ===
+                "INVALIDADO"
+                  ? "border-amber-200"
+                  : "border-red-200"
+              )
+            }
           >
             <h2 className="text-2xl font-bold text-slate-900">
-              {data.statusValidacao === "INVALIDADO"
-                ? "Documento inválido para uso"
-                : "Documento inválido ou não encontrado"}
+              {data.statusValidacao ===
+              "INVALIDADO"
+                ? t(
+                    "invalid.invalidatedTitle"
+                  )
+                : t(
+                    "invalid.notFoundTitle"
+                  )}
             </h2>
+
             <p className="mt-4 text-slate-600">
-              {data.mensagem || "Não foi possível validar este documento."}
+              {mensagemInvalida}
             </p>
 
-            {doc && (
+            {doc ? (
               <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
                 <p>
-                  <strong>Título:</strong> {doc.titulo || "-"}
+                  <strong>
+                    {t(
+                      "fields.title"
+                    )}:
+                  </strong>{" "}
+                  {doc.titulo ||
+                    t(
+                      "notAvailable"
+                    )}
                 </p>
+
                 <p className="mt-2">
-                  <strong>Status:</strong> {doc.status || "-"}
+                  <strong>
+                    {t(
+                      "fields.status"
+                    )}:
+                  </strong>{" "}
+                  {doc.status ||
+                    t(
+                      "notAvailable"
+                    )}
                 </p>
+
                 <p className="mt-2">
-                  <strong>Instituição:</strong> {nomeInstituicao}
+                  <strong>
+                    {t(
+                      "fields.institution"
+                    )}:
+                  </strong>{" "}
+                  {nomeInstituicao}
                 </p>
               </div>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
 
-        {data.valido && doc && (
+        {data.valido && doc ? (
           <>
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Dados do documento
+                  {t(
+                    "sections.documentData"
+                  )}
                 </h2>
 
                 <div className="mt-4 space-y-3 text-sm text-slate-700">
                   <p>
-                    <strong>Título:</strong> {doc.titulo}
+                    <strong>
+                      {t(
+                        "fields.title"
+                      )}:
+                    </strong>{" "}
+                    {doc.titulo}
                   </p>
+
                   <p>
-                    <strong>Tipo:</strong> {labelTipo(doc.tipo)}
+                    <strong>
+                      {t(
+                        "fields.type"
+                      )}:
+                    </strong>{" "}
+                    {tipoDocumento}
                   </p>
+
                   <p>
-                    <strong>Status:</strong> {doc.status || "-"}
+                    <strong>
+                      {t(
+                        "fields.status"
+                      )}:
+                    </strong>{" "}
+                    {doc.status ||
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>Emitido em:</strong> {formatarData(doc.criadoEm)}
+                    <strong>
+                      {t(
+                        "fields.issuedAt"
+                      )}:
+                    </strong>{" "}
+                    {formatarData(
+                      doc.criadoEm,
+                      locale,
+                      t(
+                        "notAvailable"
+                      )
+                    )}
                   </p>
+
                   <p>
-                    <strong>Atualizado em:</strong>{" "}
-                    {formatarData(doc.atualizadoEm)}
+                    <strong>
+                      {t(
+                        "fields.updatedAt"
+                      )}:
+                    </strong>{" "}
+                    {formatarData(
+                      doc.atualizadoEm,
+                      locale,
+                      t(
+                        "notAvailable"
+                      )
+                    )}
                   </p>
+
                   <p>
-                    <strong>Template:</strong> {doc.template?.nome || "-"}
+                    <strong>
+                      {t(
+                        "fields.template"
+                      )}:
+                    </strong>{" "}
+                    {doc.template
+                      ?.nome ||
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>Exige assinatura:</strong>{" "}
-                    {doc.exigeAssinatura ? "Sim" : "Não"}
+                    <strong>
+                      {t(
+                        "fields.requiresSignature"
+                      )}:
+                    </strong>{" "}
+                    {doc.exigeAssinatura
+                      ? t("yes")
+                      : t("no")}
                   </p>
                 </div>
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-slate-900">
-                  Dados vinculados
+                  {t(
+                    "sections.linkedData"
+                  )}
                 </h2>
 
                 <div className="mt-4 space-y-3 text-sm text-slate-700">
                   <p>
-                    <strong>Aluno:</strong> {nomeExibicao}
+                    <strong>
+                      {t(
+                        "fields.student"
+                      )}:
+                    </strong>{" "}
+                    {nomeExibicao}
                   </p>
+
                   <p>
-                    <strong>Matrícula:</strong> {doc.aluno?.matricula || "-"}
+                    <strong>
+                      {t(
+                        "fields.enrollment"
+                      )}:
+                    </strong>{" "}
+                    {doc.aluno
+                      ?.matricula ||
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>CPF:</strong> {doc.aluno?.cpf || "-"}
+                    <strong>
+                      {t(
+                        "fields.cpf"
+                      )}:
+                    </strong>{" "}
+                    {doc.aluno?.cpf ||
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>Curso:</strong> {doc.matricula?.curso?.nome || "-"}
+                    <strong>
+                      {t(
+                        "fields.course"
+                      )}:
+                    </strong>{" "}
+                    {doc.matricula
+                      ?.curso?.nome ||
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>Semestre:</strong> {doc.matricula?.semestre ?? "-"}
+                    <strong>
+                      {t(
+                        "fields.semester"
+                      )}:
+                    </strong>{" "}
+                    {doc.matricula
+                      ?.semestre ??
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>Status da matrícula:</strong>{" "}
-                    {doc.matricula?.status || "-"}
+                    <strong>
+                      {t(
+                        "fields.enrollmentStatus"
+                      )}:
+                    </strong>{" "}
+                    {doc.matricula
+                      ?.status ||
+                      t(
+                        "notAvailable"
+                      )}
                   </p>
+
                   <p>
-                    <strong>Instituição:</strong> {nomeInstituicao}
-                  </p>
-                  <p>
-                    <strong>Instituição:</strong> {nomeInstituicao}
+                    <strong>
+                      {t(
+                        "fields.institution"
+                      )}:
+                    </strong>{" "}
+                    {nomeInstituicao}
                   </p>
                 </div>
               </div>
@@ -285,15 +566,19 @@ export default async function ValidarDocumentoPage({
 
             <div className="rounded-3xl border border-emerald-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-slate-900">
-                Resultado da validação
+                {t(
+                  "sections.result"
+                )}
               </h2>
+
               <p className="mt-4 text-slate-700">
-                Este documento foi localizado na base institucional e está
-                reconhecido pelo sistema como autêntico e válido para consulta.
+                {t(
+                  "resultValid"
+                )}
               </p>
             </div>
           </>
-        )}
+        ) : null}
       </div>
     </div>
   );

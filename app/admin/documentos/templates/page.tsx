@@ -6,7 +6,7 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
 import HistoricoTemplateEditorPHANYX from "@/components/documentos/HistoricoTemplateEditorPHANYX";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type TipoDocumentoTemplate =
   | "CONTRATO"
@@ -94,51 +94,197 @@ type ConfiguracaoInstituicao = {
   string | null;
 };
 
-const TIPOS_DOCUMENTO: Array<{
-  value: TipoDocumentoTemplate;
-  label: string;
-}> = [
-    { value: "CONTRATO", label: "Contrato acadêmico" },
-    { value: "DECLARACAO", label: "Declaração" },
-    { value: "RECIBO", label: "Recibo" },
-    { value: "COMPROVANTE", label: "Comprovante" },
-    { value: "TRANCAMENTO", label: "Trancamento" },
-    { value: "COMPARECIMENTO", label: "Comparecimento" },
-    { value: "HISTORICO", label: "Histórico acadêmico" },
+const TIPOS_DOCUMENTO: TipoDocumentoTemplate[] = [
+  "CONTRATO",
+  "DECLARACAO",
+  "RECIBO",
+  "COMPROVANTE",
+  "TRANCAMENTO",
+  "COMPARECIMENTO",
+  "HISTORICO",
 
-    { value: "DOCUMENTO_RH", label: "RH - Documento geral" },
-    { value: "CONTRATO_TRABALHO", label: "RH - Contrato de trabalho" },
-    { value: "CONTRATO_EXPERIENCIA", label: "RH - Contrato de experiência" },
-    { value: "TERMO_LGPD_RH", label: "RH - Termo LGPD" },
-    { value: "TERMO_EQUIPAMENTOS", label: "RH - Termo de uso de equipamentos" },
+  "DOCUMENTO_RH",
+  "CONTRATO_TRABALHO",
+  "CONTRATO_EXPERIENCIA",
+  "TERMO_LGPD_RH",
+  "TERMO_EQUIPAMENTOS",
 
-    { value: "ADMISSAO", label: "RH - Documento de admissão" },
-    { value: "DEMISSAO", label: "RH - Documento de demissão" },
-    { value: "PEDIDO_DEMISSAO", label: "RH - Pedido de demissão" },
-    { value: "AVISO_PREVIO", label: "RH - Aviso prévio" },
-    { value: "TRCT", label: "RH - TRCT" },
+  "ADMISSAO",
+  "DEMISSAO",
+  "PEDIDO_DEMISSAO",
+  "AVISO_PREVIO",
+  "TRCT",
 
-    { value: "FERIAS", label: "RH - Documento de férias" },
-    { value: "AVISO_FERIAS", label: "RH - Aviso de férias" },
-    { value: "RECIBO_FERIAS", label: "RH - Recibo de férias" },
+  "FERIAS",
+  "AVISO_FERIAS",
+  "RECIBO_FERIAS",
 
-    { value: "ADVERTENCIA", label: "RH - Advertência" },
-    { value: "SUSPENSAO", label: "RH - Suspensão" },
+  "ADVERTENCIA",
+  "SUSPENSAO",
 
-    { value: "AFASTAMENTO_MEDICO", label: "RH - Afastamento médico" },
-    { value: "AFASTAMENTO_MATERNIDADE", label: "RH - Afastamento maternidade" },
-    { value: "AFASTAMENTO_PERICIA", label: "RH - Afastamento perícia" },
-    { value: "RETORNO_TRABALHO", label: "RH - Retorno ao trabalho" },
+  "AFASTAMENTO_MEDICO",
+  "AFASTAMENTO_MATERNIDADE",
+  "AFASTAMENTO_PERICIA",
+  "RETORNO_TRABALHO",
 
-    { value: "ASO", label: "RH - ASO geral" },
-    { value: "ASO_ADMISSIONAL", label: "RH - ASO admissional" },
-    { value: "ASO_PERIODICO", label: "RH - ASO periódico" },
-    { value: "ASO_RETORNO", label: "RH - ASO retorno ao trabalho" },
-    { value: "ASO_MUDANCA_FUNCAO", label: "RH - ASO mudança de função" },
-    { value: "ASO_DEMISSIONAL", label: "RH - ASO demissional" },
+  "ASO",
+  "ASO_ADMISSIONAL",
+  "ASO_PERIODICO",
+  "ASO_RETORNO",
+  "ASO_MUDANCA_FUNCAO",
+  "ASO_DEMISSIONAL",
 
-    { value: "OUTRO", label: "Outro" },
-  ];
+  "OUTRO",
+];
+
+const CHAVES_TIPO_DOCUMENTO: Record<
+  TipoDocumentoTemplate,
+  string
+> = {
+  CONTRATO: "types.contract",
+  DECLARACAO: "types.declaration",
+  RECIBO: "types.receipt",
+  COMPROVANTE: "types.proof",
+  TRANCAMENTO: "types.withdrawal",
+  COMPARECIMENTO: "types.attendance",
+  HISTORICO: "types.transcript",
+  HOLERITE: "types.payslip",
+  DOCUMENTO_RH: "types.hrDocument",
+  CONTRATO_TRABALHO: "types.employmentContract",
+  CONTRATO_EXPERIENCIA: "types.probationContract",
+  TERMO_LGPD_RH: "types.hrPrivacyTerm",
+  TERMO_EQUIPAMENTOS: "types.equipmentTerm",
+  ADMISSAO: "types.admission",
+  DEMISSAO: "types.dismissal",
+  PEDIDO_DEMISSAO: "types.resignation",
+  AVISO_PREVIO: "types.notice",
+  TRCT: "types.terminationTerm",
+  FERIAS: "types.vacation",
+  AVISO_FERIAS: "types.vacationNotice",
+  RECIBO_FERIAS: "types.vacationReceipt",
+  ADVERTENCIA: "types.warning",
+  SUSPENSAO: "types.suspension",
+  AFASTAMENTO_MEDICO: "types.medicalLeave",
+  AFASTAMENTO_MATERNIDADE: "types.maternityLeave",
+  AFASTAMENTO_PERICIA: "types.medicalAssessmentLeave",
+  RETORNO_TRABALHO: "types.returnToWork",
+  ASO: "types.occupationalHealthCertificate",
+  ASO_ADMISSIONAL: "types.occupationalHealthAdmission",
+  ASO_PERIODICO: "types.occupationalHealthPeriodic",
+  ASO_RETORNO: "types.occupationalHealthReturn",
+  ASO_MUDANCA_FUNCAO: "types.occupationalHealthRoleChange",
+  ASO_DEMISSIONAL: "types.occupationalHealthDismissal",
+  OUTRO: "types.other",
+};
+
+const CHAVES_MODELO_BASE_I18N: Partial<
+  Record<
+    TipoDocumentoTemplate,
+    string
+  >
+> = {
+  CONTRATO:
+    "contract",
+
+  DECLARACAO:
+    "declaration",
+
+  RECIBO:
+    "receipt",
+
+  COMPROVANTE:
+    "proof",
+
+  TRANCAMENTO:
+    "withdrawal",
+
+  COMPARECIMENTO:
+    "attendance",
+
+  HISTORICO:
+    "history",
+
+  OUTRO:
+    "other",
+
+  CONTRATO_TRABALHO:
+    "employmentContract",
+
+  CONTRATO_EXPERIENCIA:
+    "probationContract",
+
+  TERMO_LGPD_RH:
+    "privacyTerm",
+
+  TERMO_EQUIPAMENTOS:
+    "equipmentTerm",
+
+  DOCUMENTO_RH:
+    "hrDocument",
+
+  ADMISSAO:
+    "admission",
+
+  DEMISSAO:
+    "dismissal",
+
+  PEDIDO_DEMISSAO:
+    "dismissal",
+
+  AVISO_PREVIO:
+    "notice",
+
+  TRCT:
+    "terminationTerm",
+
+  HOLERITE:
+    "payslip",
+
+  FERIAS:
+    "vacationNotice",
+
+  AVISO_FERIAS:
+    "vacationNotice",
+
+  RECIBO_FERIAS:
+    "vacationReceipt",
+
+  ADVERTENCIA:
+    "warning",
+
+  SUSPENSAO:
+    "suspension",
+
+  ASO:
+    "occupationalHealth",
+
+  ASO_ADMISSIONAL:
+    "occupationalHealth",
+
+  ASO_PERIODICO:
+    "occupationalHealth",
+
+  ASO_RETORNO:
+    "occupationalHealth",
+
+  ASO_MUDANCA_FUNCAO:
+    "occupationalHealth",
+
+  ASO_DEMISSIONAL:
+    "occupationalHealth",
+
+  AFASTAMENTO_MEDICO:
+    "leaveReturn",
+
+  AFASTAMENTO_MATERNIDADE:
+    "leaveReturn",
+
+  AFASTAMENTO_PERICIA:
+    "leaveReturn",
+
+  RETORNO_TRABALHO:
+    "leaveReturn",
+};
 
 const MODELO_INICIAL_CONTRATO = `CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
 
@@ -161,11 +307,6 @@ Declaramos, para os devidos fins, que o(a) aluno(a) {{nomeAluno}}, matrícula {{
 Documento emitido em {{dataAtual}}.
 
 {{cidadeAssinatura}}.`;
-
-function labelTipo(tipo: TipoDocumentoTemplate) {
-  const item = TIPOS_DOCUMENTO.find((t) => t.value === tipo);
-  return item?.label ?? tipo;
-}
 
 function templateInicialPorTipo(tipo: TipoDocumentoTemplate) {
   switch (tipo) {
@@ -853,11 +994,25 @@ function buscaInteligenteVariavel(variavel: any, busca: string) {
   return palavrasBusca.every((palavra) => textoVariavel.includes(palavra));
 }
 
-function formatarData(data?: string) {
+function formatarData(
+  data: string | undefined,
+  locale: string
+) {
   if (!data) return "-";
+
   const d = new Date(data);
-  if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleString("pt-BR");
+
+  if (Number.isNaN(d.getTime())) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat(
+    locale,
+    {
+      dateStyle: "short",
+      timeStyle: "short",
+    }
+  ).format(d);
 }
 
 function normalizarCamposVisuaisAssinatura(
@@ -895,9 +1050,74 @@ function normalizarCamposVisuaisAssinatura(
 }
 
 function AdminDocumentosTemplatesPage() {
-  const tVisual = useTranslations(
-    "AdminDocumentsTemplatesVisualFields"
-  );
+  const t =
+    useTranslations(
+      "AdminDocumentsTemplates"
+    );
+
+  const tDoc =
+    useTranslations(
+      "AdminDocuments"
+    );
+
+  const tVisual =
+    useTranslations(
+      "AdminDocumentsTemplatesVisualFields"
+    );
+
+  const locale =
+    useLocale();
+
+  function labelTipo(
+    tipoDocumento:
+      TipoDocumentoTemplate
+  ) {
+    const chave =
+      CHAVES_TIPO_DOCUMENTO[
+        tipoDocumento
+      ];
+
+    return chave
+      ? tDoc(chave)
+      : tipoDocumento;
+  }
+  function modeloBaseLocalizado(
+    tipoDocumento:
+      TipoDocumentoTemplate
+  ) {
+    const chave =
+      CHAVES_MODELO_BASE_I18N[
+        tipoDocumento
+      ];
+
+    if (!chave) {
+      return templateInicialPorTipo(
+        tipoDocumento
+      );
+    }
+
+    try {
+      const traduzido =
+        t.raw(
+          `baseTemplates.${chave}`
+        );
+
+      if (
+        typeof traduzido ===
+          "string" &&
+        traduzido.trim()
+      ) {
+        return traduzido;
+      }
+    } catch {
+      // Mantem o modelo original como fallback.
+    }
+
+    return templateInicialPorTipo(
+      tipoDocumento
+    );
+  }
+
   const [templates, setTemplates] = useState<TemplateDocumento[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -915,7 +1135,7 @@ function AdminDocumentosTemplatesPage() {
   const [descricao, setDescricao] = useState("");
   const [tipo, setTipo] = useState<TipoDocumentoTemplate>("CONTRATO");
   const [contexto, setContexto] = useState("MATRICULA");
-  const [conteudo, setConteudo] = useState(MODELO_INICIAL_CONTRATO);
+  const [conteudo, setConteudo] = useState(() => modeloBaseLocalizado("CONTRATO"));
   const [ativo, setAtivo] = useState(true);
   const [exigeAssinatura, setExigeAssinatura] = useState(true);
   const [formatoImpressao, setFormatoImpressao] = useState<"A4_INTEIRA" | "DUAS_VIAS_A4">("A4_INTEIRA");
@@ -1043,9 +1263,9 @@ function AdminDocumentosTemplatesPage() {
         document.body.removeChild(area);
       }
 
-      setMensagem(`Variável ${texto} copiada.`);
+      setMensagem(t("messages.variableCopied", { variable: texto }));
     } catch {
-      setErro(`Não foi possível copiar ${texto}. Selecione e copie manualmente.`);
+      setErro(t("messages.copyFailed", { variable: texto }));
     }
   }
 
@@ -1062,14 +1282,14 @@ function AdminDocumentosTemplatesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar templates");
+        throw new Error(data?.error || t("messages.loadError"));
       }
 
       setTemplates(Array.isArray(data) ? data : []);
     } catch (error: any) {
       console.error(error);
       setTemplates([]);
-      setMensagem(error?.message || "Erro ao carregar templates");
+      setMensagem(error?.message || t("messages.loadError"));
     } finally {
       setLoading(false);
     }
@@ -1106,7 +1326,7 @@ function AdminDocumentosTemplatesPage() {
     setDescricao("");
     setTipo("CONTRATO");
     setContexto("MATRICULA");
-    setConteudo(MODELO_INICIAL_CONTRATO);
+    setConteudo(modeloBaseLocalizado("CONTRATO"));
     setAtivo(true);
     setExigeAssinatura(true);
     setFormatoImpressao("A4_INTEIRA");
@@ -1149,17 +1369,17 @@ function AdminDocumentosTemplatesPage() {
       setMensagem("");
 
       if (!nome.trim()) {
-        setErro("Informe o nome do template.");
+        setErro(t("messages.nameRequired"));
         return;
       }
 
       if (!tipo) {
-        setErro("Selecione o tipo do template.");
+        setErro(t("messages.typeRequired"));
         return;
       }
 
       if (!conteudo.trim()) {
-        setErro("Informe o conteúdo do template.");
+        setErro(t("messages.contentRequired"));
         return;
       }
 
@@ -1198,19 +1418,19 @@ function AdminDocumentosTemplatesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao salvar template");
+        throw new Error(data?.error || t("messages.saveError"));
       }
 
       await carregarTemplates();
       limparFormulario();
       setMensagem(
         editingId
-          ? "Template atualizado com sucesso!"
-          : "Template criado com sucesso!"
+          ? t("messages.updated")
+          : t("messages.created")
       );
     } catch (error: any) {
       console.error(error);
-      setMensagem(error?.message || "Erro ao salvar template");
+      setMensagem(error?.message || t("messages.saveError"));
     } finally {
       setSaving(false);
     }
@@ -1230,7 +1450,7 @@ function AdminDocumentosTemplatesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao excluir template");
+        throw new Error(data?.error || t("messages.deleteError"));
       }
 
       if (editingId === id) {
@@ -1238,11 +1458,12 @@ function AdminDocumentosTemplatesPage() {
       }
 
       await carregarTemplates();
-      setMensagem("Template excluído com sucesso!");
+      setMensagem(t("messages.deleted"));
     } catch (error: any) {
       console.error(error);
       setMensagem(
-        `Erro ao excluir template: ${error?.message || "Erro desconhecido"}`
+        error?.message ||
+        t("messages.deleteError")
       );
     } finally {
       setDeletingId(null);
@@ -1267,14 +1488,14 @@ function AdminDocumentosTemplatesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao atualizar status");
+        throw new Error(data?.error || t("messages.statusError"));
       }
 
       await carregarTemplates();
-      setMensagem("Status do template atualizado com sucesso!");
+      setMensagem(t("messages.statusUpdated"));
     } catch (error: any) {
       console.error(error);
-      setMensagem(error?.message || "Erro ao atualizar status");
+      setMensagem(error?.message || t("messages.statusError"));
     }
   }
 
@@ -1299,7 +1520,7 @@ function AdminDocumentosTemplatesPage() {
     try {
       setVisualizandoPdf(true);
       setErro("");
-      setMensagem("Gerando prévia do PDF...");
+      setMensagem(t("messages.generatingPreview"));
 
       const conteudoAtual = conteudo;
 
@@ -1328,20 +1549,20 @@ function AdminDocumentosTemplatesPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Não foi possível gerar a prévia.");
+        throw new Error(data?.error || t("messages.previewError"));
       }
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       window.open(url, "_blank");
     } catch (error: any) {
-      setErro(error?.message || "Erro ao visualizar PDF.");
+      setErro(error?.message || t("messages.viewPdfError"));
     } finally {
       setVisualizandoPdf(false);
     }
   }
   function aplicarModeloInicial() {
-    setConteudo(templateInicialPorTipo(tipo));
+    setConteudo(modeloBaseLocalizado(tipo));
   }
 
   function ehTipoRh(tipoDocumento: TipoDocumentoTemplate) {
@@ -1377,7 +1598,7 @@ function AdminDocumentosTemplatesPage() {
 
   function trocarTipoDocumento(novoTipo: TipoDocumentoTemplate) {
     setTipo(novoTipo);
-    setConteudo(templateInicialPorTipo(novoTipo));
+    setConteudo(modeloBaseLocalizado(novoTipo));
 
     const tiposDuasVias = [
       "DECLARACAO",
@@ -1400,7 +1621,7 @@ function AdminDocumentosTemplatesPage() {
     }
 
     if (!nome.trim()) {
-      setNome(`${labelTipo(novoTipo)} padrão`);
+      setNome(t("defaults.standardName", { type: labelTipo(novoTipo) }));
     }
   }
 
@@ -2912,24 +3133,478 @@ function AdminDocumentosTemplatesPage() {
     },
   };
 
-  const variaveisInteligentesBase = todasAsTags.map((tag) => {
-    const info = descricoesVariaveis[tag];
+  type CatalogoVariaveisTraduzido = {
+    genericDescription: string;
+    genericUseIn: string;
 
-    return {
-      tag,
-      titulo:
-        info?.titulo ||
-        tag.replaceAll("{{", "").replaceAll("}}", "").replace(/([A-Z])/g, " $1").trim(),
-      descricao:
-        info?.descricao ||
-        "Variável dinâmica disponível para utilização em documentos.",
-      ondeUsar:
-        info?.ondeUsar ||
-        "Contratos, históricos, certificados, declarações e documentos.",
-      palavras: [tag, tag.toLowerCase(), ...(info?.palavras || [])],
-      categoria: info?.categoria || "Geral",
+    categories:
+      Record<string, string>;
+
+    tokens:
+      Record<string, string>;
+
+    entitySuffixes:
+      Record<string, string>;
+
+    titleOverrides:
+      Record<string, string>;
+
+    special: {
+      eventosHolerite: {
+        title: string;
+        description: string;
+        useIn: string;
+        category: string;
+      };
     };
-  });
+  };
+
+  const catalogoVariaveisTraduzido =
+    t.raw(
+      "variableCatalog"
+    ) as unknown as
+      CatalogoVariaveisTraduzido;
+
+
+  const compostosVariaveis = new Set([
+    "carga_horaria",
+    "data_hora_emissao",
+    "data_hora",
+    "decimo_terceiro",
+    "pis_pasep",
+    "aviso_previo",
+    "terco_constitucional",
+    "salario_base",
+    "periodo_aquisitivo",
+    "periodo_gozo",
+    "ato_legal",
+    "codigo_validacao",
+    "url_validacao",
+    "bloco_dados",
+    "data_inicio",
+    "data_fim",
+    "data_conclusao",
+    "data_emissao",
+    "hora_emissao",
+    "data_nascimento",
+    "data_criacao",
+    "data_pagamento",
+    "data_admissao",
+    "data_demissao",
+    "data_desligamento",
+    "data_retorno",
+    "data_publicacao",
+    "data_matricula",
+    "valor_liquido",
+    "valor_total",
+    "total_vencimentos",
+    "total_descontos",
+    "status_matricula",
+    "status_aluno",
+    "numero_matricula",
+  ]);
+
+
+  function tokensTecnicosDaTag(
+    tag: string
+  ) {
+    return tag
+      .replace(/^\{\{/, "")
+      .replace(/\}\}$/, "")
+      .replace(
+        /([a-z0-9])([A-Z])/g,
+        "$1 $2"
+      )
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(
+        token =>
+          token.toLowerCase()
+      );
+  }
+
+
+  function agruparTokensVariavel(
+    tokens: string[]
+  ) {
+    const resultado: string[] =
+      [];
+
+    let indice = 0;
+
+    while (
+      indice <
+      tokens.length
+    ) {
+      const tres =
+        tokens
+          .slice(
+            indice,
+            indice + 3
+          )
+          .join("_");
+
+      const dois =
+        tokens
+          .slice(
+            indice,
+            indice + 2
+          )
+          .join("_");
+
+      if (
+        tokens.length -
+          indice >=
+          3 &&
+        compostosVariaveis.has(
+          tres
+        ) &&
+        catalogoVariaveisTraduzido
+          .tokens[tres]
+      ) {
+        resultado.push(
+          tres
+        );
+
+        indice += 3;
+
+        continue;
+      }
+
+      if (
+        tokens.length -
+          indice >=
+          2 &&
+        compostosVariaveis.has(
+          dois
+        ) &&
+        catalogoVariaveisTraduzido
+          .tokens[dois]
+      ) {
+        resultado.push(
+          dois
+        );
+
+        indice += 2;
+
+        continue;
+      }
+
+      resultado.push(
+        tokens[indice]
+      );
+
+      indice++;
+    }
+
+    return resultado;
+  }
+
+
+  function traduzirTokenVariavel(
+    token: string
+  ) {
+    return (
+      catalogoVariaveisTraduzido
+        .tokens[token] ||
+      token
+    );
+  }
+
+
+  function capitalizarTituloVariavel(
+    texto: string
+  ) {
+    const limpo =
+      String(
+        texto || ""
+      ).trim();
+
+    if (!limpo) {
+      return limpo;
+    }
+
+    return (
+      limpo.charAt(0)
+        .toLocaleUpperCase(
+          locale
+        ) +
+      limpo.slice(1)
+    );
+  }
+
+
+  function tituloVariavelLocalizado(
+    tag: string,
+    tituloOriginal: string
+  ) {
+    const override =
+      catalogoVariaveisTraduzido
+        .titleOverrides[tag];
+
+    if (override) {
+      return override;
+    }
+
+    if (
+      locale === "pt-BR"
+    ) {
+      return tituloOriginal;
+    }
+
+    if (
+      locale === "pt-PT"
+    ) {
+      return tituloOriginal
+        .replace(
+          /holerite/gi,
+          "recibo de vencimento"
+        );
+    }
+
+    const tokensOriginais =
+      tokensTecnicosDaTag(
+        tag
+      );
+
+    const ultimoToken =
+      tokensOriginais[
+        tokensOriginais.length -
+          1
+      ];
+
+    const sufixoEntidade =
+      catalogoVariaveisTraduzido
+        .entitySuffixes[
+          ultimoToken
+        ];
+
+    const tokensPrefixo =
+      sufixoEntidade
+        ? tokensOriginais.slice(
+            0,
+            -1
+          )
+        : tokensOriginais;
+
+    const agrupados =
+      agruparTokensVariavel(
+        tokensPrefixo
+      );
+
+    let traduzidos =
+      agrupados.map(
+        traduzirTokenVariavel
+      );
+
+    if (
+      locale === "en-US"
+    ) {
+      traduzidos =
+        [...traduzidos]
+          .reverse();
+
+      const prefixo =
+        traduzidos
+          .join(" ")
+          .trim();
+
+      const titulo =
+        sufixoEntidade
+          ? [
+              sufixoEntidade,
+              prefixo,
+            ]
+              .filter(Boolean)
+              .join(" ")
+          : prefixo;
+
+      return capitalizarTituloVariavel(
+        titulo
+      );
+    }
+
+    const prefixo =
+      traduzidos
+        .join(" ")
+        .trim();
+
+    const titulo =
+      sufixoEntidade
+        ? [
+            prefixo,
+            sufixoEntidade,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : prefixo;
+
+    return capitalizarTituloVariavel(
+      titulo
+    );
+  }
+
+
+  function categoriaVariavelLocalizada(
+    categoriaOriginal?: string
+  ) {
+    const original =
+      categoriaOriginal ||
+      "Geral";
+
+    return (
+      catalogoVariaveisTraduzido
+        .categories[
+          original
+        ] ||
+      catalogoVariaveisTraduzido
+        .categories.Geral ||
+      original
+    );
+  }
+
+
+  const variaveisInteligentesBase =
+    todasAsTags.map(
+      (tag) => {
+        const info =
+          descricoesVariaveis[
+            tag
+          ];
+
+        const tituloOriginal =
+          info?.titulo ||
+          tag
+            .replaceAll(
+              "{{",
+              ""
+            )
+            .replaceAll(
+              "}}",
+              ""
+            )
+            .replace(
+              /([A-Z])/g,
+              " $1"
+            )
+            .trim();
+
+        if (
+          tag ===
+          "{{eventosHolerite}}"
+        ) {
+          const especial =
+            catalogoVariaveisTraduzido
+              .special
+              .eventosHolerite;
+
+          return {
+            tag,
+            titulo:
+              especial.title,
+            descricao:
+              especial.description,
+            ondeUsar:
+              especial.useIn,
+            palavras: [
+              tag,
+              tag.toLowerCase(),
+              especial.title,
+              especial.description,
+              especial.category,
+              "eventosHolerite",
+            ],
+            categoria:
+              especial.category,
+          };
+        }
+
+        const titulo =
+          tituloVariavelLocalizado(
+            tag,
+            tituloOriginal
+          );
+
+        const categoria =
+          categoriaVariavelLocalizada(
+            info?.categoria
+          );
+
+        const descricao =
+          locale === "pt-BR"
+            ? (
+                info?.descricao ||
+                t(
+                  "variableCatalog.genericDescription",
+                  {
+                    title:
+                      titulo,
+                  }
+                )
+              )
+            : t(
+                "variableCatalog.genericDescription",
+                {
+                  title:
+                    titulo,
+                }
+              );
+
+        const ondeUsar =
+          locale === "pt-BR"
+            ? (
+                info?.ondeUsar ||
+                t(
+                  "variableCatalog.genericUseIn",
+                  {
+                    category:
+                      categoria,
+                  }
+                )
+              )
+            : t(
+                "variableCatalog.genericUseIn",
+                {
+                  category:
+                    categoria,
+                }
+              );
+
+        const palavrasTecnicas =
+          agruparTokensVariavel(
+            tokensTecnicosDaTag(
+              tag
+            )
+          ).map(
+            traduzirTokenVariavel
+          );
+
+        return {
+          tag,
+          titulo,
+          descricao,
+          ondeUsar,
+
+          palavras: [
+            tag,
+            tag.toLowerCase(),
+
+            ...(
+              info?.palavras ||
+              []
+            ),
+
+            titulo,
+            descricao,
+            categoria,
+
+            ...palavrasTecnicas,
+          ],
+
+          categoria,
+        };
+      }
+    );
 
   const prioridadeTags: Record<string, number> = {
     "{{nomeAluno}}": 1000,
@@ -3122,11 +3797,11 @@ function AdminDocumentosTemplatesPage() {
 
       {erro && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl dark:border-red-900 dark:bg-slate-900">
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  Não foi possível salvar
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                  {t("errorModal.title")}
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
                   {erro}
@@ -3142,8 +3817,8 @@ function AdminDocumentosTemplatesPage() {
               </button>
             </div>
 
-            <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">
-              Preencha os campos obrigatórios antes de criar ou salvar o template.
+            <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-200">
+              {t("errorModal.requiredHelp")}
             </div>
 
             <button
@@ -3151,21 +3826,20 @@ function AdminDocumentosTemplatesPage() {
               onClick={() => setErro("")}
               className="mt-5 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700"
             >
-              Entendi
+              {t("errorModal.understood")}
             </button>
           </div>
         </div>
       )}
       <div>
-        <h1 className="text-2xl font-bold">📄 Templates de documentos</h1>
-        <p className="mt-1 text-gray-600">
-          Cadastre modelos dinâmicos de contrato, declaração, recibo,
-          comprovante, trancamento e outros documentos institucionais.
+        <h1 className="text-2xl font-bold">📄 {t("page.title")}</h1>
+        <p className="pdoc-muted mt-1">
+          {t("page.description")}
         </p>
       </div>
 
       {mensagem ? (
-        <div className="rounded-2xl border bg-white p-4 text-sm text-gray-700 shadow-sm">
+        <div className="pdoc-card rounded-2xl border p-4 text-sm shadow-sm">
           {mensagem}
         </div>
       ) : null}
@@ -3176,10 +3850,10 @@ function AdminDocumentosTemplatesPage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">
-                  {editingId ? "Editar template" : "Novo template"}
+                  {editingId ? t("form.editTitle") : t("form.newTitle")}
                 </h2>
-                <p className="mt-1 text-sm text-gray-600">
-                  Defina o tipo, contexto, conteúdo e regras do documento.
+                <p className="pdoc-muted mt-1 text-sm">
+                  {t("form.description")}
                 </p>
               </div>
 
@@ -3188,75 +3862,74 @@ function AdminDocumentosTemplatesPage() {
                   onClick={limparFormulario}
                   className="rounded-xl border px-3 py-2 text-sm hover:border-blue-400"
                 >
-                  Novo
+                  {t("form.newAction")}
                 </button>
               ) : null}
             </div>
 
             <div className="mt-5 space-y-4">
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                  Nome
+                <label className="pdoc-label flex items-center gap-2 text-sm font-medium">
+                  {t("form.fields.name.label")}
                   <span className="group relative inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                     a
                     <span className="pointer-events-none absolute left-6 top-0 z-50 hidden w-72 rounded-xl border bg-white p-3 text-xs font-normal leading-relaxed text-slate-700 shadow-lg group-hover:block">
-                      Este nome é apenas interno, para a equipe administrativa identificar o modelo depois.
-                      Ele não aparece no documento gerado para o aluno.
+                      {t("form.fields.name.help")}
                       <br />
                       <br />
-                      Exemplos: Contrato de matrícula padrão, Declaração de vínculo, Recibo financeiro.
+                      {t("form.fields.name.examples")}
                     </span>
                   </span>
                 </label>
                 <input
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className="mt-1 w-full rounded-xl border px-3 py-2"
-                  placeholder="Ex.: Contrato de matrícula padrão"
+                  className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
+                  placeholder={t("form.fields.name.placeholder")}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Descrição
+                <label className="pdoc-label text-sm font-medium">
+                  {t("form.fields.description.label")}
                 </label>
                 <input
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
-                  className="mt-1 w-full rounded-xl border px-3 py-2"
-                  placeholder="Descrição opcional"
+                  className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
+                  placeholder={t("form.fields.description.placeholder")}
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Tipo do documento
+                  <label className="pdoc-label text-sm font-medium">
+                    {t("form.fields.type")}
                   </label>
                   <select
                     value={tipo}
                     onChange={(e) =>
                       trocarTipoDocumento(e.target.value as TipoDocumentoTemplate)
                     }
-                    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white"
+                    className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
                   >
                     {TIPOS_DOCUMENTO.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
+                      <option key={item} value={item}>
+                        {labelTipo(item)}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Contexto
+                  <label className="pdoc-label text-sm font-medium">
+                    {t("form.fields.context.label")}
                   </label>
                   <input
                     value={contexto}
                     onChange={(e) => setContexto(e.target.value)}
-                    className="mt-1 w-full rounded-xl border px-3 py-2"
-                    placeholder="Ex.: MATRICULA, FINANCEIRO, TRANCAMENTO"
+                    className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2"
+                    placeholder={t("form.fields.context.placeholder")}
                   />
                 </div>
               </div>
@@ -3268,7 +3941,7 @@ function AdminDocumentosTemplatesPage() {
                     checked={ativo}
                     onChange={(e) => setAtivo(e.target.checked)}
                   />
-                  Ativo
+                  {t("form.fields.active")}
                 </label>
 
                 <label className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
@@ -3277,13 +3950,13 @@ function AdminDocumentosTemplatesPage() {
                     checked={exigeAssinatura}
                     onChange={(e) => setExigeAssinatura(e.target.checked)}
                   />
-                  Exige assinatura
+                  {t("form.fields.requiresSignature")}
                 </label>
               </div>
 
               <div>
                 <label className="pdoc-label text-sm font-bold">
-                  Formato de impressão
+                  {t("print.label")}
                 </label>
 
                 <select
@@ -3297,53 +3970,53 @@ function AdminDocumentosTemplatesPage() {
                   }
                   className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2 text-sm font-semibold outline-none focus:border-blue-500"
                 >
-                  <option value="A4_INTEIRA">Folha inteira A4</option>
-                  <option value="DUAS_VIAS_A4">2 vias na mesma folha A4</option>
+                  <option value="A4_INTEIRA">{t("print.a4")}</option>
+                  <option value="DUAS_VIAS_A4">{t("print.twoCopies")}</option>
                 </select>
 
                 <p className="pdoc-muted mt-1 text-xs font-medium">
-                  Use 2 vias para recibos, comprovantes, trancamentos e declarações simples.
+                  {t("print.help")}
                 </p>
               </div>
 
               <div className="pdoc-soft phanyx-doc-variables-panel rounded-2xl border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="font-medium text-slate-800">
-                      Variáveis dinâmicas
+                    <h3 className="pdoc-label font-medium">
+                      {t("variables.title")}
                     </h3>
-                    <p className="mt-1 text-xs text-slate-600">
-                      Use estas marcações dentro do texto.
+                    <p className="pdoc-muted mt-1 text-xs">
+                      {t("variables.description")}
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={aplicarModeloInicial}
-                    className="rounded-xl border bg-white px-3 py-2 text-sm hover:border-blue-400"
+                    className="pdoc-card rounded-xl border px-3 py-2 text-sm hover:border-blue-400"
                   >
-                    Carregar modelo base
+                    {t("variables.loadBase")}
                   </button>
                   <button
                     type="button"
                     onClick={visualizarPdfTemplate}
                     disabled={visualizandoPdf}
-                    className="rounded-xl border bg-white px-3 py-2 text-sm hover:border-blue-400"
+                    className="pdoc-card rounded-xl border px-3 py-2 text-sm hover:border-blue-400"
                   >
                     {visualizandoPdf
-                      ? "⏳ Gerando PDF..."
-                      : "👁 Visualizar PDF"}
+                      ? t("variables.generatingPdf")
+                      : t("variables.viewPdf")}
                   </button>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setMostrarTodasVariaveis((v) => !v)}
-                  className="mt-3 rounded-xl border bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-blue-400"
+                  className="pdoc-card mt-3 rounded-xl border px-3 py-2 text-sm font-medium hover:border-blue-400"
                 >
                   {mostrarTodasVariaveis
-                    ? "▲ Ocultar todas as variáveis"
-                    : "▼ Ver todas as variáveis"}
+                    ? t("variables.hideAll")
+                    : t("variables.showAll")}
                 </button>
 
                 <div className="mt-4">
@@ -3351,7 +4024,7 @@ function AdminDocumentosTemplatesPage() {
                     value={buscaVariavel}
                     onChange={(e) => setBuscaVariavel(e.target.value)}
                     className="pdoc-input w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-blue-500"
-                    placeholder="Buscar variável por nome ou finalidade. Ex.: nome da escola, assinatura diretor, curso..."
+                    placeholder={t("variables.searchPlaceholder")}
                   />
 
                   <div className="phanyx-template-vars-grid mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -3419,7 +4092,7 @@ function AdminDocumentosTemplatesPage() {
                             {variavel.categoria}
                           </div>
                           <div className="flex items-center justify-between gap-2">
-                            <div className="font-mono font-bold text-blue-700">
+                            <div className="font-mono font-bold text-blue-700 dark:text-blue-300">
                               {variavel.tag}
                             </div>
 
@@ -3432,20 +4105,23 @@ function AdminDocumentosTemplatesPage() {
                               }}
                               className="rounded-full bg-blue-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-blue-700"
                             >
-                              📋 Copiar
+                              {t("variables.copy")}
                             </button>
                           </div>
 
-                          <div className="mt-1 font-semibold text-slate-800">
+                          <div className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
                             {variavel.titulo}
                           </div>
 
-                          <p className="mt-1 text-slate-600">
+                          <p className="mt-1 text-slate-600 dark:text-slate-300">
                             {variavel.descricao}
                           </p>
 
-                          <p className="mt-2 text-[11px] text-slate-500">
-                            Usar em: {variavel.ondeUsar}
+                          <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+                            {t("variables.useIn", {
+                              location:
+                                variavel.ondeUsar
+                            })}
                           </p>
                         </button>
                       ))}
@@ -3455,7 +4131,7 @@ function AdminDocumentosTemplatesPage() {
 
               <div>
                 <label className="pdoc-label mb-2 block text-sm font-bold">
-                  Conteúdo do template
+                  {t("content.title")}
                 </label>
 
                 <div
@@ -3467,9 +4143,7 @@ function AdminDocumentosTemplatesPage() {
                       value={conteudo}
                       onChange={setConteudo}
                       modeloBase={
-                        templateInicialPorTipo(
-                          "HISTORICO"
-                        )
+                        modeloBaseLocalizado("HISTORICO")
                       }
                       onCopyTag={
                         copiarVariavel
@@ -3780,10 +4454,10 @@ function AdminDocumentosTemplatesPage() {
                   ].join(" ")}
                 >
                   {saving
-                    ? "Salvando..."
+                    ? t("actions.saving")
                     : editingId
-                      ? "Salvar alterações"
-                      : "Criar template"}
+                      ? t("actions.saveChanges")
+                      : t("actions.create")}
                 </button>
 
                 <button
@@ -3791,7 +4465,7 @@ function AdminDocumentosTemplatesPage() {
                   type="button"
                   className="rounded-xl border px-4 py-2 hover:border-blue-400"
                 >
-                  Limpar
+                  {t("actions.clear")}
                 </button>
               </div>
             </div>
@@ -3803,9 +4477,9 @@ function AdminDocumentosTemplatesPage() {
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold">Templates cadastrados</h2>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Gerencie os modelos documentais da instituição.
+                  <h2 className="text-lg font-semibold">{t("list.title")}</h2>
+                  <p className="pdoc-muted mt-1 text-sm">
+                    {t("list.description")}
                   </p>
                 </div>
 
@@ -3814,7 +4488,7 @@ function AdminDocumentosTemplatesPage() {
                     value={filtroBusca}
                     onChange={(e) => setFiltroBusca(e.target.value)}
                     className="pdoc-input rounded-xl border px-3 py-2"
-                    placeholder="Buscar por nome, contexto ou tipo"
+                    placeholder={t("list.searchPlaceholder")}
                   />
 
                   <select
@@ -3822,10 +4496,10 @@ function AdminDocumentosTemplatesPage() {
                     onChange={(e) => setFiltroTipo(e.target.value)}
                     className="pdoc-input rounded-xl border px-3 py-2"
                   >
-                    <option value="">Todos os tipos</option>
+                    <option value="">{t("list.allTypes")}</option>
                     {TIPOS_DOCUMENTO.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
+                      <option key={item} value={item}>
+                        {labelTipo(item)}
                       </option>
                     ))}
                   </select>
@@ -3834,7 +4508,7 @@ function AdminDocumentosTemplatesPage() {
                     onClick={carregarTemplates}
                     className="rounded-xl border px-3 py-2 hover:border-blue-400"
                   >
-                    Recarregar
+                    {t("actions.reload")}
                   </button>
 
                 </div>
@@ -3842,10 +4516,10 @@ function AdminDocumentosTemplatesPage() {
             </div>
 
             {loading ? (
-              <div className="p-6 text-gray-600">Carregando templates...</div>
+              <div className="pdoc-muted p-6">{t("list.loading")}</div>
             ) : templatesFiltrados.length === 0 ? (
-              <div className="p-6 text-gray-600">
-                Nenhum template encontrado.
+              <div className="pdoc-muted p-6">
+                {t("list.empty")}
               </div>
             ) : (
               <div className="divide-y">
@@ -3854,7 +4528,7 @@ function AdminDocumentosTemplatesPage() {
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                       <div className="min-w-0 space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-gray-900">
+                          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                             {template.nome}
                           </h3>
 
@@ -3870,7 +4544,7 @@ function AdminDocumentosTemplatesPage() {
                                 : "pdoc-badge-red"
                             ].join(" ")}
                           >
-                            {template.ativo ? "Ativo" : "Inativo"}
+                            {template.ativo ? t("list.active") : t("list.inactive")}
                           </span>
 
                           <span
@@ -3882,38 +4556,38 @@ function AdminDocumentosTemplatesPage() {
                             ].join(" ")}
                           >
                             {template.exigeAssinatura
-                              ? "Com assinatura"
-                              : "Sem assinatura"}
+                              ? t("list.withSignature")
+                              : t("list.withoutSignature")}
                           </span>
                         </div>
 
                         {template.descricao ? (
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-slate-300">
                             {template.descricao}
                           </p>
                         ) : null}
 
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 text-sm">
                           <div>
-                            <p className="text-gray-500">Contexto</p>
-                            <p className="font-medium text-gray-800">
+                            <p className="text-gray-500 dark:text-slate-400">{t("list.context")}</p>
+                            <p className="font-medium text-gray-800 dark:text-slate-200">
                               {template.contexto || "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-gray-500">Atualizado em</p>
-                            <p className="font-medium text-gray-800">
-                              {formatarData(template.atualizadoEm)}
+                            <p className="text-gray-500 dark:text-slate-400">{t("list.updatedAt")}</p>
+                            <p className="font-medium text-gray-800 dark:text-slate-200">
+                              {formatarData(template.atualizadoEm, locale)}
                             </p>
                           </div>
                         </div>
 
                         <div className="phanyx-doc-preview-card rounded-2xl p-4">
-                          <p className="mb-2 text-sm font-medium text-slate-700">
-                            Prévia do conteúdo
+                          <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                            {t("list.preview")}
                           </p>
-                          <div className="max-h-48 overflow-auto whitespace-pre-wrap font-mono text-xs leading-6 text-slate-700">
+                          <div className="max-h-48 overflow-auto whitespace-pre-wrap font-mono text-xs leading-6 text-slate-700 dark:text-slate-300">
                             {gerarPreviaAmigavelTemplate(template.conteudo)}
                           </div>
                         </div>
@@ -3924,14 +4598,14 @@ function AdminDocumentosTemplatesPage() {
                           onClick={() => preencherFormulario(template)}
                           className="rounded-xl border px-3 py-2 text-sm hover:border-blue-400 hover:text-blue-700"
                         >
-                          Editar
+                          {t("actions.edit")}
                         </button>
 
                         <button
                           onClick={() => alternarAtivo(template)}
                           className="rounded-xl border px-3 py-2 text-sm hover:border-amber-400 hover:text-amber-700"
                         >
-                          {template.ativo ? "Desativar" : "Ativar"}
+                          {template.ativo ? t("actions.deactivate") : t("actions.activate")}
                         </button>
 
                         <button
@@ -3945,8 +4619,8 @@ function AdminDocumentosTemplatesPage() {
                           ].join(" ")}
                         >
                           {deletingId === template.id
-                            ? "Excluindo..."
-                            : "Excluir"}
+                            ? t("actions.deleting")
+                            : t("actions.delete")}
                         </button>
                       </div>
                     </div>
@@ -3960,10 +4634,10 @@ function AdminDocumentosTemplatesPage() {
       {templateParaExcluir && (
         <PhanyxConfirmModal
           aberto={true}
-          titulo="Excluir template"
-          mensagem="Tem certeza que deseja excluir este template? Esta ação não poderá ser desfeita."
-          textoConfirmar="Sim, excluir"
-          textoCancelar="Cancelar"
+          titulo={t("deleteModal.title")}
+          mensagem={t("deleteModal.message")}
+          textoConfirmar={t("deleteModal.confirm")}
+          textoCancelar={t("deleteModal.cancel")}
           onConfirmar={() => {
             excluirTemplate(templateParaExcluir);
             setTemplateParaExcluir(null);

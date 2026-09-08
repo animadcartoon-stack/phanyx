@@ -1602,7 +1602,8 @@
       "statusUpdateError": "Não foi possível atualizar a situação do passageiro.",
       "invalidStatusTransition": "Esta mudança de situação não é permitida para o passageiro.",
       "boardedAt": "Embarcado em",
-      "disembarkedAt": "Desembarcado em"
+      "disembarkedAt": "Desembarcado em",
+      "vehicleStatusIncompatible": "Esta operação do passageiro não pode ser realizada na situação atual do veículo."
     }
   },
   "ProfessorLayout": {
@@ -5928,7 +5929,28 @@
     "reservationCancelSuccessWithPromotion": "Reserva cancelada. A próxima pessoa da fila foi promovida automaticamente.",
     "reservationCancelNotFound": "Esta reserva não foi encontrada.",
     "reservationCancelNotAllowed": "Esta reserva não pode mais ser cancelada.",
-    "reservationCancelError": "Não foi possível cancelar a reserva."
+    "reservationCancelError": "Não foi possível cancelar a reserva.",
+    "renewLoanAction": "Renovar empréstimo",
+    "renewalTitle": "Renovar empréstimo",
+    "renewalDescription": "Confira os dados antes de renovar este empréstimo.",
+    "renewalBorrower": "Pessoa com o exemplar",
+    "renewalCurrentDueDate": "Vencimento atual",
+    "renewalCount": "Renovações já realizadas",
+    "renewalAutomaticTitle": "Novo vencimento automático",
+    "renewalAutomaticDateHelp": "O PHANYX calculará o novo vencimento conforme o período padrão definido nas configurações da biblioteca.",
+    "renewalObservation": "Observação",
+    "renewalObservationPlaceholder": "Informe uma observação, se necessário.",
+    "renewalConfirm": "Confirmar renovação",
+    "renewing": "Renovando...",
+    "renewalSuccess": "Empréstimo renovado com sucesso.",
+    "renewalError": "Não foi possível renovar o empréstimo.",
+    "renewalDisabled": "As renovações estão desabilitadas para esta biblioteca.",
+    "renewalLimitReached": "O limite de renovações deste empréstimo foi atingido.",
+    "renewalOverdue": "Empréstimos vencidos ou em atraso não podem ser renovados.",
+    "renewalQueueBlocked": "A renovação foi bloqueada porque outra pessoa está aguardando este item na fila de reservas.",
+    "renewalNotActive": "Este empréstimo não está mais ativo.",
+    "renewalLimitLabel": "Limite",
+    "renewalLimitReachedShort": "Limite de renovações atingido"
   },
   "AdminCertificates": {
     "status": {
@@ -10641,7 +10663,14 @@
         "saveLocalValues": "Salvar valores locais",
         "saveChanges": "Salvar alterações",
         "configureLocalValues": "Configurar valores locais",
-        "editCourse": "Editar curso"
+        "editCourse": "Editar curso",
+        "examples": {
+          "code": "Ex.: TEO-001",
+          "semesters": "Ex.: 6",
+          "enrollmentValue": "Ex.: 20",
+          "monthlyValue": "Ex.: 99,50",
+          "installments": "Ex.: 6"
+        }
       },
       "courseInfo": {
         "expectedSemesters": "Quantidade prevista de semestres"
@@ -10656,7 +10685,11 @@
         "semesterLabel": "Semestre {number}",
         "minimumWorkload": "Carga mínima permitida no semestre (horas)",
         "maximumWorkload": "Carga máxima permitida no semestre (horas)",
-        "saveWorkload": "Salvar carga"
+        "saveWorkload": "Salvar carga",
+        "examples": {
+          "minimumWorkload": "Ex.: 200",
+          "maximumWorkload": "Ex.: 400"
+        }
       },
       "subjects": {
         "linkedTitle": "Disciplinas já vinculadas",
@@ -11560,6 +11593,24 @@
       "moveTableHelp": "Arraste pela alça azul ✥ acima da tabela.",
       "selectTableObject": "Selecionar tabela",
       "deleteTableShortcutHelp": "Tabela selecionada: use Delete/Backspace ou Ctrl+X para recortar."
+    },
+    "main": {
+      "title": "Ferramentas de edição",
+      "font": "Fonte",
+      "fontSize": "Tamanho",
+      "lineSpacing": "Espaçamento",
+      "line": "Linha {value}",
+      "bold": "Negrito",
+      "italic": "Itálico",
+      "underline": "Sublinhado",
+      "left": "Esquerda",
+      "center": "Centro",
+      "right": "Direita",
+      "justify": "Justificar",
+      "heading": "Título",
+      "subheading": "Subtítulo",
+      "list": "Lista",
+      "textColor": "Cor do texto"
     }
   },
   "AdminMobilityDashboard": {
@@ -12807,6 +12858,263 @@
         "ombudsman": "Ouvidoria",
         "materials": "Materiais/Aulas"
       }
+    }
+  },
+  "AdminDocumentsTemplates": {
+    "messages": {
+      "variableCopied": "Variável {variable} copiada.",
+      "copyFailed": "Não foi possível copiar {variable}. Selecione e copie manualmente.",
+      "loadError": "Erro ao carregar templates.",
+      "nameRequired": "Informe o nome do template.",
+      "typeRequired": "Selecione o tipo do template.",
+      "contentRequired": "Informe o conteúdo do template.",
+      "saveError": "Erro ao salvar template.",
+      "updated": "Template atualizado com sucesso!",
+      "created": "Template criado com sucesso!",
+      "deleteError": "Erro ao excluir template.",
+      "deleted": "Template excluído com sucesso!",
+      "statusError": "Erro ao atualizar status.",
+      "statusUpdated": "Status do template atualizado com sucesso!",
+      "generatingPreview": "Gerando prévia do PDF...",
+      "previewError": "Não foi possível gerar a prévia.",
+      "viewPdfError": "Erro ao visualizar PDF."
+    },
+    "defaults": {
+      "standardName": "{type} padrão"
+    },
+    "page": {
+      "title": "Templates de documentos",
+      "description": "Cadastre modelos dinâmicos de contrato, declaração, recibo, comprovante, trancamento e outros documentos institucionais."
+    },
+    "errorModal": {
+      "title": "Não foi possível salvar",
+      "requiredHelp": "Preencha os campos obrigatórios antes de criar ou salvar o template.",
+      "understood": "Entendi"
+    },
+    "form": {
+      "newTitle": "Novo template",
+      "editTitle": "Editar template",
+      "description": "Defina o tipo, contexto, conteúdo e regras do documento.",
+      "newAction": "Novo",
+      "fields": {
+        "name": {
+          "label": "Nome",
+          "placeholder": "Ex.: Contrato de matrícula padrão",
+          "help": "Este nome é apenas interno, para a equipe administrativa identificar o modelo depois. Ele não aparece no documento gerado para o aluno.",
+          "examples": "Exemplos: Contrato de matrícula padrão, Declaração de vínculo, Recibo financeiro."
+        },
+        "description": {
+          "label": "Descrição",
+          "placeholder": "Descrição opcional"
+        },
+        "type": "Tipo do documento",
+        "context": {
+          "label": "Contexto",
+          "placeholder": "Ex.: MATRICULA, FINANCEIRO, TRANCAMENTO"
+        },
+        "active": "Ativo",
+        "requiresSignature": "Exige assinatura"
+      }
+    },
+    "print": {
+      "label": "Formato de impressão",
+      "a4": "Folha inteira A4",
+      "twoCopies": "2 vias na mesma folha A4",
+      "help": "Use 2 vias para recibos, comprovantes, trancamentos e declarações simples."
+    },
+    "variables": {
+      "title": "Variáveis dinâmicas",
+      "description": "Use estas marcações dentro do texto.",
+      "loadBase": "Carregar modelo base",
+      "generatingPdf": "⏳ Gerando PDF...",
+      "viewPdf": "👁 Visualizar PDF",
+      "hideAll": "▲ Ocultar todas as variáveis",
+      "showAll": "▼ Ver todas as variáveis",
+      "searchPlaceholder": "Buscar variável por nome ou finalidade. Ex.: nome da escola, assinatura diretor, curso...",
+      "copy": "📋 Copiar",
+      "useIn": "Usar em: {location}"
+    },
+    "content": {
+      "title": "Conteúdo do template"
+    },
+    "actions": {
+      "saving": "Salvando...",
+      "saveChanges": "Salvar alterações",
+      "create": "Criar template",
+      "clear": "Limpar",
+      "reload": "Recarregar",
+      "edit": "Editar",
+      "deactivate": "Desativar",
+      "activate": "Ativar",
+      "deleting": "Excluindo...",
+      "delete": "Excluir"
+    },
+    "list": {
+      "title": "Templates cadastrados",
+      "description": "Gerencie os modelos documentais da instituição.",
+      "searchPlaceholder": "Buscar por nome, contexto ou tipo",
+      "allTypes": "Todos os tipos",
+      "loading": "Carregando templates...",
+      "empty": "Nenhum template encontrado.",
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "withSignature": "Com assinatura",
+      "withoutSignature": "Sem assinatura",
+      "context": "Contexto",
+      "updatedAt": "Atualizado em",
+      "preview": "Prévia do conteúdo"
+    },
+    "deleteModal": {
+      "title": "Excluir template",
+      "message": "Tem certeza que deseja excluir este template? Esta ação não poderá ser desfeita.",
+      "confirm": "Sim, excluir",
+      "cancel": "Cancelar"
+    },
+    "variableCatalog": {
+      "genericDescription": "Variável dinâmica disponível para utilização em documentos.",
+      "genericUseIn": "{category}.",
+      "categories": {
+        "Admissão": "Admissão",
+        "Advertência": "Advertência",
+        "Afastamento Funcionário": "Afastamento Funcionário",
+        "Assinatura de diretor": "Assinatura de diretor",
+        "Cadastro do Funcionário": "Cadastro do Funcionário",
+        "Comprovantes": "Comprovantes",
+        "Contrato": "Contrato",
+        "Contratos e Comprovantes": "Contratos e Comprovantes",
+        "Documentos Gerais": "Documentos Gerais",
+        "Férias": "Férias",
+        "Histórico": "Histórico",
+        "Histórico Aluno": "Histórico Aluno",
+        "Holerite": "Holerite",
+        "Medicina Ocupacional": "Medicina Ocupacional",
+        "Rescisão": "Rescisão",
+        "RH - Blocos prontos": "RH - Blocos prontos",
+        "RH - Rescisão": "RH - Rescisão",
+        "Suspensão": "Suspensão",
+        "Geral": "Geral"
+      },
+      "tokens": {},
+      "entitySuffixes": {},
+      "titleOverrides": {
+        "{{numeroAutorizacaoCurso}}": "Número de autorização do curso",
+        "{{dataPublicacaoAutorizacao}}": "Data de publicação da autorização",
+        "{{diarioOficialAutorizacao}}": "Diário Oficial da autorização",
+        "{{cargaHorariaMinimaCurso}}": "Carga horária mínima do curso",
+        "{{cargaHorariaMaximaCurso}}": "Carga horária máxima do curso",
+        "{{cargaHorariaCurso}}": "Carga horária do curso",
+        "{{totalCargaHorariaAnualAulas}}": "Carga horária anual total em aulas",
+        "{{totalCargaHorariaAnualHoras}}": "Carga horária anual total em horas",
+        "{{cargaHorariaMensalFuncionario}}": "Carga horária mensal do funcionário",
+        "{{disciplinasPorSemestre}}": "Disciplinas por semestre",
+        "{{provavelSemestreFormatura}}": "Semestre provável de formatura",
+        "{{medicoResponsavel}}": "Médico responsável",
+        "{{blocoEmpregadorColaborador}}": "Bloco de dados do empregador e colaborador",
+        "{{periodoAquisitivoInicio}}": "Início do período aquisitivo",
+        "{{periodoAquisitivoFim}}": "Fim do período aquisitivo",
+        "{{baseFgts}}": "Base de cálculo do FGTS",
+        "{{fgtsMes}}": "FGTS do mês",
+        "{{blocoAssinaturasRescisao}}": "Bloco de assinaturas da rescisão",
+        "{{blocoDadosFuncionarioRescisao}}": "Bloco de dados do funcionário para rescisão",
+        "{{tipoRescisao}}": "Tipo de rescisão",
+        "{{valorRescisao}}": "Valor da rescisão",
+        "{{blocoValoresRescisao}}": "Bloco de valores da rescisão",
+        "{{blocoRescisaoAssinaturaCompleto}}": "Bloco completo de rescisão e assinaturas"
+      },
+      "special": {
+        "eventosHolerite": {
+          "title": "Eventos do holerite",
+          "description": "Insere a relação detalhada dos eventos, vencimentos e descontos do holerite.",
+          "useIn": "Holerites.",
+          "category": "Holerite"
+        }
+      }
+    },
+    "baseTemplates": {
+      "contract": "CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS\n\nA instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, celebra o presente contrato com o(a) aluno(a) {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, regularmente matriculado(a) no curso {{curso}}.\n\nDISCIPLINAS CONTRATADAS:\n{{disciplinas}}\n\nVALOR CONTRATADO:\n{{valorContrato}}\n\nO presente contrato regula a prestação dos serviços educacionais conforme as normas institucionais vigentes.\n\nAs partes declaram estar de pleno acordo com os termos estabelecidos.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "declaration": "DECLARAÇÃO\n\nDeclaramos, para os devidos fins, que o(a) aluno(a) {{nomeAluno}}, inscrito(a) sob matrícula {{matriculaAluno}}, CPF {{cpfAluno}}, encontra-se regularmente vinculado(a) à instituição {{nomeInstituicao}}, no curso {{curso}}.\n\nEsta declaração é emitida a pedido do(a) interessado(a) para os fins que se fizerem necessários.\n\nEmitido em {{dataAtual}}.\n\n{{cidadeAssinatura}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "receipt": "RECIBO DE PAGAMENTO\n\nRecebemos de {{nomeAluno}}, CPF {{cpfAluno}}, a quantia de {{valorContrato}}, referente a {{referenciaFinanceira}}.\n\nEste recibo comprova a quitação do valor mencionado nesta data.\n\nEmitido por {{nomeInstituicao}} em {{dataAtual}}.\n\n{{cidadeAssinatura}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "proof": "COMPROVANTE DE PAGAMENTO\n\nCertificamos que foi identificado pagamento em nome de {{nomeAluno}}, matrícula {{matriculaAluno}}, no valor de {{valorContrato}}, referente a {{referenciaFinanceira}}.\n\nDocumento emitido para fins de comprovação financeira.\n\n{{nomeInstituicao}}\n{{dataAtual}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "withdrawal": "DECLARAÇÃO DE TRANCAMENTO DE MATRÍCULA\n\nDeclaramos que a matrícula do(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, CPF {{cpfAluno}}, vinculada ao curso {{curso}}, encontra-se oficialmente trancada conforme registro acadêmico institucional.\n\nEste documento é emitido para fins comprobatórios.\n\nEmitido em {{dataAtual}}.\n\n{{cidadeAssinatura}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "attendance": "DECLARAÇÃO DE COMPARECIMENTO\n\nDeclaramos, para os devidos fins, que o(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, compareceu à instituição {{nomeInstituicao}} na data de {{dataAtual}}.\n\nDocumento emitido para comprovação de comparecimento.\n\n{{cidadeAssinatura}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "history": "[CABEÇALHO INSTITUCIONAL]\n\n{{blocoInstituicao}}\n\n[TÍTULO]\n\nHISTÓRICO ACADÊMICO ESCOLAR\n\n[DADOS DO ALUNO]\n\nAluno(a): {{nomeAluno}}\nCPF: {{cpfAluno}}\nMatrícula: {{matriculaAluno}}\nStatus do aluno: {{statusAluno}}\n\n[DADOS DA MATRÍCULA]\n\nCurso: {{curso}}\nStatus da matrícula: {{statusMatricula}}\nData da matrícula: {{dataMatricula}}\nData de conclusão: {{dataConclusao}}\nSemestre atual: {{semestreAtual}}\nCarga horária do curso: {{cargaHorariaCurso}}\nPercentual de conclusão: {{percentualConclusao}}\n\n[DADOS DO POLO]\n\n{{blocoPolo}}\n\n[COMPONENTES CURRICULARES]\n\n{{disciplinas}}\n\n[OBSERVAÇÕES]\n\nDocumento emitido em {{dataAtual}} por {{nomeInstituicao}}.\n\nEste histórico acadêmico foi emitido eletronicamente pelo PHANYX com base nos registros acadêmicos da instituição.\n\n[ASSINATURA INSTITUCIONAL]\n\n\n\n{{blocoAssinaturaDiretor}}\n\n[RODAPÉ]\n\n{{nomeInstituicao}} - CNPJ {{cnpjInstituicao}}\n",
+      "other": "DOCUMENTO INSTITUCIONAL\n\nTítulo: {{tituloDocumento}}\n\nAluno(a): {{nomeAluno}}\nCPF: {{cpfAluno}}\nMatrícula: {{matriculaAluno}}\n\nConteúdo personalizado.\n\nEmitido em {{dataAtual}} por {{nomeInstituicao}}.\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "employmentContract": "CONTRATO DE TRABALHO\n\nPelo presente instrumento, {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, contrata o(a) colaborador(a) {{nomeFuncionario}}, CPF {{cpfFuncionario}}, RG {{rgFuncionario}}, PIS/PASEP {{pisPasepFuncionario}}, para exercer a função de {{cargoFuncionario}}, no departamento {{departamentoFuncionario}}.\n\nDados do contrato:\n- Cargo: {{cargoFuncionario}}\n- Departamento: {{departamentoFuncionario}}\n- Data de admissão: {{dataAdmissaoFuncionario}}\n- Tipo de contrato: {{tipoContratoFuncionario}}\n- Carga horária mensal: {{cargaHorariaMensalFuncionario}}\n- Salário base: {{salarioBaseFuncionario}}\n\nO(a) colaborador(a) compromete-se a cumprir as normas internas da instituição, zelar pelo patrimônio, manter sigilo sobre informações institucionais e desempenhar suas atividades com responsabilidade, ética e pontualidade.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nEMPREGADOR:\n{{nomeInstituicao}}\nCNPJ: {{cnpjInstituicao}}\n\nEMPREGADO(A):\n{{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "probationContract": "CONTRATO DE EXPERIÊNCIA\n\nA instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, contrata o(a) colaborador(a) {{nomeFuncionario}}, CPF {{cpfFuncionario}}, RG {{rgFuncionario}}, PIS/PASEP {{pisPasepFuncionario}}, para exercer a função de {{cargoFuncionario}}, no departamento {{departamentoFuncionario}}.\n\nDados do contrato de experiência:\n- Data de admissão: {{dataAdmissaoFuncionario}}\n- Tipo de contrato: {{tipoContratoFuncionario}}\n- Carga horária mensal: {{cargaHorariaMensalFuncionario}}\n- Salário base: {{salarioBaseFuncionario}}\n\nO presente contrato de experiência observará as normas internas da instituição e a legislação aplicável.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nEMPREGADOR:\n{{nomeInstituicao}}\nCNPJ: {{cnpjInstituicao}}\n\nEMPREGADO(A):\n{{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "privacyTerm": "TERMO DE CIÊNCIA E CONSENTIMENTO - LGPD\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nO colaborador declara ciência de que seus dados pessoais poderão ser tratados pela instituição {{nomeInstituicao}} para fins administrativos, trabalhistas, legais, contábeis, previdenciários, fiscais e operacionais, conforme legislação aplicável.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "equipmentTerm": "TERMO DE RESPONSABILIDADE PELO USO DE EQUIPAMENTOS\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nO colaborador declara receber equipamentos, materiais ou acessos institucionais necessários ao desempenho de suas atividades, comprometendo-se a utilizá-los com zelo, responsabilidade e exclusivamente para fins profissionais.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "hrDocument": "DOCUMENTO RH\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nConteúdo do documento:\nDigite aqui o conteúdo do documento RH personalizado.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "admission": "DOCUMENTO DE ADMISSÃO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nRG: {{rgFuncionario}}\nPIS/PASEP: {{pisPasepFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\nTipo de contrato: {{tipoContratoFuncionario}}\nData de admissão: {{dataAdmissaoFuncionario}}\nCarga horária mensal: {{cargaHorariaMensalFuncionario}}\nSalário base: {{salarioBaseFuncionario}}\n\nO presente documento registra a admissão do colaborador na instituição.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "dismissal": "DOCUMENTO DE DEMISSÃO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\nData de admissão: {{dataAdmissaoFuncionario}}\nData de desligamento: {{dataDemissao}}\nMotivo da demissão: {{motivoDemissao}}\nTipo de rescisão: {{tipoRescisao}}\n\nO presente documento registra o desligamento do colaborador conforme as informações acima.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "notice": "AVISO PRÉVIO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\nData de admissão: {{dataAdmissaoFuncionario}}\nData de desligamento prevista: {{dataDemissao}}\nMotivo: {{motivoDemissao}}\nAviso prévio: {{avisoPrevio}}\n\nO colaborador declara ciência do aviso prévio conforme as informações acima.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "terminationTerm": "TERMO DE RESCISÃO DE CONTRATO DE TRABALHO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\nData de admissão: {{dataAdmissaoFuncionario}}\nData de desligamento: {{dataDemissao}}\nMotivo da demissão: {{motivoDemissao}}\nTipo de rescisão: {{tipoRescisao}}\n\nVerbas rescisórias:\n- Saldo de salário: {{saldoSalario}}\n- Férias vencidas: {{feriasVencidas}}\n- Férias proporcionais: {{feriasProporcionais}}\n- 13º proporcional: {{decimoTerceiroProporcional}}\n- Aviso prévio: {{avisoPrevio}}\n- Valor total da rescisão: {{valorRescisao}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "payslip": "HOLERITE\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\nCompetência: {{competenciaHolerite}}\nSalário base: {{salarioBaseFuncionario}}\n\nEventos:\n{{eventosHolerite}}\n\nResumo:\n- Total de vencimentos: {{totalVencimentos}}\n- Total de descontos: {{totalDescontos}}\n- Base INSS: {{baseInss}}\n- Base FGTS: {{baseFgts}}\n- FGTS do mês: {{fgtsMes}}\n- Base IRRF: {{baseIrrf}}\n- Valor líquido: {{valorLiquido}}\n\nDeclaro ter recebido a importância líquida discriminada neste holerite.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n{{nomeInstituicao}}\nCNPJ: {{cnpjInstituicao}}\n",
+      "vacationNotice": "AVISO DE FÉRIAS\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nPeríodo aquisitivo: {{periodoAquisitivoInicio}} a {{periodoAquisitivoFim}}\nPeríodo de gozo: {{periodoGozoInicio}} a {{periodoGozoFim}}\nQuantidade de dias: {{diasFerias}}\nData prevista de pagamento: {{dataPagamentoFerias}}\nRetorno ao trabalho: {{dataRetornoTrabalho}}\n\nO(a) colaborador(a) deverá retornar às suas atividades na data informada acima.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nEMPREGADOR:\n{{nomeInstituicao}}\nCNPJ: {{cnpjInstituicao}}\n\nCOLABORADOR(A):\n{{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "vacationReceipt": "RECIBO DE FÉRIAS\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\n\nPeríodo aquisitivo: {{periodoAquisitivoInicio}} a {{periodoAquisitivoFim}}\nPeríodo de gozo: {{periodoGozoInicio}} a {{periodoGozoFim}}\nDias de férias: {{diasFerias}}\n\nValores:\n- Valor das férias: {{valorFerias}}\n- Terço constitucional: {{valorTercoConstitucional}}\n- Valor líquido: {{valorLiquidoFerias}}\n\nData do pagamento: {{dataPagamentoFerias}}\nRetorno ao trabalho: {{dataRetornoTrabalho}}\n\nDeclaro ter recebido os valores acima referentes ao período de férias informado.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "warning": "ADVERTÊNCIA DISCIPLINAR\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nMotivo da advertência:\n{{motivoAdvertencia}}\n\nDescrição detalhada:\n{{descricaoAdvertencia}}\n\nData da ocorrência: {{dataAdvertencia}}\n\nEsta advertência tem caráter educativo e preventivo, visando orientar o colaborador quanto ao cumprimento das normas internas, procedimentos institucionais, ética profissional e responsabilidades inerentes à sua função.\n\nO colaborador declara estar ciente do conteúdo desta advertência e das consequências previstas em caso de reincidência.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCIENTE:\n____________________________________\n{{nomeFuncionario}}\n\nEMPREGADOR:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "suspension": "SUSPENSÃO DISCIPLINAR\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nMotivo da suspensão:\n{{motivoSuspensao}}\n\nDescrição detalhada:\n{{descricaoSuspensao}}\n\nPeríodo de suspensão:\n- Início: {{dataInicioSuspensao}}\n- Fim: {{dataFimSuspensao}}\n- Quantidade de dias: {{diasSuspensao}}\n\nDurante o período acima informado, o colaborador ficará afastado de suas atividades laborais, sem prejuízo das demais obrigações previstas na legislação e nos regulamentos internos aplicáveis.\n\nO colaborador declara estar ciente da presente suspensão disciplinar.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCIENTE:\n____________________________________\n{{nomeFuncionario}}\n\nEMPREGADOR:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "occupationalHealth": "ATESTADO DE SAÚDE OCUPACIONAL - ASO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de ASO: {{tipoAso}}\nNúmero do ASO: {{numeroAso}}\nData do exame: {{dataAso}}\nResultado: {{resultadoAso}}\n\nMédico responsável: {{medicoResponsavel}}\nCRM: {{crmMedico}}\n\nObservações:\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM: {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "leaveReturn": "DOCUMENTO DE AFASTAMENTO / RETORNO AO TRABALHO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de afastamento: {{tipoAfastamento}}\nMotivo: {{motivoAfastamento}}\nCID: {{cidAfastamento}}\nData de início: {{dataInicioAfastamento}}\nData final prevista: {{dataFimAfastamento}}\nQuantidade de dias: {{diasAfastamento}}\nData da perícia: {{dataPericia}}\nResultado da perícia: {{resultadoPericia}}\n\nO presente documento registra as informações relacionadas ao afastamento ou retorno ao trabalho do colaborador.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+    }
+  },
+  "PublicDocumentValidation": {
+    "eyebrow": "Valida??o de documento",
+    "missingCodeTitle": "Informe um c?digo para validar",
+    "missingCodeDescription": "Use o QR Code do documento ou acesse esta p?gina informando o par?metro codigo.",
+    "validationCenter": "Central de valida??o",
+    "authenticityTitle": "Verifica??o de autenticidade",
+    "authenticityDescription": "Consulte a autenticidade de documentos emitidos pelo sistema por meio do c?digo de valida??o.",
+    "consultedCode": "C?digo consultado",
+    "badges": {
+      "valid": "Documento v?lido",
+      "invalidated": "Documento localizado, por?m inv?lido",
+      "notFound": "Documento n?o encontrado"
+    },
+    "invalid": {
+      "invalidatedTitle": "Documento inv?lido para uso",
+      "notFoundTitle": "Documento inv?lido ou n?o encontrado",
+      "genericMessage": "N?o foi poss?vel validar este documento.",
+      "notFoundMessage": "Documento n?o encontrado ou inv?lido.",
+      "invalidatedMessage": "Documento localizado, por?m est? cancelado ou inv?lido.",
+      "ipBlocked": "Acesso bloqueado por seguran?a.",
+      "suspiciousBlocked": "Acesso bloqueado por comportamento suspeito.",
+      "automaticBlocked": "Acesso bloqueado automaticamente por comportamento suspeito.",
+      "internalError": "N?o foi poss?vel concluir a valida??o neste momento."
+    },
+    "sections": {
+      "documentData": "Dados do documento",
+      "linkedData": "Dados vinculados",
+      "result": "Resultado da valida??o"
+    },
+    "fields": {
+      "title": "T?tulo",
+      "type": "Tipo",
+      "status": "Status",
+      "issuedAt": "Emitido em",
+      "updatedAt": "Atualizado em",
+      "template": "Template",
+      "requiresSignature": "Exige assinatura",
+      "student": "Aluno",
+      "enrollment": "Matr?cula",
+      "cpf": "CPF",
+      "course": "Curso",
+      "semester": "Semestre",
+      "enrollmentStatus": "Status da matr?cula",
+      "institution": "Institui??o"
+    },
+    "resultValid": "Este documento foi localizado na base institucional e est? reconhecido pelo sistema como aut?ntico e v?lido para consulta.",
+    "yes": "Sim",
+    "no": "N?o",
+    "institutionFallback": "Institui??o",
+    "notAvailable": "-",
+    "documentTypes": {
+      "CONTRATO": "Contrato",
+      "DECLARACAO": "Declara??o",
+      "RECIBO": "Recibo",
+      "COMPROVANTE": "Comprovante",
+      "TRANCAMENTO": "Trancamento",
+      "COMPARECIMENTO": "Comparecimento",
+      "HISTORICO": "Hist?rico"
     }
   }
 }

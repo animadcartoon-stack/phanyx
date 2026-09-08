@@ -134,6 +134,26 @@ type ManutencaoAbertaExemplar = {
   canceladoPorId: number | null;
 };
 
+type EmprestimoAtivoExemplar = {
+  id: number;
+
+  status: string;
+
+  usuarioId: number;
+
+  emprestadoEm: string;
+  vencimentoEm: string;
+
+  quantidadeRenovacoes: number;
+
+  usuario: {
+    id: number;
+    nome: string;
+    email: string | null;
+    role: string;
+  };
+};
+
 type ExemplarItem = {
   id: number;
 
@@ -163,6 +183,8 @@ type ExemplarItem = {
   baixadoEm: string | null;
   motivoBaixa: string | null;
   manutencaoAberta?: ManutencaoAbertaExemplar | null;
+
+  emprestimoAtivo?: EmprestimoAtivoExemplar | null;
 
   criadoEm: string;
   atualizadoEm: string;
@@ -204,10 +226,16 @@ type RespostaExemplares = {
 
   total?: number;
 
+  renovacao?: {
+    permitirRenovacao: boolean;
+    limiteRenovacoes: number;
+  };
+
   permissoes?: {
     podeGerenciar: boolean;
     podeBaixar: boolean;
     podeGerenciarManutencao: boolean;
+    podeGerenciarRenovacoes: boolean;
     impersonacao: boolean;
   };
 
@@ -851,6 +879,22 @@ export default function BibliotecaItemPage() {
   const [podeGerenciarEmprestimos, setPodeGerenciarEmprestimos] =
     useState(false);
 
+  const [podeGerenciarRenovacoes, setPodeGerenciarRenovacoes] =
+    useState(false);
+
+  const [renovacaoPermitida, setRenovacaoPermitida] =
+    useState(false);
+
+  const [limiteRenovacoes, setLimiteRenovacoes] =
+    useState(0);
+
+  const [exemplarParaRenovacao, setExemplarParaRenovacao] =
+    useState<ExemplarItem | null>(null);
+
+  const [observacaoRenovacao, setObservacaoRenovacao] = useState("");
+
+  const [renovandoEmprestimo, setRenovandoEmprestimo] = useState(false);
+
   const [podeGerenciarReservas, setPodeGerenciarReservas] = useState(false);
 
   const [modalReservaAberto, setModalReservaAberto] = useState(false);
@@ -1102,6 +1146,21 @@ export default function BibliotecaItemPage() {
         setPodeGerenciarManutencao(
           resultado.permissoes?.podeGerenciarManutencao === true,
         );
+
+        setPodeGerenciarRenovacoes(
+          resultado.permissoes?.podeGerenciarRenovacoes === true,
+        );
+
+        setRenovacaoPermitida(
+          resultado.renovacao?.permitirRenovacao === true,
+        );
+
+        setLimiteRenovacoes(
+          Math.max(
+            0,
+            resultado.renovacao?.limiteRenovacoes ?? 0,
+          ),
+        );
       } catch (falha) {
         if (falha instanceof DOMException && falha.name === "AbortError") {
           return;
@@ -1114,6 +1173,10 @@ export default function BibliotecaItemPage() {
         setPodeBaixarExemplares(false);
 
         setPodeGerenciarManutencao(false);
+
+        setPodeGerenciarRenovacoes(false);
+        setRenovacaoPermitida(false);
+        setLimiteRenovacoes(0);
 
         setToast({
           tipo: "erro",
@@ -2794,6 +2857,136 @@ export default function BibliotecaItemPage() {
     }
   }
 
+  function abrirRenovacao(exemplar: ExemplarItem) {
+    if (
+      !podeGerenciarRenovacoes ||
+      impersonacao ||
+      exemplar.tipo !== "FISICO" ||
+      exemplar.baixadoEm ||
+      !exemplar.emprestimoAtivo ||
+      exemplar.emprestimoAtivo.status !== "ATIVO" ||
+      !renovacaoPermitida ||
+      exemplar.emprestimoAtivo.quantidadeRenovacoes >=
+        limiteRenovacoes
+    ) {
+      return;
+    }
+
+    setExemplarParaRenovacao(exemplar);
+    setObservacaoRenovacao("");
+  }
+
+  function fecharRenovacao() {
+    if (renovandoEmprestimo) {
+      return;
+    }
+
+    setExemplarParaRenovacao(null);
+    setObservacaoRenovacao("");
+  }
+
+  async function confirmarRenovacao() {
+    const emprestimo =
+      exemplarParaRenovacao?.emprestimoAtivo;
+
+    if (
+      !exemplarParaRenovacao ||
+      !emprestimo ||
+      renovandoEmprestimo ||
+      !podeGerenciarRenovacoes ||
+      impersonacao
+    ) {
+      return;
+    }
+
+    setRenovandoEmprestimo(true);
+
+    try {
+      const resposta = await fetch(
+        `/api/admin/biblioteca/emprestimos/${emprestimo.id}/renovar`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            observacao:
+              observacaoRenovacao.trim() || null,
+          }),
+        },
+      );
+
+      const resultado = (await resposta.json()) as {
+        ok?: boolean;
+        mensagem?: string;
+        error?: string;
+        codigo?: string;
+
+        emprestimo?: {
+          id: number;
+          status: string;
+          vencimentoEm: string;
+          quantidadeRenovacoes: number;
+        };
+      };
+
+      if (!resposta.ok) {
+        let mensagem =
+          resultado.error ||
+          resultado.mensagem ||
+          ui("renewalError");
+
+        switch (resultado.codigo) {
+          case "RENOVACAO_DESABILITADA":
+            mensagem = ui("renewalDisabled");
+            break;
+
+          case "LIMITE_RENOVACOES_ATINGIDO":
+            mensagem = ui("renewalLimitReached");
+            break;
+
+          case "EMPRESTIMO_ATRASADO":
+            mensagem = ui("renewalOverdue");
+            break;
+
+          case "ITEM_COM_FILA_DE_RESERVA":
+            mensagem = ui("renewalQueueBlocked");
+            break;
+
+          case "EMPRESTIMO_NAO_ATIVO":
+          case "EMPRESTIMO_NAO_ENCONTRADO":
+            mensagem = ui("renewalNotActive");
+            break;
+        }
+
+        throw new Error(mensagem);
+      }
+
+      setExemplarParaRenovacao(null);
+      setObservacaoRenovacao("");
+
+      setToast({
+        tipo: "sucesso",
+        mensagem: ui("renewalSuccess"),
+      });
+
+      setAtualizacao((valor) => valor + 1);
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          falha instanceof Error
+            ? falha.message
+            : ui("renewalError"),
+      });
+    } finally {
+      setRenovandoEmprestimo(false);
+    }
+  }
+
   function abrirDevolucao(exemplar: ExemplarItem) {
     if (
       !podeGerenciarEmprestimos ||
@@ -4241,6 +4434,34 @@ export default function BibliotecaItemPage() {
                           </button>
                         ) : null}
 
+                        {podeGerenciarRenovacoes &&
+                        !impersonacao &&
+                        exemplar.tipo === "FISICO" &&
+                        exemplar.status === "EMPRESTADO" &&
+                        !exemplar.baixadoEm &&
+                        exemplar.emprestimoAtivo?.status === "ATIVO" ? (
+                          renovacaoPermitida &&
+                          exemplar.emprestimoAtivo.quantidadeRenovacoes <
+                            limiteRenovacoes ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-secondary"
+                              onClick={() => abrirRenovacao(exemplar)}
+                            >
+                              {ui("renewLoanAction")}
+                            </button>
+                          ) : exemplar.emprestimoAtivo
+                              .quantidadeRenovacoes >= limiteRenovacoes ? (
+                            <button
+                              type="button"
+                              className="bib-button bib-button-secondary"
+                              disabled
+                            >
+                              {ui("renewalLimitReachedShort")}
+                            </button>
+                          ) : null
+                        ) : null}
+
                         {podeGerenciarEmprestimos &&
                         !impersonacao &&
                         exemplar.tipo === "FISICO" &&
@@ -5580,6 +5801,171 @@ export default function BibliotecaItemPage() {
                 {registrandoReserva
                   ? ui("registering")
                   : ui("registerReservationAction")}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+
+      {exemplarParaRenovacao &&
+      exemplarParaRenovacao.emprestimoAtivo ? (
+        <div className="bib-modal-backdrop" role="presentation">
+          <section
+            className="bib-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-renovacao-biblioteca"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <span className="bib-modal-kicker">
+                  {ui("virtualLibrary")}
+                </span>
+
+                <h2 id="titulo-renovacao-biblioteca">
+                  {ui("renewalTitle")}
+                </h2>
+
+                <p>{ui("renewalDescription")}</p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={fecharRenovacao}
+                disabled={renovandoEmprestimo}
+                aria-label={ui("close")}
+              >
+                {"\u00D7"}
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              <div className="bib-feedback">
+                <div>
+                  <strong>
+                    {exemplarParaRenovacao.codigoInterno}
+                  </strong>
+
+                  <p>
+                    {item?.titulo || ui("collectionItem")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bib-detail-grid">
+                <div
+                  className="bib-detail-item"
+                  style={{
+                    display: "grid",
+                    gap: "4px",
+                  }}
+                >
+                  <span>{ui("renewalBorrower")}</span>
+
+                  <strong>
+                    {
+                      exemplarParaRenovacao
+                        .emprestimoAtivo.usuario.nome
+                    }
+                  </strong>
+
+                  {exemplarParaRenovacao.emprestimoAtivo.usuario.email ? (
+                    <small>
+                      {
+                        exemplarParaRenovacao
+                          .emprestimoAtivo.usuario.email
+                      }
+                    </small>
+                  ) : null}
+                </div>
+
+                <div
+                  className="bib-detail-item"
+                  style={{
+                    display: "grid",
+                    gap: "4px",
+                  }}
+                >
+                  <span>{ui("renewalCurrentDueDate")}</span>
+
+                  <strong>
+                    {formatarData(
+                      exemplarParaRenovacao
+                        .emprestimoAtivo.vencimentoEm,
+                    )}
+                  </strong>
+                </div>
+
+                <div
+                  className="bib-detail-item"
+                  style={{
+                    display: "grid",
+                    gap: "4px",
+                  }}
+                >
+                  <span>{ui("renewalCount")}</span>
+
+                  <strong>
+                    {
+                      exemplarParaRenovacao
+                        .emprestimoAtivo.quantidadeRenovacoes
+                    }
+                  </strong>
+
+                  <small>
+                    {ui("renewalLimitLabel")}: {limiteRenovacoes}
+                  </small>
+                </div>
+              </div>
+
+              <div className="bib-feedback">
+                <div>
+                  <strong>{ui("renewalAutomaticTitle")}</strong>
+
+                  <p>{ui("renewalAutomaticDateHelp")}</p>
+                </div>
+              </div>
+
+              <label className="bib-field">
+                <span>{ui("renewalObservation")}</span>
+
+                <textarea
+                  className="bib-input bib-textarea"
+                  value={observacaoRenovacao}
+                  onChange={(evento) =>
+                    setObservacaoRenovacao(
+                      evento.target.value,
+                    )
+                  }
+                  placeholder={ui(
+                    "renewalObservationPlaceholder",
+                  )}
+                  disabled={renovandoEmprestimo}
+                  rows={4}
+                />
+              </label>
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-secondary"
+                onClick={fecharRenovacao}
+                disabled={renovandoEmprestimo}
+              >
+                {ui("cancel")}
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-primary"
+                onClick={() => void confirmarRenovacao()}
+                disabled={renovandoEmprestimo}
+              >
+                {renovandoEmprestimo
+                  ? ui("renewing")
+                  : ui("renewalConfirm")}
               </button>
             </footer>
           </section>

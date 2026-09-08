@@ -4824,7 +4824,7 @@ export default function EditorTemplatePHANYX({
             className="relative z-40 w-full border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
           >
             <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-slate-950 dark:text-white">
-              Ferramentas de edição
+              {tToolbar("main.title")}
             </div>
             <div className="flex flex-wrap gap-2">
               <select
@@ -4840,7 +4840,7 @@ export default function EditorTemplatePHANYX({
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
                 <option value="">
-                  Fonte
+                  {tToolbar("main.font")}
                 </option>
                 {FONTES_WINDOWS.map((fonte) => (
                   <option key={fonte} value={fonte}>
@@ -4869,7 +4869,7 @@ export default function EditorTemplatePHANYX({
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
                 <option value="">
-                  Tamanho
+                  {tToolbar("main.fontSize")}
                 </option>
                 {TAMANHOS_FONTE.map((tamanho) => (
                   <option key={tamanho} value={tamanho}>
@@ -4896,11 +4896,11 @@ export default function EditorTemplatePHANYX({
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
                 <option value="">
-                  Espaçamento
+                  {tToolbar("main.lineSpacing")}
                 </option>
                 {ESPACAMENTOS_LINHA.map((item) => (
                   <option key={item.value} value={item.value}>
-                    {item.label}
+                    {tToolbar("main.line", { value: item.value })}
                   </option>
                 ))}
               </select>
@@ -4921,7 +4921,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.negrito
                 )}
               >
-                🅱️ Negrito
+                🅱️ {tToolbar("main.bold")}
               </button>
 
               <button
@@ -4940,7 +4940,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.italico
                 )}
               >
-                𝑰 Itálico
+                𝑰 {tToolbar("main.italic")}
               </button>
 
               <button
@@ -4959,7 +4959,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.sublinhado
                 )}
               >
-                U̲ Sublinhado
+                U̲ {tToolbar("main.underline")}
               </button>
 
               <button
@@ -4978,7 +4978,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.esquerda
                 )}
               >
-                ← Esquerda
+                ← {tToolbar("main.left")}
               </button>
 
               <button
@@ -4997,7 +4997,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.centro
                 )}
               >
-                ↔ Centro
+                ↔ {tToolbar("main.center")}
               </button>
 
               <button
@@ -5016,7 +5016,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.direita
                 )}
               >
-                → Direita
+                → {tToolbar("main.right")}
               </button>
 
               <button
@@ -5035,7 +5035,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.justificar
                 )}
               >
-                ☰ Justificar
+                ☰ {tToolbar("main.justify")}
               </button>
 
               <button
@@ -5056,7 +5056,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.titulo
                 )}
               >
-                Título
+                {tToolbar("main.heading")}
               </button>
 
               <button
@@ -5077,7 +5077,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.subtitulo
                 )}
               >
-                Subtítulo
+                {tToolbar("main.subheading")}
               </button>
 
               <button
@@ -5096,7 +5096,7 @@ export default function EditorTemplatePHANYX({
                   formatacaoAtiva.lista
                 )}
               >
-                • Lista
+                • {tToolbar("main.list")}
               </button>
 
               <input
@@ -5105,7 +5105,7 @@ export default function EditorTemplatePHANYX({
                   editor.chain().focus().setColor(e.target.value).run()
                 }
                 className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-                title="Cor do texto"
+                title={tToolbar("main.textColor")}
               />
 
               <div className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
