@@ -3368,27 +3368,61 @@ export async function PUT(request: Request) {
         "valorPagoMatricula"
       );
 
-    const dadosMensalidadeForamInformados =
+    const valorMensalidadeFoiInformadoNaEdicao =
       campoFoiInformado(
         body as Record<string, unknown>,
         "valorMensalidade"
-      ) ||
-      campoFoiInformado(
-        body as Record<string, unknown>,
-        "quantidadeMensalidades"
-      ) ||
-      campoFoiInformado(
-        body as Record<string, unknown>,
-        "quantidadeParcelas"
-      ) ||
-      campoFoiInformado(
-        body as Record<string, unknown>,
-        "primeiroVencimento"
-      ) ||
-      campoFoiInformado(
-        body as Record<string, unknown>,
-        "dataPrimeiroVencimento"
-      );
+      ) &&
+      body.valorMensalidade !== null &&
+      body.valorMensalidade !== undefined &&
+      String(body.valorMensalidade).trim() !== "";
+
+    const quantidadeMensalidadesBrutaEdicao =
+      body.quantidadeMensalidades ??
+      body.quantidadeParcelas;
+
+    const quantidadeMensalidadesFoiInformadaNaEdicao =
+      (
+        campoFoiInformado(
+          body as Record<string, unknown>,
+          "quantidadeMensalidades"
+        ) ||
+        campoFoiInformado(
+          body as Record<string, unknown>,
+          "quantidadeParcelas"
+        )
+      ) &&
+      quantidadeMensalidadesBrutaEdicao !== null &&
+      quantidadeMensalidadesBrutaEdicao !== undefined &&
+      String(
+        quantidadeMensalidadesBrutaEdicao
+      ).trim() !== "";
+
+    const primeiroVencimentoBrutoEdicao =
+      body.primeiroVencimento ??
+      body.dataPrimeiroVencimento;
+
+    const primeiroVencimentoFoiInformadoNaEdicao =
+      (
+        campoFoiInformado(
+          body as Record<string, unknown>,
+          "primeiroVencimento"
+        ) ||
+        campoFoiInformado(
+          body as Record<string, unknown>,
+          "dataPrimeiroVencimento"
+        )
+      ) &&
+      primeiroVencimentoBrutoEdicao !== null &&
+      primeiroVencimentoBrutoEdicao !== undefined &&
+      String(
+        primeiroVencimentoBrutoEdicao
+      ).trim() !== "";
+
+    const dadosMensalidadeForamInformados =
+      valorMensalidadeFoiInformadoNaEdicao ||
+      quantidadeMensalidadesFoiInformadaNaEdicao ||
+      primeiroVencimentoFoiInformadoNaEdicao;
 
     const valorPagoMatriculaRecebido =
       toPositiveNumberOrNull(
