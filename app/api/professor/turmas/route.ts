@@ -218,7 +218,18 @@ const filtrosSubstituicao = substituicoes.map((s) => ({
     semestre: t.semestre,
     periodoLetivo: t.periodoLetivo,
     statusTurma: t.statusTurma,
-    alunos: t.itensMatricula.length,
+    alunos: new Set(
+      t.itensMatricula
+        .filter(
+          (item) => item.status !== "CANCELADO"
+        )
+        .map((item) => item.matriculaId)
+        .filter(
+          (matriculaId): matriculaId is number =>
+            typeof matriculaId === "number" &&
+            Number.isFinite(matriculaId)
+        )
+    ).size,
 
     curso: item.disciplina?.curso ?? null,
 
