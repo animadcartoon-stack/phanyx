@@ -17,6 +17,7 @@ type Turma = {
   statusDisciplina?: string | null;
   dataInicio?: string | null;
   dataFim?: string | null;
+  quantidadeAulas?: number;
 };
 
 type TurmaAgrupada = {
@@ -323,6 +324,32 @@ function TurmaAgrupadaCard({
                                   <strong className="ml-2">{t("end")}:</strong>{" "}
                                   {formatarData(disciplina.dataFim, locale)}
                                 </p>
+
+                                <p
+                                  className="
+                                    mt-2
+                                    inline-flex
+                                    items-center
+                                    rounded-full
+                                    border
+                                    border-indigo-200
+                                    bg-indigo-50
+                                    px-3
+                                    py-1
+                                    text-xs
+                                    font-black
+                                    text-indigo-700
+                                    dark:border-indigo-800
+                                    dark:bg-indigo-950/40
+                                    dark:text-indigo-200
+                                  "
+                                >
+                                  {t("counts.postedLessons", {
+                                    count:
+                                      disciplina.quantidadeAulas ??
+                                      0,
+                                  })}
+                                </p>
                               </div>
 
                               {disciplinaHoje && (
@@ -615,6 +642,8 @@ export default function TurmasProfessorPage() {
           cursoNome: turma.curso?.nome || t("courseUnavailable"),
           disciplinaNome: turma.disciplina?.nome || t("subjectUnavailable"),
           periodo: turma.periodoLetivo || t("periodUnavailable"),
+          quantidadeAulas:
+            turma.quantidadeAulas ?? 0,
           score: Math.max(scoreDisciplina, scoreTurma, scoreCurso, scorePeriodo),
         };
       })
@@ -795,6 +824,22 @@ text-slate-600
 dark:text-slate-300
 ">
                         {t("class", { name: item.turmaNome })} • {item.periodo}
+                      </p>
+
+                      <p
+                        className="
+                          mt-1
+                          text-xs
+                          font-black
+                          text-indigo-700
+                          dark:text-indigo-300
+                        "
+                      >
+                        {t("counts.postedLessons", {
+                          count:
+                            item.quantidadeAulas ??
+                            0,
+                        })}
                       </p>
 
                       <p className="

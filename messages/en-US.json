@@ -3713,7 +3713,8 @@
     "counts": {
       "classes": "{count, plural, =0 {no classes} one {# class} other {# classes}}",
       "subjects": "{count, plural, =0 {no subjects} one {# subject} other {# subjects}}",
-      "students": "{count, plural, =0 {no students} one {# student} other {# students}}"
+      "students": "{count, plural, =0 {no students} one {# student} other {# students}}",
+      "postedLessons": "{count, plural, =0 {No lessons posted} one {# lesson posted} other {# lessons posted}}"
     },
     "holidays": {
       "newYear": "New Year's Day",
