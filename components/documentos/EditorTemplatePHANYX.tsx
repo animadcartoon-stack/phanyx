@@ -3331,10 +3331,124 @@ export default function EditorTemplatePHANYX({
     responsavelCargo,
     nomeInstituicao,
     cnpjInstituicao,
+  ]);
+
+  /*
+   * Atualiza os textos visuais dos PageBreaks quando o locale muda
+   * sem recriar a instancia principal do TipTap.
+   */
+  useEffect(() => {
+    if (
+      !editor ||
+      editor.isDestroyed
+    ) {
+      return;
+    }
+
+    const extensaoPageBreak =
+      editor.extensionManager
+        .extensions
+        .find(
+          (item) =>
+            item.name ===
+            "pageBreak"
+        );
+
+    if (extensaoPageBreak) {
+      const opcoes =
+        extensaoPageBreak.options as {
+          textoRodape?: string;
+          textoCabecalhoLogo?: string;
+          textoPagina?: string;
+        };
+
+      opcoes.textoRodape =
+        previewRodape;
+
+      opcoes.textoCabecalhoLogo =
+        previewCabecalhoLogo;
+
+      opcoes.textoPagina =
+        previewPagina;
+    }
+
+    const raiz =
+      editor.view.dom;
+
+    const pageBreaks =
+      raiz.querySelectorAll<HTMLElement>(
+        '[data-phanyx-page-break="true"]'
+      );
+
+    pageBreaks.forEach(
+      (pageBreak) => {
+        const paginaAnterior =
+          Number(
+            pageBreak.getAttribute(
+              "data-pagina-anterior"
+            ) || "1"
+          );
+
+        const paginaSeguinte =
+          Number(
+            pageBreak.getAttribute(
+              "data-pagina-seguinte"
+            ) ||
+              String(
+                paginaAnterior + 1
+              )
+          );
+
+        const rodape =
+          pageBreak.querySelector(
+            ".phanyx-page-break__rodape"
+          );
+
+        const cabecalho =
+          pageBreak.querySelector(
+            ".phanyx-page-break__cabecalho"
+          );
+
+        const spansRodape =
+          rodape?.querySelectorAll(
+            "span"
+          );
+
+        if (
+          spansRodape &&
+          spansRodape.length >= 2
+        ) {
+          spansRodape[0].textContent =
+            previewRodape;
+
+          spansRodape[1].textContent =
+            `${previewPagina} ${paginaAnterior}`;
+        }
+
+        const spansCabecalho =
+          cabecalho?.querySelectorAll(
+            "span"
+          );
+
+        if (
+          spansCabecalho &&
+          spansCabecalho.length >= 2
+        ) {
+          spansCabecalho[0].textContent =
+            previewCabecalhoLogo;
+
+          spansCabecalho[1].textContent =
+            `${previewPagina} ${paginaSeguinte}`;
+        }
+      }
+    );
+  }, [
+    editor,
     previewCabecalhoLogo,
     previewPagina,
     previewRodape,
   ]);
+
 
   /*
    * Atualiza somente a decoração visual da assinatura quando o
