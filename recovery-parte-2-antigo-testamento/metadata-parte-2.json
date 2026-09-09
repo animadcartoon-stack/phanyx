@@ -1,0 +1,110 @@
+[
+  {
+    "aula": null,
+    "tipo": "introducao",
+    "paginasOriginais": "73-73",
+    "arquivo": "PARTE 2 - INTRODUÇÃO.pdf",
+    "paginas": 1,
+    "tamanho": 207052,
+    "sha256": "865B3D4671058A80E13F09D18716BC53E2C1340866E9502FDFC6E3AAB267BC0E"
+  },
+  {
+    "aula": 1,
+    "tipo": "aula",
+    "paginasOriginais": "74-82",
+    "arquivo": "PARTE 2 - AULA 1 - ABRAÃO, SUA ÉPOCA E SEU CHAMADO.pdf",
+    "paginas": 9,
+    "tamanho": 1116207,
+    "sha256": "E02F0E439CCFE694B252BD1DF7C1E7C5C47EFA89E47531AF7072DEBB0CBA9957"
+  },
+  {
+    "aula": 2,
+    "tipo": "aula",
+    "paginasOriginais": "83-87",
+    "arquivo": "PARTE 2 - AULA 2 - ABRAÃO E LÓ SE SEPARAM.pdf",
+    "paginas": 5,
+    "tamanho": 646647,
+    "sha256": "606D6632E7D085294186E399D6B05131B6D16681DECD2F7F563E4F7AD4384F8E"
+  },
+  {
+    "aula": 3,
+    "tipo": "aula",
+    "paginasOriginais": "88-96",
+    "arquivo": "PARTE 2 - AULA 3 - ABRAÃO, ISAQUE E JACÓ.pdf",
+    "paginas": 9,
+    "tamanho": 912605,
+    "sha256": "546E9AFB747643480C206B5FDADE2478A5614FF3DD3F77077B45B5A7FA4FA5E5"
+  },
+  {
+    "aula": 4,
+    "tipo": "aula",
+    "paginasOriginais": "97-107",
+    "arquivo": "PARTE 2 - AULA 4 - O EGITO.pdf",
+    "paginas": 11,
+    "tamanho": 710598,
+    "sha256": "83077848583AC68C5B432B976C883D5C4E7174D586938817630120781BE4F334"
+  },
+  {
+    "aula": 5,
+    "tipo": "aula",
+    "paginasOriginais": "108-112",
+    "arquivo": "PARTE 2 - AULA 5 - A ORIGEM DA NAÇÃO DE ISRAEL NO EGITO.pdf",
+    "paginas": 5,
+    "tamanho": 385570,
+    "sha256": "5FB2EC7DAE24A786B3FEEDDD3E81DD9C5DCBE8770858D2C48F8EB41B466D94DD"
+  },
+  {
+    "aula": 6,
+    "tipo": "aula",
+    "paginasOriginais": "113-123",
+    "arquivo": "PARTE 2 - AULA 6 - O ÊXODO - PARTE I.pdf",
+    "paginas": 11,
+    "tamanho": 637624,
+    "sha256": "94944BD5400090DEAC8C552A15F04F28383CADE21E67A84191E3C6A26FE1842D"
+  },
+  {
+    "aula": 7,
+    "tipo": "aula",
+    "paginasOriginais": "124-130",
+    "arquivo": "PARTE 2 - AULA 7 - O ÊXODO - PARTE II.pdf",
+    "paginas": 7,
+    "tamanho": 811776,
+    "sha256": "4F7F5F1BFC7C301BC199F5EDFE0C3C97BD575434B160755DCA8E6EBC96F4B224"
+  },
+  {
+    "aula": 8,
+    "tipo": "aula",
+    "paginasOriginais": "131-134",
+    "arquivo": "PARTE 2 - AULA 8 - ISRAEL NO SINAI.pdf",
+    "paginas": 4,
+    "tamanho": 324167,
+    "sha256": "7B0184F1B9FCB3E0743BB49BFC31BA2906F9CA79601D3EF23F2A137EE1D0EB34"
+  },
+  {
+    "aula": 9,
+    "tipo": "aula",
+    "paginasOriginais": "135-151",
+    "arquivo": "PARTE 2 - AULA 9 - O TABERNÁCULO.pdf",
+    "paginas": 17,
+    "tamanho": 867591,
+    "sha256": "9A015A6924FD5EDE1C0762FC846F00ED708C33C4247209A76DCEF357BC46F52F"
+  },
+  {
+    "aula": 10,
+    "tipo": "aula",
+    "paginasOriginais": "152-156",
+    "arquivo": "PARTE 2 - AULA 10 - RUMO A CANAÃ.pdf",
+    "paginas": 5,
+    "tamanho": 353572,
+    "sha256": "229F3C315009C04E2F6995388B0A67043021D11CC29D762519EB1D42400A2BA0"
+  },
+  {
+    "aula": 11,
+    "tipo": "aula",
+    "paginasOriginais": "157-163",
+    "arquivo": "PARTE 2 - AULA 11 - A CONQUISTA DE CANAÃ.pdf",
+    "paginas": 7,
+    "tamanho": 765015,
+    "sha256": "A725E22E3DDBB500D6D45C6CB9504F5E1FC31E0C9BA46A2BD0EC131E5C639BB7"
+  }
+]

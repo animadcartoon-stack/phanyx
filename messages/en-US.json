@@ -3569,6 +3569,20 @@
       "period": "Period",
       "until": "until",
       "noForecast": "no end date"
+    },
+    "sort": {
+      "label": "Sort by",
+      "lessonAsc": "Lesson order — ascending",
+      "lessonDesc": "Lesson order — descending",
+      "alphabeticalAsc": "Alphabetical — A → Z",
+      "alphabeticalDesc": "Alphabetical — Z → A",
+      "newest": "Posting order — newest first",
+      "oldest": "Posting order — oldest first"
+    },
+    "view": {
+      "label": "View",
+      "cards": "Cards",
+      "list": "List"
     }
   },
   "ProfessorStudents": {
