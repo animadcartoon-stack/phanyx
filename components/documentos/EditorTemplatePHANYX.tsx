@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  expandDocumentTagValues,
+} from "@/lib/documentos/tags-documentos";
+
+import {
   PreviewVariaveisPHANYX,
   type DadosPreviewVariaveisPHANYX,
 } from "@/components/documentos/PreviewVariaveisPHANYX";
@@ -2946,7 +2950,9 @@ export default function EditorTemplatePHANYX({
 
       PreviewVariaveisPHANYX.configure({
         valores:
-          valoresPreviewVariaveis,
+          expandDocumentTagValues(
+            valoresPreviewVariaveis
+          ),
       }),
 
       AssinaturaPreviewPHANYX.configure({
@@ -3481,7 +3487,9 @@ export default function EditorTemplatePHANYX({
       extensao.options as
         DadosPreviewVariaveisPHANYX
     ).valores =
-      valoresPreviewVariaveis;
+      expandDocumentTagValues(
+        valoresPreviewVariaveis
+      );
 
     const transacao =
       editor.state.tr.setMeta(

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+  replaceDocumentTags,
+} from "@/lib/documentos/tags-documentos";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 
@@ -127,13 +130,16 @@ function substituirExemplos(texto: string, config: any) {
     valorLiquidoRescisao: "R$ 0,00",
   };
 
-  let final = texto || "";
+  const final =
+    replaceDocumentTags(
+      texto || "",
+      valores
+    );
 
-  for (const [chave, valor] of Object.entries(valores)) {
-    final = final.replaceAll(`{{${chave}}}`, valor || "");
-  }
-
-  return final.replaceAll(/{{[^}]+}}/g, "-");
+  return final.replaceAll(
+    /{{[^}]+}}/g,
+    "-"
+  );
 }
 
 async function montarDuasViasA4(pdfBytesOriginais: Uint8Array) {

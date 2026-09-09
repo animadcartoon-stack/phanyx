@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  getInternationalDocumentTag,
+} from "@/lib/documentos/tags-documentos";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
@@ -1240,20 +1244,58 @@ function AdminDocumentosTemplatesPage() {
     atualizarConteudoEditor();
   }
 
+  function tagPublicaDocumento(
+    valor: string
+  ) {
+    const texto =
+      String(valor || "").trim();
+
+    if (
+      !/^\{\{\s*[^{}]+\s*\}\}$/.test(
+        texto
+      )
+    ) {
+      return texto;
+    }
+
+    return getInternationalDocumentTag(
+      texto
+    );
+  }
+
   function inserirVariavelNoEditor(tag: string) {
+    const tagPublica =
+      tagPublicaDocumento(
+        tag
+      );
+
     editorRef.current?.focus();
-    document.execCommand("insertText", false, tag);
+
+    document.execCommand(
+      "insertText",
+      false,
+      tagPublica
+    );
+
     atualizarConteudoEditor();
-    copiarVariavel(tag);
+
+    copiarVariavel(
+      tagPublica
+    );
   }
 
   async function copiarVariavel(texto: string) {
+    const textoPublico =
+      tagPublicaDocumento(
+        texto
+      );
+
     try {
       if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(texto);
+        await navigator.clipboard.writeText(textoPublico);
       } else {
         const area = document.createElement("textarea");
-        area.value = texto;
+        area.value = textoPublico;
         area.style.position = "fixed";
         area.style.opacity = "0";
         document.body.appendChild(area);
@@ -1263,9 +1305,9 @@ function AdminDocumentosTemplatesPage() {
         document.body.removeChild(area);
       }
 
-      setMensagem(t("messages.variableCopied", { variable: texto }));
+      setMensagem(t("messages.variableCopied", { variable: textoPublico }));
     } catch {
-      setErro(t("messages.copyFailed", { variable: texto }));
+      setErro(t("messages.copyFailed", { variable: textoPublico }));
     }
   }
 
@@ -4041,7 +4083,20 @@ function AdminDocumentosTemplatesPage() {
                         }
 
                         const titulo = normalizarTextoBusca(v.titulo);
-                        const tag = normalizarTextoBusca(v.tag);
+                        const tagLegada =
+                          normalizarTextoBusca(
+                            v.tag
+                          );
+
+                        const tagInternacional =
+                          normalizarTextoBusca(
+                            tagPublicaDocumento(
+                              v.tag
+                            )
+                          );
+
+                        const tag =
+                          `${tagLegada} ${tagInternacional}`;
                         const descricao = normalizarTextoBusca(v.descricao);
                         const palavras = normalizarTextoBusca((v.palavras || []).join(" "));
 
@@ -4093,7 +4148,9 @@ function AdminDocumentosTemplatesPage() {
                           </div>
                           <div className="flex items-center justify-between gap-2">
                             <div className="font-mono font-bold text-blue-700 dark:text-blue-300">
-                              {variavel.tag}
+                              {tagPublicaDocumento(
+                                variavel.tag
+                              )}
                             </div>
 
                             <button

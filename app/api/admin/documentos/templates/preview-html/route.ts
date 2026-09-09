@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+  replaceDocumentTags,
+} from "@/lib/documentos/tags-documentos";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,13 +16,16 @@ function substituirExemplos(texto: string, config: any) {
     cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "Cidade",
   };
 
-  let final = texto;
+  const final =
+    replaceDocumentTags(
+      texto || "",
+      valores
+    );
 
-  for (const [chave, valor] of Object.entries(valores)) {
-    final = final.replaceAll(`{{${chave}}}`, valor);
-  }
-
-  return final.replaceAll(/{{[^}]+}}/g, "-");
+  return final.replaceAll(
+    /{{[^}]+}}/g,
+    "-"
+  );
 }
 
 export async function POST(req: NextRequest) {
