@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "Tasas Puntuales",
-    "generateInvoiceForInterestedParty": "Generar boleto de pago para interesado",
     "adminPanel": "Panel Administrativo",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",

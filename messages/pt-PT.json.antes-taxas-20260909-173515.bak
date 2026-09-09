@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "Taxas Avulsas",
-    "generateInvoiceForInterestedParty": "Gerar cobrança para interessado",
     "adminPanel": "Painel de Administração",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",

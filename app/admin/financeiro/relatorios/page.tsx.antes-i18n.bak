@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
 import jsPDF from "jspdf";
 import {
   BarChart,
@@ -68,52 +67,56 @@ type RespostaApi = {
   lancamentos: Lancamento[];
 };
 
-function criarRelatoriosTourSteps(t: any) {
-  return [
-    {
-      target: '[data-tour="relatorios-exportar"]',
-      titulo: t("tour.export.title"),
-      destaque: t("tour.export.highlight"),
-      descricao: t("tour.export.description"),
-      imagem: "/images/relatorios.png",
-    },
-    {
-      target: '[data-tour="relatorios-periodo"]',
-      titulo: t("tour.period.title"),
-      destaque: t("tour.period.highlight"),
-      descricao: t("tour.period.description"),
-      imagem: "/images/financeiro.png",
-    },
-    {
-      target: '[data-tour="relatorios-polo"]',
-      titulo: t("tour.campus.title"),
-      destaque: t("tour.campus.highlight"),
-      descricao: t("tour.campus.description"),
-      imagem: "/images/contador.png",
-    },
-    {
-      target: '[data-tour="relatorios-resumo"]',
-      titulo: t("tour.summary.title"),
-      destaque: t("tour.summary.highlight"),
-      descricao: t("tour.summary.description"),
-      imagem: "/images/relatorios.png",
-    },
-    {
-      target: '[data-tour="relatorios-graficos"]',
-      titulo: t("tour.charts.title"),
-      destaque: t("tour.charts.highlight"),
-      descricao: t("tour.charts.description"),
-      imagem: "/images/formix-inteligente.png",
-    },
-    {
-      target: '[data-tour="relatorios-lancamentos"]',
-      titulo: t("tour.entries.title"),
-      destaque: t("tour.entries.highlight"),
-      descricao: t("tour.entries.description"),
-      imagem: "/images/financeiro.png",
-    },
-  ];
-}
+const relatoriosTourSteps = [
+  {
+    target: '[data-tour="relatorios-exportar"]',
+    titulo: "Exportações financeiras",
+    destaque: "Exporte os relatórios em CSV, Excel ou PDF.",
+    descricao:
+      "Esses botões permitem baixar os dados financeiros para conferência, prestação de contas ou arquivo interno.",
+    imagem: "/images/relatorios.png",
+  },
+  {
+    target: '[data-tour="relatorios-periodo"]',
+    titulo: "Filtro por período",
+    destaque: "Escolha a data inicial e final do relatório.",
+    descricao:
+      "O PHANYX recalcula os indicadores financeiros conforme o período selecionado.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    target: '[data-tour="relatorios-polo"]',
+    titulo: "Filtro por polo",
+    destaque: "Separe os resultados por unidade ou campus.",
+    descricao:
+      "Quando a instituição possui polos, você pode analisar os dados financeiros de cada unidade.",
+    imagem: "/images/contador.png",
+  },
+  {
+    target: '[data-tour="relatorios-resumo"]',
+    titulo: "Resumo financeiro",
+    destaque: "Veja os principais números do período.",
+    descricao:
+      "Aqui aparecem lançamentos, valores pagos, pendentes, atrasados e alunos inadimplentes.",
+    imagem: "/images/relatorios.png",
+  },
+  {
+    target: '[data-tour="relatorios-graficos"]',
+    titulo: "Gráficos financeiros",
+    destaque: "Acompanhe visualmente a evolução financeira.",
+    descricao:
+      "Os gráficos ajudam a entender receita por dia, status dos lançamentos e tipos de cobrança.",
+    imagem: "/images/formix-inteligente.png",
+  },
+  {
+    target: '[data-tour="relatorios-lancamentos"]',
+    titulo: "Lançamentos do período",
+    destaque: "Confira cada lançamento individualmente.",
+    descricao:
+      "Essa lista mostra aluno, polo, tipo, descrição, valor, pagamento e status.",
+    imagem: "/images/financeiro.png",
+  },
+];
 
 function hojeInput() {
   const hoje = new Date();
@@ -130,50 +133,25 @@ function primeiroDiaMes() {
   return `${yyyy}-${mm}-01`;
 }
 
-function formatarMoeda(valor: number, locale: string) {
-  return Number(valor || 0).toLocaleString(locale, {
+function formatarMoeda(valor: number) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarDataCurta(data: string, locale: string) {
-  if (!data) return "-";
-
-  const normalizada =
-    /^\d{4}-\d{2}-\d{2}$/.test(data)
-      ? `${data}T12:00:00`
-      : data;
-
-  return new Date(normalizada).toLocaleDateString(locale);
+function formatarDataCurta(data: string) {
+  return new Date(data).toLocaleDateString("pt-BR");
 }
 
-function statusLabel(status: string, t: any) {
-  const chave = String(status || "").toUpperCase();
-
-  const labels: Record<string, string> = {
-    PAGO: t("status.paid"),
-    PENDENTE: t("status.pending"),
-    PARCIAL: t("status.partial"),
-    ATRASADO: t("status.overdue"),
-    CANCELADO: t("status.cancelled"),
-  };
-
-  return labels[chave] || status || "-";
-}
-
-function tipoLabel(tipo: string, t: any) {
-  const chave = String(tipo || "").toUpperCase();
-
-  const labels: Record<string, string> = {
-    MATRICULA: t("types.enrollment"),
-    MENSALIDADE: t("types.tuition"),
-    TAXA: t("types.fee"),
-    DESCONTO: t("types.discount"),
-    OUTRO: t("types.other"),
-  };
-
-  return labels[chave] || tipo || "-";
+function statusLabel(status: string) {
+  const s = String(status || "").toUpperCase();
+  if (s === "PAGO") return "Pago";
+  if (s === "PENDENTE") return "Pendente";
+  if (s === "PARCIAL") return "Parcial";
+  if (s === "ATRASADO") return "Atrasado";
+  if (s === "CANCELADO") return "Cancelado";
+  return s;
 }
 
 async function carregarImagemComoDataUrl(src: string): Promise<string | null> {
@@ -200,11 +178,9 @@ function RelatoriosTour({
   aberto: boolean;
   onClose: () => void;
 }) {
-  const t = useTranslations("AdminFinanceiroRelatorios");
   const [stepAtual, setStepAtual] = useState(0);
   const [targetRect, setTargetRect] = useState<any>(null);
 
-  const relatoriosTourSteps = criarRelatoriosTourSteps(t);
   const step = relatoriosTourSteps[stepAtual];
 
   useEffect(() => {
@@ -286,7 +262,7 @@ function RelatoriosTour({
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
-              {t("tour.label")}
+              Tutorial guiado
             </p>
 
             <h3 className="mt-1 text-xl font-bold text-slate-900">
@@ -305,7 +281,7 @@ function RelatoriosTour({
 
         <div className="mt-5 flex items-center justify-between gap-3">
           <span className="text-sm text-slate-500">
-            {t("tour.step", { current: stepAtual + 1, total: relatoriosTourSteps.length })}
+            Etapa {stepAtual + 1} de {relatoriosTourSteps.length}
           </span>
 
           <div className="flex gap-2">
@@ -313,7 +289,7 @@ function RelatoriosTour({
               onClick={onClose}
               className="rounded-xl border px-3 py-2 text-sm"
             >
-              {t("tour.close")}
+              Fechar
             </button>
 
             {stepAtual > 0 && (
@@ -321,7 +297,7 @@ function RelatoriosTour({
                 onClick={() => setStepAtual((p) => p - 1)}
                 className="rounded-xl border px-3 py-2 text-sm"
               >
-                {t("tour.previous")}
+                Anterior
               </button>
             )}
 
@@ -330,14 +306,14 @@ function RelatoriosTour({
                 onClick={() => setStepAtual((p) => p + 1)}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
               >
-                {t("tour.next")}
+                Próximo
               </button>
             ) : (
               <button
                 onClick={onClose}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
               >
-                {t("tour.finish")}
+                Finalizar
               </button>
             )}
           </div>
@@ -348,9 +324,6 @@ function RelatoriosTour({
 }
 
 export default function AdminFinanceiroRelatoriosPage() {
-  const t = useTranslations("AdminFinanceiroRelatorios");
-  const locale = useLocale();
-
   const [inicio, setInicio] = useState(primeiroDiaMes());
   const [fim, setFim] = useState(hojeInput());
   const [loading, setLoading] = useState(true);
@@ -381,12 +354,12 @@ export default function AdminFinanceiroRelatoriosPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || t("errors.loadReports"));
+        throw new Error(json?.error || "Erro ao carregar relatórios");
       }
 
       setDados(json);
     } catch (e: any) {
-      setErro(e?.message || t("errors.loadReports"));
+      setErro(e?.message || "Erro ao carregar relatórios");
       setDados(null);
     } finally {
       setLoading(false);
@@ -468,7 +441,7 @@ const config = await resConfig.json();
 );
 
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, largura, 48, "F");
+    doc.rect(0, 0, largura, 32, "F");
 
     if (logoDataUrl) {
       try {
@@ -493,71 +466,70 @@ const config = await resConfig.json();
     doc.setFont("helvetica", "normal");
 doc.setFontSize(10);
 doc.text(
-  config?.razaoSocial || t("pdf.institutionalReport"),
+  config?.razaoSocial || "Relatório Financeiro Institucional",
   34,
   20
 );
-doc.text(
-  t("pdf.period", {
-    start: formatarDataCurta(inicio, locale),
-    end: formatarDataCurta(fim, locale),
-  }),
-  34,
-  25
-);
+doc.text(`Período: ${inicio} até ${fim}`, 34, 25);
 
 doc.setFontSize(9);
 doc.text(
-  `${t("pdf.registrationId")}: ${config?.cnpj || "-"}   •   ${t("pdf.phone")}: ${config?.telefone || "-"}`,
+  `CNPJ: ${config?.cnpj || "-"}   •   Telefone: ${config?.telefone || "-"}`,
   34,
   30
 );
 doc.text(
-  `${t("pdf.email")}: ${config?.email || "-"}   •   ${t("pdf.responsible")}: ${
+  `E-mail: ${config?.email || "-"}   •   Responsável: ${
     config?.responsavelNome || "-"
   }`,
   34,
   34
 );
 doc.text(
-  `${t("pdf.role")}: ${config?.responsavelCargo || "-"}   •   ${t("pdf.location")}: ${
+  `Cargo: ${config?.responsavelCargo || "-"}   •   Local: ${
     config?.cidade || "-"
   }/${config?.estado || "-"}`,
   34,
   38
 );
-doc.text(`${t("pdf.address")}: ${config?.endereco || "-"}`, 34, 42);
-    y = 58;
+doc.text(`Endereço: ${config?.endereco || "-"}`, 34, 42);
+doc.setFontSize(9);
+doc.text(
+  `Responsável: ${config?.responsavelNome || "-"}`,
+  34,
+  30
+);
+    y = 54;
 
     doc.setTextColor(17, 24, 39);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text(t("pdf.executiveSummary"), margem, y);
+    doc.text("Resumo Executivo", margem, y);
     y += 8;
 
     const cards = [
       {
-        titulo: t("summary.totalPosted"),
-        valor: formatarMoeda(dados.resumo.totalLancado, locale),
+        titulo: "Total lançado",
+        valor: formatarMoeda(dados.resumo.totalLancado),
       },
       {
-        titulo: t("summary.totalPaid"),
-        valor: formatarMoeda(dados.resumo.totalPago, locale),
+        titulo: "Total pago",
+        valor: formatarMoeda(dados.resumo.totalPago),
       },
       {
-        titulo: t("summary.pending"),
-        valor: formatarMoeda(dados.resumo.totalPendente, locale),
+        titulo: "Pendente",
+        valor: formatarMoeda(dados.resumo.totalPendente),
       },
       {
-        titulo: t("summary.overdue"),
-        valor: formatarMoeda(dados.resumo.totalAtrasado, locale),
+        titulo: "Atrasado",
+        valor: formatarMoeda(dados.resumo.totalAtrasado),
       },
       {
-        titulo: t("summary.defaultingStudents"),
+        titulo: "Inadimplentes",
         valor: String(dados.resumo.alunosInadimplentes),
       },
       {
-        titulo: t("summary.entries"),
+        titulo: "Lançamentos",
         valor: String(dados.resumo.quantidadeLancamentos),
       },
     ];
@@ -592,15 +564,15 @@ doc.text(`${t("pdf.address")}: ${config?.endereco || "-"}`, 34, 42);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(17, 24, 39);
-    doc.text(t("pdf.summaryByType"), margem, y);
+    doc.text("Resumo por Tipo", margem, y);
     y += 8;
 
     const tipos = [
-      [t("types.enrollment"), formatarMoeda(dados.resumoPorTipo.MATRICULA, locale)],
-      [t("types.tuition"), formatarMoeda(dados.resumoPorTipo.MENSALIDADE, locale)],
-      [t("types.fee"), formatarMoeda(dados.resumoPorTipo.TAXA, locale)],
-      [t("types.discount"), formatarMoeda(dados.resumoPorTipo.DESCONTO, locale)],
-      [t("types.other"), formatarMoeda(dados.resumoPorTipo.OUTRO, locale)],
+      ["Matrícula", formatarMoeda(dados.resumoPorTipo.MATRICULA)],
+      ["Mensalidade", formatarMoeda(dados.resumoPorTipo.MENSALIDADE)],
+      ["Taxa", formatarMoeda(dados.resumoPorTipo.TAXA)],
+      ["Desconto", formatarMoeda(dados.resumoPorTipo.DESCONTO)],
+      ["Outro", formatarMoeda(dados.resumoPorTipo.OUTRO)],
     ];
 
     tipos.forEach((item) => {
@@ -616,16 +588,16 @@ doc.text(`${t("pdf.address")}: ${config?.endereco || "-"}`, 34, 42);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text(t("pdf.entriesForPeriod"), margem, y);
+    doc.text("Lançamentos do Período", margem, y);
     y += 8;
 
     const colunas = [
-      { titulo: t("table.student"), x: 14, largura: 42 },
-      { titulo: t("table.type"), x: 57, largura: 22 },
-      { titulo: t("table.description"), x: 80, largura: 48 },
-      { titulo: t("table.amount"), x: 129, largura: 20 },
-      { titulo: t("table.paid"), x: 150, largura: 20 },
-      { titulo: t("table.status"), x: 171, largura: 25 },
+      { titulo: "Aluno", x: 14, largura: 42 },
+      { titulo: "Tipo", x: 57, largura: 22 },
+      { titulo: "Descrição", x: 80, largura: 48 },
+      { titulo: "Valor", x: 129, largura: 20 },
+      { titulo: "Pago", x: 150, largura: 20 },
+      { titulo: "Status", x: 171, largura: 25 },
     ];
 
     function desenharCabecalhoTabela(posY: number) {
@@ -652,14 +624,13 @@ doc.text(`${t("pdf.address")}: ${config?.endereco || "-"}`, 34, 42);
 
     for (const item of lancamentosParaPdf) {
       const aluno = item.aluno?.nome || "-";
-      const tipo = tipoLabel(item.tipo, t);
+      const tipo = item.tipo || "-";
       const descricao = item.descricao || "-";
       const valor = formatarMoeda(
-        Number(item.valorFinal ?? item.valorOriginal ?? 0),
-        locale
+        Number(item.valorFinal ?? item.valorOriginal ?? 0)
       );
-      const pago = formatarMoeda(Number(item.valorPago || 0), locale);
-      const status = statusLabel(item.status, t);
+      const pago = formatarMoeda(Number(item.valorPago || 0));
+      const status = statusLabel(item.status);
 
       const alunoLinhas = cortarTexto(aluno, 40);
       const descLinhas = cortarTexto(descricao, 46);
@@ -699,7 +670,7 @@ doc.text(`${t("pdf.address")}: ${config?.endereco || "-"}`, 34, 42);
       doc.setFontSize(9);
       doc.setTextColor(100, 116, 139);
       doc.text(
-        t("pdf.firstEntriesNote", { count: lancamentosParaPdf.length }),
+        `Observação: exibidos os primeiros ${lancamentosParaPdf.length} lançamentos no PDF.`,
         14,
         y + 4
       );
@@ -715,16 +686,16 @@ doc.text(`${t("pdf.address")}: ${config?.endereco || "-"}`, 34, 42);
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
       doc.text(
-  `${config?.nomeFantasia || "PHANYX"} • ${t("pdf.institutionalReport")}`,
+  `${config?.nomeFantasia || "PHANYX"} • Relatório Financeiro Institucional`,
   14,
   292
 );
-doc.text(t("pdf.page", { current: i, total: totalPaginas }), 196, 292, { align: "right" });
+doc.text(`Página ${i} de ${totalPaginas}`, 176, 292);
     }
 
     const nomeArquivo = `${
   config?.nomeFantasia || "instituicao"
-}_${t("pdf.fileSlug")}.pdf`
+}_relatorio_financeiro.pdf`
   .replace(/\s+/g, "_")
   .toLowerCase();
 
@@ -736,27 +707,27 @@ doc.save(nomeArquivo);
 
     return [
       {
-        tipo: t("types.enrollment"),
+        tipo: "Matrícula",
         valor: Number(dados.resumoPorTipo.MATRICULA || 0),
       },
       {
-        tipo: t("types.tuition"),
+        tipo: "Mensalidade",
         valor: Number(dados.resumoPorTipo.MENSALIDADE || 0),
       },
       {
-        tipo: t("types.fee"),
+        tipo: "Taxa",
         valor: Number(dados.resumoPorTipo.TAXA || 0),
       },
       {
-        tipo: t("types.discount"),
+        tipo: "Desconto",
         valor: Number(dados.resumoPorTipo.DESCONTO || 0),
       },
       {
-        tipo: t("types.other"),
+        tipo: "Outro",
         valor: Number(dados.resumoPorTipo.OUTRO || 0),
       },
     ];
-  }, [dados, t]);
+  }, [dados]);
 
   const graficoPorStatus = useMemo(() => {
     if (!dados) return [];
@@ -780,11 +751,11 @@ doc.save(nomeArquivo);
 
     return Object.entries(mapa)
       .map(([status, quantidade]) => ({
-        status: statusLabel(status, t),
+        status,
         quantidade,
       }))
       .filter((item) => item.quantidade > 0);
-  }, [dados, t]);
+  }, [dados]);
 
   const graficoReceitaPorDia = useMemo(() => {
     if (!dados) return [];
@@ -815,25 +786,25 @@ doc.save(nomeArquivo);
       .sort((a, b) => a.data.localeCompare(b.data))
       .map((item) => ({
         ...item,
-        dataLabel: formatarDataCurta(item.data, locale),
+        dataLabel: formatarDataCurta(item.data),
       }));
-  }, [dados, locale]);
+  }, [dados]);
 
   const pieColors = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#6b7280"];
 
   return (
-    <div className="phanyx-financeiro-relatorios-page space-y-6 max-w-7xl">
+    <div className="space-y-6 max-w-7xl">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">📊 {t("title")}</h1>
+          <h1 className="text-2xl font-bold">📊 Relatórios Financeiros</h1>
           <p className="text-gray-600 mt-1">
-            {t("subtitle")}
+            Acompanhe recebimentos, pendências, atrasos e inadimplência.
           </p>
           <button
   onClick={() => setTourAberto(true)}
   className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
 >
-  ✨ {t("openTour")}
+  ✨ Abrir tutorial guiado
 </button>
         </div>
 
@@ -867,7 +838,7 @@ doc.save(nomeArquivo);
 >
         <div>
           <label className="text-sm font-medium text-gray-700">
-            {t("filters.startDate")}
+            Data inicial
           </label>
           <input
             type="date"
@@ -879,7 +850,7 @@ doc.save(nomeArquivo);
 
         <div>
           <label className="text-sm font-medium text-gray-700">
-            {t("filters.endDate")}
+            Data final
           </label>
           <input
             type="date"
@@ -892,14 +863,14 @@ doc.save(nomeArquivo);
 
 <div data-tour="relatorios-polo">
   <label className="text-sm font-medium text-gray-700">
-    {t("filters.campus")}
+    Polo
   </label>
   <select
     value={poloId}
     onChange={(e) => setPoloId(e.target.value)}
     className="mt-1 w-full border rounded-lg p-2 bg-white"
   >
-    <option value="">{t("filters.allCampuses")}</option>
+    <option value="">Todos os polos</option>
     {polos.map((polo) => (
       <option key={polo.id} value={polo.id}>
         {polo.nome}
@@ -916,7 +887,7 @@ doc.save(nomeArquivo);
 
       {loading ? (
         <div className="bg-white border rounded-xl p-6 text-gray-600">
-          {t("loading")}
+          Carregando relatórios...
         </div>
       ) : !dados ? null : (
         <>
@@ -925,54 +896,54 @@ doc.save(nomeArquivo);
   className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-7 gap-4"
 >
             <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">{t("summary.entries")}</p>
+              <p className="text-sm text-gray-500">Lançamentos</p>
               <p className="text-2xl font-bold">
                 {dados.resumo.quantidadeLancamentos}
               </p>
             </div>
 
             <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">{t("summary.totalPosted")}</p>
+              <p className="text-sm text-gray-500">Total lançado</p>
               <p className="text-2xl font-bold">
-                {formatarMoeda(dados.resumo.totalLancado, locale)}
+                {formatarMoeda(dados.resumo.totalLancado)}
               </p>
             </div>
 
             <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">{t("summary.totalPaid")}</p>
+              <p className="text-sm text-gray-500">Total pago</p>
               <p className="text-2xl font-bold">
-                {formatarMoeda(dados.resumo.totalPago, locale)}
+                {formatarMoeda(dados.resumo.totalPago)}
               </p>
             </div>
 
 {Number(dados.resumo.totalOnlineIbe || 0) > 0 && (
   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-    <p className="text-sm text-blue-700">{t("summary.onlineAsaasIbe")}</p>
+    <p className="text-sm text-blue-700">Online Asaas IBE</p>
     <p className="text-2xl font-bold text-blue-800">
-      {formatarMoeda(Number(dados.resumo.totalOnlineIbe || 0), locale)}
+      {formatarMoeda(Number(dados.resumo.totalOnlineIbe || 0))}
     </p>
     <p className="mt-1 text-xs text-blue-700">
-      {t("summary.paymentsCount", { count: Number(dados.resumo.quantidadeOnlineIbe || 0) })}
+      {Number(dados.resumo.quantidadeOnlineIbe || 0)} pagamento(s)
     </p>
   </div>
 )}
 
             <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">{t("summary.pending")}</p>
+              <p className="text-sm text-gray-500">Pendente</p>
               <p className="text-2xl font-bold">
-                {formatarMoeda(dados.resumo.totalPendente, locale)}
+                {formatarMoeda(dados.resumo.totalPendente)}
               </p>
             </div>
 
             <div className="bg-white border rounded-xl p-4 border-red-200 bg-red-50">
-              <p className="text-sm text-red-700">{t("summary.overdue")}</p>
+              <p className="text-sm text-red-700">Atrasado</p>
               <p className="text-2xl font-bold text-red-700">
-                {formatarMoeda(dados.resumo.totalAtrasado, locale)}
+                {formatarMoeda(dados.resumo.totalAtrasado)}
               </p>
             </div>
 
             <div className="bg-white border rounded-xl p-4 border-yellow-200 bg-yellow-50">
-              <p className="text-sm text-yellow-700">{t("summary.defaultingStudents")}</p>
+              <p className="text-sm text-yellow-700">Inadimplentes</p>
               <p className="text-2xl font-bold text-yellow-700">
                 {dados.resumo.alunosInadimplentes}
               </p>
@@ -984,7 +955,7 @@ doc.save(nomeArquivo);
   className="grid grid-cols-1 xl:grid-cols-2 gap-6"
 >
             <div className="bg-white border rounded-xl p-5">
-              <h2 className="text-lg font-semibold mb-4">{t("charts.revenueByDay")}</h2>
+              <h2 className="text-lg font-semibold mb-4">Receita por dia</h2>
 
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
@@ -993,20 +964,20 @@ doc.save(nomeArquivo);
                     <XAxis dataKey="dataLabel" />
                     <YAxis />
                     <Tooltip
-                      formatter={(value: any) => formatarMoeda(Number(value || 0), locale)}
+                      formatter={(value: any) => formatarMoeda(Number(value || 0))}
                     />
                     <Legend />
                     <Line
                       type="monotone"
                       dataKey="lancado"
-                      name={t("charts.posted")}
+                      name="Lançado"
                       stroke="#2563eb"
                       strokeWidth={2}
                     />
                     <Line
                       type="monotone"
                       dataKey="pago"
-                      name={t("charts.paid")}
+                      name="Pago"
                       stroke="#16a34a"
                       strokeWidth={2}
                     />
@@ -1017,7 +988,7 @@ doc.save(nomeArquivo);
 
             <div className="bg-white border rounded-xl p-5">
               <h2 className="text-lg font-semibold mb-4">
-                {t("charts.countByStatus")}
+                Quantidade por status
               </h2>
 
               <div className="h-80">
@@ -1049,7 +1020,7 @@ doc.save(nomeArquivo);
 
           <div className="bg-white border rounded-xl p-5">
             <h2 className="text-lg font-semibold mb-4">
-              {t("charts.summaryByType")}
+              Resumo por tipo de lançamento
             </h2>
 
             <div className="h-80">
@@ -1059,9 +1030,9 @@ doc.save(nomeArquivo);
                   <XAxis dataKey="tipo" />
                   <YAxis />
                   <Tooltip
-                    formatter={(value: any) => formatarMoeda(Number(value || 0), locale)}
+                    formatter={(value: any) => formatarMoeda(Number(value || 0))}
                   />
-                  <Bar dataKey="valor" name={t("charts.value")} fill="#3b82f6" />
+                  <Bar dataKey="valor" name="Valor" fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -1071,11 +1042,11 @@ doc.save(nomeArquivo);
   data-tour="relatorios-lancamentos"
   className="bg-white border rounded-xl p-5"
 >
-            <h2 className="text-lg font-semibold">{t("entries.title")}</h2>
+            <h2 className="text-lg font-semibold">Lançamentos do período</h2>
 
             {dados.lancamentos.length === 0 ? (
               <p className="text-sm text-gray-600 mt-3">
-                {t("entries.empty")}
+                Nenhum lançamento encontrado neste período.
               </p>
             ) : (
               <div className="mt-4 space-y-3">
@@ -1083,45 +1054,51 @@ doc.save(nomeArquivo);
                   <div key={item.id} className="border rounded-lg p-4">
                     <div className="grid grid-cols-1 md:grid-cols-7 gap-3 text-sm">
                       <div>
-                        <p className="text-gray-500">{t("table.student")}</p>
+                        <p className="text-gray-500">Aluno</p>
+                        <div>
+  <p className="text-gray-500">Polo</p>
+  <p className="font-medium">
+    {(item as any).polo?.nome || "-"}
+  </p>
+</div>
+
+<div>
+  <p className="text-gray-500">Polo</p>
+  <p className="font-medium">{item.polo?.nome || "-"}</p>
+</div>
+
                         <p className="font-medium">{item.aluno?.nome || "-"}</p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">{t("table.campus")}</p>
-                        <p className="font-medium">{item.polo?.nome || "-"}</p>
+                        <p className="text-gray-500">Tipo</p>
+                        <p className="font-medium">{item.tipo}</p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">{t("table.type")}</p>
-                        <p className="font-medium">{tipoLabel(item.tipo, t)}</p>
-                      </div>
-
-                      <div>
-                        <p className="text-gray-500">{t("table.description")}</p>
+                        <p className="text-gray-500">Descrição</p>
                         <p className="font-medium">{item.descricao || "-"}</p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">{t("table.finalAmount")}</p>
+                        <p className="text-gray-500">Valor final</p>
                         <p className="font-medium">
                           {formatarMoeda(
-                            Number(item.valorFinal ?? item.valorOriginal ?? 0),
-                            locale
+                            Number(item.valorFinal ?? item.valorOriginal ?? 0)
                           )}
                         </p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">{t("table.paid")}</p>
+                        <p className="text-gray-500">Pago</p>
                         <p className="font-medium">
-                          {formatarMoeda(Number(item.valorPago || 0), locale)}
+                          {formatarMoeda(Number(item.valorPago || 0))}
                         </p>
                       </div>
 
                       <div>
-                        <p className="text-gray-500">{t("table.status")}</p>
-                        <p className="font-medium">{statusLabel(item.status, t)}</p>
+                        <p className="text-gray-500">Status</p>
+                        <p className="font-medium">{item.status}</p>
                       </div>
                     </div>
                   </div>

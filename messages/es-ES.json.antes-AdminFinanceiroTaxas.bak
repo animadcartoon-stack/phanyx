@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "Tasas Puntuales",
-    "generateInvoiceForInterestedParty": "Generar boleto de pago para interesado",
     "adminPanel": "Panel Administrativo",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",
@@ -14155,97 +14153,6 @@
       "firstEntriesNote": "Nota: se muestran los primeros {count} movimientos en el PDF.",
       "page": "Página {current} de {total}",
       "fileSlug": "informe_financiero"
-    }
-  },
-  "AdminFinanceiroTaxas": {
-    "title": "Tasas Adicionales",
-    "subtitle": "Registra tasas y genera cobros reales para los alumnos.",
-    "form": {
-      "titleCreate": "Registro de tasa adicional",
-      "titleEdit": "Editar tasa adicional"
-    },
-    "fields": {
-      "name": "Nombre de la tasa",
-      "category": "Categoría",
-      "value": "Importe",
-      "active": "Activa",
-      "requiresDueDate": "Requiere vencimiento",
-      "description": "Descripción",
-      "note": "Observación"
-    },
-    "placeholders": {
-      "name": "Ej.: Matrícula",
-      "searchStudent": "Escribe nombre, matrícula o correo electrónico"
-    },
-    "categories": {
-      "enrollment": "Matrícula",
-      "withdrawal": "Baja temporal",
-      "makeupExam": "Segunda convocatoria",
-      "declaration": "Declaración",
-      "transcript": "Expediente académico",
-      "extraClass": "Clase extra",
-      "custom": "Personalizada"
-    },
-    "buttons": {
-      "saving": "Guardando...",
-      "createFee": "Registrar tasa",
-      "saveChanges": "Guardar cambios",
-      "cancelEditing": "Cancelar edición",
-      "generating": "Generando...",
-      "generateCharge": "Generar cobro",
-      "edit": "Editar",
-      "delete": "Eliminar"
-    },
-    "charge": {
-      "title": "Generar cobro para alumno",
-      "subtitle": "Convierte una tasa registrada en un movimiento financiero real.",
-      "searchStudent": "Buscar alumno",
-      "selectStudent": "Seleccionar alumno",
-      "selectStudentOption": "Selecciona un alumno",
-      "searchingStudents": "Buscando alumnos...",
-      "registeredFee": "Tasa registrada",
-      "selectFee": "Selecciona una tasa",
-      "dueDate": "Vencimiento"
-    },
-    "list": {
-      "title": "Tasas registradas",
-      "loading": "Cargando tasas...",
-      "empty": "No hay tasas registradas."
-    },
-    "table": {
-      "name": "Nombre",
-      "category": "Categoría",
-      "value": "Importe",
-      "active": "Activa",
-      "dueDate": "Vencimiento",
-      "actions": "Acciones"
-    },
-    "common": {
-      "yes": "Sí",
-      "no": "No"
-    },
-    "toast": {
-      "errorTitle": "No se pudo completar la acción",
-      "successTitle": "Todo listo"
-    },
-    "errors": {
-      "loadFees": "Error al cargar las tasas",
-      "searchStudents": "Error al buscar alumnos",
-      "saveFee": "Error al guardar la tasa",
-      "generateCharge": "Error al generar el cobro",
-      "deleteFee": "Error al eliminar la tasa"
-    },
-    "messages": {
-      "created": "Tasa creada correctamente.",
-      "updated": "Tasa actualizada correctamente.",
-      "chargeGenerated": "Movimiento financiero generado correctamente.",
-      "deleted": "Tasa eliminada correctamente. El registro se eliminó del sistema."
-    },
-    "confirm": {
-      "title": "Eliminar tasa",
-      "message": "¿Deseas realmente eliminar esta tasa? Esta acción no se puede deshacer.",
-      "confirm": "Eliminar tasa",
-      "cancel": "Cancelar"
     }
   }
 }

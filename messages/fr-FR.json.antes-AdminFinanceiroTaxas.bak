@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "Frais ponctuels",
-    "generateInvoiceForInterestedParty": "Générer un bordereau de paiement pour un prospect",
     "adminPanel": "Tableau de bord administratif",
     "openGuidedTutorial": "Ouvrir le tutoriel guidé",
     "administrative": "Administration",
@@ -14155,97 +14153,6 @@
       "firstEntriesNote": "Remarque : les {count} premières écritures sont affichées dans le PDF.",
       "page": "Page {current} sur {total}",
       "fileSlug": "rapport_financier"
-    }
-  },
-  "AdminFinanceiroTaxas": {
-    "title": "Frais Ponctuels",
-    "subtitle": "Enregistrez des frais et générez de vraies créances pour les élèves.",
-    "form": {
-      "titleCreate": "Créer des frais ponctuels",
-      "titleEdit": "Modifier les frais ponctuels"
-    },
-    "fields": {
-      "name": "Nom des frais",
-      "category": "Catégorie",
-      "value": "Montant",
-      "active": "Actifs",
-      "requiresDueDate": "Échéance requise",
-      "description": "Description",
-      "note": "Observation"
-    },
-    "placeholders": {
-      "name": "Ex. : Inscription",
-      "searchStudent": "Saisissez le nom, le matricule ou l’e-mail"
-    },
-    "categories": {
-      "enrollment": "Inscription",
-      "withdrawal": "Suspension d’inscription",
-      "makeupExam": "Session de rattrapage",
-      "declaration": "Attestation",
-      "transcript": "Relevé de notes",
-      "extraClass": "Cours supplémentaire",
-      "custom": "Personnalisés"
-    },
-    "buttons": {
-      "saving": "Enregistrement...",
-      "createFee": "Créer les frais",
-      "saveChanges": "Enregistrer les modifications",
-      "cancelEditing": "Annuler la modification",
-      "generating": "Génération...",
-      "generateCharge": "Générer la créance",
-      "edit": "Modifier",
-      "delete": "Supprimer"
-    },
-    "charge": {
-      "title": "Générer une créance pour un élève",
-      "subtitle": "Transformez des frais enregistrés en une écriture financière réelle.",
-      "searchStudent": "Rechercher un élève",
-      "selectStudent": "Sélectionner un élève",
-      "selectStudentOption": "Sélectionnez un élève",
-      "searchingStudents": "Recherche des élèves...",
-      "registeredFee": "Frais enregistrés",
-      "selectFee": "Sélectionnez des frais",
-      "dueDate": "Échéance"
-    },
-    "list": {
-      "title": "Frais enregistrés",
-      "loading": "Chargement des frais...",
-      "empty": "Aucun frais enregistré."
-    },
-    "table": {
-      "name": "Nom",
-      "category": "Catégorie",
-      "value": "Montant",
-      "active": "Actifs",
-      "dueDate": "Échéance",
-      "actions": "Actions"
-    },
-    "common": {
-      "yes": "Oui",
-      "no": "Non"
-    },
-    "toast": {
-      "errorTitle": "Impossible de terminer l’action",
-      "successTitle": "Terminé"
-    },
-    "errors": {
-      "loadFees": "Erreur lors du chargement des frais",
-      "searchStudents": "Erreur lors de la recherche des élèves",
-      "saveFee": "Erreur lors de l’enregistrement des frais",
-      "generateCharge": "Erreur lors de la génération de la créance",
-      "deleteFee": "Erreur lors de la suppression des frais"
-    },
-    "messages": {
-      "created": "Frais créés avec succès.",
-      "updated": "Frais mis à jour avec succès.",
-      "chargeGenerated": "Écriture financière générée avec succès.",
-      "deleted": "Frais supprimés avec succès. L’enregistrement a été retiré du système."
-    },
-    "confirm": {
-      "title": "Supprimer les frais",
-      "message": "Voulez-vous vraiment supprimer ces frais ? Cette action est irréversible.",
-      "confirm": "Supprimer les frais",
-      "cancel": "Annuler"
     }
   }
 }

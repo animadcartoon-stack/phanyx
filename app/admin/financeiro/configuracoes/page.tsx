@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type ConfigFinanceira = {
   jurosPadrao: number;
@@ -22,11 +23,16 @@ const initialState: ConfigFinanceira = {
   permitirPagamentoParcial: true,
 };
 
+type TipoMensagem = "success" | "error" | "";
+
 export default function ConfiguracoesFinanceirasPage() {
+  const t = useTranslations("AdminFinanceSettings");
+
   const [form, setForm] = useState<ConfigFinanceira>(initialState);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mensagem, setMensagem] = useState("");
+  const [tipoMensagem, setTipoMensagem] = useState<TipoMensagem>("");
 
   useEffect(() => {
     carregar();
@@ -35,6 +41,9 @@ export default function ConfiguracoesFinanceirasPage() {
   async function carregar() {
     try {
       setLoading(true);
+      setMensagem("");
+      setTipoMensagem("");
+
       const res = await fetch("/api/admin/financeiro/configuracoes", {
         cache: "no-store",
       });
@@ -42,7 +51,7 @@ export default function ConfiguracoesFinanceirasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar configurações");
+        throw new Error(data.error || t("messages.loadError"));
       }
 
       setForm({
@@ -57,7 +66,8 @@ export default function ConfiguracoesFinanceirasPage() {
         permitirPagamentoParcial: Boolean(data.permitirPagamentoParcial),
       });
     } catch (error: any) {
-      setMensagem(error.message || "Erro ao carregar configurações");
+      setMensagem(error.message || t("messages.loadError"));
+      setTipoMensagem("error");
     } finally {
       setLoading(false);
     }
@@ -69,6 +79,7 @@ export default function ConfiguracoesFinanceirasPage() {
     try {
       setSaving(true);
       setMensagem("");
+      setTipoMensagem("");
 
       const res = await fetch("/api/admin/financeiro/configuracoes", {
         method: "PUT",
@@ -81,44 +92,65 @@ export default function ConfiguracoesFinanceirasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao salvar configurações");
+        throw new Error(data.error || t("messages.saveError"));
       }
 
-      setMensagem("Configurações financeiras salvas com sucesso.");
+      setMensagem(t("messages.saveSuccess"));
+      setTipoMensagem("success");
     } catch (error: any) {
-      setMensagem(error.message || "Erro ao salvar configurações");
+      setMensagem(error.message || t("messages.saveError"));
+      setTipoMensagem("error");
     } finally {
       setSaving(false);
     }
   }
 
   if (loading) {
-    return <div className="p-6">Carregando configurações financeiras...</div>;
+    return (
+      <div className="p-6 text-slate-600 dark:text-slate-300">
+        {t("loading")}
+      </div>
+    );
   }
 
-  return (
-    <div className="space-y-6 p-6">
-      <div className="phanyx-financeiro-config-titulo">
-  <h1>Configuração Financeira por Instituição</h1>
+  const inputClassName =
+    "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-950 dark:text-white";
 
-  <p>Defina os padrões financeiros usados pela instituição.</p>
-</div>
+  return (
+    <div className="max-w-6xl space-y-6 p-6 text-slate-950 dark:text-slate-100">
+      <div className="phanyx-financeiro-config-titulo">
+        <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
+          {t("title")}
+        </h1>
+
+        <p className="mt-1 text-slate-600 dark:text-slate-300">
+          {t("subtitle")}
+        </p>
+      </div>
 
       {mensagem && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <div
+          className={[
+            "rounded-xl border p-4 text-sm shadow-sm",
+            tipoMensagem === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200"
+              : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200",
+          ].join(" ")}
+        >
           {mensagem}
         </div>
       )}
 
       <form
         onSubmit={salvar}
-        className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="grid gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
       >
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Juros padrão (%)
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t("fields.defaultInterest")}
             </label>
+
             <input
               type="number"
               step="0.01"
@@ -129,14 +161,15 @@ export default function ConfiguracoesFinanceirasPage() {
                   jurosPadrao: Number(e.target.value),
                 }))
               }
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+              className={inputClassName}
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Multa padrão (%)
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t("fields.defaultPenalty")}
             </label>
+
             <input
               type="number"
               step="0.01"
@@ -147,14 +180,15 @@ export default function ConfiguracoesFinanceirasPage() {
                   multaPadrao: Number(e.target.value),
                 }))
               }
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+              className={inputClassName}
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Desconto padrão
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t("fields.defaultDiscount")}
             </label>
+
             <input
               type="number"
               step="0.01"
@@ -165,14 +199,15 @@ export default function ConfiguracoesFinanceirasPage() {
                   descontoPadrao: Number(e.target.value),
                 }))
               }
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+              className={inputClassName}
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Dias de tolerância
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t("fields.graceDays")}
             </label>
+
             <input
               type="number"
               value={form.diasTolerancia}
@@ -182,13 +217,13 @@ export default function ConfiguracoesFinanceirasPage() {
                   diasTolerancia: Number(e.target.value),
                 }))
               }
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+              className={inputClassName}
             />
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="flex items-center gap-3 rounded-xl border border-slate-200 p-4">
+          <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
             <input
               type="checkbox"
               checked={form.bloquearAlunoInadimplente}
@@ -198,13 +233,15 @@ export default function ConfiguracoesFinanceirasPage() {
                   bloquearAlunoInadimplente: e.target.checked,
                 }))
               }
+              className="h-4 w-4 accent-blue-600"
             />
-            <span className="text-sm text-slate-700">
-              Bloquear aluno inadimplente
+
+            <span className="text-sm">
+              {t("fields.blockDelinquentStudent")}
             </span>
           </label>
 
-          <label className="flex items-center gap-3 rounded-xl border border-slate-200 p-4">
+          <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
             <input
               type="checkbox"
               checked={form.permitirPagamentoParcial}
@@ -214,18 +251,21 @@ export default function ConfiguracoesFinanceirasPage() {
                   permitirPagamentoParcial: e.target.checked,
                 }))
               }
+              className="h-4 w-4 accent-blue-600"
             />
-            <span className="text-sm text-slate-700">
-              Permitir pagamento parcial
+
+            <span className="text-sm">
+              {t("fields.allowPartialPayment")}
             </span>
           </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Bloquear após quantas mensalidades em atraso
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+              {t("fields.blockAfterOverdueInstallments")}
             </label>
+
             <input
               type="number"
               min={1}
@@ -236,35 +276,26 @@ export default function ConfiguracoesFinanceirasPage() {
                   quantidadeMensalidadesParaBloqueio: Number(e.target.value),
                 }))
               }
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+              className={inputClassName}
             />
-            <p className="mt-1 text-xs text-slate-500">
-              Exemplo: 3 = bloquear somente após 3 mensalidades vencidas.
+
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {t("fields.blockExample")}
             </p>
           </div>
         </div>
 
-        <div className="border-t border-slate-700 pt-6">
-  <button
-    type="submit"
-    disabled={saving}
-    className="
-      inline-flex items-center justify-center
-      rounded-2xl
-      bg-blue-600
-      px-6 py-3
-      text-sm font-bold text-white
-      shadow-lg shadow-blue-900/20
-      transition
-      hover:bg-blue-700
-      disabled:opacity-60
-    "
-  >
-    {saving
-      ? "Salvando..."
-      : "💾 Salvar configurações financeiras"}
-  </button>
-</div>
+        <div className="border-t border-slate-200 pt-6 dark:border-slate-700">
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving
+              ? t("actions.saving")
+              : `💾 ${t("actions.save")}`}
+          </button>
+        </div>
       </form>
     </div>
   );

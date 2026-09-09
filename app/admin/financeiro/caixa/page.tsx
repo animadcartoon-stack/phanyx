@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Movimento = {
   id: number;
@@ -65,44 +66,39 @@ type CobrancaPendente = {
 };
 
 const caixaTourSteps = [
-
   {
     id: "abrir-caixa",
     target: '[data-tour="caixa-botao-abrir"]',
-    titulo: "Abrir caixa manual",
-    destaque: "Comece o caixa do dia informando o saldo inicial.",
-    descricao:
-      "Use esta área para abrir o caixa físico ou manual da secretaria/financeiro.",
+    tituloKey: "tour.steps.openCash.title",
+    destaqueKey: "tour.steps.openCash.highlight",
+    descricaoKey: "tour.steps.openCash.description",
     imagem: "/images/financeiro.png",
   },
   {
     id: "saldo-inicial",
     target: '[data-tour="caixa-saldo-inicial"]',
-    titulo: "Saldo inicial",
-    destaque: "Informe quanto existe no caixa no momento da abertura.",
-    descricao:
-      "Esse valor será usado no fechamento para comparar o saldo esperado com o saldo informado.",
+    tituloKey: "tour.steps.initialBalance.title",
+    destaqueKey: "tour.steps.initialBalance.highlight",
+    descricaoKey: "tour.steps.initialBalance.description",
     imagem: "/images/contador.png",
   },
   {
     id: "observacao-abertura",
     target: '[data-tour="caixa-observacao-abertura"]',
-    titulo: "Observação de abertura",
-    destaque: "Registre detalhes importantes da abertura.",
-    descricao:
-      "Você pode anotar responsável, turno, conferência inicial ou qualquer informação útil.",
+    tituloKey: "tour.steps.openingNote.title",
+    destaqueKey: "tour.steps.openingNote.highlight",
+    descricaoKey: "tour.steps.openingNote.description",
     imagem: "/images/financeiro.png",
   },
   {
     id: "botao-abrir",
     target: '[data-tour="caixa-botao-abrir"]',
-    titulo: "Confirmar abertura",
-    destaque: "Depois de conferir os dados, clique para abrir o caixa.",
-    descricao:
-      "Após aberto, o sistema libera o registro de entradas, saídas, resumo e fechamento.",
+    tituloKey: "tour.steps.confirmOpen.title",
+    destaqueKey: "tour.steps.confirmOpen.highlight",
+    descricaoKey: "tour.steps.confirmOpen.description",
     imagem: "/images/formix-bemvindo.png",
   },
-];
+] as const;
 
 function CaixaTour({
   aberto,
@@ -111,6 +107,7 @@ function CaixaTour({
   aberto: boolean;
   onClose: () => void;
 }) {
+  const t = useTranslations("AdminFinanceCash");
   const [stepAtual, setStepAtual] = useState(0);
   const [targetRect, setTargetRect] = useState<{
     top: number;
@@ -276,12 +273,12 @@ function CaixaTour({
       )}
 
       <div
-        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300 dark:border-slate-700 dark:bg-slate-900"
         style={bubbleStyle}
       >
         {spotlight && (
           <div
-            className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
+            className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
             style={
               direcaoSeta === "baixo"
                 ? { left: "42px", top: "-6px" }
@@ -303,44 +300,47 @@ function CaixaTour({
 
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
-              Tutorial guiado
+              {t("tour.label")}
             </p>
 
-            <h3 className="mt-1 text-xl font-bold text-slate-900">
-              {step.titulo}
+            <h3 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+              {t(step.tituloKey)}
             </h3>
 
             <p className="mt-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-              {step.destaque}
+              {t(step.destaqueKey)}
             </p>
 
-            <p className="mt-2 text-sm leading-7 text-slate-600">
-              {step.descricao}
+            <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              {t(step.descricaoKey)}
             </p>
           </div>
         </div>
 
         <div className="mt-5 flex items-center justify-between gap-3">
-          <div className="text-sm text-slate-500">
-            Etapa {stepAtual + 1} de {caixaTourSteps.length}
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            {t("tour.step", {
+              current: stepAtual + 1,
+              total: caixaTourSteps.length,
+            })}
           </div>
 
           <div className="flex flex-wrap justify-end gap-2">
             <button
               type="button"
               onClick={fechar}
-              className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
             >
-              Fechar
+              {t("tour.close")}
             </button>
 
             {stepAtual > 0 && (
               <button
                 type="button"
                 onClick={() => setStepAtual((prev) => prev - 1)}
-                className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
               >
-                Anterior
+                {t("tour.previous")}
               </button>
             )}
 
@@ -350,7 +350,7 @@ function CaixaTour({
                 onClick={() => setStepAtual((prev) => prev + 1)}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Próximo
+                {t("tour.next")}
               </button>
             ) : (
               <button
@@ -366,7 +366,7 @@ function CaixaTour({
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Ir para inadimplentes
+                {t("tour.goToDelinquent")}
               </button>
             )}
           </div>
@@ -377,6 +377,57 @@ function CaixaTour({
 }
 
 export default function AdminFinanceiroCaixaPage() {
+  const t = useTranslations("AdminFinanceCash");
+  const locale = useLocale();
+
+  function formatarMoeda(valor: number) {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "BRL",
+    }).format(Number(valor || 0));
+  }
+
+  function formatarData(valor?: string | null) {
+    if (!valor) return t("common.notInformed");
+    return new Date(valor).toLocaleDateString(locale);
+  }
+
+  function formatarDataHora(valor?: string | null) {
+    if (!valor) return "-";
+    return new Date(valor).toLocaleString(locale);
+  }
+
+  function rotuloStatusCaixa(status: Caixa["status"]) {
+    return status === "ABERTO"
+      ? t("status.open")
+      : t("status.closed");
+  }
+
+  function rotuloTipoMovimento(tipo: Movimento["tipo"]) {
+    return tipo === "ENTRADA"
+      ? t("movementTypes.entry")
+      : t("movementTypes.exit");
+  }
+
+  function rotuloFormaPagamento(valor?: string | null) {
+    switch (valor) {
+      case "DINHEIRO":
+        return t("paymentMethods.cash");
+      case "PIX":
+        return "PIX";
+      case "CARTAO":
+        return t("paymentMethods.card");
+      case "BOLETO":
+        return t("paymentMethods.boleto");
+      case "TRANSFERENCIA":
+        return t("paymentMethods.transfer");
+      case "OUTRO":
+        return t("paymentMethods.other");
+      default:
+        return valor || "-";
+    }
+  }
+
   const [loading, setLoading] = useState(true);
   const [tourAberto, setTourAberto] = useState(false);
   const [erro, setErro] = useState("");
@@ -423,7 +474,7 @@ export default function AdminFinanceiroCaixaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar caixa");
+        throw new Error(data?.error || t("errors.loadCash"));
       }
 
       setCaixa(data?.caixaManual || null);
@@ -435,7 +486,7 @@ export default function AdminFinanceiroCaixaPage() {
           : []
       );
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar caixa");
+      setErro(e?.message || t("errors.loadCash"));
       setCaixa(null);
       setCobrancasPendentes([]);
     } finally {
@@ -488,15 +539,15 @@ export default function AdminFinanceiroCaixaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao abrir caixa");
+        throw new Error(data?.error || t("errors.openCash"));
       }
 
       setSaldoInicial("");
       setObservacaoAbertura("");
       await carregarCaixa();
-      setSucesso("Caixa aberto com sucesso.");
+      setSucesso(t("success.cashOpened"));
     } catch (e: any) {
-      setErro(e?.message || "Erro ao abrir caixa");
+      setErro(e?.message || t("errors.openCash"));
     }
   }
 
@@ -522,13 +573,13 @@ export default function AdminFinanceiroCaixaPage() {
   async function darBaixaCobranca() {
     if (!caixa) {
       setErro(
-        "Abra seu caixa antes de registrar o recebimento."
+        t("errors.openCashBeforeReceipt")
       );
       return;
     }
 
     if (!cobrancaSelecionadaId) {
-      setErro("Selecione uma cobrança.");
+      setErro(t("errors.selectCharge"));
       return;
     }
 
@@ -538,7 +589,7 @@ export default function AdminFinanceiroCaixaPage() {
       !Number.isFinite(valorNumerico) ||
       valorNumerico <= 0
     ) {
-      setErro("Informe um valor válido para a baixa.");
+      setErro(t("errors.invalidReceiptAmount"));
       return;
     }
 
@@ -570,7 +621,7 @@ export default function AdminFinanceiroCaixaPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-          "Não foi possível registrar o recebimento."
+          t("errors.registerReceipt")
         );
       }
 
@@ -579,12 +630,12 @@ export default function AdminFinanceiroCaixaPage() {
       await carregarCaixa();
 
       setSucesso(
-        "Recebimento registrado e lançado no seu caixa com sucesso."
+        t("success.receiptRegistered")
       );
     } catch (e: any) {
       setErro(
         e?.message ||
-        "Não foi possível registrar o recebimento."
+        t("errors.registerReceipt")
       );
     } finally {
       setSalvandoBaixa(false);
@@ -614,16 +665,16 @@ export default function AdminFinanceiroCaixaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao registrar movimento");
+        throw new Error(data?.error || t("errors.registerMovement"));
       }
 
       setDescricao("");
       setValor("");
       setFormaPagamento("PIX");
       await carregarCaixa();
-      setSucesso("Movimento registrado com sucesso.");
+      setSucesso(t("success.movementRegistered"));
     } catch (e: any) {
-      setErro(e?.message || "Erro ao registrar movimento");
+      setErro(e?.message || t("errors.registerMovement"));
     }
   }
 
@@ -648,15 +699,15 @@ export default function AdminFinanceiroCaixaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao fechar caixa");
+        throw new Error(data?.error || t("errors.closeCash"));
       }
 
       setSaldoInformado("");
       setObservacaoFechamento("");
       await carregarCaixa();
-      setSucesso("Caixa fechado com sucesso.");
+      setSucesso(t("success.cashClosed"));
     } catch (e: any) {
-      setErro(e?.message || "Erro ao fechar caixa");
+      setErro(e?.message || t("errors.closeCash"));
     }
   }
 
@@ -714,11 +765,13 @@ export default function AdminFinanceiroCaixaPage() {
   }, [cobrancasFiltradas]);
 
   return (
-    <div className="phanyx-financeiro-caixa-page max-w-7xl space-y-6">
+    <div className="phanyx-financeiro-caixa-page max-w-7xl space-y-6 text-slate-950 dark:text-slate-100">
       <div>
-        <h1 className="text-2xl font-bold">🏦 Caixa</h1>
-        <p className="text-gray-600 mt-1">
-          Abertura, movimentação e fechamento de caixa.
+        <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
+          🏦 {t("page.title")}
+        </h1>
+        <p className="mt-1 text-slate-600 dark:text-slate-300">
+          {t("page.subtitle")}
         </p>
       </div>
 
@@ -729,41 +782,41 @@ export default function AdminFinanceiroCaixaPage() {
         >    <div className="flex items-start justify-between gap-4">
             <div>
               <p className="phanyx-caixa-automatico-label text-xs font-black uppercase tracking-[0.16em]">
-                Caixa automático
+                {t("onlineCash.automaticLabel")}
               </p>
-              <h2 className="mt-1 text-xl font-bold text-slate-900">
-                🌐 Caixa Online Asaas IBE
+              <h2 className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+                🌐 {t("onlineCash.title")}
               </h2>
-              <p className="mt-1 text-sm text-slate-600">
-                Recebe automaticamente os pagamentos feitos na matrícula online IBE.
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {t("onlineCash.description")}
               </p>
             </div>
 
             <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-              Somente leitura
+              {t("onlineCash.readOnly")}
             </span>
           </div>
 
           {!caixaOnlineIbe ? (
-            <p className="mt-4 text-sm text-slate-600">
-              Nenhum pagamento online IBE registrado hoje.
+            <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+              {t("onlineCash.empty")}
             </p>
           ) : (
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                <p className="text-sm text-slate-500">Status</p>
-                <p className="text-2xl font-bold">{caixaOnlineIbe.status}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t("cards.status")}</p>
+                <p className="text-2xl font-bold">{rotuloStatusCaixa(caixaOnlineIbe.status)}</p>
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                <p className="text-sm text-slate-500">Total online</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t("onlineCash.total")}</p>
                 <p className="text-2xl font-bold">
-                  R$ {Number(caixaOnlineIbe.saldoSistema || 0).toFixed(2)}
+                  {formatarMoeda(caixaOnlineIbe.saldoSistema || 0)}
                 </p>
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                <p className="text-sm text-slate-500">Pagamentos</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t("onlineCash.payments")}</p>
                 <p className="text-2xl font-bold">
                   {caixaOnlineIbe.movimentos?.length || 0}
                 </p>
@@ -774,23 +827,27 @@ export default function AdminFinanceiroCaixaPage() {
       )}
 
       {erro && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-200">
           {erro}
         </div>
       )}
 
       {sucesso && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm">
-          <p className="font-semibold">Tudo certo.</p>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-200">
+          <p className="font-semibold">{t("success.title")}</p>
           <p>{sucesso}</p>
         </div>
       )}
 
       {loading ? (
-        <div className="bg-white border rounded-xl p-6 text-gray-600">Carregando caixa...</div>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+          {t("loading.cash")}
+        </div>
       ) : !caixa ? (
-        <div className="bg-white border rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Abrir caixa</h2>
+        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+            {t("openCash.title")}
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
@@ -800,8 +857,8 @@ export default function AdminFinanceiroCaixaPage() {
               min="0"
               value={saldoInicial}
               onChange={(e) => setSaldoInicial(e.target.value)}
-              placeholder="Saldo inicial"
-              className="border rounded-lg p-2"
+              placeholder={t("openCash.initialBalance")}
+              className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
 
             <input
@@ -809,8 +866,8 @@ export default function AdminFinanceiroCaixaPage() {
               type="text"
               value={observacaoAbertura}
               onChange={(e) => setObservacaoAbertura(e.target.value)}
-              placeholder="Observação de abertura"
-              className="border rounded-lg p-2"
+              placeholder={t("openCash.openingNote")}
+              className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
@@ -819,30 +876,36 @@ export default function AdminFinanceiroCaixaPage() {
             onClick={abrirCaixa}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
-            Abrir caixa
+            {t("openCash.button")}
           </button>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Status do caixa</p>
-              <p className="text-2xl font-bold">{caixa.status}</p>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("cards.cashStatus")}</p>
+              <p className="text-2xl font-bold text-slate-950 dark:text-white">
+                {rotuloStatusCaixa(caixa.status)}
+              </p>
             </div>
 
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Saldo inicial</p>
-              <p className="text-2xl font-bold">R$ {Number(caixa.saldoInicial || 0).toFixed(2)}</p>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("cards.initialBalance")}</p>
+              <p className="text-2xl font-bold text-slate-950 dark:text-white">
+                {formatarMoeda(caixa.saldoInicial || 0)}
+              </p>
             </div>
 
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Saldo do sistema</p>
-              <p className="text-2xl font-bold">R$ {Number(caixa.saldoSistema || 0).toFixed(2)}</p>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("cards.systemBalance")}</p>
+              <p className="text-2xl font-bold text-slate-950 dark:text-white">
+                {formatarMoeda(caixa.saldoSistema || 0)}
+              </p>
             </div>
 
-            <div className="bg-white border rounded-xl p-4">
-              <p className="text-sm text-gray-500">Movimentos</p>
-              <p className="text-2xl font-bold">{caixa.movimentos.length}</p>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("cards.movements")}</p>
+              <p className="text-2xl font-bold text-slate-950 dark:text-white">{caixa.movimentos.length}</p>
             </div>
           </div>
 
@@ -850,27 +913,25 @@ export default function AdminFinanceiroCaixaPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h2 className="text-xl font-black text-slate-950 dark:text-white">
-                  💵 Cobranças aguardando recebimento
+                  💵 {t("charges.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Matrículas e mensalidades pendentes para recebimento
-                  neste caixa.
+                  {t("charges.subtitle")}
                 </p>
               </div>
 
               <div className="phanyx-caixa-cobrancas-resumo rounded-2xl border px-4 py-3 text-sm">
                 <p className="font-bold">
-                  {cobrancasFiltradas.length} cobrança(s)
+                  {t("charges.count", {
+                    count: cobrancasFiltradas.length,
+                  })}
                 </p>
 
                 <p className="mt-1">
-                  Total pendente:{" "}
+                  {t("charges.totalPending")}:{" "}
                   <strong>
-                    {totalPendente.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
+                    {formatarMoeda(totalPendente)}
                   </strong>
                 </p>
               </div>
@@ -878,7 +939,7 @@ export default function AdminFinanceiroCaixaPage() {
 
             <div className="mt-5">
               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                Buscar cobrança
+                {t("charges.searchLabel")}
               </label>
 
               <input
@@ -886,14 +947,14 @@ export default function AdminFinanceiroCaixaPage() {
                 onChange={(evento) =>
                   setBuscaCobranca(evento.target.value)
                 }
-                placeholder="Aluno, matrícula, curso, vendedor ou descrição..."
+                placeholder={t("charges.searchPlaceholder")}
                 className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </div>
 
             {cobrancasFiltradas.length === 0 ? (
               <div className="phanyx-caixa-cobrancas-vazio mt-5 rounded-2xl border border-dashed p-8 text-center text-sm font-medium">
-                Nenhuma cobrança pendente encontrada.
+                {t("charges.empty")}
               </div>
             ) : (
               <div className="mt-5 space-y-4">
@@ -920,19 +981,19 @@ export default function AdminFinanceiroCaixaPage() {
 
                             {cobranca.status === "ATRASADO" && (
                               <span className="phanyx-caixa-status-atrasado rounded-full border px-3 py-1 text-xs font-extrabold">
-                                Atrasada
+                                {t("charges.overdue")}
                               </span>
                             )}
                           </div>
 
                           <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
                             {cobranca.descricao ||
-                              "Cobrança sem descrição"}
+                              t("charges.noDescription")}
                           </p>
 
                           <div className="mt-3 grid gap-2 text-sm text-slate-600 dark:text-slate-400 sm:grid-cols-2 xl:grid-cols-4">
                             <p>
-                              <strong>Matrícula:</strong>{" "}
+                              <strong>{t("charges.enrollment")}:</strong>{" "}
                               {cobranca.matricula
                                 ?.numeroMatricula ||
                                 cobranca.matricula
@@ -941,41 +1002,34 @@ export default function AdminFinanceiroCaixaPage() {
                             </p>
 
                             <p>
-                              <strong>Curso:</strong>{" "}
+                              <strong>{t("charges.course")}:</strong>{" "}
                               {cobranca.matricula?.curso?.nome ||
-                                "Não informado"}
+                                t("common.notInformed")}
                             </p>
 
                             <p>
-                              <strong>Vendedor:</strong>{" "}
+                              <strong>{t("charges.seller")}:</strong>{" "}
                               {cobranca.matricula
                                 ?.vendedorResponsavelNomeSnapshot ||
-                                "Não informado"}
+                                t("common.notInformed")}
                             </p>
 
                             <p>
-                              <strong>Vencimento:</strong>{" "}
+                              <strong>{t("charges.dueDate")}:</strong>{" "}
                               {cobranca.vencimento
-                                ? new Date(
-                                  cobranca.vencimento
-                                ).toLocaleDateString("pt-BR")
-                                : "Não informado"}
+                                ? formatarData(cobranca.vencimento)
+                                : t("common.notInformed")}
                             </p>
                           </div>
                         </div>
 
                         <div className="shrink-0 xl:text-right">
                           <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                            Saldo pendente
+                            {t("charges.balance")}
                           </p>
 
                           <p className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
-                            {Number(
-                              cobranca.saldoPendente || 0
-                            ).toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
+                            {formatarMoeda(cobranca.saldoPendente || 0)}
                           </p>
 
                           <button
@@ -997,8 +1051,8 @@ export default function AdminFinanceiroCaixaPage() {
                             ].join(" ")}
                           >
                             {selecionada
-                              ? "Cancelar"
-                              : "Dar baixa"}
+                              ? t("charges.cancel")
+                              : t("charges.receive")}
                           </button>
                         </div>
                       </div>
@@ -1008,7 +1062,7 @@ export default function AdminFinanceiroCaixaPage() {
                           <div className="grid gap-4 md:grid-cols-3">
                             <div>
                               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                                Valor recebido
+                                {t("charges.receivedAmount")}
                               </label>
 
                               <input
@@ -1027,7 +1081,7 @@ export default function AdminFinanceiroCaixaPage() {
 
                             <div>
                               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                                Forma de pagamento
+                                {t("charges.paymentMethod")}
                               </label>
 
                               <select
@@ -1040,27 +1094,27 @@ export default function AdminFinanceiroCaixaPage() {
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                               >
                                 <option value="DINHEIRO">
-                                  Dinheiro
+                                  {t("paymentMethods.cash")}
                                 </option>
                                 <option value="PIX">PIX</option>
                                 <option value="CARTAO">
-                                  Cartão
+                                  {t("paymentMethods.card")}
                                 </option>
                                 <option value="BOLETO">
-                                  Boleto
+                                  {t("paymentMethods.boleto")}
                                 </option>
                                 <option value="TRANSFERENCIA">
-                                  Transferência
+                                  {t("paymentMethods.transfer")}
                                 </option>
                                 <option value="OUTRO">
-                                  Outro
+                                  {t("paymentMethods.other")}
                                 </option>
                               </select>
                             </div>
 
                             <div>
                               <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-                                Observação
+                                {t("charges.note")}
                               </label>
 
                               <input
@@ -1070,7 +1124,7 @@ export default function AdminFinanceiroCaixaPage() {
                                     evento.target.value
                                   )
                                 }
-                                placeholder="Informação opcional"
+                                placeholder={t("charges.optionalInfo")}
                                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                               />
                             </div>
@@ -1083,8 +1137,8 @@ export default function AdminFinanceiroCaixaPage() {
                             className="mt-4 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {salvandoBaixa
-                              ? "Registrando recebimento..."
-                              : "Confirmar recebimento"}
+                              ? t("charges.registering")
+                              : t("charges.confirmReceipt")}
                           </button>
                         </div>
                       )}
@@ -1095,25 +1149,27 @@ export default function AdminFinanceiroCaixaPage() {
             )}
           </section>
 
-          <div className="bg-white border rounded-xl p-5 space-y-4">
-            <h2 className="text-lg font-semibold">Registrar movimento</h2>
+          <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+              {t("movement.title")}
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <select
                 value={tipoMovimento}
                 onChange={(e) => setTipoMovimento(e.target.value as "ENTRADA" | "SAIDA")}
-                className="border rounded-lg p-2 bg-white"
+                className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               >
-                <option value="ENTRADA">Entrada</option>
-                <option value="SAIDA">Saída</option>
+                <option value="ENTRADA">{t("movementTypes.entry")}</option>
+                <option value="SAIDA">{t("movementTypes.exit")}</option>
               </select>
 
               <input
                 type="text"
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
-                placeholder="Descrição"
-                className="border rounded-lg p-2"
+                placeholder={t("movement.description")}
+                className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
 
               <input
@@ -1122,21 +1178,21 @@ export default function AdminFinanceiroCaixaPage() {
                 min="0"
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}
-                placeholder="Valor"
-                className="border rounded-lg p-2"
+                placeholder={t("movement.value")}
+                className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
 
               <select
                 value={formaPagamento}
                 onChange={(e) => setFormaPagamento(e.target.value)}
-                className="border rounded-lg p-2 bg-white"
+                className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               >
-                <option value="DINHEIRO">Dinheiro</option>
+                <option value="DINHEIRO">{t("paymentMethods.cash")}</option>
                 <option value="PIX">PIX</option>
-                <option value="CARTAO">Cartão</option>
-                <option value="BOLETO">Boleto</option>
-                <option value="TRANSFERENCIA">Transferência</option>
-                <option value="OUTRO">Outro</option>
+                <option value="CARTAO">{t("paymentMethods.card")}</option>
+                <option value="BOLETO">{t("paymentMethods.boleto")}</option>
+                <option value="TRANSFERENCIA">{t("paymentMethods.transfer")}</option>
+                <option value="OUTRO">{t("paymentMethods.other")}</option>
               </select>
             </div>
 
@@ -1144,33 +1200,37 @@ export default function AdminFinanceiroCaixaPage() {
               onClick={registrarMovimento}
               className="px-4 py-2 bg-emerald-600 text-white rounded-lg"
             >
-              Registrar movimento
+              {t("movement.register")}
             </button>
           </div>
 
-          <div className="bg-white border rounded-xl p-5">
-            <h2 className="text-lg font-semibold">Resumo por forma de pagamento</h2>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+              {t("paymentSummary.title")}
+            </h2>
 
             <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-gray-500">Dinheiro</p>
-                <p className="text-2xl font-bold">R$ {resumo.dinheiro.toFixed(2)}</p>
+              <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t("paymentMethods.cash")}</p>
+                <p className="text-2xl font-bold text-slate-950 dark:text-white">{formatarMoeda(resumo.dinheiro)}</p>
               </div>
 
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-gray-500">PIX</p>
-                <p className="text-2xl font-bold">R$ {resumo.pix.toFixed(2)}</p>
+              <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                <p className="text-sm text-slate-500 dark:text-slate-400">PIX</p>
+                <p className="text-2xl font-bold text-slate-950 dark:text-white">{formatarMoeda(resumo.pix)}</p>
               </div>
 
-              <div className="border rounded-lg p-4">
-                <p className="text-sm text-gray-500">Cartão</p>
-                <p className="text-2xl font-bold">R$ {resumo.cartao.toFixed(2)}</p>
+              <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t("paymentMethods.card")}</p>
+                <p className="text-2xl font-bold text-slate-950 dark:text-white">{formatarMoeda(resumo.cartao)}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border rounded-xl p-5 space-y-4">
-            <h2 className="text-lg font-semibold">Fechamento de caixa</h2>
+          <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+              {t("closeCash.title")}
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <input
@@ -1179,16 +1239,16 @@ export default function AdminFinanceiroCaixaPage() {
                 min="0"
                 value={saldoInformado}
                 onChange={(e) => setSaldoInformado(e.target.value)}
-                placeholder="Saldo informado no fechamento"
-                className="border rounded-lg p-2"
+                placeholder={t("closeCash.reportedBalance")}
+                className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
 
               <input
                 type="text"
                 value={observacaoFechamento}
                 onChange={(e) => setObservacaoFechamento(e.target.value)}
-                placeholder="Observação de fechamento"
-                className="border rounded-lg p-2"
+                placeholder={t("closeCash.note")}
+                className="rounded-lg border border-slate-300 bg-white p-2 text-slate-950 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </div>
 
@@ -1196,26 +1256,28 @@ export default function AdminFinanceiroCaixaPage() {
               onClick={fecharCaixa}
               className="px-4 py-2 bg-red-600 text-white rounded-lg"
             >
-              Fechar caixa
+              {t("closeCash.button")}
             </button>
           </div>
 
-          <div className="bg-white border rounded-xl p-5">
-            <h2 className="text-lg font-semibold">Movimentos do caixa</h2>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+              {t("movementList.title")}
+            </h2>
 
             {caixa.movimentos.length === 0 ? (
-              <p className="text-sm text-gray-600 mt-3">Nenhum movimento registrado.</p>
+              <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{t("movementList.empty")}</p>
             ) : (
               <div className="mt-4 space-y-2">
                 {caixa.movimentos.map((mov) => (
-                  <div key={mov.id} className="border rounded-lg p-3 text-sm">
+                  <div key={mov.id} className="rounded-lg border border-slate-200 p-3 text-sm dark:border-slate-700">
                     <p className="font-medium">
-                      {mov.tipo} — R$ {Number(mov.valor || 0).toFixed(2)}
+                      {rotuloTipoMovimento(mov.tipo)} — {formatarMoeda(mov.valor || 0)}
                     </p>
-                    <p className="text-gray-600">{mov.descricao || "-"}</p>
-                    <p className="text-gray-500">
-                      {mov.formaPagamento || "-"} •{" "}
-                      {mov.createdAt ? new Date(mov.createdAt).toLocaleString("pt-BR") : "-"}
+                    <p className="text-slate-600 dark:text-slate-300">{mov.descricao || "-"}</p>
+                    <p className="text-slate-500 dark:text-slate-400">
+                      {rotuloFormaPagamento(mov.formaPagamento)} •{" "}
+                      {formatarDataHora(mov.createdAt)}
                     </p>
                   </div>
                 ))}

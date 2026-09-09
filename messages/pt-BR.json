@@ -105,6 +105,8 @@
     }
   },
   "AdminNavigation": {
+    "oneOffFees": "Taxas Avulsas",
+    "generateInvoiceForInterestedParty": "Gerar boleto para interessado",
     "adminPanel": "Painel Administrativo",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",
@@ -13140,6 +13142,880 @@
       "TRANCAMENTO": "Trancamento",
       "COMPARECIMENTO": "Comparecimento",
       "HISTORICO": "Hist?rico"
+    }
+  },
+  "AdminFinance": {
+    "title": "Financeiro",
+    "description": "Gerencie recebimentos, mensalidades, taxas, inadimplência e fechamento de caixa.",
+    "actions": {
+      "generateMonthlyFees": "Gerar mensalidades",
+      "generatingMonthlyFees": "Gerando mensalidades...",
+      "updateDelinquency": "Atualizar atrasos / inadimplência",
+      "updating": "Atualizando..."
+    },
+    "messages": {
+      "generateSuccess": "Mensalidades geradas com sucesso.",
+      "updateSuccess": "Atualização concluída. Alunos inadimplentes: {count}. Lançamentos em atraso recalculados com sucesso."
+    },
+    "errors": {
+      "generateMonthlyFees": "Erro ao gerar mensalidades.",
+      "loadSummary": "Erro ao carregar resumo financeiro.",
+      "updateStatus": "Erro ao atualizar status financeiro."
+    },
+    "summary": {
+      "received": "Recebido no período",
+      "totalPosted": "Total lançado",
+      "entries": "Lançamentos",
+      "pending": "Pendências",
+      "overdue": "Em atraso",
+      "delinquentStudents": "Alunos inadimplentes"
+    },
+    "executive": {
+      "title": "Resumo executivo do período",
+      "description": "Visão rápida da saúde financeira da instituição no período atual.",
+      "generalStatus": "Situação geral",
+      "loading": "Carregando...",
+      "overdueAttention": "Existem valores em atraso que exigem acompanhamento.",
+      "noRelevantOverdue": "Sem atrasos relevantes no período.",
+      "collection": "Cobrança",
+      "collectionValue": "{count, plural, =0 {Nenhum aluno inadimplente no período.} one {# aluno inadimplente no período.} other {# alunos inadimplentes no período.}}",
+      "volume": "Volume financeiro",
+      "volumeValue": "{amount} lançados no período.",
+      "received": "Recebimento",
+      "receivedValue": "{amount} recebidos até agora."
+    },
+    "sections": {
+      "operationsTitle": "Operação financeira",
+      "operationsDescription": "Movimente cobranças, caixa e rotinas operacionais do dia a dia.",
+      "automaticTitle": "Rotinas automáticas",
+      "automaticDescription": "Ações rápidas para manter o financeiro atualizado.",
+      "controlTitle": "Controle e cobrança",
+      "controlDescription": "Monitore atrasos, histórico e parâmetros financeiros da instituição.",
+      "reportsTitle": "Relatórios e gestão",
+      "reportsDescription": "Acompanhe indicadores e a visão gerencial do financeiro."
+    },
+    "cards": {
+      "receiptsTitle": "Recebimentos",
+      "receiptsDescription": "Buscar cobranças, registrar pagamentos e acompanhar baixas.",
+      "cashTitle": "Caixa",
+      "cashDescription": "Abrir caixa, registrar movimentos e fazer fechamento.",
+      "feesTitle": "Taxas",
+      "feesDescription": "Matrícula, trancamento, aula extra e cobranças avulsas.",
+      "delinquentTitle": "Inadimplentes",
+      "delinquentDescription": "Visualize alunos com atraso e acompanhe cobranças.",
+      "historyTitle": "Histórico",
+      "historyDescription": "Consulte registros automáticos e manuais de cobrança.",
+      "settingsTitle": "Configurações",
+      "settingsDescription": "Juros, multa, tolerância e regras por instituição.",
+      "closingTitle": "Fechamento Geral",
+      "closingDescription": "Consolidação dos caixas fechados por data.",
+      "reportsTitle": "Relatórios",
+      "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro."
+    },
+    "automatic": {
+      "generateTitle": "Gerar mensalidades",
+      "generateDescription": "Cria mensalidades do mês atual para os alunos elegíveis.",
+      "updateTitle": "Atualizar atrasos e inadimplência",
+      "updateDescription": "Recalcula lançamentos vencidos e status dos alunos."
+    },
+    "tour": {
+      "label": "Tutorial financeiro",
+      "stepCounter": "Etapa {current} de {total}",
+      "close": "Fechar",
+      "hideForever": "Não mostrar mais",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "finish": "Concluir",
+      "completedTitle": "Financeiro pronto 🚀",
+      "completedDescription": "Você concluiu o tour financeiro do PHANYX.",
+      "goToReceipts": "Ir para recebimentos",
+      "steps": {
+        "recebimentos": {
+          "title": "Recebimentos",
+          "description": "Aqui você acompanha cobranças, registra pagamentos e controla baixas financeiras.",
+          "alt": "Mascote financeiro",
+          "highlight": "Vamos começar pelos recebimentos."
+        },
+        "caixa": {
+          "title": "Caixa",
+          "description": "Abra caixa, registre entradas e saídas e faça fechamento diário.",
+          "alt": "Calculadora financeira",
+          "highlight": "Controle financeiro diário."
+        },
+        "inadimplentes": {
+          "title": "Inadimplentes",
+          "description": "Veja alunos em atraso e acompanhe cobranças pendentes.",
+          "alt": "Financeiro",
+          "highlight": "Acompanhe inadimplência."
+        },
+        "fechamento": {
+          "title": "Fechamento Geral",
+          "description": "Consolidação de caixas fechados e conferência financeira.",
+          "alt": "Calculadora",
+          "highlight": "Fechamento consolidado."
+        },
+        "relatorios": {
+          "title": "Relatórios",
+          "description": "Acompanhe indicadores, exportações e visão gerencial.",
+          "alt": "Relatórios",
+          "highlight": "Gestão estratégica."
+        }
+      }
+    }
+  },
+  "AdminFinanceCash": {
+    "page": {
+      "title": "Caixa",
+      "subtitle": "Abertura, movimentação e fechamento de caixa."
+    },
+    "tour": {
+      "label": "Tutorial guiado",
+      "step": "Etapa {current} de {total}",
+      "close": "Fechar",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "goToDelinquent": "Ir para inadimplentes",
+      "steps": {
+        "openCash": {
+          "title": "Abrir caixa manual",
+          "highlight": "Comece o caixa do dia informando o saldo inicial.",
+          "description": "Use esta área para abrir o caixa físico ou manual da secretaria/financeiro."
+        },
+        "initialBalance": {
+          "title": "Saldo inicial",
+          "highlight": "Informe quanto existe no caixa no momento da abertura.",
+          "description": "Esse valor será usado no fechamento para comparar o saldo esperado com o saldo informado."
+        },
+        "openingNote": {
+          "title": "Observação de abertura",
+          "highlight": "Registre detalhes importantes da abertura.",
+          "description": "Você pode anotar responsável, turno, conferência inicial ou qualquer informação útil."
+        },
+        "confirmOpen": {
+          "title": "Confirmar abertura",
+          "highlight": "Depois de conferir os dados, clique para abrir o caixa.",
+          "description": "Após aberto, o sistema libera o registro de entradas, saídas, resumo e fechamento."
+        }
+      }
+    },
+    "common": {
+      "notInformed": "Não informado"
+    },
+    "status": {
+      "open": "Aberto",
+      "closed": "Fechado"
+    },
+    "movementTypes": {
+      "entry": "Entrada",
+      "exit": "Saída"
+    },
+    "paymentMethods": {
+      "cash": "Dinheiro",
+      "card": "Cartão",
+      "boleto": "Boleto",
+      "transfer": "Transferência",
+      "other": "Outro"
+    },
+    "errors": {
+      "loadCash": "Erro ao carregar caixa",
+      "openCash": "Erro ao abrir caixa",
+      "openCashBeforeReceipt": "Abra seu caixa antes de registrar o recebimento.",
+      "selectCharge": "Selecione uma cobrança.",
+      "invalidReceiptAmount": "Informe um valor válido para a baixa.",
+      "registerReceipt": "Não foi possível registrar o recebimento.",
+      "registerMovement": "Erro ao registrar movimento",
+      "closeCash": "Erro ao fechar caixa"
+    },
+    "success": {
+      "title": "Tudo certo.",
+      "cashOpened": "Caixa aberto com sucesso.",
+      "receiptRegistered": "Recebimento registrado e lançado no seu caixa com sucesso.",
+      "movementRegistered": "Movimento registrado com sucesso.",
+      "cashClosed": "Caixa fechado com sucesso."
+    },
+    "onlineCash": {
+      "automaticLabel": "Caixa automático",
+      "title": "Caixa Online Asaas IBE",
+      "description": "Recebe automaticamente os pagamentos feitos na matrícula online IBE.",
+      "readOnly": "Somente leitura",
+      "empty": "Nenhum pagamento online IBE registrado hoje.",
+      "total": "Total online",
+      "payments": "Pagamentos"
+    },
+    "cards": {
+      "status": "Status",
+      "cashStatus": "Status do caixa",
+      "initialBalance": "Saldo inicial",
+      "systemBalance": "Saldo do sistema",
+      "movements": "Movimentos"
+    },
+    "loading": {
+      "cash": "Carregando caixa..."
+    },
+    "openCash": {
+      "title": "Abrir caixa",
+      "initialBalance": "Saldo inicial",
+      "openingNote": "Observação de abertura",
+      "button": "Abrir caixa"
+    },
+    "charges": {
+      "title": "Cobranças aguardando recebimento",
+      "subtitle": "Matrículas e mensalidades pendentes para recebimento neste caixa.",
+      "count": "{count, plural, =0 {Nenhuma cobrança} one {# cobrança} other {# cobranças}}",
+      "totalPending": "Total pendente",
+      "searchLabel": "Buscar cobrança",
+      "searchPlaceholder": "Aluno, matrícula, curso, vendedor ou descrição...",
+      "empty": "Nenhuma cobrança pendente encontrada.",
+      "overdue": "Atrasada",
+      "noDescription": "Cobrança sem descrição",
+      "enrollment": "Matrícula",
+      "course": "Curso",
+      "seller": "Vendedor",
+      "dueDate": "Vencimento",
+      "balance": "Saldo pendente",
+      "cancel": "Cancelar",
+      "receive": "Dar baixa",
+      "receivedAmount": "Valor recebido",
+      "paymentMethod": "Forma de pagamento",
+      "note": "Observação",
+      "optionalInfo": "Informação opcional",
+      "registering": "Registrando recebimento...",
+      "confirmReceipt": "Confirmar recebimento"
+    },
+    "movement": {
+      "title": "Registrar movimento",
+      "description": "Descrição",
+      "value": "Valor",
+      "register": "Registrar movimento"
+    },
+    "paymentSummary": {
+      "title": "Resumo por forma de pagamento"
+    },
+    "closeCash": {
+      "title": "Fechamento de caixa",
+      "reportedBalance": "Saldo informado no fechamento",
+      "note": "Observação de fechamento",
+      "button": "Fechar caixa"
+    },
+    "movementList": {
+      "title": "Movimentos do caixa",
+      "empty": "Nenhum movimento registrado."
+    }
+  },
+  "AdminFinanceClosing": {
+    "page": {
+      "title": "Fechamento geral do dia",
+      "subtitle": "Consolidação dos caixas fechados pelos funcionários no dia.",
+      "openTutorial": "Abrir tutorial guiado",
+      "date": "Data",
+      "loading": "Carregando fechamento geral..."
+    },
+    "errors": {
+      "load": "Erro ao carregar fechamento geral",
+      "emptyResponse": "A API de fechamento geral retornou resposta vazia."
+    },
+    "tour": {
+      "label": "Tutorial guiado",
+      "step": "Etapa {current} de {total}",
+      "close": "Fechar",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "goToReports": "Ir para relatórios",
+      "steps": {
+        "date": {
+          "title": "Filtro por data",
+          "highlight": "Escolha qual dia deseja consolidar.",
+          "description": "Aqui você analisa o fechamento financeiro de qualquer data específica."
+        },
+        "summary": {
+          "title": "Resumo consolidado",
+          "highlight": "Veja rapidamente os totais do dia.",
+          "description": "Quantidade de caixas fechados, saldo do sistema, saldo informado e diferenças."
+        },
+        "paymentMethods": {
+          "title": "Formas de pagamento",
+          "highlight": "Entenda como entrou o dinheiro.",
+          "description": "Aqui o financeiro visualiza separadamente PIX, dinheiro, cartão, boleto e transferências."
+        },
+        "closedRegisters": {
+          "title": "Caixas fechados",
+          "highlight": "Audite cada fechamento realizado.",
+          "description": "Veja detalhes dos caixas encerrados pelos funcionários naquele dia."
+        }
+      }
+    },
+    "summary": {
+      "closedRegisters": "Caixas fechados",
+      "systemBalance": "Saldo sistema",
+      "reportedBalance": "Saldo informado",
+      "totalDifference": "Diferença total"
+    },
+    "paymentSummary": {
+      "title": "Resumo por forma de pagamento",
+      "cash": "Dinheiro",
+      "pix": "PIX",
+      "card": "Cartão",
+      "boleto": "Boleto",
+      "transfer": "Transferência",
+      "other": "Outro"
+    },
+    "closedRegisters": {
+      "title": "Caixas fechados",
+      "empty": "Nenhum caixa fechado nesta data.",
+      "register": "Caixa",
+      "systemBalance": "Saldo sistema",
+      "reportedBalance": "Saldo informado",
+      "difference": "Diferença",
+      "note": "Observação",
+      "closedAt": "Fechado em"
+    }
+  },
+  "AdminFinanceSettings": {
+    "loading": "Carregando configurações financeiras...",
+    "title": "Configuração financeira por instituição",
+    "subtitle": "Defina os padrões financeiros usados pela instituição.",
+    "messages": {
+      "loadError": "Erro ao carregar configurações financeiras.",
+      "saveError": "Erro ao salvar configurações financeiras.",
+      "saveSuccess": "Configurações financeiras salvas com sucesso."
+    },
+    "fields": {
+      "defaultInterest": "Juros padrão (%)",
+      "defaultPenalty": "Multa padrão (%)",
+      "defaultDiscount": "Desconto padrão",
+      "graceDays": "Dias de tolerância",
+      "blockDelinquentStudent": "Bloquear aluno inadimplente",
+      "allowPartialPayment": "Permitir pagamento parcial",
+      "blockAfterOverdueInstallments": "Bloquear após quantas mensalidades em atraso",
+      "blockExample": "Exemplo: 3 = bloquear somente após 3 mensalidades vencidas."
+    },
+    "actions": {
+      "saving": "Salvando...",
+      "save": "Salvar configurações financeiras"
+    }
+  },
+  "AdminFinanceiroHistorico": {
+    "title": "Histórico de Cobrança",
+    "subtitle": "Registre e acompanhe as cobranças realizadas pela equipe.",
+    "messages": {
+      "loadError": "Erro ao carregar histórico",
+      "saveError": "Erro ao registrar histórico",
+      "saveSuccess": "Histórico registrado com sucesso."
+    },
+    "fields": {
+      "studentId": "ID do aluno",
+      "studentName": "Nome do aluno",
+      "financialEntryId": "ID do lançamento financeiro",
+      "responsible": "Responsável",
+      "channel": "Canal",
+      "action": "Ação",
+      "note": "Observação"
+    },
+    "common": {
+      "optional": "Opcional",
+      "notProvided": "Não informado"
+    },
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "manual": "Manual",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "system": "Sistema"
+    },
+    "actions": {
+      "chargeSent": "Cobrança enviada",
+      "reminderSent": "Lembrete enviado",
+      "contactMade": "Contato realizado",
+      "negotiation": "Negociação",
+      "note": "Observação",
+      "chargeCopied": "Cobrança copiada",
+      "manualSettlement": "Baixa manual"
+    },
+    "buttons": {
+      "saving": "Registrando...",
+      "register": "Registrar histórico"
+    },
+    "recent": {
+      "title": "Registros recentes",
+      "loading": "Carregando histórico...",
+      "empty": "Nenhum registro encontrado.",
+      "student": "Aluno",
+      "responsible": "Responsável",
+      "entry": "Lançamento"
+    }
+  },
+  "AdminFinanceiroInadimplentes": {
+    "title": "Inadimplentes",
+    "openTutorial": "Abrir tutorial guiado",
+    "subtitle": "Planilha de alunos com cobranças vencidas e ações rápidas de cobrança e baixa.",
+    "tour": {
+      "guidedTutorial": "Tutorial guiado",
+      "stepOf": "Etapa {current} de {total}",
+      "close": "Fechar",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "goToClosing": "Ir para fechamento",
+      "steps": {
+        "summary": {
+          "title": "Resumo da inadimplência",
+          "highlight": "Veja rapidamente quantos alunos estão inadimplentes.",
+          "description": "Esses indicadores mostram o total de alunos, cobranças vencidas e valores em atraso."
+        },
+        "search": {
+          "title": "Busca rápida",
+          "highlight": "Encontre alunos pelo nome, matrícula ou e-mail.",
+          "description": "Use a busca para localizar rapidamente uma pendência específica."
+        },
+        "list": {
+          "title": "Lista de inadimplentes",
+          "highlight": "Aqui ficam os alunos com pendências financeiras.",
+          "description": "Você pode abrir cobranças, copiar mensagens e cobrar via WhatsApp."
+        },
+        "settlement": {
+          "title": "Regularizar cobrança",
+          "highlight": "Registre pagamentos manualmente.",
+          "description": "Informe valores, juros, descontos e confirme a baixa."
+        }
+      }
+    },
+    "summary": {
+      "students": "Alunos inadimplentes",
+      "overdueCharges": "Cobranças vencidas",
+      "overdueTotal": "Total em atraso"
+    },
+    "search": {
+      "placeholder": "Buscar por nome, matrícula ou e-mail"
+    },
+    "messages": {
+      "allSet": "Tudo certo.",
+      "copySuccess": "Mensagem de cobrança copiada com sucesso.",
+      "copyError": "Não foi possível copiar a mensagem de cobrança.",
+      "invalidWhatsappPhone": "Informe um telefone de WhatsApp válido antes de enviar a cobrança.",
+      "whatsappSuccess": "Cobrança aberta no WhatsApp com sucesso.",
+      "loadError": "Erro ao carregar inadimplentes",
+      "paymentError": "Erro ao registrar pagamento",
+      "settlementSuccess": "Cobrança regularizada com sucesso."
+    },
+    "history": {
+      "chargeCopied": "Mensagem de cobrança copiada para o lançamento {entryId}.",
+      "whatsappOpened": "Cobrança enviada/aberta no WhatsApp para o telefone {phone}.",
+      "manualPaymentDefault": "Pagamento registrado pela tela de inadimplentes."
+    },
+    "chargeMessage": {
+      "greeting": "Olá, {student}. Identificamos uma pendência financeira em seu cadastro na instituição.",
+      "charge": "Cobrança",
+      "dueDate": "Vencimento",
+      "outstandingAmount": "Valor em aberto",
+      "regularize": "Pedimos, por gentileza, que regularize a situação junto ao setor financeiro. Após a baixa do pagamento no sistema, seu acesso poderá ser normalizado.",
+      "contact": "Em caso de dúvida, entre em contato com a instituição."
+    },
+    "entryTypes": {
+      "enrollment": "Matrícula",
+      "tuition": "Mensalidade",
+      "fee": "Taxa",
+      "discount": "Desconto",
+      "other": "Outro"
+    },
+    "studentStatus": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "onLeave": "Trancado",
+      "cancelled": "Cancelado",
+      "completed": "Concluído",
+      "pending": "Pendente",
+      "inArrears": "Inadimplente"
+    },
+    "table": {
+      "student": "Aluno",
+      "enrollment": "Matrícula",
+      "email": "E-mail",
+      "overdueCharges": "Cobranças vencidas",
+      "overdueTotal": "Total em atraso",
+      "collection": "Cobrança",
+      "actions": "Ações"
+    },
+    "loading": "Carregando...",
+    "empty": "Nenhum aluno inadimplente encontrado.",
+    "buttons": {
+      "copyCharge": "Copiar cobrança",
+      "close": "Fechar",
+      "openCharges": "Abrir cobranças",
+      "copyMessage": "Copiar mensagem",
+      "chargeWhatsapp": "Cobrar no WhatsApp",
+      "recording": "Registrando...",
+      "recordPayment": "Registrar pagamento",
+      "cancel": "Cancelar",
+      "openWhatsapp": "Abrir WhatsApp"
+    },
+    "details": {
+      "type": "Tipo",
+      "description": "Descrição",
+      "dueDate": "Vencimento",
+      "finalAmount": "Valor final",
+      "outstandingBalance": "Saldo em aberto",
+      "action": "Ação"
+    },
+    "adjustments": {
+      "discount": "Desconto",
+      "interest": "Juros",
+      "penalty": "Multa"
+    },
+    "form": {
+      "amountPaid": "Valor pago",
+      "discount": "Desconto",
+      "interest": "Juros",
+      "penalty": "Multa",
+      "note": "Observação"
+    },
+    "paymentMethods": {
+      "cash": "Dinheiro",
+      "card": "Cartão",
+      "invoice": "Boleto",
+      "transfer": "Transferência",
+      "other": "Outro"
+    },
+    "whatsapp": {
+      "kicker": "PHANYX Financeiro",
+      "title": "Enviar cobrança por WhatsApp",
+      "description": "Informe o telefone com DDD. O PHANYX abrirá o WhatsApp com a mensagem de cobrança já pronta.",
+      "phonePlaceholder": "Ex.: 5548999999999"
+    }
+  },
+  "AdminFinanceiroRecebimentos": {
+    "title": "Recebimentos",
+    "subtitle": "Busque cobranças, registre pagamentos e dê baixa no sistema.",
+    "summary": {
+      "totalFinal": "Valor lançado/final",
+      "paid": "Valor pago",
+      "pending": "Saldo pendente",
+      "overdue": "Inadimplência",
+      "entriesCount": "{count, plural, one {# lançamento} other {# lançamentos}}"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar por aluno, matrícula, descrição ou status",
+      "allStatuses": "Todos os status",
+      "allTypes": "Todos os tipos",
+      "allCampuses": "Todos os polos"
+    },
+    "status": {
+      "pending": "Pendente",
+      "partial": "Parcial",
+      "paid": "Pago",
+      "overdue": "Atrasado",
+      "cancelled": "Cancelado"
+    },
+    "types": {
+      "enrollment": "Matrícula",
+      "tuition": "Mensalidade",
+      "fee": "Taxa",
+      "discount": "Desconto",
+      "other": "Outro"
+    },
+    "paymentMethods": {
+      "cash": "Dinheiro",
+      "pix": "PIX",
+      "card": "Cartão",
+      "bankSlip": "Boleto",
+      "transfer": "Transferência",
+      "other": "Outro"
+    },
+    "batch": {
+      "title": "Baixa em lote",
+      "selected": "Selecionados: {count}",
+      "averageValue": "Valor médio calculado por lançamento:",
+      "processing": "Baixando...",
+      "submit": "Dar baixa em lote"
+    },
+    "fields": {
+      "amountPaid": "Valor pago",
+      "discount": "Desconto",
+      "interest": "Juros",
+      "penalty": "Multa",
+      "note": "Observação"
+    },
+    "errors": {
+      "loadReceipts": "Erro ao carregar recebimentos",
+      "loadDocuments": "Erro ao carregar documentos financeiros",
+      "settle": "Erro ao dar baixa",
+      "selectAtLeastOne": "Selecione pelo menos um lançamento antes de fazer a baixa em lote.",
+      "settleEntry": "Erro ao dar baixa no lançamento {id}",
+      "batchSettlement": "Erro na baixa em lote"
+    },
+    "messages": {
+      "settlementSuccess": "Baixa registrada com sucesso. O pagamento foi lançado e o saldo do aluno foi atualizado.",
+      "batchSuccess": "Baixa em lote realizada com sucesso. Todos os lançamentos selecionados foram processados."
+    },
+    "toast": {
+      "errorTitle": "Não foi possível concluir",
+      "successTitle": "Tudo certo"
+    },
+    "documents": {
+      "successTitle": "Comprovantes financeiros gerados com sucesso",
+      "successDescription": "Abra o recibo ou o comprovante gerado automaticamente após a baixa.",
+      "openReceipt": "Abrir recibo",
+      "openProof": "Abrir comprovante"
+    },
+    "table": {
+      "student": "Aluno",
+      "type": "Tipo",
+      "description": "Descrição",
+      "baseValue": "Valor base",
+      "finalValue": "Valor final",
+      "paid": "Pago",
+      "status": "Status",
+      "dueDate": "Vencimento",
+      "actions": "Ações",
+      "loading": "Carregando...",
+      "empty": "Nenhum recebimento encontrado.",
+      "campus": "Polo"
+    },
+    "buttons": {
+      "settle": "Dar baixa",
+      "confirmSettlement": "Confirmar baixa",
+      "cancel": "Cancelar"
+    },
+    "payments": {
+      "title": "Pagamentos registrados:"
+    },
+    "tour": {
+      "label": "Tutorial guiado",
+      "step": "Etapa {current} de {total}",
+      "close": "Fechar",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "goToCash": "Ir para caixa",
+      "summary": {
+        "title": "Resumo dos recebimentos",
+        "highlight": "Veja rapidamente os valores lançados, pagos, pendentes e atrasados.",
+        "description": "Esses cards mostram a saúde financeira dos recebimentos da instituição."
+      },
+      "filters": {
+        "title": "Filtros de busca",
+        "highlight": "Encontre cobranças por aluno, matrícula, status ou tipo.",
+        "description": "Use os filtros para localizar lançamentos específicos de forma rápida."
+      },
+      "campuses": {
+        "title": "Filtro por polo",
+        "highlight": "Separe os recebimentos por unidade, campus ou filial.",
+        "description": "Quando a instituição possui mais de um polo, esse filtro ajuda a organizar a cobrança por unidade."
+      },
+      "batch": {
+        "title": "Baixa em lote",
+        "highlight": "Registre vários pagamentos de uma só vez.",
+        "description": "Selecione os lançamentos na tabela e use esta área para dar baixa coletiva."
+      },
+      "table": {
+        "title": "Lista de lançamentos",
+        "highlight": "Acompanhe cada cobrança individualmente.",
+        "description": "Aqui aparecem aluno, tipo, valor, status, vencimento e ações de baixa."
+      }
+    }
+  },
+  "AdminFinanceiroRelatorios": {
+    "title": "Relatórios Financeiros",
+    "subtitle": "Acompanhe recebimentos, pendências, atrasos e inadimplência.",
+    "openTour": "Abrir tutorial guiado",
+    "loading": "Carregando relatórios...",
+    "filters": {
+      "startDate": "Data inicial",
+      "endDate": "Data final",
+      "campus": "Polo",
+      "allCampuses": "Todos os polos"
+    },
+    "summary": {
+      "entries": "Lançamentos",
+      "totalPosted": "Total lançado",
+      "totalPaid": "Total pago",
+      "onlineAsaasIbe": "Online Asaas IBE",
+      "paymentsCount": "{count, plural, one {# pagamento} other {# pagamentos}}",
+      "pending": "Pendente",
+      "overdue": "Atrasado",
+      "defaultingStudents": "Inadimplentes"
+    },
+    "status": {
+      "paid": "Pago",
+      "pending": "Pendente",
+      "partial": "Parcial",
+      "overdue": "Atrasado",
+      "cancelled": "Cancelado"
+    },
+    "types": {
+      "enrollment": "Matrícula",
+      "tuition": "Mensalidade",
+      "fee": "Taxa",
+      "discount": "Desconto",
+      "other": "Outro"
+    },
+    "charts": {
+      "revenueByDay": "Receita por dia",
+      "posted": "Lançado",
+      "paid": "Pago",
+      "countByStatus": "Quantidade por status",
+      "summaryByType": "Resumo por tipo de lançamento",
+      "value": "Valor"
+    },
+    "entries": {
+      "title": "Lançamentos do período",
+      "empty": "Nenhum lançamento encontrado neste período."
+    },
+    "table": {
+      "student": "Aluno",
+      "campus": "Polo",
+      "type": "Tipo",
+      "description": "Descrição",
+      "finalAmount": "Valor final",
+      "paid": "Pago",
+      "status": "Status",
+      "amount": "Valor"
+    },
+    "errors": {
+      "loadReports": "Erro ao carregar relatórios"
+    },
+    "tour": {
+      "label": "Tutorial guiado",
+      "step": "Etapa {current} de {total}",
+      "close": "Fechar",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "finish": "Finalizar",
+      "export": {
+        "title": "Exportações financeiras",
+        "highlight": "Exporte os relatórios em CSV, Excel ou PDF.",
+        "description": "Esses botões permitem baixar os dados financeiros para conferência, prestação de contas ou arquivo interno."
+      },
+      "period": {
+        "title": "Filtro por período",
+        "highlight": "Escolha a data inicial e final do relatório.",
+        "description": "O PHANYX recalcula os indicadores financeiros conforme o período selecionado."
+      },
+      "campus": {
+        "title": "Filtro por polo",
+        "highlight": "Separe os resultados por unidade ou campus.",
+        "description": "Quando a instituição possui polos, você pode analisar os dados financeiros de cada unidade."
+      },
+      "summary": {
+        "title": "Resumo financeiro",
+        "highlight": "Veja os principais números do período.",
+        "description": "Aqui aparecem lançamentos, valores pagos, pendentes, atrasados e alunos inadimplentes."
+      },
+      "charts": {
+        "title": "Gráficos financeiros",
+        "highlight": "Acompanhe visualmente a evolução financeira.",
+        "description": "Os gráficos ajudam a entender receita por dia, status dos lançamentos e tipos de cobrança."
+      },
+      "entries": {
+        "title": "Lançamentos do período",
+        "highlight": "Confira cada lançamento individualmente.",
+        "description": "Essa lista mostra aluno, polo, tipo, descrição, valor, pagamento e status."
+      }
+    },
+    "pdf": {
+      "institutionalReport": "Relatório Financeiro Institucional",
+      "period": "Período: {start} até {end}",
+      "registrationId": "CNPJ",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "responsible": "Responsável",
+      "role": "Cargo",
+      "location": "Local",
+      "address": "Endereço",
+      "executiveSummary": "Resumo Executivo",
+      "summaryByType": "Resumo por Tipo",
+      "entriesForPeriod": "Lançamentos do Período",
+      "firstEntriesNote": "Observação: exibidos os primeiros {count} lançamentos no PDF.",
+      "page": "Página {current} de {total}",
+      "fileSlug": "relatorio_financeiro"
+    }
+  },
+  "AdminFinanceiroTaxas": {
+    "title": "Taxas Avulsas",
+    "subtitle": "Cadastre taxas e gere cobranças reais para alunos.",
+    "form": {
+      "titleCreate": "Cadastro de taxa avulsa",
+      "titleEdit": "Editar taxa avulsa"
+    },
+    "fields": {
+      "name": "Nome da taxa",
+      "category": "Categoria",
+      "value": "Valor",
+      "active": "Ativa",
+      "requiresDueDate": "Exige vencimento",
+      "description": "Descrição",
+      "note": "Observação"
+    },
+    "placeholders": {
+      "name": "Ex.: Matrícula",
+      "searchStudent": "Digite nome, matrícula ou e-mail"
+    },
+    "categories": {
+      "enrollment": "Matrícula",
+      "withdrawal": "Trancamento",
+      "makeupExam": "Segunda chamada",
+      "declaration": "Declaração",
+      "transcript": "Histórico",
+      "extraClass": "Aula extra",
+      "custom": "Personalizada"
+    },
+    "buttons": {
+      "saving": "Salvando...",
+      "createFee": "Cadastrar taxa",
+      "saveChanges": "Salvar edição",
+      "cancelEditing": "Cancelar edição",
+      "generating": "Gerando...",
+      "generateCharge": "Gerar lançamento",
+      "edit": "Editar",
+      "delete": "Excluir"
+    },
+    "charge": {
+      "title": "Gerar cobrança para aluno",
+      "subtitle": "Transforme uma taxa cadastrada em lançamento financeiro real.",
+      "searchStudent": "Buscar aluno",
+      "selectStudent": "Selecionar aluno",
+      "selectStudentOption": "Selecione um aluno",
+      "searchingStudents": "Buscando alunos...",
+      "registeredFee": "Taxa cadastrada",
+      "selectFee": "Selecione uma taxa",
+      "dueDate": "Vencimento"
+    },
+    "list": {
+      "title": "Taxas cadastradas",
+      "loading": "Carregando taxas...",
+      "empty": "Nenhuma taxa cadastrada."
+    },
+    "table": {
+      "name": "Nome",
+      "category": "Categoria",
+      "value": "Valor",
+      "active": "Ativa",
+      "dueDate": "Vencimento",
+      "actions": "Ações"
+    },
+    "common": {
+      "yes": "Sim",
+      "no": "Não"
+    },
+    "toast": {
+      "errorTitle": "Não foi possível concluir",
+      "successTitle": "Tudo certo"
+    },
+    "errors": {
+      "loadFees": "Erro ao carregar taxas",
+      "searchStudents": "Erro ao buscar alunos",
+      "saveFee": "Erro ao salvar taxa",
+      "generateCharge": "Erro ao gerar lançamento",
+      "deleteFee": "Erro ao excluir taxa"
+    },
+    "messages": {
+      "created": "Taxa criada com sucesso.",
+      "updated": "Taxa atualizada com sucesso.",
+      "chargeGenerated": "Lançamento financeiro gerado com sucesso.",
+      "deleted": "Taxa excluída com sucesso. O cadastro foi removido do sistema."
+    },
+    "confirm": {
+      "title": "Excluir taxa",
+      "message": "Deseja realmente excluir esta taxa? Essa ação não poderá ser desfeita.",
+      "confirm": "Excluir taxa",
+      "cancel": "Cancelar"
     }
   }
 }

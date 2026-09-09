@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "Frais ponctuels",
-    "generateInvoiceForInterestedParty": "Générer un bordereau de paiement pour un prospect",
     "adminPanel": "Tableau de bord administratif",
     "openGuidedTutorial": "Ouvrir le tutoriel guidé",
     "administrative": "Administration",

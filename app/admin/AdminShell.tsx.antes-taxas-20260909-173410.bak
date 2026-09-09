@@ -1335,7 +1335,7 @@ export default function AdminShell({
                             "/admin/financeiro/recebimentos",
                           )}
                         >
-                          💵 {tNav("receipts")}
+                          💵 Recebimentos
                         </Link>
                       )}
 
@@ -1353,7 +1353,7 @@ export default function AdminShell({
                           href="/admin/financeiro/caixa"
                           className={getLinkClass("/admin/financeiro/caixa")}
                         >
-                          🏦 {tNav("cashRegister")}
+                          🏦 Caixa
                         </Link>
                       )}
 
@@ -1364,7 +1364,7 @@ export default function AdminShell({
                             "/admin/financeiro/relatorios",
                           )}
                         >
-                          📊 {tNav("reports")}
+                          📊 Relatórios
                         </Link>
                       )}
 
@@ -1375,7 +1375,7 @@ export default function AdminShell({
                             "/admin/financeiro/inadimplentes",
                           )}
                         >
-                          🚨 {tNav("overdueAccounts")}
+                          🚨 Inadimplentes
                         </Link>
                       )}
 
@@ -1386,7 +1386,7 @@ export default function AdminShell({
                             "/admin/financeiro/fechamento-geral",
                           )}
                         >
-                          📦 {tNav("generalClosing")}
+                          📦 Fechamento Geral
                         </Link>
                       )}
 
@@ -1397,7 +1397,7 @@ export default function AdminShell({
                             "/admin/financeiro/boletos-ibe",
                           )}
                         >
-                          🧾 {tNav("generateInvoiceForInterestedParty")}
+                          🧾 Gerar boleto para interessado
                         </Link>
                       )}
 
@@ -2129,13 +2129,6 @@ export default function AdminShell({
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
                       💵 {tNav("receipts")}
-                    </Link>
-
-                    <Link
-                      href="/admin/financeiro/taxas"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🧾 {tNav("oneOffFees")}
                     </Link>
                     <Link
                       href="/admin/financeiro/caixa"

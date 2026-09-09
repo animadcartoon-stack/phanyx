@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 type ResumoFinanceiro = {
   quantidadeLancamentos: number;
@@ -13,66 +13,44 @@ type ResumoFinanceiro = {
   alunosInadimplentes: number;
 };
 
+type FinanceiroTourStepId =
+  | "recebimentos"
+  | "caixa"
+  | "inadimplentes"
+  | "fechamento"
+  | "relatorios";
+
 type FinanceiroTourStep = {
-  id: string;
+  id: FinanceiroTourStepId;
   selector: string;
-  titulo: string;
-  descricao: string;
   mascoteSrc: string;
-  mascoteAlt: string;
-  destaque?: string;
 };
 
 const financeiroTourSteps: FinanceiroTourStep[] = [
   {
     id: "recebimentos",
     selector: '[data-tour="financeiro-recebimentos"]',
-    titulo: "Recebimentos",
-    descricao:
-      "Aqui você acompanha cobranças, registra pagamentos e controla baixas financeiras.",
     mascoteSrc: "/images/financeiro.png",
-    mascoteAlt: "Mascote financeiro",
-    destaque: "Vamos começar pelos recebimentos.",
   },
   {
     id: "caixa",
     selector: '[data-tour="financeiro-caixa"]',
-    titulo: "Caixa",
-    descricao:
-      "Abra caixa, registre entradas e saídas e faça fechamento diário.",
     mascoteSrc: "/images/financeiro.png",
-    mascoteAlt: "Calculadora financeira",
-    destaque: "Controle financeiro diário.",
   },
   {
     id: "inadimplentes",
     selector: '[data-tour="financeiro-inadimplentes"]',
-    titulo: "Inadimplentes",
-    descricao:
-      "Veja alunos em atraso e acompanhe cobranças pendentes.",
     mascoteSrc: "/images/calculadora.png",
-    mascoteAlt: "Financeiro",
-    destaque: "Acompanhe inadimplência.",
   },
   {
     id: "fechamento",
     selector: '[data-tour="financeiro-fechamento"]',
-    titulo: "Fechamento Geral",
-    descricao:
-      "Consolidação de caixas fechados e conferência financeira.",
     mascoteSrc: "/images/calculadora.png",
-    mascoteAlt: "Calculadora",
-    destaque: "Fechamento consolidado.",
   },
   {
     id: "relatorios",
     selector: '[data-tour="financeiro-relatorios"]',
-    titulo: "Relatórios",
-    descricao:
-      "Acompanhe indicadores, exportações e visão gerencial.",
     mascoteSrc: "/images/relatorios.png",
-    mascoteAlt: "Relatórios",
-    destaque: "Gestão estratégica.",
   },
 ];
 
@@ -97,6 +75,7 @@ function FinanceiroTour({
   aberto: boolean;
   onClose: (naoMostrarNovamente?: boolean) => void;
 }) {
+  const t = useTranslations("AdminFinance");
   const [stepIndex, setStepIndex] = useState(0);
   const [tourConcluido, setTourConcluido] = useState(false);
   const [targetRect, setTargetRect] = useState<{
@@ -107,6 +86,49 @@ function FinanceiroTour({
   } | null>(null);
 
   const step = financeiroTourSteps[stepIndex];
+
+  const stepTexts: Record<
+    FinanceiroTourStepId,
+    {
+      title: string;
+      description: string;
+      alt: string;
+      highlight: string;
+    }
+  > = {
+    recebimentos: {
+      title: t("tour.steps.recebimentos.title"),
+      description: t("tour.steps.recebimentos.description"),
+      alt: t("tour.steps.recebimentos.alt"),
+      highlight: t("tour.steps.recebimentos.highlight"),
+    },
+    caixa: {
+      title: t("tour.steps.caixa.title"),
+      description: t("tour.steps.caixa.description"),
+      alt: t("tour.steps.caixa.alt"),
+      highlight: t("tour.steps.caixa.highlight"),
+    },
+    inadimplentes: {
+      title: t("tour.steps.inadimplentes.title"),
+      description: t("tour.steps.inadimplentes.description"),
+      alt: t("tour.steps.inadimplentes.alt"),
+      highlight: t("tour.steps.inadimplentes.highlight"),
+    },
+    fechamento: {
+      title: t("tour.steps.fechamento.title"),
+      description: t("tour.steps.fechamento.description"),
+      alt: t("tour.steps.fechamento.alt"),
+      highlight: t("tour.steps.fechamento.highlight"),
+    },
+    relatorios: {
+      title: t("tour.steps.relatorios.title"),
+      description: t("tour.steps.relatorios.description"),
+      alt: t("tour.steps.relatorios.alt"),
+      highlight: t("tour.steps.relatorios.highlight"),
+    },
+  };
+
+  const stepText = stepTexts[step.id];
 
   useEffect(() => {
     if (!aberto) return;
@@ -204,7 +226,7 @@ function FinanceiroTour({
       )}
 
       <div
-        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300 dark:border-slate-700 dark:bg-slate-950"
         style={
           tourConcluido
             ? {
@@ -217,7 +239,7 @@ function FinanceiroTour({
       >
         {!tourConcluido && (
           <div
-            className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
+            className="absolute h-3 w-3 rotate-45 border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950"
             style={{
               left: "40px",
               top: "-6px",
@@ -230,60 +252,61 @@ function FinanceiroTour({
             <div className="flex items-start gap-4">
               <img
                 src={step.mascoteSrc}
-                alt={step.mascoteAlt}
+                alt={stepText.alt}
                 className="h-32 w-32 shrink-0 object-contain drop-shadow-lg"
               />
 
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
-                  Tutorial financeiro
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
+                  {t("tour.label")}
                 </p>
 
-                <h3 className="mt-1 text-xl font-bold text-slate-900">
-                  {step.titulo}
+                <h3 className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {stepText.title}
                 </h3>
 
-                {step.destaque && (
-                  <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700">
-                    {step.destaque}
-                  </p>
-                )}
+                <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-200">
+                  {stepText.highlight}
+                </p>
 
-                <p className="mt-2 text-sm leading-7 text-slate-600">
-                  {step.descricao}
+                <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  {stepText.description}
                 </p>
               </div>
             </div>
 
             <div className="mt-5 flex items-center justify-between gap-3">
-              <div className="text-sm text-slate-500">
-                Etapa {stepIndex + 1} de {financeiroTourSteps.length}
+              <div className="text-sm text-slate-500 dark:text-slate-400">
+                {t("tour.stepCounter", {
+                  current: stepIndex + 1,
+                  total: financeiroTourSteps.length,
+                })}
               </div>
 
               <div className="flex flex-wrap justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => onClose(false)}
-                  className="rounded-xl border px-3 py-2 text-sm"
+                  className="rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
                 >
-                  Fechar
+                  {t("tour.close")}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onClose(true)}
-                  className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
+                  className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
                 >
-                  Não mostrar mais
+                  {t("tour.hideForever")}
                 </button>
 
                 {stepIndex > 0 && (
                   <button
                     type="button"
                     onClick={() => setStepIndex((prev) => prev - 1)}
-                    className="rounded-xl border px-3 py-2 text-sm"
+                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
                   >
-                    Anterior
+                    {t("tour.previous")}
                   </button>
                 )}
 
@@ -291,17 +314,17 @@ function FinanceiroTour({
                   <button
                     type="button"
                     onClick={() => setStepIndex((prev) => prev + 1)}
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                   >
-                    Próximo
+                    {t("tour.next")}
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setTourConcluido(true)}
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
                   >
-                    Concluir
+                    {t("tour.finish")}
                   </button>
                 )}
               </div>
@@ -315,26 +338,30 @@ function FinanceiroTour({
               className="mx-auto h-28 w-28 object-contain"
             />
 
-            <h3 className="mt-4 text-2xl font-bold text-slate-900">
-              Financeiro pronto 🚀
+            <h3 className="mt-4 text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {t("tour.completedTitle")}
             </h3>
 
-            <p className="mt-3 text-sm leading-7 text-slate-600">
-              Você concluiu o tour financeiro do PHANYX.
+            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+              {t("tour.completedDescription")}
             </p>
 
             <div className="mt-6">
               <button
-  type="button"
-  onClick={() => {
-    sessionStorage.setItem("phanyx-continuar-tour", "recebimentos");
-    onClose(false);
-    window.location.href = "/admin/financeiro/recebimentos";
-  }}
-  className="rounded-xl bg-blue-600 px-4 py-2 text-white"
->
-  Ir para recebimentos
-</button>
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem(
+                    "phanyx-continuar-tour",
+                    "recebimentos"
+                  );
+                  onClose(false);
+                  window.location.href =
+                    "/admin/financeiro/recebimentos";
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+              >
+                {t("tour.goToReceipts")}
+              </button>
             </div>
           </div>
         )}
@@ -351,8 +378,11 @@ function hojeInput() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function formatarMoeda(valor: number) {
-  return new Intl.NumberFormat("pt-BR", {
+function formatarMoeda(
+  valor: number,
+  locale: string
+) {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "BRL",
   }).format(Number(valor || 0));
@@ -367,6 +397,8 @@ function primeiroDiaMes() {
 
 export default function AdminFinanceiroPage() {
   const router = useRouter();
+  const t = useTranslations("AdminFinance");
+  const locale = useLocale();
 
   const [tourAberto, setTourAberto] = useState(false);
 
@@ -456,14 +488,22 @@ function fecharTourFinanceiro(naoMostrarNovamente?: boolean) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao gerar mensalidades");
+        console.error(
+          "Finance monthly fees API error:",
+          data?.error
+        );
+        throw new Error(
+          t("errors.generateMonthlyFees")
+        );
       }
 
-      setMensagem(data?.message || "Mensalidades geradas com sucesso.");
+      setMensagem(
+        t("messages.generateSuccess")
+      );
       await carregarResumo();
     } catch (err: any) {
       console.error(err);
-      setErro(err?.message || "Erro ao gerar mensalidades");
+      setErro(err?.message || t("errors.generateMonthlyFees"));
     } finally {
       setLoadingMensalidades(false);
     }
@@ -488,13 +528,19 @@ function fecharTourFinanceiro(naoMostrarNovamente?: boolean) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar resumo financeiro");
+        console.error(
+          "Finance summary API error:",
+          data?.error
+        );
+        throw new Error(
+          t("errors.loadSummary")
+        );
       }
 
       setResumo(data.resumo);
 setErro("");
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar resumo financeiro");
+      setErro(e?.message || t("errors.loadSummary"));
     } finally {
       setLoadingResumo(false);
     }
@@ -521,31 +567,41 @@ setErro("");
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao atualizar status financeiro");
+        console.error(
+          "Finance status API error:",
+          data?.error
+        );
+        throw new Error(
+          t("errors.updateStatus")
+        );
       }
 
       setMensagem(
-  `Atualização concluída. Alunos inadimplentes: ${
-    data.resumo?.totalAlunosInadimplentes ?? 0
-  }. Lançamentos em atraso recalculados com sucesso.`
-);
+        t("messages.updateSuccess", {
+          count:
+            data.resumo?.totalAlunosInadimplentes ??
+            0,
+        })
+      );
 
       await carregarResumo();
     } catch (e: any) {
-      setErro(e?.message || "Erro ao atualizar status financeiro");
+      setErro(e?.message || t("errors.updateStatus"));
     } finally {
       setLoadingAtualizacao(false);
     }
   }
 
   return (
-  <div className="phanyx-financeiro-page max-w-7xl space-y-6 p-6">
-      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+    <div className="phanyx-financeiro-page max-w-7xl space-y-6 p-6 text-slate-900 dark:text-slate-100">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">💰 Financeiro</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Gerencie recebimentos, mensalidades, taxas, inadimplência e fechamento de caixa.
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              💰 {t("title")}
+            </h1>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {t("description")}
             </p>
           </div>
 
@@ -555,7 +611,9 @@ setErro("");
               disabled={loadingMensalidades}
               className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
             >
-              {loadingMensalidades ? "Gerando mensalidades..." : "Gerar mensalidades"}
+              {loadingMensalidades
+                ? t("actions.generatingMonthlyFees")
+                : t("actions.generateMonthlyFees")}
             </button>
 
             <button
@@ -564,199 +622,235 @@ setErro("");
               className="rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
             >
               {loadingAtualizacao
-                ? "Atualizando..."
-                : "Atualizar atrasos / inadimplência"}
+                ? t("actions.updating")
+                : t("actions.updateDelinquency")}
             </button>
           </div>
         </div>
       </div>
 
       {mensagem && (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 shadow-sm">
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800 shadow-sm dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
           {mensagem}
         </div>
       )}
 
       {erro && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 shadow-sm dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
           {erro}
         </div>
       )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Recebido no período
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900">
-            {loadingResumo ? "..." : `R$ ${Number(resumo.totalPago || 0).toFixed(2)}`}
+        {[
+          {
+            label: t("summary.received"),
+            value: formatarMoeda(
+              resumo.totalPago || 0,
+              locale
+            ),
+          },
+          {
+            label: t("summary.totalPosted"),
+            value: formatarMoeda(
+              resumo.totalLancado || 0,
+              locale
+            ),
+          },
+          {
+            label: t("summary.entries"),
+            value: String(
+              resumo.quantidadeLancamentos
+            ),
+          },
+          {
+            label: t("summary.pending"),
+            value: formatarMoeda(
+              resumo.totalPendente || 0,
+              locale
+            ),
+          },
+          {
+            label: t("summary.overdue"),
+            value: formatarMoeda(
+              resumo.totalAtrasado || 0,
+              locale
+            ),
+            danger: true,
+          },
+          {
+            label: t(
+              "summary.delinquentStudents"
+            ),
+            value: String(
+              resumo.alunosInadimplentes
+            ),
+          },
+        ].map((item) => (
+          <div
+            key={item.label}
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {item.label}
+            </p>
+            <p
+              className={[
+                "mt-3 text-3xl font-bold",
+                item.danger
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-slate-900 dark:text-slate-100",
+              ].join(" ")}
+            >
+              {loadingResumo ? "..." : item.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t("executive.title")}
+          </h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {t("executive.description")}
           </p>
         </div>
 
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {t("executive.generalStatus")}
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+              {loadingResumo
+                ? t("executive.loading")
+                : resumo.totalAtrasado > 0
+                ? t("executive.overdueAttention")
+                : t("executive.noRelevantOverdue")}
+            </p>
+          </div>
 
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {t("executive.collection")}
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+              {loadingResumo
+                ? t("executive.loading")
+                : t("executive.collectionValue", {
+                    count:
+                      resumo.alunosInadimplentes,
+                  })}
+            </p>
+          </div>
 
-<div className="rounded-2xl border bg-white p-5 shadow-sm">
-  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-    Total lançado
-  </p>
-  <p className="mt-3 text-3xl font-bold text-slate-900">
-    {loadingResumo ? "..." : formatarMoeda(resumo.totalLancado || 0)}
-  </p>
-</div>
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {t("executive.volume")}
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+              {loadingResumo
+                ? t("executive.loading")
+                : t("executive.volumeValue", {
+                    amount: formatarMoeda(
+                      resumo.totalLancado || 0,
+                      locale
+                    ),
+                  })}
+            </p>
+          </div>
 
-<div className="rounded-2xl border bg-white p-5 shadow-sm">
-  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-    Lançamentos
-  </p>
-  <p className="mt-3 text-3xl font-bold text-slate-900">
-    {loadingResumo ? "..." : resumo.quantidadeLancamentos}
-  </p>
-</div>
-
-
-
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Pendências
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900">
-            {loadingResumo ? "..." : formatarMoeda(resumo.totalPendente || 0)}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Em atraso
-          </p>
-          <p className="mt-3 text-3xl font-bold text-red-600">
-            {loadingResumo ? "..." : formatarMoeda(resumo.totalAtrasado || 0)}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Alunos inadimplentes
-          </p>
-          <p className="mt-3 text-3xl font-bold text-slate-900">
-            {loadingResumo ? "..." : resumo.alunosInadimplentes}
-          </p>
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {t("executive.received")}
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+              {loadingResumo
+                ? t("executive.loading")
+                : t("executive.receivedValue", {
+                    amount: formatarMoeda(
+                      resumo.totalPago || 0,
+                      locale
+                    ),
+                  })}
+            </p>
+          </div>
         </div>
       </div>
 
-<div className="rounded-2xl border bg-white p-6 shadow-sm">
-  <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-    <div>
-      <h2 className="text-lg font-semibold text-slate-900">
-        Resumo executivo do período
-      </h2>
-      <p className="mt-1 text-sm text-slate-600">
-        Visão rápida da saúde financeira da instituição no período atual.
-      </p>
-    </div>
-  </div>
-
-  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-    <div className="rounded-xl bg-slate-50 p-4">
-      <p className="text-xs uppercase tracking-wide text-slate-500">
-        Situação geral
-      </p>
-      <p className="mt-2 text-sm font-medium text-slate-900">
-        {loadingResumo
-          ? "Carregando..."
-          : resumo.totalAtrasado > 0
-          ? "Existem valores em atraso que exigem acompanhamento."
-          : "Sem atrasos relevantes no período."}
-      </p>
-    </div>
-
-    <div className="rounded-xl bg-slate-50 p-4">
-      <p className="text-xs uppercase tracking-wide text-slate-500">
-        Cobrança
-      </p>
-      <p className="mt-2 text-sm font-medium text-slate-900">
-        {loadingResumo
-          ? "Carregando..."
-          : `${resumo.alunosInadimplentes} aluno(s) inadimplente(s) no período.`}
-      </p>
-    </div>
-
-    <div className="rounded-xl bg-slate-50 p-4">
-      <p className="text-xs uppercase tracking-wide text-slate-500">
-        Volume financeiro
-      </p>
-      <p className="mt-2 text-sm font-medium text-slate-900">
-        {loadingResumo
-          ? "Carregando..."
-          : `${formatarMoeda(resumo.totalLancado || 0)} lançados no período.`}
-      </p>
-    </div>
-
-    <div className="rounded-xl bg-slate-50 p-4">
-      <p className="text-xs uppercase tracking-wide text-slate-500">
-        Recebimento
-      </p>
-      <p className="mt-2 text-sm font-medium text-slate-900">
-        {loadingResumo
-          ? "Carregando..."
-          : `${formatarMoeda(resumo.totalPago || 0)} recebidos até agora.`}
-      </p>
-    </div>
-  </div>
-</div>
-
       <div className="grid gap-6 xl:grid-cols-3">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm xl:col-span-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950 xl:col-span-2">
           <div className="mb-5">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Operação financeira
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {t("sections.operationsTitle")}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Movimente cobranças, caixa e rotinas operacionais do dia a dia.
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {t("sections.operationsDescription")}
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <button
               data-tour="financeiro-recebimentos"
-              onClick={() => router.push("/admin/financeiro/recebimentos")}
-              className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+              onClick={() =>
+                router.push(
+                  "/admin/financeiro/recebimentos"
+                )
+              }
+              className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
             >
-              <p className="text-lg font-semibold text-slate-900">💵 Recebimentos</p>
-              <p className="mt-2 text-sm text-slate-600">
-                Buscar cobranças, registrar pagamentos e acompanhar baixas.
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                💵 {t("cards.receiptsTitle")}
+              </p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                {t("cards.receiptsDescription")}
               </p>
             </button>
 
             <button
               data-tour="financeiro-caixa"
-              onClick={() => router.push("/admin/financeiro/caixa")}
-              className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+              onClick={() =>
+                router.push(
+                  "/admin/financeiro/caixa"
+                )
+              }
+              className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
             >
-              <p className="text-lg font-semibold text-slate-900">🏦 Caixa</p>
-              <p className="mt-2 text-sm text-slate-600">
-                Abrir caixa, registrar movimentos e fazer fechamento.
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                🏦 {t("cards.cashTitle")}
+              </p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                {t("cards.cashDescription")}
               </p>
             </button>
 
             <button
-              onClick={() => router.push("/admin/financeiro/taxas")}
-              className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+              onClick={() =>
+                router.push(
+                  "/admin/financeiro/taxas"
+                )
+              }
+              className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
             >
-              <p className="text-lg font-semibold text-slate-900">🧾 Taxas</p>
-              <p className="mt-2 text-sm text-slate-600">
-                Matrícula, trancamento, aula extra e cobranças avulsas.
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                🧾 {t("cards.feesTitle")}
+              </p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                {t("cards.feesDescription")}
               </p>
             </button>
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
           <div className="mb-5">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Rotinas automáticas
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {t("sections.automaticTitle")}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Ações rápidas para manter o financeiro atualizado.
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              {t("sections.automaticDescription")}
             </p>
           </div>
 
@@ -764,110 +858,145 @@ setErro("");
             <button
               onClick={gerarMensalidades}
               disabled={loadingMensalidades}
-              className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-left transition hover:bg-blue-100 disabled:opacity-60"
+              className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-left transition hover:bg-blue-100 disabled:opacity-60 dark:border-blue-900/70 dark:bg-blue-950/40 dark:hover:bg-blue-950/70"
             >
-              <div className="font-semibold text-slate-900">Gerar mensalidades</div>
-              <div className="mt-1 text-sm text-slate-600">
-                Cria mensalidades do mês atual para os alunos elegíveis.
+              <div className="font-semibold text-slate-900 dark:text-slate-100">
+                {t("automatic.generateTitle")}
+              </div>
+              <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {t("automatic.generateDescription")}
               </div>
             </button>
 
             <button
               onClick={atualizarStatusFinanceiro}
               disabled={loadingAtualizacao}
-              className="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left transition hover:bg-red-100 disabled:opacity-60"
+              className="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left transition hover:bg-red-100 disabled:opacity-60 dark:border-red-900/70 dark:bg-red-950/40 dark:hover:bg-red-950/70"
             >
-              <div className="font-semibold text-slate-900">
-                Atualizar atrasos e inadimplência
+              <div className="font-semibold text-slate-900 dark:text-slate-100">
+                {t("automatic.updateTitle")}
               </div>
-              <div className="mt-1 text-sm text-slate-600">
-                Recalcula lançamentos vencidos e status dos alunos.
+              <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {t("automatic.updateDescription")}
               </div>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="mb-5">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Controle e cobrança
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t("sections.controlTitle")}
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Monitore atrasos, histórico e parâmetros financeiros da instituição.
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {t("sections.controlDescription")}
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <button
             data-tour="financeiro-inadimplentes"
-            onClick={() => router.push("/admin/financeiro/inadimplentes")}
-            className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+            onClick={() =>
+              router.push(
+                "/admin/financeiro/inadimplentes"
+              )
+            }
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
           >
-            <p className="text-lg font-semibold text-slate-900">🚨 Inadimplentes</p>
-            <p className="mt-2 text-sm text-slate-600">
-              Visualize alunos com atraso e acompanhe cobranças.
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              🚨 {t("cards.delinquentTitle")}
+            </p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              {t("cards.delinquentDescription")}
             </p>
           </button>
 
           <button
-            onClick={() => router.push("/admin/financeiro/historico")}
-            className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+            onClick={() =>
+              router.push(
+                "/admin/financeiro/historico"
+              )
+            }
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
           >
-            <p className="text-lg font-semibold text-slate-900">📝 Histórico</p>
-            <p className="mt-2 text-sm text-slate-600">
-              Consulte registros automáticos e manuais de cobrança.
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              📝 {t("cards.historyTitle")}
+            </p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              {t("cards.historyDescription")}
             </p>
           </button>
 
           <button
-            onClick={() => router.push("/admin/financeiro/configuracoes")}
-            className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+            onClick={() =>
+              router.push(
+                "/admin/financeiro/configuracoes"
+              )
+            }
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
           >
-            <p className="text-lg font-semibold text-slate-900">⚙️ Configurações</p>
-            <p className="mt-2 text-sm text-slate-600">
-              Juros, multa, tolerância e regras por instituição.
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              ⚙️ {t("cards.settingsTitle")}
+            </p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              {t("cards.settingsDescription")}
             </p>
           </button>
 
           <button
             data-tour="financeiro-fechamento"
-            onClick={() => router.push("/admin/financeiro/fechamento-geral")}
-            className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+            onClick={() =>
+              router.push(
+                "/admin/financeiro/fechamento-geral"
+              )
+            }
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
           >
-            <p className="text-lg font-semibold text-slate-900">📦 Fechamento Geral</p>
-            <p className="mt-2 text-sm text-slate-600">
-              Consolidação dos caixas fechados por data.
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              📦 {t("cards.closingTitle")}
+            </p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              {t("cards.closingDescription")}
             </p>
           </button>
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="mb-5">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Relatórios e gestão
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t("sections.reportsTitle")}
           </h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Acompanhe indicadores e visão gerencial do financeiro.
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {t("sections.reportsDescription")}
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <button
             data-tour="financeiro-relatorios"
-            onClick={() => router.push("/admin/financeiro/relatorios")}
-            className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
+            onClick={() =>
+              router.push(
+                "/admin/financeiro/relatorios"
+              )
+            }
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
           >
-            <p className="text-lg font-semibold text-slate-900">📊 Relatórios</p>
-            <p className="mt-2 text-sm text-slate-600">
-              Acompanhe recebimentos, caixa e desempenho financeiro.
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              📊 {t("cards.reportsTitle")}
             </p>
-
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              {t("cards.reportsDescription")}
+            </p>
           </button>
         </div>
       </div>
-     <FinanceiroTour aberto={tourAberto} onClose={fecharTourFinanceiro} />
+
+      <FinanceiroTour
+        aberto={tourAberto}
+        onClose={fecharTourFinanceiro}
+      />
     </div>
   );
 }

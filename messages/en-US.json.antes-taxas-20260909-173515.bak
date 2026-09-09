@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "One-off Fees",
-    "generateInvoiceForInterestedParty": "Generate payment slip for prospective student",
     "adminPanel": "Administrative Dashboard",
     "openGuidedTutorial": "Open guided tutorial",
     "administrative": "Administrative",

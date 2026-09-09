@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "One-off Fees",
-    "generateInvoiceForInterestedParty": "Generate payment slip for prospective student",
     "adminPanel": "Administrative Dashboard",
     "openGuidedTutorial": "Open guided tutorial",
     "administrative": "Administrative",
@@ -14156,97 +14154,6 @@
       "firstEntriesNote": "Note: the first {count} entries are shown in the PDF.",
       "page": "Page {current} of {total}",
       "fileSlug": "financial_report"
-    }
-  },
-  "AdminFinanceiroTaxas": {
-    "title": "One-time Fees",
-    "subtitle": "Create fees and generate real charges for students.",
-    "form": {
-      "titleCreate": "Create one-time fee",
-      "titleEdit": "Edit one-time fee"
-    },
-    "fields": {
-      "name": "Fee name",
-      "category": "Category",
-      "value": "Amount",
-      "active": "Active",
-      "requiresDueDate": "Requires due date",
-      "description": "Description",
-      "note": "Note"
-    },
-    "placeholders": {
-      "name": "Example: Enrollment",
-      "searchStudent": "Enter name, enrollment number, or email"
-    },
-    "categories": {
-      "enrollment": "Enrollment",
-      "withdrawal": "Withdrawal",
-      "makeupExam": "Make-up exam",
-      "declaration": "Declaration",
-      "transcript": "Transcript",
-      "extraClass": "Extra class",
-      "custom": "Custom"
-    },
-    "buttons": {
-      "saving": "Saving...",
-      "createFee": "Create fee",
-      "saveChanges": "Save changes",
-      "cancelEditing": "Cancel editing",
-      "generating": "Generating...",
-      "generateCharge": "Generate charge",
-      "edit": "Edit",
-      "delete": "Delete"
-    },
-    "charge": {
-      "title": "Generate charge for student",
-      "subtitle": "Turn a registered fee into a real financial entry.",
-      "searchStudent": "Search student",
-      "selectStudent": "Select student",
-      "selectStudentOption": "Select a student",
-      "searchingStudents": "Searching students...",
-      "registeredFee": "Registered fee",
-      "selectFee": "Select a fee",
-      "dueDate": "Due date"
-    },
-    "list": {
-      "title": "Registered fees",
-      "loading": "Loading fees...",
-      "empty": "No fees registered."
-    },
-    "table": {
-      "name": "Name",
-      "category": "Category",
-      "value": "Amount",
-      "active": "Active",
-      "dueDate": "Due date",
-      "actions": "Actions"
-    },
-    "common": {
-      "yes": "Yes",
-      "no": "No"
-    },
-    "toast": {
-      "errorTitle": "Could not complete the action",
-      "successTitle": "All set"
-    },
-    "errors": {
-      "loadFees": "Error loading fees",
-      "searchStudents": "Error searching students",
-      "saveFee": "Error saving fee",
-      "generateCharge": "Error generating charge",
-      "deleteFee": "Error deleting fee"
-    },
-    "messages": {
-      "created": "Fee created successfully.",
-      "updated": "Fee updated successfully.",
-      "chargeGenerated": "Financial entry generated successfully.",
-      "deleted": "Fee deleted successfully. The record was removed from the system."
-    },
-    "confirm": {
-      "title": "Delete fee",
-      "message": "Do you really want to delete this fee? This action cannot be undone.",
-      "confirm": "Delete fee",
-      "cancel": "Cancel"
     }
   }
 }

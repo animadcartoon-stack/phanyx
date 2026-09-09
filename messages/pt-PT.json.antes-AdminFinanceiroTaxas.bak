@@ -105,8 +105,6 @@
     }
   },
   "AdminNavigation": {
-    "oneOffFees": "Taxas Avulsas",
-    "generateInvoiceForInterestedParty": "Gerar cobrança para interessado",
     "adminPanel": "Painel de Administração",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",
@@ -13941,97 +13939,6 @@
       "firstEntriesNote": "Observação: são apresentados os primeiros {count} lançamentos no PDF.",
       "page": "Página {current} de {total}",
       "fileSlug": "relatorio_financeiro"
-    }
-  },
-  "AdminFinanceiroTaxas": {
-    "title": "Taxas Avulsas",
-    "subtitle": "Registe taxas e gere cobranças reais para os alunos.",
-    "form": {
-      "titleCreate": "Registo de taxa avulsa",
-      "titleEdit": "Editar taxa avulsa"
-    },
-    "fields": {
-      "name": "Nome da taxa",
-      "category": "Categoria",
-      "value": "Valor",
-      "active": "Ativa",
-      "requiresDueDate": "Exige vencimento",
-      "description": "Descrição",
-      "note": "Observação"
-    },
-    "placeholders": {
-      "name": "Ex.: Matrícula",
-      "searchStudent": "Introduza nome, matrícula ou e-mail"
-    },
-    "categories": {
-      "enrollment": "Matrícula",
-      "withdrawal": "Suspensão da matrícula",
-      "makeupExam": "Segunda chamada",
-      "declaration": "Declaração",
-      "transcript": "Histórico",
-      "extraClass": "Aula extra",
-      "custom": "Personalizada"
-    },
-    "buttons": {
-      "saving": "A guardar...",
-      "createFee": "Registar taxa",
-      "saveChanges": "Guardar edição",
-      "cancelEditing": "Cancelar edição",
-      "generating": "A gerar...",
-      "generateCharge": "Gerar lançamento",
-      "edit": "Editar",
-      "delete": "Eliminar"
-    },
-    "charge": {
-      "title": "Gerar cobrança para aluno",
-      "subtitle": "Transforme uma taxa registada num lançamento financeiro real.",
-      "searchStudent": "Pesquisar aluno",
-      "selectStudent": "Selecionar aluno",
-      "selectStudentOption": "Selecione um aluno",
-      "searchingStudents": "A pesquisar alunos...",
-      "registeredFee": "Taxa registada",
-      "selectFee": "Selecione uma taxa",
-      "dueDate": "Vencimento"
-    },
-    "list": {
-      "title": "Taxas registadas",
-      "loading": "A carregar taxas...",
-      "empty": "Nenhuma taxa registada."
-    },
-    "table": {
-      "name": "Nome",
-      "category": "Categoria",
-      "value": "Valor",
-      "active": "Ativa",
-      "dueDate": "Vencimento",
-      "actions": "Ações"
-    },
-    "common": {
-      "yes": "Sim",
-      "no": "Não"
-    },
-    "toast": {
-      "errorTitle": "Não foi possível concluir",
-      "successTitle": "Tudo certo"
-    },
-    "errors": {
-      "loadFees": "Erro ao carregar as taxas",
-      "searchStudents": "Erro ao pesquisar alunos",
-      "saveFee": "Erro ao guardar a taxa",
-      "generateCharge": "Erro ao gerar o lançamento",
-      "deleteFee": "Erro ao eliminar a taxa"
-    },
-    "messages": {
-      "created": "Taxa criada com sucesso.",
-      "updated": "Taxa atualizada com sucesso.",
-      "chargeGenerated": "Lançamento financeiro gerado com sucesso.",
-      "deleted": "Taxa eliminada com sucesso. O registo foi removido do sistema."
-    },
-    "confirm": {
-      "title": "Eliminar taxa",
-      "message": "Pretende realmente eliminar esta taxa? Esta ação não poderá ser anulada.",
-      "confirm": "Eliminar taxa",
-      "cancel": "Cancelar"
     }
   }
 }
