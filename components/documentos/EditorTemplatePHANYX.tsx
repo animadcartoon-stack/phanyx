@@ -2027,6 +2027,19 @@ const PageBreakPHANYX =
 
     draggable: false,
 
+    addOptions() {
+      return {
+        textoRodape:
+          "\u00c1rea reservada para rodap\u00e9",
+
+        textoCabecalhoLogo:
+          "\u00c1rea reservada para cabe\u00e7alho e logo",
+
+        textoPagina:
+          "P\u00e1gina",
+      };
+    },
+
     addAttributes() {
       return {
         paginaAnterior: {
@@ -2089,6 +2102,24 @@ const PageBreakPHANYX =
           ] || paginaAnterior + 1
         );
 
+      const textoRodape =
+        String(
+          this.options.textoRodape ||
+          "\u00c1rea reservada para rodap\u00e9"
+        );
+
+      const textoCabecalhoLogo =
+        String(
+          this.options.textoCabecalhoLogo ||
+          "\u00c1rea reservada para cabe\u00e7alho e logo"
+        );
+
+      const textoPagina =
+        String(
+          this.options.textoPagina ||
+          "P\u00e1gina"
+        );
+
       return [
         "div",
 
@@ -2116,13 +2147,13 @@ const PageBreakPHANYX =
           [
             "span",
             {},
-            "Área reservada para rodapé",
+            textoRodape,
           ],
 
           [
             "span",
             {},
-            `Página ${paginaAnterior}`,
+            `${textoPagina} ${paginaAnterior}`,
           ],
         ],
 
@@ -2144,18 +2175,20 @@ const PageBreakPHANYX =
           [
             "span",
             {},
-            "Área reservada para cabeçalho e logo",
+            textoCabecalhoLogo,
           ],
 
           [
             "span",
             {},
-            `Página ${paginaSeguinte}`,
+            `${textoPagina} ${paginaSeguinte}`,
           ],
         ],
       ];
     },
   });
+
+
 
 type FormatoImpressaoDocumento =
   | "A4_INTEIRA"
@@ -2684,6 +2717,46 @@ export default function EditorTemplatePHANYX({
       "AdminDocumentsEditorToolbar"
     );
 
+  const previewCabecalhoLogo =
+    tToolbar(
+      "preview.reservedHeaderLogo"
+    );
+
+  const previewModeloUmaVia =
+    tToolbar(
+      "preview.singleCopyModel"
+    );
+
+  const previewPagina =
+    tToolbar(
+      "preview.pageLabel"
+    );
+
+  const previewAreaBloqueada =
+    tToolbar(
+      "preview.blockedValidationArea"
+    );
+
+  const previewRodape =
+    tToolbar(
+      "preview.reservedFooter"
+    );
+
+  const previewValidacaoTitulo =
+    tToolbar(
+      "preview.validationTitle"
+    );
+
+  const previewValidacaoAjuda =
+    tToolbar(
+      "preview.validationHelp"
+    );
+
+  const previewDuplicadaPdf =
+    tToolbar(
+      "preview.duplicatedInPdf"
+    );
+
 
   const valoresPreviewVariaveis =
     montarValoresPreviewDocumento({
@@ -2859,7 +2932,16 @@ export default function EditorTemplatePHANYX({
     extensions: [
       StarterKit,
 
-      PageBreakPHANYX,
+      PageBreakPHANYX.configure({
+        textoRodape:
+          previewRodape,
+
+        textoCabecalhoLogo:
+          previewCabecalhoLogo,
+
+        textoPagina:
+          previewPagina,
+      }),
 
 
       PreviewVariaveisPHANYX.configure({
@@ -3249,6 +3331,9 @@ export default function EditorTemplatePHANYX({
     responsavelCargo,
     nomeInstituicao,
     cnpjInstituicao,
+    previewCabecalhoLogo,
+    previewPagina,
+    previewRodape,
   ]);
 
   /*
@@ -6232,13 +6317,13 @@ export default function EditorTemplatePHANYX({
             }}
           >
             <span>
-              Área reservada para cabeçalho e logo
+              {previewCabecalhoLogo}
             </span>
 
             <span>
               {duasVias
-                ? "MODELO DE UMA VIA"
-                : "PÁGINA 1"}
+                ? previewModeloUmaVia
+                : `${previewPagina} 1`}
             </span>
           </div>
 
@@ -6293,8 +6378,8 @@ export default function EditorTemplatePHANYX({
             contentEditable={false}
             aria-label={
               duasVias
-                ? "Área bloqueada e reservada para validação do documento"
-                : "Área reservada para rodapé"
+                ? previewAreaBloqueada
+                : previewRodape
             }
           >
             {duasVias ? (
@@ -6309,30 +6394,27 @@ export default function EditorTemplatePHANYX({
 
                   <div className="min-w-0">
                     <strong className="block text-[11px] font-black uppercase tracking-[0.08em]">
-                      Área reservada para validação
-                      do documento
+                      {previewValidacaoTitulo}
                     </strong>
 
                     <span className="mt-1 block text-[9px] font-semibold normal-case tracking-normal">
-                      Código, data de emissão e QR
-                      Code. Não é permitido inserir
-                      conteúdo nesta área.
+                      {previewValidacaoAjuda}
                     </span>
                   </div>
                 </div>
 
                 <span className="shrink-0 text-[9px] font-black uppercase tracking-[0.08em]">
-                  Será duplicada no PDF
+                  {previewDuplicadaPdf}
                 </span>
               </>
             ) : (
               <>
                 <span>
-                  Área reservada para rodapé
+                  {previewRodape}
                 </span>
 
                 <span>
-                  Página {totalPaginas}
+                  {previewPagina} {totalPaginas}
                 </span>
               </>
             )}

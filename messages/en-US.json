@@ -11627,6 +11627,16 @@
       "subheading": "Subheading",
       "list": "List",
       "textColor": "Text color"
+    },
+    "preview": {
+      "reservedHeaderLogo": "Reserved area for header and logo",
+      "singleCopyModel": "SINGLE-COPY TEMPLATE",
+      "pageLabel": "Page",
+      "blockedValidationArea": "Locked area reserved for document validation",
+      "reservedFooter": "Reserved area for footer",
+      "validationTitle": "Area reserved for document validation",
+      "validationHelp": "Validation code, issue date, and QR code. Content cannot be inserted in this area.",
+      "duplicatedInPdf": "Will be duplicated in the PDF"
     }
   },
   "AdminMobilityDashboard": {

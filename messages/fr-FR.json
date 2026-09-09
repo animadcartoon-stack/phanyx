@@ -11626,6 +11626,16 @@
       "subheading": "Sous-titre",
       "list": "Liste",
       "textColor": "Couleur du texte"
+    },
+    "preview": {
+      "reservedHeaderLogo": "Zone réservée à l'en-tête et au logo",
+      "singleCopyModel": "MODÈLE EN UN EXEMPLAIRE",
+      "pageLabel": "Page",
+      "blockedValidationArea": "Zone verrouillée réservée à la validation du document",
+      "reservedFooter": "Zone réservée au pied de page",
+      "validationTitle": "Zone réservée à la validation du document",
+      "validationHelp": "Code de validation, date d'émission et code QR. Aucun contenu ne peut être inséré dans cette zone.",
+      "duplicatedInPdf": "Sera dupliquée dans le PDF"
     }
   },
   "AdminMobilityDashboard": {

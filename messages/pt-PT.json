@@ -11627,6 +11627,16 @@
       "subheading": "Subtítulo",
       "list": "Lista",
       "textColor": "Cor do texto"
+    },
+    "preview": {
+      "reservedHeaderLogo": "Área reservada para cabeçalho e logótipo",
+      "singleCopyModel": "MODELO DE UMA VIA",
+      "pageLabel": "Página",
+      "blockedValidationArea": "Área bloqueada e reservada para validação do documento",
+      "reservedFooter": "Área reservada para rodapé",
+      "validationTitle": "Área reservada para validação do documento",
+      "validationHelp": "Código, data de emissão e código QR. Não é permitido inserir conteúdo nesta área.",
+      "duplicatedInPdf": "Será duplicada no PDF"
     }
   },
   "AdminMobilityDashboard": {

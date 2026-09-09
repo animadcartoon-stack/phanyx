@@ -2305,7 +2305,8 @@ export default function TransporteAtividadeExterna({
                                             ) : null}
 
                                             {passageiro.status ===
-                                            "AGUARDANDO_EMBARQUE" ? (
+                                              "AGUARDANDO_EMBARQUE" &&
+                                            vinculo.status === "EM_EMBARQUE" ? (
                                               <>
                                                 <button
                                                   type="button"
@@ -2356,7 +2357,8 @@ export default function TransporteAtividadeExterna({
                                             ) : null}
 
                                             {passageiro.status ===
-                                            "EMBARCADO" ? (
+                                              "EMBARCADO" &&
+                                            vinculo.status === "CHEGOU" ? (
                                               <button
                                                 type="button"
                                                 disabled={
