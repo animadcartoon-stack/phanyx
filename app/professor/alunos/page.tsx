@@ -1100,7 +1100,7 @@ export default function ProfessorAlunosPage() {
                       aluno
                     );
                   }
-                }
+                }}
                 className="grid w-full cursor-pointer gap-3 px-4 py-3 text-left transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60 lg:grid-cols-[minmax(160px,1fr)_minmax(150px,.9fr)_minmax(230px,1.5fr)_minmax(110px,.7fr)_minmax(95px,.55fr)_minmax(120px,.7fr)_32px] lg:items-center"
               >
                 <p className="truncate font-bold text-slate-900 dark:text-white">
