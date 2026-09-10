@@ -86,8 +86,6 @@ export async function POST(
           auth.instituicaoId,
         alunoId:
           contexto.alunoId,
-        aulaId:
-          contexto.aulaId,
         encerradoEm: null,
       },
       data: {

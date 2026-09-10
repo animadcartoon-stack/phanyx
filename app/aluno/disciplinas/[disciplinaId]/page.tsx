@@ -156,6 +156,8 @@ export default function DisciplinaAlunoPage() {
   const [erroDisciplina, setErroDisciplina] = useState<string | null>(null);
   const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
   const [aulasConcluidasBanco, setAulasConcluidasBanco] = useState<number[]>([]);
+  const [progressoPorAulaBanco, setProgressoPorAulaBanco] =
+    useState<Record<number, number>>({});
 
   const [provaPublicada, setProvaPublicada] =
     useState<ProvaPublicadaApi | null>(null);
@@ -186,6 +188,27 @@ export default function DisciplinaAlunoPage() {
   const ultimoTempoRef = useRef(0);
   const ultimoTempoValidoRef = useRef(0);
   const ultimoAlertaPuloRef = useRef(0);
+
+  const sessaoVideoIdRef =
+    useRef<number | null>(null);
+
+  const promessaInicioSessaoRef =
+    useRef<Promise<number | null> | null>(null);
+
+  const checkpointEmAndamentoRef =
+    useRef(false);
+
+  const ultimoCheckpointEmRef =
+    useRef(0);
+
+  const tempoReproducaoSessaoRef =
+    useRef(0);
+
+  const tempoMinimoSegundosRef =
+    useRef(0);
+
+  const concluidaRef =
+    useRef(false);
 
   const notaDaDisciplina = useMemo(() => {
     return notas.find(
@@ -223,6 +246,12 @@ export default function DisciplinaAlunoPage() {
     : false;
   const tempoMinimoSegundos = (aulaAtual?.duracaoMin ?? 0) * 60;
 
+  tempoMinimoSegundosRef.current =
+    tempoMinimoSegundos;
+
+  concluidaRef.current =
+    concluida;
+
   const porcentagemAssistida =
     tempoMinimoSegundos > 0
       ? Math.min(
@@ -230,6 +259,285 @@ export default function DisciplinaAlunoPage() {
         Math.round((tempoAssistidoSegundos / tempoMinimoSegundos) * 100)
       )
       : 100;
+
+
+  function garantirSessaoVideo(): Promise<number | null> {
+    if (
+      !aulaAtual?.videoUrl ||
+      concluidaRef.current
+    ) {
+      return Promise.resolve(null);
+    }
+
+    if (sessaoVideoIdRef.current) {
+      return Promise.resolve(
+        sessaoVideoIdRef.current
+      );
+    }
+
+    if (
+      promessaInicioSessaoRef.current
+    ) {
+      return promessaInicioSessaoRef.current;
+    }
+
+    const promessa = (async () => {
+      try {
+        const res = await fetch(
+          "/api/aluno/progresso/video/iniciar",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              aulaId: aulaAtual.id,
+              posicaoSegundos:
+                Math.floor(
+                  ultimoTempoValidoRef.current
+                ),
+              tempoMinimoSegundos:
+                tempoMinimoSegundosRef.current,
+            }),
+          }
+        );
+
+        const data =
+          await res.json().catch(
+            () => null
+          );
+
+        if (!res.ok) {
+          throw new Error(
+            data?.error ||
+              "Falha ao iniciar sessao de video."
+          );
+        }
+
+        const sessaoId =
+          Number(data?.sessaoId);
+
+        if (
+          !Number.isFinite(sessaoId) ||
+          sessaoId <= 0
+        ) {
+          return null;
+        }
+
+        sessaoVideoIdRef.current =
+          sessaoId;
+
+        tempoReproducaoSessaoRef.current =
+          0;
+
+        ultimoCheckpointEmRef.current =
+          Date.now();
+
+        return sessaoId;
+      } catch (error) {
+        console.error(
+          "ERRO AO INICIAR RASTREAMENTO DO VIDEO:",
+          error
+        );
+
+        return null;
+      } finally {
+        promessaInicioSessaoRef.current =
+          null;
+      }
+    })();
+
+    promessaInicioSessaoRef.current =
+      promessa;
+
+    return promessa;
+  }
+
+  async function salvarCheckpointVideo() {
+    const sessaoId =
+      sessaoVideoIdRef.current;
+
+    if (
+      !sessaoId ||
+      checkpointEmAndamentoRef.current
+    ) {
+      return;
+    }
+
+    checkpointEmAndamentoRef.current =
+      true;
+
+    ultimoCheckpointEmRef.current =
+      Date.now();
+
+    const posicaoSegundos =
+      Math.max(
+        0,
+        Math.floor(
+          ultimoTempoValidoRef.current
+        )
+      );
+
+    const tempoReproducaoSegundos =
+      Math.max(
+        0,
+        Math.floor(
+          tempoReproducaoSessaoRef.current
+        )
+      );
+
+    try {
+      const res = await fetch(
+        "/api/aluno/progresso/video/" +
+          sessaoId,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            posicaoSegundos,
+            tempoReproducaoSegundos,
+            tempoMinimoSegundos:
+              tempoMinimoSegundosRef.current,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        console.error(
+          "CHECKPOINT DE VIDEO NAO FOI SALVO:",
+          await res
+            .text()
+            .catch(() => "")
+        );
+      }
+    } catch (error) {
+      console.error(
+        "ERRO AO SALVAR CHECKPOINT DO VIDEO:",
+        error
+      );
+    } finally {
+      checkpointEmAndamentoRef.current =
+        false;
+    }
+  }
+
+  async function encerrarSessaoVideo(
+    motivo: string,
+    concluidaSessao = false,
+    keepalive = false
+  ) {
+    if (
+      !sessaoVideoIdRef.current &&
+      promessaInicioSessaoRef.current
+    ) {
+      try {
+        await promessaInicioSessaoRef.current;
+      } catch { }
+    }
+
+    const sessaoId =
+      sessaoVideoIdRef.current;
+
+    if (!sessaoId) {
+      return;
+    }
+
+    /*
+     * Libera imediatamente para que
+     * um novo PLAY possa abrir outra
+     * sessao sem aguardar a rede.
+     */
+    sessaoVideoIdRef.current =
+      null;
+
+    const posicaoSegundos =
+      Math.max(
+        0,
+        Math.floor(
+          ultimoTempoValidoRef.current
+        )
+      );
+
+    const tempoReproducaoSegundos =
+      Math.max(
+        0,
+        Math.floor(
+          tempoReproducaoSessaoRef.current
+        )
+      );
+
+    tempoReproducaoSessaoRef.current =
+      0;
+
+    ultimoCheckpointEmRef.current =
+      0;
+
+    try {
+      const res = await fetch(
+        "/api/aluno/progresso/video/" +
+          sessaoId +
+          "/encerrar",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          credentials: "include",
+          keepalive,
+          body: JSON.stringify({
+            posicaoSegundos,
+            tempoReproducaoSegundos,
+            tempoMinimoSegundos:
+              tempoMinimoSegundosRef.current,
+            concluida:
+              concluidaSessao,
+            motivo,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        console.error(
+          "SESSAO DE VIDEO NAO FOI ENCERRADA:",
+          await res
+            .text()
+            .catch(() => "")
+        );
+      }
+    } catch (error) {
+      console.error(
+        "ERRO AO ENCERRAR SESSAO DO VIDEO:",
+        error
+      );
+    }
+  }
+
+  function trocarAulaComRastreamento(
+    novaAulaId: number
+  ) {
+    if (
+      novaAulaId === aulaAtualId
+    ) {
+      return;
+    }
+
+    void encerrarSessaoVideo(
+      "TROCA_AULA",
+      false,
+      true
+    );
+
+    setAulaAtualId(
+      novaAulaId
+    );
+  }
 
   function pararContagem() {
     if (intervaloRef.current) {
@@ -259,6 +567,18 @@ export default function DisciplinaAlunoPage() {
 
     intervaloRef.current = setInterval(() => {
       monitorarAvancoIndevido();
+
+      const agora =
+        Date.now();
+
+      if (
+        sessaoVideoIdRef.current &&
+        agora -
+          ultimoCheckpointEmRef.current >=
+          15000
+      ) {
+        void salvarCheckpointVideo();
+      }
 
       if (
         tempoMinimoSegundos > 0 &&
@@ -322,6 +642,12 @@ export default function DisciplinaAlunoPage() {
       }
 
       // avanço natural
+      tempoReproducaoSessaoRef.current +=
+        Math.max(
+          0,
+          Math.min(delta, 1.5)
+        );
+
       ultimoTempoRef.current = tempoAtual;
       ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
       setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
@@ -341,6 +667,11 @@ export default function DisciplinaAlunoPage() {
     try {
       setConcluindoAula(true);
 
+      await encerrarSessaoVideo(
+        "CONCLUSAO_AULA",
+        true
+      );
+
       await marcarAulaComoConcluida({
         disciplinaId,
         aulaId: aulaAtual.id,
@@ -356,7 +687,7 @@ export default function DisciplinaAlunoPage() {
         (a) => !aulaConcluida(disciplinaId, a.id) && a.id !== aulaAtual.id
       );
 
-      if (proxima) setAulaAtualId(proxima.id);
+      if (proxima) trocarAulaComRastreamento(proxima.id);
     } catch (error: any) {
       mostrarToast(
         "erro",
@@ -411,16 +742,66 @@ export default function DisciplinaAlunoPage() {
 
         let idsConcluidas: number[] = [];
 
+        setProgressoPorAulaBanco({});
+
         if (resProgresso.ok) {
-          const progressoData = await resProgresso.json();
+          const progressoData =
+            await resProgresso.json();
 
-          idsConcluidas = Array.isArray(progressoData?.progresso)
-            ? progressoData.progresso
-              .filter((item: any) => item.concluida === true)
-              .map((item: any) => Number(item.aulaId))
-            : [];
+          const itensProgresso =
+            Array.isArray(
+              progressoData?.progresso
+            )
+              ? progressoData.progresso
+              : [];
 
-          setAulasConcluidasBanco(idsConcluidas);
+          const mapaTempos:
+            Record<number, number> = {};
+
+          for (
+            const item of itensProgresso
+          ) {
+            const id =
+              Number(item?.aulaId);
+
+            const tempo =
+              Number(
+                item?.tempoAssistidoSegundos ??
+                  0
+              );
+
+            if (
+              Number.isFinite(id) &&
+              id > 0 &&
+              Number.isFinite(tempo)
+            ) {
+              mapaTempos[id] =
+                Math.max(
+                  0,
+                  Math.floor(tempo)
+                );
+            }
+          }
+
+          setProgressoPorAulaBanco(
+            mapaTempos
+          );
+
+          idsConcluidas =
+            itensProgresso
+              .filter(
+                (item: any) =>
+                  item.concluida ===
+                  true
+              )
+              .map(
+                (item: any) =>
+                  Number(item.aulaId)
+              );
+
+          setAulasConcluidasBanco(
+            idsConcluidas
+          );
         }
 
         const aulas = (data?.aulas ?? []).slice().sort((a: AulaApi, b: AulaApi) => {
@@ -635,21 +1016,75 @@ export default function DisciplinaAlunoPage() {
     function handleVisibilityChange() {
       if (document.hidden) {
         pararContagem();
+
+        void encerrarSessaoVideo(
+          "PERDA_FOCO",
+          false,
+          true
+        );
+
         pausarVideoSeEstiverTocando();
       }
     }
 
     function handleWindowBlur() {
       pararContagem();
+
+      void encerrarSessaoVideo(
+        "PERDA_FOCO",
+        false,
+        true
+      );
+
       pausarVideoSeEstiverTocando();
     }
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleWindowBlur);
+    function handlePageHide() {
+      pararContagem();
+
+      void encerrarSessaoVideo(
+        "SAIDA_PAGINA",
+        false,
+        true
+      );
+    }
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener(
+      "blur",
+      handleWindowBlur
+    );
+
+    window.addEventListener(
+      "pagehide",
+      handlePageHide
+    );
 
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener(
+        "blur",
+        handleWindowBlur
+      );
+
+      window.removeEventListener(
+        "pagehide",
+        handlePageHide
+      );
+
+      void encerrarSessaoVideo(
+        "SAIDA_PAGINA",
+        false,
+        true
+      );
     };
   }, []);
 
@@ -665,10 +1100,36 @@ export default function DisciplinaAlunoPage() {
       playerRef.current = null;
     }
 
-    setTempoAssistidoSegundos(0);
-    ultimoTempoRef.current = 0;
-    ultimoTempoValidoRef.current = 0;
-    ultimoAlertaPuloRef.current = 0;
+    const tempoSalvo =
+      aulaAtual
+        ? Math.max(
+            0,
+            Math.floor(
+              progressoPorAulaBanco[
+                aulaAtual.id
+              ] ?? 0
+            )
+          )
+        : 0;
+
+    setTempoAssistidoSegundos(
+      tempoSalvo
+    );
+
+    ultimoTempoRef.current =
+      tempoSalvo;
+
+    ultimoTempoValidoRef.current =
+      tempoSalvo;
+
+    ultimoAlertaPuloRef.current =
+      0;
+
+    tempoReproducaoSessaoRef.current =
+      0;
+
+    ultimoCheckpointEmRef.current =
+      0;
 
     if (!aulaAtual?.videoUrl) return;
     if (!youtubePronto) return;
@@ -685,12 +1146,15 @@ export default function DisciplinaAlunoPage() {
         playerVars: {
           rel: 0,
           modestbranding: 1,
+          start: tempoSalvo,
         },
         events: {
           onStateChange: (event: any) => {
             const estado = event.data;
 
             if (estado === window.YT.PlayerState.PLAYING) {
+              void garantirSessaoVideo();
+
               try {
                 if (typeof playerRef.current?.getCurrentTime === "function") {
                   const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
@@ -736,6 +1200,31 @@ export default function DisciplinaAlunoPage() {
                   ultimoTempoRef.current = Number(playerRef.current.getCurrentTime() || 0);
                 }
               } catch { }
+
+              if (
+                estado ===
+                window.YT.PlayerState.PAUSED
+              ) {
+                void encerrarSessaoVideo(
+                  "PAUSA"
+                );
+              }
+
+              if (
+                estado ===
+                window.YT.PlayerState.ENDED
+              ) {
+                const sessaoConcluida =
+                  tempoMinimoSegundosRef.current <=
+                    0 ||
+                  ultimoTempoValidoRef.current >=
+                    tempoMinimoSegundosRef.current;
+
+                void encerrarSessaoVideo(
+                  "FIM_VIDEO",
+                  sessaoConcluida
+                );
+              }
             }
           },
         },
@@ -829,7 +1318,7 @@ export default function DisciplinaAlunoPage() {
               return (
                 <button
                   key={aula.id}
-                  onClick={() => setAulaAtualId(aula.id)}
+                  onClick={() => trocarAulaComRastreamento(aula.id)}
                   className={[
                     "w-full rounded-xl border p-4 text-left transition",
                     active
@@ -1129,7 +1618,7 @@ export default function DisciplinaAlunoPage() {
                     onClick={() => {
                       const idx = aulasOrdenadas.findIndex((a) => a.id === aulaAtual.id);
                       const prev = aulasOrdenadas[idx - 1];
-                      if (prev) setAulaAtualId(prev.id);
+                      if (prev) trocarAulaComRastreamento(prev.id);
                     }}
                   >
                     ← {t("previousLesson")}
@@ -1140,7 +1629,7 @@ export default function DisciplinaAlunoPage() {
                     onClick={() => {
                       const idx = aulasOrdenadas.findIndex((a) => a.id === aulaAtual.id);
                       const next = aulasOrdenadas[idx + 1];
-                      if (next) setAulaAtualId(next.id);
+                      if (next) trocarAulaComRastreamento(next.id);
                     }}
                   >
                     {t("nextLesson")} →
