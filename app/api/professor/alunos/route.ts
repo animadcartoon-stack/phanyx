@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { obterParesTurmaDisciplinaProfessor } from "@/lib/professor-escopo-academico";
 
 function isProfessorRole(role: unknown) {
   return String(role || "").trim().toUpperCase() === "PROFESSOR";
@@ -55,65 +56,73 @@ export async function GET(req: NextRequest) {
 
     const busca = normalizarTexto(searchParams.get("busca") || "");
 
-    const filtroProfessorNaTurma = {
-      instituicaoId: user.instituicaoId,
-      disciplinas: {
-        some: {
-          disciplina: {
-            OR: [
-              { professorId: professor.id },
-              {
-                professoresHabilitados: {
-                  some: {
-                    professorId: professor.id,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-    };
+    const paresPermitidos =
+      await obterParesTurmaDisciplinaProfessor({
+        instituicaoId: user.instituicaoId,
+        professorId: professor.id,
+      });
+
+    if (paresPermitidos.length === 0) {
+      return NextResponse.json({
+        alunos: [],
+        turmas: [],
+      });
+    }
+
+    const filtrosParesPermitidos =
+      paresPermitidos.map((par) => ({
+        turmaId: par.turmaId,
+        disciplinaId: par.disciplinaId,
+      }));
+
+    const turmaIdsPermitidos = Array.from(
+      new Set(
+        paresPermitidos.map(
+          (par) => par.turmaId
+        )
+      )
+    );
 
     const itens = await prisma.itemMatricula.findMany({
       where: {
         instituicaoId: user.instituicaoId,
 
-        ...(turmaId && Number.isFinite(turmaId) ? { turmaId } : {}),
+        OR: filtrosParesPermitidos,
+
+        ...(turmaId && Number.isFinite(turmaId)
+          ? { turmaId }
+          : {}),
+
         ...(disciplinaId && Number.isFinite(disciplinaId)
           ? { disciplinaId }
           : {}),
 
         turma: {
-          ...filtroProfessorNaTurma,
-          ...(cursoId && Number.isFinite(cursoId) ? { cursoId } : {}),
+          instituicaoId: user.instituicaoId,
+
+          ...(cursoId && Number.isFinite(cursoId)
+            ? { cursoId }
+            : {}),
         },
       },
+
       include: {
         turma: {
           include: {
             curso: true,
+
             disciplinas: {
               where: {
-                disciplina: {
-                  OR: [
-                    { professorId: professor.id },
-                    {
-                      professoresHabilitados: {
-                        some: {
-                          professorId: professor.id,
-                        },
-                      },
-                    },
-                  ],
-                },
+                OR: filtrosParesPermitidos,
               },
+
               include: {
                 disciplina: true,
               },
             },
           },
         },
+
         matricula: {
           include: {
             aluno: {
@@ -121,10 +130,12 @@ export async function GET(req: NextRequest) {
                 user: true,
               },
             },
+
             curso: true,
           },
         },
       },
+
       orderBy: {
         id: "desc",
       },
@@ -314,29 +325,28 @@ export async function GET(req: NextRequest) {
     );
 
     const turmasProfessor = await prisma.turma.findMany({
-      where: filtroProfessorNaTurma,
+      where: {
+        instituicaoId: user.instituicaoId,
+
+        id: {
+          in: turmaIdsPermitidos,
+        },
+      },
+
       include: {
         curso: true,
+
         disciplinas: {
           where: {
-            disciplina: {
-              OR: [
-                { professorId: professor.id },
-                {
-                  professoresHabilitados: {
-                    some: {
-                      professorId: professor.id,
-                    },
-                  },
-                },
-              ],
-            },
+            OR: filtrosParesPermitidos,
           },
+
           include: {
             disciplina: true,
           },
         },
       },
+
       orderBy: {
         nome: "asc",
       },
