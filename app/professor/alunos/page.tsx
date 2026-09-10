@@ -327,6 +327,27 @@ export default function ProfessorAlunosPage() {
       "CARDS"
     );
 
+  useEffect(() => {
+    try {
+      const salva =
+        window.localStorage.getItem(
+          "phanyx.professor.alunos.visualizacao"
+        );
+
+      if (
+        salva === "CARDS" ||
+        salva === "LISTA"
+      ) {
+        setVisualizacao(
+          salva
+        );
+      }
+    } catch {
+      // localStorage indisponivel:
+      // mantem o padrao atual.
+    }
+  }, []);
+
   const [alunoExpandidoId, setAlunoExpandidoId] =
     useState<number | null>(null);
 
@@ -919,10 +940,19 @@ export default function ProfessorAlunosPage() {
                   visualizacao ===
                   "CARDS"
                 }
-                onClick={() =>
+                onClick={() => {
                   setVisualizacao(
                     "CARDS"
-                  )
+                  );
+
+                  try {
+                    window.localStorage.setItem(
+                      "phanyx.professor.alunos.visualizacao",
+                      "CARDS"
+                    );
+                  } catch {
+                    // Mantem a troca em memoria.
+                  }
                 }
                 className={[
                   "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition",
@@ -950,10 +980,19 @@ export default function ProfessorAlunosPage() {
                   visualizacao ===
                   "LISTA"
                 }
-                onClick={() =>
+                onClick={() => {
                   setVisualizacao(
                     "LISTA"
-                  )
+                  );
+
+                  try {
+                    window.localStorage.setItem(
+                      "phanyx.professor.alunos.visualizacao",
+                      "LISTA"
+                    );
+                  } catch {
+                    // Mantem a troca em memoria.
+                  }
                 }
                 className={[
                   "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition",
