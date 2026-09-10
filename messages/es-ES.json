@@ -3668,6 +3668,30 @@
       "failed": "Suspensa",
       "canceled": "Cancelada"
     }
+  ,
+    "progress": {
+      "title": "Progreso de las clases",
+      "description": "Consulte la reproducci?n registrada y la finalizaci?n de las clases de este alumno.",
+      "loading": "Cargando el progreso de las clases...",
+      "errorLoad": "No se pudo cargar el progreso de las clases.",
+      "empty": "No se encontraron clases publicadas para esta asignatura.",
+      "playback": "Reproducci?n registrada",
+      "percentage": "Progreso",
+      "lessonCompleted": "Clase finalizada",
+      "lastActivity": "?ltima actividad",
+      "yes": "S?",
+      "no": "No",
+      "status": {
+        "notStarted": "No iniciada",
+        "inProgress": "En curso",
+        "completed": "Finalizada"
+      },
+      "summary": {
+        "total": "Clases",
+        "inProgress": "En curso",
+        "completed": "Finalizadas"
+      }
+    }
   },
   "ProfessorSubstitutions": {
     "eyebrow": "Portal del Profesor",

@@ -22,6 +22,42 @@ type VisualizacaoAlunos =
   | "CARDS"
   | "LISTA";
 
+type AulaProgressoProfessor = {
+  aulaId: number;
+  titulo: string;
+  ordem: number;
+  possuiVideo: boolean;
+  status:
+    | "NAO_INICIADA"
+    | "EM_ANDAMENTO"
+    | "CONCLUIDA";
+  concluida: boolean;
+  concluidaEm?: string | null;
+  tempoAssistidoSegundos: number;
+  tempoMinimoSegundos: number;
+  percentual: number | null;
+  sessoesRegistradas: number;
+  tempoReproducaoTotalSegundos: number;
+  ultimaAtividade?: string | null;
+};
+
+type ProgressoAlunoProfessor = {
+  aluno: {
+    id: number;
+    nome: string;
+  };
+  turmaId: number;
+  disciplinaId: number;
+  resumo: {
+    total: number;
+    iniciadas: number;
+    concluidas: number;
+    emAndamento: number;
+    naoIniciadas: number;
+  };
+  aulas: AulaProgressoProfessor[];
+};
+
 type AlunoProfessor = {
   itemMatriculaId: number;
   alunoId: number;
@@ -101,6 +137,81 @@ function labelStatusDisciplina(
     default:
       return "-";
   }
+}
+
+function formatarTempo(
+  segundos?: number | null
+) {
+  const total = Math.max(
+    0,
+    Math.floor(
+      Number(segundos || 0)
+    )
+  );
+
+  const horas =
+    Math.floor(total / 3600);
+
+  const minutos =
+    Math.floor(
+      (total % 3600) / 60
+    );
+
+  const segundosRestantes =
+    total % 60;
+
+  if (horas > 0) {
+    return [
+      horas,
+      minutos,
+      segundosRestantes,
+    ]
+      .map((valor) =>
+        String(valor).padStart(
+          2,
+          "0"
+        )
+      )
+      .join(":");
+  }
+
+  return [
+    minutos,
+    segundosRestantes,
+  ]
+    .map((valor) =>
+      String(valor).padStart(
+        2,
+        "0"
+      )
+    )
+    .join(":");
+}
+
+function formatarDataHora(
+  valor?: string | null
+) {
+  if (!valor) {
+    return "-";
+  }
+
+  const data = new Date(valor);
+
+  if (
+    Number.isNaN(
+      data.getTime()
+    )
+  ) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat(
+    undefined,
+    {
+      dateStyle: "short",
+      timeStyle: "short",
+    }
+  ).format(data);
 }
 
 function normalizarTexto(valor?: string | number | null) {
@@ -219,8 +330,120 @@ export default function ProfessorAlunosPage() {
   const [alunoExpandidoId, setAlunoExpandidoId] =
     useState<number | null>(null);
 
+  const [progressoPorItem, setProgressoPorItem] =
+    useState<Record<number, ProgressoAlunoProfessor | null>>({});
+
+  const [progressoCarregando, setProgressoCarregando] =
+    useState<Record<number, boolean>>({});
+
+  const [progressoErro, setProgressoErro] =
+    useState<Record<number, string>>({});
+
   const [alunos, setAlunos] = useState<AlunoProfessor[]>([]);
   const [turmas, setTurmas] = useState<TurmaFiltro[]>([]);
+
+  async function carregarProgressoAluno(
+    aluno: AlunoProfessor
+  ) {
+    const itemId =
+      aluno.itemMatriculaId;
+
+    if (
+      progressoPorItem[itemId] ||
+      progressoCarregando[itemId]
+    ) {
+      return;
+    }
+
+    const turmaIdAluno =
+      aluno.turma?.id;
+
+    const disciplinaIdAluno =
+      aluno.disciplina?.id;
+
+    if (
+      !turmaIdAluno ||
+      !disciplinaIdAluno
+    ) {
+      return;
+    }
+
+    try {
+      setProgressoCarregando(
+        (atual) => ({
+          ...atual,
+          [itemId]: true,
+        })
+      );
+
+      setProgressoErro(
+        (atual) => ({
+          ...atual,
+          [itemId]: "",
+        })
+      );
+
+      const query =
+        new URLSearchParams({
+          alunoId: String(
+            aluno.alunoId
+          ),
+          turmaId: String(
+            turmaIdAluno
+          ),
+          disciplinaId: String(
+            disciplinaIdAluno
+          ),
+        });
+
+      const res = await fetch(
+        `/api/professor/progresso/aulas?${query.toString()}`,
+        {
+          credentials:
+            "include",
+          cache:
+            "no-store",
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+            t(
+              "progress.errorLoad"
+            )
+        );
+      }
+
+      setProgressoPorItem(
+        (atual) => ({
+          ...atual,
+          [itemId]: data,
+        })
+      );
+    } catch (e: any) {
+      setProgressoErro(
+        (atual) => ({
+          ...atual,
+          [itemId]:
+            e?.message ||
+            t(
+              "progress.errorLoad"
+            ),
+        })
+      );
+    } finally {
+      setProgressoCarregando(
+        (atual) => ({
+          ...atual,
+          [itemId]: false,
+        })
+      );
+    }
+  }
 
   async function carregarDados() {
     try {
@@ -861,13 +1084,22 @@ export default function ProfessorAlunosPage() {
                   alunoExpandidoId ===
                   aluno.itemMatriculaId
                 }
-                onClick={() =>
+                onClick={() => {
+                  const vaiAbrir =
+                    alunoExpandidoId !==
+                    aluno.itemMatriculaId;
+
                   setAlunoExpandidoId(
-                    alunoExpandidoId ===
-                      aluno.itemMatriculaId
-                      ? null
-                      : aluno.itemMatriculaId
-                  )
+                    vaiAbrir
+                      ? aluno.itemMatriculaId
+                      : null
+                  );
+
+                  if (vaiAbrir) {
+                    void carregarProgressoAluno(
+                      aluno
+                    );
+                  }
                 }
                 className="grid w-full cursor-pointer gap-3 px-4 py-3 text-left transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60 lg:grid-cols-[minmax(160px,1fr)_minmax(150px,.9fr)_minmax(230px,1.5fr)_minmax(110px,.7fr)_minmax(95px,.55fr)_minmax(120px,.7fr)_32px] lg:items-center"
               >
@@ -1122,6 +1354,235 @@ export default function ProfessorAlunosPage() {
                         </p>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-black text-slate-900 dark:text-white">
+                          {t(
+                            "progress.title"
+                          )}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          {t(
+                            "progress.description"
+                          )}
+                        </p>
+                      </div>
+
+                      {progressoPorItem[
+                        aluno.itemMatriculaId
+                      ] && (
+                        <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                          <span className="rounded-full bg-slate-200 px-3 py-1 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                            {t(
+                              "progress.summary.total"
+                            )}
+                            :{" "}
+                            {
+                              progressoPorItem[
+                                aluno
+                                  .itemMatriculaId
+                              ]!.resumo.total
+                            }
+                          </span>
+
+                          <span className="rounded-full bg-blue-100 px-3 py-1 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300">
+                            {t(
+                              "progress.summary.inProgress"
+                            )}
+                            :{" "}
+                            {
+                              progressoPorItem[
+                                aluno
+                                  .itemMatriculaId
+                              ]!.resumo
+                                .emAndamento
+                            }
+                          </span>
+
+                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                            {t(
+                              "progress.summary.completed"
+                            )}
+                            :{" "}
+                            {
+                              progressoPorItem[
+                                aluno
+                                  .itemMatriculaId
+                              ]!.resumo
+                                .concluidas
+                            }
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {progressoCarregando[
+                      aluno.itemMatriculaId
+                    ] ? (
+                      <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                        {t(
+                          "progress.loading"
+                        )}
+                      </div>
+                    ) : progressoErro[
+                        aluno.itemMatriculaId
+                      ] ? (
+                      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                        {
+                          progressoErro[
+                            aluno
+                              .itemMatriculaId
+                          ]
+                        }
+                      </div>
+                    ) : progressoPorItem[
+                        aluno.itemMatriculaId
+                      ]?.aulas.length ? (
+                      <div className="space-y-2">
+                        {progressoPorItem[
+                          aluno.itemMatriculaId
+                        ]!.aulas.map(
+                          (aula) => (
+                            <div
+                              key={
+                                aula.aulaId
+                              }
+                              className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
+                            >
+                              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                <div className="min-w-0">
+                                  <p className="font-bold text-slate-900 dark:text-white">
+                                    {
+                                      aula.titulo
+                                    }
+                                  </p>
+
+                                  <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                    {aula.status ===
+                                    "CONCLUIDA"
+                                      ? t(
+                                          "progress.status.completed"
+                                        )
+                                      : aula.status ===
+                                          "EM_ANDAMENTO"
+                                        ? t(
+                                            "progress.status.inProgress"
+                                          )
+                                        : t(
+                                            "progress.status.notStarted"
+                                          )}
+                                  </p>
+                                </div>
+
+                                <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                                  <div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      {t(
+                                        "progress.playback"
+                                      )}
+                                    </p>
+
+                                    <p className="font-bold text-slate-900 dark:text-white">
+                                      {formatarTempo(
+                                        aula.tempoAssistidoSegundos
+                                      )}{" "}
+                                      /{" "}
+                                      {formatarTempo(
+                                        aula.tempoMinimoSegundos
+                                      )}
+                                    </p>
+                                  </div>
+
+                                  <div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      {t(
+                                        "progress.percentage"
+                                      )}
+                                    </p>
+
+                                    <p className="font-bold text-slate-900 dark:text-white">
+                                      {aula.percentual ==
+                                      null
+                                        ? "-"
+                                        : `${aula.percentual}%`}
+                                    </p>
+                                  </div>
+
+                                  <div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      {t(
+                                        "progress.lessonCompleted"
+                                      )}
+                                    </p>
+
+                                    <p className="font-bold text-slate-900 dark:text-white">
+                                      {aula.concluida
+                                        ? t(
+                                            "progress.yes"
+                                          )
+                                        : t(
+                                            "progress.no"
+                                          )}
+                                    </p>
+                                  </div>
+
+                                  <div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      {t(
+                                        "progress.lastActivity"
+                                      )}
+                                    </p>
+
+                                    <p className="font-bold text-slate-900 dark:text-white">
+                                      {formatarDataHora(
+                                        aula.ultimaAtividade
+                                      )}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                                <div
+                                  className={[
+                                    "h-full rounded-full transition-all",
+                                    aula.concluida
+                                      ? "bg-emerald-500"
+                                      : "bg-blue-600",
+                                  ].join(
+                                    " "
+                                  )}
+                                  style={{
+                                    width: `${Math.max(
+                                      0,
+                                      Math.min(
+                                        100,
+                                        Number(
+                                          aula.percentual ||
+                                            0
+                                        )
+                                      )
+                                    )}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ) : progressoPorItem[
+                        aluno.itemMatriculaId
+                      ] ? (
+                      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-5 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                        {t(
+                          "progress.empty"
+                        )}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}

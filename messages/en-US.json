@@ -3668,6 +3668,30 @@
       "failed": "Failed",
       "canceled": "Canceled"
     }
+  ,
+    "progress": {
+      "title": "Lesson progress",
+      "description": "Track recorded playback and lesson completion for this student.",
+      "loading": "Loading lesson progress...",
+      "errorLoad": "Unable to load lesson progress.",
+      "empty": "No published lessons were found for this subject.",
+      "playback": "Recorded playback",
+      "percentage": "Progress",
+      "lessonCompleted": "Lesson completed",
+      "lastActivity": "Last activity",
+      "yes": "Yes",
+      "no": "No",
+      "status": {
+        "notStarted": "Not started",
+        "inProgress": "In progress",
+        "completed": "Completed"
+      },
+      "summary": {
+        "total": "Lessons",
+        "inProgress": "In progress",
+        "completed": "Completed"
+      }
+    }
   },
   "ProfessorSubstitutions": {
     "eyebrow": "Teacher Portal",

@@ -3668,6 +3668,30 @@
       "failed": "Échouée",
       "canceled": "Annulée"
     }
+  ,
+    "progress": {
+      "title": "Progression des cours",
+      "description": "Suivez la lecture enregistr?e et l?ach?vement des cours de cet ?tudiant.",
+      "loading": "Chargement de la progression des cours...",
+      "errorLoad": "Impossible de charger la progression des cours.",
+      "empty": "Aucun cours publi? n?a ?t? trouv? pour cette mati?re.",
+      "playback": "Lecture enregistr?e",
+      "percentage": "Progression",
+      "lessonCompleted": "Cours termin?",
+      "lastActivity": "Derni?re activit?",
+      "yes": "Oui",
+      "no": "Non",
+      "status": {
+        "notStarted": "Non commenc?",
+        "inProgress": "En cours",
+        "completed": "Termin?"
+      },
+      "summary": {
+        "total": "Cours",
+        "inProgress": "En cours",
+        "completed": "Termin?s"
+      }
+    }
   },
   "ProfessorSubstitutions": {
     "eyebrow": "Portail Enseignant",

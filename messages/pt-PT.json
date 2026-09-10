@@ -3668,6 +3668,30 @@
       "failed": "Reprovado",
       "canceled": "Cancelado"
     }
+  ,
+    "progress": {
+      "title": "Progresso das aulas",
+      "description": "Acompanhe a reprodu??o registada e a conclus?o das aulas deste aluno.",
+      "loading": "A carregar o progresso das aulas...",
+      "errorLoad": "N?o foi poss?vel carregar o progresso das aulas.",
+      "empty": "Nenhuma aula publicada encontrada para esta disciplina.",
+      "playback": "Reprodu??o registada",
+      "percentage": "Progresso",
+      "lessonCompleted": "Aula conclu?da",
+      "lastActivity": "?ltima atividade",
+      "yes": "Sim",
+      "no": "N?o",
+      "status": {
+        "notStarted": "N?o iniciada",
+        "inProgress": "Em curso",
+        "completed": "Conclu?da"
+      },
+      "summary": {
+        "total": "Aulas",
+        "inProgress": "Em curso",
+        "completed": "Conclu?das"
+      }
+    }
   },
   "ProfessorSubstitutions": {
     "eyebrow": "Portal do Professor",
