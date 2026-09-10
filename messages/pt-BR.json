@@ -3712,6 +3712,16 @@
     "courseUnavailable": "Curso não informado",
     "subjectUnavailable": "Disciplina não informada",
     "period": "Período",
+    "shift": "Turno",
+    "shiftValues": {
+      "morning": "Matutino",
+      "afternoon": "Vespertino",
+      "evening": "Noturno",
+      "fullTime": "Integral",
+      "flexible": "Flexível",
+      "onlineFlexible": "EAD / Livre",
+      "notInformed": "Não informado"
+    },
     "periodUnavailable": "EAD / Livre",
     "start": "Início",
     "end": "Fim",

@@ -3712,6 +3712,16 @@
     "courseUnavailable": "Curso no informado",
     "subjectUnavailable": "Asignatura no informada",
     "period": "Período",
+    "shift": "Turno",
+    "shiftValues": {
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "evening": "Noche",
+      "fullTime": "Jornada completa",
+      "flexible": "Flexible",
+      "onlineFlexible": "En línea / Flexible",
+      "notInformed": "No informado"
+    },
     "periodUnavailable": "En línea / Flexible",
     "start": "Inicio",
     "end": "Fin",

@@ -3712,6 +3712,16 @@
     "courseUnavailable": "Course not available",
     "subjectUnavailable": "Subject not available",
     "period": "Period",
+    "shift": "Shift",
+    "shiftValues": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "fullTime": "Full-time",
+      "flexible": "Flexible",
+      "onlineFlexible": "Online / Flexible",
+      "notInformed": "Not provided"
+    },
     "periodUnavailable": "Online / Flexible",
     "start": "Start",
     "end": "End",

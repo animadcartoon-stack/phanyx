@@ -58,8 +58,15 @@ function diaSemanaHoje() {
 }
 
 function temAulaNoDia(turma: Turma, dia: string) {
-  const dias = ["Domingo", "Segunda", "Ter?a", "Quarta", "Quinta", "Sexta", "S?bado"];
-  const numeroDia = dias.indexOf(dia);
+  const numeroDia = [
+    "domingo",
+    "segunda",
+    "terca",
+    "quarta",
+    "quinta",
+    "sexta",
+    "sabado",
+  ].indexOf(normalizarTexto(dia));
 
   if (numeroDia < 0) return false;
 
@@ -99,9 +106,11 @@ function turnoDaTurma(turma: Turma) {
     return "EAD / Livre";
   }
 
-  const texto = `${turma.semestre || ""} ${turma.nome || ""}`.toLowerCase();
+  const texto = normalizarTexto(
+    `${turma.semestre || ""} ${turma.nome || ""}`
+  );
 
-  if (texto.includes("matutino") || texto.includes("manh?") || texto.includes("manha")) {
+  if (texto.includes("matutino") || texto.includes("manha")) {
     return "Matutino";
   }
 
@@ -113,7 +122,7 @@ function turnoDaTurma(turma: Turma) {
     return "Noturno";
   }
 
-  return "Per?odo n?o informado";
+  return "NAO_INFORMADO";
 }
 
 function normalizarTexto(valor?: string | number | null) {
@@ -224,6 +233,44 @@ function TurmaAgrupadaCard({
   const todasDisciplinas = Object.values(turma.disciplinasPorTurno).flat();
   const temAulaHoje = todasDisciplinas.some((disciplina) => temAulaNoDia(disciplina, hoje));
 
+  function traduzirTurno(valor: string) {
+    const normalizado = normalizarTexto(valor);
+
+    if (normalizado === "flexivel" || normalizado === "flexible") {
+      return t("shiftValues.flexible");
+    }
+
+    if (normalizado === "matutino" || normalizado === "manha" || normalizado === "morning") {
+      return t("shiftValues.morning");
+    }
+
+    if (normalizado === "vespertino" || normalizado === "tarde" || normalizado === "afternoon") {
+      return t("shiftValues.afternoon");
+    }
+
+    if (normalizado === "noturno" || normalizado === "noite" || normalizado === "evening") {
+      return t("shiftValues.evening");
+    }
+
+    if (normalizado === "integral" || normalizado === "full-time" || normalizado === "full time") {
+      return t("shiftValues.fullTime");
+    }
+
+    if (
+      normalizado.includes("ead") ||
+      normalizado.includes("online") ||
+      normalizado.includes("livre")
+    ) {
+      return t("shiftValues.onlineFlexible");
+    }
+
+    if (normalizado === "nao_informado" || normalizado === "nao informado") {
+      return t("shiftValues.notInformed");
+    }
+
+    return valor;
+  }
+
   return (
     <article
       className={`rounded-3xl border bg-white shadow-sm transition ${temAulaHoje ? "border-green-300 ring-2 ring-green-100" : "border-slate-200"
@@ -306,7 +353,7 @@ function TurmaAgrupadaCard({
                   >
                     <div>
                       <h4 className="font-black text-slate-800">
-                        {t("period")} {turno}
+                        {t("shift")}: {traduzirTurno(turno)}
                       </h4>
 
                       <p className="text-sm text-slate-500">

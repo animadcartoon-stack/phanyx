@@ -3712,6 +3712,16 @@
     "courseUnavailable": "Formation non renseignée",
     "subjectUnavailable": "Matière non renseignée",
     "period": "Période",
+    "shift": "Créneau",
+    "shiftValues": {
+      "morning": "Matin",
+      "afternoon": "Après-midi",
+      "evening": "Soir",
+      "fullTime": "Journée complète",
+      "flexible": "Flexible",
+      "onlineFlexible": "En ligne / Flexible",
+      "notInformed": "Non renseigné"
+    },
     "periodUnavailable": "En ligne / Flexible",
     "start": "Début",
     "end": "Fin",
