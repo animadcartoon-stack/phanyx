@@ -3708,6 +3708,14 @@
     "class": "Classe {name}",
     "classToday": "Cours aujourd’hui",
     "statusUnavailable": "Statut non renseigné",
+    "classStatus": {
+      "active": "Active",
+      "waiting": "En attente",
+      "completed": "Terminée",
+      "closed": "Clôturée",
+      "canceled": "Annulée",
+      "suspended": "Suspendue"
+    },
     "course": "Formation",
     "courseUnavailable": "Formation non renseignée",
     "subjectUnavailable": "Matière non renseignée",

@@ -3708,6 +3708,14 @@
     "class": "Class {name}",
     "classToday": "Class today",
     "statusUnavailable": "Status not available",
+    "classStatus": {
+      "active": "Active",
+      "waiting": "Waiting",
+      "completed": "Completed",
+      "closed": "Closed",
+      "canceled": "Canceled",
+      "suspended": "Suspended"
+    },
     "course": "Course",
     "courseUnavailable": "Course not available",
     "subjectUnavailable": "Subject not available",

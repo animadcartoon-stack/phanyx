@@ -3708,6 +3708,14 @@
     "class": "Clase {name}",
     "classToday": "Clase hoy",
     "statusUnavailable": "Estado no informado",
+    "classStatus": {
+      "active": "Activa",
+      "waiting": "En espera",
+      "completed": "Completada",
+      "closed": "Cerrada",
+      "canceled": "Cancelada",
+      "suspended": "Suspendida"
+    },
     "course": "Curso",
     "courseUnavailable": "Curso no informado",
     "subjectUnavailable": "Asignatura no informada",

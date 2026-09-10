@@ -151,6 +151,44 @@ function textoBuscaTurma(turma: Turma) {
   );
 }
 
+function traduzirStatusTurma(
+  valor: string | null | undefined,
+  t: ReturnType<typeof useTranslations>
+) {
+  if (!valor) return t("statusUnavailable");
+
+  const status = normalizarTexto(valor).replace(/\s+/g, "_");
+
+  if (status === "ativa" || status === "ativo") {
+    return t("classStatus.active");
+  }
+
+  if (status === "aguardando" || status === "a_aguardar") {
+    return t("classStatus.waiting");
+  }
+
+  if (status === "concluida" || status === "concluido") {
+    return t("classStatus.completed");
+  }
+
+  if (status === "encerrada" || status === "encerrado") {
+    return t("classStatus.closed");
+  }
+
+  if (status === "cancelada" || status === "cancelado") {
+    return t("classStatus.canceled");
+  }
+
+  if (status === "suspensa" || status === "suspenso") {
+    return t("classStatus.suspended");
+  }
+
+  return valor
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/^./, (letra) => letra.toUpperCase());
+}
+
 function calcularPontuacaoBusca(texto: string, busca: string) {
   const textoNormalizado = normalizarTexto(texto);
   const buscaNormalizada = normalizarTexto(busca);
@@ -294,9 +332,7 @@ function TurmaAgrupadaCard({
             )}
 
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-              {turma.statusDisciplina ||
-                turma.statusTurma ||
-                t("statusUnavailable")}
+              {traduzirStatusTurma(turma.statusTurma, t)}
             </span>
           </div>
 
