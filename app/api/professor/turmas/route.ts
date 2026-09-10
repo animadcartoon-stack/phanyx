@@ -309,6 +309,8 @@ const filtrosSubstituicao = substituicoes.map((s) => ({
     nome: t.nome,
     semestre: t.semestre,
     periodoLetivo: t.periodoLetivo,
+    turno: t.turno,
+    modalidade: t.modalidade,
     statusTurma: t.statusTurma,
     alunos: new Set(
       t.itensMatricula

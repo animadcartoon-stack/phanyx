@@ -10,6 +10,8 @@ type Turma = {
   nome: string;
   semestre: string;
   periodoLetivo?: string | null;
+  turno?: string | null;
+  modalidade?: string | null;
   statusTurma?: string | null;
   alunos: number;
   curso?: { id: number; nome: string } | null;
@@ -18,6 +20,13 @@ type Turma = {
   dataInicio?: string | null;
   dataFim?: string | null;
   quantidadeAulas?: number;
+  horarios?: {
+    id?: number;
+    diaSemana: number;
+    horaInicio: string;
+    horaFim?: string | null;
+    ativo?: boolean;
+  }[];
 };
 
 type TurmaAgrupada = {
@@ -62,13 +71,24 @@ function grupoSemestre(turma: Turma) {
 }
 
 function turnoDaTurma(turma: Turma) {
-  const periodo = String(turma.periodoLetivo || "").trim();
+  const turno = String(turma.turno || "").trim();
 
-  if (periodo) return periodo;
+  if (turno) return turno;
+
+  const modalidade = normalizarTexto(turma.modalidade);
+
+  if (
+    modalidade.includes("ead") ||
+    modalidade.includes("online") ||
+    modalidade.includes("distancia") ||
+    modalidade.includes("remot")
+  ) {
+    return "EAD / Livre";
+  }
 
   const texto = `${turma.semestre || ""} ${turma.nome || ""}`.toLowerCase();
 
-  if (texto.includes("matutino") || texto.includes("manhã") || texto.includes("manha")) {
+  if (texto.includes("matutino") || texto.includes("manh?") || texto.includes("manha")) {
     return "Matutino";
   }
 
@@ -80,19 +100,7 @@ function turnoDaTurma(turma: Turma) {
     return "Noturno";
   }
 
-  return "Período não informado";
-}
-function diaDaTurma(turma: Turma) {
-  const texto = `${turma.periodoLetivo || ""} ${turma.semestre || ""} ${turma.nome || ""}`.toLowerCase();
-
-  if (texto.includes("segunda")) return "Segunda";
-  if (texto.includes("terça") || texto.includes("terca")) return "Terça";
-  if (texto.includes("quarta")) return "Quarta";
-  if (texto.includes("quinta")) return "Quinta";
-  if (texto.includes("sexta")) return "Sexta";
-  if (texto.includes("sábado") || texto.includes("sabado")) return "Sábado";
-
-  return "Segunda";
+  return "Per?odo n?o informado";
 }
 
 function normalizarTexto(valor?: string | number | null) {
@@ -109,6 +117,8 @@ function textoBuscaTurma(turma: Turma) {
       turma.nome,
       turma.semestre,
       turma.periodoLetivo,
+      turma.turno,
+      turma.modalidade,
       turma.statusTurma,
       turma.statusDisciplina,
       turma.curso?.nome,
