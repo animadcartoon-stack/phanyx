@@ -322,7 +322,7 @@ function TurmaAgrupadaCard({
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-xl font-black text-slate-900">
-              {t("class", { name: turma.nome })}
+              {turma.nome}
             </h3>
 
             {temAulaHoje && (
