@@ -3671,25 +3671,25 @@
   ,
     "progress": {
       "title": "Progression des cours",
-      "description": "Suivez la lecture enregistr?e et l?ach?vement des cours de cet ?tudiant.",
+      "description": "Suivez la lecture enregistrée et l’achèvement des cours de cet étudiant.",
       "loading": "Chargement de la progression des cours...",
       "errorLoad": "Impossible de charger la progression des cours.",
-      "empty": "Aucun cours publi? n?a ?t? trouv? pour cette mati?re.",
-      "playback": "Lecture enregistr?e",
+      "empty": "Aucun cours publié n’a été trouvé pour cette matière.",
+      "playback": "Lecture enregistrée",
       "percentage": "Progression",
-      "lessonCompleted": "Cours termin?",
-      "lastActivity": "Derni?re activit?",
+      "lessonCompleted": "Cours terminé",
+      "lastActivity": "Dernière activité",
       "yes": "Oui",
       "no": "Non",
       "status": {
-        "notStarted": "Non commenc?",
+        "notStarted": "Non commencé",
         "inProgress": "En cours",
-        "completed": "Termin?"
+        "completed": "Terminé"
       },
       "summary": {
         "total": "Cours",
         "inProgress": "En cours",
-        "completed": "Termin?s"
+        "completed": "Terminés"
       }
     }
   },
@@ -14571,6 +14571,62 @@
         "invalidPhoneCountry": "Sélectionnez un pays valide pour le téléphone.",
         "invalidPhone": "Saisissez un numéro de téléphone valide pour le pays sélectionné."
       }
+    }
+  }
+,
+  "AdminMatriculasQuarentena": {
+    "tabs": {
+      "matriculas": "Inscriptions",
+      "quarentena": "Quarantaine"
+    },
+    "filterStatus": "Statut académique",
+    "status": {
+      "TODOS": "Tous les statuts",
+      "AGUARDANDO": "En attente",
+      "A_INICIAR": "À commencer",
+      "ATIVA": "Active",
+      "TRANCADA": "Bloquée",
+      "SUSPENSA": "Suspendue",
+      "TRANSFERIDA": "Transférée",
+      "INTERCAMBIO": "Échange",
+      "CANCELADA": "Annulée",
+      "CONCLUIDA": "Terminée"
+    },
+    "actions": {
+      "aguardando": "Marquer en attente",
+      "transferir": "Transférer",
+      "intercambio": "Échange",
+      "moverQuarentena": "Mettre en quarantaine",
+      "movendo": "Déplacement...",
+      "restaurar": "Restaurer l’inscription",
+      "restaurando": "Restauration..."
+    },
+    "modal": {
+      "title": "Mettre l’inscription en quarantaine",
+      "description": "L’enregistrement sera masqué des espaces académiques, mais aucune donnée associée ne sera supprimée.",
+      "student": "Étudiant",
+      "course": "Cours",
+      "registration": "Inscription",
+      "reasonLabel": "Motif de l’exclusion",
+      "reasonPlaceholder": "Ex. : inscription créée uniquement pour un test",
+      "note": "Aucune donnée ne sera supprimée. L’inscription pourra être restaurée ultérieurement.",
+      "cancel": "Annuler",
+      "confirm": "Mettre en quarantaine"
+    },
+    "messages": {
+      "reasonRequired": "Saisissez un motif d’au moins 3 caractères.",
+      "loadError": "Impossible de charger les inscriptions.",
+      "moveError": "Impossible de mettre l’inscription en quarantaine.",
+      "moveSuccess": "Inscription #{id} mise en quarantaine.",
+      "restoreConfirmTitle": "Restaurer l’inscription",
+      "restoreConfirmMessage": "Voulez-vous restaurer cette inscription dans la liste normale ?",
+      "restoreError": "Impossible de restaurer l’inscription.",
+      "restoreSuccess": "Inscription #{id} restaurée avec succès."
+    },
+    "quarantine": {
+      "excludedAt": "Mise en quarantaine le",
+      "reason": "Motif",
+      "excludedBy": "Mise en quarantaine par (ID)"
     }
   }
 }

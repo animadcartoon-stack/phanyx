@@ -14574,4 +14574,60 @@
       }
     }
   }
+,
+  "AdminMatriculasQuarentena": {
+    "tabs": {
+      "matriculas": "Enrollments",
+      "quarentena": "Quarantine"
+    },
+    "filterStatus": "Academic status",
+    "status": {
+      "TODOS": "All statuses",
+      "AGUARDANDO": "Pending",
+      "A_INICIAR": "Not started",
+      "ATIVA": "Active",
+      "TRANCADA": "On hold",
+      "SUSPENSA": "Suspended",
+      "TRANSFERIDA": "Transferred",
+      "INTERCAMBIO": "Exchange",
+      "CANCELADA": "Canceled",
+      "CONCLUIDA": "Completed"
+    },
+    "actions": {
+      "aguardando": "Mark as pending",
+      "transferir": "Transfer",
+      "intercambio": "Exchange",
+      "moverQuarentena": "Move to quarantine",
+      "movendo": "Moving...",
+      "restaurar": "Restore enrollment",
+      "restaurando": "Restoring..."
+    },
+    "modal": {
+      "title": "Move enrollment to quarantine",
+      "description": "The record will be hidden from academic areas, but no related data will be deleted.",
+      "student": "Student",
+      "course": "Course",
+      "registration": "Enrollment",
+      "reasonLabel": "Reason for exclusion",
+      "reasonPlaceholder": "E.g. enrollment created for testing only",
+      "note": "Nothing will be deleted. The enrollment can be restored later.",
+      "cancel": "Cancel",
+      "confirm": "Move to quarantine"
+    },
+    "messages": {
+      "reasonRequired": "Enter a reason with at least 3 characters.",
+      "loadError": "Unable to load enrollments.",
+      "moveError": "Unable to move the enrollment to quarantine.",
+      "moveSuccess": "Enrollment #{id} moved to quarantine.",
+      "restoreConfirmTitle": "Restore enrollment",
+      "restoreConfirmMessage": "Do you want to restore this enrollment to the normal list?",
+      "restoreError": "Unable to restore the enrollment.",
+      "restoreSuccess": "Enrollment #{id} restored successfully."
+    },
+    "quarantine": {
+      "excludedAt": "Quarantined on",
+      "reason": "Reason",
+      "excludedBy": "Quarantined by (ID)"
+    }
+  }
 }

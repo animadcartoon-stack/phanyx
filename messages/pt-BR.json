@@ -3671,25 +3671,25 @@
   ,
     "progress": {
       "title": "Progresso das aulas",
-      "description": "Acompanhe a reprodu??o registrada e a conclus?o das aulas deste aluno.",
+      "description": "Acompanhe a reprodução registrada e a conclusão das aulas deste aluno.",
       "loading": "Carregando progresso das aulas...",
-      "errorLoad": "N?o foi poss?vel carregar o progresso das aulas.",
+      "errorLoad": "Não foi possível carregar o progresso das aulas.",
       "empty": "Nenhuma aula publicada encontrada para esta disciplina.",
-      "playback": "Reprodu??o registrada",
+      "playback": "Reprodução registrada",
       "percentage": "Progresso",
-      "lessonCompleted": "Aula conclu?da",
-      "lastActivity": "?ltima atividade",
+      "lessonCompleted": "Aula concluída",
+      "lastActivity": "Última atividade",
       "yes": "Sim",
-      "no": "N?o",
+      "no": "Não",
       "status": {
-        "notStarted": "N?o iniciada",
+        "notStarted": "Não iniciada",
         "inProgress": "Em andamento",
-        "completed": "Conclu?da"
+        "completed": "Concluída"
       },
       "summary": {
         "total": "Aulas",
         "inProgress": "Em andamento",
-        "completed": "Conclu?das"
+        "completed": "Concluídas"
       }
     }
   },
@@ -14341,6 +14341,62 @@
         "invalidPhoneCountry": "Selecione um país válido para o telefone.",
         "invalidPhone": "Informe um telefone válido para o país selecionado."
       }
+    }
+  }
+,
+  "AdminMatriculasQuarentena": {
+    "tabs": {
+      "matriculas": "Matrículas",
+      "quarentena": "Quarentena"
+    },
+    "filterStatus": "Situação acadêmica",
+    "status": {
+      "TODOS": "Todos os status",
+      "AGUARDANDO": "Aguardando",
+      "A_INICIAR": "A iniciar",
+      "ATIVA": "Ativa",
+      "TRANCADA": "Trancada",
+      "SUSPENSA": "Suspensa",
+      "TRANSFERIDA": "Transferida",
+      "INTERCAMBIO": "Intercâmbio",
+      "CANCELADA": "Cancelada",
+      "CONCLUIDA": "Concluída"
+    },
+    "actions": {
+      "aguardando": "Marcar como aguardando",
+      "transferir": "Transferir",
+      "intercambio": "Intercâmbio",
+      "moverQuarentena": "Mover para quarentena",
+      "movendo": "Movendo...",
+      "restaurar": "Restaurar matrícula",
+      "restaurando": "Restaurando..."
+    },
+    "modal": {
+      "title": "Mover matrícula para quarentena",
+      "description": "O registro será ocultado das áreas acadêmicas, mas nenhum dado relacionado será apagado.",
+      "student": "Aluno",
+      "course": "Curso",
+      "registration": "Matrícula",
+      "reasonLabel": "Motivo da exclusão",
+      "reasonPlaceholder": "Ex.: matrícula criada apenas para teste",
+      "note": "Nada será apagado. A matrícula poderá ser restaurada posteriormente.",
+      "cancel": "Cancelar",
+      "confirm": "Mover para quarentena"
+    },
+    "messages": {
+      "reasonRequired": "Informe um motivo com pelo menos 3 caracteres.",
+      "loadError": "Não foi possível carregar as matrículas.",
+      "moveError": "Não foi possível enviar a matrícula para a quarentena.",
+      "moveSuccess": "Matrícula #{id} enviada para a quarentena.",
+      "restoreConfirmTitle": "Restaurar matrícula",
+      "restoreConfirmMessage": "Deseja restaurar esta matrícula e devolvê-la à listagem normal?",
+      "restoreError": "Não foi possível restaurar a matrícula.",
+      "restoreSuccess": "Matrícula #{id} restaurada com sucesso."
+    },
+    "quarantine": {
+      "excludedAt": "Excluída em",
+      "reason": "Motivo",
+      "excludedBy": "Excluída por (ID)"
     }
   }
 }
