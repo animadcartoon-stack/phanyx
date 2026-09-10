@@ -538,6 +538,8 @@ type MatriculaBody = {
   nomeSocial?: string;
   genero?: string;
   status?: string;
+  acao?: string;
+  motivoExclusao?: string | null;
   realizadaPeloAluno?: boolean;
   confirmacaoMenorAceita?: boolean;
 };
@@ -1362,17 +1364,27 @@ const includeMatriculaAdmin = {
   },
 } as const;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Não autenticado" },
+        { status: 401 }
+      );
     }
+
+    const url = new URL(request.url);
+    const solicitarQuarentena =
+      url.searchParams.get("quarentena") === "1";
 
     if (user.role === "ALUNO") {
       const aluno = await prisma.aluno.findFirst({
-        where: { userId: user.id, instituicaoId: user.instituicaoId },
+        where: {
+          userId: user.id,
+          instituicaoId: user.instituicaoId,
+        },
         select: { id: true },
       });
 
@@ -1387,6 +1399,7 @@ export async function GET() {
         where: {
           alunoId: aluno.id,
           instituicaoId: user.instituicaoId,
+          excluidaEm: null,
         },
         include: includeMatricula,
         orderBy: { id: "desc" },
@@ -1395,11 +1408,22 @@ export async function GET() {
       return NextResponse.json(matriculas);
     }
 
-    if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+    if (
+      user.role === "ADMIN" ||
+      user.role === "SUPER_ADMIN"
+    ) {
       const matriculas = await prisma.matricula.findMany({
-        where: {
-          instituicaoId: user.instituicaoId,
-        },
+        where: solicitarQuarentena
+          ? {
+              instituicaoId: user.instituicaoId,
+              excluidaEm: {
+                not: null,
+              },
+            }
+          : {
+              instituicaoId: user.instituicaoId,
+              excluidaEm: null,
+            },
         include: includeMatriculaAdmin,
         orderBy: { id: "desc" },
       });
@@ -1409,7 +1433,10 @@ export async function GET() {
 
     if (user.role === "PROFESSOR") {
       const professor = await prisma.professor.findFirst({
-        where: { userId: user.id, instituicaoId: user.instituicaoId },
+        where: {
+          userId: user.id,
+          instituicaoId: user.instituicaoId,
+        },
         select: { id: true },
       });
 
@@ -1423,6 +1450,7 @@ export async function GET() {
       const matriculas = await prisma.matricula.findMany({
         where: {
           instituicaoId: user.instituicaoId,
+          excluidaEm: null,
           itens: {
             some: {
               turma: {
@@ -1438,11 +1466,19 @@ export async function GET() {
       return NextResponse.json(matriculas);
     }
 
-    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-  } catch (error: any) {
-    console.error("ERRO AO BUSCAR MATRÍCULAS:", error);
     return NextResponse.json(
-      { error: error?.message || "Erro ao buscar matrículas" },
+      { error: "Sem permissão" },
+      { status: 403 }
+    );
+  } catch (error: any) {
+    console.error("ERRO AO BUSCAR MATR?CULAS:", error);
+
+    return NextResponse.json(
+      {
+        error:
+          error?.message ||
+          "Erro ao buscar matrículas",
+      },
       { status: 500 }
     );
   }
@@ -3074,6 +3110,64 @@ export async function PATCH(request: Request) {
 
     const body = (await request.json()) as MatriculaBody;
 
+    const acao = String(
+      body.acao || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    if (acao === "RESTAURAR_QUARENTENA") {
+      const idRestaurar = Number(body.id);
+
+      if (!idRestaurar) {
+        return NextResponse.json(
+          { error: "ID inválido" },
+          { status: 400 }
+        );
+      }
+
+      const matriculaQuarentena =
+        await prisma.matricula.findFirst({
+          where: {
+            id: idRestaurar,
+            instituicaoId:
+              user.instituicaoId,
+            excluidaEm: {
+              not: null,
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+
+      if (!matriculaQuarentena) {
+        return NextResponse.json(
+          {
+            error:
+              "Matrícula não encontrada na quarentena",
+          },
+          { status: 404 }
+        );
+      }
+
+      const restaurada =
+        await prisma.matricula.update({
+          where: {
+            id: idRestaurar,
+          },
+          data: {
+            excluidaEm: null,
+            excluidaPorId: null,
+            motivoExclusao: null,
+          },
+          include: includeMatriculaAdmin,
+        });
+
+      return NextResponse.json(restaurada);
+    }
+
+
     const id = Number(body.id);
     const status = String(body.status || "").trim();
 
@@ -3084,6 +3178,9 @@ export async function PATCH(request: Request) {
       "SUSPENSA",
       "CANCELADA",
       "CONCLUIDA",
+      "AGUARDANDO",
+      "TRANSFERIDA",
+      "INTERCAMBIO",
     ];
 
     if (!id || !statusPermitidos.includes(status)) {
@@ -3110,6 +3207,7 @@ export async function PATCH(request: Request) {
     let statusItens: string | null = null;
 
     if (status === "A_INICIAR") statusItens = "A_CURSAR";
+    if (status === "AGUARDANDO") statusItens = "A_CURSAR";
     if (status === "ATIVA") statusItens = "EM_CURSO";
     if (status === "TRANCADA") statusItens = "TRANCADO";
     if (status === "CANCELADA") statusItens = "CANCELADO";
@@ -3149,62 +3247,104 @@ export async function DELETE(request: Request) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    if (
+      !user ||
+      (
+        user.role !== "ADMIN" &&
+        user.role !== "SUPER_ADMIN"
+      )
+    ) {
+      return NextResponse.json(
+        { error: "Sem permissão" },
+        { status: 403 }
+      );
     }
 
-    const body = (await request.json()) as MatriculaBody;
+    const body =
+      (await request.json()) as MatriculaBody;
+
     const id = Number(body.id);
 
+    const motivoExclusao = String(
+      body.motivoExclusao || ""
+    ).trim();
+
     if (!id) {
-      return NextResponse.json({ error: "ID inválido" }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID inválido" },
+        { status: 400 }
+      );
     }
 
-    const matricula = await prisma.matricula.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
-      select: { id: true },
-    });
+    if (motivoExclusao.length < 3) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o motivo para enviar a matrícula à quarentena.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const matricula =
+      await prisma.matricula.findFirst({
+        where: {
+          id,
+          instituicaoId:
+            user.instituicaoId,
+          excluidaEm: null,
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
 
     if (!matricula) {
       return NextResponse.json(
-        { error: "Matrícula não encontrada" },
+        {
+          error:
+            "Matrícula não encontrada ou já está na quarentena.",
+        },
         { status: 404 }
       );
     }
 
-    await prisma.itemMatricula.deleteMany({
-      where: {
-        matriculaId: id,
-        instituicaoId: user.instituicaoId,
-      },
-    });
+    const atualizada =
+      await prisma.matricula.update({
+        where: {
+          id,
+        },
+        data: {
+          excluidaEm: new Date(),
+          excluidaPorId: user.id,
+          motivoExclusao,
+        },
+        select: {
+          id: true,
+          status: true,
+          excluidaEm: true,
+          excluidaPorId: true,
+          motivoExclusao: true,
+        },
+      });
 
-    await prisma.lancamentoFinanceiro.deleteMany({
-      where: {
-        matriculaId: id,
-        instituicaoId: user.instituicaoId,
-      },
+    return NextResponse.json({
+      ok: true,
+      quarentena: true,
+      matricula: atualizada,
     });
-
-    await prisma.documentoAluno.deleteMany({
-      where: {
-        matriculaId: id,
-        instituicaoId: user.instituicaoId,
-      },
-    });
-
-    await prisma.matricula.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Erro ao enviar matrícula para quarentena:",
+      error
+    );
+
     return NextResponse.json(
-      { error: "Erro ao excluir matrícula" },
+      {
+        error:
+          "Erro ao enviar matrícula para quarentena",
+      },
       { status: 500 }
     );
   }

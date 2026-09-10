@@ -1140,6 +1140,9 @@ model Matricula {
   poloId                                  Int?
   status                                  StatusMatricula @default(ATIVA)
   updatedAt                               DateTime        @updatedAt
+  excluidaEm                              DateTime?
+  excluidaPorId                           Int?
+  motivoExclusao                          String?         @db.Text
   cursoId                                 Int?
   semestre                                Int?
   dataPrimeiroVencimento                  DateTime?
@@ -1208,6 +1211,7 @@ model Matricula {
   @@index([confirmacaoMenorPorFuncionarioId])
   @@index([alunoMenorNoMomentoMatricula])
   @@index([turmaPrincipalId])
+  @@index([instituicaoId, excluidaEm])
 }
 
 model ItemMatricula {
@@ -8569,6 +8573,9 @@ enum StatusMatricula {
   CONCLUIDA
   A_INICIAR
   SUSPENSA
+  AGUARDANDO
+  TRANSFERIDA
+  INTERCAMBIO
 }
 
 enum SituacaoFinal {

@@ -6,6 +6,7 @@ import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import { useTranslations } from "next-intl";
 
 type CursoOption = {
   id: number;
@@ -97,6 +98,9 @@ type CursoSemestreOption = {
 type MatriculaApi = {
   id: number;
   status?: string;
+  excluidaEm?: string | null;
+  excluidaPorId?: number | null;
+  motivoExclusao?: string | null;
   periodoLetivo?: string | null;
   modalidade?: string | null;
   semestre?: number | null;
@@ -191,6 +195,7 @@ function lerIdPositivoDaUrl(
 
 function AdminMatriculasPage() {
   const searchParams = useSearchParams();
+  const t = useTranslations("AdminMatriculasQuarentena");
   const [busca, setBusca] = useState("");
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
@@ -200,6 +205,21 @@ function AdminMatriculasPage() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
+
+  const [modoQuarentena, setModoQuarentena] =
+    useState(false);
+
+  const [filtroStatusMatricula, setFiltroStatusMatricula] =
+    useState("TODOS");
+
+  const [modalQuarentenaAberto, setModalQuarentenaAberto] =
+    useState(false);
+
+  const [matriculaQuarentenaAlvo, setMatriculaQuarentenaAlvo] =
+    useState<MatriculaApi | null>(null);
+
+  const [motivoExclusao, setMotivoExclusao] =
+    useState("");
   const [matriculaEditando, setMatriculaEditando] = useState<MatriculaEdicao | null>(null);
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasSelecionadas, setDisciplinasExtrasSelecionadas] = useState<number[]>([]);
@@ -322,12 +342,65 @@ function AdminMatriculasPage() {
     ]
   );
 
+  async function carregarModoMatriculas(
+    quarentena: boolean
+  ) {
+    setLoading(true);
+
+    try {
+      const endpoint = quarentena
+        ? "/api/matricula?quarentena=1"
+        : "/api/matricula";
+
+      const res = await fetch(endpoint, {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await res
+        .json()
+        .catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+            t("messages.loadError")
+        );
+      }
+
+      setMatriculas(
+        Array.isArray(data) ? data : []
+      );
+
+      setModoQuarentena(quarentena);
+      setFiltroPeriodoMatricula("TODAS");
+      setFiltroStatusMatricula("TODOS");
+      setMatriculaExpandidaId(null);
+    } catch (error) {
+      console.error(
+        "Erro ao alternar listagem de matriculas:",
+        error
+      );
+
+      setToast({
+        tipo: "erro",
+        mensagem: t("messages.loadError"),
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function carregarTudo() {
     setLoading(true);
 
     try {
       try {
-        const resMat = await fetch("/api/matricula", {
+        const resMat = await fetch(
+          modoQuarentena
+            ? "/api/matricula?quarentena=1"
+            : "/api/matricula",
+          {
           credentials: "include",
           cache: "no-store",
         });
@@ -1319,11 +1392,34 @@ function AdminMatriculasPage() {
         itensTexto.includes(termo);
 
 
-      const batePeriodo = dataNoPeriodo(m.createdAt, filtroPeriodoMatricula);
+      const dataReferencia =
+        modoQuarentena
+          ? m.excluidaEm
+          : m.createdAt;
 
-      return bateBusca && batePeriodo;
+      const batePeriodo = dataNoPeriodo(
+        dataReferencia,
+        filtroPeriodoMatricula
+      );
+
+      const bateStatus =
+        filtroStatusMatricula === "TODOS" ||
+        String(m.status || "") ===
+          filtroStatusMatricula;
+
+      return (
+        bateBusca &&
+        batePeriodo &&
+        bateStatus
+      );
     });
-  }, [matriculas, busca, filtroPeriodoMatricula]);
+  }, [
+    matriculas,
+    busca,
+    filtroPeriodoMatricula,
+    filtroStatusMatricula,
+    modoQuarentena,
+  ]);
   const cursoSelecionadoObj = useMemo(() => {
     return cursos.find((c) => c.id === Number(cursoId)) ?? null;
   }, [cursos, cursoId]);
@@ -2214,42 +2310,210 @@ function AdminMatriculasPage() {
     }
   }
 
-  async function excluirMatricula(id: number) {
-    setConfirmTitulo("Excluir matrícula");
-    setConfirmMensagem(
-      "Tem certeza que deseja excluir esta matrícula? Esta ação não poderá ser desfeita."
-    );
+  function abrirModalQuarentena(
+    matricula: MatriculaApi
+  ) {
+    setMatriculaQuarentenaAlvo(matricula);
+    setMotivoExclusao("");
+    setModalQuarentenaAberto(true);
+  }
 
-    setConfirmAcao(() => async () => {
+  function fecharModalQuarentena() {
+    if (
+      matriculaQuarentenaAlvo &&
+      removingId ===
+        matriculaQuarentenaAlvo.id
+    ) {
+      return;
+    }
 
-      setRemovingId(id);
-      try {
-        const res = await fetch("/api/matricula", {
+    setModalQuarentenaAberto(false);
+    setMatriculaQuarentenaAlvo(null);
+    setMotivoExclusao("");
+  }
+
+  async function confirmarEnvioQuarentena() {
+    const matricula =
+      matriculaQuarentenaAlvo;
+
+    if (!matricula) {
+      return;
+    }
+
+    const motivo = motivoExclusao.trim();
+
+    if (motivo.length < 3) {
+      setToast({
+        tipo: "erro",
+        mensagem:
+          t("messages.reasonRequired"),
+      });
+
+      return;
+    }
+
+    setRemovingId(matricula.id);
+
+    try {
+      const res = await fetch(
+        "/api/matricula",
+        {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
           credentials: "include",
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({
+            id: matricula.id,
+            motivoExclusao: motivo,
+          }),
+        }
+      );
+
+      const data = await res
+        .json()
+        .catch(() => null);
+
+      if (!res.ok) {
+        setToast({
+          tipo: "erro",
+          mensagem:
+            data?.error ??
+            t("messages.moveError"),
         });
 
-        const data = await res.json();
+        return;
+      }
 
-        if (!res.ok) {
+      setMatriculas((prev) =>
+        prev.filter(
+          (item) =>
+            item.id !== matricula.id
+        )
+      );
+
+      setModalQuarentenaAberto(false);
+      setMatriculaQuarentenaAlvo(null);
+      setMotivoExclusao("");
+      setMatriculaExpandidaId(null);
+
+      setToast({
+        tipo: "sucesso",
+        mensagem: t(
+          "messages.moveSuccess",
+          {
+            id: matricula.id,
+          }
+        ),
+      });
+    } catch (error) {
+      console.error(
+        "Erro ao mover matricula para quarentena:",
+        error
+      );
+
+      setToast({
+        tipo: "erro",
+        mensagem:
+          t("messages.moveError"),
+      });
+    } finally {
+      setRemovingId(null);
+    }
+  }
+
+  async function restaurarMatricula(
+    id: number
+  ) {
+    setConfirmTitulo(
+      t("messages.restoreConfirmTitle")
+    );
+
+    setConfirmMensagem(
+      t("messages.restoreConfirmMessage")
+    );
+
+    setConfirmAcao(
+      () => async () => {
+        setRemovingId(id);
+
+        try {
+          const res = await fetch(
+            "/api/matricula",
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                id,
+                acao:
+                  "RESTAURAR_QUARENTENA",
+              }),
+            }
+          );
+
+          const data = await res
+            .json()
+            .catch(() => null);
+
+          if (!res.ok) {
+            setToast({
+              tipo: "erro",
+              mensagem:
+                data?.error ??
+                t(
+                  "messages.restoreError"
+                ),
+            });
+
+            return;
+          }
+
+          setMatriculas((prev) =>
+            prev.filter(
+              (item) =>
+                item.id !== id
+            )
+          );
+
+          setMatriculaExpandidaId(
+            (atual) =>
+              atual === id
+                ? null
+                : atual
+          );
+
+          setToast({
+            tipo: "sucesso",
+            mensagem: t(
+              "messages.restoreSuccess",
+              { id }
+            ),
+          });
+        } catch (error) {
+          console.error(
+            "Erro ao restaurar matricula:",
+            error
+          );
+
           setToast({
             tipo: "erro",
-            mensagem: data?.error ?? "Erro ao excluir matrícula.",
+            mensagem:
+              t(
+                "messages.restoreError"
+              ),
           });
-
-          return;
+        } finally {
+          setRemovingId(null);
         }
-
-        setMatriculas((prev) => prev.filter((m) => m.id !== id));
-      } finally {
-        setRemovingId(null);
       }
-    });
+    );
 
     setConfirmModalAberto(true);
-    return;
   }
 
   async function alterarStatusMatricula(id: number, status: string) {
@@ -2273,6 +2537,67 @@ function AdminMatriculasPage() {
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
       setErro("Erro ao atualizar status da matrícula.");
+    }
+  }
+
+  function classeStatusMatricula(
+    status?: string
+  ) {
+    switch (status) {
+      case "ATIVA":
+        return "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300";
+
+      case "A_INICIAR":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300";
+
+      case "AGUARDANDO":
+        return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200";
+
+      case "TRANCADA":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-300";
+
+      case "SUSPENSA":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-950/50 dark:text-orange-300";
+
+      case "TRANSFERIDA":
+        return "bg-cyan-100 text-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-300";
+
+      case "INTERCAMBIO":
+        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-300";
+
+      case "CONCLUIDA":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-950/50 dark:text-purple-300";
+
+      case "CANCELADA":
+      default:
+        return "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300";
+    }
+  }
+
+  function labelStatusMatricula(
+    status?: string
+  ) {
+    switch (status) {
+      case "AGUARDANDO":
+        return t("status.AGUARDANDO");
+      case "A_INICIAR":
+        return t("status.A_INICIAR");
+      case "ATIVA":
+        return t("status.ATIVA");
+      case "TRANCADA":
+        return t("status.TRANCADA");
+      case "SUSPENSA":
+        return t("status.SUSPENSA");
+      case "TRANSFERIDA":
+        return t("status.TRANSFERIDA");
+      case "INTERCAMBIO":
+        return t("status.INTERCAMBIO");
+      case "CANCELADA":
+        return t("status.CANCELADA");
+      case "CONCLUIDA":
+        return t("status.CONCLUIDA");
+      default:
+        return status || t("status.ATIVA");
     }
   }
 
@@ -3384,6 +3709,38 @@ function AdminMatriculasPage() {
             {/* ESQUERDA */}
             <h2 className="text-lg font-semibold">Matrículas cadastradas</h2>
 
+            <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-900">
+              <button
+                type="button"
+                onClick={() =>
+                  carregarModoMatriculas(false)
+                }
+                className={[
+                  "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                  !modoQuarentena
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-800",
+                ].join(" ")}
+              >
+                {t("tabs.matriculas")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  carregarModoMatriculas(true)
+                }
+                className={[
+                  "rounded-lg px-3 py-2 text-sm font-semibold transition",
+                  modoQuarentena
+                    ? "bg-amber-600 text-white shadow-sm"
+                    : "text-slate-700 hover:bg-white dark:text-slate-200 dark:hover:bg-slate-800",
+                ].join(" ")}
+              >
+                {t("tabs.quarentena")}
+              </button>
+            </div>
+
             {/* MEIO (busca + filtro) */}
             <div className="flex gap-2 w-full md:w-auto">
               <input
@@ -3391,7 +3748,7 @@ function AdminMatriculasPage() {
                 placeholder="Buscar por aluno, vendedor, curso, turma, disciplina, professor, status ou ID"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                className="w-full md:w-[400px] border rounded-xl px-3 py-2"
+                className="w-full md:w-[400px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
 
               <select
@@ -3401,13 +3758,55 @@ function AdminMatriculasPage() {
                     e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
                   )
                 }
-                className="w-[180px] border rounded-xl px-3 py-2 bg-white"
+                className="w-[180px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
                 <option value="HOJE">Hoje</option>
                 <option value="ONTEM">Ontem</option>
                 <option value="7_DIAS">7 dias</option>
                 <option value="MES">Mês</option>
                 <option value="TODAS">Todas</option>
+              </select>
+
+              <select
+                value={filtroStatusMatricula}
+                onChange={(e) =>
+                  setFiltroStatusMatricula(
+                    e.target.value
+                  )
+                }
+                aria-label={t("filterStatus")}
+                className="w-[190px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              >
+                <option value="TODOS">
+                  {t("status.TODOS")}
+                </option>
+                <option value="AGUARDANDO">
+                  {t("status.AGUARDANDO")}
+                </option>
+                <option value="A_INICIAR">
+                  {t("status.A_INICIAR")}
+                </option>
+                <option value="ATIVA">
+                  {t("status.ATIVA")}
+                </option>
+                <option value="TRANCADA">
+                  {t("status.TRANCADA")}
+                </option>
+                <option value="SUSPENSA">
+                  {t("status.SUSPENSA")}
+                </option>
+                <option value="TRANSFERIDA">
+                  {t("status.TRANSFERIDA")}
+                </option>
+                <option value="INTERCAMBIO">
+                  {t("status.INTERCAMBIO")}
+                </option>
+                <option value="CANCELADA">
+                  {t("status.CANCELADA")}
+                </option>
+                <option value="CONCLUIDA">
+                  {t("status.CONCLUIDA")}
+                </option>
               </select>
             </div>
 
@@ -3481,21 +3880,43 @@ function AdminMatriculasPage() {
 
                         <td className="px-4 py-3">
                           <span
-                            className={`inline-block text-xs px-3 py-1 rounded-full ${m.status === "ATIVA"
-                              ? "bg-green-100 text-green-700"
-                              : m.status === "A_INICIAR"
-                                ? "bg-blue-100 text-blue-700"
-                                : m.status === "TRANCADA"
-                                  ? "bg-yellow-100 text-yellow-700"
-                                  : m.status === "SUSPENSA"
-                                    ? "bg-orange-100 text-orange-700"
-                                    : m.status === "CONCLUIDA"
-                                      ? "bg-purple-100 text-purple-700"
-                                      : "bg-red-100 text-red-700"
-                              }`}
+                            className={`inline-block text-xs px-3 py-1 rounded-full ${classeStatusMatricula(m.status)}`}
                           >
-                            {m.status || "ATIVA"}
+                            {labelStatusMatricula(m.status)}
                           </span>
+
+                          {modoQuarentena && (
+                            <div className="mt-2 max-w-[320px] space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                              <p>
+                                <span className="font-semibold">
+                                  {t("quarantine.excludedAt")}:
+                                </span>{" "}
+                                {m.excluidaEm
+                                  ? new Date(
+                                      m.excluidaEm
+                                    ).toLocaleString()
+                                  : "—"}
+                              </p>
+
+                              <p>
+                                <span className="font-semibold">
+                                  {t("quarantine.reason")}:
+                                </span>{" "}
+                                {m.motivoExclusao ||
+                                  "—"}
+                              </p>
+
+                              <p>
+                                <span className="font-semibold">
+                                  {t("quarantine.excludedBy")}:
+                                </span>{" "}
+                                {m.excluidaPorId
+                                  ? "#" +
+                                    m.excluidaPorId
+                                  : "—"}
+                              </p>
+                            </div>
+                          )}
                         </td>
 
                         <td className="px-4 py-3">
@@ -3528,52 +3949,114 @@ function AdminMatriculasPage() {
                         </td>
 
                         <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-2">
+                          {modoQuarentena ? (
                             <button
+                              type="button"
                               onClick={() =>
-                                setMatriculaExpandidaId(expandida ? null : m.id)
+                                restaurarMatricula(m.id)
                               }
-                              className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                              disabled={
+                                removingId === m.id
+                              }
+                              className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/70"
                             >
+                              {removingId === m.id
+                                ? t("actions.restaurando")
+                                : t("actions.restaurar")}
+                            </button>
+                          ) : (
+                          <div className="flex flex-wrap gap-2">
+
+                            <button
+
+                              onClick={() =>
+
+                                setMatriculaExpandidaId(expandida ? null : m.id)
+
+                              }
+
+                              className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+
+                            >
+
                               {expandida ? "Ocultar detalhes" : "Ver detalhes"}
+
                             </button>
 
+
+
                             <button
+
                               onClick={() => abrirEdicao(m)}
+
                               className="px-3 py-2 rounded-xl text-sm font-semibold transition border bg-yellow-500 text-white hover:bg-yellow-600"
+
                             >
+
                               ✏️ Editar
+
                             </button>
 
+
+
                             <button
+
                               onClick={() => abrirPdfContratoDaMatricula(m.id)}
+
                               className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400 hover:text-green-700"
+
                             >
+
                               📄 Contrato
+
                             </button>
 
+
+
                             <button
+
                               onClick={() => gerarDocumentoPhanyxDaMatricula(m.id)}
+
                               className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-indigo-400 hover:text-indigo-700"
+
                             >
+
                               📄 Emitir outro documento
+
                             </button>
 
+
+
                             <button
+
                               onClick={() => assinarContratoDaMatricula(m.id)}
+
                               className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+
                             >
+
                               ✍️ Assinar
+
                             </button>
 
+
+
                             <button
+
                               onClick={() => abrirAssinaturaSecretaria(m.id)}
+
                               className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400 hover:text-purple-700"
+
                             >
+
                               🖊️ Assinar Secretaria
+
                             </button>
+
+
 
                           </div>
+                          )}
                         </td>
                       </tr>
 
@@ -3613,6 +4096,18 @@ function AdminMatriculasPage() {
 
                               <div className="flex flex-wrap gap-2">
                                 <button
+                                  onClick={() =>
+                                    alterarStatusMatricula(
+                                      m.id,
+                                      "AGUARDANDO"
+                                    )
+                                  }
+                                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 hover:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                >
+                                  {t("actions.aguardando")}
+                                </button>
+
+                                <button
                                   onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
                                   className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                                 >
@@ -3641,6 +4136,30 @@ function AdminMatriculasPage() {
                                 </button>
 
                                 <button
+                                  onClick={() =>
+                                    alterarStatusMatricula(
+                                      m.id,
+                                      "TRANSFERIDA"
+                                    )
+                                  }
+                                  className="rounded-xl border border-cyan-300 bg-white px-3 py-2 text-sm text-cyan-800 hover:bg-cyan-50 dark:border-cyan-800 dark:bg-slate-950 dark:text-cyan-300 dark:hover:bg-cyan-950/30"
+                                >
+                                  {t("actions.transferir")}
+                                </button>
+
+                                <button
+                                  onClick={() =>
+                                    alterarStatusMatricula(
+                                      m.id,
+                                      "INTERCAMBIO"
+                                    )
+                                  }
+                                  className="rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm text-indigo-800 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-slate-950 dark:text-indigo-300 dark:hover:bg-indigo-950/30"
+                                >
+                                  {t("actions.intercambio")}
+                                </button>
+
+                                <button
                                   onClick={() => alterarStatusMatricula(m.id, "CONCLUIDA")}
                                   className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400"
                                 >
@@ -3655,7 +4174,7 @@ function AdminMatriculasPage() {
                                 </button>
 
                                 <button
-                                  onClick={() => excluirMatricula(m.id)}
+                                  onClick={() => abrirModalQuarentena(m)}
                                   disabled={removingId === m.id}
                                   className={[
                                     "px-4 py-2 rounded-xl text-sm font-semibold transition border",
@@ -3664,7 +4183,9 @@ function AdminMatriculasPage() {
                                       : "bg-white hover:border-red-400 hover:text-red-600",
                                   ].join(" ")}
                                 >
-                                  {removingId === m.id ? "Excluindo..." : "Excluir"}
+                                  {removingId === m.id
+                                    ? t("actions.movendo")
+                                    : t("actions.moverQuarentena")}
                                 </button>
                               </div>
 
@@ -4248,6 +4769,123 @@ function AdminMatriculasPage() {
           </div>
         </div>
       )}
+
+      {modalQuarentenaAberto &&
+        matriculaQuarentenaAlvo && (
+          <div
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {t("modal.title")}
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    {t("modal.description")}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={fecharModalQuarentena}
+                  aria-label={t("modal.cancel")}
+                  className="rounded-lg px-2 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                >
+                  ?
+                </button>
+              </div>
+
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-slate-700 dark:text-slate-200">
+                  <span className="font-semibold">
+                    {t("modal.student")}:
+                  </span>{" "}
+                  {matriculaQuarentenaAlvo
+                    .aluno?.nome ||
+                    "—"}
+                </p>
+
+                <p className="mt-1 text-slate-700 dark:text-slate-200">
+                  <span className="font-semibold">
+                    {t("modal.course")}:
+                  </span>{" "}
+                  {matriculaQuarentenaAlvo
+                    .curso?.nome ||
+                    "—"}
+                </p>
+
+                <p className="mt-1 text-slate-700 dark:text-slate-200">
+                  <span className="font-semibold">
+                    {t("modal.registration")}:
+                  </span>{" "}
+                  #{matriculaQuarentenaAlvo.id}
+                </p>
+              </div>
+
+              <div className="mt-5">
+                <label className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {t("modal.reasonLabel")} *
+                </label>
+
+                <textarea
+                  value={motivoExclusao}
+                  onChange={(e) =>
+                    setMotivoExclusao(
+                      e.target.value
+                    )
+                  }
+                  rows={4}
+                  maxLength={1000}
+                  placeholder={t(
+                    "modal.reasonPlaceholder"
+                  )}
+                  className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
+                />
+              </div>
+
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                {t("modal.note")}
+              </div>
+
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={fecharModalQuarentena}
+                  disabled={
+                    removingId ===
+                    matriculaQuarentenaAlvo.id
+                  }
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  {t("modal.cancel")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={
+                    confirmarEnvioQuarentena
+                  }
+                  disabled={
+                    removingId ===
+                      matriculaQuarentenaAlvo.id ||
+                    motivoExclusao.trim()
+                      .length < 3
+                  }
+                  className="rounded-xl bg-amber-600 px-4 py-2 font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {removingId ===
+                  matriculaQuarentenaAlvo.id
+                    ? t("actions.movendo")
+                    : t("modal.confirm")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       {modalSecretariaAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
