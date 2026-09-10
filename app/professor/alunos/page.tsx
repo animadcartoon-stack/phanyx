@@ -216,6 +216,9 @@ export default function ProfessorAlunosPage() {
       "CARDS"
     );
 
+  const [alunoExpandidoId, setAlunoExpandidoId] =
+    useState<number | null>(null);
+
   const [alunos, setAlunos] = useState<AlunoProfessor[]>([]);
   const [turmas, setTurmas] = useState<TurmaFiltro[]>([]);
 
@@ -850,88 +853,278 @@ export default function ProfessorAlunosPage() {
           ) : (
             <div
               key={aluno.itemMatriculaId}
-              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+              className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div className="grid gap-4 md:grid-cols-[minmax(220px,1.2fr)_minmax(260px,1.5fr)_minmax(150px,.7fr)_minmax(130px,.6fr)] md:items-center">
-                <div className="min-w-0">
-                  <p className="truncate font-bold text-slate-900 dark:text-white">
-                    {aluno.nome}
-                  </p>
+              <button
+                type="button"
+                aria-expanded={
+                  alunoExpandidoId ===
+                  aluno.itemMatriculaId
+                }
+                onClick={() =>
+                  setAlunoExpandidoId(
+                    alunoExpandidoId ===
+                      aluno.itemMatriculaId
+                      ? null
+                      : aluno.itemMatriculaId
+                  )
+                }
+                className="grid w-full cursor-pointer gap-3 px-4 py-3 text-left transition hover:bg-slate-50 focus:bg-slate-50 focus:outline-none dark:hover:bg-slate-800/60 dark:focus:bg-slate-800/60 lg:grid-cols-[minmax(160px,1fr)_minmax(150px,.9fr)_minmax(230px,1.5fr)_minmax(110px,.7fr)_minmax(95px,.55fr)_minmax(120px,.7fr)_32px] lg:items-center"
+              >
+                <p className="truncate font-bold text-slate-900 dark:text-white">
+                  {aluno.nome}
+                </p>
 
-                  <p className="truncate text-sm text-slate-500 dark:text-slate-400">
-                    {aluno.email ||
-                      "-"}
-                  </p>
+                <p className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {aluno.turma?.nome ||
+                    "-"}
+                </p>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="truncate text-sm text-slate-600 dark:text-slate-300">
+                  {aluno.disciplina?.nome ||
+                    "-"}
+                </p>
+
+                <p className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {labelStatusDisciplina(
+                    aluno.statusDisciplina,
+                    t
+                  )}
+                </p>
+
+                <p className="truncate text-sm text-slate-700 dark:text-slate-200">
+                  <span className="font-semibold">
                     {t(
-                      "registration"
-                    )}
-                    :{" "}
-                    {aluno.matricula ||
-                      "-"}
-                  </p>
-                </div>
+                      "grades.average"
+                    )}:
+                  </span>{" "}
+                  {aluno.media ?? "-"}
+                </p>
 
-                <div className="min-w-0 text-sm">
-                  <p className="truncate font-semibold text-slate-800 dark:text-slate-200">
-                    {aluno.turma
-                      ?.nome || "-"}
-                  </p>
+                <p className="truncate text-sm text-slate-700 dark:text-slate-200">
+                  <span className="font-semibold">
+                    {t(
+                      "attendance.title"
+                    )}:
+                  </span>{" "}
+                  {aluno.frequencia
+                    .percentual ?? "-"}%
+                </p>
 
-                  <p className="truncate text-slate-500 dark:text-slate-400">
-                    {aluno.disciplina
-                      ?.nome || "-"}
-                  </p>
-                </div>
+                <span
+                  aria-hidden="true"
+                  className="flex h-7 w-7 items-center justify-center justify-self-end rounded-lg border border-slate-200 bg-slate-50 text-base font-black text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300"
+                >
+                  {alunoExpandidoId ===
+                  aluno.itemMatriculaId
+                    ? "-"
+                    : "+"}
+                </span>
+              </button>
 
-                <div className="text-sm">
-                  <p className="font-semibold text-slate-700 dark:text-slate-200">
-                    {labelStatusDisciplina(
-                      aluno.statusDisciplina,
-                      t
-                    )}
-                  </p>
+              {alunoExpandidoId ===
+                aluno.itemMatriculaId && (
+                <div className="border-t border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-950/40">
+                  <div className="mb-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
+                    <div>
+                      <p className="mt-1 break-all text-slate-800 dark:text-slate-200">
+                        {aluno.email ||
+                          "-"}
+                      </p>
+                    </div>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {labelStatusAluno(
-                      aluno.statusAluno,
-                      t
-                    )}
-                  </p>
-                </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        {t(
+                          "registration"
+                        )}
+                      </p>
+                      <p className="mt-1 text-slate-800 dark:text-slate-200">
+                        {aluno.matricula ||
+                          "-"}
+                      </p>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-1">
-                  <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {t(
-                        "grades.average"
-                      )}
-                    </p>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        {t(
+                          "semester"
+                        )}
+                      </p>
+                      <p className="mt-1 text-slate-800 dark:text-slate-200">
+                        {aluno.turma
+                          ?.semestre ||
+                          "-"}
+                      </p>
+                    </div>
 
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      {aluno.media ??
-                        "-"}
-                    </p>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        {t(
+                          "studentStatus"
+                        )}
+                      </p>
+                      <p className="mt-1 text-slate-800 dark:text-slate-200">
+                        {labelStatusAluno(
+                          aluno.statusAluno,
+                          t
+                        )}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        {t(
+                          "subjectStatus"
+                        )}
+                      </p>
+                      <p className="mt-1 text-slate-800 dark:text-slate-200">
+                        {labelStatusDisciplina(
+                          aluno.statusDisciplina,
+                          t
+                        )}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {t(
-                        "attendance.title"
-                      )}
-                    </p>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                        {t(
+                          "grades.title"
+                        )}
+                      </p>
 
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      {aluno
-                        .frequencia
-                        .percentual ??
-                        "-"}
-                      %
-                    </p>
+                      <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                        <p>
+                          {t(
+                            "grades.entered"
+                          )}
+                          :{" "}
+                          {
+                            aluno.notas
+                              .length
+                          }
+                        </p>
+
+                        <p>
+                          {t(
+                            "grades.average"
+                          )}
+                          :{" "}
+                          {aluno.media ??
+                            "-"}
+                        </p>
+
+                        <p>
+                          {t(
+                            "grades.values"
+                          )}
+                          :{" "}
+                          {aluno.notas
+                            .length > 0
+                            ? aluno.notas.join(
+                                ", "
+                              )
+                            : "-"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                        {t(
+                          "attendance.title"
+                        )}
+                      </p>
+
+                      <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                        <p>
+                          {t(
+                            "attendance.percentage"
+                          )}
+                          :{" "}
+                          {aluno
+                            .frequencia
+                            .percentual ??
+                            "-"}
+                          %
+                        </p>
+
+                        <p>
+                          {t(
+                            "attendance.presences"
+                          )}
+                          :{" "}
+                          {
+                            aluno
+                              .frequencia
+                              .presente
+                          }
+                        </p>
+
+                        <p>
+                          {t(
+                            "attendance.absences"
+                          )}
+                          :{" "}
+                          {
+                            aluno
+                              .frequencia
+                              .falta
+                          }
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                        {t(
+                          "justifications.title"
+                        )}
+                      </p>
+
+                      <div className="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
+                        <p>
+                          {t(
+                            "justifications.justified"
+                          )}
+                          :{" "}
+                          {
+                            aluno
+                              .frequencia
+                              .justificada
+                          }
+                        </p>
+
+                        <p>
+                          {t(
+                            "justifications.medicalCertificates"
+                          )}
+                          :{" "}
+                          {
+                            aluno
+                              .frequencia
+                              .atestado
+                          }
+                        </p>
+
+                        <p>
+                          {t(
+                            "justifications.totalRecords"
+                          )}
+                          :{" "}
+                          {
+                            aluno
+                              .frequencia
+                              .total
+                          }
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )
           )}
