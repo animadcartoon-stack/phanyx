@@ -101,6 +101,8 @@ model Instituicao {
   presencasAula                  PresencaAula[]
   professores                    Professor[]
   progressoAulas                 ProgressoAula[]
+  sessoesVideoAluno              SessaoVideoAluno[]
+  eventosAprendizagemAluno       EventoAprendizagemAluno[]
   provas                         Prova[]
   questoes                       Questao[]
   respostas                      RespostaProva[]
@@ -695,6 +697,8 @@ model Aluno {
   pagamentos                   Pagamento[]
   presencasAula                PresencaAula[]
   progresso                    ProgressoAula[]
+  sessoesVideo                 SessaoVideoAluno[]
+  eventosAprendizagem          EventoAprendizagemAluno[]
   respostas                    RespostaProva[]
   resultadosFinais             ResultadoFinal[]
   tentativas                   TentativaProva[]
@@ -1001,6 +1005,9 @@ model Disciplina {
   professoresHabilitados          ProfessorDisciplina[]
   aulas                           Aula[]
   atividades                      Atividade[]
+  provas                          Prova[]
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
   substituicoesDocentes           SubstituicaoDocente[]
   itensRematriculaSemestral       RematriculaSemestralItem[]
   disciplinaOrigemRede            Disciplina?                     @relation("DisciplinaPublicacaoRede", fields: [disciplinaOrigemRedeId], references: [id], onDelete: SetNull)
@@ -1047,6 +1054,8 @@ model Turma {
   modulos                         Modulo[]
   notas                           Nota[]
   provas                          Prova[]
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
   resultadosFinais                ResultadoFinal[]
   curso                           Curso?                          @relation(fields: [cursoId], references: [id])
   instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -1265,9 +1274,11 @@ model Aula {
   disciplina          Disciplina?          @relation(fields: [disciplinaId], references: [id], onDelete: SetNull)
   substituicaoDocente SubstituicaoDocente? @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
 
-  materiais MaterialAula[]
-  presencas PresencaAula[]
-  progresso ProgressoAula[]
+  materiais           MaterialAula[]
+  presencas           PresencaAula[]
+  progresso           ProgressoAula[]
+  sessoesVideo        SessaoVideoAluno[]
+  eventosAprendizagem EventoAprendizagemAluno[]
 
   @@unique([turmaId, disciplinaId, ordem])
   @@index([instituicaoId])
@@ -1278,19 +1289,20 @@ model Aula {
 }
 
 model MaterialAula {
-  id            Int          @id @default(autoincrement())
-  tipo          MaterialTipo
-  titulo        String
-  url           String?
-  arquivoNome   String?
-  mimeType      String?
-  tamanho       Int?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  instituicaoId Int
-  aulaId        Int
-  aula          Aula         @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id                  Int                       @id @default(autoincrement())
+  tipo                MaterialTipo
+  titulo              String
+  url                 String?
+  arquivoNome         String?
+  mimeType            String?
+  tamanho             Int?
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+  instituicaoId       Int
+  aulaId              Int
+  aula                Aula                      @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  instituicao         Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  eventosAprendizagem EventoAprendizagemAluno[]
 
   @@index([instituicaoId])
   @@index([aulaId])
@@ -1315,6 +1327,83 @@ model ProgressoAula {
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([aulaId])
+}
+
+enum TipoEventoAprendizagemAluno {
+  AULA_ABERTA
+  MATERIAL_VISUALIZADO
+  MATERIAL_DOWNLOAD
+}
+
+model SessaoVideoAluno {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  alunoId       Int
+  aulaId        Int
+  turmaId       Int
+  disciplinaId  Int
+
+  iniciadoEm       DateTime  @default(now())
+  ultimoRegistroEm DateTime  @default(now())
+  encerradoEm      DateTime?
+
+  posicaoInicialSegundos  Int @default(0)
+  posicaoFinalSegundos    Int @default(0)
+  maiorPosicaoSegundos    Int @default(0)
+  tempoReproducaoSegundos Int @default(0)
+
+  concluida          Boolean @default(false)
+  motivoEncerramento String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  aluno       Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  aula        Aula        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([aulaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([instituicaoId, alunoId, turmaId, disciplinaId])
+  @@index([alunoId, aulaId, iniciadoEm])
+}
+
+model EventoAprendizagemAluno {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  alunoId       Int
+  turmaId       Int
+  disciplinaId  Int
+
+  tipo TipoEventoAprendizagemAluno
+
+  aulaId         Int?
+  materialAulaId Int?
+
+  ocorridoEm DateTime @default(now())
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  instituicao  Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  aluno        Aluno         @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  turma        Turma         @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina   Disciplina    @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  aula         Aula?         @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  materialAula MaterialAula? @relation(fields: [materialAulaId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([aulaId])
+  @@index([materialAulaId])
+  @@index([instituicaoId, alunoId, ocorridoEm])
+  @@index([turmaId, disciplinaId, ocorridoEm])
 }
 
 model Atividade {
@@ -1461,12 +1550,14 @@ model Prova {
   tempoMin              Int?
   tentativasMax         Int         @default(1)
   turmaId               Int
+  disciplinaId          Int?
   substituicaoDocenteId Int?
   updatedAt             DateTime    @updatedAt
   notas                 Nota[]
   instituicao           Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   turma                 Turma                @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina            Disciplina?          @relation(fields: [disciplinaId], references: [id], onDelete: SetNull)
   substituicaoDocente   SubstituicaoDocente? @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
   tipoPublico           String               @default("TURMA")
   exigirAulasConcluidas Boolean              @default(false)
@@ -1482,6 +1573,8 @@ model Prova {
   @@index([instituicaoId, tipoPublico])
   @@index([instituicaoId, disponivelEm])
   @@index([instituicaoId, expiraEm])
+  @@index([disciplinaId])
+  @@index([instituicaoId, turmaId, disciplinaId])
 }
 
 model Questao {
