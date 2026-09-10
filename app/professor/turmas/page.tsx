@@ -57,6 +57,19 @@ function diaSemanaHoje() {
   return ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][dia];
 }
 
+function temAulaNoDia(turma: Turma, dia: string) {
+  const dias = ["Domingo", "Segunda", "Ter?a", "Quarta", "Quinta", "Sexta", "S?bado"];
+  const numeroDia = dias.indexOf(dia);
+
+  if (numeroDia < 0) return false;
+
+  return (turma.horarios || []).some(
+    (horario) =>
+      horario.ativo !== false &&
+      horario.diaSemana === numeroDia
+  );
+}
+
 function statusNormalizado(turma: Turma) {
   return String(turma.statusTurma || turma.statusDisciplina || "").toUpperCase();
 }
@@ -209,7 +222,7 @@ function TurmaAgrupadaCard({
   }, [buscaAtiva]);
 
   const todasDisciplinas = Object.values(turma.disciplinasPorTurno).flat();
-  const temAulaHoje = todasDisciplinas.some((disciplina) => diaDaTurma(disciplina) === hoje);
+  const temAulaHoje = todasDisciplinas.some((disciplina) => temAulaNoDia(disciplina, hoje));
 
   return (
     <article
@@ -309,7 +322,7 @@ function TurmaAgrupadaCard({
                   {periodoAberto && (
                     <div className="space-y-3 border-t border-slate-200 p-4">
                       {disciplinas.map((disciplina) => {
-                        const disciplinaHoje = diaDaTurma(disciplina) === hoje;
+                        const disciplinaHoje = temAulaNoDia(disciplina, hoje);
 
                         return (
                           <div
