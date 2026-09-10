@@ -10,6 +10,18 @@ type TurmaFiltro = {
   disciplinaNome?: string | null;
 };
 
+type OrdenacaoAlunos =
+  | "NOME_ASC"
+  | "NOME_DESC"
+  | "MEDIA_DESC"
+  | "MEDIA_ASC"
+  | "FREQUENCIA_DESC"
+  | "FREQUENCIA_ASC";
+
+type VisualizacaoAlunos =
+  | "CARDS"
+  | "LISTA";
+
 type AlunoProfessor = {
   itemMatriculaId: number;
   alunoId: number;
@@ -193,6 +205,17 @@ export default function ProfessorAlunosPage() {
   const [busca, setBusca] = useState("");
   const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
   const [turmaId, setTurmaId] = useState(searchParams.get("turmaId") || "");
+
+  const [ordenacao, setOrdenacao] =
+    useState<OrdenacaoAlunos>(
+      "NOME_ASC"
+    );
+
+  const [visualizacao, setVisualizacao] =
+    useState<VisualizacaoAlunos>(
+      "CARDS"
+    );
+
   const [alunos, setAlunos] = useState<AlunoProfessor[]>([]);
   const [turmas, setTurmas] = useState<TurmaFiltro[]>([]);
 
@@ -328,6 +351,119 @@ export default function ProfessorAlunosPage() {
       });
   }, [alunos, busca]);
 
+  const alunosExibidos = useMemo(() => {
+    const lista = [
+      ...alunosFiltrados,
+    ];
+
+    const nome = (
+      aluno: AlunoProfessor
+    ) =>
+      String(
+        aluno.nome || ""
+      );
+
+    const media = (
+      aluno: AlunoProfessor,
+      quandoNulo: number
+    ) =>
+      aluno.media == null
+        ? quandoNulo
+        : Number(aluno.media);
+
+    const frequencia = (
+      aluno: AlunoProfessor,
+      quandoNulo: number
+    ) =>
+      aluno.frequencia.percentual ==
+      null
+        ? quandoNulo
+        : Number(
+            aluno.frequencia
+              .percentual
+          );
+
+    switch (ordenacao) {
+      case "NOME_DESC":
+        lista.sort((a, b) =>
+          nome(b).localeCompare(
+            nome(a)
+          )
+        );
+        break;
+
+      case "MEDIA_DESC":
+        lista.sort(
+          (a, b) =>
+            media(
+              b,
+              Number.NEGATIVE_INFINITY
+            ) -
+            media(
+              a,
+              Number.NEGATIVE_INFINITY
+            )
+        );
+        break;
+
+      case "MEDIA_ASC":
+        lista.sort(
+          (a, b) =>
+            media(
+              a,
+              Number.POSITIVE_INFINITY
+            ) -
+            media(
+              b,
+              Number.POSITIVE_INFINITY
+            )
+        );
+        break;
+
+      case "FREQUENCIA_DESC":
+        lista.sort(
+          (a, b) =>
+            frequencia(
+              b,
+              Number.NEGATIVE_INFINITY
+            ) -
+            frequencia(
+              a,
+              Number.NEGATIVE_INFINITY
+            )
+        );
+        break;
+
+      case "FREQUENCIA_ASC":
+        lista.sort(
+          (a, b) =>
+            frequencia(
+              a,
+              Number.POSITIVE_INFINITY
+            ) -
+            frequencia(
+              b,
+              Number.POSITIVE_INFINITY
+            )
+        );
+        break;
+
+      case "NOME_ASC":
+      default:
+        lista.sort((a, b) =>
+          nome(a).localeCompare(
+            nome(b)
+          )
+        );
+        break;
+    }
+
+    return lista;
+  }, [
+    alunosFiltrados,
+    ordenacao,
+  ]);
+
   const sugestoesBusca = useMemo(() => {
     const termo = normalizarTexto(busca);
 
@@ -375,68 +511,247 @@ export default function ProfessorAlunosPage() {
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-3">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            placeholder={t("search.placeholder")}
-            value={busca}
-            onChange={(e) => {
-              setBusca(e.target.value);
-              setSugestoesAbertas(true);
-            }}
-            className="w-full border rounded-lg p-2"
-          />
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <div className="flex flex-col gap-3 md:flex-row">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder={t("search.placeholder")}
+              value={busca}
+              onChange={(e) => {
+                setBusca(e.target.value);
+                setSugestoesAbertas(true);
+              }}
+              onFocus={() =>
+                setSugestoesAbertas(true)
+              }
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-800"
+            />
 
-          {busca.trim() && sugestoesAbertas && (
-            <div className="absolute left-0 right-0 top-[46px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
-              {sugestoesBusca.length === 0 ? (
-                <p className="px-3 py-3 text-sm text-slate-500">
-                  {t("search.noSuggestions")}
-                </p>
-              ) : (
-                sugestoesBusca.map((item) => (
-                  <button
-                    key={item.chave}
-                    type="button"
-                    onClick={() => {
-                      setBusca(item.alunoNome);
-                      setSugestoesAbertas(false);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                    className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
-                  >
-                    <p className="text-sm font-black text-slate-900">
-                      {item.alunoNome}
+            {busca.trim() &&
+              sugestoesAbertas && (
+                <div className="absolute left-0 right-0 top-[48px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+                  {sugestoesBusca.length ===
+                  0 ? (
+                    <p className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
+                      {t(
+                        "search.noSuggestions"
+                      )}
                     </p>
-                    <p className="text-xs text-slate-600">
-                      {t("class", { name: item.turmaNome })} • {item.semestre}
-                    </p>
-                    <p className="text-xs font-semibold text-blue-700">
-                      {item.disciplinaNome}
-                    </p>
-                  </button>
-                ))
+                  ) : (
+                    sugestoesBusca.map(
+                      (item) => (
+                        <button
+                          key={
+                            item.chave
+                          }
+                          type="button"
+                          onClick={() => {
+                            setBusca(
+                              item.alunoNome
+                            );
+                            setSugestoesAbertas(
+                              false
+                            );
+                          }}
+                          className="w-full rounded-xl px-3 py-3 text-left transition hover:bg-slate-100 focus:bg-slate-100 focus:outline-none dark:hover:bg-slate-800 dark:focus:bg-slate-800"
+                        >
+                          <p className="text-sm font-black text-slate-900 dark:text-slate-100">
+                            {
+                              item.alunoNome
+                            }
+                          </p>
+
+                          <p className="text-xs text-slate-600 dark:text-slate-400">
+                            {t(
+                              "class",
+                              {
+                                name:
+                                  item.turmaNome,
+                              }
+                            )}{" "}
+                            ?{" "}
+                            {
+                              item.semestre
+                            }
+                          </p>
+
+                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            {
+                              item.disciplinaNome
+                            }
+                          </p>
+                        </button>
+                      )
+                    )
+                  )}
+                </div>
               )}
-            </div>
-          )}
+          </div>
+
+          <select
+            value={turmaId}
+            onChange={(e) =>
+              setTurmaId(
+                e.target.value
+              )
+            }
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-slate-500 dark:focus:ring-slate-800 md:w-80"
+          >
+            <option value="">
+              {t(
+                "search.allClasses"
+              )}
+            </option>
+
+            {turmas.map(
+              (turma) => (
+                <option
+                  key={turma.id}
+                  value={String(
+                    turma.id
+                  )}
+                >
+                  {turma.nome}
+                </option>
+              )
+            )}
+          </select>
         </div>
 
-        <select
-          value={turmaId}
-          onChange={(e) => setTurmaId(e.target.value)}
-          className="w-full md:w-80 border rounded-lg p-2 bg-white"
-        >
-          <option value="">{t("search.allClasses")}</option>
-          {turmas.map((turma) => (
-            <option key={turma.id} value={String(turma.id)}>
-              {turma.nome}
-              {turma.disciplinaNome ? ` — ${turma.disciplinaNome}` : ""}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="mt-4 flex flex-col gap-4 border-t border-slate-200 pt-4 dark:border-slate-700 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <label
+              htmlFor="ordenacao-alunos"
+              className="whitespace-nowrap text-sm font-bold text-slate-700 dark:text-slate-200"
+            >
+              {t(
+                "controls.sortBy"
+              )}
+            </label>
 
+            <select
+              id="ordenacao-alunos"
+              value={ordenacao}
+              onChange={(e) =>
+                setOrdenacao(
+                  e.target
+                    .value as OrdenacaoAlunos
+                )
+              }
+              className="min-w-[260px] rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-slate-500 dark:focus:ring-slate-800"
+            >
+              <option value="NOME_ASC">
+                {t(
+                  "controls.sort.nameAsc"
+                )}
+              </option>
+
+              <option value="NOME_DESC">
+                {t(
+                  "controls.sort.nameDesc"
+                )}
+              </option>
+
+              <option value="MEDIA_DESC">
+                {t(
+                  "controls.sort.averageDesc"
+                )}
+              </option>
+
+              <option value="MEDIA_ASC">
+                {t(
+                  "controls.sort.averageAsc"
+                )}
+              </option>
+
+              <option value="FREQUENCIA_DESC">
+                {t(
+                  "controls.sort.attendanceDesc"
+                )}
+              </option>
+
+              <option value="FREQUENCIA_ASC">
+                {t(
+                  "controls.sort.attendanceAsc"
+                )}
+              </option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+              {t(
+                "controls.view"
+              )}
+            </span>
+
+            <div className="inline-flex w-fit rounded-xl border border-slate-200 bg-slate-50 p-1 shadow-sm dark:border-slate-700 dark:bg-slate-950">
+              <button
+                type="button"
+                aria-pressed={
+                  visualizacao ===
+                  "CARDS"
+                }
+                onClick={() =>
+                  setVisualizacao(
+                    "CARDS"
+                  )
+                }
+                className={[
+                  "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition",
+                  visualizacao ===
+                  "CARDS"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
+                ].join(" ")}
+              >
+                <span
+                  aria-hidden="true"
+                  className="text-base"
+                >
+                  {"\u25A6"}
+                </span>
+
+                {t(
+                  "controls.cards"
+                )}
+              </button>
+
+              <button
+                type="button"
+                aria-pressed={
+                  visualizacao ===
+                  "LISTA"
+                }
+                onClick={() =>
+                  setVisualizacao(
+                    "LISTA"
+                  )
+                }
+                className={[
+                  "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-bold transition",
+                  visualizacao ===
+                  "LISTA"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
+                ].join(" ")}
+              >
+                <span
+                  aria-hidden="true"
+                  className="text-base"
+                >
+                  {"\u2630"}
+                </span>
+
+                {t(
+                  "controls.list"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       {erro && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {erro}
@@ -447,13 +762,14 @@ export default function ProfessorAlunosPage() {
         <div className="bg-white border rounded-xl p-6 text-gray-600">
           {t("loading")}
         </div>
-      ) : alunosFiltrados.length === 0 ? (
+      ) : alunosExibidos.length === 0 ? (
         <div className="bg-white border rounded-xl p-6 text-gray-600">
           {t("empty")}
         </div>
       ) : (
         <div className="space-y-4">
-          {alunosFiltrados.map((aluno) => (
+          {alunosExibidos.map((aluno) =>
+            visualizacao === "CARDS" ? (
             <div key={aluno.itemMatriculaId} className="bg-white border rounded-xl p-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -531,7 +847,94 @@ export default function ProfessorAlunosPage() {
                 </div>
               </div>
             </div>
-          ))}
+          ) : (
+            <div
+              key={aluno.itemMatriculaId}
+              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+            >
+              <div className="grid gap-4 md:grid-cols-[minmax(220px,1.2fr)_minmax(260px,1.5fr)_minmax(150px,.7fr)_minmax(130px,.6fr)] md:items-center">
+                <div className="min-w-0">
+                  <p className="truncate font-bold text-slate-900 dark:text-white">
+                    {aluno.nome}
+                  </p>
+
+                  <p className="truncate text-sm text-slate-500 dark:text-slate-400">
+                    {aluno.email ||
+                      "-"}
+                  </p>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {t(
+                      "registration"
+                    )}
+                    :{" "}
+                    {aluno.matricula ||
+                      "-"}
+                  </p>
+                </div>
+
+                <div className="min-w-0 text-sm">
+                  <p className="truncate font-semibold text-slate-800 dark:text-slate-200">
+                    {aluno.turma
+                      ?.nome || "-"}
+                  </p>
+
+                  <p className="truncate text-slate-500 dark:text-slate-400">
+                    {aluno.disciplina
+                      ?.nome || "-"}
+                  </p>
+                </div>
+
+                <div className="text-sm">
+                  <p className="font-semibold text-slate-700 dark:text-slate-200">
+                    {labelStatusDisciplina(
+                      aluno.statusDisciplina,
+                      t
+                    )}
+                  </p>
+
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {labelStatusAluno(
+                      aluno.statusAluno,
+                      t
+                    )}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-1">
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {t(
+                        "grades.average"
+                      )}
+                    </p>
+
+                    <p className="font-bold text-slate-900 dark:text-white">
+                      {aluno.media ??
+                        "-"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {t(
+                        "attendance.title"
+                      )}
+                    </p>
+
+                    <p className="font-bold text-slate-900 dark:text-white">
+                      {aluno
+                        .frequencia
+                        .percentual ??
+                        "-"}
+                      %
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+          )}
         </div>
       )}
     </div>

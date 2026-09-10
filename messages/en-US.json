@@ -3604,6 +3604,20 @@
       "noSuggestions": "No suggestions found.",
       "allClasses": "All classes"
     },
+    "controls": {
+      "sortBy": "Sort by",
+      "view": "View",
+      "cards": "Cards",
+      "list": "List",
+      "sort": {
+        "nameAsc": "Name — A to Z",
+        "nameDesc": "Name — Z to A",
+        "averageDesc": "Highest average",
+        "averageAsc": "Lowest average",
+        "attendanceDesc": "Highest attendance",
+        "attendanceAsc": "Lowest attendance"
+      }
+    },
     "fallbacks": {
       "classUnavailable": "Class not available",
       "subjectUnavailable": "Subject not available",

@@ -3604,6 +3604,20 @@
       "noSuggestions": "No se encontraron sugerencias.",
       "allClasses": "Todas las clases"
     },
+    "controls": {
+      "sortBy": "Ordenar por",
+      "view": "Visualización",
+      "cards": "Tarjetas",
+      "list": "Lista",
+      "sort": {
+        "nameAsc": "Nombre — A a Z",
+        "nameDesc": "Nombre — Z a A",
+        "averageDesc": "Mayor promedio",
+        "averageAsc": "Menor promedio",
+        "attendanceDesc": "Mayor asistencia",
+        "attendanceAsc": "Menor asistencia"
+      }
+    },
     "fallbacks": {
       "classUnavailable": "Clase no informada",
       "subjectUnavailable": "Asignatura no informada",

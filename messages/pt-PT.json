@@ -3604,6 +3604,20 @@
       "noSuggestions": "Nenhuma sugestão encontrada.",
       "allClasses": "Todas as turmas"
     },
+    "controls": {
+      "sortBy": "Ordenar por",
+      "view": "Visualização",
+      "cards": "Cartões",
+      "list": "Lista",
+      "sort": {
+        "nameAsc": "Nome — A a Z",
+        "nameDesc": "Nome — Z a A",
+        "averageDesc": "Maior média",
+        "averageAsc": "Menor média",
+        "attendanceDesc": "Maior assiduidade",
+        "attendanceAsc": "Menor assiduidade"
+      }
+    },
     "fallbacks": {
       "classUnavailable": "Turma não informada",
       "subjectUnavailable": "Disciplina não informada",

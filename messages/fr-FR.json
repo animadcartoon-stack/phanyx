@@ -3604,6 +3604,20 @@
       "noSuggestions": "Aucune suggestion trouvée.",
       "allClasses": "Toutes les classes"
     },
+    "controls": {
+      "sortBy": "Trier par",
+      "view": "Affichage",
+      "cards": "Cartes",
+      "list": "Liste",
+      "sort": {
+        "nameAsc": "Nom — A à Z",
+        "nameDesc": "Nom — Z à A",
+        "averageDesc": "Moyenne la plus élevée",
+        "averageAsc": "Moyenne la plus faible",
+        "attendanceDesc": "Assiduité la plus élevée",
+        "attendanceAsc": "Assiduité la plus faible"
+      }
+    },
     "fallbacks": {
       "classUnavailable": "Classe non renseignée",
       "subjectUnavailable": "Matière non renseignée",
