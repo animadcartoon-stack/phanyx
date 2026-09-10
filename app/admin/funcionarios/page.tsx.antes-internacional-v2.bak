@@ -7,12 +7,6 @@ import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import Link from "next/link";
 import BuscaBanco from "@/components/rh/BuscaBanco";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  getCountries,
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from "libphonenumber-js";
-import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
 
 interface Departamento {
   id: number;
@@ -53,23 +47,6 @@ interface Funcionario {
   cpf?: string | null;
   rg?: string | null;
   telefone?: string | null;
-
-  paisTelefone?: string | null;
-  nacionalidade?: string | null;
-  paisResidencia?: string | null;
-  tipoDocumento?: string | null;
-  numeroDocumento?: string | null;
-  tipoDocumentoFiscal?: string | null;
-  numeroDocumentoFiscal?: string | null;
-
-  endereco?: string | null;
-  numero?: string | null;
-  complemento?: string | null;
-  bairro?: string | null;
-  cidade?: string | null;
-  estado?: string | null;
-  cep?: string | null;
-
   cargo?: string | null;
   cargoId?: number | null;
   setor?: string | null;
@@ -127,159 +104,27 @@ interface Funcionario {
   } | null;
 }
 
-type OpcaoDocumentoInternacional = readonly [string, string];
+function formatarCpf(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
 
-const PAIS_POR_LOCALE: Record<string, CountryCode> = {
-  "pt-BR": "BR",
-  "pt-PT": "PT",
-  "en-US": "US",
-  "es-ES": "ES",
-  "fr-FR": "FR",
-};
-
-function paisInicial(
-  locale: string
-): CountryCode {
-  return PAIS_POR_LOCALE[locale] || "BR";
+  return numeros
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
 }
 
-function codigoPaisValido(
-  valor: unknown
-): valor is CountryCode {
-  return (
-    typeof valor === "string" &&
-    getCountries().includes(
-      valor.toUpperCase() as CountryCode
-    )
-  );
-}
+function formatarTelefone(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
 
-function bandeiraPais(
-  codigo: CountryCode
-) {
-  return codigo
-    .toUpperCase()
-    .replace(
-      /./g,
-      (letra) =>
-        String.fromCodePoint(
-          127397 +
-            letra.charCodeAt(0)
-        )
-    );
-}
-
-function tipoDocumentoPadrao(
-  pais: CountryCode
-) {
-  switch (pais) {
-    case "BR":
-      return "CIN";
-    case "PT":
-      return "CARTAO_CIDADAO";
-    case "US":
-      return "STATE_ID";
-    case "ES":
-      return "DNI";
-    case "FR":
-      return "CNI";
-    default:
-      return "NATIONAL_ID";
-  }
-}
-
-function tipoDocumentoFiscalPadrao(
-  pais: CountryCode
-) {
-  switch (pais) {
-    case "BR":
-      return "CPF";
-    case "PT":
-      return "NIF";
-    case "US":
-      return "SSN";
-    case "ES":
-      return "NIF";
-    case "FR":
-      return "NUMERO_FISCAL";
-    default:
-      return "TAX_ID";
-  }
-}
-
-function formatarCodigoPostal(
-  valor: string,
-  pais: CountryCode
-) {
-  if (pais === "BR") {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 8);
-
-    return numeros.replace(
-      /^(\d{5})(\d)/,
-      "$1-$2"
-    );
+  if (numeros.length <= 10) {
+    return numeros
+      .replace(/^(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
   }
 
-  if (pais === "PT") {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 7);
-
-    return numeros.replace(
-      /^(\d{4})(\d)/,
-      "$1-$2"
-    );
-  }
-
-  if (pais === "US") {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 9);
-
-    return numeros.replace(
-      /^(\d{5})(\d)/,
-      "$1-$2"
-    );
-  }
-
-  if (
-    pais === "ES" ||
-    pais === "FR"
-  ) {
-    return valor
-      .replace(/\D/g, "")
-      .slice(0, 5);
-  }
-
-  return valor
-    .toUpperCase()
-    .slice(0, 20);
-}
-
-function formatarTelefoneExibicao(
-  valor?: string | null
-) {
-  const texto =
-    String(valor || "").trim();
-
-  if (!texto) {
-    return "-";
-  }
-
-  try {
-    const telefone =
-      parsePhoneNumberFromString(
-        texto
-      );
-
-    return telefone?.isValid()
-      ? telefone.formatInternational()
-      : texto;
-  } catch {
-    return texto;
-  }
+  return numeros
+    .replace(/^(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
 }
 
 function dataParaInput(valor?: string | Date | null) {
@@ -295,473 +140,6 @@ function dataParaInput(valor?: string | Date | null) {
 function AdminFuncionariosPage() {
   const t = useTranslations("AdminFuncionarios");
   const locale = useLocale();
-
-  const paisPadrao =
-    paisInicial(locale);
-
-  const paisesDisponiveis =
-    useMemo(() => {
-      const nomesPaises =
-        new Intl.DisplayNames(
-          [locale],
-          { type: "region" }
-        );
-
-      return getCountries()
-        .map((codigo) => ({
-          codigo,
-          nome:
-            nomesPaises.of(codigo) ||
-            codigo,
-        }))
-        .sort((a, b) =>
-          a.nome.localeCompare(
-            b.nome,
-            locale
-          )
-        );
-    }, [locale]);
-
-  function nomePais(
-    codigo?: string | null
-  ) {
-    if (
-      !codigoPaisValido(
-        codigo
-      )
-    ) {
-      return codigo || "-";
-    }
-
-    return (
-      paisesDisponiveis.find(
-        (item) =>
-          item.codigo ===
-          codigo.toUpperCase()
-      )?.nome ||
-      codigo.toUpperCase()
-    );
-  }
-
-  function rotuloTipoDocumento(
-    tipo?: string | null
-  ) {
-    switch (
-      String(tipo || "").toUpperCase()
-    ) {
-      case "CIN":
-        return "CIN";
-      case "RG":
-        return "RG";
-      case "CNH":
-        return t(
-          "international.documentTypes.driverLicense"
-        );
-      case "CARTAO_CIDADAO":
-        return t(
-          "international.documentTypes.citizenCard"
-        );
-      case "STATE_ID":
-        return t(
-          "international.documentTypes.stateId"
-        );
-      case "PERMANENT_RESIDENT_CARD":
-        return t(
-          "international.documentTypes.permanentResidentCard"
-        );
-      case "DNI":
-        return "DNI";
-      case "NIE":
-        return "NIE";
-      case "TIE":
-        return "TIE";
-      case "CNI":
-        return "CNI";
-      case "PASSAPORTE":
-      case "PASSPORT":
-        return t(
-          "international.documentTypes.passport"
-        );
-      case "TITULO_RESIDENCIA":
-      case "RESIDENCE_PERMIT":
-        return t(
-          "international.documentTypes.residencePermit"
-        );
-      case "NATIONAL_ID":
-        return t(
-          "international.documentTypes.nationalId"
-        );
-      default:
-        return (
-          tipo ||
-          t(
-            "international.documentTypes.nationalId"
-          )
-        );
-    }
-  }
-
-  function rotuloTipoDocumentoFiscal(
-    tipo?: string | null
-  ) {
-    switch (
-      String(tipo || "").toUpperCase()
-    ) {
-      case "CPF":
-        return "CPF";
-      case "NIF":
-        return "NIF";
-      case "SSN":
-        return "SSN";
-      case "ITIN":
-        return "ITIN";
-      case "NUMERO_FISCAL":
-        return t(
-          "international.fiscalTypes.taxNumber"
-        );
-      case "TAX_ID":
-        return t(
-          "international.fiscalTypes.taxId"
-        );
-      default:
-        return (
-          tipo ||
-          t(
-            "international.fiscalTypes.taxId"
-          )
-        );
-    }
-  }
-
-  function opcoesDocumentoIdentidade(
-    pais: CountryCode
-  ): readonly OpcaoDocumentoInternacional[] {
-    switch (pais) {
-      case "BR":
-        return [
-          ["CIN", "CIN"],
-          ["RG", "RG"],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-        ] as const;
-
-      case "PT":
-        return [
-          [
-            "CARTAO_CIDADAO",
-            t(
-              "international.documentTypes.citizenCard"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "TITULO_RESIDENCIA",
-            t(
-              "international.documentTypes.residencePermit"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-
-      case "US":
-        return [
-          [
-            "STATE_ID",
-            t(
-              "international.documentTypes.stateId"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "PERMANENT_RESIDENT_CARD",
-            t(
-              "international.documentTypes.permanentResidentCard"
-            ),
-          ],
-        ] as const;
-
-      case "ES":
-        return [
-          ["DNI", "DNI"],
-          ["NIE", "NIE"],
-          ["TIE", "TIE"],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-
-      case "FR":
-        return [
-          ["CNI", "CNI"],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "TITULO_RESIDENCIA",
-            t(
-              "international.documentTypes.residencePermit"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-
-      default:
-        return [
-          [
-            "NATIONAL_ID",
-            t(
-              "international.documentTypes.nationalId"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "RESIDENCE_PERMIT",
-            t(
-              "international.documentTypes.residencePermit"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-    }
-  }
-
-  function opcoesDocumentoFiscal(
-    pais: CountryCode
-  ): readonly OpcaoDocumentoInternacional[] {
-    switch (pais) {
-      case "BR":
-        return [["CPF", "CPF"]] as const;
-
-      case "PT":
-        return [["NIF", "NIF"]] as const;
-
-      case "US":
-        return [
-          ["SSN", "SSN"],
-          ["ITIN", "ITIN"],
-          [
-            "TAX_ID",
-            t(
-              "international.fiscalTypes.taxId"
-            ),
-          ],
-        ] as const;
-
-      case "ES":
-        return [
-          ["NIF", "NIF"],
-          ["NIE", "NIE"],
-        ] as const;
-
-      case "FR":
-        return [
-          [
-            "NUMERO_FISCAL",
-            t(
-              "international.fiscalTypes.taxNumber"
-            ),
-          ],
-        ] as const;
-
-      default:
-        return [
-          [
-            "TAX_ID",
-            t(
-              "international.fiscalTypes.taxId"
-            ),
-          ],
-        ] as const;
-    }
-  }
-
-  function rotulosEndereco(
-    pais: CountryCode
-  ) {
-    return {
-      codigoPostal:
-        pais === "BR"
-          ? t(
-              "international.address.postalBR"
-            )
-          : pais === "PT"
-            ? t(
-                "international.address.postalPT"
-              )
-            : pais === "US"
-              ? t(
-                  "international.address.postalUS"
-                )
-              : pais === "FR"
-                ? t(
-                    "international.address.postalFR"
-                  )
-                : pais === "ES"
-                  ? t(
-                      "international.address.postalES"
-                    )
-                  : t(
-                      "international.address.postalGeneric"
-                    ),
-
-      endereco:
-        t(
-          "international.address.streetAddress"
-        ),
-
-      numero:
-        pais === "US"
-          ? t(
-              "international.address.numberUS"
-            )
-          : t(
-              "international.address.number"
-            ),
-
-      complemento:
-        pais === "US"
-          ? t(
-              "international.address.complementUS"
-            )
-          : t(
-              "international.address.complement"
-            ),
-
-      bairro:
-        pais === "PT"
-          ? t(
-              "international.address.districtPT"
-            )
-          : pais === "US"
-            ? t(
-                "international.address.districtUS"
-              )
-            : t(
-                "international.address.district"
-              ),
-
-      cidade:
-        pais === "PT"
-          ? t(
-              "international.address.cityPT"
-            )
-          : t(
-              "international.address.city"
-            ),
-
-      estado:
-        pais === "BR"
-          ? t(
-              "international.address.regionBR"
-            )
-          : pais === "PT"
-            ? t(
-                "international.address.regionPT"
-              )
-            : pais === "US"
-              ? t(
-                  "international.address.regionUS"
-                )
-              : pais === "ES"
-                ? t(
-                    "international.address.regionES"
-                  )
-                : pais === "FR"
-                  ? t(
-                      "international.address.regionFR"
-                    )
-                  : t(
-                      "international.address.regionGeneric"
-                    ),
-    };
-  }
-
-  function mensagemErroApi(
-    data: any,
-    fallback: string
-  ) {
-    switch (
-      String(
-        data?.code || ""
-      ).toUpperCase()
-    ) {
-      case "INVALID_COUNTRY":
-        return t(
-          "international.errors.invalidCountry"
-        );
-      case "INVALID_PHONE_COUNTRY":
-        return t(
-          "international.errors.invalidPhoneCountry"
-        );
-      case "INVALID_PHONE":
-        return t(
-          "international.errors.invalidPhone"
-        );
-      default:
-        return (
-          data?.error ||
-          fallback
-        );
-    }
-  }
 
   function traduzirRole(role?: string) {
     switch (String(role || "").toUpperCase()) {
@@ -813,75 +191,9 @@ function AdminFuncionariosPage() {
     setCriarAcessoSistema,
   ] = useState(true);
 
-  const [
-    paisResidencia,
-    setPaisResidencia,
-  ] = useState<CountryCode>(
-    paisPadrao
-  );
-
-  const [
-    paisTelefone,
-    setPaisTelefone,
-  ] = useState<CountryCode>(
-    paisPadrao
-  );
-
-  const [
-    nacionalidade,
-    setNacionalidade,
-  ] = useState("");
-
-  const [
-    tipoDocumento,
-    setTipoDocumento,
-  ] = useState(
-    tipoDocumentoPadrao(
-      paisPadrao
-    )
-  );
-
-  const [
-    numeroDocumento,
-    setNumeroDocumento,
-  ] = useState("");
-
-  const [
-    tipoDocumentoFiscal,
-    setTipoDocumentoFiscal,
-  ] = useState(
-    tipoDocumentoFiscalPadrao(
-      paisPadrao
-    )
-  );
-
-  const [
-    numeroDocumentoFiscal,
-    setNumeroDocumentoFiscal,
-  ] = useState("");
-
-  const [
-    telefone,
-    setTelefone,
-  ] = useState("");
-
-  const [endereco, setEndereco] =
-    useState("");
-  const [numero, setNumero] =
-    useState("");
-  const [
-    complemento,
-    setComplemento,
-  ] = useState("");
-  const [bairro, setBairro] =
-    useState("");
-  const [cidade, setCidade] =
-    useState("");
-  const [estado, setEstado] =
-    useState("");
-  const [cep, setCep] =
-    useState("");
-
+  const [cpf, setCpf] = useState("");
+  const [rg, setRg] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
   const [cargoId, setCargoId] = useState("");
 
@@ -949,62 +261,13 @@ function AdminFuncionariosPage() {
   const [documentosFuncionario, setDocumentosFuncionario] = useState<
     { tipo: string; titulo: string; arquivo: File | null }[]
   >([
-    {
-      tipo: "DOCUMENTO_IDENTIDADE",
-      titulo: t(
-        "documents.identityDocument"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "DOCUMENTO_FISCAL",
-      titulo: t(
-        "documents.taxDocument"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "PASSAPORTE",
-      titulo: t(
-        "documents.passport"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "CARTEIRA_MOTORISTA",
-      titulo: t(
-        "documents.driverLicense"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "COMPROVANTE_RESIDENCIA",
-      titulo: t(
-        "documents.residenceProof"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "CURRICULO",
-      titulo: t(
-        "documents.resume"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "PORTFOLIO",
-      titulo: t(
-        "documents.portfolio"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "CERTIFICADOS",
-      titulo: t(
-        "documents.certificates"
-      ),
-      arquivo: null,
-    },
+    { tipo: "RG", titulo: "RG", arquivo: null },
+    { tipo: "CPF", titulo: "CPF", arquivo: null },
+    { tipo: "CNH", titulo: "CNH", arquivo: null },
+    { tipo: "COMPROVANTE_RESIDENCIA", titulo: t("documents.residenceProof"), arquivo: null },
+    { tipo: "CURRICULO", titulo: t("documents.resume"), arquivo: null },
+    { tipo: "PORTFOLIO", titulo: t("documents.portfolio"), arquivo: null },
+    { tipo: "CERTIFICADOS", titulo: t("documents.certificates"), arquivo: null },
   ]);
 
   const [linksPortfolio, setLinksPortfolio] = useState([
@@ -1392,94 +655,9 @@ function AdminFuncionariosPage() {
     setCriarAcessoSistema(Boolean(f.user));
     setEmail(f.user?.email || "");
     setRole(String(f.user?.role || "").toUpperCase());
-
-    const paisResidenciaAtual =
-      codigoPaisValido(
-        f.paisResidencia
-      )
-        ? (String(
-            f.paisResidencia
-          ).toUpperCase() as CountryCode)
-        : f.cpf || f.rg
-          ? "BR"
-          : paisPadrao;
-
-    const paisTelefoneAtual =
-      codigoPaisValido(
-        f.paisTelefone
-      )
-        ? (String(
-            f.paisTelefone
-          ).toUpperCase() as CountryCode)
-        : paisResidenciaAtual;
-
-    setPaisResidencia(
-      paisResidenciaAtual
-    );
-    setPaisTelefone(
-      paisTelefoneAtual
-    );
-
-    setNacionalidade(
-      f.nacionalidade || ""
-    );
-
-    setTipoDocumento(
-      f.tipoDocumento ||
-      (f.rg
-        ? "RG"
-        : tipoDocumentoPadrao(
-            paisResidenciaAtual
-          ))
-    );
-
-    setNumeroDocumento(
-      f.numeroDocumento ||
-      f.rg ||
-      ""
-    );
-
-    setTipoDocumentoFiscal(
-      f.tipoDocumentoFiscal ||
-      (f.cpf
-        ? "CPF"
-        : tipoDocumentoFiscalPadrao(
-            paisResidenciaAtual
-          ))
-    );
-
-    setNumeroDocumentoFiscal(
-      f.numeroDocumentoFiscal ||
-      f.cpf ||
-      ""
-    );
-
-    setTelefone(
-      f.telefone || ""
-    );
-
-    setEndereco(
-      f.endereco || ""
-    );
-    setNumero(
-      f.numero || ""
-    );
-    setComplemento(
-      f.complemento || ""
-    );
-    setBairro(
-      f.bairro || ""
-    );
-    setCidade(
-      f.cidade || ""
-    );
-    setEstado(
-      f.estado || ""
-    );
-    setCep(
-      f.cep || ""
-    );
-
+    setCpf(f.cpf || "");
+    setRg(f.rg || "");
+    setTelefone(f.telefone || "");
     setCargo(f.cargo || "");
 
     setCargoId(
@@ -1589,36 +767,9 @@ function AdminFuncionariosPage() {
     setCriarAcessoSistema(true);
     setEmail("");
     setRole("");
-
-    setPaisResidencia(
-      paisPadrao
-    );
-    setPaisTelefone(
-      paisPadrao
-    );
-    setNacionalidade("");
-    setTipoDocumento(
-      tipoDocumentoPadrao(
-        paisPadrao
-      )
-    );
-    setNumeroDocumento("");
-    setTipoDocumentoFiscal(
-      tipoDocumentoFiscalPadrao(
-        paisPadrao
-      )
-    );
-    setNumeroDocumentoFiscal("");
+    setCpf("");
+    setRg("");
     setTelefone("");
-
-    setEndereco("");
-    setNumero("");
-    setComplemento("");
-    setBairro("");
-    setCidade("");
-    setEstado("");
-    setCep("");
-
     setCargo("");
     setCargoId("");
     setCargosDepartamento([]);
@@ -1648,80 +799,6 @@ function AdminFuncionariosPage() {
     setPix("");
     setStatusFuncionario("ATIVO");
     setMotivoStatus("");
-  }
-
-  function alterarPaisResidencia(
-    novoPaisValor: CountryCode
-  ) {
-    if (
-      !codigoPaisValido(
-        novoPaisValor
-      )
-    ) {
-      return;
-    }
-
-    const novoPais =
-      novoPaisValor.toUpperCase() as CountryCode;
-
-    setPaisResidencia(
-      novoPais
-    );
-
-    setCep((atual) =>
-      formatarCodigoPostal(
-        atual,
-        novoPais
-      )
-    );
-
-    if (!telefone.trim()) {
-      setPaisTelefone(
-        novoPais
-      );
-    }
-
-    const tiposIdentidadeValidos =
-      opcoesDocumentoIdentidade(
-        novoPais
-      ).map(
-        ([valor]) =>
-          String(valor)
-      );
-
-    if (
-      !tiposIdentidadeValidos.includes(
-        tipoDocumento
-      )
-    ) {
-      setTipoDocumento(
-        tipoDocumentoPadrao(
-          novoPais
-        )
-      );
-      setNumeroDocumento("");
-    }
-
-    const tiposFiscaisValidos =
-      opcoesDocumentoFiscal(
-        novoPais
-      ).map(
-        ([valor]) =>
-          String(valor)
-      );
-
-    if (
-      !tiposFiscaisValidos.includes(
-        tipoDocumentoFiscal
-      )
-    ) {
-      setTipoDocumentoFiscal(
-        tipoDocumentoFiscalPadrao(
-          novoPais
-        )
-      );
-      setNumeroDocumentoFiscal("");
-    }
   }
 
   function validarRemuneracaoFuncionario() {
@@ -1800,18 +877,12 @@ function AdminFuncionariosPage() {
       return;
     }
 
-    if (
-      criarAcessoSistema &&
-      !email.trim()
-    ) {
+    if (!email.trim()) {
       setErro(t("errors.employeeEmailBeforeContinue"));
       return;
     }
 
-    if (
-      criarAcessoSistema &&
-      !role
-    ) {
+    if (!role) {
       setErro(t("errors.accessProfileBeforeContinue"));
       return;
     }
@@ -1827,25 +898,9 @@ function AdminFuncionariosPage() {
           nome,
           email,
           role,
-
-          paisResidencia,
-          nacionalidade,
-          paisTelefone,
+          cpf,
+          rg,
           telefone,
-
-          tipoDocumento,
-          numeroDocumento,
-          tipoDocumentoFiscal,
-          numeroDocumentoFiscal,
-
-          endereco,
-          numero,
-          complemento,
-          bairro,
-          cidade,
-          estado,
-          cep,
-
           cargo,
           cargoId:
             cargoId
@@ -1873,12 +928,7 @@ function AdminFuncionariosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(
-          mensagemErroApi(
-            data,
-            t("errors.updateEmployee")
-          )
-        );
+        setErro(data.error || t("errors.createEmployee"));
         return;
       }
 
@@ -2002,25 +1052,9 @@ function AdminFuncionariosPage() {
           role: criarAcessoSistema
             ? role
             : "",
-
-          paisResidencia,
-          nacionalidade,
-          paisTelefone,
+          cpf,
+          rg,
           telefone,
-
-          tipoDocumento,
-          numeroDocumento,
-          tipoDocumentoFiscal,
-          numeroDocumentoFiscal,
-
-          endereco,
-          numero,
-          complemento,
-          bairro,
-          cidade,
-          estado,
-          cep,
-
           cargo,
           cargoId:
             cargoId
@@ -2064,12 +1098,7 @@ function AdminFuncionariosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(
-          mensagemErroApi(
-            data,
-            t("errors.createEmployee")
-          )
-        );
+        setErro(data.error || t("errors.updateEmployee"));
         return;
       }
 
@@ -2122,36 +1151,9 @@ function AdminFuncionariosPage() {
       setCriarAcessoSistema(true);
       setEmail("");
       setRole("");
-
-      setPaisResidencia(
-        paisPadrao
-      );
-      setPaisTelefone(
-        paisPadrao
-      );
-      setNacionalidade("");
-      setTipoDocumento(
-        tipoDocumentoPadrao(
-          paisPadrao
-        )
-      );
-      setNumeroDocumento("");
-      setTipoDocumentoFiscal(
-        tipoDocumentoFiscalPadrao(
-          paisPadrao
-        )
-      );
-      setNumeroDocumentoFiscal("");
+      setCpf("");
+      setRg("");
       setTelefone("");
-
-      setEndereco("");
-      setNumero("");
-      setComplemento("");
-      setBairro("");
-      setCidade("");
-      setEstado("");
-      setCep("");
-
       setCargo("");
       setCargoId("");
       setCargosDepartamento([]);
@@ -2207,75 +1209,58 @@ function AdminFuncionariosPage() {
   }, []);
 
   const funcionariosFiltrados = useMemo(() => {
-    const termoTexto =
-      busca.trim().toLowerCase();
+    const termoTexto = busca.trim().toLowerCase();
+    const termoNumerico = busca.replace(/\D/g, "");
 
-    const termoNumerico =
-      busca.replace(/\D/g, "");
+    if (!termoTexto) return funcionarios;
 
-    if (!termoTexto) {
-      return funcionarios;
-    }
+    return funcionarios.filter((funcionario) => {
+      const nome = String(funcionario.nome || "").toLowerCase().trim();
+      const email = String(funcionario.user?.email || "")
+        .toLowerCase()
+        .trim();
+      const role = String(funcionario.user?.role || "").toLowerCase().trim();
+      const cpf = String(funcionario.cpf || "").toLowerCase().trim();
+      const rg = String(funcionario.rg || "").toLowerCase().trim();
+      const telefone = String(funcionario.telefone || "").toLowerCase().trim();
+      const cargo = String(funcionario.cargo || "").toLowerCase().trim();
+      const codigoFuncionario = String(funcionario.codigoFuncionario || "")
+        .toLowerCase()
+        .trim();
+      const departamento = String(funcionario.departamento?.nome || "")
+        .toLowerCase()
+        .trim();
 
-    return funcionarios.filter(
-      (funcionario) => {
-        const camposTexto = [
-          funcionario.nome,
-          funcionario.user?.email,
-          funcionario.user?.role,
-          funcionario.numeroDocumentoFiscal,
-          funcionario.cpf,
-          funcionario.numeroDocumento,
-          funcionario.rg,
-          funcionario.telefone,
-          funcionario.nacionalidade,
-          funcionario.paisResidencia,
-          funcionario.cargo,
-          funcionario.codigoFuncionario,
-          funcionario.departamento?.nome,
-          funcionario.polo?.nome,
-          funcionario.endereco,
-          funcionario.bairro,
-          funcionario.cidade,
-          funcionario.estado,
-          funcionario.cep,
-        ].map((valor) =>
-          String(valor || "")
-            .toLowerCase()
-            .trim()
-        );
+      const polo = String(
+        funcionario.polo?.nome || ""
+      )
+        .toLowerCase()
+        .trim();
 
-        if (
-          camposTexto.some(
-            (valor) =>
-              valor.includes(
-                termoTexto
-              )
-          )
-        ) {
-          return true;
-        }
+      const cpfNumerico = cpf.replace(/\D/g, "");
+      const rgNumerico = rg.replace(/\D/g, "");
+      const telefoneNumerico = telefone.replace(/\D/g, "");
+      const codigoNumerico = codigoFuncionario.replace(/\D/g, "");
 
-        if (!termoNumerico) {
-          return false;
-        }
-
-        return camposTexto.some(
-          (valor) =>
-            valor
-              .replace(/\D/g, "")
-              .includes(
-                termoNumerico
-              )
-        );
-      }
-    );
+      return (
+        nome.includes(termoTexto) ||
+        email.includes(termoTexto) ||
+        role.includes(termoTexto) ||
+        cpf.includes(termoTexto) ||
+        rg.includes(termoTexto) ||
+        telefone.includes(termoTexto) ||
+        cargo.includes(termoTexto) ||
+        codigoFuncionario.includes(termoTexto) ||
+        departamento.includes(termoTexto) ||
+        polo.includes(termoTexto) ||
+        (termoNumerico !== "" &&
+          (cpfNumerico.includes(termoNumerico) ||
+            rgNumerico.includes(termoNumerico) ||
+            telefoneNumerico.includes(termoNumerico) ||
+            codigoNumerico.includes(termoNumerico)))
+      );
+    });
   }, [funcionarios, busca]);
-
-  const enderecoUI =
-    rotulosEndereco(
-      paisResidencia
-    );
 
   return (
     <div className="phanyx-admin-funcionarios-page space-y-6 max-w-5xl">
@@ -2636,254 +1621,37 @@ dark:text-white
             )}
           </div>
 
-          <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/60">
-            <div className="mb-4">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                🌍 {t("international.personalTitle")}
-              </h3>
+          <input
+            placeholder="CPF"
+            value={cpf}
+            onChange={(e) =>
+              setCpf(formatarCpf(e.target.value))
+            }
+            className="w-full border rounded-lg p-2"
+            inputMode="numeric"
+          />
 
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {t("international.personalDescription")}
-              </p>
-            </div>
+          <input
+            placeholder="RG"
+            value={rg}
+            onChange={(e) => setRg(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("international.countryOfResidence")}
-                </label>
+          <input
+            placeholder={t("fields.phone")}
+            value={telefone}
+            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+            className="w-full border rounded-lg p-2"
+            inputMode="numeric"
+          />
 
-                <select
-                  value={paisResidencia}
-                  onChange={(e) =>
-                    alterarPaisResidencia(
-                      e.target.value as CountryCode
-                    )
-                  }
-                  required
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  {paisesDisponiveis.map(
-                    (pais) => (
-                      <option
-                        key={pais.codigo}
-                        value={pais.codigo}
-                      >
-                        {bandeiraPais(
-                          pais.codigo
-                        )}{" "}
-                        {pais.nome}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("international.nationality")}
-                </label>
-
-                <input
-                  value={nacionalidade}
-                  onChange={(e) =>
-                    setNacionalidade(
-                      e.target.value
-                    )
-                  }
-                  placeholder={t(
-                    "international.nationalityPlaceholder"
-                  )}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("international.phone")}
-                </label>
-
-                <CampoTelefoneInternacional
-                  value={telefone}
-                  pais={paisTelefone}
-                  onChange={(
-                    valor,
-                    novoPais
-                  ) => {
-                    setTelefone(valor);
-                    setPaisTelefone(
-                      novoPais
-                    );
-                  }}
-                  placeholder={t(
-                    "international.phonePlaceholder"
-                  )}
-                />
-
-                <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                  {t(
-                    "international.phoneHelp"
-                  )}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("fields.employeeCodeOptional")}
-                </label>
-
-                <input
-                  value={codigoFuncionario}
-                  onChange={(e) =>
-                    setCodigoFuncionario(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.identityType"
-                  )}
-                </label>
-
-                <select
-                  value={tipoDocumento}
-                  onChange={(e) =>
-                    setTipoDocumento(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  {tipoDocumento &&
-                    !opcoesDocumentoIdentidade(
-                      paisResidencia
-                    ).some(
-                      ([valor]) =>
-                        String(valor) ===
-                        tipoDocumento
-                    ) && (
-                      <option
-                        value={tipoDocumento}
-                      >
-                        {rotuloTipoDocumento(
-                          tipoDocumento
-                        )}
-                      </option>
-                    )}
-
-                  {opcoesDocumentoIdentidade(
-                    paisResidencia
-                  ).map(
-                    ([valor, rotulo]) => (
-                      <option
-                        key={valor}
-                        value={valor}
-                      >
-                        {rotulo}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.identityNumber"
-                  )}
-                </label>
-
-                <input
-                  value={numeroDocumento}
-                  onChange={(e) =>
-                    setNumeroDocumento(
-                      e.target.value
-                    )
-                  }
-                  placeholder={t(
-                    "international.identityNumberPlaceholder"
-                  )}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.fiscalType"
-                  )}
-                </label>
-
-                <select
-                  value={tipoDocumentoFiscal}
-                  onChange={(e) =>
-                    setTipoDocumentoFiscal(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  {tipoDocumentoFiscal &&
-                    !opcoesDocumentoFiscal(
-                      paisResidencia
-                    ).some(
-                      ([valor]) =>
-                        String(valor) ===
-                        tipoDocumentoFiscal
-                    ) && (
-                      <option
-                        value={
-                          tipoDocumentoFiscal
-                        }
-                      >
-                        {rotuloTipoDocumentoFiscal(
-                          tipoDocumentoFiscal
-                        )}
-                      </option>
-                    )}
-
-                  {opcoesDocumentoFiscal(
-                    paisResidencia
-                  ).map(
-                    ([valor, rotulo]) => (
-                      <option
-                        key={valor}
-                        value={valor}
-                      >
-                        {rotulo}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.fiscalNumber"
-                  )}
-                </label>
-
-                <input
-                  value={numeroDocumentoFiscal}
-                  onChange={(e) =>
-                    setNumeroDocumentoFiscal(
-                      e.target.value
-                    )
-                  }
-                  placeholder={t(
-                    "international.fiscalNumberPlaceholder"
-                  )}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
+          <input
+            placeholder={t("fields.employeeCodeOptional")}
+            value={codigoFuncionario}
+            onChange={(e) => setCodigoFuncionario(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
           <div className="phanyx-foto-oficial-card md:col-span-2">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
@@ -2938,157 +1706,6 @@ dark:text-white
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="mb-4">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              📍 {t("international.address.title")}
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              {t("international.address.description")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.codigoPostal}
-              </label>
-
-              <input
-                value={cep}
-                onChange={(e) =>
-                  setCep(
-                    formatarCodigoPostal(
-                      e.target.value,
-                      paisResidencia
-                    )
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                  }
-                }}
-                autoComplete="postal-code"
-                placeholder={enderecoUI.codigoPostal}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-
-              <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                {t(
-                  "international.address.postalHelp"
-                )}
-              </p>
-            </div>
-
-            <div className="space-y-1 xl:col-span-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.endereco}
-              </label>
-
-              <input
-                value={endereco}
-                onChange={(e) =>
-                  setEndereco(
-                    e.target.value
-                  )
-                }
-                autoComplete="street-address"
-                placeholder={enderecoUI.endereco}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.numero}
-              </label>
-
-              <input
-                value={numero}
-                onChange={(e) =>
-                  setNumero(
-                    e.target.value
-                  )
-                }
-                placeholder={enderecoUI.numero}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.complemento}
-              </label>
-
-              <input
-                value={complemento}
-                onChange={(e) =>
-                  setComplemento(
-                    e.target.value
-                  )
-                }
-                placeholder={enderecoUI.complemento}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.bairro}
-              </label>
-
-              <input
-                value={bairro}
-                onChange={(e) =>
-                  setBairro(
-                    e.target.value
-                  )
-                }
-                placeholder={enderecoUI.bairro}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.cidade}
-              </label>
-
-              <input
-                value={cidade}
-                onChange={(e) =>
-                  setCidade(
-                    e.target.value
-                  )
-                }
-                autoComplete="address-level2"
-                placeholder={enderecoUI.cidade}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.estado}
-              </label>
-
-              <input
-                value={estado}
-                onChange={(e) =>
-                  setEstado(
-                    e.target.value
-                  )
-                }
-                autoComplete="address-level1"
-                placeholder={enderecoUI.estado}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
             </div>
           </div>
         </div>
@@ -3776,48 +2393,16 @@ dark:bg-slate-900
                   )}
 
                   <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {rotuloTipoDocumentoFiscal(
-                      f.tipoDocumentoFiscal ||
-                      (f.cpf ? "CPF" : "TAX_ID")
-                    )}:{" "}
-                    {f.numeroDocumentoFiscal ||
-                      f.cpf ||
-                      "-"}
+                    CPF: {f.cpf || "-"}
                   </p>
 
                   <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {rotuloTipoDocumento(
-                      f.tipoDocumento ||
-                      (f.rg ? "RG" : "NATIONAL_ID")
-                    )}:{" "}
-                    {f.numeroDocumento ||
-                      f.rg ||
-                      "-"}
+                    RG: {f.rg || "-"}
                   </p>
 
                   <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.phone")}:{" "}
-                    {formatarTelefoneExibicao(
-                      f.telefone
-                    )}
+                    {t("fields.phone")}: {f.telefone || "-"}
                   </p>
-
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("international.countryOfResidence")}:{" "}
-                    {nomePais(
-                      f.paisResidencia ||
-                      (f.cpf || f.rg
-                        ? "BR"
-                        : null)
-                    )}
-                  </p>
-
-                  {f.nacionalidade && (
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {t("international.nationality")}:{" "}
-                      {f.nacionalidade}
-                    </p>
-                  )}
 
                   <p className="text-sm text-slate-600 dark:text-slate-300">
                     {t("fields.job")}: {f.cargo || "-"}

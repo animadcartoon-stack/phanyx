@@ -14397,15 +14397,11 @@
       "portfolio": "Portfolio",
       "certificates": "Certificates",
       "portfolioLinks": "Portfolio links",
-      "personalWebsite": "Personal website",
-      "identityDocument": "Identity document",
-      "taxDocument": "Tax document",
-      "passport": "Passport",
-      "driverLicense": "Driver's license"
+      "personalWebsite": "Personal website"
     },
     "list": {
       "title": "Employee list",
-      "searchPlaceholder": "Search by name, email, document, phone, job title, code, department, campus, or location",
+      "searchPlaceholder": "Search by name, email, CPF, phone, job title, code, department, or campus",
       "empty": "No employee found for this search.",
       "accessEmail": "Access email",
       "accessProfile": "Access profile",
@@ -14455,67 +14451,6 @@
       "accessChanged": "Access changed successfully.",
       "employeeCreatedWithAccess": "Employee created successfully and access email sent.",
       "employeeCreatedWithoutAccess": "Employee registered in HR successfully without system access."
-    },
-    "international": {
-      "personalTitle": "International personal details",
-      "personalDescription": "Enter the employee's country, nationality, phone number, and identification documents. Document types and address fields adapt to the selected country.",
-      "countryOfResidence": "Country of residence",
-      "nationality": "Nationality",
-      "nationalityPlaceholder": "E.g. American, Brazilian, French",
-      "phone": "International phone",
-      "phonePlaceholder": "Enter phone number",
-      "phoneHelp": "Select the country calling code. The number will be validated and stored in international format.",
-      "identityType": "Identity document type",
-      "identityNumber": "Identity document number",
-      "identityNumberPlaceholder": "Enter document number",
-      "fiscalType": "Tax identification type",
-      "fiscalNumber": "Tax identification number",
-      "fiscalNumberPlaceholder": "Enter tax identification number",
-      "documentTypes": {
-        "driverLicense": "Driver's license",
-        "citizenCard": "Citizen Card",
-        "stateId": "State ID",
-        "permanentResidentCard": "Permanent Resident Card",
-        "passport": "Passport",
-        "residencePermit": "Residence permit",
-        "nationalId": "National identity document"
-      },
-      "fiscalTypes": {
-        "taxNumber": "Tax number",
-        "taxId": "Tax ID"
-      },
-      "address": {
-        "title": "Address and location",
-        "description": "The address format follows the employee's country of residence.",
-        "postalBR": "CEP / Postal code",
-        "postalPT": "Postal code",
-        "postalUS": "ZIP Code",
-        "postalFR": "Postal code",
-        "postalES": "Postal code",
-        "postalGeneric": "Postal code",
-        "streetAddress": "Street address",
-        "number": "Building / house number",
-        "numberUS": "Building / house number",
-        "complement": "Address line 2",
-        "complementUS": "Apt. / Suite",
-        "district": "District / neighborhood",
-        "districtPT": "Parish / area",
-        "districtUS": "Neighborhood (optional)",
-        "city": "City",
-        "cityPT": "Locality",
-        "regionBR": "State / UF",
-        "regionPT": "District / Region",
-        "regionUS": "State",
-        "regionES": "Province / Autonomous Community",
-        "regionFR": "Department / Region",
-        "regionGeneric": "State / Province / Region",
-        "postalHelp": "Use the postal code format for the selected country."
-      },
-      "errors": {
-        "invalidCountry": "Select a valid country.",
-        "invalidPhoneCountry": "Select a valid country for the phone number.",
-        "invalidPhone": "Enter a valid phone number for the selected country."
-      }
     }
   }
 }

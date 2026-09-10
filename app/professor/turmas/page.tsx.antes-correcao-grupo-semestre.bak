@@ -49,7 +49,7 @@ function diaSemanaHoje() {
 }
 
 function statusNormalizado(turma: Turma) {
-  return String(turma.statusTurma || turma.statusDisciplina || "").toUpperCase();
+  return String(turma.statusDisciplina || turma.statusTurma || "").toUpperCase();
 }
 
 function grupoSemestre(turma: Turma) {

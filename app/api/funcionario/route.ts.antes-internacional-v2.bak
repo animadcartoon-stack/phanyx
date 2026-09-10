@@ -7,11 +7,6 @@ import {
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import {
-  getCountries,
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from "libphonenumber-js";
 import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
 import {
   obterPoloAtivoVisivelParaInstituicao,
@@ -43,68 +38,6 @@ async function gerarCodigoFuncionario(instituicaoId: number) {
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
-}
-
-const PAISES_VALIDOS = new Set<CountryCode>(
-  getCountries()
-);
-
-function paisOpcional(
-  valor: unknown
-): CountryCode | null {
-  const codigo = limparTexto(valor)
-    .toUpperCase() as CountryCode;
-
-  if (!codigo) {
-    return null;
-  }
-
-  return PAISES_VALIDOS.has(codigo)
-    ? codigo
-    : null;
-}
-
-function normalizarTelefoneInternacional(
-  valor: unknown,
-  pais: CountryCode | null
-): string | null {
-  const texto = limparTexto(valor);
-
-  if (!texto) {
-    return null;
-  }
-
-  const telefone = parsePhoneNumberFromString(
-    texto,
-    pais ?? undefined
-  );
-
-  if (!telefone || !telefone.isValid()) {
-    return null;
-  }
-
-  return telefone.number;
-}
-
-function normalizarTipoDocumento(
-  valor: unknown
-) {
-  const texto = limparTexto(valor)
-    .toUpperCase()
-    .replace(/[^A-Z0-9_]/g, "_")
-    .slice(0, 60);
-
-  return texto || null;
-}
-
-function textoOpcional(
-  valor: unknown,
-  limite = 200
-) {
-  const texto = limparTexto(valor);
-  return texto
-    ? texto.slice(0, limite)
-    : null;
 }
 
 function numeroDecimalOuNull(valor: unknown) {
@@ -243,134 +176,6 @@ export async function POST(request: Request) {
     );
 
     const body = await request.json();
-
-    /*
-     * Dados pessoais internacionais
-     */
-    const paisResidenciaTexto =
-      limparTexto(body.paisResidencia);
-
-    const paisResidencia =
-      paisResidenciaTexto
-        ? paisOpcional(paisResidenciaTexto)
-        : null;
-
-    if (
-      paisResidenciaTexto &&
-      !paisResidencia
-    ) {
-      return NextResponse.json(
-        {
-          code: "INVALID_COUNTRY",
-          error:
-            "O país de residência informado é inválido.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const paisTelefoneTexto =
-      limparTexto(body.paisTelefone);
-
-    const paisTelefone =
-      paisTelefoneTexto
-        ? paisOpcional(paisTelefoneTexto)
-        : paisResidencia;
-
-    if (
-      paisTelefoneTexto &&
-      !paisTelefone
-    ) {
-      return NextResponse.json(
-        {
-          code: "INVALID_PHONE_COUNTRY",
-          error:
-            "O país informado para o telefone é inválido.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const telefoneInformado =
-      limparTexto(body.telefone);
-
-    const telefoneNormalizado =
-      telefoneInformado
-        ? normalizarTelefoneInternacional(
-            telefoneInformado,
-            paisTelefone
-          )
-        : null;
-
-    if (
-      telefoneInformado &&
-      (paisTelefone ||
-        telefoneInformado.startsWith("+")) &&
-      !telefoneNormalizado
-    ) {
-      return NextResponse.json(
-        {
-          code: "INVALID_PHONE",
-          error:
-            "Informe um telefone válido para o país selecionado.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const telefoneFinal =
-      telefoneNormalizado ||
-      telefoneInformado ||
-      null;
-
-    const nacionalidade =
-      textoOpcional(
-        body.nacionalidade,
-        100
-      );
-
-    const tipoDocumento =
-      normalizarTipoDocumento(
-        body.tipoDocumento
-      );
-
-    const numeroDocumento =
-      textoOpcional(
-        body.numeroDocumento,
-        100
-      );
-
-    const tipoDocumentoFiscal =
-      normalizarTipoDocumento(
-        body.tipoDocumentoFiscal
-      );
-
-    const numeroDocumentoFiscal =
-      textoOpcional(
-        body.numeroDocumentoFiscal,
-        100
-      );
-
-    /*
-     * Compatibilidade com os campos brasileiros legados.
-     * Novos documentos internacionais não são gravados
-     * indevidamente em cpf/rg.
-     */
-    const cpfCompatibilidade =
-      tipoDocumentoFiscal
-        ? tipoDocumentoFiscal === "CPF"
-          ? numeroDocumentoFiscal
-          : null
-        : textoOpcional(body.cpf, 100);
-
-    const rgCompatibilidade =
-      tipoDocumento
-        ? ["RG", "CIN"].includes(
-            tipoDocumento
-          )
-          ? numeroDocumento
-          : null
-        : textoOpcional(body.rg, 100);
 
     const poloId =
       numeroInteiroOuNull(body.poloId);
@@ -905,65 +710,33 @@ export async function POST(request: Request) {
             await tx.funcionario.create({
               data: {
                 nome,
-
-                cpf: cpfCompatibilidade,
-                rg: rgCompatibilidade,
-                telefone: telefoneFinal,
-
-                paisTelefone:
-                  paisTelefone || null,
-                nacionalidade,
-                paisResidencia:
-                  paisResidencia || null,
-
-                tipoDocumento,
-                numeroDocumento,
-                tipoDocumentoFiscal,
-                numeroDocumentoFiscal,
+                cpf: body.cpf || null,
+                rg: body.rg || null,
+                telefone:
+                  body.telefone || null,
 
                 dataNascimento,
 
                 endereco:
-                  textoOpcional(
-                    body.endereco,
-                    250
-                  ),
+                  body.endereco || null,
 
                 numero:
-                  textoOpcional(
-                    body.numero,
-                    60
-                  ),
+                  body.numero || null,
 
                 complemento:
-                  textoOpcional(
-                    body.complemento,
-                    150
-                  ),
+                  body.complemento || null,
 
                 bairro:
-                  textoOpcional(
-                    body.bairro,
-                    150
-                  ),
+                  body.bairro || null,
 
                 cidade:
-                  textoOpcional(
-                    body.cidade,
-                    150
-                  ),
+                  body.cidade || null,
 
                 estado:
-                  textoOpcional(
-                    body.estado,
-                    150
-                  ),
+                  body.estado || null,
 
                 cep:
-                  textoOpcional(
-                    body.cep,
-                    40
-                  ),
+                  body.cep || null,
 
                 cargoId,
 

@@ -14017,5 +14017,274 @@
       "confirm": "Excluir taxa",
       "cancel": "Cancelar"
     }
+  },
+  "AdminFuncionarios": {
+    "title": "Funcionários",
+    "toast": {
+      "errorTitle": "Não foi possível concluir",
+      "successTitle": "Tudo certo"
+    },
+    "form": {
+      "editTitle": "Editar funcionário",
+      "newTitle": "Novo funcionário"
+    },
+    "systemAccess": {
+      "createTitle": "Criar acesso ao sistema para este funcionário",
+      "createDescription": "Quando ativado, o PHANYX criará login, senha temporária e enviará as credenciais por e-mail. Desative para cadastrar somente o vínculo trabalhista no RH.",
+      "noAccessDescription": "Este funcionário poderá participar da folha, ponto, férias, benefícios, holerites, documentos e demais rotinas do RH, mas não receberá login nem senha."
+    },
+    "fields": {
+      "name": "Nome",
+      "email": "E-mail",
+      "accessProfile": "Perfil de acesso ao sistema",
+      "selectProfile": "Selecione o perfil",
+      "department": "Departamento",
+      "selectDepartment": "Selecione um departamento",
+      "job": "Cargo",
+      "campus": "Polo de lotação",
+      "selectCampus": "Selecione o polo de lotação",
+      "phone": "Telefone",
+      "employeeCodeOptional": "Código do funcionário (opcional)",
+      "branch": "Agência",
+      "account": "Conta",
+      "pix": "Pix",
+      "pixKey": "Chave Pix",
+      "status": "Status",
+      "reasonOptional": "Motivo (opcional)",
+      "reason": "Motivo",
+      "code": "Código"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "employee": "Funcionário",
+      "secretariat": "Secretaria",
+      "coordinator": "Coordenação",
+      "finance": "Financeiro",
+      "support": "Suporte"
+    },
+    "job": {
+      "loading": "Carregando cargos...",
+      "selectDepartmentFirst": "Selecione primeiro o departamento",
+      "noActiveJobs": "Nenhum cargo ativo cadastrado",
+      "selectJob": "Selecione o cargo",
+      "noJobsHelp": "Este departamento ainda não possui cargos ativos cadastrados. Cadastre os cargos em Departamentos."
+    },
+    "common": {
+      "inactive": "Inativo",
+      "minutes": "minutos",
+      "notDefined": "Não definido",
+      "other": "Outro",
+      "select": "Selecione"
+    },
+    "campus": {
+      "editHelp": "A lotação não pode ser alterada por esta edição comum. Para definir ou transferir o polo, abra a ficha do funcionário.",
+      "createHelp": "Selecione a unidade em que o funcionário será inicialmente lotado.",
+      "openRecord": "Abrir ficha e gerenciar lotação",
+      "legacyEmployeeHelp": "Este funcionário antigo ainda precisa ter sua lotação definida."
+    },
+    "photo": {
+      "alt": "Foto oficial do funcionário",
+      "title": "Foto oficial do funcionário",
+      "description": "Esta é a foto institucional usada em crachás, identificação, documentos e registros internos.",
+      "help": "Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB. Recomendado: foto quadrada, com rosto centralizado."
+    },
+    "buttons": {
+      "uploading": "Enviando...",
+      "uploadPhoto": "Enviar foto",
+      "removePhoto": "Remover foto",
+      "selectFile": "Selecionar arquivo",
+      "remove": "Remover",
+      "addLink": "Adicionar link",
+      "saving": "Salvando...",
+      "creating": "Criando...",
+      "saveChanges": "Salvar alterações",
+      "createEmployee": "Criar funcionário",
+      "cancelEditing": "Cancelar edição",
+      "edit": "Editar",
+      "individualPermissions": "Permissões individuais",
+      "blockAccess": "Bloquear acesso",
+      "unblockAccess": "Desbloquear acesso",
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
+    },
+    "employment": {
+      "title": "Dados trabalhistas, previdenciários e bancários",
+      "description": "Informe os dados necessários para folha, ponto, holerites, banco de horas, rescisões e relatórios contábeis.",
+      "admissionDate": "Data de admissão",
+      "compensationType": "Modalidade de remuneração",
+      "classHourValue": "Valor da hora-aula",
+      "classHourDuration": "Duração da hora-aula",
+      "workHourValue": "Valor da hora trabalhada",
+      "contractType": "Tipo de contrato",
+      "workSchedule": "Jornada de trabalho",
+      "weeklyHours": "Carga horária semanal",
+      "monthlyHours": "Carga horária mensal",
+      "timeClockCode": "Código do ponto",
+      "payrollBank": "Banco da conta salarial",
+      "bankHelp": "Pesquise pelo código ou nome. Exemplos: 001, 260, Nubank, Inter ou Itaú.",
+      "compensationNotes": "Observações da remuneração"
+    },
+    "compensation": {
+      "monthlySalary": "Salário mensal",
+      "classHour": "Hora-aula",
+      "workHour": "Hora trabalhada",
+      "perClass": "Valor por aula",
+      "perClassGroup": "Valor por turma",
+      "perSubject": "Valor por disciplina",
+      "mixed": "Remuneração mista",
+      "none": "Sem remuneração"
+    },
+    "contracts": {
+      "internship": "Estágio",
+      "apprentice": "Aprendiz",
+      "temporary": "Temporário",
+      "selfEmployed": "Autônomo"
+    },
+    "placeholders": {
+      "amount": "0,00",
+      "workSchedule": "Ex.: 44h semanais / 220h mensais",
+      "weeklyHours": "Ex.: 44",
+      "monthlyHours": "Ex.: 220",
+      "timeClockCode": "Identificador usado no relógio/app",
+      "bankSearch": "Digite o código ou nome do banco",
+      "bankAria": "Buscar banco da conta salarial do funcionário",
+      "compensationNotes": "Acordos, adicionais, regras de pagamento ou outras observações."
+    },
+    "status": {
+      "active": "Ativo",
+      "dismissed": "Demitido",
+      "onLeave": "Afastado",
+      "warning": "Advertência",
+      "vacation": "Férias",
+      "rehired": "Readmitido"
+    },
+    "documents": {
+      "title": "Documentos e Portfólio",
+      "description": "Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.",
+      "residenceProof": "Comprovante de residência",
+      "resume": "Currículo",
+      "portfolio": "Portfólio",
+      "certificates": "Certificados",
+      "portfolioLinks": "Links do portfólio",
+      "personalWebsite": "Site pessoal",
+      "identityDocument": "Documento de identidade",
+      "taxDocument": "Documento fiscal",
+      "passport": "Passaporte",
+      "driverLicense": "Carteira de motorista"
+    },
+    "list": {
+      "title": "Lista de funcionários",
+      "searchPlaceholder": "Buscar por nome, e-mail, documento, telefone, cargo, código, departamento, polo ou localidade",
+      "empty": "Nenhum funcionário encontrado para essa busca.",
+      "accessEmail": "E-mail de acesso",
+      "accessProfile": "Perfil de acesso",
+      "access": "Acesso"
+    },
+    "access": {
+      "blocked": "Bloqueado",
+      "active": "Ativo",
+      "noSystemAccess": "Sem acesso ao sistema"
+    },
+    "confirm": {
+      "blockMessage": "Deseja bloquear o acesso de \"{name}\"?",
+      "unblockMessage": "Deseja desbloquear o acesso de \"{name}\"?",
+      "blockTitle": "Bloquear acesso",
+      "unblockTitle": "Desbloquear acesso"
+    },
+    "errors": {
+      "loadJobs": "Não foi possível carregar os cargos.",
+      "invalidPhotoFormat": "Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP.",
+      "photoTooLarge": "Foto muito grande. Envie uma foto com no máximo {max} MB.",
+      "photoUpload": "Erro ao enviar foto.",
+      "photoUrlMissing": "Upload realizado, mas a URL da foto não retornou.",
+      "photoUploadCheck": "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo.",
+      "selectCompensationType": "Selecione a modalidade de remuneração do funcionário.",
+      "monthlySalaryRequired": "Informe o salário mensal do funcionário.",
+      "classHourValueRequired": "Informe o valor da hora-aula.",
+      "workHourValueRequired": "Informe o valor da hora trabalhada.",
+      "perClassValueRequired": "Informe o valor por aula.",
+      "perClassGroupValueRequired": "Informe o valor por turma.",
+      "perSubjectValueRequired": "Informe o valor por disciplina.",
+      "mixedCompensationValueRequired": "Na remuneração mista, informe pelo menos um valor.",
+      "employeeNameBeforeContinue": "Informe o nome do funcionário antes de continuar.",
+      "employeeEmailBeforeContinue": "Informe o e-mail do funcionário antes de continuar.",
+      "accessProfileBeforeContinue": "Selecione o perfil de acesso do funcionário antes de continuar.",
+      "createEmployee": "Erro ao criar funcionário.",
+      "changeAccess": "Erro ao alterar acesso do funcionário.",
+      "changeAccessCommunication": "Erro de comunicação ao alterar acesso do funcionário.",
+      "employeeNameRequired": "Informe o nome do funcionário.",
+      "campusRequired": "Selecione o polo de lotação do funcionário.",
+      "emailForAccessRequired": "Informe o e-mail para criar o acesso do funcionário.",
+      "accessProfileRequired": "Selecione o perfil de acesso do funcionário.",
+      "updateEmployee": "Erro ao atualizar funcionário."
+    },
+    "messages": {
+      "photoUploaded": "Foto oficial do funcionário enviada com sucesso.",
+      "employeeUpdated": "Funcionário atualizado com sucesso.",
+      "accessChanged": "Acesso alterado com sucesso.",
+      "employeeCreatedWithAccess": "Funcionário criado com sucesso e e-mail de acesso enviado.",
+      "employeeCreatedWithoutAccess": "Funcionário cadastrado no RH com sucesso, sem acesso ao sistema."
+    },
+    "international": {
+      "personalTitle": "Dados pessoais internacionais",
+      "personalDescription": "Informe o país, a nacionalidade, o telefone e os documentos de identificação do funcionário. Os tipos de documento e o endereço se adaptam ao país selecionado.",
+      "countryOfResidence": "País de residência",
+      "nationality": "Nacionalidade",
+      "nationalityPlaceholder": "Ex.: Brasileira, Portuguesa, Francesa",
+      "phone": "Telefone internacional",
+      "phonePlaceholder": "Digite o telefone",
+      "phoneHelp": "Selecione o país pelo DDI. O número será validado e armazenado em formato internacional.",
+      "identityType": "Tipo de documento de identidade",
+      "identityNumber": "Número do documento de identidade",
+      "identityNumberPlaceholder": "Digite o número do documento",
+      "fiscalType": "Tipo de identificação fiscal",
+      "fiscalNumber": "Número de identificação fiscal",
+      "fiscalNumberPlaceholder": "Digite o número fiscal",
+      "documentTypes": {
+        "driverLicense": "Carteira de motorista",
+        "citizenCard": "Cartão de Cidadão",
+        "stateId": "Documento estadual de identidade",
+        "permanentResidentCard": "Cartão de residente permanente",
+        "passport": "Passaporte",
+        "residencePermit": "Título / autorização de residência",
+        "nationalId": "Documento nacional de identidade"
+      },
+      "fiscalTypes": {
+        "taxNumber": "Número fiscal",
+        "taxId": "Identificação fiscal / Tax ID"
+      },
+      "address": {
+        "title": "Endereço e localização",
+        "description": "O formato do endereço acompanha o país de residência do funcionário.",
+        "postalBR": "CEP",
+        "postalPT": "Código postal",
+        "postalUS": "ZIP Code",
+        "postalFR": "Código postal",
+        "postalES": "Código postal",
+        "postalGeneric": "Código postal",
+        "streetAddress": "Endereço / logradouro",
+        "number": "Número",
+        "numberUS": "Número do imóvel",
+        "complement": "Complemento",
+        "complementUS": "Apto. / sala / complemento",
+        "district": "Bairro / distrito",
+        "districtPT": "Freguesia / área",
+        "districtUS": "Bairro (opcional)",
+        "city": "Cidade",
+        "cityPT": "Localidade",
+        "regionBR": "Estado / UF",
+        "regionPT": "Distrito / Região",
+        "regionUS": "Estado",
+        "regionES": "Província / Comunidade Autônoma",
+        "regionFR": "Departamento / Região",
+        "regionGeneric": "Estado / Província / Região",
+        "postalHelp": "Use o formato de código postal do país selecionado."
+      },
+      "errors": {
+        "invalidCountry": "Selecione um país válido.",
+        "invalidPhoneCountry": "Selecione um país válido para o telefone.",
+        "invalidPhone": "Informe um telefone válido para o país selecionado."
+      }
+    }
   }
 }

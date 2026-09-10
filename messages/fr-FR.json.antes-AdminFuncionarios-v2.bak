@@ -14396,15 +14396,11 @@
       "portfolio": "Portfolio",
       "certificates": "Certificats",
       "portfolioLinks": "Liens du portfolio",
-      "personalWebsite": "Site personnel",
-      "identityDocument": "Pièce d'identité",
-      "taxDocument": "Document fiscal",
-      "passport": "Passeport",
-      "driverLicense": "Permis de conduire"
+      "personalWebsite": "Site personnel"
     },
     "list": {
       "title": "Liste des employés",
-      "searchPlaceholder": "Rechercher par nom, e-mail, document, téléphone, poste, code, département, campus ou localité",
+      "searchPlaceholder": "Rechercher par nom, e-mail, CPF, téléphone, poste, code, département ou campus",
       "empty": "Aucun employé trouvé pour cette recherche.",
       "accessEmail": "E-mail d’accès",
       "accessProfile": "Profil d’accès",
@@ -14454,67 +14450,6 @@
       "accessChanged": "Accès modifié avec succès.",
       "employeeCreatedWithAccess": "Employé créé avec succès et e-mail d’accès envoyé.",
       "employeeCreatedWithoutAccess": "Employé enregistré avec succès dans les RH, sans accès au système."
-    },
-    "international": {
-      "personalTitle": "Données personnelles internationales",
-      "personalDescription": "Renseignez le pays, la nationalité, le téléphone et les documents d'identification de l'employé. Les types de document et l'adresse s'adaptent au pays sélectionné.",
-      "countryOfResidence": "Pays de résidence",
-      "nationality": "Nationalité",
-      "nationalityPlaceholder": "Ex. : Française, Brésilienne, Portugaise",
-      "phone": "Téléphone international",
-      "phonePlaceholder": "Saisissez le téléphone",
-      "phoneHelp": "Sélectionnez le pays à l'aide de l'indicatif international. Le numéro sera validé et enregistré au format international.",
-      "identityType": "Type de pièce d'identité",
-      "identityNumber": "Numéro de la pièce d'identité",
-      "identityNumberPlaceholder": "Saisissez le numéro du document",
-      "fiscalType": "Type d'identification fiscale",
-      "fiscalNumber": "Numéro d'identification fiscale",
-      "fiscalNumberPlaceholder": "Saisissez le numéro fiscal",
-      "documentTypes": {
-        "driverLicense": "Permis de conduire",
-        "citizenCard": "Carte de citoyen",
-        "stateId": "Pièce d'identité d'État",
-        "permanentResidentCard": "Carte de résident permanent",
-        "passport": "Passeport",
-        "residencePermit": "Titre / autorisation de séjour",
-        "nationalId": "Pièce nationale d'identité"
-      },
-      "fiscalTypes": {
-        "taxNumber": "Numéro fiscal",
-        "taxId": "Identifiant fiscal / Tax ID"
-      },
-      "address": {
-        "title": "Adresse et localisation",
-        "description": "Le format de l'adresse s'adapte au pays de résidence de l'employé.",
-        "postalBR": "CEP / Code postal",
-        "postalPT": "Code postal",
-        "postalUS": "ZIP Code",
-        "postalFR": "Code postal",
-        "postalES": "Code postal",
-        "postalGeneric": "Code postal",
-        "streetAddress": "Adresse",
-        "number": "Numéro",
-        "numberUS": "Numéro du bâtiment",
-        "complement": "Complément d'adresse",
-        "complementUS": "Appartement / Suite",
-        "district": "Quartier / district",
-        "districtPT": "Paroisse / zone",
-        "districtUS": "Quartier (facultatif)",
-        "city": "Ville",
-        "cityPT": "Localité",
-        "regionBR": "État / UF",
-        "regionPT": "District / Région",
-        "regionUS": "État",
-        "regionES": "Province / Communauté autonome",
-        "regionFR": "Département / Région",
-        "regionGeneric": "État / Province / Région",
-        "postalHelp": "Utilisez le format de code postal du pays sélectionné."
-      },
-      "errors": {
-        "invalidCountry": "Sélectionnez un pays valide.",
-        "invalidPhoneCountry": "Sélectionnez un pays valide pour le téléphone.",
-        "invalidPhone": "Saisissez un numéro de téléphone valide pour le pays sélectionné."
-      }
     }
   }
 }

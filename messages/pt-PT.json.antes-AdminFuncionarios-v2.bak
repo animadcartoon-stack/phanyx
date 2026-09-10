@@ -14182,15 +14182,11 @@
       "portfolio": "Portefólio",
       "certificates": "Certificados",
       "portfolioLinks": "Ligações do portefólio",
-      "personalWebsite": "Site pessoal",
-      "identityDocument": "Documento de identificação",
-      "taxDocument": "Documento fiscal",
-      "passport": "Passaporte",
-      "driverLicense": "Carta de condução"
+      "personalWebsite": "Site pessoal"
     },
     "list": {
       "title": "Lista de funcionários",
-      "searchPlaceholder": "Pesquisar por nome, e-mail, documento, telefone, cargo, código, departamento, polo ou localidade",
+      "searchPlaceholder": "Pesquisar por nome, e-mail, CPF, telefone, cargo, código, departamento ou polo",
       "empty": "Nenhum funcionário encontrado para esta pesquisa.",
       "accessEmail": "E-mail de acesso",
       "accessProfile": "Perfil de acesso",
@@ -14240,67 +14236,6 @@
       "accessChanged": "Acesso alterado com sucesso.",
       "employeeCreatedWithAccess": "Funcionário criado com sucesso e e-mail de acesso enviado.",
       "employeeCreatedWithoutAccess": "Funcionário registado nos RH com sucesso, sem acesso ao sistema."
-    },
-    "international": {
-      "personalTitle": "Dados pessoais internacionais",
-      "personalDescription": "Indique o país, a nacionalidade, o telefone e os documentos de identificação do funcionário. Os tipos de documento e a morada adaptam-se ao país selecionado.",
-      "countryOfResidence": "País de residência",
-      "nationality": "Nacionalidade",
-      "nationalityPlaceholder": "Ex.: Portuguesa, Brasileira, Francesa",
-      "phone": "Telefone internacional",
-      "phonePlaceholder": "Introduza o telefone",
-      "phoneHelp": "Selecione o país pelo indicativo internacional. O número será validado e guardado em formato internacional.",
-      "identityType": "Tipo de documento de identificação",
-      "identityNumber": "Número do documento de identificação",
-      "identityNumberPlaceholder": "Introduza o número do documento",
-      "fiscalType": "Tipo de identificação fiscal",
-      "fiscalNumber": "Número de identificação fiscal",
-      "fiscalNumberPlaceholder": "Introduza o número fiscal",
-      "documentTypes": {
-        "driverLicense": "Carta de condução",
-        "citizenCard": "Cartão de Cidadão",
-        "stateId": "Documento estadual de identificação",
-        "permanentResidentCard": "Cartão de residente permanente",
-        "passport": "Passaporte",
-        "residencePermit": "Título / autorização de residência",
-        "nationalId": "Documento nacional de identificação"
-      },
-      "fiscalTypes": {
-        "taxNumber": "Número fiscal",
-        "taxId": "Identificação fiscal / Tax ID"
-      },
-      "address": {
-        "title": "Morada e localização",
-        "description": "O formato da morada acompanha o país de residência do funcionário.",
-        "postalBR": "CEP",
-        "postalPT": "Código postal",
-        "postalUS": "ZIP Code",
-        "postalFR": "Código postal",
-        "postalES": "Código postal",
-        "postalGeneric": "Código postal",
-        "streetAddress": "Morada / endereço",
-        "number": "Número / porta",
-        "numberUS": "Número do imóvel",
-        "complement": "Complemento",
-        "complementUS": "Apartamento / suite / complemento",
-        "district": "Bairro / distrito",
-        "districtPT": "Freguesia / área",
-        "districtUS": "Bairro (opcional)",
-        "city": "Cidade",
-        "cityPT": "Localidade",
-        "regionBR": "Estado / UF",
-        "regionPT": "Distrito / Região",
-        "regionUS": "Estado",
-        "regionES": "Província / Comunidade Autónoma",
-        "regionFR": "Departamento / Região",
-        "regionGeneric": "Estado / Província / Região",
-        "postalHelp": "Utilize o formato de código postal do país selecionado."
-      },
-      "errors": {
-        "invalidCountry": "Selecione um país válido.",
-        "invalidPhoneCountry": "Selecione um país válido para o telefone.",
-        "invalidPhone": "Introduza um telefone válido para o país selecionado."
-      }
     }
   }
 }

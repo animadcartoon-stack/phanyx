@@ -14396,15 +14396,11 @@
       "portfolio": "Portafolio",
       "certificates": "Certificados",
       "portfolioLinks": "Enlaces del portafolio",
-      "personalWebsite": "Sitio personal",
-      "identityDocument": "Documento de identidad",
-      "taxDocument": "Documento fiscal",
-      "passport": "Pasaporte",
-      "driverLicense": "Permiso de conducir"
+      "personalWebsite": "Sitio personal"
     },
     "list": {
       "title": "Lista de empleados",
-      "searchPlaceholder": "Buscar por nombre, correo, documento, teléfono, cargo, código, departamento, campus o localidad",
+      "searchPlaceholder": "Buscar por nombre, correo, CPF, teléfono, cargo, código, departamento o campus",
       "empty": "No se encontraron empleados para esta búsqueda.",
       "accessEmail": "Correo de acceso",
       "accessProfile": "Perfil de acceso",
@@ -14454,67 +14450,6 @@
       "accessChanged": "Acceso modificado correctamente.",
       "employeeCreatedWithAccess": "Empleado creado correctamente y correo de acceso enviado.",
       "employeeCreatedWithoutAccess": "Empleado registrado correctamente en RR. HH. sin acceso al sistema."
-    },
-    "international": {
-      "personalTitle": "Datos personales internacionales",
-      "personalDescription": "Indica el país, la nacionalidad, el teléfono y los documentos de identificación del empleado. Los tipos de documento y la dirección se adaptan al país seleccionado.",
-      "countryOfResidence": "País de residencia",
-      "nationality": "Nacionalidad",
-      "nationalityPlaceholder": "Ej.: Española, Brasileña, Francesa",
-      "phone": "Teléfono internacional",
-      "phonePlaceholder": "Introduce el teléfono",
-      "phoneHelp": "Selecciona el país mediante el prefijo internacional. El número se validará y se guardará en formato internacional.",
-      "identityType": "Tipo de documento de identidad",
-      "identityNumber": "Número del documento de identidad",
-      "identityNumberPlaceholder": "Introduce el número del documento",
-      "fiscalType": "Tipo de identificación fiscal",
-      "fiscalNumber": "Número de identificación fiscal",
-      "fiscalNumberPlaceholder": "Introduce el número fiscal",
-      "documentTypes": {
-        "driverLicense": "Permiso de conducir",
-        "citizenCard": "Tarjeta de Ciudadano",
-        "stateId": "Documento estatal de identidad",
-        "permanentResidentCard": "Tarjeta de residente permanente",
-        "passport": "Pasaporte",
-        "residencePermit": "Permiso / tarjeta de residencia",
-        "nationalId": "Documento nacional de identidad"
-      },
-      "fiscalTypes": {
-        "taxNumber": "Número fiscal",
-        "taxId": "Identificación fiscal / Tax ID"
-      },
-      "address": {
-        "title": "Dirección y ubicación",
-        "description": "El formato de la dirección se adapta al país de residencia del empleado.",
-        "postalBR": "CEP / Código postal",
-        "postalPT": "Código postal",
-        "postalUS": "ZIP Code",
-        "postalFR": "Código postal",
-        "postalES": "Código postal",
-        "postalGeneric": "Código postal",
-        "streetAddress": "Dirección",
-        "number": "Número",
-        "numberUS": "Número del inmueble",
-        "complement": "Complemento / segunda línea",
-        "complementUS": "Apto. / Suite",
-        "district": "Barrio / distrito",
-        "districtPT": "Freguesia / área",
-        "districtUS": "Barrio (opcional)",
-        "city": "Ciudad",
-        "cityPT": "Localidad",
-        "regionBR": "Estado / UF",
-        "regionPT": "Distrito / Región",
-        "regionUS": "Estado",
-        "regionES": "Provincia / Comunidad Autónoma",
-        "regionFR": "Departamento / Región",
-        "regionGeneric": "Estado / Provincia / Región",
-        "postalHelp": "Usa el formato de código postal del país seleccionado."
-      },
-      "errors": {
-        "invalidCountry": "Selecciona un país válido.",
-        "invalidPhoneCountry": "Selecciona un país válido para el teléfono.",
-        "invalidPhone": "Introduce un teléfono válido para el país seleccionado."
-      }
     }
   }
 }

@@ -7,77 +7,10 @@ import {
 import { TipoRemuneracaoRH } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import {
-  getCountries,
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from "libphonenumber-js";
 import { enviarEmailPrimeiroAcessoInstitucional } from "@/lib/email";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
-}
-
-const PAISES_VALIDOS = new Set<CountryCode>(
-  getCountries()
-);
-
-function paisOpcional(
-  valor: unknown
-): CountryCode | null {
-  const codigo = limparTexto(valor)
-    .toUpperCase() as CountryCode;
-
-  if (!codigo) {
-    return null;
-  }
-
-  return PAISES_VALIDOS.has(codigo)
-    ? codigo
-    : null;
-}
-
-function normalizarTelefoneInternacional(
-  valor: unknown,
-  pais: CountryCode | null
-): string | null {
-  const texto = limparTexto(valor);
-
-  if (!texto) {
-    return null;
-  }
-
-  const telefone = parsePhoneNumberFromString(
-    texto,
-    pais ?? undefined
-  );
-
-  if (!telefone || !telefone.isValid()) {
-    return null;
-  }
-
-  return telefone.number;
-}
-
-function normalizarTipoDocumento(
-  valor: unknown
-) {
-  const texto = limparTexto(valor)
-    .toUpperCase()
-    .replace(/[^A-Z0-9_]/g, "_")
-    .slice(0, 60);
-
-  return texto || null;
-}
-
-function textoOpcional(
-  valor: unknown,
-  limite = 200
-) {
-  const texto = limparTexto(valor);
-  return texto
-    ? texto.slice(0, limite)
-    : null;
 }
 
 function gerarSenhaTemporaria() {
@@ -398,191 +331,6 @@ export async function PUT(
         { status: 404 }
       );
     }
-
-    /*
-     * Dados pessoais internacionais
-     */
-    const paisResidenciaTexto =
-      temCampo("paisResidencia")
-        ? limparTexto(
-            body.paisResidencia
-          )
-        : limparTexto(
-            funcionario.paisResidencia
-          );
-
-    const paisResidencia =
-      paisResidenciaTexto
-        ? paisOpcional(
-            paisResidenciaTexto
-          )
-        : null;
-
-    if (
-      temCampo("paisResidencia") &&
-      paisResidenciaTexto &&
-      !paisResidencia
-    ) {
-      return NextResponse.json(
-        {
-          code: "INVALID_COUNTRY",
-          error:
-            "O país de residência informado é inválido.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const paisTelefoneTexto =
-      temCampo("paisTelefone")
-        ? limparTexto(
-            body.paisTelefone
-          )
-        : limparTexto(
-            funcionario.paisTelefone
-          );
-
-    const paisTelefone =
-      paisTelefoneTexto
-        ? paisOpcional(
-            paisTelefoneTexto
-          )
-        : paisResidencia;
-
-    if (
-      temCampo("paisTelefone") &&
-      paisTelefoneTexto &&
-      !paisTelefone
-    ) {
-      return NextResponse.json(
-        {
-          code: "INVALID_PHONE_COUNTRY",
-          error:
-            "O país informado para o telefone é inválido.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const telefoneInformado =
-      temCampo("telefone")
-        ? limparTexto(
-            body.telefone
-          )
-        : limparTexto(
-            funcionario.telefone
-          );
-
-    const telefoneNormalizado =
-      telefoneInformado
-        ? normalizarTelefoneInternacional(
-            telefoneInformado,
-            paisTelefone
-          )
-        : null;
-
-    if (
-      (temCampo("telefone") ||
-        temCampo("paisTelefone")) &&
-      telefoneInformado &&
-      (paisTelefone ||
-        telefoneInformado.startsWith("+")) &&
-      !telefoneNormalizado
-    ) {
-      return NextResponse.json(
-        {
-          code: "INVALID_PHONE",
-          error:
-            "Informe um telefone válido para o país selecionado.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const telefoneFinal =
-      telefoneNormalizado ||
-      telefoneInformado ||
-      null;
-
-    const nacionalidade =
-      temCampo("nacionalidade")
-        ? textoOpcional(
-            body.nacionalidade,
-            100
-          )
-        : funcionario.nacionalidade;
-
-    const tipoDocumento =
-      temCampo("tipoDocumento")
-        ? normalizarTipoDocumento(
-            body.tipoDocumento
-          )
-        : funcionario.tipoDocumento;
-
-    const numeroDocumento =
-      temCampo("numeroDocumento")
-        ? textoOpcional(
-            body.numeroDocumento,
-            100
-          )
-        : funcionario.numeroDocumento;
-
-    const tipoDocumentoFiscal =
-      temCampo("tipoDocumentoFiscal")
-        ? normalizarTipoDocumento(
-            body.tipoDocumentoFiscal
-          )
-        : funcionario.tipoDocumentoFiscal;
-
-    const numeroDocumentoFiscal =
-      temCampo("numeroDocumentoFiscal")
-        ? textoOpcional(
-            body.numeroDocumentoFiscal,
-            100
-          )
-        : funcionario.numeroDocumentoFiscal;
-
-    const alterouDocumentoFiscal =
-      temCampo("tipoDocumentoFiscal") ||
-      temCampo("numeroDocumentoFiscal");
-
-    const cpfCompatibilidade:
-      | string
-      | null
-      | undefined =
-      alterouDocumentoFiscal
-        ? tipoDocumentoFiscal === "CPF"
-          ? numeroDocumentoFiscal
-          : null
-        : temCampo("cpf")
-          ? textoOpcional(
-              body.cpf,
-              100
-            )
-          : undefined;
-
-    const alterouDocumentoIdentidade =
-      temCampo("tipoDocumento") ||
-      temCampo("numeroDocumento");
-
-    const rgCompatibilidade:
-      | string
-      | null
-      | undefined =
-      alterouDocumentoIdentidade
-        ? ["RG", "CIN"].includes(
-            String(
-              tipoDocumento || ""
-            )
-          )
-          ? numeroDocumento
-          : null
-        : temCampo("rg")
-          ? textoOpcional(
-              body.rg,
-              100
-            )
-          : undefined;
 
     const possuiAcessoAtual = Boolean(
       funcionario.userId &&
@@ -1452,50 +1200,18 @@ export async function PUT(
                 nome,
 
                 cpf:
-                  cpfCompatibilidade,
+                  temCampo("cpf")
+                    ? body.cpf || null
+                    : undefined,
 
                 rg:
-                  rgCompatibilidade,
+                  temCampo("rg")
+                    ? body.rg || null
+                    : undefined,
 
                 telefone:
-                  temCampo("telefone") ||
-                  temCampo("paisTelefone")
-                    ? telefoneFinal
-                    : undefined,
-
-                paisTelefone:
-                  temCampo("paisTelefone")
-                    ? paisTelefone
-                    : undefined,
-
-                nacionalidade:
-                  temCampo("nacionalidade")
-                    ? nacionalidade
-                    : undefined,
-
-                paisResidencia:
-                  temCampo("paisResidencia")
-                    ? paisResidencia
-                    : undefined,
-
-                tipoDocumento:
-                  temCampo("tipoDocumento")
-                    ? tipoDocumento
-                    : undefined,
-
-                numeroDocumento:
-                  temCampo("numeroDocumento")
-                    ? numeroDocumento
-                    : undefined,
-
-                tipoDocumentoFiscal:
-                  temCampo("tipoDocumentoFiscal")
-                    ? tipoDocumentoFiscal
-                    : undefined,
-
-                numeroDocumentoFiscal:
-                  temCampo("numeroDocumentoFiscal")
-                    ? numeroDocumentoFiscal
+                  temCampo("telefone")
+                    ? body.telefone || null
                     : undefined,
 
                 dataNascimento:
@@ -1505,58 +1221,37 @@ export async function PUT(
 
                 endereco:
                   temCampo("endereco")
-                    ? textoOpcional(
-                        body.endereco,
-                        250
-                      )
+                    ? body.endereco || null
                     : undefined,
 
                 numero:
                   temCampo("numero")
-                    ? textoOpcional(
-                        body.numero,
-                        60
-                      )
+                    ? body.numero || null
                     : undefined,
 
                 complemento:
                   temCampo("complemento")
-                    ? textoOpcional(
-                        body.complemento,
-                        150
-                      )
+                    ? body.complemento || null
                     : undefined,
 
                 bairro:
                   temCampo("bairro")
-                    ? textoOpcional(
-                        body.bairro,
-                        150
-                      )
+                    ? body.bairro || null
                     : undefined,
 
                 cidade:
                   temCampo("cidade")
-                    ? textoOpcional(
-                        body.cidade,
-                        150
-                      )
+                    ? body.cidade || null
                     : undefined,
 
                 estado:
                   temCampo("estado")
-                    ? textoOpcional(
-                        body.estado,
-                        150
-                      )
+                    ? body.estado || null
                     : undefined,
 
                 cep:
                   temCampo("cep")
-                    ? textoOpcional(
-                        body.cep,
-                        40
-                      )
+                    ? body.cep || null
                     : undefined,
 
                 cargoId,

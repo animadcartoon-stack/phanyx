@@ -1666,26 +1666,16 @@ model Certificado {
 }
 
 model Funcionario {
-  id                Int      @id @default(autoincrement())
-  nome              String
-  ativo             Boolean  @default(true)
-  statusFuncionario String   @default("ATIVO")
-  motivoStatus      String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  cpf               String?
-  rg                String?
-  telefone          String?
-
-  // Dados pessoais internacionais
-  paisTelefone          String? @db.VarChar(2)
-  nacionalidade         String?
-  paisResidencia        String? @db.VarChar(2)
-  tipoDocumento         String?
-  numeroDocumento       String?
-  tipoDocumentoFiscal   String?
-  numeroDocumentoFiscal String?
-
+  id                 Int       @id @default(autoincrement())
+  nome               String
+  ativo              Boolean   @default(true)
+  statusFuncionario  String    @default("ATIVO")
+  motivoStatus       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  cpf                String?
+  rg                 String?
+  telefone           String?
   dataNascimento     DateTime?
   endereco           String?
   numero             String?

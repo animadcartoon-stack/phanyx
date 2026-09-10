@@ -6,13 +6,6 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import Link from "next/link";
 import BuscaBanco from "@/components/rh/BuscaBanco";
-import { useLocale, useTranslations } from "next-intl";
-import {
-  getCountries,
-  parsePhoneNumberFromString,
-  type CountryCode,
-} from "libphonenumber-js";
-import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
 
 interface Departamento {
   id: number;
@@ -53,23 +46,6 @@ interface Funcionario {
   cpf?: string | null;
   rg?: string | null;
   telefone?: string | null;
-
-  paisTelefone?: string | null;
-  nacionalidade?: string | null;
-  paisResidencia?: string | null;
-  tipoDocumento?: string | null;
-  numeroDocumento?: string | null;
-  tipoDocumentoFiscal?: string | null;
-  numeroDocumentoFiscal?: string | null;
-
-  endereco?: string | null;
-  numero?: string | null;
-  complemento?: string | null;
-  bairro?: string | null;
-  cidade?: string | null;
-  estado?: string | null;
-  cep?: string | null;
-
   cargo?: string | null;
   cargoId?: number | null;
   setor?: string | null;
@@ -127,159 +103,27 @@ interface Funcionario {
   } | null;
 }
 
-type OpcaoDocumentoInternacional = readonly [string, string];
+function formatarCpf(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
 
-const PAIS_POR_LOCALE: Record<string, CountryCode> = {
-  "pt-BR": "BR",
-  "pt-PT": "PT",
-  "en-US": "US",
-  "es-ES": "ES",
-  "fr-FR": "FR",
-};
-
-function paisInicial(
-  locale: string
-): CountryCode {
-  return PAIS_POR_LOCALE[locale] || "BR";
+  return numeros
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
 }
 
-function codigoPaisValido(
-  valor: unknown
-): valor is CountryCode {
-  return (
-    typeof valor === "string" &&
-    getCountries().includes(
-      valor.toUpperCase() as CountryCode
-    )
-  );
-}
+function formatarTelefone(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
 
-function bandeiraPais(
-  codigo: CountryCode
-) {
-  return codigo
-    .toUpperCase()
-    .replace(
-      /./g,
-      (letra) =>
-        String.fromCodePoint(
-          127397 +
-            letra.charCodeAt(0)
-        )
-    );
-}
-
-function tipoDocumentoPadrao(
-  pais: CountryCode
-) {
-  switch (pais) {
-    case "BR":
-      return "CIN";
-    case "PT":
-      return "CARTAO_CIDADAO";
-    case "US":
-      return "STATE_ID";
-    case "ES":
-      return "DNI";
-    case "FR":
-      return "CNI";
-    default:
-      return "NATIONAL_ID";
-  }
-}
-
-function tipoDocumentoFiscalPadrao(
-  pais: CountryCode
-) {
-  switch (pais) {
-    case "BR":
-      return "CPF";
-    case "PT":
-      return "NIF";
-    case "US":
-      return "SSN";
-    case "ES":
-      return "NIF";
-    case "FR":
-      return "NUMERO_FISCAL";
-    default:
-      return "TAX_ID";
-  }
-}
-
-function formatarCodigoPostal(
-  valor: string,
-  pais: CountryCode
-) {
-  if (pais === "BR") {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 8);
-
-    return numeros.replace(
-      /^(\d{5})(\d)/,
-      "$1-$2"
-    );
+  if (numeros.length <= 10) {
+    return numeros
+      .replace(/^(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
   }
 
-  if (pais === "PT") {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 7);
-
-    return numeros.replace(
-      /^(\d{4})(\d)/,
-      "$1-$2"
-    );
-  }
-
-  if (pais === "US") {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 9);
-
-    return numeros.replace(
-      /^(\d{5})(\d)/,
-      "$1-$2"
-    );
-  }
-
-  if (
-    pais === "ES" ||
-    pais === "FR"
-  ) {
-    return valor
-      .replace(/\D/g, "")
-      .slice(0, 5);
-  }
-
-  return valor
-    .toUpperCase()
-    .slice(0, 20);
-}
-
-function formatarTelefoneExibicao(
-  valor?: string | null
-) {
-  const texto =
-    String(valor || "").trim();
-
-  if (!texto) {
-    return "-";
-  }
-
-  try {
-    const telefone =
-      parsePhoneNumberFromString(
-        texto
-      );
-
-    return telefone?.isValid()
-      ? telefone.formatInternational()
-      : texto;
-  } catch {
-    return texto;
-  }
+  return numeros
+    .replace(/^(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
 }
 
 function dataParaInput(valor?: string | Date | null) {
@@ -292,512 +136,24 @@ function dataParaInput(valor?: string | Date | null) {
   return data.toISOString().slice(0, 10);
 }
 
+function traduzirRole(role?: string) {
+  switch (String(role || "").toUpperCase()) {
+    case "ADMIN":
+      return "Administrador";
+    case "SECRETARIA":
+      return "Secretaria";
+    case "COORDENADOR":
+      return "Coordenação";
+    case "FINANCEIRO":
+      return "Financeiro";
+    case "SUPORTE":
+      return "Suporte";
+    default:
+      return role || "-";
+  }
+}
+
 function AdminFuncionariosPage() {
-  const t = useTranslations("AdminFuncionarios");
-  const locale = useLocale();
-
-  const paisPadrao =
-    paisInicial(locale);
-
-  const paisesDisponiveis =
-    useMemo(() => {
-      const nomesPaises =
-        new Intl.DisplayNames(
-          [locale],
-          { type: "region" }
-        );
-
-      return getCountries()
-        .map((codigo) => ({
-          codigo,
-          nome:
-            nomesPaises.of(codigo) ||
-            codigo,
-        }))
-        .sort((a, b) =>
-          a.nome.localeCompare(
-            b.nome,
-            locale
-          )
-        );
-    }, [locale]);
-
-  function nomePais(
-    codigo?: string | null
-  ) {
-    if (
-      !codigoPaisValido(
-        codigo
-      )
-    ) {
-      return codigo || "-";
-    }
-
-    return (
-      paisesDisponiveis.find(
-        (item) =>
-          item.codigo ===
-          codigo.toUpperCase()
-      )?.nome ||
-      codigo.toUpperCase()
-    );
-  }
-
-  function rotuloTipoDocumento(
-    tipo?: string | null
-  ) {
-    switch (
-      String(tipo || "").toUpperCase()
-    ) {
-      case "CIN":
-        return "CIN";
-      case "RG":
-        return "RG";
-      case "CNH":
-        return t(
-          "international.documentTypes.driverLicense"
-        );
-      case "CARTAO_CIDADAO":
-        return t(
-          "international.documentTypes.citizenCard"
-        );
-      case "STATE_ID":
-        return t(
-          "international.documentTypes.stateId"
-        );
-      case "PERMANENT_RESIDENT_CARD":
-        return t(
-          "international.documentTypes.permanentResidentCard"
-        );
-      case "DNI":
-        return "DNI";
-      case "NIE":
-        return "NIE";
-      case "TIE":
-        return "TIE";
-      case "CNI":
-        return "CNI";
-      case "PASSAPORTE":
-      case "PASSPORT":
-        return t(
-          "international.documentTypes.passport"
-        );
-      case "TITULO_RESIDENCIA":
-      case "RESIDENCE_PERMIT":
-        return t(
-          "international.documentTypes.residencePermit"
-        );
-      case "NATIONAL_ID":
-        return t(
-          "international.documentTypes.nationalId"
-        );
-      default:
-        return (
-          tipo ||
-          t(
-            "international.documentTypes.nationalId"
-          )
-        );
-    }
-  }
-
-  function rotuloTipoDocumentoFiscal(
-    tipo?: string | null
-  ) {
-    switch (
-      String(tipo || "").toUpperCase()
-    ) {
-      case "CPF":
-        return "CPF";
-      case "NIF":
-        return "NIF";
-      case "SSN":
-        return "SSN";
-      case "ITIN":
-        return "ITIN";
-      case "NUMERO_FISCAL":
-        return t(
-          "international.fiscalTypes.taxNumber"
-        );
-      case "TAX_ID":
-        return t(
-          "international.fiscalTypes.taxId"
-        );
-      default:
-        return (
-          tipo ||
-          t(
-            "international.fiscalTypes.taxId"
-          )
-        );
-    }
-  }
-
-  function opcoesDocumentoIdentidade(
-    pais: CountryCode
-  ): readonly OpcaoDocumentoInternacional[] {
-    switch (pais) {
-      case "BR":
-        return [
-          ["CIN", "CIN"],
-          ["RG", "RG"],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-        ] as const;
-
-      case "PT":
-        return [
-          [
-            "CARTAO_CIDADAO",
-            t(
-              "international.documentTypes.citizenCard"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "TITULO_RESIDENCIA",
-            t(
-              "international.documentTypes.residencePermit"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-
-      case "US":
-        return [
-          [
-            "STATE_ID",
-            t(
-              "international.documentTypes.stateId"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "PERMANENT_RESIDENT_CARD",
-            t(
-              "international.documentTypes.permanentResidentCard"
-            ),
-          ],
-        ] as const;
-
-      case "ES":
-        return [
-          ["DNI", "DNI"],
-          ["NIE", "NIE"],
-          ["TIE", "TIE"],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-
-      case "FR":
-        return [
-          ["CNI", "CNI"],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "TITULO_RESIDENCIA",
-            t(
-              "international.documentTypes.residencePermit"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-
-      default:
-        return [
-          [
-            "NATIONAL_ID",
-            t(
-              "international.documentTypes.nationalId"
-            ),
-          ],
-          [
-            "PASSAPORTE",
-            t(
-              "international.documentTypes.passport"
-            ),
-          ],
-          [
-            "RESIDENCE_PERMIT",
-            t(
-              "international.documentTypes.residencePermit"
-            ),
-          ],
-          [
-            "CNH",
-            t(
-              "international.documentTypes.driverLicense"
-            ),
-          ],
-        ] as const;
-    }
-  }
-
-  function opcoesDocumentoFiscal(
-    pais: CountryCode
-  ): readonly OpcaoDocumentoInternacional[] {
-    switch (pais) {
-      case "BR":
-        return [["CPF", "CPF"]] as const;
-
-      case "PT":
-        return [["NIF", "NIF"]] as const;
-
-      case "US":
-        return [
-          ["SSN", "SSN"],
-          ["ITIN", "ITIN"],
-          [
-            "TAX_ID",
-            t(
-              "international.fiscalTypes.taxId"
-            ),
-          ],
-        ] as const;
-
-      case "ES":
-        return [
-          ["NIF", "NIF"],
-          ["NIE", "NIE"],
-        ] as const;
-
-      case "FR":
-        return [
-          [
-            "NUMERO_FISCAL",
-            t(
-              "international.fiscalTypes.taxNumber"
-            ),
-          ],
-        ] as const;
-
-      default:
-        return [
-          [
-            "TAX_ID",
-            t(
-              "international.fiscalTypes.taxId"
-            ),
-          ],
-        ] as const;
-    }
-  }
-
-  function rotulosEndereco(
-    pais: CountryCode
-  ) {
-    return {
-      codigoPostal:
-        pais === "BR"
-          ? t(
-              "international.address.postalBR"
-            )
-          : pais === "PT"
-            ? t(
-                "international.address.postalPT"
-              )
-            : pais === "US"
-              ? t(
-                  "international.address.postalUS"
-                )
-              : pais === "FR"
-                ? t(
-                    "international.address.postalFR"
-                  )
-                : pais === "ES"
-                  ? t(
-                      "international.address.postalES"
-                    )
-                  : t(
-                      "international.address.postalGeneric"
-                    ),
-
-      endereco:
-        t(
-          "international.address.streetAddress"
-        ),
-
-      numero:
-        pais === "US"
-          ? t(
-              "international.address.numberUS"
-            )
-          : t(
-              "international.address.number"
-            ),
-
-      complemento:
-        pais === "US"
-          ? t(
-              "international.address.complementUS"
-            )
-          : t(
-              "international.address.complement"
-            ),
-
-      bairro:
-        pais === "PT"
-          ? t(
-              "international.address.districtPT"
-            )
-          : pais === "US"
-            ? t(
-                "international.address.districtUS"
-              )
-            : t(
-                "international.address.district"
-              ),
-
-      cidade:
-        pais === "PT"
-          ? t(
-              "international.address.cityPT"
-            )
-          : t(
-              "international.address.city"
-            ),
-
-      estado:
-        pais === "BR"
-          ? t(
-              "international.address.regionBR"
-            )
-          : pais === "PT"
-            ? t(
-                "international.address.regionPT"
-              )
-            : pais === "US"
-              ? t(
-                  "international.address.regionUS"
-                )
-              : pais === "ES"
-                ? t(
-                    "international.address.regionES"
-                  )
-                : pais === "FR"
-                  ? t(
-                      "international.address.regionFR"
-                    )
-                  : t(
-                      "international.address.regionGeneric"
-                    ),
-    };
-  }
-
-  function mensagemErroApi(
-    data: any,
-    fallback: string
-  ) {
-    switch (
-      String(
-        data?.code || ""
-      ).toUpperCase()
-    ) {
-      case "INVALID_COUNTRY":
-        return t(
-          "international.errors.invalidCountry"
-        );
-      case "INVALID_PHONE_COUNTRY":
-        return t(
-          "international.errors.invalidPhoneCountry"
-        );
-      case "INVALID_PHONE":
-        return t(
-          "international.errors.invalidPhone"
-        );
-      default:
-        return (
-          data?.error ||
-          fallback
-        );
-    }
-  }
-
-  function traduzirRole(role?: string) {
-    switch (String(role || "").toUpperCase()) {
-      case "ADMIN":
-        return t("roles.admin");
-      case "SECRETARIA":
-        return t("roles.secretariat");
-      case "COORDENADOR":
-        return t("roles.coordinator");
-      case "FINANCEIRO":
-        return t("roles.finance");
-      case "SUPORTE":
-        return t("roles.support");
-      default:
-        return role || "-";
-    }
-  }
-
-  function traduzirStatusFuncionario(status?: string) {
-    switch (String(status || "").toUpperCase()) {
-      case "ATIVO":
-        return t("status.active");
-      case "DEMITIDO":
-        return t("status.dismissed");
-      case "AFASTADO":
-        return t("status.onLeave");
-      case "ADVERTENCIA":
-        return t("status.warning");
-      case "FERIAS":
-        return t("status.vacation");
-      case "READMITIDO":
-        return t("status.rehired");
-      default:
-        return status || "-";
-    }
-  }
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
@@ -813,75 +169,9 @@ function AdminFuncionariosPage() {
     setCriarAcessoSistema,
   ] = useState(true);
 
-  const [
-    paisResidencia,
-    setPaisResidencia,
-  ] = useState<CountryCode>(
-    paisPadrao
-  );
-
-  const [
-    paisTelefone,
-    setPaisTelefone,
-  ] = useState<CountryCode>(
-    paisPadrao
-  );
-
-  const [
-    nacionalidade,
-    setNacionalidade,
-  ] = useState("");
-
-  const [
-    tipoDocumento,
-    setTipoDocumento,
-  ] = useState(
-    tipoDocumentoPadrao(
-      paisPadrao
-    )
-  );
-
-  const [
-    numeroDocumento,
-    setNumeroDocumento,
-  ] = useState("");
-
-  const [
-    tipoDocumentoFiscal,
-    setTipoDocumentoFiscal,
-  ] = useState(
-    tipoDocumentoFiscalPadrao(
-      paisPadrao
-    )
-  );
-
-  const [
-    numeroDocumentoFiscal,
-    setNumeroDocumentoFiscal,
-  ] = useState("");
-
-  const [
-    telefone,
-    setTelefone,
-  ] = useState("");
-
-  const [endereco, setEndereco] =
-    useState("");
-  const [numero, setNumero] =
-    useState("");
-  const [
-    complemento,
-    setComplemento,
-  ] = useState("");
-  const [bairro, setBairro] =
-    useState("");
-  const [cidade, setCidade] =
-    useState("");
-  const [estado, setEstado] =
-    useState("");
-  const [cep, setCep] =
-    useState("");
-
+  const [cpf, setCpf] = useState("");
+  const [rg, setRg] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
   const [cargoId, setCargoId] = useState("");
 
@@ -949,62 +239,13 @@ function AdminFuncionariosPage() {
   const [documentosFuncionario, setDocumentosFuncionario] = useState<
     { tipo: string; titulo: string; arquivo: File | null }[]
   >([
-    {
-      tipo: "DOCUMENTO_IDENTIDADE",
-      titulo: t(
-        "documents.identityDocument"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "DOCUMENTO_FISCAL",
-      titulo: t(
-        "documents.taxDocument"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "PASSAPORTE",
-      titulo: t(
-        "documents.passport"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "CARTEIRA_MOTORISTA",
-      titulo: t(
-        "documents.driverLicense"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "COMPROVANTE_RESIDENCIA",
-      titulo: t(
-        "documents.residenceProof"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "CURRICULO",
-      titulo: t(
-        "documents.resume"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "PORTFOLIO",
-      titulo: t(
-        "documents.portfolio"
-      ),
-      arquivo: null,
-    },
-    {
-      tipo: "CERTIFICADOS",
-      titulo: t(
-        "documents.certificates"
-      ),
-      arquivo: null,
-    },
+    { tipo: "RG", titulo: "RG", arquivo: null },
+    { tipo: "CPF", titulo: "CPF", arquivo: null },
+    { tipo: "CNH", titulo: "CNH", arquivo: null },
+    { tipo: "COMPROVANTE_RESIDENCIA", titulo: "Comprovante de residência", arquivo: null },
+    { tipo: "CURRICULO", titulo: "Currículo", arquivo: null },
+    { tipo: "PORTFOLIO", titulo: "Portfólio", arquivo: null },
+    { tipo: "CERTIFICADOS", titulo: "Certificados", arquivo: null },
   ]);
 
   const [linksPortfolio, setLinksPortfolio] = useState([
@@ -1074,7 +315,7 @@ function AdminFuncionariosPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          t("errors.loadJobs")
+          "Não foi possível carregar os cargos."
         );
       }
 
@@ -1144,7 +385,7 @@ function AdminFuncionariosPage() {
           cargoNomeAtual
             .trim()
             .toLocaleLowerCase(
-              locale
+              "pt-BR"
             );
 
         const cargoPorNome =
@@ -1153,7 +394,7 @@ function AdminFuncionariosPage() {
               item.nome
                 .trim()
                 .toLocaleLowerCase(
-                  locale
+                  "pt-BR"
                 ) ===
               nomeNormalizado
           );
@@ -1331,13 +572,13 @@ function AdminFuncionariosPage() {
   function validarFotoOficialFuncionario(arquivo: File) {
     if (!FORMATOS_FOTO_FUNCIONARIO_ACEITOS.includes(arquivo.type)) {
       throw new Error(
-        t("errors.invalidPhotoFormat")
+        "Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP."
       );
     }
 
     if (arquivo.size > TAMANHO_MAXIMO_FOTO_FUNCIONARIO_BYTES) {
       throw new Error(
-        t("errors.photoTooLarge", { max: TAMANHO_MAXIMO_FOTO_FUNCIONARIO_MB })
+        `Foto muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_FUNCIONARIO_MB} MB.`
       );
     }
   }
@@ -1361,7 +602,7 @@ function AdminFuncionariosPage() {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.error || t("errors.photoUpload"));
+        throw new Error(data?.error || "Erro ao enviar foto.");
       }
 
       const url =
@@ -1371,15 +612,15 @@ function AdminFuncionariosPage() {
         data?.publicUrl;
 
       if (!url) {
-        throw new Error(t("errors.photoUrlMissing"));
+        throw new Error("Upload realizado, mas a URL da foto não retornou.");
       }
 
       setFotoPerfil(url);
-      setSucesso(t("messages.photoUploaded"));
+      setSucesso("Foto oficial do funcionário enviada com sucesso.");
     } catch (error: any) {
       setErro(
         error?.message ||
-        t("errors.photoUploadCheck")
+        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
       );
     } finally {
       setEnviandoFotoPerfil(false);
@@ -1392,94 +633,9 @@ function AdminFuncionariosPage() {
     setCriarAcessoSistema(Boolean(f.user));
     setEmail(f.user?.email || "");
     setRole(String(f.user?.role || "").toUpperCase());
-
-    const paisResidenciaAtual =
-      codigoPaisValido(
-        f.paisResidencia
-      )
-        ? (String(
-            f.paisResidencia
-          ).toUpperCase() as CountryCode)
-        : f.cpf || f.rg
-          ? "BR"
-          : paisPadrao;
-
-    const paisTelefoneAtual =
-      codigoPaisValido(
-        f.paisTelefone
-      )
-        ? (String(
-            f.paisTelefone
-          ).toUpperCase() as CountryCode)
-        : paisResidenciaAtual;
-
-    setPaisResidencia(
-      paisResidenciaAtual
-    );
-    setPaisTelefone(
-      paisTelefoneAtual
-    );
-
-    setNacionalidade(
-      f.nacionalidade || ""
-    );
-
-    setTipoDocumento(
-      f.tipoDocumento ||
-      (f.rg
-        ? "RG"
-        : tipoDocumentoPadrao(
-            paisResidenciaAtual
-          ))
-    );
-
-    setNumeroDocumento(
-      f.numeroDocumento ||
-      f.rg ||
-      ""
-    );
-
-    setTipoDocumentoFiscal(
-      f.tipoDocumentoFiscal ||
-      (f.cpf
-        ? "CPF"
-        : tipoDocumentoFiscalPadrao(
-            paisResidenciaAtual
-          ))
-    );
-
-    setNumeroDocumentoFiscal(
-      f.numeroDocumentoFiscal ||
-      f.cpf ||
-      ""
-    );
-
-    setTelefone(
-      f.telefone || ""
-    );
-
-    setEndereco(
-      f.endereco || ""
-    );
-    setNumero(
-      f.numero || ""
-    );
-    setComplemento(
-      f.complemento || ""
-    );
-    setBairro(
-      f.bairro || ""
-    );
-    setCidade(
-      f.cidade || ""
-    );
-    setEstado(
-      f.estado || ""
-    );
-    setCep(
-      f.cep || ""
-    );
-
+    setCpf(f.cpf || "");
+    setRg(f.rg || "");
+    setTelefone(f.telefone || "");
     setCargo(f.cargo || "");
 
     setCargoId(
@@ -1589,36 +745,9 @@ function AdminFuncionariosPage() {
     setCriarAcessoSistema(true);
     setEmail("");
     setRole("");
-
-    setPaisResidencia(
-      paisPadrao
-    );
-    setPaisTelefone(
-      paisPadrao
-    );
-    setNacionalidade("");
-    setTipoDocumento(
-      tipoDocumentoPadrao(
-        paisPadrao
-      )
-    );
-    setNumeroDocumento("");
-    setTipoDocumentoFiscal(
-      tipoDocumentoFiscalPadrao(
-        paisPadrao
-      )
-    );
-    setNumeroDocumentoFiscal("");
+    setCpf("");
+    setRg("");
     setTelefone("");
-
-    setEndereco("");
-    setNumero("");
-    setComplemento("");
-    setBairro("");
-    setCidade("");
-    setEstado("");
-    setCep("");
-
     setCargo("");
     setCargoId("");
     setCargosDepartamento([]);
@@ -1650,125 +779,51 @@ function AdminFuncionariosPage() {
     setMotivoStatus("");
   }
 
-  function alterarPaisResidencia(
-    novoPaisValor: CountryCode
-  ) {
-    if (
-      !codigoPaisValido(
-        novoPaisValor
-      )
-    ) {
-      return;
-    }
-
-    const novoPais =
-      novoPaisValor.toUpperCase() as CountryCode;
-
-    setPaisResidencia(
-      novoPais
-    );
-
-    setCep((atual) =>
-      formatarCodigoPostal(
-        atual,
-        novoPais
-      )
-    );
-
-    if (!telefone.trim()) {
-      setPaisTelefone(
-        novoPais
-      );
-    }
-
-    const tiposIdentidadeValidos =
-      opcoesDocumentoIdentidade(
-        novoPais
-      ).map(
-        ([valor]) =>
-          String(valor)
-      );
-
-    if (
-      !tiposIdentidadeValidos.includes(
-        tipoDocumento
-      )
-    ) {
-      setTipoDocumento(
-        tipoDocumentoPadrao(
-          novoPais
-        )
-      );
-      setNumeroDocumento("");
-    }
-
-    const tiposFiscaisValidos =
-      opcoesDocumentoFiscal(
-        novoPais
-      ).map(
-        ([valor]) =>
-          String(valor)
-      );
-
-    if (
-      !tiposFiscaisValidos.includes(
-        tipoDocumentoFiscal
-      )
-    ) {
-      setTipoDocumentoFiscal(
-        tipoDocumentoFiscalPadrao(
-          novoPais
-        )
-      );
-      setNumeroDocumentoFiscal("");
-    }
-  }
-
   function validarRemuneracaoFuncionario() {
     if (!tipoRemuneracao) {
-      return t("errors.selectCompensationType");
+      return "Selecione a modalidade de remuneração do funcionário.";
     }
 
     if (
       tipoRemuneracao === "MENSAL" &&
       !salarioBase.trim()
     ) {
-      return t("errors.monthlySalaryRequired");
+      return "Informe o salário mensal do funcionário.";
     }
 
     if (
       tipoRemuneracao === "HORA_AULA" &&
       !valorHoraAula.trim()
     ) {
-      return t("errors.classHourValueRequired");
+      return "Informe o valor da hora-aula.";
     }
 
     if (
       tipoRemuneracao === "HORA_TRABALHADA" &&
       !valorHoraTrabalhada.trim()
     ) {
-      return t("errors.workHourValueRequired");
+      return "Informe o valor da hora trabalhada.";
     }
 
     if (
       tipoRemuneracao === "POR_AULA" &&
       !valorPorAula.trim()
     ) {
-      return t("errors.perClassValueRequired");
+      return "Informe o valor por aula.";
     }
 
     if (
       tipoRemuneracao === "POR_TURMA" &&
       !valorPorTurma.trim()
     ) {
-      return t("errors.perClassGroupValueRequired");
+      return "Informe o valor por turma.";
     }
 
     if (
       tipoRemuneracao === "POR_DISCIPLINA" &&
       !valorPorDisciplina.trim()
     ) {
-      return t("errors.perSubjectValueRequired");
+      return "Informe o valor por disciplina.";
     }
 
     if (tipoRemuneracao === "MISTO") {
@@ -1781,7 +836,7 @@ function AdminFuncionariosPage() {
         Boolean(valorPorDisciplina.trim());
 
       if (!possuiAlgumValor) {
-        return t("errors.mixedCompensationValueRequired");
+        return "Na remuneração mista, informe pelo menos um valor.";
       }
     }
 
@@ -1796,23 +851,17 @@ function AdminFuncionariosPage() {
     }
 
     if (!nome.trim()) {
-      setErro(t("errors.employeeNameBeforeContinue"));
+      setErro("Informe o nome do funcionário antes de continuar.");
       return;
     }
 
-    if (
-      criarAcessoSistema &&
-      !email.trim()
-    ) {
-      setErro(t("errors.employeeEmailBeforeContinue"));
+    if (!email.trim()) {
+      setErro("Informe o email do funcionário antes de continuar.");
       return;
     }
 
-    if (
-      criarAcessoSistema &&
-      !role
-    ) {
-      setErro(t("errors.accessProfileBeforeContinue"));
+    if (!role) {
+      setErro("Selecione o perfil de acesso do funcionário antes de continuar.");
       return;
     }
 
@@ -1827,25 +876,9 @@ function AdminFuncionariosPage() {
           nome,
           email,
           role,
-
-          paisResidencia,
-          nacionalidade,
-          paisTelefone,
+          cpf,
+          rg,
           telefone,
-
-          tipoDocumento,
-          numeroDocumento,
-          tipoDocumentoFiscal,
-          numeroDocumentoFiscal,
-
-          endereco,
-          numero,
-          complemento,
-          bairro,
-          cidade,
-          estado,
-          cep,
-
           cargo,
           cargoId:
             cargoId
@@ -1873,16 +906,11 @@ function AdminFuncionariosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(
-          mensagemErroApi(
-            data,
-            t("errors.updateEmployee")
-          )
-        );
+        setErro(data.error || "Erro ao criar funcionário.");
         return;
       }
 
-      setSucesso(t("messages.employeeUpdated"));
+      setSucesso("Funcionário atualizado com sucesso.");
       limparFormulario();
       await carregarFuncionarios();
     } finally {
@@ -1897,13 +925,13 @@ function AdminFuncionariosPage() {
   ) {
     const mensagem =
       acao === "bloquear"
-        ? t("confirm.blockMessage", { name: nome })
-        : t("confirm.unblockMessage", { name: nome });
+        ? `Deseja bloquear o acesso de "${nome}"?`
+        : `Deseja desbloquear o acesso de "${nome}"?`;
 
     setConfirmTitulo(
       acao === "bloquear"
-        ? t("confirm.blockTitle")
-        : t("confirm.unblockTitle")
+        ? "Bloquear acesso"
+        : "Desbloquear acesso"
     );
 
     setConfirmMensagem(mensagem);
@@ -1921,19 +949,19 @@ function AdminFuncionariosPage() {
 
         if (!res.ok) {
           setErro(
-            data.error || t("errors.changeAccess")
+            data.error || "Erro ao alterar acesso do funcionário."
           );
           return;
         }
 
         setSucesso(
-          data.message || t("messages.accessChanged")
+          data.message || "Acesso alterado com sucesso."
         );
 
         await carregarFuncionarios();
       } catch {
         setErro(
-          t("errors.changeAccessCommunication")
+          "Erro de comunicação ao alterar acesso do funcionário."
         );
       } finally {
         setConfirmModalAberto(false);
@@ -1947,13 +975,13 @@ function AdminFuncionariosPage() {
     e.preventDefault();
 
     if (!nome.trim()) {
-      setErro(t("errors.employeeNameRequired"));
+      setErro("Informe o nome do funcionário.");
       return;
     }
 
     if (!poloId) {
       setErro(
-        t("errors.campusRequired")
+        "Selecione o polo de lotação do funcionário."
       );
       return;
     }
@@ -1963,7 +991,7 @@ function AdminFuncionariosPage() {
       !email.trim()
     ) {
       setErro(
-        t("errors.emailForAccessRequired")
+        "Informe o email para criar o acesso do funcionário."
       );
       return;
     }
@@ -1973,7 +1001,7 @@ function AdminFuncionariosPage() {
       !role
     ) {
       setErro(
-        t("errors.accessProfileRequired")
+        "Selecione o perfil de acesso do funcionário."
       );
       return;
     }
@@ -2002,25 +1030,9 @@ function AdminFuncionariosPage() {
           role: criarAcessoSistema
             ? role
             : "",
-
-          paisResidencia,
-          nacionalidade,
-          paisTelefone,
+          cpf,
+          rg,
           telefone,
-
-          tipoDocumento,
-          numeroDocumento,
-          tipoDocumentoFiscal,
-          numeroDocumentoFiscal,
-
-          endereco,
-          numero,
-          complemento,
-          bairro,
-          cidade,
-          estado,
-          cep,
-
           cargo,
           cargoId:
             cargoId
@@ -2064,12 +1076,7 @@ function AdminFuncionariosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(
-          mensagemErroApi(
-            data,
-            t("errors.createEmployee")
-          )
-        );
+        setErro(data.error || "Erro ao atualizar funcionário.");
         return;
       }
 
@@ -2122,36 +1129,9 @@ function AdminFuncionariosPage() {
       setCriarAcessoSistema(true);
       setEmail("");
       setRole("");
-
-      setPaisResidencia(
-        paisPadrao
-      );
-      setPaisTelefone(
-        paisPadrao
-      );
-      setNacionalidade("");
-      setTipoDocumento(
-        tipoDocumentoPadrao(
-          paisPadrao
-        )
-      );
-      setNumeroDocumento("");
-      setTipoDocumentoFiscal(
-        tipoDocumentoFiscalPadrao(
-          paisPadrao
-        )
-      );
-      setNumeroDocumentoFiscal("");
+      setCpf("");
+      setRg("");
       setTelefone("");
-
-      setEndereco("");
-      setNumero("");
-      setComplemento("");
-      setBairro("");
-      setCidade("");
-      setEstado("");
-      setCep("");
-
       setCargo("");
       setCargoId("");
       setCargosDepartamento([]);
@@ -2191,8 +1171,8 @@ function AdminFuncionariosPage() {
 
       setSucesso(
         data?.acessoSistema
-          ? t("messages.employeeCreatedWithAccess")
-          : t("messages.employeeCreatedWithoutAccess")
+          ? "Funcionário criado com sucesso e email de acesso enviado."
+          : "Funcionário cadastrado no RH com sucesso, sem acesso ao sistema."
       );
     } finally {
       setCarregando(false);
@@ -2207,84 +1187,67 @@ function AdminFuncionariosPage() {
   }, []);
 
   const funcionariosFiltrados = useMemo(() => {
-    const termoTexto =
-      busca.trim().toLowerCase();
+    const termoTexto = busca.trim().toLowerCase();
+    const termoNumerico = busca.replace(/\D/g, "");
 
-    const termoNumerico =
-      busca.replace(/\D/g, "");
+    if (!termoTexto) return funcionarios;
 
-    if (!termoTexto) {
-      return funcionarios;
-    }
+    return funcionarios.filter((funcionario) => {
+      const nome = String(funcionario.nome || "").toLowerCase().trim();
+      const email = String(funcionario.user?.email || "")
+        .toLowerCase()
+        .trim();
+      const role = String(funcionario.user?.role || "").toLowerCase().trim();
+      const cpf = String(funcionario.cpf || "").toLowerCase().trim();
+      const rg = String(funcionario.rg || "").toLowerCase().trim();
+      const telefone = String(funcionario.telefone || "").toLowerCase().trim();
+      const cargo = String(funcionario.cargo || "").toLowerCase().trim();
+      const codigoFuncionario = String(funcionario.codigoFuncionario || "")
+        .toLowerCase()
+        .trim();
+      const departamento = String(funcionario.departamento?.nome || "")
+        .toLowerCase()
+        .trim();
 
-    return funcionarios.filter(
-      (funcionario) => {
-        const camposTexto = [
-          funcionario.nome,
-          funcionario.user?.email,
-          funcionario.user?.role,
-          funcionario.numeroDocumentoFiscal,
-          funcionario.cpf,
-          funcionario.numeroDocumento,
-          funcionario.rg,
-          funcionario.telefone,
-          funcionario.nacionalidade,
-          funcionario.paisResidencia,
-          funcionario.cargo,
-          funcionario.codigoFuncionario,
-          funcionario.departamento?.nome,
-          funcionario.polo?.nome,
-          funcionario.endereco,
-          funcionario.bairro,
-          funcionario.cidade,
-          funcionario.estado,
-          funcionario.cep,
-        ].map((valor) =>
-          String(valor || "")
-            .toLowerCase()
-            .trim()
-        );
+      const polo = String(
+        funcionario.polo?.nome || ""
+      )
+        .toLowerCase()
+        .trim();
 
-        if (
-          camposTexto.some(
-            (valor) =>
-              valor.includes(
-                termoTexto
-              )
-          )
-        ) {
-          return true;
-        }
+      const cpfNumerico = cpf.replace(/\D/g, "");
+      const rgNumerico = rg.replace(/\D/g, "");
+      const telefoneNumerico = telefone.replace(/\D/g, "");
+      const codigoNumerico = codigoFuncionario.replace(/\D/g, "");
 
-        if (!termoNumerico) {
-          return false;
-        }
-
-        return camposTexto.some(
-          (valor) =>
-            valor
-              .replace(/\D/g, "")
-              .includes(
-                termoNumerico
-              )
-        );
-      }
-    );
+      return (
+        nome.includes(termoTexto) ||
+        email.includes(termoTexto) ||
+        role.includes(termoTexto) ||
+        cpf.includes(termoTexto) ||
+        rg.includes(termoTexto) ||
+        telefone.includes(termoTexto) ||
+        cargo.includes(termoTexto) ||
+        codigoFuncionario.includes(termoTexto) ||
+        departamento.includes(termoTexto) ||
+        polo.includes(termoTexto) ||
+        (termoNumerico !== "" &&
+          (cpfNumerico.includes(termoNumerico) ||
+            rgNumerico.includes(termoNumerico) ||
+            telefoneNumerico.includes(termoNumerico) ||
+            codigoNumerico.includes(termoNumerico)))
+      );
+    });
   }, [funcionarios, busca]);
-
-  const enderecoUI =
-    rotulosEndereco(
-      paisResidencia
-    );
 
   return (
     <div className="phanyx-admin-funcionarios-page space-y-6 max-w-5xl">
-      <h1 className="text-2xl font-bold">🧑‍💼 {t("title")}</h1>
+      <h1 className="text-2xl font-bold">🧑‍💼 Funcionários</h1>
 
       {erro && (
         <PhanyxToast
           tipo="erro"
-          titulo={t("toast.errorTitle")}
+          titulo="Não foi possível concluir"
           mensagem={erro}
           onClose={() => setErro("")}
         />
@@ -2293,7 +1256,7 @@ function AdminFuncionariosPage() {
       {sucesso && (
         <PhanyxToast
           tipo="sucesso"
-          titulo={t("toast.successTitle")}
+          titulo="Tudo certo"
           mensagem={sucesso}
           onClose={() => setSucesso("")}
         />
@@ -2313,7 +1276,7 @@ function AdminFuncionariosPage() {
   "
       >
         <h2 className="font-semibold">
-          {editandoId ? t("form.editTitle") : t("form.newTitle")}
+          {editandoId ? "Editar funcionário" : "Novo funcionário"}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2349,11 +1312,13 @@ function AdminFuncionariosPage() {
 
                   <span>
                     <span className="block font-bold text-slate-900 dark:text-white">
-                      {t("systemAccess.createTitle")}
+                      Criar acesso ao sistema para este funcionário
                     </span>
 
                     <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      {t("systemAccess.createDescription")}
+                      Quando ativado, o PHANYX criará login, senha temporária e
+                      enviará as credenciais por email. Desative para cadastrar
+                      somente o vínculo trabalhista no RH.
                     </span>
                   </span>
                 </label>
@@ -2375,14 +1340,16 @@ function AdminFuncionariosPage() {
             dark:text-slate-200
           "
                   >
-                    {t("systemAccess.noAccessDescription")}
+                    Este funcionário poderá participar da folha, ponto, férias,
+                    benefícios, holerites, documentos e demais rotinas do RH, mas
+                    não receberá login nem senha.
                   </div>
                 )}
               </div>
             </div>
           )}
           <input
-            placeholder={t("fields.name")}
+            placeholder="Nome"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             className="w-full border rounded-lg p-2"
@@ -2391,7 +1358,7 @@ function AdminFuncionariosPage() {
           {criarAcessoSistema && (
             <>
               <input
-                placeholder={t("fields.email")}
+                placeholder="Email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -2401,7 +1368,7 @@ function AdminFuncionariosPage() {
 
               <div className="space-y-1">
                 <label className="text-sm font-medium text-slate-700">
-                  {t("fields.accessProfile")}
+                  Perfil de acesso ao sistema
                 </label>
 
                 <select
@@ -2422,15 +1389,15 @@ dark:text-white
                   required
                 >
                   <option value="" className="bg-slate-900 text-white">
-                    {t("fields.selectProfile")}
+                    Selecione o perfil
                   </option>
 
                   <option value="ADMIN" className="bg-slate-900 text-white">
-                    {t("roles.admin")}
+                    Administrador
                   </option>
 
                   <option value="SECRETARIA" className="bg-slate-900 text-white">
-                    {t("roles.employee")}
+                    Funcionário
                   </option>
 
                 </select>
@@ -2439,7 +1406,7 @@ dark:text-white
           )}
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700">
-              {t("fields.department")}
+              Departamento
             </label>
 
             <select
@@ -2466,7 +1433,7 @@ dark:text-white
                 value=""
                 className="bg-slate-900 text-white"
               >
-                {t("fields.selectDepartment")}
+                Selecione um departamento
               </option>
 
               {departamentos.map((d) => (
@@ -2483,7 +1450,7 @@ dark:text-white
 
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              {t("fields.job")}
+              Cargo
             </label>
 
             <select
@@ -2517,12 +1484,12 @@ dark:text-white
             >
               <option value="">
                 {carregandoCargos
-                  ? t("job.loading")
+                  ? "Carregando cargos..."
                   : !departamentoId
-                    ? t("job.selectDepartmentFirst")
+                    ? "Selecione primeiro o departamento"
                     : cargosDepartamento.length === 0
-                      ? t("job.noActiveJobs")
-                      : t("job.selectJob")}
+                      ? "Nenhum cargo ativo cadastrado"
+                      : "Selecione o cargo"}
               </option>
 
               {cargosDepartamento.map(
@@ -2533,7 +1500,7 @@ dark:text-white
                   >
                     {item.nome}
                     {!item.ativo
-                      ? ` — ${t("common.inactive")}`
+                      ? " — Inativo"
                       : ""}
                   </option>
                 )
@@ -2545,7 +1512,10 @@ dark:text-white
               cargosDepartamento.length ===
               0 && (
                 <p className="text-xs leading-5 text-amber-700 dark:text-amber-300">
-                  {t("job.noJobsHelp")}
+                  Este departamento ainda não
+                  possui cargos ativos
+                  cadastrados. Cadastre os
+                  cargos em Departamentos.
                 </p>
               )}
           </div>
@@ -2553,7 +1523,7 @@ dark:text-white
           {/* POLO DE LOTAÇÃO */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              {t("fields.campus")}
+              Polo de lotação
               {!editandoId && (
                 <span className="ml-1 text-red-600">
                   *
@@ -2587,7 +1557,7 @@ dark:text-white
     "
             >
               <option value="">
-                {t("fields.selectCampus")}
+                Selecione o polo de lotação
               </option>
 
               {polos.map((polo) => {
@@ -2609,7 +1579,7 @@ dark:text-white
                       ? ` — ${polo.codigo}`
                       : ""}
                     {!disponivel
-                      ? ` — ${t("common.inactive")}`
+                      ? " — Inativo"
                       : ""}
                   </option>
                 );
@@ -2618,11 +1588,15 @@ dark:text-white
 
             {editandoId ? (
               <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-                {t("campus.editHelp")}
+                A lotação não pode ser alterada por
+                esta edição comum. Para definir ou
+                transferir o polo, abra a ficha do
+                funcionário.
               </p>
             ) : (
               <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-                {t("campus.createHelp")}
+                Selecione a unidade em que o
+                funcionário será inicialmente lotado.
               </p>
             )}
 
@@ -2631,266 +1605,49 @@ dark:text-white
                 href={`/admin/funcionarios/${editandoId}`}
                 className="inline-flex text-xs font-bold text-blue-700 hover:underline dark:text-blue-300"
               >
-                {t("campus.openRecord")}
+                Abrir ficha e gerenciar lotação
               </Link>
             )}
           </div>
 
-          <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/60">
-            <div className="mb-4">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                🌍 {t("international.personalTitle")}
-              </h3>
+          <input
+            placeholder="CPF"
+            value={cpf}
+            onChange={(e) =>
+              setCpf(formatarCpf(e.target.value))
+            }
+            className="w-full border rounded-lg p-2"
+            inputMode="numeric"
+          />
 
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {t("international.personalDescription")}
-              </p>
-            </div>
+          <input
+            placeholder="RG"
+            value={rg}
+            onChange={(e) => setRg(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("international.countryOfResidence")}
-                </label>
+          <input
+            placeholder="Telefone"
+            value={telefone}
+            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+            className="w-full border rounded-lg p-2"
+            inputMode="numeric"
+          />
 
-                <select
-                  value={paisResidencia}
-                  onChange={(e) =>
-                    alterarPaisResidencia(
-                      e.target.value as CountryCode
-                    )
-                  }
-                  required
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  {paisesDisponiveis.map(
-                    (pais) => (
-                      <option
-                        key={pais.codigo}
-                        value={pais.codigo}
-                      >
-                        {bandeiraPais(
-                          pais.codigo
-                        )}{" "}
-                        {pais.nome}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("international.nationality")}
-                </label>
-
-                <input
-                  value={nacionalidade}
-                  onChange={(e) =>
-                    setNacionalidade(
-                      e.target.value
-                    )
-                  }
-                  placeholder={t(
-                    "international.nationalityPlaceholder"
-                  )}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("international.phone")}
-                </label>
-
-                <CampoTelefoneInternacional
-                  value={telefone}
-                  pais={paisTelefone}
-                  onChange={(
-                    valor,
-                    novoPais
-                  ) => {
-                    setTelefone(valor);
-                    setPaisTelefone(
-                      novoPais
-                    );
-                  }}
-                  placeholder={t(
-                    "international.phonePlaceholder"
-                  )}
-                />
-
-                <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                  {t(
-                    "international.phoneHelp"
-                  )}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t("fields.employeeCodeOptional")}
-                </label>
-
-                <input
-                  value={codigoFuncionario}
-                  onChange={(e) =>
-                    setCodigoFuncionario(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.identityType"
-                  )}
-                </label>
-
-                <select
-                  value={tipoDocumento}
-                  onChange={(e) =>
-                    setTipoDocumento(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  {tipoDocumento &&
-                    !opcoesDocumentoIdentidade(
-                      paisResidencia
-                    ).some(
-                      ([valor]) =>
-                        String(valor) ===
-                        tipoDocumento
-                    ) && (
-                      <option
-                        value={tipoDocumento}
-                      >
-                        {rotuloTipoDocumento(
-                          tipoDocumento
-                        )}
-                      </option>
-                    )}
-
-                  {opcoesDocumentoIdentidade(
-                    paisResidencia
-                  ).map(
-                    ([valor, rotulo]) => (
-                      <option
-                        key={valor}
-                        value={valor}
-                      >
-                        {rotulo}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.identityNumber"
-                  )}
-                </label>
-
-                <input
-                  value={numeroDocumento}
-                  onChange={(e) =>
-                    setNumeroDocumento(
-                      e.target.value
-                    )
-                  }
-                  placeholder={t(
-                    "international.identityNumberPlaceholder"
-                  )}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.fiscalType"
-                  )}
-                </label>
-
-                <select
-                  value={tipoDocumentoFiscal}
-                  onChange={(e) =>
-                    setTipoDocumentoFiscal(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  {tipoDocumentoFiscal &&
-                    !opcoesDocumentoFiscal(
-                      paisResidencia
-                    ).some(
-                      ([valor]) =>
-                        String(valor) ===
-                        tipoDocumentoFiscal
-                    ) && (
-                      <option
-                        value={
-                          tipoDocumentoFiscal
-                        }
-                      >
-                        {rotuloTipoDocumentoFiscal(
-                          tipoDocumentoFiscal
-                        )}
-                      </option>
-                    )}
-
-                  {opcoesDocumentoFiscal(
-                    paisResidencia
-                  ).map(
-                    ([valor, rotulo]) => (
-                      <option
-                        key={valor}
-                        value={valor}
-                      >
-                        {rotulo}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t(
-                    "international.fiscalNumber"
-                  )}
-                </label>
-
-                <input
-                  value={numeroDocumentoFiscal}
-                  onChange={(e) =>
-                    setNumeroDocumentoFiscal(
-                      e.target.value
-                    )
-                  }
-                  placeholder={t(
-                    "international.fiscalNumberPlaceholder"
-                  )}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
+          <input
+            placeholder="Código do funcionário (opcional)"
+            value={codigoFuncionario}
+            onChange={(e) => setCodigoFuncionario(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
           <div className="phanyx-foto-oficial-card md:col-span-2">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
                 {fotoPerfil ? (
                   <img
                     src={fotoPerfil}
-                    alt={nome || t("photo.alt")}
+                    alt={nome || "Foto oficial do funcionário"}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -2902,20 +1659,22 @@ dark:text-white
 
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                  {t("photo.title")}
+                  Foto oficial do funcionário
                 </h3>
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  {t("photo.description")}
+                  Esta é a foto institucional usada em crachás, identificação, documentos
+                  e registros internos.
                 </p>
 
                 <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
-                  {t("photo.help")}
+                  Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
+                  Recomendado: foto quadrada, com rosto centralizado.
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-                    {enviandoFotoPerfil ? t("buttons.uploading") : t("buttons.uploadPhoto")}
+                    {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -2933,7 +1692,7 @@ dark:text-white
                       onClick={() => setFotoPerfil("")}
                       className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                     >
-                      {t("buttons.removePhoto")}
+                      Remover foto
                     </button>
                   )}
                 </div>
@@ -2945,169 +1704,19 @@ dark:text-white
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <div className="mb-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              📍 {t("international.address.title")}
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              {t("international.address.description")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.codigoPostal}
-              </label>
-
-              <input
-                value={cep}
-                onChange={(e) =>
-                  setCep(
-                    formatarCodigoPostal(
-                      e.target.value,
-                      paisResidencia
-                    )
-                  )
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                  }
-                }}
-                autoComplete="postal-code"
-                placeholder={enderecoUI.codigoPostal}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-
-              <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                {t(
-                  "international.address.postalHelp"
-                )}
-              </p>
-            </div>
-
-            <div className="space-y-1 xl:col-span-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.endereco}
-              </label>
-
-              <input
-                value={endereco}
-                onChange={(e) =>
-                  setEndereco(
-                    e.target.value
-                  )
-                }
-                autoComplete="street-address"
-                placeholder={enderecoUI.endereco}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.numero}
-              </label>
-
-              <input
-                value={numero}
-                onChange={(e) =>
-                  setNumero(
-                    e.target.value
-                  )
-                }
-                placeholder={enderecoUI.numero}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.complemento}
-              </label>
-
-              <input
-                value={complemento}
-                onChange={(e) =>
-                  setComplemento(
-                    e.target.value
-                  )
-                }
-                placeholder={enderecoUI.complemento}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.bairro}
-              </label>
-
-              <input
-                value={bairro}
-                onChange={(e) =>
-                  setBairro(
-                    e.target.value
-                  )
-                }
-                placeholder={enderecoUI.bairro}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.cidade}
-              </label>
-
-              <input
-                value={cidade}
-                onChange={(e) =>
-                  setCidade(
-                    e.target.value
-                  )
-                }
-                autoComplete="address-level2"
-                placeholder={enderecoUI.cidade}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {enderecoUI.estado}
-              </label>
-
-              <input
-                value={estado}
-                onChange={(e) =>
-                  setEstado(
-                    e.target.value
-                  )
-                }
-                autoComplete="address-level1"
-                placeholder={enderecoUI.estado}
-                className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="mb-4">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              💼 {t("employment.title")}
+              💼 Dados trabalhistas, previdenciários e bancários
             </h3>
 
             <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
-              {t("employment.description")}
+              Informe os dados necessários para folha, ponto, holerites, banco de horas,
+              rescisões e relatórios contábeis.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.admissionDate")}
+                Data de admissão
               </label>
               <input
                 type="date"
@@ -3119,7 +1728,7 @@ dark:text-white
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.compensationType")}
+                Modalidade de remuneração
               </label>
 
               <select
@@ -3132,20 +1741,20 @@ dark:text-white
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 required
               >
-                <option value="">{t("common.select")}</option>
-                <option value="MENSAL">{t("compensation.monthlySalary")}</option>
-                <option value="HORA_AULA">{t("compensation.classHour")}</option>
+                <option value="">Selecione</option>
+                <option value="MENSAL">Salário mensal</option>
+                <option value="HORA_AULA">Hora-aula</option>
                 <option value="HORA_TRABALHADA">
-                  {t("compensation.workHour")}
+                  Hora trabalhada
                 </option>
-                <option value="POR_AULA">{t("compensation.perClass")}</option>
-                <option value="POR_TURMA">{t("compensation.perClassGroup")}</option>
+                <option value="POR_AULA">Valor por aula</option>
+                <option value="POR_TURMA">Valor por turma</option>
                 <option value="POR_DISCIPLINA">
-                  {t("compensation.perSubject")}
+                  Valor por disciplina
                 </option>
-                <option value="MISTO">{t("compensation.mixed")}</option>
+                <option value="MISTO">Remuneração mista</option>
                 <option value="SEM_REMUNERACAO">
-                  {t("compensation.none")}
+                  Sem remuneração
                 </option>
               </select>
             </div>
@@ -3154,11 +1763,11 @@ dark:text-white
               tipoRemuneracao === "MISTO") && (
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t("compensation.monthlySalary")}
+                    Salário mensal
                   </label>
 
                   <input
-                    placeholder={t("placeholders.amount")}
+                    placeholder="0,00"
                     value={salarioBase}
                     onChange={(e) =>
                       setSalarioBase(e.target.value)
@@ -3174,11 +1783,11 @@ dark:text-white
                 <>
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                      {t("employment.classHourValue")}
+                      Valor da hora-aula
                     </label>
 
                     <input
-                      placeholder={t("placeholders.amount")}
+                      placeholder="0,00"
                       value={valorHoraAula}
                       onChange={(e) =>
                         setValorHoraAula(e.target.value)
@@ -3190,7 +1799,7 @@ dark:text-white
 
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                      {t("employment.classHourDuration")}
+                      Duração da hora-aula
                     </label>
 
                     <div className="relative">
@@ -3206,7 +1815,7 @@ dark:text-white
                       />
 
                       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
-                        {t("common.minutes")}
+                        minutos
                       </span>
                     </div>
                   </div>
@@ -3217,11 +1826,11 @@ dark:text-white
               tipoRemuneracao === "MISTO") && (
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t("employment.workHourValue")}
+                    Valor da hora trabalhada
                   </label>
 
                   <input
-                    placeholder={t("placeholders.amount")}
+                    placeholder="0,00"
                     value={valorHoraTrabalhada}
                     onChange={(e) =>
                       setValorHoraTrabalhada(e.target.value)
@@ -3236,11 +1845,11 @@ dark:text-white
               tipoRemuneracao === "MISTO") && (
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t("compensation.perClass")}
+                    Valor por aula
                   </label>
 
                   <input
-                    placeholder={t("placeholders.amount")}
+                    placeholder="0,00"
                     value={valorPorAula}
                     onChange={(e) =>
                       setValorPorAula(e.target.value)
@@ -3255,11 +1864,11 @@ dark:text-white
               tipoRemuneracao === "MISTO") && (
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t("compensation.perClassGroup")}
+                    Valor por turma
                   </label>
 
                   <input
-                    placeholder={t("placeholders.amount")}
+                    placeholder="0,00"
                     value={valorPorTurma}
                     onChange={(e) =>
                       setValorPorTurma(e.target.value)
@@ -3274,11 +1883,11 @@ dark:text-white
               tipoRemuneracao === "MISTO") && (
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t("compensation.perSubject")}
+                    Valor por disciplina
                   </label>
 
                   <input
-                    placeholder={t("placeholders.amount")}
+                    placeholder="0,00"
                     value={valorPorDisciplina}
                     onChange={(e) =>
                       setValorPorDisciplina(e.target.value)
@@ -3291,30 +1900,30 @@ dark:text-white
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.contractType")}
+                Tipo de contrato
               </label>
               <select
                 value={tipoContrato}
                 onChange={(e) => setTipoContrato(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               >
-                <option value="">{t("common.select")}</option>
+                <option value="">Selecione</option>
                 <option value="CLT">CLT</option>
-                <option value="ESTAGIO">{t("contracts.internship")}</option>
-                <option value="APRENDIZ">{t("contracts.apprentice")}</option>
-                <option value="TEMPORARIO">{t("contracts.temporary")}</option>
+                <option value="ESTAGIO">Estágio</option>
+                <option value="APRENDIZ">Aprendiz</option>
+                <option value="TEMPORARIO">Temporário</option>
                 <option value="PJ">PJ</option>
-                <option value="AUTONOMO">{t("contracts.selfEmployed")}</option>
-                <option value="OUTRO">{t("common.other")}</option>
+                <option value="AUTONOMO">Autônomo</option>
+                <option value="OUTRO">Outro</option>
               </select>
             </div>
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.workSchedule")}
+                Jornada de trabalho
               </label>
               <input
-                placeholder={t("placeholders.workSchedule")}
+                placeholder="Ex.: 44h semanais / 220h mensais"
                 value={jornadaTrabalho}
                 onChange={(e) => setJornadaTrabalho(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
@@ -3323,11 +1932,11 @@ dark:text-white
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.weeklyHours")}
+                Carga horária semanal
               </label>
 
               <input
-                placeholder={t("placeholders.weeklyHours")}
+                placeholder="Ex.: 44"
                 value={cargaHorariaSemanal}
                 onChange={(e) =>
                   setCargaHorariaSemanal(e.target.value)
@@ -3339,10 +1948,10 @@ dark:text-white
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.monthlyHours")}
+                Carga horária mensal
               </label>
               <input
-                placeholder={t("placeholders.monthlyHours")}
+                placeholder="Ex.: 220"
                 value={cargaHorariaMensal}
                 onChange={(e) =>
                   setCargaHorariaMensal(e.target.value.replace(/\D/g, ""))
@@ -3354,10 +1963,10 @@ dark:text-white
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.timeClockCode")}
+                Código do ponto
               </label>
               <input
-                placeholder={t("placeholders.timeClockCode")}
+                placeholder="Identificador usado no relógio/app"
                 value={codigoPonto}
                 onChange={(e) => setCodigoPonto(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
@@ -3381,28 +1990,28 @@ dark:text-white
                 htmlFor="banco-funcionario"
                 className="text-sm font-medium text-slate-700 dark:text-slate-200"
               >
-                {t("employment.payrollBank")}
+                Banco da conta salarial
               </label>
 
               <BuscaBanco
                 id="banco-funcionario"
                 value={banco}
                 onChange={(valor) => setBanco(valor)}
-                placeholder={t("placeholders.bankSearch")}
-                ariaLabel={t("placeholders.bankAria")}
+                placeholder="Digite o código ou nome do banco"
+                ariaLabel="Buscar banco da conta salarial do funcionário"
               />
 
               <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                {t("employment.bankHelp")}
+                Pesquise pelo código ou nome. Exemplos: 001, 260, Nubank, Inter ou Itaú.
               </p>
             </div>
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("fields.branch")}
+                Agência
               </label>
               <input
-                placeholder={t("fields.branch")}
+                placeholder="Agência"
                 value={agencia}
                 onChange={(e) => setAgencia(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
@@ -3411,10 +2020,10 @@ dark:text-white
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("fields.account")}
+                Conta
               </label>
               <input
-                placeholder={t("fields.account")}
+                placeholder="Conta"
                 value={conta}
                 onChange={(e) => setConta(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
@@ -3423,10 +2032,10 @@ dark:text-white
 
             <div className="space-y-1 md:col-span-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("fields.pix")}
+                Pix
               </label>
               <input
-                placeholder={t("fields.pixKey")}
+                placeholder="Chave Pix"
                 value={pix}
                 onChange={(e) => setPix(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
@@ -3435,7 +2044,7 @@ dark:text-white
 
             <div className="space-y-1 md:col-span-3">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                {t("employment.compensationNotes")}
+                Observações da remuneração
               </label>
 
               <textarea
@@ -3444,7 +2053,7 @@ dark:text-white
                   setObservacoesRemuneracao(e.target.value)
                 }
                 className="min-h-[100px] w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                placeholder={t("placeholders.compensationNotes")}
+                placeholder="Acordos, adicionais, regras de pagamento ou outras observações."
               />
             </div>
 
@@ -3452,7 +2061,7 @@ dark:text-white
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-medium">{t("fields.status")}</label>
+          <label className="text-sm font-medium">Status</label>
 
           <select
             value={statusFuncionario}
@@ -3471,33 +2080,33 @@ dark:text-white
 "
           >
             <option value="ATIVO" className="bg-slate-900 text-white">
-              {t("status.active")}
+              Ativo
             </option>
 
             <option value="DEMITIDO" className="bg-slate-900 text-white">
-              {t("status.dismissed")}
+              Demitido
             </option>
 
             <option value="AFASTADO" className="bg-slate-900 text-white">
-              {t("status.onLeave")}
+              Afastado
             </option>
 
             <option value="ADVERTENCIA" className="bg-slate-900 text-white">
-              {t("status.warning")}
+              Advertência
             </option>
 
             <option value="FERIAS" className="bg-slate-900 text-white">
-              {t("status.vacation")}
+              Férias
             </option>
 
             <option value="READMITIDO" className="bg-slate-900 text-white">
-              {t("status.rehired")}
+              Readmitido
             </option>
           </select>
         </div>
 
         <input
-          placeholder={t("fields.reasonOptional")}
+          placeholder="Motivo (opcional)"
           value={motivoStatus}
           onChange={(e) => setMotivoStatus(e.target.value)}
           className="w-full border rounded-lg p-2"
@@ -3506,11 +2115,11 @@ dark:text-white
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 phanyx-documentos-funcionario">
           <div className="mb-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              📁 {t("documents.title")}
+              📁 Documentos e Portfólio
             </h3>
 
             <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
-              {t("documents.description")}
+              Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
             </p>
           </div>
 
@@ -3545,7 +2154,7 @@ dark:text-white
                   className="phanyx-upload-funcionario"
                 >
                   <span>📎</span>
-                  <span>{t("buttons.selectFile")}</span>
+                  <span>Selecionar arquivo</span>
                 </label>
 
                 {doc.arquivo && (
@@ -3557,7 +2166,7 @@ dark:text-white
                 {doc.tipo === "PORTFOLIO" && (
                   <div className="mt-4 rounded-xl border border-blue-200 bg-slate-100 p-3 dark:border-blue-900/60 dark:bg-slate-800">
                     <h4 className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
-                      {t("documents.portfolioLinks")}
+                      Links do portfólio
                     </h4>
 
                     <div className="space-y-3">
@@ -3584,8 +2193,8 @@ dark:text-white
                             <option value="YouTube">YouTube</option>
                             <option value="Vimeo">Vimeo</option>
                             <option value="GitHub">GitHub</option>
-                            <option value="Site">{t("documents.personalWebsite")}</option>
-                            <option value="Outro">{t("common.other")}</option>
+                            <option value="Site">Site pessoal</option>
+                            <option value="Outro">Outro</option>
                           </select>
 
                           <input
@@ -3627,7 +2236,7 @@ dark:bg-slate-900
 dark:text-red-300
 "
                           >
-                            {t("buttons.remove")}
+                            Remover
                           </button>
                         </div>
                       ))}
@@ -3643,7 +2252,7 @@ dark:text-red-300
                       }
                       className="mt-3 rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-700 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
                     >
-                      + {t("buttons.addLink")}
+                      + Adicionar link
                     </button>
                   </div>
                 )}
@@ -3660,11 +2269,11 @@ dark:text-red-300
           >
             {carregando
               ? editandoId
-                ? t("buttons.saving")
-                : t("buttons.creating")
+                ? "Salvando..."
+                : "Criando..."
               : editandoId
-                ? t("buttons.saveChanges")
-                : t("buttons.createEmployee")}
+                ? "Salvar alterações"
+                : "Criar funcionário"}
           </button>
 
           {editandoId ? (
@@ -3673,7 +2282,7 @@ dark:text-red-300
               onClick={limparFormulario}
               className="px-4 py-2 border rounded-lg"
             >
-              {t("buttons.cancelEditing")}
+              Cancelar edição
             </button>
           ) : null}
         </div>
@@ -3681,11 +2290,11 @@ dark:text-red-300
 
       <div className="space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="font-semibold">{t("list.title")}</h2>
+          <h2 className="font-semibold">Lista de funcionários</h2>
 
           <input
             type="text"
-            placeholder={t("list.searchPlaceholder")}
+            placeholder="Buscar por nome, email, CPF, telefone, cargo, código, departamento ou polo"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="w-full md:w-[500px] border rounded-lg p-2"
@@ -3693,8 +2302,8 @@ dark:text-red-300
         </div>
 
         {funcionariosFiltrados.length === 0 ? (
-          <div className="bg-white border rounded-lg p-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-            {t("list.empty")}
+          <div className="bg-white border rounded-lg p-5 text-sm text-gray-600">
+            Nenhum funcionário encontrado para essa busca.
           </div>
         ) : (
           funcionariosFiltrados.map((f) => (
@@ -3728,18 +2337,18 @@ dark:bg-slate-900
                   {f.user ? (
                     <>
                       <p className="text-sm text-slate-600 dark:text-slate-300">
-                        {t("list.accessEmail")}: {f.user.email}
+                        Email de acesso: {f.user.email}
                       </p>
 
                       <p className="text-sm text-slate-600 dark:text-slate-300">
-                        {t("list.accessProfile")}: {traduzirRole(f.user.role)}
+                        Perfil de acesso: {traduzirRole(f.user.role)}
                       </p>
 
                       <p className="text-sm text-slate-600 dark:text-slate-300">
-                        {t("list.access")}:{" "}
+                        Acesso:{" "}
                         {f.user.ativo === false
-                          ? t("access.blocked")
-                          : t("access.active")}
+                          ? "Bloqueado"
+                          : "Ativo"}
                       </p>
                     </>
                   ) : (
@@ -3761,86 +2370,55 @@ dark:bg-slate-900
       dark:text-slate-200
     "
                     >
-                      {t("access.noSystemAccess")}
+                      Sem acesso ao sistema
                     </div>
                   )}
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.status")}: {traduzirStatusFuncionario(f.statusFuncionario || "ATIVO")}
+                  <p className="text-sm text-gray-600">
+                    Status: {f.statusFuncionario || "ATIVO"}
                   </p>
 
                   {f.motivoStatus && (
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {t("fields.reason")}: {f.motivoStatus}
+                    <p className="text-sm text-gray-600">
+                      Motivo: {f.motivoStatus}
                     </p>
                   )}
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {rotuloTipoDocumentoFiscal(
-                      f.tipoDocumentoFiscal ||
-                      (f.cpf ? "CPF" : "TAX_ID")
-                    )}:{" "}
-                    {f.numeroDocumentoFiscal ||
-                      f.cpf ||
-                      "-"}
+                  <p className="text-sm text-gray-600">
+                    CPF: {f.cpf || "-"}
                   </p>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {rotuloTipoDocumento(
-                      f.tipoDocumento ||
-                      (f.rg ? "RG" : "NATIONAL_ID")
-                    )}:{" "}
-                    {f.numeroDocumento ||
-                      f.rg ||
-                      "-"}
+                  <p className="text-sm text-gray-600">
+                    RG: {f.rg || "-"}
                   </p>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.phone")}:{" "}
-                    {formatarTelefoneExibicao(
-                      f.telefone
-                    )}
+                  <p className="text-sm text-gray-600">
+                    Telefone: {f.telefone || "-"}
                   </p>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("international.countryOfResidence")}:{" "}
-                    {nomePais(
-                      f.paisResidencia ||
-                      (f.cpf || f.rg
-                        ? "BR"
-                        : null)
-                    )}
+                  <p className="text-sm text-gray-600">
+                    Cargo: {f.cargo || "-"}
                   </p>
 
-                  {f.nacionalidade && (
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {t("international.nationality")}:{" "}
-                      {f.nacionalidade}
-                    </p>
-                  )}
-
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.job")}: {f.cargo || "-"}
+                  <p className="text-sm text-gray-600">
+                    Código: {f.codigoFuncionario || "-"}
                   </p>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.code")}: {f.codigoFuncionario || "-"}
+                  <p className="text-sm text-gray-600">
+                    Departamento: {f.departamento?.nome || "-"}
                   </p>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.department")}: {f.departamento?.nome || "-"}
-                  </p>
-
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {t("fields.campus")}:{" "}
+                  <p className="text-sm text-gray-600 dark:text-slate-300">
+                    Polo de lotação:{" "}
                     <span className="font-semibold">
-                      {f.polo?.nome || t("common.notDefined")}
+                      {f.polo?.nome || "Não definido"}
                     </span>
                   </p>
 
                   {!f.polo && (
                     <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-                      {t("campus.legacyEmployeeHelp")}
+                      Este funcionário antigo ainda precisa
+                      ter sua lotação definida.
                     </p>
                   )}
                 </div>
@@ -3851,7 +2429,7 @@ dark:bg-slate-900
                   href={`/admin/funcionarios/${f.id}`}
                   className="phanyx-funcionario-editar-btn inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-bold transition"
                 >
-                  {t("buttons.edit")}
+                  Editar
                 </Link>
 
                 {f.user &&
@@ -3860,7 +2438,7 @@ dark:bg-slate-900
                       href={`/admin/funcionarios/${f.id}/permissoes`}
                       className="inline-flex items-center rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
                     >
-                      🔐 {t("buttons.individualPermissions")}
+                      🔐 Permissões individuais
                     </Link>
                   )}
 
@@ -3871,7 +2449,7 @@ dark:bg-slate-900
                       onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
                       className="rounded-lg border border-yellow-500 px-3 py-1.5 text-sm font-medium text-yellow-700 transition hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-300 dark:hover:bg-yellow-950"
                     >
-                      {t("buttons.blockAccess")}
+                      Bloquear acesso
                     </button>
 
                     <button
@@ -3879,7 +2457,7 @@ dark:bg-slate-900
                       onClick={() => alterarAcessoFuncionario(f.id, "desbloquear", f.nome)}
                       className="rounded-lg border border-green-600 px-3 py-1.5 text-sm font-medium text-green-700 transition hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950"
                     >
-                      {t("buttons.unblockAccess")}
+                      Desbloquear acesso
                     </button>
                   </>
                 )}
@@ -3893,8 +2471,8 @@ dark:bg-slate-900
         aberto={confirmModalAberto}
         titulo={confirmTitulo}
         mensagem={confirmMensagem}
-        textoConfirmar={t("buttons.confirm")}
-        textoCancelar={t("buttons.cancel")}
+        textoConfirmar="Confirmar"
+        textoCancelar="Cancelar"
         onCancelar={() => {
           setConfirmModalAberto(false);
           setConfirmAcao(null);
