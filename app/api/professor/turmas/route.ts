@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+  montarFiltroTurmaDisciplinaProfessor,
+  obterSubstituicoesAtivasProfessor,
+} from "@/lib/professor-escopo-academico";
 
 export const dynamic = "force-dynamic";
 
@@ -29,154 +33,63 @@ export async function GET() {
       );
     }
 
-    const hoje = new Date();
-hoje.setHours(0, 0, 0, 0);
+    const substituicoes =
+      await obterSubstituicoesAtivasProfessor({
+        instituicaoId: user.instituicaoId,
+        professorId: professor.id,
+      });
 
-const substituicoes = await prisma.substituicaoDocente.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-    professorSubstitutoId: professor.id,
-    status: {
-      notIn: ["CANCELADA", "ENCERRADA", "SUSPENSA"],
-    },
-    dataInicio: {
-      lte: hoje,
-    },
-    OR: [
-      {
-        dataFim: null,
-      },
-      {
-        dataFim: {
-          gte: hoje,
-        },
-      },
-    ],
-  },
-  select: {
-    turmaId: true,
-    disciplinaId: true,
-  },
-});
-
-const filtrosSubstituicao = substituicoes.map((s) => ({
-  id: s.turmaId,
-}));
+    const filtroTurmaDisciplina =
+      montarFiltroTurmaDisciplinaProfessor({
+        instituicaoId: user.instituicaoId,
+        professorId: professor.id,
+        substituicoes,
+      });
 
     const turmas = await prisma.turma.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-
-    OR: [
-      {
-        disciplinas: {
-          some: {
-            OR: [
-              // ✅ REGRA PRINCIPAL:
-              // professor vinculado à disciplina dentro desta turma
-              {
-                professorId: professor.id,
-              },
-
-              // Compatibilidade com vínculo antigo direto na disciplina
-              {
-                disciplina: {
-                  professorId: professor.id,
-                },
-              },
-
-              // Compatibilidade com professor habilitado
-              {
-                disciplina: {
-                  professoresHabilitados: {
-                    some: {
-                      professorId: professor.id,
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-
-      // Professor substituto
-      ...filtrosSubstituicao,
-    ],
-  },
-
-  include: {
-    disciplinas: {
       where: {
-        OR: [
-          // ✅ REGRA PRINCIPAL
-          {
-            professorId: professor.id,
-          },
+        instituicaoId: user.instituicaoId,
 
-          // Compatibilidade com vínculo antigo
-          {
-            disciplina: {
-              professorId: professor.id,
-            },
-          },
-
-          // Compatibilidade com habilitação
-          {
-            disciplina: {
-              professoresHabilitados: {
-                some: {
-                  professorId: professor.id,
-                },
-              },
-            },
-          },
-
-          // Substituições docentes
-          ...substituicoes.map((s) => ({
-            turmaId: s.turmaId,
-            disciplinaId: s.disciplinaId,
-          })),
-        ],
+        disciplinas: {
+          some: filtroTurmaDisciplina,
+        },
       },
 
       include: {
-        horarios: {
-          where: {
-            ativo: true,
-          },
-          orderBy: [
-            {
-              diaSemana: "asc",
-            },
-            {
-              horaInicio: "asc",
-            },
-          ],
-        },
+        disciplinas: {
+          where: filtroTurmaDisciplina,
 
-        disciplina: {
           include: {
-            curso: true,
+            horarios: {
+              where: {
+                ativo: true,
+              },
 
-            // ✅ necessário porque é usado no filtro abaixo
-            professoresHabilitados: {
-              select: {
-                professorId: true,
+              orderBy: [
+                {
+                  diaSemana: "asc",
+                },
+                {
+                  horaInicio: "asc",
+                },
+              ],
+            },
+
+            disciplina: {
+              include: {
+                curso: true,
               },
             },
           },
         },
+
+        itensMatricula: true,
       },
-    },
 
-    itensMatricula: true,
-  },
-
-  orderBy: {
-    id: "desc",
-  },
-});
+      orderBy: {
+        id: "desc",
+      },
+    });
 
 
     /*
@@ -273,36 +186,6 @@ const filtrosSubstituicao = substituicoes.map((s) => ({
     return NextResponse.json(
       turmas.flatMap((t) =>
         t.disciplinas
-  .filter((item) => {
-  // ✅ vínculo correto:
-  // professor desta disciplina nesta turma
-  const professorDaTurmaDisciplina =
-    item.professorId === professor.id;
-
-  // Compatibilidade com estrutura antiga
-  const professorDaDisciplina =
-    item.disciplina?.professorId === professor.id;
-
-  const habilitado =
-    item.disciplina?.professoresHabilitados?.some(
-      (p) => p.professorId === professor.id
-    ) ?? false;
-
-  // Substituição docente temporária
-  const substituicao =
-    substituicoes.some(
-      (s) =>
-        s.turmaId === t.id &&
-        s.disciplinaId === item.disciplinaId
-    );
-
-  return (
-    professorDaTurmaDisciplina ||
-    professorDaDisciplina ||
-    habilitado ||
-    substituicao
-  );
-})
   .map((item) => ({
     id: t.id,
     turmaDisciplinaId: item.id,
