@@ -44,7 +44,11 @@ export async function GET(
   where: {
     alunoId: aluno.id,
     instituicaoId: auth.instituicaoId,
-  },
+  status: {
+      not: "CANCELADA",
+    },
+    excluidaEm: null,
+    },
   include: {
     itens: {
       where: {

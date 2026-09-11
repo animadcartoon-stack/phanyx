@@ -28,7 +28,11 @@ export async function GET(_req: NextRequest) {
       where: {
         alunoId: aluno.id,
         instituicaoId: auth.instituicaoId,
-      },
+      status: {
+          not: "CANCELADA",
+        },
+        excluidaEm: null,
+        },
       select: {
         itens: {
           select: {

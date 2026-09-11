@@ -267,6 +267,8 @@ if (
     status:
       "ATIVA",
 
+    excluidaEm: null,
+
     aluno: {
       ativo:
         true,

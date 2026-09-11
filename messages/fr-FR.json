@@ -14626,7 +14626,8 @@
       "moverQuarentena": "Mettre en quarantaine",
       "movendo": "Déplacement...",
       "restaurar": "Restaurer l’inscription",
-      "restaurando": "Restauration..."
+      "restaurando": "Restauration...",
+      "cancelarMatricula": "Annuler l?inscription"
     },
     "modal": {
       "title": "Mettre l’inscription en quarantaine",
@@ -14654,6 +14655,21 @@
       "excludedAt": "Mise en quarantaine le",
       "reason": "Motif",
       "excludedBy": "Mise en quarantaine par (ID)"
+    },
+    "cancelModal": {
+      "title": "Annuler l?inscription",
+      "description": "Confirmez la cl?ture de cette inscription.",
+      "warningTitle": "Attention",
+      "warning": "L??tudiant perdra imm?diatement l?acc?s aux mati?res, cours, supports, activit?s et ?valuations li?s ? cette inscription. L?historique acad?mique d?j? enregistr? sera conserv?.",
+      "reasonLabel": "Motif de l?annulation",
+      "reasonPlaceholder": "Indiquez pourquoi cette inscription est annul?e",
+      "reasonHelp": "Champ obligatoire. Le motif sera enregistr? ? des fins d?audit.",
+      "back": "Retour",
+      "confirm": "Confirmer l?annulation",
+      "confirming": "Annulation...",
+      "reasonRequired": "Indiquez un motif d?au moins 3 caract?res.",
+      "success": "Inscription annul?e avec succ?s.",
+      "error": "Impossible d?annuler l?inscription."
     }
   }
 }

@@ -540,6 +540,7 @@ type MatriculaBody = {
   status?: string;
   acao?: string;
   motivoExclusao?: string | null;
+  motivoCancelamento?: string | null;
   realizadaPeloAluno?: boolean;
   confirmacaoMenorAceita?: boolean;
 };
@@ -3168,15 +3169,187 @@ export async function PATCH(request: Request) {
     }
 
 
+    if (
+      body.acao ===
+      "CANCELAR_MATRICULA"
+    ) {
+      const id =
+        Number(body.id);
+
+      const motivoCancelamento =
+        String(
+          body.motivoCancelamento ||
+            ""
+        ).trim();
+
+      if (!id) {
+        return NextResponse.json(
+          {
+            error:
+              "ID_INVALIDO",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      if (
+        motivoCancelamento.length <
+        3
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "MOTIVO_CANCELAMENTO_OBRIGATORIO",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      const agora =
+        new Date();
+
+      /*
+       * Operacao atomica:
+       * somente uma matricula que ainda
+       * nao esta CANCELADA pode ser alterada.
+       */
+      const resultado =
+        await prisma.matricula.updateMany({
+          where: {
+            id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            excluidaEm:
+              null,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+          },
+
+          data: {
+            status:
+              "CANCELADA",
+
+            canceladaEm:
+              agora,
+
+            canceladaPorId:
+              user.id,
+
+            motivoCancelamento,
+          },
+        });
+
+      if (
+        resultado.count === 0
+      ) {
+        const existente =
+          await prisma.matricula.findFirst({
+            where: {
+              id,
+
+              instituicaoId:
+                user.instituicaoId,
+
+              excluidaEm:
+                null,
+            },
+
+            select: {
+              id: true,
+              status: true,
+            },
+          });
+
+        if (!existente) {
+          return NextResponse.json(
+            {
+              error:
+                "MATRICULA_NAO_ENCONTRADA",
+            },
+            {
+              status: 404,
+            }
+          );
+        }
+
+        if (
+          existente.status ===
+          "CANCELADA"
+        ) {
+          return NextResponse.json(
+            {
+              error:
+                "MATRICULA_JA_CANCELADA",
+            },
+            {
+              status: 409,
+            }
+          );
+        }
+
+        return NextResponse.json(
+          {
+            error:
+              "MATRICULA_NAO_PODE_SER_CANCELADA",
+          },
+          {
+            status: 409,
+          }
+        );
+      }
+
+      const atualizada =
+        await prisma.matricula.findFirst({
+          where: {
+            id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            excluidaEm:
+              null,
+          },
+
+          include:
+            includeMatricula,
+        });
+
+      if (!atualizada) {
+        return NextResponse.json(
+          {
+            error:
+              "MATRICULA_NAO_ENCONTRADA",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      return NextResponse.json(
+        atualizada
+      );
+    }
+
+
     const id = Number(body.id);
     const status = String(body.status || "").trim();
+
 
     const statusPermitidos = [
       "A_INICIAR",
       "ATIVA",
       "TRANCADA",
       "SUSPENSA",
-      "CANCELADA",
       "CONCLUIDA",
       "AGUARDANDO",
       "TRANSFERIDA",
@@ -3194,6 +3367,7 @@ export async function PATCH(request: Request) {
       where: {
         id,
         instituicaoId: user.instituicaoId,
+        excluidaEm: null,
       },
     });
 
@@ -3204,13 +3378,33 @@ export async function PATCH(request: Request) {
       );
     }
 
+
+    if (
+      matricula.status === "CANCELADA"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "MATRICULA_CANCELADA_REQUER_REATIVACAO",
+        },
+        { status: 409 }
+      );
+    }
+
     let statusItens: string | null = null;
 
     if (status === "A_INICIAR") statusItens = "A_CURSAR";
     if (status === "AGUARDANDO") statusItens = "A_CURSAR";
     if (status === "ATIVA") statusItens = "EM_CURSO";
     if (status === "TRANCADA") statusItens = "TRANCADO";
-    if (status === "CANCELADA") statusItens = "CANCELADO";
+    /*
+     * CANCELADA encerra a matricula sem apagar
+     * o estado academico dos ItemMatricula.
+     *
+     * CONCLUIDO permanece CONCLUIDO.
+     * EM_CURSO permanece EM_CURSO.
+     * A_CURSAR permanece A_CURSAR.
+     */
     if (status === "CONCLUIDA") statusItens = "CONCLUIDO";
 
     if (statusItens) {
@@ -3229,6 +3423,7 @@ export async function PATCH(request: Request) {
       where: { id },
       data: {
         status: status as any,
+
       },
       include: includeMatricula,
     });

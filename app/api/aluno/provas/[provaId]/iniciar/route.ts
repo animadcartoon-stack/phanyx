@@ -138,6 +138,49 @@ export async function POST(
       );
     }
 
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          turmaId:
+            prova.turmaId,
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso acad?mico indispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
     if (!prova.ativa || prova.status !== "PUBLICADA" || !prova.publicadaAt) {
       return NextResponse.json(
         { error: "Esta prova ainda não está disponível." },

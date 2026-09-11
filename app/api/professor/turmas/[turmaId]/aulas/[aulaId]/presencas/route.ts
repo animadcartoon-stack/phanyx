@@ -101,7 +101,14 @@ if (!turma) {
       where: {
         turmaId: turma.id,
         instituicaoId: user.instituicaoId,
-      },
+      matricula: {
+          status: {
+            not: "CANCELADA",
+          },
+          excluidaEm: null,
+        },
+
+        },
       include: {
         matricula: {
           include: {
@@ -306,7 +313,14 @@ if (!turma) {
       where: {
         turmaId: turma.id,
         instituicaoId: user.instituicaoId,
-      },
+      matricula: {
+          status: {
+            not: "CANCELADA",
+          },
+          excluidaEm: null,
+        },
+
+        },
       include: {
         matricula: {
           select: {

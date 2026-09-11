@@ -34,7 +34,11 @@ export async function GET() {
       where: {
         alunoId: aluno.id,
         instituicaoId: user.instituicaoId,
-      },
+      status: {
+          not: "CANCELADA",
+        },
+        excluidaEm: null,
+        },
       include: {
         curso: true,
         itens: {

@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
       },
       select: {
         id: true,
+      turmaId: true,
+        disciplinaId: true,
       },
     });
 
@@ -49,6 +51,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Aula não encontrada." },
         { status: 404 }
+      );
+    }
+
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            auth.instituicaoId,
+
+          turmaId:
+            aula.turmaId,
+
+          ...(aula.disciplinaId !== null
+            ? {
+                disciplinaId:
+                  aula.disciplinaId,
+              }
+            : {}),
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              auth.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso acad?mico indispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
+        }
       );
     }
 
@@ -138,11 +190,62 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ progresso: [] });
     }
 
+    const vinculosOperacionais =
+      await prisma.itemMatricula.findMany({
+        where: {
+          instituicaoId:
+            auth.instituicaoId,
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              auth.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          turmaId: true,
+          disciplinaId: true,
+        },
+      });
+
+    if (
+      vinculosOperacionais.length === 0
+    ) {
+      return NextResponse.json({
+        progresso: [],
+      });
+    }
+
+    const paresVinculo =
+      vinculosOperacionais.map(
+        (item) => ({
+          turmaId:
+            item.turmaId,
+
+          disciplinaId:
+            item.disciplinaId,
+        })
+      );
+
     const progresso = await prisma.progressoAula.findMany({
       where: {
         alunoId: aluno.id,
         instituicaoId: auth.instituicaoId,
-      },
+      aula: {
+          OR: paresVinculo,
+        },
+        },
       select: {
         id: true,
         aulaId: true,

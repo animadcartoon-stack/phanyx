@@ -83,6 +83,49 @@ export async function GET(
       return NextResponse.json({ error: "Prova não encontrada" }, { status: 404 });
     }
 
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          turmaId:
+            prova.turmaId,
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso acad?mico indispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
     const agora = new Date();
 
     if (prova.disponivelEm && new Date(prova.disponivelEm) > agora) {

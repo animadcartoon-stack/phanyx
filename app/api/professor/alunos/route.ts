@@ -87,6 +87,13 @@ export async function GET(req: NextRequest) {
       where: {
         instituicaoId: user.instituicaoId,
 
+        matricula: {
+          status: {
+            not: "CANCELADA",
+          },
+          excluidaEm: null,
+        },
+
         OR: filtrosParesPermitidos,
 
         ...(turmaId && Number.isFinite(turmaId)

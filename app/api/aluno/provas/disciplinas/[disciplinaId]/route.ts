@@ -37,6 +37,48 @@ export async function GET(
       );
     }
 
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          disciplinaId,
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso acad?mico indispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
     const prova = await prisma.prova.findFirst({
   where: {
     instituicaoId: user.instituicaoId,

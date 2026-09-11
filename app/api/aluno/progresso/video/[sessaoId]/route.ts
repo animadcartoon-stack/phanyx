@@ -100,6 +100,8 @@ export async function PATCH(
         select: {
           id: true,
           aulaId: true,
+          turmaId: true,
+          disciplinaId: true,
           encerradoEm: true,
           maiorPosicaoSegundos:
             true,
@@ -116,6 +118,52 @@ export async function PATCH(
         },
         {
           status: 404,
+        }
+      );
+    }
+
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            auth.instituicaoId,
+
+          turmaId:
+            sessao.turmaId,
+
+          disciplinaId:
+            sessao.disciplinaId,
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              auth.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Sess?o indispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
         }
       );
     }

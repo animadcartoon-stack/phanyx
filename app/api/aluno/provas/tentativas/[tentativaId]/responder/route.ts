@@ -62,6 +62,11 @@ export async function POST(
         id: true,
         alunoId: true,
         provaId: true,
+        prova: {
+          select: {
+            turmaId: true,
+          },
+        },
         finalizada: true,
         expiraEm: true,
         status: true,
@@ -72,6 +77,49 @@ export async function POST(
       return NextResponse.json(
         { error: "Tentativa não encontrada" },
         { status: 404 }
+      );
+    }
+
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          turmaId:
+            tentativa.prova.turmaId,
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Esta tentativa n?o est? mais dispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
+        }
       );
     }
 

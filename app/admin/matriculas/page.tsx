@@ -220,6 +220,18 @@ function AdminMatriculasPage() {
 
   const [motivoExclusao, setMotivoExclusao] =
     useState("");
+
+  const [modalCancelamentoAberto, setModalCancelamentoAberto] =
+    useState(false);
+
+  const [matriculaCancelamentoAlvo, setMatriculaCancelamentoAlvo] =
+    useState<MatriculaApi | null>(null);
+
+  const [motivoCancelamento, setMotivoCancelamento] =
+    useState("");
+
+  const [cancelandoMatriculaId, setCancelandoMatriculaId] =
+    useState<number | null>(null);
   const [matriculaEditando, setMatriculaEditando] = useState<MatriculaEdicao | null>(null);
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasSelecionadas, setDisciplinasExtrasSelecionadas] = useState<number[]>([]);
@@ -2516,6 +2528,101 @@ function AdminMatriculasPage() {
     setConfirmModalAberto(true);
   }
 
+  function abrirModalCancelamento(
+    matricula: MatriculaApi
+  ) {
+    setMatriculaCancelamentoAlvo(matricula);
+    setMotivoCancelamento("");
+    setModalCancelamentoAberto(true);
+  }
+
+  function fecharModalCancelamento() {
+    if (cancelandoMatriculaId !== null) {
+      return;
+    }
+
+    setModalCancelamentoAberto(false);
+    setMatriculaCancelamentoAlvo(null);
+    setMotivoCancelamento("");
+  }
+
+  async function confirmarCancelamentoMatricula() {
+    const matricula = matriculaCancelamentoAlvo;
+
+    if (!matricula) {
+      return;
+    }
+
+    const motivo = motivoCancelamento.trim();
+
+    if (motivo.length < 3) {
+      setToast({
+        tipo: "erro",
+        mensagem: t("cancelModal.reasonRequired"),
+      });
+
+      return;
+    }
+
+    try {
+      setCancelandoMatriculaId(matricula.id);
+
+      const res = await fetch("/api/matricula", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          id: matricula.id,
+          acao: "CANCELAR_MATRICULA",
+          motivoCancelamento: motivo,
+        }),
+      });
+
+      const data = await res
+        .json()
+        .catch(() => ({}));
+
+      if (!res.ok) {
+        setToast({
+          tipo: "erro",
+          mensagem:
+            data?.error ===
+            "MOTIVO_CANCELAMENTO_OBRIGATORIO"
+              ? t("cancelModal.reasonRequired")
+              : t("cancelModal.error"),
+        });
+
+        return;
+      }
+
+      setToast({
+        tipo: "sucesso",
+        mensagem: t("cancelModal.success"),
+      });
+
+      setModalCancelamentoAberto(false);
+      setMatriculaCancelamentoAlvo(null);
+      setMotivoCancelamento("");
+      setMatriculaExpandidaId(null);
+
+      await carregarTudo();
+    } catch (error) {
+      console.error(
+        "Erro ao cancelar matricula:",
+        error
+      );
+
+      setToast({
+        tipo: "erro",
+        mensagem: t("cancelModal.error"),
+      });
+    } finally {
+      setCancelandoMatriculaId(null);
+    }
+  }
+
   async function alterarStatusMatricula(id: number, status: string) {
     try {
       const res = await fetch("/api/matricula", {
@@ -4178,10 +4285,11 @@ function AdminMatriculasPage() {
                                 </button>
 
                                 <button
-                                  onClick={() => alterarStatusMatricula(m.id, "CANCELADA")}
-                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600"
+                                  onClick={() => abrirModalCancelamento(m)}
+                                  disabled={m.status === "CANCELADA"}
+                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
-                                  Cancelar
+                                  {t("actions.cancelarMatricula")}
                                 </button>
 
                                 <button
@@ -4780,6 +4888,104 @@ function AdminMatriculasPage() {
           </div>
         </div>
       )}
+
+      {modalCancelamentoAberto &&
+        matriculaCancelamentoAlvo && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+            <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {t("cancelModal.title")}
+                </h2>
+
+                <p className="text-sm text-slate-600 dark:text-slate-300">
+                  {t("cancelModal.description")}
+                </p>
+              </div>
+
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  {t("modal.student")}
+                </p>
+
+                <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
+                  {matriculaCancelamentoAlvo.aluno?.nome || "?"}
+                </p>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-900 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-200">
+                <p className="font-semibold">
+                  {t("cancelModal.warningTitle")}
+                </p>
+
+                <p className="mt-1 text-sm">
+                  {t("cancelModal.warning")}
+                </p>
+              </div>
+
+              <div className="mt-5">
+                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {t("cancelModal.reasonLabel")}
+                </label>
+
+                <textarea
+                  value={motivoCancelamento}
+                  onChange={(e) =>
+                    setMotivoCancelamento(
+                      e.target.value
+                    )
+                  }
+                  rows={4}
+                  maxLength={1000}
+                  placeholder={t(
+                    "cancelModal.reasonPlaceholder"
+                  )}
+                  className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-red-500 dark:focus:ring-red-950"
+                />
+
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {t("cancelModal.reasonHelp")}
+                </p>
+              </div>
+
+              <div className="mt-6 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={fecharModalCancelamento}
+                  disabled={
+                    cancelandoMatriculaId !== null
+                  }
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                >
+                  {t("cancelModal.back")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={
+                    confirmarCancelamentoMatricula
+                  }
+                  disabled={
+                    cancelandoMatriculaId ===
+                      matriculaCancelamentoAlvo.id ||
+                    motivoCancelamento.trim()
+                      .length < 3
+                  }
+                  className="rounded-xl border border-red-600 bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-500 dark:bg-red-600 dark:hover:bg-red-700"
+                >
+                  {cancelandoMatriculaId ===
+                  matriculaCancelamentoAlvo.id
+                    ? t(
+                        "cancelModal.confirming"
+                      )
+                    : t(
+                        "cancelModal.confirm"
+                      )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       {modalQuarentenaAberto &&
         matriculaQuarentenaAlvo && (

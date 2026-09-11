@@ -1143,6 +1143,9 @@ model Matricula {
   excluidaEm                              DateTime?
   excluidaPorId                           Int?
   motivoExclusao                          String?         @db.Text
+  canceladaEm                             DateTime?
+  canceladaPorId                          Int?
+  motivoCancelamento                      String?         @db.Text
   cursoId                                 Int?
   semestre                                Int?
   dataPrimeiroVencimento                  DateTime?
@@ -1212,6 +1215,7 @@ model Matricula {
   @@index([alunoMenorNoMomentoMatricula])
   @@index([turmaPrincipalId])
   @@index([instituicaoId, excluidaEm])
+  @@index([instituicaoId, canceladaEm])
 }
 
 model ItemMatricula {
@@ -1783,31 +1787,37 @@ model Funcionario {
   tipoDocumentoFiscal   String?
   numeroDocumentoFiscal String?
 
-  dataNascimento     DateTime?
-  endereco           String?
-  numero             String?
-  complemento        String?
-  bairro             String?
-  cidade             String?
-  estado             String?
-  cep                String?
-  cargo              String?
-  setor              String?
-  fotoPerfil         String?
-  documentoUrl       String?
-  codigoFuncionario  String?
-  dataAdmissao       DateTime?
-  dataDesligamento   DateTime?
-  salario            Decimal?  @db.Decimal(10, 2)
-  tipoContrato       String?
-  jornadaTrabalho    String?
-  banco              String?
-  agencia            String?
-  conta              String?
-  pix                String?
-  codigoPonto        String?
-  pisPasep           String?
-  salarioBase        Decimal?  @db.Decimal(10, 2)
+  dataNascimento    DateTime?
+  endereco          String?
+  numero            String?
+  complemento       String?
+  bairro            String?
+  cidade            String?
+  estado            String?
+  cep               String?
+  cargo             String?
+  setor             String?
+  fotoPerfil        String?
+  documentoUrl      String?
+  codigoFuncionario String?
+  dataAdmissao      DateTime?
+  dataDesligamento  DateTime?
+  salario           Decimal?  @db.Decimal(10, 2)
+  tipoContrato      String?
+  jornadaTrabalho   String?
+  banco             String?
+  agencia           String?
+  conta             String?
+  pix               String?
+  codigoPonto       String?
+  pisPasep          String?
+
+  // Identificacao previdenciaria / seguridade social internacional
+  paisIdentificacaoPrevidenciaria   String? @db.VarChar(2)
+  tipoIdentificacaoPrevidenciaria   String?
+  numeroIdentificacaoPrevidenciaria String?
+
+  salarioBase        Decimal? @db.Decimal(10, 2)
   cargaHorariaMensal Int?
 
   tipoRemuneracao TipoRemuneracaoRH?
@@ -3730,22 +3740,35 @@ model DocumentoAssinadoManualHoleriteRH {
 }
 
 model ContaBancariaFuncionarioRH {
-  id               Int                       @id @default(autoincrement())
-  instituicaoId    Int
-  funcionarioId    Int
-  finalidade       FinalidadeContaBancariaRH
-  bancoCodigo      String?
-  bancoNome        String?
-  agencia          String?
-  conta            String?
-  tipoConta        TipoContaBancariaRH?
+  id            Int                       @id @default(autoincrement())
+  instituicaoId Int
+  funcionarioId Int
+  finalidade    FinalidadeContaBancariaRH
+
+  // Localizacao e moeda da conta
+  paisCodigo String? @db.VarChar(2)
+  moeda      String? @db.VarChar(3)
+
+  bancoCodigo String?
+  bancoNome   String?
+  agencia     String?
+  conta       String?
+  tipoConta   TipoContaBancariaRH?
+
+  // Identificadores bancarios internacionais
+  iban          String?
+  bicSwift      String?
+  routingNumber String?
+  sortCode      String?
+
+  // PIX - utilizado quando aplicavel, especialmente no Brasil
   tipoChavePix     TipoChavePixRH?
   chavePix         String?
   titularNome      String?
   titularDocumento String?
-  ativo            Boolean                   @default(true)
-  criadoEm         DateTime                  @default(now())
-  atualizadoEm     DateTime                  @updatedAt
+  ativo            Boolean         @default(true)
+  criadoEm         DateTime        @default(now())
+  atualizadoEm     DateTime        @updatedAt
 
   instituicao    Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   funcionario    Funcionario               @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)

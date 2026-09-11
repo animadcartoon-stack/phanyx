@@ -62,6 +62,52 @@ export async function POST(
         aulaId,
       });
 
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            auth.instituicaoId,
+
+          turmaId:
+            contexto.turmaId,
+
+          disciplinaId:
+            contexto.disciplinaId,
+
+          matricula: {
+            alunoId:
+              contexto.alunoId,
+
+            instituicaoId:
+              auth.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+      return NextResponse.json(
+        {
+          error:
+            "Sem acesso a esta aula.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
     if (!contexto.videoUrl) {
       return NextResponse.json(
         {

@@ -78,6 +78,8 @@ export async function POST(
       select: {
         id: true,
         prazo: true,
+      turmaId: true,
+        disciplinaId: true,
       },
     });
 
@@ -85,6 +87,57 @@ export async function POST(
       return NextResponse.json(
         { error: "Atividade não encontrada ou indisponível" },
         { status: 404 }
+      );
+    }
+
+    const vinculoOperacional =
+      await prisma.itemMatricula.findFirst({
+        where: {
+          instituicaoId:
+            auth.instituicaoId,
+
+          turmaId:
+            atividade.turmaId,
+
+          ...(atividade.disciplinaId !== null
+            ? {
+                disciplinaId:
+                  atividade.disciplinaId,
+              }
+            : {}),
+
+          matricula: {
+            alunoId:
+              aluno.id,
+
+            instituicaoId:
+              auth.instituicaoId,
+
+            status: {
+              not:
+                "CANCELADA",
+            },
+
+            excluidaEm:
+              null,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      });
+
+    if (!vinculoOperacional) {
+
+      return NextResponse.json(
+        {
+          error:
+            "Esta atividade n?o est? dispon?vel para esta matr?cula.",
+        },
+        {
+          status: 403,
+        }
       );
     }
 

@@ -76,6 +76,49 @@ export async function POST(
     );
   }
 
+  const vinculoOperacional =
+    await prisma.itemMatricula.findFirst({
+      where: {
+        instituicaoId:
+          user.instituicaoId,
+
+        turmaId:
+          tentativa.prova.turmaId,
+
+        matricula: {
+          alunoId:
+            aluno.id,
+
+          instituicaoId:
+            user.instituicaoId,
+
+          status: {
+            not:
+              "CANCELADA",
+          },
+
+          excluidaEm:
+            null,
+        },
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
+  if (!vinculoOperacional) {
+    return NextResponse.json(
+      {
+        error:
+          "Esta tentativa n?o est? mais dispon?vel para esta matr?cula.",
+      },
+      {
+        status: 403,
+      }
+    );
+  }
+
   if (tentativa.finalizada) {
     return NextResponse.json(
       { error: "Tentativa já finalizada" },

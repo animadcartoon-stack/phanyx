@@ -14412,7 +14412,8 @@
       "moverQuarentena": "Mover para quarentena",
       "movendo": "A mover...",
       "restaurar": "Restaurar matrícula",
-      "restaurando": "A restaurar..."
+      "restaurando": "A restaurar...",
+      "cancelarMatricula": "Cancelar matr?cula"
     },
     "modal": {
       "title": "Mover matrícula para quarentena",
@@ -14440,6 +14441,21 @@
       "excludedAt": "Excluída em",
       "reason": "Motivo",
       "excludedBy": "Excluída por (ID)"
+    },
+    "cancelModal": {
+      "title": "Cancelar matr?cula",
+      "description": "Confirme o encerramento desta matr?cula.",
+      "warningTitle": "Aten??o",
+      "warning": "O aluno perder? imediatamente o acesso ?s disciplinas, aulas, materiais, atividades e avalia??es desta matr?cula. O hist?rico acad?mico j? registado ser? preservado.",
+      "reasonLabel": "Motivo do cancelamento",
+      "reasonPlaceholder": "Indique por que motivo esta matr?cula est? a ser cancelada",
+      "reasonHelp": "Campo obrigat?rio. O motivo ficar? registado para auditoria.",
+      "back": "Voltar",
+      "confirm": "Confirmar cancelamento",
+      "confirming": "A cancelar...",
+      "reasonRequired": "Indique um motivo com pelo menos 3 caracteres.",
+      "success": "Matr?cula cancelada com sucesso.",
+      "error": "N?o foi poss?vel cancelar a matr?cula."
     }
   }
 }

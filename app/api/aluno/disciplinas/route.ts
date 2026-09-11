@@ -52,7 +52,11 @@ if (contratoPendente) {
   where: {
     alunoId: aluno.id,
     instituicaoId: user.instituicaoId,
-  },
+  status: {
+      not: "CANCELADA",
+    },
+    excluidaEm: null,
+    },
   include: {
     itens: {
   include: {

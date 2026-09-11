@@ -88,6 +88,10 @@ export async function POST(
         matricula: {
           alunoId: aluno.id,
           instituicaoId: user.instituicaoId,
+        status: {
+            not: "CANCELADA",
+          },
+          excluidaEm: null,
         },
       },
       select: {

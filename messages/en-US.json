@@ -14627,7 +14627,8 @@
       "moverQuarentena": "Move to quarantine",
       "movendo": "Moving...",
       "restaurar": "Restore enrollment",
-      "restaurando": "Restoring..."
+      "restaurando": "Restoring...",
+      "cancelarMatricula": "Cancel enrollment"
     },
     "modal": {
       "title": "Move enrollment to quarantine",
@@ -14655,6 +14656,21 @@
       "excludedAt": "Quarantined on",
       "reason": "Reason",
       "excludedBy": "Quarantined by (ID)"
+    },
+    "cancelModal": {
+      "title": "Cancel enrollment",
+      "description": "Confirm that you want to end this enrollment.",
+      "warningTitle": "Warning",
+      "warning": "The student will immediately lose access to the subjects, lessons, materials, activities, and assessments linked to this enrollment. Previously recorded academic history will be preserved.",
+      "reasonLabel": "Reason for cancellation",
+      "reasonPlaceholder": "Enter why this enrollment is being canceled",
+      "reasonHelp": "Required field. The reason will be recorded for audit purposes.",
+      "back": "Back",
+      "confirm": "Confirm cancellation",
+      "confirming": "Canceling...",
+      "reasonRequired": "Enter a reason with at least 3 characters.",
+      "success": "Enrollment canceled successfully.",
+      "error": "The enrollment could not be canceled."
     }
   }
 }

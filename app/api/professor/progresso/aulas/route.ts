@@ -178,6 +178,10 @@ export async function GET(
 
             matricula: {
               alunoId,
+            status: {
+                not: "CANCELADA",
+              },
+              excluidaEm: null,
             },
           },
 
