@@ -3691,6 +3691,33 @@
         "inProgress": "En cours",
         "completed": "Terminés"
       }
+    ,
+      "history": {
+        "show": "Voir l’historique",
+        "hide": "Masquer l’historique",
+        "title": "Historique de lecture",
+        "loading": "Chargement de l’historique...",
+        "errorLoad": "Impossible de charger l’historique de lecture.",
+        "empty": "Aucune session de lecture enregistrée.",
+        "startedAt": "Début",
+        "endedAt": "Fin",
+        "initialPosition": "Position initiale",
+        "finalPosition": "Position finale",
+        "highestPosition": "Position maximale",
+        "playbackTime": "Temps de lecture",
+        "ending": "Fin de session",
+        "open": "Ouverte",
+        "reasons": {
+          "pause": "Pause",
+          "videoEnd": "Fin de la vidéo",
+          "lessonChange": "Changement de cours",
+          "pageExit": "Sortie de la page",
+          "focusLost": "Perte de focus",
+          "lessonCompletion": "Fin du cours",
+          "newSession": "Nouvelle session démarrée",
+          "other": "Autre"
+        }
+      }
     }
   },
   "ProfessorSubstitutions": {

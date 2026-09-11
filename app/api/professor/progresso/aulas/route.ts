@@ -396,15 +396,16 @@ export async function GET(
             ) * 60
           );
 
+        /*
+         * Para a exibicao do professor,
+         * o denominador deve refletir a
+         * configuracao ATUAL da aula.
+         *
+         * O tempo ja reproduzido pelo aluno
+         * continua preservado separadamente.
+         */
         const tempoMinimoSegundos =
-          Math.max(
-            Number(
-              progresso
-                ?.tempoMinimoSegundos ||
-                0
-            ),
-            minimoDaAula
-          );
+          minimoDaAula;
 
         const tempoAssistidoSegundos =
           Math.max(

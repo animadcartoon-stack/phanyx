@@ -1,5 +1,7 @@
 "use client";
 
+import HistoricoReproducaoAula from "./HistoricoReproducaoAula";
+
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -1584,6 +1586,26 @@ export default function ProfessorAlunosPage() {
                                   </div>
                                 </div>
                               </div>
+
+                              <HistoricoReproducaoAula
+                                alunoId={
+                                  aluno.alunoId
+                                }
+                                turmaId={
+                                  aluno.turma?.id ||
+                                  0
+                                }
+                                disciplinaId={
+                                  aluno.disciplina
+                                    ?.id || 0
+                                }
+                                aulaId={
+                                  aula.aulaId
+                                }
+                                sessoesRegistradas={
+                                  aula.sessoesRegistradas
+                                }
+                              />
 
                               <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                                 <div

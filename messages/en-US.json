@@ -3691,6 +3691,33 @@
         "inProgress": "In progress",
         "completed": "Completed"
       }
+    ,
+      "history": {
+        "show": "View history",
+        "hide": "Hide history",
+        "title": "Playback history",
+        "loading": "Loading history...",
+        "errorLoad": "Unable to load playback history.",
+        "empty": "No playback sessions were recorded.",
+        "startedAt": "Started",
+        "endedAt": "Ended",
+        "initialPosition": "Initial position",
+        "finalPosition": "Final position",
+        "highestPosition": "Highest position",
+        "playbackTime": "Playback time",
+        "ending": "Ending",
+        "open": "Open",
+        "reasons": {
+          "pause": "Paused",
+          "videoEnd": "End of video",
+          "lessonChange": "Lesson changed",
+          "pageExit": "Page exited",
+          "focusLost": "Focus lost",
+          "lessonCompletion": "Lesson completion",
+          "newSession": "New session started",
+          "other": "Other"
+        }
+      }
     }
   },
   "ProfessorSubstitutions": {
