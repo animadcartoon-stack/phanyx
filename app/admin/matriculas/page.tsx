@@ -3703,8 +3703,8 @@ function AdminMatriculasPage() {
       </div>
 
       <div className="matriculas-light-fix bg-white border rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="px-5 py-4 border-b flex flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
 
             {/* ESQUERDA */}
             <h2 className="text-lg font-semibold">Matrículas cadastradas</h2>
@@ -3742,13 +3742,13 @@ function AdminMatriculasPage() {
             </div>
 
             {/* MEIO (busca + filtro) */}
-            <div className="flex gap-2 w-full md:w-auto">
+            <div className="flex min-w-0 flex-1 flex-wrap gap-2">
               <input
                 type="text"
                 placeholder="Buscar por aluno, vendedor, curso, turma, disciplina, professor, status ou ID"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                className="w-full md:w-[400px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="min-w-[240px] flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
 
               <select
@@ -3758,7 +3758,7 @@ function AdminMatriculasPage() {
                     e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
                   )
                 }
-                className="w-[180px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="w-[145px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
                 <option value="HOJE">Hoje</option>
                 <option value="ONTEM">Ontem</option>
@@ -3775,7 +3775,7 @@ function AdminMatriculasPage() {
                   )
                 }
                 aria-label={t("filterStatus")}
-                className="w-[190px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="w-[175px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
                 <option value="TODOS">
                   {t("status.TODOS")}
@@ -3966,6 +3966,17 @@ function AdminMatriculasPage() {
                             </button>
                           ) : (
                           <div className="flex flex-wrap gap-2">
+
+                            <button
+                              type="button"
+                              data-quarentena-linha="true"
+                              onClick={() => abrirModalQuarentena(m)}
+                              disabled={removingId === m.id}
+                              className="inline-flex items-center gap-1 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/70"
+                            >
+                              {t("actions.moverQuarentena")}
+                            </button>
+
 
                             <button
 
