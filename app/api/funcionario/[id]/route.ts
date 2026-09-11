@@ -584,6 +584,75 @@ export async function PUT(
             )
           : undefined;
 
+    /*
+     * Identificação previdenciária / seguridade social
+     */
+    const paisIdentificacaoPrevidenciariaTexto =
+      temCampo("paisIdentificacaoPrevidenciaria")
+        ? limparTexto(
+            body.paisIdentificacaoPrevidenciaria
+          )
+        : limparTexto(
+            funcionario.paisIdentificacaoPrevidenciaria
+          );
+
+    const paisIdentificacaoPrevidenciaria =
+      paisIdentificacaoPrevidenciariaTexto
+        ? paisOpcional(
+            paisIdentificacaoPrevidenciariaTexto
+          )
+        : paisResidencia;
+
+    if (
+      temCampo("paisIdentificacaoPrevidenciaria") &&
+      paisIdentificacaoPrevidenciariaTexto &&
+      !paisIdentificacaoPrevidenciaria
+    ) {
+      return NextResponse.json(
+        {
+          code: "INVALID_SOCIAL_SECURITY_COUNTRY",
+          error:
+            "O país da identificação previdenciária é inválido.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const tipoIdentificacaoPrevidenciaria =
+      temCampo("tipoIdentificacaoPrevidenciaria")
+        ? normalizarTipoDocumento(
+            body.tipoIdentificacaoPrevidenciaria
+          )
+        : funcionario.tipoIdentificacaoPrevidenciaria;
+
+    const numeroIdentificacaoPrevidenciaria =
+      temCampo("numeroIdentificacaoPrevidenciaria")
+        ? textoOpcional(
+            body.numeroIdentificacaoPrevidenciaria,
+            120
+          )
+        : funcionario.numeroIdentificacaoPrevidenciaria;
+
+    const alterouPrevidencia =
+      temCampo("paisIdentificacaoPrevidenciaria") ||
+      temCampo("tipoIdentificacaoPrevidenciaria") ||
+      temCampo("numeroIdentificacaoPrevidenciaria");
+
+    const pisPasepCompatibilidade:
+      | string
+      | null
+      | undefined =
+      alterouPrevidencia
+        ? paisIdentificacaoPrevidenciaria === "BR"
+          ? numeroIdentificacaoPrevidenciaria
+          : null
+        : temCampo("pisPasep")
+          ? textoOpcional(
+              body.pisPasep,
+              120
+            )
+          : undefined;
+
     const possuiAcessoAtual = Boolean(
       funcionario.userId &&
       funcionario.user
@@ -1682,8 +1751,21 @@ export async function PUT(
                     : undefined,
 
                 pisPasep:
-                  temCampo("pisPasep")
-                    ? body.pisPasep || null
+                  pisPasepCompatibilidade,
+
+                paisIdentificacaoPrevidenciaria:
+                  temCampo("paisIdentificacaoPrevidenciaria")
+                    ? paisIdentificacaoPrevidenciaria
+                    : undefined,
+
+                tipoIdentificacaoPrevidenciaria:
+                  temCampo("tipoIdentificacaoPrevidenciaria")
+                    ? tipoIdentificacaoPrevidenciaria
+                    : undefined,
+
+                numeroIdentificacaoPrevidenciaria:
+                  temCampo("numeroIdentificacaoPrevidenciaria")
+                    ? numeroIdentificacaoPrevidenciaria
                     : undefined,
 
                 banco:

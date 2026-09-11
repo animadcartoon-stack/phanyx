@@ -3667,8 +3667,7 @@
       "locked": "Suspendue temporairement",
       "failed": "Échouée",
       "canceled": "Annulée"
-    }
-  ,
+    },
     "progress": {
       "title": "Progression des cours",
       "description": "Suivez la lecture enregistrée et l’achèvement des cours de cet étudiant.",
@@ -3690,8 +3689,7 @@
         "total": "Cours",
         "inProgress": "En cours",
         "completed": "Terminés"
-      }
-    ,
+      },
       "history": {
         "show": "Voir l’historique",
         "hide": "Masquer l’historique",
@@ -14539,7 +14537,7 @@
       "employeeCreatedWithoutAccess": "Employé enregistré avec succès dans les RH, sans accès au système."
     },
     "international": {
-      "personalTitle": "Données personnelles internationales",
+      "personalTitle": "Données personnelles",
       "personalDescription": "Renseignez le pays, la nationalité, le téléphone et les documents d'identification de l'employé. Les types de document et l'adresse s'adaptent au pays sélectionné.",
       "countryOfResidence": "Pays de résidence",
       "nationality": "Nationalité",
@@ -14598,9 +14596,51 @@
         "invalidPhoneCountry": "Sélectionnez un pays valide pour le téléphone.",
         "invalidPhone": "Saisissez un numéro de téléphone valide pour le pays sélectionné."
       }
+    },
+    "socialSecurity": {
+      "country": "Pays de sécurité sociale",
+      "types": {
+        "br": "PIS / PASEP / NIT",
+        "pt": "NISS",
+        "fr": "N° de sécurité sociale",
+        "es": "NUSS / NAF",
+        "us": "SSN",
+        "gb": "National Insurance Number",
+        "generic": "Identifiant de sécurité sociale"
+      }
+    },
+    "bank": {
+      "title": "Coordonnées bancaires",
+      "description": "Renseignez le compte utilisé pour le salaire ou les paiements RH. Les champs s'adaptent au pays du compte.",
+      "country": "Pays du compte",
+      "currency": "Devise",
+      "bankName": "Banque",
+      "accountType": "Type de compte",
+      "accountNumber": "Numéro de compte",
+      "routingNumber": "Routing Number",
+      "sortCode": "Sort Code",
+      "pixKeyType": "Type de clé Pix",
+      "pixKey": "Clé Pix",
+      "holderName": "Titulaire du compte",
+      "holderDocument": "Document du titulaire",
+      "edit": "Modifier les coordonnées bancaires",
+      "save": "Enregistrer les coordonnées bancaires",
+      "saved": "Coordonnées bancaires mises à jour avec succès.",
+      "accountTypes": {
+        "checking": "Compte courant",
+        "savings": "Compte d'épargne",
+        "payroll": "Compte salaire",
+        "payment": "Compte de paiement",
+        "other": "Autre"
+      },
+      "pixTypes": {
+        "random": "Clé aléatoire"
+      },
+      "errors": {
+        "save": "Impossible d'enregistrer les coordonnées bancaires."
+      }
     }
-  }
-,
+  },
   "AdminMatriculasQuarentena": {
     "tabs": {
       "matriculas": "Inscriptions",

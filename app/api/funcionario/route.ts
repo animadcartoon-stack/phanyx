@@ -372,6 +372,53 @@ export async function POST(request: Request) {
           : null
         : textoOpcional(body.rg, 100);
 
+    /*
+     * Identificação previdenciária / seguridade social.
+     * O país é independente do idioma da interface.
+     */
+    const paisIdentificacaoPrevidenciariaTexto =
+      limparTexto(
+        body.paisIdentificacaoPrevidenciaria
+      );
+
+    const paisIdentificacaoPrevidenciaria =
+      paisIdentificacaoPrevidenciariaTexto
+        ? paisOpcional(
+            paisIdentificacaoPrevidenciariaTexto
+          )
+        : paisResidencia;
+
+    if (
+      paisIdentificacaoPrevidenciariaTexto &&
+      !paisIdentificacaoPrevidenciaria
+    ) {
+      return NextResponse.json(
+        {
+          code: "INVALID_SOCIAL_SECURITY_COUNTRY",
+          error:
+            "O país da identificação previdenciária é inválido.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const tipoIdentificacaoPrevidenciaria =
+      normalizarTipoDocumento(
+        body.tipoIdentificacaoPrevidenciaria
+      );
+
+    const numeroIdentificacaoPrevidenciaria =
+      textoOpcional(
+        body.numeroIdentificacaoPrevidenciaria,
+        120
+      );
+
+    const pisPasepCompatibilidade =
+      paisIdentificacaoPrevidenciaria === "BR"
+        ? numeroIdentificacaoPrevidenciaria ||
+          textoOpcional(body.pisPasep, 120)
+        : textoOpcional(body.pisPasep, 120);
+
     const poloId =
       numeroInteiroOuNull(body.poloId);
 
@@ -1012,7 +1059,16 @@ export async function POST(request: Request) {
                   body.codigoPonto || null,
 
                 pisPasep:
-                  body.pisPasep || null,
+                  pisPasepCompatibilidade,
+
+                paisIdentificacaoPrevidenciaria:
+                  paisIdentificacaoPrevidenciaria || null,
+
+                tipoIdentificacaoPrevidenciaria:
+                  tipoIdentificacaoPrevidenciaria || null,
+
+                numeroIdentificacaoPrevidenciaria:
+                  numeroIdentificacaoPrevidenciaria || null,
 
                 banco:
                   body.banco || null,

@@ -3667,8 +3667,7 @@
       "locked": "Trancado",
       "failed": "Reprovado",
       "canceled": "Cancelado"
-    }
-  ,
+    },
     "progress": {
       "title": "Progresso das aulas",
       "description": "Acompanhe a reprodução registada e a conclusão das aulas deste aluno.",
@@ -3690,8 +3689,7 @@
         "total": "Aulas",
         "inProgress": "Em curso",
         "completed": "Concluídas"
-      }
-    ,
+      },
       "history": {
         "show": "Ver histórico",
         "hide": "Ocultar histórico",
@@ -14325,7 +14323,7 @@
       "employeeCreatedWithoutAccess": "Funcionário registado nos RH com sucesso, sem acesso ao sistema."
     },
     "international": {
-      "personalTitle": "Dados pessoais internacionais",
+      "personalTitle": "Dados pessoais",
       "personalDescription": "Indique o país, a nacionalidade, o telefone e os documentos de identificação do funcionário. Os tipos de documento e a morada adaptam-se ao país selecionado.",
       "countryOfResidence": "País de residência",
       "nationality": "Nacionalidade",
@@ -14384,9 +14382,51 @@
         "invalidPhoneCountry": "Selecione um país válido para o telefone.",
         "invalidPhone": "Introduza um telefone válido para o país selecionado."
       }
+    },
+    "socialSecurity": {
+      "country": "País da segurança social",
+      "types": {
+        "br": "PIS / PASEP / NIT",
+        "pt": "NISS",
+        "fr": "N.º de segurança social",
+        "es": "NUSS / NAF",
+        "us": "SSN",
+        "gb": "National Insurance Number",
+        "generic": "Identificação de segurança social"
+      }
+    },
+    "bank": {
+      "title": "Dados bancários",
+      "description": "Indique a conta utilizada para o pagamento do salário ou outros pagamentos de RH. Os campos adaptam-se ao país da conta.",
+      "country": "País da conta",
+      "currency": "Moeda",
+      "bankName": "Banco",
+      "accountType": "Tipo de conta",
+      "accountNumber": "Número da conta",
+      "routingNumber": "Routing Number",
+      "sortCode": "Sort Code",
+      "pixKeyType": "Tipo de chave Pix",
+      "pixKey": "Chave Pix",
+      "holderName": "Titular da conta",
+      "holderDocument": "Documento do titular",
+      "edit": "Editar dados bancários",
+      "save": "Guardar dados bancários",
+      "saved": "Dados bancários atualizados com sucesso.",
+      "accountTypes": {
+        "checking": "Conta à ordem",
+        "savings": "Conta poupança",
+        "payroll": "Conta salário",
+        "payment": "Conta de pagamento",
+        "other": "Outra"
+      },
+      "pixTypes": {
+        "random": "Chave aleatória"
+      },
+      "errors": {
+        "save": "Não foi possível guardar os dados bancários."
+      }
     }
-  }
-,
+  },
   "AdminMatriculasQuarentena": {
     "tabs": {
       "matriculas": "Matrículas",

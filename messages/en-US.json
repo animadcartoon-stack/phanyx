@@ -3667,8 +3667,7 @@
       "locked": "On hold",
       "failed": "Failed",
       "canceled": "Canceled"
-    }
-  ,
+    },
     "progress": {
       "title": "Lesson progress",
       "description": "Track recorded playback and lesson completion for this student.",
@@ -3690,8 +3689,7 @@
         "total": "Lessons",
         "inProgress": "In progress",
         "completed": "Completed"
-      }
-    ,
+      },
       "history": {
         "show": "View history",
         "hide": "Hide history",
@@ -14540,7 +14538,7 @@
       "employeeCreatedWithoutAccess": "Employee registered in HR successfully without system access."
     },
     "international": {
-      "personalTitle": "International personal details",
+      "personalTitle": "Personal details",
       "personalDescription": "Enter the employee's country, nationality, phone number, and identification documents. Document types and address fields adapt to the selected country.",
       "countryOfResidence": "Country of residence",
       "nationality": "Nationality",
@@ -14599,9 +14597,51 @@
         "invalidPhoneCountry": "Select a valid country for the phone number.",
         "invalidPhone": "Enter a valid phone number for the selected country."
       }
+    },
+    "socialSecurity": {
+      "country": "Social security country",
+      "types": {
+        "br": "PIS / PASEP / NIT",
+        "pt": "NISS",
+        "fr": "Social security number",
+        "es": "NUSS / NAF",
+        "us": "SSN",
+        "gb": "National Insurance Number",
+        "generic": "Social security identifier"
+      }
+    },
+    "bank": {
+      "title": "Banking details",
+      "description": "Enter the account used for payroll or HR payments. Fields adapt to the account's country.",
+      "country": "Account country",
+      "currency": "Currency",
+      "bankName": "Bank",
+      "accountType": "Account type",
+      "accountNumber": "Account number",
+      "routingNumber": "Routing Number",
+      "sortCode": "Sort Code",
+      "pixKeyType": "PIX key type",
+      "pixKey": "PIX key",
+      "holderName": "Account holder",
+      "holderDocument": "Account holder ID",
+      "edit": "Edit banking details",
+      "save": "Save banking details",
+      "saved": "Banking details updated successfully.",
+      "accountTypes": {
+        "checking": "Checking account",
+        "savings": "Savings account",
+        "payroll": "Payroll account",
+        "payment": "Payment account",
+        "other": "Other"
+      },
+      "pixTypes": {
+        "random": "Random key"
+      },
+      "errors": {
+        "save": "Could not save the banking details."
+      }
     }
-  }
-,
+  },
   "AdminMatriculasQuarentena": {
     "tabs": {
       "matriculas": "Enrollments",

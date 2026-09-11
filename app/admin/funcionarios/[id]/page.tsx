@@ -1,10 +1,148 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import withAuth from "@/components/auth/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import BuscaBanco from "@/components/rh/BuscaBanco";
+import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  getCountries,
+  type CountryCode,
+} from "libphonenumber-js";
+
+type OpcaoDocumentoInternacional = readonly [string, string];
+
+const PAIS_POR_LOCALE: Record<string, CountryCode> = {
+  "pt-BR": "BR",
+  "pt-PT": "PT",
+  "en-US": "US",
+  "es-ES": "ES",
+  "fr-FR": "FR",
+};
+
+function paisInicial(locale: string): CountryCode {
+  return PAIS_POR_LOCALE[locale] || "BR";
+}
+
+function codigoPaisValido(valor: unknown): valor is CountryCode {
+  return (
+    typeof valor === "string" &&
+    getCountries().includes(
+      valor.toUpperCase() as CountryCode
+    )
+  );
+}
+
+function bandeiraPais(codigo: CountryCode) {
+  return codigo
+    .toUpperCase()
+    .replace(
+      /./g,
+      (letra) =>
+        String.fromCodePoint(
+          127397 + letra.charCodeAt(0)
+        )
+    );
+}
+
+function tipoDocumentoPadrao(pais: CountryCode) {
+  switch (pais) {
+    case "BR": return "CIN";
+    case "PT": return "CARTAO_CIDADAO";
+    case "US": return "STATE_ID";
+    case "ES": return "DNI";
+    case "FR": return "CNI";
+    default: return "NATIONAL_ID";
+  }
+}
+
+function tipoDocumentoFiscalPadrao(pais: CountryCode) {
+  switch (pais) {
+    case "BR": return "CPF";
+    case "PT": return "NIF";
+    case "US": return "SSN";
+    case "ES": return "NIF";
+    case "FR": return "NUMERO_FISCAL";
+    default: return "TAX_ID";
+  }
+}
+
+function tipoPrevidenciaPadrao(pais: CountryCode) {
+  switch (pais) {
+    case "BR": return "PIS_PASEP_NIT";
+    case "PT": return "NISS";
+    case "FR": return "SECURITE_SOCIALE";
+    case "ES": return "NUSS_NAF";
+    case "US": return "SSN";
+    case "GB": return "NATIONAL_INSURANCE_NUMBER";
+    default: return "SOCIAL_SECURITY_ID";
+  }
+}
+
+function moedaPadraoPais(pais: CountryCode) {
+  if (pais === "BR") return "BRL";
+  if (pais === "US") return "USD";
+  if (pais === "GB") return "GBP";
+  if (pais === "CA") return "CAD";
+  if (pais === "AU") return "AUD";
+  if (pais === "CH") return "CHF";
+  if (pais === "JP") return "JPY";
+
+  const paisesEuro = new Set<CountryCode>([
+    "AT", "BE", "CY", "DE", "EE", "ES", "FI", "FR",
+    "GR", "HR", "IE", "IT", "LT", "LU", "LV", "MT",
+    "NL", "PT", "SI", "SK",
+  ]);
+
+  return paisesEuro.has(pais) ? "EUR" : "";
+}
+
+function paisUsaIban(pais: CountryCode) {
+  const paises = new Set<CountryCode>([
+    "AD", "AT", "BE", "BG", "CH", "CY", "CZ", "DE",
+    "DK", "EE", "ES", "FI", "FR", "GB", "GI", "GR",
+    "HR", "HU", "IE", "IS", "IT", "LI", "LT", "LU",
+    "LV", "MC", "MT", "NL", "NO", "PL", "PT", "RO",
+    "SE", "SI", "SK", "SM", "VA",
+  ]);
+  return paises.has(pais);
+}
+
+function formatarCodigoPostal(valor: string, pais: CountryCode) {
+  if (pais === "BR") {
+    const n = valor.replace(/\D/g, "").slice(0, 8);
+    return n.replace(/^(\d{5})(\d)/, "$1-$2");
+  }
+  if (pais === "PT") {
+    const n = valor.replace(/\D/g, "").slice(0, 7);
+    return n.replace(/^(\d{4})(\d)/, "$1-$2");
+  }
+  if (pais === "US") {
+    const n = valor.replace(/\D/g, "").slice(0, 9);
+    return n.replace(/^(\d{5})(\d)/, "$1-$2");
+  }
+  return valor.slice(0, 20);
+}
+
+type ContaBancariaForm = {
+  paisCodigo: CountryCode;
+  moeda: string;
+  bancoNome: string;
+  agencia: string;
+  conta: string;
+  tipoConta: string;
+  tipoChavePix: string;
+  chavePix: string;
+  iban: string;
+  bicSwift: string;
+  routingNumber: string;
+  sortCode: string;
+  titularNome: string;
+  titularDocumento: string;
+};
 
 type TipoRemuneracaoFuncionario =
   | ""
@@ -264,6 +402,113 @@ function ResumoRemuneracao({
 function FuncionarioFichaPage() {
   const params = useParams();
   const funcionarioId = Number(params.id);
+  const t = useTranslations("AdminFuncionarios");
+  const locale = useLocale();
+  const paisPadrao = paisInicial(locale);
+
+  const paisesDisponiveis = useMemo(() => {
+    const nomes = new Intl.DisplayNames(
+      [locale],
+      { type: "region" }
+    );
+
+    return getCountries()
+      .map((codigo) => ({
+        codigo,
+        nome: nomes.of(codigo) || codigo,
+      }))
+      .sort((a, b) =>
+        a.nome.localeCompare(b.nome, locale)
+      );
+  }, [locale]);
+
+  function nomePais(codigo?: string | null) {
+    if (!codigoPaisValido(codigo)) {
+      return codigo || "-";
+    }
+    return paisesDisponiveis.find(
+      (item) => item.codigo === codigo.toUpperCase()
+    )?.nome || codigo.toUpperCase();
+  }
+
+  function rotuloTipoDocumento(tipo?: string | null) {
+    switch (String(tipo || "").toUpperCase()) {
+      case "CIN": return "CIN";
+      case "RG": return "RG";
+      case "CNH": return t("international.documentTypes.driverLicense");
+      case "CARTAO_CIDADAO": return t("international.documentTypes.citizenCard");
+      case "STATE_ID": return t("international.documentTypes.stateId");
+      case "PERMANENT_RESIDENT_CARD": return t("international.documentTypes.permanentResidentCard");
+      case "DNI": return "DNI";
+      case "NIE": return "NIE";
+      case "TIE": return "TIE";
+      case "CNI": return "CNI";
+      case "PASSAPORTE":
+      case "PASSPORT": return t("international.documentTypes.passport");
+      case "TITULO_RESIDENCIA":
+      case "RESIDENCE_PERMIT": return t("international.documentTypes.residencePermit");
+      case "NATIONAL_ID": return t("international.documentTypes.nationalId");
+      default: return tipo || t("international.documentTypes.nationalId");
+    }
+  }
+
+  function rotuloTipoDocumentoFiscal(tipo?: string | null) {
+    switch (String(tipo || "").toUpperCase()) {
+      case "CPF": return "CPF";
+      case "NIF": return "NIF";
+      case "SSN": return "SSN";
+      case "ITIN": return "ITIN";
+      case "NUMERO_FISCAL": return t("international.fiscalTypes.taxNumber");
+      case "TAX_ID": return t("international.fiscalTypes.taxId");
+      default: return tipo || t("international.fiscalTypes.taxId");
+    }
+  }
+
+  function opcoesDocumentoIdentidade(pais: CountryCode): readonly OpcaoDocumentoInternacional[] {
+    switch (pais) {
+      case "BR": return [["CIN","CIN"],["RG","RG"],["CNH",t("international.documentTypes.driverLicense")],["PASSAPORTE",t("international.documentTypes.passport")]] as const;
+      case "PT": return [["CARTAO_CIDADAO",t("international.documentTypes.citizenCard")],["PASSAPORTE",t("international.documentTypes.passport")],["TITULO_RESIDENCIA",t("international.documentTypes.residencePermit")],["CNH",t("international.documentTypes.driverLicense")]] as const;
+      case "US": return [["STATE_ID",t("international.documentTypes.stateId")],["CNH",t("international.documentTypes.driverLicense")],["PASSAPORTE",t("international.documentTypes.passport")],["PERMANENT_RESIDENT_CARD",t("international.documentTypes.permanentResidentCard")]] as const;
+      case "ES": return [["DNI","DNI"],["NIE","NIE"],["TIE","TIE"],["PASSAPORTE",t("international.documentTypes.passport")],["CNH",t("international.documentTypes.driverLicense")]] as const;
+      case "FR": return [["CNI","CNI"],["PASSAPORTE",t("international.documentTypes.passport")],["TITULO_RESIDENCIA",t("international.documentTypes.residencePermit")],["CNH",t("international.documentTypes.driverLicense")]] as const;
+      default: return [["NATIONAL_ID",t("international.documentTypes.nationalId")],["PASSAPORTE",t("international.documentTypes.passport")],["RESIDENCE_PERMIT",t("international.documentTypes.residencePermit")],["CNH",t("international.documentTypes.driverLicense")]] as const;
+    }
+  }
+
+  function opcoesDocumentoFiscal(pais: CountryCode): readonly OpcaoDocumentoInternacional[] {
+    switch (pais) {
+      case "BR": return [["CPF","CPF"]] as const;
+      case "PT": return [["NIF","NIF"]] as const;
+      case "US": return [["SSN","SSN"],["ITIN","ITIN"],["TAX_ID",t("international.fiscalTypes.taxId")]] as const;
+      case "ES": return [["NIF","NIF"],["NIE","NIE"]] as const;
+      case "FR": return [["NUMERO_FISCAL",t("international.fiscalTypes.taxNumber")]] as const;
+      default: return [["TAX_ID",t("international.fiscalTypes.taxId")]] as const;
+    }
+  }
+
+  function rotulosEndereco(pais: CountryCode) {
+    return {
+      codigoPostal: pais === "BR" ? t("international.address.postalBR") : pais === "PT" ? t("international.address.postalPT") : pais === "US" ? t("international.address.postalUS") : pais === "FR" ? t("international.address.postalFR") : pais === "ES" ? t("international.address.postalES") : t("international.address.postalGeneric"),
+      endereco: t("international.address.streetAddress"),
+      numero: pais === "US" ? t("international.address.numberUS") : t("international.address.number"),
+      complemento: pais === "US" ? t("international.address.complementUS") : t("international.address.complement"),
+      bairro: pais === "PT" ? t("international.address.districtPT") : pais === "US" ? t("international.address.districtUS") : t("international.address.district"),
+      cidade: pais === "PT" ? t("international.address.cityPT") : t("international.address.city"),
+      estado: pais === "BR" ? t("international.address.regionBR") : pais === "PT" ? t("international.address.regionPT") : pais === "US" ? t("international.address.regionUS") : pais === "ES" ? t("international.address.regionES") : pais === "FR" ? t("international.address.regionFR") : t("international.address.regionGeneric"),
+    };
+  }
+
+  function rotuloPrevidencia(pais: CountryCode) {
+    switch (pais) {
+      case "BR": return t("socialSecurity.types.br");
+      case "PT": return t("socialSecurity.types.pt");
+      case "FR": return t("socialSecurity.types.fr");
+      case "ES": return t("socialSecurity.types.es");
+      case "US": return t("socialSecurity.types.us");
+      case "GB": return t("socialSecurity.types.gb");
+      default: return t("socialSecurity.types.generic");
+    }
+  }
 
   const [funcionario, setFuncionario] = useState<any>(null);
 
@@ -335,9 +580,21 @@ function FuncionarioFichaPage() {
 
   const [formGeral, setFormGeral] = useState({
     nome: "",
-    cpf: "",
-    rg: "",
+    paisResidencia: paisPadrao as CountryCode,
+    nacionalidade: "",
+    paisTelefone: paisPadrao as CountryCode,
     telefone: "",
+    tipoDocumento: tipoDocumentoPadrao(paisPadrao),
+    numeroDocumento: "",
+    tipoDocumentoFiscal: tipoDocumentoFiscalPadrao(paisPadrao),
+    numeroDocumentoFiscal: "",
+    endereco: "",
+    numero: "",
+    complemento: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    cep: "",
     cargo: "",
     cargoId: "",
     departamentoId: "",
@@ -380,13 +637,33 @@ function FuncionarioFichaPage() {
     jornadaTrabalho: "",
 
     codigoPonto: "",
-    pisPasep: "",
-
-    banco: "",
-    agencia: "",
-    conta: "",
-    pix: "",
+    paisIdentificacaoPrevidenciaria:
+      paisPadrao as CountryCode,
+    tipoIdentificacaoPrevidenciaria:
+      tipoPrevidenciaPadrao(paisPadrao),
+    numeroIdentificacaoPrevidenciaria: "",
   });
+
+  const [contaBancaria, setContaBancaria] =
+    useState<ContaBancariaForm>({
+      paisCodigo: paisPadrao,
+      moeda: moedaPadraoPais(paisPadrao),
+      bancoNome: "",
+      agencia: "",
+      conta: "",
+      tipoConta: "",
+      tipoChavePix: "",
+      chavePix: "",
+      iban: "",
+      bicSwift: "",
+      routingNumber: "",
+      sortCode: "",
+      titularNome: "",
+      titularDocumento: "",
+    });
+
+  const [editandoBanco, setEditandoBanco] = useState(false);
+  const [salvandoBanco, setSalvandoBanco] = useState(false);
 
   const [
     assinaturaRemuneracaoOriginal,
@@ -464,45 +741,6 @@ function FuncionarioFichaPage() {
 
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
-  const [buscaBanco, setBuscaBanco] = useState("");
-
-  const BANCOS_BRASIL = [
-    { codigo: "001", nome: "Banco do Brasil" },
-    { codigo: "033", nome: "Santander" },
-    { codigo: "104", nome: "Caixa Econômica Federal" },
-    { codigo: "237", nome: "Bradesco" },
-    { codigo: "341", nome: "Itaú" },
-    { codigo: "745", nome: "Citibank" },
-    { codigo: "399", nome: "HSBC" },
-    { codigo: "041", nome: "Banrisul" },
-    { codigo: "748", nome: "Sicredi" },
-    { codigo: "756", nome: "Sicoob" },
-    { codigo: "422", nome: "Safra" },
-    { codigo: "655", nome: "Votorantim" },
-    { codigo: "633", nome: "Rendimento" },
-    { codigo: "707", nome: "Daycoval" },
-    { codigo: "121", nome: "Agibank" },
-    { codigo: "077", nome: "Banco Inter" },
-    { codigo: "212", nome: "Banco Original" },
-    { codigo: "218", nome: "BS2" },
-    { codigo: "290", nome: "PagBank" },
-    { codigo: "336", nome: "C6 Bank" },
-    { codigo: "260", nome: "Nubank" },
-    { codigo: "323", nome: "Mercado Pago" },
-    { codigo: "380", nome: "PicPay Bank" },
-    { codigo: "197", nome: "Stone" },
-    { codigo: "274", nome: "Gerencianet / Efí" },
-    { codigo: "403", nome: "Cora" },
-    { codigo: "461", nome: "Asaas Money" },
-    { codigo: "085", nome: "Ailos" },
-    { codigo: "097", nome: "Credisis" },
-    { codigo: "136", nome: "Unicred" },
-    { codigo: "364", nome: "Gerencianet" },
-    { codigo: "637", nome: "Sofisa Direto" },
-    { codigo: "654", nome: "Renner" },
-    { codigo: "746", nome: "Modal" },
-    { codigo: "735", nome: "Neon" },
-  ];
 
   async function carregarPolos() {
     try {
@@ -816,12 +1054,57 @@ function FuncionarioFichaPage() {
           )
           : "";
 
+      const paisResidenciaAtual =
+        codigoPaisValido(
+          data.funcionario.paisResidencia
+        )
+          ? (String(
+              data.funcionario.paisResidencia
+            ).toUpperCase() as CountryCode)
+          : data.funcionario.cpf || data.funcionario.rg
+            ? "BR"
+            : paisPadrao;
+
+      const paisTelefoneAtual =
+        codigoPaisValido(
+          data.funcionario.paisTelefone
+        )
+          ? (String(
+              data.funcionario.paisTelefone
+            ).toUpperCase() as CountryCode)
+          : paisResidenciaAtual;
+
       setFormGeral({
         nome: data.funcionario.nome || "",
-        cpf: data.funcionario.cpf || "",
-        rg: data.funcionario.rg || "",
-        telefone:
-          data.funcionario.telefone || "",
+        paisResidencia: paisResidenciaAtual,
+        nacionalidade: data.funcionario.nacionalidade || "",
+        paisTelefone: paisTelefoneAtual,
+        telefone: data.funcionario.telefone || "",
+        tipoDocumento:
+          data.funcionario.tipoDocumento ||
+          (data.funcionario.rg
+            ? "RG"
+            : tipoDocumentoPadrao(paisResidenciaAtual)),
+        numeroDocumento:
+          data.funcionario.numeroDocumento ||
+          data.funcionario.rg ||
+          "",
+        tipoDocumentoFiscal:
+          data.funcionario.tipoDocumentoFiscal ||
+          (data.funcionario.cpf
+            ? "CPF"
+            : tipoDocumentoFiscalPadrao(paisResidenciaAtual)),
+        numeroDocumentoFiscal:
+          data.funcionario.numeroDocumentoFiscal ||
+          data.funcionario.cpf ||
+          "",
+        endereco: data.funcionario.endereco || "",
+        numero: data.funcionario.numero || "",
+        complemento: data.funcionario.complemento || "",
+        bairro: data.funcionario.bairro || "",
+        cidade: data.funcionario.cidade || "",
+        estado: data.funcionario.estado || "",
+        cep: data.funcionario.cep || "",
 
         cargo:
           data.funcionario.cargo || "",
@@ -947,12 +1230,33 @@ function FuncionarioFichaPage() {
       jornadaTrabalho: f.jornadaTrabalho || "",
 
       codigoPonto: f.codigoPonto || "",
-      pisPasep: f.pisPasep || "",
-
-      banco: f.banco || "",
-      agencia: f.agencia || "",
-      conta: f.conta || "",
-      pix: f.pix || "",
+      paisIdentificacaoPrevidenciaria:
+        codigoPaisValido(
+          f.paisIdentificacaoPrevidenciaria
+        )
+          ? (String(
+              f.paisIdentificacaoPrevidenciaria
+            ).toUpperCase() as CountryCode)
+          : codigoPaisValido(f.paisResidencia)
+            ? (String(f.paisResidencia).toUpperCase() as CountryCode)
+            : f.cpf || f.rg
+              ? "BR"
+              : paisPadrao,
+      tipoIdentificacaoPrevidenciaria:
+        f.tipoIdentificacaoPrevidenciaria ||
+        tipoPrevidenciaPadrao(
+          codigoPaisValido(f.paisIdentificacaoPrevidenciaria)
+            ? (String(f.paisIdentificacaoPrevidenciaria).toUpperCase() as CountryCode)
+            : codigoPaisValido(f.paisResidencia)
+              ? (String(f.paisResidencia).toUpperCase() as CountryCode)
+              : f.cpf || f.rg
+                ? "BR"
+                : paisPadrao
+        ),
+      numeroIdentificacaoPrevidenciaria:
+        f.numeroIdentificacaoPrevidenciaria ||
+        f.pisPasep ||
+        "",
     };
 
     setFormTrabalhista(
@@ -970,6 +1274,127 @@ function FuncionarioFichaPage() {
     setVigenciaInicioRemuneracao(
       obterDataHoraLocalAtual()
     );
+  }
+
+  async function carregarContaBancariaFuncionario() {
+    try {
+      const res = await fetch(
+        `/api/admin/funcionarios/${funcionarioId}/conta-bancaria`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) return;
+
+      const conta = data?.conta;
+      const paisFallback =
+        codigoPaisValido(funcionario?.paisResidencia)
+          ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+          : funcionario?.cpf || funcionario?.rg
+            ? "BR"
+            : paisPadrao;
+
+      if (!conta) {
+        setContaBancaria({
+          paisCodigo: paisFallback,
+          moeda: moedaPadraoPais(paisFallback),
+          bancoNome: "",
+          agencia: "",
+          conta: "",
+          tipoConta: "",
+          tipoChavePix: "",
+          chavePix: "",
+          iban: "",
+          bicSwift: "",
+          routingNumber: "",
+          sortCode: "",
+          titularNome: funcionario?.nome || "",
+          titularDocumento:
+            funcionario?.numeroDocumentoFiscal ||
+            funcionario?.cpf ||
+            "",
+        });
+        return;
+      }
+
+      const paisConta =
+        codigoPaisValido(conta.paisCodigo)
+          ? (String(conta.paisCodigo).toUpperCase() as CountryCode)
+          : paisFallback;
+
+      setContaBancaria({
+        paisCodigo: paisConta,
+        moeda: conta.moeda || moedaPadraoPais(paisConta),
+        bancoNome: conta.bancoNome || "",
+        agencia: conta.agencia || "",
+        conta: conta.conta || "",
+        tipoConta: conta.tipoConta || "",
+        tipoChavePix: conta.tipoChavePix || "",
+        chavePix: conta.chavePix || "",
+        iban: conta.iban || "",
+        bicSwift: conta.bicSwift || "",
+        routingNumber: conta.routingNumber || "",
+        sortCode: conta.sortCode || "",
+        titularNome: conta.titularNome || funcionario?.nome || "",
+        titularDocumento:
+          conta.titularDocumento ||
+          funcionario?.numeroDocumentoFiscal ||
+          funcionario?.cpf ||
+          "",
+      });
+    } catch {
+      // A ficha continua disponível mesmo se a conta bancária falhar.
+    }
+  }
+
+  async function salvarContaBancariaFuncionario(
+    e: React.FormEvent
+  ) {
+    e.preventDefault();
+
+    try {
+      setSalvandoBanco(true);
+      setErro("");
+      setSucesso("");
+
+      const res = await fetch(
+        `/api/admin/funcionarios/${funcionarioId}/conta-bancaria`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...contaBancaria,
+            bancoNome: contaBancaria.bancoNome,
+          }),
+        }
+      );
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || t("bank.errors.save")
+        );
+      }
+
+      setSucesso(t("bank.saved"));
+      setEditandoBanco(false);
+      await carregarContaBancariaFuncionario();
+      await carregarFuncionario();
+    } catch (e: any) {
+      setErro(
+        e?.message || t("bank.errors.save")
+      );
+    } finally {
+      setSalvandoBanco(false);
+    }
   }
 
   async function carregarBeneficios() {
@@ -1318,6 +1743,7 @@ function FuncionarioFichaPage() {
     carregarBeneficios();
     carregarBancoHorasFuncionario();
     carregarDocumentosFuncionario();
+    carregarContaBancariaFuncionario();
   }, [funcionarioId]);
 
   async function vincularBeneficio(e: React.FormEvent) {
@@ -1431,14 +1857,36 @@ function FuncionarioFichaPage() {
             nome:
               formGeral.nome.trim(),
 
-            cpf:
-              formGeral.cpf,
-
-            rg:
-              formGeral.rg,
-
+            paisResidencia:
+              formGeral.paisResidencia,
+            nacionalidade:
+              formGeral.nacionalidade,
+            paisTelefone:
+              formGeral.paisTelefone,
             telefone:
               formGeral.telefone,
+            tipoDocumento:
+              formGeral.tipoDocumento,
+            numeroDocumento:
+              formGeral.numeroDocumento,
+            tipoDocumentoFiscal:
+              formGeral.tipoDocumentoFiscal,
+            numeroDocumentoFiscal:
+              formGeral.numeroDocumentoFiscal,
+            endereco:
+              formGeral.endereco,
+            numero:
+              formGeral.numero,
+            complemento:
+              formGeral.complemento,
+            bairro:
+              formGeral.bairro,
+            cidade:
+              formGeral.cidade,
+            estado:
+              formGeral.estado,
+            cep:
+              formGeral.cep,
 
             cargo:
               formGeral.cargo,
@@ -1762,7 +2210,7 @@ p-6
               className="mt-6 rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-bold">👤 Dados Gerais</h2>
+                <h2 className="text-lg font-bold">👤 {t("international.personalTitle")}</h2>
 
                 {!editandoGeral ? (
                   <button
@@ -1788,12 +2236,53 @@ p-6
                         setFormGeral({
                           nome:
                             funcionario.nome || "",
-                          cpf:
-                            funcionario.cpf || "",
-                          rg:
-                            funcionario.rg || "",
+                          paisResidencia:
+                            codigoPaisValido(funcionario.paisResidencia)
+                              ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+                              : funcionario.cpf || funcionario.rg
+                                ? "BR"
+                                : paisPadrao,
+                          nacionalidade:
+                            funcionario.nacionalidade || "",
+                          paisTelefone:
+                            codigoPaisValido(funcionario.paisTelefone)
+                              ? (String(funcionario.paisTelefone).toUpperCase() as CountryCode)
+                              : codigoPaisValido(funcionario.paisResidencia)
+                                ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+                                : funcionario.cpf || funcionario.rg
+                                  ? "BR"
+                                  : paisPadrao,
                           telefone:
                             funcionario.telefone || "",
+                          tipoDocumento:
+                            funcionario.tipoDocumento ||
+                            (funcionario.rg ? "RG" : tipoDocumentoPadrao(
+                              codigoPaisValido(funcionario.paisResidencia)
+                                ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+                                : funcionario.cpf || funcionario.rg
+                                  ? "BR"
+                                  : paisPadrao
+                            )),
+                          numeroDocumento:
+                            funcionario.numeroDocumento || funcionario.rg || "",
+                          tipoDocumentoFiscal:
+                            funcionario.tipoDocumentoFiscal ||
+                            (funcionario.cpf ? "CPF" : tipoDocumentoFiscalPadrao(
+                              codigoPaisValido(funcionario.paisResidencia)
+                                ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+                                : funcionario.cpf || funcionario.rg
+                                  ? "BR"
+                                  : paisPadrao
+                            )),
+                          numeroDocumentoFiscal:
+                            funcionario.numeroDocumentoFiscal || funcionario.cpf || "",
+                          endereco: funcionario.endereco || "",
+                          numero: funcionario.numero || "",
+                          complemento: funcionario.complemento || "",
+                          bairro: funcionario.bairro || "",
+                          cidade: funcionario.cidade || "",
+                          estado: funcionario.estado || "",
+                          cep: funcionario.cep || "",
                           cargo:
                             funcionario.cargo || "",
 
@@ -1891,10 +2380,28 @@ p-6
                       </p>
                     </div>
                   </div>
-                  <div><p className="text-slate-400">Nome</p><p>{funcionario.nome || "-"}</p></div>
-                  <div><p className="text-slate-400">CPF</p><p>{funcionario.cpf || "-"}</p></div>
-                  <div><p className="text-slate-400">RG</p><p>{funcionario.rg || "-"}</p></div>
-                  <div><p className="text-slate-400">Telefone</p><p>{funcionario.telefone || "-"}</p></div>
+                  <div><p className="text-slate-400">{t("fields.name")}</p><p>{funcionario.nome || "-"}</p></div>
+                  <div><p className="text-slate-400">{t("international.countryOfResidence")}</p><p>{nomePais(funcionario.paisResidencia || (funcionario.cpf || funcionario.rg ? "BR" : null))}</p></div>
+                  <div><p className="text-slate-400">{t("international.nationality")}</p><p>{funcionario.nacionalidade || "-"}</p></div>
+                  <div><p className="text-slate-400">{rotuloTipoDocumentoFiscal(funcionario.tipoDocumentoFiscal || (funcionario.cpf ? "CPF" : null))}</p><p>{funcionario.numeroDocumentoFiscal || funcionario.cpf || "-"}</p></div>
+                  <div><p className="text-slate-400">{rotuloTipoDocumento(funcionario.tipoDocumento || (funcionario.rg ? "RG" : null))}</p><p>{funcionario.numeroDocumento || funcionario.rg || "-"}</p></div>
+                  <div><p className="text-slate-400">{t("fields.phone")}</p><p>{funcionario.telefone || "-"}</p></div>
+                  {(funcionario.endereco || funcionario.cidade || funcionario.cep) && (
+                    <div className="md:col-span-3">
+                      <p className="text-slate-400">{t("international.address.title")}</p>
+                      <p>
+                        {[
+                          funcionario.endereco,
+                          funcionario.numero,
+                          funcionario.complemento,
+                          funcionario.bairro,
+                          funcionario.cidade,
+                          funcionario.estado,
+                          funcionario.cep,
+                        ].filter(Boolean).join(", ") || "-"}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-slate-400">
                       Cargo
@@ -2190,52 +2697,119 @@ text-slate-900 dark:text-white
                     />
                   </label>
 
-                  <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">CPF</span>
-                    <input
-                      value={formGeral.cpf}
-                      onChange={(e) => setFormGeral((p) => ({ ...p, cpf: e.target.value }))}
-                      className="
-w-full rounded-xl
-border border-slate-300 dark:border-slate-700
-bg-white dark:bg-slate-950
-px-3 py-2 text-sm
-text-slate-900 dark:text-white
-"
-                    />
-                  </label>
+                                     <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("international.countryOfResidence")}</span>
+                     <select
+                       value={formGeral.paisResidencia}
+                       onChange={(e) => {
+                         const novoPais = e.target.value as CountryCode;
+                         setFormGeral((p) => ({
+                           ...p,
+                           paisResidencia: novoPais,
+                           cep: formatarCodigoPostal(p.cep, novoPais),
+                           paisTelefone: p.telefone.trim() ? p.paisTelefone : novoPais,
+                           tipoDocumento: tipoDocumentoPadrao(novoPais),
+                           numeroDocumento: "",
+                           tipoDocumentoFiscal: tipoDocumentoFiscalPadrao(novoPais),
+                           numeroDocumentoFiscal: "",
+                         }));
+                       }}
+                       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                     >
+                       {paisesDisponiveis.map((pais) => (
+                         <option key={pais.codigo} value={pais.codigo}>
+                           {bandeiraPais(pais.codigo)} {pais.nome}
+                         </option>
+                       ))}
+                     </select>
+                   </label>
 
-                  <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">RG</span>
-                    <input
-                      value={formGeral.rg}
-                      onChange={(e) => setFormGeral((p) => ({ ...p, rg: e.target.value }))}
-                      className="
-w-full rounded-xl
-border border-slate-300 dark:border-slate-700
-bg-white dark:bg-slate-950
-px-3 py-2 text-sm
-text-slate-900 dark:text-white
-"
-                    />
-                  </label>
+                   <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("international.nationality")}</span>
+                     <input
+                       value={formGeral.nacionalidade}
+                       onChange={(e) => setFormGeral((p) => ({ ...p, nacionalidade: e.target.value }))}
+                       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                     />
+                   </label>
 
-                  <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Telefone</span>
-                    <input
-                      value={formGeral.telefone}
-                      onChange={(e) => setFormGeral((p) => ({ ...p, telefone: e.target.value }))}
-                      className="
-w-full rounded-xl
-border border-slate-300 dark:border-slate-700
-bg-white dark:bg-slate-950
-px-3 py-2 text-sm
-text-slate-900 dark:text-white
-"
-                    />
-                  </label>
+                   <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("fields.phone")}</span>
+                     <CampoTelefoneInternacional
+                       value={formGeral.telefone}
+                       pais={formGeral.paisTelefone}
+                       onChange={(valor, pais) =>
+                         setFormGeral((p) => ({ ...p, telefone: valor, paisTelefone: pais }))
+                       }
+                       placeholder={t("international.phonePlaceholder")}
+                     />
+                   </label>
 
-                  <label className="space-y-1">
+                   <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("international.identityType")}</span>
+                     <select
+                       value={formGeral.tipoDocumento}
+                       onChange={(e) => setFormGeral((p) => ({ ...p, tipoDocumento: e.target.value }))}
+                       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                     >
+                       {opcoesDocumentoIdentidade(formGeral.paisResidencia).map(([valor, rotulo]) => (
+                         <option key={valor} value={valor}>{rotulo}</option>
+                       ))}
+                     </select>
+                   </label>
+
+                   <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("international.identityNumber")}</span>
+                     <input
+                       value={formGeral.numeroDocumento}
+                       onChange={(e) => setFormGeral((p) => ({ ...p, numeroDocumento: e.target.value }))}
+                       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                     />
+                   </label>
+
+                   <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("international.fiscalType")}</span>
+                     <select
+                       value={formGeral.tipoDocumentoFiscal}
+                       onChange={(e) => setFormGeral((p) => ({ ...p, tipoDocumentoFiscal: e.target.value }))}
+                       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                     >
+                       {opcoesDocumentoFiscal(formGeral.paisResidencia).map(([valor, rotulo]) => (
+                         <option key={valor} value={valor}>{rotulo}</option>
+                       ))}
+                     </select>
+                   </label>
+
+                   <label className="space-y-1">
+                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("international.fiscalNumber")}</span>
+                     <input
+                       value={formGeral.numeroDocumentoFiscal}
+                       onChange={(e) => setFormGeral((p) => ({ ...p, numeroDocumentoFiscal: e.target.value }))}
+                       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                     />
+                   </label>
+
+                   <div className="md:col-span-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                     <h3 className="font-bold text-slate-900 dark:text-white">📍 {t("international.address.title")}</h3>
+                     <div className="mt-4 grid gap-4 md:grid-cols-3">
+                       {(() => {
+                         const r = rotulosEndereco(formGeral.paisResidencia);
+                         return (
+                           <>
+                             <label className="space-y-1"><span className="text-xs font-semibold">{r.codigoPostal}</span><input value={formGeral.cep} onChange={(e) => setFormGeral((p) => ({ ...p, cep: formatarCodigoPostal(e.target.value, p.paisResidencia) }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                             <label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">{r.endereco}</span><input value={formGeral.endereco} onChange={(e) => setFormGeral((p) => ({ ...p, endereco: e.target.value }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                             <label className="space-y-1"><span className="text-xs font-semibold">{r.numero}</span><input value={formGeral.numero} onChange={(e) => setFormGeral((p) => ({ ...p, numero: e.target.value }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                             <label className="space-y-1"><span className="text-xs font-semibold">{r.complemento}</span><input value={formGeral.complemento} onChange={(e) => setFormGeral((p) => ({ ...p, complemento: e.target.value }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                             <label className="space-y-1"><span className="text-xs font-semibold">{r.bairro}</span><input value={formGeral.bairro} onChange={(e) => setFormGeral((p) => ({ ...p, bairro: e.target.value }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                             <label className="space-y-1"><span className="text-xs font-semibold">{r.cidade}</span><input value={formGeral.cidade} onChange={(e) => setFormGeral((p) => ({ ...p, cidade: e.target.value }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                             <label className="space-y-1"><span className="text-xs font-semibold">{r.estado}</span><input value={formGeral.estado} onChange={(e) => setFormGeral((p) => ({ ...p, estado: e.target.value }))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                           </>
+                         );
+                       })()}
+                     </div>
+                   </div>
+
+<label className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                       Departamento
                     </span>
@@ -3062,11 +3636,20 @@ text-slate-900 dark:text-white
                 <div><p className="text-slate-400">Jornada</p><p>{funcionario.jornadaTrabalho || "-"}</p></div>
                 <div><p className="text-slate-400">Carga Horária Mensal</p><p>{funcionario.cargaHorariaMensal ? `${funcionario.cargaHorariaMensal}h` : "-"}</p></div>
                 <div><p className="text-slate-400">Código do Ponto</p><p>{funcionario.codigoPonto || "-"}</p></div>
-                <div><p className="text-slate-400">PIS / PASEP</p><p>{funcionario.pisPasep || "-"}</p></div>
-                <div><p className="text-slate-400">Banco</p><p>{funcionario.banco || "-"}</p></div>
-                <div><p className="text-slate-400">Agência</p><p>{funcionario.agencia || "-"}</p></div>
-                <div><p className="text-slate-400">Conta</p><p>{funcionario.conta || "-"}</p></div>
-                <div className="md:col-span-2"><p className="text-slate-400">PIX</p><p>{funcionario.pix || "-"}</p></div>
+                <div>
+                  <p className="text-slate-400">
+                    {rotuloPrevidencia(
+                      codigoPaisValido(funcionario.paisIdentificacaoPrevidenciaria)
+                        ? (String(funcionario.paisIdentificacaoPrevidenciaria).toUpperCase() as CountryCode)
+                        : codigoPaisValido(funcionario.paisResidencia)
+                          ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+                          : funcionario.cpf || funcionario.rg
+                            ? "BR"
+                            : paisPadrao
+                    )}
+                  </p>
+                  <p>{funcionario.numeroIdentificacaoPrevidenciaria || funcionario.pisPasep || "-"}</p>
+                </div>
               </div>
             ) : (
               <div className="mt-5 grid gap-4 md:grid-cols-4">
@@ -3078,7 +3661,6 @@ text-slate-900 dark:text-white
                   ["cargaHorariaSemanal", "Carga Horária Semanal", "number"],
                   ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
                   ["codigoPonto", "Código do Ponto", "text"],
-                  ["pisPasep", "PIS / PASEP", "text"],
                 ].map(([campo, label, tipo]) => (
                   <label key={campo} className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{label}</span>
@@ -3104,7 +3686,42 @@ text-slate-900 dark:text-white
                   </label>
                 ))}
 
-                <div className="md:col-span-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
+                                 <label className="space-y-1">
+                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                     {t("socialSecurity.country")}
+                   </span>
+                   <select
+                     value={formTrabalhista.paisIdentificacaoPrevidenciaria}
+                     onChange={(e) => {
+                       const pais = e.target.value as CountryCode;
+                       setFormTrabalhista((p) => ({
+                         ...p,
+                         paisIdentificacaoPrevidenciaria: pais,
+                         tipoIdentificacaoPrevidenciaria: tipoPrevidenciaPadrao(pais),
+                       }));
+                     }}
+                     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                   >
+                     {paisesDisponiveis.map((pais) => (
+                       <option key={pais.codigo} value={pais.codigo}>
+                         {bandeiraPais(pais.codigo)} {pais.nome}
+                       </option>
+                     ))}
+                   </select>
+                 </label>
+
+                 <label className="space-y-1 md:col-span-2">
+                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                     {rotuloPrevidencia(formTrabalhista.paisIdentificacaoPrevidenciaria)}
+                   </span>
+                   <input
+                     value={formTrabalhista.numeroIdentificacaoPrevidenciaria}
+                     onChange={(e) => setFormTrabalhista((p) => ({ ...p, numeroIdentificacaoPrevidenciaria: e.target.value }))}
+                     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                   />
+                 </label>
+
+<div className="md:col-span-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
                   <h3 className="font-bold text-slate-900 dark:text-white">
                     💰 Remuneração
                   </h3>
@@ -3375,94 +3992,64 @@ text-slate-900 dark:text-white
                   </div>
                 )}
 
-                <label className="relative space-y-1">
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300"></span>
+                
+              </div>
+            )}
+          </form>
+        )}
 
-                  <input
-                    value={buscaBanco || formTrabalhista.banco}
-                    onChange={(e) => {
-                      setBuscaBanco(e.target.value);
-                      setFormTrabalhista((p) => ({ ...p, banco: "" }));
-                    }}
-                    placeholder="Digite nome ou código do banco"
-                    className="
-    w-full rounded-xl
-    border border-slate-300 dark:border-slate-700
-    bg-white dark:bg-slate-950
-    px-3 py-2 text-sm
-    text-slate-900 dark:text-white
-    outline-none
-    focus:border-blue-500
-  "
-                  />
+        {funcionario && (
+          <form
+            onSubmit={salvarContaBancariaFuncionario}
+            className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/80"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-bold">🏦 {t("bank.title")}</h2>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("bank.description")}</p>
+              </div>
 
-                  {buscaBanco && (
-                    <div className="
-absolute z-50 mt-2 max-h-64 w-full overflow-y-auto
-rounded-2xl
-border border-slate-300 dark:border-slate-700
-bg-white dark:bg-slate-950
-shadow-xl
-">
-                      {BANCOS_BRASIL.filter((banco) => {
-                        const termo = buscaBanco.toLowerCase();
-                        return (
-                          banco.nome.toLowerCase().includes(termo) ||
-                          banco.codigo.includes(termo)
-                        );
-                      }).map((banco) => (
-                        <button
-                          key={banco.codigo}
-                          type="button"
-                          onClick={() => {
-                            const valorBanco = `${banco.codigo} - ${banco.nome}`;
-                            setFormTrabalhista((p) => ({ ...p, banco: valorBanco }));
-                            setBuscaBanco("");
-                          }}
-                          className="
-block w-full px-4 py-3 text-left text-sm
-text-slate-900 dark:text-white
-hover:bg-blue-100 dark:hover:bg-blue-600
-"
-                        >
-                          {banco.codigo} - {banco.nome}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </label>
+              {!editandoBanco ? (
+                <button type="button" onClick={() => setEditandoBanco(true)} className="rounded-xl border border-blue-300 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-200 dark:hover:bg-blue-950/40">
+                  {t("bank.edit")}
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <button type="submit" disabled={salvandoBanco} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60">
+                    {salvandoBanco ? t("buttons.saving") : t("bank.save")}
+                  </button>
+                  <button type="button" onClick={() => { setEditandoBanco(false); void carregarContaBancariaFuncionario(); }} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 dark:border-slate-700 dark:text-slate-200">
+                    {t("buttons.cancelEditing")}
+                  </button>
+                </div>
+              )}
+            </div>
 
-                {[
-                  ["agencia", "Agência", "text"],
-                  ["conta", "Conta", "text"],
-                  ["pix", "PIX", "text"],
-                ].map(([campo, label, tipo]) => (
-                  <label key={campo} className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      {label}
-                    </span>
-
-                    <input
-                      type={tipo}
-                      value={(formTrabalhista as any)[campo]}
-                      onChange={(e) =>
-                        setFormTrabalhista((p) => ({
-                          ...p,
-                          [campo]: e.target.value,
-                        }))
-                      }
-                      className="
-    w-full rounded-xl
-    border border-slate-300 dark:border-slate-700
-    bg-white dark:bg-slate-950
-    px-3 py-2 text-sm
-    text-slate-900 dark:text-white
-  "
-                    />
-
-                  </label>
-                ))}
-
+            {!editandoBanco ? (
+              <div className="mt-4 grid gap-4 text-sm md:grid-cols-4">
+                <div><p className="text-slate-400">{t("bank.country")}</p><p>{nomePais(contaBancaria.paisCodigo)}</p></div>
+                <div><p className="text-slate-400">{t("bank.currency")}</p><p>{contaBancaria.moeda || "-"}</p></div>
+                <div><p className="text-slate-400">{t("bank.bankName")}</p><p>{contaBancaria.bancoNome || "-"}</p></div>
+                {contaBancaria.paisCodigo === "BR" && (<><div><p className="text-slate-400">{t("fields.branch")}</p><p>{contaBancaria.agencia || "-"}</p></div><div><p className="text-slate-400">{t("fields.account")}</p><p>{contaBancaria.conta || "-"}</p></div><div><p className="text-slate-400">{t("bank.pixKey")}</p><p>{contaBancaria.chavePix || "-"}</p></div></>)}
+                {contaBancaria.paisCodigo === "US" && (<><div><p className="text-slate-400">{t("bank.routingNumber")}</p><p>{contaBancaria.routingNumber || "-"}</p></div><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div></>)}
+                {contaBancaria.paisCodigo === "GB" && (<><div><p className="text-slate-400">{t("bank.sortCode")}</p><p>{contaBancaria.sortCode || "-"}</p></div><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div></>)}
+                {paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "GB" && (<><div><p className="text-slate-400">IBAN</p><p>{contaBancaria.iban || "-"}</p></div><div><p className="text-slate-400">BIC / SWIFT</p><p>{contaBancaria.bicSwift || "-"}</p></div></>)}
+                {!paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "BR" && contaBancaria.paisCodigo !== "US" && (<><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div><div><p className="text-slate-400">BIC / SWIFT</p><p>{contaBancaria.bicSwift || "-"}</p></div></>)}
+                <div><p className="text-slate-400">{t("bank.holderName")}</p><p>{contaBancaria.titularNome || "-"}</p></div>
+              </div>
+            ) : (
+              <div className="mt-5 grid gap-4 md:grid-cols-3">
+                <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.country")}</span><select value={contaBancaria.paisCodigo} onChange={(e) => { const pais=e.target.value as CountryCode; setContaBancaria((p)=>({...p,paisCodigo:pais,moeda:moedaPadraoPais(pais)})); }} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">{paisesDisponiveis.map((pais)=><option key={pais.codigo} value={pais.codigo}>{bandeiraPais(pais.codigo)} {pais.nome}</option>)}</select></label>
+                <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.currency")}</span><input value={contaBancaria.moeda} onChange={(e)=>setContaBancaria((p)=>({...p,moeda:e.target.value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,3)}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountType")}</span><select value={contaBancaria.tipoConta} onChange={(e)=>setContaBancaria((p)=>({...p,tipoConta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"><option value="">{t("common.select")}</option><option value="CORRENTE">{t("bank.accountTypes.checking")}</option><option value="POUPANCA">{t("bank.accountTypes.savings")}</option><option value="SALARIO">{t("bank.accountTypes.payroll")}</option><option value="PAGAMENTO">{t("bank.accountTypes.payment")}</option><option value="OUTRA">{t("bank.accountTypes.other")}</option></select></label>
+                <label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">{t("bank.bankName")}</span>{contaBancaria.paisCodigo === "BR" ? <BuscaBanco value={contaBancaria.bancoNome} onChange={(valor)=>setContaBancaria((p)=>({...p,bancoNome:valor}))} placeholder={t("placeholders.bankSearch")} ariaLabel={t("placeholders.bankAria")} /> : <input value={contaBancaria.bancoNome} onChange={(e)=>setContaBancaria((p)=>({...p,bancoNome:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" />}</label>
+                {contaBancaria.paisCodigo === "BR" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("fields.branch")}</span><input value={contaBancaria.agencia} onChange={(e)=>setContaBancaria((p)=>({...p,agencia:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("fields.account")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.pixKeyType")}</span><select value={contaBancaria.tipoChavePix} onChange={(e)=>setContaBancaria((p)=>({...p,tipoChavePix:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"><option value="">{t("common.select")}</option><option value="CPF">CPF</option><option value="CNPJ">CNPJ</option><option value="EMAIL">E-mail</option><option value="TELEFONE">{t("fields.phone")}</option><option value="ALEATORIA">{t("bank.pixTypes.random")}</option></select></label><label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">{t("bank.pixKey")}</span><input value={contaBancaria.chavePix} onChange={(e)=>setContaBancaria((p)=>({...p,chavePix:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                {contaBancaria.paisCodigo === "US" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.routingNumber")}</span><input value={contaBancaria.routingNumber} onChange={(e)=>setContaBancaria((p)=>({...p,routingNumber:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                {contaBancaria.paisCodigo === "GB" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.sortCode")}</span><input value={contaBancaria.sortCode} onChange={(e)=>setContaBancaria((p)=>({...p,sortCode:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                {paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "GB" && (<><label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">IBAN</span><input value={contaBancaria.iban} onChange={(e)=>setContaBancaria((p)=>({...p,iban:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">BIC / SWIFT</span><input value={contaBancaria.bicSwift} onChange={(e)=>setContaBancaria((p)=>({...p,bicSwift:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                {!paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "BR" && contaBancaria.paisCodigo !== "US" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">BIC / SWIFT</span><input value={contaBancaria.bicSwift} onChange={(e)=>setContaBancaria((p)=>({...p,bicSwift:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.holderName")}</span><input value={contaBancaria.titularNome} onChange={(e)=>setContaBancaria((p)=>({...p,titularNome:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
+                <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.holderDocument")}</span><input value={contaBancaria.titularDocumento} onChange={(e)=>setContaBancaria((p)=>({...p,titularDocumento:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
               </div>
             )}
           </form>
