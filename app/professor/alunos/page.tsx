@@ -372,7 +372,6 @@ export default function ProfessorAlunosPage() {
       aluno.itemMatriculaId;
 
     if (
-      progressoPorItem[itemId] ||
       progressoCarregando[itemId]
     ) {
       return;
