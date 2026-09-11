@@ -4068,7 +4068,15 @@
       "exchange": "On exchange",
       "transferredEnrollment": "Transferred",
       "completedEnrollment": "Completed",
-      "canceledEnrollment": "Canceled"
+      "canceledEnrollment": "Canceled",
+      "studentStatus": "Student status",
+      "allStudentStatuses": "All student statuses",
+      "studentOnHold": "On hold",
+      "studentSuspended": "Suspended",
+      "transferredStudent": "Transferred",
+      "disconnectedStudent": "Discontinued",
+      "medicalLeave": "Medical leave",
+      "missingStudent": "Missing"
     },
     "table": {
       "student": "Student",
@@ -14918,6 +14926,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
+    "bolsaEstudos": "Scholarship (%)",
+    "bolsaAjuda": "Enter a percentage from 0 to 100.",
+    "valorAposBolsa": "Monthly amount after scholarship",
+    "bolsaIntegral": "Full scholarship \u2014 100%",
+    "financeiroOpcionalAjuda": "Financial details are optional. The enrollment can be saved without generating tuition charges.",
     "tabs": {
       "matriculas": "Enrollments",
       "quarentena": "Quarantine"

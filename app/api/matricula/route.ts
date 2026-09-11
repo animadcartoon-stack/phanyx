@@ -68,6 +68,7 @@ async function sincronizarMensalidadesDaMatricula(params: {
   alunoId: number;
   cursoNome: string;
   valorMensalidade: number;
+  bolsaPercentual: number;
   quantidadeMensalidades: number;
   primeiroVencimento: Date;
 }) {
@@ -78,6 +79,7 @@ async function sincronizarMensalidadesDaMatricula(params: {
     alunoId,
     cursoNome,
     valorMensalidade,
+    bolsaPercentual,
     quantidadeMensalidades,
     primeiroVencimento,
   } = params;
@@ -117,6 +119,70 @@ async function sincronizarMensalidadesDaMatricula(params: {
         },
       ],
     });
+
+  const bolsaPercentualSegura =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        Number(
+          bolsaPercentual || 0
+        )
+      )
+    );
+
+  /*
+   * Bolsa integral:
+   * preserva mensalidades com pagamento,
+   * mas cancela cobrancas ainda nao pagas.
+   */
+  if (
+    bolsaPercentualSegura >= 100
+  ) {
+    for (
+      const existente
+      of existentes
+    ) {
+      const possuiPagamento =
+        Number(
+          existente.valorPago || 0
+        ) > 0 ||
+        existente._count
+          .pagamentos > 0 ||
+        existente.status ===
+          "PAGO" ||
+        existente.status ===
+          "PARCIAL";
+
+      if (possuiPagamento) {
+        continue;
+      }
+
+      await tx
+        .lancamentoFinanceiro
+        .update({
+          where: {
+            id: existente.id,
+          },
+
+          data: {
+            status:
+              "CANCELADO",
+
+            observacao:
+              "Cancelado automaticamente por bolsa integral de 100%.",
+          },
+        });
+    }
+
+    return;
+  }
+
+  const valorMensalidadeComBolsa =
+    calcularMensalidadeComBolsa(
+      valorMensalidade,
+      bolsaPercentualSegura
+    );
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -214,7 +280,7 @@ async function sincronizarMensalidadesDaMatricula(params: {
         0,
         Number(
           (
-            valorMensalidade -
+            valorMensalidadeComBolsa -
             descontoValor +
             jurosValor +
             multaValor
@@ -254,7 +320,7 @@ async function sincronizarMensalidadesDaMatricula(params: {
         valorOriginal:
           valorMensalidade,
         valorFinal:
-          valorMensalidade,
+          valorMensalidadeComBolsa,
         valorPago: 0,
         vencimento,
         status,
@@ -271,6 +337,32 @@ function toPositiveNumberOrNull(value: unknown): number | null {
   const n = Number(value);
   if (!Number.isFinite(n) || n <= 0) return null;
   return n;
+}
+
+function calcularMensalidadeComBolsa(
+  valorMensalidade: number,
+  bolsaPercentual: number
+) {
+  const percentual =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        Number(
+          bolsaPercentual || 0
+        )
+      )
+    );
+
+  return Number(
+    (
+      valorMensalidade *
+      (
+        1 -
+        percentual / 100
+      )
+    ).toFixed(2)
+  );
 }
 
 function toDateOrNull(value: unknown): Date | null {
@@ -531,6 +623,7 @@ type MatriculaBody = {
   valorPagoMatricula?: number | string;
   formaPagamentoMatricula?: string | null;
   valorMensalidade?: number | string | null;
+  bolsaPercentual?: number | string | null;
   quantidadeParcelas?: number | string | null;
   quantidadeMensalidades?: number | string | null;
   dataPrimeiroVencimento?: string | null;
@@ -2417,70 +2510,159 @@ export async function POST(request: Request) {
     );
 
     const valorMensalidadeFoiInformado =
-      body.valorMensalidade !== undefined &&
-      body.valorMensalidade !== null &&
-      String(body.valorMensalidade).trim() !== "";
+      body.valorMensalidade !==
+        undefined &&
+      body.valorMensalidade !==
+        null &&
+      String(
+        body.valorMensalidade
+      ).trim() !== "";
 
     const quantidadeMensalidadesBruta =
       body.quantidadeParcelas ??
       body.quantidadeMensalidades;
 
     const quantidadeMensalidadesFoiInformada =
-      quantidadeMensalidadesBruta !== undefined &&
-      quantidadeMensalidadesBruta !== null &&
-      String(quantidadeMensalidadesBruta).trim() !== "";
+      quantidadeMensalidadesBruta !==
+        undefined &&
+      quantidadeMensalidadesBruta !==
+        null &&
+      String(
+        quantidadeMensalidadesBruta
+      ).trim() !== "";
 
     const primeiroVencimentoBruto =
       body.dataPrimeiroVencimento ??
       body.primeiroVencimento;
 
     const primeiroVencimentoFoiInformado =
-      primeiroVencimentoBruto !== undefined &&
-      primeiroVencimentoBruto !== null &&
-      String(primeiroVencimentoBruto).trim() !== "";
-
-    const informouPlanoMensalidades =
-      valorMensalidadeFoiInformado ||
-      quantidadeMensalidadesFoiInformada ||
-      primeiroVencimentoFoiInformado;
+      primeiroVencimentoBruto !==
+        undefined &&
+      primeiroVencimentoBruto !==
+        null &&
+      String(
+        primeiroVencimentoBruto
+      ).trim() !== "";
 
     const valorMensalidade =
       valorMensalidadeFoiInformado
-        ? Number(body.valorMensalidade)
+        ? Number(
+            body.valorMensalidade
+          )
         : null;
 
     const quantidadeParcelas =
       quantidadeMensalidadesFoiInformada
-        ? Number(quantidadeMensalidadesBruta)
+        ? Number(
+            quantidadeMensalidadesBruta
+          )
         : null;
 
     const dataPrimeiroVencimento =
       primeiroVencimentoFoiInformado
-        ? toDateOrNull(primeiroVencimentoBruto)
+        ? toDateOrNull(
+            primeiroVencimentoBruto
+          )
         : null;
 
+    const bolsaPercentualBruta =
+      body.bolsaPercentual;
+
+    const bolsaPercentual =
+      bolsaPercentualBruta ===
+        undefined ||
+      bolsaPercentualBruta ===
+        null ||
+      String(
+        bolsaPercentualBruta
+      ).trim() === ""
+        ? 0
+        : Number(
+            bolsaPercentualBruta
+          );
+
     if (
-      informouPlanoMensalidades &&
-      (
-        valorMensalidade === null ||
-        !Number.isFinite(valorMensalidade) ||
-        valorMensalidade <= 0 ||
-        quantidadeParcelas === null ||
-        !Number.isInteger(quantidadeParcelas) ||
-        quantidadeParcelas <= 0 ||
-        !dataPrimeiroVencimento
-      )
+      !Number.isFinite(
+        bolsaPercentual
+      ) ||
+      bolsaPercentual < 0 ||
+      bolsaPercentual > 100
     ) {
       return NextResponse.json(
         {
           error:
-            "Para gerar as mensalidades, informe um valor maior que zero, uma quantidade inteira maior que zero e o primeiro vencimento.",
+            "O percentual da bolsa deve estar entre 0 e 100.",
         },
         {
           status: 400,
         }
       );
     }
+
+    if (
+      valorMensalidadeFoiInformado &&
+      (
+        valorMensalidade === null ||
+        !Number.isFinite(
+          valorMensalidade
+        ) ||
+        valorMensalidade <= 0
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O valor da mensalidade deve ser maior que zero.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      quantidadeMensalidadesFoiInformada &&
+      (
+        quantidadeParcelas === null ||
+        !Number.isInteger(
+          quantidadeParcelas
+        ) ||
+        quantidadeParcelas <= 0
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A quantidade de mensalidades deve ser um numero inteiro maior que zero.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      primeiroVencimentoFoiInformado &&
+      !dataPrimeiroVencimento
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O primeiro vencimento informado e invalido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const valorMensalidadeComBolsa =
+      valorMensalidade !== null
+        ? calcularMensalidadeComBolsa(
+            valorMensalidade,
+            bolsaPercentual
+          )
+        : null;
 
     const statusRecebido = String(body.status || "ATIVA").trim().toUpperCase();
 
@@ -2610,6 +2792,8 @@ export async function POST(request: Request) {
 
                 valorMensalidade:
                   valorMensalidade,
+
+                bolsaPercentual,
 
                 quantidadeMensalidades:
                   quantidadeParcelas,
@@ -2818,6 +3002,7 @@ Assinatura da instituição: ________________________________
            * Geração das mensalidades.
            */
           if (
+            bolsaPercentual < 100 &&
             valorMensalidade !== null &&
             valorMensalidade > 0 &&
             quantidadeParcelas !== null &&
@@ -2849,6 +3034,7 @@ Assinatura da instituição: ________________________________
                     valorMensalidade,
 
                   valorFinal:
+                    valorMensalidadeComBolsa ??
                     valorMensalidade,
 
                   valorPago: 0,
@@ -3703,32 +3889,56 @@ export async function PUT(request: Request) {
         "valorPagoMatricula"
       );
 
-    const valorMensalidadeFoiInformadoNaEdicao =
+    const valorMensalidadeCampoFoiInformado =
       campoFoiInformado(
         body as Record<string, unknown>,
         "valorMensalidade"
-      ) &&
+      );
+
+    const quantidadeMensalidadesCampoFoiInformada =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "quantidadeMensalidades"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "quantidadeParcelas"
+      );
+
+    const primeiroVencimentoCampoFoiInformado =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "primeiroVencimento"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "dataPrimeiroVencimento"
+      );
+
+    const bolsaPercentualCampoFoiInformado =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "bolsaPercentual"
+      );
+
+    const valorMensalidadeFoiInformadoNaEdicao =
+      valorMensalidadeCampoFoiInformado &&
       body.valorMensalidade !== null &&
       body.valorMensalidade !== undefined &&
-      String(body.valorMensalidade).trim() !== "";
+      String(
+        body.valorMensalidade
+      ).trim() !== "";
 
     const quantidadeMensalidadesBrutaEdicao =
       body.quantidadeMensalidades ??
       body.quantidadeParcelas;
 
     const quantidadeMensalidadesFoiInformadaNaEdicao =
-      (
-        campoFoiInformado(
-          body as Record<string, unknown>,
-          "quantidadeMensalidades"
-        ) ||
-        campoFoiInformado(
-          body as Record<string, unknown>,
-          "quantidadeParcelas"
-        )
-      ) &&
-      quantidadeMensalidadesBrutaEdicao !== null &&
-      quantidadeMensalidadesBrutaEdicao !== undefined &&
+      quantidadeMensalidadesCampoFoiInformada &&
+      quantidadeMensalidadesBrutaEdicao !==
+        null &&
+      quantidadeMensalidadesBrutaEdicao !==
+        undefined &&
       String(
         quantidadeMensalidadesBrutaEdicao
       ).trim() !== "";
@@ -3738,26 +3948,20 @@ export async function PUT(request: Request) {
       body.dataPrimeiroVencimento;
 
     const primeiroVencimentoFoiInformadoNaEdicao =
-      (
-        campoFoiInformado(
-          body as Record<string, unknown>,
-          "primeiroVencimento"
-        ) ||
-        campoFoiInformado(
-          body as Record<string, unknown>,
-          "dataPrimeiroVencimento"
-        )
-      ) &&
-      primeiroVencimentoBrutoEdicao !== null &&
-      primeiroVencimentoBrutoEdicao !== undefined &&
+      primeiroVencimentoCampoFoiInformado &&
+      primeiroVencimentoBrutoEdicao !==
+        null &&
+      primeiroVencimentoBrutoEdicao !==
+        undefined &&
       String(
         primeiroVencimentoBrutoEdicao
       ).trim() !== "";
 
     const dadosMensalidadeForamInformados =
-      valorMensalidadeFoiInformadoNaEdicao ||
-      quantidadeMensalidadesFoiInformadaNaEdicao ||
-      primeiroVencimentoFoiInformadoNaEdicao;
+      valorMensalidadeCampoFoiInformado ||
+      quantidadeMensalidadesCampoFoiInformada ||
+      primeiroVencimentoCampoFoiInformado ||
+      bolsaPercentualCampoFoiInformado;
 
     const valorPagoMatriculaRecebido =
       toPositiveNumberOrNull(
@@ -3782,6 +3986,93 @@ export async function PUT(request: Request) {
       toDateOrNull(
         body.dataPrimeiroVencimento
       );
+
+    const bolsaPercentualBrutaEdicao =
+      body.bolsaPercentual;
+
+    const bolsaPercentualRecebida =
+      bolsaPercentualBrutaEdicao ===
+        undefined ||
+      bolsaPercentualBrutaEdicao ===
+        null ||
+      String(
+        bolsaPercentualBrutaEdicao
+      ).trim() === ""
+        ? 0
+        : Number(
+            bolsaPercentualBrutaEdicao
+          );
+
+    if (
+      bolsaPercentualCampoFoiInformado &&
+      (
+        !Number.isFinite(
+          bolsaPercentualRecebida
+        ) ||
+        bolsaPercentualRecebida < 0 ||
+        bolsaPercentualRecebida > 100
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O percentual da bolsa deve estar entre 0 e 100.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      valorMensalidadeFoiInformadoNaEdicao &&
+      !valorMensalidadeRecebido
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O valor da mensalidade deve ser maior que zero.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      quantidadeMensalidadesFoiInformadaNaEdicao &&
+      (
+        !quantidadeMensalidadesRecebida ||
+        !Number.isInteger(
+          quantidadeMensalidadesRecebida
+        )
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A quantidade de mensalidades deve ser um numero inteiro maior que zero.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      primeiroVencimentoFoiInformadoNaEdicao &&
+      !primeiroVencimentoRecebido
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O primeiro vencimento informado e invalido.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
     const nomeSocial =
       body.nomeSocial !== undefined ? String(body.nomeSocial || "") : undefined;
@@ -3816,52 +4107,43 @@ export async function PUT(request: Request) {
       valorPagoMatriculaFoiInformado
         ? valorPagoMatriculaRecebido
         : Number(
-          matriculaExistente.valorMatricula ||
-          0
-        ) || null;
+            matriculaExistente
+              .valorMatricula ||
+            0
+          ) || null;
 
     const valorMensalidadeFinal =
-      dadosMensalidadeForamInformados
+      valorMensalidadeCampoFoiInformado
         ? valorMensalidadeRecebido
         : Number(
-          matriculaExistente.valorMensalidade ||
-          0
-        ) || null;
+            matriculaExistente
+              .valorMensalidade ||
+            0
+          ) || null;
 
     const quantidadeMensalidadesFinal =
-      dadosMensalidadeForamInformados
+      quantidadeMensalidadesCampoFoiInformada
         ? quantidadeMensalidadesRecebida
         : Number(
-          matriculaExistente.quantidadeMensalidades ||
-          0
-        ) || null;
+            matriculaExistente
+              .quantidadeMensalidades ||
+            0
+          ) || null;
 
     const primeiroVencimentoFinal =
-      dadosMensalidadeForamInformados
+      primeiroVencimentoCampoFoiInformado
         ? primeiroVencimentoRecebido
-        : matriculaExistente.primeiroVencimento;
+        : matriculaExistente
+            .primeiroVencimento;
 
-    if (
-      dadosMensalidadeForamInformados &&
-      (
-        !valorMensalidadeFinal ||
-        !quantidadeMensalidadesFinal ||
-        !Number.isInteger(
-          quantidadeMensalidadesFinal
-        ) ||
-        !primeiroVencimentoFinal
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Para gerar as mensalidades, informe um valor maior que zero, uma quantidade inteira maior que zero e o primeiro vencimento.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
+    const bolsaPercentualFinal =
+      bolsaPercentualCampoFoiInformado
+        ? bolsaPercentualRecebida
+        : Number(
+            matriculaExistente
+              .bolsaPercentual ||
+            0
+          );
 
     if (vendedorFoiInformado) {
       const vendedorAtualId =
@@ -4149,6 +4431,9 @@ export async function PUT(request: Request) {
             valorMensalidade:
               valorMensalidadeFinal,
 
+            bolsaPercentual:
+              bolsaPercentualFinal,
+
             quantidadeMensalidades:
               quantidadeMensalidadesFinal,
 
@@ -4250,6 +4535,9 @@ export async function PUT(request: Request) {
 
             valorMensalidade:
               valorMensalidadeFinal,
+
+            bolsaPercentual:
+              bolsaPercentualFinal,
 
             quantidadeMensalidades:
               quantidadeMensalidadesFinal,

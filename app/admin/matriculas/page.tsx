@@ -6,7 +6,7 @@ import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type CursoOption = {
   id: number;
@@ -106,6 +106,7 @@ type MatriculaApi = {
   semestre?: number | null;
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
+  bolsaPercentual?: number | null;
   quantidadeMensalidades?: number | null;
   primeiroVencimento?: string | null;
   vendedorResponsavelId?: number | null;
@@ -174,6 +175,7 @@ type MatriculaEdicao = {
   turmaPrincipalId: string;
   valorPagoMatricula: string;
   valorMensalidade: string;
+  bolsaPercentual: string;
   quantidadeMensalidades: string;
   primeiroVencimento: string;
   nomeSocial: string;
@@ -181,6 +183,53 @@ type MatriculaEdicao = {
   vendedorResponsavelId: string;
   vendedorResponsavelNome: string;
 };
+
+function calcularValorAposBolsa(
+  valor: string | number | null | undefined,
+  bolsa: string | number | null | undefined
+) {
+  const valorBase =
+    Number(valor || 0);
+
+  const percentual =
+    Math.min(
+      100,
+      Math.max(
+        0,
+        Number(bolsa || 0)
+      )
+    );
+
+  if (
+    !Number.isFinite(valorBase) ||
+    valorBase < 0
+  ) {
+    return 0;
+  }
+
+  return Number(
+    (
+      valorBase *
+      (
+        1 -
+        percentual / 100
+      )
+    ).toFixed(2)
+  );
+}
+
+function formatarValorFinanceiro(
+  valor: number,
+  locale: string
+) {
+  return new Intl.NumberFormat(
+    locale,
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(valor);
+}
 
 function lerIdPositivoDaUrl(
   valor: string | null
@@ -196,6 +245,7 @@ function lerIdPositivoDaUrl(
 function AdminMatriculasPage() {
   const searchParams = useSearchParams();
   const t = useTranslations("AdminMatriculasQuarentena");
+  const locale = useLocale();
   const [busca, setBusca] = useState("");
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
@@ -278,6 +328,9 @@ function AdminMatriculasPage() {
 
   const [valorMensalidade, setValorMensalidade] =
     useState<string>("");
+
+  const [bolsaPercentual, setBolsaPercentual] =
+    useState<string>("0");
   const [quantidadeParcelas, setQuantidadeParcelas] = useState<string>("");
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
   const [periodoLetivo, setPeriodoLetivo] = useState<string>("");
@@ -1618,6 +1671,12 @@ function AdminMatriculasPage() {
               ? null
               : Number(valorMensalidade),
 
+
+          bolsaPercentual:
+            Number(
+              bolsaPercentual || 0
+            ),
+
           quantidadeParcelas:
             quantidadeParcelas.trim() === ""
               ? null
@@ -1644,6 +1703,7 @@ function AdminMatriculasPage() {
       setValorPagoMatricula("");
       setFormaPagamentoMatricula("");
       setValorMensalidade("");
+      setBolsaPercentual("0");
       setQuantidadeParcelas("");
       setDataPrimeiroVencimento("");
       setSemestresCurso([]);
@@ -2045,6 +2105,9 @@ function AdminMatriculasPage() {
           : "",
       valorPagoMatricula: String(matricula.valorMatricula ?? ""),
       valorMensalidade: String(matricula.valorMensalidade ?? ""),
+      bolsaPercentual: String(
+        matricula.bolsaPercentual ?? 0
+      ),
       quantidadeMensalidades: String(matricula.quantidadeMensalidades ?? ""),
       primeiroVencimento: matricula.primeiroVencimento
         ? String(matricula.primeiroVencimento).slice(0, 10)
@@ -2249,6 +2312,14 @@ function AdminMatriculasPage() {
                   matriculaEditando
                     .valorMensalidade
                 ),
+
+
+            bolsaPercentual:
+              Number(
+                matriculaEditando
+                  .bolsaPercentual ||
+                0
+              ),
 
             quantidadeMensalidades:
               matriculaEditando
@@ -3477,6 +3548,57 @@ function AdminMatriculasPage() {
           </div>
 
           <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+              {t("bolsaEstudos")}
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={bolsaPercentual}
+              onChange={(e) =>
+                setBolsaPercentual(
+                  e.target.value
+                )
+              }
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              placeholder="0"
+            />
+
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {t("bolsaAjuda")}
+            </p>
+          </div>
+
+          {valorMensalidade.trim() !== "" && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-950 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+              <p className="text-xs font-medium">
+                {Number(
+                  bolsaPercentual || 0
+                ) >= 100
+                  ? t("bolsaIntegral")
+                  : t("valorAposBolsa")}
+              </p>
+
+              <p className="mt-1 text-lg font-semibold">
+                {formatarValorFinanceiro(
+                  calcularValorAposBolsa(
+                    valorMensalidade,
+                    bolsaPercentual
+                  ),
+                  locale
+                )}
+              </p>
+            </div>
+          )}
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 md:col-span-2">
+            {t("financeiroOpcionalAjuda")}
+          </p>
+
+          <div>
             <label className="text-sm font-medium text-gray-700">
               Quantidade de mensalidades
             </label>
@@ -4702,6 +4824,72 @@ function AdminMatriculasPage() {
                   className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 />
               </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+                  {t("bolsaEstudos")}
+                </label>
+
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  value={
+                    matriculaEditando
+                      .bolsaPercentual
+                  }
+                  onChange={(e) =>
+                    setMatriculaEditando(
+                      (prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              bolsaPercentual:
+                                e.target.value,
+                            }
+                          : prev
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  placeholder="0"
+                />
+
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {t("bolsaAjuda")}
+                </p>
+              </div>
+
+              {matriculaEditando
+                .valorMensalidade !== "" && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-950 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+                  <p className="text-xs font-medium">
+                    {Number(
+                      matriculaEditando
+                        .bolsaPercentual ||
+                      0
+                    ) >= 100
+                      ? t("bolsaIntegral")
+                      : t("valorAposBolsa")}
+                  </p>
+
+                  <p className="mt-1 text-lg font-semibold">
+                    {formatarValorFinanceiro(
+                      calcularValorAposBolsa(
+                        matriculaEditando
+                          .valorMensalidade,
+                        matriculaEditando
+                          .bolsaPercentual
+                      ),
+                      locale
+                    )}
+                  </p>
+                </div>
+              )}
+
+              <p className="text-xs text-slate-500 dark:text-slate-400 md:col-span-2">
+                {t("financeiroOpcionalAjuda")}
+              </p>
 
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-slate-200">

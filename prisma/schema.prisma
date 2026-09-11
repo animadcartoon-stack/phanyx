@@ -1152,6 +1152,7 @@ model Matricula {
   quantidadeParcelas                      Int?
   valorMatricula                          Decimal?        @db.Decimal(10, 2)
   valorMensalidade                        Decimal?        @db.Decimal(10, 2)
+  bolsaPercentual                         Decimal         @default(0) @db.Decimal(5, 2)
   primeiroVencimento                      DateTime?
   quantidadeMensalidades                  Int?
   vendedorResponsavelId                   Int?

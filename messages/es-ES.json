@@ -4053,21 +4053,29 @@
       "allClasses": "Todas las clases",
       "classFallback": "Clase",
       "resultSummary": "Mostrando {displayed} de {total} estudiantes — filtro actual: {currentFilter}",
-      "enrollmentStatus": "Estado de la matr?cula",
-      "allEnrollmentStatuses": "Todos los estados de matr?cula",
+      "enrollmentStatus": "Estado de la matrícula",
+      "allEnrollmentStatuses": "Todos los estados de matrícula",
       "groupGeneral": "General",
       "groupPreStart": "Antes del inicio",
       "groupInProgress": "En curso",
       "groupClosed": "Finalizadas",
-      "awaitingClass": "En espera de asignaci?n de grupo",
+      "awaitingClass": "En espera de asignación de grupo",
       "toStart": "Por iniciar",
       "activeEnrollment": "Activa / En curso",
-      "enrollmentOnHold": "Matr?cula pausada",
+      "enrollmentOnHold": "Matrícula pausada",
       "suspendedEnrollment": "Suspendida",
       "exchange": "En intercambio",
       "transferredEnrollment": "Transferida",
       "completedEnrollment": "Concluida",
-      "canceledEnrollment": "Cancelada"
+      "canceledEnrollment": "Cancelada",
+      "studentStatus": "Estado del alumno",
+      "allStudentStatuses": "Todos los estados",
+      "studentOnHold": "Matrícula pausada",
+      "studentSuspended": "Suspendidos",
+      "transferredStudent": "Transferidos",
+      "disconnectedStudent": "Desvinculados",
+      "medicalLeave": "Baja médica",
+      "missingStudent": "Ausentes"
     },
     "table": {
       "student": "Estudiante",
@@ -14917,6 +14925,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
+    "bolsaEstudos": "Beca de estudios (%)",
+    "bolsaAjuda": "Indique un porcentaje de 0 a 100.",
+    "valorAposBolsa": "Importe mensual despu\u00e9s de la beca",
+    "bolsaIntegral": "Beca completa \u2014 100%",
+    "financeiroOpcionalAjuda": "Los datos financieros son opcionales. La matr\u00edcula puede guardarse sin generar mensualidades.",
     "tabs": {
       "matriculas": "Matrículas",
       "quarentena": "Cuarentena"

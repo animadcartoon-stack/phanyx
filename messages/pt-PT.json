@@ -4053,21 +4053,29 @@
       "allClasses": "Todas as turmas",
       "classFallback": "Turma",
       "resultSummary": "A mostrar {displayed} de {total} alunos — filtro atual: {currentFilter}",
-      "enrollmentStatus": "Estado da matr?cula",
-      "allEnrollmentStatuses": "Todos os estados da matr?cula",
+      "enrollmentStatus": "Estado da matrícula",
+      "allEnrollmentStatuses": "Todos os estados da matrícula",
       "groupGeneral": "Geral",
-      "groupPreStart": "Antes do in?cio",
+      "groupPreStart": "Antes do início",
       "groupInProgress": "Em curso",
       "groupClosed": "Encerradas",
-      "awaitingClass": "A aguardar atribui??o de turma",
+      "awaitingClass": "A aguardar atribuição de turma",
       "toStart": "A iniciar",
       "activeEnrollment": "Ativa / Em curso",
       "enrollmentOnHold": "Interrompida",
       "suspendedEnrollment": "Suspensa",
-      "exchange": "Em interc?mbio",
+      "exchange": "Em intercâmbio",
       "transferredEnrollment": "Transferida",
-      "completedEnrollment": "Conclu?da",
-      "canceledEnrollment": "Cancelada"
+      "completedEnrollment": "Concluída",
+      "canceledEnrollment": "Cancelada",
+      "studentStatus": "Situação do aluno",
+      "allStudentStatuses": "Todas as situações",
+      "studentOnHold": "Interrompidos",
+      "studentSuspended": "Suspensos",
+      "transferredStudent": "Transferidos",
+      "disconnectedStudent": "Desligados",
+      "medicalLeave": "Pausa médica",
+      "missingStudent": "Faltantes"
     },
     "table": {
       "student": "Aluno",
@@ -14703,6 +14711,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
+    "bolsaEstudos": "Bolsa de estudo (%)",
+    "bolsaAjuda": "Indique uma percentagem de 0 a 100.",
+    "valorAposBolsa": "Valor mensal ap\u00f3s bolsa",
+    "bolsaIntegral": "Bolsa integral \u2014 100%",
+    "financeiroOpcionalAjuda": "Os dados financeiros s\u00e3o opcionais. A matr\u00edcula pode ser guardada sem gerar mensalidades.",
     "tabs": {
       "matriculas": "Matrículas",
       "quarentena": "Quarentena"

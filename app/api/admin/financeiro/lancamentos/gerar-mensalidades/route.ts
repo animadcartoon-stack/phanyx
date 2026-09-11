@@ -101,12 +101,62 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      const valorMensalidade = Number(matricula.curso.valorMensalidade || 0);
+      /*
+       * Prioridade:
+       * 1. valor contratado na matricula;
+       * 2. valor padrao atual do curso.
+       */
+      const valorMensalidade =
+        Number(
+          matricula.valorMensalidade ??
+          matricula.curso
+            .valorMensalidade ??
+          0
+        );
 
-      if (!isNumeroValido(valorMensalidade)) {
+      if (
+        !isNumeroValido(
+          valorMensalidade
+        )
+      ) {
         totalSemValorMensalidade += 1;
         continue;
       }
+
+      const bolsaPercentual =
+        Math.min(
+          100,
+          Math.max(
+            0,
+            Number(
+              matricula
+                .bolsaPercentual ||
+              0
+            )
+          )
+        );
+
+      /*
+       * Bolsa integral nao gera
+       * uma cobranca positiva.
+       */
+      if (
+        bolsaPercentual >= 100
+      ) {
+        continue;
+      }
+
+      const valorMensalidadeFinal =
+        Number(
+          (
+            valorMensalidade *
+            (
+              1 -
+              bolsaPercentual /
+                100
+            )
+          ).toFixed(2)
+        );
 
       const existente = await prisma.lancamentoFinanceiro.findFirst({
         where: {
@@ -138,7 +188,7 @@ export async function POST(req: NextRequest) {
           tipo: "MENSALIDADE",
           descricao,
           valorOriginal: valorMensalidade,
-          valorFinal: valorMensalidade,
+          valorFinal: valorMensalidadeFinal,
           valorPago: 0,
           status: "PENDENTE",
           vencimento,
@@ -152,7 +202,7 @@ export async function POST(req: NextRequest) {
         alunoNome: matricula.aluno.nome,
         matriculaId: matricula.id,
         cursoNome: matricula.curso.nome,
-        valor: valorMensalidade,
+        valor: valorMensalidadeFinal,
         vencimento: vencimento.toISOString(),
       });
     }
