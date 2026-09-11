@@ -14400,7 +14400,8 @@
       "minutes": "minutes",
       "notDefined": "Non défini",
       "other": "Autre",
-      "select": "Sélectionnez"
+      "select": "Sélectionnez",
+      "loading": "Chargement..."
     },
     "campus": {
       "editHelp": "L’affectation ne peut pas être modifiée depuis cette édition standard. Pour définir ou transférer le campus, ouvrez la fiche de l’employé.",
@@ -14431,7 +14432,9 @@
       "blockAccess": "Bloquer l’accès",
       "unblockAccess": "Débloquer l’accès",
       "confirm": "Confirmer",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "close": "Fermer"
     },
     "employment": {
       "title": "Données professionnelles, sociales et bancaires",
@@ -14653,6 +14656,263 @@
       },
       "errors": {
         "save": "Impossible d'enregistrer les coordonnées bancaires."
+      },
+      "iban": "IBAN",
+      "bicSwift": "BIC / SWIFT"
+    },
+    "detail": {
+      "navigation": {
+        "back": "Retour aux employés"
+      },
+      "title": "Fiche de l’Employé",
+      "common": {
+        "notInformed": "Non renseigné",
+        "profileNotInformed": "Profil non renseigné",
+        "reasonNotInformed": "Motif non renseigné.",
+        "dateNotInformed": "Date non renseignée",
+        "other": "Autre"
+      },
+      "actions": {
+        "editGeneral": "Modifier les informations générales",
+        "uploadPhoto": "Téléverser la photo",
+        "uploading": "Téléversement...",
+        "removePhoto": "Supprimer la photo",
+        "chooseAnotherPhoto": "Choisir une autre photo"
+      },
+      "fields": {
+        "position": "Poste",
+        "department": "Département",
+        "locationUnit": "Site d’affectation",
+        "code": "Code",
+        "status": "Statut",
+        "employee": "Employé",
+        "reason": "Motif",
+        "notes": "Observations",
+        "noDepartment": "Sans département",
+        "loadingPositions": "Chargement des postes...",
+        "selectDepartmentFirst": "Sélectionnez d’abord le département",
+        "noActivePositions": "Aucun poste actif enregistré",
+        "selectPosition": "Sélectionnez le poste"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif",
+        "blocked": "Bloqué",
+        "dismissed": "Licencié",
+        "leave": "En congé/absence",
+        "vacation": "Congés",
+        "rehired": "Réembauché"
+      },
+      "photo": {
+        "alt": "Photo officielle de l’employé",
+        "title": "Photo officielle de l’employé",
+        "description": "Photo utilisée sur les badges, pour l’identification et les documents officiels.",
+        "editDescription": "Cette photo institutionnelle est utilisée sur les badges, pour l’identification, les documents et les dossiers internes.",
+        "invalidFormatTitle": "Format de photo non accepté",
+        "invalidFormatMessage": "La photo sélectionnée est au format {format}. Choisissez une autre photo en JPG, JPEG, PNG ou WEBP.",
+        "tooLargeTitle": "La photo est trop volumineuse",
+        "tooLargeMessage": "La photo sélectionnée fait {size} Mo, mais la taille maximale autorisée est de 2 Mo. Réduisez ou compressez la photo puis réessayez.",
+        "uploadFailedStatus": "Échec du téléversement de la photo. Code {status}.",
+        "noUrl": "Le téléversement est terminé, mais le serveur n’a pas renvoyé l’adresse de la photo.",
+        "uploaded": "Photo officielle téléversée. Cliquez sur Enregistrer pour l’ajouter à la fiche.",
+        "serverReceiveError": "Le serveur n’a pas pu recevoir la photo.",
+        "uploadErrorTitle": "Impossible de téléverser la photo",
+        "uploadErrorHelp": "Vérifiez l’image ou choisissez une autre photo puis réessayez."
+      },
+      "access": {
+        "title": "Accès au système",
+        "email": "Email d’accès",
+        "role": "Profil d’accès",
+        "status": "Situation",
+        "hasAccess": "Accès disponible",
+        "noAccess": "Aucun accès au système",
+        "noAccessDescription": "Cet employé est enregistré uniquement dans les RH. Aucun identifiant ni mot de passe n’a été créé.",
+        "create": "Créer un accès au système",
+        "createDescription": "PHANYX créera un utilisateur et un mot de passe temporaire, puis enverra les identifiants par email. L’employé devra changer le mot de passe lors de sa première connexion.",
+        "roles": {
+          "admin": "Administrateur",
+          "employee": "Employé"
+        }
+      },
+      "assignment": {
+        "title": "Affectation de l’employé",
+        "description": "Unité à laquelle l’employé est actuellement affecté.",
+        "transferUnit": "Transférer vers un autre site",
+        "define": "Définir l’affectation",
+        "currentUnit": "Site actuel",
+        "notDefined": "Affectation non encore définie",
+        "teacherSync": "Cet employé possède également une fiche enseignant. L’affectation sera synchronisée dans les deux fiches.",
+        "history": "Historique des affectations",
+        "emptyHistory": "Aucun mouvement d’affectation n’a encore été enregistré.",
+        "effectiveAt": "Prise d’effet",
+        "noPreviousUnit": "Aucun site précédent",
+        "registeredBy": "Enregistré par",
+        "transferEmployee": "Transférer l’employé",
+        "selectUnit": "Sélectionnez le site",
+        "effectiveDate": "Date de prise d’effet",
+        "transferReason": "Motif du transfert",
+        "transferReasonPlaceholder": "Indiquez le motif du transfert.",
+        "initialReasonPlaceholder": "Facultatif pour l’affectation initiale.",
+        "notesPlaceholder": "Informations complémentaires, le cas échéant.",
+        "confirmTransfer": "Confirmer le transfert",
+        "footer": "Zone centrale du service du personnel. Premier module actif : avantages liés à l’employé.",
+        "types": {
+          "transfer": "Transfert",
+          "correction": "Correction",
+          "initial": "Affectation initiale"
+        }
+      },
+      "work": {
+        "title": "Données professionnelles",
+        "edit": "Modifier les données professionnelles",
+        "hireDate": "Date d’embauche",
+        "terminationDate": "Date de fin de contrat",
+        "baseSalary": "Salaire de base",
+        "currentSalary": "Salaire actuel",
+        "contractType": "Type de contrat",
+        "workSchedule": "Temps de travail",
+        "timeClockCode": "Code de pointage"
+      },
+      "remuneration": {
+        "title": "Rémunération",
+        "description": "Sélectionnez le mode de rémunération de l’employé et renseignez les montants correspondants.",
+        "modality": "Mode de rémunération",
+        "monthlySalary": "Salaire mensuel",
+        "classHourValue": "Montant par heure de cours",
+        "classHourDuration": "Durée de l’heure de cours",
+        "minutes": "minutes",
+        "minutesValue": "{value} minutes",
+        "workedHourValue": "Taux horaire",
+        "perClassValue": "Montant par cours",
+        "perClassGroupValue": "Montant par groupe",
+        "perSubjectValue": "Montant par matière",
+        "weeklyLoad": "Charge hebdomadaire",
+        "monthlyLoad": "Charge mensuelle",
+        "notes": "Observations sur la rémunération",
+        "notesPlaceholder": "Accords, primes ou règles de rémunération.",
+        "changeRecord": "Enregistrement du changement de rémunération",
+        "changeDescription": "La rémunération a été modifiée. Indiquez la date de prise d’effet des nouvelles conditions et le motif du changement.",
+        "changeReason": "Motif du changement",
+        "changeReasonPlaceholder": "Ex. : revalorisation salariale approuvée par la direction.",
+        "auditNote": "La date et l’heure d’enregistrement ainsi que l’utilisateur responsable seront enregistrés automatiquement.",
+        "types": {
+          "monthly": "Salaire mensuel",
+          "classHour": "Heure de cours",
+          "workedHour": "Heure travaillée",
+          "perClass": "Par cours",
+          "perClassGroup": "Par groupe",
+          "perSubject": "Par matière",
+          "mixed": "Rémunération mixte",
+          "none": "Sans rémunération"
+        }
+      },
+      "history": {
+        "title": "Historique de rémunération",
+        "description": "Registre auditable des embauches et modifications de rémunération de cet employé.",
+        "empty": "Aucun historique de rémunération enregistré.",
+        "registeredAt": "Enregistré le",
+        "previousCondition": "Conditions précédentes",
+        "newCondition": "Nouvelles conditions",
+        "effectiveStart": "Début d’effet",
+        "hireDateSuffix": "date d’embauche",
+        "recordedDateTime": "Date et heure de l’enregistrement",
+        "origins": {
+          "initialHire": "Embauche initiale",
+          "employeeRecord": "Modification depuis la fiche employé",
+          "teacherByHr": "Modification de l’enseignant par les RH",
+          "teacherRecord": "Modification depuis la fiche enseignant",
+          "remunerationChange": "Modification de rémunération"
+        }
+      },
+      "documents": {
+        "title": "Documents et Portfolio",
+        "description": "Documents professionnels, CV et liens de portfolio.",
+        "linksTitle": "Liens professionnels et portfolio en ligne",
+        "addLink": "Ajouter un lien",
+        "upload": "Téléverser le document",
+        "uploadedTitle": "Documents téléversés",
+        "empty": "Aucun document téléversé pour le moment.",
+        "document": "Document",
+        "type": "Type",
+        "uploadedAt": "Téléversé le",
+        "available": "Fichier/lien disponible",
+        "noFile": "Aucun fichier",
+        "open": "Ouvrir le document",
+        "chooseFile": "Choisir un fichier",
+        "noFileSelected": "Aucun fichier sélectionné",
+        "types": {
+          "proofOfAddress": "Justificatif de domicile",
+          "resume": "CV",
+          "portfolio": "Portfolio",
+          "website": "Site web",
+          "personalWebsite": "Site personnel",
+          "professionalInstagram": "Instagram professionnel",
+          "certificates": "Certificats"
+        }
+      },
+      "timeBank": {
+        "title": "Compteur d’Heures",
+        "viewAll": "Voir le compteur global",
+        "credits": "Crédits",
+        "debits": "Débits",
+        "currentBalance": "Solde actuel",
+        "records": "Enregistrements",
+        "lastClock": "Dernier pointage"
+      },
+      "benefits": {
+        "title": "Avantages",
+        "benefit": "Avantage",
+        "value": "Montant ({currency})",
+        "valueShort": "Montant",
+        "percentage": "Pourcentage (%)",
+        "percentageShort": "Pourcentage",
+        "deductPayroll": "Déduire de la paie",
+        "link": "Associer l’avantage",
+        "linking": "Association...",
+        "linkedTitle": "Avantages associés",
+        "empty": "Aucun avantage associé à cet employé.",
+        "payroll": "Paie",
+        "deducts": "Déduit",
+        "doesNotDeduct": "Non déduit"
+      },
+      "toast": {
+        "errorTitle": "Impossible de terminer l’action",
+        "successTitle": "Terminé"
+      },
+      "messages": {
+        "loadPositionsError": "Impossible de charger les postes.",
+        "loadEmployeeError": "Erreur lors du chargement de l’employé.",
+        "loadBenefitsError": "Erreur lors du chargement des avantages.",
+        "selectFile": "Sélectionnez un fichier avant de le téléverser.",
+        "documentUploaded": "Document téléversé avec succès.",
+        "documentUploadError": "Erreur lors du téléversement du document.",
+        "selectNewUnit": "Sélectionnez le nouveau site d’affectation.",
+        "assignmentDateRequired": "Indiquez la date de prise d’effet de l’affectation.",
+        "transferReasonRequired": "Indiquez le motif du transfert.",
+        "assignmentUpdateError": "Impossible de mettre à jour l’affectation.",
+        "assignmentUpdated": "Affectation mise à jour avec succès.",
+        "linkBenefitError": "Erreur lors de l’association de l’avantage.",
+        "benefitLinked": "Avantage associé à l’employé.",
+        "nameRequired": "Indiquez le nom de l’employé.",
+        "emailRequired": "Indiquez l’email d’accès de l’employé.",
+        "roleRequired": "Sélectionnez le profil d’accès de l’employé.",
+        "positionRequired": "Sélectionnez le poste de l’employé.",
+        "accessCreated": "Accès au système créé avec succès.",
+        "generalUpdated": "Informations générales mises à jour.",
+        "remunerationTypeRequired": "Sélectionnez le mode de rémunération de l’employé.",
+        "monthlySalaryRequired": "Indiquez le salaire mensuel de l’employé.",
+        "classHourRequired": "Indiquez le montant de l’heure de cours.",
+        "workedHourRequired": "Indiquez le taux horaire.",
+        "perClassRequired": "Indiquez le montant par cours.",
+        "perClassGroupRequired": "Indiquez le montant par groupe.",
+        "perSubjectRequired": "Indiquez le montant par matière.",
+        "mixedValueRequired": "Pour une rémunération mixte, indiquez au moins un montant.",
+        "remunerationReasonRequired": "Indiquez le motif du changement de rémunération.",
+        "remunerationDateRequired": "Indiquez la date et l’heure de prise d’effet de la nouvelle rémunération.",
+        "workAndRemunerationUpdated": "Données professionnelles et changement de rémunération enregistrés avec succès.",
+        "workUpdated": "Données professionnelles mises à jour avec succès.",
+        "workSaveError": "Erreur lors de l’enregistrement des données professionnelles.",
+        "saveError": "Erreur lors de l’enregistrement."
       }
     }
   },

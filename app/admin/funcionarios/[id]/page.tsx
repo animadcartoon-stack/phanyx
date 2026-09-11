@@ -202,12 +202,20 @@ type CargoOption = {
   quantidadeFuncionarios?: number;
 };
 
-function moeda(v: any) {
-  const n = Number(v || 0);
-  return n.toLocaleString("pt-BR", {
+function formatarMoeda(
+  valor: any,
+  locale: string,
+  currency: string
+) {
+  const numero = Number(valor || 0);
+  const moeda = /^[A-Z]{3}$/.test(currency)
+    ? currency
+    : "BRL";
+
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "BRL",
-  });
+    currency: moeda,
+  }).format(numero);
 }
 
 function numero(v: any) {
@@ -219,7 +227,10 @@ function formatarHoras(v: number) {
   return `${sinal}${Math.abs(v).toFixed(2)}h`;
 }
 
-function formatarDataHora(valor: any) {
+function formatarDataHora(
+  valor: any,
+  locale: string
+) {
   if (!valor) return "-";
 
   const data = new Date(valor);
@@ -228,10 +239,13 @@ function formatarDataHora(valor: any) {
     return "-";
   }
 
-  return data.toLocaleString("pt-BR");
+  return data.toLocaleString(locale);
 }
 
-function formatarDataSemFuso(valor: any) {
+function formatarDataSemFuso(
+  valor: any,
+  locale: string
+) {
   if (!valor) return "-";
 
   const data = new Date(valor);
@@ -240,7 +254,7 @@ function formatarDataSemFuso(valor: any) {
     return "-";
   }
 
-  return data.toLocaleDateString("pt-BR", {
+  return data.toLocaleDateString(locale, {
     timeZone: "UTC",
   });
 }
@@ -259,116 +273,131 @@ function obterDadosRemuneracao(valor: any) {
   return valor;
 }
 
-function traduzirTipoRemuneracao(tipo: any) {
+function traduzirTipoRemuneracao(
+  tipo: any,
+  t: any
+) {
   switch (String(tipo || "").toUpperCase()) {
     case "MENSAL":
-      return "Salário mensal";
+      return t("detail.remuneration.types.monthly");
     case "HORA_AULA":
-      return "Hora-aula";
+      return t("detail.remuneration.types.classHour");
     case "HORA_TRABALHADA":
-      return "Hora trabalhada";
+      return t("detail.remuneration.types.workedHour");
     case "POR_AULA":
-      return "Valor por aula";
+      return t("detail.remuneration.types.perClass");
     case "POR_TURMA":
-      return "Valor por turma";
+      return t("detail.remuneration.types.perClassGroup");
     case "POR_DISCIPLINA":
-      return "Valor por disciplina";
+      return t("detail.remuneration.types.perSubject");
     case "MISTO":
-      return "Remuneração mista";
+      return t("detail.remuneration.types.mixed");
     case "SEM_REMUNERACAO":
-      return "Sem remuneração";
+      return t("detail.remuneration.types.none");
     default:
-      return tipo || "Não informada";
+      return tipo || t("detail.common.notInformed");
   }
 }
 
-function traduzirOrigemHistorico(origem: any) {
+function traduzirOrigemHistorico(
+  origem: any,
+  t: any
+) {
   switch (String(origem || "").toUpperCase()) {
     case "FUNCIONARIOS_RH_CADASTRO":
-      return "Contratação inicial";
+      return t("detail.history.origins.initialHire");
     case "FUNCIONARIOS_RH_EDICAO":
-      return "Alteração pela ficha do funcionário";
+      return t("detail.history.origins.employeeRecord");
     case "FUNCIONARIOS_RH_PROFESSOR":
-      return "Alteração do professor pelo RH";
+      return t("detail.history.origins.teacherByHr");
     case "PROFESSORES_RH":
-      return "Alteração pela ficha do professor";
+      return t("detail.history.origins.teacherRecord");
     default:
-      return origem || "Alteração remuneratória";
+      return origem || t("detail.history.origins.remunerationChange");
   }
 }
 
 function ResumoRemuneracao({
   dados,
+  t,
+  locale,
+  currency,
 }: {
   dados: any;
+  t: any;
+  locale: string;
+  currency: string;
 }) {
   const valores = obterDadosRemuneracao(dados);
 
   const itens = [
     {
-      label: "Modalidade",
+      label: t("detail.remuneration.modality"),
       valor: traduzirTipoRemuneracao(
-        valores.tipoRemuneracao
+        valores.tipoRemuneracao,
+        t
       ),
     },
     {
-      label: "Salário mensal",
+      label: t("detail.remuneration.monthlySalary"),
       valor:
         valores.salarioBase !== null &&
           valores.salarioBase !== undefined
-          ? moeda(valores.salarioBase)
+          ? formatarMoeda(valores.salarioBase, locale, currency)
           : null,
     },
     {
-      label: "Hora-aula",
+      label: t("detail.remuneration.classHourValue"),
       valor:
         valores.valorHoraAula !== null &&
           valores.valorHoraAula !== undefined
-          ? moeda(valores.valorHoraAula)
+          ? formatarMoeda(valores.valorHoraAula, locale, currency)
           : null,
     },
     {
-      label: "Hora trabalhada",
+      label: t("detail.remuneration.workedHourValue"),
       valor:
         valores.valorHoraTrabalhada !== null &&
           valores.valorHoraTrabalhada !== undefined
-          ? moeda(valores.valorHoraTrabalhada)
+          ? formatarMoeda(valores.valorHoraTrabalhada, locale, currency)
           : null,
     },
     {
-      label: "Valor por aula",
+      label: t("detail.remuneration.perClassValue"),
       valor:
         valores.valorPorAula !== null &&
           valores.valorPorAula !== undefined
-          ? moeda(valores.valorPorAula)
+          ? formatarMoeda(valores.valorPorAula, locale, currency)
           : null,
     },
     {
-      label: "Valor por turma",
+      label: t("detail.remuneration.perClassGroupValue"),
       valor:
         valores.valorPorTurma !== null &&
           valores.valorPorTurma !== undefined
-          ? moeda(valores.valorPorTurma)
+          ? formatarMoeda(valores.valorPorTurma, locale, currency)
           : null,
     },
     {
-      label: "Valor por disciplina",
+      label: t("detail.remuneration.perSubjectValue"),
       valor:
         valores.valorPorDisciplina !== null &&
           valores.valorPorDisciplina !== undefined
-          ? moeda(valores.valorPorDisciplina)
+          ? formatarMoeda(valores.valorPorDisciplina, locale, currency)
           : null,
     },
     {
-      label: "Duração da hora-aula",
+      label: t("detail.remuneration.classHourDuration"),
       valor:
         valores.duracaoHoraAulaMinutos !== null &&
           valores.duracaoHoraAulaMinutos !== undefined
-          ? `${valores.duracaoHoraAulaMinutos} minutos`
+          ? t("detail.remuneration.minutesValue", {
+              value: valores.duracaoHoraAulaMinutos,
+            })
           : null,
     },
     {
-      label: "Carga semanal",
+      label: t("detail.remuneration.weeklyLoad"),
       valor:
         valores.cargaHorariaSemanal !== null &&
           valores.cargaHorariaSemanal !== undefined
@@ -376,7 +405,7 @@ function ResumoRemuneracao({
           : null,
     },
     {
-      label: "Carga mensal",
+      label: t("detail.remuneration.monthlyLoad"),
       valor:
         valores.cargaHorariaMensal !== null &&
           valores.cargaHorariaMensal !== undefined
@@ -507,6 +536,17 @@ function FuncionarioFichaPage() {
       case "US": return t("socialSecurity.types.us");
       case "GB": return t("socialSecurity.types.gb");
       default: return t("socialSecurity.types.generic");
+    }
+  }
+
+  function rotuloStatusFuncionario(status?: string | null) {
+    switch (String(status || "").toUpperCase()) {
+      case "ATIVO": return t("detail.status.active");
+      case "DEMITIDO": return t("detail.status.dismissed");
+      case "AFASTADO": return t("detail.status.leave");
+      case "FERIAS": return t("detail.status.vacation");
+      case "READMITIDO": return t("detail.status.rehired");
+      default: return status || "-";
     }
   }
 
@@ -664,6 +704,27 @@ function FuncionarioFichaPage() {
 
   const [editandoBanco, setEditandoBanco] = useState(false);
   const [salvandoBanco, setSalvandoBanco] = useState(false);
+
+  const paisFuncionarioAtual: CountryCode =
+    codigoPaisValido(funcionario?.paisResidencia)
+      ? (String(funcionario.paisResidencia).toUpperCase() as CountryCode)
+      : funcionario?.cpf || funcionario?.rg
+        ? "BR"
+        : paisPadrao;
+
+  const moedaFuncionario =
+    (contaBancaria.moeda ||
+      moedaPadraoPais(paisFuncionarioAtual) ||
+      "BRL").toUpperCase();
+
+  const formatarMoedaAtual = (valor: any) =>
+    formatarMoeda(valor, locale, moedaFuncionario);
+
+  const formatarDataHoraAtual = (valor: any) =>
+    formatarDataHora(valor, locale);
+
+  const formatarDataSemFusoAtual = (valor: any) =>
+    formatarDataSemFuso(valor, locale);
 
   const [
     assinaturaRemuneracaoOriginal,
@@ -907,7 +968,7 @@ function FuncionarioFichaPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível carregar os cargos."
+          t("detail.messages.loadPositionsError")
         );
       }
 
@@ -1029,7 +1090,7 @@ function FuncionarioFichaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar funcionário.");
+        throw new Error(data.error || t("detail.messages.loadEmployeeError"));
       }
 
       console.log("FUNCIONARIO RECEBIDO:", data.funcionario);
@@ -1142,7 +1203,7 @@ function FuncionarioFichaPage() {
       setCriarAcessoSistema(false);
       preencherFormTrabalhista(data.funcionario);
     } catch (e: any) {
-      setErro(e.message || "Erro ao carregar funcionário.");
+      setErro(e.message || t("detail.messages.loadEmployeeError"));
     }
   }
 
@@ -1410,13 +1471,13 @@ function FuncionarioFichaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar benefícios.");
+        throw new Error(data.error || t("detail.messages.loadBenefitsError"));
       }
 
       setBeneficiosDisponiveis(data.beneficiosDisponiveis || []);
       setBeneficiosVinculados(data.beneficiosVinculados || []);
     } catch (e: any) {
-      setErro(e.message || "Erro ao carregar benefícios.");
+      setErro(e.message || t("detail.messages.loadBenefitsError"));
     } finally {
       setCarregando(false);
     }
@@ -1468,10 +1529,8 @@ function FuncionarioFichaPage() {
 
     if (!formatosPermitidos.includes(arquivo.type)) {
       setErroFoto({
-        titulo: "Formato de foto não aceito",
-        mensagem:
-          `A foto selecionada está no formato ${extensao}. ` +
-          "Escolha outra foto em JPG, JPEG, PNG ou WEBP.",
+        titulo: t("detail.photo.invalidFormatTitle"),
+        mensagem: t("detail.photo.invalidFormatMessage", { format: extensao }),
       });
 
       return;
@@ -1488,11 +1547,8 @@ function FuncionarioFichaPage() {
         .replace(".", ",");
 
       setErroFoto({
-        titulo: "A foto está muito grande",
-        mensagem:
-          `A foto selecionada possui ${tamanhoMb} MB, ` +
-          "mas o tamanho máximo permitido é 2 MB. " +
-          "Diminua ou comprima a foto e tente novamente.",
+        titulo: t("detail.photo.tooLargeTitle"),
+        mensagem: t("detail.photo.tooLargeMessage", { size: tamanhoMb }),
       });
 
       return;
@@ -1517,7 +1573,7 @@ function FuncionarioFichaPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          `Falha no envio da foto. Código ${res.status}.`
+          t("detail.photo.uploadFailedStatus", { status: res.status })
         );
       }
 
@@ -1529,7 +1585,7 @@ function FuncionarioFichaPage() {
 
       if (!url) {
         throw new Error(
-          "O envio terminou, mas o servidor não retornou o endereço da foto."
+          t("detail.photo.noUrl")
         );
       }
 
@@ -1539,18 +1595,16 @@ function FuncionarioFichaPage() {
       }));
 
       setSucesso(
-        "Foto oficial enviada. Clique em Salvar para gravar no cadastro."
+        t("detail.photo.uploaded")
       );
     } catch (e: any) {
       const motivo =
         e?.message ||
-        "O servidor não conseguiu receber a foto.";
+        t("detail.photo.serverReceiveError");
 
       setErroFoto({
-        titulo: "Não foi possível enviar a foto",
-        mensagem:
-          `${motivo} ` +
-          "Verifique a imagem ou escolha outra foto e tente novamente.",
+        titulo: t("detail.photo.uploadErrorTitle"),
+        mensagem: `${motivo} ${t("detail.photo.uploadErrorHelp")}`,
       });
     } finally {
       setEnviandoFotoPerfil(false);
@@ -1578,7 +1632,7 @@ function FuncionarioFichaPage() {
     e.preventDefault();
 
     if (!novoDocumento.arquivo) {
-      setErro("Selecione um arquivo antes de enviar.");
+      setErro(t("detail.messages.selectFile"));
       return;
     }
 
@@ -1605,14 +1659,14 @@ function FuncionarioFichaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao enviar documento.");
+        throw new Error(data.error || t("detail.messages.documentUploadError"));
       }
 
-      setSucesso("Documento enviado com sucesso.");
+      setSucesso(t("detail.messages.documentUploaded"));
       setNovoDocumento({ tipo: "RG", titulo: "RG", arquivo: null, url: "" });
       await carregarDocumentosFuncionario();
     } catch (e: any) {
-      setErro(e.message || "Erro ao enviar documento.");
+      setErro(e.message || t("detail.messages.documentUploadError"));
     } finally {
       setEnviandoDocumento(false);
     }
@@ -1648,14 +1702,14 @@ function FuncionarioFichaPage() {
 
     if (!poloNovoId) {
       setErro(
-        "Selecione o novo polo de lotação."
+        t("detail.messages.selectNewUnit")
       );
       return;
     }
 
     if (!vigenciaLotacao) {
       setErro(
-        "Informe a data de vigência da lotação."
+        t("detail.messages.assignmentDateRequired")
       );
       return;
     }
@@ -1669,7 +1723,7 @@ function FuncionarioFichaPage() {
       !motivoLotacao.trim()
     ) {
       setErro(
-        "Informe o motivo da transferência."
+        t("detail.messages.transferReasonRequired")
       );
       return;
     }
@@ -1712,13 +1766,13 @@ function FuncionarioFichaPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível atualizar a lotação."
+          t("detail.messages.assignmentUpdateError")
         );
       }
 
       setSucesso(
         data?.message ||
-        "Lotação atualizada com sucesso."
+        t("detail.messages.assignmentUpdated")
       );
 
       fecharModalLotacao();
@@ -1727,7 +1781,7 @@ function FuncionarioFichaPage() {
     } catch (error: any) {
       setErro(
         error?.message ||
-        "Erro ao atualizar a lotação."
+        t("detail.messages.assignmentUpdateError")
       );
     } finally {
       setSalvandoLotacao(false);
@@ -1770,10 +1824,10 @@ function FuncionarioFichaPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao vincular benefício.");
+        throw new Error(data.error || t("detail.messages.linkBenefitError"));
       }
 
-      setSucesso("Benefício vinculado ao funcionário.");
+      setSucesso(t("detail.messages.benefitLinked"));
       setBeneficioId("");
       setValor("");
       setPercentual("");
@@ -1781,7 +1835,7 @@ function FuncionarioFichaPage() {
 
       await carregarBeneficios();
     } catch (e: any) {
-      setErro(e.message || "Erro ao vincular benefício.");
+      setErro(e.message || t("detail.messages.linkBenefitError"));
     } finally {
       setSalvando(false);
     }
@@ -1801,7 +1855,7 @@ function FuncionarioFichaPage() {
 
     if (!formGeral.nome.trim()) {
       setErro(
-        "Informe o nome do funcionário."
+        t("detail.messages.nameRequired")
       );
       return;
     }
@@ -1812,7 +1866,7 @@ function FuncionarioFichaPage() {
       !formGeral.email.trim()
     ) {
       setErro(
-        "Informe o email de acesso do funcionário."
+        t("detail.messages.emailRequired")
       );
       return;
     }
@@ -1823,7 +1877,7 @@ function FuncionarioFichaPage() {
       !formGeral.role
     ) {
       setErro(
-        "Selecione o perfil de acesso do funcionário."
+        t("detail.messages.roleRequired")
       );
       return;
     }
@@ -1834,7 +1888,7 @@ function FuncionarioFichaPage() {
       !formGeral.cargoId
     ) {
       setErro(
-        "Selecione o cargo do funcionário."
+        t("detail.messages.positionRequired")
       );
       return;
     }
@@ -1940,15 +1994,15 @@ function FuncionarioFichaPage() {
       if (!res.ok) {
         throw new Error(
           data.error ||
-          "Erro ao salvar."
+          t("detail.messages.saveError")
         );
       }
 
       setSucesso(
         data.message ||
         (data.acessoCriado
-          ? "Acesso ao sistema criado com sucesso."
-          : "Dados gerais atualizados.")
+          ? t("detail.messages.accessCreated")
+          : t("detail.messages.generalUpdated"))
       );
 
       if (data.avisoEmail) {
@@ -1962,7 +2016,7 @@ function FuncionarioFichaPage() {
     } catch (e: any) {
       setErro(
         e.message ||
-        "Erro ao salvar."
+        t("detail.messages.saveError")
       );
     } finally {
       setSalvando(false);
@@ -1982,7 +2036,7 @@ function FuncionarioFichaPage() {
 
     if (!tipoRemuneracao) {
       setErro(
-        "Selecione a modalidade de remuneração do funcionário."
+        t("detail.messages.remunerationTypeRequired")
       );
       return;
     }
@@ -1992,7 +2046,7 @@ function FuncionarioFichaPage() {
       !possuiValor(formTrabalhista.salarioBase)
     ) {
       setErro(
-        "Informe o salário mensal do funcionário."
+        t("detail.messages.monthlySalaryRequired")
       );
       return;
     }
@@ -2001,7 +2055,7 @@ function FuncionarioFichaPage() {
       tipoRemuneracao === "HORA_AULA" &&
       !possuiValor(formTrabalhista.valorHoraAula)
     ) {
-      setErro("Informe o valor da hora-aula.");
+      setErro(t("detail.messages.classHourRequired"));
       return;
     }
 
@@ -2012,7 +2066,7 @@ function FuncionarioFichaPage() {
       )
     ) {
       setErro(
-        "Informe o valor da hora trabalhada."
+        t("detail.messages.workedHourRequired")
       );
       return;
     }
@@ -2021,7 +2075,7 @@ function FuncionarioFichaPage() {
       tipoRemuneracao === "POR_AULA" &&
       !possuiValor(formTrabalhista.valorPorAula)
     ) {
-      setErro("Informe o valor por aula.");
+      setErro(t("detail.messages.perClassRequired"));
       return;
     }
 
@@ -2029,7 +2083,7 @@ function FuncionarioFichaPage() {
       tipoRemuneracao === "POR_TURMA" &&
       !possuiValor(formTrabalhista.valorPorTurma)
     ) {
-      setErro("Informe o valor por turma.");
+      setErro(t("detail.messages.perClassGroupRequired"));
       return;
     }
 
@@ -2039,7 +2093,7 @@ function FuncionarioFichaPage() {
         formTrabalhista.valorPorDisciplina
       )
     ) {
-      setErro("Informe o valor por disciplina.");
+      setErro(t("detail.messages.perSubjectRequired"));
       return;
     }
 
@@ -2058,7 +2112,7 @@ function FuncionarioFichaPage() {
 
       if (!possuiAlgumValor) {
         setErro(
-          "Na remuneração mista, informe pelo menos um valor."
+          t("detail.messages.mixedValueRequired")
         );
         return;
       }
@@ -2069,7 +2123,7 @@ function FuncionarioFichaPage() {
       !motivoAlteracaoRemuneracao.trim()
     ) {
       setErro(
-        "Informe o motivo da alteração da remuneração."
+        t("detail.messages.remunerationReasonRequired")
       );
       return;
     }
@@ -2079,7 +2133,7 @@ function FuncionarioFichaPage() {
       !vigenciaInicioRemuneracao
     ) {
       setErro(
-        "Informe a data e a hora em que a nova remuneração começa a valer."
+        t("detail.messages.remunerationDateRequired")
       );
       return;
     }
@@ -2131,14 +2185,14 @@ function FuncionarioFichaPage() {
       if (!res.ok) {
         throw new Error(
           data.error ||
-          "Erro ao salvar dados trabalhistas."
+          t("detail.messages.workSaveError")
         );
       }
 
       setSucesso(
         houveAlteracaoRemuneracao
-          ? "Dados trabalhistas e alteração remuneratória registrados com sucesso."
-          : "Dados trabalhistas atualizados com sucesso."
+          ? t("detail.messages.workAndRemunerationUpdated")
+          : t("detail.messages.workUpdated")
       );
 
       setEditandoTrabalhista(false);
@@ -2150,7 +2204,7 @@ function FuncionarioFichaPage() {
     } catch (e: any) {
       setErro(
         e.message ||
-        "Erro ao salvar dados trabalhistas."
+        t("detail.messages.workSaveError")
       );
     } finally {
       setSalvando(false);
@@ -2195,14 +2249,14 @@ p-6
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
           <Link href="/admin/funcionarios" className="text-sm text-blue-300 hover:text-blue-200">
-            ← Voltar para funcionários
+            ← {t("detail.navigation.back")}
           </Link>
 
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.22em] text-blue-300">
             PHANYX RH
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold">Ficha do Funcionário</h1>
+          <h1 className="mt-2 text-3xl font-bold">{t("detail.title")}</h1>
 
           {funcionario && (
             <form
@@ -2218,7 +2272,7 @@ p-6
                     onClick={() => setEditandoGeral(true)}
                     className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10"
                   >
-                    Editar dados gerais
+                    {t("detail.actions.editGeneral")}
                   </button>
                 ) : (
                   <div className="flex gap-2">
@@ -2227,7 +2281,7 @@ p-6
                       disabled={salvando}
                       className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
                     >
-                      {salvando ? "Salvando..." : "Salvar"}
+                      {salvando ? t("buttons.saving") : t("buttons.save")}
                     </button>
 
                     <button
@@ -2348,7 +2402,7 @@ p-6
                       }}
                       className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800"
                     >
-                      Cancelar
+                      {t("buttons.cancel")}
                     </button>
                   </div>
                 )}
@@ -2361,7 +2415,7 @@ p-6
                       {funcionario.fotoPerfil ? (
                         <img
                           src={funcionario.fotoPerfil}
-                          alt={funcionario.nome || "Foto oficial do funcionário"}
+                          alt={funcionario.nome || t("detail.photo.alt")}
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -2373,10 +2427,10 @@ p-6
 
                     <div>
                       <p className="font-bold text-slate-900 dark:text-white">
-                        Foto oficial do funcionário
+                        {t("detail.photo.title")}
                       </p>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Foto usada em crachás, identificação e documentos oficiais.
+                        {t("detail.photo.description")}
                       </p>
                     </div>
                   </div>
@@ -2404,7 +2458,7 @@ p-6
                   )}
                   <div>
                     <p className="text-slate-400">
-                      Cargo
+                      {t("detail.fields.position")}
                     </p>
 
                     <p>
@@ -2414,7 +2468,7 @@ p-6
 
                   <div>
                     <p className="text-slate-400">
-                      Departamento
+                      {t("detail.fields.department")}
                     </p>
 
                     <p>
@@ -2424,7 +2478,7 @@ p-6
 
                   <div>
                     <p className="text-slate-400">
-                      Polo de lotação
+                      {t("detail.fields.locationUnit")}
                     </p>
 
                     <p
@@ -2435,20 +2489,20 @@ p-6
                       }
                     >
                       {funcionario.polo?.nome ||
-                        "Lotação ainda não definida"}
+                        t("detail.assignment.notDefined")}
                     </p>
                   </div>
 
                   <div>
                     <p className="text-slate-400">
-                      Código
+                      {t("detail.fields.code")}
                     </p>
 
                     <p>
                       {funcionario.codigoFuncionario || "-"}
                     </p>
                   </div>
-                  <div><p className="text-slate-400">Status</p><p>{funcionario.statusFuncionario || "-"}</p></div>
+                  <div><p className="text-slate-400">{t("detail.fields.status")}</p><p>{rotuloStatusFuncionario(funcionario.statusFuncionario)}</p></div>
                   <div className="md:col-span-3">
                     {funcionario.user ? (
                       <div
@@ -2470,27 +2524,27 @@ p-6
                       >
                         <div>
                           <p className="font-bold text-slate-900 dark:text-white">
-                            Acesso ao sistema
+                            {t("detail.access.title")}
                           </p>
 
                           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                            Email: {funcionario.user.email}
+                            {t("detail.access.email")}: {funcionario.user.email}
                           </p>
 
                           <p className="text-sm text-slate-600 dark:text-slate-300">
-                            Perfil:{" "}
+                            {t("detail.access.role")}: {" "}
                             {funcionario.user.role ===
                               "ADMIN"
-                              ? "Administrador"
-                              : "Funcionário"}
+                              ? t("detail.access.roles.admin")
+                              : t("detail.access.roles.employee")}
                           </p>
 
                           <p className="text-sm text-slate-600 dark:text-slate-300">
-                            Situação:{" "}
+                            {t("detail.access.status")}: {" "}
                             {funcionario.user.ativo ===
                               false
-                              ? "Bloqueado"
-                              : "Ativo"}
+                              ? t("detail.status.blocked")
+                              : t("detail.status.active")}
                           </p>
                         </div>
 
@@ -2512,7 +2566,7 @@ p-6
           dark:text-emerald-200
         "
                         >
-                          Possui acesso
+                          {t("detail.access.hasAccess")}
                         </span>
                       </div>
                     ) : (
@@ -2535,13 +2589,11 @@ p-6
                       >
                         <div>
                           <p className="font-bold text-slate-900 dark:text-white">
-                            Sem acesso ao sistema
+                            {t("detail.access.noAccess")}
                           </p>
 
                           <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                            Este funcionário está cadastrado
-                            somente no RH. Nenhum login ou
-                            senha foi criado.
+                            {t("detail.access.noAccessDescription")}
                           </p>
                         </div>
 
@@ -2563,7 +2615,7 @@ p-6
           hover:bg-blue-500
         "
                         >
-                          Criar acesso ao sistema
+                          {t("detail.access.create")}
                         </button>
                       </div>
                     )}
@@ -2577,7 +2629,7 @@ p-6
                         {formGeral.fotoPerfil ? (
                           <img
                             src={formGeral.fotoPerfil}
-                            alt={formGeral.nome || "Foto oficial do funcionário"}
+                            alt={formGeral.nome || t("detail.photo.alt")}
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -2589,17 +2641,16 @@ p-6
 
                       <div className="flex-1">
                         <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                          Foto oficial do funcionário
+                          {t("detail.photo.title")}
                         </h3>
 
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                          Esta é a foto institucional usada em crachás, identificação, documentos
-                          e registros internos.
+                          {t("detail.photo.editDescription")}
                         </p>
 
                         <div className="mt-3 flex flex-wrap items-center gap-2">
                           <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-                            {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+                            {enviandoFotoPerfil ? t("detail.actions.uploading") : t("detail.actions.uploadPhoto")}
                             <input
                               ref={inputFotoRef}
                               type="file"
@@ -2630,7 +2681,7 @@ p-6
                               }
                               className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                             >
-                              Remover foto
+                              {t("detail.actions.removePhoto")}
                             </button>
                           )}
                         </div>
@@ -2667,15 +2718,11 @@ p-6
 
                         <span>
                           <span className="block font-bold text-slate-900 dark:text-white">
-                            Criar acesso ao sistema
+                            {t("detail.access.create")}
                           </span>
 
                           <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">
-                            O PHANYX criará um usuário,
-                            uma senha temporária e enviará
-                            as credenciais por email. O
-                            funcionário deverá trocar a
-                            senha no primeiro acesso.
+                            {t("detail.access.createDescription")}
                           </span>
                         </span>
                       </label>
@@ -2683,7 +2730,7 @@ p-6
                   )}
 
                   <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Nome</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("fields.name")}</span>
                     <input
                       value={formGeral.nome}
                       onChange={(e) => setFormGeral((p) => ({ ...p, nome: e.target.value }))}
@@ -2811,7 +2858,7 @@ text-slate-900 dark:text-white
 
 <label className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Departamento
+                      {t("detail.fields.department")}
                     </span>
 
                     <select
@@ -2854,7 +2901,7 @@ text-slate-900 dark:text-white
     "
                     >
                       <option value="">
-                        Sem departamento
+                        {t("detail.fields.noDepartment")}
                       </option>
 
                       {departamentos.map(
@@ -2874,7 +2921,7 @@ text-slate-900 dark:text-white
 
                   <label className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Cargo
+                      {t("detail.fields.position")}
                     </span>
 
                     <select
@@ -2927,12 +2974,12 @@ text-slate-900 dark:text-white
                     >
                       <option value="">
                         {carregandoCargos
-                          ? "Carregando cargos..."
+                          ? t("detail.fields.loadingPositions")
                           : !formGeral.departamentoId
-                            ? "Selecione primeiro o departamento"
+                            ? t("detail.fields.selectDepartmentFirst")
                             : cargosDepartamento.length === 0
-                              ? "Nenhum cargo ativo cadastrado"
-                              : "Selecione o cargo"}
+                              ? t("detail.fields.noActivePositions")
+                              : t("detail.fields.selectPosition")}
                       </option>
 
                       {cargosDepartamento.map(
@@ -2943,7 +2990,7 @@ text-slate-900 dark:text-white
                           >
                             {cargo.nome}
                             {!cargo.ativo
-                              ? " — Inativo"
+                              ? ` — ${t("detail.status.inactive")}`
                               : ""}
                           </option>
                         )
@@ -2952,7 +2999,7 @@ text-slate-900 dark:text-white
                   </label>
 
                   <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Código</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("detail.fields.code")}</span>
                     <input
                       value={formGeral.codigoFuncionario}
                       onChange={(e) =>
@@ -2973,7 +3020,7 @@ text-slate-900 dark:text-white
                       <>
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Email de acesso
+                            {t("detail.access.email")}
                           </span>
 
                           <input
@@ -3007,7 +3054,7 @@ text-slate-900 dark:text-white
 
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Perfil de acesso
+                            {t("detail.access.role")}
                           </span>
 
                           <select
@@ -3036,11 +3083,11 @@ text-slate-900 dark:text-white
         "
                           >
                             <option value="SECRETARIA">
-                              Funcionário
+                              {t("detail.access.roles.employee")}
                             </option>
 
                             <option value="ADMIN">
-                              Administrador
+                              {t("detail.access.roles.admin")}
                             </option>
                           </select>
                         </label>
@@ -3048,7 +3095,7 @@ text-slate-900 dark:text-white
                     )}
 
                   <label className="space-y-1">
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Status</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("detail.fields.status")}</span>
                     <select
                       value={formGeral.statusFuncionario}
                       onChange={(e) =>
@@ -3064,11 +3111,11 @@ text-slate-900 dark:text-white
   focus:border-blue-500
 "
                     >
-                      <option value="ATIVO">Ativo</option>
-                      <option value="DEMITIDO">Demitido</option>
-                      <option value="AFASTADO">Afastado</option>
-                      <option value="FERIAS">Férias</option>
-                      <option value="READMITIDO">Readmitido</option>
+                      <option value="ATIVO">{t("detail.status.active")}</option>
+                      <option value="DEMITIDO">{t("detail.status.dismissed")}</option>
+                      <option value="AFASTADO">{t("detail.status.leave")}</option>
+                      <option value="FERIAS">{t("detail.status.vacation")}</option>
+                      <option value="READMITIDO">{t("detail.status.rehired")}</option>
                     </select>
                   </label>
                 </div>
@@ -3093,12 +3140,11 @@ text-slate-900 dark:text-white
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    📍 Lotação do funcionário
+                    📍 {t("detail.assignment.title")}
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    Unidade em que o funcionário
-                    está atualmente lotado.
+                    {t("detail.assignment.description")}
                   </p>
                 </div>
 
@@ -3121,8 +3167,8 @@ text-slate-900 dark:text-white
         "
                 >
                   {funcionario.polo
-                    ? "Transferir de polo"
-                    : "Definir lotação"}
+                    ? t("detail.assignment.transferUnit")
+                    : t("detail.assignment.define")}
                 </button>
               </div>
 
@@ -3139,7 +3185,7 @@ text-slate-900 dark:text-white
       "
               >
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Polo atual
+                  {t("detail.assignment.currentUnit")}
                 </p>
 
                 <p
@@ -3150,29 +3196,26 @@ text-slate-900 dark:text-white
                   }
                 >
                   {funcionario.polo?.nome ||
-                    "Lotação ainda não definida"}
+                    t("detail.assignment.notDefined")}
                 </p>
 
                 {funcionario.polo?.codigo && (
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    Código:{" "}
+                    {t("detail.fields.code")}: {" "}
                     {funcionario.polo.codigo}
                   </p>
                 )}
 
                 {funcionario.professor && (
                   <p className="mt-3 text-sm font-semibold text-blue-700 dark:text-blue-300">
-                    Este funcionário também possui
-                    cadastro de professor. A lotação
-                    será sincronizada nos dois
-                    cadastros.
+                    {t("detail.assignment.teacherSync")}
                   </p>
                 )}
               </div>
 
               <div className="mt-6">
                 <h3 className="font-bold text-slate-900 dark:text-white">
-                  Histórico de lotações
+                  {t("detail.assignment.history")}
                 </h3>
 
                 {!Array.isArray(
@@ -3194,8 +3237,7 @@ text-slate-900 dark:text-white
             dark:text-slate-300
           "
                   >
-                    Nenhuma movimentação de lotação
-                    foi registrada ainda.
+                    {t("detail.assignment.emptyHistory")}
                   </div>
                 ) : (
                   <div className="mt-3 space-y-3">
@@ -3231,17 +3273,18 @@ text-slate-900 dark:text-white
                             >
                               {historico.tipo ===
                                 "TRANSFERENCIA"
-                                ? "Transferência"
+                                ? t("detail.assignment.types.transfer")
                                 : historico.tipo ===
                                   "CORRECAO"
-                                  ? "Correção"
-                                  : "Lotação inicial"}
+                                  ? t("detail.assignment.types.correction")
+                                  : t("detail.assignment.types.initial")}
                             </span>
 
                             <span className="text-xs text-slate-500 dark:text-slate-400">
-                              Vigência:{" "}
+                              {t("detail.assignment.effectiveAt")}: {" "}
                               {formatarDataHora(
-                                historico.vigenciaEm
+                                historico.vigenciaEm,
+                                locale
                               )}
                             </span>
                           </div>
@@ -3249,7 +3292,7 @@ text-slate-900 dark:text-white
                           <p className="mt-3 font-semibold text-slate-900 dark:text-white">
                             {historico
                               .poloAnteriorNomeSnapshot ||
-                              "Sem polo anterior"}
+                              t("detail.assignment.noPreviousUnit")}
                             {" → "}
                             {historico
                               .poloNovoNomeSnapshot ||
@@ -3259,13 +3302,13 @@ text-slate-900 dark:text-white
 
                           {historico.motivo && (
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                              <strong>Motivo:</strong>{" "}
+                              <strong>{t("detail.fields.reason")}:</strong>{" "}
                               {historico.motivo}
                             </p>
                           )}
 
                           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                            Registrado por:{" "}
+                            {t("detail.assignment.registeredBy")}: {" "}
                             {historico
                               .realizadoPorNomeSnapshot ||
                               historico.realizadoPor
@@ -3317,12 +3360,12 @@ text-slate-900 dark:text-white
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                       {funcionario?.polo
-                        ? "Transferir funcionário"
-                        : "Definir lotação"}
+                        ? t("detail.assignment.transferEmployee")
+                        : t("detail.assignment.define")}
                     </h2>
 
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      Funcionário:{" "}
+                      {t("detail.fields.employee")}: {" "}
                       <strong>
                         {funcionario?.nome}
                       </strong>
@@ -3344,7 +3387,7 @@ text-slate-900 dark:text-white
             dark:text-slate-300
             dark:hover:bg-slate-800
           "
-                    aria-label="Fechar"
+                    aria-label={t("buttons.close")}
                   >
                     ×
                   </button>
@@ -3353,7 +3396,7 @@ text-slate-900 dark:text-white
                 {funcionario?.polo && (
                   <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
                     <p className="text-xs font-bold uppercase text-slate-500">
-                      Lotação atual
+                      {t("detail.assignment.currentUnit")}
                     </p>
 
                     <p className="mt-1 font-bold text-slate-900 dark:text-white">
@@ -3381,7 +3424,7 @@ text-slate-900 dark:text-white
                     required
                   >
                     <option value="">
-                      Selecione o polo
+                      {t("detail.assignment.selectUnit")}
                     </option>
 
                     {polos.map((polo) => {
@@ -3410,9 +3453,9 @@ text-slate-900 dark:text-white
                             ? ` — ${polo.codigo}`
                             : ""}
                           {poloAtual
-                            ? " — Lotação atual"
+                            ? ` — ${t("detail.assignment.currentUnit")}`
                             : !disponivel
-                              ? " — Inativo"
+                              ? ` — ${t("detail.status.inactive")}`
                               : ""}
                         </option>
                       );
@@ -3422,7 +3465,7 @@ text-slate-900 dark:text-white
 
                 <div className="mt-4 space-y-1">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                    Data de vigência
+                    {t("detail.assignment.effectiveDate")}
                     <span className="ml-1 text-red-600">
                       *
                     </span>
@@ -3443,7 +3486,7 @@ text-slate-900 dark:text-white
 
                 <div className="mt-4 space-y-1">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                    Motivo da transferência
+                    {t("detail.assignment.transferReason")}
                     {funcionario?.polo && (
                       <span className="ml-1 text-red-600">
                         *
@@ -3461,8 +3504,8 @@ text-slate-900 dark:text-white
                     className="min-h-[100px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                     placeholder={
                       funcionario?.polo
-                        ? "Informe o motivo da transferência."
-                        : "Opcional para a definição inicial."
+                        ? t("detail.messages.transferReasonRequired")
+                        : t("detail.assignment.initialReasonPlaceholder")
                     }
                     required={
                       Boolean(funcionario?.polo)
@@ -3472,7 +3515,7 @@ text-slate-900 dark:text-white
 
                 <div className="mt-4 space-y-1">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                    Observações
+                    {t("detail.fields.notes")}
                   </label>
 
                   <textarea
@@ -3483,7 +3526,7 @@ text-slate-900 dark:text-white
                       )
                     }
                     className="min-h-[80px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                    placeholder="Informações adicionais, quando houver."
+                    placeholder={t("detail.assignment.notesPlaceholder")}
                   />
                 </div>
 
@@ -3494,7 +3537,7 @@ text-slate-900 dark:text-white
                     disabled={salvandoLotacao}
                     className="rounded-xl border border-slate-300 px-5 py-3 font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                   >
-                    Cancelar
+                    {t("buttons.cancel")}
                   </button>
 
                   <button
@@ -3505,8 +3548,8 @@ text-slate-900 dark:text-white
                     {salvandoLotacao
                       ? "Salvando..."
                       : funcionario?.polo
-                        ? "Confirmar transferência"
-                        : "Definir lotação"}
+                        ? t("detail.assignment.confirmTransfer")
+                        : t("detail.assignment.define")}
                   </button>
                 </div>
               </form>
@@ -3514,7 +3557,7 @@ text-slate-900 dark:text-white
           )}
 
           <p className="mt-2 text-sm text-slate-400">
-            Área central do Departamento Pessoal. Primeiro módulo ativo: benefícios vinculados ao funcionário.
+            {t("detail.assignment.footer")}
           </p>
         </div>
 
@@ -3547,7 +3590,7 @@ text-slate-900 dark:text-white
                   onClick={() => setErroFoto(null)}
                   className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 >
-                  Fechar
+                  {t("buttons.close")}
                 </button>
 
                 <button
@@ -3561,7 +3604,7 @@ text-slate-900 dark:text-white
                   }}
                   className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500"
                 >
-                  Escolher outra foto
+                  {t("detail.actions.chooseAnotherPhoto")}
                 </button>
               </div>
             </div>
@@ -3571,7 +3614,7 @@ text-slate-900 dark:text-white
         {erro && (
           <PhanyxToast
             tipo="erro"
-            titulo="Não foi possível concluir"
+            titulo={t("detail.toast.errorTitle")}
             mensagem={erro}
             onClose={() => setErro("")}
           />
@@ -3580,7 +3623,7 @@ text-slate-900 dark:text-white
         {sucesso && (
           <PhanyxToast
             tipo="sucesso"
-            titulo="Tudo certo"
+            titulo={t("detail.toast.successTitle")}
             mensagem={sucesso}
             onClose={() => setSucesso("")}
           />
@@ -3592,7 +3635,7 @@ text-slate-900 dark:text-white
             className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5"
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-bold">💼 Dados Trabalhistas</h2>
+              <h2 className="text-lg font-bold">💼 {t("detail.work.title")}</h2>
 
               {!editandoTrabalhista ? (
                 <button
@@ -3600,7 +3643,7 @@ text-slate-900 dark:text-white
                   onClick={() => setEditandoTrabalhista(true)}
                   className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10"
                 >
-                  Editar dados trabalhistas
+                  {t("detail.work.edit")}
                 </button>
               ) : (
                 <div className="flex gap-2">
@@ -3609,7 +3652,7 @@ text-slate-900 dark:text-white
                     disabled={salvando}
                     className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
                   >
-                    {salvando ? "Salvando..." : "Salvar"}
+                    {salvando ? t("buttons.saving") : t("buttons.save")}
                   </button>
 
                   <button
@@ -3620,7 +3663,7 @@ text-slate-900 dark:text-white
                     }}
                     className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800"
                   >
-                    Cancelar
+                    {t("buttons.cancel")}
                   </button>
                 </div>
               )}
@@ -3628,14 +3671,14 @@ text-slate-900 dark:text-white
 
             {!editandoTrabalhista ? (
               <div className="mt-4 grid gap-4 text-sm md:grid-cols-4">
-                <div><p className="text-slate-400">Data de Admissão</p><p>{funcionario.dataAdmissao ? new Date(funcionario.dataAdmissao).toLocaleDateString("pt-BR") : "-"}</p></div>
-                <div><p className="text-slate-400">Data de Desligamento</p><p>{funcionario.dataDesligamento ? new Date(funcionario.dataDesligamento).toLocaleDateString("pt-BR") : "-"}</p></div>
-                <div><p className="text-slate-400">Salário Base</p><p>{funcionario.salarioBase ? moeda(funcionario.salarioBase) : "-"}</p></div>
-                <div><p className="text-slate-400">Salário Atual</p><p>{funcionario.salario ? moeda(funcionario.salario) : "-"}</p></div>
-                <div><p className="text-slate-400">Tipo de Contrato</p><p>{funcionario.tipoContrato || "-"}</p></div>
-                <div><p className="text-slate-400">Jornada</p><p>{funcionario.jornadaTrabalho || "-"}</p></div>
-                <div><p className="text-slate-400">Carga Horária Mensal</p><p>{funcionario.cargaHorariaMensal ? `${funcionario.cargaHorariaMensal}h` : "-"}</p></div>
-                <div><p className="text-slate-400">Código do Ponto</p><p>{funcionario.codigoPonto || "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.hireDate")}</p><p>{funcionario.dataAdmissao ? formatarDataSemFusoAtual(funcionario.dataAdmissao) : "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.terminationDate")}</p><p>{funcionario.dataDesligamento ? formatarDataSemFusoAtual(funcionario.dataDesligamento) : "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.baseSalary")}</p><p>{funcionario.salarioBase ? formatarMoedaAtual(funcionario.salarioBase) : "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.currentSalary")}</p><p>{funcionario.salario ? formatarMoedaAtual(funcionario.salario) : "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.contractType")}</p><p>{funcionario.tipoContrato || "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.workSchedule")}</p><p>{funcionario.jornadaTrabalho || "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.remuneration.monthlyLoad")}</p><p>{funcionario.cargaHorariaMensal ? `${funcionario.cargaHorariaMensal}h` : "-"}</p></div>
+                <div><p className="text-slate-400">{t("detail.work.timeClockCode")}</p><p>{funcionario.codigoPonto || "-"}</p></div>
                 <div>
                   <p className="text-slate-400">
                     {rotuloPrevidencia(
@@ -3654,13 +3697,13 @@ text-slate-900 dark:text-white
             ) : (
               <div className="mt-5 grid gap-4 md:grid-cols-4">
                 {[
-                  ["dataAdmissao", "Data de Admissão", "date"],
-                  ["dataDesligamento", "Data de Desligamento", "date"],
-                  ["tipoContrato", "Tipo de Contrato", "text"],
-                  ["jornadaTrabalho", "Jornada", "text"],
-                  ["cargaHorariaSemanal", "Carga Horária Semanal", "number"],
-                  ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
-                  ["codigoPonto", "Código do Ponto", "text"],
+                  ["dataAdmissao", t("detail.work.hireDate"), "date"],
+                  ["dataDesligamento", t("detail.work.terminationDate"), "date"],
+                  ["tipoContrato", t("detail.work.contractType"), "text"],
+                  ["jornadaTrabalho", t("detail.work.workSchedule"), "text"],
+                  ["cargaHorariaSemanal", t("detail.remuneration.weeklyLoad"), "number"],
+                  ["cargaHorariaMensal", t("detail.remuneration.monthlyLoad"), "number"],
+                  ["codigoPonto", t("detail.work.timeClockCode"), "text"],
                 ].map(([campo, label, tipo]) => (
                   <label key={campo} className="space-y-1">
                     <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{label}</span>
@@ -3723,17 +3766,17 @@ text-slate-900 dark:text-white
 
 <div className="md:col-span-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
                   <h3 className="font-bold text-slate-900 dark:text-white">
-                    💰 Remuneração
+                    💰 {t("detail.remuneration.title")}
                   </h3>
 
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                    Selecione como o funcionário é remunerado e informe os valores correspondentes.
+                    {t("detail.remuneration.description")}
                   </p>
 
                   <div className="mt-4 grid gap-4 md:grid-cols-3">
                     <label className="space-y-1">
                       <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Modalidade de remuneração
+                        {t("detail.remuneration.modality")}
                       </span>
 
                       <select
@@ -3747,20 +3790,20 @@ text-slate-900 dark:text-white
                         }
                         className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                       >
-                        <option value="">Selecione</option>
-                        <option value="MENSAL">Salário mensal</option>
-                        <option value="HORA_AULA">Hora-aula</option>
+                        <option value="">{t("common.select")}</option>
+                        <option value="MENSAL">{t("detail.remuneration.types.monthly")}</option>
+                        <option value="HORA_AULA">{t("detail.remuneration.types.classHour")}</option>
                         <option value="HORA_TRABALHADA">
-                          Hora trabalhada
+                          {t("detail.remuneration.types.workedHour")}
                         </option>
-                        <option value="POR_AULA">Valor por aula</option>
-                        <option value="POR_TURMA">Valor por turma</option>
+                        <option value="POR_AULA">{t("detail.remuneration.types.perClass")}</option>
+                        <option value="POR_TURMA">{t("detail.remuneration.types.perClassGroup")}</option>
                         <option value="POR_DISCIPLINA">
-                          Valor por disciplina
+                          {t("detail.remuneration.types.perSubject")}
                         </option>
-                        <option value="MISTO">Remuneração mista</option>
+                        <option value="MISTO">{t("detail.remuneration.types.mixed")}</option>
                         <option value="SEM_REMUNERACAO">
-                          Sem remuneração
+                          {t("detail.remuneration.types.none")}
                         </option>
                       </select>
                     </label>
@@ -3769,7 +3812,7 @@ text-slate-900 dark:text-white
                       formTrabalhista.tipoRemuneracao === "MISTO") && (
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Salário mensal
+                            {t("detail.remuneration.monthlySalary")}
                           </span>
 
                           <input
@@ -3792,7 +3835,7 @@ text-slate-900 dark:text-white
                         <>
                           <label className="space-y-1">
                             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              Valor da hora-aula
+                              {t("detail.remuneration.classHourValue")}
                             </span>
 
                             <input
@@ -3811,7 +3854,7 @@ text-slate-900 dark:text-white
 
                           <label className="space-y-1">
                             <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                              Duração da hora-aula
+                              {t("detail.remuneration.classHourDuration")}
                             </span>
 
                             <div className="relative">
@@ -3829,7 +3872,7 @@ text-slate-900 dark:text-white
                               />
 
                               <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
-                                minutos
+                                {t("detail.remuneration.minutes")}
                               </span>
                             </div>
                           </label>
@@ -3840,7 +3883,7 @@ text-slate-900 dark:text-white
                       formTrabalhista.tipoRemuneracao === "MISTO") && (
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Valor da hora trabalhada
+                            {t("detail.remuneration.workedHourValue")}
                           </span>
 
                           <input
@@ -3862,7 +3905,7 @@ text-slate-900 dark:text-white
                       formTrabalhista.tipoRemuneracao === "MISTO") && (
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Valor por aula
+                            {t("detail.remuneration.perClassValue")}
                           </span>
 
                           <input
@@ -3884,7 +3927,7 @@ text-slate-900 dark:text-white
                       formTrabalhista.tipoRemuneracao === "MISTO") && (
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Valor por turma
+                            {t("detail.remuneration.perClassGroupValue")}
                           </span>
 
                           <input
@@ -3906,7 +3949,7 @@ text-slate-900 dark:text-white
                       formTrabalhista.tipoRemuneracao === "MISTO") && (
                         <label className="space-y-1">
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            Valor por disciplina
+                            {t("detail.remuneration.types.perSubject")}
                           </span>
 
                           <input
@@ -3926,7 +3969,7 @@ text-slate-900 dark:text-white
 
                     <label className="space-y-1 md:col-span-3">
                       <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Observações da remuneração
+                        {t("detail.remuneration.notes")}
                       </span>
 
                       <textarea
@@ -3938,7 +3981,7 @@ text-slate-900 dark:text-white
                           }))
                         }
                         className="min-h-[100px] w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                        placeholder="Acordos, adicionais ou regras da remuneração."
+                        placeholder={t("detail.remuneration.notesPlaceholder")}
                       />
                     </label>
                   </div>
@@ -3947,17 +3990,17 @@ text-slate-900 dark:text-white
                 {houveAlteracaoRemuneracao && (
                   <div className="md:col-span-4 rounded-2xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/30">
                     <h3 className="font-bold text-amber-950 dark:text-amber-100">
-                      🕒 Registro da alteração remuneratória
+                      🕒 {t("detail.remuneration.changeRecord")}
                     </h3>
 
                     <p className="mt-2 text-sm text-amber-900 dark:text-amber-200">
-                      A remuneração foi alterada. Informe quando a nova condição começa a valer e o motivo da mudança.
+                      {t("detail.remuneration.changeDescription")}
                     </p>
 
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                       <label className="space-y-1">
                         <span className="text-xs font-semibold text-amber-950 dark:text-amber-100">
-                          Início da vigência
+                          {t("detail.history.effectiveStart")}
                         </span>
 
                         <input
@@ -3972,7 +4015,7 @@ text-slate-900 dark:text-white
 
                       <label className="space-y-1">
                         <span className="text-xs font-semibold text-amber-950 dark:text-amber-100">
-                          Motivo da alteração
+                          {t("detail.remuneration.changeReason")}
                         </span>
 
                         <textarea
@@ -3981,13 +4024,13 @@ text-slate-900 dark:text-white
                             setMotivoAlteracaoRemuneracao(e.target.value)
                           }
                           className="min-h-[100px] w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-amber-700 dark:bg-slate-950 dark:text-white"
-                          placeholder="Ex.: reajuste salarial aprovado pela direção."
+                          placeholder={t("detail.remuneration.changeReasonPlaceholder")}
                         />
                       </label>
                     </div>
 
                     <p className="mt-3 text-xs text-amber-800 dark:text-amber-300">
-                      A data e a hora do salvamento e o usuário responsável serão registrados automaticamente.
+                      {t("detail.remuneration.auditNote")}
                     </p>
                   </div>
                 )}
@@ -4033,8 +4076,8 @@ text-slate-900 dark:text-white
                 {contaBancaria.paisCodigo === "BR" && (<><div><p className="text-slate-400">{t("fields.branch")}</p><p>{contaBancaria.agencia || "-"}</p></div><div><p className="text-slate-400">{t("fields.account")}</p><p>{contaBancaria.conta || "-"}</p></div><div><p className="text-slate-400">{t("bank.pixKey")}</p><p>{contaBancaria.chavePix || "-"}</p></div></>)}
                 {contaBancaria.paisCodigo === "US" && (<><div><p className="text-slate-400">{t("bank.routingNumber")}</p><p>{contaBancaria.routingNumber || "-"}</p></div><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div></>)}
                 {contaBancaria.paisCodigo === "GB" && (<><div><p className="text-slate-400">{t("bank.sortCode")}</p><p>{contaBancaria.sortCode || "-"}</p></div><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div></>)}
-                {paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "GB" && (<><div><p className="text-slate-400">IBAN</p><p>{contaBancaria.iban || "-"}</p></div><div><p className="text-slate-400">BIC / SWIFT</p><p>{contaBancaria.bicSwift || "-"}</p></div></>)}
-                {!paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "BR" && contaBancaria.paisCodigo !== "US" && (<><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div><div><p className="text-slate-400">BIC / SWIFT</p><p>{contaBancaria.bicSwift || "-"}</p></div></>)}
+                {paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "GB" && (<><div><p className="text-slate-400">{t("bank.iban")}</p><p>{contaBancaria.iban || "-"}</p></div><div><p className="text-slate-400">{t("bank.bicSwift")}</p><p>{contaBancaria.bicSwift || "-"}</p></div></>)}
+                {!paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "BR" && contaBancaria.paisCodigo !== "US" && (<><div><p className="text-slate-400">{t("bank.accountNumber")}</p><p>{contaBancaria.conta || "-"}</p></div><div><p className="text-slate-400">{t("bank.bicSwift")}</p><p>{contaBancaria.bicSwift || "-"}</p></div></>)}
                 <div><p className="text-slate-400">{t("bank.holderName")}</p><p>{contaBancaria.titularNome || "-"}</p></div>
               </div>
             ) : (
@@ -4046,8 +4089,8 @@ text-slate-900 dark:text-white
                 {contaBancaria.paisCodigo === "BR" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("fields.branch")}</span><input value={contaBancaria.agencia} onChange={(e)=>setContaBancaria((p)=>({...p,agencia:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("fields.account")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.pixKeyType")}</span><select value={contaBancaria.tipoChavePix} onChange={(e)=>setContaBancaria((p)=>({...p,tipoChavePix:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"><option value="">{t("common.select")}</option><option value="CPF">CPF</option><option value="CNPJ">CNPJ</option><option value="EMAIL">E-mail</option><option value="TELEFONE">{t("fields.phone")}</option><option value="ALEATORIA">{t("bank.pixTypes.random")}</option></select></label><label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">{t("bank.pixKey")}</span><input value={contaBancaria.chavePix} onChange={(e)=>setContaBancaria((p)=>({...p,chavePix:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
                 {contaBancaria.paisCodigo === "US" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.routingNumber")}</span><input value={contaBancaria.routingNumber} onChange={(e)=>setContaBancaria((p)=>({...p,routingNumber:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
                 {contaBancaria.paisCodigo === "GB" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.sortCode")}</span><input value={contaBancaria.sortCode} onChange={(e)=>setContaBancaria((p)=>({...p,sortCode:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
-                {paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "GB" && (<><label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">IBAN</span><input value={contaBancaria.iban} onChange={(e)=>setContaBancaria((p)=>({...p,iban:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">BIC / SWIFT</span><input value={contaBancaria.bicSwift} onChange={(e)=>setContaBancaria((p)=>({...p,bicSwift:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
-                {!paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "BR" && contaBancaria.paisCodigo !== "US" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">BIC / SWIFT</span><input value={contaBancaria.bicSwift} onChange={(e)=>setContaBancaria((p)=>({...p,bicSwift:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                {paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "GB" && (<><label className="space-y-1 md:col-span-2"><span className="text-xs font-semibold">{t("bank.iban")}</span><input value={contaBancaria.iban} onChange={(e)=>setContaBancaria((p)=>({...p,iban:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.bicSwift")}</span><input value={contaBancaria.bicSwift} onChange={(e)=>setContaBancaria((p)=>({...p,bicSwift:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
+                {!paisUsaIban(contaBancaria.paisCodigo) && contaBancaria.paisCodigo !== "BR" && contaBancaria.paisCodigo !== "US" && (<><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.accountNumber")}</span><input value={contaBancaria.conta} onChange={(e)=>setContaBancaria((p)=>({...p,conta:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label><label className="space-y-1"><span className="text-xs font-semibold">{t("bank.bicSwift")}</span><input value={contaBancaria.bicSwift} onChange={(e)=>setContaBancaria((p)=>({...p,bicSwift:e.target.value.toUpperCase()}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label></>)}
                 <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.holderName")}</span><input value={contaBancaria.titularNome} onChange={(e)=>setContaBancaria((p)=>({...p,titularNome:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
                 <label className="space-y-1"><span className="text-xs font-semibold">{t("bank.holderDocument")}</span><input value={contaBancaria.titularDocumento} onChange={(e)=>setContaBancaria((p)=>({...p,titularDocumento:e.target.value}))} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white" /></label>
               </div>
@@ -4059,12 +4102,11 @@ text-slate-900 dark:text-white
           <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/80">
             <div>
               <h2 className="text-lg font-bold">
-                🕒 Histórico da remuneração
+                🕒 {t("detail.history.title")}
               </h2>
 
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Registro auditável das contratações e alterações
-                remuneratórias deste funcionário.
+                {t("detail.history.description")}
               </p>
             </div>
 
@@ -4073,7 +4115,7 @@ text-slate-900 dark:text-white
             ) ||
               funcionario.historicosRemuneracaoRH.length === 0 ? (
               <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
-                Nenhum histórico remuneratório registrado.
+                {t("detail.history.empty")}
               </div>
             ) : (
               <div className="mt-5 space-y-4">
@@ -4086,16 +4128,12 @@ text-slate-900 dark:text-white
                       <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 dark:border-slate-700 md:flex-row md:items-start md:justify-between">
                         <div>
                           <h3 className="font-bold text-slate-900 dark:text-white">
-                            {traduzirOrigemHistorico(
-                              historico.origem
-                            )}
+                            {traduzirOrigemHistorico(historico.origem, t)}
                           </h3>
 
                           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                            Registrado em{" "}
-                            {formatarDataHora(
-                              historico.alteradoEm
-                            )}
+                            {t("detail.history.registeredAt")} {" "}
+                            {formatarDataHoraAtual(historico.alteradoEm)}
                           </p>
                         </div>
 
@@ -4108,7 +4146,7 @@ text-slate-900 dark:text-white
 
                           <p className="text-slate-600 dark:text-slate-400">
                             {historico.alteradoPorRoleSnapshot ||
-                              "Perfil não informado"}
+                              t("detail.common.profileNotInformed")}
                           </p>
                         </div>
                       </div>
@@ -4116,64 +4154,54 @@ text-slate-900 dark:text-white
                       <div className="mt-4 grid gap-4 md:grid-cols-2">
                         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-950 dark:border-red-900 dark:bg-red-950/20 dark:text-red-100">
                           <h4 className="mb-3 font-bold">
-                            Condição anterior
+                            {t("detail.history.previousCondition")}
                           </h4>
 
-                          <ResumoRemuneracao
-                            dados={historico.dadosAnteriores}
-                          />
+                          <ResumoRemuneracao dados={historico.dadosAnteriores} t={t} locale={locale} currency={moedaFuncionario} />
                         </div>
 
                         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                           <h4 className="mb-3 font-bold">
-                            Nova condição
+                            {t("detail.history.newCondition")}
                           </h4>
 
-                          <ResumoRemuneracao
-                            dados={historico.dadosNovos}
-                          />
+                          <ResumoRemuneracao dados={historico.dadosNovos} t={t} locale={locale} currency={moedaFuncionario} />
                         </div>
                       </div>
 
                       <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
                         <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
                           <p className="font-semibold">
-                            Início da vigência
+                            {t("detail.history.effectiveStart")}
                           </p>
 
                           <p className="mt-1 text-slate-600 dark:text-slate-300">
                             {historico.origem ===
                               "FUNCIONARIOS_RH_CADASTRO"
-                              ? `${formatarDataSemFuso(
-                                historico.vigenciaInicio
-                              )} — data de admissão`
-                              : formatarDataHora(
-                                historico.vigenciaInicio
-                              )}
+                              ? `${formatarDataSemFusoAtual(historico.vigenciaInicio)} — ${t("detail.history.hireDateSuffix")}`
+                              : formatarDataHoraAtual(historico.vigenciaInicio)}
                           </p>
                         </div>
 
                         <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
                           <p className="font-semibold">
-                            Data e hora do registro
+                            {t("detail.history.recordedDateTime")}
                           </p>
 
                           <p className="mt-1 text-slate-600 dark:text-slate-300">
-                            {formatarDataHora(
-                              historico.alteradoEm
-                            )}
+                            {formatarDataHoraAtual(historico.alteradoEm)}
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-100">
                         <p className="font-semibold">
-                          Motivo
+                          {t("detail.fields.reason")}
                         </p>
 
                         <p className="mt-1 whitespace-pre-wrap">
                           {historico.motivo ||
-                            "Motivo não informado."}
+                            t("detail.common.reasonNotInformed")}
                         </p>
                       </div>
                     </article>
@@ -4186,10 +4214,10 @@ text-slate-900 dark:text-white
 
         {funcionario && (
           <section className="phanyx-documentos-funcionario rounded-3xl border p-5">
-            <h2 className="text-lg font-bold">📎 Documentos e Portfólio</h2>
+            <h2 className="text-lg font-bold">📎 {t("detail.documents.title")}</h2>
 
             <p className="mt-2 text-sm text-slate-400">
-              Documentos profissionais, currículo e links de portfólio.
+              {t("detail.documents.description")}
             </p>
 
             <form onSubmit={enviarDocumentoFuncionario} className="mt-5 grid gap-4 md:grid-cols-3">
@@ -4204,35 +4232,43 @@ text-slate-900 dark:text-white
                 <option value="RG">RG</option>
                 <option value="CPF">CPF</option>
                 <option value="CNH">CNH</option>
-                <option value="COMPROVANTE_RESIDENCIA">Comprovante de residência</option>
-                <option value="CURRICULO">Currículo</option>
-                <option value="PORTFOLIO">Portfólio</option>
+                <option value="COMPROVANTE_RESIDENCIA">{t("detail.documents.types.proofOfAddress")}</option>
+                <option value="CURRICULO">{t("detail.documents.types.resume")}</option>
+                <option value="PORTFOLIO">{t("detail.documents.types.portfolio")}</option>
                 <option value="LINKEDIN">LinkedIn</option>
                 <option value="BEHANCE">Behance</option>
                 <option value="ARTSTATION">ArtStation</option>
-                <option value="SITE">Site</option>
+                <option value="SITE">{t("detail.documents.types.website")}</option>
                 <option value="YOUTUBE">YouTube</option>
                 <option value="VIMEO">Vimeo</option>
-                <option value="INSTAGRAM">Instagram Profissional</option>
+                <option value="INSTAGRAM">{t("detail.documents.types.professionalInstagram")}</option>
                 <option value="GITHUB">GitHub</option>
-                <option value="CERTIFICADOS">Certificados</option>
+                <option value="CERTIFICADOS">{t("detail.documents.types.certificates")}</option>
               </select>
 
-              <input
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
-                onChange={(e) =>
-                  setNovoDocumento((p) => ({
-                    ...p,
-                    arquivo: e.target.files?.[0] || null,
-                  }))
-                }
-                className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
-              />
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+                <span className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold dark:border-slate-600">
+                  {t("detail.documents.chooseFile")}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-slate-600 dark:text-slate-300">
+                  {novoDocumento.arquivo?.name || t("detail.documents.noFileSelected")}
+                </span>
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
+                  onChange={(e) =>
+                    setNovoDocumento((p) => ({
+                      ...p,
+                      arquivo: e.target.files?.[0] || null,
+                    }))
+                  }
+                  className="hidden"
+                />
+              </label>
 
               <div className="md:col-span-3 space-y-3">
                 <p className="text-sm font-semibold text-slate-100">
-                  Links profissionais e portfólio online
+                  {t("detail.documents.linksTitle")}
                 </p>
 
                 {linksPortfolio.map((link, index) => (
@@ -4251,12 +4287,12 @@ text-slate-900 dark:text-white
                       <option value="LinkedIn">LinkedIn</option>
                       <option value="Behance">Behance</option>
                       <option value="ArtStation">ArtStation</option>
-                      <option value="Site">Site pessoal</option>
+                      <option value="Site">{t("detail.documents.types.personalWebsite")}</option>
                       <option value="Vimeo">Vimeo</option>
                       <option value="YouTube">YouTube</option>
                       <option value="GitHub">GitHub</option>
-                      <option value="Instagram">Instagram profissional</option>
-                      <option value="Outro">Outro</option>
+                      <option value="Instagram">{t("detail.documents.types.professionalInstagram")}</option>
+                      <option value="Outro">{t("detail.common.other")}</option>
                     </select>
 
                     <input
@@ -4282,7 +4318,7 @@ text-slate-900 dark:text-white
                       }
                       className="rounded-xl border border-red-500/40 px-3 py-2 text-sm font-bold text-red-300"
                     >
-                      Remover
+                      {t("buttons.remove")}
                     </button>
                   </div>
                 ))}
@@ -4294,7 +4330,7 @@ text-slate-900 dark:text-white
                   }
                   className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-300"
                 >
-                  + Adicionar link
+                  + {t("detail.documents.addLink")}
                 </button>
               </div>
 
@@ -4303,18 +4339,18 @@ text-slate-900 dark:text-white
                 disabled={enviandoDocumento}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
               >
-                {enviandoDocumento ? "Enviando..." : "Enviar documento"}
+                {enviandoDocumento ? t("detail.actions.uploading") : t("detail.documents.upload")}
               </button>
             </form>
 
             <div className="mt-6 space-y-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                Documentos enviados
+                {t("detail.documents.uploadedTitle")}
               </h3>
 
               {documentosFuncionario.length === 0 ? (
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Nenhum documento enviado ainda.
+                  {t("detail.documents.empty")}
                 </p>
               ) : (
                 documentosFuncionario.map((doc) => (
@@ -4338,20 +4374,20 @@ text-slate-900 dark:text-white
                   >
                     <div>
                       <p className="font-bold text-slate-900 dark:text-white">
-                        {doc.titulo || "Documento"}
+                        {doc.titulo || t("detail.documents.document")}
                       </p>
 
                       <div className="mt-1 flex flex-wrap gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
-                        <span>Tipo: {doc.tipo || "-"}</span>
+                        <span>{t("detail.documents.type")}: {doc.tipo || "-"}</span>
 
                         <span>
                           {doc.criadoEm
-                            ? `Enviado em: ${new Date(doc.criadoEm).toLocaleDateString("pt-BR")}`
-                            : "Data não informada"}
+                            ? `${t("detail.documents.uploadedAt")}: ${formatarDataSemFusoAtual(doc.criadoEm)}`
+                            : t("detail.common.dateNotInformed")}
                         </span>
 
                         <span>
-                          {doc.arquivoUrl?.startsWith("http") ? "Arquivo/link disponível" : "Sem arquivo"}
+                          {doc.arquivoUrl?.startsWith("http") ? t("detail.documents.available") : t("detail.documents.noFile")}
                         </span>
                       </div>
                     </div>
@@ -4378,7 +4414,7 @@ text-slate-900 dark:text-white
                 dark:text-blue-300
               "
                         >
-                          Abrir documento
+                          {t("detail.documents.open")}
                         </a>
                       )}
                     </div>
@@ -4392,42 +4428,42 @@ text-slate-900 dark:text-white
         {funcionario && (
           <section className="phanyx-rh-banco">
             <div className="phanyx-rh-banco-topo">
-              <h2 className="phanyx-rh-banco-titulo">📊 Banco de Horas</h2>
+              <h2 className="phanyx-rh-banco-titulo">📊 {t("detail.timeBank.title")}</h2>
 
               <Link href="/admin/rh/banco-horas" className="phanyx-rh-banco-link">
-                Ver banco geral
+                {t("detail.timeBank.viewAll")}
               </Link>
             </div>
 
             <div className="phanyx-rh-banco-grid">
               <div className="phanyx-rh-banco-card credito">
-                <p>Créditos</p>
+                <p>{t("detail.timeBank.credits")}</p>
                 <strong>{formatarHoras(resumoBancoHoras.creditos)}</strong>
               </div>
 
               <div className="phanyx-rh-banco-card debito">
-                <p>Débitos</p>
+                <p>{t("detail.timeBank.debits")}</p>
                 <strong>{formatarHoras(-resumoBancoHoras.debitos)}</strong>
               </div>
 
               <div className="phanyx-rh-banco-card saldo">
-                <p>Saldo Atual</p>
+                <p>{t("detail.timeBank.currentBalance")}</p>
                 <strong>
                   {formatarHoras(resumoBancoHoras.saldo)}
                 </strong>
               </div>
 
               <div className="phanyx-rh-banco-card registro">
-                <p>Registros</p>
+                <p>{t("detail.timeBank.records")}</p>
                 <strong>{resumoBancoHoras.registros}</strong>
               </div>
             </div>
 
             <div className="phanyx-rh-banco-ultimo">
-              Último ponto:{" "}
+              {t("detail.timeBank.lastClock")}: {" "}
               <strong>
                 {resumoBancoHoras.ultimaData
-                  ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
+                  ? formatarDataSemFusoAtual(resumoBancoHoras.ultimaData)
                   : "-"}
               </strong>
             </div>
@@ -4435,11 +4471,11 @@ text-slate-900 dark:text-white
         )}
 
         <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
-          <h2 className="text-lg font-bold">🎁 Benefícios</h2>
+          <h2 className="text-lg font-bold">🎁 {t("detail.benefits.title")}</h2>
 
           <form onSubmit={vincularBeneficio} className="mt-5 grid gap-4 md:grid-cols-4">
             <label className="space-y-1 md:col-span-2">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Benefício</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("detail.benefits.benefit")}</span>
               <select
                 value={beneficioId}
                 onChange={(e) => setBeneficioId(e.target.value)}
@@ -4452,7 +4488,7 @@ text-slate-900 dark:text-white
     text-slate-900 dark:text-white
   "
               >
-                <option value="">Selecione</option>
+                <option value="">{t("common.select")}</option>
                 {beneficiosDisponiveis.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.nome}
@@ -4462,7 +4498,7 @@ text-slate-900 dark:text-white
             </label>
 
             <label className="space-y-1">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Valor (R$)</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("detail.benefits.value", { currency: moedaFuncionario })}</span>
               <input
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}
@@ -4478,7 +4514,7 @@ text-slate-900 dark:text-white
             </label>
 
             <label className="space-y-1">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Percentual (%)</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{t("detail.benefits.percentage")}</span>
               <input
                 value={percentual}
                 onChange={(e) => setPercentual(e.target.value)}
@@ -4499,7 +4535,7 @@ text-slate-900 dark:text-white
                 checked={descontaFolha}
                 onChange={(e) => setDescontaFolha(e.target.checked)}
               />
-              Desconta na folha
+              {t("detail.benefits.deductPayroll")}
             </label>
 
             <div className="md:col-span-4">
@@ -4507,7 +4543,7 @@ text-slate-900 dark:text-white
                 disabled={salvando}
                 className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
               >
-                {salvando ? "Vinculando..." : "Vincular benefício"}
+                {salvando ? t("detail.benefits.linking") : t("detail.benefits.link")}
               </button>
             </div>
           </form>
@@ -4515,26 +4551,26 @@ text-slate-900 dark:text-white
 
         <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80">
           <div className="border-b border-slate-800 p-5">
-            <h2 className="text-lg font-bold">Benefícios vinculados</h2>
+            <h2 className="text-lg font-bold">{t("detail.benefits.linkedTitle")}</h2>
           </div>
 
           {carregando ? (
-            <div className="p-5 text-sm text-slate-400">Carregando...</div>
+            <div className="p-5 text-sm text-slate-400">{t("common.loading")}</div>
           ) : beneficiosVinculados.length === 0 ? (
             <div className="p-5 text-sm text-slate-400">
-              Nenhum benefício vinculado a este funcionário.
+              {t("detail.benefits.empty")}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead className="bg-slate-950/70 text-left text-xs uppercase text-slate-400">
                   <tr>
-                    <th className="p-3">Benefício</th>
-                    <th className="p-3">Tipo</th>
-                    <th className="p-3">Valor</th>
-                    <th className="p-3">Percentual</th>
-                    <th className="p-3">Folha</th>
-                    <th className="p-3">Status</th>
+                    <th className="p-3">{t("detail.benefits.benefit")}</th>
+                    <th className="p-3">{t("detail.documents.type")}</th>
+                    <th className="p-3">{t("detail.benefits.valueShort")}</th>
+                    <th className="p-3">{t("detail.benefits.percentageShort")}</th>
+                    <th className="p-3">{t("detail.benefits.payroll")}</th>
+                    <th className="p-3">{t("detail.fields.status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -4545,16 +4581,16 @@ text-slate-900 dark:text-white
                         {v.beneficio?.tipo?.replaceAll("_", " ")}
                       </td>
                       <td className="p-3 text-slate-300">
-                        {v.valor ? moeda(v.valor) : "-"}
+                        {v.valor ? formatarMoedaAtual(v.valor) : "-"}
                       </td>
                       <td className="p-3 text-slate-300">
                         {v.percentual ? `${v.percentual}%` : "-"}
                       </td>
                       <td className="p-3">
-                        {v.descontaFolha ? "Desconta" : "Não desconta"}
+                        {v.descontaFolha ? t("detail.benefits.deducts") : t("detail.benefits.doesNotDeduct")}
                       </td>
                       <td className="p-3">
-                        {v.ativo ? "Ativo" : "Inativo"}
+                        {v.ativo ? t("detail.status.active") : t("detail.status.inactive")}
                       </td>
                     </tr>
                   ))}

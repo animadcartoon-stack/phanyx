@@ -14186,7 +14186,8 @@
       "minutes": "minutos",
       "notDefined": "Não definido",
       "other": "Outro",
-      "select": "Selecione"
+      "select": "Selecione",
+      "loading": "A carregar..."
     },
     "campus": {
       "editHelp": "A afetação não pode ser alterada por esta edição comum. Para definir ou transferir o polo, abra a ficha do funcionário.",
@@ -14217,7 +14218,9 @@
       "blockAccess": "Bloquear acesso",
       "unblockAccess": "Desbloquear acesso",
       "confirm": "Confirmar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "close": "Fechar"
     },
     "employment": {
       "title": "Dados laborais, previdenciários e bancários",
@@ -14439,6 +14442,263 @@
       },
       "errors": {
         "save": "Não foi possível guardar os dados bancários."
+      },
+      "iban": "IBAN",
+      "bicSwift": "BIC / SWIFT"
+    },
+    "detail": {
+      "navigation": {
+        "back": "Voltar aos funcionários"
+      },
+      "title": "Ficha do Funcionário",
+      "common": {
+        "notInformed": "Não indicada",
+        "profileNotInformed": "Perfil não indicado",
+        "reasonNotInformed": "Motivo não indicado.",
+        "dateNotInformed": "Data não indicada",
+        "other": "Outro"
+      },
+      "actions": {
+        "editGeneral": "Editar dados gerais",
+        "uploadPhoto": "Enviar fotografia",
+        "uploading": "A enviar...",
+        "removePhoto": "Remover fotografia",
+        "chooseAnotherPhoto": "Escolher outra fotografia"
+      },
+      "fields": {
+        "position": "Cargo",
+        "department": "Departamento",
+        "locationUnit": "Polo de afetação",
+        "code": "Código",
+        "status": "Estado",
+        "employee": "Funcionário",
+        "reason": "Motivo",
+        "notes": "Observações",
+        "noDepartment": "Sem departamento",
+        "loadingPositions": "A carregar cargos...",
+        "selectDepartmentFirst": "Selecione primeiro o departamento",
+        "noActivePositions": "Nenhum cargo ativo registado",
+        "selectPosition": "Selecione o cargo"
+      },
+      "status": {
+        "active": "Ativo",
+        "inactive": "Inativo",
+        "blocked": "Bloqueado",
+        "dismissed": "Desligado",
+        "leave": "Afastado",
+        "vacation": "Férias",
+        "rehired": "Readmitido"
+      },
+      "photo": {
+        "alt": "Fotografia oficial do funcionário",
+        "title": "Fotografia oficial do funcionário",
+        "description": "Fotografia utilizada em cartões, identificação e documentos oficiais.",
+        "editDescription": "Esta é a fotografia institucional utilizada em cartões, identificação, documentos e registos internos.",
+        "invalidFormatTitle": "Formato de fotografia não aceite",
+        "invalidFormatMessage": "A fotografia selecionada está no formato {format}. Escolha outra fotografia em JPG, JPEG, PNG ou WEBP.",
+        "tooLargeTitle": "A fotografia é demasiado grande",
+        "tooLargeMessage": "A fotografia selecionada tem {size} MB, mas o tamanho máximo permitido é 2 MB. Reduza ou comprima a fotografia e tente novamente.",
+        "uploadFailedStatus": "Falha no envio da fotografia. Código {status}.",
+        "noUrl": "O envio terminou, mas o servidor não devolveu o endereço da fotografia.",
+        "uploaded": "Fotografia oficial enviada. Clique em Guardar para gravar no registo.",
+        "serverReceiveError": "O servidor não conseguiu receber a fotografia.",
+        "uploadErrorTitle": "Não foi possível enviar a fotografia",
+        "uploadErrorHelp": "Verifique a imagem ou escolha outra fotografia e tente novamente."
+      },
+      "access": {
+        "title": "Acesso ao sistema",
+        "email": "Email de acesso",
+        "role": "Perfil de acesso",
+        "status": "Situação",
+        "hasAccess": "Tem acesso",
+        "noAccess": "Sem acesso ao sistema",
+        "noAccessDescription": "Este funcionário está registado apenas no RH. Não foi criado qualquer login ou palavra-passe.",
+        "create": "Criar acesso ao sistema",
+        "createDescription": "O PHANYX criará um utilizador, uma palavra-passe temporária e enviará as credenciais por email. O funcionário deverá alterar a palavra-passe no primeiro acesso.",
+        "roles": {
+          "admin": "Administrador",
+          "employee": "Funcionário"
+        }
+      },
+      "assignment": {
+        "title": "Afetação do funcionário",
+        "description": "Unidade à qual o funcionário está atualmente afeto.",
+        "transferUnit": "Transferir de polo",
+        "define": "Definir afetação",
+        "currentUnit": "Polo atual",
+        "notDefined": "Afetação ainda não definida",
+        "teacherSync": "Este funcionário também tem registo de professor. A afetação será sincronizada nos dois registos.",
+        "history": "Histórico de afetações",
+        "emptyHistory": "Ainda não foi registada qualquer movimentação de afetação.",
+        "effectiveAt": "Vigência",
+        "noPreviousUnit": "Sem polo anterior",
+        "registeredBy": "Registado por",
+        "transferEmployee": "Transferir funcionário",
+        "selectUnit": "Selecione o polo",
+        "effectiveDate": "Data de vigência",
+        "transferReason": "Motivo da transferência",
+        "transferReasonPlaceholder": "Indique o motivo da transferência.",
+        "initialReasonPlaceholder": "Opcional para a definição inicial.",
+        "notesPlaceholder": "Informações adicionais, quando existirem.",
+        "confirmTransfer": "Confirmar transferência",
+        "footer": "Área central do Departamento Pessoal. Primeiro módulo ativo: benefícios associados ao funcionário.",
+        "types": {
+          "transfer": "Transferência",
+          "correction": "Correção",
+          "initial": "Afetação inicial"
+        }
+      },
+      "work": {
+        "title": "Dados laborais",
+        "edit": "Editar dados laborais",
+        "hireDate": "Data de admissão",
+        "terminationDate": "Data de saída",
+        "baseSalary": "Salário base",
+        "currentSalary": "Salário atual",
+        "contractType": "Tipo de contrato",
+        "workSchedule": "Horário",
+        "timeClockCode": "Código de ponto"
+      },
+      "remuneration": {
+        "title": "Remuneração",
+        "description": "Selecione a forma de remuneração do funcionário e indique os valores correspondentes.",
+        "modality": "Modalidade de remuneração",
+        "monthlySalary": "Salário mensal",
+        "classHourValue": "Valor da hora-aula",
+        "classHourDuration": "Duração da hora-aula",
+        "minutes": "minutos",
+        "minutesValue": "{value} minutos",
+        "workedHourValue": "Valor da hora trabalhada",
+        "perClassValue": "Valor por aula",
+        "perClassGroupValue": "Valor por turma",
+        "perSubjectValue": "Valor por disciplina",
+        "weeklyLoad": "Carga semanal",
+        "monthlyLoad": "Carga mensal",
+        "notes": "Observações da remuneração",
+        "notesPlaceholder": "Acordos, adicionais ou regras da remuneração.",
+        "changeRecord": "Registo da alteração remuneratória",
+        "changeDescription": "A remuneração foi alterada. Indique quando a nova condição entra em vigor e o motivo da alteração.",
+        "changeReason": "Motivo da alteração",
+        "changeReasonPlaceholder": "Ex.: atualização salarial aprovada pela direção.",
+        "auditNote": "A data e hora da gravação e o utilizador responsável serão registados automaticamente.",
+        "types": {
+          "monthly": "Salário mensal",
+          "classHour": "Hora-aula",
+          "workedHour": "Hora trabalhada",
+          "perClass": "Valor por aula",
+          "perClassGroup": "Valor por turma",
+          "perSubject": "Valor por disciplina",
+          "mixed": "Remuneração mista",
+          "none": "Sem remuneração"
+        }
+      },
+      "history": {
+        "title": "Histórico da remuneração",
+        "description": "Registo auditável das contratações e alterações remuneratórias deste funcionário.",
+        "empty": "Nenhum histórico remuneratório registado.",
+        "registeredAt": "Registado em",
+        "previousCondition": "Condição anterior",
+        "newCondition": "Nova condição",
+        "effectiveStart": "Início da vigência",
+        "hireDateSuffix": "data de admissão",
+        "recordedDateTime": "Data e hora do registo",
+        "origins": {
+          "initialHire": "Contratação inicial",
+          "employeeRecord": "Alteração pela ficha do funcionário",
+          "teacherByHr": "Alteração do professor pelo RH",
+          "teacherRecord": "Alteração pela ficha do professor",
+          "remunerationChange": "Alteração remuneratória"
+        }
+      },
+      "documents": {
+        "title": "Documentos e Portefólio",
+        "description": "Documentos profissionais, currículo e ligações de portefólio.",
+        "linksTitle": "Ligações profissionais e portefólio online",
+        "addLink": "Adicionar ligação",
+        "upload": "Enviar documento",
+        "uploadedTitle": "Documentos enviados",
+        "empty": "Ainda não foi enviado nenhum documento.",
+        "document": "Documento",
+        "type": "Tipo",
+        "uploadedAt": "Enviado em",
+        "available": "Ficheiro/ligação disponível",
+        "noFile": "Sem ficheiro",
+        "open": "Abrir documento",
+        "chooseFile": "Escolher ficheiro",
+        "noFileSelected": "Nenhum ficheiro escolhido",
+        "types": {
+          "proofOfAddress": "Comprovativo de morada",
+          "resume": "Currículo",
+          "portfolio": "Portefólio",
+          "website": "Site",
+          "personalWebsite": "Site pessoal",
+          "professionalInstagram": "Instagram profissional",
+          "certificates": "Certificados"
+        }
+      },
+      "timeBank": {
+        "title": "Banco de Horas",
+        "viewAll": "Ver banco geral",
+        "credits": "Créditos",
+        "debits": "Débitos",
+        "currentBalance": "Saldo atual",
+        "records": "Registos",
+        "lastClock": "Último registo de ponto"
+      },
+      "benefits": {
+        "title": "Benefícios",
+        "benefit": "Benefício",
+        "value": "Valor ({currency})",
+        "valueShort": "Valor",
+        "percentage": "Percentagem (%)",
+        "percentageShort": "Percentagem",
+        "deductPayroll": "Desconta na folha",
+        "link": "Associar benefício",
+        "linking": "A associar...",
+        "linkedTitle": "Benefícios associados",
+        "empty": "Nenhum benefício associado a este funcionário.",
+        "payroll": "Folha",
+        "deducts": "Desconta",
+        "doesNotDeduct": "Não desconta"
+      },
+      "toast": {
+        "errorTitle": "Não foi possível concluir",
+        "successTitle": "Tudo certo"
+      },
+      "messages": {
+        "loadPositionsError": "Não foi possível carregar os cargos.",
+        "loadEmployeeError": "Erro ao carregar o funcionário.",
+        "loadBenefitsError": "Erro ao carregar os benefícios.",
+        "selectFile": "Selecione um ficheiro antes de enviar.",
+        "documentUploaded": "Documento enviado com sucesso.",
+        "documentUploadError": "Erro ao enviar o documento.",
+        "selectNewUnit": "Selecione o novo polo de afetação.",
+        "assignmentDateRequired": "Indique a data de vigência da afetação.",
+        "transferReasonRequired": "Indique o motivo da transferência.",
+        "assignmentUpdateError": "Não foi possível atualizar a afetação.",
+        "assignmentUpdated": "Afetação atualizada com sucesso.",
+        "linkBenefitError": "Erro ao associar o benefício.",
+        "benefitLinked": "Benefício associado ao funcionário.",
+        "nameRequired": "Indique o nome do funcionário.",
+        "emailRequired": "Indique o email de acesso do funcionário.",
+        "roleRequired": "Selecione o perfil de acesso do funcionário.",
+        "positionRequired": "Selecione o cargo do funcionário.",
+        "accessCreated": "Acesso ao sistema criado com sucesso.",
+        "generalUpdated": "Dados gerais atualizados.",
+        "remunerationTypeRequired": "Selecione a modalidade de remuneração do funcionário.",
+        "monthlySalaryRequired": "Indique o salário mensal do funcionário.",
+        "classHourRequired": "Indique o valor da hora-aula.",
+        "workedHourRequired": "Indique o valor da hora trabalhada.",
+        "perClassRequired": "Indique o valor por aula.",
+        "perClassGroupRequired": "Indique o valor por turma.",
+        "perSubjectRequired": "Indique o valor por disciplina.",
+        "mixedValueRequired": "Na remuneração mista, indique pelo menos um valor.",
+        "remunerationReasonRequired": "Indique o motivo da alteração da remuneração.",
+        "remunerationDateRequired": "Indique a data e a hora em que a nova remuneração entra em vigor.",
+        "workAndRemunerationUpdated": "Dados laborais e alteração remuneratória registados com sucesso.",
+        "workUpdated": "Dados laborais atualizados com sucesso.",
+        "workSaveError": "Erro ao guardar os dados laborais.",
+        "saveError": "Erro ao guardar."
       }
     }
   },

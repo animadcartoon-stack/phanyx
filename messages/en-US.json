@@ -14401,7 +14401,8 @@
       "minutes": "minutes",
       "notDefined": "Not defined",
       "other": "Other",
-      "select": "Select"
+      "select": "Select",
+      "loading": "Loading..."
     },
     "campus": {
       "editHelp": "The assigned campus cannot be changed through this standard edit. To assign or transfer the campus, open the employee record.",
@@ -14432,7 +14433,9 @@
       "blockAccess": "Block access",
       "unblockAccess": "Unblock access",
       "confirm": "Confirm",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close"
     },
     "employment": {
       "title": "Employment, social security, and banking details",
@@ -14654,6 +14657,263 @@
       },
       "errors": {
         "save": "Could not save the banking details."
+      },
+      "iban": "IBAN",
+      "bicSwift": "BIC / SWIFT"
+    },
+    "detail": {
+      "navigation": {
+        "back": "Back to employees"
+      },
+      "title": "Employee Record",
+      "common": {
+        "notInformed": "Not provided",
+        "profileNotInformed": "Role not provided",
+        "reasonNotInformed": "Reason not provided.",
+        "dateNotInformed": "Date not provided",
+        "other": "Other"
+      },
+      "actions": {
+        "editGeneral": "Edit general details",
+        "uploadPhoto": "Upload photo",
+        "uploading": "Uploading...",
+        "removePhoto": "Remove photo",
+        "chooseAnotherPhoto": "Choose another photo"
+      },
+      "fields": {
+        "position": "Position",
+        "department": "Department",
+        "locationUnit": "Assigned location",
+        "code": "Code",
+        "status": "Status",
+        "employee": "Employee",
+        "reason": "Reason",
+        "notes": "Notes",
+        "noDepartment": "No department",
+        "loadingPositions": "Loading positions...",
+        "selectDepartmentFirst": "Select the department first",
+        "noActivePositions": "No active positions registered",
+        "selectPosition": "Select a position"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "blocked": "Blocked",
+        "dismissed": "Terminated",
+        "leave": "On leave",
+        "vacation": "Vacation",
+        "rehired": "Rehired"
+      },
+      "photo": {
+        "alt": "Employee official photo",
+        "title": "Employee official photo",
+        "description": "Photo used on badges, identification, and official documents.",
+        "editDescription": "This institutional photo is used on badges, identification, documents, and internal records.",
+        "invalidFormatTitle": "Unsupported photo format",
+        "invalidFormatMessage": "The selected photo is in {format} format. Choose another photo in JPG, JPEG, PNG, or WEBP.",
+        "tooLargeTitle": "The photo is too large",
+        "tooLargeMessage": "The selected photo is {size} MB, but the maximum allowed size is 2 MB. Reduce or compress the photo and try again.",
+        "uploadFailedStatus": "Photo upload failed. Status {status}.",
+        "noUrl": "The upload finished, but the server did not return the photo URL.",
+        "uploaded": "Official photo uploaded. Click Save to store it in the employee record.",
+        "serverReceiveError": "The server could not receive the photo.",
+        "uploadErrorTitle": "Could not upload the photo",
+        "uploadErrorHelp": "Check the image or choose another photo and try again."
+      },
+      "access": {
+        "title": "System access",
+        "email": "Access email",
+        "role": "Access role",
+        "status": "Status",
+        "hasAccess": "Has access",
+        "noAccess": "No system access",
+        "noAccessDescription": "This employee is registered only in HR. No login or password has been created.",
+        "create": "Create system access",
+        "createDescription": "PHANYX will create a user, a temporary password, and email the credentials. The employee must change the password on first sign-in.",
+        "roles": {
+          "admin": "Administrator",
+          "employee": "Employee"
+        }
+      },
+      "assignment": {
+        "title": "Employee assignment",
+        "description": "Unit where the employee is currently assigned.",
+        "transferUnit": "Transfer to another location",
+        "define": "Set assignment",
+        "currentUnit": "Current location",
+        "notDefined": "Assignment not yet defined",
+        "teacherSync": "This employee also has a teacher record. The assignment will be synchronized across both records.",
+        "history": "Assignment history",
+        "emptyHistory": "No assignment movements have been recorded yet.",
+        "effectiveAt": "Effective",
+        "noPreviousUnit": "No previous location",
+        "registeredBy": "Recorded by",
+        "transferEmployee": "Transfer employee",
+        "selectUnit": "Select a location",
+        "effectiveDate": "Effective date",
+        "transferReason": "Transfer reason",
+        "transferReasonPlaceholder": "Enter the reason for the transfer.",
+        "initialReasonPlaceholder": "Optional for the initial assignment.",
+        "notesPlaceholder": "Additional information, if any.",
+        "confirmTransfer": "Confirm transfer",
+        "footer": "Central Personnel Department area. First active module: benefits linked to the employee.",
+        "types": {
+          "transfer": "Transfer",
+          "correction": "Correction",
+          "initial": "Initial assignment"
+        }
+      },
+      "work": {
+        "title": "Employment details",
+        "edit": "Edit employment details",
+        "hireDate": "Hire date",
+        "terminationDate": "Termination date",
+        "baseSalary": "Base salary",
+        "currentSalary": "Current salary",
+        "contractType": "Contract type",
+        "workSchedule": "Work schedule",
+        "timeClockCode": "Time clock code"
+      },
+      "remuneration": {
+        "title": "Compensation",
+        "description": "Select how the employee is compensated and enter the corresponding amounts.",
+        "modality": "Compensation method",
+        "monthlySalary": "Monthly salary",
+        "classHourValue": "Class-hour rate",
+        "classHourDuration": "Class-hour duration",
+        "minutes": "minutes",
+        "minutesValue": "{value} minutes",
+        "workedHourValue": "Hourly rate",
+        "perClassValue": "Amount per class",
+        "perClassGroupValue": "Amount per class group",
+        "perSubjectValue": "Amount per subject",
+        "weeklyLoad": "Weekly workload",
+        "monthlyLoad": "Monthly workload",
+        "notes": "Compensation notes",
+        "notesPlaceholder": "Agreements, allowances, or compensation rules.",
+        "changeRecord": "Compensation change record",
+        "changeDescription": "Compensation has changed. Enter when the new terms take effect and the reason for the change.",
+        "changeReason": "Reason for change",
+        "changeReasonPlaceholder": "Example: salary adjustment approved by management.",
+        "auditNote": "The save date and time and the responsible user will be recorded automatically.",
+        "types": {
+          "monthly": "Monthly salary",
+          "classHour": "Class hour",
+          "workedHour": "Hourly",
+          "perClass": "Per class",
+          "perClassGroup": "Per class group",
+          "perSubject": "Per subject",
+          "mixed": "Mixed compensation",
+          "none": "No compensation"
+        }
+      },
+      "history": {
+        "title": "Compensation history",
+        "description": "Auditable record of this employee’s hiring and compensation changes.",
+        "empty": "No compensation history recorded.",
+        "registeredAt": "Recorded on",
+        "previousCondition": "Previous terms",
+        "newCondition": "New terms",
+        "effectiveStart": "Effective from",
+        "hireDateSuffix": "hire date",
+        "recordedDateTime": "Record date and time",
+        "origins": {
+          "initialHire": "Initial hire",
+          "employeeRecord": "Change from employee record",
+          "teacherByHr": "Teacher change by HR",
+          "teacherRecord": "Change from teacher record",
+          "remunerationChange": "Compensation change"
+        }
+      },
+      "documents": {
+        "title": "Documents and Portfolio",
+        "description": "Professional documents, résumé, and portfolio links.",
+        "linksTitle": "Professional links and online portfolio",
+        "addLink": "Add link",
+        "upload": "Upload document",
+        "uploadedTitle": "Uploaded documents",
+        "empty": "No documents uploaded yet.",
+        "document": "Document",
+        "type": "Type",
+        "uploadedAt": "Uploaded on",
+        "available": "File/link available",
+        "noFile": "No file",
+        "open": "Open document",
+        "chooseFile": "Choose file",
+        "noFileSelected": "No file selected",
+        "types": {
+          "proofOfAddress": "Proof of address",
+          "resume": "Résumé",
+          "portfolio": "Portfolio",
+          "website": "Website",
+          "personalWebsite": "Personal website",
+          "professionalInstagram": "Professional Instagram",
+          "certificates": "Certificates"
+        }
+      },
+      "timeBank": {
+        "title": "Time Bank",
+        "viewAll": "View full time bank",
+        "credits": "Credits",
+        "debits": "Debits",
+        "currentBalance": "Current balance",
+        "records": "Records",
+        "lastClock": "Last time entry"
+      },
+      "benefits": {
+        "title": "Benefits",
+        "benefit": "Benefit",
+        "value": "Amount ({currency})",
+        "valueShort": "Amount",
+        "percentage": "Percentage (%)",
+        "percentageShort": "Percentage",
+        "deductPayroll": "Deduct from payroll",
+        "link": "Link benefit",
+        "linking": "Linking...",
+        "linkedTitle": "Linked benefits",
+        "empty": "No benefits linked to this employee.",
+        "payroll": "Payroll",
+        "deducts": "Deducts",
+        "doesNotDeduct": "Does not deduct"
+      },
+      "toast": {
+        "errorTitle": "Could not complete the action",
+        "successTitle": "All set"
+      },
+      "messages": {
+        "loadPositionsError": "Could not load positions.",
+        "loadEmployeeError": "Could not load the employee.",
+        "loadBenefitsError": "Could not load benefits.",
+        "selectFile": "Select a file before uploading.",
+        "documentUploaded": "Document uploaded successfully.",
+        "documentUploadError": "Could not upload the document.",
+        "selectNewUnit": "Select the new assigned location.",
+        "assignmentDateRequired": "Enter the assignment effective date.",
+        "transferReasonRequired": "Enter the transfer reason.",
+        "assignmentUpdateError": "Could not update the assignment.",
+        "assignmentUpdated": "Assignment updated successfully.",
+        "linkBenefitError": "Could not link the benefit.",
+        "benefitLinked": "Benefit linked to the employee.",
+        "nameRequired": "Enter the employee name.",
+        "emailRequired": "Enter the employee access email.",
+        "roleRequired": "Select the employee access role.",
+        "positionRequired": "Select the employee position.",
+        "accessCreated": "System access created successfully.",
+        "generalUpdated": "General details updated.",
+        "remunerationTypeRequired": "Select the employee compensation method.",
+        "monthlySalaryRequired": "Enter the employee monthly salary.",
+        "classHourRequired": "Enter the class-hour rate.",
+        "workedHourRequired": "Enter the hourly rate.",
+        "perClassRequired": "Enter the amount per class.",
+        "perClassGroupRequired": "Enter the amount per class group.",
+        "perSubjectRequired": "Enter the amount per subject.",
+        "mixedValueRequired": "For mixed compensation, enter at least one amount.",
+        "remunerationReasonRequired": "Enter the reason for the compensation change.",
+        "remunerationDateRequired": "Enter the date and time when the new compensation takes effect.",
+        "workAndRemunerationUpdated": "Employment details and compensation change recorded successfully.",
+        "workUpdated": "Employment details updated successfully.",
+        "workSaveError": "Could not save employment details.",
+        "saveError": "Could not save changes."
       }
     }
   },
