@@ -4053,7 +4053,22 @@
       "withoutEnrollment": "Without enrollment",
       "allClasses": "All classes",
       "classFallback": "Class",
-      "resultSummary": "Showing {displayed} of {total} students — current filter: {currentFilter}"
+      "resultSummary": "Showing {displayed} of {total} students — current filter: {currentFilter}",
+      "enrollmentStatus": "Enrollment status",
+      "allEnrollmentStatuses": "All enrollment statuses",
+      "groupGeneral": "General",
+      "groupPreStart": "Before start",
+      "groupInProgress": "In progress",
+      "groupClosed": "Closed",
+      "awaitingClass": "Awaiting class assignment",
+      "toStart": "Not started",
+      "activeEnrollment": "Active / In progress",
+      "enrollmentOnHold": "On hold",
+      "suspendedEnrollment": "Suspended",
+      "exchange": "On exchange",
+      "transferredEnrollment": "Transferred",
+      "completedEnrollment": "Completed",
+      "canceledEnrollment": "Canceled"
     },
     "table": {
       "student": "Student",

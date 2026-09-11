@@ -4052,7 +4052,22 @@
       "withoutEnrollment": "Sin matrícula",
       "allClasses": "Todas las clases",
       "classFallback": "Clase",
-      "resultSummary": "Mostrando {displayed} de {total} estudiantes — filtro actual: {currentFilter}"
+      "resultSummary": "Mostrando {displayed} de {total} estudiantes — filtro actual: {currentFilter}",
+      "enrollmentStatus": "Estado de la matr?cula",
+      "allEnrollmentStatuses": "Todos los estados de matr?cula",
+      "groupGeneral": "General",
+      "groupPreStart": "Antes del inicio",
+      "groupInProgress": "En curso",
+      "groupClosed": "Finalizadas",
+      "awaitingClass": "En espera de asignaci?n de grupo",
+      "toStart": "Por iniciar",
+      "activeEnrollment": "Activa / En curso",
+      "enrollmentOnHold": "Matr?cula pausada",
+      "suspendedEnrollment": "Suspendida",
+      "exchange": "En intercambio",
+      "transferredEnrollment": "Transferida",
+      "completedEnrollment": "Concluida",
+      "canceledEnrollment": "Cancelada"
     },
     "table": {
       "student": "Estudiante",

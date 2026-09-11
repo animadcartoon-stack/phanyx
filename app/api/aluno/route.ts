@@ -154,6 +154,41 @@ export async function GET(request: Request) {
 
     const busca = String(searchParams.get("busca") || "").trim();
     const status = String(searchParams.get("status") || "TODOS").trim();
+
+    const situacaoMatricula = String(
+      searchParams.get("situacaoMatricula") || "TODOS"
+    ).trim();
+
+    const statusMatriculaValidos = new Set([
+      "ATIVA",
+      "TRANCADA",
+      "CANCELADA",
+      "CONCLUIDA",
+      "A_INICIAR",
+      "SUSPENSA",
+      "AGUARDANDO",
+      "TRANSFERIDA",
+      "INTERCAMBIO",
+    ]);
+
+    const statusMatriculaSelecionado =
+      statusMatriculaValidos.has(situacaoMatricula)
+        ? situacaoMatricula
+        : null;
+
+    const filtroMatriculaBase: any = {
+      instituicaoId: user.instituicaoId ?? undefined,
+      excluidaEm: null,
+    };
+
+    const whereResumoMatricula: any = {
+      ...filtroMatriculaBase,
+    };
+
+    if (statusMatriculaSelecionado) {
+      whereResumoMatricula.status =
+        statusMatriculaSelecionado;
+    }
     const poloIdParam = String(searchParams.get("poloId") || "").trim();
 
     const where: any = {
@@ -162,6 +197,27 @@ export async function GET(request: Request) {
 
     if (status && status !== "TODOS") {
       where.statusAluno = status;
+    }
+
+    if (situacaoMatricula === "MATRICULADOS") {
+      where.matriculas = {
+        some: {
+          ...filtroMatriculaBase,
+        },
+      };
+    } else if (situacaoMatricula === "SEM_MATRICULA") {
+      where.matriculas = {
+        none: {
+          ...filtroMatriculaBase,
+        },
+      };
+    } else if (statusMatriculaSelecionado) {
+      where.matriculas = {
+        some: {
+          ...filtroMatriculaBase,
+          status: statusMatriculaSelecionado,
+        },
+      };
     }
 
     if (poloIdParam && poloIdParam !== "TODOS") {
@@ -238,6 +294,7 @@ export async function GET(request: Request) {
             },
           },
           matriculas: {
+            where: whereResumoMatricula,
             orderBy: {
               createdAt: "desc",
             },

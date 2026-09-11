@@ -31,7 +31,19 @@ type StatusAluno =
   | "PAUSA_MEDICA"
   | "FALTANTE";
 
-type SituacaoAcademicaFiltro = "TODOS" | "MATRICULADOS" | "SEM_MATRICULA";
+type SituacaoAcademicaFiltro =
+  | "TODOS"
+  | "MATRICULADOS"
+  | "SEM_MATRICULA"
+  | "AGUARDANDO"
+  | "A_INICIAR"
+  | "ATIVA"
+  | "TRANCADA"
+  | "SUSPENSA"
+  | "INTERCAMBIO"
+  | "TRANSFERIDA"
+  | "CONCLUIDA"
+  | "CANCELADA";
 
 type FeedbackTipo = "sucesso" | "erro" | "";
 
@@ -516,7 +528,7 @@ function AdminAlunosPage() {
 
   useEffect(() => {
     carregarAlunos();
-  }, [paginaAtual, filtroStatus, busca]);
+  }, [paginaAtual, filtroStatus, busca, filtroSituacaoAcademica]);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
@@ -842,6 +854,8 @@ function AdminAlunosPage() {
       if (filtroStatus !== "TODOS") {
         params.set("status", filtroStatus);
       }
+
+      params.set("situacaoMatricula", filtroSituacaoAcademica);
 
       const res = await fetch(`/api/aluno?${params.toString()}`, {
         credentials: "include",
@@ -2022,7 +2036,8 @@ function AdminAlunosPage() {
       const bateSituacaoAcademica =
         filtroSituacaoAcademica === "TODOS" ||
         (filtroSituacaoAcademica === "MATRICULADOS" && matriculado) ||
-        (filtroSituacaoAcademica === "SEM_MATRICULA" && !matriculado);
+        (filtroSituacaoAcademica === "SEM_MATRICULA" && !matriculado) ||
+        (matriculado && resumo?.status === filtroSituacaoAcademica);
 
       const bateTurma =
         filtroTurmaId === "TODAS" ||
@@ -3185,19 +3200,58 @@ function AdminAlunosPage() {
                   );
                   setPaginaAtual(1);
                 }}
-                className="rounded-xl border px-3 py-2.5"
+                aria-label={t("filters.enrollmentStatus")}
+                title={t("filters.enrollmentStatus")}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
                 <option value="TODOS">
-                  {t("filters.all")}
+                  {t("filters.allEnrollmentStatuses")}
                 </option>
 
-                <option value="MATRICULADOS">
-                  {t("filters.enrolled")}
-                </option>
+                <optgroup label={t("filters.groupGeneral")}>
+                  <option value="MATRICULADOS">
+                    {t("filters.enrolled")}
+                  </option>
+                  <option value="SEM_MATRICULA">
+                    {t("filters.withoutEnrollment")}
+                  </option>
+                </optgroup>
 
-                <option value="SEM_MATRICULA">
-                  {t("filters.withoutEnrollment")}
-                </option>
+                <optgroup label={t("filters.groupPreStart")}>
+                  <option value="AGUARDANDO">
+                    {t("filters.awaitingClass")}
+                  </option>
+                  <option value="A_INICIAR">
+                    {t("filters.toStart")}
+                  </option>
+                </optgroup>
+
+                <optgroup label={t("filters.groupInProgress")}>
+                  <option value="ATIVA">
+                    {t("filters.activeEnrollment")}
+                  </option>
+                  <option value="TRANCADA">
+                    {t("filters.enrollmentOnHold")}
+                  </option>
+                  <option value="SUSPENSA">
+                    {t("filters.suspendedEnrollment")}
+                  </option>
+                  <option value="INTERCAMBIO">
+                    {t("filters.exchange")}
+                  </option>
+                </optgroup>
+
+                <optgroup label={t("filters.groupClosed")}>
+                  <option value="TRANSFERIDA">
+                    {t("filters.transferredEnrollment")}
+                  </option>
+                  <option value="CONCLUIDA">
+                    {t("filters.completedEnrollment")}
+                  </option>
+                  <option value="CANCELADA">
+                    {t("filters.canceledEnrollment")}
+                  </option>
+                </optgroup>
               </select>
 
               <select

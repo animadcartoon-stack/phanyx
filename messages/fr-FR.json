@@ -4052,7 +4052,22 @@
       "withoutEnrollment": "Sans inscription",
       "allClasses": "Toutes les classes",
       "classFallback": "Classe",
-      "resultSummary": "Affichage de {displayed} sur {total} étudiants — filtre actuel : {currentFilter}"
+      "resultSummary": "Affichage de {displayed} sur {total} étudiants — filtre actuel : {currentFilter}",
+      "enrollmentStatus": "Statut de l?inscription",
+      "allEnrollmentStatuses": "Tous les statuts d?inscription",
+      "groupGeneral": "G?n?ral",
+      "groupPreStart": "Avant le d?but",
+      "groupInProgress": "En cours",
+      "groupClosed": "Cl?tur?es",
+      "awaitingClass": "En attente d?affectation ? une classe",
+      "toStart": "? commencer",
+      "activeEnrollment": "Active / En cours",
+      "enrollmentOnHold": "Inscription interrompue",
+      "suspendedEnrollment": "Suspendue",
+      "exchange": "En ?change",
+      "transferredEnrollment": "Transf?r?e",
+      "completedEnrollment": "Termin?e",
+      "canceledEnrollment": "Annul?e"
     },
     "table": {
       "student": "Étudiant",
