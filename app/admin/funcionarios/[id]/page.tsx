@@ -3988,18 +3988,18 @@ text-slate-900 dark:text-white
                 </div>
 
                 {houveAlteracaoRemuneracao && (
-                  <div className="md:col-span-4 rounded-2xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/30">
-                    <h3 className="font-bold text-amber-950 dark:text-amber-100">
+                  <div className="md:col-span-4 rounded-2xl border border-amber-400/50 bg-amber-500/10 p-5">
+                    <h3 className="font-bold">
                       🕒 {t("detail.remuneration.changeRecord")}
                     </h3>
 
-                    <p className="mt-2 text-sm text-amber-900 dark:text-amber-200">
+                    <p className="mt-2 text-sm">
                       {t("detail.remuneration.changeDescription")}
                     </p>
 
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                       <label className="space-y-1">
-                        <span className="text-xs font-semibold text-amber-950 dark:text-amber-100">
+                        <span className="text-xs font-semibold">
                           {t("detail.history.effectiveStart")}
                         </span>
 
@@ -4014,7 +4014,7 @@ text-slate-900 dark:text-white
                       </label>
 
                       <label className="space-y-1">
-                        <span className="text-xs font-semibold text-amber-950 dark:text-amber-100">
+                        <span className="text-xs font-semibold">
                           {t("detail.remuneration.changeReason")}
                         </span>
 
@@ -4029,7 +4029,7 @@ text-slate-900 dark:text-white
                       </label>
                     </div>
 
-                    <p className="mt-3 text-xs text-amber-800 dark:text-amber-300">
+                    <p className="mt-3 text-xs opacity-80">
                       {t("detail.remuneration.auditNote")}
                     </p>
                   </div>
@@ -4152,7 +4152,7 @@ text-slate-900 dark:text-white
                       </div>
 
                       <div className="mt-4 grid gap-4 md:grid-cols-2">
-                        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-950 dark:border-red-900 dark:bg-red-950/20 dark:text-red-100">
+                        <div className="rounded-xl border border-red-400/50 bg-red-500/10 p-4">
                           <h4 className="mb-3 font-bold">
                             {t("detail.history.previousCondition")}
                           </h4>
@@ -4160,7 +4160,7 @@ text-slate-900 dark:text-white
                           <ResumoRemuneracao dados={historico.dadosAnteriores} t={t} locale={locale} currency={moedaFuncionario} />
                         </div>
 
-                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
+                        <div className="rounded-xl border border-emerald-400/50 bg-emerald-500/10 p-4">
                           <h4 className="mb-3 font-bold">
                             {t("detail.history.newCondition")}
                           </h4>
@@ -4194,7 +4194,7 @@ text-slate-900 dark:text-white
                         </div>
                       </div>
 
-                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-100">
+                      <div className="mt-4 rounded-xl border border-amber-400/50 bg-amber-500/10 p-4 text-sm">
                         <p className="font-semibold">
                           {t("detail.fields.reason")}
                         </p>
