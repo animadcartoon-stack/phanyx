@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { PERMISSOES_PHANYX } from "@/lib/permissoes-phanyx";
 
 type PermissaoSalva = {
@@ -30,377 +31,227 @@ type ContextoBusca = {
   relacionados: string[];
 };
 
+/*
+ * A busca aceita termos dos cinco idiomas oficiais.
+ * Os nomes visíveis das permissões também são traduzidos e
+ * entram no cálculo de relevância.
+ */
 const CONTEXTOS_BUSCA: ContextoBusca[] = [
   {
     gatilhos: [
-      "aluno",
-      "alunos",
-      "estudante",
-      "estudantes",
-      "discente",
-      "academico",
-      "pipeline",
-      "etapa",
-      "etapas",
-      "tarefa",
-      "tarefas",
-      "negociação",
-      "transferência",
-      "histórico",
-      "auditoria",
-      "perda",
+      "aluno", "alunos", "estudante", "estudantes",
+      "student", "students",
+      "estudiante", "estudiantes",
+      "étudiant", "étudiants",
     ],
     relacionados: [
-      "aluno",
-      "matricula",
-      "turma",
-      "curso",
-      "disciplina",
-      "boletim",
-      "nota",
-      "frequencia",
-      "presenca",
-      "prova",
-      "avaliacao",
-      "funil",
-      "pipeline",
-      "etapa",
-      "movimentar",
-      "tarefa",
-      "retorno",
-      "negociação",
-      "transferir",
-      "arquivar",
-      "restaurar",
-      "histórico",
-      "auditoria",
-      "perda",
+      "aluno", "matricula", "turma", "curso", "disciplina", "boletim",
+      "nota", "frequencia", "presenca", "prova", "avaliacao",
+      "student", "enrollment", "class", "course", "subject", "grade",
+      "attendance", "assessment",
+      "estudiante", "matricula", "clase", "curso", "asignatura", "nota",
+      "asistencia", "evaluacion",
+      "étudiant", "inscription", "classe", "cours", "matiere", "note",
+      "presence", "evaluation",
     ],
   },
   {
     gatilhos: [
-      "professor",
-      "professores",
-      "docente",
-      "docentes",
-      "educador",
+      "professor", "professores", "docente", "docentes",
+      "teacher", "teachers", "faculty",
+      "profesor", "profesores",
+      "enseignant", "enseignants",
     ],
     relacionados: [
-      "professor",
-      "docente",
-      "disciplina",
-      "turma",
-      "aula",
-      "prova",
-      "avaliacao",
-      "publicacao",
-      "substituicao",
+      "professor", "docente", "disciplina", "turma", "aula", "prova",
+      "avaliacao", "publicacao", "substituicao",
+      "teacher", "subject", "class", "lesson", "assessment", "publication",
+      "profesor", "asignatura", "clase", "evaluacion", "publicacion",
+      "enseignant", "matiere", "classe", "evaluation", "publication",
     ],
   },
   {
     gatilhos: [
-      "funcionario",
-      "funcionarios",
-      "colaborador",
-      "colaboradores",
-      "empregado",
-      "equipe",
-      "pessoal",
-      "rh",
+      "funcionario", "funcionarios", "colaborador", "equipe", "pessoal", "rh",
+      "employee", "employees", "staff", "hr",
+      "empleado", "empleados", "personal", "rr hh",
+      "employe", "employes", "personnel",
     ],
     relacionados: [
-      "funcionario",
-      "departamento",
-      "rh",
-      "ponto",
-      "ferias",
-      "holerite",
-      "beneficio",
-      "exame",
-      "rescisao",
-      "jornada",
-      "escala",
+      "funcionario", "departamento", "rh", "ponto", "ferias", "holerite",
+      "beneficio", "exame", "rescisao", "jornada", "escala",
+      "employee", "department", "time clock", "leave", "payslip", "benefit",
+      "exam", "termination", "schedule",
+      "empleado", "departamento", "fichaje", "vacaciones", "nomina",
+      "beneficio", "baja", "jornada",
+      "employe", "departement", "pointage", "conge", "paie", "avantage",
+      "examen", "contrat",
     ],
   },
   {
     gatilhos: [
-      "comercial",
-      "vendedor",
-      "vendedores",
-      "venda",
-      "vendas",
-      "lead",
-      "leads",
-      "cliente",
-      "clientes",
-      "prospect",
-      "prospects",
-      "oportunidade",
-      "oportunidades",
-      "meta",
-      "metas",
-      "comissão",
-      "comissões",
-      "funil",
-      "conversão",
-      "crm",
+      "comercial", "vendedor", "vendedores", "venda", "vendas", "lead",
+      "leads", "cliente", "oportunidade", "meta", "comissao", "crm",
+      "sales", "salesperson", "seller", "opportunity", "target", "commission",
+      "ventas", "vendedor", "oportunidad", "objetivo", "comision",
+      "commercial", "vente", "vendeur", "prospect", "opportunite",
+      "objectif", "commission",
     ],
     relacionados: [
-      "comercial",
-      "lead",
-      "oportunidade",
-      "vendedor",
-      "venda",
-      "matrícula",
-      "meta",
-      "comissão",
-      "atribuir",
-      "converter",
-      "aprovar",
-      "cancelar",
-      "relatório",
-      "exportar",
-      "configuração",
+      "comercial", "lead", "oportunidade", "vendedor", "venda", "meta",
+      "comissao", "funil", "pipeline", "tarefa", "transferir", "relatorio",
+      "sales", "lead", "opportunity", "salesperson", "target", "commission",
+      "pipeline", "task", "transfer", "report",
+      "ventas", "oportunidad", "vendedor", "objetivo", "comision", "tarea",
+      "commercial", "vente", "prospect", "objectif", "commission", "tache",
     ],
   },
   {
     gatilhos: [
-      "dinheiro",
-      "financeiro",
-      "financas",
-      "pagamento",
-      "pagamentos",
-      "mensalidade",
-      "mensalidades",
-      "cobranca",
-      "cobrancas",
-      "receita",
-      "despesa",
-      "caixa",
+      "dinheiro", "financeiro", "financas", "pagamento", "mensalidade",
+      "cobranca", "receita", "despesa", "caixa",
+      "money", "finance", "payment", "tuition", "billing", "revenue",
+      "expense", "cash",
+      "dinero", "finanzas", "pago", "cobro", "ingreso", "gasto", "caja",
+      "argent", "finance", "paiement", "facturation", "recette", "depense",
+      "caisse",
     ],
     relacionados: [
-      "financeiro",
-      "pagamento",
-      "mensalidade",
-      "cobranca",
-      "receita",
-      "despesa",
-      "contrato",
-      "boleto",
-      "caixa",
-      "inadimplencia",
+      "financeiro", "pagamento", "mensalidade", "cobranca", "receita",
+      "despesa", "contrato", "boleto", "caixa", "inadimplencia",
+      "finance", "payment", "billing", "revenue", "expense", "contract",
+      "cash", "past due",
+      "finanzas", "pago", "cobro", "ingreso", "gasto", "contrato", "caja",
+      "finance", "paiement", "facturation", "recette", "depense", "contrat",
+      "caisse",
     ],
   },
   {
     gatilhos: [
-      "cracha",
-      "crachas",
-      "cartao",
-      "identificacao",
-      "credencial",
+      "cracha", "crachas", "cartao", "identificacao", "credencial",
+      "id card", "badge", "credential",
+      "credencial", "tarjeta",
+      "badge", "carte",
     ],
     relacionados: [
-      "cracha",
-      "modelo",
-      "emitir",
-      "emissao",
-      "identificacao",
+      "cracha", "modelo", "emitir", "emissao", "identificacao",
+      "id card", "template", "issue", "badge",
+      "credencial", "plantilla", "emitir",
+      "badge", "modele", "emettre",
     ],
   },
   {
     gatilhos: [
-      "visitante",
-      "visitantes",
-      "visita",
-      "portaria",
-      "entrada",
-      "saida",
-      "acesso",
+      "visitante", "visitantes", "visita", "portaria", "entrada", "saida",
+      "visitor", "visitors", "entry", "exit", "access",
+      "visitante", "entrada", "salida", "acceso",
+      "visiteur", "visiteurs", "entree", "sortie", "acces",
     ],
     relacionados: [
-      "visitante",
-      "entrada",
-      "saida",
-      "acesso",
-      "bloquear",
-      "arquivar",
-      "portaria",
+      "visitante", "entrada", "saida", "acesso", "bloquear", "arquivar",
+      "visitor", "entry", "exit", "access", "block", "archive",
+      "visitante", "entrada", "salida", "acceso", "bloquear", "archivar",
+      "visiteur", "entree", "sortie", "acces", "bloquer", "archiver",
     ],
   },
   {
     gatilhos: [
-      "certificado",
-      "certificados",
-      "diploma",
-      "conclusao",
-      "formatura",
+      "documento", "documentos", "arquivo", "certificado", "certificados",
+      "document", "documents", "file", "certificate", "certificates",
+      "documento", "archivo", "certificado",
+      "document", "fichier", "certificat",
     ],
     relacionados: [
-      "certificado",
-      "modelo",
-      "emitir",
-      "emissao",
-      "conclusao",
+      "documento", "arquivo", "pdf", "contrato", "modelo", "certificado",
+      "document", "file", "contract", "template", "certificate",
+      "documento", "archivo", "contrato", "plantilla", "certificado",
+      "document", "fichier", "contrat", "modele", "certificat",
     ],
   },
   {
     gatilhos: [
-      "documento",
-      "documentos",
-      "arquivo",
-      "arquivos",
-      "pdf",
-      "contrato",
+      "mensagem", "comunicacao", "aviso", "whatsapp", "email", "notificacao",
+      "message", "communication", "notice", "notification",
+      "mensaje", "comunicacion", "aviso", "notificacion",
+      "message", "communication", "avis", "notification",
     ],
     relacionados: [
-      "documento",
-      "arquivo",
-      "pdf",
-      "contrato",
-      "modelo",
-      "editor",
+      "mensagem", "comunicacao", "aviso", "whatsapp", "email", "notificacao",
+      "publicacao", "reuniao",
+      "message", "communication", "notice", "notification", "publication",
+      "meeting",
+      "mensaje", "comunicacion", "aviso", "notificacion", "reunion",
+      "message", "communication", "avis", "notification", "reunion",
     ],
   },
   {
     gatilhos: [
-      "mensagem",
-      "mensagens",
-      "comunicacao",
-      "aviso",
-      "avisos",
-      "whatsapp",
-      "email",
-      "notificacao",
+      "ver", "visualizar", "consultar", "acessar", "listar",
+      "view", "see", "access", "list",
+      "ver", "consultar", "acceder", "listar",
+      "voir", "consulter", "acceder", "lister",
     ],
     relacionados: [
-      "mensagem",
-      "comunicacao",
-      "aviso",
-      "whatsapp",
-      "email",
-      "notificacao",
-      "publicacao",
+      "ver", "visualizar", "consultar", "acessar", "listar",
+      "view", "access", "list",
+      "ver", "acceder", "listar",
+      "voir", "acceder", "lister",
     ],
   },
   {
     gatilhos: [
-      "configuracao",
-      "configuracoes",
-      "ajuste",
-      "ajustes",
-      "instituicao",
-      "sistema",
+      "criar", "cadastrar", "adicionar", "incluir", "novo", "registrar",
+      "create", "add", "register", "new",
+      "crear", "registrar", "anadir", "nuevo",
+      "creer", "ajouter", "enregistrer", "nouveau",
     ],
     relacionados: [
-      "configuracao",
-      "instituicao",
-      "integracao",
-      "sistema",
-      "personalizacao",
+      "criar", "cadastrar", "adicionar", "incluir", "registrar",
+      "create", "add", "register",
+      "crear", "registrar", "anadir",
+      "creer", "ajouter", "enregistrer",
     ],
   },
   {
     gatilhos: [
-      "assinatura",
-      "plano",
-      "planos",
-      "phanyx",
-      "cancelar assinatura",
+      "editar", "alterar", "atualizar", "modificar", "corrigir",
+      "edit", "update", "modify",
+      "editar", "actualizar", "modificar",
+      "modifier", "mettre a jour", "corriger",
     ],
     relacionados: [
-      "assinatura",
-      "plano",
-      "cancelar",
-      "phanyx",
-      "pagamento",
+      "editar", "alterar", "atualizar", "modificar", "corrigir",
+      "edit", "update", "modify",
+      "editar", "actualizar", "modificar",
+      "modifier", "corriger",
     ],
   },
   {
     gatilhos: [
-      "painel",
-      "inicio",
-      "dashboard",
-      "pagina inicial",
-      "resumo",
-    ],
-    relacionados: ["dashboard", "painel", "inicio", "resumo", "geral"],
-  },
-  {
-    gatilhos: ["ver", "visualizar", "consultar", "acessar", "abrir", "listar"],
-    relacionados: ["ver", "visualizar", "consultar", "acessar", "listar"],
-  },
-  {
-    gatilhos: ["criar", "cadastrar", "adicionar", "incluir", "novo", "registrar"],
-    relacionados: ["criar", "cadastrar", "adicionar", "incluir", "registrar"],
-  },
-  {
-    gatilhos: ["editar", "alterar", "atualizar", "modificar", "corrigir"],
-    relacionados: ["editar", "alterar", "atualizar", "modificar", "corrigir"],
-  },
-  {
-    gatilhos: ["excluir", "apagar", "remover", "deletar", "eliminar"],
-    relacionados: ["excluir", "apagar", "remover", "deletar"],
-  },
-  {
-    gatilhos: ["gerenciar", "administrar", "controlar", "gestao"],
-    relacionados: ["gerenciar", "administrar", "controlar", "gestao"],
-  },
-  {
-    gatilhos: ["emitir", "gerar", "imprimir", "expedir"],
-    relacionados: ["emitir", "gerar", "imprimir", "emissao"],
-  },
-  {
-    gatilhos: [
-      "relatorio",
-      "relatorios",
-      "planilha",
-      "excel",
-      "exportar",
-      "imprimir",
+      "excluir", "apagar", "remover", "deletar",
+      "delete", "remove",
+      "eliminar", "borrar",
+      "supprimer", "retirer",
     ],
     relacionados: [
-      "relatorio",
-      "excel",
-      "exportar",
-      "imprimir",
-      "pdf",
-      "planilha",
+      "excluir", "apagar", "remover", "deletar",
+      "delete", "remove",
+      "eliminar", "borrar",
+      "supprimer", "retirer",
     ],
   },
   {
     gatilhos: [
-      "nota",
-      "notas",
-      "boletim",
-      "prova",
-      "provas",
-      "avaliacao",
-      "avaliacoes",
+      "relatorio", "relatorios", "planilha", "excel", "exportar",
+      "report", "reports", "spreadsheet", "export",
+      "informe", "informes", "hoja", "exportar",
+      "rapport", "rapports", "tableur", "exporter",
     ],
     relacionados: [
-      "nota",
-      "boletim",
-      "prova",
-      "avaliacao",
-      "tentativa",
-      "resultado",
-    ],
-  },
-  {
-    gatilhos: [
-      "presenca",
-      "presencas",
-      "falta",
-      "faltas",
-      "frequencia",
-      "chamada",
-    ],
-    relacionados: [
-      "presenca",
-      "falta",
-      "frequencia",
-      "chamada",
-      "aula",
+      "relatorio", "excel", "exportar", "imprimir", "pdf", "planilha",
+      "report", "export", "print", "spreadsheet",
+      "informe", "exportar", "imprimir",
+      "rapport", "exporter", "imprimer",
     ],
   },
 ];
@@ -409,6 +260,7 @@ function normalizarTexto(valor: string) {
   return valor
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/œ/g, "oe")
     .toLowerCase()
     .replace(/[._/\\-]+/g, " ")
     .replace(/[^a-z0-9\s]/g, " ")
@@ -427,21 +279,26 @@ function expandirBusca(valor: string) {
     .split(" ")
     .filter((palavra) => palavra.length >= 2);
 
-  const termos = new Set<string>([consulta, ...palavrasDigitadas]);
+  const termos = new Set<string>([
+    consulta,
+    ...palavrasDigitadas,
+  ]);
 
   CONTEXTOS_BUSCA.forEach((contexto) => {
-    const contextoEncontrado = contexto.gatilhos.some((gatilho) => {
-      const gatilhoNormalizado = normalizarTexto(gatilho);
+    const contextoEncontrado =
+      contexto.gatilhos.some((gatilho) => {
+        const gatilhoNormalizado =
+          normalizarTexto(gatilho);
 
-      return (
-        consulta.includes(gatilhoNormalizado) ||
-        palavrasDigitadas.some(
-          (palavra) =>
-            gatilhoNormalizado.includes(palavra) ||
-            palavra.includes(gatilhoNormalizado)
-        )
-      );
-    });
+        return (
+          consulta.includes(gatilhoNormalizado) ||
+          palavrasDigitadas.some(
+            (palavra) =>
+              gatilhoNormalizado.includes(palavra) ||
+              palavra.includes(gatilhoNormalizado)
+          )
+        );
+      });
 
     if (contextoEncontrado) {
       contexto.gatilhos.forEach((termo) =>
@@ -459,7 +316,8 @@ function expandirBusca(valor: string) {
 
 function pontuarPermissao(
   permissao: PermissaoPhanyx,
-  valorBusca: string
+  valorBusca: string,
+  nomeExibicao: string
 ) {
   const consulta = normalizarTexto(valorBusca);
 
@@ -467,14 +325,27 @@ function pontuarPermissao(
     return 1;
   }
 
-  const nome = normalizarTexto(permissao.nome);
-  const chave = normalizarTexto(permissao.chave);
-  const textoCompleto = `${nome} ${chave}`;
-  const termosExpandidos = expandirBusca(valorBusca);
+  const nomeTraduzido =
+    normalizarTexto(nomeExibicao);
+
+  const nomeOriginal =
+    normalizarTexto(permissao.nome);
+
+  const chave =
+    normalizarTexto(permissao.chave);
+
+  const textoCompleto =
+    `${nomeTraduzido} ${nomeOriginal} ${chave}`;
+
+  const termosExpandidos =
+    expandirBusca(valorBusca);
 
   let pontuacao = 0;
 
-  if (nome === consulta) {
+  if (
+    nomeTraduzido === consulta ||
+    nomeOriginal === consulta
+  ) {
     pontuacao += 200;
   }
 
@@ -482,7 +353,10 @@ function pontuarPermissao(
     pontuacao += 190;
   }
 
-  if (nome.includes(consulta)) {
+  if (
+    nomeTraduzido.includes(consulta) ||
+    nomeOriginal.includes(consulta)
+  ) {
     pontuacao += 120;
   }
 
@@ -491,9 +365,14 @@ function pontuarPermissao(
   }
 
   termosExpandidos.forEach((termo) => {
-    if (!termo) return;
+    if (!termo) {
+      return;
+    }
 
-    if (nome.includes(termo)) {
+    if (
+      nomeTraduzido.includes(termo) ||
+      nomeOriginal.includes(termo)
+    ) {
       pontuacao += 20;
     }
 
@@ -509,57 +388,168 @@ function pontuarPermissao(
   return pontuacao;
 }
 
+function chaveTraducaoPermissao(
+  chave: string
+) {
+  return chave.replaceAll(".", "__");
+}
+
 export default function FuncionarioPermissoesPage({
   params,
 }: {
-  params: { id: string };
+  params: {
+    id: string;
+  };
 }) {
   const funcionarioId = params.id;
 
-  const [selecionadas, setSelecionadas] = useState<string[]>([]);
-  const [herdadasDepartamento, setHerdadasDepartamento] = useState<string[]>(
-    []
-  );
-  const [funcionarioNome, setFuncionarioNome] = useState("");
-  const [funcionarioCargo, setFuncionarioCargo] = useState("");
-  const [departamentoNome, setDepartamentoNome] = useState("");
+  const locale = useLocale();
+  const tBase =
+    useTranslations(
+      "AdminFuncionariosPermissoes"
+    );
 
-  const [carregando, setCarregando] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-  const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState("");
+  const t = tBase as any;
 
-  const [busca, setBusca] = useState("");
+  const [
+    selecionadas,
+    setSelecionadas,
+  ] = useState<string[]>([]);
 
-  const permissoesFiltradas = useMemo(() => {
-    const consulta = busca.trim();
+  const [
+    herdadasDepartamento,
+    setHerdadasDepartamento,
+  ] = useState<string[]>([]);
 
-    if (!consulta) {
-      return PERMISSOES_PHANYX;
+  const [
+    funcionarioNome,
+    setFuncionarioNome,
+  ] = useState("");
+
+  const [
+    funcionarioCargo,
+    setFuncionarioCargo,
+  ] = useState("");
+
+  const [
+    departamentoNome,
+    setDepartamentoNome,
+  ] = useState("");
+
+  const [
+    carregando,
+    setCarregando,
+  ] = useState(true);
+
+  const [
+    salvando,
+    setSalvando,
+  ] = useState(false);
+
+  const [
+    mensagem,
+    setMensagem,
+  ] = useState("");
+
+  const [
+    erro,
+    setErro,
+  ] = useState("");
+
+  const [
+    busca,
+    setBusca,
+  ] = useState("");
+
+  function nomePermissao(
+    permissao: PermissaoPhanyx
+  ) {
+    const chave =
+      chaveTraducaoPermissao(
+        permissao.chave
+      );
+
+    try {
+      return t(
+        `permissionNames.${chave}`
+      ) as string;
+    } catch {
+      /*
+       * Permissões novas continuam funcionais mesmo antes
+       * de receberem tradução nos cinco idiomas.
+       */
+      return permissao.nome;
     }
+  }
 
-    return PERMISSOES_PHANYX.map((permissao) => ({
-      permissao,
-      pontuacao: pontuarPermissao(permissao, consulta),
-    }))
-      .filter((resultado) => resultado.pontuacao > 0)
-      .sort((a, b) => {
-        if (b.pontuacao !== a.pontuacao) {
-          return b.pontuacao - a.pontuacao;
-        }
+  const permissoesFiltradas =
+    useMemo(() => {
+      const consulta =
+        busca.trim();
 
-        return a.permissao.nome.localeCompare(b.permissao.nome, "pt-BR");
-      })
-      .map((resultado) => resultado.permissao);
-  }, [busca]);
+      if (!consulta) {
+        return PERMISSOES_PHANYX;
+      }
 
-  const sugestoesBusca = useMemo(() => {
-    if (!busca.trim()) {
-      return [];
-    }
+      return PERMISSOES_PHANYX
+        .map((permissao) => ({
+          permissao,
+          nome:
+            nomePermissao(
+              permissao
+            ),
+          pontuacao:
+            pontuarPermissao(
+              permissao,
+              consulta,
+              nomePermissao(
+                permissao
+              )
+            ),
+        }))
+        .filter(
+          (resultado) =>
+            resultado.pontuacao > 0
+        )
+        .sort((a, b) => {
+          if (
+            b.pontuacao !==
+            a.pontuacao
+          ) {
+            return (
+              b.pontuacao -
+              a.pontuacao
+            );
+          }
 
-    return permissoesFiltradas.slice(0, 6);
-  }, [busca, permissoesFiltradas]);
+          return a.nome.localeCompare(
+            b.nome,
+            locale
+          );
+        })
+        .map(
+          (resultado) =>
+            resultado.permissao
+        );
+    }, [
+      busca,
+      locale,
+    ]);
+
+  const sugestoesBusca =
+    useMemo(() => {
+      if (!busca.trim()) {
+        return [];
+      }
+
+      return permissoesFiltradas.slice(
+        0,
+        6
+      );
+    }, [
+      busca,
+      permissoesFiltradas,
+    ]);
 
   async function carregarPermissoes() {
     try {
@@ -575,44 +565,87 @@ export default function FuncionarioPermissoesPage({
         }
       );
 
-      const data: FuncionarioPermissoesPayload & { error?: string } =
-        await res.json();
+      const data:
+        FuncionarioPermissoesPayload & {
+          error?: string;
+        } = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar permissões.");
+        throw new Error(
+          data?.error ||
+            t("loadError")
+        );
       }
 
-      setFuncionarioNome(data?.funcionario?.nome || "");
-      setFuncionarioCargo(data?.funcionario?.cargo || "");
-      setDepartamentoNome(data?.funcionario?.departamento?.nome || "");
+      setFuncionarioNome(
+        data?.funcionario?.nome ||
+          ""
+      );
+
+      setFuncionarioCargo(
+        data?.funcionario?.cargo ||
+          ""
+      );
+
+      setDepartamentoNome(
+        data?.funcionario
+          ?.departamento?.nome ||
+          ""
+      );
 
       setSelecionadas(
-        Array.isArray(data?.permissoesIndividuais)
-          ? data.permissoesIndividuais
-            .filter((p) => p.ativo)
-            .map((p) => p.chave)
+        Array.isArray(
+          data?.permissoesIndividuais
+        )
+          ? data
+              .permissoesIndividuais
+              .filter(
+                (p) => p.ativo
+              )
+              .map(
+                (p) => p.chave
+              )
           : []
       );
 
       setHerdadasDepartamento(
-        Array.isArray(data?.permissoesDepartamento)
-          ? data.permissoesDepartamento
-            .filter((p) => p.ativo)
-            .map((p) => p.chave)
+        Array.isArray(
+          data?.permissoesDepartamento
+        )
+          ? data
+              .permissoesDepartamento
+              .filter(
+                (p) => p.ativo
+              )
+              .map(
+                (p) => p.chave
+              )
           : []
       );
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar permissões.");
+      setErro(
+        error?.message ||
+          t("loadError")
+      );
     } finally {
       setCarregando(false);
     }
   }
 
-  function alternar(chave: string) {
-    setSelecionadas((atuais) =>
-      atuais.includes(chave)
-        ? atuais.filter((item) => item !== chave)
-        : [...atuais, chave]
+  function alternar(
+    chave: string
+  ) {
+    setSelecionadas(
+      (atuais) =>
+        atuais.includes(chave)
+          ? atuais.filter(
+              (item) =>
+                item !== chave
+            )
+          : [
+              ...atuais,
+              chave,
+            ]
     );
   }
 
@@ -626,21 +659,35 @@ export default function FuncionarioPermissoesPage({
         `/api/admin/funcionarios/${funcionarioId}/permissoes`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
           credentials: "include",
-          body: JSON.stringify({ chaves: selecionadas }),
+          body: JSON.stringify({
+            chaves: selecionadas,
+          }),
         }
       );
 
-      const data = await res.json();
+      const data =
+        await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao salvar permissões.");
+        throw new Error(
+          data?.error ||
+            t("saveError")
+        );
       }
 
-      setMensagem("Permissões individuais salvas com sucesso.");
+      setMensagem(
+        t("saveSuccess")
+      );
     } catch (error: any) {
-      setErro(error?.message || "Erro ao salvar permissões.");
+      setErro(
+        error?.message ||
+          t("saveError")
+      );
     } finally {
       setSalvando(false);
     }
@@ -657,50 +704,61 @@ export default function FuncionarioPermissoesPage({
           href="/admin/funcionarios"
           className="mb-4 inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:border-slate-600 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
         >
-          ← Voltar para Funcionários
+          {t("back")}
         </Link>
 
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          🔐 Permissões individuais do funcionário
+          {t("title")}
         </h1>
 
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Libere permissões extras somente para este funcionário, sem alterar as
-          permissões do departamento.
+          {t("subtitle")}
         </p>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         {carregando ? (
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Carregando dados do funcionário...
+            {t(
+              "loadingEmployee"
+            )}
           </p>
         ) : (
           <div className="grid gap-3 md:grid-cols-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Funcionário
+                {t("employee")}
               </p>
+
               <p className="mt-1 font-semibold text-slate-900 dark:text-white">
-                {funcionarioNome || "-"}
+                {funcionarioNome ||
+                  "-"}
               </p>
             </div>
 
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Cargo
+                {t("position")}
               </p>
+
               <p className="mt-1 text-slate-700 dark:text-slate-200">
-                {funcionarioCargo || "-"}
+                {funcionarioCargo ||
+                  "-"}
               </p>
             </div>
 
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Departamento
+                {t(
+                  "department"
+                )}
               </p>
+
               <p className="mt-1 text-slate-700 dark:text-slate-200">
-                {departamentoNome || "Sem departamento"}
+                {departamentoNome ||
+                  t(
+                    "noDepartment"
+                  )}
               </p>
             </div>
           </div>
@@ -708,22 +766,33 @@ export default function FuncionarioPermissoesPage({
       </div>
 
       {mensagem && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-medium text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
+        <div
+          role="status"
+          className="rounded-2xl border border-emerald-400/50 bg-emerald-500/10 p-4 text-sm font-medium"
+        >
           {mensagem}
         </div>
       )}
 
       {erro && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
+        <div
+          role="alert"
+          className="rounded-2xl border border-red-400/50 bg-red-500/10 p-4 text-sm font-medium"
+        >
           {erro}
         </div>
       )}
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="phanyx-permissoes-funcionario-aviso mb-5 rounded-2xl border p-4 text-sm">
-          <strong>Como funciona:</strong> as permissões herdadas do departamento
-          continuam valendo. Aqui você marca apenas permissões extras para este
-          funcionário.
+          <strong>
+            {t(
+              "howWorksTitle"
+            )}
+          </strong>{" "}
+          {t(
+            "howWorksText"
+          )}
         </div>
 
         <div className="mb-6">
@@ -731,7 +800,7 @@ export default function FuncionarioPermissoesPage({
             htmlFor="busca-permissoes-funcionario"
             className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-100"
           >
-            🔎 Busca inteligente de permissões
+            {t("searchLabel")}
           </label>
 
           <div className="relative">
@@ -739,8 +808,17 @@ export default function FuncionarioPermissoesPage({
               id="busca-permissoes-funcionario"
               type="search"
               value={busca}
-              onChange={(event) => setBusca(event.target.value)}
-              placeholder="Ex.: editar alunos, vendedor, comissão, dinheiro, ponto, crachá..."
+              onChange={(
+                event
+              ) =>
+                setBusca(
+                  event.target
+                    .value
+                )
+              }
+              placeholder={t(
+                "searchPlaceholder"
+              )}
               autoComplete="off"
               className="phanyx-busca-permissoes-input w-full rounded-2xl border px-5 py-4 pr-24 text-sm outline-none transition"
             />
@@ -748,132 +826,200 @@ export default function FuncionarioPermissoesPage({
             {busca && (
               <button
                 type="button"
-                onClick={() => setBusca("")}
+                onClick={() =>
+                  setBusca("")
+                }
                 className="phanyx-busca-permissoes-limpar absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition"
               >
-                Limpar
+                {t("clear")}
               </button>
             )}
           </div>
 
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Digite com suas próprias palavras. O PHANYX procurará permissões
-              diretas e relacionadas.
+              {t(
+                "searchHelp"
+              )}
             </p>
 
             {busca.trim() && (
               <span className="phanyx-busca-permissoes-contador rounded-full border px-3 py-1 text-xs font-semibold">
-                {permissoesFiltradas.length}{" "}
-                {permissoesFiltradas.length === 1
-                  ? "permissão encontrada"
-                  : "permissões encontradas"}
+                {t(
+                  "resultCount",
+                  {
+                    count:
+                      permissoesFiltradas.length,
+                  }
+                )}
               </span>
             )}
           </div>
 
-          {sugestoesBusca.length > 0 && (
+          {sugestoesBusca.length >
+            0 && (
             <div
               data-permissoes-sugestoes="true"
               className="phanyx-busca-permissoes-sugestoes mt-4 rounded-2xl border p-4"
             >
               <p className="phanyx-busca-permissoes-titulo-sugestoes mb-3 text-xs font-bold uppercase tracking-wide">
-                Sugestões mais próximas
+                {t(
+                  "suggestions"
+                )}
               </p>
 
               <div className="flex flex-wrap gap-2">
-                {sugestoesBusca.map((sugestao) => (
-                  <button
-                    key={`sugestao-${sugestao.chave}`}
-                    type="button"
-                    data-permissao-sugestao="true"
-                    onClick={() => setBusca(sugestao.nome)}
-                    className="phanyx-busca-permissoes-chip rounded-full border px-3 py-2 text-xs font-semibold transition"
-                  >
-                    {sugestao.nome}
-                  </button>
-                ))}
+                {sugestoesBusca.map(
+                  (
+                    sugestao
+                  ) => (
+                    <button
+                      key={`sugestao-${sugestao.chave}`}
+                      type="button"
+                      data-permissao-sugestao="true"
+                      onClick={() =>
+                        setBusca(
+                          nomePermissao(
+                            sugestao
+                          )
+                        )
+                      }
+                      className="phanyx-busca-permissoes-chip rounded-full border px-3 py-2 text-xs font-semibold transition"
+                    >
+                      {nomePermissao(
+                        sugestao
+                      )}
+                    </button>
+                  )
+                )}
               </div>
             </div>
           )}
         </div>
 
-        {permissoesFiltradas.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-950">
-            <div className="text-3xl">🔍</div>
+        {permissoesFiltradas.length ===
+        0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-400/50 bg-slate-500/5 p-8 text-center">
+            <div className="text-3xl">
+              🔍
+            </div>
 
-            <h3 className="mt-3 font-bold text-slate-900 dark:text-white">
-              Nenhuma permissão encontrada
+            <h3 className="mt-3 font-bold">
+              {t(
+                "emptyTitle"
+              )}
             </h3>
 
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Tente escrever de outra forma, como “alunos”, “comercial”,
-              “vendedor”, “financeiro”, “funcionários” ou “documentos”.
+            <p className="mt-1 text-sm opacity-75">
+              {t(
+                "emptyHelp"
+              )}
             </p>
 
             <button
               type="button"
-              onClick={() => setBusca("")}
+              onClick={() =>
+                setBusca("")
+              }
               className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              Mostrar todas as permissões
+              {t("showAll")}
             </button>
           </div>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
-            {permissoesFiltradas.map((permissao) => {
-              const marcadaIndividual = selecionadas.includes(permissao.chave);
-              const herdada = herdadasDepartamento.includes(permissao.chave);
+            {permissoesFiltradas.map(
+              (
+                permissao
+              ) => {
+                const marcadaIndividual =
+                  selecionadas.includes(
+                    permissao.chave
+                  );
 
-              return (
-                <button
-                  key={permissao.chave}
-                  type="button"
-                  onClick={() => alternar(permissao.chave)}
-                  className={`phanyx-permissao-funcionario-card ${marcadaIndividual
-                    ? "individual"
-                    : herdada
-                      ? "herdada"
-                      : "inativa"
+                const herdada =
+                  herdadasDepartamento.includes(
+                    permissao.chave
+                  );
+
+                return (
+                  <button
+                    key={
+                      permissao.chave
+                    }
+                    type="button"
+                    aria-pressed={
+                      marcadaIndividual
+                    }
+                    onClick={() =>
+                      alternar(
+                        permissao.chave
+                      )
+                    }
+                    className={`phanyx-permissao-funcionario-card ${
+                      marcadaIndividual
+                        ? "individual"
+                        : herdada
+                          ? "herdada"
+                          : "inativa"
                     }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-semibold">
-                        {marcadaIndividual ? "✅ " : herdada ? "🟢 " : "⬜ "}
-                        {permissao.nome}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="text-left">
+                        <div className="font-semibold">
+                          {marcadaIndividual
+                            ? "✅ "
+                            : herdada
+                              ? "🟢 "
+                              : "⬜ "}
+                          {nomePermissao(
+                            permissao
+                          )}
+                        </div>
+
+                        <div className="mt-1 text-xs opacity-80">
+                          {
+                            permissao.chave
+                          }
+                        </div>
                       </div>
 
-                      <div className="mt-1 text-xs opacity-80">
-                        {permissao.chave}
-                      </div>
+                      {herdada &&
+                        !marcadaIndividual && (
+                          <span className="phanyx-permissao-funcionario-badge herdada">
+                            {t(
+                              "inherited"
+                            )}
+                          </span>
+                        )}
+
+                      {marcadaIndividual && (
+                        <span className="phanyx-permissao-funcionario-badge individual">
+                          {t(
+                            "individual"
+                          )}
+                        </span>
+                      )}
                     </div>
-
-                    {herdada && !marcadaIndividual && (
-                      <span className="phanyx-permissao-funcionario-badge herdada">
-                        Herdada
-                      </span>
-                    )}
-
-                    {marcadaIndividual && (
-                      <span className="phanyx-permissao-funcionario-badge individual">
-                        Individual
-                      </span>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              }
+            )}
           </div>
         )}
 
         <button
           type="button"
           onClick={salvar}
-          disabled={salvando || carregando}
+          disabled={
+            salvando ||
+            carregando
+          }
           className="mt-6 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {salvando ? "Salvando..." : "Salvar permissões individuais"}
+          {salvando
+            ? t("saving")
+            : t("save")}
         </button>
       </div>
     </div>
