@@ -1,5 +1,7 @@
 "use client";
 
+import CursoTurmaTransferencia from "./CursoTurmaTransferencia";
+
 import React, {
   useEffect,
   useMemo,
@@ -1562,6 +1564,21 @@ function DestinoTransferenciaPage() {
           </div>
         </section>
       </div>
+    );
+  }
+
+  /* COURSE_CLASS_TRANSFER_PAGE */
+  if (
+    tipo === "CURSO_TURMA" &&
+    matricula &&
+    !transferenciaPendente
+  ) {
+    return (
+      <CursoTurmaTransferencia
+        matriculaId={
+          matriculaId
+        }
+      />
     );
   }
 

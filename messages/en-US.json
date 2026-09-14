@@ -15143,6 +15143,40 @@
         "startNew": "Start new transfer",
         "notice": "A new transfer will be recorded separately and will not replace the existing academic history."
       }
+    },
+    "courseClassTransfer": {
+      "loading": "Loading transfer options...",
+      "back": "Back to transfer options",
+      "title": "Another course or class",
+      "description": "Change only the class or transfer the enrollment to another course available at the current campus.",
+      "currentEnrollment": "Current enrollment",
+      "student": "Student",
+      "currentCampus": "Current campus",
+      "currentCourse": "Current course",
+      "currentClass": "Current class",
+      "whatChange": "What would you like to change?",
+      "whatChangeHelp": "PHANYX displays only academically eligible options for this enrollment.",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "subjectCount": "{count} courses",
+      "unnamedTerm": "Unnamed term",
+      "classOnly": {
+        "title": "Class only",
+        "description": "Keeps the current course and campus and changes only the student's class.",
+        "emptyTitle": "No other class available",
+        "emptyDescription": "There is no other active class for this course at the current campus."
+      },
+      "courseAndClass": {
+        "title": "Course and class",
+        "description": "Transfers the enrollment to another course offered at the same campus, with curriculum review before confirmation.",
+        "emptyTitle": "No other course available",
+        "emptyDescription": "There is no other active course offered at this campus for this enrollment."
+      },
+      "otherCampusNotice": "To move the student to a class at another campus, use the “Another campus” option.",
+      "eligibilityNotice": "Inactive, deleted, or unavailable courses at the current campus are not shown as destinations.",
+      "errors": {
+        "load": "Unable to load course and class transfer options."
+      }
     }
   },
   "AdminHistoricoTransferenciasMatricula": {

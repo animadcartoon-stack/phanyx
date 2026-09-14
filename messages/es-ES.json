@@ -15142,6 +15142,40 @@
         "startNew": "Iniciar nueva transferencia",
         "notice": "Una nueva transferencia se registrará por separado y no sustituirá el historial académico existente."
       }
+    },
+    "courseClassTransfer": {
+      "loading": "Cargando opciones de transferencia...",
+      "back": "Volver a las opciones de transferencia",
+      "title": "Otro curso o grupo",
+      "description": "Cambie solamente el grupo o transfiera la matrícula a otro curso disponible en la sede actual.",
+      "currentEnrollment": "Matrícula actual",
+      "student": "Alumno",
+      "currentCampus": "Sede actual",
+      "currentCourse": "Curso actual",
+      "currentClass": "Grupo actual",
+      "whatChange": "¿Qué desea cambiar?",
+      "whatChangeHelp": "PHANYX muestra solamente opciones académicamente elegibles para esta matrícula.",
+      "available": "Disponible",
+      "unavailable": "No disponible",
+      "subjectCount": "{count} asignaturas",
+      "unnamedTerm": "Período sin título",
+      "classOnly": {
+        "title": "Solo otro grupo",
+        "description": "Mantiene el curso y la sede actuales y cambia solamente el grupo del alumno.",
+        "emptyTitle": "No hay otro grupo disponible",
+        "emptyDescription": "No existe otro grupo activo de este curso en la sede actual."
+      },
+      "courseAndClass": {
+        "title": "Curso y grupo",
+        "description": "Transfiere la matrícula a otro curso ofrecido en la misma sede, con análisis curricular antes de confirmar.",
+        "emptyTitle": "No hay otro curso disponible",
+        "emptyDescription": "No existe otro curso activo y ofrecido en esta sede para esta matrícula."
+      },
+      "otherCampusNotice": "Para transferir al alumno a un grupo de otra sede, utilice la opción “Otra sede”.",
+      "eligibilityNotice": "Los cursos inactivos, eliminados o no ofrecidos en la sede actual no aparecen como destinos.",
+      "errors": {
+        "load": "No se pudieron cargar las opciones de curso y grupo."
+      }
     }
   },
   "AdminHistoricoTransferenciasMatricula": {

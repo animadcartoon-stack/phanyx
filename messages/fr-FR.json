@@ -15142,6 +15142,40 @@
         "startNew": "Démarrer un nouveau transfert",
         "notice": "Un nouveau transfert sera enregistré séparément et ne remplacera pas l'historique académique existant."
       }
+    },
+    "courseClassTransfer": {
+      "loading": "Chargement des options de transfert...",
+      "back": "Retour aux options de transfert",
+      "title": "Autre formation ou groupe",
+      "description": "Modifiez uniquement le groupe ou transférez l'inscription vers une autre formation disponible sur le campus actuel.",
+      "currentEnrollment": "Inscription actuelle",
+      "student": "Étudiant",
+      "currentCampus": "Campus actuel",
+      "currentCourse": "Formation actuelle",
+      "currentClass": "Groupe actuel",
+      "whatChange": "Que souhaitez-vous modifier ?",
+      "whatChangeHelp": "PHANYX affiche uniquement les options académiquement admissibles pour cette inscription.",
+      "available": "Disponible",
+      "unavailable": "Indisponible",
+      "subjectCount": "{count} matières",
+      "unnamedTerm": "Période sans titre",
+      "classOnly": {
+        "title": "Groupe uniquement",
+        "description": "Conserve la formation et le campus actuels et modifie uniquement le groupe de l'étudiant.",
+        "emptyTitle": "Aucun autre groupe disponible",
+        "emptyDescription": "Il n'existe aucun autre groupe actif pour cette formation sur le campus actuel."
+      },
+      "courseAndClass": {
+        "title": "Formation et groupe",
+        "description": "Transfère l'inscription vers une autre formation proposée sur le même campus, avec analyse du cursus avant confirmation.",
+        "emptyTitle": "Aucune autre formation disponible",
+        "emptyDescription": "Aucune autre formation active n'est proposée sur ce campus pour cette inscription."
+      },
+      "otherCampusNotice": "Pour transférer l'étudiant vers un groupe d'un autre campus, utilisez l'option « Autre campus ».",
+      "eligibilityNotice": "Les formations inactives, supprimées ou non proposées sur le campus actuel ne sont pas affichées comme destinations.",
+      "errors": {
+        "load": "Impossible de charger les options de formation et de groupe."
+      }
     }
   },
   "AdminHistoricoTransferenciasMatricula": {

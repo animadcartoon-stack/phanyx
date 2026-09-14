@@ -14928,6 +14928,40 @@
         "startNew": "Iniciar nova transferência",
         "notice": "Uma nova transferência será registada separadamente e não substituirá o histórico académico existente."
       }
+    },
+    "courseClassTransfer": {
+      "loading": "A carregar opções de transferência...",
+      "back": "Voltar às opções de transferência",
+      "title": "Outro curso ou turma",
+      "description": "Altere apenas a turma ou transfira a matrícula para outro curso disponível no polo atual.",
+      "currentEnrollment": "Matrícula atual",
+      "student": "Aluno",
+      "currentCampus": "Polo atual",
+      "currentCourse": "Curso atual",
+      "currentClass": "Turma atual",
+      "whatChange": "O que pretende alterar?",
+      "whatChangeHelp": "O PHANYX apresenta apenas opções academicamente elegíveis para esta matrícula.",
+      "available": "Disponível",
+      "unavailable": "Indisponível",
+      "subjectCount": "{count} disciplinas",
+      "unnamedTerm": "Período sem título",
+      "classOnly": {
+        "title": "Apenas outra turma",
+        "description": "Mantém o curso e o polo atuais e altera apenas a turma do aluno.",
+        "emptyTitle": "Nenhuma outra turma disponível",
+        "emptyDescription": "Não existe outra turma ativa deste curso no polo atual."
+      },
+      "courseAndClass": {
+        "title": "Curso e turma",
+        "description": "Transfere a matrícula para outro curso oferecido no mesmo polo, com análise curricular antes da confirmação.",
+        "emptyTitle": "Nenhum outro curso disponível",
+        "emptyDescription": "Não existe outro curso ativo e oferecido neste polo para esta matrícula."
+      },
+      "otherCampusNotice": "Para transferir o aluno para uma turma de outro polo, utilize a opção “Outro polo”.",
+      "eligibilityNotice": "Cursos inativos, excluídos ou não oferecidos no polo atual não são apresentados como destinos.",
+      "errors": {
+        "load": "Não foi possível carregar as opções de curso e turma."
+      }
     }
   },
   "AdminHistoricoTransferenciasMatricula": {
