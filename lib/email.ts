@@ -1,8 +1,50 @@
-import nodemailer from "nodemailer";
+import nodemailer, { type SendMailOptions } from "nodemailer";
 import {
   criarTransporterEmailInstituicao,
   montarRemetenteEmail,
 } from "@/lib/email-instituicao/transporter";
+
+async function enviarEmailInstitucionalComFallback(
+  instituicaoId: number,
+  opcoes: Omit<SendMailOptions, "from">
+) {
+  try {
+    const {
+      transporter,
+      remetente,
+    } = await criarTransporterEmailInstituicao(
+      instituicaoId
+    );
+
+    return await transporter.sendMail({
+      ...opcoes,
+      from: montarRemetenteEmail({
+        nome: remetente.nome,
+        email: remetente.email,
+      }),
+    });
+  } catch (erroInstitucional) {
+    console.warn(
+      "[EMAIL] SMTP institucional indisponivel. Usando SMTP padrao PHANYX.",
+      {
+        instituicaoId,
+        motivo:
+          erroInstitucional instanceof Error
+            ? erroInstitucional.message
+            : String(erroInstitucional),
+      }
+    );
+
+    const transporter =
+      criarTransporter();
+
+    return await transporter.sendMail({
+      ...opcoes,
+      from: process.env.EMAIL_FROM,
+    });
+  }
+}
+
 
 type EnviarEmailAssinaturaContratoInstitucionalParams = {
   instituicaoId: number;
@@ -21,22 +63,13 @@ export async function enviarEmailAssinaturaContratoInstitucional({
   titulo,
   linkAssinatura,
 }: EnviarEmailAssinaturaContratoInstitucionalParams) {
-  const {
-    transporter,
-    remetente,
-  } = await criarTransporterEmailInstituicao(
-    instituicaoId
-  );
-
   const logoUrl = getLogoUrl();
   const imagemFormixUrl = getImagemFormixUrl();
 
-  await transporter.sendMail({
-    from: montarRemetenteEmail({
-      nome: remetente.nome,
-      email: remetente.email,
-    }),
-    to: email,
+  await enviarEmailInstitucionalComFallback(
+    instituicaoId,
+    {
+      to: email,
     subject: `Documento para assinatura - ${instituicao}`,
     html: `
       <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
@@ -116,7 +149,8 @@ export async function enviarEmailAssinaturaContratoInstitucional({
         </table>
       </div>
     `,
-  });
+    }
+  );
 }
 
 type EnviarEmailPrimeiroAcessoInstitucionalParams = {
@@ -136,24 +170,15 @@ export async function enviarEmailPrimeiroAcessoInstitucional({
   instituicao,
   portal,
 }: EnviarEmailPrimeiroAcessoInstitucionalParams) {
-  const {
-    transporter,
-    remetente,
-  } = await criarTransporterEmailInstituicao(
-    instituicaoId
-  );
-
   const loginUrl = getLoginUrlPorPortal(portal);
   const logoUrl = getLogoUrl();
   const imagemFormixUrl = getImagemFormixUrl();
   const tituloPortal = getTituloPortal(portal);
 
-  await transporter.sendMail({
-    from: montarRemetenteEmail({
-      nome: remetente.nome,
-      email: remetente.email,
-    }),
-    to: email,
+  await enviarEmailInstitucionalComFallback(
+    instituicaoId,
+    {
+      to: email,
     subject: "🚀 Seu acesso ao PHANYX foi liberado",
     html: `
       <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
@@ -264,7 +289,8 @@ export async function enviarEmailPrimeiroAcessoInstitucional({
         </table>
       </div>
     `,
-  });
+    }
+  );
 }
 
 type EnviarEmailAcessoParams = {
