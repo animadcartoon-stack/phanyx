@@ -2521,8 +2521,8 @@ export async function POST(request: Request) {
       ).trim() !== "";
 
     const quantidadeMensalidadesBruta =
-      body.quantidadeParcelas ??
-      body.quantidadeMensalidades;
+      body.quantidadeMensalidades ??
+      body.quantidadeParcelas;
 
     const quantidadeMensalidadesFoiInformada =
       quantidadeMensalidadesBruta !==
