@@ -1778,6 +1778,9 @@ function AdminDocumentosTemplatesPage() {
     "{{valorDescontoBolsa}}",
     "{{valorMensalidadeComBolsa}}",
     "{{quantidadeMensalidades}}",
+    "{{valorTotalMensalidadesOriginal}}",
+    "{{valorTotalBeneficioBolsa}}",
+    "{{valorTotalMensalidadesComBolsa}}",
     "{{textoBolsaContrato}}",
     "{{cidadeAssinatura}}",
     "{{dataAtual}}",
@@ -2532,6 +2535,30 @@ function AdminDocumentosTemplatesPage() {
       ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
       categoria: "Contratos e Comprovantes",
       palavras: ["quantidade", "parcelas", "mensalidades", "installments"],
+    },
+
+    "{{valorTotalMensalidadesOriginal}}": {
+      titulo: "Valor-base total das mensalidades",
+      descricao: "Mostra o valor total das mensalidades antes da aplica\u00e7\u00e3o da bolsa.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["bolsa", "total", "mensalidades", "valor base"],
+    },
+
+    "{{valorTotalBeneficioBolsa}}": {
+      titulo: "Benef\u00edcio total da bolsa",
+      descricao: "Mostra o valor total estimado do benef\u00edcio concedido pela bolsa sobre as mensalidades.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["bolsa", "benef\u00edcio", "desconto", "total"],
+    },
+
+    "{{valorTotalMensalidadesComBolsa}}": {
+      titulo: "Total das mensalidades ap\u00f3s a bolsa",
+      descricao: "Mostra o valor total devido em mensalidades depois da aplica\u00e7\u00e3o da bolsa.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["bolsa", "total", "mensalidades", "valor final"],
     },
 
     "{{textoBolsaContrato}}": {

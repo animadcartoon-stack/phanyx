@@ -276,8 +276,17 @@ export function montarValoresPreviewDocumento(
     quantidadeMensalidades:
       "12",
 
+    valorTotalMensalidadesOriginal:
+      "R$ 12.000,00",
+
+    valorTotalBeneficioBolsa:
+      "R$ 2.400,00",
+
+    valorTotalMensalidadesComBolsa:
+      "R$ 9.600,00",
+
     textoBolsaContrato:
-      "Nesta matr\u00edcula, foi registrada bolsa de estudos de 20%, aplicada \u00e0s mensalidades, reduzindo o valor mensal de R$ 1.000,00 para R$ 800,00.",
+      "CL\u00c1USULA ESPEC\u00cdFICA \u2013 DA BOLSA DE ESTUDOS\n\nO(A) aluno(a) \u00e9 benefici\u00e1rio(a) de bolsa de estudos parcial de 20%, incidente exclusivamente sobre as mensalidades vinculadas \u00e0 presente matr\u00edcula.\n\nO valor original de cada mensalidade \u00e9 de R$ 1.000,00. O desconto mensal correspondente \u00e0 bolsa \u00e9 de R$ 200,00, resultando em mensalidade de R$ 800,00.\n\nA presente matr\u00edcula prev\u00ea 12 mensalidades, correspondentes ao valor-base total de R$ 12.000,00. O benef\u00edcio total estimado da bolsa \u00e9 de R$ 2.400,00, resultando em valor total devido em mensalidades de R$ 9.600,00.\n\nA bolsa de estudos incide exclusivamente sobre as mensalidades, n\u00e3o abrangendo taxa de matr\u00edcula, materiais, servi\u00e7os adicionais, taxas administrativas ou outros encargos, salvo previs\u00e3o expressa da CONTRATADA.\n\nA manuten\u00e7\u00e3o do benef\u00edcio fica condicionada ao cumprimento das regras estabelecidas pela CONTRATADA em sua Pol\u00edtica e/ou Termo de Concess\u00e3o de Bolsa, podendo compreender, quando aplic\u00e1veis, requisitos de desempenho acad\u00eamico, frequ\u00eancia, manuten\u00e7\u00e3o regular do v\u00ednculo, cumprimento do regulamento institucional e das normas disciplinares, bem como outras condi\u00e7\u00f5es formalmente informadas ao benefici\u00e1rio.\n\nA eventual redu\u00e7\u00e3o, suspens\u00e3o ou encerramento da bolsa depender\u00e1 de an\u00e1lise e registro formal pela CONTRATADA, com comunica\u00e7\u00e3o ao aluno, \u00e0 aluna ou ao respons\u00e1vel, observadas as condi\u00e7\u00f5es da concess\u00e3o e a legisla\u00e7\u00e3o aplic\u00e1vel.\n\nA altera\u00e7\u00e3o do benef\u00edcio n\u00e3o modifica retroativamente as mensalidades que j\u00e1 tenham sido regularmente contempladas pela bolsa, ressalvadas as hip\u00f3teses previstas em lei ou em instrumento de concess\u00e3o validamente firmado.",
 
     codigoValidacao:
       "PHANYX-PREVIA-000001",
