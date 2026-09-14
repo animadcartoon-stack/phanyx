@@ -3296,7 +3296,7 @@ function AdminAlunosPage() {
                   >
                     {turma.nome}
                     {turma.disciplinaNome
-                      ? ` â€¢ ${turma.disciplinaNome}`
+                      ? ` • ${turma.disciplinaNome}`
                       : ""}
                   </option>
                 ))}
@@ -3414,7 +3414,7 @@ function AdminAlunosPage() {
                               )}
                             </div>
                           ) : (
-                            "â€”"
+                            "—"
                           )}
                         </td>
 
@@ -3990,7 +3990,7 @@ function AdminAlunosPage() {
                             }
                             className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
                           >
-                            ðŸ“„ Baixar contrato
+                            📄 Baixar contrato
                           </button>
 
                           {alunoSelecionado.statusAluno === "CANCELADO" ? (
@@ -4013,7 +4013,7 @@ function AdminAlunosPage() {
                                 }}
                                 className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
                               >
-                                âœï¸ {t("drawer.editRegistration")}
+                                ✏️ {t("drawer.editRegistration")}
                               </button>
                               <button
                                 onClick={() => cancelarAluno(alunoSelecionado.id)}
@@ -4477,7 +4477,7 @@ function AdminAlunosPage() {
                             })}
                           </span>
 
-                          <span>{matriculaExpandida ? "âŒƒ" : "âŒ„"}</span>
+                          <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
                         </button>
 
                         {matriculaExpandida && (
@@ -4829,7 +4829,7 @@ function AdminAlunosPage() {
             <div className="border-b border-amber-200 bg-amber-50 px-6 py-5 dark:border-amber-800 dark:bg-amber-950/40">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-amber-200 text-2xl dark:bg-amber-900">
-                  âš ï¸
+                  ⚠️
                 </div>
 
                 <div>
@@ -4876,7 +4876,7 @@ function AdminAlunosPage() {
                             className="flex items-center gap-2"
                           >
                             <span className="font-black text-red-600">
-                              â€¢
+                              •
                             </span>
 
                             {campo}
@@ -4971,7 +4971,7 @@ function AdminAlunosPage() {
             <div className="p-6">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-xl dark:bg-amber-950/50">
-                  ðŸ‘¤
+                  👤
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -5058,7 +5058,7 @@ function AdminAlunosPage() {
                   : "bg-red-100"
                   }`}
               >
-                {modalAvisoTipo === "sucesso" ? "âœ…" : "âš ï¸"}
+                {modalAvisoTipo === "sucesso" ? "✅" : "⚠️"}
               </div>
 
               <div className="flex-1">

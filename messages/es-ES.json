@@ -14927,9 +14927,9 @@
   "AdminMatriculasQuarentena": {
     "bolsaEstudos": "Beca de estudios (%)",
     "bolsaAjuda": "Indique un porcentaje de 0 a 100.",
-    "valorAposBolsa": "Importe mensual despu\u00e9s de la beca",
-    "bolsaIntegral": "Beca completa \u2014 100%",
-    "financeiroOpcionalAjuda": "Los datos financieros son opcionales. La matr\u00edcula puede guardarse sin generar mensualidades.",
+    "valorAposBolsa": "Importe mensual después de la beca",
+    "bolsaIntegral": "Beca completa — 100%",
+    "financeiroOpcionalAjuda": "Los datos financieros son opcionales. La matrícula puede guardarse sin generar mensualidades.",
     "tabs": {
       "matriculas": "Matrículas",
       "quarentena": "Cuarentena"
@@ -14998,6 +14998,198 @@
       "reasonRequired": "Indica un motivo de al menos 3 caracteres.",
       "success": "Matrícula cancelada correctamente.",
       "error": "No se pudo cancelar la matrícula."
+    }
+  },
+  "AdminTransferenciaMatricula": {
+    "title": "Transferencia de matrícula",
+    "subtitle": "Transfiera la matrícula preservando el historial académico y la trazabilidad de la operación.",
+    "back": "Volver a matrículas",
+    "loading": "Cargando matrícula...",
+    "enrollmentId": "Matrícula #{id}",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "origin": {
+      "title": "Matrícula de origen",
+      "student": "Alumno",
+      "enrollment": "Matrícula",
+      "institution": "Institución",
+      "campus": "Sede",
+      "course": "Curso",
+      "class": "Clase",
+      "period": "Período académico",
+      "modality": "Modalidad",
+      "courseSemester": "Semestre del curso",
+      "module": "Módulo"
+    },
+    "chooseType": {
+      "title": "Tipo de transferencia",
+      "description": "Elija a dónde o a quién se transferirá esta matrícula."
+    },
+    "types": {
+      "campus": {
+        "title": "Otra sede",
+        "description": "Transferir al mismo alumno a otra sede de la institución."
+      },
+      "courseClass": {
+        "title": "Otro curso o clase",
+        "description": "Transferir al alumno a otro curso, clase o período académico."
+      },
+      "phanyxInstitution": {
+        "title": "Otra institución PHANYX",
+        "description": "Transferir a otra institución autorizada dentro de PHANYX."
+      },
+      "externalInstitution": {
+        "title": "Institución o universidad externa",
+        "description": "Registrar una transferencia a una institución que no utiliza PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reasignar a otro alumno",
+        "description": "Corrección administrativa preservando el historial original."
+      }
+    },
+    "errors": {
+      "invalidEnrollment": "Identificador de matrícula inválido.",
+      "notFound": "No se pudo localizar esta matrícula.",
+      "load": "No se pudieron cargar los datos de la matrícula.",
+      "selectType": "Seleccione un tipo de transferencia."
+    },
+    "next": {
+      "title": "Destino de la transferencia",
+      "POLO": "En el siguiente paso se mostrarán las sedes disponibles y las clases compatibles.",
+      "CURSO_TURMA": "En el siguiente paso se mostrarán los cursos, períodos y clases disponibles.",
+      "INSTITUICAO_PHANYX": "En el siguiente paso se mostrarán las instituciones PHANYX autorizadas.",
+      "INSTITUICAO_EXTERNA": "En el siguiente paso se indicarán la institución de destino y los documentos.",
+      "REATRIBUICAO_ALUNO": "En el siguiente paso se buscará al alumno correcto y se registrará la auditoría."
+    },
+    "campusTransfer": {
+      "title": "Transferencia a otra sede",
+      "description": "Seleccione la sede de destino y, si existe, una clase compatible.",
+      "currentCampus": "Sede actual",
+      "destinationCampus": "Nueva sede",
+      "selectCampus": "Seleccione la sede de destino",
+      "course": "Curso",
+      "destinationClass": "Clase de destino",
+      "awaitingClass": "Sin clase por ahora — pendiente de asignación",
+      "classHelp": "La clase es opcional. La transferencia puede quedar pendiente de asignación.",
+      "transferDate": "Fecha de transferencia",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Indique el motivo de la transferencia",
+      "notes": "Observaciones",
+      "notesPlaceholder": "Información adicional",
+      "reviewButton": "Revisar transferencia",
+      "loading": "Cargando sedes...",
+      "noOtherCampuses": "No existe otra sede activa disponible.",
+      "errors": {
+        "loadDestinations": "No se pudieron cargar las sedes y clases disponibles.",
+        "selectCampus": "Seleccione la sede de destino.",
+        "date": "Indique la fecha de transferencia.",
+        "reason": "Indique el motivo de la transferencia.",
+        "confirm": "No se pudo completar la transferencia. No se conservaron cambios parciales."
+      },
+      "review": {
+        "title": "Revisión de la transferencia",
+        "origin": "Sede de origen",
+        "destination": "Sede de destino",
+        "course": "Curso",
+        "class": "Clase de destino",
+        "date": "Fecha",
+        "reason": "Motivo",
+        "edit": "Editar",
+        "confirm": "Confirmar transferencia",
+        "pending": "Revise los datos atentamente. Al confirmar, la transferencia quedará registrada en el historial académico.",
+        "confirming": "Transfiriendo...",
+        "confirmed": "Transferencia registrada",
+        "success": "Transferencia completada correctamente.",
+        "successPending": "Transferencia de sede registrada. Hay asignaturas pendientes de grupo o compatibilidad en el destino."
+      },
+      "pendingTransfer": {
+        "title": "Transferencia pendiente de grupo",
+        "description": "Esta matrícula ya tiene una transferencia en curso. Complete la asignación académica antes de iniciar otra transferencia.",
+        "status": "Transferencia pendiente",
+        "pendingSubjects": "asignaturas pendientes de asignación",
+        "origin": "Sede de origen",
+        "destination": "Sede de destino",
+        "course": "Curso",
+        "allocateTitle": "Asignar a un grupo",
+        "allocateHelp": "Seleccione un grupo en la sede de destino. PHANYX comprobará todas las asignaturas pendientes antes de modificar la matrícula.",
+        "class": "Grupo de destino",
+        "selectClass": "Seleccione el grupo de destino",
+        "noClasses": "Todavía no existe un grupo activo de este curso en la sede de destino.",
+        "allocate": "Asignar al grupo",
+        "allocating": "Comprobando y asignando...",
+        "allocated": "Asignación completada",
+        "success": "Transferencia completada. La matrícula fue asignada al grupo de destino.",
+        "back": "Volver a matrículas",
+        "missingSubjects": "Asignaturas que faltan en el grupo seleccionado:",
+        "errors": {
+          "allocate": "No se pudo completar la asignación. No se conservaron cambios parciales.",
+          "incompatible": "El grupo seleccionado no contiene todas las asignaturas necesarias para completar la transferencia."
+        }
+      },
+      "lastTransfer": {
+        "loading": "Cargando la última transferencia...",
+        "title": "Transferencia de matrícula",
+        "description": "Esta matrícula tiene una transferencia completada. Consulte el historial o inicie un nuevo movimiento.",
+        "back": "Volver a las opciones de transferencia",
+        "completed": "Última transferencia completada",
+        "statusCompleted": "Completada",
+        "originClass": "Grupo de origen",
+        "destinationClass": "Grupo de destino",
+        "migratedSubjects": "Asignaturas migradas",
+        "currentCampus": "Sede actual",
+        "reason": "Motivo",
+        "viewHistory": "Ver historial",
+        "startNew": "Iniciar nueva transferencia",
+        "notice": "Una nueva transferencia se registrará por separado y no sustituirá el historial académico existente."
+      }
+    }
+  },
+  "AdminHistoricoTransferenciasMatricula": {
+    "loading": "Cargando historial de transferencias...",
+    "title": "Historial de transferencias",
+    "description": "Consulte todos los movimientos de esta matrícula conservando el origen, el destino y los vínculos académicos.",
+    "actions": {
+      "back": "Volver a matrículas",
+      "newTransfer": "Nueva transferencia"
+    },
+    "summary": {
+      "student": "Alumno",
+      "currentCampus": "Sede actual",
+      "course": "Curso",
+      "currentClass": "Grupo actual"
+    },
+    "card": {
+      "transferNumber": "Transferencia #{number}",
+      "latest": "Más reciente",
+      "originClass": "Grupo de origen",
+      "destinationClass": "Grupo de destino",
+      "responsible": "Responsable",
+      "completedAt": "Completada el",
+      "reason": "Motivo",
+      "notes": "Observaciones",
+      "subjects": "Asignaturas transferidas",
+      "itemsCount": "{count} vínculos",
+      "migratedCount": "{count} migrados",
+      "cancellationReason": "Motivo de cancelación"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "completed": "Completada",
+      "cancelled": "Cancelada"
+    },
+    "type": {
+      "campus": "Transferencia de sede",
+      "courseClass": "Transferencia de curso o grupo",
+      "phanyxInstitution": "Transferencia a otra institución PHANYX",
+      "externalInstitution": "Transferencia a una institución externa",
+      "studentReassignment": "Reasignación a otro alumno"
+    },
+    "empty": {
+      "title": "No hay transferencias registradas",
+      "description": "Esta matrícula todavía no tiene movimientos de transferencia."
+    },
+    "errors": {
+      "load": "No se pudo cargar el historial de transferencias."
     }
   }
 }

@@ -1,0 +1,3323 @@
+
+========================================================================
+1. MODELOS PRINCIPAIS DA TRANSFERENCIA
+========================================================================
+
+### Matricula | linhas 1130-1220
+model Matricula {
+  id                                      Int             @id @default(autoincrement())
+  numeroMatriculaLegado                   String?
+  sistemaOrigem                           String?
+  importadaSistemaAntigo                  Boolean         @default(false)
+  alunoId                                 Int
+  numeroMatricula                         String?
+  modalidade                              String?
+  createdAt                               DateTime        @default(now())
+  instituicaoId                           Int
+  poloId                                  Int?
+  status                                  StatusMatricula @default(ATIVA)
+  updatedAt                               DateTime        @updatedAt
+  excluidaEm                              DateTime?
+  excluidaPorId                           Int?
+  motivoExclusao                          String?         @db.Text
+  canceladaEm                             DateTime?
+  canceladaPorId                          Int?
+  motivoCancelamento                      String?         @db.Text
+  cursoId                                 Int?
+  semestre                                Int?
+  dataPrimeiroVencimento                  DateTime?
+  quantidadeParcelas                      Int?
+  valorMatricula                          Decimal?        @db.Decimal(10, 2)
+  valorMensalidade                        Decimal?        @db.Decimal(10, 2)
+  bolsaPercentual                         Decimal         @default(0) @db.Decimal(5, 2)
+  primeiroVencimento                      DateTime?
+  quantidadeMensalidades                  Int?
+  vendedorResponsavelId                   Int?
+  vendedorResponsavelNomeSnapshot         String?
+  leadOrigemId                            Int?            @unique
+  origemComercial                         String?
+  campanhaComercial                       String?
+  atendidoComercialEm                     DateTime?
+  observacaoComercial                     String?         @db.Text
+  alunoMenorNoMomentoMatricula            Boolean         @default(false)
+  idadeNoMomentoMatricula                 Int?
+  responsavelIncompletoNoMomentoMatricula Boolean         @default(false)
+  confirmacaoMenorEm                      DateTime?
+  confirmacaoMenorPorUserId               Int?
+  confirmacaoMenorPorFuncionarioId        Int?
+  confirmacaoMenorPorNomeSnapshot         String?
+  textoConfirmacaoMenor                   String?         @db.Text
+
+  contratos               Contrato[]
+  documentos              DocumentoAluno[]
+  documentosGerados       DocumentoGerado[]
+  itens                   ItemMatricula[]
+  lancamentosFinanceiros  LancamentoFinanceiro[]
+  vendedorResponsavel     Funcionario?                     @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
+  leadOrigem              Lead?                            @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
+  participantesComerciais MatriculaParticipanteComercial[]
+  lancamentosComissaoRH   LancamentoComissaoRH[]
+  rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
+
+  rematriculaGeradora            RematriculaSemestral?   @relation("RematriculaMatriculaGerada")
+  cursoSemestreId                Int?
+  periodoMatriculaId             Int?
+  periodoLetivo                  String?
+  turmaPrincipalId               Int?
+  realizadaPeloAluno             Boolean                 @default(false)
+  confirmadaEm                   DateTime?
+  cursoSemestre                  CursoSemestre?          @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula               PeriodoMatricula?       @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                          Aluno                   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                          Curso?                  @relation(fields: [cursoId], references: [id])
+  instituicao                    Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                           Polo?                   @relation(fields: [poloId], references: [id])
+  turmaPrincipal                 Turma?                  @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorUser        User?                   @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario?            @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+  candidaturasMobilidade         MobilidadeCandidatura[]
+
+  @@unique([instituicaoId, numeroMatricula])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([cursoId])
+  @@index([cursoSemestreId])
+  @@index([periodoMatriculaId])
+  @@index([periodoLetivo])
+  @@index([poloId])
+  @@index([numeroMatricula])
+  @@index([numeroMatriculaLegado])
+  @@index([vendedorResponsavelId])
+  @@index([confirmacaoMenorPorUserId])
+  @@index([confirmacaoMenorPorFuncionarioId])
+  @@index([alunoMenorNoMomentoMatricula])
+  @@index([turmaPrincipalId])
+  @@index([instituicaoId, excluidaEm])
+  @@index([instituicaoId, canceladaEm])
+}
+
+### ItemMatricula | linhas 1222-1245
+model ItemMatricula {
+  id            Int                 @id @default(autoincrement())
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  instituicaoId Int
+  matriculaId   Int
+  turmaId       Int
+  disciplinaId  Int
+  tipoItem      TipoItemMatricula   @default(GRADE_PRINCIPAL)
+  status        StatusItemMatricula @default(A_CURSAR)
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula   @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  @@unique([matriculaId, turmaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([status])
+  @@index([tipoItem])
+}
+
+### Turma | linhas 1027-1080
+model Turma {
+  id                              Int                             @id @default(autoincrement())
+  nome                            String
+  semestre                        String
+  professorId                     Int?
+  instituicaoId                   Int
+  ativa                           Boolean                         @default(true)
+  codigo                          String?
+  createdAt                       DateTime                        @default(now())
+  periodoLetivo                   String?
+  turno                           String?
+  modalidade                      String?
+  predio                          String?
+  ala                             String?
+  andar                           String?
+  sala                            String?
+  updatedAt                       DateTime                        @updatedAt
+  capacidadeMaxima                Int?
+  capacidadeMinima                Int?
+  cursoId                         Int?
+  dataInicio                      DateTime?
+  dataFim                         DateTime?
+  statusTurma                     StatusTurma                     @default(AGUARDANDO)
+  atividades                      Atividade[]
+  aulas                           Aula[]
+  itensMatricula                  ItemMatricula[]
+  matriculasComoPrincipal         Matricula[]                     @relation("MatriculaTurmaPrincipal")
+  modulos                         Modulo[]
+  notas                           Nota[]
+  provas                          Prova[]
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
+  resultadosFinais                ResultadoFinal[]
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  disciplinas                     TurmaDisciplina[]
+  semestres                       TurmaSemestre[]
+  periodosMatriculaParticipantes  PeriodoMatriculaTurma[]
+  poloId                          Int?
+  polo                            Polo?                           @relation(fields: [poloId], references: [id])
+  reunioes                        Reuniao[]
+  substituicoesDocentes           SubstituicaoDocente[]
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
+
+  atividadesExternas AtividadeExternaTurma[]
+
+  @@unique([instituicaoId, nome, semestre, periodoLetivo])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([professorId])
+  @@index([statusTurma])
+  @@index([poloId])
+}
+
+### TurmaDisciplina | linhas 1082-1108
+model TurmaDisciplina {
+  id              Int            @id @default(autoincrement())
+  turmaId         Int
+  disciplinaId    Int
+  professorId     Int?
+  instituicaoId   Int
+  dataInicio      DateTime?
+  dataFim         DateTime?
+  status          String?
+  turmaSemestreId Int?
+  turmaSemestre   TurmaSemestre? @relation(fields: [turmaSemestreId], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  turma                     Turma                      @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina                Disciplina                 @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  professor                 Professor?                 @relation(fields: [professorId], references: [id])
+  instituicao               Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  horarios                  TurmaDisciplinaHorario[]
+  itensRematriculaSemestral RematriculaSemestralItem[]
+
+  @@unique([turmaId, disciplinaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([professorId])
+  @@index([instituicaoId])
+}
+
+### Aluno | linhas 637-726
+model Aluno {
+  id                           Int                         @id @default(autoincrement())
+  nome                         String
+  createdAt                    DateTime                    @default(now())
+  instituicaoId                Int
+  userId                       Int                         @unique
+  ativo                        Boolean                     @default(true)
+  matricula                    String?
+  updatedAt                    DateTime                    @updatedAt
+  bairro                       String?
+  cep                          String?
+  cidade                       String?
+  complemento                  String?
+  cpf                          String?
+  dataNascimento               DateTime?
+  documentoUrl                 String?
+  endereco                     String?
+  estado                       String?
+  numero                       String?
+  rg                           String?
+  slug                         String?
+  telefone                     String?
+  nacionalidade                String?
+  paisNascimento               String?
+  paisResidencia               String?
+  tipoDocumento                String?
+  numeroDocumento              String?
+  paisTelefone                 String?
+  tipoDocumentoResponsavel     String?
+  numeroDocumentoResponsavel   String?
+  paisTelefoneResponsavel      String?
+  cpfResponsavel               String?
+  emailResponsavel             String?
+  nomeResponsavel              String?
+  fotoPerfil                   String?
+  parentescoResponsavel        String?
+  telefoneResponsavel          String?
+  statusAluno                  StatusAluno                 @default(ATIVO)
+  descricaoNecessidadeEspecial String?
+  observacoesAcessibilidade    String?
+  possuiNecessidadeEspecial    Boolean                     @default(false)
+  genero                       String?
+  nomeSocial                   String?
+  poloId                       Int?
+  recebeMensagemAniversario    Boolean                     @default(true)
+  recebeWhatsappAniversario    Boolean                     @default(true)
+  instituicao                  Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                         Polo?                       @relation(fields: [poloId], references: [id])
+  user                         User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atestadosMedicos             AtestadoMedico[]
+  certificados                 Certificado[]
+  cobrancas                    Cobranca[]
+  contratos                    Contrato[]
+  documentos                   DocumentoAluno[]
+  DocumentoGerado              DocumentoGerado[]
+  entregas                     EntregaAtividade[]
+  lancamentosFinanceiros       LancamentoFinanceiro[]
+  matriculas                   Matricula[]
+  movimentosCaixa              MovimentoCaixa[]
+  notas                        Nota[]
+  pagamentos                   Pagamento[]
+  presencasAula                PresencaAula[]
+  progresso                    ProgressoAula[]
+  sessoesVideo                 SessaoVideoAluno[]
+  eventosAprendizagem          EventoAprendizagemAluno[]
+  respostas                    RespostaProva[]
+  resultadosFinais             ResultadoFinal[]
+  tentativas                   TentativaProva[]
+  reunioesParticipante         ReuniaoParticipante[]
+  provasLiberadas              ProvaAluno[]
+  EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
+  rematriculasSemestrais       RematriculaSemestral[]
+
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+  studentSuccessIntervencoes     StudentSuccessIntervencao[]
+  studentSuccessAnalises         StudentSuccessAnaliseHistorico[]
+
+  participacoesAtividadesExternas AtividadeExternaParticipante[]
+  candidaturasMobilidade          MobilidadeCandidatura[]
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, matricula])
+  @@unique([instituicaoId, slug])
+  @@index([instituicaoId])
+  @@index([nome])
+  @@index([cpf])
+  @@index([statusAluno])
+  @@index([poloId])
+}
+
+### Polo | linhas 2694-2765
+model Polo {
+  id                  Int                 @id @default(autoincrement())
+  nome                String
+  codigo              String?
+  cnpj                String?
+  descricao           String?
+  tipoUnidade         TipoUnidadePolo     @default(POLO)
+  statusComercial     StatusComercialPolo @default(ATIVO)
+  cep                 String?
+  endereco            String?
+  numero              String?
+  complemento         String?
+  bairro              String?
+  cidade              String?
+  estado              String?
+  responsavelNome     String?
+  responsavelEmail    String?
+  responsavelTelefone String?
+  responsavelCargo    String?
+  ativo               Boolean             @default(true)
+  ativadoEm           DateTime?
+  suspensoEm          DateTime?
+  encerradoEm         DateTime?
+  motivoSuspensao     String?             @db.Text
+  motivoEncerramento  String?             @db.Text
+  criadoPorId         Int?
+  ativadoPorId        Int?
+  suspensoPorId       Int?
+  encerradoPorId      Int?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  instituicaoId       Int
+  instituicaoGeradaId Int?                @unique
+
+  instituicao       Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor         User?        @relation("PoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  ativadoPor        User?        @relation("PoloAtivadoPor", fields: [ativadoPorId], references: [id], onDelete: SetNull)
+  suspensoPor       User?        @relation("PoloSuspensoPor", fields: [suspensoPorId], references: [id], onDelete: SetNull)
+  encerradoPor      User?        @relation("PoloEncerradoPor", fields: [encerradoPorId], references: [id], onDelete: SetNull)
+  instituicaoGerada Instituicao? @relation("PoloInstituicaoGerada", fields: [instituicaoGeradaId], references: [id], onDelete: SetNull)
+  usuariosAcesso    UserPolo[]
+  professores       Professor[]
+
+  funcionariosLotados              Funcionario[]          @relation("FuncionarioPoloAtual")
+  lotacoesFuncionariosComoAnterior FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloAnterior")
+  lotacoesFuncionariosComoNovo     FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloNovo")
+
+  turmas                     Turma[]
+  alunos                     Aluno[]
+  cursosPolos                CursoPolo[]
+  matriculas                 Matricula[]
+  cobrancas                  Cobranca[]
+  lancamentosFinanceiros     LancamentoFinanceiro[]
+  metasComerciais            MetaComercial[]
+  publicacoesCursosRede      CursoPublicacaoRede[]    @relation("CursoPublicacaoPolo")
+  leadsInteressados          Lead[]                   @relation("LeadPoloInteresse")
+  formulariosCaptacaoPadrao  FormularioCaptacaoLead[] @relation("FormularioCaptacaoPoloPadrao")
+  regrasDistribuicaoCaptacao RegraDistribuicaoLead[]  @relation("RegraDistribuicaoPolo")
+
+  atividadesExternas AtividadeExterna[]
+
+  @@unique([instituicaoId, nome])
+  @@unique([instituicaoId, codigo])
+  @@index([instituicaoId])
+  @@index([instituicaoId, statusComercial])
+  @@index([instituicaoId, ativo])
+  @@index([cnpj])
+  @@index([criadoPorId])
+  @@index([ativadoPorId])
+  @@index([suspensoPorId])
+  @@index([encerradoPorId])
+}
+
+### Instituicao | linhas 11-295
+model Instituicao {
+  id                      Int      @id @default(autoincrement())
+  nome                    String
+  ativo                   Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  proximoNumeroMatricula  Int      @default(1)
+  dominio                 String?  @unique
+  slug                    String   @unique
+  updatedAt               DateTime
+  plano                   String   @default("ESSENCIAL")
+  redeInstitucionalId     Int?
+  herdaPlanoContratante   Boolean  @default(false)
+  statusAssinatura        String   @default("ATIVA")
+  podeCriarGerenciarPolos Boolean  @default(false)
+
+  metaAccessToken     String?
+  metaConectado       Boolean @default(false)
+  metaPageId          String?
+  metaPageName        String?
+  metaPageAccessToken String?
+  usaControlePonto    Boolean @default(false)
+  usaBancoHoras       Boolean @default(true)
+
+  googleAnalyticsId          String?
+  googleAnalyticsPropertyId  String?
+  googleAnalyticsAtivo       Boolean @default(false)
+  googleTagManagerId         String?
+  googleTagManagerAtivo      Boolean @default(false)
+  googleAdsId                String?
+  googleAdsAtivo             Boolean @default(false)
+  googleAdsCustomerId        String?
+  googleAdsRefreshToken      String?
+  googleAdsAccountName       String?
+  searchConsoleDominio       String?
+  searchConsoleAtivo         Boolean @default(false)
+  googleBusinessUrl          String?
+  googleBusinessAtivo        Boolean @default(false)
+  googleBusinessRefreshToken String?
+  googleBusinessAccountId    String?
+  googleBusinessLocationId   String?
+  googleBusinessName         String?
+  googleSearchConsoleMeta    String?
+  responsavelRH              String?
+  emailRH                    String?
+  telefoneRH                 String?
+
+  googleSearchConsoleAtivo Boolean @default(false)
+
+  aniversariantesAtivo Boolean @default(true)
+
+  aniversarioTituloPadrao   String?
+  aniversarioMensagemPadrao String? @db.Text
+
+  aniversarioEnviarChatPadrao     Boolean @default(true)
+  aniversarioEnviarWhatsappPadrao Boolean @default(false)
+
+  configuracaoEmail ConfiguracaoEmailInstituicao?
+
+  alternativas                   Alternativa[]
+  ouvidoriasPhanyx               OuvidoriaPhanyx[]
+  alunos                         Aluno[]
+  atestadosMedicos               AtestadoMedico[]
+  atividades                     Atividade[]
+  anexosAtividade                AtividadeAnexo[]
+  aulas                          Aula[]
+  caixas                         Caixa[]
+  certificados                   Certificado[]
+  cobrancas                      Cobranca[]
+  configuracaoInstituicao        ConfiguracaoInstituicao?
+  contratos                      Contrato[]
+  cursos                         Curso[]
+  cursoSemestres                 CursoSemestre[]
+  cursoSemestreDisciplinas       CursoSemestreDisciplina[]
+  Departamento                   Departamento[]
+  cargos                         Cargo[]
+  disciplinas                    Disciplina[]
+  documentosAlunos               DocumentoAluno[]
+  documentosGerados              DocumentoGerado[]
+  documentoTemplates             DocumentoTemplate[]
+  logosInstitucionais            InstituicaoLogo[]
+  entregas                       EntregaAtividade[]
+  Funcionario                    Funcionario[]
+  itensMatricula                 ItemMatricula[]
+  lancamentosFinanceiros         LancamentoFinanceiro[]
+  materiaisAula                  MaterialAula[]
+  matriculas                     Matricula[]
+  modulos                        Modulo[]
+  movimentosCaixa                MovimentoCaixa[]
+  notas                          Nota[]
+  pagamentos                     Pagamento[]
+  presencasAula                  PresencaAula[]
+  professores                    Professor[]
+  progressoAulas                 ProgressoAula[]
+  sessoesVideoAluno              SessaoVideoAluno[]
+  eventosAprendizagemAluno       EventoAprendizagemAluno[]
+  provas                         Prova[]
+  questoes                       Questao[]
+  respostas                      RespostaProva[]
+  resultadosFinais               ResultadoFinal[]
+  tentativas                     TentativaProva[]
+  turmas                         Turma[]
+  usuarios                       User[]
+  polos                          Polo[]
+  redeInstitucional              RedeInstitucional?              @relation("RedeInstitucionalMembros", fields: [redeInstitucionalId], references: [id], onDelete: SetNull)
+  redeComoContratante            RedeInstitucional?              @relation("RedeInstitucionalContratante")
+  acessosInstitucionaisRecebidos UserInstituicaoAcesso[]         @relation("UserInstituicaoAcessoDestino")
+  poloOrigem                     Polo?                           @relation("PoloInstituicaoGerada")
+  usuariosPolos                  UserPolo[]
+  adesoes                        AdesaoInstituicao[]
+  assinaturaPhanyx               AssinaturaPhanyx?
+  TurmaDisciplina                TurmaDisciplina[]
+  certificadoCampos              CertificadoCampo[]
+  certificadoModelos             CertificadoModelo[]
+  periodosMatricula              PeriodoMatricula[]
+  periodosMatriculaTurmas        PeriodoMatriculaTurma[]
+  disciplinaPreRequisitos        DisciplinaPreRequisito[]
+  cursosDisciplinasExtras        CursoDisciplinaExtraPermitida[]
+  impersonacoesSuporte           ImpersonacaoSuporte[]
+  publicacoesCursosRedeOrigem    CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoOrigem")
+  publicacoesCursosRedeDestino   CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoDestino")
+  certificadoTemplateUrl         String?
+  certificadoPreviewUrl          String?
+  certificadoTextoPadrao         String?
+  certificadoAssinaturaUrl       String?
+  certificadoCoordenadorNome     String?
+  certificadoCidade              String?
+
+  certificadoModoFundo      String @default("modelo") // modelo | phanyx | cor
+  certificadoCorFundoPagina String @default("#ffffff")
+  certificadoTamanhoPapel   String @default("A4") // A5 | A4 | A3
+  certificadoOrientacao     String @default("paisagem") // paisagem | retrato
+  certificadoLarguraBase    Int    @default(1123)
+  certificadoAlturaBase     Int    @default(794)
+
+  cursosPolos             CursoPolo[]
+  professoresDisciplinas  ProfessorDisciplina[]
+  turmaSemestres          TurmaSemestre[]
+  turmaDisciplinaHorarios TurmaDisciplinaHorario[]
+  ouvidorias              Ouvidoria[]
+  reunioes                Reuniao[]
+
+  documentosRH                                DocumentoRH[]
+  feriasRH                                    FeriasRH[]
+  examesRH                                    ExameMedicoRH[]
+  rescisoesRH                                 RescisaoRH[]
+  holeritesRH                                 HoleriteRH[]
+  pagamentosHoleriteRH                        PagamentoHoleriteRH[]
+  contasBancariasFuncionariosRH               ContaBancariaFuncionarioRH[]
+  itensPagamentoHoleriteRH                    ItemPagamentoHoleriteRH[]
+  pontosRH                                    PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
+  itensCorrecaoPontoRH                        SolicitacaoCorrecaoPontoItemRH[]
+  avisosWhatsappCorrecaoPontoRH               AvisoWhatsappCorrecaoPontoRH[]
+  historicosRH                                HistoricoRH[]
+  historicosLotacaoFuncionariosRH             FuncionarioLotacaoRH[]
+  ocorrenciasRH                               OcorrenciaRH[]
+  escalasRH                                   EscalaTrabalhoRH[]
+  bancoHorasRH                                BancoHorasRH[]
+  integracoesPontoRH                          IntegracaoPontoRH[]
+  configuracaoPontoMobile                     ConfiguracaoPontoMobileRH?
+  locaisPontoMobile                           LocalPontoMobileRH[]
+  marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
+  eventosFolhaRH                              EventoFolhaRH[]
+  beneficiosRH                                BeneficioRH[]
+  funcionariosBeneficiosRH                    FuncionarioBeneficioRH[]
+  programasRemuneracaoVariavelRH              ProgramaRemuneracaoVariavelRH[]
+  participantesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
+  configuracoesPortais                        ConfiguracaoPortalInstituicao[]
+  isentaPagamento                             Boolean                                     @default(false)
+  motivoIsencao                               String?
+  EntregaAtividadeHistorico                   EntregaAtividadeHistorico[]
+  documentosProfessor                         DocumentoProfessor[]
+  notificacoes                                Notificacao[]
+
+  whatsappIntegracao    WhatsAppInstituicao?
+  whatsappTemplates     WhatsAppTemplate[]
+  whatsappMensagens     WhatsAppMensagem[]
+  whatsappConfiguracoes WhatsAppConfiguracaoComunicacao[]
+
+  substituicoesDocentes          SubstituicaoDocente[]
+  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
+  crachaModelos                  CrachaModelo[]
+  crachasEmitidos                CrachaEmitido[]
+  CrachaLoteEmissao              CrachaLoteEmissao[]
+  visitantes                     Visitante[]
+  leadsGerenciados               Lead[]                           @relation("LeadInstituicaoGestora")
+  leadsComoInteressada           Lead[]                           @relation("LeadInstituicaoInteressada")
+  interacoesLead                 LeadInteracao[]                  @relation("LeadInteracaoInstituicao")
+  funisComerciais                FunilComercial[]
+  etapasFunisComerciais          EtapaFunilComercial[]
+  motivosPerdaComerciais         MotivoPerdaComercial[]
+  movimentacoesFunilLead         LeadMovimentacaoFunil[]
+  transferenciasLead             LeadTransferencia[]
+  tarefasComerciais              TarefaComercial[]
+  canaisCaptacaoLead             CanalCaptacaoLead[]
+  campanhasCaptacaoLead          CampanhaCaptacaoLead[]
+  formulariosCaptacaoLead        FormularioCaptacaoLead[]
+  camposFormularioCaptacaoLead   CampoFormularioCaptacaoLead[]
+  submissoesCaptacaoLead         SubmissaoCaptacaoLead[]
+  regrasDistribuicaoLead         RegraDistribuicaoLead[]
+  integracoesCaptacaoLead        IntegracaoCaptacaoLead[]
+  eventosIntegracaoCaptacaoLead  EventoIntegracaoCaptacaoLead[]
+  regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
+  mediaMinimaCertificado         Float                            @default(7)
+  frequenciaMinimaCertificado    Float                            @default(75)
+  liberarCertificadoAutomatico   Boolean                          @default(true)
+  PlanoComissaoRH                PlanoComissaoRH[]
+  RegraComissaoRH                RegraComissaoRH[]
+  FuncionarioPlanoComissaoRH     FuncionarioPlanoComissaoRH[]
+  MatriculaParticipanteComercial MatriculaParticipanteComercial[]
+  LancamentoComissaoRH           LancamentoComissaoRH[]
+  equipesComerciais              EquipeComercial[]
+  membrosEquipesComerciais       EquipeComercialMembro[]
+  metasComerciais                MetaComercial[]
+  participantesMetasComerciais   MetaComercialParticipante[]
+  rematriculasSemestrais         RematriculaSemestral[]
+  itensRematriculaSemestral      RematriculaSemestralItem[]
+
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+
+  modulosAdicionais               ModuloAdicionalInstituicao[]
+  bibliotecaConfiguracao          BibliotecaConfiguracao?
+  bibliotecaOperadores            BibliotecaOperador[]
+  bibliotecaConsumos              BibliotecaConsumoArmazenamento[]
+  bibliotecaAuditorias            BibliotecaAuditoria[]
+  bibliotecaItens                 BibliotecaItem[]
+  bibliotecaAutores               BibliotecaAutor[]
+  bibliotecaEditoras              BibliotecaEditora[]
+  bibliotecaCategorias            BibliotecaCategoria[]
+  bibliotecaArquivos              BibliotecaArquivo[]
+  bibliotecaLicencas              BibliotecaLicenca[]
+  bibliotecaExemplares            BibliotecaExemplar[]
+  bibliotecaManutencoesExemplares BibliotecaManutencaoExemplar[]
+
+  studentSuccessIntervencoes StudentSuccessIntervencao[]
+  studentSuccessAnalises     StudentSuccessAnaliseHistorico[]
+
+  bibliotecaEmprestimos BibliotecaEmprestimo[]
+  bibliotecaRenovacoes  BibliotecaRenovacao[]
+  bibliotecaReservas    BibliotecaReserva[]
+
+  bibliotecaPrateleiras       BibliotecaPrateleira[]
+  bibliotecaFavoritos         BibliotecaFavorito[]
+  bibliotecaProgressosLeitura BibliotecaProgressoLeitura[]
+
+  bibliotecaAvaliacoes       BibliotecaAvaliacao[]
+  bibliotecaHistoricosAcesso BibliotecaHistoricoAcesso[]
+  bibliotecaRecomendacoes    BibliotecaRecomendacao[]
+
+  atividadesExternas                          AtividadeExterna[]
+  atividadesExternasTurmas                    AtividadeExternaTurma[]
+  atividadesExternasParticipantes             AtividadeExternaParticipante[]
+  atividadesExternasEquipe                    AtividadeExternaEquipe[]
+  atividadesExternasAutorizacoes              AtividadeExternaAutorizacao[]
+  prestadoresTransporte                       PrestadorTransporte[]
+  veiculosTransporte                          VeiculoTransporte[]
+  condutoresTransporte                        CondutorTransporte[]
+  atividadesExternasTrechos                   AtividadeExternaTrecho[]
+  atividadesExternasTrechosVeiculos           AtividadeExternaTrechoVeiculo[]
+  atividadesExternasTrechosVeiculosCondutores AtividadeExternaTrechoVeiculoCondutor[]
+  atividadesExternasTrechosPassageiros        AtividadeExternaTrechoPassageiro[]
+  atividadesExternasCheckpoints               AtividadeExternaCheckpoint[]
+  atividadesExternasCheckpointRegistros       AtividadeExternaCheckpointRegistro[]
+  atividadesExternasSaudeParticipantes        AtividadeExternaSaudeParticipante[]
+  atividadesExternasRiscos                    AtividadeExternaRisco[]
+  atividadesExternasPlanosEmergencia          AtividadeExternaPlanoEmergencia[]
+  atividadesExternasDocumentos                AtividadeExternaDocumento[]
+  mobilidadeInstituicoesParceiras             MobilidadeInstituicaoParceira[]
+  mobilidadeConvenios                         MobilidadeConvenio[]
+  mobilidadeConvenioCursos                    MobilidadeConvenioCurso[]
+  mobilidadeProgramas                         MobilidadePrograma[]
+  mobilidadeOfertas                           MobilidadeOferta[]
+  mobilidadeOfertaCursos                      MobilidadeOfertaCurso[]
+  mobilidadeCandidaturas                      MobilidadeCandidatura[]
+  mobilidadeCandidaturaDocumentos             MobilidadeCandidaturaDocumento[]
+  mobilidadeOfertaDocumentosRequisitos        MobilidadeOfertaDocumentoRequisito[]
+
+  @@index([redeInstitucionalId])
+  @@index([redeInstitucionalId, ativo])
+}
+
+========================================================================
+2. ENUMS DE MATRICULA
+========================================================================
+
+### StatusMatricula | linhas 8593-8603
+enum StatusMatricula {
+  ATIVA
+  TRANCADA
+  CANCELADA
+  CONCLUIDA
+  A_INICIAR
+  SUSPENSA
+  AGUARDANDO
+  TRANSFERIDA
+  INTERCAMBIO
+}
+
+### StatusItemMatricula | linhas 8668-8675
+enum StatusItemMatricula {
+  A_CURSAR
+  EM_CURSO
+  CONCLUIDO
+  TRANCADO
+  REPROVADO
+  CANCELADO
+}
+
+### TipoItemMatricula | linhas 8784-8790
+enum TipoItemMatricula {
+  GRADE_PRINCIPAL
+  DEPENDENCIA
+  ADIANTAMENTO
+  EXTRA_MESMO_CURSO
+  EXTRA_OUTRO_CURSO
+}
+
+========================================================================
+3. OUTROS ENUMS RELACIONADOS
+========================================================================
+
+### StatusTurma | linhas 8652-8660
+enum StatusTurma {
+  AGUARDANDO
+  A_INICIAR
+  ATIVA
+  INATIVA
+  CONCLUIDA
+  CANCELADA
+  NAO_FORMADA
+}
+
+### TipoPeriodoMatricula | linhas 8792-8795
+enum TipoPeriodoMatricula {
+  MATRICULA_INICIAL
+  REMATRICULA
+}
+
+### TipoItemPagamentoHoleriteRH | linhas 8988-8993
+enum TipoItemPagamentoHoleriteRH {
+  SALARIO_E_DEMAIS
+  COMISSAO
+  REMUNERACAO_VARIAVEL
+  OUTRO
+}
+
+### StatusPeriodoMatricula | linhas 9001-9006
+enum StatusPeriodoMatricula {
+  RASCUNHO
+  PUBLICADO
+  ENCERRADO
+  CANCELADO
+}
+
+### StatusRematriculaSemestral | linhas 9008-9017
+enum StatusRematriculaSemestral {
+  RASCUNHO
+  ENVIADA
+  EM_ANALISE
+  APROVADA
+  DEVOLVIDA
+  RECUSADA
+  CANCELADA
+  EXPIRADA
+}
+
+### TipoItemRematriculaSemestral | linhas 9019-9023
+enum TipoItemRematriculaSemestral {
+  PROXIMO_SEMESTRE
+  PENDENCIA_ANTERIOR
+  EXTRACURRICULAR
+}
+
+### TipoRestricaoRematricula | linhas 9025-9030
+enum TipoRestricaoRematricula {
+  NENHUMA
+  SOMENTE_AVISO
+  RESTRICAO_PARCIAL
+  BLOQUEIO_PORTAL
+}
+
+### OrigemRestricaoRematricula | linhas 9032-9035
+enum OrigemRestricaoRematricula {
+  MANUAL
+  AUTOMATICA
+}
+
+### AcaoHistoricoRestricaoRematricula | linhas 9037-9042
+enum AcaoHistoricoRestricaoRematricula {
+  CRIADA
+  ALTERADA
+  REMOVIDA
+  REATIVADA
+}
+
+### TipoItemBiblioteca | linhas 9161-9181
+enum TipoItemBiblioteca {
+  LIVRO
+  EBOOK
+  ARTIGO_CIENTIFICO
+  REVISTA
+  PERIODICO
+  APOSTILA
+  TCC
+  MONOGRAFIA
+  DISSERTACAO
+  TESE
+  PESQUISA
+  DOCUMENTO
+  VIDEO
+  DOCUMENTARIO
+  AUDIO
+  AUDIOLIVRO
+  PODCAST
+  LINK_EXTERNO
+  OUTRO
+}
+
+### StatusItemBiblioteca | linhas 9183-9190
+enum StatusItemBiblioteca {
+  RASCUNHO
+  EM_REVISAO
+  PUBLICADO
+  RESTRITO
+  INDISPONIVEL
+  ARQUIVADO
+}
+
+========================================================================
+4. MODELOS DE NOTAS, AVALIACOES, PRESENCA E FREQUENCIA
+========================================================================
+
+### TurmaDisciplinaHorario | linhas 1110-1128
+model TurmaDisciplinaHorario {
+  id                Int      @id @default(autoincrement())
+  turmaDisciplinaId Int
+  instituicaoId     Int
+  diaSemana         Int
+  horaInicio        String
+  horaFim           String?
+  ativo             Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  turmaDisciplina TurmaDisciplina @relation(fields: [turmaDisciplinaId], references: [id], onDelete: Cascade)
+  instituicao     Instituicao     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([turmaDisciplinaId])
+  @@index([instituicaoId])
+  @@index([diaSemana])
+  @@index([ativo])
+}
+
+### EntregaAtividade | linhas 1489-1513
+model EntregaAtividade {
+  id            Int         @id @default(autoincrement())
+  texto         String?
+  link          String?
+  arquivoUrl    String?
+  nota          Float?
+  feedback      String?
+  entregueEm    DateTime    @default(now())
+  corrigidaEm   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  instituicaoId Int
+  atividadeId   Int
+  alunoId       Int
+  aluno         Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  atividade     Atividade   @relation(fields: [atividadeId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  historicos EntregaAtividadeHistorico[]
+
+  @@unique([atividadeId, alunoId])
+  @@index([instituicaoId])
+  @@index([atividadeId])
+  @@index([alunoId])
+}
+
+### EntregaAtividadeHistorico | linhas 1515-1542
+model EntregaAtividadeHistorico {
+  id          Int       @id @default(autoincrement())
+  texto       String?
+  link        String?
+  arquivoUrl  String?
+  nota        Float?
+  feedback    String?
+  entregueEm  DateTime?
+  corrigidaEm DateTime?
+  versao      Int       @default(1)
+  createdAt   DateTime  @default(now())
+
+  instituicaoId Int
+  atividadeId   Int
+  alunoId       Int
+  entregaId     Int
+
+  entrega     EntregaAtividade @relation(fields: [entregaId], references: [id], onDelete: Cascade)
+  aluno       Aluno            @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  atividade   Atividade        @relation(fields: [atividadeId], references: [id], onDelete: Cascade)
+  instituicao Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([atividadeId])
+  @@index([alunoId])
+  @@index([entregaId])
+  @@index([entregaId, versao])
+}
+
+### Nota | linhas 1688-1715
+model Nota {
+  id            Int         @id @default(autoincrement())
+  alunoId       Int
+  valor         Float
+  createdAt     DateTime    @default(now())
+  turmaId       Int
+  atividadeId   Int?
+  instituicaoId Int
+  observacao    String?
+  peso          Float?
+  provaId       Int?
+  tipo          NotaTipo
+  updatedAt     DateTime    @updatedAt
+  aluno         Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  atividade     Atividade?  @relation(fields: [atividadeId], references: [id])
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  prova         Prova?      @relation(fields: [provaId], references: [id])
+  turma         Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([turmaId])
+  @@index([atividadeId])
+  @@index([provaId])
+  @@index([instituicaoId, alunoId, turmaId])
+  @@index([instituicaoId, alunoId, provaId])
+  @@index([instituicaoId, turmaId, tipo])
+}
+
+### ResultadoFinal | linhas 1717-1741
+model ResultadoFinal {
+  id            Int           @id @default(autoincrement())
+  media         Float?
+  frequencia    Float?
+  situacao      SituacaoFinal @default(EM_ANDAMENTO)
+  observacao    String?
+  fechadoEm     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  instituicaoId Int
+  alunoId       Int
+  turmaId       Int
+  disciplinaId  Int
+  aluno         Aluno         @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  disciplina    Disciplina    @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  turma         Turma         @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  @@unique([alunoId, turmaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([situacao])
+}
+
+### PresencaAula | linhas 1981-2002
+model PresencaAula {
+  id                    Int                  @id @default(autoincrement())
+  status                StatusPresencaAula   @default(PRESENTE)
+  observacao            String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  instituicaoId         Int
+  aulaId                Int
+  alunoId               Int
+  substituicaoDocenteId Int?
+  aluno                 Aluno                @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  aula                  Aula                 @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  instituicao           Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  substituicaoDocente   SubstituicaoDocente? @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
+
+  @@unique([aulaId, alunoId])
+  @@index([instituicaoId])
+  @@index([substituicaoDocenteId])
+  @@index([aulaId])
+  @@index([alunoId])
+  @@index([status])
+}
+
+### DocumentoGerado | linhas 2212-2245
+model DocumentoGerado {
+  id                          Int                           @id @default(autoincrement())
+  titulo                      String
+  tipo                        TipoDocumentoTemplate
+  contexto                    String?
+  conteudo                    String
+  status                      StatusDocumentoGerado         @default(RASCUNHO)
+  exigeAssinatura             Boolean                       @default(false)
+  assinadoEm                  DateTime?
+  criadoEm                    DateTime                      @default(now())
+  atualizadoEm                DateTime                      @updatedAt
+  instituicaoId               Int
+  alunoId                     Int?
+  matriculaId                 Int?
+  templateId                  Int?
+  cursoId                     Int?
+  codigoValidacao             String?                       @unique
+  dadosPreenchimento          Json?
+  formatoImpressao            String                        @default("A4_INTEIRA")
+  quantidadeVias              Int                           @default(1)
+  aluno                       Aluno?                        @relation(fields: [alunoId], references: [id])
+  Curso                       Curso?                        @relation(fields: [cursoId], references: [id])
+  instituicao                 Instituicao                   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula                   Matricula?                    @relation(fields: [matriculaId], references: [id])
+  template                    DocumentoTemplate?            @relation(fields: [templateId], references: [id])
+  AuditoriaValidacaoDocumento AuditoriaValidacaoDocumento[]
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([matriculaId])
+  @@index([templateId])
+  @@index([tipo])
+  @@index([status])
+}
+
+### AuditoriaValidacaoDocumento | linhas 2262-2282
+model AuditoriaValidacaoDocumento {
+  id               Int              @id @default(autoincrement())
+  codigoConsultado String
+  documentoId      Int?
+  documento        DocumentoGerado? @relation(fields: [documentoId], references: [id], onDelete: SetNull)
+  instituicaoId    Int?
+  valido           Boolean
+  ip               String?
+  userAgent        String?
+  suspeito         Boolean          @default(false)
+  risco            Int              @default(0)
+  motivoRisco      String?
+  criadoEm         DateTime         @default(now())
+
+  @@index([codigoConsultado])
+  @@index([documentoId])
+  @@index([instituicaoId])
+  @@index([criadoEm])
+  @@index([ip])
+  @@index([suspeito])
+}
+
+### ChatPresenca | linhas 3073-3084
+model ChatPresenca {
+  id              Int      @id @default(autoincrement())
+  instituicaoId   Int
+  usuarioId       Int      @unique
+  status          String   @default("ONLINE") // ONLINE, AUSENTE, OFFLINE
+  ultimaAtividade DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+
+  @@index([instituicaoId])
+  @@index([usuarioId])
+  @@index([status])
+}
+
+### RematriculaSemestralItem | linhas 5482-5514
+model RematriculaSemestralItem {
+  id Int @id @default(autoincrement())
+
+  instituicaoId     Int
+  rematriculaId     Int
+  disciplinaId      Int
+  turmaDisciplinaId Int
+
+  tipo TipoItemRematriculaSemestral
+
+  cargaHorariaSnapshot Int
+  semestreOrigemNumero Int?
+
+  obrigatoria Boolean @default(false)
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  rematricula RematriculaSemestral @relation(fields: [rematriculaId], references: [id], onDelete: Cascade)
+
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+
+  turmaDisciplina TurmaDisciplina @relation(fields: [turmaDisciplinaId], references: [id], onDelete: Restrict)
+
+  @@unique([rematriculaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([rematriculaId])
+  @@index([disciplinaId])
+  @@index([turmaDisciplinaId])
+  @@index([tipo])
+}
+
+### BibliotecaAvaliacao | linhas 7526-7561
+model BibliotecaAvaliacao {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int
+  itemId        Int
+
+  nota       Int
+  titulo     String?
+  comentario String? @db.Text
+
+  status StatusAvaliacaoBiblioteca @default(PENDENTE)
+
+  moderadaPorId   Int?
+  moderadaEm      DateTime?
+  motivoModeracao String?   @db.Text
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Restrict)
+
+  usuario User @relation("BibliotecaAvaliacaoUsuario", fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  moderadaPor User? @relation("BibliotecaAvaliacaoModeradaPor", fields: [moderadaPorId], references: [id], onDelete: SetNull)
+
+  @@unique([instituicaoId, usuarioId, itemId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([itemId])
+  @@index([itemId, status])
+  @@index([usuarioId])
+  @@index([nota])
+  @@index([criadaEm])
+}
+
+### MobilidadeCandidatura | linhas 10542-10584
+model MobilidadeCandidatura {
+  id                    Int                         @id @default(autoincrement())
+  instituicaoId         Int
+  ofertaId              Int
+  alunoId               Int?
+  matriculaId           Int?
+  vinculoCandidato      MobilidadeVinculoCandidato  @default(ALUNO_PHANYX)
+  nomeSnapshot          String
+  emailSnapshot         String?
+  telefoneSnapshot      String?
+  instituicaoOrigemNome String?
+  paisOrigemCodigo      String?                     @db.VarChar(2)
+  status                MobilidadeStatusCandidatura @default(RASCUNHO)
+  motivoStatus          String?                     @db.Text
+  enviadaEm             DateTime?
+  analisadaEm           DateTime?
+  notaFinal             Decimal?                    @db.Decimal(8, 2)
+  classificacao         Int?
+  criadoPorId           Int?
+  analisadoPorId        Int?
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
+
+  instituicao  Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  oferta       MobilidadeOferta @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
+  aluno        Aluno?           @relation(fields: [alunoId], references: [id], onDelete: SetNull)
+  matricula    Matricula?       @relation(fields: [matriculaId], references: [id], onDelete: SetNull)
+  criadoPor    User?            @relation("MobilidadeCandidaturaCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  analisadoPor User?            @relation("MobilidadeCandidaturaAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+
+  documentos MobilidadeCandidaturaDocumento[]
+
+  @@unique([ofertaId, alunoId])
+  @@index([instituicaoId])
+  @@index([ofertaId])
+  @@index([alunoId])
+  @@index([matriculaId])
+  @@index([status])
+  @@index([vinculoCandidato])
+  @@index([classificacao])
+  @@index([criadoPorId])
+  @@index([analisadoPorId])
+}
+
+========================================================================
+5. MODELOS QUE REFERENCIAM ItemMatricula
+========================================================================
+
+### Instituicao | linhas 11-295
+model Instituicao {
+  id                      Int      @id @default(autoincrement())
+  nome                    String
+  ativo                   Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  proximoNumeroMatricula  Int      @default(1)
+  dominio                 String?  @unique
+  slug                    String   @unique
+  updatedAt               DateTime
+  plano                   String   @default("ESSENCIAL")
+  redeInstitucionalId     Int?
+  herdaPlanoContratante   Boolean  @default(false)
+  statusAssinatura        String   @default("ATIVA")
+  podeCriarGerenciarPolos Boolean  @default(false)
+
+  metaAccessToken     String?
+  metaConectado       Boolean @default(false)
+  metaPageId          String?
+  metaPageName        String?
+  metaPageAccessToken String?
+  usaControlePonto    Boolean @default(false)
+  usaBancoHoras       Boolean @default(true)
+
+  googleAnalyticsId          String?
+  googleAnalyticsPropertyId  String?
+  googleAnalyticsAtivo       Boolean @default(false)
+  googleTagManagerId         String?
+  googleTagManagerAtivo      Boolean @default(false)
+  googleAdsId                String?
+  googleAdsAtivo             Boolean @default(false)
+  googleAdsCustomerId        String?
+  googleAdsRefreshToken      String?
+  googleAdsAccountName       String?
+  searchConsoleDominio       String?
+  searchConsoleAtivo         Boolean @default(false)
+  googleBusinessUrl          String?
+  googleBusinessAtivo        Boolean @default(false)
+  googleBusinessRefreshToken String?
+  googleBusinessAccountId    String?
+  googleBusinessLocationId   String?
+  googleBusinessName         String?
+  googleSearchConsoleMeta    String?
+  responsavelRH              String?
+  emailRH                    String?
+  telefoneRH                 String?
+
+  googleSearchConsoleAtivo Boolean @default(false)
+
+  aniversariantesAtivo Boolean @default(true)
+
+  aniversarioTituloPadrao   String?
+  aniversarioMensagemPadrao String? @db.Text
+
+  aniversarioEnviarChatPadrao     Boolean @default(true)
+  aniversarioEnviarWhatsappPadrao Boolean @default(false)
+
+  configuracaoEmail ConfiguracaoEmailInstituicao?
+
+  alternativas                   Alternativa[]
+  ouvidoriasPhanyx               OuvidoriaPhanyx[]
+  alunos                         Aluno[]
+  atestadosMedicos               AtestadoMedico[]
+  atividades                     Atividade[]
+  anexosAtividade                AtividadeAnexo[]
+  aulas                          Aula[]
+  caixas                         Caixa[]
+  certificados                   Certificado[]
+  cobrancas                      Cobranca[]
+  configuracaoInstituicao        ConfiguracaoInstituicao?
+  contratos                      Contrato[]
+  cursos                         Curso[]
+  cursoSemestres                 CursoSemestre[]
+  cursoSemestreDisciplinas       CursoSemestreDisciplina[]
+  Departamento                   Departamento[]
+  cargos                         Cargo[]
+  disciplinas                    Disciplina[]
+  documentosAlunos               DocumentoAluno[]
+  documentosGerados              DocumentoGerado[]
+  documentoTemplates             DocumentoTemplate[]
+  logosInstitucionais            InstituicaoLogo[]
+  entregas                       EntregaAtividade[]
+  Funcionario                    Funcionario[]
+  itensMatricula                 ItemMatricula[]
+  lancamentosFinanceiros         LancamentoFinanceiro[]
+  materiaisAula                  MaterialAula[]
+  matriculas                     Matricula[]
+  modulos                        Modulo[]
+  movimentosCaixa                MovimentoCaixa[]
+  notas                          Nota[]
+  pagamentos                     Pagamento[]
+  presencasAula                  PresencaAula[]
+  professores                    Professor[]
+  progressoAulas                 ProgressoAula[]
+  sessoesVideoAluno              SessaoVideoAluno[]
+  eventosAprendizagemAluno       EventoAprendizagemAluno[]
+  provas                         Prova[]
+  questoes                       Questao[]
+  respostas                      RespostaProva[]
+  resultadosFinais               ResultadoFinal[]
+  tentativas                     TentativaProva[]
+  turmas                         Turma[]
+  usuarios                       User[]
+  polos                          Polo[]
+  redeInstitucional              RedeInstitucional?              @relation("RedeInstitucionalMembros", fields: [redeInstitucionalId], references: [id], onDelete: SetNull)
+  redeComoContratante            RedeInstitucional?              @relation("RedeInstitucionalContratante")
+  acessosInstitucionaisRecebidos UserInstituicaoAcesso[]         @relation("UserInstituicaoAcessoDestino")
+  poloOrigem                     Polo?                           @relation("PoloInstituicaoGerada")
+  usuariosPolos                  UserPolo[]
+  adesoes                        AdesaoInstituicao[]
+  assinaturaPhanyx               AssinaturaPhanyx?
+  TurmaDisciplina                TurmaDisciplina[]
+  certificadoCampos              CertificadoCampo[]
+  certificadoModelos             CertificadoModelo[]
+  periodosMatricula              PeriodoMatricula[]
+  periodosMatriculaTurmas        PeriodoMatriculaTurma[]
+  disciplinaPreRequisitos        DisciplinaPreRequisito[]
+  cursosDisciplinasExtras        CursoDisciplinaExtraPermitida[]
+  impersonacoesSuporte           ImpersonacaoSuporte[]
+  publicacoesCursosRedeOrigem    CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoOrigem")
+  publicacoesCursosRedeDestino   CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoDestino")
+  certificadoTemplateUrl         String?
+  certificadoPreviewUrl          String?
+  certificadoTextoPadrao         String?
+  certificadoAssinaturaUrl       String?
+  certificadoCoordenadorNome     String?
+  certificadoCidade              String?
+
+  certificadoModoFundo      String @default("modelo") // modelo | phanyx | cor
+  certificadoCorFundoPagina String @default("#ffffff")
+  certificadoTamanhoPapel   String @default("A4") // A5 | A4 | A3
+  certificadoOrientacao     String @default("paisagem") // paisagem | retrato
+  certificadoLarguraBase    Int    @default(1123)
+  certificadoAlturaBase     Int    @default(794)
+
+  cursosPolos             CursoPolo[]
+  professoresDisciplinas  ProfessorDisciplina[]
+  turmaSemestres          TurmaSemestre[]
+  turmaDisciplinaHorarios TurmaDisciplinaHorario[]
+  ouvidorias              Ouvidoria[]
+  reunioes                Reuniao[]
+
+  documentosRH                                DocumentoRH[]
+  feriasRH                                    FeriasRH[]
+  examesRH                                    ExameMedicoRH[]
+  rescisoesRH                                 RescisaoRH[]
+  holeritesRH                                 HoleriteRH[]
+  pagamentosHoleriteRH                        PagamentoHoleriteRH[]
+  contasBancariasFuncionariosRH               ContaBancariaFuncionarioRH[]
+  itensPagamentoHoleriteRH                    ItemPagamentoHoleriteRH[]
+  pontosRH                                    PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
+  itensCorrecaoPontoRH                        SolicitacaoCorrecaoPontoItemRH[]
+  avisosWhatsappCorrecaoPontoRH               AvisoWhatsappCorrecaoPontoRH[]
+  historicosRH                                HistoricoRH[]
+  historicosLotacaoFuncionariosRH             FuncionarioLotacaoRH[]
+  ocorrenciasRH                               OcorrenciaRH[]
+  escalasRH                                   EscalaTrabalhoRH[]
+  bancoHorasRH                                BancoHorasRH[]
+  integracoesPontoRH                          IntegracaoPontoRH[]
+  configuracaoPontoMobile                     ConfiguracaoPontoMobileRH?
+  locaisPontoMobile                           LocalPontoMobileRH[]
+  marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
+  eventosFolhaRH                              EventoFolhaRH[]
+  beneficiosRH                                BeneficioRH[]
+  funcionariosBeneficiosRH                    FuncionarioBeneficioRH[]
+  programasRemuneracaoVariavelRH              ProgramaRemuneracaoVariavelRH[]
+  participantesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
+  configuracoesPortais                        ConfiguracaoPortalInstituicao[]
+  isentaPagamento                             Boolean                                     @default(false)
+  motivoIsencao                               String?
+  EntregaAtividadeHistorico                   EntregaAtividadeHistorico[]
+  documentosProfessor                         DocumentoProfessor[]
+  notificacoes                                Notificacao[]
+
+  whatsappIntegracao    WhatsAppInstituicao?
+  whatsappTemplates     WhatsAppTemplate[]
+  whatsappMensagens     WhatsAppMensagem[]
+  whatsappConfiguracoes WhatsAppConfiguracaoComunicacao[]
+
+  substituicoesDocentes          SubstituicaoDocente[]
+  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
+  crachaModelos                  CrachaModelo[]
+  crachasEmitidos                CrachaEmitido[]
+  CrachaLoteEmissao              CrachaLoteEmissao[]
+  visitantes                     Visitante[]
+  leadsGerenciados               Lead[]                           @relation("LeadInstituicaoGestora")
+  leadsComoInteressada           Lead[]                           @relation("LeadInstituicaoInteressada")
+  interacoesLead                 LeadInteracao[]                  @relation("LeadInteracaoInstituicao")
+  funisComerciais                FunilComercial[]
+  etapasFunisComerciais          EtapaFunilComercial[]
+  motivosPerdaComerciais         MotivoPerdaComercial[]
+  movimentacoesFunilLead         LeadMovimentacaoFunil[]
+  transferenciasLead             LeadTransferencia[]
+  tarefasComerciais              TarefaComercial[]
+  canaisCaptacaoLead             CanalCaptacaoLead[]
+  campanhasCaptacaoLead          CampanhaCaptacaoLead[]
+  formulariosCaptacaoLead        FormularioCaptacaoLead[]
+  camposFormularioCaptacaoLead   CampoFormularioCaptacaoLead[]
+  submissoesCaptacaoLead         SubmissaoCaptacaoLead[]
+  regrasDistribuicaoLead         RegraDistribuicaoLead[]
+  integracoesCaptacaoLead        IntegracaoCaptacaoLead[]
+  eventosIntegracaoCaptacaoLead  EventoIntegracaoCaptacaoLead[]
+  regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
+  mediaMinimaCertificado         Float                            @default(7)
+  frequenciaMinimaCertificado    Float                            @default(75)
+  liberarCertificadoAutomatico   Boolean                          @default(true)
+  PlanoComissaoRH                PlanoComissaoRH[]
+  RegraComissaoRH                RegraComissaoRH[]
+  FuncionarioPlanoComissaoRH     FuncionarioPlanoComissaoRH[]
+  MatriculaParticipanteComercial MatriculaParticipanteComercial[]
+  LancamentoComissaoRH           LancamentoComissaoRH[]
+  equipesComerciais              EquipeComercial[]
+  membrosEquipesComerciais       EquipeComercialMembro[]
+  metasComerciais                MetaComercial[]
+  participantesMetasComerciais   MetaComercialParticipante[]
+  rematriculasSemestrais         RematriculaSemestral[]
+  itensRematriculaSemestral      RematriculaSemestralItem[]
+
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+
+  modulosAdicionais               ModuloAdicionalInstituicao[]
+  bibliotecaConfiguracao          BibliotecaConfiguracao?
+  bibliotecaOperadores            BibliotecaOperador[]
+  bibliotecaConsumos              BibliotecaConsumoArmazenamento[]
+  bibliotecaAuditorias            BibliotecaAuditoria[]
+  bibliotecaItens                 BibliotecaItem[]
+  bibliotecaAutores               BibliotecaAutor[]
+  bibliotecaEditoras              BibliotecaEditora[]
+  bibliotecaCategorias            BibliotecaCategoria[]
+  bibliotecaArquivos              BibliotecaArquivo[]
+  bibliotecaLicencas              BibliotecaLicenca[]
+  bibliotecaExemplares            BibliotecaExemplar[]
+  bibliotecaManutencoesExemplares BibliotecaManutencaoExemplar[]
+
+  studentSuccessIntervencoes StudentSuccessIntervencao[]
+  studentSuccessAnalises     StudentSuccessAnaliseHistorico[]
+
+  bibliotecaEmprestimos BibliotecaEmprestimo[]
+  bibliotecaRenovacoes  BibliotecaRenovacao[]
+  bibliotecaReservas    BibliotecaReserva[]
+
+  bibliotecaPrateleiras       BibliotecaPrateleira[]
+  bibliotecaFavoritos         BibliotecaFavorito[]
+  bibliotecaProgressosLeitura BibliotecaProgressoLeitura[]
+
+  bibliotecaAvaliacoes       BibliotecaAvaliacao[]
+  bibliotecaHistoricosAcesso BibliotecaHistoricoAcesso[]
+  bibliotecaRecomendacoes    BibliotecaRecomendacao[]
+
+  atividadesExternas                          AtividadeExterna[]
+  atividadesExternasTurmas                    AtividadeExternaTurma[]
+  atividadesExternasParticipantes             AtividadeExternaParticipante[]
+  atividadesExternasEquipe                    AtividadeExternaEquipe[]
+  atividadesExternasAutorizacoes              AtividadeExternaAutorizacao[]
+  prestadoresTransporte                       PrestadorTransporte[]
+  veiculosTransporte                          VeiculoTransporte[]
+  condutoresTransporte                        CondutorTransporte[]
+  atividadesExternasTrechos                   AtividadeExternaTrecho[]
+  atividadesExternasTrechosVeiculos           AtividadeExternaTrechoVeiculo[]
+  atividadesExternasTrechosVeiculosCondutores AtividadeExternaTrechoVeiculoCondutor[]
+  atividadesExternasTrechosPassageiros        AtividadeExternaTrechoPassageiro[]
+  atividadesExternasCheckpoints               AtividadeExternaCheckpoint[]
+  atividadesExternasCheckpointRegistros       AtividadeExternaCheckpointRegistro[]
+  atividadesExternasSaudeParticipantes        AtividadeExternaSaudeParticipante[]
+  atividadesExternasRiscos                    AtividadeExternaRisco[]
+  atividadesExternasPlanosEmergencia          AtividadeExternaPlanoEmergencia[]
+  atividadesExternasDocumentos                AtividadeExternaDocumento[]
+  mobilidadeInstituicoesParceiras             MobilidadeInstituicaoParceira[]
+  mobilidadeConvenios                         MobilidadeConvenio[]
+  mobilidadeConvenioCursos                    MobilidadeConvenioCurso[]
+  mobilidadeProgramas                         MobilidadePrograma[]
+  mobilidadeOfertas                           MobilidadeOferta[]
+  mobilidadeOfertaCursos                      MobilidadeOfertaCurso[]
+  mobilidadeCandidaturas                      MobilidadeCandidatura[]
+  mobilidadeCandidaturaDocumentos             MobilidadeCandidaturaDocumento[]
+  mobilidadeOfertaDocumentosRequisitos        MobilidadeOfertaDocumentoRequisito[]
+
+  @@index([redeInstitucionalId])
+  @@index([redeInstitucionalId, ativo])
+}
+
+### Disciplina | linhas 980-1025
+model Disciplina {
+  id                              Int                             @id @default(autoincrement())
+  nome                            String
+  cursoId                         Int?
+  disciplinaOrigemRedeId          Int?
+  instituicaoId                   Int
+  descricao                       String?
+  semestre                        Int?
+  ativo                           Boolean                         @default(true)
+  codigo                          String?
+  createdAt                       DateTime                        @default(now())
+  updatedAt                       DateTime                        @updatedAt
+  cargaHoraria                    Int?
+  certificados                    Certificado[]
+  semestresCurso                  CursoSemestreDisciplina[]
+  professorId                     Int?
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  resultadosFinais                ResultadoFinal[]
+  itensMatricula                  ItemMatricula[]
+  prerequisitosDaDisciplina       DisciplinaPreRequisito[]        @relation("DisciplinaPrincipal")
+  liberaOutrasDisciplinas         DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
+  permitidaComoExtraEm            CursoDisciplinaExtraPermitida[]
+  turmaDisciplinas                TurmaDisciplina[]
+  professoresHabilitados          ProfessorDisciplina[]
+  aulas                           Aula[]
+  atividades                      Atividade[]
+  provas                          Prova[]
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
+  substituicoesDocentes           SubstituicaoDocente[]
+  itensRematriculaSemestral       RematriculaSemestralItem[]
+  disciplinaOrigemRede            Disciplina?                     @relation("DisciplinaPublicacaoRede", fields: [disciplinaOrigemRedeId], references: [id], onDelete: SetNull)
+  disciplinasPublicadasRede       Disciplina[]                    @relation("DisciplinaPublicacaoRede")
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
+
+  @@unique([instituicaoId, nome])
+  @@unique([instituicaoId, codigo])
+  @@unique([instituicaoId, disciplinaOrigemRedeId])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([cursoId])
+  @@index([professorId])
+  @@index([disciplinaOrigemRedeId])
+}
+
+### Turma | linhas 1027-1080
+model Turma {
+  id                              Int                             @id @default(autoincrement())
+  nome                            String
+  semestre                        String
+  professorId                     Int?
+  instituicaoId                   Int
+  ativa                           Boolean                         @default(true)
+  codigo                          String?
+  createdAt                       DateTime                        @default(now())
+  periodoLetivo                   String?
+  turno                           String?
+  modalidade                      String?
+  predio                          String?
+  ala                             String?
+  andar                           String?
+  sala                            String?
+  updatedAt                       DateTime                        @updatedAt
+  capacidadeMaxima                Int?
+  capacidadeMinima                Int?
+  cursoId                         Int?
+  dataInicio                      DateTime?
+  dataFim                         DateTime?
+  statusTurma                     StatusTurma                     @default(AGUARDANDO)
+  atividades                      Atividade[]
+  aulas                           Aula[]
+  itensMatricula                  ItemMatricula[]
+  matriculasComoPrincipal         Matricula[]                     @relation("MatriculaTurmaPrincipal")
+  modulos                         Modulo[]
+  notas                           Nota[]
+  provas                          Prova[]
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
+  resultadosFinais                ResultadoFinal[]
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  disciplinas                     TurmaDisciplina[]
+  semestres                       TurmaSemestre[]
+  periodosMatriculaParticipantes  PeriodoMatriculaTurma[]
+  poloId                          Int?
+  polo                            Polo?                           @relation(fields: [poloId], references: [id])
+  reunioes                        Reuniao[]
+  substituicoesDocentes           SubstituicaoDocente[]
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
+
+  atividadesExternas AtividadeExternaTurma[]
+
+  @@unique([instituicaoId, nome, semestre, periodoLetivo])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([professorId])
+  @@index([statusTurma])
+  @@index([poloId])
+}
+
+### Matricula | linhas 1130-1220
+model Matricula {
+  id                                      Int             @id @default(autoincrement())
+  numeroMatriculaLegado                   String?
+  sistemaOrigem                           String?
+  importadaSistemaAntigo                  Boolean         @default(false)
+  alunoId                                 Int
+  numeroMatricula                         String?
+  modalidade                              String?
+  createdAt                               DateTime        @default(now())
+  instituicaoId                           Int
+  poloId                                  Int?
+  status                                  StatusMatricula @default(ATIVA)
+  updatedAt                               DateTime        @updatedAt
+  excluidaEm                              DateTime?
+  excluidaPorId                           Int?
+  motivoExclusao                          String?         @db.Text
+  canceladaEm                             DateTime?
+  canceladaPorId                          Int?
+  motivoCancelamento                      String?         @db.Text
+  cursoId                                 Int?
+  semestre                                Int?
+  dataPrimeiroVencimento                  DateTime?
+  quantidadeParcelas                      Int?
+  valorMatricula                          Decimal?        @db.Decimal(10, 2)
+  valorMensalidade                        Decimal?        @db.Decimal(10, 2)
+  bolsaPercentual                         Decimal         @default(0) @db.Decimal(5, 2)
+  primeiroVencimento                      DateTime?
+  quantidadeMensalidades                  Int?
+  vendedorResponsavelId                   Int?
+  vendedorResponsavelNomeSnapshot         String?
+  leadOrigemId                            Int?            @unique
+  origemComercial                         String?
+  campanhaComercial                       String?
+  atendidoComercialEm                     DateTime?
+  observacaoComercial                     String?         @db.Text
+  alunoMenorNoMomentoMatricula            Boolean         @default(false)
+  idadeNoMomentoMatricula                 Int?
+  responsavelIncompletoNoMomentoMatricula Boolean         @default(false)
+  confirmacaoMenorEm                      DateTime?
+  confirmacaoMenorPorUserId               Int?
+  confirmacaoMenorPorFuncionarioId        Int?
+  confirmacaoMenorPorNomeSnapshot         String?
+  textoConfirmacaoMenor                   String?         @db.Text
+
+  contratos               Contrato[]
+  documentos              DocumentoAluno[]
+  documentosGerados       DocumentoGerado[]
+  itens                   ItemMatricula[]
+  lancamentosFinanceiros  LancamentoFinanceiro[]
+  vendedorResponsavel     Funcionario?                     @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
+  leadOrigem              Lead?                            @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
+  participantesComerciais MatriculaParticipanteComercial[]
+  lancamentosComissaoRH   LancamentoComissaoRH[]
+  rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
+
+  rematriculaGeradora            RematriculaSemestral?   @relation("RematriculaMatriculaGerada")
+  cursoSemestreId                Int?
+  periodoMatriculaId             Int?
+  periodoLetivo                  String?
+  turmaPrincipalId               Int?
+  realizadaPeloAluno             Boolean                 @default(false)
+  confirmadaEm                   DateTime?
+  cursoSemestre                  CursoSemestre?          @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula               PeriodoMatricula?       @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                          Aluno                   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                          Curso?                  @relation(fields: [cursoId], references: [id])
+  instituicao                    Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                           Polo?                   @relation(fields: [poloId], references: [id])
+  turmaPrincipal                 Turma?                  @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorUser        User?                   @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario?            @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+  candidaturasMobilidade         MobilidadeCandidatura[]
+
+  @@unique([instituicaoId, numeroMatricula])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([cursoId])
+  @@index([cursoSemestreId])
+  @@index([periodoMatriculaId])
+  @@index([periodoLetivo])
+  @@index([poloId])
+  @@index([numeroMatricula])
+  @@index([numeroMatriculaLegado])
+  @@index([vendedorResponsavelId])
+  @@index([confirmacaoMenorPorUserId])
+  @@index([confirmacaoMenorPorFuncionarioId])
+  @@index([alunoMenorNoMomentoMatricula])
+  @@index([turmaPrincipalId])
+  @@index([instituicaoId, excluidaEm])
+  @@index([instituicaoId, canceladaEm])
+}
+
+========================================================================
+6. MODELOS QUE REFERENCIAM Matricula
+========================================================================
+
+### Instituicao | linhas 11-295
+model Instituicao {
+  id                      Int      @id @default(autoincrement())
+  nome                    String
+  ativo                   Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  proximoNumeroMatricula  Int      @default(1)
+  dominio                 String?  @unique
+  slug                    String   @unique
+  updatedAt               DateTime
+  plano                   String   @default("ESSENCIAL")
+  redeInstitucionalId     Int?
+  herdaPlanoContratante   Boolean  @default(false)
+  statusAssinatura        String   @default("ATIVA")
+  podeCriarGerenciarPolos Boolean  @default(false)
+
+  metaAccessToken     String?
+  metaConectado       Boolean @default(false)
+  metaPageId          String?
+  metaPageName        String?
+  metaPageAccessToken String?
+  usaControlePonto    Boolean @default(false)
+  usaBancoHoras       Boolean @default(true)
+
+  googleAnalyticsId          String?
+  googleAnalyticsPropertyId  String?
+  googleAnalyticsAtivo       Boolean @default(false)
+  googleTagManagerId         String?
+  googleTagManagerAtivo      Boolean @default(false)
+  googleAdsId                String?
+  googleAdsAtivo             Boolean @default(false)
+  googleAdsCustomerId        String?
+  googleAdsRefreshToken      String?
+  googleAdsAccountName       String?
+  searchConsoleDominio       String?
+  searchConsoleAtivo         Boolean @default(false)
+  googleBusinessUrl          String?
+  googleBusinessAtivo        Boolean @default(false)
+  googleBusinessRefreshToken String?
+  googleBusinessAccountId    String?
+  googleBusinessLocationId   String?
+  googleBusinessName         String?
+  googleSearchConsoleMeta    String?
+  responsavelRH              String?
+  emailRH                    String?
+  telefoneRH                 String?
+
+  googleSearchConsoleAtivo Boolean @default(false)
+
+  aniversariantesAtivo Boolean @default(true)
+
+  aniversarioTituloPadrao   String?
+  aniversarioMensagemPadrao String? @db.Text
+
+  aniversarioEnviarChatPadrao     Boolean @default(true)
+  aniversarioEnviarWhatsappPadrao Boolean @default(false)
+
+  configuracaoEmail ConfiguracaoEmailInstituicao?
+
+  alternativas                   Alternativa[]
+  ouvidoriasPhanyx               OuvidoriaPhanyx[]
+  alunos                         Aluno[]
+  atestadosMedicos               AtestadoMedico[]
+  atividades                     Atividade[]
+  anexosAtividade                AtividadeAnexo[]
+  aulas                          Aula[]
+  caixas                         Caixa[]
+  certificados                   Certificado[]
+  cobrancas                      Cobranca[]
+  configuracaoInstituicao        ConfiguracaoInstituicao?
+  contratos                      Contrato[]
+  cursos                         Curso[]
+  cursoSemestres                 CursoSemestre[]
+  cursoSemestreDisciplinas       CursoSemestreDisciplina[]
+  Departamento                   Departamento[]
+  cargos                         Cargo[]
+  disciplinas                    Disciplina[]
+  documentosAlunos               DocumentoAluno[]
+  documentosGerados              DocumentoGerado[]
+  documentoTemplates             DocumentoTemplate[]
+  logosInstitucionais            InstituicaoLogo[]
+  entregas                       EntregaAtividade[]
+  Funcionario                    Funcionario[]
+  itensMatricula                 ItemMatricula[]
+  lancamentosFinanceiros         LancamentoFinanceiro[]
+  materiaisAula                  MaterialAula[]
+  matriculas                     Matricula[]
+  modulos                        Modulo[]
+  movimentosCaixa                MovimentoCaixa[]
+  notas                          Nota[]
+  pagamentos                     Pagamento[]
+  presencasAula                  PresencaAula[]
+  professores                    Professor[]
+  progressoAulas                 ProgressoAula[]
+  sessoesVideoAluno              SessaoVideoAluno[]
+  eventosAprendizagemAluno       EventoAprendizagemAluno[]
+  provas                         Prova[]
+  questoes                       Questao[]
+  respostas                      RespostaProva[]
+  resultadosFinais               ResultadoFinal[]
+  tentativas                     TentativaProva[]
+  turmas                         Turma[]
+  usuarios                       User[]
+  polos                          Polo[]
+  redeInstitucional              RedeInstitucional?              @relation("RedeInstitucionalMembros", fields: [redeInstitucionalId], references: [id], onDelete: SetNull)
+  redeComoContratante            RedeInstitucional?              @relation("RedeInstitucionalContratante")
+  acessosInstitucionaisRecebidos UserInstituicaoAcesso[]         @relation("UserInstituicaoAcessoDestino")
+  poloOrigem                     Polo?                           @relation("PoloInstituicaoGerada")
+  usuariosPolos                  UserPolo[]
+  adesoes                        AdesaoInstituicao[]
+  assinaturaPhanyx               AssinaturaPhanyx?
+  TurmaDisciplina                TurmaDisciplina[]
+  certificadoCampos              CertificadoCampo[]
+  certificadoModelos             CertificadoModelo[]
+  periodosMatricula              PeriodoMatricula[]
+  periodosMatriculaTurmas        PeriodoMatriculaTurma[]
+  disciplinaPreRequisitos        DisciplinaPreRequisito[]
+  cursosDisciplinasExtras        CursoDisciplinaExtraPermitida[]
+  impersonacoesSuporte           ImpersonacaoSuporte[]
+  publicacoesCursosRedeOrigem    CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoOrigem")
+  publicacoesCursosRedeDestino   CursoPublicacaoRede[]           @relation("CursoPublicacaoInstituicaoDestino")
+  certificadoTemplateUrl         String?
+  certificadoPreviewUrl          String?
+  certificadoTextoPadrao         String?
+  certificadoAssinaturaUrl       String?
+  certificadoCoordenadorNome     String?
+  certificadoCidade              String?
+
+  certificadoModoFundo      String @default("modelo") // modelo | phanyx | cor
+  certificadoCorFundoPagina String @default("#ffffff")
+  certificadoTamanhoPapel   String @default("A4") // A5 | A4 | A3
+  certificadoOrientacao     String @default("paisagem") // paisagem | retrato
+  certificadoLarguraBase    Int    @default(1123)
+  certificadoAlturaBase     Int    @default(794)
+
+  cursosPolos             CursoPolo[]
+  professoresDisciplinas  ProfessorDisciplina[]
+  turmaSemestres          TurmaSemestre[]
+  turmaDisciplinaHorarios TurmaDisciplinaHorario[]
+  ouvidorias              Ouvidoria[]
+  reunioes                Reuniao[]
+
+  documentosRH                                DocumentoRH[]
+  feriasRH                                    FeriasRH[]
+  examesRH                                    ExameMedicoRH[]
+  rescisoesRH                                 RescisaoRH[]
+  holeritesRH                                 HoleriteRH[]
+  pagamentosHoleriteRH                        PagamentoHoleriteRH[]
+  contasBancariasFuncionariosRH               ContaBancariaFuncionarioRH[]
+  itensPagamentoHoleriteRH                    ItemPagamentoHoleriteRH[]
+  pontosRH                                    PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
+  itensCorrecaoPontoRH                        SolicitacaoCorrecaoPontoItemRH[]
+  avisosWhatsappCorrecaoPontoRH               AvisoWhatsappCorrecaoPontoRH[]
+  historicosRH                                HistoricoRH[]
+  historicosLotacaoFuncionariosRH             FuncionarioLotacaoRH[]
+  ocorrenciasRH                               OcorrenciaRH[]
+  escalasRH                                   EscalaTrabalhoRH[]
+  bancoHorasRH                                BancoHorasRH[]
+  integracoesPontoRH                          IntegracaoPontoRH[]
+  configuracaoPontoMobile                     ConfiguracaoPontoMobileRH?
+  locaisPontoMobile                           LocalPontoMobileRH[]
+  marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
+  eventosFolhaRH                              EventoFolhaRH[]
+  beneficiosRH                                BeneficioRH[]
+  funcionariosBeneficiosRH                    FuncionarioBeneficioRH[]
+  programasRemuneracaoVariavelRH              ProgramaRemuneracaoVariavelRH[]
+  participantesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
+  configuracoesPortais                        ConfiguracaoPortalInstituicao[]
+  isentaPagamento                             Boolean                                     @default(false)
+  motivoIsencao                               String?
+  EntregaAtividadeHistorico                   EntregaAtividadeHistorico[]
+  documentosProfessor                         DocumentoProfessor[]
+  notificacoes                                Notificacao[]
+
+  whatsappIntegracao    WhatsAppInstituicao?
+  whatsappTemplates     WhatsAppTemplate[]
+  whatsappMensagens     WhatsAppMensagem[]
+  whatsappConfiguracoes WhatsAppConfiguracaoComunicacao[]
+
+  substituicoesDocentes          SubstituicaoDocente[]
+  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
+  crachaModelos                  CrachaModelo[]
+  crachasEmitidos                CrachaEmitido[]
+  CrachaLoteEmissao              CrachaLoteEmissao[]
+  visitantes                     Visitante[]
+  leadsGerenciados               Lead[]                           @relation("LeadInstituicaoGestora")
+  leadsComoInteressada           Lead[]                           @relation("LeadInstituicaoInteressada")
+  interacoesLead                 LeadInteracao[]                  @relation("LeadInteracaoInstituicao")
+  funisComerciais                FunilComercial[]
+  etapasFunisComerciais          EtapaFunilComercial[]
+  motivosPerdaComerciais         MotivoPerdaComercial[]
+  movimentacoesFunilLead         LeadMovimentacaoFunil[]
+  transferenciasLead             LeadTransferencia[]
+  tarefasComerciais              TarefaComercial[]
+  canaisCaptacaoLead             CanalCaptacaoLead[]
+  campanhasCaptacaoLead          CampanhaCaptacaoLead[]
+  formulariosCaptacaoLead        FormularioCaptacaoLead[]
+  camposFormularioCaptacaoLead   CampoFormularioCaptacaoLead[]
+  submissoesCaptacaoLead         SubmissaoCaptacaoLead[]
+  regrasDistribuicaoLead         RegraDistribuicaoLead[]
+  integracoesCaptacaoLead        IntegracaoCaptacaoLead[]
+  eventosIntegracaoCaptacaoLead  EventoIntegracaoCaptacaoLead[]
+  regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
+  mediaMinimaCertificado         Float                            @default(7)
+  frequenciaMinimaCertificado    Float                            @default(75)
+  liberarCertificadoAutomatico   Boolean                          @default(true)
+  PlanoComissaoRH                PlanoComissaoRH[]
+  RegraComissaoRH                RegraComissaoRH[]
+  FuncionarioPlanoComissaoRH     FuncionarioPlanoComissaoRH[]
+  MatriculaParticipanteComercial MatriculaParticipanteComercial[]
+  LancamentoComissaoRH           LancamentoComissaoRH[]
+  equipesComerciais              EquipeComercial[]
+  membrosEquipesComerciais       EquipeComercialMembro[]
+  metasComerciais                MetaComercial[]
+  participantesMetasComerciais   MetaComercialParticipante[]
+  rematriculasSemestrais         RematriculaSemestral[]
+  itensRematriculaSemestral      RematriculaSemestralItem[]
+
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+
+  modulosAdicionais               ModuloAdicionalInstituicao[]
+  bibliotecaConfiguracao          BibliotecaConfiguracao?
+  bibliotecaOperadores            BibliotecaOperador[]
+  bibliotecaConsumos              BibliotecaConsumoArmazenamento[]
+  bibliotecaAuditorias            BibliotecaAuditoria[]
+  bibliotecaItens                 BibliotecaItem[]
+  bibliotecaAutores               BibliotecaAutor[]
+  bibliotecaEditoras              BibliotecaEditora[]
+  bibliotecaCategorias            BibliotecaCategoria[]
+  bibliotecaArquivos              BibliotecaArquivo[]
+  bibliotecaLicencas              BibliotecaLicenca[]
+  bibliotecaExemplares            BibliotecaExemplar[]
+  bibliotecaManutencoesExemplares BibliotecaManutencaoExemplar[]
+
+  studentSuccessIntervencoes StudentSuccessIntervencao[]
+  studentSuccessAnalises     StudentSuccessAnaliseHistorico[]
+
+  bibliotecaEmprestimos BibliotecaEmprestimo[]
+  bibliotecaRenovacoes  BibliotecaRenovacao[]
+  bibliotecaReservas    BibliotecaReserva[]
+
+  bibliotecaPrateleiras       BibliotecaPrateleira[]
+  bibliotecaFavoritos         BibliotecaFavorito[]
+  bibliotecaProgressosLeitura BibliotecaProgressoLeitura[]
+
+  bibliotecaAvaliacoes       BibliotecaAvaliacao[]
+  bibliotecaHistoricosAcesso BibliotecaHistoricoAcesso[]
+  bibliotecaRecomendacoes    BibliotecaRecomendacao[]
+
+  atividadesExternas                          AtividadeExterna[]
+  atividadesExternasTurmas                    AtividadeExternaTurma[]
+  atividadesExternasParticipantes             AtividadeExternaParticipante[]
+  atividadesExternasEquipe                    AtividadeExternaEquipe[]
+  atividadesExternasAutorizacoes              AtividadeExternaAutorizacao[]
+  prestadoresTransporte                       PrestadorTransporte[]
+  veiculosTransporte                          VeiculoTransporte[]
+  condutoresTransporte                        CondutorTransporte[]
+  atividadesExternasTrechos                   AtividadeExternaTrecho[]
+  atividadesExternasTrechosVeiculos           AtividadeExternaTrechoVeiculo[]
+  atividadesExternasTrechosVeiculosCondutores AtividadeExternaTrechoVeiculoCondutor[]
+  atividadesExternasTrechosPassageiros        AtividadeExternaTrechoPassageiro[]
+  atividadesExternasCheckpoints               AtividadeExternaCheckpoint[]
+  atividadesExternasCheckpointRegistros       AtividadeExternaCheckpointRegistro[]
+  atividadesExternasSaudeParticipantes        AtividadeExternaSaudeParticipante[]
+  atividadesExternasRiscos                    AtividadeExternaRisco[]
+  atividadesExternasPlanosEmergencia          AtividadeExternaPlanoEmergencia[]
+  atividadesExternasDocumentos                AtividadeExternaDocumento[]
+  mobilidadeInstituicoesParceiras             MobilidadeInstituicaoParceira[]
+  mobilidadeConvenios                         MobilidadeConvenio[]
+  mobilidadeConvenioCursos                    MobilidadeConvenioCurso[]
+  mobilidadeProgramas                         MobilidadePrograma[]
+  mobilidadeOfertas                           MobilidadeOferta[]
+  mobilidadeOfertaCursos                      MobilidadeOfertaCurso[]
+  mobilidadeCandidaturas                      MobilidadeCandidatura[]
+  mobilidadeCandidaturaDocumentos             MobilidadeCandidaturaDocumento[]
+  mobilidadeOfertaDocumentosRequisitos        MobilidadeOfertaDocumentoRequisito[]
+
+  @@index([redeInstitucionalId])
+  @@index([redeInstitucionalId, ativo])
+}
+
+### User | linhas 311-573
+model User {
+  id                 Int          @id @default(autoincrement())
+  nome               String
+  email              String       @unique
+  senha              String
+  createdAt          DateTime     @default(now())
+  instituicaoId      Int
+  ativo              Boolean      @default(true)
+  updatedAt          DateTime     @updatedAt
+  role               Role
+  ultimoLoginAt      DateTime?
+  aluno              Aluno?
+  funcionario        Funcionario?
+  professor          Professor?
+  resetToken         String?
+  resetTokenExpira   DateTime?
+  precisaTrocarSenha Boolean      @default(false)
+  isMasterAdmin      Boolean      @default(false)
+  acessoTodosPolos   Boolean      @default(true)
+  instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  cursosCriados     Curso[]            @relation("CursoCriadoPor")
+  cursosExcluidos   Curso[]            @relation("CursoExcluidoPor")
+  CreditoIA         CreditoIA?
+  notificacoes      Notificacao[]
+  whatsappMensagens WhatsAppMensagem[]
+
+  autorizacoesCorrecaoPontoRH AutorizacaoCorrecaoPontoRH[] @relation("AutorizacaoCorrecaoPontoRHAutorizadoPor")
+
+  cancelamentosCorrecaoPontoRH AutorizacaoCorrecaoPontoRH[] @relation("AutorizacaoCorrecaoPontoRHCanceladoPor")
+
+  solicitacoesCorrecaoPontoRHAplicadas SolicitacaoCorrecaoPontoRH[] @relation("SolicitacaoCorrecaoPontoRHAplicadoPor")
+
+  avisosWhatsappCorrecaoPontoRHDestinatario AvisoWhatsappCorrecaoPontoRH[] @relation("AvisoWhatsappCorrecaoPontoRHDestinatario")
+
+  reunioesCriadas         Reuniao[]             @relation("ReuniaoCriadaPor")
+  reunioesParticipante    ReuniaoParticipante[]
+  documentosRHCriados     DocumentoRH[]         @relation("DocumentoRHCriadoPor")
+  documentosRHArquivados  DocumentoRH[]         @relation("DocumentoRHArquivadoPor")
+  documentosRHRestaurados DocumentoRH[]         @relation("DocumentoRHRestauradoPor")
+  ocorrenciasRHCriadas    OcorrenciaRH[]        @relation("OcorrenciaRHCriadoPor")
+  ocorrenciasRHArquivadas OcorrenciaRH[]        @relation("OcorrenciaRHArquivadaPor")
+  atividadesCriadas       Atividade[]           @relation("AtividadeCriadaPor")
+  atividadesPublicadas    Atividade[]           @relation("AtividadePublicadaPor")
+  anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
+  crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
+  crachasLotesCriados     CrachaLoteEmissao[]   @relation("CrachaLoteCriadoPor")
+
+  feriasRHCriadas                  FeriasRH[]               @relation("FeriasRHCriadoPor")
+  feriasRHArquivadas               FeriasRH[]               @relation("FeriasRHArquivadaPor")
+  feriasRHRestauradas              FeriasRH[]               @relation("FeriasRHRestauradoPor")
+  alteracoesRemuneracaoRH          HistoricoRemuneracaoRH[] @relation("HistoricoRemuneracaoRHAlteradoPor")
+  movimentacoesLotacaoRHRealizadas FuncionarioLotacaoRH[]   @relation("FuncionarioLotacaoRealizadoPor")
+
+  examesRHCriados     ExameMedicoRH[] @relation("ExameMedicoRHCriadoPor")
+  examesRHArquivados  ExameMedicoRH[] @relation("ExameMedicoRHArquivadoPor")
+  examesRHRestaurados ExameMedicoRH[] @relation("ExameMedicoRHRestauradoPor")
+
+  rescisoesRHCriadas     RescisaoRH[] @relation("RescisaoRHCriadoPor")
+  rescisoesRHArquivadas  RescisaoRH[] @relation("RescisaoRHArquivadaPor")
+  rescisoesRHRestauradas RescisaoRH[] @relation("RescisaoRHRestauradoPor")
+
+  holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
+  holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
+  holeritesRHPagos      HoleriteRH[] @relation("HoleriteRHPagoPor")
+
+  pagamentosHoleriteRHRegistrados                  PagamentoHoleriteRH[]               @relation("PagamentoHoleriteRHRegistradoPor")
+  pagamentosHoleriteRHConfirmados                  PagamentoHoleriteRH[]               @relation("PagamentoHoleriteRHConfirmadoPor")
+  pagamentosHoleriteRHContestados                  PagamentoHoleriteRH[]               @relation("PagamentoHoleriteRHContestadoPor")
+  pagamentosHoleriteRHCancelados                   PagamentoHoleriteRH[]               @relation("PagamentoHoleriteRHCanceladoPor")
+  pagamentosHoleriteRHAssinadosPeloRh              PagamentoHoleriteRH[]               @relation("PagamentoHoleriteRHAssinadoPeloRh")
+  documentosAssinadosManualmenteHoleriteRHEnviados DocumentoAssinadoManualHoleriteRH[] @relation("DocumentoAssinadoManualHoleriteRHEnviadoPor")
+
+  documentosProfessorCriados     DocumentoProfessor[]           @relation("DocumentoProfessorCriadoPor")
+  documentosProfessorArquivados  DocumentoProfessor[]           @relation("DocumentoProfessorArquivadoPor")
+  documentosProfessorRestaurados DocumentoProfessor[]           @relation("DocumentoProfessorRestauradoPor")
+  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
+  visitantesCriados              Visitante[]                    @relation("VisitanteCriadoPor")
+  ajustesMarcacaoPontoRHCriados  AjusteMarcacaoPontoRH[]        @relation("AjusteMarcacaoPontoRHCriadoPor")
+
+  certificadoModelosCriados    CertificadoModelo[] @relation("CertificadoModeloCriadoPor")
+  certificadoModelosPublicados CertificadoModelo[] @relation("CertificadoModeloPublicadoPor")
+
+  planosComissaoRHCriados                              PlanoComissaoRH[]                           @relation("PlanoComissaoRHCriadoPor")
+  regrasComissaoRHCriadas                              RegraComissaoRH[]                           @relation("RegraComissaoRHCriadoPor")
+  funcionariosPlanosComissaoRHCriados                  FuncionarioPlanoComissaoRH[]                @relation("FuncionarioPlanoComissaoRHCriadoPor")
+  participantesComerciaisCriados                       MatriculaParticipanteComercial[]            @relation("MatriculaParticipanteComercialCriadoPor")
+  lancamentosComissaoRHCriados                         LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHCriadoPor")
+  lancamentosComissaoRHAprovados                       LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHAprovadoPor")
+  lancamentosComissaoRHReprovados                      LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHReprovadoPor")
+  lancamentosComissaoRHEnviadosHolerite                LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHEnviadoHoleritePor")
+  lancamentosComissaoRHEstornados                      LancamentoComissaoRH[]                      @relation("LancamentoComissaoRHEstornadoPor")
+  leadsCriados                                         Lead[]                                      @relation("LeadCriadoPor")
+  leadsAtualizados                                     Lead[]                                      @relation("LeadAtualizadoPor")
+  interacoesLeadCriadas                                LeadInteracao[]                             @relation("LeadInteracaoCriadaPor")
+  leadsPerdidos                                        Lead[]                                      @relation("LeadPerdidoPor")
+  leadsArquivados                                      Lead[]                                      @relation("LeadArquivadoPor")
+  leadsRestaurados                                     Lead[]                                      @relation("LeadRestauradoPor")
+  equipesComerciaisCriadas                             EquipeComercial[]                           @relation("EquipeComercialCriadaPor")
+  equipesComerciaisAtualizadas                         EquipeComercial[]                           @relation("EquipeComercialAtualizadaPor")
+  membrosEquipesComerciaisCriados                      EquipeComercialMembro[]                     @relation("EquipeComercialMembroCriadoPor")
+  membrosEquipesComerciaisAtualizados                  EquipeComercialMembro[]                     @relation("EquipeComercialMembroAtualizadoPor")
+  metasComerciaisCriadas                               MetaComercial[]                             @relation("MetaComercialCriadaPor")
+  metasComerciaisAtualizadas                           MetaComercial[]                             @relation("MetaComercialAtualizadaPor")
+  participantesMetasComerciaisCriados                  MetaComercialParticipante[]                 @relation("MetaComercialParticipanteCriadoPor")
+  participantesMetasComerciaisAtualizados              MetaComercialParticipante[]                 @relation("MetaComercialParticipanteAtualizadoPor")
+  programasRemuneracaoVariavelRHCriados                ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHCriadoPor")
+  programasRemuneracaoVariavelRHAprovados              ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHAprovadoPor")
+  participantesProgramasRemuneracaoVariavelRHIncluidos ParticipanteProgramaRemuneracaoVariavelRH[] @relation("ParticipanteProgramaRemuneracaoVariavelRHIncluidoPor")
+  lancamentosRemuneracaoVariavelRHCriados              LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHCriadoPor")
+  lancamentosRemuneracaoVariavelRHAprovados            LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHAprovadoPor")
+  lancamentosRemuneracaoVariavelRHReprovados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHReprovadoPor")
+  lancamentosRemuneracaoVariavelRHEnviadosHolerite     LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEnviadoHoleritePor")
+  lancamentosRemuneracaoVariavelRHEstornados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEstornadoPor")
+  impersonacoesComoMaster                              ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteMaster")
+  impersonacoesComoAlvo                                ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteAlvo")
+  rematriculasAnalisadas                               RematriculaSemestral[]                      @relation("RematriculaAnalisadaPor")
+  funisComerciaisCriados                               FunilComercial[]                            @relation("FunilComercialCriadoPor")
+  funisComerciaisAtualizados                           FunilComercial[]                            @relation("FunilComercialAtualizadoPor")
+  funisComerciaisArquivados                            FunilComercial[]                            @relation("FunilComercialArquivadoPor")
+  funisComerciaisRestaurados                           FunilComercial[]                            @relation("FunilComercialRestauradoPor")
+  movimentacoesFunilLeadRealizadas                     LeadMovimentacaoFunil[]                     @relation("LeadMovimentacaoRealizadaPor")
+  transferenciasLeadRealizadas                         LeadTransferencia[]                         @relation("LeadTransferenciaRealizadaPor")
+
+  tarefasComerciaisCriadas           TarefaComercial[]        @relation("TarefaComercialCriadaPor")
+  tarefasComerciaisAtualizadas       TarefaComercial[]        @relation("TarefaComercialAtualizadaPor")
+  tarefasComerciaisConcluidas        TarefaComercial[]        @relation("TarefaComercialConcluidaPor")
+  tarefasComerciaisCanceladas        TarefaComercial[]        @relation("TarefaComercialCanceladaPor")
+  canaisCaptacaoLeadCriados          CanalCaptacaoLead[]      @relation("CanalCaptacaoLeadCriadoPor")
+  canaisCaptacaoLeadAtualizados      CanalCaptacaoLead[]      @relation("CanalCaptacaoLeadAtualizadoPor")
+  campanhasCaptacaoLeadCriadas       CampanhaCaptacaoLead[]   @relation("CampanhaCaptacaoLeadCriadaPor")
+  campanhasCaptacaoLeadAtualizadas   CampanhaCaptacaoLead[]   @relation("CampanhaCaptacaoLeadAtualizadaPor")
+  formulariosCaptacaoLeadCriados     FormularioCaptacaoLead[] @relation("FormularioCaptacaoLeadCriadoPor")
+  formulariosCaptacaoLeadAtualizados FormularioCaptacaoLead[] @relation("FormularioCaptacaoLeadAtualizadoPor")
+  regrasDistribuicaoLeadCriadas      RegraDistribuicaoLead[]  @relation("RegraDistribuicaoLeadCriadaPor")
+  regrasDistribuicaoLeadAtualizadas  RegraDistribuicaoLead[]  @relation("RegraDistribuicaoLeadAtualizadaPor")
+  integracoesCaptacaoLeadCriadas     IntegracaoCaptacaoLead[] @relation("IntegracaoCaptacaoLeadCriadaPor")
+  integracoesCaptacaoLeadAtualizadas IntegracaoCaptacaoLead[] @relation("IntegracaoCaptacaoLeadAtualizadaPor")
+  etapasFunisComerciaisCriadas       EtapaFunilComercial[]    @relation("EtapaFunilComercialCriadaPor")
+  etapasFunisComerciaisAtualizadas   EtapaFunilComercial[]    @relation("EtapaFunilComercialAtualizadaPor")
+  etapasFunisComerciaisArquivadas    EtapaFunilComercial[]    @relation("EtapaFunilComercialArquivadaPor")
+  etapasFunisComerciaisRestauradas   EtapaFunilComercial[]    @relation("EtapaFunilComercialRestauradaPor")
+
+  studentSuccessIntervencoesCriadas StudentSuccessIntervencao[]      @relation("StudentSuccessIntervencaoCriadaPor")
+  studentSuccessAnalisesExecutadas  StudentSuccessAnaliseHistorico[] @relation("StudentSuccessAnaliseExecutadaPor")
+
+  motivosPerdaComerciaisCriados     MotivoPerdaComercial[] @relation("MotivoPerdaComercialCriadoPor")
+  motivosPerdaComerciaisAtualizados MotivoPerdaComercial[] @relation("MotivoPerdaComercialAtualizadoPor")
+  motivosPerdaComerciaisArquivados  MotivoPerdaComercial[] @relation("MotivoPerdaComercialArquivadoPor")
+  motivosPerdaComerciaisRestaurados MotivoPerdaComercial[] @relation("MotivoPerdaComercialRestauradoPor")
+
+  acessosPolos          UserPolo[] @relation("UserPoloUsuario")
+  acessosPolosCriados   UserPolo[] @relation("UserPoloCriadoPor")
+  acessosPolosRevogados UserPolo[] @relation("UserPoloRevogadoPor")
+  polosCriados          Polo[]     @relation("PoloCriadoPor")
+  polosAtivados         Polo[]     @relation("PoloAtivadoPor")
+  polosSuspensos        Polo[]     @relation("PoloSuspensoPor")
+  polosEncerrados       Polo[]     @relation("PoloEncerradoPor")
+
+  acessosInstitucionais          UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoUsuario")
+  acessosInstitucionaisCriados   UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoCriadoPor")
+  acessosInstitucionaisRevogados UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoRevogadoPor")
+
+  restricoesRematriculaAplicadas   RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaAplicadaPor")
+  restricoesRematriculaRemovidas   RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaRemovidaPor")
+  historicosRestricaoRematricula   RestricaoRematriculaHistorico[] @relation("RestricaoRematriculaHistoricoRealizadoPor")
+  matriculasConfirmacaoMenor       Matricula[]                     @relation("MatriculaConfirmacaoMenorPorUser")
+  publicacoesCursosRedeCriadas     CursoPublicacaoRede[]           @relation("CursoPublicacaoPublicadoPor")
+  publicacoesCursosRedeAtualizadas CursoPublicacaoRede[]           @relation("CursoPublicacaoAtualizadoPor")
+  publicacoesCursosRedeRetiradas   CursoPublicacaoRede[]           @relation("CursoPublicacaoRetiradoPor")
+
+  modulosAdicionaisBibliotecaCriados     ModuloAdicionalInstituicao[]     @relation("ModuloAdicionalCriadoPor")
+  modulosAdicionaisBibliotecaAtualizados ModuloAdicionalInstituicao[]     @relation("ModuloAdicionalAtualizadoPor")
+  bibliotecaConfiguracoesAtualizadas     BibliotecaConfiguracao[]         @relation("BibliotecaConfiguracaoAtualizadaPor")
+  bibliotecaOperadores                   BibliotecaOperador[]             @relation("BibliotecaOperadorUsuario")
+  bibliotecaOperadoresCriados            BibliotecaOperador[]             @relation("BibliotecaOperadorCriadoPor")
+  bibliotecaOperadoresRevogados          BibliotecaOperador[]             @relation("BibliotecaOperadorRevogadoPor")
+  bibliotecaConsumosRegistrados          BibliotecaConsumoArmazenamento[] @relation("BibliotecaConsumoRegistradoPor")
+  bibliotecaAuditoriasRealizadas         BibliotecaAuditoria[]            @relation("BibliotecaAuditoriaUsuario")
+  bibliotecaItensCriados                 BibliotecaItem[]                 @relation("BibliotecaItemCriadoPor")
+  bibliotecaItensAtualizados             BibliotecaItem[]                 @relation("BibliotecaItemAtualizadoPor")
+  bibliotecaItensPublicados              BibliotecaItem[]                 @relation("BibliotecaItemPublicadoPor")
+  bibliotecaItensArquivados              BibliotecaItem[]                 @relation("BibliotecaItemArquivadoPor")
+  bibliotecaArquivosEnviados             BibliotecaArquivo[]              @relation("BibliotecaArquivoEnviadoPor")
+  bibliotecaArquivosArquivados           BibliotecaArquivo[]              @relation("BibliotecaArquivoArquivadoPor")
+  bibliotecaLicencasCriadas              BibliotecaLicenca[]              @relation("BibliotecaLicencaCriadaPor")
+  bibliotecaLicencasAtualizadas          BibliotecaLicenca[]              @relation("BibliotecaLicencaAtualizadaPor")
+  bibliotecaExemplaresCriados            BibliotecaExemplar[]             @relation("BibliotecaExemplarCriadoPor")
+  bibliotecaExemplaresAtualizados        BibliotecaExemplar[]             @relation("BibliotecaExemplarAtualizadoPor")
+  bibliotecaManutencoesIniciadas         BibliotecaManutencaoExemplar[]   @relation("BibliotecaManutencaoIniciadaPor")
+  bibliotecaManutencoesConcluidas        BibliotecaManutencaoExemplar[]   @relation("BibliotecaManutencaoConcluidaPor")
+  bibliotecaManutencoesCanceladas        BibliotecaManutencaoExemplar[]   @relation("BibliotecaManutencaoCanceladaPor")
+  bibliotecaEmprestimos                  BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoUsuario")
+  bibliotecaEmprestimosRegistrados       BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoRegistradoPor")
+  bibliotecaDevolucoesRegistradas        BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoDevolvidoPor")
+  bibliotecaEmprestimosCancelados        BibliotecaEmprestimo[]           @relation("BibliotecaEmprestimoCanceladoPor")
+
+  bibliotecaRenovacoesSolicitadas BibliotecaRenovacao[] @relation("BibliotecaRenovacaoSolicitadaPor")
+  bibliotecaRenovacoesAnalisadas  BibliotecaRenovacao[] @relation("BibliotecaRenovacaoAnalisadaPor")
+
+  bibliotecaReservas           BibliotecaReserva[] @relation("BibliotecaReservaUsuario")
+  bibliotecaReservasCriadas    BibliotecaReserva[] @relation("BibliotecaReservaCriadaPor")
+  bibliotecaReservasAtendidas  BibliotecaReserva[] @relation("BibliotecaReservaAtendidaPor")
+  bibliotecaReservasCanceladas BibliotecaReserva[] @relation("BibliotecaReservaCanceladaPor")
+
+  bibliotecaPrateleirasProprias        BibliotecaPrateleira[]       @relation("BibliotecaPrateleiraProprietario")
+  bibliotecaPrateleirasCriadas         BibliotecaPrateleira[]       @relation("BibliotecaPrateleiraCriadaPor")
+  bibliotecaPrateleirasAtualizadas     BibliotecaPrateleira[]       @relation("BibliotecaPrateleiraAtualizadaPor")
+  bibliotecaItensPrateleiraAdicionados BibliotecaPrateleiraItem[]   @relation("BibliotecaPrateleiraItemAdicionadoPor")
+  bibliotecaFavoritos                  BibliotecaFavorito[]
+  bibliotecaProgressosLeitura          BibliotecaProgressoLeitura[]
+
+  bibliotecaAvaliacoesRealizadas           BibliotecaAvaliacao[]        @relation("BibliotecaAvaliacaoUsuario")
+  bibliotecaAvaliacoesModeradas            BibliotecaAvaliacao[]        @relation("BibliotecaAvaliacaoModeradaPor")
+  bibliotecaHistoricosAcesso               BibliotecaHistoricoAcesso[]
+  contratacoesModulosAdicionaisSolicitadas ModuloAdicionalContratacao[] @relation("ModuloAdicionalContratacaoSolicitadaPor")
+
+  atividadesExternasCriadas                AtividadeExterna[]                      @relation("AtividadeExternaCriadaPor")
+  atividadesExternasResponsavelPrincipal   AtividadeExterna[]                      @relation("AtividadeExternaResponsavelPrincipal")
+  prestadoresTransporteCriados             PrestadorTransporte[]                   @relation("PrestadorTransporteCriadoPor")
+  prestadoresTransporteAtualizados         PrestadorTransporte[]                   @relation("PrestadorTransporteAtualizadoPor")
+  veiculosTransporteCriados                VeiculoTransporte[]                     @relation("VeiculoTransporteCriadoPor")
+  veiculosTransporteAtualizados            VeiculoTransporte[]                     @relation("VeiculoTransporteAtualizadoPor")
+  equipesAtividadeExterna                  AtividadeExternaEquipe[]                @relation("AtividadeExternaEquipeUser")
+  autorizacoesAtividadeExternaRespondidas  AtividadeExternaAutorizacao[]           @relation("AtividadeExternaAutorizacaoRespondidaPor")
+  autorizacoesAtividadeExternaRegistradas  AtividadeExternaAutorizacao[]           @relation("AtividadeExternaAutorizacaoRegistradaPor")
+  condutoresTransporteCriados              CondutorTransporte[]                    @relation("CondutorTransporteCriadoPor")
+  condutoresTransporteAtualizados          CondutorTransporte[]                    @relation("CondutorTransporteAtualizadoPor")
+  trechosAtividadesExternasCriados         AtividadeExternaTrecho[]                @relation("AtividadeExternaTrechoCriadoPor")
+  trechosAtividadesExternasAtualizados     AtividadeExternaTrecho[]                @relation("AtividadeExternaTrechoAtualizadoPor")
+  trechosVeiculosCriados                   AtividadeExternaTrechoVeiculo[]         @relation("AtividadeExternaTrechoVeiculoCriadoPor")
+  trechosVeiculosAtualizados               AtividadeExternaTrechoVeiculo[]         @relation("AtividadeExternaTrechoVeiculoAtualizadoPor")
+  trechosVeiculosCondutoresCriados         AtividadeExternaTrechoVeiculoCondutor[] @relation("AtividadeExternaTrechoVeiculoCondutorCriadoPor")
+  trechosVeiculosCondutoresAtualizados     AtividadeExternaTrechoVeiculoCondutor[] @relation("AtividadeExternaTrechoVeiculoCondutorAtualizadoPor")
+  trechosPassageirosCriados                AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaTrechoPassageiroCriadoPor")
+  trechosPassageirosAtualizados            AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaTrechoPassageiroAtualizadoPor")
+  embarquesAtividadeExternaConfirmados     AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaPassageiroEmbarqueConfirmadoPor")
+  desembarquesAtividadeExternaConfirmados  AtividadeExternaTrechoPassageiro[]      @relation("AtividadeExternaPassageiroDesembarqueConfirmadoPor")
+  checkpointsAtividadesExternasCriados     AtividadeExternaCheckpoint[]            @relation("AtividadeExternaCheckpointCriadoPor")
+  checkpointsAtividadesExternasAtualizados AtividadeExternaCheckpoint[]            @relation("AtividadeExternaCheckpointAtualizadoPor")
+  checkpointRegistrosRealizados            AtividadeExternaCheckpointRegistro[]    @relation("AtividadeExternaCheckpointRegistradoPor")
+  checkpointRegistrosAtualizados           AtividadeExternaCheckpointRegistro[]    @relation("AtividadeExternaCheckpointRegistroAtualizadoPor")
+  saudeAtividadesExternasRegistrada        AtividadeExternaSaudeParticipante[]     @relation("AtividadeExternaSaudeRegistradaPor")
+  saudeAtividadesExternasAtualizada        AtividadeExternaSaudeParticipante[]     @relation("AtividadeExternaSaudeAtualizadaPor")
+  riscosAtividadesExternasCriados          AtividadeExternaRisco[]                 @relation("AtividadeExternaRiscoCriadoPor")
+  riscosAtividadesExternasAtualizados      AtividadeExternaRisco[]                 @relation("AtividadeExternaRiscoAtualizadoPor")
+  planosEmergenciaExternosCriados          AtividadeExternaPlanoEmergencia[]       @relation("AtividadeExternaPlanoEmergenciaCriadoPor")
+  planosEmergenciaExternosAtualizados      AtividadeExternaPlanoEmergencia[]       @relation("AtividadeExternaPlanoEmergenciaAtualizadoPor")
+  documentosAtividadesExternasEnviados     AtividadeExternaDocumento[]             @relation("AtividadeExternaDocumentoEnviadoPor")
+  documentosAtividadesExternasAtualizados  AtividadeExternaDocumento[]             @relation("AtividadeExternaDocumentoAtualizadoPor")
+  mobilidadeInstituicoesParceirasCriadas   MobilidadeInstituicaoParceira[]         @relation("MobilidadeInstituicaoParceiraCriadaPor")
+  mobilidadeConveniosCriados               MobilidadeConvenio[]                    @relation("MobilidadeConvenioCriadoPor")
+  mobilidadeProgramasCriados               MobilidadePrograma[]                    @relation("MobilidadeProgramaCriadoPor")
+  mobilidadeOfertasCriadas                 MobilidadeOferta[]                      @relation("MobilidadeOfertaCriadaPor")
+  mobilidadeCandidaturasCriadas            MobilidadeCandidatura[]                 @relation("MobilidadeCandidaturaCriadaPor")
+  mobilidadeCandidaturasAnalisadas         MobilidadeCandidatura[]                 @relation("MobilidadeCandidaturaAnalisadaPor")
+  mobilidadeDocumentosAnalisados           MobilidadeCandidaturaDocumento[]        @relation("MobilidadeCandidaturaDocumentoAnalisadoPor")
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([role])
+  @@index([instituicaoId, acessoTodosPolos])
+}
+
+### Aluno | linhas 637-726
+model Aluno {
+  id                           Int                         @id @default(autoincrement())
+  nome                         String
+  createdAt                    DateTime                    @default(now())
+  instituicaoId                Int
+  userId                       Int                         @unique
+  ativo                        Boolean                     @default(true)
+  matricula                    String?
+  updatedAt                    DateTime                    @updatedAt
+  bairro                       String?
+  cep                          String?
+  cidade                       String?
+  complemento                  String?
+  cpf                          String?
+  dataNascimento               DateTime?
+  documentoUrl                 String?
+  endereco                     String?
+  estado                       String?
+  numero                       String?
+  rg                           String?
+  slug                         String?
+  telefone                     String?
+  nacionalidade                String?
+  paisNascimento               String?
+  paisResidencia               String?
+  tipoDocumento                String?
+  numeroDocumento              String?
+  paisTelefone                 String?
+  tipoDocumentoResponsavel     String?
+  numeroDocumentoResponsavel   String?
+  paisTelefoneResponsavel      String?
+  cpfResponsavel               String?
+  emailResponsavel             String?
+  nomeResponsavel              String?
+  fotoPerfil                   String?
+  parentescoResponsavel        String?
+  telefoneResponsavel          String?
+  statusAluno                  StatusAluno                 @default(ATIVO)
+  descricaoNecessidadeEspecial String?
+  observacoesAcessibilidade    String?
+  possuiNecessidadeEspecial    Boolean                     @default(false)
+  genero                       String?
+  nomeSocial                   String?
+  poloId                       Int?
+  recebeMensagemAniversario    Boolean                     @default(true)
+  recebeWhatsappAniversario    Boolean                     @default(true)
+  instituicao                  Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                         Polo?                       @relation(fields: [poloId], references: [id])
+  user                         User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atestadosMedicos             AtestadoMedico[]
+  certificados                 Certificado[]
+  cobrancas                    Cobranca[]
+  contratos                    Contrato[]
+  documentos                   DocumentoAluno[]
+  DocumentoGerado              DocumentoGerado[]
+  entregas                     EntregaAtividade[]
+  lancamentosFinanceiros       LancamentoFinanceiro[]
+  matriculas                   Matricula[]
+  movimentosCaixa              MovimentoCaixa[]
+  notas                        Nota[]
+  pagamentos                   Pagamento[]
+  presencasAula                PresencaAula[]
+  progresso                    ProgressoAula[]
+  sessoesVideo                 SessaoVideoAluno[]
+  eventosAprendizagem          EventoAprendizagemAluno[]
+  respostas                    RespostaProva[]
+  resultadosFinais             ResultadoFinal[]
+  tentativas                   TentativaProva[]
+  reunioesParticipante         ReuniaoParticipante[]
+  provasLiberadas              ProvaAluno[]
+  EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
+  rematriculasSemestrais       RematriculaSemestral[]
+
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+  studentSuccessIntervencoes     StudentSuccessIntervencao[]
+  studentSuccessAnalises         StudentSuccessAnaliseHistorico[]
+
+  participacoesAtividadesExternas AtividadeExternaParticipante[]
+  candidaturasMobilidade          MobilidadeCandidatura[]
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, matricula])
+  @@unique([instituicaoId, slug])
+  @@index([instituicaoId])
+  @@index([nome])
+  @@index([cpf])
+  @@index([statusAluno])
+  @@index([poloId])
+}
+
+### Curso | linhas 790-841
+model Curso {
+  id                         Int                   @id @default(autoincrement())
+  nome                       String
+  descricao                  String?
+  ativo                      Boolean               @default(true)
+  createdAt                  DateTime              @default(now())
+  instituicaoId              Int
+  codigo                     String?
+  updatedAt                  DateTime              @updatedAt
+  quantidadeParcelas         Int?
+  valorMatricula             Float?
+  valorMensalidade           Float?
+  quantidadeSemestres        Int?
+  cargaHorariaMaximaSemestre Int?
+  excluidoEm                 DateTime?
+  expiraExclusaoEm           DateTime?
+  modalidadeCertificado      ModalidadeCertificado @default(GERAL)
+  certificadoModeloId        Int?
+  criadoPorId                Int?
+  excluidoPorId              Int?
+  criadoPor                  User?                 @relation("CursoCriadoPor", fields: [criadoPorId], references: [id])
+  excluidoPor                User?                 @relation("CursoExcluidoPor", fields: [excluidoPorId], references: [id])
+  instituicao                Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  certificadoModelo          CertificadoModelo?    @relation(fields: [certificadoModeloId], references: [id], onDelete: SetNull)
+
+  semestres                       CursoSemestre[]
+  disciplinas                     Disciplina[]
+  documentosGerados               DocumentoGerado[]
+  matriculas                      Matricula[]
+  turmas                          Turma[]
+  periodosMatricula               PeriodoMatricula[]
+  disciplinasExtrasPermitidas     CursoDisciplinaExtraPermitida[]
+  cursosPolos                     CursoPolo[]
+  reunioes                        Reuniao[]
+  regrasComissaoRH                RegraComissaoRH[]
+  metasComerciais                 MetaComercial[]
+  publicacoesRedeOrigem           CursoPublicacaoRede[]           @relation("CursoPublicacaoOrigem")
+  publicacaoRedeDestino           CursoPublicacaoRede?            @relation("CursoPublicacaoDestino")
+  leadsInteressados               Lead[]                          @relation("LeadCursoInteresse")
+  formulariosCaptacaoPadrao       FormularioCaptacaoLead[]        @relation("FormularioCaptacaoCursoPadrao")
+  regrasDistribuicaoCaptacao      RegraDistribuicaoLead[]         @relation("RegraDistribuicaoCurso")
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
+  conveniosMobilidade             MobilidadeConvenioCurso[]
+  ofertasMobilidade               MobilidadeOfertaCurso[]
+
+  @@unique([instituicaoId, nome])
+  @@unique([instituicaoId, codigo])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([certificadoModeloId])
+  @@index([instituicaoId, modalidadeCertificado])
+}
+
+### CursoSemestre | linhas 843-870
+model CursoSemestre {
+  id                          Int                             @id @default(autoincrement())
+  numero                      Int
+  titulo                      String?
+  descricao                   String?
+  createdAt                   DateTime                        @default(now())
+  updatedAt                   DateTime                        @updatedAt
+  instituicaoId               Int
+  cursoId                     Int
+  cursoSemestreOrigemRedeId   Int?
+  cargaMaxima                 Int?
+  cargaMinima                 Int?
+  curso                       Curso                           @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  instituicao                 Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  disciplinas                 CursoSemestreDisciplina[]
+  disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
+  matriculas                  Matricula[]
+  periodosMatricula           PeriodoMatricula[]
+  rematriculasDestino         RematriculaSemestral[]
+  cursoSemestreOrigemRede     CursoSemestre?                  @relation("CursoSemestrePublicacaoRede", fields: [cursoSemestreOrigemRedeId], references: [id], onDelete: SetNull)
+  semestresPublicadosRede     CursoSemestre[]                 @relation("CursoSemestrePublicacaoRede")
+
+  @@unique([cursoId, numero])
+  @@unique([instituicaoId, cursoSemestreOrigemRedeId])
+  @@index([instituicaoId])
+  @@index([cursoId])
+  @@index([cursoSemestreOrigemRedeId])
+}
+
+### LancamentoFinanceiro | linhas 911-945
+model LancamentoFinanceiro {
+  id              Int                        @id @default(autoincrement())
+  tipo            TipoLancamentoFinanceiro
+  descricao       String?
+  valorOriginal   Float
+  valorPago       Float?                     @default(0)
+  vencimento      DateTime?
+  pagoEm          DateTime?
+  status          StatusLancamentoFinanceiro @default(PENDENTE)
+  poloId          Int?
+  polo            Polo?                      @relation(fields: [poloId], references: [id])
+  observacao      String?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  instituicaoId   Int
+  alunoId         Int
+  matriculaId     Int?
+  descontoValor   Float?                     @default(0)
+  jurosValor      Float?                     @default(0)
+  multaValor      Float?                     @default(0)
+  valorFinal      Float?                     @default(0)
+  aluno           Aluno                      @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  instituicao     Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula       Matricula?                 @relation(fields: [matriculaId], references: [id])
+  movimentosCaixa MovimentoCaixa[]
+  pagamentos      Pagamento[]
+
+  bibliotecaEmprestimoMulta BibliotecaEmprestimo? @relation("BibliotecaEmprestimoMultaLancamento")
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([matriculaId])
+  @@index([status])
+  @@index([tipo])
+}
+
+### DocumentoAluno | linhas 947-978
+model DocumentoAluno {
+  id                 Int                @id @default(autoincrement())
+  titulo             String
+  tipo               TipoDocumentoAluno
+  proprietario       String             @default("ALUNO") // ALUNO | RESPONSAVEL
+  arquivoUrl         String?
+  arquivoNome        String?
+  mimeType           String?
+  tamanho            Int?
+  conteudo           String?
+  criadoEm           DateTime           @default(now())
+  atualizadoEm       DateTime           @default(now()) @updatedAt
+  alunoId            Int
+  instituicaoId      Int
+  matriculaId        Int?
+  arquivado          Boolean            @default(false)
+  arquivadoEm        DateTime?
+  arquivadoPorId     Int?
+  motivoArquivamento String?
+  restauradoEm       DateTime?
+  restauradoPorId    Int?
+  motivoRestauracao  String?
+
+  aluno       Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula?  @relation(fields: [matriculaId], references: [id])
+
+  @@index([alunoId])
+  @@index([instituicaoId])
+  @@index([proprietario])
+  @@index([tipo])
+}
+
+### Turma | linhas 1027-1080
+model Turma {
+  id                              Int                             @id @default(autoincrement())
+  nome                            String
+  semestre                        String
+  professorId                     Int?
+  instituicaoId                   Int
+  ativa                           Boolean                         @default(true)
+  codigo                          String?
+  createdAt                       DateTime                        @default(now())
+  periodoLetivo                   String?
+  turno                           String?
+  modalidade                      String?
+  predio                          String?
+  ala                             String?
+  andar                           String?
+  sala                            String?
+  updatedAt                       DateTime                        @updatedAt
+  capacidadeMaxima                Int?
+  capacidadeMinima                Int?
+  cursoId                         Int?
+  dataInicio                      DateTime?
+  dataFim                         DateTime?
+  statusTurma                     StatusTurma                     @default(AGUARDANDO)
+  atividades                      Atividade[]
+  aulas                           Aula[]
+  itensMatricula                  ItemMatricula[]
+  matriculasComoPrincipal         Matricula[]                     @relation("MatriculaTurmaPrincipal")
+  modulos                         Modulo[]
+  notas                           Nota[]
+  provas                          Prova[]
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
+  resultadosFinais                ResultadoFinal[]
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  disciplinas                     TurmaDisciplina[]
+  semestres                       TurmaSemestre[]
+  periodosMatriculaParticipantes  PeriodoMatriculaTurma[]
+  poloId                          Int?
+  polo                            Polo?                           @relation(fields: [poloId], references: [id])
+  reunioes                        Reuniao[]
+  substituicoesDocentes           SubstituicaoDocente[]
+  destinosRecomendacoesBiblioteca BibliotecaRecomendacaoDestino[]
+
+  atividadesExternas AtividadeExternaTurma[]
+
+  @@unique([instituicaoId, nome, semestre, periodoLetivo])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([professorId])
+  @@index([statusTurma])
+  @@index([poloId])
+}
+
+### ItemMatricula | linhas 1222-1245
+model ItemMatricula {
+  id            Int                 @id @default(autoincrement())
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  instituicaoId Int
+  matriculaId   Int
+  turmaId       Int
+  disciplinaId  Int
+  tipoItem      TipoItemMatricula   @default(GRADE_PRINCIPAL)
+  status        StatusItemMatricula @default(A_CURSAR)
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula   @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  @@unique([matriculaId, turmaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([status])
+  @@index([tipoItem])
+}
+
+### Funcionario | linhas 1770-1914
+model Funcionario {
+  id                Int      @id @default(autoincrement())
+  nome              String
+  ativo             Boolean  @default(true)
+  statusFuncionario String   @default("ATIVO")
+  motivoStatus      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  cpf               String?
+  rg                String?
+  telefone          String?
+
+  // Dados pessoais internacionais
+  paisTelefone          String? @db.VarChar(2)
+  nacionalidade         String?
+  paisResidencia        String? @db.VarChar(2)
+  tipoDocumento         String?
+  numeroDocumento       String?
+  tipoDocumentoFiscal   String?
+  numeroDocumentoFiscal String?
+
+  dataNascimento    DateTime?
+  endereco          String?
+  numero            String?
+  complemento       String?
+  bairro            String?
+  cidade            String?
+  estado            String?
+  cep               String?
+  cargo             String?
+  setor             String?
+  fotoPerfil        String?
+  documentoUrl      String?
+  codigoFuncionario String?
+  dataAdmissao      DateTime?
+  dataDesligamento  DateTime?
+  salario           Decimal?  @db.Decimal(10, 2)
+  tipoContrato      String?
+  jornadaTrabalho   String?
+  banco             String?
+  agencia           String?
+  conta             String?
+  pix               String?
+  codigoPonto       String?
+  pisPasep          String?
+
+  // Identificacao previdenciaria / seguridade social internacional
+  paisIdentificacaoPrevidenciaria   String? @db.VarChar(2)
+  tipoIdentificacaoPrevidenciaria   String?
+  numeroIdentificacaoPrevidenciaria String?
+
+  salarioBase        Decimal? @db.Decimal(10, 2)
+  cargaHorariaMensal Int?
+
+  tipoRemuneracao TipoRemuneracaoRH?
+
+  valorHoraAula       Decimal? @db.Decimal(10, 2)
+  valorHoraTrabalhada Decimal? @db.Decimal(10, 2)
+  valorPorAula        Decimal? @db.Decimal(10, 2)
+  valorPorTurma       Decimal? @db.Decimal(10, 2)
+  valorPorDisciplina  Decimal? @db.Decimal(10, 2)
+
+  duracaoHoraAulaMinutos Int?
+  cargaHorariaSemanal    Decimal? @db.Decimal(8, 2)
+
+  observacoesRemuneracao String? @db.Text
+
+  pontoMobileLiberado      Boolean   @default(false)
+  pontoMobileLiberadoEm    DateTime?
+  pontoMobileLiberadoPorId Int?
+  pontoMobileValidoAte     DateTime?
+
+  pontoMobileConviteToken       String?   @unique
+  pontoMobileConviteExpiraEm    DateTime?
+  pontoMobileConviteCriadoEm    DateTime?
+  pontoMobileConviteCriadoPorId Int?
+  pontoMobileConviteUsadoEm     DateTime?
+
+  instituicaoId  Int
+  userId         Int?          @unique
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  departamentoId Int?
+  departamento   Departamento? @relation(fields: [departamentoId], references: [id])
+
+  cargoId       Int?
+  cargoCadastro Cargo? @relation(fields: [cargoId], references: [id], onDelete: SetNull)
+
+  poloId                    Int?
+  polo                      Polo?       @relation("FuncionarioPoloAtual", fields: [poloId], references: [id], onDelete: SetNull)
+  instituicao               Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  recebeMensagemAniversario Boolean     @default(true)
+  recebeWhatsappAniversario Boolean     @default(true)
+  professor                 Professor?  @relation("ProfessorFuncionarioRH")
+
+  historicosLotacaoRH FuncionarioLotacaoRH[]
+
+  permissoes                                  FuncionarioPermissao[]
+  historicosRH                                HistoricoRH[]
+  ocorrenciasRH                               OcorrenciaRH[]
+  documentosRH                                DocumentoRH[]
+  feriasRH                                    FeriasRH[]
+  examesRH                                    ExameMedicoRH[]
+  rescisoesRH                                 RescisaoRH[]
+  holeritesRH                                 HoleriteRH[]
+  pagamentosHoleriteRH                        PagamentoHoleriteRH[]
+  contasBancariasRH                           ContaBancariaFuncionarioRH[]
+  pontosRH                                    PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
+  escalasRH                                   EscalaTrabalhoRH[]
+  bancoHorasRH                                BancoHorasRH[]
+  beneficiosRH                                FuncionarioBeneficioRH[]
+  marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
+  planosComissaoRH                            FuncionarioPlanoComissaoRH[]
+  historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
+  participacoesComerciais                     MatriculaParticipanteComercial[]
+  matriculasComoVendedor                      Matricula[]                                 @relation("MatriculaVendedorResponsavel")
+  leadsComoResponsavel                        Lead[]                                      @relation("LeadResponsavelFuncionario")
+  equipesComerciaisResponsavel                EquipeComercial[]                           @relation("EquipeComercialResponsavel")
+  membrosEquipesComerciais                    EquipeComercialMembro[]
+  metasComerciais                             MetaComercial[]
+  participacoesMetasComerciais                MetaComercialParticipante[]
+  matriculasConfirmacaoMenor                  Matricula[]                                 @relation("MatriculaConfirmacaoMenorPorFuncionario")
+  lancamentosComissaoRH                       LancamentoComissaoRH[]
+  participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  bibliotecaOperacoes                         BibliotecaOperador[]
+  transferenciasLeadComoAnterior              LeadTransferencia[]                         @relation("LeadTransferenciaResponsavelAnterior")
+  transferenciasLeadComoNovo                  LeadTransferencia[]                         @relation("LeadTransferenciaResponsavelNovo")
+  tarefasComerciaisResponsavel                TarefaComercial[]                           @relation("TarefaComercialResponsavel")
+  formulariosCaptacaoComoResponsavelPadrao    FormularioCaptacaoLead[]                    @relation("FormularioCaptacaoResponsavelPadrao")
+  regrasDistribuicaoComoResponsavelFixo       RegraDistribuicaoLead[]                     @relation("RegraDistribuicaoResponsavelFixo")
+
+  equipesAtividadeExterna AtividadeExternaEquipe[] @relation("AtividadeExternaEquipeFuncionario")
+
+  @@index([instituicaoId])
+  @@index([departamentoId])
+  @@index([cargoId])
+  @@index([instituicaoId, cargoId])
+  @@index([poloId])
+  @@index([instituicaoId, poloId])
+  @@index([nome])
+  @@index([cpf])
+}
+
+### Contrato | linhas 2141-2169
+model Contrato {
+  id              Int            @id @default(autoincrement())
+  alunoId         Int
+  instituicaoId   Int
+  conteudo        String
+  dataCriacao     DateTime       @default(now())
+  dataAssinatura  DateTime?
+  ipAssinatura    String?
+  userAgent       String?
+  matriculaId     Int?
+  tokenAssinatura String?        @unique @default(cuid())
+  status          StatusContrato @default(PENDENTE)
+  assinatura      Assinatura?
+  aluno           Aluno          @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  instituicao     Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula       Matricula?     @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+
+  assinaturaSecretariaImagem    String?
+  assinaturaSecretariaNome      String?
+  assinaturaSecretariaUserId    Int?
+  assinaturaSecretariaEm        DateTime?
+  assinaturaSecretariaIp        String?
+  assinaturaSecretariaUserAgent String?
+
+  @@index([matriculaId])
+  @@index([alunoId])
+  @@index([instituicaoId])
+  @@index([status])
+}
+
+### DocumentoGerado | linhas 2212-2245
+model DocumentoGerado {
+  id                          Int                           @id @default(autoincrement())
+  titulo                      String
+  tipo                        TipoDocumentoTemplate
+  contexto                    String?
+  conteudo                    String
+  status                      StatusDocumentoGerado         @default(RASCUNHO)
+  exigeAssinatura             Boolean                       @default(false)
+  assinadoEm                  DateTime?
+  criadoEm                    DateTime                      @default(now())
+  atualizadoEm                DateTime                      @updatedAt
+  instituicaoId               Int
+  alunoId                     Int?
+  matriculaId                 Int?
+  templateId                  Int?
+  cursoId                     Int?
+  codigoValidacao             String?                       @unique
+  dadosPreenchimento          Json?
+  formatoImpressao            String                        @default("A4_INTEIRA")
+  quantidadeVias              Int                           @default(1)
+  aluno                       Aluno?                        @relation(fields: [alunoId], references: [id])
+  Curso                       Curso?                        @relation(fields: [cursoId], references: [id])
+  instituicao                 Instituicao                   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula                   Matricula?                    @relation(fields: [matriculaId], references: [id])
+  template                    DocumentoTemplate?            @relation(fields: [templateId], references: [id])
+  AuditoriaValidacaoDocumento AuditoriaValidacaoDocumento[]
+
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([matriculaId])
+  @@index([templateId])
+  @@index([tipo])
+  @@index([status])
+}
+
+### Lead | linhas 2311-2419
+model Lead {
+  id                       Int  @id @default(autoincrement())
+  instituicaoGestoraId     Int?
+  instituicaoInteressadaId Int? @map("instituicaoId")
+
+  responsavelFuncionarioId Int?
+  equipeResponsavelId      Int?
+
+  funilId       Int?
+  etapaFunilId  Int?
+  motivoPerdaId Int?
+
+  cursoInteresseId Int?
+  poloInteresseId  Int?
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+  perdidoPorId    Int?
+  arquivadoPorId  Int?
+  restauradoPorId Int?
+
+  nome            String
+  email           String
+  telefone        String?
+  instituicaoNome String?
+  cargo           String?
+
+  origem    String  @default("SITE_PHANYX")
+  tipo      String  @default("PHANYX")
+  interesse String?
+
+  observacoes String? @db.Text
+  status      String  @default("NOVO")
+  prioridade  String  @default("MEDIA")
+
+  valorEstimado Float?
+
+  proximoContatoEm      DateTime?
+  primeiroContatoEm     DateTime?
+  ultimoContatoEm       DateTime?
+  qualificadoEm         DateTime?
+  entrouEtapaEm         DateTime?
+  perdidoEm             DateTime?
+  encerradoEm           DateTime?
+  arquivadoEm           DateTime?
+  restauradoEm          DateTime?
+  motivoPerdaObservacao String?   @db.Text
+
+  responsavelNomeSnapshot String? @map("responsavelNome")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicaoGestora     Instituicao?          @relation("LeadInstituicaoGestora", fields: [instituicaoGestoraId], references: [id], onDelete: Cascade)
+  instituicaoInteressada Instituicao?          @relation("LeadInstituicaoInteressada", fields: [instituicaoInteressadaId], references: [id], onDelete: SetNull)
+  responsavelFuncionario Funcionario?          @relation("LeadResponsavelFuncionario", fields: [responsavelFuncionarioId], references: [id], onDelete: SetNull)
+  equipeResponsavel      EquipeComercial?      @relation("LeadEquipeResponsavel", fields: [equipeResponsavelId], references: [id], onDelete: SetNull)
+  funil                  FunilComercial?       @relation("LeadFunilComercial", fields: [funilId], references: [id], onDelete: SetNull)
+  etapaFunil             EtapaFunilComercial?  @relation("LeadEtapaFunilComercial", fields: [etapaFunilId], references: [id], onDelete: SetNull)
+  motivoPerda            MotivoPerdaComercial? @relation("LeadMotivoPerda", fields: [motivoPerdaId], references: [id], onDelete: SetNull)
+  cursoInteresse         Curso?                @relation("LeadCursoInteresse", fields: [cursoInteresseId], references: [id], onDelete: SetNull)
+  poloInteresse          Polo?                 @relation("LeadPoloInteresse", fields: [poloInteresseId], references: [id], onDelete: SetNull)
+  criadoPor              User?                 @relation("LeadCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor          User?                 @relation("LeadAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+  perdidoPor             User?                 @relation("LeadPerdidoPor", fields: [perdidoPorId], references: [id], onDelete: SetNull)
+  arquivadoPor           User?                 @relation("LeadArquivadoPor", fields: [arquivadoPorId], references: [id], onDelete: SetNull)
+  restauradoPor          User?                 @relation("LeadRestauradoPor", fields: [restauradoPorId], references: [id], onDelete: SetNull)
+
+  interacoes          LeadInteracao[]
+  matriculaConvertida Matricula?      @relation("LeadMatriculaConvertida")
+
+  movimentacoesFunil LeadMovimentacaoFunil[]
+  transferencias     LeadTransferencia[]
+  tarefasComerciais  TarefaComercial[]
+  submissoesCaptacao SubmissaoCaptacaoLead[]
+
+  @@index([instituicaoGestoraId])
+  @@index([instituicaoInteressadaId])
+  @@index([instituicaoGestoraId, status])
+  @@index([instituicaoGestoraId, tipo])
+  @@index([instituicaoGestoraId, responsavelFuncionarioId])
+  @@index([instituicaoGestoraId, equipeResponsavelId])
+  @@index([instituicaoGestoraId, funilId])
+  @@index([instituicaoGestoraId, etapaFunilId])
+  @@index([instituicaoGestoraId, cursoInteresseId])
+  @@index([instituicaoGestoraId, poloInteresseId])
+  @@index([instituicaoGestoraId, etapaFunilId, responsavelFuncionarioId])
+  @@index([instituicaoGestoraId, email])
+  @@index([responsavelFuncionarioId])
+  @@index([equipeResponsavelId])
+  @@index([funilId])
+  @@index([etapaFunilId])
+  @@index([motivoPerdaId])
+  @@index([cursoInteresseId])
+  @@index([poloInteresseId])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
+  @@index([perdidoPorId])
+  @@index([arquivadoPorId])
+  @@index([restauradoPorId])
+  @@index([status])
+  @@index([origem])
+  @@index([tipo])
+  @@index([proximoContatoEm])
+  @@index([entrouEtapaEm])
+  @@index([perdidoEm])
+  @@index([arquivadoEm])
+  @@index([createdAt])
+}
+
+### PeriodoMatricula | linhas 2617-2670
+model PeriodoMatricula {
+  id                              Int                      @id @default(autoincrement())
+  instituicaoId                   Int
+  cursoId                         Int?
+  periodoLetivo                   String
+  semestreNumero                  Int?
+  titulo                          String?
+  dataInicio                      DateTime
+  dataFim                         DateTime
+  ativo                           Boolean                  @default(true)
+  permiteAluno                    Boolean                  @default(true)
+  bloqueiaAlunoForaDoPrazo        Boolean                  @default(true)
+  tipoRestricaoPadrao             TipoRestricaoRematricula @default(NENHUMA)
+  aplicarRestricaoAutomaticamente Boolean                  @default(false)
+  carenciaRestricaoDias           Int                      @default(0)
+  mensagemRestricaoPadrao         String?                  @db.Text
+  tipo                            TipoPeriodoMatricula     @default(REMATRICULA)
+  createdAt                       DateTime                 @default(now())
+  updatedAt                       DateTime                 @updatedAt
+
+  cursoSemestreId Int?
+
+  status StatusPeriodoMatricula @default(RASCUNHO)
+
+  dataInicioAulas DateTime?
+
+  instrucoes String? @db.Text
+
+  exigeAprovacao       Boolean @default(false)
+  permiteRascunho      Boolean @default(true)
+  bloqueiaInadimplente Boolean @default(false)
+
+  cargaMinimaOverride Int?
+  cargaMaximaOverride Int?
+
+  cursoSemestre CursoSemestre? @relation(fields: [cursoSemestreId], references: [id], onDelete: SetNull)
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  curso       Curso?      @relation(fields: [cursoId], references: [id])
+  matriculas  Matricula[]
+
+  rematriculas          RematriculaSemestral[]
+  restricoesRematricula RestricaoRematriculaAluno[]
+  historicosRestricao   RestricaoRematriculaHistorico[]
+  turmasParticipantes   PeriodoMatriculaTurma[]
+
+  @@index([instituicaoId])
+  @@index([cursoId])
+  @@index([periodoLetivo])
+  @@index([ativo])
+  @@index([dataInicio, dataFim])
+  @@index([cursoSemestreId])
+  @@index([status])
+}
+
+### Polo | linhas 2694-2765
+model Polo {
+  id                  Int                 @id @default(autoincrement())
+  nome                String
+  codigo              String?
+  cnpj                String?
+  descricao           String?
+  tipoUnidade         TipoUnidadePolo     @default(POLO)
+  statusComercial     StatusComercialPolo @default(ATIVO)
+  cep                 String?
+  endereco            String?
+  numero              String?
+  complemento         String?
+  bairro              String?
+  cidade              String?
+  estado              String?
+  responsavelNome     String?
+  responsavelEmail    String?
+  responsavelTelefone String?
+  responsavelCargo    String?
+  ativo               Boolean             @default(true)
+  ativadoEm           DateTime?
+  suspensoEm          DateTime?
+  encerradoEm         DateTime?
+  motivoSuspensao     String?             @db.Text
+  motivoEncerramento  String?             @db.Text
+  criadoPorId         Int?
+  ativadoPorId        Int?
+  suspensoPorId       Int?
+  encerradoPorId      Int?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  instituicaoId       Int
+  instituicaoGeradaId Int?                @unique
+
+  instituicao       Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor         User?        @relation("PoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  ativadoPor        User?        @relation("PoloAtivadoPor", fields: [ativadoPorId], references: [id], onDelete: SetNull)
+  suspensoPor       User?        @relation("PoloSuspensoPor", fields: [suspensoPorId], references: [id], onDelete: SetNull)
+  encerradoPor      User?        @relation("PoloEncerradoPor", fields: [encerradoPorId], references: [id], onDelete: SetNull)
+  instituicaoGerada Instituicao? @relation("PoloInstituicaoGerada", fields: [instituicaoGeradaId], references: [id], onDelete: SetNull)
+  usuariosAcesso    UserPolo[]
+  professores       Professor[]
+
+  funcionariosLotados              Funcionario[]          @relation("FuncionarioPoloAtual")
+  lotacoesFuncionariosComoAnterior FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloAnterior")
+  lotacoesFuncionariosComoNovo     FuncionarioLotacaoRH[] @relation("FuncionarioLotacaoPoloNovo")
+
+  turmas                     Turma[]
+  alunos                     Aluno[]
+  cursosPolos                CursoPolo[]
+  matriculas                 Matricula[]
+  cobrancas                  Cobranca[]
+  lancamentosFinanceiros     LancamentoFinanceiro[]
+  metasComerciais            MetaComercial[]
+  publicacoesCursosRede      CursoPublicacaoRede[]    @relation("CursoPublicacaoPolo")
+  leadsInteressados          Lead[]                   @relation("LeadPoloInteresse")
+  formulariosCaptacaoPadrao  FormularioCaptacaoLead[] @relation("FormularioCaptacaoPoloPadrao")
+  regrasDistribuicaoCaptacao RegraDistribuicaoLead[]  @relation("RegraDistribuicaoPolo")
+
+  atividadesExternas AtividadeExterna[]
+
+  @@unique([instituicaoId, nome])
+  @@unique([instituicaoId, codigo])
+  @@index([instituicaoId])
+  @@index([instituicaoId, statusComercial])
+  @@index([instituicaoId, ativo])
+  @@index([cnpj])
+  @@index([criadoPorId])
+  @@index([ativadoPorId])
+  @@index([suspensoPorId])
+  @@index([encerradoPorId])
+}
+
+### MatriculaParticipanteComercial | linhas 4985-5010
+model MatriculaParticipanteComercial {
+  id                              Int                        @id @default(autoincrement())
+  instituicaoId                   Int
+  matriculaId                     Int
+  funcionarioId                   Int
+  criadoPorId                     Int?
+  papel                           PapelParticipanteComercial
+  percentualParticipacao          Decimal                    @default(100) @db.Decimal(5, 2)
+  funcionarioNomeSnapshot         String
+  funcionarioCargoSnapshot        String?
+  funcionarioDepartamentoSnapshot String?
+  criadoEm                        DateTime                   @default(now())
+  atualizadoEm                    DateTime                   @updatedAt
+
+  instituicao Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula              @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  funcionario Funcionario            @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  criadoPor   User?                  @relation("MatriculaParticipanteComercialCriadoPor", fields: [criadoPorId], references: [id])
+  lancamentos LancamentoComissaoRH[]
+
+  @@unique([matriculaId, funcionarioId])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([funcionarioId])
+  @@index([papel])
+}
+
+### LancamentoComissaoRH | linhas 5151-5223
+model LancamentoComissaoRH {
+  id                      Int                        @id @default(autoincrement())
+  instituicaoId           Int
+  funcionarioId           Int
+  matriculaId             Int
+  participanteComercialId Int?
+  planoId                 Int?
+  regraId                 Int?
+  pagamentoId             Int?
+  holeriteEventoId        Int?
+  criadoPorId             Int?
+  aprovadoPorId           Int?
+  reprovadoPorId          Int?
+  enviadoHoleritePorId    Int?
+  estornadoPorId          Int?
+  chaveCalculo            String
+  origem                  OrigemLancamentoComissaoRH @default(AUTOMATICA)
+  status                  StatusLancamentoComissaoRH @default(PENDENTE)
+  competenciaMes          Int
+  competenciaAno          Int
+  descricao               String
+  baseCalculo             Decimal                    @default(0) @db.Decimal(12, 2)
+  percentualAplicado      Decimal?                   @db.Decimal(7, 4)
+  valorFixoAplicado       Decimal?                   @db.Decimal(12, 2)
+  percentualParticipacao  Decimal                    @default(100) @db.Decimal(5, 2)
+  valorCalculado          Decimal                    @default(0) @db.Decimal(12, 2)
+  valorAprovado           Decimal?                   @db.Decimal(12, 2)
+  funcionarioNomeSnapshot String
+  planoNomeSnapshot       String?
+  regraNomeSnapshot       String?
+  alunoNomeSnapshot       String?
+  cursoNomeSnapshot       String?
+  matriculaNumeroSnapshot String?
+  calculadoEm             DateTime                   @default(now())
+  aprovadoEm              DateTime?
+  reprovadoEm             DateTime?
+  enviadoHoleriteEm       DateTime?
+  pagoEm                  DateTime?
+  estornadoEm             DateTime?
+  motivoAjuste            String?                    @db.Text
+  motivoReprovacao        String?                    @db.Text
+  motivoEstorno           String?                    @db.Text
+  observacoes             String?                    @db.Text
+  criadoEm                DateTime                   @default(now())
+  atualizadoEm            DateTime                   @updatedAt
+
+  instituicao           Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario           Funcionario                     @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  matricula             Matricula                       @relation(fields: [matriculaId], references: [id], onDelete: Restrict)
+  participanteComercial MatriculaParticipanteComercial? @relation(fields: [participanteComercialId], references: [id], onDelete: SetNull)
+  plano                 PlanoComissaoRH?                @relation(fields: [planoId], references: [id], onDelete: SetNull)
+  regra                 RegraComissaoRH?                @relation(fields: [regraId], references: [id], onDelete: SetNull)
+  pagamento             Pagamento?                      @relation(fields: [pagamentoId], references: [id], onDelete: SetNull)
+  holeriteEvento        HoleriteEventoRH?               @relation(fields: [holeriteEventoId], references: [id], onDelete: SetNull)
+  criadoPor             User?                           @relation("LancamentoComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
+  aprovadoPor           User?                           @relation("LancamentoComissaoRHAprovadoPor", fields: [aprovadoPorId], references: [id])
+  reprovadoPor          User?                           @relation("LancamentoComissaoRHReprovadoPor", fields: [reprovadoPorId], references: [id])
+  enviadoHoleritePor    User?                           @relation("LancamentoComissaoRHEnviadoHoleritePor", fields: [enviadoHoleritePorId], references: [id], onDelete: SetNull)
+  estornadoPor          User?                           @relation("LancamentoComissaoRHEstornadoPor", fields: [estornadoPorId], references: [id])
+
+  @@unique([instituicaoId, chaveCalculo])
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([matriculaId])
+  @@index([participanteComercialId])
+  @@index([planoId])
+  @@index([regraId])
+  @@index([pagamentoId])
+  @@index([holeriteEventoId])
+  @@index([enviadoHoleritePorId])
+  @@index([status])
+  @@index([competenciaMes, competenciaAno])
+}
+
+### RematriculaSemestral | linhas 5419-5480
+model RematriculaSemestral {
+  id Int @id @default(autoincrement())
+
+  instituicaoId          Int
+  alunoId                Int
+  periodoMatriculaId     Int
+  cursoSemestreDestinoId Int
+
+  matriculaOrigemId Int?
+  matriculaGeradaId Int? @unique
+
+  analisadoPorId Int?
+
+  protocolo String @unique @default(cuid())
+
+  status StatusRematriculaSemestral @default(RASCUNHO)
+
+  cargaHorariaSelecionada Int @default(0)
+
+  declaracaoAceitaEm DateTime?
+  enviadaEm          DateTime?
+  analisadaEm        DateTime?
+  aprovadaEm         DateTime?
+  devolvidaEm        DateTime?
+  recusadaEm         DateTime?
+  canceladaEm        DateTime?
+
+  motivoDevolucao    String? @db.Text
+  motivoRecusa       String? @db.Text
+  motivoCancelamento String? @db.Text
+  observacoes        String? @db.Text
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  aluno Aluno @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  periodoMatricula PeriodoMatricula @relation(fields: [periodoMatriculaId], references: [id], onDelete: Restrict)
+
+  cursoSemestreDestino CursoSemestre @relation(fields: [cursoSemestreDestinoId], references: [id], onDelete: Restrict)
+
+  matriculaOrigem Matricula? @relation("RematriculaMatriculaOrigem", fields: [matriculaOrigemId], references: [id], onDelete: SetNull)
+
+  matriculaGerada Matricula? @relation("RematriculaMatriculaGerada", fields: [matriculaGeradaId], references: [id], onDelete: SetNull)
+
+  analisadoPor User? @relation("RematriculaAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+
+  itens RematriculaSemestralItem[]
+
+  @@unique([alunoId, periodoMatriculaId])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([periodoMatriculaId])
+  @@index([cursoSemestreDestinoId])
+  @@index([matriculaOrigemId])
+  @@index([matriculaGeradaId])
+  @@index([analisadoPorId])
+  @@index([status])
+  @@index([criadaEm])
+}
+
+### MobilidadeCandidatura | linhas 10542-10584
+model MobilidadeCandidatura {
+  id                    Int                         @id @default(autoincrement())
+  instituicaoId         Int
+  ofertaId              Int
+  alunoId               Int?
+  matriculaId           Int?
+  vinculoCandidato      MobilidadeVinculoCandidato  @default(ALUNO_PHANYX)
+  nomeSnapshot          String
+  emailSnapshot         String?
+  telefoneSnapshot      String?
+  instituicaoOrigemNome String?
+  paisOrigemCodigo      String?                     @db.VarChar(2)
+  status                MobilidadeStatusCandidatura @default(RASCUNHO)
+  motivoStatus          String?                     @db.Text
+  enviadaEm             DateTime?
+  analisadaEm           DateTime?
+  notaFinal             Decimal?                    @db.Decimal(8, 2)
+  classificacao         Int?
+  criadoPorId           Int?
+  analisadoPorId        Int?
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
+
+  instituicao  Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  oferta       MobilidadeOferta @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
+  aluno        Aluno?           @relation(fields: [alunoId], references: [id], onDelete: SetNull)
+  matricula    Matricula?       @relation(fields: [matriculaId], references: [id], onDelete: SetNull)
+  criadoPor    User?            @relation("MobilidadeCandidaturaCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  analisadoPor User?            @relation("MobilidadeCandidaturaAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+
+  documentos MobilidadeCandidaturaDocumento[]
+
+  @@unique([ofertaId, alunoId])
+  @@index([instituicaoId])
+  @@index([ofertaId])
+  @@index([alunoId])
+  @@index([matriculaId])
+  @@index([status])
+  @@index([vinculoCandidato])
+  @@index([classificacao])
+  @@index([criadoPorId])
+  @@index([analisadoPorId])
+}
+
+========================================================================
+7. RESUMO AUTOMATICO
+========================================================================
+
+--- Matricula ---
+  id                                      Int             @id @default(autoincrement())
+  alunoId                                 Int
+  modalidade                              String?
+  instituicaoId                           Int
+  poloId                                  Int?
+  status                                  StatusMatricula @default(ATIVA)
+  excluidaPorId                           Int?
+  canceladaPorId                          Int?
+  cursoId                                 Int?
+  semestre                                Int?
+  vendedorResponsavelId                   Int?
+  leadOrigemId                            Int?            @unique
+  alunoMenorNoMomentoMatricula            Boolean         @default(false)
+  confirmacaoMenorPorUserId               Int?
+  confirmacaoMenorPorFuncionarioId        Int?
+  documentos              DocumentoAluno[]
+  vendedorResponsavel     Funcionario?                     @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
+  leadOrigem              Lead?                            @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
+  cursoSemestreId                Int?
+  periodoMatriculaId             Int?
+  periodoLetivo                  String?
+  turmaPrincipalId               Int?
+  realizadaPeloAluno             Boolean                 @default(false)
+  cursoSemestre                  CursoSemestre?          @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula               PeriodoMatricula?       @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                          Aluno                   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                          Curso?                  @relation(fields: [cursoId], references: [id])
+  instituicao                    Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                           Polo?                   @relation(fields: [poloId], references: [id])
+  turmaPrincipal                 Turma?                  @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorUser        User?                   @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario?            @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+  @@unique([instituicaoId, numeroMatricula])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([cursoId])
+  @@index([cursoSemestreId])
+  @@index([periodoMatriculaId])
+  @@index([periodoLetivo])
+  @@index([poloId])
+  @@index([vendedorResponsavelId])
+  @@index([confirmacaoMenorPorUserId])
+  @@index([confirmacaoMenorPorFuncionarioId])
+  @@index([alunoMenorNoMomentoMatricula])
+  @@index([turmaPrincipalId])
+  @@index([instituicaoId, excluidaEm])
+  @@index([instituicaoId, canceladaEm])
+
+--- ItemMatricula ---
+  id            Int                 @id @default(autoincrement())
+  instituicaoId Int
+  matriculaId   Int
+  turmaId       Int
+  disciplinaId  Int
+  status        StatusItemMatricula @default(A_CURSAR)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula   @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  @@unique([matriculaId, turmaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([status])
+
+--- Turma ---
+model Turma {
+  id                              Int                             @id @default(autoincrement())
+  semestre                        String
+  professorId                     Int?
+  instituicaoId                   Int
+  periodoLetivo                   String?
+  modalidade                      String?
+  cursoId                         Int?
+  statusTurma                     StatusTurma                     @default(AGUARDANDO)
+  matriculasComoPrincipal         Matricula[]                     @relation("MatriculaTurmaPrincipal")
+  sessoesVideoAluno               SessaoVideoAluno[]
+  eventosAprendizagemAluno        EventoAprendizagemAluno[]
+  curso                           Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao                     Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor                       Professor?                      @relation(fields: [professorId], references: [id])
+  disciplinas                     TurmaDisciplina[]
+  semestres                       TurmaSemestre[]
+  periodosMatriculaParticipantes  PeriodoMatriculaTurma[]
+  poloId                          Int?
+  polo                            Polo?                           @relation(fields: [poloId], references: [id])
+  atividadesExternas AtividadeExternaTurma[]
+  @@unique([instituicaoId, nome, semestre, periodoLetivo])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([professorId])
+  @@index([statusTurma])
+  @@index([poloId])
+
+--- TurmaDisciplina ---
+model TurmaDisciplina {
+  id              Int            @id @default(autoincrement())
+  turmaId         Int
+  disciplinaId    Int
+  professorId     Int?
+  instituicaoId   Int
+  status          String?
+  turmaSemestreId Int?
+  turmaSemestre   TurmaSemestre? @relation(fields: [turmaSemestreId], references: [id], onDelete: SetNull)
+  turma                     Turma                      @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina                Disciplina                 @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  professor                 Professor?                 @relation(fields: [professorId], references: [id])
+  instituicao               Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  horarios                  TurmaDisciplinaHorario[]
+  @@unique([turmaId, disciplinaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([professorId])
+  @@index([instituicaoId])

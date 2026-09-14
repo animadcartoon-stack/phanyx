@@ -1,0 +1,224 @@
+{
+  "geradoEm": "2026-09-14T19:30:11.347Z",
+  "matricula": {
+    "id": 35,
+    "status": "AGUARDANDO",
+    "poloId": 5,
+    "turmaPrincipalId": null,
+    "updatedAt": "2026-09-14T19:12:51.204Z",
+    "polo": {
+      "id": 5,
+      "nome": "IBE UNIDADE 2"
+    },
+    "itens": [
+      {
+        "id": 397,
+        "turmaId": 14,
+        "disciplinaId": 11,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "ANTIGO TESTAMENTO A"
+        }
+      },
+      {
+        "id": 398,
+        "turmaId": 14,
+        "disciplinaId": 10,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "ATIVIDADE EXTRACURRICULAR 1"
+        }
+      },
+      {
+        "id": 399,
+        "turmaId": 14,
+        "disciplinaId": 32,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "CANONICIDADE"
+        }
+      },
+      {
+        "id": 400,
+        "turmaId": 14,
+        "disciplinaId": 7,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "FÉ E CRESCIMENTO PESSOAL"
+        }
+      },
+      {
+        "id": 401,
+        "turmaId": 14,
+        "disciplinaId": 6,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "INTRODUÇÃO À TEOLOGIA"
+        }
+      },
+      {
+        "id": 402,
+        "turmaId": 14,
+        "disciplinaId": 9,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "METODOLOGIA DA PESQUISA CIENTÍFICA"
+        }
+      },
+      {
+        "id": 403,
+        "turmaId": 14,
+        "disciplinaId": 5,
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "MISSÕES URBANAS"
+        }
+      }
+    ],
+    "transferencias": [
+      {
+        "id": 1,
+        "tipo": "POLO",
+        "status": "PENDENTE",
+        "poloOrigemId": 1,
+        "poloDestinoId": 5,
+        "turmaOrigemId": 14,
+        "turmaDestinoId": null,
+        "concluidaEm": null,
+        "itens": [
+          {
+            "id": 1,
+            "disciplinaId": 11,
+            "itemMatriculaOrigemId": 397,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          },
+          {
+            "id": 2,
+            "disciplinaId": 10,
+            "itemMatriculaOrigemId": 398,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          },
+          {
+            "id": 3,
+            "disciplinaId": 32,
+            "itemMatriculaOrigemId": 399,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          },
+          {
+            "id": 4,
+            "disciplinaId": 7,
+            "itemMatriculaOrigemId": 400,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          },
+          {
+            "id": 5,
+            "disciplinaId": 6,
+            "itemMatriculaOrigemId": 401,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          },
+          {
+            "id": 6,
+            "disciplinaId": 9,
+            "itemMatriculaOrigemId": 402,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          },
+          {
+            "id": 7,
+            "disciplinaId": 5,
+            "itemMatriculaOrigemId": 403,
+            "itemMatriculaDestinoId": null,
+            "statusOrigem": "EM_CURSO",
+            "statusDestino": null,
+            "situacao": "AGUARDANDO_TURMA"
+          }
+        ]
+      }
+    ]
+  },
+  "turmaDestino": {
+    "id": 15,
+    "nome": "Turma Transferência Teste - IBE UNIDADE 2",
+    "poloId": 5,
+    "cursoId": 1,
+    "ativa": true,
+    "statusTurma": "ATIVA",
+    "disciplinas": [
+      {
+        "id": 376,
+        "disciplinaId": 11,
+        "disciplina": {
+          "nome": "ANTIGO TESTAMENTO A"
+        }
+      },
+      {
+        "id": 377,
+        "disciplinaId": 10,
+        "disciplina": {
+          "nome": "ATIVIDADE EXTRACURRICULAR 1"
+        }
+      },
+      {
+        "id": 378,
+        "disciplinaId": 32,
+        "disciplina": {
+          "nome": "CANONICIDADE"
+        }
+      },
+      {
+        "id": 379,
+        "disciplinaId": 7,
+        "disciplina": {
+          "nome": "FÉ E CRESCIMENTO PESSOAL"
+        }
+      },
+      {
+        "id": 380,
+        "disciplinaId": 6,
+        "disciplina": {
+          "nome": "INTRODUÇÃO À TEOLOGIA"
+        }
+      },
+      {
+        "id": 381,
+        "disciplinaId": 9,
+        "disciplina": {
+          "nome": "METODOLOGIA DA PESQUISA CIENTÍFICA"
+        }
+      },
+      {
+        "id": 382,
+        "disciplinaId": 5,
+        "disciplina": {
+          "nome": "MISSÕES URBANAS"
+        }
+      }
+    ]
+  },
+  "verificacao": {
+    "statusEsperado": true,
+    "poloEsperado": true,
+    "semTurmaPrincipal": true,
+    "itensAntigosTransferidos": true,
+    "transferenciaPendente": true,
+    "setePendencias": true,
+    "turmaDestinoSeteDisciplinas": true
+  }
+}

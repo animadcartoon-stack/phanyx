@@ -14925,11 +14925,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
-    "bolsaEstudos": "Bourse d'\u00e9tudes (%)",
-    "bolsaAjuda": "Indiquez un pourcentage de 0 \u00e0 100.",
-    "valorAposBolsa": "Montant mensuel apr\u00e8s bourse",
-    "bolsaIntegral": "Bourse int\u00e9grale \u2014 100 %",
-    "financeiroOpcionalAjuda": "Les informations financi\u00e8res sont facultatives. L'inscription peut \u00eatre enregistr\u00e9e sans g\u00e9n\u00e9rer de mensualit\u00e9s.",
+    "bolsaEstudos": "Bourse d'études (%)",
+    "bolsaAjuda": "Indiquez un pourcentage de 0 à 100.",
+    "valorAposBolsa": "Montant mensuel après bourse",
+    "bolsaIntegral": "Bourse intégrale — 100 %",
+    "financeiroOpcionalAjuda": "Les informations financières sont facultatives. L'inscription peut être enregistrée sans générer de mensualités.",
     "tabs": {
       "matriculas": "Inscriptions",
       "quarentena": "Quarantaine"
@@ -14998,6 +14998,198 @@
       "reasonRequired": "Indiquez un motif d’au moins 3 caractères.",
       "success": "Inscription annulée avec succès.",
       "error": "Impossible d’annuler l’inscription."
+    }
+  },
+  "AdminTransferenciaMatricula": {
+    "title": "Transfert d'inscription",
+    "subtitle": "Transférez l'inscription tout en conservant l'historique académique et la traçabilité.",
+    "back": "Retour aux inscriptions",
+    "loading": "Chargement de l'inscription...",
+    "enrollmentId": "Inscription #{id}",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "origin": {
+      "title": "Inscription d'origine",
+      "student": "Étudiant",
+      "enrollment": "Inscription",
+      "institution": "Établissement",
+      "campus": "Campus",
+      "course": "Formation",
+      "class": "Classe",
+      "period": "Période académique",
+      "modality": "Modalité",
+      "courseSemester": "Semestre de la formation",
+      "module": "Module"
+    },
+    "chooseType": {
+      "title": "Type de transfert",
+      "description": "Choisissez la destination ou la personne concernée par le transfert."
+    },
+    "types": {
+      "campus": {
+        "title": "Autre campus",
+        "description": "Transférer le même étudiant vers un autre campus."
+      },
+      "courseClass": {
+        "title": "Autre formation ou classe",
+        "description": "Transférer l'étudiant vers une autre formation, classe ou période."
+      },
+      "phanyxInstitution": {
+        "title": "Autre établissement PHANYX",
+        "description": "Transférer vers un autre établissement PHANYX autorisé."
+      },
+      "externalInstitution": {
+        "title": "Établissement ou université externe",
+        "description": "Enregistrer un transfert vers un établissement qui n'utilise pas PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Réattribuer à un autre étudiant",
+        "description": "Correction administrative exceptionnelle en conservant l'historique original."
+      }
+    },
+    "errors": {
+      "invalidEnrollment": "Identifiant d'inscription invalide.",
+      "notFound": "Cette inscription est introuvable.",
+      "load": "Impossible de charger les données de l'inscription.",
+      "selectType": "Sélectionnez un type de transfert."
+    },
+    "next": {
+      "title": "Destination du transfert",
+      "POLO": "L'étape suivante affichera les campus disponibles et les classes compatibles.",
+      "CURSO_TURMA": "L'étape suivante affichera les formations, périodes et classes disponibles.",
+      "INSTITUICAO_PHANYX": "L'étape suivante affichera les établissements PHANYX autorisés.",
+      "INSTITUICAO_EXTERNA": "L'étape suivante permettra d'indiquer l'établissement de destination.",
+      "REATRIBUICAO_ALUNO": "L'étape suivante recherchera l'étudiant correct et enregistrera l'audit."
+    },
+    "campusTransfer": {
+      "title": "Transfert vers un autre campus",
+      "description": "Choisissez le campus de destination et, si disponible, une classe compatible.",
+      "currentCampus": "Campus actuel",
+      "destinationCampus": "Nouveau campus",
+      "selectCampus": "Sélectionnez le campus de destination",
+      "course": "Formation",
+      "destinationClass": "Classe de destination",
+      "awaitingClass": "Aucune classe pour le moment — en attente d'affectation",
+      "classHelp": "La classe est facultative. Le transfert peut rester en attente d'affectation.",
+      "transferDate": "Date du transfert",
+      "reason": "Motif",
+      "reasonPlaceholder": "Indiquez le motif du transfert",
+      "notes": "Observations",
+      "notesPlaceholder": "Informations complémentaires",
+      "reviewButton": "Vérifier le transfert",
+      "loading": "Chargement des campus...",
+      "noOtherCampuses": "Aucun autre campus actif n'est disponible.",
+      "errors": {
+        "loadDestinations": "Impossible de charger les campus et les classes.",
+        "selectCampus": "Sélectionnez le campus de destination.",
+        "date": "Indiquez la date du transfert.",
+        "reason": "Indiquez le motif du transfert.",
+        "confirm": "Le transfert n'a pas pu être effectué. Aucune modification partielle n'a été conservée."
+      },
+      "review": {
+        "title": "Vérification du transfert",
+        "origin": "Campus d'origine",
+        "destination": "Campus de destination",
+        "course": "Formation",
+        "class": "Classe de destination",
+        "date": "Date",
+        "reason": "Motif",
+        "edit": "Modifier",
+        "confirm": "Confirmer le transfert",
+        "pending": "Vérifiez attentivement les informations. Après confirmation, le transfert sera enregistré dans l'historique académique.",
+        "confirming": "Transfert en cours...",
+        "confirmed": "Transfert enregistré",
+        "success": "Transfert effectué avec succès.",
+        "successPending": "Le transfert de campus a été enregistré. Certaines matières sont en attente d'un groupe ou d'une compatibilité à destination."
+      },
+      "pendingTransfer": {
+        "title": "Transfert en attente d'un groupe",
+        "description": "Cette inscription possède déjà un transfert en cours. Terminez l'affectation académique avant de commencer un autre transfert.",
+        "status": "Transfert en attente",
+        "pendingSubjects": "matières en attente d'affectation",
+        "origin": "Campus d'origine",
+        "destination": "Campus de destination",
+        "course": "Formation",
+        "allocateTitle": "Affecter à un groupe",
+        "allocateHelp": "Sélectionnez un groupe sur le campus de destination. PHANYX vérifiera toutes les matières en attente avant de modifier l'inscription.",
+        "class": "Groupe de destination",
+        "selectClass": "Sélectionnez le groupe de destination",
+        "noClasses": "Il n'existe pas encore de groupe actif pour cette formation sur le campus de destination.",
+        "allocate": "Affecter au groupe",
+        "allocating": "Vérification et affectation...",
+        "allocated": "Affectation terminée",
+        "success": "Transfert terminé. L'inscription a été affectée au groupe de destination.",
+        "back": "Retour aux inscriptions",
+        "missingSubjects": "Matières absentes du groupe sélectionné :",
+        "errors": {
+          "allocate": "L'affectation n'a pas pu être effectuée. Aucune modification partielle n'a été conservée.",
+          "incompatible": "Le groupe sélectionné ne contient pas toutes les matières nécessaires pour terminer ce transfert."
+        }
+      },
+      "lastTransfer": {
+        "loading": "Chargement du dernier transfert...",
+        "title": "Transfert d'inscription",
+        "description": "Cette inscription possède un transfert terminé. Consultez l'historique ou démarrez un nouveau mouvement.",
+        "back": "Retour aux options de transfert",
+        "completed": "Dernier transfert terminé",
+        "statusCompleted": "Terminé",
+        "originClass": "Groupe d'origine",
+        "destinationClass": "Groupe de destination",
+        "migratedSubjects": "Matières migrées",
+        "currentCampus": "Campus actuel",
+        "reason": "Motif",
+        "viewHistory": "Voir l'historique",
+        "startNew": "Démarrer un nouveau transfert",
+        "notice": "Un nouveau transfert sera enregistré séparément et ne remplacera pas l'historique académique existant."
+      }
+    }
+  },
+  "AdminHistoricoTransferenciasMatricula": {
+    "loading": "Chargement de l'historique des transferts...",
+    "title": "Historique des transferts",
+    "description": "Consultez tous les mouvements de cette inscription en conservant l'origine, la destination et les liens académiques.",
+    "actions": {
+      "back": "Retour aux inscriptions",
+      "newTransfer": "Nouveau transfert"
+    },
+    "summary": {
+      "student": "Étudiant",
+      "currentCampus": "Campus actuel",
+      "course": "Formation",
+      "currentClass": "Groupe actuel"
+    },
+    "card": {
+      "transferNumber": "Transfert #{number}",
+      "latest": "Le plus récent",
+      "originClass": "Groupe d'origine",
+      "destinationClass": "Groupe de destination",
+      "responsible": "Responsable",
+      "completedAt": "Terminé le",
+      "reason": "Motif",
+      "notes": "Observations",
+      "subjects": "Matières transférées",
+      "itemsCount": "{count} liens",
+      "migratedCount": "{count} migrés",
+      "cancellationReason": "Motif de l'annulation"
+    },
+    "status": {
+      "pending": "En attente",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "type": {
+      "campus": "Transfert de campus",
+      "courseClass": "Transfert de formation ou de groupe",
+      "phanyxInstitution": "Transfert vers un autre établissement PHANYX",
+      "externalInstitution": "Transfert vers un établissement externe",
+      "studentReassignment": "Réaffectation à un autre étudiant"
+    },
+    "empty": {
+      "title": "Aucun transfert enregistré",
+      "description": "Cette inscription ne possède encore aucun mouvement de transfert."
+    },
+    "errors": {
+      "load": "Impossible de charger l'historique des transferts."
     }
   }
 }

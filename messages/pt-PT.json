@@ -14713,9 +14713,9 @@
   "AdminMatriculasQuarentena": {
     "bolsaEstudos": "Bolsa de estudo (%)",
     "bolsaAjuda": "Indique uma percentagem de 0 a 100.",
-    "valorAposBolsa": "Valor mensal ap\u00f3s bolsa",
-    "bolsaIntegral": "Bolsa integral \u2014 100%",
-    "financeiroOpcionalAjuda": "Os dados financeiros s\u00e3o opcionais. A matr\u00edcula pode ser guardada sem gerar mensalidades.",
+    "valorAposBolsa": "Valor mensal após bolsa",
+    "bolsaIntegral": "Bolsa integral — 100%",
+    "financeiroOpcionalAjuda": "Os dados financeiros são opcionais. A matrícula pode ser guardada sem gerar mensalidades.",
     "tabs": {
       "matriculas": "Matrículas",
       "quarentena": "Quarentena"
@@ -14784,6 +14784,198 @@
       "reasonRequired": "Indique um motivo com pelo menos 3 caracteres.",
       "success": "Matrícula cancelada com sucesso.",
       "error": "Não foi possível cancelar a matrícula."
+    }
+  },
+  "AdminTransferenciaMatricula": {
+    "title": "Transferência de matrícula",
+    "subtitle": "Transfira a matrícula preservando o histórico académico e a rastreabilidade da operação.",
+    "back": "Voltar às matrículas",
+    "loading": "A carregar matrícula...",
+    "enrollmentId": "Matrícula #{id}",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "origin": {
+      "title": "Matrícula de origem",
+      "student": "Aluno",
+      "enrollment": "Matrícula",
+      "institution": "Instituição",
+      "campus": "Polo",
+      "course": "Curso",
+      "class": "Turma",
+      "period": "Período letivo",
+      "modality": "Modalidade",
+      "courseSemester": "Semestre do curso",
+      "module": "Módulo"
+    },
+    "chooseType": {
+      "title": "Tipo de transferência",
+      "description": "Escolha para onde ou para quem esta matrícula será transferida."
+    },
+    "types": {
+      "campus": {
+        "title": "Outro polo",
+        "description": "Transferir o mesmo aluno para outro polo ou unidade da instituição."
+      },
+      "courseClass": {
+        "title": "Outro curso ou turma",
+        "description": "Transferir o aluno para outro curso, turma ou período académico."
+      },
+      "phanyxInstitution": {
+        "title": "Outra instituição PHANYX",
+        "description": "Transferir para outra instituição vinculada e autorizada."
+      },
+      "externalInstitution": {
+        "title": "Instituição ou universidade externa",
+        "description": "Registar transferência para uma instituição que não utiliza o PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reatribuir a outro aluno",
+        "description": "Correção administrativa excecional preservando o histórico original."
+      }
+    },
+    "errors": {
+      "invalidEnrollment": "Identificador da matrícula inválido.",
+      "notFound": "Não foi possível localizar esta matrícula.",
+      "load": "Não foi possível carregar os dados da matrícula.",
+      "selectType": "Selecione um tipo de transferência."
+    },
+    "next": {
+      "title": "Destino da transferência",
+      "POLO": "No próximo passo serão apresentados os polos disponíveis e as turmas compatíveis.",
+      "CURSO_TURMA": "No próximo passo serão apresentados os cursos, períodos e turmas disponíveis.",
+      "INSTITUICAO_PHANYX": "No próximo passo serão apresentadas as instituições PHANYX autorizadas.",
+      "INSTITUICAO_EXTERNA": "No próximo passo serão indicados país, instituição, curso e documentos.",
+      "REATRIBUICAO_ALUNO": "No próximo passo será pesquisado o aluno correto e registada a auditoria."
+    },
+    "campusTransfer": {
+      "title": "Transferência para outro polo",
+      "description": "Defina o polo de destino e selecione uma turma compatível, caso exista.",
+      "currentCampus": "Polo atual",
+      "destinationCampus": "Novo polo",
+      "selectCampus": "Selecione o polo de destino",
+      "course": "Curso",
+      "destinationClass": "Turma de destino",
+      "awaitingClass": "Sem turma por enquanto — a aguardar turma",
+      "classHelp": "A turma é opcional. A transferência pode ficar a aguardar definição de turma.",
+      "transferDate": "Data da transferência",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Indique o motivo da transferência",
+      "notes": "Observações",
+      "notesPlaceholder": "Informações adicionais",
+      "reviewButton": "Rever transferência",
+      "loading": "A carregar polos...",
+      "noOtherCampuses": "Não existe outro polo ativo disponível.",
+      "errors": {
+        "loadDestinations": "Não foi possível carregar os polos e turmas.",
+        "selectCampus": "Selecione o polo de destino.",
+        "date": "Indique a data da transferência.",
+        "reason": "Indique o motivo da transferência.",
+        "confirm": "Não foi possível concluir a transferência. Nenhuma alteração parcial foi mantida."
+      },
+      "review": {
+        "title": "Revisão da transferência",
+        "origin": "Polo de origem",
+        "destination": "Polo de destino",
+        "course": "Curso",
+        "class": "Turma de destino",
+        "date": "Data",
+        "reason": "Motivo",
+        "edit": "Editar",
+        "confirm": "Confirmar transferência",
+        "pending": "Reveja os dados com atenção. Ao confirmar, a transferência será registada no histórico académico.",
+        "confirming": "A transferir...",
+        "confirmed": "Transferência registada",
+        "success": "Transferência concluída com sucesso.",
+        "successPending": "Transferência de polo registada. Existem disciplinas a aguardar turma ou compatibilidade no destino."
+      },
+      "pendingTransfer": {
+        "title": "Transferência a aguardar turma",
+        "description": "Esta matrícula já possui uma transferência em curso. Conclua a alocação académica antes de iniciar outra transferência.",
+        "status": "Transferência pendente",
+        "pendingSubjects": "disciplinas a aguardar alocação",
+        "origin": "Polo de origem",
+        "destination": "Polo de destino",
+        "course": "Curso",
+        "allocateTitle": "Alocar numa turma",
+        "allocateHelp": "Selecione uma turma no polo de destino. O PHANYX verificará se todas as disciplinas pendentes são compatíveis antes de alterar a matrícula.",
+        "class": "Turma de destino",
+        "selectClass": "Selecione a turma de destino",
+        "noClasses": "Ainda não existe uma turma ativa deste curso no polo de destino.",
+        "allocate": "Alocar numa turma",
+        "allocating": "A verificar e alocar...",
+        "allocated": "Alocação concluída",
+        "success": "Transferência concluída. A matrícula foi alocada na turma de destino.",
+        "back": "Voltar às matrículas",
+        "missingSubjects": "Disciplinas em falta na turma selecionada:",
+        "errors": {
+          "allocate": "Não foi possível concluir a alocação. Nenhuma alteração parcial foi mantida.",
+          "incompatible": "A turma selecionada não possui todas as disciplinas necessárias para concluir esta transferência."
+        }
+      },
+      "lastTransfer": {
+        "loading": "A carregar a última transferência...",
+        "title": "Transferência de matrícula",
+        "description": "Esta matrícula possui uma transferência concluída. Consulte o histórico ou inicie uma nova movimentação.",
+        "back": "Voltar às opções de transferência",
+        "completed": "Última transferência concluída",
+        "statusCompleted": "Concluída",
+        "originClass": "Turma de origem",
+        "destinationClass": "Turma de destino",
+        "migratedSubjects": "Disciplinas migradas",
+        "currentCampus": "Polo atual",
+        "reason": "Motivo",
+        "viewHistory": "Ver histórico",
+        "startNew": "Iniciar nova transferência",
+        "notice": "Uma nova transferência será registada separadamente e não substituirá o histórico académico existente."
+      }
+    }
+  },
+  "AdminHistoricoTransferenciasMatricula": {
+    "loading": "A carregar o histórico de transferências...",
+    "title": "Histórico de transferências",
+    "description": "Consulte todas as movimentações desta matrícula, mantendo a origem, o destino e os vínculos académicos preservados.",
+    "actions": {
+      "back": "Voltar às matrículas",
+      "newTransfer": "Nova transferência"
+    },
+    "summary": {
+      "student": "Aluno",
+      "currentCampus": "Polo atual",
+      "course": "Curso",
+      "currentClass": "Turma atual"
+    },
+    "card": {
+      "transferNumber": "Transferência #{number}",
+      "latest": "Mais recente",
+      "originClass": "Turma de origem",
+      "destinationClass": "Turma de destino",
+      "responsible": "Responsável",
+      "completedAt": "Concluída em",
+      "reason": "Motivo",
+      "notes": "Observações",
+      "subjects": "Disciplinas movimentadas",
+      "itemsCount": "{count} vínculos",
+      "migratedCount": "{count} migrados",
+      "cancellationReason": "Motivo do cancelamento"
+    },
+    "status": {
+      "pending": "Pendente",
+      "completed": "Concluída",
+      "cancelled": "Cancelada"
+    },
+    "type": {
+      "campus": "Transferência de polo",
+      "courseClass": "Transferência de curso ou turma",
+      "phanyxInstitution": "Transferência para outra instituição PHANYX",
+      "externalInstitution": "Transferência para instituição externa",
+      "studentReassignment": "Reatribuição para outro aluno"
+    },
+    "empty": {
+      "title": "Nenhuma transferência registada",
+      "description": "Esta matrícula ainda não possui movimentações de transferência."
+    },
+    "errors": {
+      "load": "Não foi possível carregar o histórico de transferências."
     }
   }
 }

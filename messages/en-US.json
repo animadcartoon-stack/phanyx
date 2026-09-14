@@ -14929,7 +14929,7 @@
     "bolsaEstudos": "Scholarship (%)",
     "bolsaAjuda": "Enter a percentage from 0 to 100.",
     "valorAposBolsa": "Monthly amount after scholarship",
-    "bolsaIntegral": "Full scholarship \u2014 100%",
+    "bolsaIntegral": "Full scholarship — 100%",
     "financeiroOpcionalAjuda": "Financial details are optional. The enrollment can be saved without generating tuition charges.",
     "tabs": {
       "matriculas": "Enrollments",
@@ -14999,6 +14999,198 @@
       "reasonRequired": "Enter a reason with at least 3 characters.",
       "success": "Enrollment canceled successfully.",
       "error": "The enrollment could not be canceled."
+    }
+  },
+  "AdminTransferenciaMatricula": {
+    "title": "Enrollment transfer",
+    "subtitle": "Transfer an enrollment while preserving academic history and operation traceability.",
+    "back": "Back to enrollments",
+    "loading": "Loading enrollment...",
+    "enrollmentId": "Enrollment #{id}",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "origin": {
+      "title": "Source enrollment",
+      "student": "Student",
+      "enrollment": "Enrollment",
+      "institution": "Institution",
+      "campus": "Campus",
+      "course": "Course",
+      "class": "Class",
+      "period": "Academic period",
+      "modality": "Modality",
+      "courseSemester": "Course semester",
+      "module": "Module"
+    },
+    "chooseType": {
+      "title": "Transfer type",
+      "description": "Choose where or to whom this enrollment will be transferred."
+    },
+    "types": {
+      "campus": {
+        "title": "Another campus",
+        "description": "Transfer the same student to another campus or unit."
+      },
+      "courseClass": {
+        "title": "Another course or class",
+        "description": "Transfer the student to another course, class, or academic period."
+      },
+      "phanyxInstitution": {
+        "title": "Another PHANYX institution",
+        "description": "Transfer to another linked and authorized PHANYX institution."
+      },
+      "externalInstitution": {
+        "title": "External institution or university",
+        "description": "Register a transfer to an institution that does not use PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reassign to another student",
+        "description": "Exceptional administrative correction while preserving the original history."
+      }
+    },
+    "errors": {
+      "invalidEnrollment": "Invalid enrollment identifier.",
+      "notFound": "This enrollment could not be found.",
+      "load": "The enrollment data could not be loaded.",
+      "selectType": "Select a transfer type."
+    },
+    "next": {
+      "title": "Transfer destination",
+      "POLO": "The next step will show available campuses and compatible classes.",
+      "CURSO_TURMA": "The next step will show available courses, periods, and classes.",
+      "INSTITUICAO_PHANYX": "The next step will show authorized PHANYX institutions.",
+      "INSTITUICAO_EXTERNA": "The next step will collect the destination institution and documentation.",
+      "REATRIBUICAO_ALUNO": "The next step will search for the correct student and require an audit reason."
+    },
+    "campusTransfer": {
+      "title": "Transfer to another campus",
+      "description": "Choose the destination campus and, when available, a compatible class.",
+      "currentCampus": "Current campus",
+      "destinationCampus": "New campus",
+      "selectCampus": "Select destination campus",
+      "course": "Course",
+      "destinationClass": "Destination class",
+      "awaitingClass": "No class yet — awaiting class assignment",
+      "classHelp": "The class is optional. The transfer may remain awaiting class assignment.",
+      "transferDate": "Transfer date",
+      "reason": "Reason",
+      "reasonPlaceholder": "Enter the reason for the transfer",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional information",
+      "reviewButton": "Review transfer",
+      "loading": "Loading campuses...",
+      "noOtherCampuses": "There is no other active campus available.",
+      "errors": {
+        "loadDestinations": "The available campuses and classes could not be loaded.",
+        "selectCampus": "Select the destination campus.",
+        "date": "Enter the transfer date.",
+        "reason": "Enter the reason for the transfer.",
+        "confirm": "The transfer could not be completed. No partial changes were kept."
+      },
+      "review": {
+        "title": "Transfer review",
+        "origin": "Source campus",
+        "destination": "Destination campus",
+        "course": "Course",
+        "class": "Destination class",
+        "date": "Date",
+        "reason": "Reason",
+        "edit": "Edit",
+        "confirm": "Confirm transfer",
+        "pending": "Review the information carefully. Once confirmed, the transfer will be recorded in the academic history.",
+        "confirming": "Transferring...",
+        "confirmed": "Transfer recorded",
+        "success": "Transfer completed successfully.",
+        "successPending": "Campus transfer recorded. Some courses are waiting for a destination class or compatibility."
+      },
+      "pendingTransfer": {
+        "title": "Transfer waiting for a class",
+        "description": "This enrollment already has a transfer in progress. Complete the academic allocation before starting another transfer.",
+        "status": "Pending transfer",
+        "pendingSubjects": "courses awaiting allocation",
+        "origin": "Origin campus",
+        "destination": "Destination campus",
+        "course": "Course",
+        "allocateTitle": "Assign to a class",
+        "allocateHelp": "Select a class at the destination campus. PHANYX will verify all pending courses before changing the enrollment.",
+        "class": "Destination class",
+        "selectClass": "Select the destination class",
+        "noClasses": "There is no active class for this course at the destination campus yet.",
+        "allocate": "Assign to class",
+        "allocating": "Checking and assigning...",
+        "allocated": "Allocation completed",
+        "success": "Transfer completed. The enrollment was assigned to the destination class.",
+        "back": "Back to enrollments",
+        "missingSubjects": "Courses missing from the selected class:",
+        "errors": {
+          "allocate": "The allocation could not be completed. No partial changes were kept.",
+          "incompatible": "The selected class does not contain all courses required to complete this transfer."
+        }
+      },
+      "lastTransfer": {
+        "loading": "Loading the latest transfer...",
+        "title": "Enrollment transfer",
+        "description": "This enrollment has a completed transfer. Review its history or start a new movement.",
+        "back": "Back to transfer options",
+        "completed": "Latest completed transfer",
+        "statusCompleted": "Completed",
+        "originClass": "Origin class",
+        "destinationClass": "Destination class",
+        "migratedSubjects": "Migrated courses",
+        "currentCampus": "Current campus",
+        "reason": "Reason",
+        "viewHistory": "View history",
+        "startNew": "Start new transfer",
+        "notice": "A new transfer will be recorded separately and will not replace the existing academic history."
+      }
+    }
+  },
+  "AdminHistoricoTransferenciasMatricula": {
+    "loading": "Loading transfer history...",
+    "title": "Transfer history",
+    "description": "Review every movement for this enrollment while preserving origin, destination and academic links.",
+    "actions": {
+      "back": "Back to enrollments",
+      "newTransfer": "New transfer"
+    },
+    "summary": {
+      "student": "Student",
+      "currentCampus": "Current campus",
+      "course": "Course",
+      "currentClass": "Current class"
+    },
+    "card": {
+      "transferNumber": "Transfer #{number}",
+      "latest": "Latest",
+      "originClass": "Origin class",
+      "destinationClass": "Destination class",
+      "responsible": "Responsible user",
+      "completedAt": "Completed at",
+      "reason": "Reason",
+      "notes": "Notes",
+      "subjects": "Transferred courses",
+      "itemsCount": "{count} links",
+      "migratedCount": "{count} migrated",
+      "cancellationReason": "Cancellation reason"
+    },
+    "status": {
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "type": {
+      "campus": "Campus transfer",
+      "courseClass": "Course or class transfer",
+      "phanyxInstitution": "Transfer to another PHANYX institution",
+      "externalInstitution": "Transfer to an external institution",
+      "studentReassignment": "Reassignment to another student"
+    },
+    "empty": {
+      "title": "No transfers recorded",
+      "description": "This enrollment does not have any transfer movements yet."
+    },
+    "errors": {
+      "load": "Unable to load the transfer history."
     }
   }
 }

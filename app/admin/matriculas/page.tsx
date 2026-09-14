@@ -4387,13 +4387,14 @@ function AdminMatriculasPage() {
                                   Suspender
                                 </button>
 
-                                <button
-                                  onClick={() =>
-                                    alterarStatusMatricula(
-                                      m.id,
-                                      "TRANSFERIDA"
-                                    )
-                                  }
+                                <button type="button"
+                                  onClick={() => {
+                                    window.open(
+                                      `/admin/matriculas/${m.id}/transferir`,
+                                      "_blank",
+                                      "noopener,noreferrer"
+                                    );
+                                  }}
                                   className="rounded-xl border border-cyan-300 bg-white px-3 py-2 text-sm text-cyan-800 hover:bg-cyan-50 dark:border-cyan-800 dark:bg-slate-950 dark:text-cyan-300 dark:hover:bg-cyan-950/30"
                                 >
                                   {t("actions.transferir")}

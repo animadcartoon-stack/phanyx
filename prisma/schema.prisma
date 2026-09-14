@@ -205,6 +205,7 @@ model Instituicao {
   motivosPerdaComerciais         MotivoPerdaComercial[]
   movimentacoesFunilLead         LeadMovimentacaoFunil[]
   transferenciasLead             LeadTransferencia[]
+  transferenciasMatricula        TransferenciaMatricula[]
   tarefasComerciais              TarefaComercial[]
   canaisCaptacaoLead             CanalCaptacaoLead[]
   campanhasCaptacaoLead          CampanhaCaptacaoLead[]
@@ -431,6 +432,7 @@ model User {
   funisComerciaisRestaurados                           FunilComercial[]                            @relation("FunilComercialRestauradoPor")
   movimentacoesFunilLeadRealizadas                     LeadMovimentacaoFunil[]                     @relation("LeadMovimentacaoRealizadaPor")
   transferenciasLeadRealizadas                         LeadTransferencia[]                         @relation("LeadTransferenciaRealizadaPor")
+  transferenciasMatriculaRealizadas                    TransferenciaMatricula[]                    @relation("TransferenciaMatriculaRealizadaPor")
 
   tarefasComerciaisCriadas           TarefaComercial[]        @relation("TarefaComercialCriadaPor")
   tarefasComerciaisAtualizadas       TarefaComercial[]        @relation("TarefaComercialAtualizadaPor")
@@ -1182,23 +1184,24 @@ model Matricula {
   lancamentosComissaoRH   LancamentoComissaoRH[]
   rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
 
-  rematriculaGeradora            RematriculaSemestral?   @relation("RematriculaMatriculaGerada")
+  rematriculaGeradora            RematriculaSemestral?    @relation("RematriculaMatriculaGerada")
   cursoSemestreId                Int?
   periodoMatriculaId             Int?
   periodoLetivo                  String?
   turmaPrincipalId               Int?
-  realizadaPeloAluno             Boolean                 @default(false)
+  realizadaPeloAluno             Boolean                  @default(false)
   confirmadaEm                   DateTime?
-  cursoSemestre                  CursoSemestre?          @relation(fields: [cursoSemestreId], references: [id])
-  periodoMatricula               PeriodoMatricula?       @relation(fields: [periodoMatriculaId], references: [id])
-  aluno                          Aluno                   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  curso                          Curso?                  @relation(fields: [cursoId], references: [id])
-  instituicao                    Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                           Polo?                   @relation(fields: [poloId], references: [id])
-  turmaPrincipal                 Turma?                  @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
-  confirmacaoMenorPorUser        User?                   @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
-  confirmacaoMenorPorFuncionario Funcionario?            @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+  cursoSemestre                  CursoSemestre?           @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula               PeriodoMatricula?        @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                          Aluno                    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                          Curso?                   @relation(fields: [cursoId], references: [id])
+  instituicao                    Instituicao              @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                           Polo?                    @relation(fields: [poloId], references: [id])
+  turmaPrincipal                 Turma?                   @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorUser        User?                    @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario?             @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
   candidaturasMobilidade         MobilidadeCandidatura[]
+  transferencias                 TransferenciaMatricula[]
 
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -8672,6 +8675,7 @@ enum StatusItemMatricula {
   TRANCADO
   REPROVADO
   CANCELADO
+  TRANSFERIDO
 }
 
 enum StatusPresencaAula {
@@ -10676,4 +10680,140 @@ model FeriadoGlobalTraducao {
 
   @@unique([feriadoId, locale])
   @@index([locale])
+}
+
+enum TipoTransferenciaMatricula {
+  POLO
+  CURSO_TURMA
+  INSTITUICAO_PHANYX
+  INSTITUICAO_EXTERNA
+  REATRIBUICAO_ALUNO
+}
+
+enum StatusTransferenciaMatricula {
+  PENDENTE
+  CONCLUIDA
+  CANCELADA
+}
+
+enum SituacaoItemTransferenciaMatricula {
+  MIGRADO
+  AGUARDANDO_TURMA
+  AGUARDANDO_COMPATIBILIDADE
+}
+
+model TransferenciaMatricula {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  matriculaId   Int
+
+  tipo   TipoTransferenciaMatricula
+  status StatusTransferenciaMatricula @default(PENDENTE)
+
+  dataTransferencia DateTime
+
+  motivo      String
+  observacoes String? @db.Text
+
+  alunoOrigemId            Int?
+  alunoOrigemNomeSnapshot  String?
+  alunoDestinoId           Int?
+  alunoDestinoNomeSnapshot String?
+
+  instituicaoOrigemId            Int?
+  instituicaoOrigemNomeSnapshot  String?
+  instituicaoDestinoId           Int?
+  instituicaoDestinoNomeSnapshot String?
+
+  poloOrigemId            Int?
+  poloOrigemNomeSnapshot  String?
+  poloDestinoId           Int?
+  poloDestinoNomeSnapshot String?
+
+  cursoOrigemId            Int?
+  cursoOrigemNomeSnapshot  String?
+  cursoDestinoId           Int?
+  cursoDestinoNomeSnapshot String?
+
+  turmaOrigemId            Int?
+  turmaOrigemNomeSnapshot  String?
+  turmaDestinoId           Int?
+  turmaDestinoNomeSnapshot String?
+
+  instituicaoExternaNome       String?
+  instituicaoExternaPaisCodigo String? @db.VarChar(2)
+
+  realizadoPorId           Int?
+  realizadoPorNomeSnapshot String?
+
+  ip        String?
+  userAgent String? @db.Text
+
+  snapshotAnterior  Json
+  snapshotPosterior Json?
+
+  concluidaEm DateTime?
+  canceladaEm DateTime?
+
+  motivoCancelamento String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  matricula Matricula @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+
+  realizadoPor User? @relation("TransferenciaMatriculaRealizadaPor", fields: [realizadoPorId], references: [id], onDelete: SetNull)
+
+  itens TransferenciaMatriculaItem[]
+
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([tipo])
+  @@index([status])
+  @@index([realizadoPorId])
+  @@index([dataTransferencia])
+  @@index([poloOrigemId])
+  @@index([poloDestinoId])
+  @@index([turmaOrigemId])
+  @@index([turmaDestinoId])
+  @@index([createdAt])
+}
+
+model TransferenciaMatriculaItem {
+  id              Int @id @default(autoincrement())
+  transferenciaId Int
+
+  itemMatriculaOrigemId  Int
+  itemMatriculaDestinoId Int?
+
+  disciplinaId           Int
+  disciplinaNomeSnapshot String
+
+  turmaOrigemId           Int?
+  turmaOrigemNomeSnapshot String?
+
+  turmaDestinoId           Int?
+  turmaDestinoNomeSnapshot String?
+
+  tipoItem TipoItemMatricula
+
+  statusOrigem  StatusItemMatricula
+  statusDestino StatusItemMatricula?
+
+  situacao SituacaoItemTransferenciaMatricula
+
+  createdAt DateTime @default(now())
+
+  transferencia TransferenciaMatricula @relation(fields: [transferenciaId], references: [id], onDelete: Cascade)
+
+  @@unique([transferenciaId, itemMatriculaOrigemId])
+  @@index([transferenciaId])
+  @@index([itemMatriculaOrigemId])
+  @@index([itemMatriculaDestinoId])
+  @@index([disciplinaId])
+  @@index([turmaOrigemId])
+  @@index([turmaDestinoId])
+  @@index([situacao])
 }

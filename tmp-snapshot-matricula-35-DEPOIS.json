@@ -1,0 +1,148 @@
+{
+  "validadoEm": "2026-09-14T18:58:28.583Z",
+  "matricula": {
+    "id": 35,
+    "instituicaoId": 1,
+    "alunoId": 2643,
+    "status": "ATIVA",
+    "poloId": 1,
+    "cursoId": 1,
+    "turmaPrincipalId": 14,
+    "updatedAt": "2026-09-14T17:44:19.043Z",
+    "aluno": {
+      "id": 2643,
+      "nome": "Lucio Ideia Boa",
+      "poloId": 1
+    },
+    "polo": {
+      "id": 1,
+      "nome": "Sede"
+    },
+    "turmaPrincipal": {
+      "id": 14,
+      "nome": "Turma 2026.02",
+      "poloId": 1
+    },
+    "itens": [
+      {
+        "id": 397,
+        "turmaId": 14,
+        "disciplinaId": 11,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 11,
+          "nome": "ANTIGO TESTAMENTO A"
+        }
+      },
+      {
+        "id": 398,
+        "turmaId": 14,
+        "disciplinaId": 10,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 10,
+          "nome": "ATIVIDADE EXTRACURRICULAR 1"
+        }
+      },
+      {
+        "id": 399,
+        "turmaId": 14,
+        "disciplinaId": 32,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 32,
+          "nome": "CANONICIDADE"
+        }
+      },
+      {
+        "id": 400,
+        "turmaId": 14,
+        "disciplinaId": 7,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 7,
+          "nome": "FÉ E CRESCIMENTO PESSOAL"
+        }
+      },
+      {
+        "id": 401,
+        "turmaId": 14,
+        "disciplinaId": 6,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 6,
+          "nome": "INTRODUÇÃO À TEOLOGIA"
+        }
+      },
+      {
+        "id": 402,
+        "turmaId": 14,
+        "disciplinaId": 9,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 9,
+          "nome": "METODOLOGIA DA PESQUISA CIENTÍFICA"
+        }
+      },
+      {
+        "id": 403,
+        "turmaId": 14,
+        "disciplinaId": 5,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "turma": {
+          "id": 14,
+          "nome": "Turma 2026.02",
+          "poloId": 1
+        },
+        "disciplina": {
+          "id": 5,
+          "nome": "MISSÕES URBANAS"
+        }
+      }
+    ],
+    "transferencias": []
+  },
+  "integridadeAcademica": {
+    "notas": 0,
+    "presencas": 0,
+    "resultados": 0,
+    "entregas": 0
+  }
+}
