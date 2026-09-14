@@ -1677,7 +1677,7 @@ function AdminMatriculasPage() {
               bolsaPercentual || 0
             ),
 
-          quantidadeParcelas:
+          quantidadeMensalidades:
             quantidadeParcelas.trim() === ""
               ? null
               : Number(quantidadeParcelas),
