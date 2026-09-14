@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
+import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,13 +22,10 @@ function substituirTemplate(
   template: string,
   valores: Record<string, string>
 ) {
-  let texto = template;
-
-  for (const [chave, valor] of Object.entries(valores)) {
-    texto = texto.replaceAll(`{{${chave}}}`, valor);
-  }
-
-  return texto;
+  return replaceDocumentTags(
+    template,
+    valores
+  );
 }
 
 async function montarContratoDaMatricula(matriculaId: number, instituicaoId: number) {
@@ -117,7 +116,13 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
 {{cidadeAssinatura}}, {{dataAtual}}.`;
 
+  const dadosBolsaDocumento =
+    montarDadosBolsaDocumento(
+      matricula
+    );
+
   const contratoFinal = substituirTemplate(template, {
+    ...dadosBolsaDocumento,
     nomeInstituicao:
       config?.nomeFantasia || matricula.aluno?.instituicao?.nome || "Instituição",
     cnpjInstituicao: config?.cnpj || "-",

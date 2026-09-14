@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
+import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -50,21 +52,10 @@ function substituirTemplate(
   template: string,
   valores: Record<string, string>
 ) {
-  let texto = String(template || "");
-
-  for (const [chave, valor] of Object.entries(valores)) {
-    const padrao = new RegExp(
-      `{{\\s*${escaparRegex(chave)}\\s*}}`,
-      "g"
-    );
-
-    texto = texto.replace(
-      padrao,
-      () => String(valor ?? "")
-    );
-  }
-
-  return texto;
+  return replaceDocumentTags(
+    template,
+    valores
+  );
 }
 
 function listarTagsNaoResolvidas(
@@ -1371,11 +1362,17 @@ export async function POST(req: Request) {
               documentoInicial.id
             ).padStart(6, "0")}`;
 
+          const dadosBolsaDocumento =
+            montarDadosBolsaDocumento(
+              matricula
+            );
+
           const valoresTemplate: Record<
             string,
             string
           > = {
             ...dadosPreenchimento,
+            ...dadosBolsaDocumento,
             logoInstituicao:
               marcadorLogoInstituicao,
             nomeInstituicao,

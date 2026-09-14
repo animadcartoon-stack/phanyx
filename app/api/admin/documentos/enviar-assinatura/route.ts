@@ -1,17 +1,25 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "crypto";
-import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import {
-  enviarEmailAssinaturaContratoInstitucional,
-} from "@/lib/email";
+  ErroEnvioContrato,
+  enviarContratoParaAssinatura,
+} from "@/lib/contratos/enviar-contrato-assinatura";
 
 export async function POST(req: Request) {
   try {
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+      return NextResponse.json(
+        {
+          error:
+            "N\u00e3o autenticado",
+        },
+        {
+          status: 401,
+        }
+      );
     }
 
     if (
@@ -20,98 +28,72 @@ export async function POST(req: Request) {
       user.role !== "SECRETARIA" &&
       user.role !== "COORDENADOR"
     ) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+      return NextResponse.json(
+        {
+          error:
+            "Sem permiss\u00e3o",
+        },
+        {
+          status: 403,
+        }
+      );
     }
 
-    const body = await req.json();
-    const contratoId = Number(body?.contratoId);
+    const body =
+      await req.json();
+
+    const contratoId =
+      Number(
+        body?.contratoId
+      );
 
     if (!contratoId) {
       return NextResponse.json(
-        { error: "Contrato inválido" },
-        { status: 400 }
-      );
-    }
-
-    const contrato = await prisma.contrato.findFirst({
-      where: {
-        id: contratoId,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-        aluno: {
-          include: {
-            user: true,
-          },
+        {
+          error:
+            "Contrato inv\u00e1lido",
         },
-        instituicao: true,
-        matricula: {
-          include: {
-            curso: true,
-          },
-        },
-      },
-    });
-
-    if (!contrato) {
-      return NextResponse.json(
-        { error: "Contrato não encontrado" },
-        { status: 404 }
+        {
+          status: 400,
+        }
       );
     }
 
-    if (contrato.status === "ASSINADO") {
-      return NextResponse.json(
-        { error: "Este contrato já foi assinado" },
-        { status: 400 }
-      );
-    }
-
-    const tokenAssinatura = contrato.tokenAssinatura || randomUUID();
-
-    if (!contrato.tokenAssinatura) {
-      await prisma.contrato.update({
-        where: { id: contrato.id },
-        data: { tokenAssinatura },
+    const resultado =
+      await enviarContratoParaAssinatura({
+        contratoId,
+        instituicaoId:
+          user.instituicaoId!,
       });
-    }
-
-    const emailAluno = contrato.aluno?.user?.email;
-
-    if (!emailAluno) {
-      return NextResponse.json(
-        { error: "Aluno não possui e-mail vinculado ao usuário" },
-        { status: 400 }
-      );
-    }
-
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://phanyx.com.br";
-
-    const linkAssinatura = `${baseUrl}/assinatura/${tokenAssinatura}`;
-
-    await enviarEmailAssinaturaContratoInstitucional({
-      instituicaoId: user.instituicaoId!,
-      email: emailAluno,
-      nome: contrato.aluno.nome,
-      instituicao: contrato.instituicao.nome,
-      titulo: contrato.matricula?.curso?.nome
-        ? `Contrato de matrícula - ${contrato.matricula.curso.nome}`
-        : "Contrato",
-      linkAssinatura,
-    });
 
     return NextResponse.json({
       ok: true,
-      message: "E-mail de assinatura enviado com sucesso",
-      linkAssinatura,
+      message:
+        "E-mail de assinatura enviado com sucesso",
+      linkAssinatura:
+        resultado.linkAssinatura,
     });
   } catch (error: any) {
-    console.error("Erro ao enviar assinatura:", error);
+    console.error(
+      "Erro ao enviar assinatura:",
+      error
+    );
+
+    const status =
+      error instanceof
+        ErroEnvioContrato
+        ? error.status
+        : 500;
 
     return NextResponse.json(
-      { error: error?.message || "Erro ao enviar assinatura" },
-      { status: 500 }
+      {
+        error:
+          error?.message ||
+          "Erro ao enviar assinatura",
+      },
+      {
+        status,
+      }
     );
   }
 }

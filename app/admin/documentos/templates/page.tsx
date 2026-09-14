@@ -1773,6 +1773,12 @@ function AdminDocumentosTemplatesPage() {
     "{{curso}}",
     "{{disciplinas}}",
     "{{valorContrato}}",
+    "{{percentualBolsa}}",
+    "{{valorMensalidadeOriginal}}",
+    "{{valorDescontoBolsa}}",
+    "{{valorMensalidadeComBolsa}}",
+    "{{quantidadeMensalidades}}",
+    "{{textoBolsaContrato}}",
     "{{cidadeAssinatura}}",
     "{{dataAtual}}",
     "{{referenciaFinanceira}}",
@@ -2488,6 +2494,54 @@ function AdminDocumentosTemplatesPage() {
       categoria: "Contratos e Comprovantes",
       palavras: ["valor", "pagamento", "mensalidade", "preço"],
     },
+    "{{percentualBolsa}}": {
+      titulo: "Percentual da bolsa",
+      descricao: "Mostra o percentual de bolsa de estudos registrado na matr\u00edcula.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["bolsa", "percentual", "desconto", "benef\u00edcio", "scholarship"],
+    },
+
+    "{{valorMensalidadeOriginal}}": {
+      titulo: "Valor original da mensalidade",
+      descricao: "Mostra o valor-base da mensalidade antes da aplica\u00e7\u00e3o da bolsa.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["mensalidade", "valor original", "valor base", "bolsa", "tuition"],
+    },
+
+    "{{valorDescontoBolsa}}": {
+      titulo: "Valor do desconto da bolsa",
+      descricao: "Mostra o valor mensal descontado pela bolsa de estudos.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["bolsa", "desconto", "benef\u00edcio", "mensalidade", "discount"],
+    },
+
+    "{{valorMensalidadeComBolsa}}": {
+      titulo: "Valor da mensalidade ap\u00f3s a bolsa",
+      descricao: "Mostra o valor mensal efetivamente devido depois da aplica\u00e7\u00e3o da bolsa.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["mensalidade", "bolsa", "valor final", "valor l\u00edquido", "tuition"],
+    },
+
+    "{{quantidadeMensalidades}}": {
+      titulo: "Quantidade de mensalidades",
+      descricao: "Mostra a quantidade de mensalidades registrada na matr\u00edcula.",
+      ondeUsar: "Contratos e documentos financeiros da matr\u00edcula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["quantidade", "parcelas", "mensalidades", "installments"],
+    },
+
+    "{{textoBolsaContrato}}": {
+      titulo: "Texto autom\u00e1tico da bolsa",
+      descricao: "Insere automaticamente a informa\u00e7\u00e3o da bolsa registrada na matr\u00edcula. Sem bolsa, n\u00e3o insere texto; com bolsa parcial ou integral, descreve o benef\u00edcio.",
+      ondeUsar: "Cl\u00e1usulas de bolsas em contratos acad\u00eamicos.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["bolsa", "cl\u00e1usula", "contrato", "isen\u00e7\u00e3o", "benef\u00edcio", "scholarship"],
+    },
+
     "{{referenciaFinanceira}}": {
       titulo: "Referência financeira",
       descricao: "Mostra a referência financeira do pagamento/documento.",
