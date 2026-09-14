@@ -261,6 +261,24 @@ export function montarValoresPreviewDocumento(
     valorContrato:
       "R$ 2.000,00",
 
+    percentualBolsa:
+      "20%",
+
+    valorMensalidadeOriginal:
+      "R$ 1.000,00",
+
+    valorDescontoBolsa:
+      "R$ 200,00",
+
+    valorMensalidadeComBolsa:
+      "R$ 800,00",
+
+    quantidadeMensalidades:
+      "12",
+
+    textoBolsaContrato:
+      "Nesta matr\u00edcula, foi registrada bolsa de estudos de 20%, aplicada \u00e0s mensalidades, reduzindo o valor mensal de R$ 1.000,00 para R$ 800,00.",
+
     codigoValidacao:
       "PHANYX-PREVIA-000001",
 

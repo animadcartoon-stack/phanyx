@@ -14,6 +14,8 @@ import {
 import {
   processarComissaoAutomatica,
 } from "@/lib/comercial/processar-comissao";
+import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
+import { enviarContratoParaAssinatura } from "@/lib/contratos/enviar-contrato-assinatura";
 
 import {
   EVENTOS_SAIDA_CAPTACAO,
@@ -2884,72 +2886,6 @@ export async function POST(request: Request) {
                 includeMatriculaAdmin,
             });
 
-          const resumoContratacao =
-            montarResumoContratacao(
-              matriculaCriada.itens.map(
-                (item) => ({
-                  turma: {
-                    nome:
-                      item.turma.nome,
-                  },
-
-                  disciplina: {
-                    nome:
-                      item.disciplina.nome,
-                  },
-
-                  tipoItem:
-                    item.tipoItem as TipoItemMatricula,
-                })
-              )
-            );
-
-          const contratoTexto = `
-CONTRATO DE MATRÍCULA
-
-Instituição ID: ${user.instituicaoId}
-Aluno: ${aluno.nome ?? "Aluno"}
-Email: ${aluno.user?.email ?? "-"}
-Curso: ${curso?.nome ?? "Curso não informado"}
-Semestre: ${semestreFinal ?? "-"}
-Período letivo: ${periodoLetivoFinal ?? "-"}
-Disciplinas contratadas:
-${resumoContratacao || "-"}
-
-Data da matrícula: ${agoraConversao.toLocaleDateString("pt-BR")}
-
-CLÁUSULAS:
-1. O aluno declara estar ciente das normas acadêmicas da instituição.
-2. O pagamento da matrícula e das mensalidades seguirá as regras financeiras cadastradas.
-3. O não pagamento poderá gerar bloqueio de acesso acadêmico, conforme política institucional.
-4. Este contrato poderá ser assinado e arquivado pela instituição.
-
-Assinatura do aluno/responsável: __________________________
-Assinatura da instituição: ________________________________
-`;
-
-          await tx.documentoAluno.create({
-            data: {
-              titulo:
-                `Contrato de matrícula - ${aluno.nome ?? "Aluno"
-                }`,
-
-              tipo:
-                "CONTRATO" as any,
-
-              conteudo:
-                contratoTexto,
-
-              alunoId,
-
-              instituicaoId:
-                user.instituicaoId,
-
-              matriculaId:
-                matriculaCriada.id,
-            },
-          });
-
           /*
            * Lançamento da taxa de matrícula.
            *
@@ -3062,6 +2998,36 @@ Assinatura da instituição: ________________________________
             }
           }
 
+          const contratoAutomatico =
+            await criarContratoPendenteMatricula({
+              db: tx,
+              matriculaId:
+                matriculaCriada.id,
+              instituicaoId:
+                user.instituicaoId,
+            });
+
+          /*
+           * Mantemos o DocumentoAluno por compatibilidade
+           * com as telas/documentos existentes.
+           * O conteudo e o mesmo snapshot do Contrato.
+           */
+          await tx.documentoAluno.create({
+            data: {
+              titulo:
+                `Contrato de matr?cula - ${aluno.nome ?? "Aluno"}`,
+              tipo:
+                "CONTRATO" as any,
+              conteudo:
+                contratoAutomatico.conteudo,
+              alunoId,
+              instituicaoId:
+                user.instituicaoId,
+              matriculaId:
+                matriculaCriada.id,
+            },
+          });
+
           /*
            * Conversão do lead em matrícula.
            */
@@ -3149,6 +3115,47 @@ Assinatura da instituição: ________________________________
           timeout: 20000,
         }
             );
+
+    /*
+     * O contrato ja foi persistido dentro da transacao.
+     * O envio de e-mail ocorre somente depois do commit.
+     * Falha de SMTP nao desfaz matricula, financeiro ou contrato.
+     */
+    try {
+      const contratoParaEnvio =
+        await prisma.contrato.findFirst({
+          where: {
+            matriculaId:
+              matricula.id,
+            instituicaoId:
+              user.instituicaoId,
+            status:
+              "PENDENTE",
+          },
+          select: {
+            id: true,
+          },
+          orderBy: {
+            id:
+              "desc",
+          },
+        });
+
+      if (contratoParaEnvio) {
+        await enviarContratoParaAssinatura({
+          contratoId:
+            contratoParaEnvio.id,
+          instituicaoId:
+            user.instituicaoId,
+        });
+      }
+    } catch (erroEnvioContrato) {
+      console.error(
+        "Matr?cula criada, mas n?o foi poss?vel enviar o contrato para assinatura:",
+        erroEnvioContrato
+      );
+    }
+
 
 /*
  * Se esta matrícula nasceu da
@@ -4570,98 +4577,32 @@ export async function PUT(request: Request) {
       });
     }
 
-    await prisma.contrato.updateMany({
-      where: {
-        matriculaId: id,
-        instituicaoId: user.instituicaoId,
-        status: {
-          in: ["PENDENTE", "ASSINADO"] as any,
-        },
-      },
-      data: {
-        status: "CANCELADO",
-      },
-    });
-
-    const matriculaAtualizadaParaContrato = await prisma.matricula.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-        aluno: {
-          include: {
-            user: true,
-          },
-        },
-        curso: true,
-        itens: {
+    await prisma.$transaction(
+      async (txContrato) => {
+        await txContrato.contrato.updateMany({
           where: {
-            status: {
-              not:
-                "CANCELADO" as any,
-            },
+            matriculaId: id,
+            instituicaoId:
+              user.instituicaoId,
+            status:
+              "PENDENTE" as any,
           },
-
-          include: {
-            disciplina: true,
-            turma: true,
+          data: {
+            status:
+              "CANCELADO",
           },
+        });
 
-          orderBy: {
-            id: "asc",
-          },
-        },
-      },
-    });
-
-    if (matriculaAtualizadaParaContrato) {
-      const resumoContratacaoAtualizado = montarResumoContratacao(
-        matriculaAtualizadaParaContrato.itens.map((item) => ({
-          turma: {
-            nome: item.turma?.nome || "Turma não informada",
-          },
-          disciplina: {
-            nome: item.disciplina?.nome || "Disciplina não informada",
-          },
-          tipoItem: item.tipoItem as TipoItemMatricula,
-        }))
-      );
-
-      const contratoTextoAtualizado = `
-CONTRATO DE MATRÍCULA - ATUALIZAÇÃO
-
-Instituição ID: ${user.instituicaoId}
-Aluno: ${matriculaAtualizadaParaContrato.aluno?.nome ?? "Aluno"}
-Email: ${matriculaAtualizadaParaContrato.aluno?.user?.email ?? "-"}
-Curso: ${matriculaAtualizadaParaContrato.curso?.nome ?? "Curso não informado"}
-Semestre: ${matriculaAtualizadaParaContrato.semestre ?? "-"}
-Período letivo: ${matriculaAtualizadaParaContrato.periodoLetivo ?? "-"}
-Disciplinas contratadas:
-${resumoContratacaoAtualizado || "-"}
-
-Data da atualização: ${new Date().toLocaleDateString("pt-BR")}
-
-CLÁUSULAS:
-1. O aluno declara estar ciente da atualização da matrícula.
-2. As disciplinas acima substituem ou complementam a contratação acadêmica vigente.
-3. O acesso às aulas seguirá a liberação acadêmica e financeira da instituição.
-4. Este contrato substitui o contrato anterior da matrícula para fins de registro documental.
-
-Assinatura do aluno/responsável: __________________________
-Assinatura da instituição: ________________________________
-`;
-
-      await prisma.contrato.create({
-        data: {
-          alunoId: matriculaAtualizadaParaContrato.alunoId,
-          matriculaId: id,
-          instituicaoId: user.instituicaoId,
-          conteudo: contratoTextoAtualizado,
-          status: "PENDENTE",
-        },
-      });
-    }
+        await criarContratoPendenteMatricula({
+          db:
+            txContrato,
+          matriculaId:
+            id,
+          instituicaoId:
+            user.instituicaoId,
+        });
+      }
+    );
 
     if (nomeSocial !== undefined || genero !== undefined) {
       await prisma.aluno.updateMany({
