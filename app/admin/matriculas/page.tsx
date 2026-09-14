@@ -4198,6 +4198,18 @@ function AdminMatriculasPage() {
 
                             <button
                               type="button"
+                              onClick={() => abrirModalCancelamento(m)}
+                              disabled={
+                                m.status === "CANCELADA" ||
+                                cancelandoMatriculaId === m.id
+                              }
+                              className="inline-flex items-center gap-1 rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70"
+                            >
+                              {t("actions.cancelarMatricula")}
+                            </button>
+
+                            <button
+                              type="button"
                               data-quarentena-linha="true"
                               onClick={() => abrirModalQuarentena(m)}
                               disabled={removingId === m.id}
@@ -4406,28 +4418,6 @@ function AdminMatriculasPage() {
                                   Concluir
                                 </button>
 
-                                <button
-                                  onClick={() => abrirModalCancelamento(m)}
-                                  disabled={m.status === "CANCELADA"}
-                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  {t("actions.cancelarMatricula")}
-                                </button>
-
-                                <button
-                                  onClick={() => abrirModalQuarentena(m)}
-                                  disabled={removingId === m.id}
-                                  className={[
-                                    "px-4 py-2 rounded-xl text-sm font-semibold transition border",
-                                    removingId === m.id
-                                      ? "bg-gray-100 text-slate-500 dark:text-slate-400 cursor-not-allowed"
-                                      : "bg-white hover:border-red-400 hover:text-red-600",
-                                  ].join(" ")}
-                                >
-                                  {removingId === m.id
-                                    ? t("actions.movendo")
-                                    : t("actions.moverQuarentena")}
-                                </button>
                               </div>
 
                               <div>
