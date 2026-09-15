@@ -15246,5 +15246,63 @@
       "comercial__captacao__integracoes__gerenciar": "Sales - Manage lead capture integrations",
       "comercial__captacao__auditoria__ver": "Sales - View lead capture audit"
     }
+  },
+  "AdminFuncionariosComercial": {
+    "eyebrow": "Institutional management",
+    "title": "Sales",
+    "subtitle": "Manage leads, salespeople, goals, sales, enrollments, commissions, and the institution's sales performance.",
+    "metrics": {
+      "activeLeads": {
+        "label": "Active leads",
+        "help": "The sales pipeline will be connected to this area."
+      },
+      "periodSales": {
+        "label": "Sales in the period",
+        "help": "Confirmed enrollments and sales."
+      },
+      "goalsReached": {
+        "label": "Goals reached",
+        "help": "Results by salesperson and team."
+      },
+      "pendingCommissions": {
+        "label": "Pending commissions",
+        "help": "Amounts awaiting sales review."
+      }
+    },
+    "resources": {
+      "title": "Sales resources",
+      "help": "Each resource will be connected to the department and individual permissions already configured.",
+      "inDevelopment": "In development"
+    },
+    "modules": {
+      "leads": {
+        "title": "Leads and opportunities",
+        "description": "Register prospects and track contacts, pipeline stages, and owners."
+      },
+      "sellers": {
+        "title": "Salespeople",
+        "description": "Manage employees authorized to work with sales and enrollments."
+      },
+      "goals": {
+        "title": "Sales goals",
+        "description": "Set goals by salesperson, team, course, campus, and period."
+      },
+      "salesEnrollments": {
+        "title": "Sales and enrollments",
+        "description": "Track enrollments, negotiated amounts, and responsible salespeople."
+      },
+      "commissions": {
+        "title": "Commissions",
+        "description": "Calculate and approve commissions before sending them to HR and payroll."
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Analyze conversion, performance, goals, sales, and business results."
+      }
+    },
+    "hrIntegration": {
+      "title": "HR integration",
+      "description": "Commissions generated from sales and enrollments will be calculated in Sales. Once approved, they will be sent to Variable Compensation and included in payroll for the corresponding pay period."
+    }
   }
 }

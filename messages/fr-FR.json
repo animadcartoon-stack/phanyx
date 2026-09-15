@@ -15245,5 +15245,63 @@
       "comercial__captacao__integracoes__gerenciar": "Commercial - Gérer les intégrations de prospection",
       "comercial__captacao__auditoria__ver": "Commercial - Voir l’audit de la prospection"
     }
+  },
+  "AdminFuncionariosComercial": {
+    "eyebrow": "Gestion institutionnelle",
+    "title": "Commercial",
+    "subtitle": "Gérez les prospects, les commerciaux, les objectifs, les ventes, les inscriptions, les commissions et les résultats commerciaux de l'établissement.",
+    "metrics": {
+      "activeLeads": {
+        "label": "Prospects actifs",
+        "help": "Le pipeline commercial sera connecté à cet espace."
+      },
+      "periodSales": {
+        "label": "Ventes sur la période",
+        "help": "Inscriptions et ventes confirmées."
+      },
+      "goalsReached": {
+        "label": "Objectifs atteints",
+        "help": "Résultats par commercial et par équipe."
+      },
+      "pendingCommissions": {
+        "label": "Commissions en attente",
+        "help": "Montants en attente d'analyse commerciale."
+      }
+    },
+    "resources": {
+      "title": "Ressources du service commercial",
+      "help": "Chaque ressource sera reliée aux autorisations départementales et individuelles déjà configurées.",
+      "inDevelopment": "En cours de mise en œuvre"
+    },
+    "modules": {
+      "leads": {
+        "title": "Prospects et opportunités",
+        "description": "Enregistrez les prospects et suivez les contacts, les étapes du pipeline et les responsables."
+      },
+      "sellers": {
+        "title": "Commerciaux",
+        "description": "Gérez les employés autorisés à intervenir dans les ventes et les inscriptions."
+      },
+      "goals": {
+        "title": "Objectifs commerciaux",
+        "description": "Définissez des objectifs par commercial, équipe, formation, campus et période."
+      },
+      "salesEnrollments": {
+        "title": "Ventes et inscriptions",
+        "description": "Suivez les inscriptions, les montants négociés et les commerciaux responsables."
+      },
+      "commissions": {
+        "title": "Commissions",
+        "description": "Calculez et approuvez les commissions avant leur envoi aux RH et à la paie."
+      },
+      "reports": {
+        "title": "Rapports",
+        "description": "Analysez la conversion, les performances, les objectifs, les ventes et les résultats commerciaux."
+      }
+    },
+    "hrIntegration": {
+      "title": "Intégration avec les RH",
+      "description": "Les commissions issues des ventes et des inscriptions seront calculées dans le module Commercial. Après approbation, elles seront envoyées vers la rémunération variable et intégrées à la paie de la période correspondante."
+    }
   }
 }

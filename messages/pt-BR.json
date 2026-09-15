@@ -15015,5 +15015,63 @@
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gerenciar integrações de captação",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoria da captação"
     }
+  },
+  "AdminFuncionariosComercial": {
+    "eyebrow": "Gestão institucional",
+    "title": "Comercial",
+    "subtitle": "Gerencie leads, vendedores, metas, vendas, matrículas, comissões e resultados comerciais da instituição.",
+    "metrics": {
+      "activeLeads": {
+        "label": "Leads ativos",
+        "help": "O funil comercial será conectado nesta área."
+      },
+      "periodSales": {
+        "label": "Vendas no período",
+        "help": "Matrículas e vendas confirmadas."
+      },
+      "goalsReached": {
+        "label": "Metas atingidas",
+        "help": "Resultado por vendedor e equipe."
+      },
+      "pendingCommissions": {
+        "label": "Comissões pendentes",
+        "help": "Valores aguardando análise comercial."
+      }
+    },
+    "resources": {
+      "title": "Recursos do setor Comercial",
+      "help": "Cada recurso será conectado às permissões departamentais e individuais já cadastradas.",
+      "inDevelopment": "Em implantação"
+    },
+    "modules": {
+      "leads": {
+        "title": "Leads e oportunidades",
+        "description": "Cadastre interessados, acompanhe contatos, etapas do funil e responsáveis."
+      },
+      "sellers": {
+        "title": "Vendedores",
+        "description": "Gerencie os funcionários autorizados a atuar em vendas e matrículas."
+      },
+      "goals": {
+        "title": "Metas comerciais",
+        "description": "Defina metas por vendedor, equipe, curso, polo e período."
+      },
+      "salesEnrollments": {
+        "title": "Vendas e matrículas",
+        "description": "Acompanhe matrículas, valores negociados e vendedores responsáveis."
+      },
+      "commissions": {
+        "title": "Comissões",
+        "description": "Calcule e aprove comissões antes do envio para o RH e o holerite."
+      },
+      "reports": {
+        "title": "Relatórios",
+        "description": "Analise conversão, desempenho, metas, vendas e resultados comerciais."
+      }
+    },
+    "hrIntegration": {
+      "title": "Integração com o RH",
+      "description": "As comissões originadas por vendas e matrículas serão calculadas no Comercial. Depois de aprovadas, serão enviadas para Remuneração Variável e incluídas no holerite da competência correspondente."
+    }
   }
 }

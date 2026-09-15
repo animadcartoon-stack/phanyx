@@ -15245,5 +15245,63 @@
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gestionar integraciones de captación",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoría de captación"
     }
+  },
+  "AdminFuncionariosComercial": {
+    "eyebrow": "Gestión institucional",
+    "title": "Comercial",
+    "subtitle": "Gestione leads, vendedores, objetivos, ventas, matrículas, comisiones y resultados comerciales de la institución.",
+    "metrics": {
+      "activeLeads": {
+        "label": "Leads activos",
+        "help": "El embudo comercial se conectará a esta área."
+      },
+      "periodSales": {
+        "label": "Ventas del período",
+        "help": "Matrículas y ventas confirmadas."
+      },
+      "goalsReached": {
+        "label": "Objetivos alcanzados",
+        "help": "Resultados por vendedor y equipo."
+      },
+      "pendingCommissions": {
+        "label": "Comisiones pendientes",
+        "help": "Importes pendientes de análisis comercial."
+      }
+    },
+    "resources": {
+      "title": "Recursos del área Comercial",
+      "help": "Cada recurso se conectará a los permisos departamentales e individuales ya configurados.",
+      "inDevelopment": "En implementación"
+    },
+    "modules": {
+      "leads": {
+        "title": "Leads y oportunidades",
+        "description": "Registre interesados y haga seguimiento de contactos, etapas del embudo y responsables."
+      },
+      "sellers": {
+        "title": "Vendedores",
+        "description": "Gestione a los empleados autorizados para trabajar con ventas y matrículas."
+      },
+      "goals": {
+        "title": "Objetivos comerciales",
+        "description": "Defina objetivos por vendedor, equipo, curso, sede y período."
+      },
+      "salesEnrollments": {
+        "title": "Ventas y matrículas",
+        "description": "Haga seguimiento de matrículas, importes negociados y vendedores responsables."
+      },
+      "commissions": {
+        "title": "Comisiones",
+        "description": "Calcule y apruebe comisiones antes de enviarlas a RR. HH. y a la nómina."
+      },
+      "reports": {
+        "title": "Informes",
+        "description": "Analice conversión, rendimiento, objetivos, ventas y resultados comerciales."
+      }
+    },
+    "hrIntegration": {
+      "title": "Integración con RR. HH.",
+      "description": "Las comisiones generadas por ventas y matrículas se calcularán en Comercial. Una vez aprobadas, se enviarán a Remuneración Variable y se incluirán en la nómina del período correspondiente."
+    }
   }
 }

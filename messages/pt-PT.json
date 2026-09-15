@@ -15031,5 +15031,63 @@
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gerir integrações de captação",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoria da captação"
     }
+  },
+  "AdminFuncionariosComercial": {
+    "eyebrow": "Gestão institucional",
+    "title": "Comercial",
+    "subtitle": "Faça a gestão de leads, vendedores, metas, vendas, matrículas, comissões e resultados comerciais da instituição.",
+    "metrics": {
+      "activeLeads": {
+        "label": "Leads ativos",
+        "help": "O funil comercial será ligado a esta área."
+      },
+      "periodSales": {
+        "label": "Vendas no período",
+        "help": "Matrículas e vendas confirmadas."
+      },
+      "goalsReached": {
+        "label": "Metas atingidas",
+        "help": "Resultado por vendedor e equipa."
+      },
+      "pendingCommissions": {
+        "label": "Comissões pendentes",
+        "help": "Valores a aguardar análise comercial."
+      }
+    },
+    "resources": {
+      "title": "Recursos do setor Comercial",
+      "help": "Cada recurso será ligado às permissões departamentais e individuais já registadas.",
+      "inDevelopment": "Em implementação"
+    },
+    "modules": {
+      "leads": {
+        "title": "Leads e oportunidades",
+        "description": "Registe interessados e acompanhe contactos, etapas do funil e responsáveis."
+      },
+      "sellers": {
+        "title": "Vendedores",
+        "description": "Faça a gestão dos funcionários autorizados a atuar em vendas e matrículas."
+      },
+      "goals": {
+        "title": "Metas comerciais",
+        "description": "Defina metas por vendedor, equipa, curso, polo e período."
+      },
+      "salesEnrollments": {
+        "title": "Vendas e matrículas",
+        "description": "Acompanhe matrículas, valores negociados e vendedores responsáveis."
+      },
+      "commissions": {
+        "title": "Comissões",
+        "description": "Calcule e aprove comissões antes do envio para os RH e para o recibo de vencimento."
+      },
+      "reports": {
+        "title": "Relatórios",
+        "description": "Analise conversão, desempenho, metas, vendas e resultados comerciais."
+      }
+    },
+    "hrIntegration": {
+      "title": "Integração com os RH",
+      "description": "As comissões originadas por vendas e matrículas serão calculadas no Comercial. Depois de aprovadas, serão enviadas para Remuneração Variável e incluídas no recibo de vencimento do período correspondente."
+    }
   }
 }
