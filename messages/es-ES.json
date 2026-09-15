@@ -15222,7 +15222,28 @@
       "aniversariantes__enviar_mensagem": "Cumpleaños - Enviar mensaje",
       "aniversariantes__gerar_links_whatsapp": "Cumpleaños - Generar enlaces de WhatsApp",
       "aniversariantes__exportar_pdf": "Cumpleaños - Descargar PDF",
-      "aniversariantes__exportar_excel": "Cumpleaños - Descargar Excel"
+      "aniversariantes__exportar_excel": "Cumpleaños - Descargar Excel",
+      "atividades-externas__ver": "Académico - Ver actividades externas",
+      "atividades-externas__gerenciar": "Académico - Gestionar actividades externas",
+      "biblioteca__exemplares__ver": "Biblioteca Virtual - Ver ejemplares",
+      "biblioteca__exemplares__gerenciar": "Biblioteca Virtual - Gestionar ejemplares",
+      "biblioteca__exemplares__baixar": "Biblioteca Virtual - Dar de baja ejemplares",
+      "biblioteca__exemplares__manutencao": "Biblioteca Virtual - Gestionar mantenimiento de ejemplares",
+      "biblioteca__arquivos__gerenciar": "Biblioteca Virtual - Gestionar archivos",
+      "comercial__captacao__ver": "Comercial - Acceder a la Central de Captación",
+      "comercial__captacao__canais__ver": "Comercial - Ver canales de captación",
+      "comercial__captacao__canais__gerenciar": "Comercial - Gestionar canales de captación",
+      "comercial__captacao__campanhas__ver": "Comercial - Ver campañas de captación",
+      "comercial__captacao__campanhas__gerenciar": "Comercial - Gestionar campañas de captación",
+      "comercial__captacao__formularios__ver": "Comercial - Ver formularios de captación",
+      "comercial__captacao__formularios__gerenciar": "Comercial - Gestionar formularios de captación",
+      "comercial__captacao__submissoes__ver": "Comercial - Ver envíos de captación",
+      "comercial__captacao__submissoes__reprocessar": "Comercial - Reprocesar envíos de captación",
+      "comercial__captacao__distribuicao__ver": "Comercial - Ver reglas de distribución de leads",
+      "comercial__captacao__distribuicao__gerenciar": "Comercial - Gestionar distribución de leads",
+      "comercial__captacao__integracoes__ver": "Comercial - Ver integraciones de captación",
+      "comercial__captacao__integracoes__gerenciar": "Comercial - Gestionar integraciones de captación",
+      "comercial__captacao__auditoria__ver": "Comercial - Ver auditoría de captación"
     }
   }
 }

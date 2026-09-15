@@ -469,15 +469,32 @@ export default function FuncionarioPermissoesPage({
         permissao.chave
       );
 
+    const chaveMensagem =
+      `permissionNames.${chave}`;
+
     try {
-      return t(
-        `permissionNames.${chave}`
-      ) as string;
+      if (
+        typeof t.has === "function" &&
+        !t.has(chaveMensagem)
+      ) {
+        return permissao.nome;
+      }
+
+      const traduzida =
+        t(chaveMensagem) as string;
+
+      if (
+        !traduzida ||
+        traduzida ===
+          chaveMensagem ||
+        traduzida ===
+          `AdminFuncionariosPermissoes.${chaveMensagem}`
+      ) {
+        return permissao.nome;
+      }
+
+      return traduzida;
     } catch {
-      /*
-       * Permissões novas continuam funcionais mesmo antes
-       * de receberem tradução nos cinco idiomas.
-       */
       return permissao.nome;
     }
   }

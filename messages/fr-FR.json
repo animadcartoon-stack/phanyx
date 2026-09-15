@@ -15222,7 +15222,28 @@
       "aniversariantes__enviar_mensagem": "Anniversaires - Envoyer un message",
       "aniversariantes__gerar_links_whatsapp": "Anniversaires - Générer des liens WhatsApp",
       "aniversariantes__exportar_pdf": "Anniversaires - Télécharger le PDF",
-      "aniversariantes__exportar_excel": "Anniversaires - Télécharger Excel"
+      "aniversariantes__exportar_excel": "Anniversaires - Télécharger Excel",
+      "atividades-externas__ver": "Académique - Voir les activités externes",
+      "atividades-externas__gerenciar": "Académique - Gérer les activités externes",
+      "biblioteca__exemplares__ver": "Bibliothèque virtuelle - Voir les exemplaires",
+      "biblioteca__exemplares__gerenciar": "Bibliothèque virtuelle - Gérer les exemplaires",
+      "biblioteca__exemplares__baixar": "Bibliothèque virtuelle - Radier des exemplaires",
+      "biblioteca__exemplares__manutencao": "Bibliothèque virtuelle - Gérer la maintenance des exemplaires",
+      "biblioteca__arquivos__gerenciar": "Bibliothèque virtuelle - Gérer les fichiers",
+      "comercial__captacao__ver": "Commercial - Accéder au centre de prospection",
+      "comercial__captacao__canais__ver": "Commercial - Voir les canaux de prospection",
+      "comercial__captacao__canais__gerenciar": "Commercial - Gérer les canaux de prospection",
+      "comercial__captacao__campanhas__ver": "Commercial - Voir les campagnes de prospection",
+      "comercial__captacao__campanhas__gerenciar": "Commercial - Gérer les campagnes de prospection",
+      "comercial__captacao__formularios__ver": "Commercial - Voir les formulaires de prospection",
+      "comercial__captacao__formularios__gerenciar": "Commercial - Gérer les formulaires de prospection",
+      "comercial__captacao__submissoes__ver": "Commercial - Voir les soumissions de prospection",
+      "comercial__captacao__submissoes__reprocessar": "Commercial - Retraiter les soumissions de prospection",
+      "comercial__captacao__distribuicao__ver": "Commercial - Voir les règles de distribution des prospects",
+      "comercial__captacao__distribuicao__gerenciar": "Commercial - Gérer la distribution des prospects",
+      "comercial__captacao__integracoes__ver": "Commercial - Voir les intégrations de prospection",
+      "comercial__captacao__integracoes__gerenciar": "Commercial - Gérer les intégrations de prospection",
+      "comercial__captacao__auditoria__ver": "Commercial - Voir l’audit de la prospection"
     }
   }
 }
