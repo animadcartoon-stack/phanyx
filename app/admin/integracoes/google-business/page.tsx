@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function GoogleBusinessPage() {
+  const t = useTranslations("AdminIntegracoes.googleBusiness");
+  const common = useTranslations("AdminIntegracoes.common");
+
   const [perfil, setPerfil] = useState("");
   const [ativo, setAtivo] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -23,20 +27,19 @@ export default function GoogleBusinessPage() {
       setPerfil(data?.perfil || "");
       setAtivo(Boolean(data?.ativo));
     } catch {
-      setMensagem("Erro ao carregar configuração.");
+      setMensagem(common("loadError"));
     }
   }
 
-  async function conectarGoogleBusiness() {
-  try {
-    setMensagem("");
-
-    window.location.href =
-      "/api/admin/integracoes/google-business/connect";
-  } catch {
-    setMensagem("Não foi possível iniciar a conexão com o Google Business.");
+  function conectarGoogleBusiness() {
+    try {
+      setMensagem("");
+      window.location.href =
+        "/api/admin/integracoes/google-business/connect";
+    } catch {
+      setMensagem(t("connectError"));
+    }
   }
-}
 
   async function salvar() {
     try {
@@ -55,14 +58,20 @@ export default function GoogleBusinessPage() {
       });
 
       if (!res.ok) {
-  const erro = await res.json().catch(() => null);
-  throw new Error(erro?.detalhe || erro?.error || "Erro ao salvar configuração.");
-}
+        const erro = await res.json().catch(() => null);
+        throw new Error(
+          erro?.detalhe || erro?.error || common("saveError")
+        );
+      }
 
-      setMensagem("Google Business salvo com sucesso.");
-    } catch (error: any) {
-  setMensagem(error?.message || "Erro ao salvar configuração.");
-} finally {
+      setMensagem(t("success"));
+    } catch (error) {
+      setMensagem(
+        error instanceof Error
+          ? error.message
+          : common("saveError")
+      );
+    } finally {
       setSalvando(false);
     }
   }
@@ -71,75 +80,74 @@ export default function GoogleBusinessPage() {
     <div className="phanyx-google-config-page max-w-3xl space-y-6">
       <div>
         <h1 className="phanyx-config-title text-3xl font-black">
-          📍 Google Business
+          {"\u{1F4CD}"} Google Business
         </h1>
 
         <p className="phanyx-config-muted mt-2">
-          Configure a presença local da sua instituição no Google.
+          {t("description")}
         </p>
       </div>
 
       <div className="phanyx-config-card space-y-5 p-6 shadow-sm">
-  <div className="phanyx-config-soft-card rounded-2xl p-5">
-    <h2 className="phanyx-config-title text-lg font-bold">
-      Integração Google Business
-    </h2>
+        <div className="phanyx-config-soft-card rounded-2xl p-5">
+          <h2 className="phanyx-config-title text-lg font-bold">
+            {t("integrationTitle")}
+          </h2>
 
-    <p className="phanyx-config-muted mt-2 text-sm leading-6">
-      Conecte o perfil Google Business da instituição para futuramente exibir
-      métricas locais, reputação, avaliações e presença no Google.
-    </p>
-  </div>
+          <p className="phanyx-config-muted mt-2 text-sm leading-6">
+            {t("integrationDescription")}
+          </p>
+        </div>
 
-  <label className="phanyx-config-check-row flex cursor-pointer items-center gap-3 rounded-xl p-4">
-    <input
-      type="checkbox"
-      checked={ativo}
-      onChange={(e) => setAtivo(e.target.checked)}
-    />
+        <label className="phanyx-config-check-row flex cursor-pointer items-center gap-3 rounded-xl p-4">
+          <input
+            type="checkbox"
+            checked={ativo}
+            onChange={(e) => setAtivo(e.target.checked)}
+          />
 
-    <span className="phanyx-config-check-label font-semibold">
-      Ativar Google Business nesta instituição
-    </span>
-  </label>
+          <span className="phanyx-config-check-label font-semibold">
+            {t("activate")}
+          </span>
+        </label>
 
-  {ativo && (
-    <div className="phanyx-config-warning rounded-2xl p-5">
-      <p className="font-bold">
-  Google Business conectado ao PHANYX
-</p>
+        {ativo && (
+          <div className="phanyx-config-warning rounded-2xl p-5">
+            <p className="font-bold">
+              {t("connectedTitle")}
+            </p>
 
-<p className="mt-2 text-sm leading-6">
-  O PHANYX já está preparado para integração com a API oficial do Google
-  Business. Algumas métricas poderão depender de aprovação/liberação do
-  Google.
-</p>
-    </div>
-  )}
+            <p className="mt-2 text-sm leading-6">
+              {t("connectedDescription")}
+            </p>
+          </div>
+        )}
 
-  {mensagem && (
-    <div className="phanyx-config-info rounded-xl p-4">
-      {mensagem}
-    </div>
-  )}
+        {mensagem && (
+          <div className="phanyx-config-info rounded-xl p-4">
+            {mensagem}
+          </div>
+        )}
 
-  <div className="flex flex-wrap gap-3">
-    <button
-      onClick={conectarGoogleBusiness}
-      className="phanyx-primary-action"
-    >
-      Conectar Google Business
-    </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={conectarGoogleBusiness}
+            className="phanyx-primary-action"
+          >
+            {t("connect")}
+          </button>
 
-    <button
-      onClick={salvar}
-      disabled={salvando}
-      className="phanyx-secondary-action disabled:opacity-60"
-    >
-      {salvando ? "Salvando..." : "Salvar configuração"}
-    </button>
-  </div>
-</div>
+          <button
+            type="button"
+            onClick={salvar}
+            disabled={salvando}
+            className="phanyx-secondary-action disabled:opacity-60"
+          >
+            {salvando ? common("saving") : common("saveConfiguration")}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

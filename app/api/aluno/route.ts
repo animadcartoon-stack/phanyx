@@ -176,19 +176,48 @@ export async function GET(request: Request) {
         ? situacaoMatricula
         : null;
 
+    const turmaIdParam = String(
+      searchParams.get("turmaId") || ""
+    ).trim();
+
+    const turmaIdNumero =
+      Number(turmaIdParam);
+
+    const turmaIdSelecionada =
+      turmaIdParam &&
+      turmaIdParam !== "TODAS" &&
+      Number.isInteger(turmaIdNumero) &&
+      turmaIdNumero > 0
+        ? turmaIdNumero
+        : null;
+
     const filtroMatriculaBase: any = {
-      instituicaoId: user.instituicaoId ?? undefined,
+      instituicaoId:
+        user.instituicaoId ?? undefined,
       excluidaEm: null,
     };
 
-    const whereResumoMatricula: any = {
+    const filtroMatriculaSelecionada: any = {
       ...filtroMatriculaBase,
     };
 
     if (statusMatriculaSelecionado) {
-      whereResumoMatricula.status =
+      filtroMatriculaSelecionada.status =
         statusMatriculaSelecionado;
     }
+
+    if (turmaIdSelecionada) {
+      filtroMatriculaSelecionada.itens = {
+        some: {
+          turmaId: turmaIdSelecionada,
+        },
+      };
+    }
+
+    const whereResumoMatricula: any = {
+      ...filtroMatriculaSelecionada,
+    };
+
     const poloIdParam = String(searchParams.get("poloId") || "").trim();
 
     const where: any = {
@@ -199,23 +228,20 @@ export async function GET(request: Request) {
       where.statusAluno = status;
     }
 
-    if (situacaoMatricula === "MATRICULADOS") {
-      where.matriculas = {
-        some: {
-          ...filtroMatriculaBase,
-        },
-      };
-    } else if (situacaoMatricula === "SEM_MATRICULA") {
+    if (situacaoMatricula === "SEM_MATRICULA") {
       where.matriculas = {
         none: {
           ...filtroMatriculaBase,
         },
       };
-    } else if (statusMatriculaSelecionado) {
+    } else if (
+      situacaoMatricula === "MATRICULADOS" ||
+      statusMatriculaSelecionado ||
+      turmaIdSelecionada
+    ) {
       where.matriculas = {
         some: {
-          ...filtroMatriculaBase,
-          status: statusMatriculaSelecionado,
+          ...filtroMatriculaSelecionada,
         },
       };
     }
@@ -360,6 +386,76 @@ export async function GET(request: Request) {
       prisma.aluno.count({ where }),
     ]);
 
+    const [
+      estatTotal,
+      estatCancelados,
+      estatInadimplentes,
+      matriculasAtuaisEstatisticas,
+    ] = await prisma.$transaction([
+      prisma.aluno.count({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+        },
+      }),
+
+      prisma.aluno.count({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+          statusAluno: "CANCELADO",
+        },
+      }),
+
+      prisma.aluno.count({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+          statusAluno: "INADIMPLENTE",
+        },
+      }),
+
+      prisma.matricula.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+          excluidaEm: null,
+        },
+        orderBy: [
+          {
+            alunoId: "asc",
+          },
+          {
+            createdAt: "desc",
+          },
+          {
+            id: "desc",
+          },
+        ],
+        distinct: ["alunoId"],
+        select: {
+          alunoId: true,
+          status: true,
+        },
+      }),
+    ]);
+
+    const estatMatriculados =
+      matriculasAtuaisEstatisticas.length;
+
+    const estatSemMatricula =
+      Math.max(
+        estatTotal -
+          estatMatriculados,
+        0
+      );
+
+    const estatAguardando =
+      matriculasAtuaisEstatisticas.filter(
+        (matricula) =>
+          matricula.status === "AGUARDANDO"
+      ).length;
+
     const alunosFormatados = alunos.map((aluno) => {
       const matriculaRecente = aluno.matriculas?.[0] || null;
 
@@ -421,6 +517,15 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
         hasNextPage: page * limit < total,
         hasPreviousPage: page > 1,
+
+        estatisticas: {
+          total: estatTotal,
+          matriculados: estatMatriculados,
+          semMatricula: estatSemMatricula,
+          aguardando: estatAguardando,
+          cancelados: estatCancelados,
+          inadimplentes: estatInadimplentes,
+        },
       },
     });
   } catch (error: any) {

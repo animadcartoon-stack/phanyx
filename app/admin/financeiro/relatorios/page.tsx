@@ -249,12 +249,34 @@ function RelatoriosTour({
       }
     : null;
 
+  // Nos passos 5 e 6 o alvo ocupa uma ?rea grande da tela.
+  // Neles, o bal?o fica acima do alvo para n?o cobrir gr?ficos
+  // nem os lan?amentos do per?odo.
+  const balaoAcima = stepAtual === 4 || stepAtual === 5;
+  const ultimoPasso = stepAtual === 5;
+
   const topBalao = spotlight
-    ? Math.min(spotlight.top + spotlight.height + 18, window.innerHeight - 330)
+    ? balaoAcima
+      ? Math.max(24, spotlight.top - 18)
+      : Math.min(
+          spotlight.top + spotlight.height + 18,
+          window.innerHeight - 330
+        )
     : 160;
 
   const leftBalao = spotlight
-    ? Math.max(320, Math.min(spotlight.left, window.innerWidth - 460))
+    ? balaoAcima
+      ? Math.max(
+          24,
+          Math.min(
+            spotlight.left + spotlight.width / 2 - 210,
+            window.innerWidth - 444
+          )
+        )
+      : Math.max(
+          320,
+          Math.min(spotlight.left, window.innerWidth - 460)
+        )
     : 360;
 
   return (
@@ -273,9 +295,17 @@ function RelatoriosTour({
         style={{
           top: topBalao,
           left: leftBalao,
+          transform:
+            balaoAcima && spotlight
+              ? "translateY(-100%)"
+              : undefined,
         }}
       >
-        <div className="absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t bg-white" />
+        {balaoAcima ? (
+          <div className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-r border-b bg-white" />
+        ) : (
+          <div className="absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t bg-white" />
+        )}
 
         <div className="flex gap-4">
           <img
@@ -1067,11 +1097,13 @@ doc.save(nomeArquivo);
             </div>
           </div>
 
-          <div
-  data-tour="relatorios-lancamentos"
-  className="bg-white border rounded-xl p-5"
->
-            <h2 className="text-lg font-semibold">{t("entries.title")}</h2>
+          <div className="bg-white border rounded-xl p-5">
+            <h2
+              data-tour="relatorios-lancamentos"
+              className="w-fit text-lg font-semibold"
+            >
+              {t("entries.title")}
+            </h2>
 
             {dados.lancamentos.length === 0 ? (
               <p className="text-sm text-gray-600 mt-3">

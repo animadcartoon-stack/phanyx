@@ -250,7 +250,7 @@ function AdminMatriculasPage() {
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
     "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
-  >("HOJE");
+  >("TODAS");
 
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);

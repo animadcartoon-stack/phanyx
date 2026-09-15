@@ -1,0 +1,21 @@
+warning: in the working copy of 'app/admin/alunos/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/financeiro/caixa/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/financeiro/configuracoes/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/financeiro/fechamento-geral/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/financeiro/inadimplentes/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/financeiro/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/financeiro/relatorios/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/integracoes/google-ads/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/integracoes/google-analytics/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/integracoes/google-business/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/integracoes/google-tag-manager/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/integracoes/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/admin/integracoes/search-console/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/api/admin/matriculas/[id]/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'messages/en-US.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'messages/es-ES.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'messages/fr-FR.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'messages/pt-BR.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'messages/pt-PT.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'prisma/schema.prisma', LF will be replaced by CRLF the next time Git touches it
+app/api/admin/matriculas/[id]/route.ts:208: new blank line at EOF.

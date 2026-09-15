@@ -65,7 +65,7 @@ type CobrancaPendente = {
   } | null;
 };
 
-const caixaTourSteps = [
+const caixaTourStepsFechado = [
   {
     id: "abrir-caixa",
     target: '[data-tour="caixa-botao-abrir"]',
@@ -100,11 +100,56 @@ const caixaTourSteps = [
   },
 ] as const;
 
+const caixaTourStepsAberto = [
+  {
+    id: "resumo-caixa",
+    target: '[data-tour="caixa-resumo-aberto"]',
+    tituloKey: "tour.steps.openSummary.title",
+    destaqueKey: "tour.steps.openSummary.highlight",
+    descricaoKey: "tour.steps.openSummary.description",
+    imagem: "/images/contador.png",
+  },
+  {
+    id: "cobrancas",
+    target: '[data-tour="caixa-cobrancas"]',
+    tituloKey: "tour.steps.pendingCharges.title",
+    destaqueKey: "tour.steps.pendingCharges.highlight",
+    descricaoKey: "tour.steps.pendingCharges.description",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "movimento",
+    target: '[data-tour="caixa-movimento"]',
+    tituloKey: "tour.steps.manualMovement.title",
+    destaqueKey: "tour.steps.manualMovement.highlight",
+    descricaoKey: "tour.steps.manualMovement.description",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "resumo-pagamentos",
+    target: '[data-tour="caixa-resumo-pagamentos"]',
+    tituloKey: "tour.steps.paymentSummary.title",
+    destaqueKey: "tour.steps.paymentSummary.highlight",
+    descricaoKey: "tour.steps.paymentSummary.description",
+    imagem: "/images/contador.png",
+  },
+  {
+    id: "fechamento",
+    target: '[data-tour="caixa-fechamento"]',
+    tituloKey: "tour.steps.cashClosing.title",
+    destaqueKey: "tour.steps.cashClosing.highlight",
+    descricaoKey: "tour.steps.cashClosing.description",
+    imagem: "/images/formix-bemvindo.png",
+  },
+] as const;
+
 function CaixaTour({
   aberto,
+  caixaAberto,
   onClose,
 }: {
   aberto: boolean;
+  caixaAberto: boolean;
   onClose: () => void;
 }) {
   const t = useTranslations("AdminFinanceCash");
@@ -116,7 +161,16 @@ function CaixaTour({
     height: number;
   } | null>(null);
 
-  const step = caixaTourSteps[stepAtual];
+  const steps = caixaAberto
+    ? caixaTourStepsAberto
+    : caixaTourStepsFechado;
+
+  const step = steps[stepAtual] ?? steps[0];
+
+  useEffect(() => {
+    setStepAtual(0);
+    setTargetRect(null);
+  }, [aberto, caixaAberto]);
 
   useEffect(() => {
     if (!aberto || !step) return;
@@ -178,78 +232,228 @@ function CaixaTour({
     }
     : null;
 
-  const bubbleWidth = 420;
+  const bubbleWidth = Math.min(
+    420,
+    Math.max(280, window.innerWidth - 32)
+  );
+
   const bubbleHeight = 290;
+  const margemViewport = 16;
+  const distanciaDoAlvo = 18;
 
   const posicaoBalao = spotlight
     ? (() => {
-      const espacoAbaixo =
-        window.innerHeight - (spotlight.top + spotlight.height);
-      const espacoAcima = spotlight.top;
-      const espacoDireita =
-        window.innerWidth - (spotlight.left + spotlight.width);
-      const espacoEsquerda = spotlight.left;
+        const centroAlvoX =
+          spotlight.left +
+          spotlight.width / 2;
 
-      let direcao: "baixo" | "cima" | "direita" | "esquerda" = "baixo";
+        const centroAlvoY =
+          spotlight.top +
+          spotlight.height / 2;
 
-      if (espacoAbaixo >= bubbleHeight + 28) {
-        direcao = "baixo";
-      } else if (espacoAcima >= bubbleHeight + 28) {
-        direcao = "cima";
-      } else if (espacoDireita >= bubbleWidth + 28) {
-        direcao = "direita";
-      } else if (espacoEsquerda >= bubbleWidth + 28) {
-        direcao = "esquerda";
-      } else {
-        direcao = "baixo";
-      }
+        const espacoAbaixo =
+          window.innerHeight -
+          (spotlight.top + spotlight.height);
 
-      let top = spotlight.top + spotlight.height + 18;
-      let left = spotlight.left;
+        const espacoAcima =
+          spotlight.top;
 
-      if (direcao === "cima") {
-        top = spotlight.top - bubbleHeight - 18;
-        left = spotlight.left;
-      }
+        const espacoDireita =
+          window.innerWidth -
+          (spotlight.left + spotlight.width);
 
-      if (direcao === "direita") {
-        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
-        left = spotlight.left + spotlight.width + 18;
-      }
+        const espacoEsquerda =
+          spotlight.left;
 
-      if (direcao === "esquerda") {
-        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
-        left = spotlight.left - bubbleWidth - 18;
-      }
+        let direcao:
+          | "baixo"
+          | "cima"
+          | "direita"
+          | "esquerda" = "baixo";
 
-      top = Math.max(
-        16,
-        Math.min(top, window.innerHeight - bubbleHeight - 16)
-      );
-      left = Math.max(
-        16,
-        Math.min(left, window.innerWidth - bubbleWidth - 16)
-      );
+        if (
+          espacoAbaixo >=
+          bubbleHeight +
+            distanciaDoAlvo +
+            margemViewport
+        ) {
+          direcao = "baixo";
+        } else if (
+          espacoAcima >=
+          bubbleHeight +
+            distanciaDoAlvo +
+            margemViewport
+        ) {
+          direcao = "cima";
+        } else if (
+          espacoDireita >=
+          bubbleWidth +
+            distanciaDoAlvo +
+            margemViewport
+        ) {
+          direcao = "direita";
+        } else if (
+          espacoEsquerda >=
+          bubbleWidth +
+            distanciaDoAlvo +
+            margemViewport
+        ) {
+          direcao = "esquerda";
+        } else {
+          const opcoes: Array<
+            [
+              "baixo" |
+              "cima" |
+              "direita" |
+              "esquerda",
+              number
+            ]
+          > = [
+            ["baixo", espacoAbaixo],
+            ["cima", espacoAcima],
+            ["direita", espacoDireita],
+            ["esquerda", espacoEsquerda],
+          ];
 
-      return {
-        style: {
-          top: `${top}px`,
-          left: `${left}px`,
-        },
-        direcao,
-      };
-    })()
+          opcoes.sort(
+            (a, b) => b[1] - a[1]
+          );
+
+          direcao = opcoes[0][0];
+        }
+
+        let top = 0;
+        let left = 0;
+
+        if (direcao === "baixo") {
+          top =
+            spotlight.top +
+            spotlight.height +
+            distanciaDoAlvo;
+
+          left =
+            centroAlvoX -
+            bubbleWidth / 2;
+        }
+
+        if (direcao === "cima") {
+          top =
+            spotlight.top -
+            bubbleHeight -
+            distanciaDoAlvo;
+
+          left =
+            centroAlvoX -
+            bubbleWidth / 2;
+        }
+
+        if (direcao === "direita") {
+          top =
+            centroAlvoY -
+            bubbleHeight / 2;
+
+          left =
+            spotlight.left +
+            spotlight.width +
+            distanciaDoAlvo;
+        }
+
+        if (direcao === "esquerda") {
+          top =
+            centroAlvoY -
+            bubbleHeight / 2;
+
+          left =
+            spotlight.left -
+            bubbleWidth -
+            distanciaDoAlvo;
+        }
+
+        top = Math.max(
+          margemViewport,
+          Math.min(
+            top,
+            window.innerHeight -
+              bubbleHeight -
+              margemViewport
+          )
+        );
+
+        left = Math.max(
+          margemViewport,
+          Math.min(
+            left,
+            window.innerWidth -
+              bubbleWidth -
+              margemViewport
+          )
+        );
+
+        const setaHorizontal =
+          Math.max(
+            24,
+            Math.min(
+              centroAlvoX - left - 6,
+              bubbleWidth - 36
+            )
+          );
+
+        const setaVertical =
+          Math.max(
+            24,
+            Math.min(
+              centroAlvoY - top - 6,
+              bubbleHeight - 36
+            )
+          );
+
+        const setaStyle =
+          direcao === "baixo"
+            ? {
+                left:
+                  setaHorizontal + "px",
+                top: "-6px",
+              }
+            : direcao === "cima"
+              ? {
+                  left:
+                    setaHorizontal + "px",
+                  bottom: "-6px",
+                }
+              : direcao === "direita"
+                ? {
+                    left: "-6px",
+                    top:
+                      setaVertical + "px",
+                  }
+                : {
+                    right: "-6px",
+                    top:
+                      setaVertical + "px",
+                  };
+
+        return {
+          style: {
+            top: top + "px",
+            left: left + "px",
+          },
+          setaStyle,
+        };
+      })()
     : {
-      style: {
-        top: "120px",
-        left: "50%",
-        transform: "translateX(-50%)",
-      },
-      direcao: "baixo" as const,
-    };
+        style: {
+          top: "120px",
+          left: "50%",
+          transform: "translateX(-50%)",
+        },
+        setaStyle: {
+          left: "50%",
+          top: "-6px",
+        },
+      };
 
   const bubbleStyle = posicaoBalao.style;
-  const direcaoSeta = posicaoBalao.direcao;
+  const setaStyle = posicaoBalao.setaStyle;
 
   function fechar() {
     localStorage.setItem("phanyx-tour-caixa", "concluido");
@@ -279,15 +483,7 @@ function CaixaTour({
         {spotlight && (
           <div
             className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
-            style={
-              direcaoSeta === "baixo"
-                ? { left: "42px", top: "-6px" }
-                : direcaoSeta === "cima"
-                  ? { left: "42px", bottom: "-6px" }
-                  : direcaoSeta === "direita"
-                    ? { left: "-6px", top: "42px" }
-                    : { right: "-6px", top: "42px" }
-            }
+            style={setaStyle}
           />
         )}
 
@@ -321,7 +517,7 @@ function CaixaTour({
           <div className="text-sm text-slate-500 dark:text-slate-400">
             {t("tour.step", {
               current: stepAtual + 1,
-              total: caixaTourSteps.length,
+              total: steps.length,
             })}
           </div>
 
@@ -344,7 +540,7 @@ function CaixaTour({
               </button>
             )}
 
-            {stepAtual < caixaTourSteps.length - 1 ? (
+            {stepAtual < steps.length - 1 ? (
               <button
                 type="button"
                 onClick={() => setStepAtual((prev) => prev + 1)}
@@ -881,7 +1077,7 @@ export default function AdminFinanceiroCaixaPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div data-tour="caixa-resumo-aberto" className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
               <p className="text-sm text-slate-500 dark:text-slate-400">{t("cards.cashStatus")}</p>
               <p className="text-2xl font-bold text-slate-950 dark:text-white">
@@ -909,7 +1105,7 @@ export default function AdminFinanceiroCaixaPage() {
             </div>
           </div>
 
-          <section className="phanyx-caixa-cobrancas rounded-3xl border p-5 shadow-sm">
+          <section data-tour="caixa-cobrancas" className="phanyx-caixa-cobrancas rounded-3xl border p-5 shadow-sm">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h2 className="text-xl font-black text-slate-950 dark:text-white">
@@ -1149,7 +1345,7 @@ export default function AdminFinanceiroCaixaPage() {
             )}
           </section>
 
-          <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+          <div data-tour="caixa-movimento" className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
             <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
               {t("movement.title")}
             </h2>
@@ -1204,7 +1400,7 @@ export default function AdminFinanceiroCaixaPage() {
             </button>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+          <div data-tour="caixa-resumo-pagamentos" className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
             <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
               {t("paymentSummary.title")}
             </h2>
@@ -1227,7 +1423,7 @@ export default function AdminFinanceiroCaixaPage() {
             </div>
           </div>
 
-          <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
+          <div data-tour="caixa-fechamento" className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
             <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
               {t("closeCash.title")}
             </h2>
@@ -1288,6 +1484,7 @@ export default function AdminFinanceiroCaixaPage() {
       )}
       <CaixaTour
         aberto={tourAberto}
+        caixaAberto={Boolean(caixa)}
         onClose={() => setTourAberto(false)}
       />
     </div>

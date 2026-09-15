@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+
+const steps = [
+  {
+    target: '[data-tour="cards-integracoes"]',
+    titulo: "Central de integrações",
+    destaque: "Aqui ficam as integrações Google do PHANYX.",
+    descricao:
+      "Nesta área você configura Analytics, Tag Manager, Search Console, Google Ads e presença local.",
+    imagem: "/images/formix-tutorial.png",
+  },
+];
 
 export default function IntegracoesTour({
   aberto,
@@ -10,17 +20,8 @@ export default function IntegracoesTour({
   aberto: boolean;
   onClose: () => void;
 }) {
-  const t = useTranslations("AdminIntegracoes.home.tour");
-
   const [targetRect, setTargetRect] = useState<any>(null);
-
-  const step = {
-    target: '[data-tour="cards-integracoes"]',
-    titulo: t("title"),
-    destaque: t("highlight"),
-    descricao: t("description"),
-    imagem: "/images/formix-tutorial.png",
-  };
+  const step = steps[0];
 
   useEffect(() => {
     if (!aberto) return;
@@ -28,14 +29,10 @@ export default function IntegracoesTour({
     const el = document.querySelector(step.target);
     if (!el) return;
 
-    el.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
 
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       const rect = el.getBoundingClientRect();
-
       setTargetRect({
         top: rect.top,
         left: rect.left,
@@ -43,9 +40,7 @@ export default function IntegracoesTour({
         height: rect.height,
       });
     }, 250);
-
-    return () => clearTimeout(timer);
-  }, [aberto]);
+  }, [aberto, step.target]);
 
   if (!aberto) return null;
 
@@ -73,20 +68,10 @@ export default function IntegracoesTour({
         className="absolute w-[min(430px,calc(100vw-32px))] rounded-[28px] border bg-white px-5 py-4 shadow-2xl"
         style={{
           top: spotlight
-            ? Math.min(
-                spotlight.top + spotlight.height + 18,
-                window.innerHeight - 320
-              )
+            ? Math.min(spotlight.top + spotlight.height + 18, window.innerHeight - 320)
             : 160,
-
           left: spotlight
-            ? Math.max(
-                24,
-                Math.min(
-                  spotlight.left,
-                  window.innerWidth - 460
-                )
-              )
+            ? Math.max(24, Math.min(spotlight.left, window.innerWidth - 460))
             : 360,
         }}
       >
@@ -101,7 +86,7 @@ export default function IntegracoesTour({
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
-              {t("kicker")}
+              Tutorial guiado
             </p>
 
             <h3 className="mt-1 text-xl font-bold text-slate-900">
@@ -117,11 +102,10 @@ export default function IntegracoesTour({
             </p>
 
             <button
-              type="button"
               onClick={onClose}
               className="mt-5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              {t("understood")}
+              Entendi
             </button>
           </div>
         </div>

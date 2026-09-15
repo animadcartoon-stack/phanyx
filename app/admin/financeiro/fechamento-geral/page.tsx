@@ -177,14 +177,29 @@ function FechamentoTour({
         className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-white"
         style={{
           top: spotlight
-            ? Math.max(
-                16,
-                Math.min(
-                  spotlight.top + spotlight.height + 18,
-                  window.innerHeight - 330
+            ? step.target ===
+              '[data-tour="fechamento-caixas"]'
+              ? Math.max(
+                  16,
+                  spotlight.top - 18
                 )
-              )
+              : Math.max(
+                  16,
+                  Math.min(
+                    spotlight.top +
+                      spotlight.height +
+                      18,
+                    window.innerHeight - 330
+                  )
+                )
             : 180,
+
+          transform:
+            spotlight &&
+            step.target ===
+              '[data-tour="fechamento-caixas"]'
+              ? "translateY(-100%)"
+              : undefined,
           left: spotlight
             ? Math.max(
                 16,
@@ -193,7 +208,14 @@ function FechamentoTour({
             : Math.max(16, Math.min(360, window.innerWidth - 460)),
         }}
       >
-        <div className="absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900" />
+        <div
+          className={
+            step.target ===
+            '[data-tour="fechamento-caixas"]'
+              ? "absolute -bottom-2 left-10 h-4 w-4 rotate-45 border-b border-r border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+              : "absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+          }
+        />
 
         <div className="flex gap-4">
           <img
@@ -260,8 +282,15 @@ function FechamentoTour({
               <button
                 type="button"
                 onClick={() => {
+                  sessionStorage.setItem(
+                    "phanyx-continuar-tour",
+                    "relatorios"
+                  );
+
                   onClose();
-                  window.location.href = "/admin/financeiro/relatorios";
+
+                  window.location.href =
+                    "/admin/financeiro/relatorios";
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
@@ -467,10 +496,9 @@ export default function FechamentoGeralPage() {
           </div>
 
           <div
-            data-tour="fechamento-caixas"
             className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
           >
-            <h2 className="text-lg font-semibold">
+            <h2 data-tour="fechamento-caixas" className="inline-block text-lg font-semibold">
               {t("closedRegisters.title")}
             </h2>
 

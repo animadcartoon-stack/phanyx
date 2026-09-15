@@ -232,7 +232,7 @@ export default function AdminFinanceiroInadimplentesPage() {
     destaque: t("tour.steps.summary.highlight"),
     descricao:
       t("tour.steps.summary.description"),
-    imagem: "/images/financeiro.png",
+    imagem: "/images/phanyx-inadimplente.png",
   },
   {
     id: "busca",
@@ -250,7 +250,7 @@ export default function AdminFinanceiroInadimplentesPage() {
     destaque: t("tour.steps.list.highlight"),
     descricao:
       t("tour.steps.list.description"),
-    imagem: "/images/financeiro.png",
+    imagem: "/images/phanyx-inadimplente.png",
   },
   {
     id: "baixa",
@@ -259,7 +259,7 @@ export default function AdminFinanceiroInadimplentesPage() {
     destaque: t("tour.steps.settlement.highlight"),
     descricao:
       t("tour.steps.settlement.description"),
-    imagem: "/images/contador.png",
+    imagem: "/images/formix.png",
   },
 ];
 
@@ -652,10 +652,9 @@ useEffect(() => {
 )}
 
       <div
-  data-tour="inad-lista"
   className="bg-white border rounded-xl overflow-hidden"
 >
-        <div className="phanyx-financeiro-grid-head grid grid-cols-7 gap-3 border-b px-4 py-3 text-sm font-black">
+        <div data-tour="inad-lista" className="phanyx-financeiro-grid-head grid grid-cols-7 gap-3 border-b px-4 py-3 text-sm font-black">
   <div>{t("table.student")}</div>
   <div>{t("table.enrollment")}</div>
   <div>{t("table.email")}</div>
@@ -711,7 +710,7 @@ useEffect(() => {
                 </div>
 
                 <div>
-                  <button
+                  <button data-tour="inad-baixa"
                     onClick={() =>
                       setAbertoId((prev) =>
                         prev === item.alunoId ? null : item.alunoId
@@ -863,7 +862,6 @@ useEffect(() => {
                           </button>
 
                           <button
-  data-tour="inad-baixa"
   onClick={() =>
     darBaixa(item.alunoId, item.nome, lanc.id)
   }

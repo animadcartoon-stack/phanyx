@@ -2,6 +2,7 @@
 
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 
 import {
@@ -17,6 +18,69 @@ import {
 } from "recharts";
 
 export default function ReputacaoPage() {
+  const t = useTranslations(
+    "AdminIntegracoesReputacao"
+  );
+
+  function traduzirFiltro(
+    filtro: string
+  ) {
+    switch (filtro) {
+      case "Todos":
+        return t("evaluationCenter.filters.all");
+
+      case "Pendentes":
+        return t("evaluationCenter.filters.pending");
+
+      case "Respondidas":
+        return t("evaluationCenter.filters.answered");
+
+      case "Críticas":
+        return t("evaluationCenter.filters.critical");
+
+      case "Positivas":
+        return t("evaluationCenter.filters.positive");
+
+      case "Neutras":
+        return t("evaluationCenter.filters.neutral");
+
+      default:
+        return filtro;
+    }
+  }
+
+  function traduzirSentimento(
+    sentimento: string
+  ) {
+    switch (sentimento) {
+      case "Crítico":
+        return t("sentiment.critical");
+
+      case "Positivo":
+        return t("sentiment.positive");
+
+      case "Neutro":
+        return t("sentiment.neutral");
+
+      default:
+        return sentimento;
+    }
+  }
+
+  function traduzirStatusAvaliacao(
+    status: string
+  ) {
+    switch (status) {
+      case "Respondida":
+        return t("reviewStatus.answered");
+
+      case "Pendente":
+        return t("reviewStatus.pending");
+
+      default:
+        return status;
+    }
+  }
 
   const [scoreAnimado, setScoreAnimado] = useState(0);
 
@@ -154,18 +218,41 @@ const graficoDinamico = useMemo(
   [scoreAtual]
 );
 
-const gerarRespostaIA = (avaliacao: any) => {
+const gerarRespostaIA = (
+  avaliacao: any
+) => {
   if (!avaliacao) return "";
 
-  if (avaliacao.sentimento === "Crítico") {
-    return `Olá, ${avaliacao.nome}. Sentimos muito pela experiência relatada. Agradecemos por compartilhar seu feedback, pois ele nos ajuda a melhorar continuamente nosso atendimento. Nossa equipe irá analisar sua situação com atenção para buscar uma solução o mais breve possível.`;
+  if (
+    avaliacao.sentimento ===
+    "Crítico"
+  ) {
+    return t(
+      "replyAi.responses.critical",
+      {
+        name: avaliacao.nome,
+      }
+    );
   }
 
-  if (avaliacao.sentimento === "Neutro") {
-    return `Olá, ${avaliacao.nome}. Agradecemos pela sua avaliação e pelas observações compartilhadas. Seu feedback é muito importante para continuarmos aprimorando nossos processos e oferecendo uma experiência cada vez melhor.`;
+  if (
+    avaliacao.sentimento ===
+    "Neutro"
+  ) {
+    return t(
+      "replyAi.responses.neutral",
+      {
+        name: avaliacao.nome,
+      }
+    );
   }
 
-  return `Olá, ${avaliacao.nome}. Ficamos muito felizes em saber que sua experiência foi positiva. Agradecemos pela confiança em nossa instituição e pelo carinho em compartilhar sua avaliação.`;
+  return t(
+    "replyAi.responses.positive",
+    {
+      name: avaliacao.nome,
+    }
+  );
 };
 
 const copiarRespostaIA = async () => {
@@ -173,26 +260,28 @@ const copiarRespostaIA = async () => {
 
   await navigator.clipboard.writeText(texto);
 
-  setToastMensagem("Resposta copiada para a área de transferência.");
+  setToastMensagem(t("toasts.copied"));
 
 setTimeout(() => {
   setToastMensagem("");
 }, 3000);
 };
 
-const timeline = (resumoReputacao?.ultimos || []).map((item: any) => ({
+const timeline = (
+  resumoReputacao?.ultimos || []
+).map((item: any) => ({
   titulo:
     item.tipo === "Reclamação"
-      ? "Nova reclamação recebida"
+      ? t("timeline.items.newComplaint")
       : item.tipo === "Sugestão"
-      ? "Nova sugestão recebida"
+      ? t("timeline.items.newSuggestion")
       : item.tipo === "Elogio"
-      ? "Novo elogio recebido"
-      : "Nova manifestação recebida",
+      ? t("timeline.items.newPraise")
+      : t("timeline.items.newRecord"),
 
   descricao: item.mensagem,
 
-  tempo: "Agora",
+  tempo: t("timeline.now"),
 
   cor:
     item.sentimento === "CRITICO"
@@ -272,7 +361,7 @@ const marcarComoRespondida = async () => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "Erro ao marcar como respondida.");
+      throw new Error(data.error || t("toasts.markError"));
     }
 
     setAvaliacaoSelecionada({
@@ -280,7 +369,7 @@ const marcarComoRespondida = async () => {
       status: "Respondida",
     });
 
-    setToastMensagem("Manifestação marcada como respondida.");
+    setToastMensagem(t("toasts.markedAnswered"));
 
     await carregarResumoReputacao();
 
@@ -289,82 +378,218 @@ const marcarComoRespondida = async () => {
     }, 3000);
   } catch (error) {
     console.error(error);
-    setToastMensagem("Não foi possível marcar como respondida.");
+    setToastMensagem(t("toasts.markError"));
   }
 };
 
-const obterPrioridadeIA = (avaliacao: any) => {
-  if (avaliacao?.sentimento === "Crítico") return "Alta";
-  if (avaliacao?.sentimento === "Neutro") return "Média";
-  return "Baixa";
-};
-
-const obterRiscoIA = (avaliacao: any) => {
-  if (avaliacao?.sentimento === "Crítico") return "Médio";
-  if (avaliacao?.sentimento === "Neutro") return "Baixo";
-  return "Muito baixo";
-};
-
-const obterTempoRespostaIA = (avaliacao: any) => {
-  if (avaliacao?.sentimento === "Crítico") return "2 horas";
-  if (avaliacao?.sentimento === "Neutro") return "12 horas";
-  return "24 horas";
-};
-
-const obterAnaliseIA = (avaliacao: any) => {
-  if (avaliacao?.sentimento === "Crítico") {
-    return "Existe risco de impacto reputacional caso a avaliação permaneça sem resposta.";
+const obterPrioridadeIA = (
+  avaliacao: any
+) => {
+  if (
+    avaliacao?.sentimento ===
+    "Crítico"
+  ) {
+    return t("details.priority.high");
   }
 
-  if (avaliacao?.sentimento === "Neutro") {
-    return "A avaliação apresenta oportunidade de melhoria e fortalecimento institucional.";
+  if (
+    avaliacao?.sentimento ===
+    "Neutro"
+  ) {
+    return t("details.priority.medium");
   }
 
-  return "A avaliação fortalece a reputação institucional e contribui positivamente para confiança da marca.";
+  return t("details.priority.low");
 };
 
-const obterTimelineAvaliacao = (avaliacao: any) => {
+const obterRiscoIA = (
+  avaliacao: any
+) => {
+  if (
+    avaliacao?.sentimento ===
+    "Crítico"
+  ) {
+    return t("details.risk.medium");
+  }
+
+  if (
+    avaliacao?.sentimento ===
+    "Neutro"
+  ) {
+    return t("details.risk.low");
+  }
+
+  return t("details.risk.veryLow");
+};
+
+const obterTempoRespostaIA = (
+  avaliacao: any
+) => {
+  if (
+    avaliacao?.sentimento ===
+    "Crítico"
+  ) {
+    return t(
+      "details.responseTime",
+      { hours: 2 }
+    );
+  }
+
+  if (
+    avaliacao?.sentimento ===
+    "Neutro"
+  ) {
+    return t(
+      "details.responseTime",
+      { hours: 12 }
+    );
+  }
+
+  return t(
+    "details.responseTime",
+    { hours: 24 }
+  );
+};
+
+const obterAnaliseIA = (
+  avaliacao: any
+) => {
+  if (
+    avaliacao?.sentimento ===
+    "Crítico"
+  ) {
+    return t(
+      "details.analysis.critical"
+    );
+  }
+
+  if (
+    avaliacao?.sentimento ===
+    "Neutro"
+  ) {
+    return t(
+      "details.analysis.neutral"
+    );
+  }
+
+  return t(
+    "details.analysis.positive"
+  );
+};
+
+const obterTimelineAvaliacao = (
+  avaliacao: any
+) => {
   if (!avaliacao) return [];
 
-  const respondida = avaliacao.status === "Respondida";
+  const respondida =
+    avaliacao.status === "Respondida";
 
   return [
     {
-      titulo: "Avaliação recebida",
-      descricao: "A avaliação foi identificada pelo monitoramento reputacional.",
-      tempo: "Agora",
-      emoji: "⭐",
+      titulo: t(
+        "details.timeline.received.title"
+      ),
+      descricao: t(
+        "details.timeline.received.description"
+      ),
+      tempo: t(
+        "details.timeline.now"
+      ),
+      emoji: "\u2B50",
       cor: "bg-blue-600",
     },
     {
-      titulo: "IA analisou sentimento",
-      descricao: `Sentimento classificado como ${avaliacao.sentimento}.`,
-      tempo: "Após recebimento",
-      emoji: "🤖",
+      titulo: t(
+        "details.timeline.sentiment.title"
+      ),
+      descricao: t(
+        "details.timeline.sentiment.description",
+        {
+          sentiment:
+            traduzirSentimento(
+              avaliacao.sentimento
+            ),
+        }
+      ),
+      tempo: t(
+        "details.timeline.afterReceipt"
+      ),
+      emoji: "\u{1F916}",
       cor:
-        avaliacao.sentimento === "Crítico"
+        avaliacao.sentimento ===
+        "Crítico"
           ? "bg-red-600"
-          : avaliacao.sentimento === "Neutro"
+          : avaliacao.sentimento ===
+            "Neutro"
           ? "bg-amber-500"
           : "bg-emerald-600",
     },
     {
-      titulo: respondida ? "Resposta marcada como enviada" : "Resposta pendente",
+      titulo: respondida
+        ? t(
+            "details.timeline.response.sentTitle"
+          )
+        : t(
+            "details.timeline.response.pendingTitle"
+          ),
+
       descricao: respondida
-        ? "A avaliação já foi marcada como respondida no PHANYX Growth."
-        : "A IA recomenda responder esta avaliação dentro do prazo indicado.",
-      tempo: respondida ? "Concluído" : "Pendente",
-      emoji: respondida ? "✅" : "⏳",
-      cor: respondida ? "bg-emerald-600" : "bg-slate-400",
+        ? t(
+            "details.timeline.response.sentDescription"
+          )
+        : t(
+            "details.timeline.response.pendingDescription"
+          ),
+
+      tempo: respondida
+        ? t(
+            "details.timeline.completed"
+          )
+        : t(
+            "details.timeline.pending"
+          ),
+
+      emoji: respondida
+        ? "\u2705"
+        : "\u23F3",
+
+      cor: respondida
+        ? "bg-emerald-600"
+        : "bg-slate-400",
     },
     {
-      titulo: respondida ? "Caso resolvido" : "Aguardando ação",
+      titulo: respondida
+        ? t(
+            "details.timeline.case.resolvedTitle"
+          )
+        : t(
+            "details.timeline.case.waitingTitle"
+          ),
+
       descricao: respondida
-        ? "O ciclo reputacional desta avaliação foi encerrado visualmente."
-        : "A avaliação ainda precisa de acompanhamento administrativo.",
-      tempo: respondida ? "Resolvido" : "Em aberto",
-      emoji: respondida ? "🏁" : "⚠️",
-      cor: respondida ? "bg-emerald-700" : "bg-red-500",
+        ? t(
+            "details.timeline.case.resolvedDescription"
+          )
+        : t(
+            "details.timeline.case.waitingDescription"
+          ),
+
+      tempo: respondida
+        ? t(
+            "details.timeline.resolved"
+          )
+        : t(
+            "details.timeline.open"
+          ),
+
+      emoji: respondida
+        ? "\u{1F3C1}"
+        : "\u26A0\uFE0F",
+
+      cor: respondida
+        ? "bg-emerald-700"
+        : "bg-red-500",
     },
   ];
 };
@@ -383,19 +608,27 @@ const dadosReputacao = useMemo(() => {
   }));
 }, [resumoReputacao]);
 
-const timelineAvaliacoes = (resumoReputacao?.ultimos || []).map((item: any) => ({
+const timelineAvaliacoes = (
+  resumoReputacao?.ultimos || []
+).map((item: any) => ({
   titulo:
     item.status === "RESOLVIDO"
-      ? "Manifestação respondida"
+      ? t("timelineAi.items.answered")
       : item.tipo === "Reclamação"
-      ? "Reclamação recebida"
+      ? t("timelineAi.items.complaint")
       : item.tipo === "Sugestão"
-      ? "Sugestão recebida"
+      ? t("timelineAi.items.suggestion")
       : item.tipo === "Elogio"
-      ? "Elogio recebido"
-      : "Manifestação recebida",
+      ? t("timelineAi.items.praise")
+      : t("timelineAi.items.record"),
+
   descricao: item.mensagem,
-  tempo: item.status === "RESOLVIDO" ? "Respondida" : "Pendente",
+
+  tempo:
+    item.status === "RESOLVIDO"
+      ? t("reviewStatus.answered")
+      : t("reviewStatus.pending"),
+
   tipo:
     item.status === "RESOLVIDO"
       ? "respondida"
@@ -404,14 +637,15 @@ const timelineAvaliacoes = (resumoReputacao?.ultimos || []).map((item: any) => (
       : item.sentimento === "POSITIVO"
       ? "positivo"
       : "ia",
+
   emoji:
     item.status === "RESOLVIDO"
-      ? "✅"
+      ? "\u2705"
       : item.sentimento === "CRITICO"
-      ? "⚠️"
+      ? "\u26A0\uFE0F"
       : item.sentimento === "POSITIVO"
-      ? "⭐"
-      : "🤖",
+      ? "\u2B50"
+      : "\u{1F916}",
 }));
 
 const obterCorTimeline = (tipo: string) => {
@@ -423,29 +657,45 @@ const obterCorTimeline = (tipo: string) => {
 
     const cards = [
     {
-      titulo: "Nota média",
+      titulo: t(
+        "summaryCards.averageRating.title"
+      ),
       valor: "—",
-      detalhe: "Aguardando avaliações conectadas",
+      detalhe: t(
+        "summaryCards.averageRating.detail"
+      ),
       cor: "text-yellow-900",
     },
     {
-      titulo: "Avaliações",
+      titulo: t(
+        "summaryCards.evaluations.title"
+      ),
       valor: String(avaliacoes),
-      detalhe: "Total de avaliações monitoradas",
+      detalhe: t(
+        "summaryCards.evaluations.detail"
+      ),
       cor: "text-blue-900",
     },
     {
-      titulo: "Pendências",
+      titulo: t(
+        "summaryCards.pending.title"
+      ),
       valor: String(pendencias),
-      detalhe: "Avaliações aguardando resposta",
+      detalhe: t(
+        "summaryCards.pending.detail"
+      ),
       cor: "text-red-900",
     },
     {
-  titulo: "Índice PHANYX",
-  valor: `${scoreAtual}/100`,
-  detalhe: "Reputação consolidada pela Ouvidoria",
-  cor: "text-purple-900",
-},
+      titulo: t(
+        "summaryCards.phanyxIndex.title"
+      ),
+      valor: `${scoreAtual}/100`,
+      detalhe: t(
+        "summaryCards.phanyxIndex.detail"
+      ),
+      cor: "text-purple-900",
+    },
   ];
 
 const crescimentoReal =
@@ -770,12 +1020,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         </p>
 
         <h1 className="mt-2 text-3xl font-black text-slate-900">
-          ⭐ Reputação
+          {"\u2B50"} {t("header.title")}
         </h1>
 
         <p className="mt-2 max-w-3xl text-slate-600">
-          Monitore a reputação digital da instituição, acompanhe avaliações,
-          respostas pendentes e indicadores de confiança.
+          {t("header.description")}
         </p>
       </div>
 
@@ -791,27 +1040,25 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 </h2>
 
       <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
-        A reputação institucional está estável e preparada para expansão
-        digital. O PHANYX continuará monitorando futuras avaliações e sinais
-        reputacionais.
+        {t("score.description")}
       </p>
     </div>
 
     <div className="rounded-3xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur">
       <p className="text-sm font-bold uppercase tracking-wide text-slate-300">
-        Tendência
+        {t("score.trend")}
       </p>
 
       <p className="mt-2 text-3xl font-black text-green-400">
   {scoreAtual >= 80
-    ? "Positiva ↗"
+    ? t("score.positive")
     : scoreAtual >= 60
-    ? "Estável →"
-    : "Crítica ↓"}
+    ? t("score.stable")
+    : t("score.critical")}
 </p>
 
       <p className="mt-2 text-xs font-semibold text-slate-400">
-        Crescimento reputacional saudável
+        {t("score.healthyGrowth")}
       </p>
     </div>
   </div>
@@ -820,18 +1067,12 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 <div className="rounded-2xl border bg-white p-6 shadow-sm">
   <div className="flex items-center justify-between">
     <div>
-      <h2 className="text-xl font-black text-slate-900">
-        Timeline reputacional
-      </h2>
+      <h2 className="text-xl font-black text-slate-900">{t("timeline.title")}</h2>
 
-      <p className="mt-1 text-sm text-slate-500">
-        Eventos recentes monitorados pelo PHANYX Growth.
-      </p>
+      <p className="mt-1 text-sm text-slate-500">{t("timeline.description")}</p>
     </div>
 
-    <div className="rounded-full bg-slate-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-slate-500">
-      Em tempo real
-    </div>
+    <div className="rounded-full bg-slate-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-slate-500">{t("timeline.realTime")}</div>
   </div>
 
   <div className="mt-8 space-y-6">
@@ -899,75 +1140,63 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 <div className="rounded-3xl border bg-white p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h2 className="text-2xl font-black text-slate-900">
-        Alertas reputacionais
-      </h2>
+      <h2 className="text-2xl font-black text-slate-900">{t("alerts.title")}</h2>
 
-      <p className="mt-1 text-sm text-slate-500">
-        Monitoramento inteligente de reputação institucional.
-      </p>
+      <p className="mt-1 text-sm text-slate-500">{t("alerts.description")}</p>
     </div>
 
-    <div className="rounded-full bg-red-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-red-700">
-      IA Monitorando
-    </div>
+    <div className="rounded-full bg-red-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-red-700">{t("alerts.aiMonitoring")}</div>
   </div>
 
   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
   {resumoReputacao?.criticos > 0 && (
     <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-black uppercase tracking-wide text-red-700">
-          Crítico
-        </span>
+        <span className="text-xs font-black uppercase tracking-wide text-red-700">{t("alerts.critical")}</span>
         <span className="text-2xl">⚠️</span>
       </div>
 
       <h3 className="mt-4 text-lg font-black text-slate-900">
-        {resumoReputacao.criticos} manifestação crítica em aberto
+        {t("alerts.criticalCount", {
+    count: resumoReputacao.criticos,
+  })}
       </h3>
 
-      <p className="mt-2 text-sm leading-6 text-slate-600">
-        Existem manifestações críticas aguardando acompanhamento institucional.
-      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{t("alerts.criticalDescription")}</p>
     </div>
   )}
 
   {resumoReputacao?.reclamacoesAbertas > 0 && (
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-black uppercase tracking-wide text-amber-700">
-          Atenção
-        </span>
+        <span className="text-xs font-black uppercase tracking-wide text-amber-700">{t("alerts.attention")}</span>
         <span className="text-2xl">📣</span>
       </div>
 
       <h3 className="mt-4 text-lg font-black text-slate-900">
-        {resumoReputacao.reclamacoesAbertas} reclamação em aberto
+        {t("alerts.openComplaints", {
+    count: resumoReputacao.reclamacoesAbertas,
+  })}
       </h3>
 
-      <p className="mt-2 text-sm leading-6 text-slate-600">
-        Reclamações internas ainda precisam de retorno administrativo.
-      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{t("alerts.openComplaintsDescription")}</p>
     </div>
   )}
 
   {resumoReputacao?.resolvidos > 0 && (
   <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-5">
     <div className="flex items-center justify-between">
-      <span className="text-xs font-black uppercase tracking-wide !text-emerald-800">
-        Resolvidas
-      </span>
+      <span className="text-xs font-black uppercase tracking-wide !text-emerald-800">{t("alerts.resolved")}</span>
       <span className="text-2xl">✅</span>
     </div>
 
     <h3 className="mt-4 text-lg font-black !text-slate-900">
-      {resumoReputacao.resolvidos} manifestação respondida
+      {t("alerts.resolvedCount", {
+    count: resumoReputacao.resolvidos,
+  })}
     </h3>
 
-    <p className="mt-2 text-sm leading-6 !text-slate-700">
-      A instituição já deu retorno para manifestações recebidas.
-    </p>
+    <p className="mt-2 text-sm leading-6 !text-slate-700">{t("alerts.resolvedDescription")}</p>
   </div>
 )}
 
@@ -976,19 +1205,13 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   resumoReputacao.reclamacoesAbertas === 0 && (
     <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-5 md:col-span-2 xl:col-span-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-black uppercase tracking-wide !text-emerald-800">
-          Tudo em ordem
-        </span>
+        <span className="text-xs font-black uppercase tracking-wide !text-emerald-800">{t("alerts.allGood")}</span>
         <span className="text-2xl">🟢</span>
       </div>
 
-      <h3 className="mt-4 text-lg font-black !text-slate-900">
-        Nenhum alerta reputacional no momento
-      </h3>
+      <h3 className="mt-4 text-lg font-black !text-slate-900">{t("alerts.noAlertsTitle")}</h3>
 
-      <p className="mt-2 text-sm leading-6 !text-slate-700">
-        Não há reclamações críticas ou manifestações abertas impactando a reputação agora.
-      </p>
+      <p className="mt-2 text-sm leading-6 !text-slate-700">{t("alerts.noAlertsDescription")}</p>
     </div>
   )}
 </div>
@@ -998,15 +1221,15 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
       <h2 className="text-2xl font-black text-slate-900">
-        Central de avaliações
+        {t("evaluationCenter.title")}
       </h2>
       <p className="mt-1 text-sm text-slate-500">
-        Avaliações recentes monitoradas pela IA PHANYX.
-        </p>
+        {t("evaluationCenter.description")}
+      </p>
         <div className="mt-6 grid gap-4 md:grid-cols-4">
   <div className="rep-pastel-blue rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-blue-700">
-      Total
+      {t("evaluationCenter.total")}
     </p>
 
     <h3 className="mt-2 text-3xl font-black !text-blue-700">
@@ -1016,7 +1239,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
   <div className="rep-pastel-amber rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-amber-700">
-      Pendentes
+      {t("evaluationCenter.pending")}
     </p>
 
     <h3 className="mt-2 text-3xl font-black !text-amber-700">
@@ -1026,7 +1249,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
   <div className="rep-pastel-emerald rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-      Respondidas
+      {t("evaluationCenter.answered")}
     </p>
 
     <h3 className="mt-2 text-3xl font-black !text-emerald-700">
@@ -1036,7 +1259,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
   <div className="rep-pastel-red rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-red-700">
-      Índice PHANYX
+      {t("evaluationCenter.index")}
     </p>
 
     <h3 className="mt-2 text-3xl font-black !text-red-700">
@@ -1048,7 +1271,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
     </div>
 
     <span className="rounded-full bg-blue-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
-      IA analisando sentimentos
+      {t("evaluationCenter.aiAnalyzing")}
     </span>
 
 <div className="flex flex-wrap gap-2">
@@ -1064,7 +1287,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
             : "border border-slate-400 bg-slate-800 text-slate-100 hover:bg-slate-700"
         }`}
       >
-        {filtro}
+        {traduzirFiltro(filtro)}
       </button>
     )
   )}
@@ -1074,38 +1297,27 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   <div className="rounded-[2rem] border border-blue-100 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 text-white shadow-2xl">
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.35em] text-blue-300">
-          Painel executivo IA
-        </p>
+        <p className="text-xs font-black uppercase tracking-[0.35em] text-blue-300">{t("executive.eyebrow")}</p>
 
-        <h2 className="mt-4 text-4xl font-black leading-tight">
-          Reputação institucional saudável
-        </h2>
+        <h2 className="mt-4 text-4xl font-black leading-tight">{t("executive.title")}</h2>
 
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
-          A IA PHANYX está acompanhando reputação, engajamento,
-          avaliações e velocidade de resposta em tempo real.
-        </p>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">{t("executive.description")}</p>
       </div>
 
       <div className="rep-ai-score rounded-3xl border px-6 py-5 text-center backdrop-blur">
-        <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
-          Score IA
-        </p>
+        <p className="text-xs font-black uppercase tracking-wide text-emerald-300">{t("executive.aiScore")}</p>
 
         <h3 className="mt-2 text-5xl font-black text-white">
          {scoreAnimado}
         </h3>
 
-        <p className="mt-1 text-xs font-bold text-emerald-300">
-          Excelente reputação
-        </p>
+        <p className="mt-1 text-xs font-bold text-emerald-300">{t("executive.excellentReputation")}</p>
       </div>
     </div>
 
     <div className="mt-8">
   <div className="flex items-center justify-between text-sm font-bold text-slate-300">
-    <span>Saúde reputacional</span>
+    <span>{t("executive.reputationHealth")}</span>
     <span>{porcentagemAnimada}%</span>
   </div>
 
@@ -1120,18 +1332,12 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 <div className="rep-inner-dark-card mt-8 overflow-hidden rounded-2xl border p-4">
   <div className="mb-3 flex items-center justify-between">
     <div>
-      <p className="text-xs font-black uppercase tracking-[0.25em] !text-cyan-300">
-        Monitoramento IA
-      </p>
+      <p className="text-xs font-black uppercase tracking-[0.25em] !text-cyan-300">{t("executive.aiMonitoring")}</p>
 
-      <h4 className="mt-1 text-lg font-black !text-white">
-  Tendência reputacional
-</h4>
+      <h4 className="mt-1 text-lg font-black !text-white">{t("executive.reputationTrend")}</h4>
     </div>
 
-    <div className="rep-tempo-real-badge rounded-full px-3 py-1 text-xs font-black">
-  Tempo real
-</div>
+    <div className="rep-tempo-real-badge rounded-full px-3 py-1 text-xs font-black">{t("executive.realTime")}</div>
   </div>
 
   <div className="h-32">
@@ -1183,53 +1389,43 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
     <div className="mt-8 grid gap-4 md:grid-cols-3">
       <div className="rep-inner-dark-card rounded-2xl border p-4">
         <p className="text-xs font-black uppercase tracking-wide text-cyan-300">
-          Tendência
+          {t("executive.trend")}
         </p>
 
         <h3 className="mt-2 text-2xl font-black !text-white">
           {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
         </h3>
 
-        <p className="mt-2 text-xs leading-5 !text-slate-200">
-          Crescimento reputacional identificado pela IA.
-        </p>
+        <p className="mt-2 text-xs leading-5 !text-slate-200">{t("executive.trendDetail")}</p>
       </div>
 
       <div className="rep-inner-dark-card rounded-2xl border p-4">
         <p className="text-xs font-black uppercase tracking-wide text-amber-300">
-          Tempo médio
+          {t("executive.averageTime")}
         </p>
 
         <h3 className="mt-2 text-2xl font-black !text-white">
   {tempoMedioReal}
 </h3>
 
-        <p className="mt-2 text-xs leading-5 !text-slate-200">
-          Tempo médio estimado para resposta administrativa.
-        </p>
+        <p className="mt-2 text-xs leading-5 !text-slate-200">{t("executive.averageTimeDetail")}</p>
       </div>
 
       <div className="rep-inner-dark-card rounded-2xl border p-4">
-        <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
-          Status IA
-        </p>
+        <p className="text-xs font-black uppercase tracking-wide text-emerald-300">{t("executive.aiStatus")}</p>
 
         <h3 className="mt-2 text-2xl font-black !text-white">
-          Ativo
+          {t("executive.active")}
         </h3>
 
-        <p className="mt-2 text-xs leading-5 !text-slate-200">
-          Monitoramento reputacional funcionando normalmente.
-        </p>
+        <p className="mt-2 text-xs leading-5 !text-slate-200">{t("executive.monitoringNormal")}</p>
       </div>
     </div>
   </div>
 
   <div className="grid gap-5">
     <div className="rep-pastel-emerald rounded-[2rem] border p-6">
-      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-        Avaliações positivas
-      </p>
+      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">{t("executive.positiveReviews")}</p>
 
       <h3 className="mt-3 text-5xl font-black text-emerald-900">
   {resumoReputacao?.total
@@ -1243,14 +1439,14 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 </h3>
 
       <p className="mt-3 text-sm leading-7 text-emerald-800">
-  {resumoReputacao?.elogios || 0} manifestações positivas identificadas pela IA.
+  {t("executive.positiveReviewsDetail", {
+    count: resumoReputacao?.elogios || 0,
+  })}
 </p>
     </div>
 
     <div className="rep-pastel-red rounded-[2rem] border p-6">
-      <p className="text-xs font-black uppercase tracking-wide text-red-700">
-        Atenção necessária
-      </p>
+      <p className="text-xs font-black uppercase tracking-wide text-red-700">{t("executive.attentionNeeded")}</p>
 
       <h3 className="mt-3 text-5xl font-black text-red-900">
         {totalPendentes}
@@ -1258,8 +1454,8 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
       <p className="mt-3 text-sm leading-7 text-red-800">
         {totalPendentes > 0
-  ? "Existem manifestações aguardando resposta institucional."
-  : "Nenhuma manifestação pendente no momento."}
+    ? t("executive.pendingExists")
+    : t("executive.noPending")}
       </p>
     </div>
   </div>
@@ -1275,16 +1471,15 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
     </div>
 
     <h3 className="mt-6 text-2xl font-black text-slate-900">
-      Nenhuma avaliação encontrada
+      {t("evaluationCenter.emptyTitle")}
     </h3>
 
     <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-500">
-      O filtro selecionado não possui avaliações no momento.
-      A IA PHANYX continuará monitorando novos sinais reputacionais automaticamente.
+      {t("evaluationCenter.emptyDescription")}
     </p>
 
     <div className="mt-6 inline-flex rounded-full bg-blue-100 px-5 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
-      Monitoramento ativo
+      {t("evaluationCenter.monitoringActive")}
     </div>
   </div>
 ) : (
@@ -1312,11 +1507,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-            {avaliacao.sentimento}
+            {traduzirSentimento(avaliacao.sentimento)}
           </span>
 
           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
-            {avaliacao.status}
+            {traduzirStatusAvaliacao(avaliacao.status)}
           </span>
         </div>
       </div>
@@ -1334,7 +1529,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
           }}
           className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
         >
-          Ver detalhes
+          {t("evaluationCenter.viewDetails")}
         </button>
 
         <button
@@ -1345,7 +1540,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
           }}
           className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
         >
-          Responder com IA
+          {t("evaluationCenter.replyWithAi")}
         </button>
       </div>
     </div>
@@ -1357,19 +1552,13 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 <div className="rounded-3xl border bg-white p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h2 className="text-2xl font-black text-slate-900">
-        Evolução reputacional
-      </h2>
+      <h2 className="text-2xl font-black text-slate-900">{t("evolution.title")}</h2>
 
-      <p className="mt-1 text-sm text-slate-500">
-        A IA PHANYX acompanha tendências reputacionais e crescimento institucional.
-      </p>
+      <p className="mt-1 text-sm text-slate-500">{t("evolution.description")}</p>
     </div>
 
     <div className="rep-pastel-emerald rounded-2xl border px-4 py-3">
-      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-        Tendência IA
-      </p>
+      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">{t("evolution.aiTrend")}</p>
 
       <p className="mt-1 text-2xl font-black text-emerald-700">
   {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
@@ -1404,20 +1593,18 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
-          ALERTA IA
-        </p>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">{t("analysisCards.alertLabel")}</p>
 
         <h3 className="mt-3 text-lg font-black text-white">
   {resumoReputacao?.criticos > 0
-    ? "Manifestações críticas detectadas"
-    : "Nenhum alerta crítico"}
+    ? t("analysisCards.criticalDetected")
+    : t("analysisCards.noCriticalAlert")}
 </h3>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
   {resumoReputacao?.criticos > 0
-    ? "Existem manifestações críticas aguardando acompanhamento."
-    : "Não há manifestações críticas abertas no momento."}
+    ? t("analysisCards.criticalPending")
+    : t("analysisCards.noCriticalPending")}
 </p>
       </div>
 
@@ -1435,24 +1622,22 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">
-          GROWTH IA
-        </p>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">{t("analysisCards.growthLabel")}</p>
 
         <h3 className="mt-3 text-lg font-black text-white">
   {crescimentoReal > 0
-    ? "Crescimento reputacional detectado"
+    ? t("analysisCards.growthDetected")
     : crescimentoReal < 0
-    ? "Queda reputacional detectada"
-    : "Reputação estável"}
+    ? t("analysisCards.dropDetected")
+    : t("analysisCards.stable")}
 </h3>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
           {crescimentoReal > 0
-  ? "Houve aumento nos registros reputacionais positivos no período."
-  : crescimentoReal < 0
-  ? "Houve redução no desempenho reputacional no período."
-  : "Não houve variação relevante nos registros reputacionais."}
+    ? t("analysisCards.growthDescription")
+    : crescimentoReal < 0
+    ? t("analysisCards.dropDescription")
+    : t("analysisCards.stableDescription")}
         </p>
       </div>
 
@@ -1470,18 +1655,14 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">
-          TEMPO RESPOSTA
-        </p>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">{t("analysisCards.responseTimeLabel")}</p>
 
-        <h3 className="mt-3 text-lg font-black text-white">
-          Respostas lentas
-        </h3>
+        <h3 className="mt-3 text-lg font-black text-white">{t("analysisCards.slowResponses")}</h3>
 
         <p className="mt-2 text-sm leading-6 text-slate-300">
           {temRespostaLenta
-  ? "Existem manifestações acima do tempo ideal de retorno."
-  : "O tempo de resposta está dentro do esperado."}
+    ? t("analysisCards.responseSlow")
+    : t("analysisCards.responseNormal")}
         </p>
       </div>
 
@@ -1499,17 +1680,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">
-          SCORE IA
-        </p>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">{t("analysisCards.scoreLabel")}</p>
 
-        <h3 className="mt-3 text-lg font-black text-white">
-          Reputação excelente
-        </h3>
+        <h3 className="mt-3 text-lg font-black text-white">{t("analysisCards.excellent")}</h3>
 
-        <p className="mt-2 text-sm leading-6 text-slate-300">
-          A instituição mantém forte aprovação reputacional.
-        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">{t("analysisCards.excellentDescription")}</p>
       </div>
 
       <div className="text-3xl">⭐</div>
@@ -1527,18 +1702,12 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 <div className="phanyx-theme-card rounded-3xl border p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h2 className="text-2xl font-black">
-        Timeline reputacional IA
-      </h2>
+      <h2 className="text-2xl font-black">{t("timelineAi.title")}</h2>
 
-      <p className="mt-1 text-sm opacity-70">
-        Eventos recentes acompanhados automaticamente pelo PHANYX Growth.
-      </p>
+      <p className="mt-1 text-sm opacity-70">{t("timelineAi.description")}</p>
     </div>
 
-    <span className="rounded-full bg-cyan-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-cyan-700">
-      Monitoramento em tempo real
-    </span>
+    <span className="rounded-full bg-cyan-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-cyan-700">{t("timelineAi.realTimeMonitoring")}</span>
   </div>
 
   <div className="mt-8 space-y-6">
@@ -1581,39 +1750,27 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 <section className="mt-8 rounded-[2rem] border bg-white p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h2 className="text-3xl font-black text-slate-900">
-        Insights automáticos IA
-      </h2>
+      <h2 className="text-3xl font-black text-slate-900">{t("insights.title")}</h2>
 
-      <p className="mt-2 text-sm text-slate-500">
-        A IA PHANYX identificou tendências reputacionais relevantes.
-      </p>
+      <p className="mt-2 text-sm text-slate-500">{t("insights.description")}</p>
     </div>
 
-    <div className="rounded-full bg-blue-100 px-5 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
-      Inteligência reputacional ativa
-    </div>
+    <div className="rounded-full bg-blue-100 px-5 py-2 text-xs font-black uppercase tracking-wide text-blue-700">{t("insights.activeIntelligence")}</div>
   </div>
 
   <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
     <div className="rep-pastel-emerald rounded-3xl border p-5">
-      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-        Crescimento positivo
-      </p>
+      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">{t("insights.positiveGrowth")}</p>
 
       <h3 className="mt-3 text-3xl font-black text-emerald-900">
   {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
 </h3>
 
-      <p className="mt-3 text-sm leading-6 text-emerald-800">
-        As avaliações positivas aumentaram nesta semana.
-      </p>
+      <p className="mt-3 text-sm leading-6 text-emerald-800">{t("insights.positiveGrowthDescription")}</p>
     </div>
 
     <div className="rep-pastel-amber rounded-3xl border p-5">
-      <p className="text-xs font-black uppercase tracking-wide text-amber-700">
-        Respostas pendentes
-      </p>
+      <p className="text-xs font-black uppercase tracking-wide text-amber-700">{t("insights.pendingResponses")}</p>
 
       <h3 className="mt-3 text-3xl font-black text-amber-900">
         {totalPendentes}
@@ -1621,67 +1778,59 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
       <p className="mt-3 text-sm leading-6 text-amber-800">
         {totalPendentes > 0
-  ? "Existem manifestações aguardando retorno administrativo."
-  : "Todas as manifestações foram respondidas."}
+    ? t("insights.pendingExists")
+    : t("insights.allAnswered")}
       </p>
     </div>
 
     <div className="rep-pastel-sky rounded-3xl border p-5">
-      <p className="text-xs font-black uppercase tracking-wide text-sky-700">
-        Melhor desempenho
-      </p>
+      <p className="text-xs font-black uppercase tracking-wide text-sky-700">{t("insights.bestPerformance")}</p>
 
       <h3 className="mt-3 text-2xl font-black text-sky-900">
         {melhorDiaReal}
       </h3>
 
-      <p className="mt-3 text-sm leading-6 text-sky-800">
-        O maior volume de engajamento ocorreu neste dia.
-      </p>
+      <p className="mt-3 text-sm leading-6 text-sky-800">{t("insights.bestPerformanceDescription")}</p>
     </div>
 
     <div className="rep-pastel-violet rounded-3xl border p-5">
       <p className="text-xs font-black uppercase tracking-wide text-violet-700">
-        Tempo médio
+        {t("insights.averageTime")}
       </p>
 
       <h3 className="mt-3 text-2xl font-black text-violet-900">
         {tempoMedioReal}
       </h3>
 
-      <p className="mt-3 text-sm leading-6 text-violet-800">
-        Tempo médio estimado para resposta reputacional.
-      </p>
+      <p className="mt-3 text-sm leading-6 text-violet-800">{t("insights.averageTimeDescription")}</p>
     </div>
   </div>
 </section>
 
       <div className="grid gap-4 xl:grid-cols-2">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-black text-slate-900">
-            Fontes de reputação
-          </h2>
+          <h2 className="text-lg font-black text-slate-900">{t("sources.title")}</h2>
 
           <div className="mt-4 space-y-3">
   {[
     {
       nome: "Google Business",
-      status: "Em preparação",
+      status: t("sources.preparing"),
       cor: "bg-amber-100 text-amber-700",
     },
     {
       nome: "Meta / Facebook",
-      status: "Em preparação",
+      status: t("sources.preparing"),
       cor: "bg-amber-100 text-amber-700",
     },
     {
       nome: "Instagram",
-      status: "Em preparação",
+      status: t("sources.preparing"),
       cor: "bg-amber-100 text-amber-700",
     },
     {
-      nome: "Reclamações internas",
-      status: "Ativo",
+      nome: t("sources.internalComplaints"),
+      status: t("sources.active"),
       cor: "bg-emerald-100 text-emerald-700",
     },
   ].map((item) => (
@@ -1705,16 +1854,14 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <div className="rounded-2xl border bg-white p-6 shadow-sm">
-  <h2 className="text-lg font-black text-slate-900">
-    Status dos recursos
-  </h2>
+  <h2 className="text-lg font-black text-slate-900">{t("resources.title")}</h2>
 
   <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
-    <li>✅ Ouvidoria interna ativa</li>
-    <li>✅ Respostas pendentes calculadas pela base</li>
-    <li>✅ Índice PHANYX calculado pela Ouvidoria</li>
-    <li>🟡 Google Business aguardando liberação da API</li>
-    <li>🟡 Meta / Instagram aguardando integração reputacional</li>
+    <li>{"\u2705"} {t("resources.ombudsmanActive")}</li>
+    <li>{"\u2705"} {t("resources.pendingCalculated")}</li>
+    <li>{"\u2705"} {t("resources.indexCalculated")}</li>
+    <li>{"\u{1F7E1}"} {t("resources.googleBusinessWaiting")}</li>
+    <li>{"\u{1F7E1}"} {t("resources.metaWaiting")}</li>
   </ul>
 </div>
             </div>
@@ -1731,18 +1878,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
           <div className="w-full max-w-2xl rounded-3xl border bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
-                  Alerta reputacional
-                </p>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">{t("replyAi.eyebrow")}</p>
 
-                <h2 className="mt-2 text-2xl font-black text-slate-900">
-                  Responder avaliação com IA
-                </h2>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">{t("replyAi.title")}</h2>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  O PHANYX preparou uma sugestão profissional para responder com
-                  empatia, clareza e proteção da reputação institucional.
-                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{t("replyAi.description")}</p>
               </div>
 
               <button
@@ -1755,9 +1895,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
             </div>
 
             <div className="mt-6 rounded-2xl border border-red-100 bg-red-50 p-4">
-              <p className="text-sm font-bold text-red-700">
-                Avaliação recebida
-              </p>
+              <p className="text-sm font-bold text-red-700">{t("replyAi.received")}</p>
 
 <div className="mt-3 flex flex-wrap gap-2">
   <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700">
@@ -1765,11 +1903,17 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   </span>
 
   <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-yellow-600">
-    {avaliacaoSelecionada?.nota} estrelas
+    {t("common.stars", {
+    count: avaliacaoSelecionada?.nota || 0,
+  })}
   </span>
 
   <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-red-600">
-    {avaliacaoSelecionada?.sentimento}
+    {avaliacaoSelecionada?.sentimento
+    ? traduzirSentimento(
+        avaliacaoSelecionada.sentimento
+      )
+    : ""}
   </span>
 </div>
 
@@ -1779,9 +1923,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
             </div>
 
             <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-              <p className="text-sm font-bold text-blue-700">
-                Sugestão da IA PHANYX
-              </p>
+              <p className="text-sm font-bold text-blue-700">{t("replyAi.suggestion")}</p>
 
               <p className="mt-2 text-sm leading-6 text-slate-700">
                 {gerarRespostaIA(avaliacaoSelecionada)}
@@ -1793,9 +1935,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
                 type="button"
                 onClick={() => setModalRespostaAberto(false)}
                 className="rounded-xl border px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
-              >
-                Cancelar
-              </button>
+              >{t("common.cancel")}</button>
 
 <button
   type="button"
@@ -1808,17 +1948,15 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   }`}
 >
   {avaliacaoSelecionada?.status === "Respondida"
-    ? "Respondida"
-    : "Marcar como respondida"}
+    ? t("reviewStatus.answered")
+    : t("replyAi.markAnswered")}
 </button>
 
               <button
   type="button"
   onClick={copiarRespostaIA}
   className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-blue-700"
->
-  Copiar resposta
-</button>
+>{t("replyAi.copyResponse")}</button>
             </div>
           </div>
         </div>
@@ -1906,9 +2044,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       </div>
 
       <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-        <p className="text-sm font-black uppercase tracking-wide text-emerald-700">
-          Análise IA PHANYX
-        </p>
+        <p className="text-sm font-black uppercase tracking-wide text-emerald-700">{t("details.aiAnalysis")}</p>
 
         <p className="mt-3 text-sm leading-7 text-slate-700">
           A reputação institucional permanece estável e positiva.
@@ -1933,9 +2069,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         <button
           onClick={() => setModalPositivoAberto(false)}
           className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-black text-white transition hover:scale-[1.03] hover:bg-emerald-700"
-        >
-          Fechar análise
-        </button>
+        >{t("common.closeAnalysis")}</button>
       </div>
     </div>
   </div>
@@ -1947,13 +2081,9 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-700">
-            DETALHES DA AVALIAÇÃO
-          </p>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-700">{t("details.eyebrow")}</p>
 
-          <h2 className="mt-3 text-4xl font-black text-slate-900">
-            Análise reputacional IA
-          </h2>
+          <h2 className="mt-3 text-4xl font-black text-slate-900">{t("details.title")}</h2>
         </div>
 
         <button
@@ -1971,11 +2101,17 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
           </span>
 
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-yellow-600">
-            {avaliacaoSelecionada?.nota} estrelas
+            {t("common.stars", {
+    count: avaliacaoSelecionada?.nota || 0,
+  })}
           </span>
 
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-blue-700">
-            {avaliacaoSelecionada?.status}
+            {avaliacaoSelecionada?.status
+    ? traduzirStatusAvaliacao(
+        avaliacaoSelecionada.status
+      )
+    : ""}
           </span>
         </div>
 
@@ -1986,9 +2122,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-red-700">
-            Prioridade IA
-          </p>
+          <p className="text-xs font-black uppercase tracking-wide text-red-700">{t("details.priorityLabel")}</p>
 
           <h3 className="mt-2 text-2xl font-black text-slate-900">
             {obterPrioridadeIA(avaliacaoSelecionada)}
@@ -1996,9 +2130,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         </div>
 
         <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-amber-700">
-            Risco reputacional
-          </p>
+          <p className="text-xs font-black uppercase tracking-wide text-amber-700">{t("details.riskLabel")}</p>
 
           <h3 className="mt-2 text-2xl font-black text-slate-900">
             {obterRiscoIA(avaliacaoSelecionada)}
@@ -2006,19 +2138,15 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         </div>
 
         <div className="rounded-2xl border border-cyan-100 bg-cyan-50 p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-cyan-700">
-            Canal
-          </p>
+          <p className="text-xs font-black uppercase tracking-wide text-cyan-700">{t("details.channelLabel")}</p>
 
           <h3 className="mt-2 text-2xl font-black text-slate-900">
-  Ouvidoria interna
-</h3>
+    {t("details.internalOmbudsman")}
+  </h3>
         </div>
 
         <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-            Tempo recomendado
-          </p>
+          <p className="text-xs font-black uppercase tracking-wide text-emerald-700">{t("details.recommendedTime")}</p>
 
           <h3 className="mt-2 text-2xl font-black text-slate-900">
             {obterTempoRespostaIA(avaliacaoSelecionada)}
@@ -2037,9 +2165,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       </div>
 
 <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
-  <p className="text-xs font-black uppercase tracking-wide text-slate-500">
-    Timeline da avaliação
-  </p>
+  <p className="text-xs font-black uppercase tracking-wide text-slate-500">{t("details.timelineTitle")}</p>
 
   <div className="mt-5 space-y-5">
     {obterTimelineAvaliacao(avaliacaoSelecionada).map((item, index, lista) => (
@@ -2078,9 +2204,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         <button
           onClick={() => setModalDetalhesAberto(false)}
           className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:scale-[1.03] hover:bg-blue-700"
-        >
-          Fechar análise
-        </button>
+        >{t("common.closeAnalysis")}</button>
       </div>
 
     </div>

@@ -40,7 +40,7 @@ const financeiroTourSteps: FinanceiroTourStep[] = [
   {
     id: "inadimplentes",
     selector: '[data-tour="financeiro-inadimplentes"]',
-    mascoteSrc: "/images/calculadora.png",
+    mascoteSrc: "/images/phanyx-inadimplente.png",
   },
   {
     id: "fechamento",

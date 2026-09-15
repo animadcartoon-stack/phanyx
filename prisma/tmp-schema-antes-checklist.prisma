@@ -10520,7 +10520,6 @@ model MobilidadeOfertaDocumentoRequisito {
   instituicao Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   oferta      MobilidadeOferta @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
 
-  documentosCandidaturas MobilidadeCandidaturaDocumento[] @relation("MobilidadeDocumentoRequisitoOferta")
 
   @@unique([ofertaId, tipo, titulo])
   @@index([instituicaoId])
@@ -10596,13 +10595,9 @@ model MobilidadeCandidaturaDocumento {
   id                 Int                       @id @default(autoincrement())
   instituicaoId      Int
   candidaturaId      Int
-  requisitoOfertaId  Int?
   tipo               MobilidadeTipoDocumento
   titulo             String
   obrigatorio        Boolean                   @default(true)
-  descricaoRequisito String?                   @db.Text
-  exigeValidade      Boolean                   @default(false)
-  ordem              Int                       @default(0)
   arquivoUrl         String?
   arquivoNome        String?
   mimeType           String?
@@ -10619,13 +10614,10 @@ model MobilidadeCandidaturaDocumento {
 
   instituicao     Instituicao                         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   candidatura     MobilidadeCandidatura               @relation(fields: [candidaturaId], references: [id], onDelete: Cascade)
-  requisitoOferta MobilidadeOfertaDocumentoRequisito? @relation("MobilidadeDocumentoRequisitoOferta", fields: [requisitoOfertaId], references: [id], onDelete: SetNull)
   analisadoPor    User?                               @relation("MobilidadeCandidaturaDocumentoAnalisadoPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
 
-  @@unique([candidaturaId, requisitoOfertaId])
   @@index([instituicaoId])
   @@index([candidaturaId])
-  @@index([requisitoOfertaId])
   @@index([tipo])
   @@index([status])
   @@index([validadeAte])
