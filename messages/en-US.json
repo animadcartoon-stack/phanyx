@@ -15223,7 +15223,28 @@
       "aniversariantes__enviar_mensagem": "Birthdays - Send message",
       "aniversariantes__gerar_links_whatsapp": "Birthdays - Generate WhatsApp links",
       "aniversariantes__exportar_pdf": "Birthdays - Download PDF",
-      "aniversariantes__exportar_excel": "Birthdays - Download Excel"
+      "aniversariantes__exportar_excel": "Birthdays - Download Excel",
+      "atividades-externas__ver": "Academic - View external activities",
+      "atividades-externas__gerenciar": "Academic - Manage external activities",
+      "biblioteca__exemplares__ver": "Virtual Library - View copies",
+      "biblioteca__exemplares__gerenciar": "Virtual Library - Manage copies",
+      "biblioteca__exemplares__baixar": "Virtual Library - Write off copies",
+      "biblioteca__exemplares__manutencao": "Virtual Library - Manage copy maintenance",
+      "biblioteca__arquivos__gerenciar": "Virtual Library - Manage files",
+      "comercial__captacao__ver": "Sales - Access Lead Capture Center",
+      "comercial__captacao__canais__ver": "Sales - View lead capture channels",
+      "comercial__captacao__canais__gerenciar": "Sales - Manage lead capture channels",
+      "comercial__captacao__campanhas__ver": "Sales - View lead capture campaigns",
+      "comercial__captacao__campanhas__gerenciar": "Sales - Manage lead capture campaigns",
+      "comercial__captacao__formularios__ver": "Sales - View lead capture forms",
+      "comercial__captacao__formularios__gerenciar": "Sales - Manage lead capture forms",
+      "comercial__captacao__submissoes__ver": "Sales - View lead capture submissions",
+      "comercial__captacao__submissoes__reprocessar": "Sales - Reprocess lead capture submissions",
+      "comercial__captacao__distribuicao__ver": "Sales - View lead distribution rules",
+      "comercial__captacao__distribuicao__gerenciar": "Sales - Manage lead distribution",
+      "comercial__captacao__integracoes__ver": "Sales - View lead capture integrations",
+      "comercial__captacao__integracoes__gerenciar": "Sales - Manage lead capture integrations",
+      "comercial__captacao__auditoria__ver": "Sales - View lead capture audit"
     }
   }
 }
