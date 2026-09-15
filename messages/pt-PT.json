@@ -15031,5 +15031,132 @@
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gerir integrações de captação",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoria da captação"
     }
+  },
+  "AdminTransferenciaMatricula": {
+    "back": "Voltar às matrículas",
+    "title": "Transferir matrícula",
+    "subtitle": "Escolha o tipo de transferência e confirme os dados académicos antes de continuar.",
+    "enrollmentId": "Matrícula #{id}",
+    "loading": "A carregar matrícula...",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "origin": {
+      "title": "Matrícula de origem",
+      "student": "Aluno",
+      "enrollment": "Matrícula",
+      "institution": "Instituição",
+      "campus": "Polo",
+      "course": "Curso",
+      "class": "Turma",
+      "modality": "Modalidade",
+      "courseSemester": "Semestre",
+      "module": "Módulo"
+    },
+    "chooseType": {
+      "title": "Que tipo de transferência será realizado?",
+      "description": "Selecione a opção que representa o destino académico do aluno."
+    },
+    "types": {
+      "campus": {
+        "title": "Outro polo",
+        "description": "Transferir o aluno para outro polo da mesma instituição."
+      },
+      "courseClass": {
+        "title": "Outro curso ou turma",
+        "description": "Alterar a turma atual ou transferir para outro curso compatível."
+      },
+      "phanyxInstitution": {
+        "title": "Outra instituição PHANYX",
+        "description": "Transferir a matrícula para outra instituição que utilize o PHANYX."
+      },
+      "externalInstitution": {
+        "title": "Instituição externa",
+        "description": "Registar uma transferência para uma instituição que não utilize o PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reatribuição de aluno",
+        "description": "Reatribuir esta matrícula a outro registo de aluno, preservando o histórico."
+      }
+    },
+    "errors": {
+      "load": "Não foi possível carregar os dados da matrícula.",
+      "chooseType": "Selecione um tipo de transferência para continuar."
+    },
+    "courseClassTransfer": {
+      "back": "Voltar às opções de transferência",
+      "title": "Outro curso ou turma",
+      "description": "Altere apenas a turma ou transfira a matrícula para outro curso disponível no polo atual.",
+      "loading": "A carregar opções de transferência...",
+      "currentEnrollment": "Matrícula atual",
+      "student": "Aluno",
+      "currentCampus": "Polo atual",
+      "currentCourse": "Curso atual",
+      "currentClass": "Turma atual",
+      "whatChange": "O que pretende alterar?",
+      "whatChangeHelp": "O PHANYX apresenta apenas opções academicamente elegíveis para esta matrícula.",
+      "available": "Disponível",
+      "unavailable": "Indisponível",
+      "subjectCount": "{count} disciplinas",
+      "otherCampusNotice": "Para transferir o aluno para uma turma de outro polo, utilize a opção “Outro polo”.",
+      "classOnly": {
+        "title": "Apenas outra turma",
+        "description": "Mantém o curso e o polo atuais e altera apenas a turma do aluno.",
+        "emptyTitle": "Nenhuma outra turma disponível",
+        "emptyDescription": "Não existe outra turma ativa deste curso no polo atual.",
+        "analyzing": "A analisar a compatibilidade académica..."
+      },
+      "courseAndClass": {
+        "title": "Curso e turma",
+        "description": "Transfere a matrícula para outro curso oferecido no mesmo polo.",
+        "emptyTitle": "Nenhum outro curso disponível",
+        "emptyDescription": "Não existe outro curso ativo e oferecido neste polo.",
+        "analysisRequired": "A transferência entre cursos exige análise curricular específica."
+      },
+      "review": {
+        "step": "Revisão",
+        "title": "Rever mudança de turma",
+        "originClass": "Turma de origem",
+        "destinationClass": "Turma de destino",
+        "currentSubjects": "Disciplinas atuais",
+        "compatibleSubjects": "Compatíveis",
+        "missingSubjects": "Em falta",
+        "extraSubjects": "Extras na turma",
+        "compatibleTitle": "Turma compatível",
+        "compatibleDescription": "Todas as disciplinas ativas estão disponíveis na turma selecionada.",
+        "incompatibleTitle": "Turma incompatível",
+        "incompatibleDescription": "Existem disciplinas obrigatórias em falta na turma de destino.",
+        "validationNotice": "A análise foi aprovada. Confirme os dados abaixo antes de concluir a transferência."
+      },
+      "errors": {
+        "load": "Não foi possível carregar as opções de curso e turma.",
+        "analysis": "Não foi possível analisar a compatibilidade da turma.",
+        "dateRequired": "Indique a data da transferência.",
+        "reasonRequired": "Indique um motivo com pelo menos 3 caracteres.",
+        "confirm": "Não foi possível concluir a transferência."
+      },
+      "form": {
+        "title": "Confirmar transferência",
+        "description": "Indique os dados administrativos antes de efetivar a mudança de turma.",
+        "transferDate": "Data da transferência",
+        "reason": "Motivo",
+        "reasonPlaceholder": "Ex.: pedido do aluno, reorganização académica...",
+        "observations": "Observações",
+        "observationsPlaceholder": "Informações adicionais (opcional).",
+        "auditNotice": "Ao confirmar, o PHANYX preservará os vínculos anteriores e registará a movimentação no histórico.",
+        "cancel": "Cancelar seleção",
+        "confirm": "Confirmar transferência",
+        "confirming": "A transferir..."
+      },
+      "success": {
+        "badge": "Transferência concluída",
+        "title": "Mudança de turma realizada com sucesso",
+        "description": "A matrícula foi atualizada e o histórico académico anterior foi preservado.",
+        "transferNumber": "Transferência",
+        "migratedSubjects": "Disciplinas migradas",
+        "origin": "Turma de origem",
+        "destination": "Turma de destino",
+        "backToEnrollments": "Voltar para matrículas"
+      }
+    }
   }
 }

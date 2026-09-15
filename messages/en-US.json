@@ -15246,5 +15246,132 @@
       "comercial__captacao__integracoes__gerenciar": "Sales - Manage lead capture integrations",
       "comercial__captacao__auditoria__ver": "Sales - View lead capture audit"
     }
+  },
+  "AdminTransferenciaMatricula": {
+    "back": "Back to enrollments",
+    "title": "Transfer enrollment",
+    "subtitle": "Choose the transfer type and review the academic information before continuing.",
+    "enrollmentId": "Enrollment #{id}",
+    "loading": "Loading enrollment...",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "origin": {
+      "title": "Source enrollment",
+      "student": "Student",
+      "enrollment": "Enrollment",
+      "institution": "Institution",
+      "campus": "Campus",
+      "course": "Course",
+      "class": "Class",
+      "modality": "Modality",
+      "courseSemester": "Semester",
+      "module": "Module"
+    },
+    "chooseType": {
+      "title": "What type of transfer will be performed?",
+      "description": "Select the option that represents the student's academic destination."
+    },
+    "types": {
+      "campus": {
+        "title": "Another campus",
+        "description": "Transfer the student to another campus within the same institution."
+      },
+      "courseClass": {
+        "title": "Another course or class",
+        "description": "Change the current class or transfer to another compatible course."
+      },
+      "phanyxInstitution": {
+        "title": "Another PHANYX institution",
+        "description": "Transfer the enrollment to another institution that uses PHANYX."
+      },
+      "externalInstitution": {
+        "title": "External institution",
+        "description": "Record a transfer to an institution that does not use PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Student reassignment",
+        "description": "Reassign this enrollment to another student record while preserving its history."
+      }
+    },
+    "errors": {
+      "load": "The enrollment information could not be loaded.",
+      "chooseType": "Select a transfer type to continue."
+    },
+    "courseClassTransfer": {
+      "back": "Back to transfer options",
+      "title": "Another course or class",
+      "description": "Change only the class or transfer the enrollment to another course available at the current campus.",
+      "loading": "Loading transfer options...",
+      "currentEnrollment": "Current enrollment",
+      "student": "Student",
+      "currentCampus": "Current campus",
+      "currentCourse": "Current course",
+      "currentClass": "Current class",
+      "whatChange": "What would you like to change?",
+      "whatChangeHelp": "PHANYX displays only academically eligible options for this enrollment.",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "subjectCount": "{count} subjects",
+      "otherCampusNotice": "To move the student to another campus, use the “Another campus” option.",
+      "classOnly": {
+        "title": "Class only",
+        "description": "Keeps the current course and campus and changes only the student's class.",
+        "emptyTitle": "No other class available",
+        "emptyDescription": "There is no other active class for this course at the current campus.",
+        "analyzing": "Analyzing academic compatibility..."
+      },
+      "courseAndClass": {
+        "title": "Course and class",
+        "description": "Transfers the enrollment to another course offered at the same campus.",
+        "emptyTitle": "No other course available",
+        "emptyDescription": "There is no other active course offered at this campus.",
+        "analysisRequired": "Transfers between courses require a specific curriculum review."
+      },
+      "review": {
+        "step": "Review",
+        "title": "Review class transfer",
+        "originClass": "Source class",
+        "destinationClass": "Destination class",
+        "currentSubjects": "Current subjects",
+        "compatibleSubjects": "Compatible",
+        "missingSubjects": "Missing",
+        "extraSubjects": "Extra in class",
+        "compatibleTitle": "Compatible class",
+        "compatibleDescription": "All active subjects are available in the selected class.",
+        "incompatibleTitle": "Incompatible class",
+        "incompatibleDescription": "Required subjects are missing from the destination class.",
+        "validationNotice": "The analysis passed. Review the information below before confirming the transfer."
+      },
+      "errors": {
+        "load": "Unable to load course and class options.",
+        "analysis": "Unable to analyze class compatibility.",
+        "dateRequired": "Enter the transfer date.",
+        "reasonRequired": "Enter a reason with at least 3 characters.",
+        "confirm": "Unable to complete the transfer."
+      },
+      "form": {
+        "title": "Confirm transfer",
+        "description": "Enter the administrative details before completing the class transfer.",
+        "transferDate": "Transfer date",
+        "reason": "Reason",
+        "reasonPlaceholder": "Example: student request, academic reorganization...",
+        "observations": "Notes",
+        "observationsPlaceholder": "Additional information about this transfer (optional).",
+        "auditNotice": "When confirmed, PHANYX will preserve the previous academic links, create the new destination links, and record the movement in history.",
+        "cancel": "Cancel selection",
+        "confirm": "Confirm transfer",
+        "confirming": "Transferring..."
+      },
+      "success": {
+        "badge": "Transfer completed",
+        "title": "Class transfer completed successfully",
+        "description": "The enrollment was updated and the previous academic history was preserved.",
+        "transferNumber": "Transfer",
+        "migratedSubjects": "Migrated subjects",
+        "origin": "Source class",
+        "destination": "Destination class",
+        "backToEnrollments": "Back to enrollments"
+      }
+    }
   }
 }

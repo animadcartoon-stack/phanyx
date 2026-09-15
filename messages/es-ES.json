@@ -15245,5 +15245,132 @@
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gestionar integraciones de captación",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoría de captación"
     }
+  },
+  "AdminTransferenciaMatricula": {
+    "back": "Volver a matrículas",
+    "title": "Transferir matrícula",
+    "subtitle": "Elija el tipo de transferencia y revise los datos académicos antes de continuar.",
+    "enrollmentId": "Matrícula #{id}",
+    "loading": "Cargando matrícula...",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "origin": {
+      "title": "Matrícula de origen",
+      "student": "Alumno",
+      "enrollment": "Matrícula",
+      "institution": "Institución",
+      "campus": "Sede",
+      "course": "Curso",
+      "class": "Clase",
+      "modality": "Modalidad",
+      "courseSemester": "Semestre",
+      "module": "Módulo"
+    },
+    "chooseType": {
+      "title": "¿Qué tipo de transferencia se realizará?",
+      "description": "Seleccione la opción que representa el destino académico del alumno."
+    },
+    "types": {
+      "campus": {
+        "title": "Otra sede",
+        "description": "Transferir al alumno a otra sede de la misma institución."
+      },
+      "courseClass": {
+        "title": "Otro curso o clase",
+        "description": "Cambiar la clase actual o transferir a otro curso compatible."
+      },
+      "phanyxInstitution": {
+        "title": "Otra institución PHANYX",
+        "description": "Transferir la matrícula a otra institución que utilice PHANYX."
+      },
+      "externalInstitution": {
+        "title": "Institución externa",
+        "description": "Registrar una transferencia a una institución que no utilice PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reasignación de alumno",
+        "description": "Reasignar esta matrícula a otro registro de alumno conservando el historial."
+      }
+    },
+    "errors": {
+      "load": "No se pudieron cargar los datos de la matrícula.",
+      "chooseType": "Seleccione un tipo de transferencia para continuar."
+    },
+    "courseClassTransfer": {
+      "back": "Volver a las opciones de transferencia",
+      "title": "Otro curso o grupo",
+      "description": "Cambie solamente el grupo o transfiera la matrícula a otro curso disponible en la sede actual.",
+      "loading": "Cargando opciones de transferencia...",
+      "currentEnrollment": "Matrícula actual",
+      "student": "Alumno",
+      "currentCampus": "Sede actual",
+      "currentCourse": "Curso actual",
+      "currentClass": "Grupo actual",
+      "whatChange": "¿Qué desea cambiar?",
+      "whatChangeHelp": "PHANYX muestra solamente opciones académicamente elegibles para esta matrícula.",
+      "available": "Disponible",
+      "unavailable": "No disponible",
+      "subjectCount": "{count} asignaturas",
+      "otherCampusNotice": "Para transferir al alumno a otra sede, utilice la opción “Otra sede”.",
+      "classOnly": {
+        "title": "Solo otro grupo",
+        "description": "Mantiene el curso y la sede actuales y cambia solamente el grupo.",
+        "emptyTitle": "No hay otro grupo disponible",
+        "emptyDescription": "No existe otro grupo activo de este curso en la sede actual.",
+        "analyzing": "Analizando la compatibilidad académica..."
+      },
+      "courseAndClass": {
+        "title": "Curso y grupo",
+        "description": "Transfiere la matrícula a otro curso ofrecido en la misma sede.",
+        "emptyTitle": "No hay otro curso disponible",
+        "emptyDescription": "No existe otro curso activo ofrecido en esta sede.",
+        "analysisRequired": "Las transferencias entre cursos requieren análisis curricular."
+      },
+      "review": {
+        "step": "Revisión",
+        "title": "Revisar cambio de grupo",
+        "originClass": "Grupo de origen",
+        "destinationClass": "Grupo de destino",
+        "currentSubjects": "Asignaturas actuales",
+        "compatibleSubjects": "Compatibles",
+        "missingSubjects": "Faltantes",
+        "extraSubjects": "Extras",
+        "compatibleTitle": "Grupo compatible",
+        "compatibleDescription": "Todas las asignaturas activas están disponibles en el grupo seleccionado.",
+        "incompatibleTitle": "Grupo incompatible",
+        "incompatibleDescription": "Faltan asignaturas obligatorias en el grupo de destino.",
+        "validationNotice": "El análisis fue aprobado. Revise los datos antes de confirmar la transferencia."
+      },
+      "errors": {
+        "load": "No se pudieron cargar las opciones de curso y grupo.",
+        "analysis": "No se pudo analizar la compatibilidad del grupo.",
+        "dateRequired": "Ingrese la fecha de transferencia.",
+        "reasonRequired": "Ingrese un motivo de al menos 3 caracteres.",
+        "confirm": "No fue posible completar la transferencia."
+      },
+      "form": {
+        "title": "Confirmar transferencia",
+        "description": "Ingrese los datos administrativos antes de realizar el cambio de grupo.",
+        "transferDate": "Fecha de transferencia",
+        "reason": "Motivo",
+        "reasonPlaceholder": "Ej.: solicitud del alumno, reorganización académica...",
+        "observations": "Observaciones",
+        "observationsPlaceholder": "Información adicional (opcional).",
+        "auditNotice": "Al confirmar, PHANYX conservará los vínculos anteriores y registrará el movimiento en el historial.",
+        "cancel": "Cancelar selección",
+        "confirm": "Confirmar transferencia",
+        "confirming": "Transfiriendo..."
+      },
+      "success": {
+        "badge": "Transferencia completada",
+        "title": "Cambio de grupo realizado correctamente",
+        "description": "La matrícula fue actualizada y el historial académico anterior fue preservado.",
+        "transferNumber": "Transferencia",
+        "migratedSubjects": "Asignaturas migradas",
+        "origin": "Grupo de origen",
+        "destination": "Grupo de destino",
+        "backToEnrollments": "Volver a matrículas"
+      }
+    }
   }
 }

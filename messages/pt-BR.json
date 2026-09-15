@@ -15015,5 +15015,132 @@
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gerenciar integrações de captação",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoria da captação"
     }
+  },
+  "AdminTransferenciaMatricula": {
+    "back": "Voltar para matrículas",
+    "title": "Transferir matrícula",
+    "subtitle": "Escolha o tipo de transferência e confira os dados acadêmicos antes de continuar.",
+    "enrollmentId": "Matrícula #{id}",
+    "loading": "Carregando matrícula...",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "origin": {
+      "title": "Matrícula de origem",
+      "student": "Aluno",
+      "enrollment": "Matrícula",
+      "institution": "Instituição",
+      "campus": "Polo",
+      "course": "Curso",
+      "class": "Turma",
+      "modality": "Modalidade",
+      "courseSemester": "Semestre",
+      "module": "Módulo"
+    },
+    "chooseType": {
+      "title": "Qual tipo de transferência será realizado?",
+      "description": "Selecione a opção que representa o destino acadêmico do aluno."
+    },
+    "types": {
+      "campus": {
+        "title": "Outro polo",
+        "description": "Transferir o aluno para outro polo da mesma instituição."
+      },
+      "courseClass": {
+        "title": "Outro curso ou turma",
+        "description": "Alterar a turma atual ou transferir para outro curso compatível."
+      },
+      "phanyxInstitution": {
+        "title": "Outra instituição PHANYX",
+        "description": "Transferir a matrícula para outra instituição que utiliza o PHANYX."
+      },
+      "externalInstitution": {
+        "title": "Instituição externa",
+        "description": "Registrar transferência para uma instituição que não utiliza o PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reatribuição de aluno",
+        "description": "Reatribuir esta matrícula a outro cadastro de aluno, preservando o histórico."
+      }
+    },
+    "errors": {
+      "load": "Não foi possível carregar os dados da matrícula.",
+      "chooseType": "Selecione um tipo de transferência para continuar."
+    },
+    "courseClassTransfer": {
+      "back": "Voltar para opções de transferência",
+      "title": "Outro curso ou turma",
+      "description": "Altere somente a turma ou transfira a matrícula para outro curso disponível no polo atual.",
+      "loading": "Carregando opções de transferência...",
+      "currentEnrollment": "Matrícula atual",
+      "student": "Aluno",
+      "currentCampus": "Polo atual",
+      "currentCourse": "Curso atual",
+      "currentClass": "Turma atual",
+      "whatChange": "O que deseja alterar?",
+      "whatChangeHelp": "O PHANYX exibe somente opções academicamente elegíveis para esta matrícula.",
+      "available": "Disponível",
+      "unavailable": "Indisponível",
+      "subjectCount": "{count} disciplinas",
+      "otherCampusNotice": "Para transferir o aluno para uma turma de outro polo, utilize a opção “Outro polo”.",
+      "classOnly": {
+        "title": "Apenas outra turma",
+        "description": "Mantém o curso e o polo atuais e altera somente a turma do aluno.",
+        "emptyTitle": "Nenhuma outra turma disponível",
+        "emptyDescription": "Não existe outra turma ativa deste curso no polo atual.",
+        "analyzing": "Analisando compatibilidade acadêmica..."
+      },
+      "courseAndClass": {
+        "title": "Curso e turma",
+        "description": "Transfere a matrícula para outro curso oferecido no mesmo polo.",
+        "emptyTitle": "Nenhum outro curso disponível",
+        "emptyDescription": "Não existe outro curso ativo e ofertado neste polo.",
+        "analysisRequired": "A transferência entre cursos exige análise curricular específica."
+      },
+      "review": {
+        "step": "Revisão",
+        "title": "Revisar troca de turma",
+        "originClass": "Turma de origem",
+        "destinationClass": "Turma de destino",
+        "currentSubjects": "Disciplinas atuais",
+        "compatibleSubjects": "Compatíveis",
+        "missingSubjects": "Faltantes",
+        "extraSubjects": "Extras na turma",
+        "compatibleTitle": "Turma compatível",
+        "compatibleDescription": "Todas as disciplinas ativas estão disponíveis na turma selecionada.",
+        "incompatibleTitle": "Turma incompatível",
+        "incompatibleDescription": "Existem disciplinas obrigatórias ausentes na turma de destino.",
+        "validationNotice": "A análise foi aprovada. Confira os dados abaixo antes de confirmar a transferência."
+      },
+      "errors": {
+        "load": "Não foi possível carregar as opções de curso e turma.",
+        "analysis": "Não foi possível analisar a compatibilidade da turma.",
+        "dateRequired": "Informe a data da transferência.",
+        "reasonRequired": "Informe um motivo com pelo menos 3 caracteres.",
+        "confirm": "Não foi possível concluir a transferência."
+      },
+      "form": {
+        "title": "Confirmar transferência",
+        "description": "Informe os dados administrativos desta movimentação antes de efetivar a troca de turma.",
+        "transferDate": "Data da transferência",
+        "reason": "Motivo",
+        "reasonPlaceholder": "Ex.: solicitação do aluno, reorganização acadêmica...",
+        "observations": "Observações",
+        "observationsPlaceholder": "Informações adicionais sobre esta transferência (opcional).",
+        "auditNotice": "Ao confirmar, o PHANYX preservará os vínculos anteriores como transferidos, criará novos vínculos na turma de destino e registrará a movimentação no histórico.",
+        "cancel": "Cancelar seleção",
+        "confirm": "Confirmar transferência",
+        "confirming": "Transferindo..."
+      },
+      "success": {
+        "badge": "Transferência concluída",
+        "title": "Troca de turma realizada com sucesso",
+        "description": "A matrícula foi atualizada e o histórico acadêmico anterior foi preservado.",
+        "transferNumber": "Transferência",
+        "migratedSubjects": "Disciplinas migradas",
+        "origin": "Turma de origem",
+        "destination": "Turma de destino",
+        "backToEnrollments": "Voltar para matrículas"
+      }
+    }
   }
 }

@@ -15245,5 +15245,132 @@
       "comercial__captacao__integracoes__gerenciar": "Commercial - Gérer les intégrations de prospection",
       "comercial__captacao__auditoria__ver": "Commercial - Voir l’audit de la prospection"
     }
+  },
+  "AdminTransferenciaMatricula": {
+    "back": "Retour aux inscriptions",
+    "title": "Transférer l'inscription",
+    "subtitle": "Choisissez le type de transfert et vérifiez les informations académiques avant de continuer.",
+    "enrollmentId": "Inscription nº {id}",
+    "loading": "Chargement de l'inscription...",
+    "cancel": "Annuler",
+    "continue": "Continuer",
+    "origin": {
+      "title": "Inscription d'origine",
+      "student": "Étudiant",
+      "enrollment": "Inscription",
+      "institution": "Établissement",
+      "campus": "Campus",
+      "course": "Formation",
+      "class": "Classe",
+      "modality": "Modalité",
+      "courseSemester": "Semestre",
+      "module": "Module"
+    },
+    "chooseType": {
+      "title": "Quel type de transfert sera effectué ?",
+      "description": "Sélectionnez l'option correspondant à la destination académique de l'étudiant."
+    },
+    "types": {
+      "campus": {
+        "title": "Autre campus",
+        "description": "Transférer l'étudiant vers un autre campus du même établissement."
+      },
+      "courseClass": {
+        "title": "Autre formation ou classe",
+        "description": "Changer la classe actuelle ou transférer vers une autre formation compatible."
+      },
+      "phanyxInstitution": {
+        "title": "Autre établissement PHANYX",
+        "description": "Transférer l'inscription vers un autre établissement utilisant PHANYX."
+      },
+      "externalInstitution": {
+        "title": "Établissement externe",
+        "description": "Enregistrer un transfert vers un établissement qui n'utilise pas PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Réaffectation de l'étudiant",
+        "description": "Réaffecter cette inscription à un autre dossier étudiant tout en conservant l'historique."
+      }
+    },
+    "errors": {
+      "load": "Impossible de charger les informations de l'inscription.",
+      "chooseType": "Sélectionnez un type de transfert pour continuer."
+    },
+    "courseClassTransfer": {
+      "back": "Retour aux options de transfert",
+      "title": "Autre formation ou groupe",
+      "description": "Modifiez uniquement le groupe ou transférez l'inscription vers une autre formation disponible sur le campus actuel.",
+      "loading": "Chargement des options de transfert...",
+      "currentEnrollment": "Inscription actuelle",
+      "student": "Étudiant",
+      "currentCampus": "Campus actuel",
+      "currentCourse": "Formation actuelle",
+      "currentClass": "Groupe actuel",
+      "whatChange": "Que souhaitez-vous modifier ?",
+      "whatChangeHelp": "PHANYX affiche uniquement les options académiquement admissibles.",
+      "available": "Disponible",
+      "unavailable": "Indisponible",
+      "subjectCount": "{count} matières",
+      "otherCampusNotice": "Pour transférer l'étudiant vers un autre campus, utilisez l'option « Autre campus ».",
+      "classOnly": {
+        "title": "Groupe uniquement",
+        "description": "Conserve la formation et le campus actuels et modifie uniquement le groupe.",
+        "emptyTitle": "Aucun autre groupe disponible",
+        "emptyDescription": "Aucun autre groupe actif n'est disponible sur le campus actuel.",
+        "analyzing": "Analyse de la compatibilité académique..."
+      },
+      "courseAndClass": {
+        "title": "Formation et groupe",
+        "description": "Transfère l'inscription vers une autre formation proposée sur le même campus.",
+        "emptyTitle": "Aucune autre formation disponible",
+        "emptyDescription": "Aucune autre formation active n'est proposée sur ce campus.",
+        "analysisRequired": "Les transferts entre formations nécessitent une analyse du cursus."
+      },
+      "review": {
+        "step": "Révision",
+        "title": "Vérifier le changement de groupe",
+        "originClass": "Groupe d'origine",
+        "destinationClass": "Groupe de destination",
+        "currentSubjects": "Matières actuelles",
+        "compatibleSubjects": "Compatibles",
+        "missingSubjects": "Manquantes",
+        "extraSubjects": "Supplémentaires",
+        "compatibleTitle": "Groupe compatible",
+        "compatibleDescription": "Toutes les matières actives sont disponibles dans le groupe sélectionné.",
+        "incompatibleTitle": "Groupe incompatible",
+        "incompatibleDescription": "Des matières obligatoires sont absentes du groupe de destination.",
+        "validationNotice": "L'analyse a été approuvée. Vérifiez les informations avant de confirmer le transfert."
+      },
+      "errors": {
+        "load": "Impossible de charger les options de formation et de groupe.",
+        "analysis": "Impossible d'analyser la compatibilité du groupe.",
+        "dateRequired": "Indiquez la date du transfert.",
+        "reasonRequired": "Saisissez un motif d'au moins 3 caractères.",
+        "confirm": "Impossible de terminer le transfert."
+      },
+      "form": {
+        "title": "Confirmer le transfert",
+        "description": "Renseignez les informations administratives avant d'effectuer le changement de groupe.",
+        "transferDate": "Date du transfert",
+        "reason": "Motif",
+        "reasonPlaceholder": "Ex. : demande de l'étudiant, réorganisation académique...",
+        "observations": "Observations",
+        "observationsPlaceholder": "Informations supplémentaires (facultatif).",
+        "auditNotice": "Après confirmation, PHANYX conservera les anciens liens académiques et enregistrera le mouvement dans l'historique.",
+        "cancel": "Annuler la sélection",
+        "confirm": "Confirmer le transfert",
+        "confirming": "Transfert en cours..."
+      },
+      "success": {
+        "badge": "Transfert terminé",
+        "title": "Changement de groupe effectué avec succès",
+        "description": "L'inscription a été mise à jour et l'historique académique précédent a été conservé.",
+        "transferNumber": "Transfert",
+        "migratedSubjects": "Matières migrées",
+        "origin": "Groupe d'origine",
+        "destination": "Groupe de destination",
+        "backToEnrollments": "Retour aux inscriptions"
+      }
+    }
   }
 }

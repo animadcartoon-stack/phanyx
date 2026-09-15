@@ -173,6 +173,79 @@ function AdminAlunosPage() {
     useTranslations(
       "InternationalPhone"
     );
+
+  function labelStatusMatricula(
+    status?: string | null
+  ) {
+    switch (status) {
+      case "AGUARDANDO":
+        return t("filters.awaitingClass");
+
+      case "A_INICIAR":
+        return t("filters.toStart");
+
+      case "ATIVA":
+        return t("filters.activeEnrollment");
+
+      case "TRANCADA":
+        return t("filters.enrollmentOnHold");
+
+      case "SUSPENSA":
+        return t("filters.suspendedEnrollment");
+
+      case "INTERCAMBIO":
+        return t("filters.exchange");
+
+      case "TRANSFERIDA":
+        return t("filters.transferredEnrollment");
+
+      case "CONCLUIDA":
+        return t("filters.completedEnrollment");
+
+      case "CANCELADA":
+        return t("filters.canceledEnrollment");
+
+      default:
+        return t("table.withoutEnrollment");
+    }
+  }
+
+  function classeStatusMatricula(
+    status?: string | null
+  ) {
+    switch (status) {
+      case "ATIVA":
+        return "border-emerald-300 bg-emerald-100 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200";
+
+      case "A_INICIAR":
+        return "border-blue-300 bg-blue-100 text-blue-900 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-200";
+
+      case "AGUARDANDO":
+        return "border-amber-300 bg-amber-100 text-amber-900 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200";
+
+      case "TRANCADA":
+        return "border-orange-300 bg-orange-100 text-orange-900 dark:border-orange-800 dark:bg-orange-950/60 dark:text-orange-200";
+
+      case "SUSPENSA":
+        return "border-rose-300 bg-rose-100 text-rose-900 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-200";
+
+      case "INTERCAMBIO":
+        return "border-violet-300 bg-violet-100 text-violet-900 dark:border-violet-800 dark:bg-violet-950/60 dark:text-violet-200";
+
+      case "TRANSFERIDA":
+        return "border-cyan-300 bg-cyan-100 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-200";
+
+      case "CONCLUIDA":
+        return "border-teal-300 bg-teal-100 text-teal-900 dark:border-teal-800 dark:bg-teal-950/60 dark:text-teal-200";
+
+      case "CANCELADA":
+        return "border-red-300 bg-red-100 text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-200";
+
+      default:
+        return "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+    }
+  }
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -3414,15 +3487,44 @@ function AdminAlunosPage() {
                               )}
                             </div>
                           ) : (
-                            "â€”"
+                            "\u2014"
                           )}
                         </td>
 
-                        <td className="px-4 py-4 align-top text-slate-700">
-                          <div>{a.matricula || "-"}</div>
-                          <div className="text-xs text-slate-500">
-                            {resumo?.status || t("table.withoutLink")}
-                          </div>
+                                                <td className="px-4 py-4 align-top text-slate-700 dark:text-slate-200">
+                          {resumo ? (
+                            <>
+                              <div className="font-medium">
+                                {resumo.numeroMatricula ||
+                                  a.matricula ||
+                                  "\u2014"}
+                              </div>
+
+                              <div className="mt-2">
+                                <span
+                                  className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${classeStatusMatricula(
+                                    resumo.status
+                                  )}`}
+                                >
+                                  {labelStatusMatricula(
+                                    resumo.status
+                                  )}
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="font-medium text-slate-400 dark:text-slate-500">
+                                {"\u2014"}
+                              </div>
+
+                              <div className="mt-2">
+                                <span className="inline-flex rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                  {t("table.withoutEnrollment")}
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </td>
 
                         <td className="px-4 py-4 align-top">
