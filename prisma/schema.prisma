@@ -2964,6 +2964,26 @@ model CreditoIAPublico {
   updatedAt DateTime @updatedAt
 }
 
+model CreditoIAMovimento {
+  id Int @id @default(autoincrement())
+
+  userId       Int?
+  emailPublico String?
+
+  quantidade Int
+  origem     String
+
+  asaasPaymentId String  @unique
+  asaasEventoId  String? @unique
+
+  externalReference String?
+
+  criadoEm DateTime @default(now())
+
+  @@index([userId, criadoEm])
+  @@index([emailPublico, criadoEm])
+}
+
 model Ouvidoria {
   id            Int @id @default(autoincrement())
   instituicaoId Int

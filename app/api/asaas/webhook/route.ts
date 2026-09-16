@@ -567,6 +567,144 @@ async function buscarPagamentoDoCheckoutAsaas(
   }
 }
 
+
+function ehErroPrismaUniqueCreditoIa(erro: unknown) {
+  if (
+    !erro ||
+    typeof erro !== "object" ||
+    !("code" in erro) ||
+    (erro as { code?: string }).code !== "P2002"
+  ) {
+    return false;
+  }
+
+  const meta =
+    "meta" in erro
+      ? (
+          erro as {
+            meta?: {
+              target?: unknown;
+            };
+          }
+        ).meta
+      : undefined;
+
+  const target = meta?.target;
+
+  const campos =
+    Array.isArray(target)
+      ? target.map(String)
+      : typeof target === "string"
+        ? [target]
+        : [];
+
+  return campos.some(
+    (campo) =>
+      campo.includes("asaasPaymentId") ||
+      campo.includes("asaasEventoId")
+  );
+}
+
+async function creditarPagamentoIa(params: {
+  userId?: number | null;
+  emailPublico?: string | null;
+  creditos: number;
+  origem: "USUARIO" | "PUBLICO";
+  asaasPaymentId: string;
+  asaasEventoId?: string | null;
+  externalReference: string;
+}) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      /*
+       * O movimento e criado antes do incremento e dentro
+       * da mesma transacao.
+       *
+       * asaasPaymentId e UNIQUE no banco.
+       */
+      await tx.creditoIAMovimento.create({
+        data: {
+          userId: params.userId || null,
+          emailPublico:
+            params.emailPublico?.trim().toLowerCase() || null,
+          quantidade: params.creditos,
+          origem: params.origem,
+          asaasPaymentId: params.asaasPaymentId,
+          asaasEventoId: params.asaasEventoId || null,
+          externalReference: params.externalReference,
+        },
+      });
+
+      if (params.origem === "USUARIO") {
+        if (!params.userId) {
+          throw new Error(
+            "Usuario ausente para credito IA autenticado."
+          );
+        }
+
+        await tx.creditoIA.upsert({
+          where: {
+            userId: params.userId,
+          },
+          update: {
+            saldo: {
+              increment: params.creditos,
+            },
+          },
+          create: {
+            userId: params.userId,
+            saldo: params.creditos,
+          },
+        });
+
+        return;
+      }
+
+      if (!params.emailPublico) {
+        throw new Error(
+          "Email ausente para credito IA publico."
+        );
+      }
+
+      const email =
+        params.emailPublico.trim().toLowerCase();
+
+      await tx.creditoIAPublico.upsert({
+        where: {
+          email,
+        },
+        update: {
+          saldo: {
+            increment: params.creditos,
+          },
+        },
+        create: {
+          email,
+          saldo: params.creditos,
+        },
+      });
+    });
+
+    return {
+      processado: true,
+      duplicado: false,
+    };
+  } catch (erro) {
+    /*
+     * P2002:
+     * o payment.id ou evento ja foi registrado.
+     */
+    if (ehErroPrismaUniqueCreditoIa(erro)) {
+      return {
+        processado: true,
+        duplicado: true,
+      };
+    }
+
+    throw erro;
+  }
+}
+
 export async function POST(req: Request) {
   try {
     if (!ASAAS_WEBHOOK_TOKEN) {
@@ -664,79 +802,182 @@ if (resultadoBiblioteca.reconhecido) {
   });
 }
 
-    // 🚀 CRÉDITOS IA
-    if (
-      (event === "PAYMENT_RECEIVED" ||
-        event === "PAYMENT_CONFIRMED" ||
-        event === "PAYMENT_AUTHORIZED") &&
-      externalReference?.startsWith("CREDITOS_IA:")
-    ) {
-      try {
-        const partes = externalReference.split(":");
+    // CREDITOS IA
+    const creditoIaUsuario =
+      Boolean(
+        externalReference?.startsWith(
+          "CREDITOS_IA:"
+        )
+      );
 
-        const userId = Number(partes[1]);
-        const creditos = Number(partes[2]);
+    const creditoIaPublico =
+      Boolean(
+        externalReference?.startsWith(
+          "CREDITOS_IA_PUBLICO:"
+        )
+      );
+
+    const referenciaCreditoIa =
+      creditoIaUsuario || creditoIaPublico;
+
+    /*
+     * PAYMENT_AUTHORIZED nao libera saldo.
+     *
+     * O saldo e liberado somente em uma confirmacao
+     * financeira. Caso CONFIRMED e RECEIVED cheguem
+     * para o mesmo pagamento, asaasPaymentId UNIQUE
+     * impede credito duplicado.
+     */
+    const eventoConfirmaCreditoIa =
+      event === "PAYMENT_CONFIRMED" ||
+      event === "PAYMENT_RECEIVED";
+
+    if (
+      referenciaCreditoIa &&
+      !eventoConfirmaCreditoIa
+    ) {
+      return NextResponse.json({
+        ok: true,
+        creditoIa: true,
+        aguardandoConfirmacao: true,
+        event,
+      });
+    }
+
+    if (
+      referenciaCreditoIa &&
+      eventoConfirmaCreditoIa
+    ) {
+      if (!asaasPaymentId) {
+        throw new Error(
+          "Pagamento de creditos IA confirmado sem payment.id do Asaas."
+        );
+      }
+
+      const eventoId =
+        String(body?.id || "").trim() || null;
+
+      if (creditoIaUsuario) {
+        const partes =
+          String(externalReference).split(":");
+
+        const userId =
+          Number(partes[1]);
+
+        const creditos =
+          Number(partes[2]);
 
         if (
-          externalReference?.startsWith("CREDITOS_IA_PUBLICO:") &&
-          ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED", "PAYMENT_AUTHORIZED"].includes(event)
+          !Number.isInteger(userId) ||
+          userId <= 0 ||
+          !Number.isInteger(creditos) ||
+          creditos <= 0
         ) {
-          const [, email, creditosTexto] = externalReference.split(":");
-          const creditos = Number(creditosTexto);
+          throw new Error(
+            "Referencia de creditos IA invalida: " +
+              externalReference
+          );
+        }
 
-          if (email && creditos > 0) {
-            await prisma.creditoIAPublico.upsert({
-              where: { email: email.toLowerCase() },
-              update: {
-                saldo: {
-                  increment: creditos,
-                },
-              },
-              create: {
-                email: email.toLowerCase(),
-                saldo: creditos,
-              },
-            });
+        const resultado =
+          await creditarPagamentoIa({
+            userId,
+            creditos,
+            origem: "USUARIO",
+            asaasPaymentId,
+            asaasEventoId: eventoId,
+            externalReference,
+          });
+
+        console.info(
+          "[ASAAS][CREDITOS_IA]",
+          {
+            origem: "USUARIO",
+            userId,
+            creditos,
+            asaasPaymentId,
+            duplicado: resultado.duplicado,
           }
-
-          return NextResponse.json({ received: true });
-        }
-
-        if (!userId || !creditos) {
-          console.error("Webhook créditos IA inválido:", externalReference);
-          return NextResponse.json({ ok: true });
-        }
-
-        await prisma.creditoIA.upsert({
-          where: {
-            userId,
-          },
-          update: {
-            saldo: {
-              increment: creditos,
-            },
-          },
-          create: {
-            userId,
-            saldo: creditos,
-          },
-        });
-
-        console.log(
-          `✅ Créditos IA adicionados | usuário ${userId} | +${creditos}`
         );
 
         return NextResponse.json({
           ok: true,
-          creditosAdicionados: true,
-        });
-      } catch (error) {
-        console.error("Erro webhook créditos IA:", error);
-
-        return NextResponse.json({
-          ok: true,
+          creditosAdicionados:
+            !resultado.duplicado,
+          jaProcessado:
+            resultado.duplicado,
         });
       }
+
+      const prefixo =
+        "CREDITOS_IA_PUBLICO:";
+
+      const conteudo =
+        String(externalReference).slice(
+          prefixo.length
+        );
+
+      const ultimoSeparador =
+        conteudo.lastIndexOf(":");
+
+      if (ultimoSeparador <= 0) {
+        throw new Error(
+          "Referencia publica de creditos IA invalida: " +
+            externalReference
+        );
+      }
+
+      const email =
+        conteudo
+          .slice(0, ultimoSeparador)
+          .trim()
+          .toLowerCase();
+
+      const creditos =
+        Number(
+          conteudo.slice(
+            ultimoSeparador + 1
+          )
+        );
+
+      if (
+        !email ||
+        !Number.isInteger(creditos) ||
+        creditos <= 0
+      ) {
+        throw new Error(
+          "Referencia publica de creditos IA invalida: " +
+            externalReference
+        );
+      }
+
+      const resultado =
+        await creditarPagamentoIa({
+          emailPublico: email,
+          creditos,
+          origem: "PUBLICO",
+          asaasPaymentId,
+          asaasEventoId: eventoId,
+          externalReference,
+        });
+
+      console.info(
+        "[ASAAS][CREDITOS_IA_PUBLICO]",
+        {
+          email,
+          creditos,
+          asaasPaymentId,
+          duplicado: resultado.duplicado,
+        }
+      );
+
+      return NextResponse.json({
+        ok: true,
+        creditosAdicionados:
+          !resultado.duplicado,
+        jaProcessado:
+          resultado.duplicado,
+      });
     }
 
     // 🚀 BLOCO — MATRÍCULA IBE
