@@ -4434,6 +4434,81 @@ export default function BibliotecaItemPage() {
                           </button>
                         ) : null}
 
+                        {exemplar.emprestimoAtivo ? (
+                          <div
+                            data-bib-emprestimo-resumo="true"
+                            style={{
+                              width: "100%",
+                              gridColumn: "1 / -1",
+                              display: "grid",
+                              gridTemplateColumns:
+                                "repeat(auto-fit, minmax(150px, 1fr))",
+                              gap: "10px",
+                              marginBottom: "4px",
+                            }}
+                          >
+                            <div
+                              className="bib-detail-item"
+                              style={{
+                                display: "grid",
+                                gap: "4px",
+                              }}
+                            >
+                              <span>
+                                {ui("renewalBorrower")}
+                              </span>
+
+                              <strong>
+                                {
+                                  exemplar.emprestimoAtivo
+                                    .usuario.nome
+                                }
+                              </strong>
+                            </div>
+
+                            <div
+                              className="bib-detail-item"
+                              style={{
+                                display: "grid",
+                                gap: "4px",
+                              }}
+                            >
+                              <span>
+                                {ui(
+                                  "renewalCurrentDueDate"
+                                )}
+                              </span>
+
+                              <strong>
+                                {formatarData(
+                                  exemplar
+                                    .emprestimoAtivo
+                                    .vencimentoEm,
+                                )}
+                              </strong>
+                            </div>
+
+                            <div
+                              className="bib-detail-item"
+                              style={{
+                                display: "grid",
+                                gap: "4px",
+                              }}
+                            >
+                              <span>
+                                {ui("renewalCount")}
+                              </span>
+
+                              <strong>
+                                {
+                                  exemplar.emprestimoAtivo
+                                    .quantidadeRenovacoes
+                                }/{limiteRenovacoes}
+                              </strong>
+                            </div>
+                          </div>
+                        ) : null}
+
                         {podeGerenciarRenovacoes &&
                         !impersonacao &&
                         exemplar.tipo === "FISICO" &&
