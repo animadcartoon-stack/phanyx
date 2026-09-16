@@ -4633,12 +4633,12 @@ export default function BibliotecaItemPage() {
 
               {!carregandoReservas && !erroReservas ? (
                 <>
-                  <div>
+                  <div className="px-5 pb-4">
                     <strong>
                       {ui("activeReservationsTitle")}
                     </strong>
 
-                    <p>
+                    <p className="mt-1">
                       {ui("activeReservationsDescription")}
                     </p>
                   </div>
@@ -4757,12 +4757,12 @@ export default function BibliotecaItemPage() {
                     </div>
                   )}
 
-                  <div>
+                  <div className="px-5 pt-6 pb-4">
                     <strong>
                       {ui("reservationHistoryTitle")}
                     </strong>
 
-                    <p>
+                    <p className="mt-1">
                       {ui("reservationHistoryDescription")}
                     </p>
                   </div>
