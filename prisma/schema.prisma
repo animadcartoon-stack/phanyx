@@ -8672,6 +8672,7 @@ enum StatusItemMatricula {
   TRANCADO
   REPROVADO
   CANCELADO
+  TRANSFERIDO
 }
 
 enum StatusPresencaAula {

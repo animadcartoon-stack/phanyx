@@ -460,61 +460,20 @@ function AdminMatriculasPage() {
     setLoading(true);
 
     try {
-      let matriculasCarregadas = false;
-      let ultimoErroMatriculas: unknown = null;
+      try {
+        const resMat = await fetch(
+          modoQuarentena
+            ? "/api/matricula?quarentena=1"
+            : "/api/matricula",
+          {
+          credentials: "include",
+          cache: "no-store",
+        });
 
-      for (
-        let tentativaMatriculas = 1;
-        tentativaMatriculas <= 4;
-        tentativaMatriculas += 1
-      ) {
-        try {
-          const resMat = await fetch(
-            modoQuarentena
-              ? "/api/matricula?quarentena=1"
-              : "/api/matricula",
-            {
-              credentials: "include",
-              cache: "no-store",
-            }
-          );
-
-          const dataMat =
-            await resMat
-              .json()
-              .catch(() => null);
-
-          if (
-            !resMat.ok ||
-            !Array.isArray(dataMat)
-          ) {
-            throw new Error(
-              "Falha ao carregar matriculas. HTTP " +
-                resMat.status
-            );
-          }
-
-          setMatriculas(dataMat);
-          matriculasCarregadas = true;
-          break;
-
-        } catch (error) {
-          ultimoErroMatriculas = error;
-
-          if (tentativaMatriculas < 4) {
-            await new Promise(
-              (resolve) =>
-                setTimeout(resolve, 700)
-            );
-          }
-        }
-      }
-
-      if (!matriculasCarregadas) {
-        console.error(
-          "Erro ao carregar matriculas:",
-          ultimoErroMatriculas
-        );
+        const dataMat = await resMat.json();
+        setMatriculas(Array.isArray(dataMat) ? dataMat : []);
+      } catch (error) {
+        console.error("Erro ao carregar matrículas:", error);
         setMatriculas([]);
       }
 
