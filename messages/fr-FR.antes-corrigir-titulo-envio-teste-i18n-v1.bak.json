@@ -16076,8 +16076,7 @@
         "sendFailed": "Le message de test n'a pas pu être envoyé.",
         "generic": "Erreur lors de l'envoi du message de test."
       },
-      "phonePlaceholder": "Ex. : 33 6 12 34 56 78",
-      "title": "Envoi de test contr?l?"
+      "phonePlaceholder": "Ex. : 33 6 12 34 56 78"
     },
     "history": {
       "title": "Historique des messages",

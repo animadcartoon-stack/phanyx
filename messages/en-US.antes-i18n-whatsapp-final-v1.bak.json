@@ -16000,40 +16000,16 @@
       "connectGenericError": "Error connecting WhatsApp Business.",
       "disconnectFailed": "WhatsApp Business could not be disconnected.",
       "disconnectSuccess": "WhatsApp Business disconnected successfully.",
-      "disconnectGenericError": "Error disconnecting WhatsApp Business.",
-      "modalTitle": "Connect WhatsApp Business",
-      "modalDescription": "Enter the identifiers provided by Meta for this institutional account.",
-      "phoneNumberIdPlaceholder": "WhatsApp Business phone number ID",
-      "accessTokenLabel": "Access token",
-      "accessTokenPlaceholder": "Token provided by Meta",
-      "accessTokenHelp": "The token will be sent directly to the PHANYX server and stored securely.",
-      "disconnectTitle": "Disconnect WhatsApp?",
-      "disconnectDescription": "Automatic messages will be stopped. The message history will remain preserved in PHANYX.",
-      "disconnecting": "Disconnecting..."
+      "disconnectGenericError": "Error disconnecting WhatsApp Business."
     },
     "setup": {
       "closeAria": "Close instructions",
       "alreadyHaveData": "I already have the details",
-      "goToConfiguration": "Go to the configuration page",
-      "title": "Before connecting WhatsApp",
-      "description": "PHANYX integration uses Meta's official WhatsApp Business Platform.",
-      "mobileAppWarningTitle": "The WhatsApp Business mobile app alone is not sufficient for this integration.",
-      "mobileAppWarningDescription": "The institution must configure a number on the WhatsApp Business Platform, also known as the Cloud API.",
-      "requirementsTitle": "The institution will need:",
-      "requirements": {
-        "realNumber": "A real institutional number authorized by Meta.",
-        "phoneNumberId": "The Phone Number ID of the connected number.",
-        "wabaId": "The WhatsApp Business Account ID, also known as the WABA ID.",
-        "permanentToken": "A permanent token with the required permissions.",
-        "approvedTemplates": "Message templates approved by Meta."
-      },
-      "securityDescription": "The credentials will be linked only to the authenticated institution. The token will be encrypted and will not be displayed again after connection."
+      "goToConfiguration": "Go to the configuration page"
     },
     "common": {
       "active": "Active",
-      "inactive": "Inactive",
-      "cancel": "Cancel",
-      "optional": "Optional"
+      "inactive": "Inactive"
     },
     "header": {
       "connected": "Connected",
@@ -16076,9 +16052,7 @@
       "errors": {
         "sendFailed": "The test message could not be sent.",
         "generic": "Error sending the test message."
-      },
-      "phonePlaceholder": "e.g. 1 202 555 0123",
-      "title": "Controlled test message"
+      }
     },
     "history": {
       "title": "Message history",

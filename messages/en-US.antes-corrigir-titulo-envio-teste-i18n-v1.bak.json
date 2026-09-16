@@ -16077,8 +16077,7 @@
         "sendFailed": "The test message could not be sent.",
         "generic": "Error sending the test message."
       },
-      "phonePlaceholder": "e.g. 1 202 555 0123",
-      "title": "Controlled test message"
+      "phonePlaceholder": "e.g. 1 202 555 0123"
     },
     "history": {
       "title": "Message history",

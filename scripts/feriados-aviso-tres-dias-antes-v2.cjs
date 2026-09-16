@@ -1,28 +1,135 @@
 ﻿const fs = require("fs");
 
-const caminho =
+const pagina =
   "app/master/feriados/page.tsx";
 
-const bruto =
-  fs.readFileSync(caminho, "utf8");
+function lerArquivo(caminho) {
+  const bruto =
+    fs.readFileSync(
+      caminho,
+      "utf8"
+    );
 
-const eol =
-  bruto.includes("\r\n")
-    ? "\r\n"
-    : "\n";
+  return {
+    eol:
+      bruto.includes("\r\n")
+        ? "\r\n"
+        : "\n",
+    texto:
+      bruto.replace(
+        /\r\n/g,
+        "\n"
+      ),
+  };
+}
 
-let texto =
-  bruto.replace(/\r\n/g, "\n");
-
-function exigir(condicao, mensagem) {
+function exigir(
+  condicao,
+  mensagem
+) {
   if (!condicao) {
-    throw new Error(mensagem);
+    throw new Error(
+      mensagem
+    );
   }
 }
 
+function localizarObjeto(
+  conteudo,
+  nome
+) {
+  const posChave =
+    conteudo.indexOf(
+      `"${nome}"`
+    );
+
+  exigir(
+    posChave !== -1,
+    `${nome} não encontrado.`
+  );
+
+  const inicio =
+    conteudo.indexOf(
+      "{",
+      posChave
+    );
+
+  exigir(
+    inicio !== -1,
+    `Objeto ${nome} inválido.`
+  );
+
+  let profundidade = 0;
+  let emString = false;
+  let escape = false;
+
+  for (
+    let i = inicio;
+    i < conteudo.length;
+    i++
+  ) {
+    const char =
+      conteudo[i];
+
+    if (emString) {
+      if (escape) {
+        escape = false;
+      } else if (
+        char === "\\"
+      ) {
+        escape = true;
+      } else if (
+        char === '"'
+      ) {
+        emString = false;
+      }
+
+      continue;
+    }
+
+    if (char === '"') {
+      emString = true;
+      continue;
+    }
+
+    if (char === "{") {
+      profundidade++;
+    } else if (
+      char === "}"
+    ) {
+      profundidade--;
+
+      if (
+        profundidade === 0
+      ) {
+        return {
+          inicio,
+          fim: i,
+        };
+      }
+    }
+  }
+
+  throw new Error(
+    `Fim de ${nome} não encontrado.`
+  );
+}
+
 /* =========================================================
-   1. FUNÇÃO PARA DESLOCAR DATA CIVIL
+   1. PÁGINA MASTER
 ========================================================= */
+
+const arquivoPagina =
+  lerArquivo(
+    pagina
+  );
+
+let texto =
+  arquivoPagina.texto;
+
+/* ---------------------------------------------------------
+   Helper de data civil
+--------------------------------------------------------- */
 
 if (
   !texto.includes(
@@ -33,14 +140,17 @@ if (
     /function dataInput\(valor: string \| null \| undefined\) \{\s*if \(!valor\) \{\s*return "";\s*\}\s*return valor\.slice\(0, 10\);\s*\}/m;
 
   const achado =
-    texto.match(regexDataInput);
+    texto.match(
+      regexDataInput
+    );
 
   exigir(
     achado,
     "Função dataInput não encontrada."
   );
 
-  const novo =
+  texto = texto.replace(
+    regexDataInput,
 `${achado[0]}
 
 function deslocarDataCivil(
@@ -59,324 +169,303 @@ function deslocarDataCivil(
   const data =
     new Date(
       Date.UTC(
-        Number(resultado[1]),
-        Number(resultado[2]) - 1,
-        Number(resultado[3])
+        Number(
+          resultado[1]
+        ),
+        Number(
+          resultado[2]
+        ) - 1,
+        Number(
+          resultado[3]
+        )
       )
     );
 
   data.setUTCDate(
-    data.getUTCDate() + dias
+    data.getUTCDate() +
+      dias
   );
 
   return data
     .toISOString()
     .slice(0, 10);
-}`;
-
-  texto = texto.replace(
-    regexDataInput,
-    novo
+}`
   );
 }
 
-/* =========================================================
-   2. FUNÇÃO DE ATUALIZAÇÃO DA DATA DO FERIADO
-========================================================= */
+/* ---------------------------------------------------------
+   Data do feriado passa a preencher a janela padrão
+--------------------------------------------------------- */
 
 if (
   !texto.includes(
-    "function atualizarDataFeriado("
+    "inicioExibicao: deslocarDataCivil("
   )
 ) {
-  const regexAbrirNovo =
-    /  function abrirNovo\(\) \{\s*setEditandoId\(null\);\s*setForm\(formularioVazio\(\)\);\s*setLocaleAtivo\(localeAtual\);\s*setModalAberto\(true\);\s*\}/m;
-
-  const achado =
-    texto.match(regexAbrirNovo);
+  const regexOnChange =
+    /onChange=\{\(event\) =>\s*setForm\(\(atual\) => \(\{\s*\.\.\.atual,\s*dataFeriado: event\.target\.value,\s*\}\)\)\s*\}/m;
 
   exigir(
-    achado,
-    "Função abrirNovo não encontrada."
+    regexOnChange.test(
+      texto
+    ),
+    "onChange de dataFeriado não encontrado."
   );
 
-  const novo =
-`${achado[0]}
+  texto =
+    texto.replace(
+      regexOnChange,
+`onChange={(event) => {
+                          const valor =
+                            event.target.value;
 
-  function atualizarDataFeriado(
-    valor: string
-  ) {
-    setForm((atual) => ({
-      ...atual,
-
-      dataFeriado:
-        valor,
-
-      /*
-       * Padrão PHANYX:
-       * aviso começa 3 dias antes
-       * e termina no próprio feriado.
-       *
-       * Os campos continuam editáveis
-       * para exceções definidas pelo Master.
-       */
-      inicioExibicao:
-        valor
-          ? deslocarDataCivil(
-              valor,
-              -3
-            )
-          : "",
-
-      fimExibicao:
-        valor,
-    }));
-  }`;
-
-  texto = texto.replace(
-    regexAbrirNovo,
-    novo
-  );
-}
-
-/* =========================================================
-   3. TROCA O onChange DO CAMPO DATA DO FERIADO
-========================================================= */
-
-if (
-  !texto.includes(
-    "atualizarDataFeriado(event.target.value)"
-  )
-) {
-  const antigo =
-`                        onChange={(event) =>
                           setForm((atual) => ({
                             ...atual,
-                            dataFeriado: event.target.value,
-                          }))
-                        }`;
 
-  exigir(
-    texto.includes(antigo),
-    "onChange atual de dataFeriado não encontrado."
-  );
+                            dataFeriado:
+                              valor,
 
-  const novo =
-`                        onChange={(event) =>
-                          atualizarDataFeriado(
-                            event.target.value
-                          )
-                        }`;
+                            inicioExibicao:
+                              valor
+                                ? deslocarDataCivil(
+                                    valor,
+                                    -3
+                                  )
+                                : "",
 
-  texto = texto.replace(
-    antigo,
-    novo
-  );
+                            fimExibicao:
+                              valor,
+                          }));
+                        }}`
+    );
 }
 
-/* =========================================================
-   4. EXPLICAÇÃO VISUAL
-========================================================= */
+/* ---------------------------------------------------------
+   Hint abaixo da data
+--------------------------------------------------------- */
 
 if (
   !texto.includes(
     't("form.threeDaysHint")'
   )
 ) {
-  const marcador =
-`                        value={form.dataFeriado}
-                        onChange={(event) =>
-                          atualizarDataFeriado(
-                            event.target.value
-                          )
-                        }`;
-
-  const pos =
-    texto.indexOf(marcador);
+  const posValor =
+    texto.indexOf(
+      "value={form.dataFeriado}"
+    );
 
   exigir(
-    pos !== -1,
-    "Campo dataFeriado atualizado não encontrado."
+    posValor !== -1,
+    "value={form.dataFeriado} não encontrado."
   );
 
   const fimInput =
     texto.indexOf(
       "/>",
-      pos
+      posValor
     );
 
   exigir(
     fimInput !== -1,
-    "Fim do input de dataFeriado não encontrado."
+    "Fim do input dataFeriado não encontrado."
   );
 
-  const inserirEm =
+  const insercao =
     fimInput + 2;
 
   texto =
-    texto.slice(0, inserirEm) +
+    texto.slice(
+      0,
+      insercao
+    ) +
 `
                       <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                        {t("form.threeDaysHint")}
+                        {t(
+                          "form.threeDaysHint"
+                        )}
                       </p>` +
-    texto.slice(inserirEm);
+    texto.slice(
+      insercao
+    );
 }
 
 /* =========================================================
-   5. TRADUÇÕES
+   2. TRADUÇÕES
 ========================================================= */
 
 const traducoes = {
   "pt-BR":
-    "Ao escolher a data, o PHANYX inicia o aviso automaticamente 3 dias antes e encerra no próprio dia do feriado. O período pode ser ajustado manualmente.",
+    "Ao escolher a data do feriado, o PHANYX inicia o aviso automaticamente 3 dias antes e encerra no próprio dia. O período pode ser ajustado manualmente.",
 
   "pt-PT":
-    "Ao escolher a data, o PHANYX inicia o aviso automaticamente 3 dias antes e termina no próprio dia do feriado. O período pode ser ajustado manualmente.",
+    "Ao escolher a data do feriado, o PHANYX inicia automaticamente o aviso 3 dias antes e termina no próprio dia. O período pode ser ajustado manualmente.",
 
   "en-US":
-    "When you select the date, PHANYX automatically starts the notice 3 days before and ends it on the holiday itself. The period can still be adjusted manually.",
+    "When you select the holiday date, PHANYX automatically starts the notice 3 days before and ends it on the holiday itself. You can adjust the period manually.",
 
   "es-ES":
-    "Al seleccionar la fecha, PHANYX inicia automáticamente el aviso 3 días antes y lo finaliza el mismo día festivo. El período puede ajustarse manualmente.",
+    "Al seleccionar la fecha del festivo, PHANYX inicia automáticamente el aviso 3 días antes y lo finaliza el mismo día. El período puede ajustarse manualmente.",
 
   "fr-FR":
-    "Lorsque vous sélectionnez la date, PHANYX commence automatiquement l’avis 3 jours avant et le termine le jour férié. La période peut toujours être ajustée manuellement.",
+    "Lorsque vous sélectionnez la date du jour férié, PHANYX commence automatiquement l’avis 3 jours avant et le termine le jour même. La période peut être ajustée manuellement.",
 };
 
-const mensagensParaGravar = {};
+const mensagens =
+  {};
 
 for (
-  const [locale, valor]
-  of Object.entries(traducoes)
+  const [
+    locale,
+    valor,
+  ]
+  of Object.entries(
+    traducoes
+  )
 ) {
-  const arquivo =
+  const caminho =
     `messages/${locale}.json`;
 
-  const original =
-    fs.readFileSync(
-      arquivo,
-      "utf8"
+  const arquivo =
+    lerArquivo(
+      caminho
     );
 
-  const eolMsg =
-    original.includes("\r\n")
-      ? "\r\n"
-      : "\n";
+  let conteudo =
+    arquivo.texto;
 
-  let msg =
-    original.replace(/\r\n/g, "\n");
+  const master =
+    localizarObjeto(
+      conteudo,
+      "MasterHolidays"
+    );
 
-  const json =
-    JSON.parse(msg);
+  const trechoMaster =
+    conteudo.slice(
+      master.inicio,
+      master.fim + 1
+    );
+
+  const formRelativo =
+    localizarObjeto(
+      trechoMaster,
+      "form"
+    );
+
+  const inicioForm =
+    master.inicio +
+    formRelativo.inicio;
+
+  const fimForm =
+    master.inicio +
+    formRelativo.fim;
+
+  let blocoForm =
+    conteudo.slice(
+      inicioForm,
+      fimForm + 1
+    );
 
   if (
-    json?.MasterHolidays?.form?.threeDaysHint
+    !blocoForm.includes(
+      '"threeDaysHint"'
+    )
   ) {
-    mensagensParaGravar[arquivo] = {
-      texto: msg,
-      eol: eolMsg,
-    };
+    const regexDate =
+      /^([ \t]*)"date"\s*:\s*"([^"]*)",?\s*$/m;
 
-    continue;
+    const achado =
+      blocoForm.match(
+        regexDate
+      );
+
+    exigir(
+      achado,
+      `form.date não encontrado em ${locale}.`
+    );
+
+    const indent =
+      achado[1];
+
+    const linhaOriginal =
+      achado[0].trimEnd();
+
+    const linhaComVirgula =
+      linhaOriginal.endsWith(",")
+        ? linhaOriginal
+        : linhaOriginal + ",";
+
+    blocoForm =
+      blocoForm.replace(
+        achado[0],
+`${indent}${linhaComVirgula.trimStart()}
+${indent}"threeDaysHint": ${JSON.stringify(
+          valor
+        )},`
+      );
+
+    conteudo =
+      conteudo.slice(
+        0,
+        inicioForm
+      ) +
+      blocoForm +
+      conteudo.slice(
+        fimForm + 1
+      );
   }
 
-  const posMaster =
-    msg.indexOf(
-      '"MasterHolidays"'
-    );
-
-  exigir(
-    posMaster !== -1,
-    `MasterHolidays não encontrado em ${locale}.`
+  JSON.parse(
+    conteudo
   );
 
-  const posForm =
-    msg.indexOf(
-      '"form"',
-      posMaster
-    );
-
-  exigir(
-    posForm !== -1,
-    `MasterHolidays.form não encontrado em ${locale}.`
-  );
-
-  const posDate =
-    msg.indexOf(
-      '"date"',
-      posForm
-    );
-
-  exigir(
-    posDate !== -1,
-    `form.date não encontrado em ${locale}.`
-  );
-
-  const fimLinha =
-    msg.indexOf(
-      "\n",
-      posDate
-    );
-
-  exigir(
-    fimLinha !== -1,
-    `Fim da linha form.date não encontrado em ${locale}.`
-  );
-
-  msg =
-    msg.slice(0, fimLinha) +
-`,
-      "threeDaysHint": ${JSON.stringify(
-        valor
-      )}` +
-    msg.slice(fimLinha);
-
-  JSON.parse(msg);
-
-  mensagensParaGravar[arquivo] = {
-    texto: msg,
-    eol: eolMsg,
+  mensagens[
+    caminho
+  ] = {
+    texto:
+      conteudo,
+    eol:
+      arquivo.eol,
   };
 }
 
 /* =========================================================
-   6. SÓ GRAVA DEPOIS DE VALIDAR TUDO
+   3. SÓ GRAVA APÓS TODAS AS VALIDAÇÕES
 ========================================================= */
 
 fs.writeFileSync(
-  caminho,
+  pagina,
   texto.replace(
     /\n/g,
-    eol
+    arquivoPagina.eol
   ),
   "utf8"
 );
 
 for (
   const [
+    caminho,
     arquivo,
-    dados,
   ]
   of Object.entries(
-    mensagensParaGravar
+    mensagens
   )
 ) {
   fs.writeFileSync(
-    arquivo,
-    dados.texto.replace(
+    caminho,
+    arquivo.texto.replace(
       /\n/g,
-      dados.eol
+      arquivo.eol
     ),
     "utf8"
   );
 }
 
 console.log(
-  "✓ Aviso padrão passa a começar 3 dias antes"
+  "✓ Aviso padrão começa 3 dias antes"
 );
 
 console.log(
-  "✓ Fim da exibição é preenchido com o próprio dia do feriado"
+  "✓ Fim padrão é o próprio dia do feriado"
 );
 
 console.log(

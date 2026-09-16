@@ -4029,7 +4029,11 @@
       "hideRegistration": "Ocultar registo",
       "newStudent": "Novo aluno",
       "clearFilters": "Limpar filtros",
-      "backToStudents": "Voltar para alunos"
+      "backToStudents": "Voltar para alunos",
+      "exportStudents": "Exportar",
+      "exportingStudents": "A exportar...",
+      "exportStudentsSuccess": "Folha de alunos exportada com sucesso.",
+      "exportStudentsError": "N?o foi poss?vel exportar os alunos."
     },
     "stats": {
       "total": "Total de alunos",
@@ -11969,6 +11973,7 @@
       "countryValidity": "País onde o feriado é válido",
       "countryHint": "Este país define quais instituições receberão o aviso. Não muda ao trocar o idioma da tradução.",
       "date": "Data do feriado",
+      "threeDaysHint": "Ao escolher a data do feriado, o PHANYX inicia automaticamente o aviso 3 dias antes e termina no próprio dia. O período pode ser ajustado manualmente.",
       "displayStart": "Início da apresentação",
       "displayEnd": "Fim da apresentação",
       "type": "Abrangência",
@@ -15536,7 +15541,8 @@
       "positiveReviewsDetail": "{count} manifestações positivas identificadas pela IA.",
       "attentionNeeded": "Atenção necessária",
       "pendingExists": "Existem manifestações a aguardar resposta institucional.",
-      "noPending": "Não existem manifestações pendentes neste momento."
+      "noPending": "Não existem manifestações pendentes neste momento.",
+      "recordsLabel": "Registos"
     },
     "alerts": {
       "title": "Alertas reputacionais",
@@ -15558,7 +15564,8 @@
     "evolution": {
       "title": "Evolução reputacional",
       "description": "A IA PHANYX acompanha tendências reputacionais e crescimento institucional.",
-      "aiTrend": "Tendência IA"
+      "aiTrend": "Tendência IA",
+      "reputationLabel": "Reputação"
     },
     "analysisCards": {
       "alertLabel": "ALERTA IA",
@@ -15636,7 +15643,8 @@
     "common": {
       "cancel": "Cancelar",
       "closeAnalysis": "Fechar análise",
-      "stars": "{count} estrelas"
+      "stars": "{count} estrelas",
+      "understood": "Entendi"
     },
     "toasts": {
       "copied": "Resposta copiada para a área de transferência.",
@@ -15710,6 +15718,336 @@
           "resolvedDescription": "O ciclo reputacional desta avaliação foi encerrado.",
           "waitingDescription": "A avaliação ainda necessita de acompanhamento administrativo."
         }
+      }
+    },
+    "engagementModal": {
+      "eyebrow": "INSIGHT DE ENVOLVIMENTO",
+      "title": "Crescimento detetado",
+      "growthIdentified": "Crescimento identificado",
+      "growthDescription": "O perfil institucional apresentou um aumento de visualizações, pesquisas e interações esta semana.",
+      "aiSuggestion": "Sugestão da IA PHANYX",
+      "suggestionDescription": "Aproveite este momento para publicar novos conteúdos, responder rapidamente às mensagens e incentivar os alunos a deixarem avaliações positivas."
+    },
+    "positiveModal": {
+      "eyebrow": "RELATÓRIO POSITIVO",
+      "title": "Reputação saudável",
+      "aiAnalysis": "Análise IA PHANYX",
+      "analysisDescription": "A reputação institucional permanece estável e positiva. Não foi detetada qualquer oscilação crítica nos últimos dias.",
+      "recommendations": "Recomendações",
+      "recommendation1": "Continue a incentivar avaliações positivas",
+      "recommendation2": "Responda rapidamente aos comentários",
+      "recommendation3": "Mantenha consistência nas redes sociais",
+      "recommendation4": "Mantenha um tempo de resposta saudável"
+    },
+    "weekdays": {
+      "mon": "Seg",
+      "tue": "Ter",
+      "wed": "Qua",
+      "thu": "Qui",
+      "fri": "Sex",
+      "sat": "Sáb",
+      "sun": "Dom",
+      "today": "Hoje"
+    },
+    "manifestationTypes": {
+      "complaint": "Reclamação",
+      "suggestion": "Sugestão",
+      "praise": "Elogio",
+      "record": "Manifestação"
+    },
+    "origins": {
+      "student": "Aluno",
+      "teacher": "Professor",
+      "ombudsman": "Ouvidoria",
+      "studentInitial": "AL",
+      "teacherInitial": "PR",
+      "ombudsmanInitial": "OU"
+    },
+    "googleBusinessPreparation": {
+      "title": "Google Business em preparação",
+      "description": "O PHANYX já está preparado para ligar avaliações e métricas do Google Business. Algumas informações dependem da disponibilização da API pela Google."
+    }
+  },
+  "AdminIntegracoesWhatsapp": {
+    "connection": {
+      "disconnect": "Desligar",
+      "connectWhatsAppBusiness": "Ligar WhatsApp Business",
+      "connecting": "A ligar...",
+      "connectAccount": "Ligar conta",
+      "keepConnected": "Manter ligado",
+      "testing": "A testar...",
+      "testConnection": "Testar ligação",
+      "validationFailed": "Não foi possível validar a ligação ao WhatsApp Business.",
+      "validationSuccess": "Ligação ao WhatsApp Business validada com sucesso.",
+      "validationGenericError": "Erro ao testar a ligação do WhatsApp.",
+      "connectFailed": "Não foi possível ligar o WhatsApp Business.",
+      "connectSuccess": "WhatsApp Business ligado com sucesso.",
+      "connectGenericError": "Erro ao ligar o WhatsApp Business.",
+      "disconnectFailed": "Não foi possível desligar o WhatsApp Business.",
+      "disconnectSuccess": "WhatsApp Business desligado com sucesso.",
+      "disconnectGenericError": "Erro ao desligar o WhatsApp Business.",
+      "modalTitle": "Ligar WhatsApp Business",
+      "modalDescription": "Introduza os identificadores fornecidos pela Meta para esta conta institucional.",
+      "phoneNumberIdPlaceholder": "ID do número no WhatsApp Business",
+      "accessTokenLabel": "Token de acesso",
+      "accessTokenPlaceholder": "Token fornecido pela Meta",
+      "accessTokenHelp": "O token será enviado diretamente para o servidor do PHANYX e armazenado de forma protegida.",
+      "disconnectTitle": "Desligar WhatsApp?",
+      "disconnectDescription": "Os envios automáticos serão interrompidos. O histórico de mensagens permanecerá preservado no PHANYX.",
+      "disconnecting": "A desligar..."
+    },
+    "setup": {
+      "closeAria": "Fechar orientações",
+      "alreadyHaveData": "Já tenho os dados",
+      "goToConfiguration": "Ir para a página de configuração",
+      "title": "Antes de ligar o WhatsApp",
+      "description": "A integração do PHANYX utiliza a plataforma oficial WhatsApp Business da Meta.",
+      "mobileAppWarningTitle": "A aplicação WhatsApp Business no telemóvel não é suficiente para esta integração.",
+      "mobileAppWarningDescription": "A instituição precisa de configurar um número na WhatsApp Business Platform, também chamada Cloud API.",
+      "requirementsTitle": "A instituição precisará de:",
+      "requirements": {
+        "realNumber": "Um número institucional real e autorizado pela Meta.",
+        "phoneNumberId": "O Phone Number ID do número ligado.",
+        "wabaId": "O WhatsApp Business Account ID, também designado WABA ID.",
+        "permanentToken": "Um token permanente com as permissões necessárias.",
+        "approvedTemplates": "Modelos de mensagens aprovados pela Meta."
+      },
+      "securityDescription": "As credenciais serão associadas apenas à instituição autenticada. O token será encriptado e não voltará a ser apresentado depois da ligação."
+    },
+    "common": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "cancel": "Cancelar",
+      "optional": "Opcional"
+    },
+    "header": {
+      "connected": "Ligado",
+      "notConnected": "Não ligado",
+      "title": "WhatsApp institucional",
+      "description": "Ligue o WhatsApp Business oficial desta instituição ao PHANYX e escolha os acontecimentos que poderão gerar comunicações automáticas aos utilizadores."
+    },
+    "overview": {
+      "connectionActive": "Ligação ativa",
+      "waitingConnection": "A aguardar ligação",
+      "tradeName": "Nome comercial",
+      "number": "Número",
+      "phoneNumberId": "Phone Number ID",
+      "webhook": "Webhook",
+      "lastSync": "Última sincronização",
+      "credential": "Credencial",
+      "notActiveYet": "Ainda não ativo",
+      "credentialProtected": "Protegida e armazenada",
+      "notConfigured": "Não configurada",
+      "title": "Conta WhatsApp Business",
+      "description": "Dados da conta ligada exclusivamente a esta instituição.",
+      "lastFailure": "Última falha registada"
+    },
+    "summary": {
+      "activeAutomations": "Automações ativas",
+      "templates": "Templates",
+      "registeredMessages": "Mensagens registadas",
+      "title": "Resumo",
+      "activeAutomationsValue": "{active} de {total}"
+    },
+    "test": {
+      "description": "Envie o modelo aprovado de reunião criada para validar o envio, o registo no PHANYX e os retornos do webhook. Este teste não ativa as automações.",
+      "recipientName": "Nome do destinatário",
+      "recipientPlaceholder": "Ex.: Denise",
+      "sending": "A enviar teste...",
+      "send": "Enviar mensagem de teste",
+      "acceptedByMeta": "Mensagem aceite pela Meta",
+      "phanyxRecord": "Registo PHANYX",
+      "success": "Mensagem de teste enviada e registada no PHANYX",
+      "errors": {
+        "sendFailed": "Não foi possível enviar a mensagem de teste.",
+        "generic": "Erro ao enviar a mensagem de teste."
+      },
+      "phonePlaceholder": "Ex.: 351 912 345 678",
+      "title": "Envio controlado de teste"
+    },
+    "history": {
+      "title": "Histórico de mensagens",
+      "description": "Acompanhe o envio, a entrega, a leitura e possíveis falhas comunicadas pela Meta.",
+      "empty": "Ainda não foi registada nenhuma mensagem.",
+      "recipientNotProvided": "Destinatário não indicado",
+      "template": "Modelo",
+      "phanyxRecord": "Registo PHANYX",
+      "metaFailure": "Falha comunicada pela Meta",
+      "errorCode": "Código",
+      "waiting": "A aguardar",
+      "no": "Não",
+      "webhookReturns": "Retornos recebidos pelo webhook",
+      "status": {
+        "created": "CRIADA",
+        "pending": "PENDENTE",
+        "processing": "A PROCESSAR",
+        "scheduled": "AGENDADA",
+        "acceptedByMeta": "ACEITE PELA META",
+        "delivered": "ENTREGUE",
+        "read": "LIDA",
+        "failed": "FALHOU",
+        "cancelled": "CANCELADA"
+      },
+      "milestones": {
+        "created": "Criada",
+        "acceptedByMeta": "Aceite pela Meta",
+        "delivered": "Entregue",
+        "read": "Lida",
+        "failed": "Falhou",
+        "registered": "Registada"
+      },
+      "viewTechnicalReturn": "Ver retorno técnico"
+    },
+    "loading": "A carregar a configuração do WhatsApp institucional...",
+    "configuration": {
+      "loadFailed": "Não foi possível carregar a configuração do WhatsApp.",
+      "loadGenericError": "Erro ao carregar a integração do WhatsApp.",
+      "saveFailed": "Não foi possível guardar as configurações.",
+      "saveSuccess": "Configurações do WhatsApp guardadas com sucesso.",
+      "saveGenericError": "Erro ao guardar a configuração do WhatsApp."
+    },
+    "automations": {
+      "connectFirst": "Ligue primeiro o WhatsApp Business da instituição para disponibilizar as automações.",
+      "saving": "A guardar...",
+      "saveSettings": "Guardar configurações",
+      "groups": {
+        "meetings": "Reuniões",
+        "service": "Atendimento",
+        "messages": "Mensagens",
+        "academic": "Académico",
+        "financial": "Financeiro"
+      },
+      "items": {
+        "meetingCreated": {
+          "title": "Reunião criada",
+          "description": "Avisa os participantes quando for marcada uma nova reunião."
+        },
+        "meetingUpdated": {
+          "title": "Reunião alterada",
+          "description": "Avisa os participantes quando a data, a hora ou outras informações forem alteradas."
+        },
+        "meetingCancelled": {
+          "title": "Reunião cancelada",
+          "description": "Avisa os participantes quando uma reunião for cancelada."
+        },
+        "meetingReminder": {
+          "title": "Lembrete de reunião",
+          "description": "Permite enviar lembretes antes de reuniões programadas."
+        },
+        "ombudsmanAnswered": {
+          "title": "Resposta do serviço de atendimento",
+          "description": "Avisa o utilizador quando a sua solicitação receber uma resposta."
+        },
+        "studentToTeacher": {
+          "title": "Mensagem de aluno para professor",
+          "description": "Avisa o professor quando um aluno enviar uma pergunta ou mensagem."
+        },
+        "teacherToStudent": {
+          "title": "Mensagem de professor para aluno",
+          "description": "Avisa o aluno quando o professor enviar uma resposta."
+        },
+        "activityPublished": {
+          "title": "Atividade publicada",
+          "description": "Avisa os alunos quando for publicada uma nova atividade académica."
+        },
+        "examPublished": {
+          "title": "Prova publicada",
+          "description": "Avisa os alunos quando uma prova ficar disponível."
+        },
+        "documentAvailable": {
+          "title": "Documento disponível",
+          "description": "Avisa quando um novo documento estiver disponível no PHANYX."
+        },
+        "academicNotice": {
+          "title": "Avisos académicos",
+          "description": "Permite comunicações académicas institucionais importantes."
+        },
+        "tuitionDueSoon": {
+          "title": "Mensalidade a vencer",
+          "description": "Permite avisar o responsável antes do vencimento da mensalidade."
+        },
+        "tuitionOverdue": {
+          "title": "Mensalidade vencida",
+          "description": "Permite avisar quando existir uma mensalidade vencida."
+        },
+        "paymentConfirmed": {
+          "title": "Pagamento confirmado",
+          "description": "Avisa o utilizador quando um pagamento for confirmado."
+        }
+      },
+      "title": "Envio automático pelo WhatsApp",
+      "description": "Ative o canal e escolha os eventos do PHANYX que poderão gerar mensagens.",
+      "toggleLabel": "Envio por WhatsApp"
+    },
+    "security": {
+      "title": "Segurança e isolamento institucional",
+      "description": "As credenciais pertencem exclusivamente à instituição autenticada. O token não volta a ser apresentado depois da ligação e não deve ser partilhado com outra instituição."
+    },
+    "templates": {
+      "section": {
+        "title": "Modelos de mensagens",
+        "description": "Configure os modelos utilizados pelo PHANYX nas comunicações automáticas do WhatsApp.",
+        "configured": "Modelos configurados"
+      },
+      "types": {
+        "meetingCreated": {
+          "title": "Reunião criada",
+          "description": "Mensagem enviada aos participantes quando é agendada uma nova reunião."
+        },
+        "meetingReminder": {
+          "title": "Lembrete de reunião",
+          "description": "Mensagem enviada no dia anterior ou no dia da reunião."
+        }
+      },
+      "status": {
+        "approved": "Aprovado pela Meta",
+        "awaitingMeta": "A aguardar a Meta",
+        "notSaved": "Ainda não guardado"
+      },
+      "editor": {
+        "metaCategory": "Categoria Meta",
+        "internalName": "Nome interno",
+        "metaName": "Nome do modelo na Meta",
+        "metaNameHelp": "Utilize apenas letras minúsculas, números e underscore. O nome deve corresponder exatamente ao modelo aprovado na Meta.",
+        "messageContent": "Conteúdo da mensagem",
+        "footer": "Rodapé",
+        "footerPlaceholder": "Mensagem automática enviada pelo PHANYX."
+      },
+      "variablesTitle": "Variáveis disponíveis",
+      "variables": {
+        "participantName": "Nome do participante",
+        "meetingTitle": "Título da reunião",
+        "dateTime": "Data e hora",
+        "accessLink": "Ligação ou orientação de acesso",
+        "reminderTime": "Hora do lembrete, como \"amanhã às 19:30\" ou \"hoje às 19:30\"",
+        "meetingLink": "Ligação da reunião"
+      },
+      "approval": {
+        "title": "Aprovação da Meta pendente",
+        "description": "O modelo pode ser preparado e guardado no PHANYX antes da aprovação. Nenhum envio real será efetuado enquanto não estiver aprovado pela Meta."
+      },
+      "reminder": {
+        "title": "Como funciona o lembrete",
+        "description": "O mesmo modelo será utilizado tanto para o aviso do dia anterior como para o aviso do próprio dia. A variável {variable} receberá automaticamente textos como \"amanhã às 19:30\" ou \"hoje às 19:30\"."
+      },
+      "record": {
+        "saved": "Modelo guardado no PHANYX • ID {id}",
+        "notSaved": "Este modelo ainda não foi guardado no PHANYX."
+      },
+      "actions": {
+        "syncing": "A sincronizar...",
+        "syncMeta": "Sincronizar com a Meta",
+        "saving": "A guardar modelo...",
+        "save": "Guardar modelo"
+      },
+      "messages": {
+        "loadFailed": "Não foi possível carregar os modelos do WhatsApp.",
+        "syncFailed": "Não foi possível sincronizar os modelos com a Meta.",
+        "syncSuccess": "Modelos sincronizados com a Meta.",
+        "syncGenericError": "Erro ao sincronizar os modelos com a Meta.",
+        "saveFailed": "Não foi possível guardar o modelo de mensagem.",
+        "saveSuccess": "Modelo \"{name}\" guardado com sucesso.",
+        "saveGenericError": "Erro ao guardar o modelo de mensagem."
       }
     }
   }

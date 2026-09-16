@@ -15760,10 +15760,10 @@
       "connectAccount": "Conectar conta",
       "keepConnected": "Manter conectado",
       "testing": "Testando...",
-      "testConnection": "Testar conexão",
-      "validationFailed": "Não foi possível validar a conexão com o WhatsApp Business.",
-      "validationSuccess": "Conexão com o WhatsApp Business validada com sucesso.",
-      "validationGenericError": "Erro ao testar a conexão do WhatsApp.",
+      "testConnection": "Testar conex?o",
+      "validationFailed": "N?o foi poss?vel validar a conex?o com o WhatsApp Business.",
+      "validationSuccess": "Conex?o com o WhatsApp Business validada com sucesso.",
+      "validationGenericError": "Erro ao testar a conex?o do WhatsApp.",
       "connectFailed": "Não foi possível conectar o WhatsApp Business.",
       "connectSuccess": "WhatsApp Business conectado com sucesso.",
       "connectGenericError": "Erro ao conectar o WhatsApp Business.",
@@ -15806,36 +15806,36 @@
     },
     "header": {
       "connected": "Conectado",
-      "notConnected": "Não conectado",
+      "notConnected": "N?o conectado",
       "title": "WhatsApp institucional",
       "description": "Conecte o WhatsApp Business oficial desta instituição ao PHANYX e escolha quais acontecimentos poderão gerar comunicações automáticas aos usuários."
     },
     "overview": {
-      "connectionActive": "Conexão ativa",
-      "waitingConnection": "Aguardando conexão",
+      "connectionActive": "Conex?o ativa",
+      "waitingConnection": "Aguardando conex?o",
       "tradeName": "Nome comercial",
-      "number": "Número",
+      "number": "N?mero",
       "phoneNumberId": "Phone Number ID",
       "webhook": "Webhook",
-      "lastSync": "Última sincronização",
+      "lastSync": "?ltima sincroniza??o",
       "credential": "Credencial",
-      "notActiveYet": "Ainda não ativo",
+      "notActiveYet": "Ainda n?o ativo",
       "credentialProtected": "Protegida e armazenada",
-      "notConfigured": "Não configurada",
+      "notConfigured": "N?o configurada",
       "title": "Conta WhatsApp Business",
       "description": "Dados da conta conectada exclusivamente a esta instituição.",
       "lastFailure": "Última falha registrada"
     },
     "summary": {
-      "activeAutomations": "Automações ativas",
+      "activeAutomations": "Automa??es ativas",
       "templates": "Templates",
       "registeredMessages": "Mensagens registradas",
       "title": "Resumo",
       "activeAutomationsValue": "{active} de {total}"
     },
     "test": {
-      "description": "Envie o modelo aprovado de reunião criada para validar o envio, o registro no PHANYX e os retornos do webhook. Este teste não ativa as automações.",
-      "recipientName": "Nome do destinatário",
+      "description": "Envie o modelo aprovado de reuni?o criada para validar o envio, o registro no PHANYX e os retornos do webhook. Este teste n?o ativa as automa??es.",
+      "recipientName": "Nome do destinat?rio",
       "recipientPlaceholder": "Ex.: Denise",
       "sending": "Enviando teste...",
       "send": "Enviar mensagem de teste",
@@ -15843,23 +15843,22 @@
       "phanyxRecord": "Registro PHANYX",
       "success": "Mensagem de teste enviada e registrada no PHANYX",
       "errors": {
-        "sendFailed": "Não foi possível enviar a mensagem de teste.",
+        "sendFailed": "N?o foi poss?vel enviar a mensagem de teste.",
         "generic": "Erro ao enviar a mensagem de teste."
       },
-      "phonePlaceholder": "Ex.: 55 11 99999-9999",
-      "title": "Envio controlado de teste"
+      "phonePlaceholder": "Ex.: 55 11 99999-9999"
     },
     "history": {
-      "title": "Histórico de mensagens",
-      "description": "Acompanhe o envio, a entrega, a leitura e possíveis falhas informadas pela Meta.",
-      "empty": "Nenhuma mensagem foi registrada até o momento.",
-      "recipientNotProvided": "Destinatário não informado",
+      "title": "Hist?rico de mensagens",
+      "description": "Acompanhe o envio, a entrega, a leitura e poss?veis falhas informadas pela Meta.",
+      "empty": "Nenhuma mensagem foi registrada at? o momento.",
+      "recipientNotProvided": "Destinat?rio n?o informado",
       "template": "Modelo",
       "phanyxRecord": "Registro PHANYX",
       "metaFailure": "Falha informada pela Meta",
-      "errorCode": "Código",
+      "errorCode": "C?digo",
       "waiting": "Aguardando",
-      "no": "Não",
+      "no": "N?o",
       "webhookReturns": "Retornos recebidos pelo webhook",
       "status": {
         "created": "CRIADA",
@@ -15880,7 +15879,7 @@
         "failed": "Falhou",
         "registered": "Registrada"
       },
-      "viewTechnicalReturn": "Ver retorno técnico"
+      "viewTechnicalReturn": "Ver retorno t?cnico"
     },
     "loading": "Carregando configuração do WhatsApp institucional...",
     "configuration": {

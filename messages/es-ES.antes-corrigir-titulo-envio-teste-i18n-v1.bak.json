@@ -16076,8 +16076,7 @@
         "sendFailed": "No se pudo enviar el mensaje de prueba.",
         "generic": "Error al enviar el mensaje de prueba."
       },
-      "phonePlaceholder": "Ej.: 34 612 345 678",
-      "title": "Env?o controlado de prueba"
+      "phonePlaceholder": "Ej.: 34 612 345 678"
     },
     "history": {
       "title": "Historial de mensajes",

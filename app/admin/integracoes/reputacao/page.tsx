@@ -82,7 +82,69 @@ export default function ReputacaoPage() {
     }
   }
 
-  const [scoreAnimado, setScoreAnimado] = useState(0);
+  function traduzirTipoManifestacao(
+  tipo: unknown
+) {
+  switch (String(tipo ?? "")) {
+    case "Reclama\u00e7\u00e3o":
+      return t(
+        "manifestationTypes.complaint"
+      );
+
+    case "Sugest\u00e3o":
+      return t(
+        "manifestationTypes.suggestion"
+      );
+
+    case "Elogio":
+      return t(
+        "manifestationTypes.praise"
+      );
+
+    default:
+      return t(
+        "manifestationTypes.record"
+      );
+  }
+}
+
+function traduzirOrigem(
+  origem: unknown
+) {
+  switch (String(origem ?? "")) {
+    case "ALUNO":
+      return t("origins.student");
+
+    case "PROFESSOR":
+      return t("origins.teacher");
+
+    default:
+      return t("origins.ombudsman");
+  }
+}
+
+function traduzirIniciaisOrigem(
+  origem: unknown
+) {
+  switch (String(origem ?? "")) {
+    case "ALUNO":
+      return t(
+        "origins.studentInitial"
+      );
+
+    case "PROFESSOR":
+      return t(
+        "origins.teacherInitial"
+      );
+
+    default:
+      return t(
+        "origins.ombudsmanInitial"
+      );
+  }
+}
+
+const [scoreAnimado, setScoreAnimado] = useState(0);
 
   const [planoInstituicao, setPlanoInstituicao] = useState("ESSENCIAL");
 const [statusAssinatura, setStatusAssinatura] = useState("ATIVA");
@@ -205,17 +267,90 @@ useEffect(() => {
 }, [notificacaoFechada]);
 
   
+function traduzirDiaCurto(
+  valor: unknown
+) {
+  const chave =
+    String(valor ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/\.$/, "");
+
+  switch (chave) {
+    case "seg":
+    case "segunda":
+    case "segunda-feira":
+      return t("weekdays.mon");
+
+    case "ter":
+    case "ter\u00e7a":
+    case "ter\u00e7a-feira":
+      return t("weekdays.tue");
+
+    case "qua":
+    case "quarta":
+    case "quarta-feira":
+      return t("weekdays.wed");
+
+    case "qui":
+    case "quinta":
+    case "quinta-feira":
+      return t("weekdays.thu");
+
+    case "sex":
+    case "sexta":
+    case "sexta-feira":
+      return t("weekdays.fri");
+
+    case "s\u00e1b":
+    case "sab":
+    case "s\u00e1bado":
+      return t("weekdays.sat");
+
+    case "dom":
+    case "domingo":
+      return t("weekdays.sun");
+
+    case "hoje":
+      return t("weekdays.today");
+
+    default:
+      return String(valor ?? "");
+  }
+}
+
 const graficoDinamico = useMemo(
   () => [
-    { nome: "Seg", score: scoreAtual - 10 },
-    { nome: "Ter", score: scoreAtual - 7 },
-    { nome: "Qua", score: scoreAtual - 8 },
-    { nome: "Qui", score: scoreAtual - 4 },
-    { nome: "Sex", score: scoreAtual - 2 },
-    { nome: "Sáb", score: scoreAtual - 1 },
-    { nome: "Hoje", score: scoreAtual },
+    {
+      nome: t("weekdays.mon"),
+      score: scoreAtual - 10,
+    },
+    {
+      nome: t("weekdays.tue"),
+      score: scoreAtual - 7,
+    },
+    {
+      nome: t("weekdays.wed"),
+      score: scoreAtual - 8,
+    },
+    {
+      nome: t("weekdays.thu"),
+      score: scoreAtual - 4,
+    },
+    {
+      nome: t("weekdays.fri"),
+      score: scoreAtual - 2,
+    },
+    {
+      nome: t("weekdays.sat"),
+      score: scoreAtual - 1,
+    },
+    {
+      nome: t("weekdays.today"),
+      score: scoreAtual,
+    },
   ],
-  [scoreAtual]
+  [scoreAtual, t]
 );
 
 const gerarRespostaIA = (
@@ -295,14 +430,15 @@ const avaliacoesSimuladas = (resumoReputacao?.ultimos || []).map((item: any) => 
   id: item.id,
   origem: item.origem,
   tipo: item.tipo,
-  nome: `${item.tipo || "Manifestação"} • ${
-    item.origem === "ALUNO"
-      ? "Aluno"
-      : item.origem === "PROFESSOR"
-      ? "Professor"
-      : "Ouvidoria"
-  }`,
-  iniciais: item.origem === "ALUNO" ? "AL" : item.origem === "PROFESSOR" ? "PR" : "OU",
+  nome: `${traduzirTipoManifestacao(
+    item.tipo
+  )} \u2022 ${traduzirOrigem(
+    item.origem
+  )}`,
+  iniciais:
+    traduzirIniciaisOrigem(
+      item.origem
+    ),
   nota: item.sentimento === "CRITICO" ? 2 : item.sentimento === "POSITIVO" ? 5 : 4,
   sentimento:
     item.sentimento === "CRITICO"
@@ -600,13 +736,13 @@ const dadosReputacao = useMemo(() => {
   if (!evolucao.length) return [];
 
   return evolucao.map((item: any) => ({
-    semana: item.dia,
+    semana: traduzirDiaCurto(item.dia),
     reputacao: Math.max(
       0,
       Math.min(100, 80 + item.resolvidos * 5 - item.criticos * 10)
     ),
   }));
-}, [resumoReputacao]);
+}, [resumoReputacao, t]);
 
 const timelineAvaliacoes = (
   resumoReputacao?.ultimos || []
@@ -706,10 +842,18 @@ const crescimentoReal =
 
 const melhorDiaReal =
   resumoReputacao?.evolucao7Dias?.length
-    ? resumoReputacao.evolucao7Dias.reduce((melhor: any, atual: any) =>
-        atual.total > melhor.total ? atual : melhor
-      ).dia
-    : "—";
+    ? traduzirDiaCurto(
+        resumoReputacao.evolucao7Dias.reduce(
+          (
+            melhor: any,
+            atual: any
+          ) =>
+            atual.total > melhor.total
+              ? atual
+              : melhor
+        ).dia
+      )
+    : "\u2014";
 
 const tempoMedioReal =
   resumoReputacao?.tempoMedioHoras !== null &&
@@ -1012,6 +1156,51 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
   color: #083344 !important;
 }
 
+
+  /* REP FILTER I18N */
+  .phanyx-reputacao-page .rep-filter-inactive {
+    background: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .rep-filter-inactive:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+  }
+
+  html.dark:not([data-theme="system"])
+    .phanyx-reputacao-page
+    .rep-filter-inactive {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+  }
+
+  html.dark:not([data-theme="system"])
+    .phanyx-reputacao-page
+    .rep-filter-inactive:hover {
+    background: #334155 !important;
+    color: #ffffff !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-reputacao-page
+    .rep-filter-inactive {
+    background: #303030 !important;
+    color: #f5f5f5 !important;
+    border-color: #525252 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-reputacao-page
+    .rep-filter-inactive:hover {
+    background: #404040 !important;
+    color: #ffffff !important;
+  }
+
 `}</style>
 
       <div>
@@ -1127,13 +1316,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
       <div className="rep-pastel-amber rounded-2xl border p-6">
         <h2 className="text-lg font-black text-amber-900">
-          Google Business em preparação
+          {t("googleBusinessPreparation.title")}
         </h2>
 
         <p className="mt-2 text-sm leading-6 text-amber-800">
-          O PHANYX já está pronto para conectar avaliações e métricas do Google
-          Business. Algumas informações dependem da liberação da API pelo
-          Google.
+          {t("googleBusinessPreparation.description")}
         </p>
       </div>
 
@@ -1284,7 +1471,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         className={`rounded-full px-4 py-2 text-xs font-black transition-all ${
           filtroAvaliacoes === filtro
             ? "bg-blue-600 text-white shadow-lg"
-            : "border border-slate-400 bg-slate-800 text-slate-100 hover:bg-slate-700"
+            : "rep-filter-inactive"
         }`}
       >
         {traduzirFiltro(filtro)}
@@ -1344,7 +1531,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart
   data={(resumoReputacao?.evolucao7Dias || []).map((item: any) => ({
-    dia: item.dia,
+    dia: traduzirDiaCurto(item.dia),
     valor: item.total,
   }))}
 >
@@ -1377,6 +1564,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         <Area
           type="monotone"
           dataKey="valor"
+          name={t("executive.recordsLabel")}
           stroke="#22d3ee"
           strokeWidth={3}
           fill="url(#colorIA)"
@@ -1485,7 +1673,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 ) : (
   avaliacoesFiltradas.map((avaliacao) => (
     <div
-      key={avaliacao.nome}
+      key={avaliacao.id}
       className="rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -1580,6 +1768,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
         <Line
           type="monotone"
           dataKey="reputacao"
+          name={t("evolution.reputationLabel")}
           stroke="#2563eb"
           strokeWidth={4}
           dot={{ r: 6 }}
@@ -1712,7 +1901,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
 
   <div className="mt-8 space-y-6">
     {timelineAvaliacoes.map((item, index) => (
-      <div key={`${item.titulo}-${index}`} className="flex gap-4">
+      <div key={item.id} className="flex gap-4">
         <div className="flex flex-col items-center">
           <div
             className={`flex h-11 w-11 items-center justify-center rounded-full text-lg text-white shadow-lg ${obterCorTimeline(
@@ -1968,13 +2157,9 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-600">
-            INSIGHT DE ENGAJAMENTO
-          </p>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-600">{t("engagementModal.eyebrow")}</p>
 
-          <h2 className="mt-3 text-4xl font-black text-slate-900">
-            Crescimento detectado
-          </h2>
+          <h2 className="mt-3 text-4xl font-black text-slate-900">{t("engagementModal.title")}</h2>
         </div>
 
         <button
@@ -1986,35 +2171,22 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       </div>
 
       <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-        <p className="text-sm font-black uppercase tracking-wide text-amber-700">
-          Crescimento identificado
-        </p>
+        <p className="text-sm font-black uppercase tracking-wide text-amber-700">{t("engagementModal.growthIdentified")}</p>
 
-        <p className="mt-3 text-sm leading-7 text-slate-700">
-          O perfil institucional apresentou aumento de visualizações,
-          pesquisas e interações nesta semana.
-        </p>
+        <p className="mt-3 text-sm leading-7 text-slate-700">{t("engagementModal.growthDescription")}</p>
       </div>
 
       <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5">
-        <p className="text-sm font-black uppercase tracking-wide text-blue-700">
-          Sugestão da IA PHANYX
-        </p>
+        <p className="text-sm font-black uppercase tracking-wide text-blue-700">{t("engagementModal.aiSuggestion")}</p>
 
-        <p className="mt-3 text-sm leading-7 text-slate-700">
-          Aproveite este momento para publicar novos conteúdos,
-          responder mensagens rapidamente e incentivar alunos a deixarem
-          avaliações positivas.
-        </p>
+        <p className="mt-3 text-sm leading-7 text-slate-700">{t("engagementModal.suggestionDescription")}</p>
       </div>
 
       <div className="mt-8 flex justify-end">
         <button
           onClick={() => setModalEngajamentoAberto(false)}
           className="rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-white transition hover:scale-[1.03] hover:bg-amber-600"
-        >
-          Entendi
-        </button>
+        >{t("common.understood")}</button>
       </div>
     </div>
   </div>
@@ -2026,13 +2198,9 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-700">
-            RELATÓRIO POSITIVO
-          </p>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-700">{t("positiveModal.eyebrow")}</p>
 
-          <h2 className="mt-3 text-4xl font-black text-slate-900">
-            Reputação saudável
-          </h2>
+          <h2 className="mt-3 text-4xl font-black text-slate-900">{t("positiveModal.title")}</h2>
         </div>
 
         <button
@@ -2044,24 +2212,19 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       </div>
 
       <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-        <p className="text-sm font-black uppercase tracking-wide text-emerald-700">{t("details.aiAnalysis")}</p>
+        <p className="text-sm font-black uppercase tracking-wide text-emerald-700">{t("positiveModal.aiAnalysis")}</p>
 
-        <p className="mt-3 text-sm leading-7 text-slate-700">
-          A reputação institucional permanece estável e positiva.
-          Nenhuma oscilação crítica foi detectada nos últimos dias.
-        </p>
+        <p className="mt-3 text-sm leading-7 text-slate-700">{t("positiveModal.analysisDescription")}</p>
       </div>
 
       <div className="mt-5 rounded-2xl border border-cyan-200 bg-cyan-50 p-5">
-        <p className="text-sm font-black uppercase tracking-wide text-cyan-700">
-          Recomendações
-        </p>
+        <p className="text-sm font-black uppercase tracking-wide text-cyan-700">{t("positiveModal.recommendations")}</p>
 
         <ul className="mt-3 space-y-2 text-sm leading-7 text-slate-700">
-          <li>✅ Continue incentivando avaliações positivas</li>
-          <li>✅ Responda comentários rapidamente</li>
-          <li>✅ Mantenha constância nas redes sociais</li>
-          <li>✅ Preserve tempo de resposta saudável</li>
+          <li>{"\u2705"} {t("positiveModal.recommendation1")}</li>
+          <li>{"\u2705"} {t("positiveModal.recommendation2")}</li>
+          <li>{"\u2705"} {t("positiveModal.recommendation3")}</li>
+          <li>{"\u2705"} {t("positiveModal.recommendation4")}</li>
         </ul>
       </div>
 
@@ -2155,9 +2318,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
       </div>
 
       <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
-        <p className="text-xs font-black uppercase tracking-wide text-blue-700">
-          Análise IA PHANYX
-        </p>
+        <p className="text-xs font-black uppercase tracking-wide text-blue-700">{t("details.aiAnalysis")}</p>
 
         <p className="mt-3 text-sm leading-7 text-slate-700">
           {obterAnaliseIA(avaliacaoSelecionada)}

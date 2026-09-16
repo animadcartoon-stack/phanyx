@@ -16000,40 +16000,16 @@
       "connectGenericError": "Error connecting WhatsApp Business.",
       "disconnectFailed": "WhatsApp Business could not be disconnected.",
       "disconnectSuccess": "WhatsApp Business disconnected successfully.",
-      "disconnectGenericError": "Error disconnecting WhatsApp Business.",
-      "modalTitle": "Connect WhatsApp Business",
-      "modalDescription": "Enter the identifiers provided by Meta for this institutional account.",
-      "phoneNumberIdPlaceholder": "WhatsApp Business phone number ID",
-      "accessTokenLabel": "Access token",
-      "accessTokenPlaceholder": "Token provided by Meta",
-      "accessTokenHelp": "The token will be sent directly to the PHANYX server and stored securely.",
-      "disconnectTitle": "Disconnect WhatsApp?",
-      "disconnectDescription": "Automatic messages will be stopped. The message history will remain preserved in PHANYX.",
-      "disconnecting": "Disconnecting..."
+      "disconnectGenericError": "Error disconnecting WhatsApp Business."
     },
     "setup": {
       "closeAria": "Close instructions",
       "alreadyHaveData": "I already have the details",
-      "goToConfiguration": "Go to the configuration page",
-      "title": "Before connecting WhatsApp",
-      "description": "PHANYX integration uses Meta's official WhatsApp Business Platform.",
-      "mobileAppWarningTitle": "The WhatsApp Business mobile app alone is not sufficient for this integration.",
-      "mobileAppWarningDescription": "The institution must configure a number on the WhatsApp Business Platform, also known as the Cloud API.",
-      "requirementsTitle": "The institution will need:",
-      "requirements": {
-        "realNumber": "A real institutional number authorized by Meta.",
-        "phoneNumberId": "The Phone Number ID of the connected number.",
-        "wabaId": "The WhatsApp Business Account ID, also known as the WABA ID.",
-        "permanentToken": "A permanent token with the required permissions.",
-        "approvedTemplates": "Message templates approved by Meta."
-      },
-      "securityDescription": "The credentials will be linked only to the authenticated institution. The token will be encrypted and will not be displayed again after connection."
+      "goToConfiguration": "Go to the configuration page"
     },
     "common": {
       "active": "Active",
-      "inactive": "Inactive",
-      "cancel": "Cancel",
-      "optional": "Optional"
+      "inactive": "Inactive"
     },
     "header": {
       "connected": "Connected",
@@ -16076,9 +16052,7 @@
       "errors": {
         "sendFailed": "The test message could not be sent.",
         "generic": "Error sending the test message."
-      },
-      "phonePlaceholder": "e.g. 1 202 555 0123",
-      "title": "Controlled test message"
+      }
     },
     "history": {
       "title": "Message history",
@@ -16110,8 +16084,7 @@
         "read": "Read",
         "failed": "Failed",
         "registered": "Registered"
-      },
-      "viewTechnicalReturn": "View technical response"
+      }
     },
     "loading": "Loading institutional WhatsApp configuration...",
     "configuration": {
@@ -16120,150 +16093,6 @@
       "saveFailed": "The settings could not be saved.",
       "saveSuccess": "WhatsApp settings saved successfully.",
       "saveGenericError": "Error saving the WhatsApp configuration."
-    },
-    "automations": {
-      "connectFirst": "Connect the institution's WhatsApp Business account first to enable automations.",
-      "saving": "Saving...",
-      "saveSettings": "Save settings",
-      "groups": {
-        "meetings": "Meetings",
-        "service": "Service",
-        "messages": "Messages",
-        "academic": "Academic",
-        "financial": "Financial"
-      },
-      "items": {
-        "meetingCreated": {
-          "title": "Meeting created",
-          "description": "Notifies participants when a new meeting is scheduled."
-        },
-        "meetingUpdated": {
-          "title": "Meeting updated",
-          "description": "Notifies participants when the date, time or other information changes."
-        },
-        "meetingCancelled": {
-          "title": "Meeting canceled",
-          "description": "Notifies participants when a meeting is canceled."
-        },
-        "meetingReminder": {
-          "title": "Meeting reminder",
-          "description": "Allows reminders to be sent before scheduled meetings."
-        },
-        "ombudsmanAnswered": {
-          "title": "Ombudsman response",
-          "description": "Notifies the user when their submission receives a response."
-        },
-        "studentToTeacher": {
-          "title": "Student-to-teacher message",
-          "description": "Notifies the teacher when a student sends a question or message."
-        },
-        "teacherToStudent": {
-          "title": "Teacher-to-student message",
-          "description": "Notifies the student when the teacher sends a response."
-        },
-        "activityPublished": {
-          "title": "Activity published",
-          "description": "Notifies students when a new academic activity is published."
-        },
-        "examPublished": {
-          "title": "Exam published",
-          "description": "Notifies students when an exam becomes available."
-        },
-        "documentAvailable": {
-          "title": "Document available",
-          "description": "Notifies users when a new document becomes available in PHANYX."
-        },
-        "academicNotice": {
-          "title": "Academic notices",
-          "description": "Allows important institutional academic communications."
-        },
-        "tuitionDueSoon": {
-          "title": "Tuition payment due soon",
-          "description": "Allows the responsible party to be notified before a tuition payment is due."
-        },
-        "tuitionOverdue": {
-          "title": "Overdue tuition payment",
-          "description": "Allows notification when a tuition payment is overdue."
-        },
-        "paymentConfirmed": {
-          "title": "Payment confirmed",
-          "description": "Notifies the user when a payment is confirmed."
-        }
-      },
-      "title": "Automatic WhatsApp messaging",
-      "description": "Enable the channel and choose which PHANYX events can generate messages.",
-      "toggleLabel": "WhatsApp messaging"
-    },
-    "security": {
-      "title": "Security and institutional isolation",
-      "description": "Credentials belong exclusively to the authenticated institution. The token is not displayed again after connection and must not be shared with another institution."
-    },
-    "templates": {
-      "section": {
-        "title": "Message templates",
-        "description": "Configure the templates PHANYX uses for automated WhatsApp communications.",
-        "configured": "Configured templates"
-      },
-      "types": {
-        "meetingCreated": {
-          "title": "Meeting created",
-          "description": "Message sent to participants when a new meeting is scheduled."
-        },
-        "meetingReminder": {
-          "title": "Meeting reminder",
-          "description": "Message sent the day before or on the day of the meeting."
-        }
-      },
-      "status": {
-        "approved": "Approved by Meta",
-        "awaitingMeta": "Awaiting Meta",
-        "notSaved": "Not saved yet"
-      },
-      "editor": {
-        "metaCategory": "Meta category",
-        "internalName": "Internal name",
-        "metaName": "Template name in Meta",
-        "metaNameHelp": "Use lowercase letters, numbers and underscores only. The name must exactly match the template approved in Meta.",
-        "messageContent": "Message content",
-        "footer": "Footer",
-        "footerPlaceholder": "Automated message sent by PHANYX."
-      },
-      "variablesTitle": "Available variables",
-      "variables": {
-        "participantName": "Participant name",
-        "meetingTitle": "Meeting title",
-        "dateTime": "Date and time",
-        "accessLink": "Access link or instructions",
-        "reminderTime": "Reminder time, such as \"tomorrow at 7:30 PM\" or \"today at 7:30 PM\"",
-        "meetingLink": "Meeting link"
-      },
-      "approval": {
-        "title": "Meta approval pending",
-        "description": "The template can be prepared and saved in PHANYX before approval. No actual messages will be sent until it is approved by Meta."
-      },
-      "reminder": {
-        "title": "How the reminder works",
-        "description": "The same template will be used for both the previous-day notice and the same-day notice. The {variable} variable will automatically receive text such as \"tomorrow at 7:30 PM\" or \"today at 7:30 PM\"."
-      },
-      "record": {
-        "saved": "Template saved in PHANYX • ID {id}",
-        "notSaved": "This template has not been saved in PHANYX yet."
-      },
-      "actions": {
-        "syncing": "Syncing...",
-        "syncMeta": "Sync with Meta",
-        "saving": "Saving template...",
-        "save": "Save template"
-      },
-      "messages": {
-        "loadFailed": "The WhatsApp templates could not be loaded.",
-        "syncFailed": "The templates could not be synchronized with Meta.",
-        "syncSuccess": "Templates synchronized with Meta.",
-        "syncGenericError": "Error synchronizing templates with Meta.",
-        "saveFailed": "The message template could not be saved.",
-        "saveSuccess": "Template \"{name}\" saved successfully.",
-        "saveGenericError": "Error saving the message template."
-      }
     }
   }
 }

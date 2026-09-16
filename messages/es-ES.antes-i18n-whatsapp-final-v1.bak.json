@@ -15990,49 +15990,25 @@
       "connectAccount": "Conectar cuenta",
       "keepConnected": "Mantener conectado",
       "testing": "Probando...",
-      "testConnection": "Probar conexión",
-      "validationFailed": "No se pudo validar la conexión con WhatsApp Business.",
-      "validationSuccess": "Conexión con WhatsApp Business validada correctamente.",
-      "validationGenericError": "Error al probar la conexión de WhatsApp.",
+      "testConnection": "Probar conexi?n",
+      "validationFailed": "No se pudo validar la conexi?n con WhatsApp Business.",
+      "validationSuccess": "Conexi?n con WhatsApp Business validada correctamente.",
+      "validationGenericError": "Error al probar la conexi?n de WhatsApp.",
       "connectFailed": "No se pudo conectar WhatsApp Business.",
       "connectSuccess": "WhatsApp Business conectado correctamente.",
       "connectGenericError": "Error al conectar WhatsApp Business.",
       "disconnectFailed": "No se pudo desconectar WhatsApp Business.",
       "disconnectSuccess": "WhatsApp Business desconectado correctamente.",
-      "disconnectGenericError": "Error al desconectar WhatsApp Business.",
-      "modalTitle": "Conectar WhatsApp Business",
-      "modalDescription": "Introduce los identificadores proporcionados por Meta para esta cuenta institucional.",
-      "phoneNumberIdPlaceholder": "ID del número en WhatsApp Business",
-      "accessTokenLabel": "Token de acceso",
-      "accessTokenPlaceholder": "Token proporcionado por Meta",
-      "accessTokenHelp": "El token se enviará directamente al servidor de PHANYX y se almacenará de forma segura.",
-      "disconnectTitle": "¿Desconectar WhatsApp?",
-      "disconnectDescription": "Los envíos automáticos se interrumpirán. El historial de mensajes permanecerá conservado en PHANYX.",
-      "disconnecting": "Desconectando..."
+      "disconnectGenericError": "Error al desconectar WhatsApp Business."
     },
     "setup": {
       "closeAria": "Cerrar instrucciones",
       "alreadyHaveData": "Ya tengo los datos",
-      "goToConfiguration": "Ir a la página de configuración",
-      "title": "Antes de conectar WhatsApp",
-      "description": "La integración de PHANYX utiliza la plataforma oficial WhatsApp Business de Meta.",
-      "mobileAppWarningTitle": "La aplicación móvil WhatsApp Business por sí sola no es suficiente para esta integración.",
-      "mobileAppWarningDescription": "La institución debe configurar un número en WhatsApp Business Platform, también llamada Cloud API.",
-      "requirementsTitle": "La institución necesitará:",
-      "requirements": {
-        "realNumber": "Un número institucional real y autorizado por Meta.",
-        "phoneNumberId": "El Phone Number ID del número conectado.",
-        "wabaId": "El WhatsApp Business Account ID, también llamado WABA ID.",
-        "permanentToken": "Un token permanente con los permisos necesarios.",
-        "approvedTemplates": "Plantillas de mensajes aprobadas por Meta."
-      },
-      "securityDescription": "Las credenciales estarán vinculadas únicamente a la institución autenticada. El token se cifrará y no volverá a mostrarse después de la conexión."
+      "goToConfiguration": "Ir a la página de configuración"
     },
     "common": {
       "active": "Activo",
-      "inactive": "Inactivo",
-      "cancel": "Cancelar",
-      "optional": "Opcional"
+      "inactive": "Inactivo"
     },
     "header": {
       "connected": "Conectado",
@@ -16041,15 +16017,15 @@
       "description": "Conecta el WhatsApp Business oficial de esta institución a PHANYX y elige qué acontecimientos podrán generar comunicaciones automáticas para los usuarios."
     },
     "overview": {
-      "connectionActive": "Conexión activa",
-      "waitingConnection": "Esperando conexión",
+      "connectionActive": "Conexi?n activa",
+      "waitingConnection": "Esperando conexi?n",
       "tradeName": "Nombre comercial",
-      "number": "Número",
+      "number": "N?mero",
       "phoneNumberId": "Phone Number ID",
       "webhook": "Webhook",
-      "lastSync": "Última sincronización",
+      "lastSync": "?ltima sincronizaci?n",
       "credential": "Credencial",
-      "notActiveYet": "Aún no activo",
+      "notActiveYet": "A?n no activo",
       "credentialProtected": "Protegida y almacenada",
       "notConfigured": "No configurada",
       "title": "Cuenta de WhatsApp Business",
@@ -16064,7 +16040,7 @@
       "activeAutomationsValue": "{active} de {total}"
     },
     "test": {
-      "description": "Envía la plantilla aprobada de reunión creada para validar el envío, el registro en PHANYX y las respuestas del webhook. Esta prueba no activa las automatizaciones.",
+      "description": "Env?a la plantilla aprobada de reuni?n creada para validar el env?o, el registro en PHANYX y las respuestas del webhook. Esta prueba no activa las automatizaciones.",
       "recipientName": "Nombre del destinatario",
       "recipientPlaceholder": "Ej.: Denise",
       "sending": "Enviando prueba...",
@@ -16075,19 +16051,17 @@
       "errors": {
         "sendFailed": "No se pudo enviar el mensaje de prueba.",
         "generic": "Error al enviar el mensaje de prueba."
-      },
-      "phonePlaceholder": "Ej.: 34 612 345 678",
-      "title": "Env?o controlado de prueba"
+      }
     },
     "history": {
       "title": "Historial de mensajes",
-      "description": "Acompaña el envío, la entrega, la lectura y posibles fallos informados por Meta.",
-      "empty": "Todavía no se ha registrado ningún mensaje.",
+      "description": "Acompa?a el env?o, la entrega, la lectura y posibles fallos informados por Meta.",
+      "empty": "Todav?a no se ha registrado ning?n mensaje.",
       "recipientNotProvided": "Destinatario no informado",
       "template": "Plantilla",
       "phanyxRecord": "Registro PHANYX",
       "metaFailure": "Fallo informado por Meta",
-      "errorCode": "Código",
+      "errorCode": "C?digo",
       "waiting": "En espera",
       "no": "No",
       "webhookReturns": "Respuestas recibidas por el webhook",
@@ -16098,19 +16072,19 @@
         "scheduled": "PROGRAMADA",
         "acceptedByMeta": "ACEPTADA POR META",
         "delivered": "ENTREGADA",
-        "read": "LEÍDA",
-        "failed": "FALLÓ",
+        "read": "LE?DA",
+        "failed": "FALL?",
         "cancelled": "CANCELADA"
       },
       "milestones": {
         "created": "Creada",
         "acceptedByMeta": "Aceptada por Meta",
         "delivered": "Entregada",
-        "read": "Leída",
-        "failed": "Falló",
+        "read": "Le?da",
+        "failed": "Fall?",
         "registered": "Registrada"
       },
-      "viewTechnicalReturn": "Ver respuesta técnica"
+      "viewTechnicalReturn": "Ver respuesta t?cnica"
     },
     "loading": "Cargando la configuración del WhatsApp institucional...",
     "configuration": {

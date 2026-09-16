@@ -15846,8 +15846,7 @@
         "sendFailed": "Não foi possível enviar a mensagem de teste.",
         "generic": "Erro ao enviar a mensagem de teste."
       },
-      "phonePlaceholder": "Ex.: 55 11 99999-9999",
-      "title": "Envio controlado de teste"
+      "phonePlaceholder": "Ex.: 55 11 99999-9999"
     },
     "history": {
       "title": "Histórico de mensagens",

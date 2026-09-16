@@ -226,6 +226,11 @@ function AdminAlunosPage() {
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [carregandoAlunos, setCarregandoAlunos] = useState(false);
+
+  const [
+    exportandoAlunos,
+    setExportandoAlunos,
+  ] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalAlunos, setTotalAlunos] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
@@ -608,6 +613,158 @@ function AdminAlunosPage() {
       carregarTurmas(),
       carregarPolos(),
     ]);
+  }
+
+  async function exportarAlunos() {
+    try {
+      setExportandoAlunos(true);
+
+      const params =
+        new URLSearchParams();
+
+      if (busca.trim()) {
+        params.set(
+          "busca",
+          busca.trim()
+        );
+      }
+
+      if (
+        filtroStatus !== "TODOS"
+      ) {
+        params.set(
+          "status",
+          filtroStatus
+        );
+      }
+
+      params.set(
+        "situacaoMatricula",
+        filtroSituacaoAcademica
+      );
+
+      if (
+        filtroTurmaId !==
+        "TODAS"
+      ) {
+        params.set(
+          "turmaId",
+          filtroTurmaId
+        );
+      }
+
+      const localeAtual =
+        typeof document !==
+          "undefined" &&
+        document
+          .documentElement
+          .lang
+          ? document
+              .documentElement
+              .lang
+          : "pt-BR";
+
+      params.set(
+        "locale",
+        localeAtual
+      );
+
+      const resposta =
+        await fetch(
+          `/api/admin/alunos/exportar?${params.toString()}`,
+          {
+            credentials:
+              "include",
+            cache: "no-store",
+          }
+        );
+
+      if (!resposta.ok) {
+        const erro =
+          await resposta
+            .json()
+            .catch(
+              () => null
+            );
+
+        throw new Error(
+          erro?.error ||
+          t(
+            "actions.exportStudentsError"
+          )
+        );
+      }
+
+      const blob =
+        await resposta.blob();
+
+      const disposition =
+        resposta.headers.get(
+          "content-disposition"
+        ) || "";
+
+      const filenameMatch =
+        disposition.match(
+          /filename="?([^"]+)"?/i
+        );
+
+      const filename =
+        filenameMatch?.[1] ||
+        "alunos.xlsx";
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(
+        link
+      );
+
+      link.click();
+      link.remove();
+
+      window.setTimeout(
+        () =>
+          URL.revokeObjectURL(
+            url
+          ),
+        1000
+      );
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "actions.exportStudentsSuccess"
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao exportar alunos:",
+        error
+      );
+
+      mostrarFeedback(
+        "erro",
+        error instanceof Error
+          ? error.message
+          : t(
+              "actions.exportStudentsError"
+            )
+      );
+    } finally {
+      setExportandoAlunos(
+        false
+      );
+    }
   }
 
   async function carregarAlunos() {
@@ -1811,6 +1968,21 @@ function AdminAlunosPage() {
 >
   {t("actions.newStudent")}
 </button>
+
+              <button
+                type="button"
+                onClick={exportarAlunos}
+                disabled={exportandoAlunos}
+                className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
+              >
+                {exportandoAlunos
+                  ? t(
+                      "actions.exportingStudents"
+                    )
+                  : t(
+                      "actions.exportStudents"
+                    )}
+              </button>
 
               <button
                 type="button"

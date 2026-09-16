@@ -197,26 +197,88 @@ export async function GET(request: Request) {
       excluidaEm: null,
     };
 
-    const filtroMatriculaSelecionada: any = {
+    // O resumo exibido deve ser sempre da matricula
+    // atual/mais recente nao excluida, independentemente
+    // do filtro selecionado na tela.
+    const whereResumoMatricula: any = {
       ...filtroMatriculaBase,
     };
 
-    if (statusMatriculaSelecionado) {
-      filtroMatriculaSelecionada.status =
-        statusMatriculaSelecionado;
-    }
+    // Quando o usuario filtra por status de matricula
+    // ou por turma, primeiro descobrimos a matricula
+    // atual de cada aluno e somente depois aplicamos
+    // o filtro. Isso evita que uma matricula historica
+    // antiga faca o aluno aparecer indevidamente.
+    let alunoIdsMatriculaAtualFiltrados:
+      number[] | null = null;
 
-    if (turmaIdSelecionada) {
-      filtroMatriculaSelecionada.itens = {
-        some: {
-          turmaId: turmaIdSelecionada,
-        },
-      };
-    }
+    if (
+      statusMatriculaSelecionado ||
+      turmaIdSelecionada
+    ) {
+      const matriculasAtuaisFiltro =
+        await prisma.matricula.findMany({
+          where: {
+            ...filtroMatriculaBase,
+          },
 
-    const whereResumoMatricula: any = {
-      ...filtroMatriculaSelecionada,
-    };
+          orderBy: [
+            {
+              alunoId: "asc",
+            },
+            {
+              createdAt: "desc",
+            },
+            {
+              id: "desc",
+            },
+          ],
+
+          distinct: ["alunoId"],
+
+          select: {
+            alunoId: true,
+            status: true,
+
+            itens: {
+              where: turmaIdSelecionada
+                ? {
+                    turmaId:
+                      turmaIdSelecionada,
+                  }
+                : undefined,
+
+              take: 1,
+
+              select: {
+                turmaId: true,
+              },
+            },
+          },
+        });
+
+      alunoIdsMatriculaAtualFiltrados =
+        matriculasAtuaisFiltro
+          .filter((matricula) => {
+            const bateStatus =
+              !statusMatriculaSelecionado ||
+              matricula.status ===
+                statusMatriculaSelecionado;
+
+            const bateTurma =
+              !turmaIdSelecionada ||
+              matricula.itens.length > 0;
+
+            return (
+              bateStatus &&
+              bateTurma
+            );
+          })
+          .map(
+            (matricula) =>
+              matricula.alunoId
+          );
+    }
 
     const poloIdParam = String(searchParams.get("poloId") || "").trim();
 
@@ -228,20 +290,40 @@ export async function GET(request: Request) {
       where.statusAluno = status;
     }
 
-    if (situacaoMatricula === "SEM_MATRICULA") {
-      where.matriculas = {
-        none: {
-          ...filtroMatriculaBase,
-        },
-      };
+    if (
+      situacaoMatricula === "SEM_MATRICULA"
+    ) {
+      if (turmaIdSelecionada) {
+        // Um aluno sem matricula atual nao pode,
+        // ao mesmo tempo, pertencer a uma turma.
+        where.id = {
+          in: [],
+        };
+      } else {
+        where.matriculas = {
+          none: {
+            ...filtroMatriculaBase,
+          },
+        };
+      }
     } else if (
-      situacaoMatricula === "MATRICULADOS" ||
       statusMatriculaSelecionado ||
       turmaIdSelecionada
     ) {
+      // Aqui usamos SOMENTE a matricula atual
+      // de cada aluno, resolvida acima.
+      where.id = {
+        in:
+          alunoIdsMatriculaAtualFiltrados ??
+          [],
+      };
+    } else if (
+      situacaoMatricula ===
+      "MATRICULADOS"
+    ) {
       where.matriculas = {
         some: {
-          ...filtroMatriculaSelecionada,
+          ...filtroMatriculaBase,
         },
       };
     }
@@ -321,9 +403,14 @@ export async function GET(request: Request) {
           },
           matriculas: {
             where: whereResumoMatricula,
-            orderBy: {
-              createdAt: "desc",
-            },
+            orderBy: [
+              {
+                createdAt: "desc",
+              },
+              {
+                id: "desc",
+              },
+            ],
             take: 1,
             select: {
               id: true,

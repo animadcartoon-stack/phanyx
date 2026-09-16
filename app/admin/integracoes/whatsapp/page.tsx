@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type TipoComunicacao =
   | "REUNIAO_CRIADA"
@@ -384,7 +385,10 @@ Este é um lembrete da sua reunião.
   },
 };
 
-function formatarData(valor?: string | null) {
+function formatarData(
+  valor: string | null | undefined,
+  locale: string
+) {
   if (!valor) return "—";
 
   const data = new Date(valor);
@@ -393,13 +397,47 @@ function formatarData(valor?: string | null) {
     return "—";
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(data);
 }
 
 export default function WhatsAppInstitucionalPage() {
+  const t = useTranslations(
+    "AdminIntegracoesWhatsapp"
+  );
+
+  const locale = useLocale();
+
+  function traduzirStatusMensagemWhatsapp(
+    status: string
+  ) {
+    const valor =
+      String(status || "")
+        .trim()
+        .toUpperCase();
+
+    const mapa: Record<string, string> = {
+      CRIADA: "created",
+      PENDENTE: "pending",
+      PROCESSANDO: "processing",
+      AGENDADA: "scheduled",
+      ENVIADA: "acceptedByMeta",
+      ENTREGUE: "delivered",
+      LIDA: "read",
+      FALHOU: "failed",
+      CANCELADA: "cancelled",
+    };
+
+    const chave =
+      mapa[valor];
+
+    return chave
+      ? t(`history.status.${chave}`)
+      : valor.replace(/_/g, " ");
+  }
+
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [testando, setTestando] = useState(false);
@@ -497,7 +535,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível carregar os templates do WhatsApp."
+          t("templates.messages.loadFailed")
         );
       }
 
@@ -567,7 +605,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível sincronizar os templates com a Meta."
+          t("templates.messages.syncFailed")
         );
       }
 
@@ -578,16 +616,290 @@ export default function WhatsAppInstitucionalPage() {
 
       setSucesso(
         data?.message ||
-        "Templates sincronizados com a Meta."
+        t("templates.messages.syncSuccess")
       );
     } catch (error) {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao sincronizar os templates com a Meta."
+          : t("templates.messages.syncGenericError")
       );
     } finally {
       setSincronizandoTemplates(false);
+    }
+  }
+
+
+
+  function obterTextosTemplateEditavel(
+    tipo: TipoTemplateEditavel
+  ) {
+    switch (tipo) {
+      case "REUNIAO_CRIADA":
+        return {
+          titulo: t(
+            "templates.types.meetingCreated.title"
+          ),
+          descricao: t(
+            "templates.types.meetingCreated.description"
+          ),
+        };
+
+      case "REUNIAO_LEMBRETE":
+        return {
+          titulo: t(
+            "templates.types.meetingReminder.title"
+          ),
+          descricao: t(
+            "templates.types.meetingReminder.description"
+          ),
+        };
+    }
+  }
+
+  function traduzirVariavelTemplate(
+    tipo: TipoTemplateEditavel,
+    codigo: string
+  ) {
+    if (
+      tipo === "REUNIAO_CRIADA"
+    ) {
+      switch (codigo) {
+        case "{{1}}":
+          return t(
+            "templates.variables.participantName"
+          );
+
+        case "{{2}}":
+          return t(
+            "templates.variables.meetingTitle"
+          );
+
+        case "{{3}}":
+          return t(
+            "templates.variables.dateTime"
+          );
+
+        case "{{4}}":
+          return t(
+            "templates.variables.accessLink"
+          );
+      }
+    }
+
+    if (
+      tipo === "REUNIAO_LEMBRETE"
+    ) {
+      switch (codigo) {
+        case "{{1}}":
+          return t(
+            "templates.variables.participantName"
+          );
+
+        case "{{2}}":
+          return t(
+            "templates.variables.meetingTitle"
+          );
+
+        case "{{3}}":
+          return t(
+            "templates.variables.reminderTime"
+          );
+
+        case "{{4}}":
+          return t(
+            "templates.variables.meetingLink"
+          );
+      }
+    }
+
+    return codigo;
+  }
+
+  function traduzirGrupoComunicacao(
+    grupo: string
+  ) {
+    switch (grupo) {
+      case "Reuniões":
+        return t(
+          "automations.groups.meetings"
+        );
+
+      case "Atendimento":
+        return t(
+          "automations.groups.service"
+        );
+
+      case "Mensagens":
+        return t(
+          "automations.groups.messages"
+        );
+
+      case "Acadêmico":
+        return t(
+          "automations.groups.academic"
+        );
+
+      case "Financeiro":
+        return t(
+          "automations.groups.financial"
+        );
+
+      default:
+        return grupo;
+    }
+  }
+
+  function obterTextosComunicacao(
+    tipo: TipoComunicacao
+  ) {
+    switch (tipo) {
+      case "REUNIAO_CRIADA":
+        return {
+          titulo: t(
+            "automations.items.meetingCreated.title"
+          ),
+          descricao: t(
+            "automations.items.meetingCreated.description"
+          ),
+        };
+
+      case "REUNIAO_ALTERADA":
+        return {
+          titulo: t(
+            "automations.items.meetingUpdated.title"
+          ),
+          descricao: t(
+            "automations.items.meetingUpdated.description"
+          ),
+        };
+
+      case "REUNIAO_CANCELADA":
+        return {
+          titulo: t(
+            "automations.items.meetingCancelled.title"
+          ),
+          descricao: t(
+            "automations.items.meetingCancelled.description"
+          ),
+        };
+
+      case "REUNIAO_LEMBRETE":
+        return {
+          titulo: t(
+            "automations.items.meetingReminder.title"
+          ),
+          descricao: t(
+            "automations.items.meetingReminder.description"
+          ),
+        };
+
+      case "OUVIDORIA_RESPONDIDA":
+        return {
+          titulo: t(
+            "automations.items.ombudsmanAnswered.title"
+          ),
+          descricao: t(
+            "automations.items.ombudsmanAnswered.description"
+          ),
+        };
+
+      case "MENSAGEM_ALUNO_PARA_PROFESSOR":
+        return {
+          titulo: t(
+            "automations.items.studentToTeacher.title"
+          ),
+          descricao: t(
+            "automations.items.studentToTeacher.description"
+          ),
+        };
+
+      case "MENSAGEM_PROFESSOR_PARA_ALUNO":
+        return {
+          titulo: t(
+            "automations.items.teacherToStudent.title"
+          ),
+          descricao: t(
+            "automations.items.teacherToStudent.description"
+          ),
+        };
+
+      case "ATIVIDADE_PUBLICADA":
+        return {
+          titulo: t(
+            "automations.items.activityPublished.title"
+          ),
+          descricao: t(
+            "automations.items.activityPublished.description"
+          ),
+        };
+
+      case "PROVA_PUBLICADA":
+        return {
+          titulo: t(
+            "automations.items.examPublished.title"
+          ),
+          descricao: t(
+            "automations.items.examPublished.description"
+          ),
+        };
+
+      case "DOCUMENTO_DISPONIVEL":
+        return {
+          titulo: t(
+            "automations.items.documentAvailable.title"
+          ),
+          descricao: t(
+            "automations.items.documentAvailable.description"
+          ),
+        };
+
+      case "AVISO_ACADEMICO":
+        return {
+          titulo: t(
+            "automations.items.academicNotice.title"
+          ),
+          descricao: t(
+            "automations.items.academicNotice.description"
+          ),
+        };
+
+      case "MENSALIDADE_VENCENDO":
+        return {
+          titulo: t(
+            "automations.items.tuitionDueSoon.title"
+          ),
+          descricao: t(
+            "automations.items.tuitionDueSoon.description"
+          ),
+        };
+
+      case "MENSALIDADE_VENCIDA":
+        return {
+          titulo: t(
+            "automations.items.tuitionOverdue.title"
+          ),
+          descricao: t(
+            "automations.items.tuitionOverdue.description"
+          ),
+        };
+
+      case "PAGAMENTO_CONFIRMADO":
+        return {
+          titulo: t(
+            "automations.items.paymentConfirmed.title"
+          ),
+          descricao: t(
+            "automations.items.paymentConfirmed.description"
+          ),
+        };
+
+      default:
+        return {
+          titulo: String(tipo)
+            .replace(/_/g, " "),
+          descricao: "",
+        };
     }
   }
 
@@ -623,7 +935,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível enviar a mensagem de teste."
+          t("test.errors.sendFailed")
         );
       }
 
@@ -639,13 +951,13 @@ export default function WhatsAppInstitucionalPage() {
 
       setSucesso(
         data?.message ||
-        "Mensagem de teste enviada e registrada no PHANYX."
+        t("test.success")
       );
     } catch (error) {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao enviar a mensagem de teste."
+          : t("test.errors.generic")
       );
     } finally {
       setEnviandoTeste(false);
@@ -668,7 +980,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível carregar a configuração do WhatsApp."
+          t("configuration.loadFailed")
         );
       }
 
@@ -711,7 +1023,7 @@ export default function WhatsAppInstitucionalPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao carregar a integração do WhatsApp."
+          : t("configuration.loadGenericError")
       );
     } finally {
       setCarregando(false);
@@ -792,7 +1104,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok || data?.ok === false) {
         throw new Error(
           data?.error ||
-          "Não foi possível conectar o WhatsApp Business."
+          t("connection.connectFailed")
         );
       }
 
@@ -801,7 +1113,7 @@ export default function WhatsAppInstitucionalPage() {
 
       setSucesso(
         data?.message ||
-        "WhatsApp Business conectado com sucesso."
+        t("connection.connectSuccess")
       );
 
       await carregarConfiguracao();
@@ -809,7 +1121,7 @@ export default function WhatsAppInstitucionalPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao conectar o WhatsApp Business."
+          : t("connection.connectGenericError")
       );
     } finally {
       setConectando(false);
@@ -835,13 +1147,13 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok || data?.ok === false) {
         throw new Error(
           data?.error ||
-          "Não foi possível validar a conexão com o WhatsApp Business."
+          t("connection.validationFailed")
         );
       }
 
       setSucesso(
         data?.message ||
-        "Conexão com o WhatsApp Business validada com sucesso."
+        t("connection.validationSuccess")
       );
 
       await carregarConfiguracao();
@@ -849,7 +1161,7 @@ export default function WhatsAppInstitucionalPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao testar a conexão do WhatsApp."
+          : t("connection.validationGenericError")
       );
     } finally {
       setTestando(false);
@@ -875,7 +1187,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok || data?.ok === false) {
         throw new Error(
           data?.error ||
-          "Não foi possível desconectar o WhatsApp Business."
+          t("connection.disconnectFailed")
         );
       }
 
@@ -883,7 +1195,7 @@ export default function WhatsAppInstitucionalPage() {
 
       setSucesso(
         data?.message ||
-        "WhatsApp Business desconectado com sucesso."
+        t("connection.disconnectSuccess")
       );
 
       await carregarConfiguracao();
@@ -891,7 +1203,7 @@ export default function WhatsAppInstitucionalPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao desconectar o WhatsApp Business."
+          : t("connection.disconnectGenericError")
       );
     } finally {
       setDesconectando(false);
@@ -961,7 +1273,7 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível salvar o modelo de mensagem."
+          t("templates.messages.saveFailed")
         );
       }
 
@@ -980,7 +1292,11 @@ export default function WhatsAppInstitucionalPage() {
       }
 
       setSucesso(
-        `Modelo "${definicaoTemplateSelecionado.titulo}" salvo com sucesso.`
+        t("templates.messages.saveSuccess", {
+          name: obterTextosTemplateEditavel(
+            tipoTemplateSelecionado
+          ).titulo,
+        })
       );
 
       await carregarConfiguracao();
@@ -988,7 +1304,7 @@ export default function WhatsAppInstitucionalPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao salvar o modelo de mensagem."
+          : t("templates.messages.saveGenericError")
       );
     } finally {
       setSalvandoTemplate(false);
@@ -1024,13 +1340,13 @@ export default function WhatsAppInstitucionalPage() {
       if (!response.ok) {
         throw new Error(
           data?.error ||
-          "Não foi possível salvar as configurações."
+          t("configuration.saveFailed")
         );
       }
 
       setSucesso(
         data?.message ||
-        "Configurações do WhatsApp salvas com sucesso."
+        t("configuration.saveSuccess")
       );
 
       await carregarConfiguracao();
@@ -1038,7 +1354,7 @@ export default function WhatsAppInstitucionalPage() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao salvar a configuração do WhatsApp."
+          : t("configuration.saveGenericError")
       );
     } finally {
       setSalvando(false);
@@ -1055,7 +1371,7 @@ export default function WhatsAppInstitucionalPage() {
       <div className="phanyx-whatsapp-page mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <p className="text-sm font-medium text-slate-600">
-            Carregando configuração do WhatsApp institucional...
+            {t("loading")}
           </p>
         </div>
       </div>
@@ -1070,7 +1386,7 @@ export default function WhatsAppInstitucionalPage() {
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
-                  WhatsApp institucional
+                  {t("header.title")}
                 </h1>
 
                 <span
@@ -1082,15 +1398,13 @@ export default function WhatsAppInstitucionalPage() {
                   ].join(" ")}
                 >
                   {integracao.conectado
-                    ? "Conectado"
-                    : "Não conectado"}
+                    ? t("header.connected")
+                    : t("header.notConnected")}
                 </span>
               </div>
 
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Conecte o WhatsApp Business oficial desta instituição
-                ao PHANYX e escolha quais acontecimentos poderão gerar
-                comunicações automáticas aos usuários.
+                {t("header.description")}
               </p>
             </div>
 
@@ -1104,8 +1418,8 @@ export default function WhatsAppInstitucionalPage() {
                     className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {testando
-                      ? "Testando..."
-                      : "Testar conexão"}
+                      ? t("connection.testing")
+                      : t("connection.testConnection")}
                   </button>
 
                   <button
@@ -1115,7 +1429,7 @@ export default function WhatsAppInstitucionalPage() {
                     }
                     className="rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50"
                   >
-                    Desconectar
+                    {t("connection.disconnect")}
                   </button>
                 </>
               ) : (
@@ -1128,7 +1442,7 @@ export default function WhatsAppInstitucionalPage() {
                   }}
                   className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700"
                 >
-                  Conectar WhatsApp Business
+                  {t("connection.connectWhatsAppBusiness")}
                 </button>
               )}
             </div>
@@ -1152,12 +1466,11 @@ export default function WhatsAppInstitucionalPage() {
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-                  Conta WhatsApp Business
+                  {t("overview.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Dados da conta conectada exclusivamente a esta
-                  instituição.
+                  {t("overview.description")}
                 </p>
               </div>
 
@@ -1179,19 +1492,19 @@ export default function WhatsAppInstitucionalPage() {
                 />
 
                 {integracao.conectado
-                  ? "Conexão ativa"
-                  : "Aguardando conexão"}
+                  ? t("overview.connectionActive")
+                  : t("overview.waitingConnection")}
               </div>
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <Info
-                titulo="Nome comercial"
+                titulo={t("overview.tradeName")}
                 valor={integracao.nomeExibicao || "—"}
               />
 
               <Info
-                titulo="Número"
+                titulo={t("overview.number")}
                 valor={
                   integracao.numeroExibicao ||
                   integracao.numeroTelefone ||
@@ -1200,32 +1513,30 @@ export default function WhatsAppInstitucionalPage() {
               />
 
               <Info
-                titulo="Phone Number ID"
+                titulo={t("overview.phoneNumberId")}
                 valor={integracao.phoneNumberId || "—"}
               />
 
               <Info
-                titulo="Webhook"
+                titulo={t("overview.webhook")}
                 valor={
                   integracao.webhookAtivo
-                    ? "Ativo"
-                    : "Ainda não ativo"
+                    ? t("common.active")
+                    : t("overview.notActiveYet")
                 }
               />
 
               <Info
-                titulo="Última sincronização"
-                valor={formatarData(
-                  integracao.ultimaSincronizacaoEm
-                )}
+                titulo={t("overview.lastSync")}
+                valor={formatarData(integracao.ultimaSincronizacaoEm, locale)}
               />
 
               <Info
-                titulo="Credencial"
+                titulo={t("overview.credential")}
                 valor={
                   integracao.credencialConfigurada
-                    ? "Protegida e armazenada"
-                    : "Não configurada"
+                    ? t("overview.credentialProtected")
+                    : t("overview.notConfigured")
                 }
               />
             </div>
@@ -1233,7 +1544,7 @@ export default function WhatsAppInstitucionalPage() {
             {integracao.ultimaFalhaMensagem && (
               <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
                 <p className="text-sm font-bold text-amber-900">
-                  Última falha registrada
+                  {t("overview.lastFailure")}
                 </p>
 
                 <p className="mt-1 text-sm text-amber-800">
@@ -1242,7 +1553,7 @@ export default function WhatsAppInstitucionalPage() {
 
                 {integracao.ultimaFalhaEm && (
                   <p className="mt-2 text-xs text-amber-700">
-                    {formatarData(integracao.ultimaFalhaEm)}
+                    {formatarData(integracao.ultimaFalhaEm, locale)}
                   </p>
                 )}
               </div>
@@ -1251,29 +1562,34 @@ export default function WhatsAppInstitucionalPage() {
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-              Resumo
+              {t("summary.title")}
             </h2>
 
             <div className="mt-5 space-y-3">
               <ResumoItem
-                titulo="Automações ativas"
-                valor={`${quantidadeAtivas} de ${COMUNICACOES.length}`}
+                titulo={t("summary.activeAutomations")}
+                valor={t("summary.activeAutomationsValue", {
+                  active: quantidadeAtivas,
+                  total: COMUNICACOES.length,
+                })}
               />
 
               <ResumoItem
-                titulo="Templates"
+                titulo={t("summary.templates")}
                 valor={String(resumo.quantidadeTemplates)}
               />
 
               <ResumoItem
-                titulo="Mensagens registradas"
+                titulo={t("summary.registeredMessages")}
                 valor={String(resumo.quantidadeMensagens)}
               />
 
               <ResumoItem
-                titulo="Webhook"
+                titulo={t("overview.webhook")}
                 valor={
-                  integracao.webhookAtivo ? "Ativo" : "Inativo"
+                  integracao.webhookAtivo
+                    ? t("common.active")
+                    : t("common.inactive")
                 }
               />
             </div>
@@ -1283,13 +1599,11 @@ export default function WhatsAppInstitucionalPage() {
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-950">
           <div>
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-              Envio controlado de teste
-            </h2>
+                {t("test.title")}
+              </h2>
 
             <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Envie o modelo aprovado de reunião criada para
-              validar o envio, o registro no PHANYX e os retornos
-              do webhook. Este teste não ativa as automações.
+              {t("test.description")}
             </p>
           </div>
 
@@ -1302,7 +1616,7 @@ export default function WhatsAppInstitucionalPage() {
           >
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                Nome do destinatário
+                {t("test.recipientName")}
               </label>
 
               <input
@@ -1313,7 +1627,7 @@ export default function WhatsAppInstitucionalPage() {
                     event.target.value
                   )
                 }
-                placeholder="Ex.: Denise"
+                placeholder={t("test.recipientPlaceholder")}
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               />
             </div>
@@ -1331,7 +1645,7 @@ export default function WhatsAppInstitucionalPage() {
                     event.target.value
                   )
                 }
-                placeholder="Ex.: 55 11 99999-9999"
+                placeholder={t("test.phonePlaceholder")}
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               />
 
@@ -1352,8 +1666,8 @@ export default function WhatsAppInstitucionalPage() {
                 className="w-full rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
               >
                 {enviandoTeste
-                  ? "Enviando teste..."
-                  : "Enviar mensagem de teste"}
+                  ? t("test.sending")
+                  : t("test.send")}
               </button>
             </div>
           </form>
@@ -1361,11 +1675,11 @@ export default function WhatsAppInstitucionalPage() {
           {resultadoTeste && (
             <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
               <p className="font-bold">
-                Mensagem aceita pela Meta
+                {t("test.acceptedByMeta")}
               </p>
 
               <p className="mt-2 break-all">
-                Registro PHANYX:{" "}
+                {t("test.phanyxRecord")}:{" "}
                 {resultadoTeste.mensagemId}
               </p>
 
@@ -1380,18 +1694,17 @@ export default function WhatsAppInstitucionalPage() {
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
           <div className="border-b border-slate-200 p-5 dark:border-slate-700">
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-              Histórico de mensagens
+              {t("history.title")}
             </h2>
 
             <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Acompanhe o envio, a entrega, a leitura e possíveis falhas
-              informadas pela Meta.
+              {t("history.description")}
             </p>
           </div>
 
           {mensagensRecentes.length === 0 ? (
             <div className="p-5 text-sm text-slate-600 dark:text-slate-300">
-              Nenhuma mensagem foi registrada até o momento.
+              {t("history.empty")}
             </div>
           ) : (
             <div className="whatsapp-history-list divide-y divide-slate-300">
@@ -1412,7 +1725,7 @@ export default function WhatsAppInstitucionalPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-bold text-slate-950 dark:text-white">
                           {mensagem.nomeDestinatario ||
-                            "Destinatário não informado"}
+                            t("history.recipientNotProvided")}
                         </p>
 
                         <span
@@ -1427,9 +1740,9 @@ export default function WhatsAppInstitucionalPage() {
                                 : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
                             }`}
                         >
-                          {mensagem.status === "ENVIADA"
-                            ? "ACEITA PELA META"
-                            : mensagem.status.replace(/_/g, " ")}
+                          {traduzirStatusMensagemWhatsapp(
+                            mensagem.status
+                          )}
                         </span>
                       </div>
 
@@ -1438,7 +1751,7 @@ export default function WhatsAppInstitucionalPage() {
                       </p>
 
                       <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                        Modelo:{" "}
+                        {t("history.template")}:{" "}
                         {mensagem.template?.nome ||
                           mensagem.template?.nomeMeta ||
                           mensagem.tipoComunicacao.replace(/_/g, " ")}
@@ -1447,11 +1760,11 @@ export default function WhatsAppInstitucionalPage() {
 
                     <div className="text-sm text-slate-600 dark:text-slate-300 lg:text-right">
                       <p className="font-semibold">
-                        Registro PHANYX: {mensagem.id}
+                        {t("history.phanyxRecord")}: {mensagem.id}
                       </p>
 
                       <p className="mt-1">
-                        {new Date(mensagem.criadaEm).toLocaleString("pt-BR")}
+                        {new Date(mensagem.criadaEm).toLocaleString(locale)}
                       </p>
                     </div>
                   </div>
@@ -1459,12 +1772,12 @@ export default function WhatsAppInstitucionalPage() {
                   {(mensagem.erroMensagem || mensagem.erroCodigo) && (
                     <div className="whatsapp-history-error mt-4 rounded-lg border border-l-4 p-4 text-sm">
                       <p className="font-bold text-red-950 dark:text-red-100">
-                        Falha informada pela Meta
+                        {t("history.metaFailure")}
                       </p>
 
                       {mensagem.erroCodigo && (
                         <p className="mt-2 text-red-900 dark:text-red-200">
-                          Código: {mensagem.erroCodigo}
+                          {t("history.errorCode")}: {mensagem.erroCodigo}
                         </p>
                       )}
 
@@ -1479,54 +1792,54 @@ export default function WhatsAppInstitucionalPage() {
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                        Registrada
+                        {t("history.milestones.registered")}
                       </p>
                       <p className="mt-1 text-slate-900 dark:text-white">
-                        {new Date(mensagem.criadaEm).toLocaleString("pt-BR")}
+                        {new Date(mensagem.criadaEm).toLocaleString(locale)}
                       </p>
                     </div>
 
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                        Aceita pela Meta
+                        {t("history.milestones.acceptedByMeta")}
                       </p>
                       <p className="mt-1 text-slate-900 dark:text-white">
                         {mensagem.enviadaEm
-                          ? new Date(mensagem.enviadaEm).toLocaleString("pt-BR")
-                          : "Aguardando"}
+                          ? new Date(mensagem.enviadaEm).toLocaleString(locale)
+                          : t("history.waiting")}
                       </p>
                     </div>
 
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                        Entregue
+                        {t("history.milestones.delivered")}
                       </p>
                       <p className="mt-1 text-slate-900 dark:text-white">
                         {mensagem.entregueEm
-                          ? new Date(mensagem.entregueEm).toLocaleString("pt-BR")
-                          : "Aguardando"}
+                          ? new Date(mensagem.entregueEm).toLocaleString(locale)
+                          : t("history.waiting")}
                       </p>
                     </div>
 
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                        Lida
+                        {t("history.milestones.read")}
                       </p>
                       <p className="mt-1 text-slate-900 dark:text-white">
                         {mensagem.lidaEm
-                          ? new Date(mensagem.lidaEm).toLocaleString("pt-BR")
-                          : "Aguardando"}
+                          ? new Date(mensagem.lidaEm).toLocaleString(locale)
+                          : t("history.waiting")}
                       </p>
                     </div>
 
                     <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                       <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                        Falhou
+                        {t("history.milestones.failed")}
                       </p>
                       <p className="mt-1 text-slate-900 dark:text-white">
                         {mensagem.falhouEm
-                          ? new Date(mensagem.falhouEm).toLocaleString("pt-BR")
-                          : "Não"}
+                          ? new Date(mensagem.falhouEm).toLocaleString(locale)
+                          : t("history.no")}
                       </p>
                     </div>
                   </div>
@@ -1540,7 +1853,7 @@ export default function WhatsAppInstitucionalPage() {
                   {mensagem.eventos.length > 0 && (
                     <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
                       <summary className="cursor-pointer text-sm font-bold text-slate-900 dark:text-white">
-                        Retornos recebidos pelo webhook (
+                        {t("history.webhookReturns")} (
                         {mensagem.eventos.length})
                       </summary>
 
@@ -1556,16 +1869,16 @@ export default function WhatsAppInstitucionalPage() {
                               </span>
 
                               <span className="text-slate-500 dark:text-slate-400">
-                                {new Date(evento.recebidoEm).toLocaleString(
-                                  "pt-BR"
-                                )}
+                                {new Date(
+                                  evento.recebidoEm
+                                ).toLocaleString(locale)}
                               </span>
                             </div>
 
                             {evento.payload != null && (
                               <details className="mt-3">
                                 <summary className="cursor-pointer text-xs font-semibold text-slate-600 dark:text-slate-300">
-                                  Ver retorno técnico
+                                  {t("history.viewTechnicalReturn")}
                                 </summary>
 
                                 <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-950 p-3 text-xs text-slate-100">
@@ -1589,18 +1902,17 @@ export default function WhatsAppInstitucionalPage() {
             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
               <div>
                 <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-                  Modelos de mensagens
+                  {t("templates.section.title")}
                 </h2>
 
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  Configure os modelos utilizados pelo PHANYX nas
-                  comunicações automáticas do WhatsApp.
+                  {t("templates.section.description")}
                 </p>
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Modelos configurados
+                  {t("templates.section.configured")}
                 </p>
 
                 <p className="mt-1 font-bold text-slate-950 dark:text-white">
@@ -1638,7 +1950,9 @@ export default function WhatsAppInstitucionalPage() {
                         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
                     ].join(" ")}
                   >
-                    {definicao.titulo}
+                    {obterTextosTemplateEditavel(
+                      tipo
+                    ).titulo}
 
                     {template.id ? (
                       <span
@@ -1662,7 +1976,9 @@ export default function WhatsAppInstitucionalPage() {
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <h3 className="text-lg font-bold text-slate-950 dark:text-white">
-                  {definicaoTemplateSelecionado.titulo}
+                  {obterTextosTemplateEditavel(
+                    tipoTemplateSelecionado
+                  ).titulo}
                 </h3>
 
                 <span
@@ -1676,22 +1992,24 @@ export default function WhatsAppInstitucionalPage() {
                   ].join(" ")}
                 >
                   {templateSelecionado.aprovadoMeta
-                    ? "Aprovado pela Meta"
+                    ? t("templates.status.approved")
                     : templateSelecionado.id
-                      ? "Aguardando Meta"
-                      : "Ainda não salvo"}
+                      ? t("templates.status.awaitingMeta")
+                      : t("templates.status.notSaved")}
                 </span>
               </div>
 
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {definicaoTemplateSelecionado.descricao}
+                {obterTextosTemplateEditavel(
+                  tipoTemplateSelecionado
+                ).descricao}
               </p>
             </div>
 
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[220px]">
               <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900">
                 <p className="font-semibold text-slate-900 dark:text-white">
-                  Categoria Meta
+                  {t("templates.editor.metaCategory")}
                 </p>
 
                 <p className="mt-1 text-slate-600 dark:text-slate-300">
@@ -1710,8 +2028,8 @@ export default function WhatsAppInstitucionalPage() {
                 className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {sincronizandoTemplates
-                  ? "Sincronizando..."
-                  : "Sincronizar com a Meta"}
+                  ? t("templates.actions.syncing")
+                  : t("templates.actions.syncMeta")}
               </button>
             </div>
           </div>
@@ -1720,7 +2038,7 @@ export default function WhatsAppInstitucionalPage() {
             <div className="space-y-5">
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  Nome interno
+                  {t("templates.editor.internalName")}
                 </label>
 
                 <input
@@ -1732,7 +2050,9 @@ export default function WhatsAppInstitucionalPage() {
                     })
                   }
                   placeholder={
-                    definicaoTemplateSelecionado.titulo
+                    obterTextosTemplateEditavel(
+                      tipoTemplateSelecionado
+                    ).titulo
                   }
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
@@ -1740,7 +2060,7 @@ export default function WhatsAppInstitucionalPage() {
 
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  Nome do template na Meta
+                  {t("templates.editor.metaName")}
                 </label>
 
                 <input
@@ -1757,15 +2077,13 @@ export default function WhatsAppInstitucionalPage() {
                 />
 
                 <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                  Use apenas letras minúsculas, números e underline.
-                  O nome precisa corresponder exatamente ao template
-                  aprovado na Meta.
+                  {t("templates.editor.metaNameHelp")}
                 </p>
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  Conteúdo da mensagem
+                  {t("templates.editor.messageContent")}
                 </label>
 
                 <textarea
@@ -1782,7 +2100,7 @@ export default function WhatsAppInstitucionalPage() {
 
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  Rodapé
+                  {t("templates.editor.footer")}
                 </label>
 
                 <input
@@ -1795,7 +2113,9 @@ export default function WhatsAppInstitucionalPage() {
                       rodape: event.target.value,
                     })
                   }
-                  placeholder="Mensagem automática enviada pelo PHANYX."
+                  placeholder={t(
+                    "templates.editor.footerPlaceholder"
+                  )}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
               </div>
@@ -1804,7 +2124,7 @@ export default function WhatsAppInstitucionalPage() {
             <div className="space-y-4">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
                 <h3 className="font-bold text-slate-950 dark:text-white">
-                  Variáveis disponíveis
+                  {t("templates.variablesTitle")}
                 </h3>
 
                 <div className="mt-4 space-y-3 text-sm">
@@ -1813,7 +2133,10 @@ export default function WhatsAppInstitucionalPage() {
                       <VariavelTemplate
                         key={variavel.codigo}
                         codigo={variavel.codigo}
-                        descricao={variavel.descricao}
+                        descricao={traduzirVariavelTemplate(
+                          tipoTemplateSelecionado,
+                          variavel.codigo
+                        )}
                       />
                     )
                   )}
@@ -1823,14 +2146,11 @@ export default function WhatsAppInstitucionalPage() {
               {!templateSelecionado.aprovadoMeta && (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
                   <p className="text-sm font-bold text-amber-900">
-                    Aprovação da Meta pendente
+                    {t("templates.approval.title")}
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-amber-800">
-                    O modelo pode ser preparado e salvo no
-                    PHANYX antes da aprovação. Nenhum disparo
-                    real será realizado enquanto ele não estiver
-                    aprovado pela Meta.
+                    {t("templates.approval.description")}
                   </p>
                 </div>
               )}
@@ -1839,16 +2159,13 @@ export default function WhatsAppInstitucionalPage() {
                 "REUNIAO_LEMBRETE" && (
                   <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
                     <p className="text-sm font-bold text-slate-900 dark:text-white">
-                      Como funciona o lembrete
+                      {t("templates.reminder.title")}
                     </p>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      O mesmo modelo será utilizado tanto para o
-                      aviso do dia anterior quanto para o aviso do
-                      próprio dia. A variável {"{{3}}"} receberá
-                      automaticamente textos como
-                      &quot;amanhã às 19:30&quot; ou
-                      &quot;hoje às 19:30&quot;.
+                      {t("templates.reminder.description", {
+                        variable: "{{3}}",
+                      })}
                     </p>
                   </div>
                 )}
@@ -1858,8 +2175,10 @@ export default function WhatsAppInstitucionalPage() {
           <div className="flex flex-col gap-3 border-t border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {templateSelecionado.id
-                ? `Modelo salvo no PHANYX • ID ${templateSelecionado.id}`
-                : "Este modelo ainda não foi salvo no PHANYX."}
+                ? t("templates.record.saved", {
+                    id: templateSelecionado.id,
+                  })
+                : t("templates.record.notSaved")}
             </p>
 
             <button
@@ -1874,8 +2193,8 @@ export default function WhatsAppInstitucionalPage() {
               className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {salvandoTemplate
-                ? "Salvando modelo..."
-                : "Salvar modelo"}
+                ? t("templates.actions.saving")
+                : t("templates.actions.save")}
             </button>
           </div>
         </section>
@@ -1884,18 +2203,17 @@ export default function WhatsAppInstitucionalPage() {
           <div className="flex flex-col justify-between gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center dark:border-slate-700">
             <div>
               <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-                Envio automático pelo WhatsApp
+                {t("automations.title")}
               </h2>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                Ative o canal e escolha quais eventos do PHANYX poderão
-                gerar mensagens.
+                {t("automations.description")}
               </p>
             </div>
 
             <label className="flex cursor-pointer items-center gap-3">
               <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                Envio de WhatsApp
+                {t("automations.toggleLabel")}
               </span>
 
               <input
@@ -1916,8 +2234,7 @@ export default function WhatsAppInstitucionalPage() {
           {!integracao.conectado && (
             <div className="border-b border-slate-200 bg-slate-50 px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Conecte primeiro o WhatsApp Business da instituição
-                para liberar as automações.
+                {t("automations.connectFirst")}
               </p>
             </div>
           )}
@@ -1926,7 +2243,9 @@ export default function WhatsAppInstitucionalPage() {
             {GRUPOS.map((grupo) => (
               <div key={grupo}>
                 <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500 dark:text-slate-300">
-                  {grupo}
+                  {traduzirGrupoComunicacao(
+                    grupo
+                  )}
                 </h3>
 
                 <div className="grid gap-3 md:grid-cols-2">
@@ -1938,8 +2257,25 @@ export default function WhatsAppInstitucionalPage() {
                         config.tipoComunicacao === item.tipo
                     );
 
+                    const textosComunicacao =
+
+
+                      obterTextosComunicacao(
+
+
+                        item.tipo
+
+
+                      );
+
+
+
                     const habilitado =
+
+
                       integracao.conectado &&
+
+
                       integracao.ativo;
 
                     return (
@@ -1967,11 +2303,11 @@ export default function WhatsAppInstitucionalPage() {
 
                         <div>
                           <p className="font-semibold text-slate-900 dark:text-white">
-                            {item.titulo}
+                            {textosComunicacao.titulo}
                           </p>
 
                           <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">
-                            {item.descricao}
+                            {textosComunicacao.descricao}
                           </p>
                         </div>
                       </label>
@@ -1990,22 +2326,19 @@ export default function WhatsAppInstitucionalPage() {
               className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {salvando
-                ? "Salvando..."
-                : "Salvar configurações"}
+                ? t("automations.saving")
+                : t("automations.saveSettings")}
             </button>
           </div>
         </section>
 
         <section className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
           <h3 className="font-bold text-slate-900 dark:text-white">
-            Segurança e isolamento institucional
+            {t("security.title")}
           </h3>
 
           <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-            As credenciais pertencem exclusivamente à instituição
-            autenticada. O token não é exibido novamente depois da
-            conexão e não deve ser compartilhado com outra
-            instituição.
+            {t("security.description")}
           </p>
         </section>
       </div>
@@ -2016,22 +2349,21 @@ export default function WhatsAppInstitucionalPage() {
             <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-slate-700">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
-                  WhatsApp institucional
+                  {t("header.title")}
                 </p>
 
                 <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                  Antes de conectar o WhatsApp
+                  {t("setup.title")}
                 </h2>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                  A integração do PHANYX utiliza a plataforma oficial
-                  WhatsApp Business da Meta.
+                  {t("setup.description")}
                 </p>
               </div>
 
               <button
                 type="button"
-                aria-label="Fechar orientações"
+                aria-label={t("setup.closeAria")}
                 onClick={() => setModalOrientacaoAberto(false)}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-50 text-lg font-bold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               >
@@ -2042,54 +2374,49 @@ export default function WhatsAppInstitucionalPage() {
             <div className="space-y-5 p-5">
               <div className="whatsapp-setup-warning rounded-xl border-2 p-4 text-sm leading-6 shadow-sm">
                 <p className="font-bold !text-amber-950 dark:!text-amber-100">
-                  O aplicativo WhatsApp Business no celular não é
-                  suficiente para esta integração.
+                  {t("setup.mobileAppWarningTitle")}
                 </p>
 
                 <p className="mt-1 !text-amber-900 dark:!text-amber-200">
-                  A instituição precisa configurar um número na WhatsApp
-                  Business Platform, também chamada de Cloud API.
+                  {t("setup.mobileAppWarningDescription")}
                 </p>
               </div>
 
               <div>
                 <h3 className="font-bold text-slate-950 dark:text-white">
-                  A instituição precisará ter:
+                  {t("setup.requirementsTitle")}
                 </h3>
 
                 <ul className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
                   <li className="flex gap-2">
                     <span className="font-bold text-emerald-600">✓</span>
-                    Um número institucional real e autorizado pela Meta.
+                    {t("setup.requirements.realNumber")}
                   </li>
 
                   <li className="flex gap-2">
                     <span className="font-bold text-emerald-600">✓</span>
-                    O Phone Number ID do número conectado.
+                    {t("setup.requirements.phoneNumberId")}
                   </li>
 
                   <li className="flex gap-2">
                     <span className="font-bold text-emerald-600">✓</span>
-                    O WhatsApp Business Account ID, também chamado de
-                    WABA ID.
+                    {t("setup.requirements.wabaId")}
                   </li>
 
                   <li className="flex gap-2">
                     <span className="font-bold text-emerald-600">✓</span>
-                    Um token permanente com as permissões necessárias.
+                    {t("setup.requirements.permanentToken")}
                   </li>
 
                   <li className="flex gap-2">
                     <span className="font-bold text-emerald-600">✓</span>
-                    Templates de mensagens aprovados pela Meta.
+                    {t("setup.requirements.approvedTemplates")}
                   </li>
                 </ul>
               </div>
 
               <div className="whatsapp-setup-security rounded-xl border p-4 text-sm">
-                As credenciais serão vinculadas somente à instituição
-                autenticada. O token será criptografado e não será exibido
-                novamente depois da conexão.
+                {t("setup.securityDescription")}
               </div>
             </div>
 
@@ -2102,7 +2429,7 @@ export default function WhatsAppInstitucionalPage() {
                 }}
                 className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
               >
-                Já tenho os dados
+                {t("setup.alreadyHaveData")}
               </button>
 
               <a
@@ -2112,7 +2439,7 @@ export default function WhatsAppInstitucionalPage() {
                 onClick={() => setModalOrientacaoAberto(false)}
                 className="whatsapp-setup-link rounded-xl px-5 py-2.5 text-center text-sm font-bold transition"
               >
-                Ir para a página de configuração
+                {t("setup.goToConfiguration")}
               </a>
             </div>
           </div>
@@ -2124,12 +2451,11 @@ export default function WhatsAppInstitucionalPage() {
           <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             <div className="border-b border-slate-200 p-5 dark:border-slate-700">
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-                Conectar WhatsApp Business
+                {t("connection.modalTitle")}
               </h2>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                Informe os identificadores fornecidos pela Meta para
-                esta conta institucional.
+                {t("connection.modalDescription")}
               </p>
             </div>
 
@@ -2140,7 +2466,9 @@ export default function WhatsAppInstitucionalPage() {
                 onChange={(valor) =>
                   alterarCampoConexao("phoneNumberId", valor)
                 }
-                placeholder="ID do número no WhatsApp Business"
+                placeholder={t(
+                  "connection.phoneNumberIdPlaceholder"
+                )}
               />
 
               <Campo
@@ -2161,12 +2489,12 @@ export default function WhatsAppInstitucionalPage() {
                 onChange={(valor) =>
                   alterarCampoConexao("metaBusinessId", valor)
                 }
-                placeholder="Opcional"
+                placeholder={t("common.optional")}
               />
 
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
-                  Token de acesso
+                  {t("connection.accessTokenLabel")}
                 </label>
 
                 <input
@@ -2179,13 +2507,14 @@ export default function WhatsAppInstitucionalPage() {
                       event.target.value
                     )
                   }
-                  placeholder="Token fornecido pela Meta"
+                  placeholder={t(
+                    "connection.accessTokenPlaceholder"
+                  )}
                   className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 outline-none transition focus:border-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
 
                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                  O token será enviado diretamente ao servidor do
-                  PHANYX e armazenado de forma protegida.
+                  {t("connection.accessTokenHelp")}
                 </p>
               </div>
             </div>
@@ -2200,7 +2529,7 @@ export default function WhatsAppInstitucionalPage() {
                 }}
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
-                Cancelar
+                {t("common.cancel")}
               </button>
 
               <button
@@ -2215,8 +2544,8 @@ export default function WhatsAppInstitucionalPage() {
                 className="phanyx-whatsapp-connect-modal-button rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed"
               >
                 {conectando
-                  ? "Conectando..."
-                  : "Conectar conta"}
+                  ? t("connection.connecting")
+                  : t("connection.connectAccount")}
               </button>
             </div>
           </div>
@@ -2228,13 +2557,11 @@ export default function WhatsAppInstitucionalPage() {
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
             <div className="p-5">
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-                Desconectar WhatsApp?
+                {t("connection.disconnectTitle")}
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Os disparos automáticos serão interrompidos. O
-                histórico de mensagens permanecerá preservado no
-                PHANYX.
+                {t("connection.disconnectDescription")}
               </p>
             </div>
 
@@ -2247,7 +2574,7 @@ export default function WhatsAppInstitucionalPage() {
                 }
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
-                Manter conectado
+                {t("connection.keepConnected")}
               </button>
 
               <button
@@ -2257,8 +2584,8 @@ export default function WhatsAppInstitucionalPage() {
                 className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50"
               >
                 {desconectando
-                  ? "Desconectando..."
-                  : "Desconectar"}
+                  ? t("connection.disconnecting")
+                  : t("connection.disconnect")}
               </button>
             </div>
           </div>
