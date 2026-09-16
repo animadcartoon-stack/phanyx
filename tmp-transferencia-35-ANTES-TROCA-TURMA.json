@@ -1,0 +1,178 @@
+{
+  "geradoEm": "2026-09-15T11:46:09.328Z",
+  "matricula": {
+    "id": 35,
+    "status": "ATIVA",
+    "poloId": 5,
+    "cursoId": 1,
+    "cursoSemestreId": 1,
+    "turmaPrincipalId": 15,
+    "turmaPrincipal": {
+      "id": 15,
+      "nome": "Turma Transferência Teste - IBE UNIDADE 2"
+    },
+    "itens": [
+      {
+        "id": 397,
+        "turmaId": 14,
+        "disciplinaId": 11,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "ANTIGO TESTAMENTO A"
+        }
+      },
+      {
+        "id": 398,
+        "turmaId": 14,
+        "disciplinaId": 10,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "ATIVIDADE EXTRACURRICULAR 1"
+        }
+      },
+      {
+        "id": 399,
+        "turmaId": 14,
+        "disciplinaId": 32,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "CANONICIDADE"
+        }
+      },
+      {
+        "id": 400,
+        "turmaId": 14,
+        "disciplinaId": 7,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "FÉ E CRESCIMENTO PESSOAL"
+        }
+      },
+      {
+        "id": 401,
+        "turmaId": 14,
+        "disciplinaId": 6,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "INTRODUÇÃO À TEOLOGIA"
+        }
+      },
+      {
+        "id": 402,
+        "turmaId": 14,
+        "disciplinaId": 9,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "METODOLOGIA DA PESQUISA CIENTÍFICA"
+        }
+      },
+      {
+        "id": 403,
+        "turmaId": 14,
+        "disciplinaId": 5,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "TRANSFERIDO",
+        "disciplina": {
+          "nome": "MISSÕES URBANAS"
+        }
+      },
+      {
+        "id": 404,
+        "turmaId": 15,
+        "disciplinaId": 11,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "ANTIGO TESTAMENTO A"
+        }
+      },
+      {
+        "id": 405,
+        "turmaId": 15,
+        "disciplinaId": 10,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "ATIVIDADE EXTRACURRICULAR 1"
+        }
+      },
+      {
+        "id": 406,
+        "turmaId": 15,
+        "disciplinaId": 32,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "CANONICIDADE"
+        }
+      },
+      {
+        "id": 407,
+        "turmaId": 15,
+        "disciplinaId": 7,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "FÉ E CRESCIMENTO PESSOAL"
+        }
+      },
+      {
+        "id": 408,
+        "turmaId": 15,
+        "disciplinaId": 6,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "INTRODUÇÃO À TEOLOGIA"
+        }
+      },
+      {
+        "id": 409,
+        "turmaId": 15,
+        "disciplinaId": 9,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "METODOLOGIA DA PESQUISA CIENTÍFICA"
+        }
+      },
+      {
+        "id": 410,
+        "turmaId": 15,
+        "disciplinaId": 5,
+        "tipoItem": "GRADE_PRINCIPAL",
+        "status": "EM_CURSO",
+        "disciplina": {
+          "nome": "MISSÕES URBANAS"
+        }
+      }
+    ],
+    "transferencias": [
+      {
+        "id": 1,
+        "tipo": "POLO",
+        "status": "CONCLUIDA",
+        "turmaOrigemId": 14,
+        "turmaDestinoId": 15,
+        "concluidaEm": "2026-09-14T19:32:04.669Z"
+      }
+    ]
+  },
+  "verificacao": {
+    "matriculaAtiva": true,
+    "poloPermanece5": true,
+    "cursoPermanece1": true,
+    "semestrePermanece1": true,
+    "turmaAtual15": true,
+    "seteItensAtuais": true,
+    "seteItensNaTurma15": true,
+    "transferencia1Concluida": true,
+    "apenasUmaTransferencia": true
+  }
+}
