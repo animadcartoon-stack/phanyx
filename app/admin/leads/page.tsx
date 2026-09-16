@@ -7,6 +7,10 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import {
+  useLocale,
+  useTranslations,
+} from "next-intl";
 
 type Lead = {
   id: number;
@@ -155,24 +159,66 @@ const FORM_INICIAL: LeadForm = {
   responsavelFuncionarioId: "",
 };
 
-function formatarData(data?: string | null) {
+function formatarDataComLocale(
+  data: string | null | undefined,
+  locale: string
+) {
   if (!data) return "—";
+
   const d = new Date(data);
-  return d.toLocaleDateString("pt-BR");
+
+  if (Number.isNaN(d.getTime())) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(
+    locale,
+    {
+      dateStyle: "short",
+    }
+  ).format(d);
 }
 
-function formatarDataHora(data?: string | null) {
+function formatarDataHoraComLocale(
+  data: string | null | undefined,
+  locale: string
+) {
   if (!data) return "—";
+
   const d = new Date(data);
-  return d.toLocaleString("pt-BR");
+
+  if (Number.isNaN(d.getTime())) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(
+    locale,
+    {
+      dateStyle: "short",
+      timeStyle: "short",
+    }
+  ).format(d);
 }
 
-function formatarMoeda(valor?: number | null) {
-  if (valor === null || valor === undefined || Number.isNaN(valor)) return "—";
-  return valor.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+function formatarMoedaComLocale(
+  valor: number | null | undefined,
+  locale: string
+) {
+  if (
+    valor === null ||
+    valor === undefined ||
+    Number.isNaN(valor)
+  ) {
+    return "—";
+  }
+
+  return new Intl.NumberFormat(
+    locale,
+    {
+      style: "currency",
+      currency: "BRL",
+    }
+  ).format(valor);
 }
 
 function paraDatetimeLocal(valor?: string | null) {
@@ -229,15 +275,6 @@ function classeStatus(status: string) {
   return "border-slate-500 bg-slate-100 text-slate-800 dark:border-slate-500 dark:bg-slate-800 dark:text-slate-100";
 }
 
-function rotuloTipoLead(tipo: string) {
-  const valor = String(tipo || "").trim().toUpperCase();
-
-  if (valor === "INSTITUICAO") return "INSTITUIÇÃO";
-
-  // FORMAX é legado/teste antigo. Visualmente mostramos como PHANYX.
-  return "PHANYX";
-}
-
 function diasSemContato(lead: Lead) {
   const base = lead.ultimoContatoEm || lead.createdAt;
   const inicio = new Date(base).getTime();
@@ -271,20 +308,6 @@ function classificarFollowUp(lead: Lead) {
   if (alvo < hoje) return "atrasado";
   if (alvo === hoje) return "hoje";
   return "ok";
-}
-
-function textoFollowUp(lead: Lead) {
-  const situacao = classificarFollowUp(lead);
-
-  if (situacao === "atrasado") return "Acompanhamento atrasado";
-  if (situacao === "hoje") return "Acompanhamento hoje";
-  if (situacao === "sem_followup_critico") {
-    return "Sem acompanhamento há muitos dias";
-  }
-  if (situacao === "sem_followup_alerta") {
-    return "Definir próximo contato";
-  }
-  return "Em dia";
 }
 
 function classeFollowUp(lead: Lead) {
@@ -323,12 +346,6 @@ function calcularScore(lead: Lead) {
   if (score > 100) score = 100;
 
   return score;
-}
-
-function rotuloScore(score: number) {
-  if (score >= 75) return "Quente";
-  if (score >= 45) return "Morno";
-  return "Frio";
 }
 
 function classeScore(score: number) {
@@ -499,6 +516,155 @@ function FiltroSelect({
 export default function AdminLeadsPage() {
   const router = useRouter();
 
+  const t =
+    useTranslations(
+      "AdminLeads"
+    );
+
+  const locale =
+    useLocale();
+
+  const formatarData = (
+    data?: string | null
+  ) =>
+    formatarDataComLocale(
+      data,
+      locale
+    );
+
+  const formatarDataHora = (
+    data?: string | null
+  ) =>
+    formatarDataHoraComLocale(
+      data,
+      locale
+    );
+
+  const formatarMoeda = (
+    valor?: number | null
+  ) =>
+    formatarMoedaComLocale(
+      valor,
+      locale
+    );
+
+  function rotuloStatus(
+    status: string
+  ) {
+    const valor =
+      String(status || "")
+        .trim()
+        .toUpperCase();
+
+    const chaves: Record<
+      string,
+      string
+    > = {
+      NOVO: "enums.status.new",
+      CONTATO: "enums.status.contact",
+      PROPOSTA: "enums.status.proposal",
+      FECHADO: "enums.status.closed",
+      PERDIDO: "enums.status.lost",
+    };
+
+    const chave =
+      chaves[valor];
+
+    return chave
+      ? t(chave as any)
+      : status || "—";
+  }
+
+  function rotuloPrioridade(
+    prioridade: string
+  ) {
+    const valor =
+      String(prioridade || "")
+        .trim()
+        .toUpperCase();
+
+    const chaves: Record<
+      string,
+      string
+    > = {
+      ALTA: "enums.priority.high",
+      MEDIA: "enums.priority.medium",
+      BAIXA: "enums.priority.low",
+    };
+
+    const chave =
+      chaves[valor];
+
+    return chave
+      ? t(chave as any)
+      : prioridade || "—";
+  }
+
+  function rotuloTipoLeadTraduzido(
+    tipo: string
+  ) {
+    const valor =
+      String(tipo || "")
+        .trim()
+        .toUpperCase();
+
+    if (
+      valor === "INSTITUICAO"
+    ) {
+      return t(
+        "enums.leadType.institution"
+      );
+    }
+
+    return "PHANYX";
+  }
+
+  function rotuloFollowUpTraduzido(
+    lead: Lead
+  ) {
+    const situacao =
+      classificarFollowUp(
+        lead
+      );
+
+    const chaves: Record<
+      string,
+      string
+    > = {
+      atrasado:
+        "followUp.overdue",
+      hoje:
+        "followUp.today",
+      sem_followup_critico:
+        "followUp.critical",
+      sem_followup_alerta:
+        "followUp.defineNext",
+      ok:
+        "followUp.upToDate",
+    };
+
+    return t(
+      (
+        chaves[situacao] ||
+        "followUp.upToDate"
+      ) as any
+    );
+  }
+
+  function rotuloScoreTraduzido(
+    score: number
+  ) {
+    if (score >= 75) {
+      return t("score.hot");
+    }
+
+    if (score >= 45) {
+      return t("score.warm");
+    }
+
+    return t("score.cold");
+  }
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -560,7 +726,7 @@ export default function AdminLeadsPage() {
 
       if (!contentType.includes("application/json")) {
         throw new Error(
-          "Não foi possível identificar o contexto do usuário."
+          t("errors.identifyUserContext")
         );
       }
 
@@ -569,7 +735,7 @@ export default function AdminLeadsPage() {
       if (!res.ok || !json?.user) {
         throw new Error(
           json?.error ||
-          "Não foi possível identificar o usuário autenticado."
+          t("errors.identifyAuthenticatedUser")
         );
       }
 
@@ -579,7 +745,7 @@ export default function AdminLeadsPage() {
 
       setErro(
         err?.message ||
-        "Não foi possível identificar o contexto do CRM."
+        t("errors.identifyCrmContext")
       );
     } finally {
       setCarregandoContexto(false);
@@ -610,7 +776,7 @@ export default function AdminLeadsPage() {
         );
 
         throw new Error(
-          "A API de responsáveis não retornou JSON."
+          t("errors.responsiblesInvalidResponse")
         );
       }
 
@@ -619,7 +785,7 @@ export default function AdminLeadsPage() {
       if (!res.ok) {
         throw new Error(
           json?.error ||
-          "Não foi possível carregar os responsáveis."
+          t("errors.loadResponsibles")
         );
       }
 
@@ -629,7 +795,7 @@ export default function AdminLeadsPage() {
     } catch (err: any) {
       setErroResponsaveis(
         err?.message ||
-        "Não foi possível carregar os responsáveis."
+        t("errors.loadResponsibles")
       );
 
       setResponsaveisLeads([]);
@@ -655,18 +821,18 @@ export default function AdminLeadsPage() {
       if (!contentType.includes("application/json")) {
         const texto = await res.text();
         console.error("Resposta não-JSON em /api/admin/leads:", texto);
-        throw new Error("A API de leads não retornou JSON.");
+        throw new Error(t("errors.leadsInvalidResponse"));
       }
 
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar leads.");
+        throw new Error(json?.error || t("errors.loadLeads"));
       }
 
       setLeads(Array.isArray(json) ? json : []);
     } catch (err: any) {
-      setErro(err?.message || "Erro ao carregar leads.");
+      setErro(err?.message || t("errors.loadLeads"));
       setLeads([]);
     } finally {
       setCarregando(false);
@@ -681,12 +847,12 @@ export default function AdminLeadsPage() {
 
       const json = await res.json();
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar interações.");
+        throw new Error(json?.error || t("errors.loadInteractions"));
       }
 
       setInteracoes(Array.isArray(json) ? json : []);
     } catch (err: any) {
-      setErro(err?.message || "Erro ao carregar interações.");
+      setErro(err?.message || t("errors.loadInteractions"));
       setInteracoes([]);
     }
   }
@@ -748,7 +914,7 @@ export default function AdminLeadsPage() {
         )
       ) {
         throw new Error(
-          "A API não retornou os detalhes do lead corretamente."
+          t("errors.leadDetailsInvalidResponse")
         );
       }
 
@@ -758,7 +924,7 @@ export default function AdminLeadsPage() {
       if (!res.ok) {
         throw new Error(
           json?.error ||
-          "Não foi possível carregar os detalhes do lead."
+          t("errors.loadLeadDetails")
         );
       }
 
@@ -866,7 +1032,7 @@ export default function AdminLeadsPage() {
     } catch (err: any) {
       setPopupErro(
         err?.message ||
-        "Não foi possível abrir o lead."
+        t("errors.openLead")
       );
     }
   }
@@ -883,7 +1049,7 @@ export default function AdminLeadsPage() {
   async function salvarLead() {
     if (!form.nome.trim() || !form.email.trim()) {
       setPopupErro(
-        "Preencha o nome e o e-mail do interessado antes de salvar."
+        t("errors.nameEmailRequired")
       );
       return;
     }
@@ -949,20 +1115,20 @@ export default function AdminLeadsPage() {
       if (!contentType.includes("application/json")) {
         const texto = await res.text();
         console.error("Resposta não-JSON ao salvar lead:", texto);
-        throw new Error("A API não retornou JSON ao salvar o lead.");
+        throw new Error(t("errors.saveInvalidResponse"));
       }
 
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Não foi possível salvar o lead.");
+        throw new Error(json?.error || t("errors.saveLead"));
       }
 
       await carregarLeads();
       fecharPainel();
     } catch (err: any) {
       setPopupErro(
-        err?.message || "Não foi possível salvar o lead."
+        err?.message || t("errors.saveLead")
       );
     } finally {
       setSalvando(false);
@@ -974,7 +1140,7 @@ export default function AdminLeadsPage() {
 
     if (leadSelecionado.tipo !== "INSTITUICAO") {
       setPopupErro(
-        "Somente leads institucionais podem ser convertidos em aluno e matrícula."
+        t("errors.onlyInstitutionalCanConvert")
       );
 
       return;
@@ -992,7 +1158,7 @@ export default function AdminLeadsPage() {
 
     if (!matricula?.id) {
       setPopupErro(
-        "Não foi possível identificar a matrícula vinculada a este lead."
+        t("errors.enrollmentNotFound")
       );
 
       return;
@@ -1023,20 +1189,20 @@ export default function AdminLeadsPage() {
       if (!contentType.includes("application/json")) {
         const texto = await res.text();
         console.error("Resposta não-JSON ao excluir lead:", texto);
-        throw new Error("A API não retornou JSON ao excluir o lead.");
+        throw new Error(t("errors.deleteInvalidResponse"));
       }
 
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Não foi possível excluir o lead.");
+        throw new Error(json?.error || t("errors.deleteLead"));
       }
 
       await carregarLeads();
       setLeadParaExcluir(null);
       fecharPainel();
     } catch (err: any) {
-      setErro(err?.message || "Não foi possível excluir o lead.");
+      setErro(err?.message || t("errors.deleteLead"));
     } finally {
       setSalvando(false);
     }
@@ -1058,13 +1224,13 @@ export default function AdminLeadsPage() {
       if (!contentType.includes("application/json")) {
         const texto = await res.text();
         console.error("Resposta não-JSON ao mover lead:", texto);
-        throw new Error("A API não retornou JSON ao mover o lead.");
+        throw new Error(t("errors.moveInvalidResponse"));
       }
 
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Não foi possível mover o lead.");
+        throw new Error(json?.error || t("errors.moveLead"));
       }
 
       await carregarLeads();
@@ -1074,7 +1240,7 @@ export default function AdminLeadsPage() {
         setForm((prev) => ({ ...prev, status }));
       }
     } catch (err: any) {
-      setErro(err?.message || "Não foi possível mover o lead.");
+      setErro(err?.message || t("errors.moveLead"));
     }
   }
 
@@ -1102,14 +1268,14 @@ export default function AdminLeadsPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Não foi possível registrar a interação.");
+        throw new Error(json?.error || t("errors.registerInteraction"));
       }
 
       setNovaInteracao("");
       await carregarInteracoes(leadSelecionado.id);
       await carregarLeads();
     } catch (err: any) {
-      setErro(err?.message || "Não foi possível registrar a interação.");
+      setErro(err?.message || t("errors.registerInteraction"));
     } finally {
       setSalvandoInteracao(false);
     }
@@ -1201,20 +1367,20 @@ export default function AdminLeadsPage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">
               {ehCrmGlobalPhanyx
-                ? "CRM Comercial PHANYX"
-                : "Comercial da instituição"}
+                ? t("header.globalSection")
+                : t("header.institutionSection")}
             </p>
 
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
               {ehCrmGlobalPhanyx
-                ? "Painel de Leads PHANYX"
-                : "Leads e oportunidades"}
+                ? t("header.globalTitle")
+                : t("header.institutionTitle")}
             </h1>
 
             <p className="mt-4 max-w-4xl text-lg leading-8 text-slate-600">
               {ehCrmGlobalPhanyx
-                ? "Gerencie os interessados na plataforma PHANYX, acompanhe contatos, propostas e oportunidades comerciais."
-                : "Cadastre interessados, distribua leads entre os responsáveis comerciais e acompanhe cada oportunidade até a conversão em matrícula."}
+                ? t("header.globalDescription")
+                : t("header.institutionDescription")}
             </p>
           </div>
 
@@ -1228,56 +1394,56 @@ export default function AdminLeadsPage() {
             className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {carregandoContexto
-              ? "Carregando..."
+              ? t("actions.loadingContext")
               : !usuarioContexto
-                ? "Contexto indisponível"
-                : "Novo lead manual"}
+                ? t("actions.contextUnavailable")
+                : t("actions.newManualLead")}
           </button>
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-9">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Total</p>
+            <p className="text-sm text-slate-500">{t("metrics.total")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.total}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Novos</p>
+            <p className="text-sm text-slate-500">{t("metrics.new")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.novos}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Em contato</p>
+            <p className="text-sm text-slate-500">{t("metrics.contact")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.contato}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Proposta</p>
+            <p className="text-sm text-slate-500">{t("metrics.proposal")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.proposta}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Fechados</p>
+            <p className="text-sm text-slate-500">{t("metrics.closed")}</p>
             <p className="mt-3 text-4xl font-bold text-emerald-600">{metricas.fechados}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Perdidos</p>
+            <p className="text-sm text-slate-500">{t("metrics.lost")}</p>
             <p className="mt-3 text-4xl font-bold text-rose-600">{metricas.perdidos}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Acompanhamento hoje</p>
+            <p className="text-sm text-slate-500">{t("metrics.followUpToday")}</p>
             <p className="mt-3 text-4xl font-bold text-amber-600">{metricas.followupHoje}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Atrasados</p>
+            <p className="text-sm text-slate-500">{t("metrics.overdue")}</p>
             <p className="mt-3 text-4xl font-bold text-red-600">{metricas.followupAtrasado}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">Pipeline comercial</p>
+            <p className="text-sm text-slate-500">{t("metrics.pipeline")}</p>
             <p className="mt-3 text-3xl font-bold text-slate-900">
               {formatarMoeda(metricas.pipeline)}
             </p>
@@ -1286,12 +1452,10 @@ export default function AdminLeadsPage() {
 
         <div className="phanyx-leads-info-card mt-6 rounded-3xl border px-5 py-4 shadow-sm">
           <p className="phanyx-leads-info-title font-bold">
-            Leitura do CRM
+            {t("info.title")}
           </p>
           <p className="phanyx-leads-info-text mt-1 text-sm leading-6">
-            Este painel acompanha oportunidades comerciais e o acompanhamento dos leads.
-            Pagamentos reais via Asaas, matrículas do Bacharel Livre em Teologia e
-            compras de recursos como IA aparecem no Painel Master, não no CRM de leads.
+            {t("info.description")}
           </p>
         </div>
 
@@ -1301,18 +1465,18 @@ export default function AdminLeadsPage() {
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Busca inteligente: nome, e-mail, telefone, instituição, interesse, responsável ou observação"
+              placeholder={t("filters.searchPlaceholder")}
               className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500 md:col-span-2 xl:col-span-3 2xl:col-span-2"
             />
 
             <FiltroSelect
-              ariaLabel="Filtrar leads por origem"
+              ariaLabel={t("filters.originAria")}
               value={filtroOrigem}
               onChange={setFiltroOrigem}
               options={[
                 {
                   value: "",
-                  label: "Todas as origens",
+                  label: t("filters.allOrigins"),
                 },
                 ...origensDisponiveis.map((origem) => ({
                   value: origem,
@@ -1322,49 +1486,49 @@ export default function AdminLeadsPage() {
             />
 
             <FiltroSelect
-              ariaLabel="Filtrar leads por status"
+              ariaLabel={t("filters.statusAria")}
               value={filtroStatus}
               onChange={setFiltroStatus}
               options={[
                 {
                   value: "",
-                  label: "Todos os status",
+                  label: t("filters.allStatuses"),
                 },
                 {
                   value: "NOVO",
-                  label: "Novo",
+                  label: t("enums.status.new"),
                 },
                 {
                   value: "CONTATO",
-                  label: "Em contato",
+                  label: t("enums.status.contact"),
                 },
                 {
                   value: "PROPOSTA",
-                  label: "Proposta",
+                  label: t("enums.status.proposal"),
                 },
                 {
                   value: "FECHADO",
-                  label: "Fechado",
+                  label: t("enums.status.closed"),
                 },
                 {
                   value: "PERDIDO",
-                  label: "Perdido",
+                  label: t("enums.status.lost"),
                 },
               ]}
             />
 
             <FiltroSelect
-              ariaLabel="Filtrar leads por responsável"
+              ariaLabel={t("filters.responsibleAria")}
               value={filtroResponsavel}
               onChange={setFiltroResponsavel}
               options={[
                 {
                   value: "",
-                  label: "Todos os responsáveis",
+                  label: t("filters.allResponsibles"),
                 },
                 {
                   value: "SEM_RESPONSAVEL",
-                  label: "Sem responsável",
+                  label: t("filters.noResponsible"),
                 },
                 ...responsaveisLeads.map((responsavel) => ({
                   value: String(responsavel.id),
@@ -1374,78 +1538,78 @@ export default function AdminLeadsPage() {
             />
 
             <FiltroSelect
-              ariaLabel="Filtrar leads por prioridade"
+              ariaLabel={t("filters.priorityAria")}
               value={filtroPrioridade}
               onChange={setFiltroPrioridade}
               options={[
                 {
                   value: "",
-                  label: "Todas as prioridades",
+                  label: t("filters.allPriorities"),
                 },
                 {
                   value: "ALTA",
-                  label: "Alta",
+                  label: t("enums.priority.high"),
                 },
                 {
                   value: "MEDIA",
-                  label: "Média",
+                  label: t("enums.priority.medium"),
                 },
                 {
                   value: "BAIXA",
-                  label: "Baixa",
+                  label: t("enums.priority.low"),
                 },
               ]}
             />
 
             <FiltroSelect
-              ariaLabel="Filtrar leads por situação do acompanhamento"
+              ariaLabel={t("filters.followUpAria")}
               value={filtroFollowUp}
               onChange={setFiltroFollowUp}
               options={[
                 {
                   value: "",
-                  label: "Todo acompanhamento",
+                  label: t("filters.allFollowUp"),
                 },
                 {
                   value: "hoje",
-                  label: "Acompanhamento hoje",
+                  label: t("followUp.today"),
                 },
                 {
                   value: "atrasado",
-                  label: "Acompanhamento atrasado",
+                  label: t("followUp.overdue"),
                 },
                 {
                   value: "sem_followup_alerta",
-                  label: "Definir próximo contato",
+                  label: t("followUp.defineNext"),
                 },
                 {
                   value: "sem_followup_critico",
-                  label: "Sem acompanhamento há dias",
+                  label: t("followUp.criticalShort"),
                 },
                 {
                   value: "ok",
-                  label: "Em dia",
+                  label: t("followUp.upToDate"),
                 },
               ]}
             />
 
             {ehCrmGlobalPhanyx && (
               <FiltroSelect
-                ariaLabel="Filtrar leads por tipo"
+                ariaLabel={t("filters.typeAria")}
                 value={filtroTipo}
                 onChange={setFiltroTipo}
                 options={[
                   {
                     value: "",
-                    label: "Todos os tipos",
+                    label: t("filters.allTypes"),
                   },
                   {
                     value: "PHANYX",
-                    label: "Leads PHANYX",
+                    label: t("filters.phanyxLeads"),
                   },
                   {
                     value: "INSTITUICAO",
-                    label: "Leads das instituições",
+                    label: t("filters.institutionLeads"),
                   },
                 ]}
               />
@@ -1462,26 +1626,25 @@ export default function AdminLeadsPage() {
 
         {carregando ? (
           <div className="mt-8 rounded-3xl border border-slate-200 bg-white px-6 py-10 text-slate-600 shadow-sm">
-            Carregando leads...
+            {t("list.loading")}
           </div>
         ) : (
           <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-black text-slate-900">
-                  Listagem de leads
+                  {t("list.title")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  {leadsFiltrados.length}{" "}
-                  {leadsFiltrados.length === 1
-                    ? "lead encontrado"
-                    : "leads encontrados"}
+                  {t("list.results", {
+                    count: leadsFiltrados.length,
+                  })}
                 </p>
               </div>
 
               <div className="text-xs font-semibold text-slate-500">
-                Clique em Detalhes para editar, registrar interações ou alterar a etapa.
+                {t("list.instruction")}
               </div>
             </div>
 
@@ -1490,31 +1653,31 @@ export default function AdminLeadsPage() {
                 <thead className="bg-slate-100">
                   <tr className="border-b border-slate-200">
                     <th className="w-[20%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Lead e contato
+                      {t("list.columns.contact")}
                     </th>
 
                     <th className="w-[19%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Instituição e interesse
+                      {t("list.columns.institutionInterest")}
                     </th>
 
                     <th className="w-[14%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Responsável
+                      {t("list.columns.responsible")}
                     </th>
 
                     <th className="w-[11%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Etapa
+                      {t("list.columns.stage")}
                     </th>
 
                     <th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Acompanhamento
+                      {t("list.columns.followUp")}
                     </th>
 
                     <th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
-                      Valor
+                      {t("list.columns.value")}
                     </th>
 
                     <th className="sticky right-0 z-20 w-[11%] bg-slate-100 px-3 py-4 text-center text-xs font-black uppercase tracking-wide text-slate-600">
-                      Ações
+                      {t("list.columns.actions")}
                     </th>
                   </tr>
                 </thead>
@@ -1527,11 +1690,11 @@ export default function AdminLeadsPage() {
                         className="px-6 py-16 text-center"
                       >
                         <p className="text-base font-bold text-slate-700">
-                          Nenhum lead encontrado
+                          {t("list.emptyTitle")}
                         </p>
 
                         <p className="mt-2 text-sm text-slate-500">
-                          Ajuste a busca ou os filtros para visualizar outros resultados.
+                          {t("list.emptyDescription")}
                         </p>
                       </td>
                     </tr>
@@ -1561,14 +1724,14 @@ export default function AdminLeadsPage() {
                             </p>
 
                             <p className="mt-1 text-sm text-slate-500">
-                              {lead.telefone || "Telefone não informado"}
+                              {lead.telefone || t("list.phoneMissing")}
                             </p>
 
                             <p
                               title={lead.origem}
                               className="mt-2 max-w-[220px] truncate text-xs font-semibold text-slate-500"
                             >
-                              Origem: {lead.origem}
+                              {t("list.source")}: {lead.origem}
                             </p>
 
                             <div className="mt-3 flex flex-wrap gap-2">
@@ -1577,7 +1740,7 @@ export default function AdminLeadsPage() {
                                   score
                                 )}`}
                               >
-                                Score {score} · {rotuloScore(score)}
+                                {t("score.label")} {score} · {rotuloScoreTraduzido(score)}
                               </span>
 
                               <span
@@ -1585,7 +1748,7 @@ export default function AdminLeadsPage() {
                                   lead.tipo
                                 )}`}
                               >
-                                {rotuloTipoLead(lead.tipo)}
+                                {rotuloTipoLeadTraduzido(lead.tipo)}
                               </span>
                             </div>
                           </td>
@@ -1596,18 +1759,18 @@ export default function AdminLeadsPage() {
                               className="max-w-[210px] font-semibold text-slate-800"
                             >
                               {lead.instituicaoNome ||
-                                "Instituição não informada"}
+                                t("list.institutionMissing")}
                             </p>
 
                             <p className="mt-2 max-w-[210px] text-sm font-medium leading-5 text-slate-600">
                               {lead.interesse ||
                                 lead.cursoInteresse?.nome ||
-                                "Interesse não informado"}
+                                t("list.interestMissing")}
                             </p>
 
                             {lead.poloInteresse?.nome && (
                               <p className="mt-1 max-w-[210px] text-xs text-slate-500">
-                                Unidade:{" "}
+                                {t("list.unit")}:{" "}
                                 <span className="font-semibold">
                                   {lead.poloInteresse.nome}
                                 </span>
@@ -1615,16 +1778,16 @@ export default function AdminLeadsPage() {
                             )}
 
                             <p className="mt-2 max-w-[210px] text-xs text-slate-500">
-                              Cargo:{" "}
+                              {t("list.role")}:{" "}
                               {lead.cargo ||
-                                "não informado"}
+                                t("list.notProvided")}
                             </p>
                           </td>
 
                           <td className="px-4 py-4 align-top">
                             <p className="max-w-[145px] font-semibold text-slate-800">
                               {lead.responsavelNome ||
-                                "Sem responsável"}
+                                t("list.noResponsible")}
                             </p>
                           </td>
 
@@ -1635,7 +1798,7 @@ export default function AdminLeadsPage() {
                                   lead.status
                                 )}`}
                               >
-                                {lead.status}
+                                {rotuloStatus(lead.status)}
                               </span>
 
                               <span
@@ -1643,7 +1806,7 @@ export default function AdminLeadsPage() {
                                   lead.prioridade
                                 )}`}
                               >
-                                {lead.prioridade}
+                                {rotuloPrioridade(lead.prioridade)}
                               </span>
                             </div>
                           </td>
@@ -1654,7 +1817,7 @@ export default function AdminLeadsPage() {
                                 lead
                               )}`}
                             >
-                              {textoFollowUp(lead)}
+                              {rotuloFollowUpTraduzido(lead)}
                             </span>
 
                             <p className="mt-2 whitespace-nowrap text-xs text-slate-500">

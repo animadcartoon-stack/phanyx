@@ -16264,5 +16264,132 @@
         "saveGenericError": "Error al guardar la plantilla de mensaje."
       }
     }
+  },
+  "AdminLeads": {
+    "errors": {
+      "identifyUserContext": "No se pudo identificar el contexto del usuario.",
+      "identifyAuthenticatedUser": "No se pudo identificar al usuario autenticado.",
+      "identifyCrmContext": "No se pudo identificar el contexto del CRM.",
+      "responsiblesInvalidResponse": "La API de responsables no devolvió una respuesta válida.",
+      "loadResponsibles": "No se pudieron cargar los responsables.",
+      "leadsInvalidResponse": "La API de leads no devolvió una respuesta válida.",
+      "loadLeads": "No se pudieron cargar los leads.",
+      "loadInteractions": "No se pudieron cargar las interacciones.",
+      "leadDetailsInvalidResponse": "La API no devolvió correctamente los detalles del lead.",
+      "loadLeadDetails": "No se pudieron cargar los detalles del lead.",
+      "openLead": "No se pudo abrir el lead.",
+      "nameEmailRequired": "Introduce el nombre y el correo electrónico del interesado antes de guardar.",
+      "saveInvalidResponse": "La API no devolvió una respuesta válida al guardar el lead.",
+      "saveLead": "No se pudo guardar el lead.",
+      "onlyInstitutionalCanConvert": "Solo los leads institucionales pueden convertirse en alumno y matrícula.",
+      "enrollmentNotFound": "No se pudo identificar la matrícula vinculada a este lead.",
+      "deleteInvalidResponse": "La API no devolvió una respuesta válida al eliminar el lead.",
+      "deleteLead": "No se pudo eliminar el lead.",
+      "moveInvalidResponse": "La API no devolvió una respuesta válida al mover el lead.",
+      "moveLead": "No se pudo mover el lead.",
+      "registerInteraction": "No se pudo registrar la interacción."
+    },
+    "header": {
+      "globalSection": "CRM Comercial PHANYX",
+      "institutionSection": "Comercial de la institución",
+      "globalTitle": "Panel de Leads PHANYX",
+      "institutionTitle": "Leads y oportunidades",
+      "globalDescription": "Gestiona los interesados en la plataforma PHANYX y realiza el seguimiento de contactos, propuestas y oportunidades comerciales.",
+      "institutionDescription": "Registra interesados, distribuye los leads entre los responsables comerciales y acompaña cada oportunidad hasta su conversión en matrícula."
+    },
+    "actions": {
+      "loadingContext": "Cargando...",
+      "contextUnavailable": "Contexto no disponible",
+      "newManualLead": "Nuevo lead manual"
+    },
+    "metrics": {
+      "total": "Total",
+      "new": "Nuevos",
+      "contact": "En contacto",
+      "proposal": "Propuesta",
+      "closed": "Cerrados",
+      "lost": "Perdidos",
+      "followUpToday": "Seguimiento hoy",
+      "overdue": "Atrasados",
+      "pipeline": "Pipeline comercial"
+    },
+    "info": {
+      "title": "Lectura del CRM",
+      "description": "Este panel realiza el seguimiento de oportunidades comerciales y de los leads. Los pagos reales mediante Asaas, las matrículas del Bachillerato Libre en Teología y las compras de recursos como IA aparecen en el Panel Master, no en el CRM de leads."
+    },
+    "filters": {
+      "searchPlaceholder": "Búsqueda inteligente: nombre, correo electrónico, teléfono, institución, interés, responsable u observación",
+      "originAria": "Filtrar leads por origen",
+      "allOrigins": "Todos los orígenes",
+      "statusAria": "Filtrar leads por estado",
+      "allStatuses": "Todos los estados",
+      "responsibleAria": "Filtrar leads por responsable",
+      "allResponsibles": "Todos los responsables",
+      "noResponsible": "Sin responsable",
+      "priorityAria": "Filtrar leads por prioridad",
+      "allPriorities": "Todas las prioridades",
+      "followUpAria": "Filtrar leads por situación del seguimiento",
+      "allFollowUp": "Todo el seguimiento",
+      "typeAria": "Filtrar leads por tipo",
+      "allTypes": "Todos los tipos",
+      "phanyxLeads": "Leads PHANYX",
+      "institutionLeads": "Leads de las instituciones"
+    },
+    "enums": {
+      "status": {
+        "new": "Nuevo",
+        "contact": "En contacto",
+        "proposal": "Propuesta",
+        "closed": "Cerrado",
+        "lost": "Perdido"
+      },
+      "priority": {
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja"
+      },
+      "leadType": {
+        "institution": "Institución"
+      }
+    },
+    "followUp": {
+      "today": "Seguimiento hoy",
+      "overdue": "Seguimiento atrasado",
+      "defineNext": "Definir próximo contacto",
+      "critical": "Sin seguimiento desde hace muchos días",
+      "criticalShort": "Sin seguimiento desde hace días",
+      "upToDate": "Al día"
+    },
+    "score": {
+      "label": "Puntuación",
+      "hot": "Caliente",
+      "warm": "Templado",
+      "cold": "Frío"
+    },
+    "list": {
+      "loading": "Cargando leads...",
+      "title": "Lista de leads",
+      "results": "{count, plural, one {# lead encontrado} other {# leads encontrados}}",
+      "instruction": "Haz clic en Detalles para editar, registrar interacciones o cambiar la etapa.",
+      "columns": {
+        "contact": "Lead y contacto",
+        "institutionInterest": "Institución e interés",
+        "responsible": "Responsable",
+        "stage": "Etapa",
+        "followUp": "Seguimiento",
+        "value": "Valor",
+        "actions": "Acciones"
+      },
+      "emptyTitle": "No se encontraron leads",
+      "emptyDescription": "Ajusta la búsqueda o los filtros para ver otros resultados.",
+      "phoneMissing": "Teléfono no informado",
+      "source": "Origen",
+      "institutionMissing": "Institución no informada",
+      "interestMissing": "Interés no informado",
+      "unit": "Sede",
+      "role": "Cargo",
+      "notProvided": "no informado",
+      "noResponsible": "Sin responsable"
+    }
   }
 }

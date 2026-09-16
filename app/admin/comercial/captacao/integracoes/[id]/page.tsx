@@ -350,6 +350,61 @@ type RespostaPatch = {
   };
 };
 
+type EventoSaidaCaptacao =
+  | "SUBMISSAO_PROCESSADA"
+  | "SUBMISSAO_DUPLICADA"
+  | "SUBMISSAO_REJEITADA"
+  | "LEAD_CRIADO"
+  | "LEAD_ATUALIZADO"
+  | "LEAD_ETAPA_ALTERADA"
+  | "LEAD_PERDIDO"
+  | "LEAD_CONVERTIDO"
+  | "LEAD_RESPONSAVEL_ALTERADO"
+  | "TAREFA_CRIADA"
+  | "TAREFA_CONCLUIDA";
+
+const EVENTOS_SAIDA_DISPONIVEIS: EventoSaidaCaptacao[] = [
+  "SUBMISSAO_PROCESSADA",
+  "SUBMISSAO_DUPLICADA",
+  "SUBMISSAO_REJEITADA",
+  "LEAD_CRIADO",
+  "LEAD_ATUALIZADO",
+  "LEAD_ETAPA_ALTERADA",
+  "LEAD_PERDIDO",
+  "LEAD_CONVERTIDO",
+  "LEAD_RESPONSAVEL_ALTERADO",
+  "TAREFA_CRIADA",
+  "TAREFA_CONCLUIDA",
+];
+
+const CHAVES_EVENTOS_SAIDA: Record<
+  EventoSaidaCaptacao,
+  string
+> = {
+  SUBMISSAO_PROCESSADA:
+    "list.modal.webhookEvents.items.submissionProcessed",
+  SUBMISSAO_DUPLICADA:
+    "list.modal.webhookEvents.items.submissionDuplicated",
+  SUBMISSAO_REJEITADA:
+    "list.modal.webhookEvents.items.submissionRejected",
+  LEAD_CRIADO:
+    "list.modal.webhookEvents.items.leadCreated",
+  LEAD_ATUALIZADO:
+    "list.modal.webhookEvents.items.leadUpdated",
+  LEAD_ETAPA_ALTERADA:
+    "list.modal.webhookEvents.items.leadStageChanged",
+  LEAD_PERDIDO:
+    "list.modal.webhookEvents.items.leadLost",
+  LEAD_CONVERTIDO:
+    "list.modal.webhookEvents.items.leadConverted",
+  LEAD_RESPONSAVEL_ALTERADO:
+    "list.modal.webhookEvents.items.leadOwnerChanged",
+  TAREFA_CRIADA:
+    "list.modal.webhookEvents.items.taskCreated",
+  TAREFA_CONCLUIDA:
+    "list.modal.webhookEvents.items.taskCompleted",
+};
+
 type FormularioEdicao = {
   nome: string;
   tipo: string;
@@ -359,6 +414,7 @@ type FormularioEdicao = {
   formularioId: string;
 
   urlEndpoint: string;
+  eventosAssinados: EventoSaidaCaptacao[];
 };
 
 type Toast = {
@@ -836,6 +892,9 @@ export default function IntegracaoDetalhePage() {
       campanhaId: "",
       formularioId: "",
       urlEndpoint: "",
+      eventosAssinados: [
+        ...EVENTOS_SAIDA_DISPONIVEIS,
+      ],
     });
 
   const [
@@ -1210,6 +1269,22 @@ export default function IntegracaoDetalhePage() {
           dados.integracao
             .urlEndpoint ||
           "",
+
+        eventosAssinados:
+          Array.isArray(
+            dados.integracao.eventosAssinados
+          )
+            ? dados.integracao.eventosAssinados.filter(
+                (
+                  evento
+                ): evento is EventoSaidaCaptacao =>
+                  EVENTOS_SAIDA_DISPONIVEIS.includes(
+                    evento as EventoSaidaCaptacao
+                  )
+              )
+            : [
+                ...EVENTOS_SAIDA_DISPONIVEIS,
+              ],
       });
     } catch (error) {
       mostrarErro(
@@ -1383,7 +1458,21 @@ export default function IntegracaoDetalhePage() {
       return;
     }
 
-    try {
+    
+
+    if (
+      formulario.tipo ===
+        "WEBHOOK_SAIDA" &&
+      formulario.eventosAssinados.length === 0
+    ) {
+      mostrarErro(
+        t("errors.atLeastOneWebhookEvent")
+      );
+
+      return;
+    }
+
+try {
       setSalvando(
         true
       );
@@ -1431,6 +1520,12 @@ export default function IntegracaoDetalhePage() {
               urlEndpoint:
                 formulario.urlEndpoint.trim() ||
                 null,
+
+              eventosAssinados:
+                formulario.tipo ===
+                "WEBHOOK_SAIDA"
+                  ? formulario.eventosAssinados
+                  : null,
             }),
           }
         );

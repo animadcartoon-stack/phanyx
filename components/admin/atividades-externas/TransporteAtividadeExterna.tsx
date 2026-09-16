@@ -2055,7 +2055,8 @@ export default function TransporteAtividadeExterna({
                                 </p>
                               )}
 
-                              {podeGerenciar && vinculo.status === "PLANEJADO" ? (
+                              {podeGerenciar &&
+                              vinculo.status === "PLANEJADO" ? (
                                 condutoresNaoVinculados.length > 0 ? (
                                   <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto] lg:items-end">
                                     <SelectPhanyx
@@ -2196,7 +2197,8 @@ export default function TransporteAtividadeExterna({
                                           </span>
 
                                           {podeGerenciar &&
-                                          passageiro.status === "PLANEJADO" ? (
+                                          passageiro.status === "PLANEJADO" &&
+                                          vinculo.status === "PLANEJADO" ? (
                                             <button
                                               type="button"
                                               onClick={() =>
@@ -2422,7 +2424,8 @@ export default function TransporteAtividadeExterna({
                                 </p>
                               )}
 
-                              {podeGerenciar && vinculo.status === "PLANEJADO" ? (
+                              {podeGerenciar &&
+                              vinculo.status === "PLANEJADO" ? (
                                 participantesNaoVinculados.length > 0 ? (
                                   <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_160px_auto] lg:items-end">
                                     <SelectPhanyx

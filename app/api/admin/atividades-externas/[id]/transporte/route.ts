@@ -1560,29 +1560,36 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
       }
 
       const passageiro =
-        await prisma.atividadeExternaTrechoPassageiro.findFirst({
-          where: {
-            id: passageiroId,
+  await prisma.atividadeExternaTrechoPassageiro.findFirst({
+    where: {
+      id: passageiroId,
 
-            instituicaoId: usuario.instituicaoId,
+      instituicaoId: usuario.instituicaoId,
 
-            atividadeExternaTrecho: {
-              atividadeExternaId: atividade.id,
-            },
-          },
+      atividadeExternaTrecho: {
+        atividadeExternaId: atividade.id,
+      },
+    },
 
-          select: {
-            id: true,
+    select: {
+      id: true,
 
-            status: true,
+      status: true,
 
-            participanteId: true,
+      participanteId: true,
 
-            trechoVeiculoId: true,
+      trechoVeiculoId: true,
 
-            atividadeExternaTrechoId: true,
-          },
-        });
+      atividadeExternaTrechoId: true,
+
+      trechoVeiculo: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+    },
+  });
 
       if (!passageiro) {
         return NextResponse.json(
@@ -1601,20 +1608,25 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
        * comeÃ§ar, o vÃ­nculo passa a fazer
        * parte do histÃ³rico operacional.
        */
-      if (passageiro.status !== "PLANEJADO") {
-        return NextResponse.json(
-          {
-            ok: false,
+      if (
+  passageiro.status !== "PLANEJADO" ||
+  passageiro.trechoVeiculo.status !== "PLANEJADO"
+) {
+  return NextResponse.json(
+    {
+      ok: false,
 
-            error: "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO",
+      error: "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO",
 
-            statusAtual: passageiro.status,
-          },
-          {
-            status: 409,
-          },
-        );
-      }
+      statusAtual: passageiro.status,
+
+      statusVeiculo: passageiro.trechoVeiculo.status,
+    },
+    {
+      status: 409,
+    },
+  );
+}
 
       await prisma.atividadeExternaTrechoPassageiro.delete({
         where: {

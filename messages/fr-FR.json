@@ -16264,5 +16264,132 @@
         "saveGenericError": "Erreur lors de l'enregistrement du modèle de message."
       }
     }
+  },
+  "AdminLeads": {
+    "errors": {
+      "identifyUserContext": "Impossible d'identifier le contexte de l'utilisateur.",
+      "identifyAuthenticatedUser": "Impossible d'identifier l'utilisateur authentifié.",
+      "identifyCrmContext": "Impossible d'identifier le contexte du CRM.",
+      "responsiblesInvalidResponse": "L'API des responsables n'a pas renvoyé de réponse valide.",
+      "loadResponsibles": "Impossible de charger les responsables.",
+      "leadsInvalidResponse": "L'API des leads n'a pas renvoyé de réponse valide.",
+      "loadLeads": "Impossible de charger les leads.",
+      "loadInteractions": "Impossible de charger les interactions.",
+      "leadDetailsInvalidResponse": "L'API n'a pas renvoyé correctement les détails du lead.",
+      "loadLeadDetails": "Impossible de charger les détails du lead.",
+      "openLead": "Impossible d'ouvrir le lead.",
+      "nameEmailRequired": "Saisissez le nom et l'adresse e-mail du prospect avant d'enregistrer.",
+      "saveInvalidResponse": "L'API n'a pas renvoyé de réponse valide lors de l'enregistrement du lead.",
+      "saveLead": "Impossible d'enregistrer le lead.",
+      "onlyInstitutionalCanConvert": "Seuls les leads institutionnels peuvent être convertis en élève et inscription.",
+      "enrollmentNotFound": "Impossible d'identifier l'inscription associée à ce lead.",
+      "deleteInvalidResponse": "L'API n'a pas renvoyé de réponse valide lors de la suppression du lead.",
+      "deleteLead": "Impossible de supprimer le lead.",
+      "moveInvalidResponse": "L'API n'a pas renvoyé de réponse valide lors du déplacement du lead.",
+      "moveLead": "Impossible de déplacer le lead.",
+      "registerInteraction": "Impossible d'enregistrer l'interaction."
+    },
+    "header": {
+      "globalSection": "CRM Commercial PHANYX",
+      "institutionSection": "Service commercial de l'établissement",
+      "globalTitle": "Tableau de bord des leads PHANYX",
+      "institutionTitle": "Leads et opportunités",
+      "globalDescription": "Gérez les prospects intéressés par la plateforme PHANYX et suivez les contacts, propositions et opportunités commerciales.",
+      "institutionDescription": "Enregistrez les prospects, répartissez les leads entre les responsables commerciaux et suivez chaque opportunité jusqu'à sa conversion en inscription."
+    },
+    "actions": {
+      "loadingContext": "Chargement...",
+      "contextUnavailable": "Contexte indisponible",
+      "newManualLead": "Nouveau lead manuel"
+    },
+    "metrics": {
+      "total": "Total",
+      "new": "Nouveaux",
+      "contact": "En contact",
+      "proposal": "Proposition",
+      "closed": "Clôturés",
+      "lost": "Perdus",
+      "followUpToday": "Suivi aujourd'hui",
+      "overdue": "En retard",
+      "pipeline": "Pipeline commercial"
+    },
+    "info": {
+      "title": "Périmètre du CRM",
+      "description": "Ce tableau de bord suit les opportunités commerciales et le suivi des leads. Les paiements réels via Asaas, les inscriptions au Bachelor libre en théologie et les achats de ressources telles que l'IA apparaissent dans le Tableau de bord Master, et non dans le CRM des leads."
+    },
+    "filters": {
+      "searchPlaceholder": "Recherche intelligente : nom, e-mail, téléphone, établissement, intérêt, responsable ou remarque",
+      "originAria": "Filtrer les leads par origine",
+      "allOrigins": "Toutes les origines",
+      "statusAria": "Filtrer les leads par statut",
+      "allStatuses": "Tous les statuts",
+      "responsibleAria": "Filtrer les leads par responsable",
+      "allResponsibles": "Tous les responsables",
+      "noResponsible": "Sans responsable",
+      "priorityAria": "Filtrer les leads par priorité",
+      "allPriorities": "Toutes les priorités",
+      "followUpAria": "Filtrer les leads par situation de suivi",
+      "allFollowUp": "Tous les suivis",
+      "typeAria": "Filtrer les leads par type",
+      "allTypes": "Tous les types",
+      "phanyxLeads": "Leads PHANYX",
+      "institutionLeads": "Leads des établissements"
+    },
+    "enums": {
+      "status": {
+        "new": "Nouveau",
+        "contact": "En contact",
+        "proposal": "Proposition",
+        "closed": "Clôturé",
+        "lost": "Perdu"
+      },
+      "priority": {
+        "high": "Élevée",
+        "medium": "Moyenne",
+        "low": "Faible"
+      },
+      "leadType": {
+        "institution": "Établissement"
+      }
+    },
+    "followUp": {
+      "today": "Suivi aujourd'hui",
+      "overdue": "Suivi en retard",
+      "defineNext": "Définir le prochain contact",
+      "critical": "Aucun suivi depuis de nombreux jours",
+      "criticalShort": "Aucun suivi depuis plusieurs jours",
+      "upToDate": "À jour"
+    },
+    "score": {
+      "label": "Score",
+      "hot": "Chaud",
+      "warm": "Tiède",
+      "cold": "Froid"
+    },
+    "list": {
+      "loading": "Chargement des leads...",
+      "title": "Liste des leads",
+      "results": "{count, plural, one {# lead trouvé} other {# leads trouvés}}",
+      "instruction": "Cliquez sur Détails pour modifier, enregistrer des interactions ou changer l'étape.",
+      "columns": {
+        "contact": "Lead et contact",
+        "institutionInterest": "Établissement et intérêt",
+        "responsible": "Responsable",
+        "stage": "Étape",
+        "followUp": "Suivi",
+        "value": "Valeur",
+        "actions": "Actions"
+      },
+      "emptyTitle": "Aucun lead trouvé",
+      "emptyDescription": "Modifiez la recherche ou les filtres pour afficher d'autres résultats.",
+      "phoneMissing": "Téléphone non renseigné",
+      "source": "Origine",
+      "institutionMissing": "Établissement non renseigné",
+      "interestMissing": "Intérêt non renseigné",
+      "unit": "Campus",
+      "role": "Fonction",
+      "notProvided": "non renseigné",
+      "noResponsible": "Sans responsable"
+    }
   }
 }

@@ -16265,5 +16265,132 @@
         "saveGenericError": "Error saving the message template."
       }
     }
+  },
+  "AdminLeads": {
+    "errors": {
+      "identifyUserContext": "Unable to identify the user context.",
+      "identifyAuthenticatedUser": "Unable to identify the authenticated user.",
+      "identifyCrmContext": "Unable to identify the CRM context.",
+      "responsiblesInvalidResponse": "The assignees API did not return a valid response.",
+      "loadResponsibles": "Unable to load assignees.",
+      "leadsInvalidResponse": "The leads API did not return a valid response.",
+      "loadLeads": "Unable to load leads.",
+      "loadInteractions": "Unable to load interactions.",
+      "leadDetailsInvalidResponse": "The API did not return the lead details correctly.",
+      "loadLeadDetails": "Unable to load the lead details.",
+      "openLead": "Unable to open the lead.",
+      "nameEmailRequired": "Enter the prospect's name and email before saving.",
+      "saveInvalidResponse": "The API did not return a valid response when saving the lead.",
+      "saveLead": "Unable to save the lead.",
+      "onlyInstitutionalCanConvert": "Only institutional leads can be converted into a student and enrollment.",
+      "enrollmentNotFound": "Unable to identify the enrollment linked to this lead.",
+      "deleteInvalidResponse": "The API did not return a valid response when deleting the lead.",
+      "deleteLead": "Unable to delete the lead.",
+      "moveInvalidResponse": "The API did not return a valid response when moving the lead.",
+      "moveLead": "Unable to move the lead.",
+      "registerInteraction": "Unable to register the interaction."
+    },
+    "header": {
+      "globalSection": "PHANYX Sales CRM",
+      "institutionSection": "Institution sales",
+      "globalTitle": "PHANYX Leads Dashboard",
+      "institutionTitle": "Leads and opportunities",
+      "globalDescription": "Manage prospects interested in the PHANYX platform and track contacts, proposals, and sales opportunities.",
+      "institutionDescription": "Register prospects, distribute leads among sales owners, and track each opportunity through enrollment conversion."
+    },
+    "actions": {
+      "loadingContext": "Loading...",
+      "contextUnavailable": "Context unavailable",
+      "newManualLead": "New manual lead"
+    },
+    "metrics": {
+      "total": "Total",
+      "new": "New",
+      "contact": "In contact",
+      "proposal": "Proposal",
+      "closed": "Closed",
+      "lost": "Lost",
+      "followUpToday": "Follow-up today",
+      "overdue": "Overdue",
+      "pipeline": "Sales pipeline"
+    },
+    "info": {
+      "title": "CRM scope",
+      "description": "This dashboard tracks sales opportunities and lead follow-up. Real Asaas payments, enrollment in the Free Bachelor of Theology program, and purchases of resources such as AI appear in the Master Dashboard, not in the leads CRM."
+    },
+    "filters": {
+      "searchPlaceholder": "Smart search: name, email, phone, institution, interest, owner, or notes",
+      "originAria": "Filter leads by source",
+      "allOrigins": "All sources",
+      "statusAria": "Filter leads by status",
+      "allStatuses": "All statuses",
+      "responsibleAria": "Filter leads by owner",
+      "allResponsibles": "All owners",
+      "noResponsible": "No owner",
+      "priorityAria": "Filter leads by priority",
+      "allPriorities": "All priorities",
+      "followUpAria": "Filter leads by follow-up status",
+      "allFollowUp": "All follow-up statuses",
+      "typeAria": "Filter leads by type",
+      "allTypes": "All types",
+      "phanyxLeads": "PHANYX leads",
+      "institutionLeads": "Institution leads"
+    },
+    "enums": {
+      "status": {
+        "new": "New",
+        "contact": "In contact",
+        "proposal": "Proposal",
+        "closed": "Closed",
+        "lost": "Lost"
+      },
+      "priority": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "leadType": {
+        "institution": "Institution"
+      }
+    },
+    "followUp": {
+      "today": "Follow-up today",
+      "overdue": "Follow-up overdue",
+      "defineNext": "Schedule next contact",
+      "critical": "No follow-up for many days",
+      "criticalShort": "No follow-up for days",
+      "upToDate": "Up to date"
+    },
+    "score": {
+      "label": "Score",
+      "hot": "Hot",
+      "warm": "Warm",
+      "cold": "Cold"
+    },
+    "list": {
+      "loading": "Loading leads...",
+      "title": "Lead list",
+      "results": "{count, plural, one {# lead found} other {# leads found}}",
+      "instruction": "Click Details to edit, register interactions, or change the stage.",
+      "columns": {
+        "contact": "Lead and contact",
+        "institutionInterest": "Institution and interest",
+        "responsible": "Owner",
+        "stage": "Stage",
+        "followUp": "Follow-up",
+        "value": "Value",
+        "actions": "Actions"
+      },
+      "emptyTitle": "No leads found",
+      "emptyDescription": "Adjust the search or filters to view other results.",
+      "phoneMissing": "Phone not provided",
+      "source": "Source",
+      "institutionMissing": "Institution not provided",
+      "interestMissing": "Interest not provided",
+      "unit": "Campus",
+      "role": "Role",
+      "notProvided": "not provided",
+      "noResponsible": "No owner"
+    }
   }
 }

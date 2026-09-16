@@ -216,7 +216,12 @@ export async function GET(request: Request) {
       statusMatriculaSelecionado ||
       turmaIdSelecionada
     ) {
-      const matriculasAtuaisFiltro =
+      // Buscamos todas as matriculas nao excluidas
+      // em ordem da mais recente para a mais antiga.
+      // Depois mantemos somente a primeira de cada aluno.
+      // Isso e mais previsivel do que combinar distinct
+      // do Prisma com uma relacao aninhada de itens.
+      const matriculasParaFiltro =
         await prisma.matricula.findMany({
           where: {
             ...filtroMatriculaBase,
@@ -224,17 +229,12 @@ export async function GET(request: Request) {
 
           orderBy: [
             {
-              alunoId: "asc",
-            },
-            {
               createdAt: "desc",
             },
             {
               id: "desc",
             },
           ],
-
-          distinct: ["alunoId"],
 
           select: {
             alunoId: true,
@@ -257,8 +257,32 @@ export async function GET(request: Request) {
           },
         });
 
+      const matriculaAtualPorAluno =
+        new Map<
+          number,
+          (typeof matriculasParaFiltro)[number]
+        >();
+
+      for (
+        const matricula
+        of matriculasParaFiltro
+      ) {
+        if (
+          !matriculaAtualPorAluno.has(
+            matricula.alunoId
+          )
+        ) {
+          matriculaAtualPorAluno.set(
+            matricula.alunoId,
+            matricula
+          );
+        }
+      }
+
       alunoIdsMatriculaAtualFiltrados =
-        matriculasAtuaisFiltro
+        Array.from(
+          matriculaAtualPorAluno.values()
+        )
           .filter((matricula) => {
             const bateStatus =
               !statusMatriculaSelecionado ||

@@ -1131,60 +1131,133 @@ export async function POST(
 
     try {
       const candidatura =
-        await prisma.mobilidadeCandidatura.create({
-          data: {
-            instituicaoId,
-            ofertaId,
+        await prisma.$transaction(
+          async (tx) => {
+            const requisitos =
+              await tx.mobilidadeOfertaDocumentoRequisito.findMany({
+                where: {
+                  instituicaoId,
+                  ofertaId,
+                  ativo: true,
+                },
 
-            alunoId,
-            matriculaId,
+                orderBy: [
+                  {
+                    ordem: "asc",
+                  },
+                  {
+                    id: "asc",
+                  },
+                ],
 
-            vinculoCandidato:
-              vinculo,
+                select: {
+                  id: true,
+                  tipo: true,
+                  titulo: true,
+                  descricao: true,
+                  obrigatorio: true,
+                  exigeValidade: true,
+                  ordem: true,
+                },
+              });
 
-            nomeSnapshot,
-            emailSnapshot,
-            telefoneSnapshot,
+            const criada =
+              await tx.mobilidadeCandidatura.create({
+                data: {
+                  instituicaoId,
+                  ofertaId,
 
-            instituicaoOrigemNome,
-            paisOrigemCodigo,
+                  alunoId,
+                  matriculaId,
 
-            status,
+                  vinculoCandidato:
+                    vinculo,
 
-            motivoStatus:
-              textoOpcional(
-                corpo.motivoStatus,
-                5000
-              ),
+                  nomeSnapshot,
+                  emailSnapshot,
+                  telefoneSnapshot,
 
-            enviadaEm,
+                  instituicaoOrigemNome,
+                  paisOrigemCodigo,
 
-            analisadaEm:
-              analisada
-                ? agora
-                : null,
+                  status,
 
-            notaFinal,
+                  motivoStatus:
+                    textoOpcional(
+                      corpo.motivoStatus,
+                      5000
+                    ),
 
-            classificacao,
+                  enviadaEm,
 
-            criadoPorId:
-              usuario?.id ??
-              null,
+                  analisadaEm:
+                    analisada
+                      ? agora
+                      : null,
 
-            analisadoPorId:
-              analisada
-                ? (
+                  notaFinal,
+
+                  classificacao,
+
+                  criadoPorId:
                     usuario?.id ??
-                    null
-                  )
-                : null,
-          },
+                    null,
 
-          select: {
-            id: true,
-          },
-        });
+                  analisadoPorId:
+                    analisada
+                      ? (
+                          usuario?.id ??
+                          null
+                        )
+                      : null,
+                },
+
+                select: {
+                  id: true,
+                },
+              });
+
+            if (
+              requisitos.length >
+              0
+            ) {
+              await tx.mobilidadeCandidaturaDocumento.createMany({
+                data:
+                  requisitos.map(
+                    (requisito) => ({
+                      instituicaoId,
+
+                      candidaturaId:
+                        criada.id,
+
+                      requisitoOfertaId:
+                        requisito.id,
+
+                      tipo:
+                        requisito.tipo,
+
+                      titulo:
+                        requisito.titulo,
+
+                      descricaoRequisito:
+                        requisito.descricao,
+
+                      obrigatorio:
+                        requisito.obrigatorio,
+
+                      exigeValidade:
+                        requisito.exigeValidade,
+
+                      ordem:
+                        requisito.ordem,
+                    })
+                  ),
+              });
+            }
+
+            return criada;
+          }
+        );
 
       return NextResponse.json(
         {
