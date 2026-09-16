@@ -40,7 +40,7 @@ const financeiroTourSteps: FinanceiroTourStep[] = [
   {
     id: "inadimplentes",
     selector: '[data-tour="financeiro-inadimplentes"]',
-    mascoteSrc: "/images/calculadora.png",
+    mascoteSrc: "/images/phanyx-inadimplente.png",
   },
   {
     id: "fechamento",
@@ -180,34 +180,228 @@ function FinanceiroTour({
         }
       : null;
 
-  const bubbleWidth = 420;
-  const bubbleHeight = 290;
+  const bubbleWidth = Math.min(
+    420,
+    Math.max(280, window.innerWidth - 32)
+  );
 
-  const bubbleStyle = spotlight
+  /*
+   * Altura aproximada do bal?o.
+   * O posicionamento usa uma margem de seguran?a para impedir
+   * que o bal?o cubra o pr?prio card destacado.
+   */
+  const bubbleHeight = 270;
+  const margemViewport = 16;
+  const distanciaDoAlvo = 18;
+
+  const posicaoBalao = spotlight
     ? (() => {
-        let top = spotlight.top + spotlight.height + 18;
-        let left = spotlight.left;
+        const centroAlvoX =
+          spotlight.left + spotlight.width / 2;
+
+        const centroAlvoY =
+          spotlight.top + spotlight.height / 2;
+
+        const espacoAbaixo =
+          window.innerHeight -
+          (spotlight.top + spotlight.height);
+
+        const espacoAcima =
+          spotlight.top;
+
+        const espacoDireita =
+          window.innerWidth -
+          (spotlight.left + spotlight.width);
+
+        const espacoEsquerda =
+          spotlight.left;
+
+        let direcao:
+          | "baixo"
+          | "cima"
+          | "direita"
+          | "esquerda" = "baixo";
+
+        /*
+         * Primeiro tentamos a posi??o mais natural.
+         * Se n?o houver espa?o, escolhemos outro lado
+         * em vez de colocar o bal?o sobre o card.
+         */
+        if (
+          espacoAbaixo >=
+          bubbleHeight + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "baixo";
+        } else if (
+          espacoAcima >=
+          bubbleHeight + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "cima";
+        } else if (
+          espacoDireita >=
+          bubbleWidth + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "direita";
+        } else if (
+          espacoEsquerda >=
+          bubbleWidth + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "esquerda";
+        } else {
+          /*
+           * Em telas muito apertadas, escolhe o lado
+           * com maior espa?o dispon?vel.
+           */
+          const opcoes: Array<
+            [
+              "baixo" | "cima" | "direita" | "esquerda",
+              number
+            ]
+          > = [
+            ["baixo", espacoAbaixo],
+            ["cima", espacoAcima],
+            ["direita", espacoDireita],
+            ["esquerda", espacoEsquerda],
+          ];
+
+          opcoes.sort((a, b) => Number(b[1]) - Number(a[1]));
+
+          direcao = opcoes[0][0];
+        }
+
+        let top = 0;
+        let left = 0;
+
+        if (direcao === "baixo") {
+          top =
+            spotlight.top +
+            spotlight.height +
+            distanciaDoAlvo;
+
+          left =
+            centroAlvoX -
+            bubbleWidth / 2;
+        }
+
+        if (direcao === "cima") {
+          top =
+            spotlight.top -
+            bubbleHeight -
+            distanciaDoAlvo;
+
+          left =
+            centroAlvoX -
+            bubbleWidth / 2;
+        }
+
+        if (direcao === "direita") {
+          top =
+            centroAlvoY -
+            bubbleHeight / 2;
+
+          left =
+            spotlight.left +
+            spotlight.width +
+            distanciaDoAlvo;
+        }
+
+        if (direcao === "esquerda") {
+          top =
+            centroAlvoY -
+            bubbleHeight / 2;
+
+          left =
+            spotlight.left -
+            bubbleWidth -
+            distanciaDoAlvo;
+        }
 
         top = Math.max(
-          16,
-          Math.min(top, window.innerHeight - bubbleHeight - 16)
+          margemViewport,
+          Math.min(
+            top,
+            window.innerHeight -
+              bubbleHeight -
+              margemViewport
+          )
         );
 
         left = Math.max(
-          16,
-          Math.min(left, window.innerWidth - bubbleWidth - 16)
+          margemViewport,
+          Math.min(
+            left,
+            window.innerWidth -
+              bubbleWidth -
+              margemViewport
+          )
         );
 
+        /*
+         * A seta acompanha o centro real do card,
+         * inclusive quando o bal?o precisou ser
+         * deslocado para n?o sair da tela.
+         */
+        const setaHorizontal = Math.max(
+          24,
+          Math.min(
+            centroAlvoX - left - 6,
+            bubbleWidth - 36
+          )
+        );
+
+        const setaVertical = Math.max(
+          24,
+          Math.min(
+            centroAlvoY - top - 6,
+            bubbleHeight - 36
+          )
+        );
+
+        const setaStyle =
+          direcao === "baixo"
+            ? {
+                left: `${setaHorizontal}px`,
+                top: "-6px",
+              }
+            : direcao === "cima"
+              ? {
+                  left: `${setaHorizontal}px`,
+                  bottom: "-6px",
+                }
+              : direcao === "direita"
+                ? {
+                    left: "-6px",
+                    top: `${setaVertical}px`,
+                  }
+                : {
+                    right: "-6px",
+                    top: `${setaVertical}px`,
+                  };
+
         return {
-          top: `${top}px`,
-          left: `${left}px`,
+          style: {
+            top: `${top}px`,
+            left: `${left}px`,
+          },
+          direcao,
+          setaStyle,
         };
       })()
     : {
-        top: "120px",
-        left: "50%",
-        transform: "translateX(-50%)",
+        style: {
+          top: "120px",
+          left: "50%",
+          transform: "translateX(-50%)",
+        },
+        direcao: "baixo" as const,
+        setaStyle: {
+          left: "50%",
+          top: "-6px",
+        },
       };
+
+  const bubbleStyle = posicaoBalao.style;
+  const setaStyle = posicaoBalao.setaStyle;
 
   return (
     <div className="fixed inset-0 z-[9999]">
@@ -240,10 +434,7 @@ function FinanceiroTour({
         {!tourConcluido && (
           <div
             className="absolute h-3 w-3 rotate-45 border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950"
-            style={{
-              left: "40px",
-              top: "-6px",
-            }}
+            style={setaStyle}
           />
         )}
 

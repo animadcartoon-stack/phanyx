@@ -192,68 +192,228 @@ function RecebimentosTour({
       }
     : null;
 
-  const bubbleWidth = 420;
-  const bubbleHeight = 290;
+  const bubbleWidth = Math.min(
+    420,
+    Math.max(280, window.innerWidth - 32)
+  );
 
-const posicaoBalao = spotlight
-  ? (() => {
-      const espacoAbaixo = window.innerHeight - (spotlight.top + spotlight.height);
-      const espacoAcima = spotlight.top;
-      const espacoDireita = window.innerWidth - (spotlight.left + spotlight.width);
-      const espacoEsquerda = spotlight.left;
+  /*
+   * Altura aproximada do bal?o.
+   * O posicionamento usa uma margem de seguran?a para impedir
+   * que o bal?o cubra o pr?prio card destacado.
+   */
+  const bubbleHeight = 270;
+  const margemViewport = 16;
+  const distanciaDoAlvo = 18;
 
-      let direcao: "baixo" | "cima" | "direita" | "esquerda" = "baixo";
+  const posicaoBalao = spotlight
+    ? (() => {
+        const centroAlvoX =
+          spotlight.left + spotlight.width / 2;
 
-      if (espacoAbaixo >= bubbleHeight + 28) {
-        direcao = "baixo";
-      } else if (espacoAcima >= bubbleHeight + 28) {
-        direcao = "cima";
-      } else if (espacoDireita >= bubbleWidth + 28) {
-        direcao = "direita";
-      } else {
-        direcao = "esquerda";
-      }
+        const centroAlvoY =
+          spotlight.top + spotlight.height / 2;
 
-      let top = spotlight.top + spotlight.height + 18;
-      let left = spotlight.left;
+        const espacoAbaixo =
+          window.innerHeight -
+          (spotlight.top + spotlight.height);
 
-      if (direcao === "cima") {
-        top = spotlight.top - bubbleHeight - 18;
-        left = spotlight.left;
-      }
+        const espacoAcima =
+          spotlight.top;
 
-      if (direcao === "direita") {
-        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
-        left = spotlight.left + spotlight.width + 18;
-      }
+        const espacoDireita =
+          window.innerWidth -
+          (spotlight.left + spotlight.width);
 
-      if (direcao === "esquerda") {
-        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
-        left = spotlight.left - bubbleWidth - 18;
-      }
+        const espacoEsquerda =
+          spotlight.left;
 
-      top = Math.max(16, Math.min(top, window.innerHeight - bubbleHeight - 16));
-      left = Math.max(16, Math.min(left, window.innerWidth - bubbleWidth - 16));
+        let direcao:
+          | "baixo"
+          | "cima"
+          | "direita"
+          | "esquerda" = "baixo";
 
-      return {
+        /*
+         * Primeiro tentamos a posi??o mais natural.
+         * Se n?o houver espa?o, escolhemos outro lado
+         * em vez de colocar o bal?o sobre o card.
+         */
+        if (
+          espacoAbaixo >=
+          bubbleHeight + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "baixo";
+        } else if (
+          espacoAcima >=
+          bubbleHeight + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "cima";
+        } else if (
+          espacoDireita >=
+          bubbleWidth + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "direita";
+        } else if (
+          espacoEsquerda >=
+          bubbleWidth + distanciaDoAlvo + margemViewport
+        ) {
+          direcao = "esquerda";
+        } else {
+          /*
+           * Em telas muito apertadas, escolhe o lado
+           * com maior espa?o dispon?vel.
+           */
+          const opcoes: Array<
+            [
+              "baixo" | "cima" | "direita" | "esquerda",
+              number
+            ]
+          > = [
+            ["baixo", espacoAbaixo],
+            ["cima", espacoAcima],
+            ["direita", espacoDireita],
+            ["esquerda", espacoEsquerda],
+          ];
+
+          opcoes.sort((a, b) => Number(b[1]) - Number(a[1]));
+
+          direcao = opcoes[0][0];
+        }
+
+        let top = 0;
+        let left = 0;
+
+        if (direcao === "baixo") {
+          top =
+            spotlight.top +
+            spotlight.height +
+            distanciaDoAlvo;
+
+          left =
+            centroAlvoX -
+            bubbleWidth / 2;
+        }
+
+        if (direcao === "cima") {
+          top =
+            spotlight.top -
+            bubbleHeight -
+            distanciaDoAlvo;
+
+          left =
+            centroAlvoX -
+            bubbleWidth / 2;
+        }
+
+        if (direcao === "direita") {
+          top =
+            centroAlvoY -
+            bubbleHeight / 2;
+
+          left =
+            spotlight.left +
+            spotlight.width +
+            distanciaDoAlvo;
+        }
+
+        if (direcao === "esquerda") {
+          top =
+            centroAlvoY -
+            bubbleHeight / 2;
+
+          left =
+            spotlight.left -
+            bubbleWidth -
+            distanciaDoAlvo;
+        }
+
+        top = Math.max(
+          margemViewport,
+          Math.min(
+            top,
+            window.innerHeight -
+              bubbleHeight -
+              margemViewport
+          )
+        );
+
+        left = Math.max(
+          margemViewport,
+          Math.min(
+            left,
+            window.innerWidth -
+              bubbleWidth -
+              margemViewport
+          )
+        );
+
+        /*
+         * A seta acompanha o centro real do card,
+         * inclusive quando o bal?o precisou ser
+         * deslocado para n?o sair da tela.
+         */
+        const setaHorizontal = Math.max(
+          24,
+          Math.min(
+            centroAlvoX - left - 6,
+            bubbleWidth - 36
+          )
+        );
+
+        const setaVertical = Math.max(
+          24,
+          Math.min(
+            centroAlvoY - top - 6,
+            bubbleHeight - 36
+          )
+        );
+
+        const setaStyle =
+          direcao === "baixo"
+            ? {
+                left: `${setaHorizontal}px`,
+                top: "-6px",
+              }
+            : direcao === "cima"
+              ? {
+                  left: `${setaHorizontal}px`,
+                  bottom: "-6px",
+                }
+              : direcao === "direita"
+                ? {
+                    left: "-6px",
+                    top: `${setaVertical}px`,
+                  }
+                : {
+                    right: "-6px",
+                    top: `${setaVertical}px`,
+                  };
+
+        return {
+          style: {
+            top: `${top}px`,
+            left: `${left}px`,
+          },
+          direcao,
+          setaStyle,
+        };
+      })()
+    : {
         style: {
-          top: `${top}px`,
-          left: `${left}px`,
+          top: "120px",
+          left: "50%",
+          transform: "translateX(-50%)",
         },
-        direcao,
+        direcao: "baixo" as const,
+        setaStyle: {
+          left: "50%",
+          top: "-6px",
+        },
       };
-    })()
-  : {
-      style: {
-        top: "120px",
-        left: "50%",
-        transform: "translateX(-50%)",
-      },
-      direcao: "baixo" as const,
-    };
 
-const bubbleStyle = posicaoBalao.style;
-const direcaoSeta = posicaoBalao.direcao;
+  const bubbleStyle = posicaoBalao.style;
+  const setaStyle = posicaoBalao.setaStyle;
 
   function fechar() {
     localStorage.setItem("phanyx-tour-recebimentos", "concluido");
@@ -283,28 +443,8 @@ const direcaoSeta = posicaoBalao.direcao;
        {spotlight && (
   <div
     className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
-    style={
-      direcaoSeta === "baixo"
-        ? {
-            left: "42px",
-            top: "-6px",
-          }
-        : direcaoSeta === "cima"
-        ? {
-            left: "42px",
-            bottom: "-6px",
-          }
-        : direcaoSeta === "direita"
-        ? {
-            left: "-6px",
-            top: "42px",
-          }
-        : {
-            right: "-6px",
-            top: "42px",
-          }
-    }
-  />
+    style={setaStyle}
+    />
 )}
 
         <div className="flex items-start gap-4">
@@ -1046,10 +1186,9 @@ useEffect(() => {
       )}
 
       <div
-        data-tour="recebimentos-tabela"
         className="bg-white border rounded-xl overflow-hidden"
       >
-        <div className="phanyx-financeiro-grid-head grid grid-cols-10 gap-3 border-b px-4 py-3 text-sm font-black">
+        <div data-tour="recebimentos-tabela" className="phanyx-financeiro-grid-head grid grid-cols-10 gap-3 border-b px-4 py-3 text-sm font-black">
           <div></div>
           <div>{t("table.student")}</div>
           <div>{t("table.type")}</div>

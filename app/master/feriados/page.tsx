@@ -139,6 +139,44 @@ function dataInput(valor: string | null | undefined) {
   return valor.slice(0, 10);
 }
 
+function deslocarDataCivil(
+  valor: string,
+  dias: number
+) {
+  const resultado =
+    /^(\d{4})-(\d{2})-(\d{2})$/.exec(
+      valor
+    );
+
+  if (!resultado) {
+    return "";
+  }
+
+  const data =
+    new Date(
+      Date.UTC(
+        Number(
+          resultado[1]
+        ),
+        Number(
+          resultado[2]
+        ) - 1,
+        Number(
+          resultado[3]
+        )
+      )
+    );
+
+  data.setUTCDate(
+    data.getUTCDate() +
+      dias
+  );
+
+  return data
+    .toISOString()
+    .slice(0, 10);
+}
+
 function normalizarLocale(locale: string): LocaleSuportado {
   if (LOCALES.includes(locale as LocaleSuportado)) {
     return locale as LocaleSuportado;
@@ -1161,14 +1199,35 @@ export default function MasterFeriadosPage() {
                         type="date"
                         required
                         value={form.dataFeriado}
-                        onChange={(event) =>
+                        onChange={(event) => {
+                          const valor =
+                            event.target.value;
+
                           setForm((atual) => ({
                             ...atual,
-                            dataFeriado: event.target.value,
-                          }))
-                        }
+
+                            dataFeriado:
+                              valor,
+
+                            inicioExibicao:
+                              valor
+                                ? deslocarDataCivil(
+                                    valor,
+                                    -3
+                                  )
+                                : "",
+
+                            fimExibicao:
+                              valor,
+                          }));
+                        }}
                         className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950"
                       />
+                      <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                        {t(
+                          "form.threeDaysHint"
+                        )}
+                      </p>
                     </label>
 
                     <label>

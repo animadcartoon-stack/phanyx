@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 const cards = [
   {
@@ -86,6 +87,64 @@ function formatarTempo(segundos: number) {
 }
 
 export default function MarketingIntegracoesPage() {
+  const t = useTranslations("AdminIntegracoesMarketing");
+  const locale = useLocale();
+
+  const formatarNumero = (valor: number) =>
+    new Intl.NumberFormat(locale).format(valor);
+
+  const formatarDecimal = (valor: number) =>
+    new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(valor);
+
+  function formatarTempo(segundos: number) {
+    if (!segundos || segundos <= 0) {
+      return t("duration.seconds", {
+        seconds: 0,
+      });
+    }
+
+    const horas =
+      Math.floor(segundos / 3600);
+
+    const minutos =
+      Math.floor(
+        (segundos % 3600) / 60
+      );
+
+    const secs =
+      Math.floor(segundos % 60);
+
+    if (horas > 0) {
+      return t(
+        "duration.hoursMinutesSeconds",
+        {
+          hours: horas,
+          minutes: minutos,
+          seconds: secs,
+        }
+      );
+    }
+
+    if (minutos > 0) {
+      return t(
+        "duration.minutesSeconds",
+        {
+          minutes: minutos,
+          seconds: secs,
+        }
+      );
+    }
+
+    return t(
+      "duration.seconds",
+      {
+        seconds: secs,
+      }
+    );
+  }
   const [metricas, setMetricas] = useState({
   visitantes: 0,
   novosUsuarios: 0,
@@ -142,7 +201,7 @@ const [googleAdsStatus, setGoogleAdsStatus] = useState({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar dashboard");
+        throw new Error(data.error || t("errors.dashboard"));
       }
 
       setMetricas({
@@ -229,87 +288,191 @@ async function carregarGoogleAds() {
 
   const dashboardCards = [
     {
-      titulo: "Visitantes",
-      valor: metricas.visitantes.toLocaleString("pt-BR"),
-      detalhe: "Usuários ativos nos últimos 30 dias",
+      titulo: t("metrics.visitors.title"),
+      valor: formatarNumero(
+        metricas.visitantes
+      ),
+      detalhe: t(
+        "metrics.visitors.detail"
+      ),
       cor: "text-blue-700",
     },
     {
-      titulo: "Novos usuários",
-      valor: metricas.novosUsuarios.toLocaleString("pt-BR"),
-      detalhe: "Pessoas que acessaram pela primeira vez",
+      titulo: t("metrics.newUsers.title"),
+      valor: formatarNumero(
+        metricas.novosUsuarios
+      ),
+      detalhe: t(
+        "metrics.newUsers.detail"
+      ),
       cor: "text-emerald-700",
     },
     {
-      titulo: "Sessões",
-      valor: metricas.sessoes.toLocaleString("pt-BR"),
-      detalhe: "Total de visitas registradas",
+      titulo: t("metrics.sessions.title"),
+      valor: formatarNumero(
+        metricas.sessoes
+      ),
+      detalhe: t(
+        "metrics.sessions.detail"
+      ),
       cor: "text-purple-700",
     },
     {
-      titulo: "Visualizações",
-      valor: metricas.visualizacoes.toLocaleString("pt-BR"),
-      detalhe: "Páginas visualizadas no site",
+      titulo: t("metrics.views.title"),
+      valor: formatarNumero(
+        metricas.visualizacoes
+      ),
+      detalhe: t(
+        "metrics.views.detail"
+      ),
       cor: "text-orange-700",
     },
     {
-      titulo: "Tempo médio",
-      valor: formatarTempo(metricas.tempoMedioSessao),
-      detalhe: "Tempo médio por sessão",
+      titulo: t(
+        "metrics.averageTime.title"
+      ),
+      valor: formatarTempo(
+        metricas.tempoMedioSessao
+      ),
+      detalhe: t(
+        "metrics.averageTime.detail"
+      ),
       cor: "text-slate-900",
     },
     {
-      titulo: "Conversões",
-      valor: metricas.conversoes.toLocaleString("pt-BR"),
-      detalhe: "Eventos marcados como conversão",
+      titulo: t(
+        "metrics.conversions.title"
+      ),
+      valor: formatarNumero(
+        metricas.conversoes
+      ),
+      detalhe: t(
+        "metrics.conversions.detail"
+      ),
       cor: "text-green-700",
     },
     {
       titulo: "Google Business",
-      valor: googleBusinessStatus.visualizacoes.toLocaleString("pt-BR"),
-      detalhe: googleBusinessStatus.conectado
-    ? "Visualizações do perfil"
-    : "Conecte seu perfil comercial",
+      valor: formatarNumero(
+        googleBusinessStatus.visualizacoes
+      ),
+      detalhe:
+        googleBusinessStatus.conectado
+          ? t(
+              "metrics.googleBusiness.connectedDetail"
+            )
+          : t(
+              "metrics.googleBusiness.disconnectedDetail"
+            ),
       cor: "text-blue-700",
-},
+    },
     {
-      titulo: "Cliques Google",
-      valor: metricas.cliquesBusca.toLocaleString("pt-BR"),
-      detalhe: "Cliques vindos da busca orgânica",
+      titulo: t(
+        "metrics.googleClicks.title"
+      ),
+      valor: formatarNumero(
+        metricas.cliquesBusca
+      ),
+      detalhe: t(
+        "metrics.googleClicks.detail"
+      ),
       cor: "text-indigo-700",
     },
     {
-      titulo: "Impressões Google",
-      valor: metricas.impressoesBusca.toLocaleString("pt-BR"),
-      detalhe: "Vezes que apareceu nas buscas",
+      titulo: t(
+        "metrics.googleImpressions.title"
+      ),
+      valor: formatarNumero(
+        metricas.impressoesBusca
+      ),
+      detalhe: t(
+        "metrics.googleImpressions.detail"
+      ),
       cor: "text-cyan-700",
     },
     {
-  titulo: "CTR Google",
-  valor: `${(metricas.ctrBusca * 100).toFixed(1)}%`,
-  detalhe: "Taxa de clique da busca orgânica",
-  cor: "text-emerald-700",
-},
-{
-  titulo: "Posição média",
-  valor:
-    metricas.posicaoMediaBusca > 0
-      ? metricas.posicaoMediaBusca.toFixed(1)
-      : "-",
-  detalhe: "Posição média no Google",
-  cor: "text-violet-700",
-},
-   {
-  titulo: "Facebook",
-  valor: metaStatus.conectado
-    ? metaStatus.seguidores.toLocaleString("pt-BR")
-    : "Configurar",
-  detalhe: metaStatus.conectado
-    ? `Seguidores • ${metaStatus.curtidas.toLocaleString("pt-BR")} curtidas`
-    : "Conecte sua página Meta",
-  cor: "text-blue-700",
-},
+      titulo: "CTR Google",
+      valor:
+        formatarDecimal(
+          metricas.ctrBusca * 100
+        ) + "%",
+      detalhe: t(
+        "metrics.googleCtr.detail"
+      ),
+      cor: "text-emerald-700",
+    },
+    {
+      titulo: t(
+        "metrics.averagePosition.title"
+      ),
+      valor:
+        metricas.posicaoMediaBusca > 0
+          ? formatarDecimal(
+              metricas.posicaoMediaBusca
+            )
+          : "-",
+      detalhe: t(
+        "metrics.averagePosition.detail"
+      ),
+      cor: "text-violet-700",
+    },
+    {
+      titulo: "Facebook",
+      valor: metaStatus.conectado
+        ? formatarNumero(
+            metaStatus.seguidores
+          )
+        : t("actions.configure"),
+      detalhe: metaStatus.conectado
+        ? t(
+            "metrics.facebook.connectedDetail",
+            {
+              likes: formatarNumero(
+                metaStatus.curtidas
+              ),
+            }
+          )
+        : t(
+            "metrics.facebook.disconnectedDetail"
+          ),
+      cor: "text-blue-700",
+    },
   ];
+
+  function traduzirStatus(
+    status: string
+  ) {
+    switch (status) {
+      case "Conectado":
+        return t("status.connected");
+
+      case "Configura??o":
+        return t("status.configuration");
+
+      case "Ativo":
+        return t("status.active");
+
+      case "Em breve":
+        return t("status.comingSoon");
+
+      default:
+        return status;
+    }
+  }
+
+  function tituloCanal(
+    titulo: string
+  ) {
+    if (
+      titulo === "Reputa??o IA"
+    ) {
+      return t(
+        "channels.reputationAi"
+      );
+    }
+
+    return titulo;
+  }
 
   return (
     <div className="phanyx-marketing-page space-y-8">
@@ -319,12 +482,11 @@ async function carregarGoogleAds() {
         </p>
 
         <h1 className="mt-2 text-3xl font-black text-slate-900">
-          Central de marketing e presença digital
+          {t("title")}
         </h1>
 
         <p className="mt-2 max-w-4xl text-slate-600">
-          Acompanhe métricas, integrações, campanhas, reputação e canais da
-          instituição em um só lugar.
+          {t("description")}
         </p>
       </div>
 
@@ -351,7 +513,7 @@ async function carregarGoogleAds() {
 
       <div>
         <h2 className="mb-4 text-xl font-black text-slate-900">
-          Canais e integrações
+          {t("channelsTitle")}
         </h2>
 
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
@@ -405,16 +567,18 @@ async function carregarGoogleAds() {
     : "bg-slate-100 text-slate-500"
 }`}
                   >
-                    {cardAtual.status}
+                    {traduzirStatus(cardAtual.status)}
                   </span>
                 </div>
 
                 <h3 className="mt-3 text-sm font-black text-slate-900">
-                  {cardAtual.titulo}
+                  {tituloCanal(cardAtual.titulo)}
                 </h3>
 
                 <p className="mt-2 text-xs font-semibold text-blue-600">
-                  {bloqueado ? "Em breve" : "Abrir"}
+                  {bloqueado
+                    ? t("actions.comingSoon")
+                    : t("actions.open")}
                 </p>
               </div>
             );

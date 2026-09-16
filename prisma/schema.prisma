@@ -289,6 +289,8 @@ model Instituicao {
   mobilidadeCandidaturas                      MobilidadeCandidatura[]
   mobilidadeCandidaturaDocumentos             MobilidadeCandidaturaDocumento[]
   mobilidadeOfertaDocumentosRequisitos        MobilidadeOfertaDocumentoRequisito[]
+  transferenciasMatricula                     TransferenciaMatricula[]                @relation("TransferenciaMatriculaInstituicaoOrigem")
+  transferenciasMatriculaRecebidas            TransferenciaMatricula[]                @relation("TransferenciaMatriculaInstituicaoDestino")
 
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
@@ -565,6 +567,8 @@ model User {
   mobilidadeCandidaturasCriadas            MobilidadeCandidatura[]                 @relation("MobilidadeCandidaturaCriadaPor")
   mobilidadeCandidaturasAnalisadas         MobilidadeCandidatura[]                 @relation("MobilidadeCandidaturaAnalisadaPor")
   mobilidadeDocumentosAnalisados           MobilidadeCandidaturaDocumento[]        @relation("MobilidadeCandidaturaDocumentoAnalisadoPor")
+  transferenciasMatriculaRealizadas        TransferenciaMatricula[]                @relation("TransferenciaMatriculaRealizadaPor")
+  transferenciasMatriculaDestinoAnalisadas TransferenciaMatricula[]                @relation("TransferenciaMatriculaAnalisadaDestinoPor")
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -1182,23 +1186,25 @@ model Matricula {
   lancamentosComissaoRH   LancamentoComissaoRH[]
   rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
 
-  rematriculaGeradora            RematriculaSemestral?   @relation("RematriculaMatriculaGerada")
+  rematriculaGeradora            RematriculaSemestral?    @relation("RematriculaMatriculaGerada")
   cursoSemestreId                Int?
   periodoMatriculaId             Int?
   periodoLetivo                  String?
   turmaPrincipalId               Int?
-  realizadaPeloAluno             Boolean                 @default(false)
+  realizadaPeloAluno             Boolean                  @default(false)
   confirmadaEm                   DateTime?
-  cursoSemestre                  CursoSemestre?          @relation(fields: [cursoSemestreId], references: [id])
-  periodoMatricula               PeriodoMatricula?       @relation(fields: [periodoMatriculaId], references: [id])
-  aluno                          Aluno                   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  curso                          Curso?                  @relation(fields: [cursoId], references: [id])
-  instituicao                    Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                           Polo?                   @relation(fields: [poloId], references: [id])
-  turmaPrincipal                 Turma?                  @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
-  confirmacaoMenorPorUser        User?                   @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
-  confirmacaoMenorPorFuncionario Funcionario?            @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
+  cursoSemestre                  CursoSemestre?           @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula               PeriodoMatricula?        @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                          Aluno                    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                          Curso?                   @relation(fields: [cursoId], references: [id])
+  instituicao                    Instituicao              @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                           Polo?                    @relation(fields: [poloId], references: [id])
+  turmaPrincipal                 Turma?                   @relation("MatriculaTurmaPrincipal", fields: [turmaPrincipalId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorUser        User?                    @relation("MatriculaConfirmacaoMenorPorUser", fields: [confirmacaoMenorPorUserId], references: [id], onDelete: SetNull)
+  confirmacaoMenorPorFuncionario Funcionario?             @relation("MatriculaConfirmacaoMenorPorFuncionario", fields: [confirmacaoMenorPorFuncionarioId], references: [id], onDelete: SetNull)
   candidaturasMobilidade         MobilidadeCandidatura[]
+  transferencias                 TransferenciaMatricula[] @relation("TransferenciaMatriculaOrigem")
+  transferenciasComoDestino      TransferenciaMatricula[] @relation("TransferenciaMatriculaDestino")
 
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -2984,7 +2990,7 @@ model Ouvidoria {
 
   usuarioId Int?
   origem    String // ALUNO, PROFESSOR, ADMIN
-  tipo      String // Sugestão, Reclamação, Elogio, Relato
+  tipo      String // SugestÃ£o, ReclamaÃ§Ã£o, Elogio, Relato
   titulo    String?
   mensagem  String
 
@@ -4064,17 +4070,17 @@ model HistoricoRemuneracaoRH {
   tipoAnterior TipoRemuneracaoRH?
   tipoNovo     TipoRemuneracaoRH
 
-  // Snapshot completo da remuneração antes e depois da alteração.
+  // Snapshot completo da remuneraÃ§Ã£o antes e depois da alteraÃ§Ã£o.
   dadosAnteriores Json
   dadosNovos      Json
 
-  // Data e hora em que a nova remuneração começa a valer.
+  // Data e hora em que a nova remuneraÃ§Ã£o comeÃ§a a valer.
   vigenciaInicio DateTime
 
-  // Justificativa obrigatória informada pelo RH.
+  // Justificativa obrigatÃ³ria informada pelo RH.
   motivo String @db.Text
 
-  // Data e hora em que a alteração foi registrada no PHANYX.
+  // Data e hora em que a alteraÃ§Ã£o foi registrada no PHANYX.
   alteradoEm DateTime @default(now())
 
   instituicao Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -4590,7 +4596,7 @@ model MarcacaoPontoMobileRH {
   tipo      String
 
   // VALIDA ou INVALIDADA.
-  // A marcação original não será apagada pelo RH.
+  // A marcaÃ§Ã£o original nÃ£o serÃ¡ apagada pelo RH.
   status String @default("VALIDA")
 
   fotoUrl      String?
@@ -4657,7 +4663,7 @@ model AjusteMarcacaoPontoRH {
 
   motivo String @db.Text
 
-  // Preserva os dados anteriores e posteriores à correção.
+  // Preserva os dados anteriores e posteriores Ã  correÃ§Ã£o.
   dadosAntes  Json?
   dadosDepois Json?
 
@@ -5790,14 +5796,14 @@ model WhatsAppMensagem {
 
   parametros Json?
 
-  // Identifica de forma única uma comunicação originada
+  // Identifica de forma Ãºnica uma comunicaÃ§Ã£o originada
   // de um evento do PHANYX.
   //
   // Exemplo:
   // reuniao:35:lembrete:amanha:usuario:18
   //
-  // Evita que cron, retry ou execuções concorrentes
-  // disparem a mesma comunicação duas vezes.
+  // Evita que cron, retry ou execuÃ§Ãµes concorrentes
+  // disparem a mesma comunicaÃ§Ã£o duas vezes.
   chaveIdempotencia String? @unique
 
   metaMessageId String? @unique
@@ -5937,8 +5943,8 @@ model ModuloAdicionalContratacao {
   valorMensal                  Decimal @db.Decimal(10, 2)
   armazenamentoContratadoBytes BigInt
 
-  // Impede dois contratos vigentes para o mesmo módulo/instituição.
-  // Será preenchida, por exemplo, com:
+  // Impede dois contratos vigentes para o mesmo mÃ³dulo/instituiÃ§Ã£o.
+  // SerÃ¡ preenchida, por exemplo, com:
   // BIBLIOTECA_VIRTUAL:1
   chaveVigente String? @unique
 
@@ -7716,12 +7722,12 @@ model StudentSuccessIntervencao {
   retornoEm DateTime?
   resultado String?   @db.Text
 
-  // Fotografia da análise no momento
-  // em que a intervenção foi registrada.
+  // Fotografia da anÃ¡lise no momento
+  // em que a intervenÃ§Ã£o foi registrada.
   //
-  // Isso permitirá medir posteriormente
-  // se houve evolução acadêmica.
-  // Fotografia acadêmica no momento do registro
+  // Isso permitirÃ¡ medir posteriormente
+  // se houve evoluÃ§Ã£o acadÃªmica.
+  // Fotografia acadÃªmica no momento do registro
   nivelRiscoNoRegistro     String
   pontuacaoNoRegistro      Int?
   coberturaNoRegistro      Int
@@ -7729,7 +7735,7 @@ model StudentSuccessIntervencao {
   fatoresNoRegistro        Json?
   indicadoresNoRegistro    Json?
 
-  // Fotografia acadêmica no momento do encerramento
+  // Fotografia acadÃªmica no momento do encerramento
   nivelRiscoNoEncerramento     String?
   pontuacaoNoEncerramento      Int?
   coberturaNoEncerramento      Int?
@@ -7767,11 +7773,11 @@ model StudentSuccessAnaliseHistorico {
 
   executadoPorId Int?
 
-  // Versão das regras que produziram
-  // esta fotografia acadêmica.
+  // VersÃ£o das regras que produziram
+  // esta fotografia acadÃªmica.
   versaoMotor String @default("v1")
 
-  // Resultado da análise.
+  // Resultado da anÃ¡lise.
   nivelRisco String
 
   pontuacaoRisco Int?
@@ -7784,18 +7790,18 @@ model StudentSuccessAnaliseHistorico {
 
   confiabilidade String
 
-  // Explicabilidade completa do cálculo.
+  // Explicabilidade completa do cÃ¡lculo.
   componentes       Json?
   fatoresPrincipais Json?
 
-  // Fotografia dos dados acadêmicos
-  // utilizados no cálculo.
+  // Fotografia dos dados acadÃªmicos
+  // utilizados no cÃ¡lculo.
   indicadores Json?
 
-  // Representação estável do estado acadêmico.
+  // RepresentaÃ§Ã£o estÃ¡vel do estado acadÃªmico.
   //
-  // Será usada para evitar gravar várias
-  // fotografias idênticas consecutivas.
+  // SerÃ¡ usada para evitar gravar vÃ¡rias
+  // fotografias idÃªnticas consecutivas.
   assinaturaEstado String
 
   analisadoEm DateTime @default(now())
@@ -9640,7 +9646,7 @@ enum StatusIntervencaoStudentSuccess {
 
 // ============================================================
 // ATIVIDADES EXTERNAS / TRIPS & OFF-SITE ACTIVITIES
-// Núcleo internacional e multi-tenant.
+// NÃºcleo internacional e multi-tenant.
 // ============================================================
 
 model AtividadeExterna {
@@ -10246,7 +10252,7 @@ enum TipoConducaoVeiculo {
 }
 
 // ============================================================================
-// MOBILIDADE ACADÊMICA E INTERCÂMBIO INTERNACIONAL
+// MOBILIDADE ACADÃŠMICA E INTERCÃ‚MBIO INTERNACIONAL
 // ============================================================================
 
 enum MobilidadeDirecao {
@@ -10534,6 +10540,8 @@ model MobilidadeOfertaDocumentoRequisito {
   instituicao Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   oferta      MobilidadeOferta @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
 
+  documentosCandidaturas MobilidadeCandidaturaDocumento[] @relation("MobilidadeDocumentoRequisitoOferta")
+
   @@unique([ofertaId, tipo, titulo])
   @@index([instituicaoId])
   @@index([ofertaId])
@@ -10605,32 +10613,39 @@ model MobilidadeCandidatura {
 }
 
 model MobilidadeCandidaturaDocumento {
-  id             Int                       @id @default(autoincrement())
-  instituicaoId  Int
-  candidaturaId  Int
-  tipo           MobilidadeTipoDocumento
-  titulo         String
-  obrigatorio    Boolean                   @default(true)
-  arquivoUrl     String?
-  arquivoNome    String?
-  mimeType       String?
-  tamanho        Int?
-  validadeAte    DateTime?
-  status         MobilidadeStatusDocumento @default(NAO_ENVIADO)
-  enviadoEm      DateTime?
-  analisadoEm    DateTime?
-  analisadoPorId Int?
-  motivoRejeicao String?                   @db.Text
-  observacoes    String?                   @db.Text
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
+  id                 Int                       @id @default(autoincrement())
+  instituicaoId      Int
+  candidaturaId      Int
+  requisitoOfertaId  Int?
+  tipo               MobilidadeTipoDocumento
+  titulo             String
+  obrigatorio        Boolean                   @default(true)
+  descricaoRequisito String?                   @db.Text
+  exigeValidade      Boolean                   @default(false)
+  ordem              Int                       @default(0)
+  arquivoUrl         String?
+  arquivoNome        String?
+  mimeType           String?
+  tamanho            Int?
+  validadeAte        DateTime?
+  status             MobilidadeStatusDocumento @default(NAO_ENVIADO)
+  enviadoEm          DateTime?
+  analisadoEm        DateTime?
+  analisadoPorId     Int?
+  motivoRejeicao     String?                   @db.Text
+  observacoes        String?                   @db.Text
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
 
-  instituicao  Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  candidatura  MobilidadeCandidatura @relation(fields: [candidaturaId], references: [id], onDelete: Cascade)
-  analisadoPor User?                 @relation("MobilidadeCandidaturaDocumentoAnalisadoPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+  instituicao     Instituicao                         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  candidatura     MobilidadeCandidatura               @relation(fields: [candidaturaId], references: [id], onDelete: Cascade)
+  requisitoOferta MobilidadeOfertaDocumentoRequisito? @relation("MobilidadeDocumentoRequisitoOferta", fields: [requisitoOfertaId], references: [id], onDelete: SetNull)
+  analisadoPor    User?                               @relation("MobilidadeCandidaturaDocumentoAnalisadoPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
 
+  @@unique([candidaturaId, requisitoOfertaId])
   @@index([instituicaoId])
   @@index([candidaturaId])
+  @@index([requisitoOfertaId])
   @@index([tipo])
   @@index([status])
   @@index([validadeAte])
@@ -10697,4 +10712,223 @@ model FeriadoGlobalTraducao {
 
   @@unique([feriadoId, locale])
   @@index([locale])
+}
+
+enum TipoTransferenciaMatricula {
+  POLO
+  CURSO_TURMA
+  INSTITUICAO_PHANYX
+  INSTITUICAO_EXTERNA
+  REATRIBUICAO_ALUNO
+}
+
+enum StatusTransferenciaMatricula {
+  PENDENTE
+  AGUARDANDO_ACEITE_DESTINO
+  ACEITA_DESTINO
+  REJEITADA_DESTINO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum SituacaoItemTransferenciaMatricula {
+  MIGRADO
+  AGUARDANDO_TURMA
+  AGUARDANDO_COMPATIBILIDADE
+}
+
+model TransferenciaMatricula {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  matriculaId   Int
+
+  matriculaDestinoId Int?                         @unique
+  tipo               TipoTransferenciaMatricula
+  status             StatusTransferenciaMatricula @default(PENDENTE)
+
+  dataTransferencia DateTime
+
+  motivo      String
+  observacoes String? @db.Text
+
+  alunoOrigemId            Int?
+  alunoOrigemNomeSnapshot  String?
+  alunoDestinoId           Int?
+  alunoDestinoNomeSnapshot String?
+
+  instituicaoOrigemId            Int?
+  instituicaoOrigemNomeSnapshot  String?
+  instituicaoDestinoId           Int?
+  instituicaoDestinoNomeSnapshot String?
+
+  poloOrigemId            Int?
+  poloOrigemNomeSnapshot  String?
+  poloDestinoId           Int?
+  poloDestinoNomeSnapshot String?
+
+  cursoOrigemId            Int?
+  cursoOrigemNomeSnapshot  String?
+  cursoDestinoId           Int?
+  cursoDestinoNomeSnapshot String?
+
+  turmaOrigemId            Int?
+  turmaOrigemNomeSnapshot  String?
+  turmaDestinoId           Int?
+  turmaDestinoNomeSnapshot String?
+
+  instituicaoExternaNome       String?
+  instituicaoExternaPaisCodigo String? @db.VarChar(2)
+
+  realizadoPorId           Int?
+  realizadoPorNomeSnapshot String?
+
+  analisadoDestinoPorId           Int?
+  analisadoDestinoPorNomeSnapshot String?
+  analisadoDestinoEm              DateTime?
+  motivoRejeicaoDestino           String?   @db.Text
+  ip                              String?
+  userAgent                       String?   @db.Text
+
+  snapshotAnterior  Json
+  snapshotPosterior Json?
+
+  concluidaEm DateTime?
+  canceladaEm DateTime?
+
+  motivoCancelamento String? @db.Text
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  instituicao Instituicao @relation("TransferenciaMatriculaInstituicaoOrigem", fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  instituicaoDestino Instituicao? @relation("TransferenciaMatriculaInstituicaoDestino", fields: [instituicaoDestinoId], references: [id], onDelete: SetNull)
+  matricula          Matricula    @relation("TransferenciaMatriculaOrigem", fields: [matriculaId], references: [id], onDelete: Cascade)
+
+  matriculaDestino Matricula? @relation("TransferenciaMatriculaDestino", fields: [matriculaDestinoId], references: [id], onDelete: SetNull)
+  realizadoPor     User?      @relation("TransferenciaMatriculaRealizadaPor", fields: [realizadoPorId], references: [id], onDelete: SetNull)
+
+  analisadoDestinoPor User?                             @relation("TransferenciaMatriculaAnalisadaDestinoPor", fields: [analisadoDestinoPorId], references: [id], onDelete: SetNull)
+  itens               TransferenciaMatriculaItem[]
+  documentos          TransferenciaMatriculaDocumento[]
+
+  @@index([instituicaoId])
+  @@index([instituicaoDestinoId, status])
+  @@index([matriculaId])
+  @@index([tipo])
+  @@index([status])
+  @@index([realizadoPorId])
+  @@index([analisadoDestinoPorId])
+  @@index([dataTransferencia])
+  @@index([poloOrigemId])
+  @@index([poloDestinoId])
+  @@index([turmaOrigemId])
+  @@index([turmaDestinoId])
+  @@index([createdAt])
+}
+
+model TransferenciaMatriculaItem {
+  id              Int @id @default(autoincrement())
+  transferenciaId Int
+
+  itemMatriculaOrigemId  Int
+  itemMatriculaDestinoId Int?
+
+  disciplinaId           Int
+  disciplinaNomeSnapshot String
+
+  turmaOrigemId           Int?
+  turmaOrigemNomeSnapshot String?
+
+  turmaDestinoId           Int?
+  turmaDestinoNomeSnapshot String?
+
+  tipoItem TipoItemMatricula
+
+  statusOrigem  StatusItemMatricula
+  statusDestino StatusItemMatricula?
+
+  situacao SituacaoItemTransferenciaMatricula
+
+  createdAt DateTime @default(now())
+
+  transferencia TransferenciaMatricula @relation(fields: [transferenciaId], references: [id], onDelete: Cascade)
+
+  @@unique([transferenciaId, itemMatriculaOrigemId])
+  @@index([transferenciaId])
+  @@index([itemMatriculaOrigemId])
+  @@index([itemMatriculaDestinoId])
+  @@index([disciplinaId])
+  @@index([turmaOrigemId])
+  @@index([turmaDestinoId])
+  @@index([situacao])
+}
+
+enum TipoDocumentoTransferenciaMatricula {
+  REQUERIMENTO
+  AUTORIZACAO_RESPONSAVEL
+  HISTORICO_ESCOLAR
+  DECLARACAO_MATRICULA
+  EMENTAS
+  PARECER_EQUIVALENCIA
+  DOCUMENTO_DESTINO
+  DOCUMENTO_PESSOAL
+  TERMO_ASSINADO
+  OUTRO
+}
+
+enum StatusDocumentoTransferenciaMatricula {
+  PENDENTE
+  VINCULADO
+  REMOVIDO
+}
+
+model TransferenciaMatriculaDocumento {
+  id              Int    @id @default(autoincrement())
+  instituicaoId   Int
+  matriculaId     Int
+  transferenciaId Int?
+  sessaoUpload    String
+
+  tipo   TipoDocumentoTransferenciaMatricula
+  status StatusDocumentoTransferenciaMatricula @default(PENDENTE)
+
+  nomeOriginal String
+  nomeArquivo  String
+  urlArquivo   String
+  pathnameBlob String?
+  mimeType     String?
+  tamanhoBytes Int?
+
+  descricao       String?
+  numeroDocumento String?
+  emitidoEm       DateTime?
+  validadeEm      DateTime?
+
+  visivelAoAluno Boolean @default(false)
+
+  enviadoPorId           Int?
+  enviadoPorNomeSnapshot String?
+  ip                     String?
+  userAgent              String?
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  vinculadoEm  DateTime?
+  expiraEm     DateTime?
+
+  removidoEm              DateTime?
+  removidoPorId           Int?
+  removidoPorNomeSnapshot String?
+  motivoRemocao           String?
+
+  transferencia TransferenciaMatricula? @relation(fields: [transferenciaId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([transferenciaId])
+  @@index([sessaoUpload])
+  @@index([tipo])
+  @@index([status])
+  @@index([enviadoPorId])
+  @@index([expiraEm])
 }

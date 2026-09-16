@@ -176,19 +176,134 @@ export async function GET(request: Request) {
         ? situacaoMatricula
         : null;
 
+    const turmaIdParam = String(
+      searchParams.get("turmaId") || ""
+    ).trim();
+
+    const turmaIdNumero =
+      Number(turmaIdParam);
+
+    const turmaIdSelecionada =
+      turmaIdParam &&
+      turmaIdParam !== "TODAS" &&
+      Number.isInteger(turmaIdNumero) &&
+      turmaIdNumero > 0
+        ? turmaIdNumero
+        : null;
+
     const filtroMatriculaBase: any = {
-      instituicaoId: user.instituicaoId ?? undefined,
+      instituicaoId:
+        user.instituicaoId ?? undefined,
       excluidaEm: null,
     };
 
+    // O resumo exibido deve ser sempre da matricula
+    // atual/mais recente nao excluida, independentemente
+    // do filtro selecionado na tela.
     const whereResumoMatricula: any = {
       ...filtroMatriculaBase,
     };
 
-    if (statusMatriculaSelecionado) {
-      whereResumoMatricula.status =
-        statusMatriculaSelecionado;
+    // Quando o usuario filtra por status de matricula
+    // ou por turma, primeiro descobrimos a matricula
+    // atual de cada aluno e somente depois aplicamos
+    // o filtro. Isso evita que uma matricula historica
+    // antiga faca o aluno aparecer indevidamente.
+    let alunoIdsMatriculaAtualFiltrados:
+      number[] | null = null;
+
+    if (
+      statusMatriculaSelecionado ||
+      turmaIdSelecionada
+    ) {
+      // Buscamos todas as matriculas nao excluidas
+      // em ordem da mais recente para a mais antiga.
+      // Depois mantemos somente a primeira de cada aluno.
+      // Isso e mais previsivel do que combinar distinct
+      // do Prisma com uma relacao aninhada de itens.
+      const matriculasParaFiltro =
+        await prisma.matricula.findMany({
+          where: {
+            ...filtroMatriculaBase,
+          },
+
+          orderBy: [
+            {
+              createdAt: "desc",
+            },
+            {
+              id: "desc",
+            },
+          ],
+
+          select: {
+            alunoId: true,
+            status: true,
+
+            itens: {
+              where: turmaIdSelecionada
+                ? {
+                    turmaId:
+                      turmaIdSelecionada,
+                  }
+                : undefined,
+
+              take: 1,
+
+              select: {
+                turmaId: true,
+              },
+            },
+          },
+        });
+
+      const matriculaAtualPorAluno =
+        new Map<
+          number,
+          (typeof matriculasParaFiltro)[number]
+        >();
+
+      for (
+        const matricula
+        of matriculasParaFiltro
+      ) {
+        if (
+          !matriculaAtualPorAluno.has(
+            matricula.alunoId
+          )
+        ) {
+          matriculaAtualPorAluno.set(
+            matricula.alunoId,
+            matricula
+          );
+        }
+      }
+
+      alunoIdsMatriculaAtualFiltrados =
+        Array.from(
+          matriculaAtualPorAluno.values()
+        )
+          .filter((matricula) => {
+            const bateStatus =
+              !statusMatriculaSelecionado ||
+              matricula.status ===
+                statusMatriculaSelecionado;
+
+            const bateTurma =
+              !turmaIdSelecionada ||
+              matricula.itens.length > 0;
+
+            return (
+              bateStatus &&
+              bateTurma
+            );
+          })
+          .map(
+            (matricula) =>
+              matricula.alunoId
+          );
     }
+
     const poloIdParam = String(searchParams.get("poloId") || "").trim();
 
     const where: any = {
@@ -199,23 +314,40 @@ export async function GET(request: Request) {
       where.statusAluno = status;
     }
 
-    if (situacaoMatricula === "MATRICULADOS") {
+    if (
+      situacaoMatricula === "SEM_MATRICULA"
+    ) {
+      if (turmaIdSelecionada) {
+        // Um aluno sem matricula atual nao pode,
+        // ao mesmo tempo, pertencer a uma turma.
+        where.id = {
+          in: [],
+        };
+      } else {
+        where.matriculas = {
+          none: {
+            ...filtroMatriculaBase,
+          },
+        };
+      }
+    } else if (
+      statusMatriculaSelecionado ||
+      turmaIdSelecionada
+    ) {
+      // Aqui usamos SOMENTE a matricula atual
+      // de cada aluno, resolvida acima.
+      where.id = {
+        in:
+          alunoIdsMatriculaAtualFiltrados ??
+          [],
+      };
+    } else if (
+      situacaoMatricula ===
+      "MATRICULADOS"
+    ) {
       where.matriculas = {
         some: {
           ...filtroMatriculaBase,
-        },
-      };
-    } else if (situacaoMatricula === "SEM_MATRICULA") {
-      where.matriculas = {
-        none: {
-          ...filtroMatriculaBase,
-        },
-      };
-    } else if (statusMatriculaSelecionado) {
-      where.matriculas = {
-        some: {
-          ...filtroMatriculaBase,
-          status: statusMatriculaSelecionado,
         },
       };
     }
@@ -295,9 +427,14 @@ export async function GET(request: Request) {
           },
           matriculas: {
             where: whereResumoMatricula,
-            orderBy: {
-              createdAt: "desc",
-            },
+            orderBy: [
+              {
+                createdAt: "desc",
+              },
+              {
+                id: "desc",
+              },
+            ],
             take: 1,
             select: {
               id: true,
@@ -360,6 +497,76 @@ export async function GET(request: Request) {
       prisma.aluno.count({ where }),
     ]);
 
+    const [
+      estatTotal,
+      estatCancelados,
+      estatInadimplentes,
+      matriculasAtuaisEstatisticas,
+    ] = await prisma.$transaction([
+      prisma.aluno.count({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+        },
+      }),
+
+      prisma.aluno.count({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+          statusAluno: "CANCELADO",
+        },
+      }),
+
+      prisma.aluno.count({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+          statusAluno: "INADIMPLENTE",
+        },
+      }),
+
+      prisma.matricula.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId ?? undefined,
+          excluidaEm: null,
+        },
+        orderBy: [
+          {
+            alunoId: "asc",
+          },
+          {
+            createdAt: "desc",
+          },
+          {
+            id: "desc",
+          },
+        ],
+        distinct: ["alunoId"],
+        select: {
+          alunoId: true,
+          status: true,
+        },
+      }),
+    ]);
+
+    const estatMatriculados =
+      matriculasAtuaisEstatisticas.length;
+
+    const estatSemMatricula =
+      Math.max(
+        estatTotal -
+          estatMatriculados,
+        0
+      );
+
+    const estatAguardando =
+      matriculasAtuaisEstatisticas.filter(
+        (matricula) =>
+          matricula.status === "AGUARDANDO"
+      ).length;
+
     const alunosFormatados = alunos.map((aluno) => {
       const matriculaRecente = aluno.matriculas?.[0] || null;
 
@@ -421,6 +628,15 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
         hasNextPage: page * limit < total,
         hasPreviousPage: page > 1,
+
+        estatisticas: {
+          total: estatTotal,
+          matriculados: estatMatriculados,
+          semMatricula: estatSemMatricula,
+          aguardando: estatAguardando,
+          cancelados: estatCancelados,
+          inadimplentes: estatInadimplentes,
+        },
       },
     });
   } catch (error: any) {

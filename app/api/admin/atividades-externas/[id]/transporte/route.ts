@@ -925,6 +925,7 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
 
         select: {
           id: true,
+          status: true,
         },
       });
 
@@ -936,6 +937,19 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
           },
           {
             status: 404,
+          },
+        );
+      }
+
+      if (trecho.status !== "PLANEJADO") {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "TRECHO_NAO_PERMITE_NOVOS_VEICULOS",
+            statusTrecho: trecho.status,
+          },
+          {
+            status: 409,
           },
         );
       }
@@ -1159,6 +1173,8 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
             veiculoId: true,
 
             atividadeExternaTrechoId: true,
+
+            status: true,
           },
         });
 
@@ -1170,6 +1186,19 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
           },
           {
             status: 404,
+          },
+        );
+      }
+
+      if (trechoVeiculo.status !== "PLANEJADO") {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "VEICULO_NAO_PERMITE_NOVOS_VINCULOS",
+            statusVeiculo: trechoVeiculo.status,
+          },
+          {
+            status: 409,
           },
         );
       }
@@ -1337,6 +1366,8 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
             veiculoId: true,
 
             capacidadePlanejada: true,
+
+            status: true,
           },
         });
 
@@ -1352,213 +1383,15 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
         );
       }
 
-      const participante = await prisma.atividadeExternaParticipante.findFirst({
-        where: {
-          id: participanteId,
-
-          instituicaoId: usuario.instituicaoId,
-
-          atividadeExternaId: atividade.id,
-        },
-
-        select: {
-          id: true,
-
-          alunoId: true,
-
-          statusParticipacao: true,
-
-          aluno: {
-            select: {
-              id: true,
-
-              nome: true,
-
-              nomeSocial: true,
-
-              matricula: true,
-            },
-          },
-        },
-      });
-
-      if (!participante) {
+      if (trechoVeiculo.status !== "PLANEJADO") {
         return NextResponse.json(
           {
             ok: false,
-            error: "PARTICIPANTE_NAO_ENCONTRADO",
-          },
-          {
-            status: 404,
-          },
-        );
-      }
-
-      const passageiroNoTrecho =
-        await prisma.atividadeExternaTrechoPassageiro.findFirst({
-          where: {
-            instituicaoId: usuario.instituicaoId,
-
-            atividadeExternaTrechoId: trechoVeiculo.atividadeExternaTrechoId,
-
-            participanteId: participante.id,
-          },
-
-          select: {
-            id: true,
-
-            trechoVeiculoId: true,
-          },
-        });
-
-      if (passageiroNoTrecho) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: "PARTICIPANTE_JA_VINCULADO_AO_TRECHO",
-
-            trechoVeiculoId: passageiroNoTrecho.trechoVeiculoId,
+            error: "VEICULO_NAO_PERMITE_NOVOS_VINCULOS",
+            statusVeiculo: trechoVeiculo.status,
           },
           {
             status: 409,
-          },
-        );
-      }
-
-      const assentoTexto = String(corpo?.assento || "").trim();
-
-      const passageiro = await prisma.atividadeExternaTrechoPassageiro.create({
-        data: {
-          instituicaoId: usuario.instituicaoId,
-
-          atividadeExternaTrechoId: trechoVeiculo.atividadeExternaTrechoId,
-
-          trechoVeiculoId: trechoVeiculo.id,
-
-          participanteId: participante.id,
-
-          assento: assentoTexto || null,
-
-          criadoPorId: usuario.id,
-
-          atualizadoPorId: usuario.id,
-        },
-
-        select: {
-          id: true,
-
-          atividadeExternaTrechoId: true,
-
-          trechoVeiculoId: true,
-
-          participanteId: true,
-
-          assento: true,
-
-          status: true,
-
-          createdAt: true,
-
-          updatedAt: true,
-
-          participante: {
-            select: {
-              id: true,
-
-              alunoId: true,
-
-              statusParticipacao: true,
-
-              aluno: {
-                select: {
-                  id: true,
-
-                  nome: true,
-
-                  nomeSocial: true,
-
-                  matricula: true,
-                },
-              },
-            },
-          },
-        },
-      });
-
-      return NextResponse.json(
-        {
-          ok: true,
-
-          acao: "VINCULAR_PASSAGEIRO",
-
-          passageiro,
-        },
-        {
-          status: 201,
-        },
-      );
-    }
-
-    if (acao === "VINCULAR_PASSAGEIRO") {
-      const trechoVeiculoId = Number(corpo?.trechoVeiculoId);
-
-      if (!Number.isInteger(trechoVeiculoId) || trechoVeiculoId <= 0) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: "TRECHO_VEICULO_INVALIDO",
-          },
-          {
-            status: 400,
-          },
-        );
-      }
-
-      const participanteId = Number(corpo?.participanteId);
-
-      if (!Number.isInteger(participanteId) || participanteId <= 0) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: "PARTICIPANTE_INVALIDO",
-          },
-          {
-            status: 400,
-          },
-        );
-      }
-
-      const trechoVeiculo =
-        await prisma.atividadeExternaTrechoVeiculo.findFirst({
-          where: {
-            id: trechoVeiculoId,
-
-            instituicaoId: usuario.instituicaoId,
-
-            atividadeExternaTrecho: {
-              atividadeExternaId: atividade.id,
-            },
-          },
-
-          select: {
-            id: true,
-
-            atividadeExternaTrechoId: true,
-
-            veiculoId: true,
-
-            capacidadePlanejada: true,
-          },
-        });
-
-      if (!trechoVeiculo) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: "VEICULO_DO_TRECHO_NAO_ENCONTRADO",
-          },
-          {
-            status: 404,
           },
         );
       }
@@ -1727,29 +1560,36 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
       }
 
       const passageiro =
-        await prisma.atividadeExternaTrechoPassageiro.findFirst({
-          where: {
-            id: passageiroId,
+  await prisma.atividadeExternaTrechoPassageiro.findFirst({
+    where: {
+      id: passageiroId,
 
-            instituicaoId: usuario.instituicaoId,
+      instituicaoId: usuario.instituicaoId,
 
-            atividadeExternaTrecho: {
-              atividadeExternaId: atividade.id,
-            },
-          },
+      atividadeExternaTrecho: {
+        atividadeExternaId: atividade.id,
+      },
+    },
 
-          select: {
-            id: true,
+    select: {
+      id: true,
 
-            status: true,
+      status: true,
 
-            participanteId: true,
+      participanteId: true,
 
-            trechoVeiculoId: true,
+      trechoVeiculoId: true,
 
-            atividadeExternaTrechoId: true,
-          },
-        });
+      atividadeExternaTrechoId: true,
+
+      trechoVeiculo: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+    },
+  });
 
       if (!passageiro) {
         return NextResponse.json(
@@ -1764,24 +1604,29 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
       }
 
       /*
-       * Depois que a operação da viagem
-       * começar, o vínculo passa a fazer
-       * parte do histórico operacional.
+       * Depois que a operaÃ§Ã£o da viagem
+       * comeÃ§ar, o vÃ­nculo passa a fazer
+       * parte do histÃ³rico operacional.
        */
-      if (passageiro.status !== "PLANEJADO") {
-        return NextResponse.json(
-          {
-            ok: false,
+      if (
+  passageiro.status !== "PLANEJADO" ||
+  passageiro.trechoVeiculo.status !== "PLANEJADO"
+) {
+  return NextResponse.json(
+    {
+      ok: false,
 
-            error: "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO",
+      error: "PASSAGEIRO_NAO_PODE_SER_DESVINCULADO",
 
-            statusAtual: passageiro.status,
-          },
-          {
-            status: 409,
-          },
-        );
-      }
+      statusAtual: passageiro.status,
+
+      statusVeiculo: passageiro.trechoVeiculo.status,
+    },
+    {
+      status: 409,
+    },
+  );
+}
 
       await prisma.atividadeExternaTrechoPassageiro.delete({
         where: {
@@ -2092,58 +1937,33 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
         );
       }
 
-                  const statusVeiculo =
-                passageiro
-                    .trechoVeiculo
-                    .status;
+      const statusVeiculo = passageiro.trechoVeiculo.status;
 
-            const operacaoVeiculoPermitida =
-                (
-                    novoStatus ===
-                        "AGUARDANDO_EMBARQUE" &&
-                    statusVeiculo ===
-                        "EM_EMBARQUE"
-                ) ||
-                (
-                    (
-                        novoStatus ===
-                            "EMBARCADO" ||
-                        novoStatus ===
-                            "NAO_EMBARCOU"
-                    ) &&
-                    statusVeiculo ===
-                        "EM_EMBARQUE"
-                ) ||
-                (
-                    novoStatus ===
-                        "DESEMBARCADO" &&
-                    statusVeiculo ===
-                        "CHEGOU"
-                );
+      const operacaoVeiculoPermitida =
+        (novoStatus === "AGUARDANDO_EMBARQUE" &&
+          statusVeiculo === "EM_EMBARQUE") ||
+        ((novoStatus === "EMBARCADO" || novoStatus === "NAO_EMBARCOU") &&
+          statusVeiculo === "EM_EMBARQUE") ||
+        (novoStatus === "DESEMBARCADO" && statusVeiculo === "CHEGOU");
 
-            if (
-                !operacaoVeiculoPermitida
-            ) {
-                return NextResponse.json(
-                    {
-                        ok: false,
+      if (!operacaoVeiculoPermitida) {
+        return NextResponse.json(
+          {
+            ok: false,
 
-                        error:
-                            "STATUS_VEICULO_INCOMPATIVEL_COM_PASSAGEIRO",
+            error: "STATUS_VEICULO_INCOMPATIVEL_COM_PASSAGEIRO",
 
-                        statusVeiculo,
+            statusVeiculo,
 
-                        statusPassageiro:
-                            passageiro.status,
+            statusPassageiro: passageiro.status,
 
-                        statusSolicitado:
-                            novoStatus,
-                    },
-                    {
-                        status: 409,
-                    }
-                );
-            }
+            statusSolicitado: novoStatus,
+          },
+          {
+            status: 409,
+          },
+        );
+      }
 
       const transicaoPermitida =
         (passageiro.status === "PLANEJADO" &&

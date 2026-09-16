@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function GoogleTagManagerPage() {
+  const t = useTranslations("AdminIntegracoes.googleTagManager");
+  const common = useTranslations("AdminIntegracoes.common");
+
   const [containerId, setContainerId] = useState("");
   const [ativo, setAtivo] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -23,7 +27,7 @@ export default function GoogleTagManagerPage() {
       setContainerId(data?.containerId || "");
       setAtivo(Boolean(data?.ativo));
     } catch {
-      setMensagem("Erro ao carregar configuração.");
+      setMensagem(common("loadError"));
     }
   }
 
@@ -47,9 +51,9 @@ export default function GoogleTagManagerPage() {
         throw new Error();
       }
 
-      setMensagem("Google Tag Manager salvo com sucesso.");
+      setMensagem(t("success"));
     } catch {
-      setMensagem("Erro ao salvar configuração.");
+      setMensagem(common("saveError"));
     } finally {
       setSalvando(false);
     }
@@ -59,29 +63,29 @@ export default function GoogleTagManagerPage() {
     <div className="phanyx-google-config-page max-w-3xl space-y-6">
       <div>
         <h1 className="phanyx-config-title text-3xl font-black">
-          🏷️ Google Tag Manager
+          {"\u{1F3F7}\uFE0F"} Google Tag Manager
         </h1>
 
         <p className="phanyx-config-muted mt-2">
-          Configure o Container ID da sua instituição.
+          {t("description")}
         </p>
       </div>
 
       <div className="phanyx-config-card space-y-5 p-6 shadow-sm">
         <div>
           <label className="phanyx-config-label mb-2 block text-sm">
-            Container ID
+            {t("containerId")}
           </label>
 
           <input
-  value={containerId}
-  onChange={(e) => setContainerId(e.target.value)}
-  placeholder="GTM-XXXXXXX"
-  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400"
-/>
+            value={containerId}
+            onChange={(e) => setContainerId(e.target.value)}
+            placeholder="GTM-XXXXXXX"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400"
+          />
 
           <p className="phanyx-config-muted mt-2 text-sm">
-            Cada instituição deve usar seu próprio container GTM.
+            {t("help")}
           </p>
         </div>
 
@@ -93,7 +97,7 @@ export default function GoogleTagManagerPage() {
           />
 
           <span className="phanyx-config-check-label font-semibold">
-            Ativar Google Tag Manager nesta instituição
+            {t("activate")}
           </span>
         </label>
 
@@ -109,7 +113,7 @@ export default function GoogleTagManagerPage() {
           disabled={salvando}
           className="phanyx-primary-action disabled:opacity-60"
         >
-          {salvando ? "Salvando..." : "Salvar configuração"}
+          {salvando ? common("saving") : common("saveConfiguration")}
         </button>
       </div>
     </div>

@@ -4028,14 +4028,20 @@
     "actions": {
       "hideRegistration": "Ocultar formulario",
       "newStudent": "Nuevo estudiante",
-      "clearFilters": "Limpiar filtros"
+      "clearFilters": "Limpiar filtros",
+      "backToStudents": "Volver a alumnos",
+      "exportStudents": "Exportar",
+      "exportingStudents": "Exportando...",
+      "exportStudentsSuccess": "La hoja de alumnos se export? correctamente.",
+      "exportStudentsError": "No se pudieron exportar los alumnos."
     },
     "stats": {
       "total": "Total de estudiantes",
       "enrolled": "Matriculados",
       "withoutEnrollment": "Sin matrícula",
       "canceled": "Cancelados",
-      "delinquent": "Morosos"
+      "delinquent": "Morosos",
+      "awaiting": "En espera"
     },
     "filters": {
       "title": "Buscar y organizar estudiantes",
@@ -11966,6 +11972,7 @@
       "countryValidity": "País donde se aplica el festivo",
       "countryHint": "Este país determina qué instituciones recibirán el aviso. No cambia al cambiar el idioma de la traducción.",
       "date": "Fecha del festivo",
+      "threeDaysHint": "Al seleccionar la fecha del festivo, PHANYX inicia automáticamente el aviso 3 días antes y lo finaliza el mismo día. El período puede ajustarse manualmente.",
       "displayStart": "Inicio de visualización",
       "displayEnd": "Fin de visualización",
       "type": "Ámbito",
@@ -13629,6 +13636,31 @@
           "title": "Confirmar apertura",
           "highlight": "Después de revisar los datos, haz clic para abrir la caja.",
           "description": "Una vez abierta, el sistema permite registrar entradas, salidas, resumen y cierre."
+        },
+        "openSummary": {
+          "title": "Caja abierta",
+          "highlight": "Consulta rápidamente el estado, los saldos y la cantidad de movimientos.",
+          "description": "Estas tarjetas muestran el saldo inicial, el saldo calculado por el sistema y cuántos movimientos se han registrado."
+        },
+        "pendingCharges": {
+          "title": "Cobros pendientes",
+          "highlight": "Localiza un cobro y registra el pago directamente en la caja.",
+          "description": "Busca por alumno, matrícula, curso, vendedor o descripción y utiliza la acción de cobro para registrar un pago pendiente."
+        },
+        "manualMovement": {
+          "title": "Registrar movimiento",
+          "highlight": "Registra entradas y salidas que no provengan de un cobro.",
+          "description": "Indica el tipo, la descripción, el importe y la forma de pago para mantener la caja actualizada."
+        },
+        "paymentSummary": {
+          "title": "Resumen por forma de pago",
+          "highlight": "Consulta cuánto se recibió en efectivo, PIX y tarjeta.",
+          "description": "Utiliza este resumen para revisar la composición de los cobros antes del cierre."
+        },
+        "cashClosing": {
+          "title": "Cierre de caja",
+          "highlight": "Comprueba el saldo y registra el importe contado al cierre.",
+          "description": "Indica el saldo comprobado y una observación, si es necesario, antes de cerrar la caja."
         }
       }
     },
@@ -13826,6 +13858,42 @@
     "actions": {
       "saving": "Guardando...",
       "save": "Guardar configuración financiera"
+    },
+    "tour": {
+      "open": "Abrir tutorial guiado",
+      "parameters": {
+        "title": "Par?metros financieros",
+        "highlight": "Defina intereses, multa, descuento y d?as de tolerancia.",
+        "description": "Estos valores establecen los par?metros predeterminados utilizados por la instituci?n en las rutinas financieras y cobros."
+      },
+      "blocking": {
+        "title": "Bloqueo por morosidad",
+        "highlight": "Controle el acceso de alumnos morosos.",
+        "description": "Active esta opci?n cuando las reglas financieras deban poder bloquear a los alumnos con obligaciones vencidas."
+      },
+      "blockRule": {
+        "title": "Regla de bloqueo",
+        "highlight": "Elija cu?ntas mensualidades vencidas activar?n el bloqueo.",
+        "description": "Esta cantidad define el l?mite de mensualidades atrasadas antes de aplicar el bloqueo."
+      },
+      "partialPayment": {
+        "title": "Pago parcial",
+        "highlight": "Permita o impida pagos parciales.",
+        "description": "Cuando est? activado, el ?rea financiera puede registrar pagos inferiores al importe total de la cobranza."
+      },
+      "save": {
+        "title": "Guardar configuraci?n",
+        "highlight": "Confirme las reglas financieras de la instituci?n.",
+        "description": "Despu?s de revisar los par?metros, guarde la configuraci?n para aplicarla a las rutinas financieras."
+      },
+      "ui": {
+        "kicker": "TUTORIAL GUIADO",
+        "step": "Paso {current} de {total}",
+        "close": "Cerrar",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "finish": "Finalizar"
+      }
     }
   },
   "AdminFinanceiroHistorico": {
@@ -15244,6 +15312,1084 @@
       "comercial__captacao__integracoes__ver": "Comercial - Ver integraciones de captación",
       "comercial__captacao__integracoes__gerenciar": "Comercial - Gestionar integraciones de captación",
       "comercial__captacao__auditoria__ver": "Comercial - Ver auditoría de captación"
+    }
+  },
+  "AdminTransferenciaMatricula": {
+    "back": "Volver a matrículas",
+    "title": "Transferir matrícula",
+    "subtitle": "Elija el tipo de transferencia y revise los datos académicos antes de continuar.",
+    "enrollmentId": "Matrícula #{id}",
+    "loading": "Cargando matrícula...",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "origin": {
+      "title": "Matrícula de origen",
+      "student": "Alumno",
+      "enrollment": "Matrícula",
+      "institution": "Institución",
+      "campus": "Sede",
+      "course": "Curso",
+      "class": "Clase",
+      "modality": "Modalidad",
+      "courseSemester": "Semestre",
+      "module": "Módulo"
+    },
+    "chooseType": {
+      "title": "¿Qué tipo de transferencia se realizará?",
+      "description": "Seleccione la opción que representa el destino académico del alumno."
+    },
+    "types": {
+      "campus": {
+        "title": "Otra sede",
+        "description": "Transferir al alumno a otra sede de la misma institución."
+      },
+      "courseClass": {
+        "title": "Otro curso o clase",
+        "description": "Cambiar la clase actual o transferir a otro curso compatible."
+      },
+      "phanyxInstitution": {
+        "title": "Otra institución PHANYX",
+        "description": "Transferir la matrícula a otra institución que utilice PHANYX."
+      },
+      "externalInstitution": {
+        "title": "Institución externa",
+        "description": "Registrar una transferencia a una institución que no utilice PHANYX."
+      },
+      "studentReassignment": {
+        "title": "Reasignación de alumno",
+        "description": "Reasignar esta matrícula a otro registro de alumno conservando el historial."
+      }
+    },
+    "errors": {
+      "load": "No se pudieron cargar los datos de la matrícula.",
+      "chooseType": "Seleccione un tipo de transferencia para continuar."
+    },
+    "courseClassTransfer": {
+      "back": "Volver a las opciones de transferencia",
+      "title": "Otro curso o grupo",
+      "description": "Cambie solamente el grupo o transfiera la matrícula a otro curso disponible en la sede actual.",
+      "loading": "Cargando opciones de transferencia...",
+      "currentEnrollment": "Matrícula actual",
+      "student": "Alumno",
+      "currentCampus": "Sede actual",
+      "currentCourse": "Curso actual",
+      "currentClass": "Grupo actual",
+      "whatChange": "¿Qué desea cambiar?",
+      "whatChangeHelp": "PHANYX muestra solamente opciones académicamente elegibles para esta matrícula.",
+      "available": "Disponible",
+      "unavailable": "No disponible",
+      "subjectCount": "{count} asignaturas",
+      "otherCampusNotice": "Para transferir al alumno a otra sede, utilice la opción “Otra sede”.",
+      "classOnly": {
+        "title": "Solo otro grupo",
+        "description": "Mantiene el curso y la sede actuales y cambia solamente el grupo.",
+        "emptyTitle": "No hay otro grupo disponible",
+        "emptyDescription": "No existe otro grupo activo de este curso en la sede actual.",
+        "analyzing": "Analizando la compatibilidad académica..."
+      },
+      "courseAndClass": {
+        "title": "Curso y grupo",
+        "description": "Transfiere la matrícula a otro curso ofrecido en la misma sede.",
+        "emptyTitle": "No hay otro curso disponible",
+        "emptyDescription": "No existe otro curso activo ofrecido en esta sede.",
+        "analysisRequired": "Las transferencias entre cursos requieren análisis curricular."
+      },
+      "review": {
+        "step": "Revisión",
+        "title": "Revisar cambio de grupo",
+        "originClass": "Grupo de origen",
+        "destinationClass": "Grupo de destino",
+        "currentSubjects": "Asignaturas actuales",
+        "compatibleSubjects": "Compatibles",
+        "missingSubjects": "Faltantes",
+        "extraSubjects": "Extras",
+        "compatibleTitle": "Grupo compatible",
+        "compatibleDescription": "Todas las asignaturas activas están disponibles en el grupo seleccionado.",
+        "incompatibleTitle": "Grupo incompatible",
+        "incompatibleDescription": "Faltan asignaturas obligatorias en el grupo de destino.",
+        "validationNotice": "El análisis fue aprobado. Revise los datos antes de confirmar la transferencia."
+      },
+      "errors": {
+        "load": "No se pudieron cargar las opciones de curso y grupo.",
+        "analysis": "No se pudo analizar la compatibilidad del grupo.",
+        "dateRequired": "Ingrese la fecha de transferencia.",
+        "reasonRequired": "Ingrese un motivo de al menos 3 caracteres.",
+        "confirm": "No fue posible completar la transferencia."
+      },
+      "form": {
+        "title": "Confirmar transferencia",
+        "description": "Ingrese los datos administrativos antes de realizar el cambio de grupo.",
+        "transferDate": "Fecha de transferencia",
+        "reason": "Motivo",
+        "reasonPlaceholder": "Ej.: solicitud del alumno, reorganización académica...",
+        "observations": "Observaciones",
+        "observationsPlaceholder": "Información adicional (opcional).",
+        "auditNotice": "Al confirmar, PHANYX conservará los vínculos anteriores y registrará el movimiento en el historial.",
+        "cancel": "Cancelar selección",
+        "confirm": "Confirmar transferencia",
+        "confirming": "Transfiriendo..."
+      },
+      "success": {
+        "badge": "Transferencia completada",
+        "title": "Cambio de grupo realizado correctamente",
+        "description": "La matrícula fue actualizada y el historial académico anterior fue preservado.",
+        "transferNumber": "Transferencia",
+        "migratedSubjects": "Asignaturas migradas",
+        "origin": "Grupo de origen",
+        "destination": "Grupo de destino",
+        "backToEnrollments": "Volver a matrículas"
+      }
+    }
+  },
+  "AdminIntegracoes": {
+    "common": {
+      "loadingConfiguration": "Cargando configuración...",
+      "saving": "Guardando...",
+      "saveConfiguration": "Guardar configuración",
+      "loadError": "Error al cargar la configuración.",
+      "saveError": "Error al guardar la configuración."
+    },
+    "home": {
+      "title": "Integraciones de Google",
+      "description": "Configura SEO, analítica, conversiones y presencia digital.",
+      "openTour": "Abrir tutorial guiado",
+      "cards": {
+        "growth": {
+          "title": "PHANYX Growth",
+          "description": "Panel completo con Analytics, Search Console, campañas, presencia digital y métricas reales.",
+          "badge": "Growth"
+        },
+        "analytics": {
+          "title": "Google Analytics",
+          "description": "Supervisa accesos, eventos y conversiones de PHANYX.",
+          "badge": "Analytics"
+        },
+        "tagManager": {
+          "title": "Google Tag Manager",
+          "description": "Gestiona scripts, píxeles y seguimientos.",
+          "badge": "Tag Manager"
+        },
+        "searchConsole": {
+          "title": "Google Search Console",
+          "description": "Indexación, sitemap y SEO técnico.",
+          "badge": "SEO"
+        },
+        "googleAds": {
+          "title": "Google Ads",
+          "description": "Conversiones, remarketing y campañas.",
+          "badge": "Ads"
+        },
+        "googleBusiness": {
+          "title": "Google Business",
+          "description": "Presencia local, reseñas y mapas.",
+          "badge": "Local"
+        }
+      },
+      "tour": {
+        "kicker": "TUTORIAL GUIADO",
+        "title": "Central de integraciones",
+        "highlight": "Aquí se encuentran las integraciones de Google de PHANYX.",
+        "description": "En esta área puedes configurar Analytics, Tag Manager, Search Console, Google Ads y la presencia local de la institución.",
+        "understood": "Entendido"
+      }
+    },
+    "googleAds": {
+      "description": "Configura el ID de conversión de Google Ads de tu institución.",
+      "conversionId": "ID de conversión",
+      "help": "Cada institución debe utilizar su propio ID de Google Ads.",
+      "activate": "Activar Google Ads en esta institución",
+      "success": "Google Ads guardado correctamente."
+    },
+    "googleAnalytics": {
+      "description": "Configura el Measurement ID de tu institución.",
+      "measurementId": "Measurement ID",
+      "measurementHelp": "Este es el ID que comienza por G-. Instala Analytics en el sitio web de la institución.",
+      "propertyId": "Property ID",
+      "propertyHelp": "Este es el ID numérico de la propiedad de Google Analytics. Se utiliza para obtener datos reales en el panel.",
+      "activate": "Activar Google Analytics en esta institución",
+      "success": "Configuración de Google Analytics guardada correctamente."
+    },
+    "googleBusiness": {
+      "description": "Configura la presencia local de tu institución en Google.",
+      "integrationTitle": "Integración con Google Business",
+      "integrationDescription": "Conecta el perfil de Google Business de la institución para mostrar métricas locales, reputación, reseñas y presencia en Google.",
+      "activate": "Activar Google Business en esta institución",
+      "connectedTitle": "Google Business conectado a PHANYX",
+      "connectedDescription": "PHANYX está preparado para integrarse con la API oficial de Google Business. Algunas métricas pueden depender de la aprobación o disponibilidad de Google.",
+      "connect": "Conectar Google Business",
+      "connectError": "No fue posible iniciar la conexión con Google Business.",
+      "success": "Google Business guardado correctamente."
+    },
+    "googleTagManager": {
+      "description": "Configura el Container ID de tu institución.",
+      "containerId": "Container ID",
+      "help": "Cada institución debe utilizar su propio contenedor GTM.",
+      "activate": "Activar Google Tag Manager en esta institución",
+      "success": "Google Tag Manager guardado correctamente."
+    },
+    "searchConsole": {
+      "description": "Configura la verificación de Search Console de tu institución.",
+      "verificationMeta": "Metaetiqueta de verificación",
+      "help": "Pega aquí la metaetiqueta proporcionada por Google Search Console.",
+      "activate": "Activar Search Console en esta institución",
+      "success": "Search Console guardado correctamente."
+    }
+  },
+  "AdminIntegracoesEmail": {
+    "loading": "Cargando la configuración de correo electrónico...",
+    "eyebrow": "Integraciones",
+    "title": "Correo electrónico institucional",
+    "description": "Configura el servidor de correo utilizado por tu institución para enviar mensajes a través de PHANYX.",
+    "status": {
+      "active": "Correo activo",
+      "configuredInactive": "Configurado, pero inactivo",
+      "notConfigured": "No configurado"
+    },
+    "sending": {
+      "title": "Envío de correo electrónico",
+      "description": "Actívalo solo después de configurar y probar el servidor SMTP."
+    },
+    "fields": {
+      "host": "Servidor SMTP",
+      "port": "Puerto SMTP",
+      "connectionSecurity": "Seguridad de la conexión",
+      "sslHelp": "Normalmente utiliza el puerto 465.",
+      "starttlsHelp": "Normalmente utiliza el puerto 587.",
+      "user": "Usuario SMTP",
+      "password": "Contraseña SMTP",
+      "passwordKeepPlaceholder": "Déjalo vacío para mantener la actual",
+      "passwordPlaceholder": "Introduce la contraseña SMTP",
+      "passwordStored": "Ya hay una contraseña almacenada de forma cifrada. Completa este campo solo si deseas cambiarla."
+    },
+    "sender": {
+      "title": "Remitente",
+      "description": "Esta información se mostrará al destinatario cuando la institución envíe un correo electrónico.",
+      "name": "Nombre del remitente",
+      "namePlaceholder": "Secretaría Académica",
+      "email": "Correo del remitente"
+    },
+    "security": {
+      "title": "Seguridad de las credenciales",
+      "passwordHidden": "La contraseña SMTP no vuelve a mostrarse después de guardarla.",
+      "institutionScoped": "Las credenciales se almacenan vinculadas a la institución autenticada.",
+      "isolation": "PHANYX no utiliza la configuración de una institución para enviar mensajes de otra."
+    },
+    "actions": {
+      "testing": "Probando...",
+      "testConnection": "Probar conexión",
+      "saving": "Guardando...",
+      "save": "Guardar configuración"
+    },
+    "messages": {
+      "loadError": "Error al cargar la configuración.",
+      "loadEmailError": "Error al cargar la configuración de correo electrónico.",
+      "hostRequired": "Introduce el servidor SMTP.",
+      "invalidPort": "Introduce un puerto SMTP válido.",
+      "userRequired": "Introduce el usuario SMTP.",
+      "passwordRequired": "Introduce la contraseña SMTP.",
+      "senderEmailRequired": "Introduce el correo del remitente.",
+      "testUnavailable": "No fue posible probar la conexión SMTP.",
+      "testSuccess": "Conexión SMTP realizada correctamente.",
+      "testError": "Error al probar la conexión SMTP.",
+      "saveError": "Error al guardar la configuración.",
+      "saveSuccess": "Configuración de correo guardada correctamente.",
+      "saveEmailError": "Error al guardar la configuración de correo electrónico."
+    }
+  },
+  "AdminIntegracoesMarketing": {
+    "title": "Central de marketing y presencia digital",
+    "description": "Consulta las métricas, integraciones, campañas, reputación y canales de la institución en un solo lugar.",
+    "channelsTitle": "Canales e integraciones",
+    "status": {
+      "connected": "Conectado",
+      "configuration": "Configuración",
+      "active": "Activo",
+      "comingSoon": "Próximamente"
+    },
+    "actions": {
+      "open": "Abrir",
+      "comingSoon": "Próximamente",
+      "configure": "Configurar"
+    },
+    "channels": {
+      "reputationAi": "Reputación IA"
+    },
+    "duration": {
+      "hoursMinutesSeconds": "{hours}h {minutes}min {seconds}s",
+      "minutesSeconds": "{minutes}min {seconds}s",
+      "seconds": "{seconds}s"
+    },
+    "metrics": {
+      "visitors": {
+        "title": "Visitantes",
+        "detail": "Usuarios activos en los últimos 30 días"
+      },
+      "newUsers": {
+        "title": "Nuevos usuarios",
+        "detail": "Personas que accedieron por primera vez"
+      },
+      "sessions": {
+        "title": "Sesiones",
+        "detail": "Total de visitas registradas"
+      },
+      "views": {
+        "title": "Visualizaciones",
+        "detail": "Páginas vistas en el sitio"
+      },
+      "averageTime": {
+        "title": "Tiempo medio",
+        "detail": "Tiempo medio por sesión"
+      },
+      "conversions": {
+        "title": "Conversiones",
+        "detail": "Eventos marcados como conversión"
+      },
+      "googleBusiness": {
+        "connectedDetail": "Visualizaciones del perfil",
+        "disconnectedDetail": "Conecta tu perfil comercial"
+      },
+      "googleClicks": {
+        "title": "Clics de Google",
+        "detail": "Clics procedentes de la búsqueda orgánica"
+      },
+      "googleImpressions": {
+        "title": "Impresiones de Google",
+        "detail": "Veces que apareció en las búsquedas"
+      },
+      "googleCtr": {
+        "detail": "Tasa de clics de la búsqueda orgánica"
+      },
+      "averagePosition": {
+        "title": "Posición media",
+        "detail": "Posición media en Google"
+      },
+      "facebook": {
+        "connectedDetail": "Seguidores • {likes} Me gusta",
+        "disconnectedDetail": "Conecta tu página de Meta"
+      }
+    },
+    "errors": {
+      "dashboard": "Error al cargar el panel"
+    }
+  },
+  "AdminIntegracoesReputacao": {
+    "header": {
+      "title": "Reputación",
+      "description": "Supervisa la reputación digital de la institución, las reseñas, las respuestas pendientes y los indicadores de confianza."
+    },
+    "score": {
+      "description": "La reputación institucional es estable y está preparada para la expansión digital. PHANYX seguirá supervisando futuras reseñas y señales reputacionales.",
+      "trend": "Tendencia",
+      "positive": "Positiva ↗",
+      "stable": "Estable →",
+      "critical": "Crítica ↓",
+      "healthyGrowth": "Crecimiento reputacional saludable"
+    },
+    "summaryCards": {
+      "averageRating": {
+        "title": "Valoración media",
+        "detail": "A la espera de reseñas conectadas"
+      },
+      "evaluations": {
+        "title": "Reseñas",
+        "detail": "Total de reseñas supervisadas"
+      },
+      "pending": {
+        "title": "Pendientes",
+        "detail": "Reseñas pendientes de respuesta"
+      },
+      "phanyxIndex": {
+        "title": "Índice PHANYX",
+        "detail": "Reputación consolidada por la Defensoría"
+      }
+    },
+    "evaluationCenter": {
+      "title": "Central de reseñas",
+      "description": "Reseñas recientes supervisadas por la IA de PHANYX.",
+      "total": "Total",
+      "pending": "Pendientes",
+      "answered": "Respondidas",
+      "index": "Índice PHANYX",
+      "aiAnalyzing": "IA analizando sentimientos",
+      "filters": {
+        "all": "Todas",
+        "pending": "Pendientes",
+        "answered": "Respondidas",
+        "critical": "Críticas",
+        "positive": "Positivas",
+        "neutral": "Neutras"
+      },
+      "emptyTitle": "No se encontraron reseñas",
+      "emptyDescription": "El filtro seleccionado no tiene reseñas en este momento. La IA de PHANYX seguirá supervisando automáticamente nuevas señales reputacionales.",
+      "monitoringActive": "Supervisión activa",
+      "viewDetails": "Ver detalles",
+      "replyWithAi": "Responder con IA"
+    },
+    "sentiment": {
+      "critical": "Crítico",
+      "positive": "Positivo",
+      "neutral": "Neutro"
+    },
+    "reviewStatus": {
+      "answered": "Respondida",
+      "pending": "Pendiente"
+    },
+    "executive": {
+      "eyebrow": "Panel ejecutivo IA",
+      "title": "Reputación institucional saludable",
+      "description": "La IA de PHANYX supervisa en tiempo real la reputación, el compromiso, las reseñas y la velocidad de respuesta.",
+      "aiScore": "Puntuación IA",
+      "excellentReputation": "Excelente reputación",
+      "reputationHealth": "Salud reputacional",
+      "aiMonitoring": "Supervisión IA",
+      "reputationTrend": "Tendencia reputacional",
+      "realTime": "Tiempo real",
+      "trend": "Tendencia",
+      "trendDetail": "Crecimiento reputacional identificado por la IA.",
+      "averageTime": "Tiempo medio",
+      "averageTimeDetail": "Tiempo medio estimado para la respuesta administrativa.",
+      "aiStatus": "Estado IA",
+      "active": "Activo",
+      "monitoringNormal": "La supervisión reputacional funciona con normalidad.",
+      "positiveReviews": "Reseñas positivas",
+      "positiveReviewsDetail": "{count} registros positivos identificados por la IA.",
+      "attentionNeeded": "Atención necesaria",
+      "pendingExists": "Hay registros pendientes de respuesta institucional.",
+      "noPending": "No hay registros pendientes en este momento.",
+      "recordsLabel": "Registros"
+    },
+    "alerts": {
+      "title": "Alertas reputacionales",
+      "description": "Supervisión inteligente de la reputación institucional.",
+      "aiMonitoring": "IA supervisando",
+      "critical": "Crítico",
+      "criticalCount": "Registros críticos abiertos: {count}",
+      "criticalDescription": "Hay registros críticos pendientes de seguimiento institucional.",
+      "attention": "Atención",
+      "openComplaints": "Reclamaciones abiertas: {count}",
+      "openComplaintsDescription": "Las reclamaciones internas aún necesitan una respuesta administrativa.",
+      "resolved": "Resueltas",
+      "resolvedCount": "Registros respondidos: {count}",
+      "resolvedDescription": "La institución ya ha respondido a los registros recibidos.",
+      "allGood": "Todo en orden",
+      "noAlertsTitle": "No hay alertas reputacionales en este momento",
+      "noAlertsDescription": "No hay reclamaciones críticas ni registros abiertos que afecten actualmente a la reputación."
+    },
+    "evolution": {
+      "title": "Evolución reputacional",
+      "description": "La IA de PHANYX supervisa tendencias reputacionales y crecimiento institucional.",
+      "aiTrend": "Tendencia IA",
+      "reputationLabel": "Reputación"
+    },
+    "analysisCards": {
+      "alertLabel": "ALERTA IA",
+      "criticalDetected": "Registros críticos detectados",
+      "noCriticalAlert": "Ninguna alerta crítica",
+      "criticalPending": "Hay registros críticos pendientes de seguimiento.",
+      "noCriticalPending": "No hay registros críticos abiertos en este momento.",
+      "growthLabel": "GROWTH IA",
+      "growthDetected": "Crecimiento reputacional detectado",
+      "dropDetected": "Caída reputacional detectada",
+      "stable": "Reputación estable",
+      "growthDescription": "Aumentaron los registros reputacionales positivos durante el período.",
+      "dropDescription": "El rendimiento reputacional disminuyó durante el período.",
+      "stableDescription": "No hubo variaciones relevantes en los registros reputacionales.",
+      "responseTimeLabel": "TIEMPO DE RESPUESTA",
+      "slowResponses": "Respuestas lentas",
+      "responseSlow": "Hay registros por encima del tiempo ideal de respuesta.",
+      "responseNormal": "El tiempo de respuesta está dentro de lo esperado.",
+      "scoreLabel": "PUNTUACIÓN IA",
+      "excellent": "Reputación excelente",
+      "excellentDescription": "La institución mantiene una sólida aprobación reputacional."
+    },
+    "timeline": {
+      "title": "Cronología reputacional",
+      "description": "Eventos recientes supervisados por PHANYX Growth.",
+      "realTime": "En tiempo real",
+      "now": "Ahora",
+      "items": {
+        "newComplaint": "Nueva reclamación recibida",
+        "newSuggestion": "Nueva sugerencia recibida",
+        "newPraise": "Nuevo elogio recibido",
+        "newRecord": "Nuevo registro reputacional recibido"
+      }
+    },
+    "timelineAi": {
+      "title": "Cronología reputacional IA",
+      "description": "Eventos recientes seguidos automáticamente por PHANYX Growth.",
+      "realTimeMonitoring": "Supervisión en tiempo real",
+      "items": {
+        "answered": "Registro respondido",
+        "complaint": "Reclamación recibida",
+        "suggestion": "Sugerencia recibida",
+        "praise": "Elogio recibido",
+        "record": "Registro reputacional recibido"
+      }
+    },
+    "insights": {
+      "title": "Insights automáticos de IA",
+      "description": "La IA de PHANYX identificó tendencias reputacionales relevantes.",
+      "activeIntelligence": "Inteligencia reputacional activa",
+      "positiveGrowth": "Crecimiento positivo",
+      "positiveGrowthDescription": "Las reseñas positivas aumentaron esta semana.",
+      "pendingResponses": "Respuestas pendientes",
+      "pendingExists": "Hay registros pendientes de respuesta administrativa.",
+      "allAnswered": "Todos los registros han sido respondidos.",
+      "bestPerformance": "Mejor rendimiento",
+      "bestPerformanceDescription": "El mayor volumen de interacción se produjo en este día.",
+      "averageTime": "Tiempo medio",
+      "averageTimeDescription": "Tiempo medio estimado para la respuesta reputacional."
+    },
+    "sources": {
+      "title": "Fuentes de reputación",
+      "preparing": "En preparación",
+      "active": "Activo",
+      "internalComplaints": "Reclamaciones internas"
+    },
+    "resources": {
+      "title": "Estado de los recursos",
+      "ombudsmanActive": "Defensoría interna activa",
+      "pendingCalculated": "Respuestas pendientes calculadas por la base",
+      "indexCalculated": "Índice PHANYX calculado por la Defensoría",
+      "googleBusinessWaiting": "Google Business esperando la disponibilidad de la API",
+      "metaWaiting": "Meta / Instagram esperando integración reputacional"
+    },
+    "common": {
+      "cancel": "Cancelar",
+      "closeAnalysis": "Cerrar análisis",
+      "stars": "{count} estrellas",
+      "understood": "Entendido"
+    },
+    "toasts": {
+      "copied": "Respuesta copiada al portapapeles.",
+      "markedAnswered": "Registro marcado como respondido.",
+      "markError": "No fue posible marcar el registro como respondido."
+    },
+    "replyAi": {
+      "eyebrow": "Alerta reputacional",
+      "title": "Responder reseña con IA",
+      "description": "PHANYX preparó una sugerencia profesional para responder con empatía, claridad y protección de la reputación institucional.",
+      "received": "Reseña recibida",
+      "suggestion": "Sugerencia de la IA de PHANYX",
+      "markAnswered": "Marcar como respondida",
+      "copyResponse": "Copiar respuesta",
+      "responses": {
+        "critical": "Hola, {name}. Lamentamos mucho la experiencia que has descrito. Gracias por compartir tus comentarios, ya que nos ayudan a mejorar continuamente. Nuestro equipo revisará la situación con atención para buscar una solución lo antes posible.",
+        "neutral": "Hola, {name}. Gracias por tu reseña y por compartir tus observaciones. Tus comentarios son muy importantes para seguir mejorando nuestros procesos y la experiencia que ofrecemos.",
+        "positive": "Hola, {name}. Nos alegra mucho saber que tu experiencia fue positiva. Gracias por confiar en nuestra institución y por compartir tu reseña."
+      }
+    },
+    "details": {
+      "eyebrow": "DETALLES DE LA RESEÑA",
+      "title": "Análisis reputacional IA",
+      "priorityLabel": "Prioridad IA",
+      "riskLabel": "Riesgo reputacional",
+      "channelLabel": "Canal",
+      "internalOmbudsman": "Defensoría interna",
+      "recommendedTime": "Tiempo recomendado",
+      "aiAnalysis": "Análisis IA PHANYX",
+      "timelineTitle": "Cronología de la reseña",
+      "responseTime": "{hours} horas",
+      "priority": {
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja"
+      },
+      "risk": {
+        "medium": "Medio",
+        "low": "Bajo",
+        "veryLow": "Muy bajo"
+      },
+      "analysis": {
+        "critical": "Existe riesgo de impacto reputacional si la reseña permanece sin respuesta.",
+        "neutral": "La reseña presenta una oportunidad de mejora y fortalecimiento institucional.",
+        "positive": "La reseña fortalece la reputación institucional y contribuye positivamente a la confianza en la marca."
+      },
+      "timeline": {
+        "now": "Ahora",
+        "afterReceipt": "Tras la recepción",
+        "completed": "Completado",
+        "pending": "Pendiente",
+        "resolved": "Resuelto",
+        "open": "Abierto",
+        "received": {
+          "title": "Reseña recibida",
+          "description": "La reseña fue identificada por la supervisión reputacional."
+        },
+        "sentiment": {
+          "title": "La IA analizó el sentimiento",
+          "description": "Sentimiento clasificado como {sentiment}."
+        },
+        "response": {
+          "sentTitle": "Respuesta marcada como enviada",
+          "pendingTitle": "Respuesta pendiente",
+          "sentDescription": "La reseña ya fue marcada como respondida en PHANYX Growth.",
+          "pendingDescription": "La IA recomienda responder esta reseña dentro del plazo indicado."
+        },
+        "case": {
+          "resolvedTitle": "Caso resuelto",
+          "waitingTitle": "Esperando acción",
+          "resolvedDescription": "El ciclo reputacional de esta reseña ha sido cerrado.",
+          "waitingDescription": "La reseña aún requiere seguimiento administrativo."
+        }
+      }
+    },
+    "engagementModal": {
+      "eyebrow": "INSIGHT DE INTERACCIÓN",
+      "title": "Crecimiento detectado",
+      "growthIdentified": "Crecimiento identificado",
+      "growthDescription": "El perfil institucional registró un aumento de visualizaciones, búsquedas e interacciones esta semana.",
+      "aiSuggestion": "Sugerencia de la IA de PHANYX",
+      "suggestionDescription": "Aprovecha este momento para publicar nuevos contenidos, responder rápidamente a los mensajes y animar a los alumnos a dejar reseñas positivas."
+    },
+    "positiveModal": {
+      "eyebrow": "INFORME POSITIVO",
+      "title": "Reputación saludable",
+      "aiAnalysis": "Análisis IA PHANYX",
+      "analysisDescription": "La reputación institucional se mantiene estable y positiva. No se detectaron variaciones críticas en los últimos días.",
+      "recommendations": "Recomendaciones",
+      "recommendation1": "Sigue fomentando las reseñas positivas",
+      "recommendation2": "Responde rápidamente a los comentarios",
+      "recommendation3": "Mantén la constancia en las redes sociales",
+      "recommendation4": "Mantén un tiempo de respuesta saludable"
+    },
+    "weekdays": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom",
+      "today": "Hoy"
+    },
+    "manifestationTypes": {
+      "complaint": "Reclamación",
+      "suggestion": "Sugerencia",
+      "praise": "Elogio",
+      "record": "Registro"
+    },
+    "origins": {
+      "student": "Alumno",
+      "teacher": "Profesor",
+      "ombudsman": "Defensoría",
+      "studentInitial": "AL",
+      "teacherInitial": "PR",
+      "ombudsmanInitial": "DE"
+    },
+    "googleBusinessPreparation": {
+      "title": "Google Business en preparación",
+      "description": "PHANYX ya está preparado para conectar reseñas y métricas de Google Business. Parte de la información depende de la disponibilidad de la API de Google."
+    }
+  },
+  "AdminIntegracoesWhatsapp": {
+    "connection": {
+      "disconnect": "Desconectar",
+      "connectWhatsAppBusiness": "Conectar WhatsApp Business",
+      "connecting": "Conectando...",
+      "connectAccount": "Conectar cuenta",
+      "keepConnected": "Mantener conectado",
+      "testing": "Probando...",
+      "testConnection": "Probar conexión",
+      "validationFailed": "No se pudo validar la conexión con WhatsApp Business.",
+      "validationSuccess": "Conexión con WhatsApp Business validada correctamente.",
+      "validationGenericError": "Error al probar la conexión de WhatsApp.",
+      "connectFailed": "No se pudo conectar WhatsApp Business.",
+      "connectSuccess": "WhatsApp Business conectado correctamente.",
+      "connectGenericError": "Error al conectar WhatsApp Business.",
+      "disconnectFailed": "No se pudo desconectar WhatsApp Business.",
+      "disconnectSuccess": "WhatsApp Business desconectado correctamente.",
+      "disconnectGenericError": "Error al desconectar WhatsApp Business.",
+      "modalTitle": "Conectar WhatsApp Business",
+      "modalDescription": "Introduce los identificadores proporcionados por Meta para esta cuenta institucional.",
+      "phoneNumberIdPlaceholder": "ID del número en WhatsApp Business",
+      "accessTokenLabel": "Token de acceso",
+      "accessTokenPlaceholder": "Token proporcionado por Meta",
+      "accessTokenHelp": "El token se enviará directamente al servidor de PHANYX y se almacenará de forma segura.",
+      "disconnectTitle": "¿Desconectar WhatsApp?",
+      "disconnectDescription": "Los envíos automáticos se interrumpirán. El historial de mensajes permanecerá conservado en PHANYX.",
+      "disconnecting": "Desconectando..."
+    },
+    "setup": {
+      "closeAria": "Cerrar instrucciones",
+      "alreadyHaveData": "Ya tengo los datos",
+      "goToConfiguration": "Ir a la página de configuración",
+      "title": "Antes de conectar WhatsApp",
+      "description": "La integración de PHANYX utiliza la plataforma oficial WhatsApp Business de Meta.",
+      "mobileAppWarningTitle": "La aplicación móvil WhatsApp Business por sí sola no es suficiente para esta integración.",
+      "mobileAppWarningDescription": "La institución debe configurar un número en WhatsApp Business Platform, también llamada Cloud API.",
+      "requirementsTitle": "La institución necesitará:",
+      "requirements": {
+        "realNumber": "Un número institucional real y autorizado por Meta.",
+        "phoneNumberId": "El Phone Number ID del número conectado.",
+        "wabaId": "El WhatsApp Business Account ID, también llamado WABA ID.",
+        "permanentToken": "Un token permanente con los permisos necesarios.",
+        "approvedTemplates": "Plantillas de mensajes aprobadas por Meta."
+      },
+      "securityDescription": "Las credenciales estarán vinculadas únicamente a la institución autenticada. El token se cifrará y no volverá a mostrarse después de la conexión."
+    },
+    "common": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "cancel": "Cancelar",
+      "optional": "Opcional"
+    },
+    "header": {
+      "connected": "Conectado",
+      "notConnected": "No conectado",
+      "title": "WhatsApp institucional",
+      "description": "Conecta el WhatsApp Business oficial de esta institución a PHANYX y elige qué acontecimientos podrán generar comunicaciones automáticas para los usuarios."
+    },
+    "overview": {
+      "connectionActive": "Conexión activa",
+      "waitingConnection": "Esperando conexión",
+      "tradeName": "Nombre comercial",
+      "number": "Número",
+      "phoneNumberId": "Phone Number ID",
+      "webhook": "Webhook",
+      "lastSync": "Última sincronización",
+      "credential": "Credencial",
+      "notActiveYet": "Aún no activo",
+      "credentialProtected": "Protegida y almacenada",
+      "notConfigured": "No configurada",
+      "title": "Cuenta de WhatsApp Business",
+      "description": "Datos de la cuenta conectada exclusivamente a esta institución.",
+      "lastFailure": "Último fallo registrado"
+    },
+    "summary": {
+      "activeAutomations": "Automatizaciones activas",
+      "templates": "Plantillas",
+      "registeredMessages": "Mensajes registrados",
+      "title": "Resumen",
+      "activeAutomationsValue": "{active} de {total}"
+    },
+    "test": {
+      "description": "Envía la plantilla aprobada de reunión creada para validar el envío, el registro en PHANYX y las respuestas del webhook. Esta prueba no activa las automatizaciones.",
+      "recipientName": "Nombre del destinatario",
+      "recipientPlaceholder": "Ej.: Denise",
+      "sending": "Enviando prueba...",
+      "send": "Enviar mensaje de prueba",
+      "acceptedByMeta": "Mensaje aceptado por Meta",
+      "phanyxRecord": "Registro PHANYX",
+      "success": "Mensaje de prueba enviado y registrado en PHANYX",
+      "errors": {
+        "sendFailed": "No se pudo enviar el mensaje de prueba.",
+        "generic": "Error al enviar el mensaje de prueba."
+      },
+      "phonePlaceholder": "Ej.: 34 612 345 678",
+      "title": "Env?o controlado de prueba"
+    },
+    "history": {
+      "title": "Historial de mensajes",
+      "description": "Acompaña el envío, la entrega, la lectura y posibles fallos informados por Meta.",
+      "empty": "Todavía no se ha registrado ningún mensaje.",
+      "recipientNotProvided": "Destinatario no informado",
+      "template": "Plantilla",
+      "phanyxRecord": "Registro PHANYX",
+      "metaFailure": "Fallo informado por Meta",
+      "errorCode": "Código",
+      "waiting": "En espera",
+      "no": "No",
+      "webhookReturns": "Respuestas recibidas por el webhook",
+      "status": {
+        "created": "CREADA",
+        "pending": "PENDIENTE",
+        "processing": "PROCESANDO",
+        "scheduled": "PROGRAMADA",
+        "acceptedByMeta": "ACEPTADA POR META",
+        "delivered": "ENTREGADA",
+        "read": "LEÍDA",
+        "failed": "FALLÓ",
+        "cancelled": "CANCELADA"
+      },
+      "milestones": {
+        "created": "Creada",
+        "acceptedByMeta": "Aceptada por Meta",
+        "delivered": "Entregada",
+        "read": "Leída",
+        "failed": "Falló",
+        "registered": "Registrada"
+      },
+      "viewTechnicalReturn": "Ver respuesta técnica"
+    },
+    "loading": "Cargando la configuración del WhatsApp institucional...",
+    "configuration": {
+      "loadFailed": "No se pudo cargar la configuración de WhatsApp.",
+      "loadGenericError": "Error al cargar la integración de WhatsApp.",
+      "saveFailed": "No se pudieron guardar las configuraciones.",
+      "saveSuccess": "Configuración de WhatsApp guardada correctamente.",
+      "saveGenericError": "Error al guardar la configuración de WhatsApp."
+    },
+    "automations": {
+      "connectFirst": "Conecta primero el WhatsApp Business de la institución para habilitar las automatizaciones.",
+      "saving": "Guardando...",
+      "saveSettings": "Guardar configuración",
+      "groups": {
+        "meetings": "Reuniones",
+        "service": "Atención",
+        "messages": "Mensajes",
+        "academic": "Académico",
+        "financial": "Financiero"
+      },
+      "items": {
+        "meetingCreated": {
+          "title": "Reunión creada",
+          "description": "Avisa a los participantes cuando se programa una nueva reunión."
+        },
+        "meetingUpdated": {
+          "title": "Reunión modificada",
+          "description": "Avisa a los participantes cuando cambian la fecha, la hora u otros datos."
+        },
+        "meetingCancelled": {
+          "title": "Reunión cancelada",
+          "description": "Avisa a los participantes cuando se cancela una reunión."
+        },
+        "meetingReminder": {
+          "title": "Recordatorio de reunión",
+          "description": "Permite enviar recordatorios antes de las reuniones programadas."
+        },
+        "ombudsmanAnswered": {
+          "title": "Respuesta de atención",
+          "description": "Avisa al usuario cuando su solicitud recibe una respuesta."
+        },
+        "studentToTeacher": {
+          "title": "Mensaje de alumno a profesor",
+          "description": "Avisa al profesor cuando un alumno envía una pregunta o un mensaje."
+        },
+        "teacherToStudent": {
+          "title": "Mensaje de profesor a alumno",
+          "description": "Avisa al alumno cuando el profesor envía una respuesta."
+        },
+        "activityPublished": {
+          "title": "Actividad publicada",
+          "description": "Avisa a los alumnos cuando se publica una nueva actividad académica."
+        },
+        "examPublished": {
+          "title": "Examen publicado",
+          "description": "Avisa a los alumnos cuando un examen queda disponible."
+        },
+        "documentAvailable": {
+          "title": "Documento disponible",
+          "description": "Avisa cuando un nuevo documento está disponible en PHANYX."
+        },
+        "academicNotice": {
+          "title": "Avisos académicos",
+          "description": "Permite comunicaciones académicas institucionales importantes."
+        },
+        "tuitionDueSoon": {
+          "title": "Mensualidad próxima a vencer",
+          "description": "Permite avisar al responsable antes del vencimiento de la mensualidad."
+        },
+        "tuitionOverdue": {
+          "title": "Mensualidad vencida",
+          "description": "Permite avisar cuando exista una mensualidad vencida."
+        },
+        "paymentConfirmed": {
+          "title": "Pago confirmado",
+          "description": "Avisa al usuario cuando se confirma un pago."
+        }
+      },
+      "title": "Envío automático por WhatsApp",
+      "description": "Activa el canal y elige qué eventos de PHANYX podrán generar mensajes.",
+      "toggleLabel": "Envío por WhatsApp"
+    },
+    "security": {
+      "title": "Seguridad y aislamiento institucional",
+      "description": "Las credenciales pertenecen exclusivamente a la institución autenticada. El token no vuelve a mostrarse después de la conexión y no debe compartirse con otra institución."
+    },
+    "templates": {
+      "section": {
+        "title": "Plantillas de mensajes",
+        "description": "Configura las plantillas que PHANYX utiliza en las comunicaciones automáticas de WhatsApp.",
+        "configured": "Plantillas configuradas"
+      },
+      "types": {
+        "meetingCreated": {
+          "title": "Reunión creada",
+          "description": "Mensaje enviado a los participantes cuando se programa una nueva reunión."
+        },
+        "meetingReminder": {
+          "title": "Recordatorio de reunión",
+          "description": "Mensaje enviado el día anterior o el mismo día de la reunión."
+        }
+      },
+      "status": {
+        "approved": "Aprobada por Meta",
+        "awaitingMeta": "Esperando a Meta",
+        "notSaved": "Aún no guardada"
+      },
+      "editor": {
+        "metaCategory": "Categoría Meta",
+        "internalName": "Nombre interno",
+        "metaName": "Nombre de la plantilla en Meta",
+        "metaNameHelp": "Usa solo letras minúsculas, números y guiones bajos. El nombre debe coincidir exactamente con la plantilla aprobada en Meta.",
+        "messageContent": "Contenido del mensaje",
+        "footer": "Pie de página",
+        "footerPlaceholder": "Mensaje automático enviado por PHANYX."
+      },
+      "variablesTitle": "Variables disponibles",
+      "variables": {
+        "participantName": "Nombre del participante",
+        "meetingTitle": "Título de la reunión",
+        "dateTime": "Fecha y hora",
+        "accessLink": "Enlace o instrucciones de acceso",
+        "reminderTime": "Hora del recordatorio, como \"mañana a las 19:30\" u \"hoy a las 19:30\"",
+        "meetingLink": "Enlace de la reunión"
+      },
+      "approval": {
+        "title": "Aprobación de Meta pendiente",
+        "description": "La plantilla puede prepararse y guardarse en PHANYX antes de la aprobación. No se realizará ningún envío real hasta que Meta la haya aprobado."
+      },
+      "reminder": {
+        "title": "Cómo funciona el recordatorio",
+        "description": "La misma plantilla se utilizará tanto para el aviso del día anterior como para el aviso del mismo día. La variable {variable} recibirá automáticamente textos como \"mañana a las 19:30\" u \"hoy a las 19:30\"."
+      },
+      "record": {
+        "saved": "Plantilla guardada en PHANYX • ID {id}",
+        "notSaved": "Esta plantilla aún no se ha guardado en PHANYX."
+      },
+      "actions": {
+        "syncing": "Sincronizando...",
+        "syncMeta": "Sincronizar con Meta",
+        "saving": "Guardando plantilla...",
+        "save": "Guardar plantilla"
+      },
+      "messages": {
+        "loadFailed": "No se pudieron cargar las plantillas de WhatsApp.",
+        "syncFailed": "No se pudieron sincronizar las plantillas con Meta.",
+        "syncSuccess": "Plantillas sincronizadas con Meta.",
+        "syncGenericError": "Error al sincronizar las plantillas con Meta.",
+        "saveFailed": "No se pudo guardar la plantilla de mensaje.",
+        "saveSuccess": "Plantilla \"{name}\" guardada correctamente.",
+        "saveGenericError": "Error al guardar la plantilla de mensaje."
+      }
+    }
+  },
+  "AdminLeads": {
+    "errors": {
+      "identifyUserContext": "No se pudo identificar el contexto del usuario.",
+      "identifyAuthenticatedUser": "No se pudo identificar al usuario autenticado.",
+      "identifyCrmContext": "No se pudo identificar el contexto del CRM.",
+      "responsiblesInvalidResponse": "La API de responsables no devolvió una respuesta válida.",
+      "loadResponsibles": "No se pudieron cargar los responsables.",
+      "leadsInvalidResponse": "La API de leads no devolvió una respuesta válida.",
+      "loadLeads": "No se pudieron cargar los leads.",
+      "loadInteractions": "No se pudieron cargar las interacciones.",
+      "leadDetailsInvalidResponse": "La API no devolvió correctamente los detalles del lead.",
+      "loadLeadDetails": "No se pudieron cargar los detalles del lead.",
+      "openLead": "No se pudo abrir el lead.",
+      "nameEmailRequired": "Introduce el nombre y el correo electrónico del interesado antes de guardar.",
+      "saveInvalidResponse": "La API no devolvió una respuesta válida al guardar el lead.",
+      "saveLead": "No se pudo guardar el lead.",
+      "onlyInstitutionalCanConvert": "Solo los leads institucionales pueden convertirse en alumno y matrícula.",
+      "enrollmentNotFound": "No se pudo identificar la matrícula vinculada a este lead.",
+      "deleteInvalidResponse": "La API no devolvió una respuesta válida al eliminar el lead.",
+      "deleteLead": "No se pudo eliminar el lead.",
+      "moveInvalidResponse": "La API no devolvió una respuesta válida al mover el lead.",
+      "moveLead": "No se pudo mover el lead.",
+      "registerInteraction": "No se pudo registrar la interacción."
+    },
+    "header": {
+      "globalSection": "CRM Comercial PHANYX",
+      "institutionSection": "Comercial de la institución",
+      "globalTitle": "Panel de Leads PHANYX",
+      "institutionTitle": "Leads y oportunidades",
+      "globalDescription": "Gestiona los interesados en la plataforma PHANYX y realiza el seguimiento de contactos, propuestas y oportunidades comerciales.",
+      "institutionDescription": "Registra interesados, distribuye los leads entre los responsables comerciales y acompaña cada oportunidad hasta su conversión en matrícula."
+    },
+    "actions": {
+      "loadingContext": "Cargando...",
+      "contextUnavailable": "Contexto no disponible",
+      "newManualLead": "Nuevo lead manual"
+    },
+    "metrics": {
+      "total": "Total",
+      "new": "Nuevos",
+      "contact": "En contacto",
+      "proposal": "Propuesta",
+      "closed": "Cerrados",
+      "lost": "Perdidos",
+      "followUpToday": "Seguimiento hoy",
+      "overdue": "Atrasados",
+      "pipeline": "Pipeline comercial"
+    },
+    "info": {
+      "title": "Lectura del CRM",
+      "description": "Este panel realiza el seguimiento de oportunidades comerciales y de los leads. Los pagos reales mediante Asaas, las matrículas del Bachillerato Libre en Teología y las compras de recursos como IA aparecen en el Panel Master, no en el CRM de leads."
+    },
+    "filters": {
+      "searchPlaceholder": "Búsqueda inteligente: nombre, correo electrónico, teléfono, institución, interés, responsable u observación",
+      "originAria": "Filtrar leads por origen",
+      "allOrigins": "Todos los orígenes",
+      "statusAria": "Filtrar leads por estado",
+      "allStatuses": "Todos los estados",
+      "responsibleAria": "Filtrar leads por responsable",
+      "allResponsibles": "Todos los responsables",
+      "noResponsible": "Sin responsable",
+      "priorityAria": "Filtrar leads por prioridad",
+      "allPriorities": "Todas las prioridades",
+      "followUpAria": "Filtrar leads por situación del seguimiento",
+      "allFollowUp": "Todo el seguimiento",
+      "typeAria": "Filtrar leads por tipo",
+      "allTypes": "Todos los tipos",
+      "phanyxLeads": "Leads PHANYX",
+      "institutionLeads": "Leads de las instituciones"
+    },
+    "enums": {
+      "status": {
+        "new": "Nuevo",
+        "contact": "En contacto",
+        "proposal": "Propuesta",
+        "closed": "Cerrado",
+        "lost": "Perdido"
+      },
+      "priority": {
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja"
+      },
+      "leadType": {
+        "institution": "Institución"
+      }
+    },
+    "followUp": {
+      "today": "Seguimiento hoy",
+      "overdue": "Seguimiento atrasado",
+      "defineNext": "Definir próximo contacto",
+      "critical": "Sin seguimiento desde hace muchos días",
+      "criticalShort": "Sin seguimiento desde hace días",
+      "upToDate": "Al día"
+    },
+    "score": {
+      "label": "Puntuación",
+      "hot": "Caliente",
+      "warm": "Templado",
+      "cold": "Frío"
+    },
+    "list": {
+      "loading": "Cargando leads...",
+      "title": "Lista de leads",
+      "results": "{count, plural, one {# lead encontrado} other {# leads encontrados}}",
+      "instruction": "Haz clic en Detalles para editar, registrar interacciones o cambiar la etapa.",
+      "columns": {
+        "contact": "Lead y contacto",
+        "institutionInterest": "Institución e interés",
+        "responsible": "Responsable",
+        "stage": "Etapa",
+        "followUp": "Seguimiento",
+        "value": "Valor",
+        "actions": "Acciones"
+      },
+      "emptyTitle": "No se encontraron leads",
+      "emptyDescription": "Ajusta la búsqueda o los filtros para ver otros resultados.",
+      "phoneMissing": "Teléfono no informado",
+      "source": "Origen",
+      "institutionMissing": "Institución no informada",
+      "interestMissing": "Interés no informado",
+      "unit": "Sede",
+      "role": "Cargo",
+      "notProvided": "no informado",
+      "noResponsible": "Sin responsable"
     }
   }
 }
