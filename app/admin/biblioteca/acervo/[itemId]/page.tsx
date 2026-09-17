@@ -4442,7 +4442,7 @@ export default function BibliotecaItemPage() {
                               gridColumn: "1 / -1",
                               display: "grid",
                               gridTemplateColumns:
-                                "repeat(auto-fit, minmax(150px, 1fr))",
+                                "repeat(3, minmax(0, 1fr))",
                               gap: "10px",
                               marginBottom: "4px",
                             }}
