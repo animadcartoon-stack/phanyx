@@ -4442,7 +4442,7 @@ export default function BibliotecaItemPage() {
                               gridColumn: "1 / -1",
                               display: "grid",
                               gridTemplateColumns:
-                                "repeat(3, minmax(0, 1fr))",
+                                "repeat(2, minmax(0, 1fr))",
                               gap: "10px",
                               marginBottom: "4px",
                             }}
@@ -4452,6 +4452,7 @@ export default function BibliotecaItemPage() {
                               style={{
                                 display: "grid",
                                 gap: "4px",
+                                gridColumn: "1 / -1",
                               }}
                             >
                               <span>
