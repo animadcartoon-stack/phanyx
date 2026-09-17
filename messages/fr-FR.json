@@ -16446,7 +16446,15 @@
       "lastContactHelp": "Mis à jour automatiquement lorsqu’une interaction commerciale est enregistrée.",
       "interactionsTitle": "Historique des interactions",
       "saveFirstForHistory": "Enregistrez d’abord le lead pour activer l’historique des interactions.",
-      "saveLead": "Enregistrer le lead"
+      "saveLead": "Enregistrer le lead",
+      "registeringInteraction": "Enregistrement...",
+      "registerInteraction": "Enregistrer",
+      "savingLead": "Enregistrement...",
+      "convertToStudentEnrollment": "Convertir en ?l?ve et inscription",
+      "delete": "Supprimer",
+      "cancel": "Annuler",
+      "deleting": "Suppression...",
+      "confirmDelete": "Oui, supprimer"
     }
   }
 }

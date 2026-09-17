@@ -2402,7 +2402,7 @@ export default function AdminLeadsPage() {
                         disabled={salvandoInteracao}
                         className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-70"
                       >
-                        {salvandoInteracao ? "Registrando..." : "Registrar"}
+                        {salvandoInteracao ? t("editorFinal.registeringInteraction") : t("editorFinal.registerInteraction")}
                       </button>
                     </div>
 
@@ -2453,7 +2453,7 @@ export default function AdminLeadsPage() {
                   disabled={salvando}
                   className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-70"
                 >
-                  {salvando ? "Salvando..." : "Salvar lead"}
+                  {salvando ? t("editorFinal.savingLead") : t("editorFinal.saveLead")}
                 </button>
 
                 {!criandoNovo &&
@@ -2470,7 +2470,7 @@ export default function AdminLeadsPage() {
                       disabled={salvando}
                       className="rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      Converter em aluno e matrícula
+                      {t("editorFinal.convertToStudentEnrollment")}
                     </button>
                   )}
 
@@ -2503,7 +2503,7 @@ export default function AdminLeadsPage() {
                       disabled={salvando}
                       className="rounded-2xl bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-70"
                     >
-                      Excluir
+                      {t("editorFinal.delete")}
                     </button>
                   )}
 
@@ -2618,7 +2618,7 @@ export default function AdminLeadsPage() {
                 disabled={salvando}
                 className="rounded-2xl border border-slate-700 bg-slate-950 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
+                {t("editorFinal.cancel")}
               </button>
 
               <button
@@ -2627,7 +2627,7 @@ export default function AdminLeadsPage() {
                 disabled={salvando}
                 className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {salvando ? "Excluindo..." : "Sim, excluir"}
+                {salvando ? t("editorFinal.deleting") : t("editorFinal.confirmDelete")}
               </button>
             </div>
           </div>

@@ -16446,7 +16446,15 @@
       "lastContactHelp": "Se actualiza automáticamente cuando se registra una interacción comercial.",
       "interactionsTitle": "Historial de interacciones",
       "saveFirstForHistory": "Guarda primero el lead para habilitar el historial de interacciones.",
-      "saveLead": "Guardar lead"
+      "saveLead": "Guardar lead",
+      "registeringInteraction": "Registrando...",
+      "registerInteraction": "Registrar",
+      "savingLead": "Guardando...",
+      "convertToStudentEnrollment": "Convertir en alumno y matr?cula",
+      "delete": "Eliminar",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando...",
+      "confirmDelete": "S?, eliminar"
     }
   }
 }

@@ -16447,7 +16447,15 @@
       "lastContactHelp": "Updated automatically when a sales interaction is recorded.",
       "interactionsTitle": "Interaction history",
       "saveFirstForHistory": "Save the lead first to enable interaction history.",
-      "saveLead": "Save lead"
+      "saveLead": "Save lead",
+      "registeringInteraction": "Registering...",
+      "registerInteraction": "Register",
+      "savingLead": "Saving...",
+      "convertToStudentEnrollment": "Convert to student and enrollment",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "confirmDelete": "Yes, delete"
     }
   }
 }

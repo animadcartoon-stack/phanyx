@@ -16232,7 +16232,15 @@
       "lastContactHelp": "Atualizado automaticamente quando é registada uma interação comercial.",
       "interactionsTitle": "Histórico de interações",
       "saveFirstForHistory": "Guarde primeiro o lead para ativar o histórico de interações.",
-      "saveLead": "Guardar lead"
+      "saveLead": "Guardar lead",
+      "registeringInteraction": "A registar...",
+      "registerInteraction": "Registar",
+      "savingLead": "A guardar...",
+      "convertToStudentEnrollment": "Converter em aluno e matr?cula",
+      "delete": "Eliminar",
+      "cancel": "Cancelar",
+      "deleting": "A eliminar...",
+      "confirmDelete": "Sim, eliminar"
     }
   }
 }

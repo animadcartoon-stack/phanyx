@@ -16216,7 +16216,15 @@
       "lastContactHelp": "Atualizado automaticamente quando uma interação comercial é registrada.",
       "interactionsTitle": "Histórico de interações",
       "saveFirstForHistory": "Salve o lead primeiro para liberar o histórico de interações.",
-      "saveLead": "Salvar lead"
+      "saveLead": "Salvar lead",
+      "registeringInteraction": "Registrando...",
+      "registerInteraction": "Registrar",
+      "savingLead": "Salvando...",
+      "convertToStudentEnrollment": "Converter em aluno e matr?cula",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "deleting": "Excluindo...",
+      "confirmDelete": "Sim, excluir"
     }
   }
 }
