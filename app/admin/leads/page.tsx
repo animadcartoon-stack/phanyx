@@ -1377,7 +1377,7 @@ export default function AdminLeadsPage() {
                 : t("header.institutionTitle")}
             </h1>
 
-            <p className="mt-4 max-w-4xl text-lg leading-8 text-slate-600">
+            <p className="mt-4 max-w-4xl text-lg leading-8 text-slate-600 dark:text-slate-300">
               {ehCrmGlobalPhanyx
                 ? t("header.globalDescription")
                 : t("header.institutionDescription")}
@@ -1403,47 +1403,47 @@ export default function AdminLeadsPage() {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-9">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.total")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.total")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.total}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.new")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.new")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.novos}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.contact")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.contact")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.contato}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.proposal")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.proposal")}</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.proposta}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.closed")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.closed")}</p>
             <p className="mt-3 text-4xl font-bold text-emerald-600">{metricas.fechados}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.lost")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.lost")}</p>
             <p className="mt-3 text-4xl font-bold text-rose-600">{metricas.perdidos}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.followUpToday")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.followUpToday")}</p>
             <p className="mt-3 text-4xl font-bold text-amber-600">{metricas.followupHoje}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.overdue")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.overdue")}</p>
             <p className="mt-3 text-4xl font-bold text-red-600">{metricas.followupAtrasado}</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm text-slate-500">{t("metrics.pipeline")}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("metrics.pipeline")}</p>
             <p className="mt-3 text-3xl font-bold text-slate-900">
               {formatarMoeda(metricas.pipeline)}
             </p>
@@ -1625,7 +1625,7 @@ export default function AdminLeadsPage() {
         ) : null}
 
         {carregando ? (
-          <div className="mt-8 rounded-3xl border border-slate-200 bg-white px-6 py-10 text-slate-600 shadow-sm">
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-white px-6 py-10 text-slate-600 dark:text-slate-300 shadow-sm">
             {t("list.loading")}
           </div>
         ) : (
@@ -1636,14 +1636,14 @@ export default function AdminLeadsPage() {
                   {t("list.title")}
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   {t("list.results", {
                     count: leadsFiltrados.length,
                   })}
                 </p>
               </div>
 
-              <div className="text-xs font-semibold text-slate-500">
+              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 {t("list.instruction")}
               </div>
             </div>
@@ -1652,31 +1652,31 @@ export default function AdminLeadsPage() {
               <table className="w-full table-fixed border-collapse text-left">
                 <thead className="bg-slate-100">
                   <tr className="border-b border-slate-200">
-                    <th className="w-[20%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="w-[20%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
                       {t("list.columns.contact")}
                     </th>
 
-                    <th className="w-[19%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="w-[19%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
                       {t("list.columns.institutionInterest")}
                     </th>
 
-                    <th className="w-[14%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="w-[14%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
                       {t("list.columns.responsible")}
                     </th>
 
-                    <th className="w-[11%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="w-[11%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
                       {t("list.columns.stage")}
                     </th>
 
-                    <th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="w-[15%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
                       {t("list.columns.followUp")}
                     </th>
 
-                    <th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="w-[10%] px-4 py-4 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
                       {t("list.columns.value")}
                     </th>
 
-                    <th className="sticky right-0 z-20 w-[11%] bg-slate-100 px-3 py-4 text-center text-xs font-black uppercase tracking-wide text-slate-600">
+                    <th className="sticky right-0 z-20 w-[11%] px-3 py-4 text-center text-xs font-black uppercase tracking-wide text-slate-600 bg-slate-100 text-slate-700 dark:!bg-slate-800 dark:!text-slate-100 border-slate-200 dark:border-slate-700">
                       {t("list.columns.actions")}
                     </th>
                   </tr>
@@ -1689,11 +1689,11 @@ export default function AdminLeadsPage() {
                         colSpan={7}
                         className="px-6 py-16 text-center"
                       >
-                        <p className="text-base font-bold text-slate-700">
+                        <p className="text-base font-bold text-slate-700 dark:text-slate-200">
                           {t("list.emptyTitle")}
                         </p>
 
-                        <p className="mt-2 text-sm text-slate-500">
+                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                           {t("list.emptyDescription")}
                         </p>
                       </td>
@@ -1705,7 +1705,7 @@ export default function AdminLeadsPage() {
                       return (
                         <tr
                           key={lead.id}
-                          className="group transition hover:bg-slate-50"
+                          className="group transition hover:bg-slate-50 dark:hover:bg-slate-800/70"
                         >
                           <td className="px-4 py-4 align-top">
                             <button
@@ -1718,18 +1718,18 @@ export default function AdminLeadsPage() {
 
                             <p
                               title={lead.email}
-                              className="mt-2 max-w-[220px] truncate text-sm text-slate-600"
+                              className="mt-2 max-w-[220px] truncate text-sm text-slate-600 dark:text-slate-300"
                             >
                               {lead.email}
                             </p>
 
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                               {lead.telefone || t("list.phoneMissing")}
                             </p>
 
                             <p
                               title={lead.origem}
-                              className="mt-2 max-w-[220px] truncate text-xs font-semibold text-slate-500"
+                              className="mt-2 max-w-[220px] truncate text-xs font-semibold text-slate-500 dark:text-slate-400"
                             >
                               {t("list.source")}: {lead.origem}
                             </p>
@@ -1762,14 +1762,14 @@ export default function AdminLeadsPage() {
                                 t("list.institutionMissing")}
                             </p>
 
-                            <p className="mt-2 max-w-[210px] text-sm font-medium leading-5 text-slate-600">
+                            <p className="mt-2 max-w-[210px] text-sm font-medium leading-5 text-slate-600 dark:text-slate-300">
                               {lead.interesse ||
                                 lead.cursoInteresse?.nome ||
                                 t("list.interestMissing")}
                             </p>
 
                             {lead.poloInteresse?.nome && (
-                              <p className="mt-1 max-w-[210px] text-xs text-slate-500">
+                              <p className="mt-1 max-w-[210px] text-xs text-slate-500 dark:text-slate-400">
                                 {t("list.unit")}:{" "}
                                 <span className="font-semibold">
                                   {lead.poloInteresse.nome}
@@ -1777,7 +1777,7 @@ export default function AdminLeadsPage() {
                               </p>
                             )}
 
-                            <p className="mt-2 max-w-[210px] text-xs text-slate-500">
+                            <p className="mt-2 max-w-[210px] text-xs text-slate-500 dark:text-slate-400">
                               {t("list.role")}:{" "}
                               {lead.cargo ||
                                 t("list.notProvided")}
@@ -1820,12 +1820,12 @@ export default function AdminLeadsPage() {
                               {rotuloFollowUpTraduzido(lead)}
                             </span>
 
-                            <p className="mt-2 whitespace-nowrap text-xs text-slate-500">
+                            <p className="mt-2 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
                               Próximo:{" "}
                               {formatarData(lead.proximoContatoEm)}
                             </p>
 
-                            <p className="mt-1 whitespace-nowrap text-xs text-slate-500">
+                            <p className="mt-1 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
                               Último:{" "}
                               {formatarData(lead.ultimoContatoEm)}
                             </p>
@@ -1836,13 +1836,13 @@ export default function AdminLeadsPage() {
                               {formatarMoeda(lead.valorEstimado)}
                             </p>
 
-                            <p className="mt-2 text-xs leading-5 text-slate-500">
+                            <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
                               Criado em{" "}
                               {formatarData(lead.createdAt)}
                             </p>
                           </td>
 
-                          <td className="sticky right-0 z-10 bg-white px-3 py-4 text-center align-top group-hover:bg-slate-50">
+                          <td className="sticky right-0 z-10 bg-white px-3 py-4 text-center align-top group-hover:bg-slate-50 dark:bg-slate-900 dark:group-hover:bg-slate-800/70">
                             <div className="flex min-w-[108px] flex-col gap-2">
                               <button
                                 type="button"
@@ -1851,7 +1851,7 @@ export default function AdminLeadsPage() {
                                     `/admin/comercial/leads/${lead.id}`
                                   )
                                 }
-                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-700 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-700 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-50"
                               >
                                 Ficha 360°
                               </button>
@@ -1859,7 +1859,7 @@ export default function AdminLeadsPage() {
                               <button
                                 type="button"
                                 onClick={() => abrirEdicao(lead)}
-                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 transition hover:border-blue-500 hover:text-blue-700"
+                                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 transition hover:border-blue-500 hover:text-blue-700"
                               >
                                 Detalhes
                               </button>
@@ -1877,27 +1877,27 @@ export default function AdminLeadsPage() {
 
         {(criandoNovo || leadSelecionado) && (
           <div className="fixed inset-0 z-50 bg-slate-950/45 p-4">
-            <div className="ml-auto h-full w-full max-w-4xl overflow-y-auto rounded-[32px] border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="ml-auto h-full w-full max-w-4xl overflow-y-auto rounded-[32px] border border-slate-200 bg-white p-6 shadow-2xl dark:bg-slate-900 dark:border-slate-700">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-                    {criandoNovo ? "Novo lead" : "Editar lead"}
+                    {criandoNovo ? t("editorFinal.newLeadEyebrow") : t("editorFinal.editLeadEyebrow")}
                   </p>
-                  <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                    {criandoNovo ? "Cadastrar lead manualmente" : form.nome || "Lead"}
+                  <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+                    {criandoNovo ? t("editorFinal.newManualTitle") : form.nome || t("editorFinal.fallbackTitle")}
                   </h2>
 
                   {criandoNovo ? (
-                    <p className="mt-2 text-sm text-slate-500">
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                       {ehCrmGlobalPhanyx
-                        ? "Este lead será registrado no CRM comercial global da PHANYX."
-                        : "Este lead será registrado automaticamente no CRM desta instituição."}
+                        ? t("editorFinal.newGlobalDescription")
+                        : t("editorFinal.newInstitutionDescription")}
                     </p>
                   ) : null}
 
                   {!criandoNovo && leadSelecionado ? (
-                    <p className="mt-2 text-sm text-slate-500">
-                      Criado em {formatarDataHora(leadSelecionado.createdAt)}
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      {t("editorFinal.createdAt", { date: formatarDataHora(leadSelecionado.createdAt) })}
                     </p>
                   ) : null}
                 </div>
@@ -1911,26 +1911,26 @@ export default function AdminLeadsPage() {
                           `/admin/comercial/leads/${leadSelecionado.id}`
                         )
                       }
-                      className="rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-700 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                      className="rounded-2xl border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-700 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-slate-50"
                     >
-                      Abrir Ficha 360°
+                      {t("editorFinal.open360")}
                     </button>
                   ) : null}
 
                   <button
                     type="button"
                     onClick={fecharPainel}
-                    className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                    className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 dark:border-slate-700"
                   >
-                    Fechar
+                    {t("editorFinal.close")}
                   </button>
                 </div>
               </div>
 
               <div className="mt-8 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Nome
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.name")}
                   </label>
 
                   <input
@@ -1942,120 +1942,119 @@ export default function AdminLeadsPage() {
                         nome: e.target.value,
                       })
                     }
-                    placeholder="Nome completo do interessado"
+                    placeholder={t("editorFinal.namePlaceholder")}
                     autoComplete="name"
                     className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Email
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.email")}
                   </label>
                   <input
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Telefone
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.phone")}
                   </label>
                   <input
                     value={form.telefone}
                     onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Instituição
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.institution")}
                   </label>
                   <input
                     value={form.instituicaoNome}
                     onChange={(e) =>
                       setForm({ ...form, instituicaoNome: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 {ehCrmGlobalPhanyx && (
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
-                      ID da instituição interessada
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                      {t("editorFinal.institutionId")}
                     </label>
                     <input
                       type="number"
                       min="1"
-                      placeholder="Opcional"
+                      placeholder={t("editorFinal.optional")}
                       value={form.instituicaoId}
                       onChange={(e) =>
                         setForm({ ...form, instituicaoId: e.target.value })
                       }
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                     />
                   </div>
                 )}
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Cargo
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.role")}
                   </label>
                   <input
                     value={form.cargo}
                     onChange={(e) => setForm({ ...form, cargo: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Origem
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.source")}
                   </label>
                   <input
                     value={form.origem}
                     onChange={(e) => setForm({ ...form, origem: e.target.value })}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Contexto do lead
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.contextLabel")}
                   </label>
 
                   <div className="rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                     {ehCrmGlobalPhanyx
-                      ? "PHANYX — CRM comercial global"
-                      : "INSTITUIÇÃO — CRM comercial interno"}
+                      ? t("editorFinal.contextGlobal")
+                      : t("editorFinal.contextInstitution")}
                   </div>
 
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
-                    Este contexto é definido automaticamente pelo usuário autenticado e
-                    não pode ser alterado manualmente.
+                  <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                    {t("editorFinal.contextHelp")}
                   </p>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Interesse
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.interest")}
                   </label>
                   <input
                     value={form.interesse}
                     onChange={(e) =>
                       setForm({ ...form, interesse: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Responsável pelo lead
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.responsible")}
                   </label>
 
                   <select
@@ -2072,7 +2071,7 @@ export default function AdminLeadsPage() {
                     }
                     className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:disabled:bg-slate-900"
                   >
-                    <option value="">Sem responsável definido</option>
+                    <option value="">{t("editorFinal.noResponsible")}</option>
 
                     {responsaveisLeads.map((responsavel) => (
                       <option
@@ -2091,8 +2090,8 @@ export default function AdminLeadsPage() {
                   </select>
 
                   {carregandoResponsaveis ? (
-                    <p className="mt-2 text-xs text-slate-500">
-                      Carregando funcionários ativos...
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                      {t("editorFinal.loadingOwners")}
                     </p>
                   ) : null}
 
@@ -2105,10 +2104,8 @@ export default function AdminLeadsPage() {
                   {!carregandoResponsaveis &&
                     !erroResponsaveis &&
                     responsaveisLeads.length === 0 ? (
-                    <p className="mt-2 text-xs leading-5 text-slate-500">
-                      Nenhum funcionário institucional está disponível para
-                      atribuição. No CRM global da PHANYX, responsáveis antigos
-                      permanecem preservados como histórico.
+                    <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                      {t("editorFinal.noAvailableOwners")}
                     </p>
                   ) : null}
 
@@ -2116,15 +2113,15 @@ export default function AdminLeadsPage() {
                     leadSelecionado?.responsavelNome &&
                     !leadSelecionado.responsavelFuncionarioId ? (
                     <p className="mt-2 text-xs leading-5 text-amber-700 dark:text-amber-300">
-                      Responsável registrado anteriormente:{" "}
+                      {t("editorFinal.previousOwner")}:{" "}
                       <strong>{leadSelecionado.responsavelNome}</strong>
                     </p>
                   ) : null}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Status
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.status")}
                   </label>
                   <select
                     value={form.status}
@@ -2137,7 +2134,17 @@ export default function AdminLeadsPage() {
                   >
                     {STATUS_OPTIONS.map((item) => (
                       <option key={item} value={item}>
-                        {item}
+                        {item === "NOVO"
+                          ? t("enums.status.new")
+                          : item === "CONTATO"
+                            ? t("enums.status.contact")
+                            : item === "PROPOSTA"
+                              ? t("enums.status.proposal")
+                              : item === "FECHADO"
+                                ? t("enums.status.closed")
+                                : item === "PERDIDO"
+                                  ? t("enums.status.lost")
+                                  : item}
                       </option>
                     ))}
                   </select>
@@ -2153,34 +2160,39 @@ export default function AdminLeadsPage() {
                           opacity: 1,
                         }}
                       >
-                        Este lead originou uma matrícula e deve
-                        permanecer com status FECHADO.
+                        {t("editorFinal.convertedEnrollmentNotice")}
                       </div>
                     )}
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Prioridade
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.priority")}
                   </label>
                   <select
                     value={form.prioridade}
                     onChange={(e) =>
                       setForm({ ...form, prioridade: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   >
                     {PRIORIDADE_OPTIONS.map((item) => (
                       <option key={item} value={item}>
-                        {item}
+                        {item === "ALTA"
+                          ? t("enums.priority.high")
+                          : item === "MEDIA"
+                            ? t("enums.priority.medium")
+                            : item === "BAIXA"
+                              ? t("enums.priority.low")
+                              : item}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Valor estimado
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.estimatedValue")}
                   </label>
                   <input
                     type="number"
@@ -2189,13 +2201,13 @@ export default function AdminLeadsPage() {
                     onChange={(e) =>
                       setForm({ ...form, valorEstimado: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Próximo contato
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.nextContact")}
                   </label>
                   <input
                     type="datetime-local"
@@ -2203,29 +2215,29 @@ export default function AdminLeadsPage() {
                     onChange={(e) =>
                       setForm({ ...form, proximoContatoEm: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Último contato registrado
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.lastContact")}
                   </label>
 
                   <div className="rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                     {form.ultimoContatoEm
                       ? formatarDataHora(form.ultimoContatoEm)
-                      : "Nenhum contato registrado"}
+                      : t("editorFinal.noContactRegistered")}
                   </div>
 
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
-                    Atualizado automaticamente quando uma interação comercial é registrada.
+                  <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                    {t("editorFinal.lastContactHelp")}
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Observações
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t("editorFinal.notes")}
                   </label>
                   <textarea
                     rows={5}
@@ -2233,7 +2245,7 @@ export default function AdminLeadsPage() {
                     onChange={(e) =>
                       setForm({ ...form, observacoes: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 dark:border-slate-700"
                   />
                 </div>
               </div>
@@ -2244,85 +2256,81 @@ export default function AdminLeadsPage() {
                   leadSelecionado.poloInteresse ||
                   leadSelecionado.captacaoMaisRecente
                 ) && (
-                  <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:bg-slate-950 dark:border-slate-700">
                     <div>
-                      <h3 className="text-xl font-bold text-slate-900">
-                        🎯 Origem da captação
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                        🎯 {t("editorFinal.captureOrigin.title")}
                       </h3>
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        Veja de onde este interessado veio e o que ele selecionou no momento da captação.
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        {t("editorFinal.captureOrigin.description")}
                       </p>
                     </div>
 
                     <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Curso de interesse
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          {t("editorFinal.captureOrigin.course")}
                         </p>
 
-                        <p className="mt-1 font-semibold text-slate-900">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                           {leadSelecionado.cursoInteresse?.nome ||
-                            "Não informado"}
+                            t("editorFinal.notProvided")}
                         </p>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Unidade
-                        </p>
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("editorFinal.captureOrigin.unit")}</p>
 
-                        <p className="mt-1 font-semibold text-slate-900">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                           {leadSelecionado.poloInteresse?.nome ||
-                            "Não informada"}
+                            t("editorFinal.notProvidedFemale")}
                         </p>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Canal
-                        </p>
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("editorFinal.captureOrigin.channel")}</p>
 
-                        <p className="mt-1 font-semibold text-slate-900">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                           {leadSelecionado.captacaoMaisRecente?.canal?.nome ||
-                            "Não informado"}
+                            t("editorFinal.notProvided")}
                         </p>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Campanha
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          {t("editorFinal.captureOrigin.campaign")}
                         </p>
 
-                        <p className="mt-1 font-semibold text-slate-900">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                           {leadSelecionado.captacaoMaisRecente?.campanha?.nome ||
-                            "Não informada"}
+                            t("editorFinal.notProvidedFemale")}
                         </p>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          Formulário
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          {t("editorFinal.captureOrigin.form")}
                         </p>
 
-                        <p className="mt-1 font-semibold text-slate-900">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                           {leadSelecionado.captacaoMaisRecente?.formulario?.titulo ||
                             leadSelecionado.captacaoMaisRecente?.formulario?.nome ||
-                            "Não informado"}
+                            t("editorFinal.notProvided")}
                         </p>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                           Recebido em
                         </p>
 
-                        <p className="mt-1 font-semibold text-slate-900">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
                           {leadSelecionado.captacaoMaisRecente?.recebidoEm
                             ? formatarDataHora(
                               leadSelecionado.captacaoMaisRecente.recebidoEm
                             )
-                            : "Não informado"}
+                            : t("editorFinal.notProvided")}
                         </p>
                       </div>
                     </div>
@@ -2347,19 +2355,19 @@ export default function AdminLeadsPage() {
                   </div>
                 )}
 
-              <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+              <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:bg-slate-950 dark:border-slate-700">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">
-                      Histórico de interações
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                      {t("editorFinal.interactionsTitle")}
                     </h3>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Registre contatos, reuniões, emails e observações comerciais.
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      {t("editorFinal.interactionsDescription")}
                     </p>
                   </div>
 
                   {leadSelecionado ? (
-                    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600">
+                    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 dark:text-slate-300 dark:bg-slate-900 dark:border-slate-700">
                       Último contato: {formatarDataHora(leadSelecionado.ultimoContatoEm)}
                     </div>
                   ) : null}
@@ -2371,7 +2379,7 @@ export default function AdminLeadsPage() {
                       <select
                         value={tipoInteracao}
                         onChange={(e) => setTipoInteracao(e.target.value)}
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 dark:bg-slate-900 dark:border-slate-700"
                       >
                         {TIPO_INTERACAO_OPTIONS.map((item) => (
                           <option key={item} value={item}>
@@ -2385,7 +2393,7 @@ export default function AdminLeadsPage() {
                         value={novaInteracao}
                         onChange={(e) => setNovaInteracao(e.target.value)}
                         placeholder="Descreva o contato realizado com o lead..."
-                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
+                        className="rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-500 dark:bg-slate-900 dark:border-slate-700"
                       />
 
                       <button
@@ -2400,7 +2408,7 @@ export default function AdminLeadsPage() {
 
                     <div className="mt-5 space-y-3">
                       {interacoes.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-400">
+                        <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-6 text-center text-sm text-slate-400 dark:border-slate-700">
                           Nenhuma interação registrada ainda.
                         </div>
                       ) : null}
@@ -2408,23 +2416,23 @@ export default function AdminLeadsPage() {
                       {interacoes.map((item) => (
                         <div
                           key={item.id}
-                          className="rounded-2xl border border-slate-200 bg-white p-4"
+                          className="rounded-2xl border border-slate-200 bg-white p-4 dark:bg-slate-900 dark:border-slate-700"
                         >
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
                               {item.tipo}
                             </span>
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               {formatarDataHora(item.createdAt)}
                             </span>
                             {item.usuario ? (
-                              <span className="text-xs text-slate-500">
+                              <span className="text-xs text-slate-500 dark:text-slate-400">
                                 • {item.usuario}
                               </span>
                             ) : null}
                           </div>
 
-                          <p className="mt-2 text-sm leading-6 text-slate-700">
+                          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
                             {item.descricao}
                           </p>
                         </div>
@@ -2432,8 +2440,8 @@ export default function AdminLeadsPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500">
-                    Salve o lead primeiro para liberar o histórico de interações.
+                  <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400 dark:bg-slate-900 dark:border-slate-700">
+                    {t("editorFinal.saveFirstForHistory")}
                   </div>
                 )}
               </div>
@@ -2518,9 +2526,22 @@ export default function AdminLeadsPage() {
                               status
                             )
                           }
-                          className="rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                          className="rounded-2xl border border-slate-300 px-4 py-3 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:hover:bg-slate-800 dark:border-slate-700"
                         >
-                          Mover para {status}
+                          {t("editorFinal.moveTo", {
+                            status:
+                              status === "NOVO"
+                                ? t("enums.status.new")
+                                : status === "CONTATO"
+                                  ? t("enums.status.contact")
+                                  : status === "PROPOSTA"
+                                    ? t("enums.status.proposal")
+                                    : status === "FECHADO"
+                                      ? t("enums.status.closed")
+                                      : status === "PERDIDO"
+                                        ? t("enums.status.lost")
+                                        : status,
+                          })}
                         </button>
                       ))}
                     </div>
@@ -2585,9 +2606,9 @@ export default function AdminLeadsPage() {
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-slate-300">
-              Você está prestes a excluir o lead{" "}
+              {t("editorFinal.deleteBefore")}{" "}
               <strong className="text-white">{leadParaExcluir.nome}</strong>.
-              Essa ação remove o registro do CRM comercial.
+              {t("editorFinal.deleteAfter")}
             </p>
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

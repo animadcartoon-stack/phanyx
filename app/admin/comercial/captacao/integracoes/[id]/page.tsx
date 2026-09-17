@@ -2663,6 +2663,140 @@ try {
                     </div>
                   )}
 
+
+                {formulario.tipo ===
+                  "WEBHOOK_SAIDA" && (
+                  <section className="rounded-2xl border border-slate-200 p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h3 className="font-black">
+                          {t(
+                            "list.modal.webhookEvents.title"
+                          )}
+                        </h3>
+
+                        <p className="phanyx-muted mt-1 text-xs leading-5">
+                          {t(
+                            "list.modal.webhookEvents.help"
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="flex shrink-0 flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={
+                            revogada ||
+                            !permissoes.podeGerenciar
+                          }
+                          onClick={() =>
+                            setFormulario(
+                              (atual) => ({
+                                ...atual,
+                                eventosAssinados: [
+                                  ...EVENTOS_SAIDA_DISPONIVEIS,
+                                ],
+                              })
+                            )
+                          }
+                          className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {t(
+                            "list.modal.webhookEvents.selectAll"
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={
+                            revogada ||
+                            !permissoes.podeGerenciar
+                          }
+                          onClick={() =>
+                            setFormulario(
+                              (atual) => ({
+                                ...atual,
+                                eventosAssinados: [],
+                              })
+                            )
+                          }
+                          className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {t(
+                            "list.modal.webhookEvents.clearAll"
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      {EVENTOS_SAIDA_DISPONIVEIS.map(
+                        (evento) => {
+                          const selecionado =
+                            formulario.eventosAssinados.includes(
+                              evento
+                            );
+
+                          return (
+                            <label
+                              key={evento}
+                              className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 transition hover:bg-slate-50"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={
+                                  selecionado
+                                }
+                                disabled={
+                                  revogada ||
+                                  !permissoes.podeGerenciar
+                                }
+                                onChange={() =>
+                                  setFormulario(
+                                    (atual) => ({
+                                      ...atual,
+                                      eventosAssinados:
+                                        atual.eventosAssinados.includes(
+                                          evento
+                                        )
+                                          ? atual.eventosAssinados.filter(
+                                              (
+                                                item
+                                              ) =>
+                                                item !==
+                                                evento
+                                            )
+                                          : [
+                                              ...atual.eventosAssinados,
+                                              evento,
+                                            ],
+                                    })
+                                  )
+                                }
+                                className="mt-0.5 h-4 w-4 shrink-0 disabled:cursor-not-allowed"
+                              />
+
+                              <span className="min-w-0">
+                                <span className="block text-sm font-bold">
+                                  {t(
+                                    CHAVES_EVENTOS_SAIDA[
+                                      evento
+                                    ]
+                                  )}
+                                </span>
+
+                                <span className="phanyx-muted mt-1 block break-all font-mono text-[10px]">
+                                  {evento}
+                                </span>
+                              </span>
+                            </label>
+                          );
+                        }
+                      )}
+                    </div>
+                  </section>
+                )}
+
                 {permissoes.podeGerenciar &&
                   !revogada && (
                     <div className="ci-form-actions">

@@ -400,6 +400,90 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
 
   /*
    * =====================================================
+   * 3.2. NOTAS MODERNAS DE PROVAS
+   * =====================================================
+   *
+   * TentativaProva e a fonte moderna das notas de prova.
+   *
+   * Aqui carregamos apenas tentativas encerradas
+   * que possuem nota. A validade final sera definida
+   * depois, considerando tambem questoes discursivas.
+   */
+  const tentativasProvaAvaliadas =
+    alunoIds.length > 0 && turmaIds.length > 0
+      ? await prisma.tentativaProva.findMany({
+          where: {
+            instituicaoId,
+
+            alunoId: {
+              in: alunoIds,
+            },
+
+            notaFinal: {
+              not: null,
+            },
+
+            status: {
+              in: ["FINALIZADA", "CORRIGIDA"],
+            },
+
+            prova: {
+              turmaId: {
+                in: turmaIds,
+              },
+            },
+          },
+
+          orderBy: [
+            {
+              alunoId: "asc",
+            },
+            {
+              provaId: "asc",
+            },
+            {
+              tentativaNumero: "asc",
+            },
+          ],
+
+          select: {
+            alunoId: true,
+
+            provaId: true,
+
+            notaFinal: true,
+
+            status: true,
+
+            tentativaNumero: true,
+
+            corrigidaEm: true,
+
+            finishedAt: true,
+
+            updatedAt: true,
+
+            prova: {
+              select: {
+                turmaId: true,
+
+                disciplinaId: true,
+
+                notaMaxima: true,
+
+                questoes: {
+                  select: {
+                    tipo: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+      : [];
+
+  /*
+   * =====================================================
    * 4. ATIVIDADES VENCIDAS
    * =====================================================
    */
