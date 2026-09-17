@@ -32,6 +32,39 @@ type VinculoCandidato =
   | "ALUNO_PHANYX"
   | "ALUNO_EXTERNO";
 
+type StatusDocumento =
+  | "NAO_ENVIADO"
+  | "ENVIADO"
+  | "EM_ANALISE"
+  | "APROVADO"
+  | "REJEITADO"
+  | "CORRECAO_SOLICITADA"
+  | "EXPIRADO";
+
+type DocumentoCandidatura = {
+  id: number;
+  requisitoOfertaId: number | null;
+  tipo: string;
+  titulo: string;
+  descricaoRequisito: string | null;
+  obrigatorio: boolean;
+  exigeValidade: boolean;
+  ordem: number;
+
+  arquivoUrl: string | null;
+  arquivoNome: string | null;
+  mimeType: string | null;
+  tamanho: number | null;
+  validadeAte: string | null;
+
+  status: StatusDocumento;
+
+  enviadoEm: string | null;
+  analisadoEm: string | null;
+  motivoRejeicao: string | null;
+  observacoes: string | null;
+};
+
 type Oferta = {
   id: number;
   titulo: string;
@@ -105,6 +138,11 @@ type Candidatura = {
     aprovados: number;
   };
 };
+
+type CandidaturaDetalhada =
+  Candidatura & {
+    documentos: DocumentoCandidatura[];
+  };
 
 type MatriculaBusca = {
   id: number;
@@ -182,6 +220,12 @@ type FormProcessar = {
   motivoStatus: string;
   notaFinal: string;
   classificacao: string;
+};
+
+type FormDocumentoAnalise = {
+  validadeAte: string;
+  motivoRejeicao: string;
+  observacoes: string;
 };
 
 const NOVA_INICIAL: FormNova = {
@@ -305,7 +349,36 @@ export default function AdminMobilityApplicationsPage() {
   const [
     candidaturaSelecionada,
     setCandidaturaSelecionada,
-  ] = useState<Candidatura | null>(
+  ] = useState<CandidaturaDetalhada | null>(
+    null
+  );
+
+  const [
+    documentoEmAnalise,
+    setDocumentoEmAnalise,
+  ] =
+    useState<DocumentoCandidatura | null>(
+      null
+    );
+
+  const [
+    formDocumentoAnalise,
+    setFormDocumentoAnalise,
+  ] = useState<FormDocumentoAnalise>({
+    validadeAte: "",
+    motivoRejeicao: "",
+    observacoes: "",
+  });
+
+  const [
+    salvandoDocumento,
+    setSalvandoDocumento,
+  ] = useState(false);
+
+  const [
+    documentoEnviandoId,
+    setDocumentoEnviandoId,
+  ] = useState<number | null>(
     null
   );
 
@@ -407,12 +480,46 @@ export default function AdminMobilityApplicationsPage() {
 
       ID_INVALIDO:
         "errors.invalidId",
+
+      DOCUMENTOS_OBRIGATORIOS_PENDENTES:
+        "errors.requiredDocumentsPending",
     };
 
     return codigo &&
       mapa[codigo]
       ? t(mapa[codigo])
       : t("errors.generic");
+  }
+
+  function statusDocumentoTexto(
+    status: StatusDocumento
+  ) {
+    return t(
+      `documents.statuses.${status}`
+    );
+  }
+
+  function classeStatusDocumento(
+    status: StatusDocumento
+  ) {
+    switch (status) {
+      case "APROVADO":
+        return "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200";
+
+      case "REJEITADO":
+      case "EXPIRADO":
+        return "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-200";
+
+      case "CORRECAO_SOLICITADA":
+        return "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200";
+
+      case "ENVIADO":
+      case "EM_ANALISE":
+        return "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200";
+
+      default:
+        return "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+    }
   }
 
   const carregar = useCallback(
@@ -1003,42 +1110,490 @@ export default function AdminMobilityApplicationsPage() {
     }
   }
 
-  function abrirProcessar(
+  async function abrirProcessar(
     candidatura: Candidatura
   ) {
-    setCandidaturaSelecionada(
-      candidatura
-    );
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/mobilidade/candidaturas/${candidatura.id}`,
+          {
+            cache: "no-store",
+            credentials: "include",
+          }
+        );
 
-    setFormProcessar({
-      status:
-        candidatura.status,
+      const corpo =
+        (await resposta.json()) as
+          | {
+              ok: true;
+              candidatura: CandidaturaDetalhada;
+            }
+          | RespostaErro;
 
-      motivoStatus:
-        candidatura.motivoStatus ??
-        "",
+      if (
+        !resposta.ok ||
+        !("candidatura" in corpo)
+      ) {
+        throw new Error(
+          traduzirErro(
+            "codigo" in corpo
+              ? corpo.codigo
+              : undefined
+          )
+        );
+      }
 
-      notaFinal:
-        candidatura.notaFinal ===
-        null
-          ? ""
-          : String(
-              candidatura.notaFinal
-            ),
+      const detalhe =
+        corpo.candidatura;
 
-      classificacao:
-        candidatura.classificacao ===
-        null
-          ? ""
-          : String(
-              candidatura.classificacao
-            ),
-    });
+      setCandidaturaSelecionada(
+        detalhe
+      );
 
-    setModalProcessar(
-      true
+      setFormProcessar({
+        status:
+          detalhe.status,
+
+        motivoStatus:
+          detalhe.motivoStatus ??
+          "",
+
+        notaFinal:
+          detalhe.notaFinal === null
+            ? ""
+            : String(
+                detalhe.notaFinal
+              ),
+
+        classificacao:
+          detalhe.classificacao === null
+            ? ""
+            : String(
+                detalhe.classificacao
+              ),
+      });
+
+      setModalProcessar(
+        true
+      );
+    } catch (
+      erro: unknown
+    ) {
+      mostrarToast(
+        "erro",
+        erro instanceof Error
+          ? erro.message
+          : t(
+              "errors.load"
+            )
+      );
+    }
+  }
+
+  function traduzirErroDocumento(
+    codigo?: string
+  ) {
+    const mapa: Record<
+      string,
+      string
+    > = {
+      DOCUMENTO_NAO_ENCONTRADO:
+        "documents.review.errors.notFound",
+
+      STATUS_DOCUMENTO_INVALIDO:
+        "documents.review.errors.invalidStatus",
+
+      DOCUMENTO_NAO_ENVIADO:
+        "documents.review.errors.notSubmitted",
+
+      VALIDADE_INVALIDA:
+        "documents.review.errors.invalidValidity",
+
+      VALIDADE_OBRIGATORIA:
+        "documents.review.errors.validityRequired",
+
+      MOTIVO_DOCUMENTO_OBRIGATORIO:
+        "documents.review.errors.reasonRequired",
+
+      ID_INVALIDO:
+        "errors.invalidId",
+
+      NAO_AUTENTICADO:
+        "errors.unauthorized",
+
+      SEM_PERMISSAO:
+        "errors.forbidden",
+
+      SEM_PERMISSAO_GERENCIAR:
+        "errors.forbiddenManage",
+    };
+
+    return codigo &&
+      mapa[codigo]
+      ? t(
+          mapa[codigo]
+        )
+      : t(
+          "documents.review.saveError"
+        );
+  }
+
+  function traduzirErroUploadDocumento(
+    codigo?: string
+  ) {
+    const mapa:
+      Record<string, string> = {
+      DOCUMENTO_NAO_ENCONTRADO:
+        "documents.review.errors.notFound",
+
+      STORAGE_MOBILIDADE_NAO_CONFIGURADO:
+        "documents.upload.errors.storageNotConfigured",
+
+      ARQUIVO_OBRIGATORIO:
+        "documents.upload.errors.fileRequired",
+
+      ARQUIVO_VAZIO:
+        "documents.upload.errors.emptyFile",
+
+      ARQUIVO_MUITO_GRANDE:
+        "documents.upload.errors.fileTooLarge",
+
+      TIPO_ARQUIVO_INVALIDO:
+        "documents.upload.errors.invalidType",
+
+      CONTEUDO_ARQUIVO_INVALIDO:
+        "documents.upload.errors.invalidContent",
+    };
+
+    if (
+      codigo &&
+      mapa[codigo]
+    ) {
+      return t(
+        mapa[codigo]
+      );
+    }
+
+    return t(
+      "documents.upload.error"
     );
   }
+
+  async function recarregarDetalheCandidaturaSelecionada() {
+    if (
+      !candidaturaSelecionada
+    ) {
+      return;
+    }
+
+    const resposta =
+      await fetch(
+        `/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}`,
+        {
+          cache:
+            "no-store",
+
+          credentials:
+            "include",
+        }
+      );
+
+    const corpo =
+      (await resposta.json()) as
+        | {
+            ok: true;
+            candidatura:
+              CandidaturaDetalhada;
+          }
+        | RespostaErro;
+
+    if (
+      !resposta.ok ||
+      !(
+        "candidatura" in
+        corpo
+      )
+    ) {
+      throw new Error(
+        traduzirErro(
+          "codigo" in corpo
+            ? corpo.codigo
+            : undefined
+        )
+      );
+    }
+
+    setCandidaturaSelecionada(
+      corpo.candidatura
+    );
+  }
+
+  async function enviarArquivoDocumento(
+    documento:
+      DocumentoCandidatura,
+
+    arquivo:
+      File | null
+  ) {
+    if (
+      !candidaturaSelecionada ||
+      !arquivo
+    ) {
+      return;
+    }
+
+    setDocumentoEnviandoId(
+      documento.id
+    );
+
+    try {
+      const formData =
+        new FormData();
+
+      formData.append(
+        "arquivo",
+        arquivo
+      );
+
+      const resposta =
+        await fetch(
+          `/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}/documentos/${documento.id}/upload`,
+          {
+            method:
+              "POST",
+
+            credentials:
+              "include",
+
+            body:
+              formData,
+          }
+        );
+
+      const corpo =
+        (await resposta.json()) as
+          | {
+              ok: true;
+            }
+          | RespostaErro;
+
+      if (!resposta.ok) {
+        throw new Error(
+          traduzirErroUploadDocumento(
+            "codigo" in corpo
+              ? corpo.codigo
+              : undefined
+          )
+        );
+      }
+
+      setDocumentoEmAnalise(
+        null
+      );
+
+      await recarregarDetalheCandidaturaSelecionada();
+
+      await carregar();
+
+      mostrarToast(
+        "sucesso",
+        documento.arquivoUrl
+          ? t(
+              "documents.upload.replaced"
+            )
+          : t(
+              "documents.upload.uploaded"
+            )
+      );
+    } catch (
+      erro: unknown
+    ) {
+      mostrarToast(
+        "erro",
+        erro instanceof Error
+          ? erro.message
+          : t(
+              "documents.upload.error"
+            )
+      );
+    } finally {
+      setDocumentoEnviandoId(
+        null
+      );
+    }
+  }
+
+  function abrirAnaliseDocumento(
+    documento: DocumentoCandidatura
+  ) {
+    if (
+      documentoEmAnalise?.id ===
+      documento.id
+    ) {
+      setDocumentoEmAnalise(
+        null
+      );
+
+      return;
+    }
+
+    setDocumentoEmAnalise(
+      documento
+    );
+
+    setFormDocumentoAnalise({
+      validadeAte:
+        documento.validadeAte
+          ? documento.validadeAte.slice(
+              0,
+              10
+            )
+          : "",
+
+      motivoRejeicao:
+        documento.motivoRejeicao ??
+        "",
+
+      observacoes:
+        documento.observacoes ??
+        "",
+    });
+  }
+
+  async function salvarStatusDocumento(
+    status: StatusDocumento
+  ) {
+    if (
+      !candidaturaSelecionada ||
+      !documentoEmAnalise
+    ) {
+      return;
+    }
+
+    setSalvandoDocumento(
+      true
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}/documentos/${documentoEmAnalise.id}`,
+          {
+            method:
+              "PATCH",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                status,
+
+                validadeAte:
+                  formDocumentoAnalise.validadeAte,
+
+                motivoRejeicao:
+                  formDocumentoAnalise.motivoRejeicao,
+
+                observacoes:
+                  formDocumentoAnalise.observacoes,
+              }),
+          }
+        );
+
+      const corpo =
+        (await resposta.json()) as
+          | {
+              ok: true;
+            }
+          | RespostaErro;
+
+      if (!resposta.ok) {
+        throw new Error(
+          traduzirErroDocumento(
+            "codigo" in corpo
+              ? corpo.codigo
+              : undefined
+          )
+        );
+      }
+
+      const detalheResposta =
+        await fetch(
+          `/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}`,
+          {
+            cache:
+              "no-store",
+
+            credentials:
+              "include",
+          }
+        );
+
+      const detalheCorpo =
+        (await detalheResposta.json()) as
+          | {
+              ok: true;
+              candidatura:
+                CandidaturaDetalhada;
+            }
+          | RespostaErro;
+
+      if (
+        !detalheResposta.ok ||
+        !(
+          "candidatura" in
+          detalheCorpo
+        )
+      ) {
+        throw new Error(
+          traduzirErro(
+            "codigo" in
+              detalheCorpo
+              ? detalheCorpo.codigo
+              : undefined
+          )
+        );
+      }
+
+      setCandidaturaSelecionada(
+        detalheCorpo.candidatura
+      );
+
+      setDocumentoEmAnalise(
+        null
+      );
+
+      mostrarToast(
+        "sucesso",
+        t(
+          "documents.review.updated"
+        )
+      );
+    } catch (
+      erro: unknown
+    ) {
+      mostrarToast(
+        "erro",
+        erro instanceof Error
+          ? erro.message
+          : t(
+              "documents.review.saveError"
+            )
+      );
+    } finally {
+      setSalvandoDocumento(
+        false
+      );
+    }
+  }
+
 
   async function salvarProcessamento(
     event: FormEvent
@@ -1048,6 +1603,23 @@ export default function AdminMobilityApplicationsPage() {
     if (
       !candidaturaSelecionada
     ) {
+      return;
+    }
+
+    if (
+      formProcessar.status ===
+        "APROVADA" &&
+      candidaturaSelecionada
+        .documentosResumo
+        .pendentes > 0
+    ) {
+      mostrarToast(
+        "erro",
+        t(
+          "errors.requiredDocumentsPending"
+        )
+      );
+
       return;
     }
 
@@ -2231,7 +2803,7 @@ export default function AdminMobilityApplicationsPage() {
       {modalProcessar &&
         candidaturaSelecionada && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-6">
-            <div className="w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+            <div className="max-h-[94vh] w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5 dark:border-slate-800 sm:p-6">
                 <div>
                   <h2 className="text-xl font-bold">
@@ -2270,6 +2842,494 @@ export default function AdminMobilityApplicationsPage() {
                 }
               >
                 <div className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+
+                  <section className="sm:col-span-2 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h3 className="font-bold text-slate-950 dark:text-white">
+                          {t(
+                            "documents.title"
+                          )}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                          {t(
+                            "documents.approvedOfTotal",
+                            {
+                              approved:
+                                candidaturaSelecionada.documentosResumo.aprovados,
+
+                              total:
+                                candidaturaSelecionada.documentosResumo.total,
+                            }
+                          )}
+                        </p>
+                      </div>
+
+                      {candidaturaSelecionada.documentosResumo.pendentes >
+                        0 && (
+                        <span className="inline-flex w-fit rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                          {t(
+                            "documents.pendingRequired",
+                            {
+                              count:
+                                candidaturaSelecionada.documentosResumo.pendentes,
+                            }
+                          )}
+                        </span>
+                      )}
+                    </div>
+
+                    {candidaturaSelecionada.documentos.length ===
+                    0 ? (
+                      <div className="mt-4 rounded-xl border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                        {t(
+                          "documents.empty"
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-4 space-y-3">
+                        {candidaturaSelecionada.documentos.map(
+                          (
+                            documento
+                          ) => (
+                            <article
+                              key={
+                                documento.id
+                              }
+                              className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
+                            >
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h4 className="font-semibold text-slate-950 dark:text-white">
+                                      {
+                                        documento.titulo
+                                      }
+                                    </h4>
+
+                                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                      {documento.obrigatorio
+                                        ? t(
+                                            "documents.required"
+                                          )
+                                        : t(
+                                            "documents.optional"
+                                          )}
+                                    </span>
+
+                                    {documento.exigeValidade && (
+                                      <span className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700 dark:border-violet-900 dark:bg-violet-950/30 dark:text-violet-200">
+                                        {t(
+                                          "documents.validityRequired"
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {documento.descricaoRequisito && (
+                                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                                      {
+                                        documento.descricaoRequisito
+                                      }
+                                    </p>
+                                  )}
+
+                                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                                    {documento.arquivoNome && (
+                                      <span>
+                                        {t(
+                                          "documents.file",
+                                          {
+                                            name:
+                                              documento.arquivoNome,
+                                          }
+                                        )}
+                                      </span>
+                                    )}
+
+                                    {documento.validadeAte && (
+                                      <span>
+                                        {t(
+                                          "documents.validUntil",
+                                          {
+                                            date:
+                                              new Intl.DateTimeFormat(
+                                                locale
+                                              ).format(
+                                                new Date(
+                                                  documento.validadeAte
+                                                )
+                                              ),
+                                          }
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <span
+                                  className={`inline-flex w-fit shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${classeStatusDocumento(
+                                    documento.status
+                                  )}`}
+                                >
+                                  {statusDocumentoTexto(
+                                    documento.status
+                                  )}
+                                </span>
+
+                                <div className="flex flex-wrap items-center justify-end gap-2">
+                                  <input
+                                    id={`mobilidade-documento-upload-${documento.id}`}
+                                    type="file"
+                                    accept=".pdf,.png,.jpg,.jpeg,.heic,.heif,application/pdf,image/png,image/jpeg,image/heic,image/heif"
+                                    className="sr-only"
+                                    disabled={
+                                      documentoEnviandoId !==
+                                      null
+                                    }
+                                    onChange={(
+                                      event
+                                    ) => {
+                                      const arquivo =
+                                        event.currentTarget.files?.[0] ??
+                                        null;
+
+                                      event.currentTarget.value =
+                                        "";
+
+                                      void enviarArquivoDocumento(
+                                        documento,
+                                        arquivo
+                                      );
+                                    }}
+                                  />
+
+                                  <label
+                                    htmlFor={`mobilidade-documento-upload-${documento.id}`}
+                                    className={`inline-flex w-fit shrink-0 items-center rounded-xl border px-3 py-2 text-xs font-semibold transition ${
+                                      documentoEnviandoId !==
+                                      null
+                                        ? "pointer-events-none cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500"
+                                        : "cursor-pointer border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 dark:border-violet-900 dark:bg-violet-950/30 dark:text-violet-200 dark:hover:bg-violet-950/50"
+                                    }`}
+                                  >
+                                    {documentoEnviandoId ===
+                                    documento.id
+                                      ? t(
+                                          "documents.actions.uploading"
+                                        )
+                                      : documento.arquivoUrl
+                                        ? t(
+                                            "documents.actions.replaceFile"
+                                          )
+                                        : t(
+                                            "documents.actions.upload"
+                                          )}
+                                  </label>
+
+                                  <input
+                                    id={`mobilidade-documento-camera-${documento.id}`}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/heic,image/heif"
+                                    capture="environment"
+                                    className="sr-only"
+                                    disabled={
+                                      documentoEnviandoId !==
+                                      null
+                                    }
+                                    onChange={(
+                                      event
+                                    ) => {
+                                      const arquivo =
+                                        event.currentTarget.files?.[0] ??
+                                        null;
+
+                                      event.currentTarget.value =
+                                        "";
+
+                                      void enviarArquivoDocumento(
+                                        documento,
+                                        arquivo
+                                      );
+                                    }}
+                                  />
+
+                                  <label
+                                    htmlFor={`mobilidade-documento-camera-${documento.id}`}
+                                    className={`inline-flex w-fit shrink-0 items-center rounded-xl border px-3 py-2 text-xs font-semibold transition md:hidden ${
+                                      documentoEnviandoId !==
+                                      null
+                                        ? "pointer-events-none cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500"
+                                        : "cursor-pointer border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200 dark:hover:bg-emerald-950/50"
+                                    }`}
+                                  >
+                                    {t(
+                                      "documents.actions.takePhoto"
+                                    )}
+                                  </label>
+
+                                  {documento.arquivoUrl && (
+                                    <>
+                                      <a
+                                        href={`/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}/documentos/${documento.id}/arquivo`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex w-fit shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                                      >
+                                        {t(
+                                          "documents.actions.view"
+                                        )}
+                                      </a>
+
+                                      <a
+                                        href={`/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}/documentos/${documento.id}/arquivo?download=1`}
+                                        className="inline-flex w-fit shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                                      >
+                                        {t(
+                                          "documents.actions.download"
+                                        )}
+                                      </a>
+                                    </>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    disabled={
+                                      !documento.arquivoUrl ||
+                                      salvandoDocumento ||
+                                      documentoEnviandoId !==
+                                        null
+                                    }
+                                    onClick={() =>
+                                      abrirAnaliseDocumento(
+                                        documento
+                                      )
+                                    }
+                                    className="inline-flex w-fit shrink-0 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200 dark:hover:bg-blue-950/50"
+                                >
+                                    {documentoEmAnalise?.id ===
+                                    documento.id
+                                      ? t(
+                                          "documents.actions.closeReview"
+                                        )
+                                      : t(
+                                          "documents.actions.review"
+                                        )}
+                                  </button>
+
+                                </div>
+                              </div>
+
+
+                              {!documento.arquivoUrl && (
+                                <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">
+                                  {t(
+                                    "documents.review.noFile"
+                                  )}
+                                </p>
+                              )}
+
+                              {documentoEmAnalise?.id ===
+                                documento.id &&
+                                documento.arquivoUrl && (
+                                  <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                      <label>
+                                        <span className="mb-1.5 block text-xs font-semibold">
+                                          {t(
+                                            "documents.review.validity"
+                                          )}
+                                        </span>
+
+                                        <input
+                                          type="date"
+                                          value={
+                                            formDocumentoAnalise.validadeAte
+                                          }
+                                          onChange={(
+                                            event
+                                          ) =>
+                                            setFormDocumentoAnalise(
+                                              (
+                                                atual
+                                              ) => ({
+                                                ...atual,
+
+                                                validadeAte:
+                                                  event.target.value,
+                                              })
+                                            )
+                                          }
+                                          className={campo}
+                                        />
+                                      </label>
+
+                                      <label>
+                                        <span className="mb-1.5 block text-xs font-semibold">
+                                          {t(
+                                            "documents.review.reason"
+                                          )}
+                                        </span>
+
+                                        <textarea
+                                          rows={3}
+                                          value={
+                                            formDocumentoAnalise.motivoRejeicao
+                                          }
+                                          onChange={(
+                                            event
+                                          ) =>
+                                            setFormDocumentoAnalise(
+                                              (
+                                                atual
+                                              ) => ({
+                                                ...atual,
+
+                                                motivoRejeicao:
+                                                  event.target.value,
+                                              })
+                                            )
+                                          }
+                                          className={campo}
+                                        />
+                                      </label>
+
+                                      <label className="sm:col-span-2">
+                                        <span className="mb-1.5 block text-xs font-semibold">
+                                          {t(
+                                            "documents.review.observations"
+                                          )}
+                                        </span>
+
+                                        <textarea
+                                          rows={3}
+                                          value={
+                                            formDocumentoAnalise.observacoes
+                                          }
+                                          onChange={(
+                                            event
+                                          ) =>
+                                            setFormDocumentoAnalise(
+                                              (
+                                                atual
+                                              ) => ({
+                                                ...atual,
+
+                                                observacoes:
+                                                  event.target.value,
+                                              })
+                                            )
+                                          }
+                                          className={campo}
+                                        />
+                                      </label>
+                                    </div>
+
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                      <button
+                                        type="button"
+                                        disabled={
+                                          salvandoDocumento ||
+                                          documentoEnviandoId !==
+                                            null
+                                        }
+                                        onClick={() =>
+                                          salvarStatusDocumento(
+                                            documento.status
+                                          )
+                                        }
+                                        className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                                      >
+                                        {salvandoDocumento
+                                          ? t(
+                                              "documents.actions.saving"
+                                            )
+                                          : t(
+                                              "documents.actions.saveData"
+                                            )}
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        disabled={
+                                          salvandoDocumento
+                                        }
+                                        onClick={() =>
+                                          salvarStatusDocumento(
+                                            "EM_ANALISE"
+                                          )
+                                        }
+                                        className="rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                                      >
+                                        {salvandoDocumento
+                                          ? t(
+                                              "documents.actions.saving"
+                                            )
+                                          : t(
+                                              "documents.actions.underReview"
+                                            )}
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        disabled={
+                                          salvandoDocumento
+                                        }
+                                        onClick={() =>
+                                          salvarStatusDocumento(
+                                            "APROVADO"
+                                          )
+                                        }
+                                        className="rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                                      >
+                                        {t(
+                                          "documents.actions.approve"
+                                        )}
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        disabled={
+                                          salvandoDocumento
+                                        }
+                                        onClick={() =>
+                                          salvarStatusDocumento(
+                                            "CORRECAO_SOLICITADA"
+                                          )
+                                        }
+                                        className="rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                                      >
+                                        {t(
+                                          "documents.actions.requestCorrection"
+                                        )}
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        disabled={
+                                          salvandoDocumento
+                                        }
+                                        onClick={() =>
+                                          salvarStatusDocumento(
+                                            "REJEITADO"
+                                          )
+                                        }
+                                        className="rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                                      >
+                                        {t(
+                                          "documents.actions.reject"
+                                        )}
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+</article>
+                          )
+                        )}
+                      </div>
+                    )}
+                  </section>
                   <label className="sm:col-span-2">
                     <span className="mb-1.5 block text-sm font-semibold">
                       {t(
@@ -2321,6 +3381,13 @@ export default function AdminMobilityApplicationsPage() {
                             value={
                               status
                             }
+                            disabled={
+                              status ===
+                                "APROVADA" &&
+                              candidaturaSelecionada
+                                .documentosResumo
+                                .pendentes > 0
+                            }
                           >
                             {statusTexto(
                               status as StatusCandidatura
@@ -2329,6 +3396,16 @@ export default function AdminMobilityApplicationsPage() {
                         )
                       )}
                     </select>
+
+                    {candidaturaSelecionada
+                      .documentosResumo
+                      .pendentes > 0 && (
+                      <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+                        {t(
+                          "errors.requiredDocumentsPending"
+                        )}
+                      </p>
+                    )}
                   </label>
 
                   <label>

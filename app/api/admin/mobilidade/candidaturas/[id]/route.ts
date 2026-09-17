@@ -776,6 +776,49 @@ export async function PATCH(
       }
     }
 
+    /*
+     * Uma candidatura somente pode ser
+     * aprovada quando todos os documentos
+     * obrigatorios estiverem aprovados.
+     *
+     * Esta validacao fica no backend para
+     * que a regra tambem seja respeitada
+     * em chamadas diretas a API.
+     */
+    if (
+      status ===
+      MobilidadeStatusCandidatura.APROVADA
+    ) {
+      const documentosObrigatoriosPendentes =
+        await prisma.mobilidadeCandidaturaDocumento.count({
+          where: {
+            instituicaoId,
+
+            candidaturaId:
+              id,
+
+            obrigatorio:
+              true,
+
+            status: {
+              not:
+                MobilidadeStatusDocumento.APROVADO,
+            },
+          },
+        });
+
+      if (
+        documentosObrigatoriosPendentes >
+        0
+      ) {
+        throw new ErroMobilidade(
+          409,
+          "DOCUMENTOS_OBRIGATORIOS_PENDENTES",
+          "A candidatura n?o pode ser aprovada enquanto houver documentos obrigat?rios pendentes."
+        );
+      }
+    }
+
     await prisma.mobilidadeCandidatura.update({
       where: {
         id,

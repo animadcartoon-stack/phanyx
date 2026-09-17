@@ -12473,6 +12473,71 @@
       "ranking": "Ranking",
       "statusReason": "Status reason / notes"
     },
+    "documents": {
+      "title": "Documentation",
+      "approvedOfTotal": "{approved} of {total} document(s) approved",
+      "pendingRequired": "{count} required document(s) pending",
+      "required": "Required",
+      "optional": "Optional",
+      "validityRequired": "Expiration date required",
+      "validUntil": "Valid until {date}",
+      "file": "File: {name}",
+      "empty": "This application has no registered documents.",
+      "review": {
+        "noFile": "Waiting for the file to be submitted for review.",
+        "validity": "Document expiration date",
+        "observations": "Review notes",
+        "reason": "Rejection / correction reason",
+        "updated": "Document review updated successfully.",
+        "saveError": "The document review could not be updated.",
+        "errors": {
+          "notFound": "Application document not found.",
+          "invalidStatus": "The document status is invalid.",
+          "notSubmitted": "The file has not been submitted yet.",
+          "invalidValidity": "Enter a valid expiration date.",
+          "validityRequired": "Enter the expiration date before approving this document.",
+          "reasonRequired": "Enter the reason for rejection or correction request."
+        }
+      },
+      "actions": {
+        "review": "Review",
+        "closeReview": "Close review",
+        "underReview": "Mark under review",
+        "approve": "Approve",
+        "reject": "Reject",
+        "requestCorrection": "Request correction",
+        "saving": "Saving...",
+        "upload": "Upload document",
+        "replaceFile": "Replace file",
+        "view": "View",
+        "download": "Download",
+        "uploading": "Uploading...",
+        "saveData": "Save details",
+        "takePhoto": "Take photo"
+      },
+      "statuses": {
+        "NAO_ENVIADO": "Not submitted",
+        "ENVIADO": "Submitted",
+        "EM_ANALISE": "Under review",
+        "APROVADO": "Approved",
+        "REJEITADO": "Rejected",
+        "CORRECAO_SOLICITADA": "Correction requested",
+        "EXPIRADO": "Expired"
+      },
+      "upload": {
+        "uploaded": "Document uploaded successfully.",
+        "replaced": "Document replaced successfully.",
+        "error": "The document could not be uploaded.",
+        "errors": {
+          "storageNotConfigured": "Private storage for International Mobility is not configured.",
+          "fileRequired": "Select a file.",
+          "emptyFile": "The selected file is empty.",
+          "fileTooLarge": "The file must be no larger than 4 MB.",
+          "invalidType": "Upload a PDF, PNG, JPG/JPEG, HEIC, or HEIF file.",
+          "invalidContent": "The file content does not match the declared file type."
+        }
+      }
+    },
     "messages": {
       "created": "Application created successfully.",
       "updated": "Application updated successfully."
@@ -12499,7 +12564,8 @@
       "invalidRanking": "Enter a valid ranking.",
       "duplicate": "This applicant already has an application for this offer.",
       "notFound": "Application not found.",
-      "invalidId": "Invalid identifier."
+      "invalidId": "Invalid identifier.",
+      "requiredDocumentsPending": "The application cannot be approved while required documents are pending."
     }
   },
   "InstitutionGeoSettings": {

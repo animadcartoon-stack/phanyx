@@ -12472,6 +12472,71 @@
       "ranking": "Classificação",
       "statusReason": "Motivo / observações da situação"
     },
+    "documents": {
+      "title": "Documentação",
+      "approvedOfTotal": "{approved} de {total} documento(s) aprovado(s)",
+      "pendingRequired": "{count} obrigatório(s) pendente(s)",
+      "required": "Obrigatório",
+      "optional": "Opcional",
+      "validityRequired": "Validade exigida",
+      "validUntil": "Válido até {date}",
+      "file": "Arquivo: {name}",
+      "empty": "Esta candidatura não possui documentos cadastrados.",
+      "review": {
+        "noFile": "Aguardando o envio do arquivo para análise.",
+        "validity": "Validade do documento",
+        "observations": "Observações da análise",
+        "reason": "Motivo da rejeição / correção",
+        "updated": "Análise do documento atualizada com sucesso.",
+        "saveError": "Não foi possível atualizar a análise do documento.",
+        "errors": {
+          "notFound": "Documento da candidatura não encontrado.",
+          "invalidStatus": "A situação do documento é inválida.",
+          "notSubmitted": "O arquivo ainda não foi enviado.",
+          "invalidValidity": "Informe uma data de validade válida.",
+          "validityRequired": "Informe a validade antes de aprovar este documento.",
+          "reasonRequired": "Informe o motivo da rejeição ou da solicitação de correção."
+        }
+      },
+      "actions": {
+        "review": "Analisar",
+        "closeReview": "Fechar análise",
+        "underReview": "Marcar em análise",
+        "approve": "Aprovar",
+        "reject": "Rejeitar",
+        "requestCorrection": "Solicitar correção",
+        "saving": "Salvando...",
+        "upload": "Enviar documento",
+        "replaceFile": "Substituir",
+        "view": "Visualizar",
+        "download": "Baixar",
+        "uploading": "Enviando...",
+        "saveData": "Salvar dados",
+        "takePhoto": "Tirar foto"
+      },
+      "statuses": {
+        "NAO_ENVIADO": "Não enviado",
+        "ENVIADO": "Enviado",
+        "EM_ANALISE": "Em análise",
+        "APROVADO": "Aprovado",
+        "REJEITADO": "Rejeitado",
+        "CORRECAO_SOLICITADA": "Correção solicitada",
+        "EXPIRADO": "Expirado"
+      },
+      "upload": {
+        "uploaded": "Documento enviado com sucesso.",
+        "replaced": "Documento substituído com sucesso.",
+        "error": "Não foi possível enviar o documento.",
+        "errors": {
+          "storageNotConfigured": "O armazenamento privado da Mobilidade Internacional não está configurado.",
+          "fileRequired": "Selecione um arquivo.",
+          "emptyFile": "O arquivo selecionado está vazio.",
+          "fileTooLarge": "O arquivo deve possuir no máximo 4 MB.",
+          "invalidType": "Envie um arquivo PDF, PNG, JPG/JPEG, HEIC ou HEIF.",
+          "invalidContent": "O conteúdo do arquivo não corresponde ao tipo informado."
+        }
+      }
+    },
     "messages": {
       "created": "Candidatura cadastrada com sucesso.",
       "updated": "Candidatura atualizada com sucesso."
@@ -12498,7 +12563,8 @@
       "invalidRanking": "Informe uma classificação válida.",
       "duplicate": "Já existe candidatura deste candidato para esta oferta.",
       "notFound": "Candidatura não encontrada.",
-      "invalidId": "Identificação inválida."
+      "invalidId": "Identificação inválida.",
+      "requiredDocumentsPending": "A candidatura não pode ser aprovada enquanto houver documentos obrigatórios pendentes."
     }
   },
   "InstitutionGeoSettings": {
