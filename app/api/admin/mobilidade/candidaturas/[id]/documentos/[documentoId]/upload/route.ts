@@ -1,14 +1,16 @@
 ﻿import {
-  MobilidadeStatusCandidatura,
   MobilidadeStatusDocumento,
 } from "@prisma/client";
 
 import {
   del,
-  put,
+  head,
 } from "@vercel/blob";
 
-import { randomUUID } from "crypto";
+import {
+  handleUpload,
+  type HandleUploadBody,
+} from "@vercel/blob/client";
 
 import {
   NextRequest,
@@ -21,29 +23,61 @@ import {
   respostaErroMobilidade,
 } from "@/lib/mobilidade-acesso";
 
+import {
+  extensaoMobilidadePermitida,
+  LIMITE_ARQUIVO_MOBILIDADE_BYTES,
+  limparNomeArquivoMobilidade,
+  mimeEsperadoMobilidade,
+  mimeMobilidadePermitido,
+  obterExtensaoArquivoMobilidade,
+  obterTokenMobilidadeBlob,
+  prefixoDocumentoMobilidade,
+} from "@/lib/mobilidade-storage";
+
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const runtime =
+  "nodejs";
 
-const LIMITE_BYTES =
-  4 * 1024 * 1024;
+export const dynamic =
+  "force-dynamic";
 
-const TIPOS_PERMITIDOS =
-  new Set([
-    "application/pdf",
-    "image/jpeg",
-    "image/png",
-    "image/heic",
-    "image/heif",
-  ]);
+export const revalidate =
+  0;
+
+const TRINTA_MINUTOS_MS =
+  30 * 60 * 1000;
+
+type PayloadCliente = {
+  nomeOriginal: string;
+  mimeType: string;
+  tamanhoBytes: number;
+  validadeAte?: string | null;
+};
+
+type PayloadToken = {
+  instituicaoId: number;
+  candidaturaId: number;
+  documentoId: number;
+  usuarioId: number | null;
+
+  nomeOriginal: string;
+  mimeType: string;
+  tamanhoDeclaradoBytes: number;
+
+  validadeAte:
+    | string
+    | null;
+};
 
 function idValido(
   valor: string
 ) {
-  const id = Number(valor);
+  const id =
+    Number(
+      valor
+    );
 
   return Number.isInteger(id) &&
     id > 0
@@ -51,236 +85,233 @@ function idValido(
     : null;
 }
 
-function nomeSeguro(
-  nome: string
-) {
-  const limpo =
-    nome
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      )
-      .replace(
-        /[^a-zA-Z0-9._-]/g,
-        "-"
-      )
-      .replace(
-        /-+/g,
-        "-"
-      )
-      .replace(
-        /^-+|-+$/g,
-        ""
+function lerPayloadCliente(
+  valor: string | null
+): PayloadCliente {
+  let bruto: unknown;
+
+  try {
+    bruto =
+      JSON.parse(
+        String(
+          valor || "{}"
+        )
       );
+  } catch {
+    throw new ErroMobilidade(
+      400,
+      "UPLOAD_DADOS_INVALIDOS",
+      "Dados do upload inválidos."
+    );
+  }
 
-  return (
-    limpo ||
-    "documento"
-  );
-}
+  if (
+    !bruto ||
+    typeof bruto !==
+      "object"
+  ) {
+    throw new ErroMobilidade(
+      400,
+      "UPLOAD_DADOS_INVALIDOS",
+      "Dados do upload inválidos."
+    );
+  }
 
-function extensaoDoNome(
-  nome: string
-) {
-  const match =
-    nome
-      .trim()
-      .toLowerCase()
-      .match(/\.([a-z0-9]+)$/);
+  const objeto =
+    bruto as Record<
+      string,
+      unknown
+    >;
 
-  return match?.[1] ?? "";
-}
+  const nomeOriginal =
+    typeof objeto.nomeOriginal ===
+      "string"
+      ? objeto.nomeOriginal.trim()
+      : "";
 
-function mimeEfetivo(
-  arquivo: File
-) {
-  const declarado =
-    String(
-      arquivo.type || ""
+  const mimeType =
+    typeof objeto.mimeType ===
+      "string"
+      ? objeto.mimeType
+          .trim()
+          .toLowerCase()
+      : "";
+
+  const tamanhoBytes =
+    Number(
+      objeto.tamanhoBytes
+    );
+
+  const validadeAte =
+    objeto.validadeAte ===
+        null ||
+      objeto.validadeAte ===
+        undefined ||
+      objeto.validadeAte ===
+        ""
+      ? null
+      : (
+          typeof objeto.validadeAte ===
+            "string"
+            ? objeto.validadeAte
+            : undefined
+        );
+
+  if (
+    !nomeOriginal ||
+    nomeOriginal.length >
+      250
+  ) {
+    throw new ErroMobilidade(
+      400,
+      "ARQUIVO_NOME_INVALIDO",
+      "Nome do arquivo inválido."
+    );
+  }
+
+  if (
+    !Number.isInteger(
+      tamanhoBytes
+    ) ||
+    tamanhoBytes <=
+      0
+  ) {
+    throw new ErroMobilidade(
+      400,
+      "ARQUIVO_TAMANHO_INVALIDO",
+      "Tamanho do arquivo inválido."
+    );
+  }
+
+  if (
+    tamanhoBytes >
+    LIMITE_ARQUIVO_MOBILIDADE_BYTES
+  ) {
+    throw new ErroMobilidade(
+      413,
+      "ARQUIVO_MUITO_GRANDE",
+      "O arquivo ultrapassa o limite permitido."
+    );
+  }
+
+  if (
+    validadeAte ===
+    undefined
+  ) {
+    throw new ErroMobilidade(
+      400,
+      "VALIDADE_INVALIDA",
+      "Data de validade inválida."
+    );
+  }
+
+  if (
+    validadeAte &&
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      validadeAte
     )
-      .trim()
-      .toLowerCase();
-
-  if (
-    declarado ===
-    "image/heic-sequence"
   ) {
-    return "image/heic";
+    throw new ErroMobilidade(
+      400,
+      "VALIDADE_INVALIDA",
+      "Data de validade inválida."
+    );
+  }
+
+  return {
+    nomeOriginal,
+    mimeType,
+    tamanhoBytes,
+    validadeAte,
+  };
+}
+
+function lerPayloadToken(
+  valor: string | null
+): PayloadToken {
+  let bruto: unknown;
+
+  try {
+    bruto =
+      JSON.parse(
+        String(
+          valor || "{}"
+        )
+      );
+  } catch {
+    throw new Error(
+      "Token de upload inválido."
+    );
   }
 
   if (
-    declarado ===
-    "image/heif-sequence"
+    !bruto ||
+    typeof bruto !==
+      "object"
   ) {
-    return "image/heif";
+    throw new Error(
+      "Token de upload inválido."
+    );
   }
 
+  const dados =
+    bruto as PayloadToken;
+
   if (
-    TIPOS_PERMITIDOS.has(
-      declarado
+    !Number.isInteger(
+      dados.instituicaoId
+    ) ||
+    !Number.isInteger(
+      dados.candidaturaId
+    ) ||
+    !Number.isInteger(
+      dados.documentoId
+    ) ||
+    !dados.nomeOriginal ||
+    !dados.mimeType ||
+    !Number.isInteger(
+      dados.tamanhoDeclaradoBytes
     )
   ) {
-    return declarado;
+    throw new Error(
+      "Token de upload inválido."
+    );
   }
 
-  if (
-    !declarado ||
-    declarado ===
-      "application/octet-stream"
-  ) {
-    switch (
-      extensaoDoNome(
-        arquivo.name
-      )
-    ) {
-      case "pdf":
-        return "application/pdf";
-
-      case "jpg":
-      case "jpeg":
-        return "image/jpeg";
-
-      case "png":
-        return "image/png";
-
-      case "heic":
-        return "image/heic";
-
-      case "heif":
-        return "image/heif";
-    }
-  }
-
-  return declarado;
+  return dados;
 }
 
-function extensaoPorMime(
-  mime: string
+function dataValidade(
+  valor:
+    | string
+    | null
 ) {
-  switch (mime) {
-    case "application/pdf":
-      return "pdf";
-
-    case "image/jpeg":
-      return "jpg";
-
-    case "image/png":
-      return "png";
-
-    case "image/heic":
-      return "heic";
-
-    case "image/heif":
-      return "heif";
-
-    default:
-      return null;
+  if (!valor) {
+    return null;
   }
-}
 
-function assinaturaValida(
-  buffer: Buffer,
-  mime: string
-) {
+  const data =
+    new Date(
+      `${valor}T00:00:00.000Z`
+    );
+
   if (
-    mime ===
-    "application/pdf"
+    Number.isNaN(
+      data.getTime()
+    )
   ) {
-    return (
-      buffer.length >= 5 &&
-      buffer
-        .subarray(0, 5)
-        .toString("ascii") ===
-        "%PDF-"
+    throw new ErroMobilidade(
+      400,
+      "VALIDADE_INVALIDA",
+      "Data de validade inválida."
     );
   }
 
-  if (
-    mime === "image/png"
-  ) {
-    const assinatura =
-      Buffer.from([
-        0x89,
-        0x50,
-        0x4e,
-        0x47,
-        0x0d,
-        0x0a,
-        0x1a,
-        0x0a,
-      ]);
-
-    return (
-      buffer.length >= 8 &&
-      buffer
-        .subarray(0, 8)
-        .equals(assinatura)
-    );
-  }
-
-  if (
-    mime === "image/jpeg"
-  ) {
-    return (
-      buffer.length >= 3 &&
-      buffer[0] === 0xff &&
-      buffer[1] === 0xd8 &&
-      buffer[2] === 0xff
-    );
-  }
-
-  if (
-    mime === "image/heic" ||
-    mime === "image/heif"
-  ) {
-    if (
-      buffer.length < 16 ||
-      buffer
-        .subarray(4, 8)
-        .toString("ascii") !==
-        "ftyp"
-    ) {
-      return false;
-    }
-
-    const cabecalho =
-      buffer
-        .subarray(
-          8,
-          Math.min(
-            buffer.length,
-            96
-          )
-        )
-        .toString("ascii");
-
-    const marcas = [
-      "heic",
-      "heix",
-      "hevc",
-      "hevx",
-      "heim",
-      "heis",
-      "hevm",
-      "hevs",
-      "mif1",
-      "msf1",
-    ];
-
-    return marcas.some(
-      (marca) =>
-        cabecalho.includes(
-          marca
-        )
-    );
-  }
-
-  return false;
+  return data;
 }
 
 export async function POST(
-  req: NextRequest,
+  request: NextRequest,
   {
     params,
   }: {
@@ -290,20 +321,7 @@ export async function POST(
     };
   }
 ) {
-  let novaUrl:
-    | string
-    | null = null;
-
   try {
-    const usuario =
-      await getUserFromToken();
-
-    const instituicaoId =
-      exigirGerenciamentoMobilidade(
-        usuario,
-        "mobilidade.candidaturas.gerenciar"
-      );
-
     const candidaturaId =
       idValido(
         params.id
@@ -325,178 +343,356 @@ export async function POST(
       );
     }
 
-    const documento =
-      await prisma.mobilidadeCandidaturaDocumento.findFirst({
-        where: {
-          id:
-            documentoId,
+    let token: string;
 
-          candidaturaId,
-
-          instituicaoId,
-        },
-
-        select: {
-          id: true,
-          arquivoUrl: true,
-          obrigatorio: true,
-        },
-      });
-
-    if (!documento) {
+    try {
+      token =
+        obterTokenMobilidadeBlob();
+    } catch {
       throw new ErroMobilidade(
-        404,
-        "DOCUMENTO_NAO_ENCONTRADO",
-        "Documento da candidatura não encontrado."
-      );
-    }
-const storeId =
-      process.env
-        .MOBILIDADE_STORE_ID
-        ?.trim();
-
-    if (!storeId) {
-      throw new ErroMobilidade(
-        500,
-        "STORAGE_MOBILIDADE_NAO_CONFIGURADO",
+        503,
+        "BLOB_NAO_CONFIGURADO",
         "O armazenamento privado da Mobilidade Internacional não está configurado."
       );
     }
 
-    const formData =
-      await req.formData();
+    const body =
+      (await request.json()) as
+        HandleUploadBody;
 
-    const valorArquivo =
-      formData.get(
-        "arquivo"
-      );
+    const resposta =
+      await handleUpload({
+        body,
+        request,
+        token,
 
-    if (
-      !(valorArquivo instanceof File)
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "ARQUIVO_OBRIGATORIO",
-        "Selecione um arquivo."
-      );
-    }
+        onBeforeGenerateToken:
+          async (
+            pathname,
+            clientPayload
+          ) => {
+            const usuario =
+              await getUserFromToken();
 
-    const arquivo =
-      valorArquivo;
+            const instituicaoId =
+              exigirGerenciamentoMobilidade(
+                usuario,
+                "mobilidade.candidaturas.gerenciar"
+              );
 
-    if (
-      arquivo.size <= 0
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "ARQUIVO_VAZIO",
-        "O arquivo selecionado está vazio."
-      );
-    }
+            const documento =
+              await prisma.mobilidadeCandidaturaDocumento.findFirst({
+                where: {
+                  id:
+                    documentoId,
 
-    if (
-      arquivo.size >
-      LIMITE_BYTES
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "ARQUIVO_MUITO_GRANDE",
-        "O arquivo deve possuir no máximo 4 MB."
-      );
-    }
+                  candidaturaId,
 
-    const mime =
-      mimeEfetivo(
-        arquivo
-      );
+                  instituicaoId,
+                },
 
-    if (
-      !TIPOS_PERMITIDOS.has(
-        mime
-      )
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "TIPO_ARQUIVO_INVALIDO",
-        "Envie um arquivo PDF, PNG, JPG/JPEG, HEIC ou HEIF."
-      );
-    }
+                select: {
+                  id: true,
+                  exigeValidade:
+                    true,
 
-    const extensao =
-      extensaoPorMime(
-        mime
-      );
+                  candidatura: {
+                    select: {
+                      id: true,
+                    },
+                  },
+                },
+              });
 
-    if (!extensao) {
-      throw new ErroMobilidade(
-        400,
-        "TIPO_ARQUIVO_INVALIDO",
-        "Tipo de arquivo inválido."
-      );
-    }
+            if (
+              !documento
+            ) {
+              throw new ErroMobilidade(
+                404,
+                "DOCUMENTO_NAO_ENCONTRADO",
+                "Documento da candidatura não encontrado."
+              );
+            }
 
-    const buffer =
-      Buffer.from(
-        await arquivo.arrayBuffer()
-      );
+            const dados =
+              lerPayloadCliente(
+                clientPayload
+              );
 
-    if (
-      !assinaturaValida(
-        buffer,
-        mime
-      )
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "CONTEUDO_ARQUIVO_INVALIDO",
-        "O conteúdo do arquivo não corresponde ao tipo informado."
-      );
-    }
+            const extensao =
+              obterExtensaoArquivoMobilidade(
+                dados.nomeOriginal
+              );
 
-    const caminho =
-      [
-        "mobilidade",
-        String(
-          instituicaoId
-        ),
-        "candidaturas",
-        String(
-          candidaturaId
-        ),
-        "documentos",
-        String(
-          documentoId
-        ),
-        `${randomUUID()}.${extensao}`,
-      ].join("/");
+            if (
+              !extensaoMobilidadePermitida(
+                extensao
+              )
+            ) {
+              throw new ErroMobilidade(
+                400,
+                "ARQUIVO_FORMATO_INVALIDO",
+                "Formato de arquivo não permitido."
+              );
+            }
 
-    const blob =
-      await put(
-        caminho,
-        buffer,
-        {
-          access:
-            "private",
-          storeId,
-contentType:
-            mime,
+            const mimeType =
+              dados.mimeType ||
+              mimeEsperadoMobilidade(
+                extensao
+              ) ||
+              "";
 
-          addRandomSuffix:
-            false,
-        }
-      );
+            if (
+              !mimeMobilidadePermitido(
+                mimeType,
+                extensao
+              )
+            ) {
+              throw new ErroMobilidade(
+                400,
+                "ARQUIVO_FORMATO_INVALIDO",
+                "Formato de arquivo não permitido."
+              );
+            }
 
-    novaUrl =
-      blob.url;
+            if (
+              documento.exigeValidade &&
+              !dados.validadeAte
+            ) {
+              throw new ErroMobilidade(
+                400,
+                "VALIDADE_OBRIGATORIA",
+                "Informe a validade deste documento."
+              );
+            }
 
-    const atualizado =
-      await prisma.$transaction(
-        async (tx) => {
-          const documentoAtualizado =
-            await tx.mobilidadeCandidaturaDocumento.update({
+            const prefixo =
+              prefixoDocumentoMobilidade({
+                instituicaoId,
+                candidaturaId,
+                documentoId,
+              });
+
+            const nomeSeguro =
+              limparNomeArquivoMobilidade(
+                dados.nomeOriginal
+              );
+
+            const esperado =
+              `${prefixo}/${nomeSeguro}`;
+
+            if (
+              pathname !==
+              esperado
+            ) {
+              throw new ErroMobilidade(
+                400,
+                "CAMINHO_UPLOAD_INVALIDO",
+                "Caminho de upload inválido."
+              );
+            }
+
+            const tokenPayload:
+              PayloadToken = {
+              instituicaoId,
+              candidaturaId,
+              documentoId,
+
+              usuarioId:
+                usuario?.id ??
+                null,
+
+              nomeOriginal:
+                dados.nomeOriginal,
+
+              mimeType,
+
+              tamanhoDeclaradoBytes:
+                dados.tamanhoBytes,
+
+              validadeAte:
+                dados.validadeAte ??
+                null,
+            };
+
+            return {
+              allowedContentTypes: [
+                mimeType,
+              ],
+
+              maximumSizeInBytes:
+                dados.tamanhoBytes,
+
+              addRandomSuffix:
+                true,
+
+              allowOverwrite:
+                false,
+
+              validUntil:
+                Date.now() +
+                TRINTA_MINUTOS_MS,
+
+              tokenPayload:
+                JSON.stringify(
+                  tokenPayload
+                ),
+            };
+          },
+
+        onUploadCompleted:
+          async ({
+            blob,
+            tokenPayload,
+          }) => {
+            const dados =
+              lerPayloadToken(
+                tokenPayload
+              );
+
+            const prefixo =
+              prefixoDocumentoMobilidade({
+                instituicaoId:
+                  dados.instituicaoId,
+
+                candidaturaId:
+                  dados.candidaturaId,
+
+                documentoId:
+                  dados.documentoId,
+              });
+
+            if (
+              !blob.pathname.startsWith(
+                `${prefixo}/`
+              )
+            ) {
+              throw new Error(
+                "O Blob concluído não pertence ao caminho autorizado."
+              );
+            }
+
+            const detalhes =
+              await head(
+                blob.pathname,
+                {
+                  token,
+                }
+              );
+
+            const tamanhoReal =
+              Number(
+                detalhes.size
+              );
+
+            if (
+              !Number.isSafeInteger(
+                tamanhoReal
+              ) ||
+              tamanhoReal <=
+                0
+            ) {
+              throw new Error(
+                "O arquivo enviado está vazio ou possui tamanho inválido."
+              );
+            }
+
+            if (
+              tamanhoReal >
+                dados.tamanhoDeclaradoBytes ||
+              tamanhoReal >
+                LIMITE_ARQUIVO_MOBILIDADE_BYTES
+            ) {
+              throw new Error(
+                "O arquivo recebido ultrapassa o tamanho autorizado."
+              );
+            }
+
+            const contentType =
+              (
+                detalhes.contentType ||
+                dados.mimeType
+              )
+                .trim()
+                .toLowerCase();
+
+            const extensao =
+              obterExtensaoArquivoMobilidade(
+                dados.nomeOriginal
+              );
+
+            if (
+              !mimeMobilidadePermitido(
+                contentType,
+                extensao
+              )
+            ) {
+              throw new Error(
+                "O tipo real do arquivo recebido não é permitido."
+              );
+            }
+
+            const validadeAte =
+              dataValidade(
+                dados.validadeAte
+              );
+
+            const atual =
+              await prisma.mobilidadeCandidaturaDocumento.findFirst({
+                where: {
+                  id:
+                    dados.documentoId,
+
+                  candidaturaId:
+                    dados.candidaturaId,
+
+                  instituicaoId:
+                    dados.instituicaoId,
+                },
+
+                select: {
+                  id: true,
+                  arquivoUrl: true,
+                  exigeValidade:
+                    true,
+                },
+              });
+
+            if (!atual) {
+              throw new Error(
+                "Documento da candidatura não encontrado."
+              );
+            }
+
+            /*
+             * Callback do Blob pode ser reenviado.
+             * Se este mesmo Blob já foi gravado,
+             * não alteramos novamente o status.
+             */
+            if (
+              atual.arquivoUrl ===
+              blob.url
+            ) {
+              return;
+            }
+
+            if (
+              atual.exigeValidade &&
+              !validadeAte
+            ) {
+              throw new Error(
+                "A validade obrigatória do documento não foi informada."
+              );
+            }
+
+            const urlAnterior =
+              atual.arquivoUrl;
+
+            await prisma.mobilidadeCandidaturaDocumento.update({
               where: {
                 id:
-                  documento.id,
+                  atual.id,
               },
 
               data: {
@@ -504,27 +700,21 @@ contentType:
                   blob.url,
 
                 arquivoNome:
-                  nomeSeguro(
-                    arquivo.name
-                  ).slice(
-                    0,
-                    255
-                  ),
+                  dados.nomeOriginal,
 
                 mimeType:
-                  mime,
+                  contentType,
 
                 tamanho:
-                  arquivo.size,
+                  tamanhoReal,
 
-                enviadoEm:
-                  new Date(),
+                validadeAte,
 
                 status:
                   MobilidadeStatusDocumento.ENVIADO,
 
-                validadeAte:
-                  null,
+                enviadoEm:
+                  new Date(),
 
                 analisadoEm:
                   null,
@@ -538,106 +728,41 @@ contentType:
                 observacoes:
                   null,
               },
-
-              select: {
-                id: true,
-                arquivoNome: true,
-                mimeType: true,
-                tamanho: true,
-                enviadoEm: true,
-                status: true,
-              },
             });
 
-          /*
-           * Qualquer novo arquivo de um
-           * requisito obrigatorio precisa
-           * passar por nova analise.
-           *
-           * Se a candidatura ja estava
-           * aprovada, ela deixa de poder
-           * permanecer aprovada.
-           */
-          if (
-            documento.obrigatorio
-          ) {
-            await tx.mobilidadeCandidatura.updateMany({
-              where: {
-                id:
-                  candidaturaId,
+            /*
+             * Em reenvio, o novo arquivo só
+             * substitui o anterior depois de
+             * o banco confirmar a atualização.
+             */
+            if (
+              urlAnterior &&
+              urlAnterior !==
+                blob.url
+            ) {
+              try {
+                await del(
+                  urlAnterior,
+                  {
+                    token,
+                  }
+                );
+              } catch (
+                erro
+              ) {
+                console.error(
+                  "[mobilidade] Falha ao remover Blob anterior:",
+                  erro
+                );
+              }
+            }
+          },
+      });
 
-                instituicaoId,
-
-                status:
-                  MobilidadeStatusCandidatura.APROVADA,
-              },
-
-              data: {
-                status:
-                  MobilidadeStatusCandidatura.DOCUMENTACAO_PENDENTE,
-              },
-            });
-          }
-
-          return documentoAtualizado;
-        }
-      );
-
-    /*
-     * O banco já aponta para o
-     * novo arquivo. Agora tentamos
-     * remover a versão anterior.
-     */
-    if (
-      documento.arquivoUrl &&
-      documento.arquivoUrl !==
-        blob.url
-    ) {
-      await del(
-        documento.arquivoUrl,
-        {
-          storeId,
-}
-      ).catch(
-        (erro) => {
-          console.error(
-            "Não foi possível remover a versão anterior do documento de mobilidade:",
-            erro
-          );
-        }
-      );
-    }
-
-    return NextResponse.json({
-      ok: true,
-      documento:
-        atualizado,
-    });
+    return NextResponse.json(
+      resposta
+    );
   } catch (erro) {
-    /*
-     * Se o Blob foi criado mas
-     * houve erro antes da gravação
-     * definitiva no banco, evita
-     * deixar arquivo órfão.
-     */
-    if (novaUrl) {
-      const storeId =
-      process.env
-        .MOBILIDADE_STORE_ID
-        ?.trim();
-
-      if (storeId) {
-        await del(
-          novaUrl,
-          {
-            storeId,
-}
-        ).catch(
-          () => undefined
-        );
-      }
-    }
-
     const resposta =
       respostaErroMobilidade(
         erro
