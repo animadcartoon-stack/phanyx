@@ -12474,7 +12474,7 @@
     },
     "documents": {
       "title": "Documents",
-      "approvedOfTotal": "Documents approuv?s : {approved}/{total}",
+      "approvedOfTotal": "Documents approuvés : {approved}/{total}",
       "pendingRequired": "{count, plural, one {# document obligatoire en attente} other {# documents obligatoires en attente}}",
       "required": "Obligatoire",
       "optional": "Facultatif",

@@ -12475,7 +12475,7 @@
     "documents": {
       "title": "Documentação",
       "approvedOfTotal": "Documentos aprovados: {approved}/{total}",
-      "pendingRequired": "{count, plural, one {# documento obrigat?rio pendente} other {# documentos obrigat?rios pendentes}}",
+      "pendingRequired": "{count, plural, one {# documento obrigatório pendente} other {# documentos obrigatórios pendentes}}",
       "required": "Obrigatório",
       "optional": "Opcional",
       "validityRequired": "Validade exigida",
