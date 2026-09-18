@@ -2955,12 +2955,16 @@ export default function AdminMobilityApplicationsPage() {
                                           {
                                             date:
                                               new Intl.DateTimeFormat(
-                                                locale
-                                              ).format(
-                                                new Date(
-                                                  documento.validadeAte
-                                                )
-                                              ),
+                                          locale,
+                                          {
+                                            timeZone:
+                                              "UTC",
+                                          }
+                                        ).format(
+                                          new Date(
+                                            documento.validadeAte
+                                          )
+                                        ),
                                           }
                                         )}
                                       </span>

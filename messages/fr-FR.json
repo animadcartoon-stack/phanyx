@@ -4032,8 +4032,8 @@
       "backToStudents": "Retour aux étudiants",
       "exportStudents": "Exporter",
       "exportingStudents": "Exportation...",
-      "exportStudentsSuccess": "La feuille des ?tudiants a ?t? export?e avec succ?s.",
-      "exportStudentsError": "Impossible d'exporter les ?tudiants."
+      "exportStudentsSuccess": "La feuille des étudiants a été exportée avec succès.",
+      "exportStudentsError": "Impossible d'exporter les étudiants."
     },
     "stats": {
       "total": "Total des étudiants",
@@ -12415,7 +12415,7 @@
       "status": "Statut",
       "date": "Date",
       "actions": "Actions",
-      "pendingDocuments": "{count} en attente",
+      "pendingDocuments": "{count, plural, one {# en attente} other {# en attente}}",
       "ranking": "{value}e place"
     },
     "statuses": {
@@ -12474,8 +12474,8 @@
     },
     "documents": {
       "title": "Documents",
-      "approvedOfTotal": "{approved} document(s) approuvé(s) sur {total}",
-      "pendingRequired": "{count} document(s) obligatoire(s) en attente",
+      "approvedOfTotal": "Documents approuv?s : {approved}/{total}",
+      "pendingRequired": "{count, plural, one {# document obligatoire en attente} other {# documents obligatoires en attente}}",
       "required": "Obligatoire",
       "optional": "Facultatif",
       "validityRequired": "Date de validité requise",

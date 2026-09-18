@@ -4033,7 +4033,7 @@
       "exportStudents": "Exportar",
       "exportingStudents": "A exportar...",
       "exportStudentsSuccess": "Folha de alunos exportada com sucesso.",
-      "exportStudentsError": "N?o foi poss?vel exportar os alunos."
+      "exportStudentsError": "Não foi possível exportar os alunos."
     },
     "stats": {
       "total": "Total de alunos",
@@ -12416,7 +12416,7 @@
       "status": "Situação",
       "date": "Data",
       "actions": "Ações",
-      "pendingDocuments": "{count} pendente(s)",
+      "pendingDocuments": "{count, plural, one {# pendente} other {# pendentes}}",
       "ranking": "{value}º lugar"
     },
     "statuses": {
@@ -12475,8 +12475,8 @@
     },
     "documents": {
       "title": "Documentação",
-      "approvedOfTotal": "{approved} de {total} documento(s) aprovado(s)",
-      "pendingRequired": "{count} obrigatório(s) pendente(s)",
+      "approvedOfTotal": "Documentos aprovados: {approved}/{total}",
+      "pendingRequired": "{count, plural, one {# documento obrigat?rio pendente} other {# documentos obrigat?rios pendentes}}",
       "required": "Obrigatório",
       "optional": "Opcional",
       "validityRequired": "Validade exigida",

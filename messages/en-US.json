@@ -12416,7 +12416,7 @@
       "status": "Status",
       "date": "Date",
       "actions": "Actions",
-      "pendingDocuments": "{count} pending",
+      "pendingDocuments": "{count, plural, one {# pending} other {# pending}}",
       "ranking": "Rank #{value}"
     },
     "statuses": {
@@ -12475,8 +12475,8 @@
     },
     "documents": {
       "title": "Documentation",
-      "approvedOfTotal": "{approved} of {total} document(s) approved",
-      "pendingRequired": "{count} required document(s) pending",
+      "approvedOfTotal": "Approved documents: {approved}/{total}",
+      "pendingRequired": "{count, plural, one {# required document pending} other {# required documents pending}}",
       "required": "Required",
       "optional": "Optional",
       "validityRequired": "Expiration date required",

@@ -4032,7 +4032,7 @@
       "backToStudents": "Volver a alumnos",
       "exportStudents": "Exportar",
       "exportingStudents": "Exportando...",
-      "exportStudentsSuccess": "La hoja de alumnos se export? correctamente.",
+      "exportStudentsSuccess": "La hoja de alumnos se exportó correctamente.",
       "exportStudentsError": "No se pudieron exportar los alumnos."
     },
     "stats": {
@@ -12415,7 +12415,7 @@
       "status": "Estado",
       "date": "Fecha",
       "actions": "Acciones",
-      "pendingDocuments": "{count} pendiente(s)",
+      "pendingDocuments": "{count, plural, one {# pendiente} other {# pendientes}}",
       "ranking": "{value}.º puesto"
     },
     "statuses": {
@@ -12474,8 +12474,8 @@
     },
     "documents": {
       "title": "Documentación",
-      "approvedOfTotal": "{approved} de {total} documento(s) aprobado(s)",
-      "pendingRequired": "{count} documento(s) obligatorio(s) pendiente(s)",
+      "approvedOfTotal": "Documentos aprobados: {approved}/{total}",
+      "pendingRequired": "{count, plural, one {# documento obligatorio pendiente} other {# documentos obligatorios pendientes}}",
       "required": "Obligatorio",
       "optional": "Opcional",
       "validityRequired": "Se requiere fecha de validez",
