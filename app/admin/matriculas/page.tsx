@@ -1744,50 +1744,6 @@ function AdminMatriculasPage() {
     }
   }
 
-  async function assinarContratoDaMatricula(matriculaId: number) {
-    try {
-      let res = await fetch(`/api/admin/contratos?matriculaId=${matriculaId}`, {
-        credentials: "include",
-        cache: "no-store",
-      });
-
-      let data = await res.json();
-
-      if (!res.ok) {
-        const criado = await gerarContratoDaMatricula(matriculaId);
-        if (!criado?.id) return;
-
-        const resCriado = await fetch(
-          `/api/admin/contratos?matriculaId=${matriculaId}`,
-          {
-            credentials: "include",
-            cache: "no-store",
-          }
-        );
-
-        const dataCriado = await resCriado.json();
-
-        if (!resCriado.ok || !dataCriado?.tokenAssinatura) {
-          setErro("Não foi possível obter o link de assinatura.");
-          return;
-        }
-
-        window.open(`/assinatura/${dataCriado.tokenAssinatura}`, "_blank");
-        return;
-      }
-
-      if (!data?.tokenAssinatura) {
-        setErro("Este contrato ainda não possui token de assinatura.");
-        return;
-      }
-
-      window.open(`/assinatura/${data.tokenAssinatura}`, "_blank");
-    } catch (error) {
-      console.error("Erro ao abrir assinatura:", error);
-      setErro("Erro ao abrir assinatura do contrato.");
-    }
-  }
-
   async function abrirPdfContratoDaMatricula(matriculaId: number) {
     window.open(`/api/admin/contratos/pdf?matriculaId=${matriculaId}`, "_blank");
   }
@@ -4282,17 +4238,7 @@ function AdminMatriculasPage() {
 
 
 
-                            <button
 
-                              onClick={() => assinarContratoDaMatricula(m.id)}
-
-                              className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
-
-                            >
-
-                              ✍️ Assinar
-
-                            </button>
 
 
 

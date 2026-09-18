@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getUserFromToken } from "@/lib/server-auth";
 
 export async function POST(req: Request) {
   try {
+    const usuarioSessao =
+      await getUserFromToken();
+
     const body = await req.json();
 
     const token = String(body?.token || "").trim();
@@ -35,6 +39,11 @@ export async function POST(req: Request) {
       },
       include: {
         assinatura: true,
+        aluno: {
+          select: {
+            userId: true,
+          },
+        },
       },
     });
 
@@ -43,6 +52,40 @@ export async function POST(req: Request) {
         { error: "Contrato não encontrado" },
         { status: 404 }
       );
+    }
+
+    /*
+     * O link por e-mail continua publico por token.
+     * Porem, se existir uma sessao PHANYX ativa,
+     * somente o proprio ALUNO vinculado ao contrato
+     * pode registrar a assinatura do aluno.
+     *
+     * Isso impede ADMIN/SECRETARIA/COORDENADOR
+     * de preencherem acidentalmente a assinatura
+     * do aluno ao abrirem o link no mesmo navegador.
+     */
+    if (usuarioSessao) {
+      const role =
+        String(
+          usuarioSessao.role || ""
+        ).toUpperCase();
+
+      const ehProprioAluno =
+        role === "ALUNO" &&
+        Number(usuarioSessao.id) ===
+          Number(contrato.aluno.userId);
+
+      if (!ehProprioAluno) {
+        return NextResponse.json(
+          {
+            error:
+              "ASSINATURA_ALUNO_NAO_PERMITIDA_PARA_SESSAO_ATUAL",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
     }
 
     if (contrato.status === "ASSINADO") {
