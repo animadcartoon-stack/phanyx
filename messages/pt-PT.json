@@ -16374,5 +16374,25 @@
       "empty": "Nenhuma nota registada para esta disciplina.",
       "gradeValue": "Nota: {value}"
     }
+  },
+  "AdminProgress": {
+    "header": {
+      "title": "Progresso do aluno",
+      "description": "Acompanhamento académico — PHANYX"
+    },
+    "student": {
+      "label": "Aluno"
+    },
+    "table": {
+      "discipline": "Disciplina",
+      "lessons": "Aulas",
+      "watched": "Assistidas",
+      "progress": "Progresso",
+      "action": "Ação",
+      "empty": "Nenhuma disciplina disponível para acompanhamento."
+    },
+    "actions": {
+      "addLesson": "+ Aula"
+    }
   }
 }
