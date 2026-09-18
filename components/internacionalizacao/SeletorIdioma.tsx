@@ -11,7 +11,6 @@ import {
     useLocale,
     useTranslations,
 } from "next-intl";
-import { useRouter } from "next/navigation";
 
 import {
     LOCALE_PADRAO,
@@ -44,7 +43,6 @@ export default function SeletorIdioma({
     const id = useId();
     const menuId = `${id}-menu`;
 
-    const router = useRouter();
     const localeAtual = useLocale();
     const t = useTranslations("Common");
 
@@ -331,7 +329,7 @@ export default function SeletorIdioma({
             document.documentElement.lang =
                 novoLocale;
 
-            router.refresh();
+            window.location.reload();
         } catch {
             setLocaleSelecionado(
                 localeAnterior
@@ -418,7 +416,7 @@ export default function SeletorIdioma({
                     aria-label={t(
                         "language"
                     )}
-                    className="absolute left-0 right-0 z-[100] mt-2 overflow-hidden rounded-xl border border-slate-300 bg-white p-1 shadow-xl dark:border-slate-600 dark:bg-slate-900"
+                    className="relative z-[100] mt-2 w-full overflow-hidden rounded-xl border border-slate-300 bg-white p-1 shadow-xl dark:border-slate-600 dark:bg-slate-900"
                 >
                     {LOCALES_SUPORTADOS.map(
                         (locale, indice) => {
