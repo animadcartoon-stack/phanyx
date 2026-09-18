@@ -16351,5 +16351,28 @@
       "photoUpdated": "Fotografia do perfil atualizada com sucesso.",
       "profileUpdated": "Perfil atualizado com sucesso."
     }
+  },
+  "AdminGrades": {
+    "header": {
+      "title": "Registo de notas",
+      "description": "Registe e acompanhe as notas dos alunos por disciplina."
+    },
+    "fields": {
+      "discipline": "Disciplina",
+      "selectDiscipline": "Selecione a disciplina",
+      "student": "Aluno",
+      "selectStudent": "Selecione o aluno",
+      "grade": "Nota",
+      "gradePlaceholder": "Introduza a nota"
+    },
+    "actions": {
+      "save": "Guardar nota"
+    },
+    "list": {
+      "title": "Notas registadas",
+      "selectDiscipline": "Selecione uma disciplina para visualizar as notas.",
+      "empty": "Nenhuma nota registada para esta disciplina.",
+      "gradeValue": "Nota: {value}"
+    }
   }
 }

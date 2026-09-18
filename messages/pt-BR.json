@@ -16335,5 +16335,28 @@
       "photoUpdated": "Foto do perfil atualizada com sucesso.",
       "profileUpdated": "Perfil atualizado com sucesso."
     }
+  },
+  "AdminGrades": {
+    "header": {
+      "title": "Lançamento de notas",
+      "description": "Registre e acompanhe as notas dos alunos por disciplina."
+    },
+    "fields": {
+      "discipline": "Disciplina",
+      "selectDiscipline": "Selecione a disciplina",
+      "student": "Aluno",
+      "selectStudent": "Selecione o aluno",
+      "grade": "Nota",
+      "gradePlaceholder": "Digite a nota"
+    },
+    "actions": {
+      "save": "Salvar nota"
+    },
+    "list": {
+      "title": "Notas lançadas",
+      "selectDiscipline": "Selecione uma disciplina para visualizar as notas.",
+      "empty": "Nenhuma nota lançada para esta disciplina.",
+      "gradeValue": "Nota: {value}"
+    }
   }
 }

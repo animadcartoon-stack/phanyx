@@ -16566,5 +16566,28 @@
       "photoUpdated": "Profile photo updated successfully.",
       "profileUpdated": "Profile updated successfully."
     }
+  },
+  "AdminGrades": {
+    "header": {
+      "title": "Grade entry",
+      "description": "Record and review student grades by subject."
+    },
+    "fields": {
+      "discipline": "Subject",
+      "selectDiscipline": "Select a subject",
+      "student": "Student",
+      "selectStudent": "Select a student",
+      "grade": "Grade",
+      "gradePlaceholder": "Enter the grade"
+    },
+    "actions": {
+      "save": "Save grade"
+    },
+    "list": {
+      "title": "Recorded grades",
+      "selectDiscipline": "Select a subject to view grades.",
+      "empty": "No grades have been recorded for this subject.",
+      "gradeValue": "Grade: {value}"
+    }
   }
 }

@@ -16565,5 +16565,28 @@
       "photoUpdated": "Photo de profil mise à jour avec succès.",
       "profileUpdated": "Profil mis à jour avec succès."
     }
+  },
+  "AdminGrades": {
+    "header": {
+      "title": "Saisie des notes",
+      "description": "Enregistrez et consultez les notes des étudiants par matière."
+    },
+    "fields": {
+      "discipline": "Matière",
+      "selectDiscipline": "Sélectionnez la matière",
+      "student": "Étudiant",
+      "selectStudent": "Sélectionnez l’étudiant",
+      "grade": "Note",
+      "gradePlaceholder": "Saisissez la note"
+    },
+    "actions": {
+      "save": "Enregistrer la note"
+    },
+    "list": {
+      "title": "Notes enregistrées",
+      "selectDiscipline": "Sélectionnez une matière pour afficher les notes.",
+      "empty": "Aucune note n’a été enregistrée pour cette matière.",
+      "gradeValue": "Note : {value}"
+    }
   }
 }

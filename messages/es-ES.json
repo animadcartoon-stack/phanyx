@@ -16565,5 +16565,28 @@
       "photoUpdated": "Foto de perfil actualizada correctamente.",
       "profileUpdated": "Perfil actualizado correctamente."
     }
+  },
+  "AdminGrades": {
+    "header": {
+      "title": "Registro de calificaciones",
+      "description": "Registra y consulta las calificaciones de los estudiantes por asignatura."
+    },
+    "fields": {
+      "discipline": "Asignatura",
+      "selectDiscipline": "Selecciona la asignatura",
+      "student": "Estudiante",
+      "selectStudent": "Selecciona el estudiante",
+      "grade": "Calificación",
+      "gradePlaceholder": "Introduce la calificación"
+    },
+    "actions": {
+      "save": "Guardar calificación"
+    },
+    "list": {
+      "title": "Calificaciones registradas",
+      "selectDiscipline": "Selecciona una asignatura para ver las calificaciones.",
+      "empty": "No hay calificaciones registradas para esta asignatura.",
+      "gradeValue": "Calificación: {value}"
+    }
   }
 }
