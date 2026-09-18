@@ -4212,7 +4212,10 @@ function AdminMatriculasPage() {
                               type="button"
                               data-quarentena-linha="true"
                               onClick={() => abrirModalQuarentena(m)}
-                              disabled={removingId === m.id}
+                              disabled={
+                                m.status === "CANCELADA" ||
+                                removingId === m.id
+                              }
                               className="inline-flex items-center gap-1 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/70"
                             >
                               {t("actions.moverQuarentena")}
@@ -5265,6 +5268,8 @@ function AdminMatriculasPage() {
                     confirmarEnvioQuarentena
                   }
                   disabled={
+                    matriculaQuarentenaAlvo.status ===
+                      "CANCELADA" ||
                     removingId ===
                       matriculaQuarentenaAlvo.id ||
                     motivoExclusao.trim()

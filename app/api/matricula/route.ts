@@ -3674,39 +3674,104 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const matricula =
+    const agora =
+      new Date();
+
+    /*
+     * Operacao atomica:
+     * matricula CANCELADA representa historico
+     * academico legitimo e nao pode ser enviada
+     * para quarentena.
+     */
+    const resultado =
+      await prisma.matricula.updateMany({
+        where: {
+          id,
+          instituicaoId:
+            user.instituicaoId,
+          excluidaEm:
+            null,
+          status: {
+            not:
+              "CANCELADA",
+          },
+        },
+        data: {
+          excluidaEm:
+            agora,
+          excluidaPorId:
+            user.id,
+          motivoExclusao,
+        },
+      });
+
+    if (
+      resultado.count === 0
+    ) {
+      const existente =
+        await prisma.matricula.findFirst({
+          where: {
+            id,
+            instituicaoId:
+              user.instituicaoId,
+          },
+          select: {
+            id: true,
+            status: true,
+            excluidaEm: true,
+          },
+        });
+
+      if (
+        !existente ||
+        existente.excluidaEm
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Matr?cula n?o encontrada ou j? est? na quarentena.",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      if (
+        existente.status ===
+        "CANCELADA"
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "MATRICULA_CANCELADA_NAO_PODE_IR_QUARENTENA",
+          },
+          {
+            status: 409,
+          }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error:
+            "MATRICULA_NAO_PODE_IR_QUARENTENA",
+        },
+        {
+          status: 409,
+        }
+      );
+    }
+
+    const atualizada =
       await prisma.matricula.findFirst({
         where: {
           id,
           instituicaoId:
             user.instituicaoId,
-          excluidaEm: null,
-        },
-        select: {
-          id: true,
-          status: true,
-        },
-      });
-
-    if (!matricula) {
-      return NextResponse.json(
-        {
-          error:
-            "Matrícula não encontrada ou já está na quarentena.",
-        },
-        { status: 404 }
-      );
-    }
-
-    const atualizada =
-      await prisma.matricula.update({
-        where: {
-          id,
-        },
-        data: {
-          excluidaEm: new Date(),
-          excluidaPorId: user.id,
-          motivoExclusao,
+          excluidaEm: {
+            not: null,
+          },
         },
         select: {
           id: true,
@@ -3717,11 +3782,24 @@ export async function DELETE(request: Request) {
         },
       });
 
+    if (!atualizada) {
+      return NextResponse.json(
+        {
+          error:
+            "MATRICULA_NAO_ENCONTRADA_APOS_QUARENTENA",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
     return NextResponse.json({
       ok: true,
       quarentena: true,
       matricula: atualizada,
     });
+
   } catch (error) {
     console.error(
       "Erro ao enviar matrícula para quarentena:",
