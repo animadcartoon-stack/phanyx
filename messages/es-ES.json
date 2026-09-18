@@ -16608,5 +16608,29 @@
     "actions": {
       "addLesson": "+ Clase"
     }
+  },
+  "AdminBlockedIps": {
+    "header": {
+      "title": "Direcciones IP bloqueadas",
+      "description": "Consulta y gestiona las direcciones IP bloqueadas para el acceso administrativo."
+    },
+    "table": {
+      "ip": "IP",
+      "reason": "Motivo",
+      "blockedUntil": "Bloqueada hasta",
+      "date": "Fecha",
+      "actions": "Acciones"
+    },
+    "values": {
+      "indefinite": "Indefinido"
+    },
+    "actions": {
+      "unlock": "Desbloquear",
+      "unlocking": "Desbloqueando..."
+    },
+    "states": {
+      "loading": "Cargando direcciones IP bloqueadas...",
+      "empty": "No se encontraron direcciones IP bloqueadas."
+    }
   }
 }

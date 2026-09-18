@@ -16609,5 +16609,29 @@
     "actions": {
       "addLesson": "+ Lesson"
     }
+  },
+  "AdminBlockedIps": {
+    "header": {
+      "title": "Blocked IPs",
+      "description": "View and manage IP addresses blocked from administrative access."
+    },
+    "table": {
+      "ip": "IP",
+      "reason": "Reason",
+      "blockedUntil": "Blocked until",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "values": {
+      "indefinite": "Indefinite"
+    },
+    "actions": {
+      "unlock": "Unlock",
+      "unlocking": "Unlocking..."
+    },
+    "states": {
+      "loading": "Loading blocked IPs...",
+      "empty": "No blocked IP addresses found."
+    }
   }
 }

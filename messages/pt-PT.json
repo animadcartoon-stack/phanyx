@@ -16394,5 +16394,29 @@
     "actions": {
       "addLesson": "+ Aula"
     }
+  },
+  "AdminBlockedIps": {
+    "header": {
+      "title": "IPs bloqueados",
+      "description": "Consulte e gira endereços IP bloqueados no acesso administrativo."
+    },
+    "table": {
+      "ip": "IP",
+      "reason": "Motivo",
+      "blockedUntil": "Bloqueado até",
+      "date": "Data",
+      "actions": "Ações"
+    },
+    "values": {
+      "indefinite": "Indeterminado"
+    },
+    "actions": {
+      "unlock": "Desbloquear",
+      "unlocking": "A desbloquear..."
+    },
+    "states": {
+      "loading": "A carregar IPs bloqueados...",
+      "empty": "Nenhum IP bloqueado encontrado."
+    }
   }
 }

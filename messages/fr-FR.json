@@ -16608,5 +16608,29 @@
     "actions": {
       "addLesson": "+ Cours"
     }
+  },
+  "AdminBlockedIps": {
+    "header": {
+      "title": "Adresses IP bloquées",
+      "description": "Consultez et gérez les adresses IP bloquées pour l’accès administratif."
+    },
+    "table": {
+      "ip": "IP",
+      "reason": "Motif",
+      "blockedUntil": "Bloquée jusqu’au",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "values": {
+      "indefinite": "Indéterminé"
+    },
+    "actions": {
+      "unlock": "Débloquer",
+      "unlocking": "Déblocage..."
+    },
+    "states": {
+      "loading": "Chargement des adresses IP bloquées...",
+      "empty": "Aucune adresse IP bloquée trouvée."
+    }
   }
 }
