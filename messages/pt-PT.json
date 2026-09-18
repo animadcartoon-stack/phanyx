@@ -16308,5 +16308,48 @@
       "deleting": "A eliminar...",
       "confirmDelete": "Sim, eliminar"
     }
+  },
+  "AdminProfile": {
+    "loading": "A carregar...",
+    "header": {
+      "title": "O meu perfil",
+      "description": "Atualize os seus dados administrativos."
+    },
+    "photo": {
+      "alt": "Perfil",
+      "label": "Fotografia de perfil",
+      "change": "Alterar fotografia",
+      "uploading": "A enviar...",
+      "tipTitle": "Dica PHANYX",
+      "tipLine1": "Para que a sua fotografia fique bem centrada no perfil, utilize uma imagem quadrada (1:1), preferencialmente com 500x500 px ou superior.",
+      "tipLine2": "Formatos aceites: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5 MB.",
+      "help": "Para um melhor enquadramento no perfil PHANYX, utilize uma imagem quadrada, preferencialmente com 500x500 px ou superior, em PNG, JPG, JPEG ou WEBP, até 5 MB."
+    },
+    "alerts": {
+      "errorTitle": "Não foi possível guardar.",
+      "successTitle": "Tudo certo."
+    },
+    "fields": {
+      "name": "Nome",
+      "phone": "Telefone",
+      "role": "Função"
+    },
+    "actions": {
+      "save": "Guardar alterações"
+    },
+    "errors": {
+      "invalidFormat": "Formato inválido. Utilize PNG, JPG, JPEG ou WEBP.",
+      "maxSize": "A imagem excede o limite de 5 MB. Escolha uma fotografia mais pequena.",
+      "upload": "Não foi possível enviar a imagem. Verifique o formato e o tamanho do ficheiro.",
+      "missingUrl": "A imagem foi enviada, mas o URL não foi devolvido pelo servidor.",
+      "savePhoto": "A fotografia foi enviada, mas não foi guardada no perfil.",
+      "photoCommunication": "Erro de comunicação ao alterar a fotografia do perfil.",
+      "saveProfile": "Não foi possível guardar o perfil. Verifique os dados e tente novamente.",
+      "profileCommunication": "Não foi possível guardar o perfil devido a um erro de comunicação com o servidor."
+    },
+    "success": {
+      "photoUpdated": "Fotografia do perfil atualizada com sucesso.",
+      "profileUpdated": "Perfil atualizado com sucesso."
+    }
   }
 }

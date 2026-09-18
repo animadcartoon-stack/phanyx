@@ -16522,5 +16522,48 @@
       "deleting": "Eliminando...",
       "confirmDelete": "S?, eliminar"
     }
+  },
+  "AdminProfile": {
+    "loading": "Cargando...",
+    "header": {
+      "title": "Mi perfil",
+      "description": "Actualiza tus datos administrativos."
+    },
+    "photo": {
+      "alt": "Perfil",
+      "label": "Foto de perfil",
+      "change": "Cambiar foto",
+      "uploading": "Subiendo...",
+      "tipTitle": "Consejo PHANYX",
+      "tipLine1": "Para que tu foto quede bien centrada en el perfil, utiliza una imagen cuadrada (1:1), preferiblemente de 500x500 px o mayor.",
+      "tipLine2": "Formatos admitidos: PNG, JPG, JPEG y WEBP • Tamaño máximo: 5 MB.",
+      "help": "Para un mejor ajuste en el perfil PHANYX, utiliza una imagen cuadrada, preferiblemente de 500x500 px o mayor, en PNG, JPG, JPEG o WEBP, de hasta 5 MB."
+    },
+    "alerts": {
+      "errorTitle": "No se pudo guardar.",
+      "successTitle": "Todo correcto."
+    },
+    "fields": {
+      "name": "Nombre",
+      "phone": "Teléfono",
+      "role": "Cargo"
+    },
+    "actions": {
+      "save": "Guardar cambios"
+    },
+    "errors": {
+      "invalidFormat": "Formato no válido. Usa PNG, JPG, JPEG o WEBP.",
+      "maxSize": "La imagen supera el límite de 5 MB. Elige una foto más pequeña.",
+      "upload": "No se pudo subir la imagen. Comprueba el formato y el tamaño del archivo.",
+      "missingUrl": "La imagen se subió, pero el servidor no devolvió la URL.",
+      "savePhoto": "La foto se subió, pero no se pudo guardar en el perfil.",
+      "photoCommunication": "Error de comunicación al cambiar la foto de perfil.",
+      "saveProfile": "No se pudo guardar el perfil. Comprueba los datos e inténtalo de nuevo.",
+      "profileCommunication": "No se pudo guardar el perfil por un error de comunicación con el servidor."
+    },
+    "success": {
+      "photoUpdated": "Foto de perfil actualizada correctamente.",
+      "profileUpdated": "Perfil actualizado correctamente."
+    }
   }
 }

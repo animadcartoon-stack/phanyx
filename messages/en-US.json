@@ -16523,5 +16523,48 @@
       "deleting": "Deleting...",
       "confirmDelete": "Yes, delete"
     }
+  },
+  "AdminProfile": {
+    "loading": "Loading...",
+    "header": {
+      "title": "My profile",
+      "description": "Update your administrative details."
+    },
+    "photo": {
+      "alt": "Profile",
+      "label": "Profile photo",
+      "change": "Change photo",
+      "uploading": "Uploading...",
+      "tipTitle": "PHANYX tip",
+      "tipLine1": "For the best profile framing, use a square (1:1) image, preferably 500x500 px or larger.",
+      "tipLine2": "Accepted formats: PNG, JPG, JPEG and WEBP • Maximum size: 5 MB.",
+      "help": "For the best fit in your PHANYX profile, use a square image, preferably 500x500 px or larger, in PNG, JPG, JPEG or WEBP format, up to 5 MB."
+    },
+    "alerts": {
+      "errorTitle": "Could not save.",
+      "successTitle": "All set."
+    },
+    "fields": {
+      "name": "Name",
+      "phone": "Phone",
+      "role": "Role"
+    },
+    "actions": {
+      "save": "Save changes"
+    },
+    "errors": {
+      "invalidFormat": "Invalid format. Use PNG, JPG, JPEG or WEBP.",
+      "maxSize": "The image exceeds the 5 MB limit. Choose a smaller photo.",
+      "upload": "Could not upload the image. Check the file format and size.",
+      "missingUrl": "The image was uploaded, but the server did not return its URL.",
+      "savePhoto": "The photo was uploaded but could not be saved to your profile.",
+      "photoCommunication": "Communication error while changing the profile photo.",
+      "saveProfile": "Could not save the profile. Check the information and try again.",
+      "profileCommunication": "Could not save the profile because of a communication error with the server."
+    },
+    "success": {
+      "photoUpdated": "Profile photo updated successfully.",
+      "profileUpdated": "Profile updated successfully."
+    }
   }
 }

@@ -16522,5 +16522,48 @@
       "deleting": "Suppression...",
       "confirmDelete": "Oui, supprimer"
     }
+  },
+  "AdminProfile": {
+    "loading": "Chargement...",
+    "header": {
+      "title": "Mon profil",
+      "description": "Mettez à jour vos informations administratives."
+    },
+    "photo": {
+      "alt": "Profil",
+      "label": "Photo de profil",
+      "change": "Modifier la photo",
+      "uploading": "Envoi en cours...",
+      "tipTitle": "Conseil PHANYX",
+      "tipLine1": "Pour un bon centrage dans le profil, utilisez une image carrée (1:1), de préférence en 500x500 px ou plus.",
+      "tipLine2": "Formats acceptés : PNG, JPG, JPEG et WEBP • Taille maximale : 5 Mo.",
+      "help": "Pour un meilleur cadrage dans le profil PHANYX, utilisez une image carrée, de préférence en 500x500 px ou plus, au format PNG, JPG, JPEG ou WEBP, jusqu’à 5 Mo."
+    },
+    "alerts": {
+      "errorTitle": "Impossible d’enregistrer.",
+      "successTitle": "Tout est prêt."
+    },
+    "fields": {
+      "name": "Nom",
+      "phone": "Téléphone",
+      "role": "Poste"
+    },
+    "actions": {
+      "save": "Enregistrer les modifications"
+    },
+    "errors": {
+      "invalidFormat": "Format non valide. Utilisez PNG, JPG, JPEG ou WEBP.",
+      "maxSize": "L’image dépasse la limite de 5 Mo. Choisissez une photo plus petite.",
+      "upload": "Impossible d’envoyer l’image. Vérifiez le format et la taille du fichier.",
+      "missingUrl": "L’image a été envoyée, mais le serveur n’a pas renvoyé son URL.",
+      "savePhoto": "La photo a été envoyée, mais n’a pas pu être enregistrée dans le profil.",
+      "photoCommunication": "Erreur de communication lors de la modification de la photo de profil.",
+      "saveProfile": "Impossible d’enregistrer le profil. Vérifiez les informations et réessayez.",
+      "profileCommunication": "Impossible d’enregistrer le profil en raison d’une erreur de communication avec le serveur."
+    },
+    "success": {
+      "photoUpdated": "Photo de profil mise à jour avec succès.",
+      "profileUpdated": "Profil mis à jour avec succès."
+    }
   }
 }
