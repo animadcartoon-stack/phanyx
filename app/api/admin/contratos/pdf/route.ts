@@ -859,7 +859,7 @@ export async function GET(req: Request) {
       color: rgb(0, 0, 0),
     });
 
-    if (false && assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
+    if (assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
       const assinaturaDiretorConfig = {
         x: 248,
         y: linhaY + 1,
