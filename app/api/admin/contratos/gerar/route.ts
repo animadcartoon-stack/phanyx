@@ -728,6 +728,16 @@ E por estarem de pleno acordo, firmam o presente contrato.
             valorContrato
           ),
 
+        valorMatricula:
+          formatarMoeda(
+            Number(
+              matricula.valorMatricula ??
+              matricula.curso
+                ?.valorMatricula ??
+              0
+            )
+          ),
+
         cidadeAssinatura:
           config?.cidadeAssinatura ||
           config?.cidade ||

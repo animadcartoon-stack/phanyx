@@ -169,6 +169,7 @@ export const DOCUMENT_TAG_ALIASES = {
   "totalVencimentos": "totalEarnings",
   "urlValidacao": "validationUrl",
   "valorContrato": "contractAmount",
+  "valorMatricula": "enrollmentFee",
   "valorDescontoBolsa": "scholarshipDiscountAmount",
   "valorMensalidadeComBolsa": "tuitionAmountAfterScholarship",
   "valorMensalidadeOriginal": "originalTuitionAmount",

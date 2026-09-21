@@ -173,6 +173,9 @@ const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
   "baseFgts",
   "fgtsMes",
   "baseIrrf",
+
+  "valorMatricula",
+  "enrollmentFee",
 ]);
 
 const DEFINICOES_CAMPOS_MANUAIS: Record<

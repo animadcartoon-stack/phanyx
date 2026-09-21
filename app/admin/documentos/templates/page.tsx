@@ -1828,6 +1828,7 @@ function AdminDocumentosTemplatesPage() {
     "{{curso}}",
     "{{disciplinas}}",
     "{{valorContrato}}",
+    "{{valorMatricula}}",
     "{{percentualBolsa}}",
     "{{valorMensalidadeOriginal}}",
     "{{valorDescontoBolsa}}",
@@ -2552,6 +2553,24 @@ function AdminDocumentosTemplatesPage() {
       categoria: "Contratos e Comprovantes",
       palavras: ["valor", "pagamento", "mensalidade", "preço"],
     },
+    "{{valorMatricula}}": {
+      titulo: "Taxa de matr?cula",
+      descricao:
+        "Mostra o valor da taxa de matr?cula vinculada ? matr?cula do aluno.",
+      ondeUsar:
+        "Contratos, recibos, comprovantes e documentos financeiros.",
+      categoria:
+        "Contratos e Comprovantes",
+      palavras: [
+        "taxa de matr?cula",
+        "taxa matr?cula",
+        "valor matr?cula",
+        "matr?cula",
+        "pagamento",
+        "enrollment fee"
+      ],
+    },
+
     "{{percentualBolsa}}": {
       titulo: "Percentual da bolsa",
       descricao: "Mostra o percentual de bolsa de estudos registrado na matr\u00edcula.",
@@ -3642,8 +3661,30 @@ function AdminDocumentosTemplatesPage() {
   }
 
 
+  const TAGS_OCULTAS_CATALOGO_DOCUMENTOS =
+    new Set([
+      /*
+       * Mesmo n?mero de matr?cula.
+       * Mantida somente por compatibilidade.
+       */
+      "{{matriculaAluno}}",
+
+      /*
+       * Informa??o coberta pelo parentesco do titular.
+       * Mantida somente por compatibilidade.
+       */
+      "{{tipoTitularContrato}}",
+    ]);
+
   const variaveisInteligentesBase =
-    todasAsTags.map(
+    todasAsTags
+      .filter(
+        (tag) =>
+          !TAGS_OCULTAS_CATALOGO_DOCUMENTOS.has(
+            tag
+          )
+      )
+      .map(
       (tag) => {
         const info =
           descricoesVariaveis[

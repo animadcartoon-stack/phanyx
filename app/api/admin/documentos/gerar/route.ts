@@ -2254,6 +2254,18 @@ export async function POST(req: Request) {
                 valorContrato
               ),
 
+            valorMatricula:
+              formatarMoeda(
+                Number(
+                  (matricula as any)
+                    ?.valorMatricula ??
+                  (matricula as any)
+                    ?.curso
+                    ?.valorMatricula ??
+                  0
+                )
+              ),
+
             valor:
               dadosPreenchimento.valor ||
               formatarMoeda(

@@ -265,6 +265,9 @@ export function montarValoresPreviewDocumento(
     valorContrato:
       "R$ 2.000,00",
 
+    valorMatricula:
+      "R$ 350,00",
+
     percentualBolsa:
       "20%",
 
