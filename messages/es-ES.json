@@ -13683,6 +13683,7 @@
       "close": "Cerrar",
       "previous": "Anterior",
       "next": "Siguiente",
+      "finish": "Finalizar",
       "goToDelinquent": "Ir a morosos",
       "steps": {
         "openCash": {
@@ -15427,6 +15428,13 @@
         "title": "Reasignación de alumno",
         "description": "Reasignar esta matrícula a otro registro de alumno conservando el historial."
       }
+    },
+    "next": {
+      "title": "Siguiente etapa",
+      "CURSO_TURMA": "En la siguiente etapa, seleccione el nuevo curso o grupo y revise la compatibilidad acad?mica antes de confirmar.",
+      "INSTITUICAO_PHANYX": "En la siguiente etapa, seleccione la instituci?n PHANYX de destino y revise los datos antes de continuar.",
+      "INSTITUICAO_EXTERNA": "En la siguiente etapa, indique los datos de la instituci?n externa de destino y registre la transferencia.",
+      "REATRIBUICAO_ALUNO": "En la siguiente etapa, seleccione el registro de alumno de destino y revise los datos antes de confirmar la reasignaci?n."
     },
     "errors": {
       "load": "No se pudieron cargar los datos de la matrícula.",

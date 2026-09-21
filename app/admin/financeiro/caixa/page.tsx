@@ -553,16 +553,12 @@ function CaixaTour({
                 type="button"
                 onClick={() => {
                   localStorage.setItem("phanyx-tour-caixa", "concluido");
-                  sessionStorage.setItem(
-                    "phanyx-continuar-tour",
-                    "inadimplentes"
-                  );
+                  sessionStorage.removeItem("phanyx-continuar-tour");
                   onClose();
-                  window.location.href = "/admin/financeiro/inadimplentes";
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                {t("tour.goToDelinquent")}
+                {t("tour.finish")}
               </button>
             )}
           </div>

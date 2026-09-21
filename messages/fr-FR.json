@@ -13683,6 +13683,7 @@
       "close": "Fermer",
       "previous": "Précédent",
       "next": "Suivant",
+      "finish": "Terminer",
       "goToDelinquent": "Aller aux impayés",
       "steps": {
         "openCash": {
@@ -15427,6 +15428,13 @@
         "title": "Réaffectation de l'étudiant",
         "description": "Réaffecter cette inscription à un autre dossier étudiant tout en conservant l'historique."
       }
+    },
+    "next": {
+      "title": "?tape suivante",
+      "CURSO_TURMA": "? l??tape suivante, s?lectionnez la nouvelle formation ou le nouveau groupe et v?rifiez la compatibilit? acad?mique avant de confirmer.",
+      "INSTITUICAO_PHANYX": "? l??tape suivante, s?lectionnez l??tablissement PHANYX de destination et v?rifiez les informations avant de continuer.",
+      "INSTITUICAO_EXTERNA": "? l??tape suivante, renseignez les informations de l??tablissement externe de destination et enregistrez le transfert.",
+      "REATRIBUICAO_ALUNO": "? l??tape suivante, s?lectionnez le dossier ?tudiant de destination et v?rifiez les informations avant de confirmer la r?affectation."
     },
     "errors": {
       "load": "Impossible de charger les informations de l'inscription.",

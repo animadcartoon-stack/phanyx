@@ -13469,6 +13469,7 @@
       "close": "Fechar",
       "previous": "Anterior",
       "next": "Seguinte",
+      "finish": "Concluir",
       "goToDelinquent": "Ir para incumprimentos",
       "steps": {
         "openCash": {
@@ -15213,6 +15214,13 @@
         "title": "Reatribuição de aluno",
         "description": "Reatribuir esta matrícula a outro registo de aluno, preservando o histórico."
       }
+    },
+    "next": {
+      "title": "Pr?xima etapa",
+      "CURSO_TURMA": "Na pr?xima etapa, selecione o novo curso ou turma e reveja a compatibilidade acad?mica antes de confirmar.",
+      "INSTITUICAO_PHANYX": "Na pr?xima etapa, selecione a institui??o PHANYX de destino e confirme os dados antes de continuar.",
+      "INSTITUICAO_EXTERNA": "Na pr?xima etapa, indique os dados da institui??o externa de destino e registe a transfer?ncia.",
+      "REATRIBUICAO_ALUNO": "Na pr?xima etapa, selecione o registo de aluno de destino e reveja os dados antes de confirmar a reatribui??o."
     },
     "errors": {
       "load": "Não foi possível carregar os dados da matrícula.",

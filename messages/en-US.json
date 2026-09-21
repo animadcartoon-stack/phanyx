@@ -13683,6 +13683,7 @@
       "close": "Close",
       "previous": "Previous",
       "next": "Next",
+      "finish": "Finish",
       "goToDelinquent": "Go to delinquent accounts",
       "steps": {
         "openCash": {
@@ -15427,6 +15428,13 @@
         "title": "Student reassignment",
         "description": "Reassign this enrollment to another student record while preserving its history."
       }
+    },
+    "next": {
+      "title": "Next step",
+      "CURSO_TURMA": "In the next step, select the new course or class and review academic compatibility before confirming.",
+      "INSTITUICAO_PHANYX": "In the next step, select the destination PHANYX institution and review the information before continuing.",
+      "INSTITUICAO_EXTERNA": "In the next step, enter the destination external institution information and record the transfer.",
+      "REATRIBUICAO_ALUNO": "In the next step, select the destination student record and review the information before confirming the reassignment."
     },
     "errors": {
       "load": "The enrollment information could not be loaded.",
