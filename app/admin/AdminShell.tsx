@@ -911,7 +911,7 @@ export default function AdminShell({
                         href="/admin/ips-bloqueados"
                         className={getLinkClass("/admin/ips-bloqueados")}
                       >
-                        ?? {tNav("blockedIps")}
+                        {"\u{1F6AB}"} {tNav("blockedIps")}
                       </Link>
                     </div>
                   )}
