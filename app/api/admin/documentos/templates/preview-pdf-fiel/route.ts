@@ -136,11 +136,11 @@ function substituirExemplos(
   final =
     final
       .replace(
-        /{{\s*assinaturaDiretor\s*}}/gi,
+        /{{\s*(?:assinaturaDiretor|directorSignature)\s*}}/gi,
         "__PHANYX_ASSINATURA_DIRETOR__"
       )
       .replace(
-        /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+        /{{\s*(?:blocoAssinaturaDiretor|directorSignatureBlock)\s*}}/gi,
         "__PHANYX_BLOCO_ASSINATURA_DIRETOR__"
       );
 

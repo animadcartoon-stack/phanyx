@@ -79,6 +79,9 @@ type CampoVisualContrato = {
   largura: number;
   altura: number;
   pagina: number;
+
+  blocoOffsetX?: number;
+  blocoOffsetY?: number;
 };
 
 type ConfiguracaoInstituicao = {
@@ -1435,11 +1438,9 @@ function AdminDocumentosTemplatesPage() {
         exigeAssinatura,
         formatoImpressao,
         camposVisuais:
-          tipo === "CONTRATO"
-            ? []
-            : normalizarCamposVisuaisAssinatura(
-                camposVisuais
-              ),
+            normalizarCamposVisuaisAssinatura(
+              camposVisuais
+            ),
       };
 
       const url = editingId
@@ -1581,11 +1582,9 @@ function AdminDocumentosTemplatesPage() {
           formatoImpressao,
 
           camposVisuais:
-            tipo === "CONTRATO"
-              ? []
-              : normalizarCamposVisuaisAssinatura(
-                  camposVisuais
-                ),
+            normalizarCamposVisuaisAssinatura(
+              camposVisuais
+            ),
         }),
       });
 
@@ -1718,6 +1717,62 @@ function AdminDocumentosTemplatesPage() {
       )
     );
   }
+
+  function moverBlocoAssinatura(
+    blocoOffsetX: number,
+    blocoOffsetY: number
+  ) {
+    setCamposVisuais(
+      (atuais) => {
+        const normalizados =
+          normalizarCamposVisuaisAssinatura(
+            atuais
+          );
+
+        const existe =
+          normalizados.some(
+            (campo) =>
+              campo.tipo ===
+              "ASSINATURA_DIRETOR"
+          );
+
+        if (existe) {
+          return normalizados.map(
+            (campo) =>
+              campo.tipo ===
+              "ASSINATURA_DIRETOR"
+                ? {
+                    ...campo,
+                    blocoOffsetX,
+                    blocoOffsetY,
+                  }
+                : campo
+          );
+        }
+
+        return [
+          ...normalizados,
+          {
+            id:
+              crypto.randomUUID(),
+
+            tipo:
+              "ASSINATURA_DIRETOR",
+
+            x: 70,
+            y: 18,
+            largura: 180,
+            altura: 55,
+            pagina: 1,
+
+            blocoOffsetX,
+            blocoOffsetY,
+          },
+        ];
+      }
+    );
+  }
+
 
   const todasAsTags = [
     "{{logoInstituicao}}",
@@ -4323,6 +4378,11 @@ function AdminDocumentosTemplatesPage() {
                       }
                       camposVisuais={
                         camposVisuais
+                      }
+
+
+                      onMoverBlocoAssinatura={
+                        moverBlocoAssinatura
                       }
 
                       configPreview={

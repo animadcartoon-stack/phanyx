@@ -1,3 +1,7 @@
+import {
+  expandDocumentTagValues,
+} from "@/lib/documentos/tags-documentos";
+
 export type ConfigPreviewDocumento =
   | Record<string, unknown>
   | null
@@ -406,8 +410,10 @@ export function substituirVariaveisPreviewDocumento(
   config?: ConfigPreviewDocumento
 ) {
   const valores =
-    montarValoresPreviewDocumento(
-      config
+    expandDocumentTagValues(
+      montarValoresPreviewDocumento(
+        config
+      )
     );
 
   let final =

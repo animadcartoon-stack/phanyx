@@ -1,6 +1,10 @@
-import {
+﻿import {
   Extension,
 } from "@tiptap/core";
+
+import {
+  getLegacyDocumentTagKey,
+} from "@/lib/documentos/tags-documentos";
 
 import {
   Plugin,
@@ -17,83 +21,28 @@ export type DadosPreviewVariaveisPHANYX = {
     Record<string, string>;
 };
 
-function adicionarConteudo(
-  elemento: HTMLElement,
-  valor: string
-) {
-  const partes =
-    String(
-      valor ?? ""
-    ).split(
-      /(?:<br\s*\/?\s*>|\r?\n)/gi
-    );
-
-  partes.forEach(
-    (
-      parte,
-      indice
-    ) => {
-      if (indice > 0) {
-        elemento.appendChild(
-          document.createElement(
-            "br"
-          )
-        );
-      }
-
-      elemento.appendChild(
-        document.createTextNode(
-          parte
-        )
-      );
-    }
-  );
-}
-
-function criarPreview(
-  chave: string,
-  valor: string
-) {
-  const elemento =
-    document.createElement(
-      "span"
-    );
-
-  elemento.contentEditable =
-    "false";
-
-  elemento.setAttribute(
-    "data-phanyx-preview-variable",
-    chave
-  );
-
-  elemento.setAttribute(
-    "aria-label",
-    `{{${chave}}}`
-  );
-
-  elemento.title =
-    `{{${chave}}}`;
-
-  /*
-   * O elemento herda fonte, tamanho,
-   * cor e line-height do texto onde
-   * a vari?vel est? posicionada.
-   */
-  elemento.style.whiteSpace =
-    "normal";
-
-  elemento.style.pointerEvents =
-    "none";
-
-  adicionarConteudo(
-    elemento,
-    valor
-  );
-
-  return elemento;
-}
-
+/*
+ * IMPORTANTE
+ * ----------
+ * As variáveis {{...}} precisam continuar como texto real
+ * dentro do TipTap.
+ *
+ * Não substituímos mais a variável por um widget
+ * contentEditable=false.
+ *
+ * Isso permite que o usuário:
+ * - selecione {{nomeAluno}};
+ * - aplique negrito;
+ * - aplique itálico;
+ * - altere fonte;
+ * - altere tamanho;
+ * - altere cor;
+ * - aplique marca-texto;
+ * - alinhe normalmente junto com o restante do texto.
+ *
+ * O valor de exemplo continua disponível apenas como
+ * tooltip (title), sem modificar o HTML persistido.
+ */
 export const PreviewVariaveisPHANYX =
   Extension.create<DadosPreviewVariaveisPHANYX>({
     name:
@@ -154,15 +103,20 @@ export const PreviewVariaveisPHANYX =
                       resultado[1];
 
                     /*
-                     * Estes campos possuem
-                     * renderiza??o pr?pria.
+                     * Campos especiais possuem
+                     * renderização própria.
                      */
+                    const chaveCanonica =
+                      getLegacyDocumentTagKey(
+                        chave
+                      );
+
                     if (
-                      chave ===
+                      chaveCanonica ===
                         "assinaturaDiretor" ||
-                      chave ===
+                      chaveCanonica ===
                         "blocoAssinaturaDiretor" ||
-                      chave ===
+                      chaveCanonica ===
                         "logoInstituicao"
                     ) {
                       continue;
@@ -177,7 +131,7 @@ export const PreviewVariaveisPHANYX =
                       resultado[0]
                         .length;
 
-                    const valor =
+                    const valorPreview =
                       typeof dados
                         .valores[
                           chave
@@ -187,48 +141,29 @@ export const PreviewVariaveisPHANYX =
                             .valores[
                               chave
                             ]
-                        : "-";
+                        : "";
 
                     /*
-                     * A tag continua no
-                     * documento TipTap,
-                     * por?m deixa de ocupar
-                     * espa?o visual.
+                     * A própria tag permanece visível
+                     * e selecionável.
+                     *
+                     * Esta Decoration NÃO altera cor,
+                     * fonte, peso ou tamanho, justamente
+                     * para não competir com a formatação
+                     * escolhida pelo usuário.
                      */
                     decoracoes.push(
                       Decoration.inline(
                         inicio,
                         fim,
                         {
-                          style:
-                            "display:none !important;",
-                          "data-phanyx-preview-source":
+                          "data-phanyx-variable":
                             chave,
-                        }
-                      )
-                    );
 
-                    /*
-                     * O valor de exemplo
-                     * ocupa o lugar visual
-                     * da tag sem alterar
-                     * o HTML persistido.
-                     */
-                    decoracoes.push(
-                      Decoration.widget(
-                        inicio,
-
-                        () =>
-                          criarPreview(
-                            chave,
-                            valor
-                          ),
-
-                        {
-                          side: -1,
-
-                          key:
-                            `phanyx-preview-${chave}-${inicio}`,
+                          title:
+                            valorPreview
+                              ? `Exemplo: ${valorPreview}`
+                              : `{{${chave}}}`,
                         }
                       )
                     );

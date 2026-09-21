@@ -1308,6 +1308,9 @@ type CampoVisualAssinaturaPreview = {
   largura: number;
   altura: number;
   pagina: number;
+
+  blocoOffsetX?: number;
+  blocoOffsetY?: number;
 };
 
 type DadosAssinaturaPreview = {
@@ -1317,6 +1320,11 @@ type DadosAssinaturaPreview = {
   nomeInstituicao?: string | null;
   cnpjInstituicao?: string | null;
   campoVisual?: CampoVisualAssinaturaPreview | null;
+
+  aoMoverBloco?: (
+    x: number,
+    y: number
+  ) => void;
 };
 
 type TipoAssinaturaPreview =
@@ -1771,6 +1779,185 @@ function criarBotaoRemoverAssinatura(
     )
   );
 
+  
+  /*
+   * BLOCO COMPLETO ARRAST?VEL.
+   *
+   * blocoOffsetX/blocoOffsetY n?o alteram
+   * x/y da imagem interna da assinatura.
+   */
+  const offsetSalvoX =
+    Number(
+      dados.campoVisual
+        ?.blocoOffsetX ??
+      0
+    );
+
+  const offsetSalvoY =
+    Number(
+      dados.campoVisual
+        ?.blocoOffsetY ??
+      0
+    );
+
+  const offsetInicialX =
+    Number.isFinite(
+      offsetSalvoX
+    )
+      ? offsetSalvoX
+      : 0;
+
+  const offsetInicialY =
+    Number.isFinite(
+      offsetSalvoY
+    )
+      ? offsetSalvoY
+      : 0;
+
+  aplicarEstilos(
+    container,
+    {
+      left:
+        `${offsetInicialX}px`,
+
+      top:
+        `${offsetInicialY}px`,
+
+      cursor:
+        "move",
+
+      touchAction:
+        "none",
+    }
+  );
+
+  container.setAttribute(
+    "data-phanyx-assinatura-arrastavel",
+    "true"
+  );
+
+  container.addEventListener(
+    "pointerdown",
+    (
+      evento
+    ) => {
+      const alvo =
+        evento.target instanceof
+        Element
+          ? evento.target
+          : null;
+
+      if (
+        alvo?.closest(
+          "button"
+        )
+      ) {
+        return;
+      }
+
+      evento.preventDefault();
+      evento.stopPropagation();
+
+      const inicioMouseX =
+        evento.clientX;
+
+      const inicioMouseY =
+        evento.clientY;
+
+      const inicioOffsetX =
+        Number.parseFloat(
+          container.style.left ||
+          "0"
+        ) || 0;
+
+      const inicioOffsetY =
+        Number.parseFloat(
+          container.style.top ||
+          "0"
+        ) || 0;
+
+      let xFinal =
+        inicioOffsetX;
+
+      let yFinal =
+        inicioOffsetY;
+
+      const aoMover =
+        (
+          ev: PointerEvent
+        ) => {
+          xFinal =
+            inicioOffsetX +
+            (
+              ev.clientX -
+              inicioMouseX
+            );
+
+          yFinal =
+            inicioOffsetY +
+            (
+              ev.clientY -
+              inicioMouseY
+            );
+
+          container.style.left =
+            `${xFinal}px`;
+
+          container.style.top =
+            `${yFinal}px`;
+        };
+
+      const aoSoltar =
+        () => {
+          window.removeEventListener(
+            "pointermove",
+            aoMover
+          );
+
+          window.removeEventListener(
+            "pointerup",
+            aoSoltar
+          );
+
+          window.removeEventListener(
+            "pointercancel",
+            aoSoltar
+          );
+
+          dados.aoMoverBloco?.(
+            Math.round(
+              xFinal
+            ),
+
+            Math.round(
+              yFinal
+            )
+          );
+        };
+
+      window.addEventListener(
+        "pointermove",
+        aoMover
+      );
+
+      window.addEventListener(
+        "pointerup",
+        aoSoltar,
+        {
+          once: true,
+        }
+      );
+
+      window.addEventListener(
+        "pointercancel",
+        aoSoltar,
+        {
+          once: true,
+        }
+      );
+    }
+  );
+
   return container;
 }
 
@@ -1812,7 +1999,7 @@ const AssinaturaPreviewPHANYX =
               }> = [
                   {
                     regex:
-                      /{{\s*assinaturaDiretor\s*}}/gi,
+                      /{{\s*(?:assinaturaDiretor|directorSignature)\s*}}/gi,
 
                     tipo:
                       "IMAGEM",
@@ -1820,7 +2007,7 @@ const AssinaturaPreviewPHANYX =
 
                   {
                     regex:
-                      /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+                      /{{\s*(?:blocoAssinaturaDiretor|directorSignatureBlock)\s*}}/gi,
 
                     tipo:
                       "BLOCO",
@@ -2225,6 +2412,13 @@ type Props = {
 
   camposVisuais?:
   CampoVisualAssinaturaPreview[] | null;
+
+  onMoverBlocoAssinatura?: (
+    x: number,
+    y: number
+  ) => void;
+
+  
 
   configPreview?:
     Record<string, unknown> | null;
@@ -2713,6 +2907,11 @@ export default function EditorTemplatePHANYX({
   camposVisuais =
   [],
 
+  onMoverBlocoAssinatura =
+  undefined,
+
+  
+
   configPreview =
   null,
 }: Props) {
@@ -2826,6 +3025,10 @@ export default function EditorTemplatePHANYX({
         campoVisualAssinatura.y,
         campoVisualAssinatura.largura,
         campoVisualAssinatura.altura,
+        campoVisualAssinatura.blocoOffsetX ??
+          0,
+        campoVisualAssinatura.blocoOffsetY ??
+          0,
       ].join("|")
       : "sem-campo-visual";
 
@@ -2969,6 +3172,9 @@ export default function EditorTemplatePHANYX({
 
         campoVisual:
           campoVisualAssinatura,
+
+        aoMoverBloco:
+          onMoverBlocoAssinatura,
       }),
 
       Underline,
@@ -3528,6 +3734,14 @@ export default function EditorTemplatePHANYX({
     ).campoVisual =
       campoVisualAssinatura;
 
+    (
+      extensao.options as
+      DadosAssinaturaPreview
+    ).aoMoverBloco =
+      onMoverBlocoAssinatura;
+
+    
+
     const tr =
       editor.state.tr.setMeta(
         "phanyxAtualizarAssinaturaPreview",
@@ -3543,6 +3757,8 @@ export default function EditorTemplatePHANYX({
   }, [
     editor,
     chaveCampoVisualAssinatura,
+    onMoverBlocoAssinatura,
+  
   ]);
 
   useEffect(() => {

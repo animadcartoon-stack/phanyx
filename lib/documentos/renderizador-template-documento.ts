@@ -10,6 +10,9 @@ export type CampoVisualDocumento = {
   largura: number;
   altura: number;
   pagina: number;
+
+  blocoOffsetX?: number;
+  blocoOffsetY?: number;
 };
 
 export type DadosInstituicaoDocumento = {
@@ -577,6 +580,42 @@ function criarBlocoAssinatura({
       pagina: 1,
     };
 
+  const blocoOffsetXPx =
+    Number(
+      campoDoBloco
+        .blocoOffsetX ??
+      0
+    );
+
+  const blocoOffsetYPx =
+    Number(
+      campoDoBloco
+        .blocoOffsetY ??
+      0
+    );
+
+  const deslocamentoBlocoXMm =
+    (
+      Number.isFinite(
+        blocoOffsetXPx
+      )
+        ? blocoOffsetXPx
+        : 0
+    ) *
+    25.4 /
+    96;
+
+  const deslocamentoBlocoYMm =
+    (
+      Number.isFinite(
+        blocoOffsetYPx
+      )
+        ? blocoOffsetYPx
+        : 0
+    ) *
+    25.4 /
+    96;
+
   const imagem = criarImagemAssinatura({
     assinaturaUrl,
     modoPrevia,
@@ -587,6 +626,11 @@ function criarBlocoAssinatura({
   return `
     <span
       class="phanyx-bloco-assinatura phanyx-bloco-assinatura-visual"
+      style="
+        position: relative;
+        left: ${deslocamentoBlocoXMm}mm;
+        top: ${deslocamentoBlocoYMm}mm;
+      "
     >
       <span class="phanyx-area-assinatura-visual">
         ${imagem}
@@ -754,11 +798,11 @@ export function aplicarAssinaturasDocumento({
       bloco
     )
     .replace(
-      /{{\s*assinaturaDiretor\s*}}/gi,
+      /{{\s*(?:assinaturaDiretor|directorSignature)\s*}}/gi,
       imagem
     )
     .replace(
-      /{{\s*blocoAssinaturaDiretor\s*}}/gi,
+      /{{\s*(?:blocoAssinaturaDiretor|directorSignatureBlock)\s*}}/gi,
       bloco
     );
 }
