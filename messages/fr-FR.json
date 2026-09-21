@@ -139,6 +139,8 @@
     "externalActivities": "Activités extérieures",
     "academicPublications": "Publications académiques",
     "visitors": "Visiteurs",
+
+    "blockedIps": "Adresses IP bloquées",
     "overview": "Vue d'ensemble",
     "collection": "Collection",
     "receipts": "Encaissements",

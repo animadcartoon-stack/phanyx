@@ -124,6 +124,7 @@ export default function AdminShell({
     if (pathname.startsWith("/admin/validacoes")) return "documentos";
 
     if (pathname.startsWith("/admin/visitantes")) return "acesso";
+    if (pathname.startsWith("/admin/ips-bloqueados")) return "acesso";
 
     if (pathname.startsWith("/admin/reunioes")) return "comunicacao";
     if (pathname.startsWith("/admin/ouvidoria")) return "comunicacao";
@@ -904,6 +905,13 @@ export default function AdminShell({
                         className={getLinkClass("/admin/visitantes")}
                       >
                         🪪 {tNav("visitors")}
+                      </Link>
+
+                      <Link
+                        href="/admin/ips-bloqueados"
+                        className={getLinkClass("/admin/ips-bloqueados")}
+                      >
+                        ?? {tNav("blockedIps")}
                       </Link>
                     </div>
                   )}
