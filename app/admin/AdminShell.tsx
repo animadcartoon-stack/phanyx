@@ -607,6 +607,10 @@ export default function AdminShell({
 
   const podeVerAcervoBiblioteca = podeAcessar("biblioteca.catalogo.ver");
 
+  const podeGerenciarEmprestimosBiblioteca = podeAcessar(
+    "biblioteca.emprestimos.gerenciar",
+  );
+
   const podeGerenciarConfiguracoesBiblioteca = podeAcessar(
     "biblioteca.configuracoes.gerenciar",
   );
@@ -1295,6 +1299,17 @@ export default function AdminShell({
                             className={getLinkClass("/admin/biblioteca/acervo")}
                           >
                             📚 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeGerenciarEmprestimosBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/emprestimos"
+                            className={getLinkClass(
+                              "/admin/biblioteca/emprestimos",
+                            )}
+                          >
+                            📖 {tNav("loans")}
                           </Link>
                         )}
 
@@ -2013,6 +2028,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             📖 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeGerenciarEmprestimosBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/emprestimos"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            📖 {tNav("loans")}
                           </Link>
                         )}
 

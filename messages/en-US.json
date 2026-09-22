@@ -142,6 +142,7 @@
     "blockedIps": "Blocked IPs",
     "overview": "Overview",
     "collection": "Collection",
+    "loans": "Loans",
     "receipts": "Receipts",
     "cashRegister": "Cash Register",
     "reports": "Reports",
@@ -17271,6 +17272,69 @@
         "weeklyHours": "Weekly workload",
         "monthlyHours": "Monthly workload"
       }
+    }
+  },
+  "AdminLibraryLoans": {
+    "eyebrow": "Library circulation",
+    "title": "Loans",
+    "description": "Track active loans, overdue items, upcoming due dates, returns, renewals, and incidents.",
+    "backToCollection": "Back to collection",
+    "loading": "Loading loans...",
+    "retry": "Try again",
+    "filters": {
+      "todos": "All",
+      "ativos": "Active",
+      "atrasados": "Overdue",
+      "vencendo": "Due soon",
+      "devolvidos": "Returned",
+      "ocorrencias": "Incidents"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "User, email, title, code, accession number, ISBN...",
+      "button": "Search",
+      "clear": "Clear"
+    },
+    "list": {
+      "title": "Loan records",
+      "resultCount": "{count, plural, =0 {No records} one {# record} other {# records}}",
+      "loading": "Loading records...",
+      "dueSoonRule": "Due soon: within the next {days} days"
+    },
+    "table": {
+      "user": "User",
+      "item": "Item / copy",
+      "loanDate": "Loan date",
+      "dueDate": "Due date",
+      "renewals": "Renewals",
+      "status": "Status",
+      "fine": "Fine",
+      "actions": "Actions",
+      "tomb": "Accession no.",
+      "daysOverdue": "{count, plural, one {# day overdue} other {# days overdue}}",
+      "fineGenerated": "Fine generated",
+      "openItem": "Open item"
+    },
+    "statuses": {
+      "ativo": "Active",
+      "atrasado": "Overdue",
+      "devolvido": "Returned",
+      "perdido": "Lost",
+      "danificado": "Damaged",
+      "cancelado": "Cancelled"
+    },
+    "empty": {
+      "title": "No loans found",
+      "description": "There are no records matching the selected filters."
+    },
+    "errors": {
+      "title": "Loans could not be loaded",
+      "load": "An error occurred while retrieving the loans."
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
     }
   }
 }
