@@ -139,31 +139,6 @@ type AlunoComResumo = Aluno & {
   resumoMatricula?: MatriculaResumo | null;
 };
 
-type ConfirmacaoMenorCadastro = {
-  idade: number;
-  responsavelIncompleto: boolean;
-  camposPendentes: string[];
-} | null;
-
-type AlunoExistenteConversao = {
-  id: number;
-  nome: string;
-  statusAluno: string;
-  campo: string;
-} | null;
-
-type LeadParaConversao = {
-  id: number;
-  nome: string;
-  email: string;
-  telefone?: string | null;
-  interesse?: string | null;
-  instituicaoNome?: string | null;
-  responsavelFuncionarioId?: number | null;
-  responsavelNome?: string | null;
-  status?: string | null;
-};
-
 function AdminAlunosPage() {
   const t = useTranslations(
     "AdminStudents"
@@ -173,22 +148,102 @@ function AdminAlunosPage() {
     useTranslations(
       "InternationalPhone"
     );
+
+  function labelStatusMatricula(
+    status?: string | null
+  ) {
+    switch (status) {
+      case "AGUARDANDO":
+        return t("filters.awaitingClass");
+
+      case "A_INICIAR":
+        return t("filters.toStart");
+
+      case "ATIVA":
+        return t("filters.activeEnrollment");
+
+      case "TRANCADA":
+        return t("filters.enrollmentOnHold");
+
+      case "SUSPENSA":
+        return t("filters.suspendedEnrollment");
+
+      case "INTERCAMBIO":
+        return t("filters.exchange");
+
+      case "TRANSFERIDA":
+        return t("filters.transferredEnrollment");
+
+      case "CONCLUIDA":
+        return t("filters.completedEnrollment");
+
+      case "CANCELADA":
+        return t("filters.canceledEnrollment");
+
+      default:
+        return t("table.withoutEnrollment");
+    }
+  }
+
+  function classeStatusMatricula(
+    status?: string | null
+  ) {
+    switch (status) {
+      case "ATIVA":
+        return "border-emerald-300 bg-emerald-100 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200";
+
+      case "A_INICIAR":
+        return "border-blue-300 bg-blue-100 text-blue-900 dark:border-blue-800 dark:bg-blue-950/60 dark:text-blue-200";
+
+      case "AGUARDANDO":
+        return "border-amber-300 bg-amber-100 text-amber-900 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-200";
+
+      case "TRANCADA":
+        return "border-orange-300 bg-orange-100 text-orange-900 dark:border-orange-800 dark:bg-orange-950/60 dark:text-orange-200";
+
+      case "SUSPENSA":
+        return "border-rose-300 bg-rose-100 text-rose-900 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-200";
+
+      case "INTERCAMBIO":
+        return "border-violet-300 bg-violet-100 text-violet-900 dark:border-violet-800 dark:bg-violet-950/60 dark:text-violet-200";
+
+      case "TRANSFERIDA":
+        return "border-cyan-300 bg-cyan-100 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/60 dark:text-cyan-200";
+
+      case "CONCLUIDA":
+        return "border-teal-300 bg-teal-100 text-teal-900 dark:border-teal-800 dark:bg-teal-950/60 dark:text-teal-200";
+
+      case "CANCELADA":
+        return "border-red-300 bg-red-100 text-red-900 dark:border-red-800 dark:bg-red-950/60 dark:text-red-200";
+
+      default:
+        return "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+    }
+  }
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [leadParaConversao, setLeadParaConversao] =
-    useState<LeadParaConversao | null>(null);
-
-  const [
-    carregandoLeadParaConversao,
-    setCarregandoLeadParaConversao,
-  ] = useState(false);
-
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [carregandoAlunos, setCarregandoAlunos] = useState(false);
+
+  const [
+    exportandoAlunos,
+    setExportandoAlunos,
+  ] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [totalAlunos, setTotalAlunos] = useState(0);
   const [totalPaginas, setTotalPaginas] = useState(1);
+
+  const [estatisticas, setEstatisticas] =
+    useState({
+      total: 0,
+      matriculados: 0,
+      semMatricula: 0,
+      aguardando: 0,
+      cancelados: 0,
+      inadimplentes: 0,
+    });
   const limitePorPagina = 20;
 
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
@@ -201,8 +256,6 @@ function AdminAlunosPage() {
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
-
-  const [criando, setCriando] = useState(false);
   const [salvandoId, setSalvandoId] = useState<number | null>(null);
   const [painelAlunoAberto, setPainelAlunoAberto] = useState(false);
   const [alunoSelecionado, setAlunoSelecionado] =
@@ -228,7 +281,6 @@ function AdminAlunosPage() {
     | "CERTIFICADOS"
   >("DADOS");
 
-  const [mostrarFormulario, setMostrarFormulario] = useState(true);
 
   const [modalAvisoAberto, setModalAvisoAberto] = useState(false);
   const [modalAvisoTitulo, setModalAvisoTitulo] = useState("");
@@ -236,76 +288,8 @@ function AdminAlunosPage() {
   const [modalAvisoTipo, setModalAvisoTipo] = useState<"sucesso" | "erro">(
     "erro"
   );
-
-  const [
-    alunoExistenteConversao,
-    setAlunoExistenteConversao,
-  ] = useState<AlunoExistenteConversao>(null);
-
-  const [
-    confirmacaoMenorCadastro,
-    setConfirmacaoMenorCadastro,
-  ] =
-    useState<ConfirmacaoMenorCadastro>(
-      null
-    );
-
-  const [
-    cienteMenorCadastro,
-    setCienteMenorCadastro,
-  ] = useState(false);
-
-  const [nome, setNome] = useState("");
-  const [nomeSocial, setNomeSocial] = useState("");
-  const [genero, setGenero] = useState("");
-  const [email, setEmail] = useState("");
-  const [matricula] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [rg, setRg] = useState("");
-  const [telefone, setTelefone] = useState("");
-
-  const [
-    paisTelefone,
-    setPaisTelefone,
-  ] = useState<CountryCode>("BR");
-
-  const [dataNascimento, setDataNascimento] = useState("");
-  const [cep, setCep] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [numero, setNumero] = useState("");
-  const [complemento, setComplemento] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [estado, setEstado] = useState("");
-  const [documentoUrl, setDocumentoUrl] = useState("");
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
-
-  const [novoAlunoDocumentos, setNovoAlunoDocumentos] = useState<{
-    proprietario: "ALUNO" | "RESPONSAVEL";
-    tipo: string;
-    arquivo: File;
-  }[]>([]);
-
-  const [nomeResponsavel, setNomeResponsavel] = useState("");
-  const [cpfResponsavel, setCpfResponsavel] = useState("");
-  const [telefoneResponsavel, setTelefoneResponsavel] = useState("");
-
-  const [
-    paisTelefoneResponsavel,
-    setPaisTelefoneResponsavel,
-  ] = useState<CountryCode>("BR");
-
-  const [emailResponsavel, setEmailResponsavel] = useState("");
-  const [parentescoResponsavel, setParentescoResponsavel] = useState("");
-  const [statusAluno, setStatusAluno] = useState<StatusAluno>("ATIVO");
-  const [poloId, setPoloId] = useState("");
-  const [possuiNecessidadeEspecial, setPossuiNecessidadeEspecial] =
-    useState(false);
-  const [descricaoNecessidadeEspecial, setDescricaoNecessidadeEspecial] =
-    useState("");
-  const [observacoesAcessibilidade, setObservacoesAcessibilidade] =
-    useState("");
 
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
@@ -410,117 +394,14 @@ function AdminAlunosPage() {
     }, 3500);
     return () => clearTimeout(timer);
   }, [feedback]);
-
   useEffect(() => {
-    if (!leadIdConversao) {
-      setLeadParaConversao(null);
-      return;
-    }
+    if (!leadIdConversao) return;
 
-    let requisicaoAtiva = true;
+    router.replace(
+      `/admin/alunos/novo?leadId=${leadIdConversao}`
+    );
+  }, [leadIdConversao, router]);
 
-    async function carregarLeadParaConversao() {
-      try {
-        setCarregandoLeadParaConversao(true);
-
-        const res = await fetch(
-          `/api/admin/leads/${leadIdConversao}`,
-          {
-            credentials: "include",
-            cache: "no-store",
-          }
-        );
-
-        const data = await res
-          .json()
-          .catch(() => null);
-
-        if (!res.ok) {
-          throw new Error(
-            data?.error ||
-            t("loadingAndPhotoFeedback.leadLoadError")
-          );
-        }
-
-        if (!requisicaoAtiva) return;
-
-        const lead: LeadParaConversao = {
-          id: Number(data.id),
-          nome: String(data.nome || ""),
-          email: String(data.email || ""),
-          telefone: data.telefone || null,
-          interesse: data.interesse || null,
-          instituicaoNome:
-            data.instituicaoNome || null,
-          responsavelFuncionarioId:
-            data.responsavelFuncionarioId ??
-            null,
-          responsavelNome:
-            data.responsavelNome || null,
-          status: data.status || null,
-        };
-
-        limparFormularioCriacao();
-
-        setLeadParaConversao(lead);
-
-        setNome(lead.nome);
-        setEmail(lead.email);
-        const telefoneLead =
-          prepararTelefoneParaFormulario(
-            lead.telefone,
-            "BR"
-          );
-
-        setTelefone(
-          telefoneLead.valor
-        );
-
-        setPaisTelefone(
-          telefoneLead.pais
-        );
-
-        setAlunoExistenteConversao(null);
-        setConfirmacaoMenorCadastro(null);
-        setCienteMenorCadastro(false);
-        setMostrarFormulario(true);
-
-        window.setTimeout(() => {
-          document
-            .getElementById(
-              "formulario-novo-aluno"
-            )
-            ?.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
-        }, 100);
-      } catch (error: any) {
-        if (!requisicaoAtiva) return;
-
-        setLeadParaConversao(null);
-
-        abrirModalAviso(
-          "erro",
-          t("loadingAndPhotoFeedback.conversionStartErrorTitle"),
-          error?.message ||
-          t("loadingAndPhotoFeedback.conversionLoadError")
-        );
-      } finally {
-        if (requisicaoAtiva) {
-          setCarregandoLeadParaConversao(
-            false
-          );
-        }
-      }
-    }
-
-    void carregarLeadParaConversao();
-
-    return () => {
-      requisicaoAtiva = false;
-    };
-  }, [leadIdConversao]);
 
   useEffect(() => {
     carregarTudo();
@@ -528,7 +409,13 @@ function AdminAlunosPage() {
 
   useEffect(() => {
     carregarAlunos();
-  }, [paginaAtual, filtroStatus, busca, filtroSituacaoAcademica]);
+  }, [
+    paginaAtual,
+    filtroStatus,
+    busca,
+    filtroSituacaoAcademica,
+    filtroTurmaId,
+  ]);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
@@ -536,117 +423,6 @@ function AdminAlunosPage() {
       setBusca(buscaUrl);
     }
   }, [searchParams]);
-
-  function calcularIdadeFormulario(
-    valor: string
-  ) {
-    const partes = valor
-      .split("-")
-      .map(Number);
-
-    if (
-      partes.length !== 3 ||
-      partes.some(
-        (parte) =>
-          !Number.isFinite(parte)
-      )
-    ) {
-      return null;
-    }
-
-    const [ano, mes, dia] = partes;
-
-    const nascimento =
-      new Date(
-        ano,
-        mes - 1,
-        dia
-      );
-
-    if (
-      nascimento.getFullYear() !==
-      ano ||
-      nascimento.getMonth() !==
-      mes - 1 ||
-      nascimento.getDate() !== dia
-    ) {
-      return null;
-    }
-
-    const hoje = new Date();
-
-    let idade =
-      hoje.getFullYear() - ano;
-
-    const aindaNaoFezAniversario =
-      hoje.getMonth() <
-      mes - 1 ||
-      (hoje.getMonth() ===
-        mes - 1 &&
-        hoje.getDate() < dia);
-
-    if (aindaNaoFezAniversario) {
-      idade -= 1;
-    }
-
-    return idade;
-  }
-
-  function verificarResponsavelFormulario() {
-    const pendentes: string[] = [];
-
-    const cpfLimpo =
-      cpfResponsavel.replace(
-        /\D/g,
-        ""
-      );
-
-    if (!nomeResponsavel.trim()) {
-      pendentes.push(
-        t("minorConfirmation.pendingGuardianName")
-      );
-    }
-
-    if (cpfLimpo.length !== 11) {
-      pendentes.push(
-        t("minorConfirmation.pendingGuardianCpf")
-      );
-    }
-
-    if (
-      !telefoneResponsavel.trim() ||
-      !telefoneValidoInternacional(
-        telefoneResponsavel,
-        paisTelefoneResponsavel
-      )
-    ) {
-      pendentes.push(
-        tTelefone(
-          "guardianInvalid"
-        )
-      );
-    }
-
-    if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        emailResponsavel.trim()
-      )
-    ) {
-      pendentes.push(
-        t("minorConfirmation.pendingGuardianEmail")
-      );
-    }
-
-    if (
-      !parentescoResponsavel.trim()
-    ) {
-      pendentes.push(
-        t("minorConfirmation.pendingGuardianRelationship")
-      );
-    }
-
-    return pendentes;
-  }
 
   function tocarSomAtencao() {
     try {
@@ -839,6 +615,138 @@ function AdminAlunosPage() {
     ]);
   }
 
+  async function exportarAlunos() {
+    try {
+      setExportandoAlunos(true);
+
+      const params =
+        new URLSearchParams();
+
+      if (busca.trim()) {
+        params.set(
+          "busca",
+          busca.trim()
+        );
+      }
+
+      if (filtroStatus !== "TODOS") {
+        params.set(
+          "status",
+          filtroStatus
+        );
+      }
+
+      params.set(
+        "situacaoMatricula",
+        filtroSituacaoAcademica
+      );
+
+      if (filtroTurmaId !== "TODAS") {
+        params.set(
+          "turmaId",
+          filtroTurmaId
+        );
+      }
+
+      const localeAtual =
+        typeof document !== "undefined" &&
+        document.documentElement.lang
+          ? document.documentElement.lang
+          : "pt-BR";
+
+      params.set(
+        "locale",
+        localeAtual
+      );
+
+      const resposta =
+        await fetch(
+          `/api/admin/alunos/exportar?${params.toString()}`,
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+      if (!resposta.ok) {
+        const erro =
+          await resposta
+            .json()
+            .catch(() => null);
+
+        throw new Error(
+          erro?.error ||
+          t(
+            "actions.exportStudentsError"
+          )
+        );
+      }
+
+      const blob =
+        await resposta.blob();
+
+      const disposition =
+        resposta.headers.get(
+          "content-disposition"
+        ) || "";
+
+      const match =
+        disposition.match(
+          /filename="?([^"]+)"?/i
+        );
+
+      const filename =
+        match?.[1] ||
+        "alunos.xlsx";
+
+      const url =
+        URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(
+        link
+      );
+
+      link.click();
+      link.remove();
+
+      window.setTimeout(
+        () => {
+          URL.revokeObjectURL(url);
+        },
+        1000
+      );
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "actions.exportStudentsSuccess"
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao exportar alunos:",
+        error
+      );
+
+      mostrarFeedback(
+        "erro",
+        error instanceof Error
+          ? error.message
+          : t(
+              "actions.exportStudentsError"
+            )
+      );
+    } finally {
+      setExportandoAlunos(false);
+    }
+  }
+
   async function carregarAlunos() {
     try {
       setCarregandoAlunos(true);
@@ -856,6 +764,13 @@ function AdminAlunosPage() {
       }
 
       params.set("situacaoMatricula", filtroSituacaoAcademica);
+
+      if (filtroTurmaId !== "TODAS") {
+        params.set(
+          "turmaId",
+          filtroTurmaId
+        );
+      }
 
       const res = await fetch(`/api/aluno?${params.toString()}`, {
         credentials: "include",
@@ -935,6 +850,30 @@ function AdminAlunosPage() {
       setAlunos(lista);
       setTotalAlunos(Number(data?.meta?.total || 0));
       setTotalPaginas(Number(data?.meta?.totalPages || 1));
+
+      const estatisticasApi =
+        data?.meta?.estatisticas || {};
+
+      setEstatisticas({
+        total: Number(
+          estatisticasApi.total || 0
+        ),
+        matriculados: Number(
+          estatisticasApi.matriculados || 0
+        ),
+        semMatricula: Number(
+          estatisticasApi.semMatricula || 0
+        ),
+        aguardando: Number(
+          estatisticasApi.aguardando || 0
+        ),
+        cancelados: Number(
+          estatisticasApi.cancelados || 0
+        ),
+        inadimplentes: Number(
+          estatisticasApi.inadimplentes || 0
+        ),
+      });
     } catch (error) {
       console.error("Erro ao carregar alunos:", error);
       mostrarFeedback(
@@ -1027,465 +966,6 @@ function AdminAlunosPage() {
 
       setPolos([]);
     }
-  }
-
-  function limparFormularioCriacao() {
-    setNome("");
-    setNomeSocial("");
-    setGenero("");
-    setEmail("");
-    setCpf("");
-    setRg("");
-    setTelefone("");
-    setPaisTelefone("BR");
-    setDataNascimento("");
-    setCep("");
-    setEndereco("");
-    setNumero("");
-    setComplemento("");
-    setBairro("");
-    setCidade("");
-    setEstado("");
-    setDocumentoUrl("");
-    setFotoPerfil("");
-    setNomeResponsavel("");
-    setCpfResponsavel("");
-    setTelefoneResponsavel("");
-    setPaisTelefoneResponsavel(
-      "BR"
-    );
-    setEmailResponsavel("");
-    setParentescoResponsavel("");
-    setStatusAluno("ATIVO");
-    setPoloId("");
-    setPossuiNecessidadeEspecial(false);
-    setDescricaoNecessidadeEspecial("");
-    setObservacoesAcessibilidade("");
-    setNovoAlunoDocumentos([]);
-  }
-
-  function adicionarDocumentoNovoAluno(
-    proprietario: "ALUNO" | "RESPONSAVEL",
-    tipo: string,
-    arquivo: File | null
-  ) {
-    if (!arquivo) return;
-
-    setNovoAlunoDocumentos((prev) => [
-      ...prev,
-      {
-        proprietario,
-        tipo,
-        arquivo,
-      },
-    ]);
-  }
-
-  async function enviarDocumentosDepoisCriacao(alunoId: number) {
-    for (const doc of novoAlunoDocumentos) {
-      const formData = new FormData();
-
-      formData.append(
-        "titulo",
-        `${doc.tipo} - ${doc.proprietario === "ALUNO"
-          ? t("documentPanel.ownerStudent")
-          : t("documentPanel.ownerGuardian")
-        }`
-      );
-      formData.append("tipo", doc.tipo);
-      formData.append("proprietario", doc.proprietario);
-      formData.append("arquivo", doc.arquivo);
-
-      await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-    }
-  }
-
-  function continuarComAlunoExistente() {
-    if (
-      !alunoExistenteConversao ||
-      !leadParaConversao
-    ) {
-      return;
-    }
-
-    const params = new URLSearchParams();
-
-    params.set(
-      "alunoId",
-      String(alunoExistenteConversao.id)
-    );
-
-    params.set(
-      "leadId",
-      String(leadParaConversao.id)
-    );
-
-    if (
-      leadParaConversao.responsavelFuncionarioId
-    ) {
-      params.set(
-        "vendedorResponsavelId",
-        String(
-          leadParaConversao.responsavelFuncionarioId
-        )
-      );
-    }
-
-    setAlunoExistenteConversao(null);
-
-    router.push(
-      `/admin/matriculas?${params.toString()}`
-    );
-  }
-
-  async function executarCriacaoAluno(
-    confirmacaoMenorCadastroAceita: boolean
-  ) {
-    if (
-      telefone.trim() &&
-      !telefoneValidoInternacional(
-        telefone,
-        paisTelefone
-      )
-    ) {
-      abrirModalAviso(
-        "erro",
-        tTelefone("invalidTitle"),
-        tTelefone("studentInvalid")
-      );
-
-      return;
-    }
-
-    if (
-      telefoneResponsavel.trim() &&
-      !telefoneValidoInternacional(
-        telefoneResponsavel,
-        paisTelefoneResponsavel
-      )
-    ) {
-      abrirModalAviso(
-        "erro",
-        tTelefone("invalidTitle"),
-        tTelefone(
-          "guardianInvalid"
-        )
-      );
-
-      return;
-    }
-
-    const telefoneE164 =
-      telefone.trim()
-        ? normalizarTelefoneE164(
-          telefone,
-          paisTelefone
-        )
-        : "";
-
-    const telefoneResponsavelE164 =
-      telefoneResponsavel.trim()
-        ? normalizarTelefoneE164(
-          telefoneResponsavel,
-          paisTelefoneResponsavel
-        )
-        : "";
-    try {
-      setCriando(true);
-
-      const nomeFinalCadastro =
-        leadParaConversao
-          ? leadParaConversao.nome.trim()
-          : nome.trim();
-
-      const res = await fetch("/api/aluno", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          nome: nomeFinalCadastro,
-          email,
-          nomeSocial,
-          genero,
-          cpf,
-          rg,
-          telefone: telefoneE164,
-          dataNascimento: dataNascimento || null,
-          cep,
-          endereco,
-          numero,
-          complemento,
-          bairro,
-          cidade,
-          estado,
-          documentoUrl,
-          fotoPerfil: fotoPerfil || null,
-          nomeResponsavel,
-          cpfResponsavel,
-          telefoneResponsavel:
-            telefoneResponsavelE164,
-          emailResponsavel,
-          parentescoResponsavel,
-          statusAluno,
-          poloId: poloId ? Number(poloId) : null,
-          possuiNecessidadeEspecial,
-          descricaoNecessidadeEspecial,
-          observacoesAcessibilidade,
-          confirmacaoMenorCadastroAceita,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (
-          data?.codigo ===
-          "CONFIRMACAO_MENOR_CADASTRO_NECESSARIA"
-        ) {
-          setConfirmacaoMenorCadastro({
-            idade: Number(data.idade || 0),
-
-            responsavelIncompleto:
-              data.responsavelIncompleto === true,
-
-            camposPendentes: Array.isArray(
-              data.camposResponsavelPendentes
-            )
-              ? data.camposResponsavelPendentes
-              : [],
-          });
-
-          setCienteMenorCadastro(false);
-          tocarSomAtencao();
-
-          return;
-        }
-
-        if (
-          data?.codigo === "ALUNO_EXISTENTE" &&
-          Number(data?.aluno?.id) > 0
-        ) {
-          if (!leadParaConversao) {
-            const mensagem =
-              data?.error ||
-              t("existingStudentModal.alreadyRegisteredFallback");
-
-            mostrarFeedback(
-              "erro",
-              mensagem
-            );
-
-            abrirModalAviso(
-              "erro",
-              t("existingStudentModal.title"),
-              mensagem
-            );
-
-            return;
-          }
-
-          setModalAvisoAberto(false);
-          setFeedback("");
-          setFeedbackTipo("");
-
-          setAlunoExistenteConversao({
-            id: Number(data.aluno.id),
-
-            nome: String(
-              data.aluno.nome ||
-              t("existingStudentModal.title")
-            ),
-
-            statusAluno: String(
-              data.aluno.statusAluno ||
-              "ATIVO"
-            ),
-
-            campo: String(
-              data.campo || ""
-            ),
-          });
-
-          return;
-        }
-
-        const mensagem =
-          data?.error ||
-          data?.detalhe ||
-          t("registrationFeedback.createError");
-
-        mostrarFeedback(
-          "erro",
-          mensagem
-        );
-
-        abrirModalAviso(
-          "erro",
-          t("registrationFeedback.createUnavailableTitle"),
-          mensagem
-        );
-
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-
-        return;
-      }
-
-      if (data?.id) {
-        setAlunos((prev) => [
-          data,
-          ...prev.filter((aluno) => aluno.id !== data.id),
-        ]);
-      }
-
-      if (data?.id && novoAlunoDocumentos.length > 0) {
-        await enviarDocumentosDepoisCriacao(data.id);
-      }
-
-      const alunoCriadoId = Number(data?.id);
-
-      setConfirmacaoMenorCadastro(null);
-      setCienteMenorCadastro(false);
-
-      if (
-        leadParaConversao &&
-        Number.isInteger(alunoCriadoId) &&
-        alunoCriadoId > 0
-      ) {
-        const paramsMatricula =
-          new URLSearchParams();
-
-        paramsMatricula.set(
-          "alunoId",
-          String(alunoCriadoId)
-        );
-
-        paramsMatricula.set(
-          "leadId",
-          String(leadParaConversao.id)
-        );
-
-        if (
-          leadParaConversao
-            .responsavelFuncionarioId
-        ) {
-          paramsMatricula.set(
-            "vendedorResponsavelId",
-            String(
-              leadParaConversao
-                .responsavelFuncionarioId
-            )
-          );
-        }
-
-        router.push(
-          `/admin/matriculas?${paramsMatricula.toString()}`
-        );
-
-        return;
-      }
-
-      limparFormularioCriacao();
-
-      await carregarTudo();
-
-      mostrarFeedback(
-        "sucesso",
-        t("registrationFeedback.createSuccess")
-      );
-
-      abrirModalAviso(
-        "sucesso",
-        t("registrationFeedback.createdTitle"),
-        t("registrationFeedback.createdDescription")
-      );
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-
-    } catch (error: any) {
-
-
-      const mensagem =
-        error?.message ||
-        t("registrationFeedback.createError");
-
-      mostrarFeedback("erro", mensagem);
-
-      abrirModalAviso(
-        "erro",
-        t("registrationFeedback.createError"),
-        mensagem
-      );
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } finally {
-      setCriando(false);
-    }
-  }
-
-  async function handleCriarAluno(
-    e: React.FormEvent
-  ) {
-    e.preventDefault();
-
-    const idade =
-      calcularIdadeFormulario(
-        dataNascimento
-      );
-
-    if (idade === null) {
-      abrirModalAviso(
-        "erro",
-        t("registrationFeedback.birthDateRequiredTitle"),
-        t("registrationFeedback.birthDateRequiredDescription")
-      );
-
-      return;
-    }
-
-    if (
-      idade < 0 ||
-      idade > 120
-    ) {
-      abrirModalAviso(
-        "erro",
-        t("registrationFeedback.birthDateInvalidTitle"),
-        t("registrationFeedback.birthDateInvalidDescription")
-      );
-
-      return;
-    }
-
-    if (idade >= 18) {
-      await executarCriacaoAluno(
-        false
-      );
-
-      return;
-    }
-
-    const camposPendentes =
-      verificarResponsavelFormulario();
-
-    setConfirmacaoMenorCadastro({
-      idade,
-
-      responsavelIncompleto:
-        camposPendentes.length > 0,
-
-      camposPendentes,
-    });
-
-    setCienteMenorCadastro(false);
-    tocarSomAtencao();
   }
 
   function iniciarEdicao(aluno: AlunoComResumo) {
@@ -1922,35 +1402,6 @@ function AdminAlunosPage() {
     }
   }
 
-  async function buscarEnderecoPorCep(valorCep: string) {
-    const cepLimpo = valorCep.replace(/\D/g, "");
-
-    if (cepLimpo.length !== 8) return;
-
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const data = await res.json();
-
-      if (data?.erro) {
-        mostrarFeedback(
-          "erro",
-          t("studentActionFeedback.addressLookupError")
-        );
-        return;
-      }
-
-      setEndereco(data.logradouro || "");
-      setBairro(data.bairro || "");
-      setCidade(data.localidade || "");
-      setEstado(data.uf || "");
-    } catch {
-      mostrarFeedback(
-        "erro",
-        t("studentActionFeedback.addressLookupError")
-      );
-    }
-  }
-
   async function buscarEnderecoEdicaoPorCep(valorCep: string) {
     const cepLimpo = valorCep.replace(/\D/g, "");
 
@@ -2057,25 +1508,7 @@ function AdminAlunosPage() {
     filtroTurmaId,
   ]);
 
-  const totais = useMemo(() => {
-    const total = alunosComResumo.length;
-    const matriculados = alunosComResumo.filter((a) => !!a.resumoMatricula).length;
-    const cancelados = alunosComResumo.filter(
-      (a) => a.statusAluno === "CANCELADO"
-    ).length;
-    const inadimplentes = alunosComResumo.filter(
-      (a) => a.statusAluno === "INADIMPLENTE"
-    ).length;
-    const semMatricula = alunosComResumo.filter((a) => !a.resumoMatricula).length;
-
-    return {
-      total,
-      matriculados,
-      cancelados,
-      inadimplentes,
-      semMatricula,
-    };
-  }, [alunosComResumo]);
+  const totais = estatisticas;
 
   async function carregarDocumentosArquivadosAluno(alunoId: number) {
     try {
@@ -2507,13 +1940,28 @@ function AdminAlunosPage() {
 
             <div className="flex flex-wrap gap-3">
               <button
+  type="button"
+  onClick={() =>
+    router.push("/admin/alunos/novo")
+  }
+  className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100 dark:hover:bg-blue-950/60"
+>
+  {t("actions.newStudent")}
+</button>
+
+              <button
                 type="button"
-                onClick={() => setMostrarFormulario((prev) => !prev)}
-                className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+                onClick={exportarAlunos}
+                disabled={exportandoAlunos}
+                className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100 dark:hover:bg-emerald-950/60"
               >
-                {mostrarFormulario
-                  ? t("actions.hideRegistration")
-                  : t("actions.newStudent")}
+                {exportandoAlunos
+                  ? t(
+                      "actions.exportingStudents"
+                    )
+                  : t(
+                      "actions.exportStudents"
+                    )}
               </button>
 
               <button
@@ -2533,7 +1981,7 @@ function AdminAlunosPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
               {t("stats.total")}
@@ -2561,6 +2009,15 @@ function AdminAlunosPage() {
             </p>
           </div>
 
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+              {t("stats.awaiting")}
+            </p>
+            <p className="mt-3 text-3xl font-bold text-amber-600 dark:text-amber-300">
+              {totais.aguardando}
+            </p>
+          </div>
+
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
               {t("stats.canceled")}
@@ -2579,559 +2036,6 @@ function AdminAlunosPage() {
             </p>
           </div>
         </section>
-
-        {mostrarFormulario && (
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">
-                {t("registration.title")}
-              </h2>
-              <p className="text-sm text-slate-500">
-                {t("registration.description")}
-              </p>
-            </div>
-
-            <form
-              id="formulario-novo-aluno"
-              onSubmit={handleCriarAluno}
-              autoComplete="off"
-              className="space-y-4"
-            >
-              {leadParaConversao && (
-                <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100">
-                  <strong className="block text-base">
-                    {t("lead.title")}
-                  </strong>
-
-                  <p className="mt-1 leading-6">
-                    {t("lead.description", {
-                      name: leadParaConversao.nome,
-                    })}
-                  </p>
-
-                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs">
-                    <span>
-                      Lead #{leadParaConversao.id}
-                    </span>
-
-                    {leadParaConversao.responsavelNome ? (
-                      <span>
-                        {t("lead.commercialOwner", {
-                          name: leadParaConversao.responsavelNome,
-                        })}
-                      </span>
-                    ) : null}
-
-                    {leadParaConversao.interesse ? (
-                      <span>
-                        {t("lead.interest", {
-                          interest: leadParaConversao.interesse,
-                        })}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
-                    {fotoPerfil ? (
-                      <img
-                        src={fotoPerfil}
-                        alt={nome || t("photo.alt")}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-3xl font-black text-slate-400">
-                        {nome?.charAt(0)?.toUpperCase() || "A"}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                      {t("photo.title")}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      {t("photo.description")}
-                    </p>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-                        {enviandoFotoPerfil
-                          ? t("photo.uploading")
-                          : t("photo.upload")}
-                        <input
-                          type="file"
-                          accept="image/png,image/jpeg,image/jpg,image/webp"
-                          disabled={enviandoFotoPerfil}
-                          onChange={(e) =>
-                            enviarFotoOficialAluno(e.target.files?.[0] || null, "CRIACAO")
-                          }
-                          className="hidden"
-                        />
-                      </label>
-
-                      {fotoPerfil && (
-                        <button
-                          type="button"
-                          onClick={() => setFotoPerfil("")}
-                          className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                        >
-                          {t("photo.remove")}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <input
-                  placeholder={t("fields.name")}
-                  name="nome-aluno-cadastro-phanyx"
-                  autoComplete="off"
-                  value={nome}
-                  onChange={(e) =>
-                    setNome(e.target.value)
-                  }
-                  readOnly={Boolean(
-                    leadParaConversao
-                  )}
-                  className={`w-full rounded-xl border p-2.5 ${leadParaConversao
-                    ? "cursor-not-allowed bg-slate-100 font-semibold text-slate-900 dark:bg-slate-800 dark:text-white"
-                    : ""
-                    }`}
-                  required
-                />
-
-                <input
-                  placeholder={t("fields.socialName")}
-                  value={nomeSocial}
-                  onChange={(e) => setNomeSocial(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <select
-                  value={genero}
-                  onChange={(e) => setGenero(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                >
-                  <option value="">
-                    {t("fields.gender")}
-                  </option>
-                  <option value="FEMININO">
-                    {t("fields.female")}
-                  </option>
-                  <option value="MASCULINO">
-                    {t("fields.male")}
-                  </option>
-                  <option value="NAO_BINARIO">
-                    {t("fields.nonBinary")}
-                  </option>
-                  <option value="OUTRO">
-                    {t("fields.other")}
-                  </option>
-                  <option value="PREFIRO_NAO_INFORMAR">
-                    {t("fields.preferNotSay")}
-                  </option>
-                </select>
-
-                <input
-                  placeholder={t("fields.email")}
-                  type="email"
-                  name="email-aluno-phanyx"
-                  autoComplete="new-password"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                  required
-                />
-
-                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
-                  <strong>
-                    {t("fields.enrollmentNumber")}
-                  </strong>
-                  <br />
-                  {t("fields.enrollmentGenerated")}
-                </div>
-
-                <input
-                  placeholder="CPF"
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder="RG"
-                  value={rg}
-                  onChange={(e) => setRg(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <CampoTelefoneInternacional
-                  id="telefone-aluno"
-                  name="telefone"
-                  value={telefone}
-                  pais={paisTelefone}
-                  onChange={(
-                    novoTelefone,
-                    novoPais
-                  ) => {
-                    setTelefone(
-                      novoTelefone
-                    );
-
-                    setPaisTelefone(
-                      novoPais
-                    );
-                  }}
-                />
-
-                <input
-                  type="date"
-                  value={dataNascimento}
-                  onChange={(e) => setDataNascimento(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <select
-                  value={statusAluno}
-                  onChange={(e) => setStatusAluno(e.target.value as StatusAluno)}
-                  className="w-full rounded-xl border p-2.5"
-                >
-                  <option value="ATIVO">
-                    {t("statuses.active")}
-                  </option>
-                  <option value="TRANCADO">
-                    {t("statuses.locked")}
-                  </option>
-                  <option value="SUSPENSO">
-                    {t("statuses.suspended")}
-                  </option>
-                  <option value="INADIMPLENTE">
-                    {t("statuses.delinquent")}
-                  </option>
-                  <option value="TRANSFERIDO">
-                    {t("statuses.transferred")}
-                  </option>
-                  <option value="DESLIGADO">
-                    {t("statuses.inactive")}
-                  </option>
-                  <option value="FORMADO">
-                    {t("statuses.graduated")}
-                  </option>
-                  <option value="CANCELADO">
-                    {t("statuses.canceled")}
-                  </option>
-                  <option value="PAUSA_MEDICA">
-                    {t("statuses.medicalLeave")}
-                  </option>
-                  <option value="FALTANTE">
-                    {t("statuses.absent")}
-                  </option>
-                </select>
-
-                <select
-                  value={poloId}
-                  onChange={(e) => setPoloId(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                >
-                  <option value="">
-                    {t("fields.selectCampus")}
-                  </option>
-                  {polos.map((polo) => (
-                    <option key={polo.id} value={polo.id}>
-                      {polo.nome}
-                    </option>
-                  ))}
-                </select>
-
-                <input
-                  placeholder={t("fields.postalCode")}
-                  value={cep}
-                  onChange={(e) => {
-                    const valor = e.target.value;
-
-                    setCep(valor);
-
-                    if (valor.replace(/\D/g, "").length === 8) {
-                      void buscarEnderecoPorCep(valor);
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key !== "Enter") return;
-
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    void buscarEnderecoPorCep(e.currentTarget.value);
-                  }}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder={t("fields.address")}
-                  value={endereco}
-                  onChange={(e) => setEndereco(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder={t("fields.number")}
-                  value={numero}
-                  onChange={(e) => setNumero(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder={t("fields.complement")}
-                  value={complemento}
-                  onChange={(e) => setComplemento(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder={t("fields.district")}
-                  value={bairro}
-                  onChange={(e) => setBairro(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder={t("fields.city")}
-                  value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <input
-                  placeholder={t("fields.state")}
-                  value={estado}
-                  onChange={(e) => setEstado(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
-
-                <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                    {t("documents.studentTitle")}
-                  </h3>
-
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    {t("documents.studentDescription")}
-                  </p>
-
-                  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {["RG", "CPF", "CNH", "HISTORICO_ESCOLAR", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
-                      <label
-                        key={`aluno-${tipo}`}
-                        className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                      >
-                        <span className="mb-2 block font-semibold">
-                          {(
-                            {
-                              RG: t("documentPanel.typeRg"),
-                              CPF: t("documentPanel.typeCpf"),
-                              CNH: t("documentPanel.typeCnh"),
-                              HISTORICO_ESCOLAR: t("documentPanel.typeSchoolRecord"),
-                              COMPROVANTE_RESIDENCIA: t(
-                                "documentPanel.typeResidenceProof"
-                              ),
-                              TITULO_ELEITOR: t(
-                                "documentPanel.typeVoterRegistration"
-                              ),
-                            } as Record<string, string>
-                          )[tipo] ?? tipo.replaceAll("_", " ")}
-                        </span>
-
-                        <input
-                          type="file"
-                          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-                          onChange={(e) =>
-                            adicionarDocumentoNovoAluno(
-                              "ALUNO",
-                              tipo,
-                              e.target.files?.[0] || null
-                            )
-                          }
-                          className="w-full text-xs"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-
-              <div className="border-t pt-4">
-                <h3 className="mb-3 font-semibold text-slate-900">
-                  {t("accessibility.title")}
-                </h3>
-
-                <div className="space-y-4">
-                  <label className="flex items-center gap-2 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={possuiNecessidadeEspecial}
-                      onChange={(e) =>
-                        setPossuiNecessidadeEspecial(e.target.checked)
-                      }
-                    />
-                    {t("accessibility.hasSpecialNeed")}
-                  </label>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    <textarea
-                      placeholder={t("accessibility.specialNeedPlaceholder")}
-                      value={descricaoNecessidadeEspecial}
-                      onChange={(e) =>
-                        setDescricaoNecessidadeEspecial(e.target.value)
-                      }
-                      className="min-h-[100px] w-full rounded-xl border p-2.5"
-                    />
-
-                    <textarea
-                      placeholder={t("accessibility.notesPlaceholder")}
-                      value={observacoesAcessibilidade}
-                      onChange={(e) =>
-                        setObservacoesAcessibilidade(e.target.value)
-                      }
-                      className="min-h-[100px] w-full rounded-xl border p-2.5"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <h3 className="mb-3 font-semibold text-slate-900">
-                  {t("guardian.title")}
-                </h3>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <input
-                    placeholder={t("guardian.name")}
-                    value={nomeResponsavel}
-                    onChange={(e) => setNomeResponsavel(e.target.value)}
-                    className="w-full rounded-xl border p-2.5"
-                  />
-
-                  <input
-                    placeholder={t("guardian.cpf")}
-                    value={cpfResponsavel}
-                    onChange={(e) => setCpfResponsavel(e.target.value)}
-                    className="w-full rounded-xl border p-2.5"
-                  />
-
-                  <CampoTelefoneInternacional
-                    id="telefone-responsavel"
-                    name="telefoneResponsavel"
-                    value={telefoneResponsavel}
-                    pais={
-                      paisTelefoneResponsavel
-                    }
-                    onChange={(
-                      novoTelefone,
-                      novoPais
-                    ) => {
-                      setTelefoneResponsavel(
-                        novoTelefone
-                      );
-
-                      setPaisTelefoneResponsavel(
-                        novoPais
-                      );
-                    }}
-                  />
-
-                  <input
-                    placeholder={t("guardian.email")}
-                    type="email"
-                    value={emailResponsavel}
-                    onChange={(e) => setEmailResponsavel(e.target.value)}
-                    className="w-full rounded-xl border p-2.5"
-                  />
-
-                  <input
-                    placeholder={t("guardian.relationship")}
-                    value={parentescoResponsavel}
-                    onChange={(e) => setParentescoResponsavel(e.target.value)}
-                    className="w-full rounded-xl border p-2.5 md:col-span-2"
-                  />
-
-                  <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                      {t("guardian.documentsTitle")}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      {t("guardian.documentsDescription")}
-                    </p>
-
-                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                      {["RG", "CPF", "CNH", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
-                        <label
-                          key={`responsavel-${tipo}`}
-                          className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                        >
-                          <span className="mb-2 block font-semibold">
-                            {(
-                              {
-                                RG: t("documentPanel.typeRg"),
-                                CPF: t("documentPanel.typeCpf"),
-                                CNH: t("documentPanel.typeCnh"),
-                                HISTORICO_ESCOLAR: t("documentPanel.typeSchoolRecord"),
-                                COMPROVANTE_RESIDENCIA: t(
-                                  "documentPanel.typeResidenceProof"
-                                ),
-                                TITULO_ELEITOR: t(
-                                  "documentPanel.typeVoterRegistration"
-                                ),
-                              } as Record<string, string>
-                            )[tipo] ?? tipo.replaceAll("_", " ")}
-                          </span>
-
-                          <input
-                            type="file"
-                            accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-                            onChange={(e) =>
-                              adicionarDocumentoNovoAluno(
-                                "RESPONSAVEL",
-                                tipo,
-                                e.target.files?.[0] || null
-                              )
-                            }
-                            className="w-full text-xs"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={
-                  criando ||
-                  carregandoLeadParaConversao
-                }
-                className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
-              >
-                {carregandoLeadParaConversao
-                  ? t("registration.loadingLead")
-                  : criando
-                    ? t("registration.creating")
-                    : leadParaConversao
-                      ? t("registration.createAndContinue")
-                      : t("registration.create")}
-              </button>
-            </form>
-          </section>
-        )}
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4">
@@ -3296,7 +2200,7 @@ function AdminAlunosPage() {
                   >
                     {turma.nome}
                     {turma.disciplinaNome
-                      ? ` • ${turma.disciplinaNome}`
+                      ? ` â€¢ ${turma.disciplinaNome}`
                       : ""}
                   </option>
                 ))}
@@ -3414,15 +2318,44 @@ function AdminAlunosPage() {
                               )}
                             </div>
                           ) : (
-                            "—"
+                            "\u2014"
                           )}
                         </td>
 
-                        <td className="px-4 py-4 align-top text-slate-700">
-                          <div>{a.matricula || "-"}</div>
-                          <div className="text-xs text-slate-500">
-                            {resumo?.status || t("table.withoutLink")}
-                          </div>
+                                                <td className="px-4 py-4 align-top text-slate-700 dark:text-slate-200">
+                          {resumo ? (
+                            <>
+                              <div className="font-medium">
+                                {resumo.numeroMatricula ||
+                                  a.matricula ||
+                                  "\u2014"}
+                              </div>
+
+                              <div className="mt-2">
+                                <span
+                                  className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${classeStatusMatricula(
+                                    resumo.status
+                                  )}`}
+                                >
+                                  {labelStatusMatricula(
+                                    resumo.status
+                                  )}
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="font-medium text-slate-400 dark:text-slate-500">
+                                {"\u2014"}
+                              </div>
+
+                              <div className="mt-2">
+                                <span className="inline-flex rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                  {t("table.withoutEnrollment")}
+                                </span>
+                              </div>
+                            </>
+                          )}
                         </td>
 
                         <td className="px-4 py-4 align-top">
@@ -3990,7 +2923,7 @@ function AdminAlunosPage() {
                             }
                             className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
                           >
-                            📄 Baixar contrato
+                            ðŸ“„ Baixar contrato
                           </button>
 
                           {alunoSelecionado.statusAluno === "CANCELADO" ? (
@@ -4013,7 +2946,7 @@ function AdminAlunosPage() {
                                 }}
                                 className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
                               >
-                                ✏️ {t("drawer.editRegistration")}
+                                âœï¸ {t("drawer.editRegistration")}
                               </button>
                               <button
                                 onClick={() => cancelarAluno(alunoSelecionado.id)}
@@ -4477,7 +3410,7 @@ function AdminAlunosPage() {
                             })}
                           </span>
 
-                          <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
+                          <span>{matriculaExpandida ? "âŒƒ" : "âŒ„"}</span>
                         </button>
 
                         {matriculaExpandida && (
@@ -4823,231 +3756,6 @@ function AdminAlunosPage() {
         </div>
       )}
 
-      {confirmacaoMenorCadastro && (
-        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/65 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl overflow-hidden rounded-3xl border border-amber-300 bg-white shadow-2xl dark:border-amber-700 dark:bg-slate-900">
-            <div className="border-b border-amber-200 bg-amber-50 px-6 py-5 dark:border-amber-800 dark:bg-amber-950/40">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-amber-200 text-2xl dark:bg-amber-900">
-                  ⚠️
-                </div>
-
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
-                    {t("minorConfirmation.attention")}
-                  </p>
-
-                  <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
-                    {confirmacaoMenorCadastro
-                      .responsavelIncompleto
-                      ? t("minorConfirmation.incompleteGuardianTitle")
-                      : t("minorConfirmation.minorTitle")}
-                  </h2>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 px-6 py-5 text-slate-700 dark:text-slate-200">
-              <p className="text-sm leading-6">
-                {t("minorConfirmation.ageDescription", {
-                  age: confirmacaoMenorCadastro.idade,
-                })}
-              </p>
-
-              {confirmacaoMenorCadastro
-                .responsavelIncompleto ? (
-                <>
-                  <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-                    <strong className="block">
-                      {t("minorConfirmation.incompleteWarningTitle")}
-                    </strong>
-
-                    <p className="mt-2">
-                      {t("minorConfirmation.incompleteWarningDescription")}
-                    </p>
-                  </div>
-
-                  <ul className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
-                    {confirmacaoMenorCadastro
-                      .camposPendentes.map(
-                        (campo) => (
-                          <li
-                            key={campo}
-                            className="flex items-center gap-2"
-                          >
-                            <span className="font-black text-red-600">
-                              •
-                            </span>
-
-                            {campo}
-                          </li>
-                        )
-                      )}
-                  </ul>
-                </>
-              ) : (
-                <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-                  {t("minorConfirmation.confirmationQuestion")}
-                </div>
-              )}
-
-              <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-                <input
-                  type="checkbox"
-                  checked={
-                    cienteMenorCadastro
-                  }
-                  onChange={(e) =>
-                    setCienteMenorCadastro(
-                      e.target.checked
-                    )
-                  }
-                  className="mt-1 h-5 w-5 accent-blue-600"
-                />
-
-                <span className="text-sm font-semibold leading-6">
-                  {t("minorConfirmation.acknowledgement")}
-                </span>
-              </label>
-            </div>
-
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                disabled={criando}
-                onClick={() => {
-                  setConfirmacaoMenorCadastro(
-                    null
-                  );
-
-                  setCienteMenorCadastro(
-                    false
-                  );
-                }}
-                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-              >
-                {confirmacaoMenorCadastro
-                  .responsavelIncompleto
-                  ? t("minorConfirmation.backAndComplete")
-                  : t("minorConfirmation.back")}
-              </button>
-
-              <button
-                type="button"
-                disabled={
-                  !cienteMenorCadastro ||
-                  criando
-                }
-                onClick={() =>
-                  void executarCriacaoAluno(
-                    true
-                  )
-                }
-                className={`rounded-2xl border px-5 py-3 text-sm font-bold transition ${!cienteMenorCadastro || criando
-                  ? "cursor-not-allowed border-slate-300 bg-slate-200 text-slate-500 opacity-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
-                  : "cursor-pointer border-blue-600 bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
-              >
-                {criando
-                  ? t("minorConfirmation.creating")
-                  : confirmacaoMenorCadastro
-                    .responsavelIncompleto
-                    ? t("minorConfirmation.createAnyway")
-                    : t("minorConfirmation.confirmRegistration")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {alunoExistenteConversao && (
-        <div
-          className="fixed inset-0 z-[115] flex items-center justify-center bg-slate-950/60 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="titulo-aluno-existente"
-        >
-          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-            <div className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-xl dark:bg-amber-950/50">
-                  👤
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <h2
-                    id="titulo-aluno-existente"
-                    className="text-xl font-black text-slate-950 dark:text-white"
-                  >
-                    {t("existingStudentModal.title")}
-                  </h2>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    {t("existingStudentModal.description", {
-                      name: alunoExistenteConversao.nome,
-                    })}
-                  </p>
-
-                  <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
-                    <p className="text-slate-700 dark:text-slate-200">
-                      {t("existingStudentModal.locatedBy", {
-                        field:
-                          alunoExistenteConversao.campo === "CPF"
-                            ? t("existingStudentModal.cpf")
-                            : t("existingStudentModal.email"),
-                      })}
-                    </p>
-
-                    <p className="mt-1 text-slate-700 dark:text-slate-200">
-                      {t("existingStudentModal.currentStatus", {
-                        status: alunoExistenteConversao.statusAluno,
-                      })}
-                    </p>
-                  </div>
-
-                  {alunoExistenteConversao.statusAluno ===
-                    "ATIVO" ? (
-                    <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      {t("existingStudentModal.activeDescription")}
-                    </p>
-                  ) : (
-                    <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 text-sm font-semibold leading-6 text-slate-900 shadow-sm dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
-                      {t("existingStudentModal.inactiveDescription")}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 dark:border-slate-700 dark:bg-slate-950 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() =>
-                  setAlunoExistenteConversao(null)
-                }
-                className="rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
-              >
-                {alunoExistenteConversao.statusAluno ===
-                  "ATIVO"
-                  ? t("existingStudentModal.backToRegistration")
-                  : t("existingStudentModal.understood")}
-              </button>
-
-              {alunoExistenteConversao.statusAluno ===
-                "ATIVO" && (
-                  <button
-                    type="button"
-                    onClick={continuarComAlunoExistente}
-                    className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
-                  >
-                    {t("existingStudentModal.useAndContinue")}
-                  </button>
-                )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {modalAvisoAberto && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/55 p-4">
           <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
@@ -5058,7 +3766,7 @@ function AdminAlunosPage() {
                   : "bg-red-100"
                   }`}
               >
-                {modalAvisoTipo === "sucesso" ? "✅" : "⚠️"}
+                {modalAvisoTipo === "sucesso" ? "âœ…" : "âš ï¸"}
               </div>
 
               <div className="flex-1">
