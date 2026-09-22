@@ -16428,5 +16428,59 @@
       "loading": "A carregar IPs bloqueados...",
       "empty": "Nenhum IP bloqueado encontrado."
     }
+  },
+  "AdminNotifications": {
+    "header": {
+      "title": "Central de notificações",
+      "description": "Todas as notificações do sistema num único local."
+    },
+    "stats": {
+      "total": "Total",
+      "unread": "Não lidas",
+      "categories": "Categorias"
+    },
+    "list": {
+      "title": "Notificações"
+    },
+    "filters": {
+      "all": "Todas",
+      "unread": "Não lidas",
+      "hr": "RH",
+      "finance": "Financeiro",
+      "academic": "Académico",
+      "ombudsman": "Provedoria",
+      "chat": "Chat",
+      "library": "Biblioteca",
+      "system": "Sistema"
+    },
+    "table": {
+      "category": "Categoria",
+      "title": "Título",
+      "description": "Descrição",
+      "date": "Data",
+      "status": "Estado",
+      "actions": "Ações"
+    },
+    "states": {
+      "loading": "A carregar...",
+      "empty": "Nenhuma notificação encontrada."
+    },
+    "status": {
+      "read": "Lida",
+      "unread": "Não lida"
+    },
+    "actions": {
+      "open": "Abrir"
+    },
+    "errors": {
+      "load": "Erro ao carregar as notificações.",
+      "update": "Erro ao atualizar a notificação.",
+      "open": "Erro ao abrir a notificação.",
+      "noDestination": "Esta notificação não possui uma ligação de destino."
+    },
+    "chat": {
+      "conversation": "Conversa #{id}",
+      "defaultName": "Chat PHANYX"
+    }
   }
 }

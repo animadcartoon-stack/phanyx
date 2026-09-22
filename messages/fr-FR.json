@@ -16642,5 +16642,59 @@
       "loading": "Chargement des adresses IP bloquées...",
       "empty": "Aucune adresse IP bloquée trouvée."
     }
+  },
+  "AdminNotifications": {
+    "header": {
+      "title": "Centre de notifications",
+      "description": "Toutes les notifications du système au même endroit."
+    },
+    "stats": {
+      "total": "Total",
+      "unread": "Non lues",
+      "categories": "Catégories"
+    },
+    "list": {
+      "title": "Notifications"
+    },
+    "filters": {
+      "all": "Toutes",
+      "unread": "Non lues",
+      "hr": "Ressources humaines",
+      "finance": "Finance",
+      "academic": "Académique",
+      "ombudsman": "Médiation",
+      "chat": "Chat",
+      "library": "Bibliothèque",
+      "system": "Système"
+    },
+    "table": {
+      "category": "Catégorie",
+      "title": "Titre",
+      "description": "Description",
+      "date": "Date",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "states": {
+      "loading": "Chargement...",
+      "empty": "Aucune notification trouvée."
+    },
+    "status": {
+      "read": "Lue",
+      "unread": "Non lue"
+    },
+    "actions": {
+      "open": "Ouvrir"
+    },
+    "errors": {
+      "load": "Erreur lors du chargement des notifications.",
+      "update": "Erreur lors de la mise à jour de la notification.",
+      "open": "Erreur lors de l’ouverture de la notification.",
+      "noDestination": "Cette notification ne contient aucun lien de destination."
+    },
+    "chat": {
+      "conversation": "Conversation n°{id}",
+      "defaultName": "Chat PHANYX"
+    }
   }
 }

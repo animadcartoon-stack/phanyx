@@ -16642,5 +16642,59 @@
       "loading": "Loading blocked IPs...",
       "empty": "No blocked IP addresses found."
     }
+  },
+  "AdminNotifications": {
+    "header": {
+      "title": "Notification Center",
+      "description": "All system notifications in one place."
+    },
+    "stats": {
+      "total": "Total",
+      "unread": "Unread",
+      "categories": "Categories"
+    },
+    "list": {
+      "title": "Notifications"
+    },
+    "filters": {
+      "all": "All",
+      "unread": "Unread",
+      "hr": "HR",
+      "finance": "Finance",
+      "academic": "Academic",
+      "ombudsman": "Ombudsman",
+      "chat": "Chat",
+      "library": "Library",
+      "system": "System"
+    },
+    "table": {
+      "category": "Category",
+      "title": "Title",
+      "description": "Description",
+      "date": "Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "states": {
+      "loading": "Loading...",
+      "empty": "No notifications found."
+    },
+    "status": {
+      "read": "Read",
+      "unread": "Unread"
+    },
+    "actions": {
+      "open": "Open"
+    },
+    "errors": {
+      "load": "Error loading notifications.",
+      "update": "Error updating notification.",
+      "open": "Error opening notification.",
+      "noDestination": "This notification does not have a destination link."
+    },
+    "chat": {
+      "conversation": "Conversation #{id}",
+      "defaultName": "PHANYX Chat"
+    }
   }
 }
