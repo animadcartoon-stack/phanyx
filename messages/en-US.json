@@ -17033,5 +17033,264 @@
         "closeAndClear": "Close and clear from screen"
       }
     }
+  },
+  "AdminTeachers": {
+    "common": {
+      "other": "Other"
+    },
+    "header": {
+      "title": "👨‍🏫 Teachers"
+    },
+    "create": {
+      "title": "New teacher"
+    },
+    "fields": {
+      "name": "Teacher name",
+      "email": "Email",
+      "selectCampus": "Select campus",
+      "phone": "Phone",
+      "birthDate": "Date of birth",
+      "academicDegree": "Academic degree",
+      "degreeExample": "Example: Specialist, Master's, or Doctorate",
+      "education": "Academic background",
+      "educationExample": "Example: Degree in Education",
+      "area": "Area of expertise",
+      "areaExample": "Example: Early Childhood Education and School Management",
+      "employeeCode": "Employee code",
+      "publicSlug": "Public slug",
+      "miniBio": "Short bio",
+      "code": "Code"
+    },
+    "disciplines": {
+      "select": "Select the teacher's subjects",
+      "selected": "Subjects: {value}",
+      "empty": "No subjects found.",
+      "enabled": "Enabled subjects"
+    },
+    "employment": {
+      "hasRelationship": "Has an employment relationship with the institution",
+      "relationshipHelp": "When selected, the teacher will also be included in HR, including payroll, payslips, documents, leave, time tracking, and employment history.",
+      "academicOnly": "This record will be academic only. No employee relationship will be created."
+    },
+    "photo": {
+      "title": "Official teacher photo",
+      "alt": "Official teacher photo",
+      "description": "This institutional photo is used on ID cards, identification, documents, and the academic portal.",
+      "help": "Accepted formats: JPG, JPEG, PNG, or WEBP. Maximum size: 2 MB. Recommended: square photo, at least 600x600 px, with the face centered.",
+      "feedback": {
+        "uploaded": "Official teacher photo uploaded successfully."
+      },
+      "errors": {
+        "invalidFormatTitle": "Unsupported photo format",
+        "invalidFormatMessage": "The selected photo is in {extension} format. Choose another photo in JPG, JPEG, PNG, or WEBP.",
+        "tooLargeTitle": "The photo is too large",
+        "tooLargeMessage": "The selected photo is {size} MB, but the maximum allowed size is {max} MB. Reduce or compress the photo and try again.",
+        "uploadStatus": "Photo upload failed. Status code {status}.",
+        "noUrl": "The upload finished, but the server did not return the photo URL.",
+        "serverFallback": "The server could not receive the photo.",
+        "uploadTitle": "Unable to upload the photo",
+        "uploadMessage": "{reason} Check the image or choose another photo and try again."
+      },
+      "editDescription": "Institution-managed photo used on ID cards, identification, and official documents."
+    },
+    "documents": {
+      "title": "📁 Documents and Portfolio",
+      "description": "Upload personal documents, résumé, certificates, portfolio, and professional links.",
+      "urlPlaceholder": "Document URL",
+      "types": {
+        "rg": "Identity document",
+        "cpf": "Tax ID",
+        "cnh": "Driver's license",
+        "proofOfResidence": "Proof of address",
+        "resume": "Résumé",
+        "portfolio": "Portfolio",
+        "certificates": "Certificates"
+      }
+    },
+    "portfolio": {
+      "linksTitle": "Portfolio links",
+      "personalSite": "Personal website"
+    },
+    "list": {
+      "title": "Teacher list",
+      "searchPlaceholder": "Search by name, email, tax ID, phone, degree, education, area, subject, or campus",
+      "empty": "No teachers found for this search.",
+      "campus": "Campus"
+    },
+    "actions": {
+      "uploading": "Uploading...",
+      "uploadPhoto": "Upload photo",
+      "changePhoto": "Change photo",
+      "removePhoto": "Remove photo",
+      "selectFile": "Select file",
+      "remove": "Remove",
+      "addLink": "+ Add link",
+      "creating": "Creating...",
+      "create": "Create teacher",
+      "edit": "Edit",
+      "delete": "Delete",
+      "close": "Close",
+      "chooseAnotherPhoto": "Choose another photo",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "confirmDelete": "Confirm deletion",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "selectPayType": "Select the teacher's compensation type.",
+      "monthlySalary": "Enter the teacher's monthly salary.",
+      "classHour": "Enter the teacher's class-hour rate.",
+      "workedHour": "Enter the hourly work rate.",
+      "perClass": "Enter the amount per class.",
+      "perClassGroup": "Enter the amount per class group.",
+      "perSubject": "Enter the amount per subject.",
+      "mixedPay": "For mixed compensation, enter at least one amount.",
+      "payChangeReason": "Enter the reason for the compensation change.",
+      "payChangeStart": "Enter the date and time when the new compensation begins."
+    },
+    "feedback": {
+      "created": "Teacher created successfully.",
+      "updated": "Teacher updated successfully.",
+      "deleted": "Teacher deleted successfully."
+    },
+    "errors": {
+      "create": "Error creating teacher",
+      "update": "Error updating teacher",
+      "delete": "Error deleting teacher"
+    },
+    "deleteModal": {
+      "title": "Confirm deletion",
+      "questionBefore": "Are you sure you want to delete the teacher",
+      "irreversible": "This action cannot be undone."
+    },
+    "rh": {
+      "create": {
+        "title": "🧾 Employment and compensation details",
+        "description": "Configure the employment relationship according to the institution's policy."
+      },
+      "edit": {
+        "title": "🧾 Employment and compensation",
+        "description": "Edit the teacher's contract, schedule, salary, class-hour rate, and bank details.",
+        "alreadyLinked": "This teacher is already linked to HR. The employment relationship cannot be removed on this screen, but the employment details can be edited.",
+        "markToInclude": "Select this option to include the teacher in HR without creating another user or another sign-in email.",
+        "academicOnly": "This teacher currently has an academic record only."
+      },
+      "fields": {
+        "department": "Department",
+        "selectDepartment": "Select department",
+        "role": "Position",
+        "sector": "Area / sector",
+        "hireDate": "Hire date",
+        "contractType": "Contract type",
+        "selectContractType": "Select",
+        "workSchedule": "Work schedule",
+        "weeklyHours": "Weekly workload",
+        "monthlyHours": "Monthly workload",
+        "payType": "Compensation type",
+        "selectPayType": "Select compensation type",
+        "monthlySalary": "Monthly salary",
+        "classHourValue": "Class-hour rate",
+        "classHourDuration": "Class-hour duration",
+        "classHourDurationMinutes": "Class-hour duration in minutes",
+        "workedHourValue": "Hourly work rate",
+        "perClassValue": "Amount per class",
+        "perClassGroupValue": "Amount per class group",
+        "perSubjectValue": "Amount per subject",
+        "timeClockCode": "Time clock code",
+        "pisPasep": "PIS/PASEP/NIT",
+        "payrollBank": "Payroll bank",
+        "bankBranch": "Branch",
+        "bankAccount": "Account",
+        "pixKey": "Pix key",
+        "compensationNotes": "Compensation notes"
+      },
+      "contractTypes": {
+        "legalEntity": "Legal entity / contractor",
+        "selfEmployed": "Self-employed",
+        "temporary": "Temporary",
+        "internship": "Internship",
+        "volunteer": "Volunteer",
+        "other": "Other"
+      },
+      "payTypes": {
+        "monthly": "Monthly salary",
+        "classHour": "Per class hour",
+        "workedHour": "Per worked hour",
+        "perClass": "Per class",
+        "perClassGroup": "Per class group",
+        "perSubject": "Per subject",
+        "mixed": "Mixed compensation",
+        "unpaid": "Unpaid",
+        "notProvided": "Not provided"
+      },
+      "compensation": {
+        "valuesTitle": "Compensation amounts",
+        "unpaidNotice": "The teacher will be included in HR, but no compensation amounts will be configured."
+      },
+      "placeholders": {
+        "role": "Teacher",
+        "sector": "Academic",
+        "workSchedule": "Example: 20 hours per week",
+        "timeClockCode": "Identifier in the time clock/app",
+        "pisPasep": "PIS/PASEP/NIT",
+        "bankBranch": "Branch",
+        "bankAccount": "Account",
+        "pixKey": "Pix key",
+        "bankSearch": "Enter the bank code or name",
+        "bankSearchAria": "Search the teacher's payroll bank",
+        "compensationNotes": "Rules, agreements, additional amounts, or compensation notes."
+      },
+      "help": {
+        "bankSearchExamples": "Search by code or name. Examples: 001, 260, Nubank, Inter, or Itaú.",
+        "bankSearch": "Search by bank code or name."
+      },
+      "units": {
+        "minutes": "minutes"
+      },
+      "change": {
+        "title": "🕒 Compensation change record",
+        "description": "The compensation type, amounts, or workload have changed. Enter when the new terms take effect and the reason for the change.",
+        "effectiveFrom": "Effective from",
+        "effectiveHelp": "Date and time when the new compensation actually takes effect.",
+        "reason": "Reason for change",
+        "reasonPlaceholder": "Example: contract amendment approved by management.",
+        "auditNotice": "The date and time when this change is saved in PHANYX will be recorded automatically together with the responsible user."
+      }
+    },
+    "history": {
+      "title": "🕒 Compensation history",
+      "count": "{count, plural, =0 {0 records} one {# record} other {# records}}",
+      "empty": "No compensation history has been recorded for this teacher.",
+      "recordedAt": "Recorded on",
+      "roleNotProvided": "Role not provided",
+      "previousCondition": "Previous terms",
+      "newCondition": "New terms",
+      "effectiveFrom": "Effective from",
+      "recordedDateTime": "Record date and time",
+      "reason": "Reason",
+      "reasonNotProvided": "Reason not provided.",
+      "minutesValue": "{value} minutes",
+      "hoursValue": "{value}h",
+      "origins": {
+        "teacherRecord": "Change from the teacher record",
+        "employeeRecord": "Change from the employee record",
+        "initialHire": "Initial hire",
+        "hrChange": "Change by HR",
+        "compensationChange": "Compensation change"
+      },
+      "summary": {
+        "type": "Type",
+        "monthlySalary": "Monthly salary",
+        "classHour": "Class-hour rate",
+        "workedHour": "Hourly work rate",
+        "perClass": "Per class",
+        "perClassGroup": "Per class group",
+        "perSubject": "Per subject",
+        "classHourDuration": "Class-hour duration",
+        "weeklyHours": "Weekly workload",
+        "monthlyHours": "Monthly workload"
+      }
+    }
   }
 }

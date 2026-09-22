@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/components/auth/withAuth";
 import BuscaBanco from "@/components/rh/BuscaBanco";
 
@@ -139,16 +140,22 @@ function obterDataHoraLocalAtual() {
   return compensado.toISOString().slice(0, 16);
 }
 
-function formatarMoedaProfessor(valor: unknown) {
+function formatarMoedaProfessor(
+  valor: unknown,
+  locale = "pt-BR"
+) {
   const numero = Number(valor || 0);
 
-  return numero.toLocaleString("pt-BR", {
+  return numero.toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarDataHoraProfessor(valor: unknown) {
+function formatarDataHoraProfessor(
+  valor: unknown,
+  locale = "pt-BR"
+) {
   if (!valor) return "-";
 
   const data = new Date(String(valor));
@@ -157,7 +164,7 @@ function formatarDataHoraProfessor(valor: unknown) {
     return "-";
   }
 
-  return data.toLocaleString("pt-BR");
+  return data.toLocaleString(locale);
 }
 
 function obterDadosHistoricoProfessor(valor: unknown) {
@@ -180,170 +187,191 @@ function obterDadosHistoricoProfessor(valor: unknown) {
   return {} as Record<string, any>;
 }
 
+type TradutorAdminTeachers =
+  (
+    key: string,
+    values?: Record<string, any>
+  ) => string;
+
 function traduzirTipoRemuneracaoProfessor(
-  tipo: unknown
+  tipo: unknown,
+  t: TradutorAdminTeachers
 ) {
   switch (String(tipo || "").toUpperCase()) {
     case "MENSAL":
-      return "Salário mensal";
+      return t("rh.payTypes.monthly");
 
     case "HORA_AULA":
-      return "Hora-aula";
+      return t("rh.payTypes.classHour");
 
     case "HORA_TRABALHADA":
-      return "Hora trabalhada";
+      return t("rh.payTypes.workedHour");
 
     case "POR_AULA":
-      return "Valor por aula";
+      return t("rh.payTypes.perClass");
 
     case "POR_TURMA":
-      return "Valor por turma";
+      return t("rh.payTypes.perClassGroup");
 
     case "POR_DISCIPLINA":
-      return "Valor por disciplina";
+      return t("rh.payTypes.perSubject");
 
     case "MISTO":
-      return "Remuneração mista";
+      return t("rh.payTypes.mixed");
 
     case "SEM_REMUNERACAO":
-      return "Sem remuneração";
+      return t("rh.payTypes.unpaid");
 
     default:
-      return "Não informada";
+      return t("rh.payTypes.notProvided");
   }
 }
 
 function traduzirOrigemHistoricoProfessor(
-  origem: unknown
+  origem: unknown,
+  t: TradutorAdminTeachers
 ) {
   switch (String(origem || "").toUpperCase()) {
     case "PROFESSORES_RH":
-      return "Alteração pela ficha do professor";
+      return t("history.origins.teacherRecord");
 
     case "FUNCIONARIOS_RH_PROFESSOR":
-      return "Alteração pela ficha do funcionário";
+      return t("history.origins.employeeRecord");
 
     case "FUNCIONARIOS_RH_CADASTRO":
-      return "Contratação inicial";
+      return t("history.origins.initialHire");
 
     case "FUNCIONARIOS_RH_EDICAO":
-      return "Alteração pelo RH";
+      return t("history.origins.hrChange");
 
     default:
       return (
         String(origem || "") ||
-        "Alteração remuneratória"
+        t("history.origins.compensationChange")
       );
   }
 }
 
 function ResumoRemuneracaoProfessor({
   dados,
+  t,
+  locale,
 }: {
   dados:
   | Record<string, unknown>
   | string;
+  t: TradutorAdminTeachers;
+  locale: string;
 }) {
   const valores =
     obterDadosHistoricoProfessor(dados);
 
   const itens = [
     {
-      label: "Modalidade",
+      label: t("history.summary.type"),
       valor:
         traduzirTipoRemuneracaoProfessor(
-          valores.tipoRemuneracao
+          valores.tipoRemuneracao,
+          t
         ),
     },
     {
-      label: "Salário mensal",
+      label: t("history.summary.monthlySalary"),
       valor:
         valores.salarioBase !== null &&
           valores.salarioBase !== undefined
           ? formatarMoedaProfessor(
-            valores.salarioBase
+            valores.salarioBase,
+            locale
           )
           : null,
     },
     {
-      label: "Hora-aula",
+      label: t("history.summary.classHour"),
       valor:
         valores.valorHoraAula !== null &&
           valores.valorHoraAula !== undefined
           ? formatarMoedaProfessor(
-            valores.valorHoraAula
+            valores.valorHoraAula,
+            locale
           )
           : null,
     },
     {
-      label: "Hora trabalhada",
+      label: t("history.summary.workedHour"),
       valor:
         valores.valorHoraTrabalhada !== null &&
-          valores.valorHoraTrabalhada !==
-          undefined
+          valores.valorHoraTrabalhada !== undefined
           ? formatarMoedaProfessor(
-            valores.valorHoraTrabalhada
+            valores.valorHoraTrabalhada,
+            locale
           )
           : null,
     },
     {
-      label: "Valor por aula",
+      label: t("history.summary.perClass"),
       valor:
         valores.valorPorAula !== null &&
           valores.valorPorAula !== undefined
           ? formatarMoedaProfessor(
-            valores.valorPorAula
+            valores.valorPorAula,
+            locale
           )
           : null,
     },
     {
-      label: "Valor por turma",
+      label: t("history.summary.perClassGroup"),
       valor:
         valores.valorPorTurma !== null &&
           valores.valorPorTurma !== undefined
           ? formatarMoedaProfessor(
-            valores.valorPorTurma
+            valores.valorPorTurma,
+            locale
           )
           : null,
     },
     {
-      label: "Valor por disciplina",
+      label: t("history.summary.perSubject"),
       valor:
         valores.valorPorDisciplina !== null &&
-          valores.valorPorDisciplina !==
-          undefined
+          valores.valorPorDisciplina !== undefined
           ? formatarMoedaProfessor(
-            valores.valorPorDisciplina
+            valores.valorPorDisciplina,
+            locale
           )
           : null,
     },
     {
-      label: "Duração da hora-aula",
+      label: t("history.summary.classHourDuration"),
       valor:
-        valores.duracaoHoraAulaMinutos !==
-          null &&
-          valores.duracaoHoraAulaMinutos !==
-          undefined
-          ? `${valores.duracaoHoraAulaMinutos} minutos`
+        valores.duracaoHoraAulaMinutos !== null &&
+          valores.duracaoHoraAulaMinutos !== undefined
+          ? t("history.minutesValue", {
+            value:
+              valores.duracaoHoraAulaMinutos,
+          })
           : null,
     },
     {
-      label: "Carga semanal",
+      label: t("history.summary.weeklyHours"),
       valor:
-        valores.cargaHorariaSemanal !==
-          null &&
-          valores.cargaHorariaSemanal !==
-          undefined
-          ? `${valores.cargaHorariaSemanal}h`
+        valores.cargaHorariaSemanal !== null &&
+          valores.cargaHorariaSemanal !== undefined
+          ? t("history.hoursValue", {
+            value:
+              valores.cargaHorariaSemanal,
+          })
           : null,
     },
     {
-      label: "Carga mensal",
+      label: t("history.summary.monthlyHours"),
       valor:
         valores.cargaHorariaMensal !== null &&
-          valores.cargaHorariaMensal !==
-          undefined
-          ? `${valores.cargaHorariaMensal}h`
+          valores.cargaHorariaMensal !== undefined
+          ? t("history.hoursValue", {
+            value:
+              valores.cargaHorariaMensal,
+          })
           : null,
     },
   ].filter(
@@ -460,6 +488,29 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 
 function AdminProfessoresPage() {
   const searchParams = useSearchParams();
+  const t = useTranslations("AdminTeachers");
+  const locale = useLocale();
+
+  function nomeDocumentoProfessor(
+    tipo: string,
+    tituloOriginal: string
+  ) {
+    const chavePorTipo: Record<string, string> = {
+      RG: "rg",
+      CPF: "cpf",
+      CNH: "cnh",
+      COMPROVANTE_RESIDENCIA: "proofOfResidence",
+      CURRICULO: "resume",
+      PORTFOLIO: "portfolio",
+      CERTIFICADOS: "certificates",
+    };
+
+    const chave = chavePorTipo[tipo];
+
+    return chave
+      ? t(`documents.types.${chave}`)
+      : tituloOriginal;
+  }
 
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
@@ -602,6 +653,12 @@ function AdminProfessoresPage() {
     return () => clearTimeout(timer);
   }, [feedback]);
 
+  useEffect(() => {
+    setFeedback("");
+    setFeedbackTipo("");
+    setErroFotoProfessor(null);
+  }, [locale]);
+
   function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
@@ -662,10 +719,10 @@ function AdminProfessoresPage() {
       )
     ) {
       setErroFotoProfessor({
-        titulo: "Formato de foto não aceito",
-        mensagem:
-          `A foto selecionada está no formato ${extensao}. ` +
-          "Escolha outra foto em JPG, JPEG, PNG ou WEBP.",
+        titulo: t("photo.errors.invalidFormatTitle"),
+        mensagem: t("photo.errors.invalidFormatMessage", {
+          extension: extensao,
+        }),
         modo,
       });
 
@@ -684,11 +741,11 @@ function AdminProfessoresPage() {
         .replace(".", ",");
 
       setErroFotoProfessor({
-        titulo: "A foto está muito grande",
-        mensagem:
-          `A foto selecionada possui ${tamanhoMb} MB, ` +
-          `mas o tamanho máximo permitido é ${TAMANHO_MAXIMO_FOTO_PROFESSOR_MB} MB. ` +
-          "Diminua ou comprima a foto e tente novamente.",
+        titulo: t("photo.errors.tooLargeTitle"),
+        mensagem: t("photo.errors.tooLargeMessage", {
+          size: tamanhoMb,
+          max: TAMANHO_MAXIMO_FOTO_PROFESSOR_MB,
+        }),
         modo,
       });
 
@@ -717,7 +774,9 @@ function AdminProfessoresPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          `Falha no envio da foto. Código ${res.status}.`
+          t("photo.errors.uploadStatus", {
+            status: res.status,
+          })
         );
       }
 
@@ -729,7 +788,7 @@ function AdminProfessoresPage() {
 
       if (!url) {
         throw new Error(
-          "O envio terminou, mas o servidor não retornou o endereço da foto."
+          t("photo.errors.noUrl")
         );
       }
 
@@ -741,18 +800,18 @@ function AdminProfessoresPage() {
 
       mostrarFeedback(
         "sucesso",
-        "Foto oficial do professor enviada com sucesso."
+        t("photo.feedback.uploaded")
       );
     } catch (error: any) {
       const motivo =
         error?.message ||
-        "O servidor não conseguiu receber a foto.";
+        t("photo.errors.serverFallback");
 
       setErroFotoProfessor({
-        titulo: "Não foi possível enviar a foto",
-        mensagem:
-          `${motivo} ` +
-          "Verifique a imagem ou escolha outra foto e tente novamente.",
+        titulo: t("photo.errors.uploadTitle"),
+        mensagem: t("photo.errors.uploadMessage", {
+          reason: motivo,
+        }),
         modo,
       });
     } finally {
@@ -864,7 +923,7 @@ function AdminProfessoresPage() {
         .map((departamento: any) => ({
           id: Number(departamento?.id),
           nome: String(
-            departamento?.nome || "Departamento"
+            departamento?.nome || t("rh.fields.department")
           ),
         }))
         .filter(
@@ -913,7 +972,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Selecione a modalidade de remuneração do professor."
+        t("validation.selectPayType")
       );
       return;
     }
@@ -925,7 +984,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o salário mensal do professor."
+        t("validation.monthlySalary")
       );
       return;
     }
@@ -937,7 +996,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o valor da hora-aula do professor."
+        t("validation.classHour")
       );
       return;
     }
@@ -950,7 +1009,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o valor da hora trabalhada."
+        t("validation.workedHour")
       );
       return;
     }
@@ -962,7 +1021,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o valor por aula."
+        t("validation.perClass")
       );
       return;
     }
@@ -974,7 +1033,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o valor por turma."
+        t("validation.perClassGroup")
       );
       return;
     }
@@ -987,7 +1046,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o valor por disciplina."
+        t("validation.perSubject")
       );
       return;
     }
@@ -1011,7 +1070,7 @@ function AdminProfessoresPage() {
       if (!possuiAlgumValor) {
         mostrarFeedback(
           "erro",
-          "Na remuneração mista, informe pelo menos um valor."
+          t("validation.mixedPay")
         );
         return;
       }
@@ -1113,7 +1172,7 @@ function AdminProfessoresPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar professor");
+        throw new Error(data.error || t("errors.create"));
       }
 
       const professorIdCriado = Number(data?.id);
@@ -1180,9 +1239,9 @@ function AdminProfessoresPage() {
       setLinksPortfolioProfessor([{ tipo: "LinkedIn", url: "" }]);
 
       await carregarProfessores();
-      mostrarFeedback("sucesso", "Professor criado com sucesso.");
+      mostrarFeedback("sucesso", t("feedback.created"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao criar professor");
+      mostrarFeedback("erro", error?.message || t("errors.create"));
     } finally {
       setCriando(false);
     }
@@ -1335,7 +1394,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe o motivo da alteração da remuneração."
+        t("validation.payChangeReason")
       );
 
       return;
@@ -1347,7 +1406,7 @@ function AdminProfessoresPage() {
     ) {
       mostrarFeedback(
         "erro",
-        "Informe a data e a hora de início da nova remuneração."
+        t("validation.payChangeStart")
       );
 
       return;
@@ -1461,7 +1520,7 @@ function AdminProfessoresPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao atualizar professor");
+        throw new Error(data.error || t("errors.update"));
       }
 
       setEditandoId(null);
@@ -1480,10 +1539,10 @@ function AdminProfessoresPage() {
 
       mostrarFeedback(
         "sucesso",
-        "Professor atualizado com sucesso."
+        t("feedback.updated")
       );
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao atualizar professor");
+      mostrarFeedback("erro", error?.message || t("errors.update"));
     } finally {
       setSalvandoId(null);
     }
@@ -1503,14 +1562,14 @@ function AdminProfessoresPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.detalhe || data?.error || "Erro ao deletar professor");
+        throw new Error(data?.detalhe || data?.error || t("errors.delete"));
       }
 
       setProfessorParaExcluir(null);
       await carregarProfessores();
-      mostrarFeedback("sucesso", "Professor excluído com sucesso.");
+      mostrarFeedback("sucesso", t("feedback.deleted"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao deletar professor");
+      mostrarFeedback("erro", error?.message || t("errors.delete"));
     } finally {
       setExcluindoId(null);
     }
@@ -1605,17 +1664,17 @@ function AdminProfessoresPage() {
           </div>
         )}
 
-        <h1 className="text-2xl font-bold">👨‍🏫 Professores</h1>
+        <h1 className="text-2xl font-bold">{t("header.title")}</h1>
 
         <form
           onSubmit={handleCriarProfessor}
           className="space-y-4 rounded-lg border bg-white dark:bg-slate-950 p-6"
         >
-          <h2 className="font-semibold">Novo professor</h2>
+          <h2 className="font-semibold">{t("create.title")}</h2>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <input
-              placeholder="Nome do professor"
+              placeholder={t("fields.name")}
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               className="w-full rounded-lg border p-2"
@@ -1623,7 +1682,7 @@ function AdminProfessoresPage() {
             />
 
             <input
-              placeholder="Email"
+              placeholder={t("fields.email")}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -1636,7 +1695,7 @@ function AdminProfessoresPage() {
               onChange={(e) => setPoloId(e.target.value)}
               className="w-full rounded-lg border p-2"
             >
-              <option value="">Selecione o polo</option>
+              <option value="">{t("fields.selectCampus")}</option>
               {polos.map((polo) => (
                 <option key={polo.id} value={polo.id}>
                   {polo.nome}
@@ -1659,7 +1718,7 @@ function AdminProfessoresPage() {
             />
 
             <input
-              placeholder="Telefone"
+              placeholder={t("fields.phone")}
               value={telefone}
               onChange={(e) => setTelefone(e.target.value)}
               className="w-full rounded-lg border p-2"
@@ -1667,7 +1726,7 @@ function AdminProfessoresPage() {
 
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-600">
-                Data de nascimento
+                {t("fields.birthDate")}
               </label>
 
               <input
@@ -1680,11 +1739,11 @@ function AdminProfessoresPage() {
 
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-600">
-                Titulação acadêmica
+                {t("fields.academicDegree")}
               </label>
 
               <input
-                placeholder="Ex.: Especialista, Mestre ou Doutor"
+                placeholder={t("fields.degreeExample")}
                 value={titulacao}
                 onChange={(e) => setTitulacao(e.target.value)}
                 className="w-full rounded-lg border p-2"
@@ -1699,8 +1758,8 @@ function AdminProfessoresPage() {
               >
                 <span>
                   {especialidade
-                    ? `Disciplinas: ${especialidade}`
-                    : "Selecionar disciplinas do professor"}
+                    ? t("disciplines.selected", { value: especialidade })
+                    : t("disciplines.select")}
                 </span>
                 <span>{disciplinasAberto ? "▲" : "▼"}</span>
               </button>
@@ -1708,7 +1767,7 @@ function AdminProfessoresPage() {
               {disciplinasAberto && (
                 <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-lg bg-slate-50 p-3">
                   {disciplinas.length === 0 ? (
-                    <p className="text-sm text-gray-500">Nenhuma disciplina encontrada.</p>
+                    <p className="text-sm text-gray-500">{t("disciplines.empty")}</p>
                   ) : (
                     disciplinas.map((disciplina) => {
                       const selecionadas = especialidade
@@ -1745,11 +1804,11 @@ function AdminProfessoresPage() {
 
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-600">
-                Formação acadêmica
+                {t("fields.education")}
               </label>
 
               <input
-                placeholder="Ex.: Licenciatura em Pedagogia"
+                placeholder={t("fields.educationExample")}
                 value={formacao}
                 onChange={(e) => setFormacao(e.target.value)}
                 className="w-full rounded-lg border p-2"
@@ -1758,11 +1817,11 @@ function AdminProfessoresPage() {
 
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-600">
-                Área de atuação
+                {t("fields.area")}
               </label>
 
               <input
-                placeholder="Ex.: Educação Infantil e Gestão Escolar"
+                placeholder={t("fields.areaExample")}
                 value={areaAtuacao}
                 onChange={(e) => setAreaAtuacao(e.target.value)}
                 className="w-full rounded-lg border p-2"
@@ -1770,14 +1829,14 @@ function AdminProfessoresPage() {
             </div>
 
             <input
-              placeholder="Código do funcionário"
+              placeholder={t("fields.employeeCode")}
               value={codigoFuncionario}
               onChange={(e) => setCodigoFuncionario(e.target.value)}
               className="w-full rounded-lg border p-2"
             />
 
             <input
-              placeholder="Slug público"
+              placeholder={t("fields.publicSlug")}
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               className="w-full rounded-lg border p-2"
@@ -1808,21 +1867,18 @@ function AdminProfessoresPage() {
                   className="cursor-pointer"
                 >
                   <span className="professores-vinculo-rh-titulo block font-bold">
-                    Possui vínculo trabalhista com a instituição
+                    {t("employment.hasRelationship")}
                   </span>
 
                   <span className="professores-vinculo-rh-texto mt-1 block text-sm">
-                    Quando marcado, o professor também será incluído no RH,
-                    participando de folha, holerite, documentos, férias,
-                    ponto e histórico trabalhista.
+                    {t("employment.relationshipHelp")}
                   </span>
                 </label>
               </div>
 
               {!possuiVinculoRH && (
                 <div className="professores-vinculo-rh-aviso mt-4 rounded-xl border p-4 text-sm">
-                  Este cadastro será somente acadêmico. Nenhum vínculo de
-                  funcionário será criado.
+                  {t("employment.academicOnly")}
                 </div>
               )}
 
@@ -1830,18 +1886,18 @@ function AdminProfessoresPage() {
                 <div className="mt-5 space-y-5">
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-slate-100">
-                      🧾 Dados trabalhistas e de remuneração
+                      {t("rh.create.title")}
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      Configure o vínculo conforme a política da instituição.
+                      {t("rh.create.description")}
                     </p>
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Departamento
+                        {t("rh.fields.department")}
                       </label>
 
                       <select
@@ -1855,7 +1911,7 @@ function AdminProfessoresPage() {
                         className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                       >
                         <option value="">
-                          Selecione o departamento
+                          {t("rh.fields.selectDepartment")}
                         </option>
 
                         {departamentos.map((departamento) => (
@@ -1871,11 +1927,11 @@ function AdminProfessoresPage() {
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Cargo
+                        {t("rh.fields.role")}
                       </label>
 
                       <input
-                        value={dadosTrabalhistas.cargo}
+                        value={dadosTrabalhistas.cargo === "Professor" ? t("rh.placeholders.role") : dadosTrabalhistas.cargo}
                         onChange={(e) =>
                           atualizarDadoTrabalhista(
                             "cargo",
@@ -1883,17 +1939,17 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Professor"
+                        placeholder={t("rh.placeholders.role")}
                       />
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Setor
+                        {t("rh.fields.sector")}
                       </label>
 
                       <input
-                        value={dadosTrabalhistas.setor}
+                        value={dadosTrabalhistas.setor === "Acadêmico" ? t("rh.placeholders.sector") : dadosTrabalhistas.setor}
                         onChange={(e) =>
                           atualizarDadoTrabalhista(
                             "setor",
@@ -1901,13 +1957,13 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Acadêmico"
+                        placeholder={t("rh.placeholders.sector")}
                       />
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Data de admissão
+                        {t("rh.fields.hireDate")}
                       </label>
 
                       <input
@@ -1925,7 +1981,7 @@ function AdminProfessoresPage() {
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Tipo de contrato
+                        {t("rh.fields.contractType")}
                       </label>
 
                       <select
@@ -1938,20 +1994,20 @@ function AdminProfessoresPage() {
                         }
                         className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                       >
-                        <option value="">Selecione</option>
+                        <option value="">{t("rh.fields.selectContractType")}</option>
                         <option value="CLT">CLT</option>
-                        <option value="PJ">Pessoa jurídica</option>
-                        <option value="AUTONOMO">Autônomo</option>
-                        <option value="TEMPORARIO">Temporário</option>
-                        <option value="ESTAGIO">Estágio</option>
-                        <option value="VOLUNTARIO">Voluntário</option>
-                        <option value="OUTRO">Outro</option>
+                        <option value="PJ">{t("rh.contractTypes.legalEntity")}</option>
+                        <option value="AUTONOMO">{t("rh.contractTypes.selfEmployed")}</option>
+                        <option value="TEMPORARIO">{t("rh.contractTypes.temporary")}</option>
+                        <option value="ESTAGIO">{t("rh.contractTypes.internship")}</option>
+                        <option value="VOLUNTARIO">{t("rh.contractTypes.volunteer")}</option>
+                        <option value="OUTRO">{t("rh.contractTypes.other")}</option>
                       </select>
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Jornada de trabalho
+                        {t("rh.fields.workSchedule")}
                       </label>
 
                       <input
@@ -1963,13 +2019,13 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Ex.: 20h semanais"
+                        placeholder={t("rh.placeholders.workSchedule")}
                       />
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Carga horária semanal
+                        {t("rh.fields.weeklyHours")}
                       </label>
 
                       <input
@@ -1990,7 +2046,7 @@ function AdminProfessoresPage() {
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Carga horária mensal
+                        {t("rh.fields.monthlyHours")}
                       </label>
 
                       <input
@@ -2011,7 +2067,7 @@ function AdminProfessoresPage() {
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Modalidade de remuneração
+                        {t("rh.fields.payType")}
                       </label>
 
                       <select
@@ -2026,33 +2082,15 @@ function AdminProfessoresPage() {
                         className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                         required={possuiVinculoRH}
                       >
-                        <option value="">
-                          Selecione a modalidade
-                        </option>
-                        <option value="MENSAL">
-                          Salário mensal
-                        </option>
-                        <option value="HORA_AULA">
-                          Por hora-aula
-                        </option>
-                        <option value="HORA_TRABALHADA">
-                          Por hora trabalhada
-                        </option>
-                        <option value="POR_AULA">
-                          Valor por aula
-                        </option>
-                        <option value="POR_TURMA">
-                          Valor por turma
-                        </option>
-                        <option value="POR_DISCIPLINA">
-                          Valor por disciplina
-                        </option>
-                        <option value="MISTO">
-                          Remuneração mista
-                        </option>
-                        <option value="SEM_REMUNERACAO">
-                          Sem remuneração
-                        </option>
+                        <option value="">{t("rh.fields.selectPayType")}</option>
+                        <option value="MENSAL">{t("rh.payTypes.monthly")}</option>
+                        <option value="HORA_AULA">{t("rh.payTypes.classHour")}</option>
+                        <option value="HORA_TRABALHADA">{t("rh.payTypes.workedHour")}</option>
+                        <option value="POR_AULA">{t("rh.payTypes.perClass")}</option>
+                        <option value="POR_TURMA">{t("rh.payTypes.perClassGroup")}</option>
+                        <option value="POR_DISCIPLINA">{t("rh.payTypes.perSubject")}</option>
+                        <option value="MISTO">{t("rh.payTypes.mixed")}</option>
+                        <option value="SEM_REMUNERACAO">{t("rh.payTypes.unpaid")}</option>
                       </select>
                     </div>
                   </div>
@@ -2062,7 +2100,7 @@ function AdminProfessoresPage() {
                     "SEM_REMUNERACAO" && (
                       <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
                         <h4 className="font-bold text-slate-900 dark:text-slate-100">
-                          Valores da remuneração
+                          {t("rh.compensation.valuesTitle")}
                         </h4>
 
                         <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -2072,7 +2110,7 @@ function AdminProfessoresPage() {
                             "MISTO") && (
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Salário mensal
+                                  {t("rh.fields.monthlySalary")}
                                 </label>
 
                                 <input
@@ -2099,7 +2137,7 @@ function AdminProfessoresPage() {
                               <>
                                 <div>
                                   <label className="mb-1 block text-sm font-semibold">
-                                    Valor da hora-aula
+                                    {t("rh.fields.classHourValue")}
                                   </label>
 
                                   <input
@@ -2122,7 +2160,7 @@ function AdminProfessoresPage() {
 
                                 <div>
                                   <label className="mb-1 block text-sm font-semibold">
-                                    Duração da hora-aula
+                                    {t("rh.fields.classHourDuration")}
                                   </label>
 
                                   <div className="relative">
@@ -2143,7 +2181,7 @@ function AdminProfessoresPage() {
                                     />
 
                                     <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
-                                      minutos
+                                      {t("rh.units.minutes")}
                                     </span>
                                   </div>
                                 </div>
@@ -2156,7 +2194,7 @@ function AdminProfessoresPage() {
                             "MISTO") && (
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Valor da hora trabalhada
+                                  {t("rh.fields.workedHourValue")}
                                 </label>
 
                                 <input
@@ -2184,7 +2222,7 @@ function AdminProfessoresPage() {
                             "MISTO") && (
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Valor por aula
+                                  {t("rh.fields.perClassValue")}
                                 </label>
 
                                 <input
@@ -2210,7 +2248,7 @@ function AdminProfessoresPage() {
                             "MISTO") && (
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Valor por turma
+                                  {t("rh.fields.perClassGroupValue")}
                                 </label>
 
                                 <input
@@ -2236,7 +2274,7 @@ function AdminProfessoresPage() {
                             "MISTO") && (
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Valor por disciplina
+                                  {t("rh.fields.perSubjectValue")}
                                 </label>
 
                                 <input
@@ -2264,15 +2302,14 @@ function AdminProfessoresPage() {
                   {dadosTrabalhistas.tipoRemuneracao ===
                     "SEM_REMUNERACAO" && (
                       <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
-                        O professor será incluído no RH, mas sem valores de
-                        remuneração configurados.
+                        {t("rh.compensation.unpaidNotice")}
                       </div>
                     )}
 
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <div>
                       <label className="mb-1 block text-sm font-semibold">
-                        Código do ponto
+                        {t("rh.fields.timeClockCode")}
                       </label>
 
                       <input
@@ -2284,13 +2321,13 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Identificador no relógio/app"
+                        placeholder={t("rh.placeholders.timeClockCode")}
                       />
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold">
-                        PIS/PASEP/NIT
+                        {t("rh.fields.pisPasep")}
                       </label>
 
                       <input
@@ -2302,7 +2339,7 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="PIS/PASEP/NIT"
+                        placeholder={t("rh.placeholders.pisPasep")}
                       />
                     </div>
 
@@ -2311,7 +2348,7 @@ function AdminProfessoresPage() {
                         htmlFor="banco-professor-cadastro"
                         className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200"
                       >
-                        Banco da conta salarial
+                        {t("rh.fields.payrollBank")}
                       </label>
 
                       <BuscaBanco
@@ -2320,18 +2357,18 @@ function AdminProfessoresPage() {
                         onChange={(valor) =>
                           atualizarDadoTrabalhista("banco", valor)
                         }
-                        placeholder="Digite o código ou nome do banco"
-                        ariaLabel="Buscar banco da conta salarial do professor"
+                        placeholder={t("rh.placeholders.bankSearch")}
+                        ariaLabel={t("rh.placeholders.bankSearchAria")}
                       />
 
                       <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                        Pesquise pelo código ou nome. Exemplos: 001, 260, Nubank, Inter ou Itaú.
+                        {t("rh.help.bankSearchExamples")}
                       </p>
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold">
-                        Agência
+                        {t("rh.fields.bankBranch")}
                       </label>
 
                       <input
@@ -2343,13 +2380,13 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Agência"
+                        placeholder={t("rh.placeholders.bankBranch")}
                       />
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold">
-                        Conta
+                        {t("rh.fields.bankAccount")}
                       </label>
 
                       <input
@@ -2361,13 +2398,13 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Conta"
+                        placeholder={t("rh.placeholders.bankAccount")}
                       />
                     </div>
 
                     <div>
                       <label className="mb-1 block text-sm font-semibold">
-                        Chave Pix
+                        {t("rh.fields.pixKey")}
                       </label>
 
                       <input
@@ -2379,14 +2416,14 @@ function AdminProfessoresPage() {
                           )
                         }
                         className="w-full rounded-lg border p-2"
-                        placeholder="Chave Pix"
+                        placeholder={t("rh.placeholders.pixKey")}
                       />
                     </div>
                   </div>
 
                   <div>
                     <label className="mb-1 block text-sm font-semibold">
-                      Observações da remuneração
+                      {t("rh.fields.compensationNotes")}
                     </label>
 
                     <textarea
@@ -2400,7 +2437,7 @@ function AdminProfessoresPage() {
                         )
                       }
                       className="min-h-[100px] w-full rounded-lg border p-3"
-                      placeholder="Regras, acordos, adicionais ou observações sobre a remuneração."
+                      placeholder={t("rh.placeholders.compensationNotes")}
                     />
                   </div>
                 </div>
@@ -2413,7 +2450,7 @@ function AdminProfessoresPage() {
                   {fotoPerfil ? (
                     <img
                       src={fotoPerfil}
-                      alt={nome || "Foto oficial do professor"}
+                      alt={nome || t("photo.alt")}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -2425,21 +2462,20 @@ function AdminProfessoresPage() {
 
                 <div className="flex-1">
                   <h3 className="phanyx-foto-oficial-titulo">
-                    Foto oficial do professor
+                    {t("photo.title")}
                   </h3>
 
                   <p className="phanyx-foto-oficial-texto">
-                    Esta é a foto institucional usada em crachás, identificação, documentos e portal acadêmico.
+                    {t("photo.description")}
                   </p>
 
                   <p className="phanyx-foto-oficial-ajuda">
-                    Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
-                    Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
+                    {t("photo.help")}
                   </p>
 
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <label className="phanyx-foto-oficial-botao">
-                      {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+                      {enviandoFotoPerfil ? t("actions.uploading") : t("actions.uploadPhoto")}
                       <input
                         ref={inputFotoProfessorRef}
                         type="file"
@@ -2466,7 +2502,7 @@ function AdminProfessoresPage() {
                         onClick={() => setFotoPerfil("")}
                         className="phanyx-foto-oficial-remover"
                       >
-                        Remover foto
+                        {t("actions.removePhoto")}
                       </button>
                     )}
                   </div>
@@ -2475,7 +2511,7 @@ function AdminProfessoresPage() {
             </div>
 
             <input
-              placeholder="URL do documento"
+              placeholder={t("documents.urlPlaceholder")}
               value={documentoUrl}
               onChange={(e) => setDocumentoUrl(e.target.value)}
               className="w-full rounded-lg border p-2"
@@ -2484,11 +2520,11 @@ function AdminProfessoresPage() {
             <div className="phanyx-documentos-professor md:col-span-2 rounded-2xl border p-5 shadow-sm">
               <div className="mb-4">
                 <h3 className="text-lg font-bold">
-                  📁 Documentos e Portfólio
+                  {t("documents.title")}
                 </h3>
 
                 <p className="mt-2 text-sm font-medium">
-                  Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
+                  {t("documents.description")}
                 </p>
               </div>
 
@@ -2509,7 +2545,7 @@ function AdminProfessoresPage() {
   "
                   >
                     <label className="mb-3 block text-sm font-semibold">
-                      {doc.titulo}
+                      {nomeDocumentoProfessor(doc.tipo, doc.titulo)}
                     </label>
 
                     <input
@@ -2533,7 +2569,7 @@ function AdminProfessoresPage() {
                       className="phanyx-upload-funcionario"
                     >
                       <span>📎</span>
-                      <span>Selecionar arquivo</span>
+                      <span>{t("actions.selectFile")}</span>
                     </label>
 
                     {doc.arquivo && (
@@ -2545,7 +2581,7 @@ function AdminProfessoresPage() {
                     {doc.tipo === "PORTFOLIO" && (
                       <div className="mt-4 rounded-xl border border-blue-200 bg-slate-100 p-3 dark:border-blue-900/60 dark:bg-slate-800">
                         <h4 className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
-                          Links do portfólio
+                          {t("portfolio.linksTitle")}
                         </h4>
 
                         <div className="space-y-3">
@@ -2572,8 +2608,8 @@ function AdminProfessoresPage() {
                                 <option value="YouTube">YouTube</option>
                                 <option value="Vimeo">Vimeo</option>
                                 <option value="GitHub">GitHub</option>
-                                <option value="Site">Site pessoal</option>
-                                <option value="Outro">Outro</option>
+                                <option value="Site">{t("portfolio.personalSite")}</option>
+                                <option value="Outro">{t("common.other")}</option>
                               </select>
 
                               <input
@@ -2601,7 +2637,7 @@ function AdminProfessoresPage() {
                                 }
                                 className="shrink-0 rounded-lg border border-red-300 bg-white dark:bg-slate-950 px-3 py-2 text-sm font-semibold text-red-600 dark:border-red-800 dark:bg-slate-900 dark:text-red-300"
                               >
-                                Remover
+                                {t("actions.remove")}
                               </button>
                             </div>
                           ))}
@@ -2617,7 +2653,7 @@ function AdminProfessoresPage() {
                           }
                           className="mt-3 rounded-lg border border-blue-300 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-blue-700 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
                         >
-                          + Adicionar link
+                          {t("actions.addLink")}
                         </button>
                       </div>
                     )}
@@ -2629,7 +2665,7 @@ function AdminProfessoresPage() {
           </div>
 
           <textarea
-            placeholder="Mini bio"
+            placeholder={t("fields.miniBio")}
             value={miniBio}
             onChange={(e) => setMiniBio(e.target.value)}
             className="min-h-[120px] w-full rounded-lg border p-2"
@@ -2639,17 +2675,17 @@ function AdminProfessoresPage() {
             disabled={criando}
             className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {criando ? "Criando..." : "Criar professor"}
+            {criando ? t("actions.creating") : t("actions.create")}
           </button>
         </form>
 
         <div className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="font-semibold">Lista de professores</h2>
+            <h2 className="font-semibold">{t("list.title")}</h2>
 
             <input
               type="text"
-              placeholder="Buscar por nome, email, CPF, telefone, titulação, formação, área de atuação, disciplina ou polo"
+              placeholder={t("list.searchPlaceholder")}
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full rounded-lg border p-2 md:w-[460px]"
@@ -2658,7 +2694,7 @@ function AdminProfessoresPage() {
 
           {professoresFiltrados.length === 0 ? (
             <div className="rounded-lg border bg-white dark:bg-slate-950 p-4 text-sm text-gray-600">
-              Nenhum professor encontrado para essa busca.
+              {t("list.empty")}
             </div>
           ) : (
             professoresFiltrados.map((p) => (
@@ -2670,13 +2706,13 @@ function AdminProfessoresPage() {
                         value={editNome}
                         onChange={(e) => setEditNome(e.target.value)}
                         className="rounded border p-2"
-                        placeholder="Nome"
+                        placeholder={t("fields.name")}
                       />
                       <input
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
                         className="rounded border p-2"
-                        placeholder="Email"
+                        placeholder={t("fields.email")}
                       />
 
                       <select
@@ -2684,7 +2720,7 @@ function AdminProfessoresPage() {
                         onChange={(e) => setEditPoloId(e.target.value)}
                         className="rounded border p-2"
                       >
-                        <option value="">Selecione o polo</option>
+                        <option value="">{t("fields.selectCampus")}</option>
                         {polos.map((polo) => (
                           <option key={polo.id} value={polo.id}>
                             {polo.nome}
@@ -2708,11 +2744,11 @@ function AdminProfessoresPage() {
                         value={editTelefone}
                         onChange={(e) => setEditTelefone(e.target.value)}
                         className="rounded border p-2"
-                        placeholder="Telefone"
+                        placeholder={t("fields.phone")}
                       />
                       <div>
                         <label className="mb-1 block text-xs font-semibold text-slate-600">
-                          Data de nascimento
+                          {t("fields.birthDate")}
                         </label>
 
                         <input
@@ -2724,14 +2760,14 @@ function AdminProfessoresPage() {
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-semibold text-slate-600">
-                          Titulação acadêmica
+                          {t("fields.academicDegree")}
                         </label>
 
                         <input
                           value={editTitulacao}
                           onChange={(e) => setEditTitulacao(e.target.value)}
                           className="w-full rounded border p-2"
-                          placeholder="Ex.: Especialista, Mestre ou Doutor"
+                          placeholder={t("fields.degreeExample")}
                         />
                       </div>
                       <div className="rounded border p-2 md:col-span-2">
@@ -2742,8 +2778,8 @@ function AdminProfessoresPage() {
                         >
                           <span>
                             {editEspecialidade
-                              ? `Disciplinas: ${editEspecialidade}`
-                              : "Selecionar disciplinas do professor"}
+                              ? t("disciplines.selected", { value: editEspecialidade })
+                              : t("disciplines.select")}
                           </span>
                           <span>{editDisciplinasAberto ? "▲" : "▼"}</span>
                         </button>
@@ -2751,7 +2787,7 @@ function AdminProfessoresPage() {
                         {editDisciplinasAberto && (
                           <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-lg bg-slate-50 p-3">
                             {disciplinas.length === 0 ? (
-                              <p className="text-sm text-gray-500">Nenhuma disciplina encontrada.</p>
+                              <p className="text-sm text-gray-500">{t("disciplines.empty")}</p>
                             ) : (
                               disciplinas.map((disciplina) => {
                                 const selecionadas = editEspecialidade
@@ -2787,40 +2823,40 @@ function AdminProfessoresPage() {
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-semibold text-slate-600">
-                          Formação acadêmica
+                          {t("fields.education")}
                         </label>
 
                         <input
                           value={editFormacao}
                           onChange={(e) => setEditFormacao(e.target.value)}
                           className="w-full rounded border p-2"
-                          placeholder="Ex.: Licenciatura em Pedagogia"
+                          placeholder={t("fields.educationExample")}
                         />
                       </div>
 
                       <div>
                         <label className="mb-1 block text-xs font-semibold text-slate-600">
-                          Área de atuação
+                          {t("fields.area")}
                         </label>
 
                         <input
                           value={editAreaAtuacao}
                           onChange={(e) => setEditAreaAtuacao(e.target.value)}
                           className="w-full rounded border p-2"
-                          placeholder="Ex.: Educação Infantil e Gestão Escolar"
+                          placeholder={t("fields.areaExample")}
                         />
                       </div>
                       <input
                         value={editCodigoFuncionario}
                         onChange={(e) => setEditCodigoFuncionario(e.target.value)}
                         className="rounded border p-2"
-                        placeholder="Código do funcionário"
+                        placeholder={t("fields.employeeCode")}
                       />
                       <input
                         value={editSlug}
                         onChange={(e) => setEditSlug(e.target.value)}
                         className="rounded border p-2"
-                        placeholder="Slug público"
+                        placeholder={t("fields.publicSlug")}
                       />
 
                       <div className="professores-vinculo-rh-card md:col-span-2 rounded-2xl border p-5 shadow-sm">
@@ -2855,20 +2891,20 @@ function AdminProfessoresPage() {
                             }
                           >
                             <span className="professores-vinculo-rh-titulo block font-bold">
-                              Possui vínculo trabalhista com a instituição
+                              {t("employment.hasRelationship")}
                             </span>
 
                             <span className="professores-vinculo-rh-texto mt-1 block text-sm">
                               {p.funcionarioId || p.funcionario?.id
-                                ? "Este professor já está vinculado ao RH. O vínculo não pode ser removido por esta tela, mas os dados trabalhistas podem ser editados."
-                                : "Marque para incluir este professor no RH, sem criar outro usuário ou outro e-mail de acesso."}
+                                ? t("rh.edit.alreadyLinked")
+                                : t("rh.edit.markToInclude")}
                             </span>
                           </label>
                         </div>
 
                         {!editPossuiVinculoRH && (
                           <div className="professores-vinculo-rh-aviso mt-4 rounded-xl border p-4 text-sm">
-                            Este professor possui somente cadastro acadêmico.
+                            {t("rh.edit.academicOnly")}
                           </div>
                         )}
 
@@ -2876,19 +2912,18 @@ function AdminProfessoresPage() {
                           <div className="mt-5 space-y-5">
                             <div>
                               <h3 className="font-bold text-slate-900 dark:text-slate-100">
-                                🧾 Dados trabalhistas e remuneração
+                                {t("rh.edit.title")}
                               </h3>
 
                               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                                Altere contrato, jornada, salário, hora-aula e dados
-                                bancários do professor.
+                                {t("rh.edit.description")}
                               </p>
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Departamento
+                                  {t("rh.fields.department")}
                                 </label>
 
                                 <select
@@ -2902,7 +2937,7 @@ function AdminProfessoresPage() {
                                   className="w-full rounded-lg border p-2"
                                 >
                                   <option value="">
-                                    Selecione o departamento
+                                    {t("rh.fields.selectDepartment")}
                                   </option>
 
                                   {departamentos.map((departamento) => (
@@ -2918,11 +2953,11 @@ function AdminProfessoresPage() {
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Cargo
+                                  {t("rh.fields.role")}
                                 </label>
 
                                 <input
-                                  value={editDadosTrabalhistas.cargo}
+                                  value={editDadosTrabalhistas.cargo === "Professor" ? t("rh.placeholders.role") : editDadosTrabalhistas.cargo}
                                   onChange={(e) =>
                                     atualizarDadoTrabalhistaEdicao(
                                       "cargo",
@@ -2930,17 +2965,17 @@ function AdminProfessoresPage() {
                                     )
                                   }
                                   className="w-full rounded-lg border p-2"
-                                  placeholder="Professor"
+                                  placeholder={t("rh.placeholders.role")}
                                 />
                               </div>
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Setor
+                                  {t("rh.fields.sector")}
                                 </label>
 
                                 <input
-                                  value={editDadosTrabalhistas.setor}
+                                  value={editDadosTrabalhistas.setor === "Acadêmico" ? t("rh.placeholders.sector") : editDadosTrabalhistas.setor}
                                   onChange={(e) =>
                                     atualizarDadoTrabalhistaEdicao(
                                       "setor",
@@ -2948,13 +2983,13 @@ function AdminProfessoresPage() {
                                     )
                                   }
                                   className="w-full rounded-lg border p-2"
-                                  placeholder="Acadêmico"
+                                  placeholder={t("rh.placeholders.sector")}
                                 />
                               </div>
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Data de admissão
+                                  {t("rh.fields.hireDate")}
                                 </label>
 
                                 <input
@@ -2972,7 +3007,7 @@ function AdminProfessoresPage() {
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Tipo de contrato
+                                  {t("rh.fields.contractType")}
                                 </label>
 
                                 <select
@@ -2985,20 +3020,20 @@ function AdminProfessoresPage() {
                                   }
                                   className="w-full rounded-lg border p-2"
                                 >
-                                  <option value="">Selecione</option>
+                                  <option value="">{t("rh.fields.selectContractType")}</option>
                                   <option value="CLT">CLT</option>
-                                  <option value="PJ">Pessoa jurídica</option>
-                                  <option value="AUTONOMO">Autônomo</option>
-                                  <option value="TEMPORARIO">Temporário</option>
-                                  <option value="ESTAGIO">Estágio</option>
-                                  <option value="VOLUNTARIO">Voluntário</option>
-                                  <option value="OUTRO">Outro</option>
+                                  <option value="PJ">{t("rh.contractTypes.legalEntity")}</option>
+                                  <option value="AUTONOMO">{t("rh.contractTypes.selfEmployed")}</option>
+                                  <option value="TEMPORARIO">{t("rh.contractTypes.temporary")}</option>
+                                  <option value="ESTAGIO">{t("rh.contractTypes.internship")}</option>
+                                  <option value="VOLUNTARIO">{t("rh.contractTypes.volunteer")}</option>
+                                  <option value="OUTRO">{t("rh.contractTypes.other")}</option>
                                 </select>
                               </div>
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Jornada de trabalho
+                                  {t("rh.fields.workSchedule")}
                                 </label>
 
                                 <input
@@ -3010,13 +3045,13 @@ function AdminProfessoresPage() {
                                     )
                                   }
                                   className="w-full rounded-lg border p-2"
-                                  placeholder="Ex.: 20h semanais"
+                                  placeholder={t("rh.placeholders.workSchedule")}
                                 />
                               </div>
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Carga horária semanal
+                                  {t("rh.fields.weeklyHours")}
                                 </label>
 
                                 <input
@@ -3037,7 +3072,7 @@ function AdminProfessoresPage() {
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Carga horária mensal
+                                  {t("rh.fields.monthlyHours")}
                                 </label>
 
                                 <input
@@ -3058,7 +3093,7 @@ function AdminProfessoresPage() {
 
                               <div>
                                 <label className="mb-1 block text-sm font-semibold">
-                                  Modalidade de remuneração
+                                  {t("rh.fields.payType")}
                                 </label>
 
                                 <select
@@ -3071,23 +3106,15 @@ function AdminProfessoresPage() {
                                   }
                                   className="w-full rounded-lg border p-2"
                                 >
-                                  <option value="">
-                                    Selecione a modalidade
-                                  </option>
-                                  <option value="MENSAL">Salário mensal</option>
-                                  <option value="HORA_AULA">Hora-aula</option>
-                                  <option value="HORA_TRABALHADA">
-                                    Hora trabalhada
-                                  </option>
-                                  <option value="POR_AULA">Valor por aula</option>
-                                  <option value="POR_TURMA">Valor por turma</option>
-                                  <option value="POR_DISCIPLINA">
-                                    Valor por disciplina
-                                  </option>
-                                  <option value="MISTO">Remuneração mista</option>
-                                  <option value="SEM_REMUNERACAO">
-                                    Sem remuneração
-                                  </option>
+                                  <option value="">{t("rh.fields.selectPayType")}</option>
+                                  <option value="MENSAL">{t("rh.payTypes.monthly")}</option>
+                                  <option value="HORA_AULA">{t("rh.payTypes.classHour")}</option>
+                                  <option value="HORA_TRABALHADA">{t("rh.payTypes.workedHour")}</option>
+                                  <option value="POR_AULA">{t("rh.payTypes.perClass")}</option>
+                                  <option value="POR_TURMA">{t("rh.payTypes.perClassGroup")}</option>
+                                  <option value="POR_DISCIPLINA">{t("rh.payTypes.perSubject")}</option>
+                                  <option value="MISTO">{t("rh.payTypes.mixed")}</option>
+                                  <option value="SEM_REMUNERACAO">{t("rh.payTypes.unpaid")}</option>
                                 </select>
                               </div>
                             </div>
@@ -3097,7 +3124,7 @@ function AdminProfessoresPage() {
                               "SEM_REMUNERACAO" && (
                                 <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
                                   <h4 className="font-bold">
-                                    Valores da remuneração
+                                    {t("rh.compensation.valuesTitle")}
                                   </h4>
 
                                   <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -3107,7 +3134,7 @@ function AdminProfessoresPage() {
                                       "MISTO") && (
                                         <div>
                                           <label className="mb-1 block text-sm font-semibold">
-                                            Salário mensal
+                                            {t("rh.fields.monthlySalary")}
                                           </label>
 
                                           <input
@@ -3134,7 +3161,7 @@ function AdminProfessoresPage() {
                                         <>
                                           <div>
                                             <label className="mb-1 block text-sm font-semibold">
-                                              Valor da hora-aula
+                                              {t("rh.fields.classHourValue")}
                                             </label>
 
                                             <input
@@ -3157,7 +3184,7 @@ function AdminProfessoresPage() {
 
                                           <div>
                                             <label className="mb-1 block text-sm font-semibold">
-                                              Duração da hora-aula em minutos
+                                              {t("rh.fields.classHourDurationMinutes")}
                                             </label>
 
                                             <input
@@ -3186,7 +3213,7 @@ function AdminProfessoresPage() {
                                       "MISTO") && (
                                         <div>
                                           <label className="mb-1 block text-sm font-semibold">
-                                            Valor da hora trabalhada
+                                            {t("rh.fields.workedHourValue")}
                                           </label>
 
                                           <input
@@ -3214,7 +3241,7 @@ function AdminProfessoresPage() {
                                       "MISTO") && (
                                         <div>
                                           <label className="mb-1 block text-sm font-semibold">
-                                            Valor por aula
+                                            {t("rh.fields.perClassValue")}
                                           </label>
 
                                           <input
@@ -3240,7 +3267,7 @@ function AdminProfessoresPage() {
                                       "MISTO") && (
                                         <div>
                                           <label className="mb-1 block text-sm font-semibold">
-                                            Valor por turma
+                                            {t("rh.fields.perClassGroupValue")}
                                           </label>
 
                                           <input
@@ -3266,7 +3293,7 @@ function AdminProfessoresPage() {
                                       "MISTO") && (
                                         <div>
                                           <label className="mb-1 block text-sm font-semibold">
-                                            Valor por disciplina
+                                            {t("rh.fields.perSubjectValue")}
                                           </label>
 
                                           <input
@@ -3294,19 +3321,17 @@ function AdminProfessoresPage() {
                             {houveAlteracaoRemuneracaoEdicao && (
                               <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/30">
                                 <h4 className="font-bold text-amber-950 dark:text-amber-100">
-                                  🕒 Registro da alteração remuneratória
+                                  {t("rh.change.title")}
                                 </h4>
 
                                 <p className="mt-2 text-sm text-amber-900 dark:text-amber-200">
-                                  A modalidade, os valores ou a carga horária da
-                                  remuneração foram alterados. Informe quando a nova
-                                  condição começa a valer e o motivo da mudança.
+                                  {t("rh.change.description")}
                                 </p>
 
                                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                                   <div>
                                     <label className="mb-1 block text-sm font-semibold text-amber-950 dark:text-amber-100">
-                                      Início da vigência
+                                      {t("rh.change.effectiveFrom")}
                                     </label>
 
                                     <input
@@ -3324,14 +3349,13 @@ function AdminProfessoresPage() {
                                     />
 
                                     <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
-                                      Data e hora em que a nova remuneração passa
-                                      efetivamente a valer.
+                                      {t("rh.change.effectiveHelp")}
                                     </p>
                                   </div>
 
                                   <div>
                                     <label className="mb-1 block text-sm font-semibold text-amber-950 dark:text-amber-100">
-                                      Motivo da alteração
+                                      {t("rh.change.reason")}
                                     </label>
 
                                     <textarea
@@ -3344,28 +3368,26 @@ function AdminProfessoresPage() {
                                         )
                                       }
                                       className="min-h-[100px] w-full rounded-lg border border-amber-300 bg-white p-3 text-slate-900 dark:border-amber-700 dark:bg-slate-950 dark:text-white"
-                                      placeholder="Ex.: alteração contratual aprovada pela direção."
+                                      placeholder={t("rh.change.reasonPlaceholder")}
                                       required
                                     />
                                   </div>
                                 </div>
 
                                 <div className="mt-4 rounded-xl border border-amber-200 bg-white/70 p-3 text-xs text-amber-900 dark:border-amber-800 dark:bg-slate-950/50 dark:text-amber-200">
-                                  A data e a hora em que esta alteração for salva no
-                                  PHANYX serão registradas automaticamente, juntamente
-                                  com o usuário responsável.
+                                  {t("rh.change.auditNotice")}
                                 </div>
                               </div>
                             )}
 
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                               {[
-                                ["codigoPonto", "Código do ponto"],
-                                ["pisPasep", "PIS/PASEP/NIT"],
-                                ["banco", "Banco da conta salarial"],
-                                ["agencia", "Agência"],
-                                ["conta", "Conta"],
-                                ["pix", "Chave Pix"],
+                                ["codigoPonto", t("rh.fields.timeClockCode")],
+                                ["pisPasep", t("rh.fields.pisPasep")],
+                                ["banco", t("rh.fields.payrollBank")],
+                                ["agencia", t("rh.fields.bankBranch")],
+                                ["conta", t("rh.fields.bankAccount")],
+                                ["pix", t("rh.fields.pixKey")],
                               ].map(([campo, titulo]) => {
                                 if (campo === "banco") {
                                   return (
@@ -3383,12 +3405,12 @@ function AdminProfessoresPage() {
                                         onChange={(valor) =>
                                           atualizarDadoTrabalhistaEdicao("banco", valor)
                                         }
-                                        placeholder="Digite o código ou nome do banco"
-                                        ariaLabel="Buscar banco da conta salarial do professor"
+                                        placeholder={t("rh.placeholders.bankSearch")}
+                                        ariaLabel={t("rh.placeholders.bankSearchAria")}
                                       />
 
                                       <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                                        Pesquise pelo código ou nome do banco.
+                                        {t("rh.help.bankSearch")}
                                       </p>
                                     </div>
                                   );
@@ -3421,7 +3443,7 @@ function AdminProfessoresPage() {
 
                             <div>
                               <label className="mb-1 block text-sm font-semibold">
-                                Observações da remuneração
+                                {t("rh.fields.compensationNotes")}
                               </label>
 
                               <textarea
@@ -3447,7 +3469,7 @@ function AdminProfessoresPage() {
                             {editFotoPerfil ? (
                               <img
                                 src={editFotoPerfil}
-                                alt={editNome || "Foto oficial do professor"}
+                                alt={editNome || t("photo.alt")}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
@@ -3459,21 +3481,20 @@ function AdminProfessoresPage() {
 
                           <div className="flex-1">
                             <h3 className="phanyx-foto-oficial-titulo">
-                              Foto oficial do professor
+                              {t("photo.title")}
                             </h3>
 
                             <p className="phanyx-foto-oficial-texto">
-                              Foto controlada pela instituição e usada em crachás, identificação e documentos oficiais.
+                              {t("photo.editDescription")}
                             </p>
 
                             <p className="phanyx-foto-oficial-ajuda">
-                              Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
-                              Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
+                              {t("photo.help")}
                             </p>
 
                             <div className="mt-3 flex flex-wrap items-center gap-2">
                               <label className="phanyx-foto-oficial-botao">
-                                {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
+                                {editEnviandoFotoPerfil ? t("actions.uploading") : t("actions.changePhoto")}
                                 <input
                                   ref={inputEditFotoProfessorRef}
                                   type="file"
@@ -3500,7 +3521,7 @@ function AdminProfessoresPage() {
                                   onClick={() => setEditFotoPerfil("")}
                                   className="phanyx-foto-oficial-remover"
                                 >
-                                  Remover foto
+                                  {t("actions.removePhoto")}
                                 </button>
                               )}
                             </div>
@@ -3511,7 +3532,7 @@ function AdminProfessoresPage() {
                         value={editDocumentoUrl}
                         onChange={(e) => setEditDocumentoUrl(e.target.value)}
                         className="rounded border p-2"
-                        placeholder="URL do documento"
+                        placeholder={t("documents.urlPlaceholder")}
                       />
 
                       <div
@@ -3529,11 +3550,11 @@ function AdminProfessoresPage() {
   "
                       >
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                          📁 Documentos e Portfólio
+                          {t("documents.title")}
                         </h3>
 
                         <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
-                          Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
+                          {t("documents.description")}
                         </p>
 
                         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -3543,7 +3564,7 @@ function AdminProfessoresPage() {
                               className="rounded-2xl border p-4 shadow-sm"
                             >
                               <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                {doc.titulo}
+                                {nomeDocumentoProfessor(doc.tipo, doc.titulo)}
                               </label>
 
                               <input
@@ -3567,7 +3588,7 @@ function AdminProfessoresPage() {
                                 className="phanyx-upload-funcionario"
                               >
                                 <span>📎</span>
-                                <span>Selecionar arquivo</span>
+                                <span>{t("actions.selectFile")}</span>
                               </label>
 
                               {doc.arquivo && (
@@ -3586,7 +3607,7 @@ function AdminProfessoresPage() {
                       value={editMiniBio}
                       onChange={(e) => setEditMiniBio(e.target.value)}
                       className="min-h-[120px] w-full rounded border p-2"
-                      placeholder="Mini bio"
+                      placeholder={t("fields.miniBio")}
                     />
 
                     <div className="flex gap-2">
@@ -3595,7 +3616,7 @@ function AdminProfessoresPage() {
                         disabled={salvandoId === p.id}
                         className="rounded bg-green-600 px-3 py-1 text-slate-900 dark:text-white disabled:opacity-50"
                       >
-                        {salvandoId === p.id ? "Salvando..." : "Salvar"}
+                        {salvandoId === p.id ? t("actions.saving") : t("actions.save")}
                       </button>
 
                       <button
@@ -3615,7 +3636,7 @@ function AdminProfessoresPage() {
                         }}
                         className="rounded bg-gray-400 px-3 py-1 text-slate-900 dark:text-white"
                       >
-                        Cancelar
+                        {t("actions.cancel")}
                       </button>
                     </div>
                   </div>
@@ -3624,30 +3645,30 @@ function AdminProfessoresPage() {
                     <p className="font-medium">{p.nome}</p>
                     <p className="text-sm text-gray-600">{p.user?.email}</p>
                     <p className="text-sm text-gray-600">
-                      Polo: {p.polo?.nome || "-"}
+                      {t("list.campus")}: {p.polo?.nome || "-"}
                     </p>
                     <p className="text-sm text-gray-600">CPF: {p.cpf || "-"}</p>
                     <p className="text-sm text-gray-600">RG: {p.rg || "-"}</p>
                     <p className="text-sm text-gray-600">
-                      Telefone: {p.telefone || "-"}
+                      {t("fields.phone")}: {p.telefone || "-"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Titulação acadêmica: {p.titulacao || "-"}
-                    </p>
-
-                    <p className="text-sm text-gray-600">
-                      Formação acadêmica: {p.formacao || "-"}
+                      {t("fields.academicDegree")}: {p.titulacao || "-"}
                     </p>
 
                     <p className="text-sm text-gray-600">
-                      Área de atuação: {p.areaAtuacao || "-"}
+                      {t("fields.education")}: {p.formacao || "-"}
                     </p>
 
                     <p className="text-sm text-gray-600">
-                      Disciplinas habilitadas: {p.especialidade || "-"}
+                      {t("fields.area")}: {p.areaAtuacao || "-"}
+                    </p>
+
+                    <p className="text-sm text-gray-600">
+                      {t("disciplines.enabled")}: {p.especialidade || "-"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Código: {p.codigoFuncionario || "-"}
+                      {t("fields.code")}: {p.codigoFuncionario || "-"}
                     </p>
                     <p className="text-sm text-gray-600">
                       Slug: {p.slug || "-"}
@@ -3658,15 +3679,20 @@ function AdminProfessoresPage() {
                         <summary className="cursor-pointer list-none px-4 py-3 font-bold text-slate-900 dark:text-white">
                           <span className="flex items-center justify-between gap-3">
                             <span>
-                              🕒 Histórico da remuneração
+                              {t("history.title")}
                             </span>
 
                             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                               {Array.isArray(
                                 p.historicosRemuneracaoRH
                               )
-                                ? `${p.historicosRemuneracaoRH.length} registro(s)`
-                                : "0 registros"}
+                                ? t("history.count", {
+                                  count:
+                                    p.historicosRemuneracaoRH.length,
+                                })
+                                : t("history.count", {
+                                  count: 0,
+                                })}
                             </span>
                           </span>
                         </summary>
@@ -3677,8 +3703,7 @@ function AdminProfessoresPage() {
                           ) ||
                             p.historicosRemuneracaoRH.length === 0 ? (
                             <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
-                              Nenhum histórico remuneratório registrado
-                              para este professor.
+                              {t("history.empty")}
                             </div>
                           ) : (
                             <div className="space-y-4">
@@ -3692,14 +3717,16 @@ function AdminProfessoresPage() {
                                       <div>
                                         <h4 className="font-bold text-slate-900 dark:text-white">
                                           {traduzirOrigemHistoricoProfessor(
-                                            historico.origem
+                                            historico.origem,
+                                            t as any
                                           )}
                                         </h4>
 
                                         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                                          Registrado em{" "}
+                                          {t("history.recordedAt")}{" "}
                                           {formatarDataHoraProfessor(
-                                            historico.alteradoEm
+                                            historico.alteradoEm,
+                                            locale
                                           )}
                                         </p>
                                       </div>
@@ -3713,7 +3740,7 @@ function AdminProfessoresPage() {
 
                                         <p className="text-slate-600 dark:text-slate-400">
                                           {historico.alteradoPorRoleSnapshot ||
-                                            "Perfil não informado"}
+                                            t("history.roleNotProvided")}
                                         </p>
                                       </div>
                                     </div>
@@ -3721,25 +3748,29 @@ function AdminProfessoresPage() {
                                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                                       <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-950 dark:border-red-900 dark:bg-red-950/20 dark:text-red-100">
                                         <h5 className="mb-3 font-bold">
-                                          Condição anterior
+                                          {t("history.previousCondition")}
                                         </h5>
 
                                         <ResumoRemuneracaoProfessor
                                           dados={
                                             historico.dadosAnteriores
                                           }
+                                          t={t as any}
+                                          locale={locale}
                                         />
                                       </div>
 
                                       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
                                         <h5 className="mb-3 font-bold">
-                                          Nova condição
+                                          {t("history.newCondition")}
                                         </h5>
 
                                         <ResumoRemuneracaoProfessor
                                           dados={
                                             historico.dadosNovos
                                           }
+                                          t={t as any}
+                                          locale={locale}
                                         />
                                       </div>
                                     </div>
@@ -3747,24 +3778,26 @@ function AdminProfessoresPage() {
                                     <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
                                       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
                                         <p className="font-semibold">
-                                          Início da vigência
+                                          {t("history.effectiveFrom")}
                                         </p>
 
                                         <p className="mt-1 text-slate-600 dark:text-slate-300">
                                           {formatarDataHoraProfessor(
-                                            historico.vigenciaInicio
+                                            historico.vigenciaInicio,
+                                            locale
                                           )}
                                         </p>
                                       </div>
 
                                       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
                                         <p className="font-semibold">
-                                          Data e hora do registro
+                                          {t("history.recordedDateTime")}
                                         </p>
 
                                         <p className="mt-1 text-slate-600 dark:text-slate-300">
                                           {formatarDataHoraProfessor(
-                                            historico.alteradoEm
+                                            historico.alteradoEm,
+                                            locale
                                           )}
                                         </p>
                                       </div>
@@ -3772,12 +3805,12 @@ function AdminProfessoresPage() {
 
                                     <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-100">
                                       <p className="font-semibold">
-                                        Motivo
+                                        {t("history.reason")}
                                       </p>
 
                                       <p className="mt-1 whitespace-pre-wrap">
                                         {historico.motivo ||
-                                          "Motivo não informado."}
+                                          t("history.reasonNotProvided")}
                                       </p>
                                     </div>
                                   </article>
@@ -3794,14 +3827,14 @@ function AdminProfessoresPage() {
                         onClick={() => iniciarEdicao(p)}
                         className="text-sm text-blue-600"
                       >
-                        Editar
+                        {t("actions.edit")}
                       </button>
 
                       <button
                         onClick={() => setProfessorParaExcluir(p)}
                         className="text-sm text-red-600"
                       >
-                        Excluir
+                        {t("actions.delete")}
                       </button>
                     </div>
                   </>
@@ -3843,7 +3876,7 @@ function AdminProfessoresPage() {
                 }
                 className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               >
-                Fechar
+                {t("actions.close")}
               </button>
 
               <button
@@ -3864,7 +3897,7 @@ function AdminProfessoresPage() {
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500"
               >
-                Escolher outra foto
+                {t("actions.chooseAnotherPhoto")}
               </button>
             </div>
           </div>
@@ -3881,14 +3914,14 @@ function AdminProfessoresPage() {
 
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar exclusão
+                  {t("deleteModal.title")}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja excluir o professor{" "}
+                  {t("deleteModal.questionBefore")}{" "}
                   <strong>&quot;{professorParaExcluir.nome}&quot;</strong>?
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Esta ação não pode ser desfeita.
+                  {t("deleteModal.irreversible")}
                 </p>
               </div>
             </div>
@@ -3900,7 +3933,7 @@ function AdminProfessoresPage() {
                 disabled={excluindoId === professorParaExcluir.id}
                 className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
+                {t("actions.cancel")}
               </button>
 
               <button
@@ -3910,8 +3943,8 @@ function AdminProfessoresPage() {
                 className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {excluindoId === professorParaExcluir.id
-                  ? "Excluindo..."
-                  : "Confirmar exclusão"}
+                  ? t("actions.deleting")
+                  : t("actions.confirmDelete")}
               </button>
             </div>
           </div>

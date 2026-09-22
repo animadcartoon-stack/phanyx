@@ -16819,5 +16819,264 @@
         "closeAndClear": "Fechar e apagar do ecrã"
       }
     }
+  },
+  "AdminTeachers": {
+    "common": {
+      "other": "Outro"
+    },
+    "header": {
+      "title": "👨‍🏫 Professores"
+    },
+    "create": {
+      "title": "Novo professor"
+    },
+    "fields": {
+      "name": "Nome do professor",
+      "email": "E-mail",
+      "selectCampus": "Selecione o polo",
+      "phone": "Telefone",
+      "birthDate": "Data de nascimento",
+      "academicDegree": "Titulação académica",
+      "degreeExample": "Ex.: Especialista, Mestre ou Doutor",
+      "education": "Formação académica",
+      "educationExample": "Ex.: Licenciatura em Pedagogia",
+      "area": "Área de atuação",
+      "areaExample": "Ex.: Educação de infância e gestão escolar",
+      "employeeCode": "Código do funcionário",
+      "publicSlug": "Slug público",
+      "miniBio": "Mini biografia",
+      "code": "Código"
+    },
+    "disciplines": {
+      "select": "Selecionar disciplinas do professor",
+      "selected": "Disciplinas: {value}",
+      "empty": "Nenhuma disciplina encontrada.",
+      "enabled": "Disciplinas habilitadas"
+    },
+    "employment": {
+      "hasRelationship": "Possui vínculo laboral com a instituição",
+      "relationshipHelp": "Quando assinalado, o professor também será incluído nos RH, participando em processamento salarial, recibos, documentos, férias, ponto e histórico laboral.",
+      "academicOnly": "Este registo será apenas académico. Não será criado qualquer vínculo de funcionário."
+    },
+    "photo": {
+      "title": "Fotografia oficial do professor",
+      "alt": "Fotografia oficial do professor",
+      "description": "Esta é a fotografia institucional utilizada em cartões de identificação, identificação, documentos e portal académico.",
+      "help": "Formatos aceites: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB. Recomendado: fotografia quadrada, com pelo menos 600x600 px e rosto centralizado.",
+      "feedback": {
+        "uploaded": "Fotografia oficial do professor enviada com sucesso."
+      },
+      "errors": {
+        "invalidFormatTitle": "Formato de fotografia não aceite",
+        "invalidFormatMessage": "A fotografia selecionada está no formato {extension}. Escolha outra fotografia em JPG, JPEG, PNG ou WEBP.",
+        "tooLargeTitle": "A fotografia é demasiado grande",
+        "tooLargeMessage": "A fotografia selecionada tem {size} MB, mas o tamanho máximo permitido é {max} MB. Reduza ou comprima a fotografia e tente novamente.",
+        "uploadStatus": "Falha no envio da fotografia. Código {status}.",
+        "noUrl": "O envio terminou, mas o servidor não devolveu o endereço da fotografia.",
+        "serverFallback": "O servidor não conseguiu receber a fotografia.",
+        "uploadTitle": "Não foi possível enviar a fotografia",
+        "uploadMessage": "{reason} Verifique a imagem ou escolha outra fotografia e tente novamente."
+      },
+      "editDescription": "Fotografia controlada pela instituição e utilizada em cartões de identificação, identificação e documentos oficiais."
+    },
+    "documents": {
+      "title": "📁 Documentos e Portefólio",
+      "description": "Envie documentos pessoais, currículo, certificados, portefólio e ligações profissionais.",
+      "urlPlaceholder": "URL do documento",
+      "types": {
+        "rg": "RG",
+        "cpf": "CPF",
+        "cnh": "Carta de condução",
+        "proofOfResidence": "Comprovativo de residência",
+        "resume": "Currículo",
+        "portfolio": "Portefólio",
+        "certificates": "Certificados"
+      }
+    },
+    "portfolio": {
+      "linksTitle": "Ligações do portefólio",
+      "personalSite": "Site pessoal"
+    },
+    "list": {
+      "title": "Lista de professores",
+      "searchPlaceholder": "Pesquisar por nome, e-mail, CPF, telefone, titulação, formação, área de atuação, disciplina ou polo",
+      "empty": "Nenhum professor encontrado para esta pesquisa.",
+      "campus": "Polo"
+    },
+    "actions": {
+      "uploading": "A enviar...",
+      "uploadPhoto": "Enviar fotografia",
+      "changePhoto": "Trocar fotografia",
+      "removePhoto": "Remover fotografia",
+      "selectFile": "Selecionar ficheiro",
+      "remove": "Remover",
+      "addLink": "+ Adicionar ligação",
+      "creating": "A criar...",
+      "create": "Criar professor",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "close": "Fechar",
+      "chooseAnotherPhoto": "Escolher outra fotografia",
+      "cancel": "Cancelar",
+      "deleting": "A eliminar...",
+      "confirmDelete": "Confirmar eliminação",
+      "save": "Guardar",
+      "saving": "A guardar..."
+    },
+    "validation": {
+      "selectPayType": "Selecione a modalidade de remuneração do professor.",
+      "monthlySalary": "Indique o salário mensal do professor.",
+      "classHour": "Indique o valor da hora-aula do professor.",
+      "workedHour": "Indique o valor da hora trabalhada.",
+      "perClass": "Indique o valor por aula.",
+      "perClassGroup": "Indique o valor por turma.",
+      "perSubject": "Indique o valor por disciplina.",
+      "mixedPay": "Na remuneração mista, indique pelo menos um valor.",
+      "payChangeReason": "Indique o motivo da alteração da remuneração.",
+      "payChangeStart": "Indique a data e a hora de início da nova remuneração."
+    },
+    "feedback": {
+      "created": "Professor criado com sucesso.",
+      "updated": "Professor atualizado com sucesso.",
+      "deleted": "Professor eliminado com sucesso."
+    },
+    "errors": {
+      "create": "Erro ao criar professor",
+      "update": "Erro ao atualizar professor",
+      "delete": "Erro ao eliminar professor"
+    },
+    "deleteModal": {
+      "title": "Confirmar eliminação",
+      "questionBefore": "Tem a certeza de que pretende eliminar o professor",
+      "irreversible": "Esta ação não pode ser anulada."
+    },
+    "rh": {
+      "create": {
+        "title": "🧾 Dados laborais e de remuneração",
+        "description": "Configure o vínculo de acordo com a política da instituição."
+      },
+      "edit": {
+        "title": "🧾 Dados laborais e remuneração",
+        "description": "Altere contrato, horário, salário, hora-aula e dados bancários do professor.",
+        "alreadyLinked": "Este professor já está associado aos RH. O vínculo não pode ser removido neste ecrã, mas os dados laborais podem ser editados.",
+        "markToInclude": "Assinale para incluir este professor nos RH, sem criar outro utilizador nem outro e-mail de acesso.",
+        "academicOnly": "Este professor possui apenas registo académico."
+      },
+      "fields": {
+        "department": "Departamento",
+        "selectDepartment": "Selecione o departamento",
+        "role": "Cargo",
+        "sector": "Setor",
+        "hireDate": "Data de admissão",
+        "contractType": "Tipo de contrato",
+        "selectContractType": "Selecione",
+        "workSchedule": "Horário de trabalho",
+        "weeklyHours": "Carga horária semanal",
+        "monthlyHours": "Carga horária mensal",
+        "payType": "Modalidade de remuneração",
+        "selectPayType": "Selecione a modalidade",
+        "monthlySalary": "Salário mensal",
+        "classHourValue": "Valor da hora-aula",
+        "classHourDuration": "Duração da hora-aula",
+        "classHourDurationMinutes": "Duração da hora-aula em minutos",
+        "workedHourValue": "Valor da hora trabalhada",
+        "perClassValue": "Valor por aula",
+        "perClassGroupValue": "Valor por turma",
+        "perSubjectValue": "Valor por disciplina",
+        "timeClockCode": "Código do ponto",
+        "pisPasep": "PIS/PASEP/NIT",
+        "payrollBank": "Banco da conta salarial",
+        "bankBranch": "Agência",
+        "bankAccount": "Conta",
+        "pixKey": "Chave Pix",
+        "compensationNotes": "Observações da remuneração"
+      },
+      "contractTypes": {
+        "legalEntity": "Pessoa coletiva",
+        "selfEmployed": "Trabalhador independente",
+        "temporary": "Temporário",
+        "internship": "Estágio",
+        "volunteer": "Voluntário",
+        "other": "Outro"
+      },
+      "payTypes": {
+        "monthly": "Salário mensal",
+        "classHour": "Hora-aula",
+        "workedHour": "Hora trabalhada",
+        "perClass": "Valor por aula",
+        "perClassGroup": "Valor por turma",
+        "perSubject": "Valor por disciplina",
+        "mixed": "Remuneração mista",
+        "unpaid": "Sem remuneração",
+        "notProvided": "Não informada"
+      },
+      "compensation": {
+        "valuesTitle": "Valores da remuneração",
+        "unpaidNotice": "O professor será incluído nos RH, mas sem valores de remuneração configurados."
+      },
+      "placeholders": {
+        "role": "Professor",
+        "sector": "Académico",
+        "workSchedule": "Ex.: 20 h semanais",
+        "timeClockCode": "Identificador no relógio/app",
+        "pisPasep": "PIS/PASEP/NIT",
+        "bankBranch": "Agência",
+        "bankAccount": "Conta",
+        "pixKey": "Chave Pix",
+        "bankSearch": "Introduza o código ou nome do banco",
+        "bankSearchAria": "Pesquisar banco da conta salarial do professor",
+        "compensationNotes": "Regras, acordos, adicionais ou observações sobre a remuneração."
+      },
+      "help": {
+        "bankSearchExamples": "Pesquise pelo código ou nome. Exemplos: 001, 260, Nubank, Inter ou Itaú.",
+        "bankSearch": "Pesquise pelo código ou nome do banco."
+      },
+      "units": {
+        "minutes": "minutos"
+      },
+      "change": {
+        "title": "🕒 Registo da alteração remuneratória",
+        "description": "A modalidade, os valores ou a carga horária da remuneração foram alterados. Indique quando a nova condição começa a vigorar e o motivo da alteração.",
+        "effectiveFrom": "Início da vigência",
+        "effectiveHelp": "Data e hora em que a nova remuneração passa efetivamente a vigorar.",
+        "reason": "Motivo da alteração",
+        "reasonPlaceholder": "Ex.: alteração contratual aprovada pela direção.",
+        "auditNotice": "A data e a hora em que esta alteração for guardada no PHANYX serão registadas automaticamente, juntamente com o utilizador responsável."
+      }
+    },
+    "history": {
+      "title": "🕒 Histórico da remuneração",
+      "count": "{count, plural, =0 {0 registos} one {# registo} other {# registos}}",
+      "empty": "Nenhum histórico remuneratório registado para este professor.",
+      "recordedAt": "Registado em",
+      "roleNotProvided": "Perfil não indicado",
+      "previousCondition": "Condição anterior",
+      "newCondition": "Nova condição",
+      "effectiveFrom": "Início da vigência",
+      "recordedDateTime": "Data e hora do registo",
+      "reason": "Motivo",
+      "reasonNotProvided": "Motivo não indicado.",
+      "minutesValue": "{value} minutos",
+      "hoursValue": "{value} h",
+      "origins": {
+        "teacherRecord": "Alteração pela ficha do professor",
+        "employeeRecord": "Alteração pela ficha do funcionário",
+        "initialHire": "Contratação inicial",
+        "hrChange": "Alteração pelos RH",
+        "compensationChange": "Alteração remuneratória"
+      },
+      "summary": {
+        "type": "Modalidade",
+        "monthlySalary": "Salário mensal",
+        "classHour": "Hora-aula",
+        "workedHour": "Hora trabalhada",
+        "perClass": "Valor por aula",
+        "perClassGroup": "Valor por turma",
+        "perSubject": "Valor por disciplina",
+        "classHourDuration": "Duração da hora-aula",
+        "weeklyHours": "Carga semanal",
+        "monthlyHours": "Carga mensal"
+      }
+    }
   }
 }

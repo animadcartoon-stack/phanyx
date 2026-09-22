@@ -17033,5 +17033,264 @@
         "closeAndClear": "Fermer et effacer de l’écran"
       }
     }
+  },
+  "AdminTeachers": {
+    "common": {
+      "other": "Autre"
+    },
+    "header": {
+      "title": "👨‍🏫 Enseignants"
+    },
+    "create": {
+      "title": "Nouvel enseignant"
+    },
+    "fields": {
+      "name": "Nom de l’enseignant",
+      "email": "E-mail",
+      "selectCampus": "Sélectionnez le site",
+      "phone": "Téléphone",
+      "birthDate": "Date de naissance",
+      "academicDegree": "Diplôme / titre académique",
+      "degreeExample": "Ex. : Spécialiste, Master ou Doctorat",
+      "education": "Formation académique",
+      "educationExample": "Ex. : Licence en sciences de l’éducation",
+      "area": "Domaine d’activité",
+      "areaExample": "Ex. : Petite enfance et gestion scolaire",
+      "employeeCode": "Code salarié",
+      "publicSlug": "Slug public",
+      "miniBio": "Brève biographie",
+      "code": "Code"
+    },
+    "disciplines": {
+      "select": "Sélectionner les matières de l’enseignant",
+      "selected": "Matières : {value}",
+      "empty": "Aucune matière trouvée.",
+      "enabled": "Matières autorisées"
+    },
+    "employment": {
+      "hasRelationship": "A une relation de travail avec l’établissement",
+      "relationshipHelp": "Lorsque cette option est cochée, l’enseignant est également intégré aux RH : paie, bulletins, documents, congés, pointage et historique professionnel.",
+      "academicOnly": "Ce dossier sera uniquement académique. Aucun lien salarié ne sera créé."
+    },
+    "photo": {
+      "title": "Photo officielle de l’enseignant",
+      "alt": "Photo officielle de l’enseignant",
+      "description": "Cette photo institutionnelle est utilisée sur les badges, pour l’identification, les documents et le portail académique.",
+      "help": "Formats acceptés : JPG, JPEG, PNG ou WEBP. Taille maximale : 2 Mo. Recommandé : photo carrée d’au moins 600x600 px, visage centré.",
+      "feedback": {
+        "uploaded": "Photo officielle de l’enseignant envoyée avec succès."
+      },
+      "errors": {
+        "invalidFormatTitle": "Format de photo non accepté",
+        "invalidFormatMessage": "La photo sélectionnée est au format {extension}. Choisissez une autre photo en JPG, JPEG, PNG ou WEBP.",
+        "tooLargeTitle": "La photo est trop volumineuse",
+        "tooLargeMessage": "La photo sélectionnée fait {size} Mo, mais la taille maximale autorisée est de {max} Mo. Réduisez ou compressez la photo puis réessayez.",
+        "uploadStatus": "Échec de l’envoi de la photo. Code {status}.",
+        "noUrl": "L’envoi est terminé, mais le serveur n’a pas renvoyé l’adresse de la photo.",
+        "serverFallback": "Le serveur n’a pas pu recevoir la photo.",
+        "uploadTitle": "Impossible d’envoyer la photo",
+        "uploadMessage": "{reason} Vérifiez l’image ou choisissez une autre photo puis réessayez."
+      },
+      "editDescription": "Photo gérée par l’établissement et utilisée sur les badges, pour l’identification et les documents officiels."
+    },
+    "documents": {
+      "title": "📁 Documents et Portfolio",
+      "description": "Ajoutez des documents personnels, un CV, des certificats, un portfolio et des liens professionnels.",
+      "urlPlaceholder": "URL du document",
+      "types": {
+        "rg": "Pièce d’identité",
+        "cpf": "Identifiant fiscal",
+        "cnh": "Permis de conduire",
+        "proofOfResidence": "Justificatif de domicile",
+        "resume": "CV",
+        "portfolio": "Portfolio",
+        "certificates": "Certificats"
+      }
+    },
+    "portfolio": {
+      "linksTitle": "Liens du portfolio",
+      "personalSite": "Site personnel"
+    },
+    "list": {
+      "title": "Liste des enseignants",
+      "searchPlaceholder": "Rechercher par nom, e-mail, identifiant fiscal, téléphone, diplôme, formation, domaine, matière ou site",
+      "empty": "Aucun enseignant trouvé pour cette recherche.",
+      "campus": "Site"
+    },
+    "actions": {
+      "uploading": "Envoi...",
+      "uploadPhoto": "Envoyer la photo",
+      "changePhoto": "Changer la photo",
+      "removePhoto": "Supprimer la photo",
+      "selectFile": "Sélectionner un fichier",
+      "remove": "Supprimer",
+      "addLink": "+ Ajouter un lien",
+      "creating": "Création...",
+      "create": "Créer l’enseignant",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "close": "Fermer",
+      "chooseAnotherPhoto": "Choisir une autre photo",
+      "cancel": "Annuler",
+      "deleting": "Suppression...",
+      "confirmDelete": "Confirmer la suppression",
+      "save": "Enregistrer",
+      "saving": "Enregistrement..."
+    },
+    "validation": {
+      "selectPayType": "Sélectionnez le mode de rémunération de l’enseignant.",
+      "monthlySalary": "Saisissez le salaire mensuel de l’enseignant.",
+      "classHour": "Saisissez le tarif de l’heure de cours de l’enseignant.",
+      "workedHour": "Saisissez le tarif de l’heure travaillée.",
+      "perClass": "Saisissez le montant par cours.",
+      "perClassGroup": "Saisissez le montant par classe.",
+      "perSubject": "Saisissez le montant par matière.",
+      "mixedPay": "Pour une rémunération mixte, saisissez au moins un montant.",
+      "payChangeReason": "Saisissez le motif de la modification de rémunération.",
+      "payChangeStart": "Saisissez la date et l’heure de début de la nouvelle rémunération."
+    },
+    "feedback": {
+      "created": "Enseignant créé avec succès.",
+      "updated": "Enseignant mis à jour avec succès.",
+      "deleted": "Enseignant supprimé avec succès."
+    },
+    "errors": {
+      "create": "Erreur lors de la création de l’enseignant",
+      "update": "Erreur lors de la mise à jour de l’enseignant",
+      "delete": "Erreur lors de la suppression de l’enseignant"
+    },
+    "deleteModal": {
+      "title": "Confirmer la suppression",
+      "questionBefore": "Êtes-vous sûr de vouloir supprimer l’enseignant",
+      "irreversible": "Cette action est irréversible."
+    },
+    "rh": {
+      "create": {
+        "title": "🧾 Données d’emploi et de rémunération",
+        "description": "Configurez la relation de travail selon la politique de l’établissement."
+      },
+      "edit": {
+        "title": "🧾 Données d’emploi et rémunération",
+        "description": "Modifiez le contrat, le temps de travail, le salaire, le tarif horaire de cours et les coordonnées bancaires de l’enseignant.",
+        "alreadyLinked": "Cet enseignant est déjà rattaché aux RH. Le lien ne peut pas être supprimé depuis cet écran, mais les données d’emploi peuvent être modifiées.",
+        "markToInclude": "Cochez cette option pour inclure l’enseignant dans les RH sans créer un autre utilisateur ni une autre adresse e-mail de connexion.",
+        "academicOnly": "Cet enseignant dispose uniquement d’un dossier académique."
+      },
+      "fields": {
+        "department": "Département",
+        "selectDepartment": "Sélectionnez le département",
+        "role": "Fonction",
+        "sector": "Secteur",
+        "hireDate": "Date d’embauche",
+        "contractType": "Type de contrat",
+        "selectContractType": "Sélectionnez",
+        "workSchedule": "Temps de travail",
+        "weeklyHours": "Volume horaire hebdomadaire",
+        "monthlyHours": "Volume horaire mensuel",
+        "payType": "Mode de rémunération",
+        "selectPayType": "Sélectionnez le mode",
+        "monthlySalary": "Salaire mensuel",
+        "classHourValue": "Tarif de l’heure de cours",
+        "classHourDuration": "Durée de l’heure de cours",
+        "classHourDurationMinutes": "Durée de l’heure de cours en minutes",
+        "workedHourValue": "Tarif de l’heure travaillée",
+        "perClassValue": "Montant par cours",
+        "perClassGroupValue": "Montant par classe",
+        "perSubjectValue": "Montant par matière",
+        "timeClockCode": "Code de pointage",
+        "pisPasep": "PIS/PASEP/NIT",
+        "payrollBank": "Banque du compte de paie",
+        "bankBranch": "Agence",
+        "bankAccount": "Compte",
+        "pixKey": "Clé Pix",
+        "compensationNotes": "Observations sur la rémunération"
+      },
+      "contractTypes": {
+        "legalEntity": "Personne morale / prestataire",
+        "selfEmployed": "Indépendant",
+        "temporary": "Temporaire",
+        "internship": "Stage",
+        "volunteer": "Bénévole",
+        "other": "Autre"
+      },
+      "payTypes": {
+        "monthly": "Salaire mensuel",
+        "classHour": "Par heure de cours",
+        "workedHour": "Par heure travaillée",
+        "perClass": "Par cours",
+        "perClassGroup": "Par classe",
+        "perSubject": "Par matière",
+        "mixed": "Rémunération mixte",
+        "unpaid": "Sans rémunération",
+        "notProvided": "Non renseignée"
+      },
+      "compensation": {
+        "valuesTitle": "Montants de rémunération",
+        "unpaidNotice": "L’enseignant sera inclus dans les RH, mais sans montant de rémunération configuré."
+      },
+      "placeholders": {
+        "role": "Enseignant",
+        "sector": "Académique",
+        "workSchedule": "Ex. : 20 h par semaine",
+        "timeClockCode": "Identifiant dans la pointeuse/l’application",
+        "pisPasep": "PIS/PASEP/NIT",
+        "bankBranch": "Agence",
+        "bankAccount": "Compte",
+        "pixKey": "Clé Pix",
+        "bankSearch": "Saisissez le code ou le nom de la banque",
+        "bankSearchAria": "Rechercher la banque du compte de paie de l’enseignant",
+        "compensationNotes": "Règles, accords, compléments ou observations sur la rémunération."
+      },
+      "help": {
+        "bankSearchExamples": "Recherchez par code ou par nom. Exemples : 001, 260, Nubank, Inter ou Itaú.",
+        "bankSearch": "Recherchez par code ou par nom de banque."
+      },
+      "units": {
+        "minutes": "minutes"
+      },
+      "change": {
+        "title": "🕒 Enregistrement de la modification de rémunération",
+        "description": "Le mode, les montants ou le volume horaire de rémunération ont changé. Indiquez la date de prise d’effet des nouvelles conditions et le motif de la modification.",
+        "effectiveFrom": "Prise d’effet",
+        "effectiveHelp": "Date et heure auxquelles la nouvelle rémunération prend effectivement effet.",
+        "reason": "Motif de la modification",
+        "reasonPlaceholder": "Ex. : modification contractuelle approuvée par la direction.",
+        "auditNotice": "La date et l’heure d’enregistrement de cette modification dans PHANYX seront consignées automatiquement avec l’utilisateur responsable."
+      }
+    },
+    "history": {
+      "title": "🕒 Historique de rémunération",
+      "count": "{count, plural, =0 {0 enregistrements} one {# enregistrement} other {# enregistrements}}",
+      "empty": "Aucun historique de rémunération n’a été enregistré pour cet enseignant.",
+      "recordedAt": "Enregistré le",
+      "roleNotProvided": "Profil non renseigné",
+      "previousCondition": "Conditions précédentes",
+      "newCondition": "Nouvelles conditions",
+      "effectiveFrom": "Prise d’effet",
+      "recordedDateTime": "Date et heure de l’enregistrement",
+      "reason": "Motif",
+      "reasonNotProvided": "Motif non renseigné.",
+      "minutesValue": "{value} minutes",
+      "hoursValue": "{value} h",
+      "origins": {
+        "teacherRecord": "Modification depuis la fiche de l’enseignant",
+        "employeeRecord": "Modification depuis la fiche du salarié",
+        "initialHire": "Embauche initiale",
+        "hrChange": "Modification par les RH",
+        "compensationChange": "Modification de rémunération"
+      },
+      "summary": {
+        "type": "Mode",
+        "monthlySalary": "Salaire mensuel",
+        "classHour": "Heure de cours",
+        "workedHour": "Heure travaillée",
+        "perClass": "Montant par cours",
+        "perClassGroup": "Montant par classe",
+        "perSubject": "Montant par matière",
+        "classHourDuration": "Durée de l’heure de cours",
+        "weeklyHours": "Volume hebdomadaire",
+        "monthlyHours": "Volume mensuel"
+      }
+    }
   }
 }
