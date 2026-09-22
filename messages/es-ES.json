@@ -139,10 +139,10 @@
     "externalActivities": "Actividades externas",
     "academicPublications": "Publicaciones Académicas",
     "visitors": "Visitantes",
-
     "blockedIps": "Direcciones IP bloqueadas",
     "overview": "Resumen general",
     "collection": "Colección",
+    "loans": "Préstamos",
     "receipts": "Cobros",
     "cashRegister": "Caja",
     "reports": "Informes",
@@ -16641,6 +16641,69 @@
     "states": {
       "loading": "Cargando direcciones IP bloqueadas...",
       "empty": "No se encontraron direcciones IP bloqueadas."
+    }
+  },
+  "AdminLibraryLoans": {
+    "eyebrow": "Circulación de la biblioteca",
+    "title": "Préstamos",
+    "description": "Consulta préstamos activos, retrasos, próximos vencimientos, devoluciones, renovaciones e incidencias.",
+    "backToCollection": "Volver a la colección",
+    "loading": "Cargando préstamos...",
+    "retry": "Intentar de nuevo",
+    "filters": {
+      "todos": "Todos",
+      "ativos": "Activos",
+      "atrasados": "Vencidos",
+      "vencendo": "Próximos a vencer",
+      "devolvidos": "Devueltos",
+      "ocorrencias": "Incidencias"
+    },
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Usuario, correo, título, código, inventario, ISBN...",
+      "button": "Buscar",
+      "clear": "Limpiar"
+    },
+    "list": {
+      "title": "Préstamos encontrados",
+      "resultCount": "{count, plural, =0 {Ningún registro} one {# registro} other {# registros}}",
+      "loading": "Cargando registros...",
+      "dueSoonRule": "Próximos a vencer: siguientes {days} días"
+    },
+    "table": {
+      "user": "Usuario",
+      "item": "Obra / ejemplar",
+      "loanDate": "Préstamo",
+      "dueDate": "Vencimiento",
+      "renewals": "Renovaciones",
+      "status": "Estado",
+      "fine": "Multa",
+      "actions": "Acciones",
+      "tomb": "Inventario",
+      "daysOverdue": "{count, plural, one {# día de retraso} other {# días de retraso}}",
+      "fineGenerated": "Multa generada",
+      "openItem": "Abrir elemento"
+    },
+    "statuses": {
+      "ativo": "Activo",
+      "atrasado": "Vencido",
+      "devolvido": "Devuelto",
+      "perdido": "Perdido",
+      "danificado": "Dañado",
+      "cancelado": "Cancelado"
+    },
+    "empty": {
+      "title": "No se encontraron préstamos",
+      "description": "No hay registros para los filtros seleccionados."
+    },
+    "errors": {
+      "title": "No se pudieron cargar los préstamos",
+      "load": "Se produjo un error al consultar los préstamos."
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Siguiente"
     }
   }
 }

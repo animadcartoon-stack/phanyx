@@ -139,10 +139,10 @@
     "externalActivities": "Activités extérieures",
     "academicPublications": "Publications académiques",
     "visitors": "Visiteurs",
-
     "blockedIps": "Adresses IP bloquées",
     "overview": "Vue d'ensemble",
     "collection": "Collection",
+    "loans": "Prêts",
     "receipts": "Encaissements",
     "cashRegister": "Caisse",
     "reports": "Rapports",
@@ -16641,6 +16641,69 @@
     "states": {
       "loading": "Chargement des adresses IP bloquées...",
       "empty": "Aucune adresse IP bloquée trouvée."
+    }
+  },
+  "AdminLibraryLoans": {
+    "eyebrow": "Circulation de la bibliothèque",
+    "title": "Prêts",
+    "description": "Suivez les prêts actifs, les retards, les prochaines échéances, les retours, les renouvellements et les incidents.",
+    "backToCollection": "Retour au fonds",
+    "loading": "Chargement des prêts...",
+    "retry": "Réessayer",
+    "filters": {
+      "todos": "Tous",
+      "ativos": "Actifs",
+      "atrasados": "En retard",
+      "vencendo": "À échéance proche",
+      "devolvidos": "Retournés",
+      "ocorrencias": "Incidents"
+    },
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Utilisateur, e-mail, titre, code, inventaire, ISBN...",
+      "button": "Rechercher",
+      "clear": "Effacer"
+    },
+    "list": {
+      "title": "Prêts trouvés",
+      "resultCount": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
+      "loading": "Chargement des enregistrements...",
+      "dueSoonRule": "Échéance proche : dans les {days} prochains jours"
+    },
+    "table": {
+      "user": "Utilisateur",
+      "item": "Document / exemplaire",
+      "loanDate": "Prêt",
+      "dueDate": "Échéance",
+      "renewals": "Renouvellements",
+      "status": "Statut",
+      "fine": "Amende",
+      "actions": "Actions",
+      "tomb": "Inventaire",
+      "daysOverdue": "{count, plural, one {# jour de retard} other {# jours de retard}}",
+      "fineGenerated": "Amende générée",
+      "openItem": "Ouvrir"
+    },
+    "statuses": {
+      "ativo": "Actif",
+      "atrasado": "En retard",
+      "devolvido": "Retourné",
+      "perdido": "Perdu",
+      "danificado": "Endommagé",
+      "cancelado": "Annulé"
+    },
+    "empty": {
+      "title": "Aucun prêt trouvé",
+      "description": "Aucun enregistrement ne correspond aux filtres sélectionnés."
+    },
+    "errors": {
+      "title": "Impossible de charger les prêts",
+      "load": "Une erreur s'est produite lors de la consultation des prêts."
+    },
+    "pagination": {
+      "page": "Page {page} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
     }
   }
 }

@@ -139,10 +139,10 @@
     "externalActivities": "Atividades externas",
     "academicPublications": "Publicações Académicas",
     "visitors": "Visitantes",
-
     "blockedIps": "IPs bloqueados",
     "overview": "Visão geral",
     "collection": "Acervo",
+    "loans": "Empréstimos",
     "receipts": "Recebimentos",
     "cashRegister": "Caixa",
     "reports": "Relatórios",
@@ -16427,6 +16427,69 @@
     "states": {
       "loading": "A carregar IPs bloqueados...",
       "empty": "Nenhum IP bloqueado encontrado."
+    }
+  },
+  "AdminLibraryLoans": {
+    "eyebrow": "Circulação da biblioteca",
+    "title": "Empréstimos",
+    "description": "Acompanhe empréstimos ativos, atrasos, vencimentos, devoluções, renovações e ocorrências.",
+    "backToCollection": "Voltar ao acervo",
+    "loading": "A carregar empréstimos...",
+    "retry": "Tentar novamente",
+    "filters": {
+      "todos": "Todos",
+      "ativos": "Ativos",
+      "atrasados": "Em atraso",
+      "vencendo": "A vencer em breve",
+      "devolvidos": "Devolvidos",
+      "ocorrencias": "Ocorrências"
+    },
+    "search": {
+      "label": "Pesquisar",
+      "placeholder": "Utilizador, e-mail, título, código, tombo, ISBN...",
+      "button": "Pesquisar",
+      "clear": "Limpar"
+    },
+    "list": {
+      "title": "Empréstimos encontrados",
+      "resultCount": "{count, plural, =0 {Nenhum registo} one {# registo} other {# registos}}",
+      "loading": "A carregar registos...",
+      "dueSoonRule": "A vencer em breve: próximos {days} dias"
+    },
+    "table": {
+      "user": "Utilizador",
+      "item": "Obra / exemplar",
+      "loanDate": "Empréstimo",
+      "dueDate": "Vencimento",
+      "renewals": "Renovações",
+      "status": "Estado",
+      "fine": "Multa",
+      "actions": "Ações",
+      "tomb": "Tombo",
+      "daysOverdue": "{count, plural, one {# dia de atraso} other {# dias de atraso}}",
+      "fineGenerated": "Multa gerada",
+      "openItem": "Abrir item"
+    },
+    "statuses": {
+      "ativo": "Ativo",
+      "atrasado": "Em atraso",
+      "devolvido": "Devolvido",
+      "perdido": "Perdido",
+      "danificado": "Danificado",
+      "cancelado": "Cancelado"
+    },
+    "empty": {
+      "title": "Nenhum empréstimo encontrado",
+      "description": "Não existem registos para os filtros selecionados."
+    },
+    "errors": {
+      "title": "Não foi possível carregar os empréstimos",
+      "load": "Ocorreu um erro ao consultar os empréstimos."
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Seguinte"
     }
   }
 }
