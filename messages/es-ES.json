@@ -16696,5 +16696,127 @@
       "conversation": "Conversación #{id}",
       "defaultName": "Chat PHANYX"
     }
+  },
+  "AdminOmbudsman": {
+    "header": {
+      "eyebrow": "PHANYX IA",
+      "title": "Defensoría inteligente",
+      "description": "Centraliza sugerencias, reclamaciones, elogios e informes internos de estudiantes y profesores con análisis automático de PHANYX IA."
+    },
+    "executive": {
+      "eyebrow": "Panel ejecutivo",
+      "title": "Defensoría conectada a Reputación IA",
+      "description": "Las reclamaciones internas, sugerencias y elogios alimentan el módulo reputacional de la institución, ayudando a la IA a identificar riesgos, cuellos de botella y oportunidades de mejora."
+    },
+    "stats": {
+      "total": "Total",
+      "critical": "Críticos",
+      "inAnalysis": "En análisis",
+      "resolved": "Resueltos"
+    },
+    "filters": {
+      "all": "Todos",
+      "student": "Estudiante",
+      "teacher": "Profesor",
+      "critical": "Crítico",
+      "neutral": "Neutro",
+      "positive": "Positivo",
+      "pending": "Pendiente",
+      "inAnalysis": "En análisis",
+      "resolved": "Resuelto"
+    },
+    "states": {
+      "loading": "Cargando comunicaciones...",
+      "emptyTitle": "No se encontraron comunicaciones",
+      "emptyDescription": "Cuando los estudiantes o profesores envíen comunicaciones, aparecerán aquí."
+    },
+    "item": {
+      "manifestation": "Comunicación #{id}",
+      "aiSuggestionTitle": "Sugerencia de PHANYX IA",
+      "aiSuggestion": "Responder con empatía, reconocer el relato, explicar que la institución revisará el caso y derivarlo al área responsable."
+    },
+    "actions": {
+      "newManifestation": "+ Nueva comunicación",
+      "details": "Ver detalles",
+      "reply": "Responder",
+      "resolved": "Resuelto",
+      "replyFirst": "Responda primero",
+      "updating": "Actualizando...",
+      "markResolved": "Marcar como resuelto",
+      "cancel": "Cancelar",
+      "copyResponse": "Copiar respuesta",
+      "saving": "Guardando...",
+      "saveResponse": "Guardar respuesta",
+      "saveManifestation": "Guardar comunicación",
+      "closeNotice": "Cerrar aviso",
+      "closeModal": "Cerrar ventana"
+    },
+    "responseModal": {
+      "eyebrow": "Defensoría",
+      "title": "Responder comunicación",
+      "received": "Comunicación recibida",
+      "responseLabel": "Respuesta de la institución"
+    },
+    "newModal": {
+      "title": "Nueva comunicación",
+      "type": "Tipo",
+      "priority": "Prioridad",
+      "titleLabel": "Título",
+      "message": "Mensaje",
+      "titlePlaceholder": "Escriba un título",
+      "messagePlaceholder": "Describa la comunicación..."
+    },
+    "types": {
+      "suggestion": "Sugerencia",
+      "complaint": "Reclamación",
+      "compliment": "Elogio",
+      "report": "Informe"
+    },
+    "priorities": {
+      "low": "Baja",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "values": {
+      "origin": {
+        "student": "Estudiante",
+        "teacher": "Profesor",
+        "admin": "Administración",
+        "employee": "Empleado"
+      },
+      "status": {
+        "open": "Abierto",
+        "pending": "Pendiente",
+        "inAnalysis": "En análisis",
+        "resolved": "Resuelto"
+      },
+      "sentiment": {
+        "critical": "Crítico",
+        "neutral": "Neutro",
+        "positive": "Positivo"
+      }
+    },
+    "feedback": {
+      "resolved": "Comunicación marcada como resuelta.",
+      "created": "Comunicación creada correctamente.",
+      "responseSaved": "Respuesta guardada correctamente."
+    },
+    "validation": {
+      "messageRequired": "Escriba el mensaje de la comunicación antes de guardar.",
+      "responseRequired": "Escriba una respuesta antes de guardar."
+    },
+    "errors": {
+      "load": "Error al cargar la defensoría.",
+      "resolve": "No se pudo marcar la comunicación como resuelta.",
+      "create": "No se pudo crear la comunicación.",
+      "saveResponse": "No se pudo guardar la respuesta."
+    },
+    "suggestedReplies": {
+      "compliment": "Muchas gracias por sus comentarios. Nos alegra saber que su experiencia fue positiva. Su mensaje es muy importante para nuestra institución.",
+      "suggestion": "Gracias por su sugerencia. Su aportación es muy importante para la mejora continua de la institución. Nuestro equipo analizará la posibilidad de implementar esta mejora.",
+      "complaint": "Gracias por compartir su comunicación. Lamentamos la experiencia descrita. Nuestro equipo revisará atentamente la situación y la remitirá al área responsable para buscar una solución.",
+      "default": "Gracias por ponerse en contacto con nosotros. Su comunicación ha sido recibida y será analizada por la institución con la atención necesaria."
+    }
   }
 }

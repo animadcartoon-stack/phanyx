@@ -16696,5 +16696,127 @@
       "conversation": "Conversation #{id}",
       "defaultName": "PHANYX Chat"
     }
+  },
+  "AdminOmbudsman": {
+    "header": {
+      "eyebrow": "PHANYX AI",
+      "title": "Intelligent Ombudsman",
+      "description": "Centralize suggestions, complaints, compliments, and internal reports from students and teachers with automated PHANYX AI analysis."
+    },
+    "executive": {
+      "eyebrow": "Executive dashboard",
+      "title": "Ombudsman connected to AI Reputation",
+      "description": "Internal complaints, suggestions, and compliments feed the institution's reputation module, helping AI identify risks, bottlenecks, and opportunities for improvement."
+    },
+    "stats": {
+      "total": "Total",
+      "critical": "Critical",
+      "inAnalysis": "Under review",
+      "resolved": "Resolved"
+    },
+    "filters": {
+      "all": "All",
+      "student": "Student",
+      "teacher": "Teacher",
+      "critical": "Critical",
+      "neutral": "Neutral",
+      "positive": "Positive",
+      "pending": "Pending",
+      "inAnalysis": "Under review",
+      "resolved": "Resolved"
+    },
+    "states": {
+      "loading": "Loading submissions...",
+      "emptyTitle": "No submissions found",
+      "emptyDescription": "When students or teachers submit feedback, it will appear here."
+    },
+    "item": {
+      "manifestation": "Submission #{id}",
+      "aiSuggestionTitle": "PHANYX AI suggestion",
+      "aiSuggestion": "Respond empathetically, acknowledge the report, explain that the institution will review the case, and forward it to the responsible department."
+    },
+    "actions": {
+      "newManifestation": "+ New submission",
+      "details": "View details",
+      "reply": "Reply",
+      "resolved": "Resolved",
+      "replyFirst": "Reply first",
+      "updating": "Updating...",
+      "markResolved": "Mark as resolved",
+      "cancel": "Cancel",
+      "copyResponse": "Copy response",
+      "saving": "Saving...",
+      "saveResponse": "Save response",
+      "saveManifestation": "Save submission",
+      "closeNotice": "Close notice",
+      "closeModal": "Close dialog"
+    },
+    "responseModal": {
+      "eyebrow": "Ombudsman",
+      "title": "Reply to submission",
+      "received": "Submission received",
+      "responseLabel": "Institution response"
+    },
+    "newModal": {
+      "title": "New submission",
+      "type": "Type",
+      "priority": "Priority",
+      "titleLabel": "Title",
+      "message": "Message",
+      "titlePlaceholder": "Enter a title",
+      "messagePlaceholder": "Describe the submission..."
+    },
+    "types": {
+      "suggestion": "Suggestion",
+      "complaint": "Complaint",
+      "compliment": "Compliment",
+      "report": "Report"
+    },
+    "priorities": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "values": {
+      "origin": {
+        "student": "Student",
+        "teacher": "Teacher",
+        "admin": "Administration",
+        "employee": "Employee"
+      },
+      "status": {
+        "open": "Open",
+        "pending": "Pending",
+        "inAnalysis": "Under review",
+        "resolved": "Resolved"
+      },
+      "sentiment": {
+        "critical": "Critical",
+        "neutral": "Neutral",
+        "positive": "Positive"
+      }
+    },
+    "feedback": {
+      "resolved": "Submission marked as resolved.",
+      "created": "Submission created successfully.",
+      "responseSaved": "Response saved successfully."
+    },
+    "validation": {
+      "messageRequired": "Enter the submission message before saving.",
+      "responseRequired": "Enter a response before saving."
+    },
+    "errors": {
+      "load": "Error loading the ombudsman records.",
+      "resolve": "Unable to mark the submission as resolved.",
+      "create": "Unable to create the submission.",
+      "saveResponse": "Unable to save the response."
+    },
+    "suggestedReplies": {
+      "compliment": "Thank you very much for your feedback. We are pleased to know that your experience was positive. Your message is very important to our institution.",
+      "suggestion": "Thank you for your suggestion. Your contribution is very important to our institution's continuous improvement. Our team will review the possibility of implementing this improvement.",
+      "complaint": "Thank you for sharing your concern. We are sorry about the experience described. Our team will carefully review the situation and forward it to the responsible department to seek a solution.",
+      "default": "Thank you for contacting us. Your submission has been received and will be reviewed by the institution with the necessary attention."
+    }
   }
 }

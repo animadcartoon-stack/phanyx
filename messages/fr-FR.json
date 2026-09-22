@@ -16696,5 +16696,127 @@
       "conversation": "Conversation n°{id}",
       "defaultName": "Chat PHANYX"
     }
+  },
+  "AdminOmbudsman": {
+    "header": {
+      "eyebrow": "PHANYX IA",
+      "title": "Médiation intelligente",
+      "description": "Centralisez les suggestions, réclamations, compliments et signalements internes des étudiants et enseignants grâce à l'analyse automatisée de PHANYX IA."
+    },
+    "executive": {
+      "eyebrow": "Tableau de bord exécutif",
+      "title": "Médiation connectée à la Réputation IA",
+      "description": "Les réclamations internes, suggestions et compliments alimentent le module de réputation de l'établissement et aident l'IA à identifier les risques, les blocages et les possibilités d'amélioration."
+    },
+    "stats": {
+      "total": "Total",
+      "critical": "Critiques",
+      "inAnalysis": "En cours d'analyse",
+      "resolved": "Résolus"
+    },
+    "filters": {
+      "all": "Tous",
+      "student": "Étudiant",
+      "teacher": "Enseignant",
+      "critical": "Critique",
+      "neutral": "Neutre",
+      "positive": "Positif",
+      "pending": "En attente",
+      "inAnalysis": "En cours d'analyse",
+      "resolved": "Résolu"
+    },
+    "states": {
+      "loading": "Chargement des signalements...",
+      "emptyTitle": "Aucun signalement trouvé",
+      "emptyDescription": "Lorsque des étudiants ou des enseignants enverront des signalements, ils apparaîtront ici."
+    },
+    "item": {
+      "manifestation": "Signalement n°{id}",
+      "aiSuggestionTitle": "Suggestion de PHANYX IA",
+      "aiSuggestion": "Répondre avec empathie, reconnaître le signalement, expliquer que l'établissement examinera le cas et le transmettra au service responsable."
+    },
+    "actions": {
+      "newManifestation": "+ Nouveau signalement",
+      "details": "Voir les détails",
+      "reply": "Répondre",
+      "resolved": "Résolu",
+      "replyFirst": "Répondez d'abord",
+      "updating": "Mise à jour...",
+      "markResolved": "Marquer comme résolu",
+      "cancel": "Annuler",
+      "copyResponse": "Copier la réponse",
+      "saving": "Enregistrement...",
+      "saveResponse": "Enregistrer la réponse",
+      "saveManifestation": "Enregistrer le signalement",
+      "closeNotice": "Fermer l'avis",
+      "closeModal": "Fermer la fenêtre"
+    },
+    "responseModal": {
+      "eyebrow": "Médiation",
+      "title": "Répondre au signalement",
+      "received": "Signalement reçu",
+      "responseLabel": "Réponse de l'établissement"
+    },
+    "newModal": {
+      "title": "Nouveau signalement",
+      "type": "Type",
+      "priority": "Priorité",
+      "titleLabel": "Titre",
+      "message": "Message",
+      "titlePlaceholder": "Saisissez un titre",
+      "messagePlaceholder": "Décrivez le signalement..."
+    },
+    "types": {
+      "suggestion": "Suggestion",
+      "complaint": "Réclamation",
+      "compliment": "Compliment",
+      "report": "Signalement"
+    },
+    "priorities": {
+      "low": "Faible",
+      "normal": "Normale",
+      "high": "Élevée",
+      "urgent": "Urgente"
+    },
+    "values": {
+      "origin": {
+        "student": "Étudiant",
+        "teacher": "Enseignant",
+        "admin": "Administration",
+        "employee": "Employé"
+      },
+      "status": {
+        "open": "Ouvert",
+        "pending": "En attente",
+        "inAnalysis": "En cours d'analyse",
+        "resolved": "Résolu"
+      },
+      "sentiment": {
+        "critical": "Critique",
+        "neutral": "Neutre",
+        "positive": "Positif"
+      }
+    },
+    "feedback": {
+      "resolved": "Signalement marqué comme résolu.",
+      "created": "Signalement créé avec succès.",
+      "responseSaved": "Réponse enregistrée avec succès."
+    },
+    "validation": {
+      "messageRequired": "Saisissez le message du signalement avant de l'enregistrer.",
+      "responseRequired": "Saisissez une réponse avant de l'enregistrer."
+    },
+    "errors": {
+      "load": "Erreur lors du chargement de la médiation.",
+      "resolve": "Impossible de marquer le signalement comme résolu.",
+      "create": "Impossible de créer le signalement.",
+      "saveResponse": "Impossible d'enregistrer la réponse."
+    },
+    "suggestedReplies": {
+      "compliment": "Merci beaucoup pour votre retour. Nous sommes heureux de savoir que votre expérience a été positive. Votre message est très important pour notre établissement.",
+      "suggestion": "Merci pour votre suggestion. Votre contribution est très importante pour l'amélioration continue de l'établissement. Notre équipe examinera la possibilité de mettre en œuvre cette amélioration.",
+      "complaint": "Merci d'avoir partagé votre signalement. Nous sommes désolés pour l'expérience décrite. Notre équipe examinera attentivement la situation et la transmettra au service responsable afin de rechercher une solution.",
+      "default": "Merci de nous avoir contactés. Votre signalement a été reçu et sera examiné par l'établissement avec toute l'attention nécessaire."
+    }
   }
 }

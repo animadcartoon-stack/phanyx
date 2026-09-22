@@ -16482,5 +16482,127 @@
       "conversation": "Conversa #{id}",
       "defaultName": "Chat PHANYX"
     }
+  },
+  "AdminOmbudsman": {
+    "header": {
+      "eyebrow": "PHANYX IA",
+      "title": "Provedoria inteligente",
+      "description": "Centralize sugestões, reclamações, elogios e relatos internos de alunos e professores com análise automática da IA PHANYX."
+    },
+    "executive": {
+      "eyebrow": "Painel executivo",
+      "title": "Provedoria ligada à Reputação IA",
+      "description": "Reclamações internas, sugestões e elogios passam a alimentar o módulo reputacional da instituição, ajudando a IA a identificar riscos, bloqueios e oportunidades de melhoria."
+    },
+    "stats": {
+      "total": "Total",
+      "critical": "Críticos",
+      "inAnalysis": "Em análise",
+      "resolved": "Resolvidos"
+    },
+    "filters": {
+      "all": "Todos",
+      "student": "Aluno",
+      "teacher": "Professor",
+      "critical": "Crítico",
+      "neutral": "Neutro",
+      "positive": "Positivo",
+      "pending": "Pendente",
+      "inAnalysis": "Em análise",
+      "resolved": "Resolvido"
+    },
+    "states": {
+      "loading": "A carregar manifestações...",
+      "emptyTitle": "Nenhuma manifestação encontrada",
+      "emptyDescription": "Quando alunos ou professores enviarem manifestações, estas aparecerão aqui."
+    },
+    "item": {
+      "manifestation": "Manifestação n.º {id}",
+      "aiSuggestionTitle": "Sugestão da IA PHANYX",
+      "aiSuggestion": "Responder com empatia, reconhecer o relato, explicar que a instituição irá verificar o caso e encaminhá-lo para o setor responsável."
+    },
+    "actions": {
+      "newManifestation": "+ Nova manifestação",
+      "details": "Ver detalhes",
+      "reply": "Responder",
+      "resolved": "Resolvido",
+      "replyFirst": "Responda primeiro",
+      "updating": "A atualizar...",
+      "markResolved": "Marcar como resolvido",
+      "cancel": "Cancelar",
+      "copyResponse": "Copiar resposta",
+      "saving": "A guardar...",
+      "saveResponse": "Guardar resposta",
+      "saveManifestation": "Guardar manifestação",
+      "closeNotice": "Fechar aviso",
+      "closeModal": "Fechar janela"
+    },
+    "responseModal": {
+      "eyebrow": "Provedoria",
+      "title": "Responder à manifestação",
+      "received": "Manifestação recebida",
+      "responseLabel": "Resposta da instituição"
+    },
+    "newModal": {
+      "title": "Nova manifestação",
+      "type": "Tipo",
+      "priority": "Prioridade",
+      "titleLabel": "Título",
+      "message": "Mensagem",
+      "titlePlaceholder": "Introduza um título",
+      "messagePlaceholder": "Descreva a manifestação..."
+    },
+    "types": {
+      "suggestion": "Sugestão",
+      "complaint": "Reclamação",
+      "compliment": "Elogio",
+      "report": "Relato"
+    },
+    "priorities": {
+      "low": "Baixa",
+      "normal": "Normal",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "values": {
+      "origin": {
+        "student": "Aluno",
+        "teacher": "Professor",
+        "admin": "Administração",
+        "employee": "Funcionário"
+      },
+      "status": {
+        "open": "Aberto",
+        "pending": "Pendente",
+        "inAnalysis": "Em análise",
+        "resolved": "Resolvido"
+      },
+      "sentiment": {
+        "critical": "Crítico",
+        "neutral": "Neutro",
+        "positive": "Positivo"
+      }
+    },
+    "feedback": {
+      "resolved": "Manifestação marcada como resolvida.",
+      "created": "Manifestação criada com sucesso.",
+      "responseSaved": "Resposta guardada com sucesso."
+    },
+    "validation": {
+      "messageRequired": "Escreva a mensagem da manifestação antes de guardar.",
+      "responseRequired": "Escreva uma resposta antes de guardar."
+    },
+    "errors": {
+      "load": "Erro ao carregar a provedoria.",
+      "resolve": "Não foi possível marcar como resolvido.",
+      "create": "Não foi possível criar a manifestação.",
+      "saveResponse": "Não foi possível guardar a resposta."
+    },
+    "suggestedReplies": {
+      "compliment": "Agradecemos muito o seu retorno. Ficamos satisfeitos por saber que a sua experiência foi positiva. A sua mensagem é muito importante para a nossa instituição.",
+      "suggestion": "Agradecemos a sua sugestão. O seu contributo é muito importante para a melhoria contínua da instituição. A nossa equipa irá analisar a possibilidade de implementar esta melhoria.",
+      "complaint": "Agradecemos por partilhar a sua manifestação. Lamentamos a experiência relatada. A nossa equipa irá verificar a situação com atenção e encaminhá-la para o setor responsável.",
+      "default": "Agradecemos o seu contacto. A sua manifestação foi recebida e será analisada pela instituição com a atenção necessária."
+    }
   }
 }
