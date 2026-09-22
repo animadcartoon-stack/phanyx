@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
+import { useLocale, useTranslations } from "next-intl";
 
 type TipoUnidadePolo =
   | "SEDE"
@@ -185,6 +186,71 @@ function formatarCep(valor: string) {
 }
 
 function AdminPolosPage() {
+  const t = useTranslations("AdminPoles");
+  const locale = useLocale();
+
+  const tiposUnidadeTraduzidos = useMemo(
+    () => [
+      { valor: "SEDE" as const, nome: t("unitTypes.headquarters") },
+      { valor: "CAMPUS" as const, nome: t("unitTypes.campus") },
+      { valor: "POLO" as const, nome: t("unitTypes.pole") },
+      { valor: "FILIAL" as const, nome: t("unitTypes.branch") },
+      { valor: "UNIDADE" as const, nome: t("unitTypes.unit") },
+    ],
+    [t]
+  );
+
+  function nomeTipoUnidadeTraduzido(
+    tipo?: TipoUnidadePolo
+  ) {
+    return (
+      tiposUnidadeTraduzidos.find(
+        (item) => item.valor === tipo
+      )?.nome || t("unitTypes.pole")
+    );
+  }
+
+  function nomeStatusPoloTraduzido(
+    polo: Polo
+  ) {
+    switch (polo.statusComercial) {
+      case "ATIVO":
+        return t("status.active");
+
+      case "PENDENTE_ATIVACAO":
+        return t("status.pendingActivation");
+
+      case "SUSPENSO":
+        return t("status.suspended");
+
+      case "ENCERRADO":
+        return t("status.closed");
+
+      default:
+        return polo.ativo
+          ? t("status.active")
+          : t("status.pendingActivation");
+    }
+  }
+
+  function mensagemStatusPoloTraduzida(
+    polo: Polo
+  ) {
+    switch (polo.statusComercial) {
+      case "PENDENTE_ATIVACAO":
+        return t("statusMessages.pendingActivation");
+
+      case "SUSPENSO":
+        return t("statusMessages.suspended");
+
+      case "ENCERRADO":
+        return t("statusMessages.closed");
+
+      default:
+        return null;
+    }
+  }
+
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
 
@@ -359,7 +425,7 @@ function AdminPolosPage() {
 
     if (cepNumerico.length !== 8) {
       setMensagemCep(
-        "Informe os 8 números do CEP."
+        t("cep.invalid")
       );
       setMensagemCepTipo("erro");
       return;
@@ -375,7 +441,7 @@ function AdminPolosPage() {
 
     try {
       setBuscandoCep(true);
-      setMensagemCep("Buscando endereço...");
+      setMensagemCep(t("cep.searching"));
       setMensagemCepTipo("aviso");
 
       const resposta = await fetch(
@@ -392,7 +458,7 @@ function AdminPolosPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-          "Não foi possível localizar o CEP."
+          t("cep.notFound")
         );
       }
 
@@ -429,7 +495,7 @@ function AdminPolosPage() {
 
       if (dados?.endereco) {
         setMensagemCep(
-          "Endereço localizado e preenchido automaticamente."
+          t("cep.autoFilled")
         );
         setMensagemCepTipo("sucesso");
 
@@ -438,7 +504,7 @@ function AdminPolosPage() {
         });
       } else {
         setMensagemCep(
-          "CEP localizado, mas sem um logradouro específico. Preencha o endereço manualmente."
+          t("cep.noStreet")
         );
         setMensagemCepTipo("aviso");
       }
@@ -446,7 +512,7 @@ function AdminPolosPage() {
       setMensagemCep(
         error instanceof Error
           ? error.message
-          : "Não foi possível consultar o CEP."
+          : t("cep.lookupError")
       );
 
       setMensagemCepTipo("erro");
@@ -518,7 +584,7 @@ function AdminPolosPage() {
 
       if (!res.ok) {
         throw new Error(
-          data?.error || "Erro ao carregar polos"
+          data?.error || t("errors.load")
         );
       }
 
@@ -563,7 +629,7 @@ function AdminPolosPage() {
       setFeedback(
         error instanceof Error
           ? error.message
-          : "Erro ao carregar polos."
+          : t("errors.load")
       );
       setFeedbackTipo("erro");
     } finally {
@@ -574,6 +640,17 @@ function AdminPolosPage() {
   useEffect(() => {
     carregarPolos();
   }, []);
+
+  useEffect(() => {
+    setFeedback("");
+    setFeedbackTipo("");
+    setMensagemCep("");
+    setMensagemCepTipo("");
+    setErroProvisionamento("");
+    setErroRedefinicaoSenha("");
+    setErroStatusPolo("");
+    setErroPermissaoPolos("");
+  }, [locale]);
 
   useEffect(() => {
     if (!feedback) return;
@@ -624,7 +701,7 @@ function AdminPolosPage() {
 
       if (!res.ok) {
         throw new Error(
-          data?.error || "Erro ao criar polo"
+          data?.error || t("errors.create")
         );
       }
 
@@ -633,7 +710,7 @@ function AdminPolosPage() {
       await carregarPolos();
 
       setFeedback(
-        data?.aviso || "Polo criado com sucesso."
+        data?.aviso || t("feedback.created")
       );
 
       setFeedbackTipo(
@@ -643,7 +720,7 @@ function AdminPolosPage() {
       setFeedback(
         error instanceof Error
           ? error.message
-          : "Erro ao criar polo."
+          : t("errors.create")
       );
       setFeedbackTipo("erro");
     } finally {
@@ -688,7 +765,7 @@ function AdminPolosPage() {
 
       if (!res.ok) {
         throw new Error(
-          data?.error || "Erro ao atualizar polo"
+          data?.error || t("errors.update")
         );
       }
 
@@ -696,13 +773,13 @@ function AdminPolosPage() {
       setBusca("");
       await carregarPolos();
 
-      setFeedback("Polo atualizado com sucesso.");
+      setFeedback(t("feedback.updated"));
       setFeedbackTipo("sucesso");
     } catch (error: unknown) {
       setFeedback(
         error instanceof Error
           ? error.message
-          : "Erro ao atualizar polo."
+          : t("errors.update")
       );
       setFeedbackTipo("erro");
     } finally {
@@ -744,7 +821,7 @@ function AdminPolosPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          "Erro ao criar a instituição e o acesso."
+          t("errors.provision")
         );
       }
 
@@ -755,7 +832,7 @@ function AdminPolosPage() {
         !data?.credenciaisTemporarias?.senha
       ) {
         throw new Error(
-          "A instituição foi criada, mas as credenciais retornadas são inválidas."
+          t("errors.invalidProvisionCredentials")
         );
       }
 
@@ -780,14 +857,14 @@ function AdminPolosPage() {
       await carregarPolos();
 
       setFeedback(
-        "Instituição independente e acesso criados com sucesso."
+        t("feedback.provisioned")
       );
       setFeedbackTipo("sucesso");
     } catch (error: unknown) {
       const mensagem =
         error instanceof Error
           ? error.message
-          : "Erro ao criar o acesso institucional.";
+          : t("errors.provision");
 
       setErroProvisionamento(mensagem);
     } finally {
@@ -807,17 +884,17 @@ function AdminPolosPage() {
     if (!credenciaisAcesso) return;
 
     const texto = [
-      `Acesso institucional PHANYX`,
-      ``,
-      `Instituição: ${credenciaisAcesso.instituicaoNome}`,
-      `Login: ${credenciaisAcesso.login}`,
-      `Senha temporária: ${credenciaisAcesso.senha}`,
-      ``,
-      `Por segurança, troque esta senha no primeiro acesso.`,
-      `A senha anterior não funciona mais para novos acessos.`,
-      `Caso o PHANYX esteja aberto em outro dispositivo ou navegador, saia dessas sessões manualmente.`,
-      ``,
-      `Não compartilhe estas credenciais com outras pessoas.`,
+      t("credentials.copyTitle"),
+      "",
+      t("credentials.institution", { name: credenciaisAcesso.instituicaoNome }),
+      t("credentials.login", { login: credenciaisAcesso.login }),
+      t("credentials.temporaryPassword", { password: credenciaisAcesso.senha }),
+      "",
+      t("credentials.changeOnFirstAccess"),
+      t("credentials.oldPasswordInvalid"),
+      t("credentials.signOutOtherSessions"),
+      "",
+      t("credentials.doNotShare"),
     ].join("\n");
 
     try {
@@ -825,7 +902,7 @@ function AdminPolosPage() {
       setCredenciaisCopiadas(true);
     } catch {
       setFeedback(
-        "Não foi possível copiar automaticamente. Selecione e copie as credenciais manualmente."
+        t("errors.copyCredentials")
       );
       setFeedbackTipo("erro");
     }
@@ -852,7 +929,7 @@ function AdminPolosPage() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-          "Erro ao gerar uma nova senha temporária."
+          t("errors.resetPassword")
         );
       }
 
@@ -863,7 +940,7 @@ function AdminPolosPage() {
         !data?.credenciaisTemporarias?.senha
       ) {
         throw new Error(
-          "A senha foi redefinida, mas as novas credenciais não foram retornadas corretamente."
+          t("errors.invalidResetCredentials")
         );
       }
 
@@ -877,22 +954,22 @@ function AdminPolosPage() {
         precisaTrocarSenha:
           data.credenciaisTemporarias.precisaTrocarSenha ===
           true,
-        titulo: "Nova senha temporária criada",
+        titulo: t("credentials.resetTitle"),
         orientacao:
-          "A senha anterior deixou de funcionar para novos acessos. Guarde ou envie estas credenciais ao administrador da unidade e oriente-o a sair do PHANYX em todos os dispositivos onde já estiver conectado.",
+          t("credentials.resetGuidance"),
       });
 
       setCredenciaisCopiadas(false);
 
       setFeedback(
-        "Nova senha temporária criada com sucesso."
+        t("feedback.passwordReset")
       );
       setFeedbackTipo("sucesso");
     } catch (error: unknown) {
       setErroRedefinicaoSenha(
         error instanceof Error
           ? error.message
-          : "Erro ao gerar uma nova senha temporária."
+          : t("errors.resetPassword")
       );
     } finally {
       setRedefinindoSenhaId(null);
@@ -923,7 +1000,7 @@ function AdminPolosPage() {
       motivoStatusPolo.trim().length < 5
     ) {
       setErroStatusPolo(
-        "Informe um motivo com pelo menos 5 caracteres."
+        t("validation.reasonMin")
       );
       return;
     }
@@ -954,7 +1031,7 @@ function AdminPolosPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-          "Não foi possível alterar o status do polo."
+          t("errors.changeStatus")
         );
       }
 
@@ -967,14 +1044,14 @@ function AdminPolosPage() {
 
       setFeedback(
         dados?.mensagem ||
-        "Status do polo alterado com sucesso."
+        t("feedback.statusChanged")
       );
       setFeedbackTipo("sucesso");
     } catch (error: unknown) {
       setErroStatusPolo(
         error instanceof Error
           ? error.message
-          : "Não foi possível alterar o status do polo."
+          : t("errors.changeStatus")
       );
     } finally {
       setAlterandoStatusPolo(false);
@@ -1013,7 +1090,7 @@ function AdminPolosPage() {
       motivoPermissaoPolos.trim().length < 5
     ) {
       setErroPermissaoPolos(
-        "Informe um motivo com pelo menos 5 caracteres."
+        t("validation.reasonMin")
       );
       return;
     }
@@ -1051,7 +1128,7 @@ function AdminPolosPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-          "Não foi possível alterar esta autorização."
+          t("errors.changePermission")
         );
       }
 
@@ -1064,7 +1141,7 @@ function AdminPolosPage() {
 
       setFeedback(
         dados?.mensagem ||
-        "Autorização atualizada com sucesso."
+        t("feedback.permissionChanged")
       );
 
       setFeedbackTipo("sucesso");
@@ -1072,7 +1149,7 @@ function AdminPolosPage() {
       setErroPermissaoPolos(
         error instanceof Error
           ? error.message
-          : "Não foi possível alterar esta autorização."
+          : t("errors.changePermission")
       );
     } finally {
       setAlterandoPermissaoPolos(false);
@@ -1128,12 +1205,12 @@ function AdminPolosPage() {
               className="text-xl font-bold"
             >
               {habilitarGestaoOutrosPolos
-                ? "Permitir gestão de outros polos"
-                : "Retirar permissão de gestão"}
+                ? t("modals.permission.allowTitle")
+                : t("modals.permission.removeTitle")}
             </h2>
 
             <p className="mt-3 text-sm leading-6">
-              Unidade:{" "}
+              {t("modals.permission.unit")}:{" "}
               <strong>
                 {poloParaAlterarPermissao.nome}
               </strong>
@@ -1143,37 +1220,25 @@ function AdminPolosPage() {
               {habilitarGestaoOutrosPolos ? (
                 <>
                   <p className="text-sm font-bold">
-                    Esta unidade poderá:
+                    {t("modals.permission.canDoTitle")}
                   </p>
 
                   <p className="mt-2 text-sm leading-6">
-                    Cadastrar polos, criar novos
-                    IDs institucionais e gerenciar
-                    as unidades cadastradas por
-                    ela.
+                    {t("modals.permission.canDoDescription")}
                   </p>
 
                   <p className="mt-3 text-sm leading-6">
-                    Os limites, alunos ativos e
-                    unidades excedentes continuarão
-                    sendo contabilizados na
-                    assinatura da instituição
-                    contratante.
+                    {t("modals.permission.billingDescription")}
                   </p>
                 </>
               ) : (
                 <>
                   <p className="text-sm font-bold">
-                    A unidade perderá a permissão
-                    para criar e gerenciar outros
-                    polos.
+                    {t("modals.permission.removeDescription")}
                   </p>
 
                   <p className="mt-2 text-sm leading-6">
-                    Os polos e IDs já criados não
-                    serão apagados. A instituição
-                    contratante continuará com
-                    autoridade sobre toda a rede.
+                    {t("modals.permission.existingRemain")}
                   </p>
                 </>
               )}
@@ -1184,7 +1249,7 @@ function AdminPolosPage() {
                 htmlFor="motivo-permissao-polos"
                 className="mb-2 block text-sm font-semibold"
               >
-                Motivo da alteração
+                {t("modals.common.reasonChange")}
               </label>
 
               <textarea
@@ -1197,15 +1262,15 @@ function AdminPolosPage() {
                 }
                 placeholder={
                   habilitarGestaoOutrosPolos
-                    ? "Ex.: Unidade regional autorizada a expandir a rede."
-                    : "Ex.: Autorização retirada por decisão da instituição contratante."
+                    ? t("modals.permission.allowReasonPlaceholder")
+                    : t("modals.permission.removeReasonPlaceholder")
                 }
                 className={`${inputClass} min-h-[100px] resize-y`}
                 autoFocus
               />
 
               <p className="mt-1 text-xs">
-                Informe pelo menos 5 caracteres.
+                {t("modals.common.reasonMin")}
               </p>
             </div>
 
@@ -1222,7 +1287,7 @@ function AdminPolosPage() {
                 disabled={alterandoPermissaoPolos}
                 className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
               >
-                Voltar
+                {t("modals.common.back")}
               </button>
 
               <button
@@ -1237,10 +1302,10 @@ function AdminPolosPage() {
                   }`}
               >
                 {alterandoPermissaoPolos
-                  ? "Salvando..."
+                  ? t("modals.common.saving")
                   : habilitarGestaoOutrosPolos
-                    ? "Confirmar autorização"
-                    : "Confirmar retirada"}
+                    ? t("modals.permission.confirmAllow")
+                    : t("modals.permission.confirmRemove")}
               </button>
             </div>
           </div>
@@ -1260,40 +1325,33 @@ function AdminPolosPage() {
               className="text-xl font-bold"
             >
               {acaoStatusPolo === "SUSPENDER"
-                ? "Inativar polo"
+                ? t("modals.status.deactivateTitle")
                 : acaoStatusPolo === "REATIVAR"
-                  ? "Reativar polo"
-                  : "Encerrar polo"}
+                  ? t("modals.status.reactivateTitle")
+                  : t("modals.status.closeTitle")}
             </h2>
 
             <p className="mt-3 text-sm leading-6">
-              Você está alterando o polo{" "}
+              {t("modals.status.changing")}{" "}
               <strong>{poloParaAlterarStatus.nome}</strong>.
             </p>
 
             <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4">
               {acaoStatusPolo === "SUSPENDER" && (
                 <p className="text-sm leading-6">
-                  O polo ficará temporariamente inativo. A
-                  instituição independente e os novos acessos
-                  serão bloqueados, mas o polo poderá ser
-                  reativado posteriormente.
+                  {t("modals.status.deactivateDescription")}
                 </p>
               )}
 
               {acaoStatusPolo === "REATIVAR" && (
                 <p className="text-sm leading-6">
-                  O polo voltará a ficar ativo e o acesso da
-                  instituição independente será liberado
-                  novamente.
+                  {t("modals.status.reactivateDescription")}
                 </p>
               )}
 
               {acaoStatusPolo === "ENCERRAR" && (
                 <p className="text-sm leading-6">
-                  O encerramento é definitivo nesta tela. O
-                  acesso será bloqueado e os dados permanecerão
-                  guardados apenas para histórico e auditoria.
+                  {t("modals.status.closeDescription")}
                 </p>
               )}
             </div>
@@ -1304,7 +1362,7 @@ function AdminPolosPage() {
                   htmlFor="motivo-status-polo"
                   className="mb-2 block text-sm font-semibold"
                 >
-                  Motivo
+                  {t("modals.common.reason")}
                 </label>
 
                 <textarea
@@ -1315,15 +1373,15 @@ function AdminPolosPage() {
                   }
                   placeholder={
                     acaoStatusPolo === "ENCERRAR"
-                      ? "Ex.: Polo criado somente para teste de suporte."
-                      : "Ex.: Unidade temporariamente sem funcionamento."
+                      ? t("modals.status.closeReasonPlaceholder")
+                      : t("modals.status.deactivateReasonPlaceholder")
                   }
                   className={`${inputClass} min-h-[100px] resize-y`}
                   autoFocus
                 />
 
                 <p className="mt-1 text-xs">
-                  Informe pelo menos 5 caracteres.
+                  {t("modals.common.reasonMin")}
                 </p>
               </div>
             )}
@@ -1346,7 +1404,7 @@ function AdminPolosPage() {
                 disabled={alterandoStatusPolo}
                 className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
               >
-                Voltar
+                {t("modals.common.back")}
               </button>
 
               <button
@@ -1361,12 +1419,12 @@ function AdminPolosPage() {
                   }`}
               >
                 {alterandoStatusPolo
-                  ? "Processando..."
+                  ? t("modals.common.processing")
                   : acaoStatusPolo === "SUSPENDER"
-                    ? "Confirmar inativação"
+                    ? t("modals.status.confirmDeactivate")
                     : acaoStatusPolo === "REATIVAR"
-                      ? "Confirmar reativação"
-                      : "Confirmar encerramento"}
+                      ? t("modals.status.confirmReactivate")
+                      : t("modals.status.confirmClose")}
               </button>
             </div>
           </div>
@@ -1391,7 +1449,7 @@ function AdminPolosPage() {
                   id="titulo-erro-provisionamento"
                   className="phanyx-polos-modal-erro-titulo text-xl font-bold"
                 >
-                  Não foi possível criar o acesso
+                  {t("modals.provisionError.title")}
                 </h2>
 
                 <p className="phanyx-polos-modal-erro-texto mt-2 text-sm leading-6">
@@ -1405,20 +1463,17 @@ function AdminPolosPage() {
               .includes("já existe um usuário") && (
                 <div className="phanyx-polos-modal-erro-ajuda mt-5 rounded-xl border p-4">
                   <p className="phanyx-polos-modal-erro-ajuda-titulo text-sm font-bold">
-                    O que fazer?
+                    {t("modals.provisionError.whatToDo")}
                   </p>
 
                   <p className="phanyx-polos-modal-erro-ajuda-texto mt-2 text-sm leading-6">
-                    O e-mail do responsável já está vinculado a outro
-                    usuário do PHANYX. Edite o polo e informe um e-mail
-                    ainda não cadastrado para o primeiro administrador
-                    desta unidade.
+                    {t("modals.provisionError.emailAlreadyUsed")}
                   </p>
 
                   {poloParaProvisionar?.responsavelEmail && (
                     <div className="phanyx-polos-modal-erro-email mt-3 rounded-lg border px-3 py-2">
                       <p className="text-xs font-semibold uppercase">
-                        E-mail informado
+                        {t("modals.provisionError.reportedEmail")}
                       </p>
 
                       <p className="mt-1 break-all text-sm font-bold">
@@ -1435,7 +1490,7 @@ function AdminPolosPage() {
                 onClick={() => setErroProvisionamento("")}
                 className="phanyx-polos-modal-erro-voltar rounded-xl border px-4 py-2 text-sm font-semibold"
               >
-                Voltar
+                {t("modals.common.back")}
               </button>
 
               <button
@@ -1453,7 +1508,7 @@ function AdminPolosPage() {
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Editar responsável
+                {t("modals.provisionError.editResponsible")}
               </button>
             </div>
           </div>
@@ -1472,14 +1527,13 @@ function AdminPolosPage() {
               id="titulo-confirmar-provisionamento"
               className="text-xl font-bold"
             >
-              Criar instituição independente
+              {t("modals.provision.title")}
             </h2>
 
             <p className="mt-3 text-sm">
-              O polo{" "}
+              {t("modals.provision.introBefore")}{" "}
               <strong>{poloParaProvisionar.nome}</strong>{" "}
-              receberá um novo ID institucional, usuários próprios e
-              dados independentes.
+              {t("modals.provision.introAfter")}
             </p>
 
             <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
@@ -1493,13 +1547,11 @@ function AdminPolosPage() {
 
                 <div>
                   <p className="phanyx-polos-alerta-titulo text-sm font-bold">
-                    Atenção
+                    {t("modals.common.attention")}
                   </p>
 
                   <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
-                    O plano e a cobrança continuarão vinculados à instituição
-                    contratante. O responsável receberá login e senha temporária
-                    para administrar esta unidade.
+                    {t("modals.provision.billingNotice")}
                   </p>
                 </div>
               </div>
@@ -1523,18 +1575,11 @@ function AdminPolosPage() {
 
                   <div>
                     <p className="text-sm font-bold text-slate-950 dark:text-slate-100">
-                      Permitir que esta unidade crie e
-                      gerencie outros polos
+                      {t("modals.provision.delegateTitle")}
                     </p>
 
                     <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                      Quando habilitado, os
-                      administradores desta unidade
-                      poderão cadastrar polos e criar
-                      novos IDs institucionais dentro da
-                      mesma rede. Os limites e a cobrança
-                      continuarão centralizados na
-                      instituição contratante.
+                      {t("modals.provision.delegateDescription")}
                     </p>
                   </div>
                 </label>
@@ -1545,12 +1590,7 @@ function AdminPolosPage() {
               !contextoGestaoPolos
                 .ehInstituicaoContratante && (
                 <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-                  Esta unidade possui autorização para
-                  criar polos, mas não pode transferir
-                  essa autorização para as novas
-                  unidades. Somente a instituição
-                  contratante pode conceder essa
-                  permissão.
+                  {t("modals.provision.delegatedWarning")}
                 </div>
               )}
 
@@ -1570,7 +1610,7 @@ function AdminPolosPage() {
                 }
                 className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Cancelar
+                {t("modals.common.cancel")}
               </button>
 
               <button
@@ -1582,8 +1622,8 @@ function AdminPolosPage() {
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {provisionandoId === poloParaProvisionar.id
-                  ? "Criando instituição..."
-                  : "Criar instituição e acesso"}
+                  ? t("modals.provision.creating")
+                  : t("modals.provision.confirm")}
               </button>
             </div>
           </div>
@@ -1602,32 +1642,26 @@ function AdminPolosPage() {
               id="titulo-redefinir-senha-polo"
               className="text-xl font-bold"
             >
-              Gerar nova senha temporária
+              {t("modals.resetPassword.title")}
             </h2>
 
             <p className="mt-3 text-sm leading-6">
-              Será criada uma nova senha para o administrador da
-              unidade{" "}
+              {t("modals.resetPassword.introBefore")}{" "}
               <strong>{poloParaRedefinirSenha.nome}</strong>.
             </p>
 
             <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
               <p className="phanyx-polos-alerta-titulo text-sm font-bold">
-                Atenção
+                {t("modals.common.attention")}
               </p>
 
               <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
-                A senha atual deixará de funcionar para novos acessos.
-                O login continuará sendo o mesmo, e o administrador
-                deverá trocar a nova senha temporária no próximo acesso.
+                {t("modals.resetPassword.passwordNotice")}
               </p>
 
               <p className="phanyx-polos-alerta-texto mt-3 text-sm leading-6">
-                <strong>Importante:</strong> caso o usuário já esteja com
-                o PHANYX aberto em outro computador, celular ou navegador,
-                essa sessão poderá continuar ativa até ser encerrada ou
-                expirar. Oriente o usuário a sair do sistema em todos os
-                dispositivos.
+                <strong>{t("modals.common.important")}</strong>{" "}
+                {t("modals.resetPassword.sessionNotice")}
               </p>
             </div>
 
@@ -1650,7 +1684,7 @@ function AdminPolosPage() {
                 }
                 className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
               >
-                Cancelar
+                {t("modals.common.cancel")}
               </button>
 
               <button
@@ -1664,8 +1698,8 @@ function AdminPolosPage() {
               >
                 {redefinindoSenhaId ===
                   poloParaRedefinirSenha.id
-                  ? "Gerando nova senha..."
-                  : "Confirmar nova senha"}
+                  ? t("modals.resetPassword.generating")
+                  : t("modals.resetPassword.confirm")}
               </button>
             </div>
           </div>
@@ -1685,18 +1719,18 @@ function AdminPolosPage() {
               className="text-xl font-bold"
             >
               {credenciaisAcesso.titulo ||
-                "Acesso institucional criado"}
+                t("modals.credentials.defaultTitle")}
             </h2>
 
             <p className="mt-2 text-sm">
               {credenciaisAcesso.orientacao ||
-                "Guarde ou envie estas credenciais ao responsável da unidade. A senha temporária será exibida somente nesta tela."}
+                t("modals.credentials.defaultGuidance")}
             </p>
 
             <div className="mt-5 space-y-3">
               <div className="phanyx-polos-input rounded-xl border p-3">
                 <p className="text-xs font-semibold uppercase">
-                  Instituição
+                  {t("modals.credentials.institution")}
                 </p>
 
                 <p className="mt-1 font-bold">
@@ -1706,7 +1740,7 @@ function AdminPolosPage() {
 
               <div className="phanyx-polos-input rounded-xl border p-3">
                 <p className="text-xs font-semibold uppercase">
-                  Login
+                  {t("modals.credentials.login")}
                 </p>
 
                 <p className="mt-1 break-all font-mono font-bold">
@@ -1716,7 +1750,7 @@ function AdminPolosPage() {
 
               <div className="phanyx-polos-input rounded-xl border p-3">
                 <p className="text-xs font-semibold uppercase">
-                  Senha temporária
+                  {t("modals.credentials.temporaryPassword")}
                 </p>
 
                 <p className="mt-1 break-all font-mono text-lg font-bold">
@@ -1729,14 +1763,14 @@ function AdminPolosPage() {
                 "boolean" && (
                   <div className="phanyx-polos-input rounded-xl border p-3">
                     <p className="text-xs font-semibold uppercase">
-                      Gestão de outros polos
+                      {t("modals.credentials.otherPolesManagement")}
                     </p>
 
                     <p className="mt-1 font-bold">
                       {credenciaisAcesso
                         .podeCriarGerenciarPolos
-                        ? "Habilitada pela instituição contratante"
-                        : "Não habilitada"}
+                        ? t("modals.credentials.enabledByContracting")
+                        : t("modals.credentials.notEnabled")}
                     </p>
                   </div>
                 )}
@@ -1745,8 +1779,7 @@ function AdminPolosPage() {
 
             {credenciaisAcesso.precisaTrocarSenha && (
               <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-                O responsável deverá trocar esta senha no primeiro
-                acesso.
+                {t("modals.credentials.changeOnFirstAccess")}
               </div>
             )}
 
@@ -1757,8 +1790,8 @@ function AdminPolosPage() {
                 className="rounded-xl border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/30"
               >
                 {credenciaisCopiadas
-                  ? "Credenciais copiadas"
-                  : "Copiar credenciais"}
+                  ? t("modals.credentials.copied")
+                  : t("modals.credentials.copy")}
               </button>
 
               <button
@@ -1769,7 +1802,7 @@ function AdminPolosPage() {
                 }}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Fechar e apagar da tela
+                {t("modals.credentials.closeAndClear")}
               </button>
             </div>
           </div>
@@ -1791,17 +1824,16 @@ function AdminPolosPage() {
 
       <div>
         <h1 className="text-2xl font-bold !text-slate-950 dark:!text-slate-100">
-          🏢 Polos
+          {t("header.title")}
         </h1>
 
         <p className="phanyx-polos-subtitulo mt-1">
-          Cadastre as sedes, campi, polos, filiais ou unidades da instituição.
+          {t("header.description")}
         </p>
       </div>
 
       <div className="phanyx-polos-aviso rounded-2xl border p-4 text-sm font-semibold">
-        Cada endereço ou unidade operacional real deve ser cadastrado separadamente.
-        Um único polo não deve representar várias unidades físicas da instituição.
+        {t("header.notice")}
       </div>
 
       <form
@@ -1810,13 +1842,11 @@ function AdminPolosPage() {
       >
         <div>
           <h2 className="font-semibold !text-slate-950 dark:!text-slate-100">
-            Novo polo
+            {t("create.title")}
           </h2>
 
           <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
-            O polo será cadastrado como ativo. Ao criar o acesso
-            institucional, o sistema verificará se a unidade está
-            incluída no contrato ou se haverá cobrança adicional.
+            {t("create.description")}
           </p>
         </div>
 
@@ -1830,7 +1860,7 @@ function AdminPolosPage() {
             }
             className={inputClass}
           >
-            {TIPOS_UNIDADE.map((tipo) => (
+            {tiposUnidadeTraduzidos.map((tipo) => (
               <option key={tipo.valor} value={tipo.valor}>
                 {tipo.nome}
               </option>
@@ -1839,7 +1869,7 @@ function AdminPolosPage() {
 
           <input
             type="text"
-            placeholder="Nome da unidade"
+            placeholder={t("form.namePlaceholder")}
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             className={inputClass}
@@ -1848,7 +1878,7 @@ function AdminPolosPage() {
 
           <input
             type="text"
-            placeholder="Código interno"
+            placeholder={t("form.codePlaceholder")}
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
             className={inputClass}
@@ -1856,7 +1886,7 @@ function AdminPolosPage() {
 
           <input
             type="text"
-            placeholder="CNPJ da unidade, quando houver"
+            placeholder={t("form.taxIdOptionalPlaceholder")}
             value={cnpj}
             onChange={(e) => setCnpj(e.target.value)}
             className={inputClass}
@@ -1865,7 +1895,7 @@ function AdminPolosPage() {
 
         <div className="space-y-4">
           <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-            Endereço da unidade
+            {t("form.addressSection")}
           </h3>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1875,7 +1905,7 @@ function AdminPolosPage() {
                 inputMode="numeric"
                 autoComplete="postal-code"
                 maxLength={9}
-                placeholder="CEP"
+                placeholder={t("form.postalCodePlaceholder")}
                 value={cep}
                 disabled={buscandoCep}
                 onChange={(e) => {
@@ -1908,7 +1938,7 @@ function AdminPolosPage() {
 
               {buscandoCep && (
                 <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                  Buscando endereço...
+                  {t("cep.searching")}
                 </p>
               )}
 
@@ -1933,7 +1963,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Endereço"
+              placeholder={t("form.addressPlaceholder")}
               value={endereco}
               onChange={(e) => setEndereco(e.target.value)}
               className={inputClass}
@@ -1943,7 +1973,7 @@ function AdminPolosPage() {
             <input
               ref={numeroInputRef}
               type="text"
-              placeholder="Número"
+              placeholder={t("form.numberPlaceholder")}
               value={numero}
               onChange={(e) => setNumero(e.target.value)}
               className={inputClass}
@@ -1951,7 +1981,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Complemento"
+              placeholder={t("form.complementPlaceholder")}
               value={complemento}
               onChange={(e) => setComplemento(e.target.value)}
               className={inputClass}
@@ -1959,7 +1989,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Bairro"
+              placeholder={t("form.neighborhoodPlaceholder")}
               value={bairro}
               onChange={(e) => setBairro(e.target.value)}
               className={inputClass}
@@ -1967,7 +1997,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Cidade"
+              placeholder={t("form.cityPlaceholder")}
               value={cidade}
               onChange={(e) => setCidade(e.target.value)}
               className={inputClass}
@@ -1976,7 +2006,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Estado — ex.: SC"
+              placeholder={t("form.stateExamplePlaceholder")}
               value={estado}
               maxLength={2}
               onChange={(e) =>
@@ -1991,19 +2021,18 @@ function AdminPolosPage() {
         <div className="space-y-4">
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-              Responsável pela unidade
+              {t("form.responsibleSection")}
             </h3>
 
             <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
-              Após cadastrar o polo, será possível criar o acesso
-              institucional do responsável.
+              {t("form.responsibleHelp")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <input
               type="text"
-              placeholder="Nome do responsável"
+              placeholder={t("form.responsibleNamePlaceholder")}
               value={responsavelNome}
               onChange={(e) =>
                 setResponsavelNome(e.target.value)
@@ -2013,7 +2042,7 @@ function AdminPolosPage() {
 
             <input
               type="email"
-              placeholder="E-mail do responsável"
+              placeholder={t("form.responsibleEmailPlaceholder")}
               value={responsavelEmail}
               onChange={(e) =>
                 setResponsavelEmail(e.target.value)
@@ -2023,7 +2052,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Telefone do responsável"
+              placeholder={t("form.responsiblePhonePlaceholder")}
               value={responsavelTelefone}
               onChange={(e) =>
                 setResponsavelTelefone(e.target.value)
@@ -2033,7 +2062,7 @@ function AdminPolosPage() {
 
             <input
               type="text"
-              placeholder="Cargo do responsável"
+              placeholder={t("form.responsibleRolePlaceholder")}
               value={responsavelCargo}
               onChange={(e) =>
                 setResponsavelCargo(e.target.value)
@@ -2044,7 +2073,7 @@ function AdminPolosPage() {
         </div>
 
         <textarea
-          placeholder="Descrição ou observações"
+          placeholder={t("form.descriptionPlaceholder")}
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
           className={`${inputClass} min-h-[100px] resize-y`}
@@ -2055,14 +2084,14 @@ function AdminPolosPage() {
           disabled={criando}
           className="rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {criando ? "Criando..." : "Criar polo"}
+          {criando ? t("actions.creating") : t("actions.create")}
         </button>
       </form>
 
       <div className="space-y-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h2 className="font-semibold !text-slate-950 dark:!text-slate-100">
-            Lista de polos
+            {t("list.title")}
           </h2>
 
           <input
@@ -2070,8 +2099,8 @@ function AdminPolosPage() {
             name="filtro-interno-polos"
             autoComplete="off"
             spellCheck={false}
-            aria-label="Buscar polos"
-            placeholder="Buscar por nome, cidade, responsável..."
+            aria-label={t("list.searchAria")}
+            placeholder={t("list.searchPlaceholder")}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className={`${inputClass} md:w-[420px]`}
@@ -2080,17 +2109,17 @@ function AdminPolosPage() {
 
         {carregando ? (
           <div className="phanyx-polos-card rounded-2xl border p-4 text-sm">
-            Carregando polos...
+            {t("list.loading")}
           </div>
         ) : polosFiltrados.length === 0 ? (
           <div className="phanyx-polos-card rounded-2xl border p-4 text-sm">
-            Nenhum polo encontrado.
+            {t("list.empty")}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {polosFiltrados.map((polo) => {
               const mensagemStatus =
-                mensagemStatusPolo(polo);
+                mensagemStatusPoloTraduzida(polo);
 
               const unidadeContratante =
                 String(polo.codigo || "")
@@ -2132,7 +2161,7 @@ function AdminPolosPage() {
                           }
                           className={inputClass}
                         >
-                          {TIPOS_UNIDADE.map((tipo) => (
+                          {tiposUnidadeTraduzidos.map((tipo) => (
                             <option
                               key={tipo.valor}
                               value={tipo.valor}
@@ -2148,7 +2177,7 @@ function AdminPolosPage() {
                             setEditNome(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="Nome da unidade"
+                          placeholder={t("form.namePlaceholder")}
                         />
 
                         <input
@@ -2157,7 +2186,7 @@ function AdminPolosPage() {
                             setEditCodigo(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="Código interno"
+                          placeholder={t("form.codePlaceholder")}
                         />
 
                         <input
@@ -2166,7 +2195,7 @@ function AdminPolosPage() {
                             setEditCnpj(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="CNPJ"
+                          placeholder={t("form.taxIdPlaceholder")}
                         />
 
                         <input
@@ -2175,7 +2204,7 @@ function AdminPolosPage() {
                             setEditCep(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="CEP"
+                          placeholder={t("form.postalCodePlaceholder")}
                         />
 
                         <input
@@ -2184,7 +2213,7 @@ function AdminPolosPage() {
                             setEditEndereco(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="Endereço"
+                          placeholder={t("form.addressPlaceholder")}
                         />
 
                         <input
@@ -2193,7 +2222,7 @@ function AdminPolosPage() {
                             setEditNumero(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="Número"
+                          placeholder={t("form.numberPlaceholder")}
                         />
 
                         <input
@@ -2204,7 +2233,7 @@ function AdminPolosPage() {
                             )
                           }
                           className={inputClass}
-                          placeholder="Complemento"
+                          placeholder={t("form.complementPlaceholder")}
                         />
 
                         <input
@@ -2213,7 +2242,7 @@ function AdminPolosPage() {
                             setEditBairro(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="Bairro"
+                          placeholder={t("form.neighborhoodPlaceholder")}
                         />
 
                         <input
@@ -2222,7 +2251,7 @@ function AdminPolosPage() {
                             setEditCidade(e.target.value)
                           }
                           className={inputClass}
-                          placeholder="Cidade"
+                          placeholder={t("form.cityPlaceholder")}
                         />
 
                         <input
@@ -2234,7 +2263,7 @@ function AdminPolosPage() {
                             )
                           }
                           className={inputClass}
-                          placeholder="Estado"
+                          placeholder={t("form.statePlaceholder")}
                         />
 
                         <input
@@ -2245,7 +2274,7 @@ function AdminPolosPage() {
                             )
                           }
                           className={inputClass}
-                          placeholder="Nome do responsável"
+                          placeholder={t("form.responsibleNamePlaceholder")}
                         />
 
                         <input
@@ -2257,7 +2286,7 @@ function AdminPolosPage() {
                             )
                           }
                           className={inputClass}
-                          placeholder="E-mail do responsável"
+                          placeholder={t("form.responsibleEmailPlaceholder")}
                         />
 
                         <input
@@ -2268,7 +2297,7 @@ function AdminPolosPage() {
                             )
                           }
                           className={inputClass}
-                          placeholder="Telefone do responsável"
+                          placeholder={t("form.responsiblePhonePlaceholder")}
                         />
 
                         <input
@@ -2279,7 +2308,7 @@ function AdminPolosPage() {
                             )
                           }
                           className={inputClass}
-                          placeholder="Cargo do responsável"
+                          placeholder={t("form.responsibleRolePlaceholder")}
                         />
 
                         <textarea
@@ -2288,7 +2317,7 @@ function AdminPolosPage() {
                             setEditDescricao(e.target.value)
                           }
                           className={`${inputClass} min-h-[90px] resize-y md:col-span-2`}
-                          placeholder="Descrição"
+                          placeholder={t("form.descriptionEditPlaceholder")}
                         />
                       </div>
 
@@ -2300,8 +2329,8 @@ function AdminPolosPage() {
                           className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {salvandoEdicao
-                            ? "Salvando..."
-                            : "Salvar"}
+                            ? t("actions.saving")
+                            : t("actions.save")}
                         </button>
 
                         <button
@@ -2312,7 +2341,7 @@ function AdminPolosPage() {
                           disabled={salvandoEdicao}
                           className="rounded-xl bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          Cancelar
+                          {t("actions.cancel")}
                         </button>
                       </div>
                     </div>
@@ -2324,46 +2353,46 @@ function AdminPolosPage() {
                         </p>
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                          Tipo:{" "}
-                          {nomeTipoUnidade(
+                          {t("list.type")}:{" "}
+                          {nomeTipoUnidadeTraduzido(
                             polo.tipoUnidade
                           )}
                         </p>
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                          Código: {polo.codigo || "-"}
+                          {t("list.code")}: {polo.codigo || "-"}
                         </p>
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                          CNPJ: {polo.cnpj || "-"}
+                          {t("list.taxId")}: {polo.cnpj || "-"}
                         </p>
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                          Endereço:{" "}
+                          {t("list.address")}:{" "}
                           {formatarEndereco(polo) || "-"}
                         </p>
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                          Responsável:{" "}
+                          {t("list.responsible")}:{" "}
                           {polo.responsavelNome || "-"}
                         </p>
 
                         {polo.responsavelEmail && (
                           <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                            E-mail:{" "}
+                            {t("list.email")}:{" "}
                             {polo.responsavelEmail}
                           </p>
                         )}
 
                         {polo.responsavelTelefone && (
                           <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                            Telefone:{" "}
+                            {t("list.phone")}:{" "}
                             {polo.responsavelTelefone}
                           </p>
                         )}
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
-                          Descrição:{" "}
+                          {t("list.description")}:{" "}
                           {polo.descricao || "-"}
                         </p>
 
@@ -2373,7 +2402,7 @@ function AdminPolosPage() {
                             onClick={() => iniciarEdicao(polo)}
                             className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                           >
-                            Editar dados
+                            {t("actions.edit")}
                           </button>
 
                           {!unidadeContratante &&
@@ -2391,7 +2420,7 @@ function AdminPolosPage() {
                                       }
                                       className="rounded-lg border border-amber-500 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/30"
                                     >
-                                      Inativar polo
+                                      {t("actions.deactivate")}
                                     </button>
                                   )}
 
@@ -2406,7 +2435,7 @@ function AdminPolosPage() {
                                     }
                                     className="rounded-lg border border-emerald-500 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/30"
                                   >
-                                    Reativar polo
+                                    {t("actions.reactivate")}
                                   </button>
                                 )}
 
@@ -2420,7 +2449,7 @@ function AdminPolosPage() {
                                   }
                                   className="rounded-lg border border-red-500 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30"
                                 >
-                                  Encerrar polo
+                                  {t("actions.closePole")}
                                 </button>
                               </>
                             )}
@@ -2439,15 +2468,15 @@ function AdminPolosPage() {
                               className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               {provisionandoId === polo.id
-                                ? "Criando acesso..."
-                                : "Criar acesso institucional"}
+                                ? t("actions.creatingAccess")
+                                : t("actions.createInstitutionalAccess")}
                             </button>
                           )}
 
                           {polo.instituicaoGeradaId && (
                             <>
                               <span className="rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-                                Instituição independente criada
+                                {t("badges.independentInstitution")}
                               </span>
 
                               {contextoGestaoPolos
@@ -2459,8 +2488,8 @@ function AdminPolosPage() {
                                       }`}
                                   >
                                     {polo.podeCriarGerenciarPolos
-                                      ? "Pode criar outros polos"
-                                      : "Não pode criar outros polos"}
+                                      ? t("badges.canCreatePoles")
+                                      : t("badges.cannotCreatePoles")}
                                   </span>
                                 )}
 
@@ -2474,8 +2503,8 @@ function AdminPolosPage() {
                                 className="rounded-lg border border-blue-500 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-blue-300 dark:hover:bg-blue-950/30"
                               >
                                 {redefinindoSenhaId === polo.id
-                                  ? "Gerando nova senha..."
-                                  : "Gerar nova senha temporária"}
+                                  ? t("actions.generatingPassword")
+                                  : t("actions.generateTemporaryPassword")}
                               </button>
 
                               {contextoGestaoPolos
@@ -2494,7 +2523,7 @@ function AdminPolosPage() {
                                         }
                                         className="rounded-lg border border-red-500 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30"
                                       >
-                                        Retirar permissão de criar polos
+                                        {t("actions.removePolePermission")}
                                       </button>
                                     ) : polo.ativo &&
                                       polo.statusComercial ===
@@ -2509,7 +2538,7 @@ function AdminPolosPage() {
                                         }
                                         className="rounded-lg border border-blue-500 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/30"
                                       >
-                                        Permitir criar outros polos
+                                        {t("actions.allowOtherPoles")}
                                       </button>
                                     ) : null}
                                   </>
@@ -2520,7 +2549,7 @@ function AdminPolosPage() {
 
                           {unidadeContratante && (
                             <span className="rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
-                              Unidade contratante
+                              {t("badges.contractingUnit")}
                             </span>
                           )}
 
@@ -2528,7 +2557,7 @@ function AdminPolosPage() {
                             !polo.instituicaoGeradaId &&
                             !possuiResponsavel && (
                               <span className="text-xs text-amber-700 dark:text-amber-300">
-                                Preencha o nome e o e-mail do responsável para criar o acesso.
+                                {t("list.responsibleRequired")}
                               </span>
                             )}
 
@@ -2545,7 +2574,7 @@ function AdminPolosPage() {
                           polo
                         )}`}
                       >
-                        {nomeStatusPolo(polo)}
+                        {nomeStatusPoloTraduzido(polo)}
                       </div>
                     </div>
                   )}

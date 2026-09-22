@@ -16818,5 +16818,220 @@
       "complaint": "Thank you for sharing your concern. We are sorry about the experience described. Our team will carefully review the situation and forward it to the responsible department to seek a solution.",
       "default": "Thank you for contacting us. Your submission has been received and will be reviewed by the institution with the necessary attention."
     }
+  },
+  "AdminPoles": {
+    "cep": {
+      "invalid": "Enter the 8 digits of the postal code.",
+      "searching": "Looking up the address...",
+      "notFound": "The postal code could not be found.",
+      "autoFilled": "Address found and filled in automatically.",
+      "noStreet": "Postal code found, but no specific street was returned. Enter the address manually.",
+      "lookupError": "The postal code could not be looked up."
+    },
+    "errors": {
+      "load": "Error loading campuses.",
+      "create": "Error creating campus.",
+      "update": "Error updating campus.",
+      "provision": "Error creating the institution and access.",
+      "invalidProvisionCredentials": "The institution was created, but the returned credentials are invalid.",
+      "copyCredentials": "The credentials could not be copied automatically. Select and copy them manually.",
+      "resetPassword": "Error generating a new temporary password.",
+      "invalidResetCredentials": "The password was reset, but the new credentials were not returned correctly.",
+      "changeStatus": "The campus status could not be changed.",
+      "changePermission": "This permission could not be changed."
+    },
+    "feedback": {
+      "created": "Campus created successfully.",
+      "updated": "Campus updated successfully.",
+      "provisioned": "Independent institution and access created successfully.",
+      "passwordReset": "New temporary password created successfully.",
+      "statusChanged": "Campus status changed successfully.",
+      "permissionChanged": "Permission updated successfully."
+    },
+    "validation": {
+      "reasonMin": "Enter a reason with at least 5 characters."
+    },
+    "credentials": {
+      "copyTitle": "PHANYX institutional access",
+      "institution": "Institution: {name}",
+      "login": "Login: {login}",
+      "temporaryPassword": "Temporary password: {password}",
+      "changeOnFirstAccess": "For security, change this password on the first sign-in.",
+      "oldPasswordInvalid": "The previous password no longer works for new sign-ins.",
+      "signOutOtherSessions": "If PHANYX is open on another device or browser, sign out of those sessions manually.",
+      "doNotShare": "Do not share these credentials with other people.",
+      "resetTitle": "New temporary password created",
+      "resetGuidance": "The previous password no longer works for new sign-ins. Save or send these credentials to the unit administrator and instruct them to sign out of PHANYX on every device where they are already signed in."
+    },
+    "unitTypes": {
+      "headquarters": "Headquarters",
+      "campus": "Campus",
+      "pole": "Learning center",
+      "branch": "Branch",
+      "unit": "Unit"
+    },
+    "status": {
+      "active": "Active",
+      "pendingActivation": "Pending activation",
+      "suspended": "Suspended",
+      "closed": "Closed"
+    },
+    "statusMessages": {
+      "pendingActivation": "Activation is subject to plan limits and subscription terms.",
+      "suspended": "This location is temporarily suspended.",
+      "closed": "This location has been closed and remains available for history only."
+    },
+    "header": {
+      "title": "🏢 Campuses and locations",
+      "description": "Register the institution's headquarters, campuses, learning centers, branches, or units.",
+      "notice": "Each real physical address or operating unit must be registered separately. A single location must not represent multiple physical units."
+    },
+    "create": {
+      "title": "New location",
+      "description": "The location will be registered as active. When institutional access is created, the system will check whether the unit is included in the contract or whether additional charges apply."
+    },
+    "form": {
+      "addressSection": "Unit address",
+      "responsibleSection": "Unit administrator",
+      "responsibleHelp": "After registering the location, you can create institutional access for the responsible administrator.",
+      "namePlaceholder": "Unit name",
+      "codePlaceholder": "Internal code",
+      "taxIdOptionalPlaceholder": "Unit tax ID, when applicable",
+      "taxIdPlaceholder": "Tax ID",
+      "postalCodePlaceholder": "Postal code",
+      "addressPlaceholder": "Address",
+      "numberPlaceholder": "Number",
+      "complementPlaceholder": "Address line 2",
+      "neighborhoodPlaceholder": "District / neighborhood",
+      "cityPlaceholder": "City",
+      "stateExamplePlaceholder": "State / region",
+      "statePlaceholder": "State / region",
+      "responsibleNamePlaceholder": "Administrator name",
+      "responsibleEmailPlaceholder": "Administrator email",
+      "responsiblePhonePlaceholder": "Administrator phone",
+      "responsibleRolePlaceholder": "Administrator role",
+      "descriptionPlaceholder": "Description or notes",
+      "descriptionEditPlaceholder": "Description"
+    },
+    "list": {
+      "title": "Locations",
+      "searchAria": "Search locations",
+      "searchPlaceholder": "Search by name, city, administrator...",
+      "loading": "Loading locations...",
+      "empty": "No locations found.",
+      "type": "Type",
+      "code": "Code",
+      "taxId": "Tax ID",
+      "address": "Address",
+      "responsible": "Administrator",
+      "email": "Email",
+      "phone": "Phone",
+      "description": "Description",
+      "responsibleRequired": "Enter the administrator's name and email to create access."
+    },
+    "actions": {
+      "creating": "Creating...",
+      "create": "Create location",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit details",
+      "deactivate": "Deactivate location",
+      "reactivate": "Reactivate location",
+      "closePole": "Close location",
+      "creatingAccess": "Creating access...",
+      "createInstitutionalAccess": "Create institutional access",
+      "generatingPassword": "Generating new password...",
+      "generateTemporaryPassword": "Generate temporary password",
+      "removePolePermission": "Remove permission to create locations",
+      "allowOtherPoles": "Allow creation of other locations"
+    },
+    "badges": {
+      "independentInstitution": "Independent institution created",
+      "canCreatePoles": "Can create other locations",
+      "cannotCreatePoles": "Cannot create other locations",
+      "contractingUnit": "Contracting unit"
+    },
+    "modals": {
+      "common": {
+        "back": "Back",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "processing": "Processing...",
+        "attention": "Attention",
+        "important": "Important:",
+        "reason": "Reason",
+        "reasonChange": "Reason for change",
+        "reasonMin": "Enter at least 5 characters."
+      },
+      "permission": {
+        "allowTitle": "Allow management of other locations",
+        "removeTitle": "Remove management permission",
+        "unit": "Unit",
+        "canDoTitle": "This unit will be able to:",
+        "canDoDescription": "Register locations, create new institutional IDs, and manage the units it registers.",
+        "billingDescription": "Limits, active students, and additional units will continue to be counted under the contracting institution's subscription.",
+        "removeDescription": "The unit will lose permission to create and manage other locations.",
+        "existingRemain": "Existing locations and IDs will not be deleted. The contracting institution will continue to have authority over the entire network.",
+        "allowReasonPlaceholder": "Example: Regional unit authorized to expand the network.",
+        "removeReasonPlaceholder": "Example: Authorization removed by decision of the contracting institution.",
+        "confirmAllow": "Confirm authorization",
+        "confirmRemove": "Confirm removal"
+      },
+      "status": {
+        "deactivateTitle": "Deactivate location",
+        "reactivateTitle": "Reactivate location",
+        "closeTitle": "Close location",
+        "changing": "You are changing the location",
+        "deactivateDescription": "The location will become temporarily inactive. The independent institution and new sign-ins will be blocked, but the location can be reactivated later.",
+        "reactivateDescription": "The location will become active again and access to the independent institution will be restored.",
+        "closeDescription": "Closing is final on this screen. Access will be blocked and the data will remain available only for history and auditing.",
+        "closeReasonPlaceholder": "Example: Location created only for support testing.",
+        "deactivateReasonPlaceholder": "Example: Unit temporarily not operating.",
+        "confirmDeactivate": "Confirm deactivation",
+        "confirmReactivate": "Confirm reactivation",
+        "confirmClose": "Confirm closure"
+      },
+      "provisionError": {
+        "title": "Unable to create access",
+        "whatToDo": "What should I do?",
+        "emailAlreadyUsed": "The administrator's email is already linked to another PHANYX user. Edit the location and enter an email address that has not yet been registered for this unit's first administrator.",
+        "reportedEmail": "Email entered",
+        "editResponsible": "Edit administrator"
+      },
+      "provision": {
+        "title": "Create independent institution",
+        "introBefore": "The location",
+        "introAfter": "will receive a new institutional ID, its own users, and independent data.",
+        "billingNotice": "The plan and billing will remain linked to the contracting institution. The administrator will receive a login and temporary password to manage this unit.",
+        "delegateTitle": "Allow this unit to create and manage other locations",
+        "delegateDescription": "When enabled, administrators of this unit can register locations and create new institutional IDs within the same network. Limits and billing will remain centralized under the contracting institution.",
+        "delegatedWarning": "This unit is authorized to create locations, but it cannot transfer that authorization to new units. Only the contracting institution can grant this permission.",
+        "creating": "Creating institution...",
+        "confirm": "Create institution and access"
+      },
+      "resetPassword": {
+        "title": "Generate new temporary password",
+        "introBefore": "A new password will be created for the administrator of the unit",
+        "passwordNotice": "The current password will stop working for new sign-ins. The login will remain the same, and the administrator must change the new temporary password on the next sign-in.",
+        "sessionNotice": "If the user already has PHANYX open on another computer, phone, or browser, that session may remain active until it is closed or expires. Instruct the user to sign out on all devices.",
+        "generating": "Generating new password...",
+        "confirm": "Confirm new password"
+      },
+      "credentials": {
+        "defaultTitle": "Institutional access created",
+        "defaultGuidance": "Save or send these credentials to the unit administrator. The temporary password will be shown only on this screen.",
+        "institution": "Institution",
+        "login": "Login",
+        "temporaryPassword": "Temporary password",
+        "otherPolesManagement": "Management of other locations",
+        "enabledByContracting": "Enabled by the contracting institution",
+        "notEnabled": "Not enabled",
+        "changeOnFirstAccess": "The administrator must change this password on the first sign-in.",
+        "copied": "Credentials copied",
+        "copy": "Copy credentials",
+        "closeAndClear": "Close and clear from screen"
+      }
+    }
   }
 }

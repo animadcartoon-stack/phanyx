@@ -16818,5 +16818,220 @@
       "complaint": "Merci d'avoir partagé votre signalement. Nous sommes désolés pour l'expérience décrite. Notre équipe examinera attentivement la situation et la transmettra au service responsable afin de rechercher une solution.",
       "default": "Merci de nous avoir contactés. Votre signalement a été reçu et sera examiné par l'établissement avec toute l'attention nécessaire."
     }
+  },
+  "AdminPoles": {
+    "cep": {
+      "invalid": "Saisissez les 8 chiffres du code postal.",
+      "searching": "Recherche de l’adresse...",
+      "notFound": "Le code postal n’a pas pu être trouvé.",
+      "autoFilled": "Adresse trouvée et renseignée automatiquement.",
+      "noStreet": "Le code postal a été trouvé, mais aucune voie précise n’a été renvoyée. Saisissez l’adresse manuellement.",
+      "lookupError": "Le code postal n’a pas pu être consulté."
+    },
+    "errors": {
+      "load": "Erreur lors du chargement des sites.",
+      "create": "Erreur lors de la création du site.",
+      "update": "Erreur lors de la mise à jour du site.",
+      "provision": "Erreur lors de la création de l’établissement et de l’accès.",
+      "invalidProvisionCredentials": "L’établissement a été créé, mais les identifiants renvoyés ne sont pas valides.",
+      "copyCredentials": "Les identifiants n’ont pas pu être copiés automatiquement. Sélectionnez-les et copiez-les manuellement.",
+      "resetPassword": "Erreur lors de la génération d’un nouveau mot de passe temporaire.",
+      "invalidResetCredentials": "Le mot de passe a été réinitialisé, mais les nouveaux identifiants n’ont pas été renvoyés correctement.",
+      "changeStatus": "Le statut du site n’a pas pu être modifié.",
+      "changePermission": "Cette autorisation n’a pas pu être modifiée."
+    },
+    "feedback": {
+      "created": "Site créé avec succès.",
+      "updated": "Site mis à jour avec succès.",
+      "provisioned": "Établissement indépendant et accès créés avec succès.",
+      "passwordReset": "Nouveau mot de passe temporaire créé avec succès.",
+      "statusChanged": "Statut du site modifié avec succès.",
+      "permissionChanged": "Autorisation mise à jour avec succès."
+    },
+    "validation": {
+      "reasonMin": "Saisissez un motif d’au moins 5 caractères."
+    },
+    "credentials": {
+      "copyTitle": "Accès institutionnel PHANYX",
+      "institution": "Établissement : {name}",
+      "login": "Identifiant : {login}",
+      "temporaryPassword": "Mot de passe temporaire : {password}",
+      "changeOnFirstAccess": "Pour des raisons de sécurité, modifiez ce mot de passe lors de la première connexion.",
+      "oldPasswordInvalid": "L’ancien mot de passe ne fonctionne plus pour les nouvelles connexions.",
+      "signOutOtherSessions": "Si PHANYX est ouvert sur un autre appareil ou navigateur, déconnectez manuellement ces sessions.",
+      "doNotShare": "Ne partagez pas ces identifiants avec d’autres personnes.",
+      "resetTitle": "Nouveau mot de passe temporaire créé",
+      "resetGuidance": "L’ancien mot de passe ne fonctionne plus pour les nouvelles connexions. Conservez ou envoyez ces identifiants à l’administrateur du site et demandez-lui de se déconnecter de PHANYX sur tous les appareils où une session est déjà ouverte."
+    },
+    "unitTypes": {
+      "headquarters": "Siège",
+      "campus": "Campus",
+      "pole": "Site",
+      "branch": "Antenne",
+      "unit": "Unité"
+    },
+    "status": {
+      "active": "Actif",
+      "pendingActivation": "En attente d’activation",
+      "suspended": "Suspendu",
+      "closed": "Fermé"
+    },
+    "statusMessages": {
+      "pendingActivation": "L’activation dépend des limites et des conditions du forfait.",
+      "suspended": "Ce site est temporairement suspendu.",
+      "closed": "Ce site a été fermé et reste disponible uniquement à des fins d’historique."
+    },
+    "header": {
+      "title": "🏢 Sites et unités",
+      "description": "Enregistrez les sièges, campus, sites, antennes ou unités de l’établissement.",
+      "notice": "Chaque adresse physique ou unité opérationnelle réelle doit être enregistrée séparément. Un même site ne doit pas représenter plusieurs unités physiques."
+    },
+    "create": {
+      "title": "Nouveau site",
+      "description": "Le site sera enregistré comme actif. Lors de la création de l’accès institutionnel, le système vérifiera si l’unité est comprise dans le contrat ou si des frais supplémentaires s’appliquent."
+    },
+    "form": {
+      "addressSection": "Adresse de l’unité",
+      "responsibleSection": "Responsable de l’unité",
+      "responsibleHelp": "Après l’enregistrement du site, il sera possible de créer l’accès institutionnel du responsable.",
+      "namePlaceholder": "Nom de l’unité",
+      "codePlaceholder": "Code interne",
+      "taxIdOptionalPlaceholder": "Identifiant fiscal de l’unité, le cas échéant",
+      "taxIdPlaceholder": "Identifiant fiscal",
+      "postalCodePlaceholder": "Code postal",
+      "addressPlaceholder": "Adresse",
+      "numberPlaceholder": "Numéro",
+      "complementPlaceholder": "Complément d’adresse",
+      "neighborhoodPlaceholder": "Quartier",
+      "cityPlaceholder": "Ville",
+      "stateExamplePlaceholder": "État / région",
+      "statePlaceholder": "État / région",
+      "responsibleNamePlaceholder": "Nom du responsable",
+      "responsibleEmailPlaceholder": "E-mail du responsable",
+      "responsiblePhonePlaceholder": "Téléphone du responsable",
+      "responsibleRolePlaceholder": "Fonction du responsable",
+      "descriptionPlaceholder": "Description ou observations",
+      "descriptionEditPlaceholder": "Description"
+    },
+    "list": {
+      "title": "Liste des sites",
+      "searchAria": "Rechercher des sites",
+      "searchPlaceholder": "Rechercher par nom, ville, responsable...",
+      "loading": "Chargement des sites...",
+      "empty": "Aucun site trouvé.",
+      "type": "Type",
+      "code": "Code",
+      "taxId": "Identifiant fiscal",
+      "address": "Adresse",
+      "responsible": "Responsable",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "description": "Description",
+      "responsibleRequired": "Renseignez le nom et l’e-mail du responsable pour créer l’accès."
+    },
+    "actions": {
+      "creating": "Création...",
+      "create": "Créer le site",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "edit": "Modifier les données",
+      "deactivate": "Désactiver le site",
+      "reactivate": "Réactiver le site",
+      "closePole": "Fermer le site",
+      "creatingAccess": "Création de l’accès...",
+      "createInstitutionalAccess": "Créer l’accès institutionnel",
+      "generatingPassword": "Génération du nouveau mot de passe...",
+      "generateTemporaryPassword": "Générer un mot de passe temporaire",
+      "removePolePermission": "Retirer l’autorisation de créer des sites",
+      "allowOtherPoles": "Autoriser la création d’autres sites"
+    },
+    "badges": {
+      "independentInstitution": "Établissement indépendant créé",
+      "canCreatePoles": "Peut créer d’autres sites",
+      "cannotCreatePoles": "Ne peut pas créer d’autres sites",
+      "contractingUnit": "Unité contractante"
+    },
+    "modals": {
+      "common": {
+        "back": "Retour",
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "processing": "Traitement...",
+        "attention": "Attention",
+        "important": "Important :",
+        "reason": "Motif",
+        "reasonChange": "Motif de la modification",
+        "reasonMin": "Saisissez au moins 5 caractères."
+      },
+      "permission": {
+        "allowTitle": "Autoriser la gestion d’autres sites",
+        "removeTitle": "Retirer l’autorisation de gestion",
+        "unit": "Unité",
+        "canDoTitle": "Cette unité pourra :",
+        "canDoDescription": "Enregistrer des sites, créer de nouveaux identifiants institutionnels et gérer les unités qu’elle enregistre.",
+        "billingDescription": "Les limites, étudiants actifs et unités supplémentaires continueront d’être comptabilisés dans l’abonnement de l’établissement contractant.",
+        "removeDescription": "L’unité perdra l’autorisation de créer et de gérer d’autres sites.",
+        "existingRemain": "Les sites et identifiants déjà créés ne seront pas supprimés. L’établissement contractant conservera son autorité sur l’ensemble du réseau.",
+        "allowReasonPlaceholder": "Ex. : Unité régionale autorisée à développer le réseau.",
+        "removeReasonPlaceholder": "Ex. : Autorisation retirée sur décision de l’établissement contractant.",
+        "confirmAllow": "Confirmer l’autorisation",
+        "confirmRemove": "Confirmer le retrait"
+      },
+      "status": {
+        "deactivateTitle": "Désactiver le site",
+        "reactivateTitle": "Réactiver le site",
+        "closeTitle": "Fermer le site",
+        "changing": "Vous modifiez le site",
+        "deactivateDescription": "Le site deviendra temporairement inactif. L’établissement indépendant et les nouvelles connexions seront bloqués, mais le site pourra être réactivé ultérieurement.",
+        "reactivateDescription": "Le site redeviendra actif et l’accès à l’établissement indépendant sera rétabli.",
+        "closeDescription": "La fermeture est définitive depuis cet écran. L’accès sera bloqué et les données resteront disponibles uniquement pour l’historique et l’audit.",
+        "closeReasonPlaceholder": "Ex. : Site créé uniquement pour un test d’assistance.",
+        "deactivateReasonPlaceholder": "Ex. : Unité temporairement hors service.",
+        "confirmDeactivate": "Confirmer la désactivation",
+        "confirmReactivate": "Confirmer la réactivation",
+        "confirmClose": "Confirmer la fermeture"
+      },
+      "provisionError": {
+        "title": "Impossible de créer l’accès",
+        "whatToDo": "Que faire ?",
+        "emailAlreadyUsed": "L’e-mail du responsable est déjà associé à un autre utilisateur PHANYX. Modifiez le site et indiquez une adresse e-mail qui n’est pas encore enregistrée pour le premier administrateur de cette unité.",
+        "reportedEmail": "E-mail indiqué",
+        "editResponsible": "Modifier le responsable"
+      },
+      "provision": {
+        "title": "Créer un établissement indépendant",
+        "introBefore": "Le site",
+        "introAfter": "recevra un nouvel identifiant institutionnel, ses propres utilisateurs et des données indépendantes.",
+        "billingNotice": "Le forfait et la facturation resteront liés à l’établissement contractant. Le responsable recevra un identifiant et un mot de passe temporaire pour administrer cette unité.",
+        "delegateTitle": "Autoriser cette unité à créer et gérer d’autres sites",
+        "delegateDescription": "Lorsque cette option est activée, les administrateurs de cette unité peuvent enregistrer des sites et créer de nouveaux identifiants institutionnels au sein du même réseau. Les limites et la facturation restent centralisées au niveau de l’établissement contractant.",
+        "delegatedWarning": "Cette unité est autorisée à créer des sites, mais elle ne peut pas transférer cette autorisation aux nouvelles unités. Seul l’établissement contractant peut accorder cette autorisation.",
+        "creating": "Création de l’établissement...",
+        "confirm": "Créer l’établissement et l’accès"
+      },
+      "resetPassword": {
+        "title": "Générer un nouveau mot de passe temporaire",
+        "introBefore": "Un nouveau mot de passe sera créé pour l’administrateur de l’unité",
+        "passwordNotice": "Le mot de passe actuel ne fonctionnera plus pour les nouvelles connexions. L’identifiant restera le même et l’administrateur devra modifier le nouveau mot de passe temporaire lors de la prochaine connexion.",
+        "sessionNotice": "Si l’utilisateur a déjà PHANYX ouvert sur un autre ordinateur, téléphone ou navigateur, cette session peut rester active jusqu’à sa fermeture ou son expiration. Demandez à l’utilisateur de se déconnecter sur tous les appareils.",
+        "generating": "Génération du nouveau mot de passe...",
+        "confirm": "Confirmer le nouveau mot de passe"
+      },
+      "credentials": {
+        "defaultTitle": "Accès institutionnel créé",
+        "defaultGuidance": "Conservez ou envoyez ces identifiants au responsable de l’unité. Le mot de passe temporaire ne sera affiché que sur cet écran.",
+        "institution": "Établissement",
+        "login": "Identifiant",
+        "temporaryPassword": "Mot de passe temporaire",
+        "otherPolesManagement": "Gestion d’autres sites",
+        "enabledByContracting": "Activée par l’établissement contractant",
+        "notEnabled": "Non activée",
+        "changeOnFirstAccess": "Le responsable devra modifier ce mot de passe lors de la première connexion.",
+        "copied": "Identifiants copiés",
+        "copy": "Copier les identifiants",
+        "closeAndClear": "Fermer et effacer de l’écran"
+      }
+    }
   }
 }

@@ -16818,5 +16818,220 @@
       "complaint": "Gracias por compartir su comunicación. Lamentamos la experiencia descrita. Nuestro equipo revisará atentamente la situación y la remitirá al área responsable para buscar una solución.",
       "default": "Gracias por ponerse en contacto con nosotros. Su comunicación ha sido recibida y será analizada por la institución con la atención necesaria."
     }
+  },
+  "AdminPoles": {
+    "cep": {
+      "invalid": "Introduzca los 8 dígitos del código postal.",
+      "searching": "Buscando la dirección...",
+      "notFound": "No se pudo localizar el código postal.",
+      "autoFilled": "Dirección localizada y completada automáticamente.",
+      "noStreet": "Se localizó el código postal, pero no se devolvió una vía específica. Introduzca la dirección manualmente.",
+      "lookupError": "No se pudo consultar el código postal."
+    },
+    "errors": {
+      "load": "Error al cargar los centros.",
+      "create": "Error al crear el centro.",
+      "update": "Error al actualizar el centro.",
+      "provision": "Error al crear la institución y el acceso.",
+      "invalidProvisionCredentials": "La institución fue creada, pero las credenciales devueltas no son válidas.",
+      "copyCredentials": "No se pudieron copiar las credenciales automáticamente. Selecciónelas y cópielas manualmente.",
+      "resetPassword": "Error al generar una nueva contraseña temporal.",
+      "invalidResetCredentials": "La contraseña fue restablecida, pero las nuevas credenciales no se devolvieron correctamente.",
+      "changeStatus": "No se pudo cambiar el estado del centro.",
+      "changePermission": "No se pudo cambiar esta autorización."
+    },
+    "feedback": {
+      "created": "Centro creado correctamente.",
+      "updated": "Centro actualizado correctamente.",
+      "provisioned": "Institución independiente y acceso creados correctamente.",
+      "passwordReset": "Nueva contraseña temporal creada correctamente.",
+      "statusChanged": "Estado del centro actualizado correctamente.",
+      "permissionChanged": "Autorización actualizada correctamente."
+    },
+    "validation": {
+      "reasonMin": "Introduzca un motivo de al menos 5 caracteres."
+    },
+    "credentials": {
+      "copyTitle": "Acceso institucional PHANYX",
+      "institution": "Institución: {name}",
+      "login": "Usuario: {login}",
+      "temporaryPassword": "Contraseña temporal: {password}",
+      "changeOnFirstAccess": "Por seguridad, cambie esta contraseña en el primer acceso.",
+      "oldPasswordInvalid": "La contraseña anterior ya no funciona para nuevos accesos.",
+      "signOutOtherSessions": "Si PHANYX está abierto en otro dispositivo o navegador, cierre esas sesiones manualmente.",
+      "doNotShare": "No comparta estas credenciales con otras personas.",
+      "resetTitle": "Nueva contraseña temporal creada",
+      "resetGuidance": "La contraseña anterior dejó de funcionar para nuevos accesos. Guarde o envíe estas credenciales al administrador de la unidad e indíquele que cierre sesión en PHANYX en todos los dispositivos donde ya esté conectado."
+    },
+    "unitTypes": {
+      "headquarters": "Sede",
+      "campus": "Campus",
+      "pole": "Centro",
+      "branch": "Sucursal",
+      "unit": "Unidad"
+    },
+    "status": {
+      "active": "Activo",
+      "pendingActivation": "Pendiente de activación",
+      "suspended": "Suspendido",
+      "closed": "Cerrado"
+    },
+    "statusMessages": {
+      "pendingActivation": "La activación está sujeta a los límites y a la contratación del plan.",
+      "suspended": "Este centro está suspendido temporalmente.",
+      "closed": "Este centro fue cerrado y permanece disponible solo para el historial."
+    },
+    "header": {
+      "title": "🏢 Centros y unidades",
+      "description": "Registre las sedes, campus, centros, sucursales o unidades de la institución.",
+      "notice": "Cada dirección física o unidad operativa real debe registrarse por separado. Un único centro no debe representar varias unidades físicas."
+    },
+    "create": {
+      "title": "Nuevo centro",
+      "description": "El centro se registrará como activo. Al crear el acceso institucional, el sistema comprobará si la unidad está incluida en el contrato o si habrá un cargo adicional."
+    },
+    "form": {
+      "addressSection": "Dirección de la unidad",
+      "responsibleSection": "Responsable de la unidad",
+      "responsibleHelp": "Después de registrar el centro, será posible crear el acceso institucional del responsable.",
+      "namePlaceholder": "Nombre de la unidad",
+      "codePlaceholder": "Código interno",
+      "taxIdOptionalPlaceholder": "Identificación fiscal de la unidad, cuando corresponda",
+      "taxIdPlaceholder": "Identificación fiscal",
+      "postalCodePlaceholder": "Código postal",
+      "addressPlaceholder": "Dirección",
+      "numberPlaceholder": "Número",
+      "complementPlaceholder": "Complemento",
+      "neighborhoodPlaceholder": "Barrio",
+      "cityPlaceholder": "Ciudad",
+      "stateExamplePlaceholder": "Provincia / región",
+      "statePlaceholder": "Provincia / región",
+      "responsibleNamePlaceholder": "Nombre del responsable",
+      "responsibleEmailPlaceholder": "Correo del responsable",
+      "responsiblePhonePlaceholder": "Teléfono del responsable",
+      "responsibleRolePlaceholder": "Cargo del responsable",
+      "descriptionPlaceholder": "Descripción u observaciones",
+      "descriptionEditPlaceholder": "Descripción"
+    },
+    "list": {
+      "title": "Lista de centros",
+      "searchAria": "Buscar centros",
+      "searchPlaceholder": "Buscar por nombre, ciudad, responsable...",
+      "loading": "Cargando centros...",
+      "empty": "No se encontraron centros.",
+      "type": "Tipo",
+      "code": "Código",
+      "taxId": "Identificación fiscal",
+      "address": "Dirección",
+      "responsible": "Responsable",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "description": "Descripción",
+      "responsibleRequired": "Introduzca el nombre y el correo del responsable para crear el acceso."
+    },
+    "actions": {
+      "creating": "Creando...",
+      "create": "Crear centro",
+      "saving": "Guardando...",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar datos",
+      "deactivate": "Desactivar centro",
+      "reactivate": "Reactivar centro",
+      "closePole": "Cerrar centro",
+      "creatingAccess": "Creando acceso...",
+      "createInstitutionalAccess": "Crear acceso institucional",
+      "generatingPassword": "Generando nueva contraseña...",
+      "generateTemporaryPassword": "Generar contraseña temporal",
+      "removePolePermission": "Retirar permiso para crear centros",
+      "allowOtherPoles": "Permitir crear otros centros"
+    },
+    "badges": {
+      "independentInstitution": "Institución independiente creada",
+      "canCreatePoles": "Puede crear otros centros",
+      "cannotCreatePoles": "No puede crear otros centros",
+      "contractingUnit": "Unidad contratante"
+    },
+    "modals": {
+      "common": {
+        "back": "Volver",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "processing": "Procesando...",
+        "attention": "Atención",
+        "important": "Importante:",
+        "reason": "Motivo",
+        "reasonChange": "Motivo del cambio",
+        "reasonMin": "Introduzca al menos 5 caracteres."
+      },
+      "permission": {
+        "allowTitle": "Permitir la gestión de otros centros",
+        "removeTitle": "Retirar permiso de gestión",
+        "unit": "Unidad",
+        "canDoTitle": "Esta unidad podrá:",
+        "canDoDescription": "Registrar centros, crear nuevos ID institucionales y gestionar las unidades registradas por ella.",
+        "billingDescription": "Los límites, estudiantes activos y unidades adicionales seguirán contabilizándose en la suscripción de la institución contratante.",
+        "removeDescription": "La unidad perderá el permiso para crear y gestionar otros centros.",
+        "existingRemain": "Los centros e ID ya creados no se eliminarán. La institución contratante seguirá teniendo autoridad sobre toda la red.",
+        "allowReasonPlaceholder": "Ej.: Unidad regional autorizada para ampliar la red.",
+        "removeReasonPlaceholder": "Ej.: Autorización retirada por decisión de la institución contratante.",
+        "confirmAllow": "Confirmar autorización",
+        "confirmRemove": "Confirmar retirada"
+      },
+      "status": {
+        "deactivateTitle": "Desactivar centro",
+        "reactivateTitle": "Reactivar centro",
+        "closeTitle": "Cerrar centro",
+        "changing": "Está modificando el centro",
+        "deactivateDescription": "El centro quedará temporalmente inactivo. La institución independiente y los nuevos accesos quedarán bloqueados, pero el centro podrá reactivarse posteriormente.",
+        "reactivateDescription": "El centro volverá a estar activo y se restablecerá el acceso a la institución independiente.",
+        "closeDescription": "El cierre es definitivo en esta pantalla. El acceso quedará bloqueado y los datos permanecerán disponibles únicamente para el historial y la auditoría.",
+        "closeReasonPlaceholder": "Ej.: Centro creado únicamente para pruebas de soporte.",
+        "deactivateReasonPlaceholder": "Ej.: Unidad temporalmente fuera de funcionamiento.",
+        "confirmDeactivate": "Confirmar desactivación",
+        "confirmReactivate": "Confirmar reactivación",
+        "confirmClose": "Confirmar cierre"
+      },
+      "provisionError": {
+        "title": "No se pudo crear el acceso",
+        "whatToDo": "¿Qué hacer?",
+        "emailAlreadyUsed": "El correo del responsable ya está vinculado a otro usuario de PHANYX. Edite el centro e introduzca un correo todavía no registrado para el primer administrador de esta unidad.",
+        "reportedEmail": "Correo introducido",
+        "editResponsible": "Editar responsable"
+      },
+      "provision": {
+        "title": "Crear institución independiente",
+        "introBefore": "El centro",
+        "introAfter": "recibirá un nuevo ID institucional, usuarios propios y datos independientes.",
+        "billingNotice": "El plan y la facturación seguirán vinculados a la institución contratante. El responsable recibirá un usuario y una contraseña temporal para administrar esta unidad.",
+        "delegateTitle": "Permitir que esta unidad cree y gestione otros centros",
+        "delegateDescription": "Cuando esté habilitado, los administradores de esta unidad podrán registrar centros y crear nuevos ID institucionales dentro de la misma red. Los límites y la facturación seguirán centralizados en la institución contratante.",
+        "delegatedWarning": "Esta unidad tiene autorización para crear centros, pero no puede transferirla a nuevas unidades. Solo la institución contratante puede conceder ese permiso.",
+        "creating": "Creando institución...",
+        "confirm": "Crear institución y acceso"
+      },
+      "resetPassword": {
+        "title": "Generar nueva contraseña temporal",
+        "introBefore": "Se creará una nueva contraseña para el administrador de la unidad",
+        "passwordNotice": "La contraseña actual dejará de funcionar para nuevos accesos. El usuario seguirá siendo el mismo y el administrador deberá cambiar la nueva contraseña temporal en el próximo acceso.",
+        "sessionNotice": "Si el usuario ya tiene PHANYX abierto en otro ordenador, teléfono o navegador, esa sesión puede seguir activa hasta que se cierre o caduque. Indique al usuario que cierre sesión en todos los dispositivos.",
+        "generating": "Generando nueva contraseña...",
+        "confirm": "Confirmar nueva contraseña"
+      },
+      "credentials": {
+        "defaultTitle": "Acceso institucional creado",
+        "defaultGuidance": "Guarde o envíe estas credenciales al responsable de la unidad. La contraseña temporal se mostrará únicamente en esta pantalla.",
+        "institution": "Institución",
+        "login": "Usuario",
+        "temporaryPassword": "Contraseña temporal",
+        "otherPolesManagement": "Gestión de otros centros",
+        "enabledByContracting": "Habilitada por la institución contratante",
+        "notEnabled": "No habilitada",
+        "changeOnFirstAccess": "El responsable deberá cambiar esta contraseña en el primer acceso.",
+        "copied": "Credenciales copiadas",
+        "copy": "Copiar credenciales",
+        "closeAndClear": "Cerrar y borrar de la pantalla"
+      }
+    }
   }
 }

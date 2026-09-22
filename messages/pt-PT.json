@@ -16604,5 +16604,220 @@
       "complaint": "Agradecemos por partilhar a sua manifestação. Lamentamos a experiência relatada. A nossa equipa irá verificar a situação com atenção e encaminhá-la para o setor responsável.",
       "default": "Agradecemos o seu contacto. A sua manifestação foi recebida e será analisada pela instituição com a atenção necessária."
     }
+  },
+  "AdminPoles": {
+    "cep": {
+      "invalid": "Introduza os 8 algarismos do código postal.",
+      "searching": "A procurar a morada...",
+      "notFound": "Não foi possível localizar o código postal.",
+      "autoFilled": "Morada localizada e preenchida automaticamente.",
+      "noStreet": "Código postal localizado, mas sem uma morada específica. Preencha a morada manualmente.",
+      "lookupError": "Não foi possível consultar o código postal."
+    },
+    "errors": {
+      "load": "Erro ao carregar os polos.",
+      "create": "Erro ao criar o polo.",
+      "update": "Erro ao atualizar o polo.",
+      "provision": "Erro ao criar a instituição e o acesso.",
+      "invalidProvisionCredentials": "A instituição foi criada, mas as credenciais devolvidas são inválidas.",
+      "copyCredentials": "Não foi possível copiar automaticamente. Selecione e copie as credenciais manualmente.",
+      "resetPassword": "Erro ao gerar uma nova palavra-passe temporária.",
+      "invalidResetCredentials": "A palavra-passe foi redefinida, mas as novas credenciais não foram devolvidas corretamente.",
+      "changeStatus": "Não foi possível alterar o estado do polo.",
+      "changePermission": "Não foi possível alterar esta autorização."
+    },
+    "feedback": {
+      "created": "Polo criado com sucesso.",
+      "updated": "Polo atualizado com sucesso.",
+      "provisioned": "Instituição independente e acesso criados com sucesso.",
+      "passwordReset": "Nova palavra-passe temporária criada com sucesso.",
+      "statusChanged": "Estado do polo alterado com sucesso.",
+      "permissionChanged": "Autorização atualizada com sucesso."
+    },
+    "validation": {
+      "reasonMin": "Introduza um motivo com pelo menos 5 caracteres."
+    },
+    "credentials": {
+      "copyTitle": "Acesso institucional PHANYX",
+      "institution": "Instituição: {name}",
+      "login": "Login: {login}",
+      "temporaryPassword": "Palavra-passe temporária: {password}",
+      "changeOnFirstAccess": "Por segurança, altere esta palavra-passe no primeiro acesso.",
+      "oldPasswordInvalid": "A palavra-passe anterior já não funciona para novos acessos.",
+      "signOutOtherSessions": "Caso o PHANYX esteja aberto noutro dispositivo ou navegador, termine essas sessões manualmente.",
+      "doNotShare": "Não partilhe estas credenciais com outras pessoas.",
+      "resetTitle": "Nova palavra-passe temporária criada",
+      "resetGuidance": "A palavra-passe anterior deixou de funcionar para novos acessos. Guarde ou envie estas credenciais ao administrador da unidade e oriente-o a terminar a sessão do PHANYX em todos os dispositivos onde já estiver ligado."
+    },
+    "unitTypes": {
+      "headquarters": "Sede",
+      "campus": "Campus",
+      "pole": "Polo",
+      "branch": "Filial",
+      "unit": "Unidade"
+    },
+    "status": {
+      "active": "Ativo",
+      "pendingActivation": "A aguardar ativação",
+      "suspended": "Suspenso",
+      "closed": "Encerrado"
+    },
+    "statusMessages": {
+      "pendingActivation": "Ativação sujeita ao limite e à contratação do plano.",
+      "suspended": "Este polo está temporariamente suspenso.",
+      "closed": "Este polo foi encerrado e permanece disponível apenas para histórico."
+    },
+    "header": {
+      "title": "🏢 Polos",
+      "description": "Registe as sedes, campus, polos, filiais ou unidades da instituição.",
+      "notice": "Cada morada ou unidade operacional real deve ser registada separadamente. Um único polo não deve representar várias unidades físicas da instituição."
+    },
+    "create": {
+      "title": "Novo polo",
+      "description": "O polo será registado como ativo. Ao criar o acesso institucional, o sistema verificará se a unidade está incluída no contrato ou se haverá cobrança adicional."
+    },
+    "form": {
+      "addressSection": "Morada da unidade",
+      "responsibleSection": "Responsável pela unidade",
+      "responsibleHelp": "Após registar o polo, será possível criar o acesso institucional do responsável.",
+      "namePlaceholder": "Nome da unidade",
+      "codePlaceholder": "Código interno",
+      "taxIdOptionalPlaceholder": "NIF/NIPC da unidade, quando aplicável",
+      "taxIdPlaceholder": "NIF/NIPC",
+      "postalCodePlaceholder": "Código postal",
+      "addressPlaceholder": "Morada",
+      "numberPlaceholder": "Número",
+      "complementPlaceholder": "Complemento",
+      "neighborhoodPlaceholder": "Localidade / bairro",
+      "cityPlaceholder": "Cidade",
+      "stateExamplePlaceholder": "Distrito / região",
+      "statePlaceholder": "Distrito / região",
+      "responsibleNamePlaceholder": "Nome do responsável",
+      "responsibleEmailPlaceholder": "E-mail do responsável",
+      "responsiblePhonePlaceholder": "Telefone do responsável",
+      "responsibleRolePlaceholder": "Cargo do responsável",
+      "descriptionPlaceholder": "Descrição ou observações",
+      "descriptionEditPlaceholder": "Descrição"
+    },
+    "list": {
+      "title": "Lista de polos",
+      "searchAria": "Pesquisar polos",
+      "searchPlaceholder": "Pesquisar por nome, cidade, responsável...",
+      "loading": "A carregar polos...",
+      "empty": "Nenhum polo encontrado.",
+      "type": "Tipo",
+      "code": "Código",
+      "taxId": "NIF/NIPC",
+      "address": "Morada",
+      "responsible": "Responsável",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "description": "Descrição",
+      "responsibleRequired": "Preencha o nome e o e-mail do responsável para criar o acesso."
+    },
+    "actions": {
+      "creating": "A criar...",
+      "create": "Criar polo",
+      "saving": "A guardar...",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar dados",
+      "deactivate": "Inativar polo",
+      "reactivate": "Reativar polo",
+      "closePole": "Encerrar polo",
+      "creatingAccess": "A criar acesso...",
+      "createInstitutionalAccess": "Criar acesso institucional",
+      "generatingPassword": "A gerar nova palavra-passe...",
+      "generateTemporaryPassword": "Gerar nova palavra-passe temporária",
+      "removePolePermission": "Retirar permissão para criar polos",
+      "allowOtherPoles": "Permitir criar outros polos"
+    },
+    "badges": {
+      "independentInstitution": "Instituição independente criada",
+      "canCreatePoles": "Pode criar outros polos",
+      "cannotCreatePoles": "Não pode criar outros polos",
+      "contractingUnit": "Unidade contratante"
+    },
+    "modals": {
+      "common": {
+        "back": "Voltar",
+        "cancel": "Cancelar",
+        "saving": "A guardar...",
+        "processing": "A processar...",
+        "attention": "Atenção",
+        "important": "Importante:",
+        "reason": "Motivo",
+        "reasonChange": "Motivo da alteração",
+        "reasonMin": "Introduza pelo menos 5 caracteres."
+      },
+      "permission": {
+        "allowTitle": "Permitir gestão de outros polos",
+        "removeTitle": "Retirar permissão de gestão",
+        "unit": "Unidade",
+        "canDoTitle": "Esta unidade poderá:",
+        "canDoDescription": "Registar polos, criar novos IDs institucionais e gerir as unidades registadas por ela.",
+        "billingDescription": "Os limites, alunos ativos e unidades excedentes continuarão a ser contabilizados na subscrição da instituição contratante.",
+        "removeDescription": "A unidade perderá a permissão para criar e gerir outros polos.",
+        "existingRemain": "Os polos e IDs já criados não serão apagados. A instituição contratante continuará com autoridade sobre toda a rede.",
+        "allowReasonPlaceholder": "Ex.: Unidade regional autorizada a expandir a rede.",
+        "removeReasonPlaceholder": "Ex.: Autorização retirada por decisão da instituição contratante.",
+        "confirmAllow": "Confirmar autorização",
+        "confirmRemove": "Confirmar retirada"
+      },
+      "status": {
+        "deactivateTitle": "Inativar polo",
+        "reactivateTitle": "Reativar polo",
+        "closeTitle": "Encerrar polo",
+        "changing": "Está a alterar o polo",
+        "deactivateDescription": "O polo ficará temporariamente inativo. A instituição independente e os novos acessos serão bloqueados, mas o polo poderá ser reativado posteriormente.",
+        "reactivateDescription": "O polo voltará a ficar ativo e o acesso da instituição independente será novamente disponibilizado.",
+        "closeDescription": "O encerramento é definitivo neste ecrã. O acesso será bloqueado e os dados permanecerão guardados apenas para histórico e auditoria.",
+        "closeReasonPlaceholder": "Ex.: Polo criado apenas para teste de suporte.",
+        "deactivateReasonPlaceholder": "Ex.: Unidade temporariamente sem funcionamento.",
+        "confirmDeactivate": "Confirmar inativação",
+        "confirmReactivate": "Confirmar reativação",
+        "confirmClose": "Confirmar encerramento"
+      },
+      "provisionError": {
+        "title": "Não foi possível criar o acesso",
+        "whatToDo": "O que fazer?",
+        "emailAlreadyUsed": "O e-mail do responsável já está associado a outro utilizador do PHANYX. Edite o polo e indique um e-mail ainda não registado para o primeiro administrador desta unidade.",
+        "reportedEmail": "E-mail indicado",
+        "editResponsible": "Editar responsável"
+      },
+      "provision": {
+        "title": "Criar instituição independente",
+        "introBefore": "O polo",
+        "introAfter": "receberá um novo ID institucional, utilizadores próprios e dados independentes.",
+        "billingNotice": "O plano e a cobrança continuarão associados à instituição contratante. O responsável receberá um login e uma palavra-passe temporária para administrar esta unidade.",
+        "delegateTitle": "Permitir que esta unidade crie e gira outros polos",
+        "delegateDescription": "Quando ativado, os administradores desta unidade poderão registar polos e criar novos IDs institucionais dentro da mesma rede. Os limites e a cobrança continuarão centralizados na instituição contratante.",
+        "delegatedWarning": "Esta unidade tem autorização para criar polos, mas não pode transferir essa autorização para novas unidades. Apenas a instituição contratante pode conceder essa permissão.",
+        "creating": "A criar instituição...",
+        "confirm": "Criar instituição e acesso"
+      },
+      "resetPassword": {
+        "title": "Gerar nova palavra-passe temporária",
+        "introBefore": "Será criada uma nova palavra-passe para o administrador da unidade",
+        "passwordNotice": "A palavra-passe atual deixará de funcionar para novos acessos. O login continuará a ser o mesmo e o administrador deverá alterar a nova palavra-passe temporária no próximo acesso.",
+        "sessionNotice": "Caso o utilizador já tenha o PHANYX aberto noutro computador, telemóvel ou navegador, essa sessão poderá continuar ativa até ser terminada ou expirar. Oriente o utilizador a terminar a sessão em todos os dispositivos.",
+        "generating": "A gerar nova palavra-passe...",
+        "confirm": "Confirmar nova palavra-passe"
+      },
+      "credentials": {
+        "defaultTitle": "Acesso institucional criado",
+        "defaultGuidance": "Guarde ou envie estas credenciais ao responsável da unidade. A palavra-passe temporária será apresentada apenas neste ecrã.",
+        "institution": "Instituição",
+        "login": "Login",
+        "temporaryPassword": "Palavra-passe temporária",
+        "otherPolesManagement": "Gestão de outros polos",
+        "enabledByContracting": "Ativada pela instituição contratante",
+        "notEnabled": "Não ativada",
+        "changeOnFirstAccess": "O responsável deverá alterar esta palavra-passe no primeiro acesso.",
+        "copied": "Credenciais copiadas",
+        "copy": "Copiar credenciais",
+        "closeAndClear": "Fechar e apagar do ecrã"
+      }
+    }
   }
 }
