@@ -16369,26 +16369,6 @@
       "gradeValue": "Nota: {value}"
     }
   },
-  "AdminProgress": {
-    "header": {
-      "title": "Progresso do aluno",
-      "description": "Acompanhamento acadêmico — PHANYX"
-    },
-    "student": {
-      "label": "Aluno"
-    },
-    "table": {
-      "discipline": "Disciplina",
-      "lessons": "Aulas",
-      "watched": "Assistidas",
-      "progress": "Progresso",
-      "action": "Ação",
-      "empty": "Nenhuma disciplina disponível para acompanhamento."
-    },
-    "actions": {
-      "addLesson": "+ Aula"
-    }
-  },
   "AdminBlockedIps": {
     "header": {
       "title": "IPs bloqueados",

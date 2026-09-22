@@ -16599,26 +16599,6 @@
       "gradeValue": "Grade: {value}"
     }
   },
-  "AdminProgress": {
-    "header": {
-      "title": "Student progress",
-      "description": "Academic progress tracking — PHANYX"
-    },
-    "student": {
-      "label": "Student"
-    },
-    "table": {
-      "discipline": "Subject",
-      "lessons": "Lessons",
-      "watched": "Watched",
-      "progress": "Progress",
-      "action": "Action",
-      "empty": "No subjects are available for progress tracking."
-    },
-    "actions": {
-      "addLesson": "+ Lesson"
-    }
-  },
   "AdminBlockedIps": {
     "header": {
       "title": "Blocked IPs",

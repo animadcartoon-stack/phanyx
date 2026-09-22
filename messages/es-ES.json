@@ -16599,26 +16599,6 @@
       "gradeValue": "Calificación: {value}"
     }
   },
-  "AdminProgress": {
-    "header": {
-      "title": "Progreso del estudiante",
-      "description": "Seguimiento académico — PHANYX"
-    },
-    "student": {
-      "label": "Estudiante"
-    },
-    "table": {
-      "discipline": "Asignatura",
-      "lessons": "Clases",
-      "watched": "Vistas",
-      "progress": "Progreso",
-      "action": "Acción",
-      "empty": "No hay asignaturas disponibles para el seguimiento."
-    },
-    "actions": {
-      "addLesson": "+ Clase"
-    }
-  },
   "AdminBlockedIps": {
     "header": {
       "title": "Direcciones IP bloqueadas",
