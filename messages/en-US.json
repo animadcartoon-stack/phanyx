@@ -17701,5 +17701,121 @@
       "processing": "Processing...",
       "back": "Back"
     }
+  },
+  "AdminSemesterReenrollmentStudents": {
+    "backToPeriods": "← Back to periods",
+    "title": "Reenrollment students",
+    "periodFallback": "Reenrollment period",
+    "periodCard": {
+      "semesterTransition": "Semester {current} → {target}",
+      "deadlineClosed": "Deadline closed",
+      "deadlineOpen": "Deadline in progress"
+    },
+    "summary": {
+      "eligible": "Eligible",
+      "notStarted": "Not started",
+      "drafts": "Drafts",
+      "sent": "Submitted",
+      "underReview": "Under review",
+      "approved": "Approved",
+      "returned": "Returned",
+      "rejected": "Rejected",
+      "deadlineMissed": "Deadline missed",
+      "afterDeadline": "After deadline",
+      "withRestriction": "With restriction",
+      "withoutRestriction": "Without restriction"
+    },
+    "filters": {
+      "searchPlaceholder": "Name or enrollment number",
+      "allSituations": "All statuses",
+      "notCompleted": "Not completed",
+      "pendingAfterDeadline": "Pending after deadline",
+      "allCampuses": "All campuses",
+      "allRestrictions": "All restrictions",
+      "apply": "Filter",
+      "clear": "Clear"
+    },
+    "situations": {
+      "notStarted": "Not started",
+      "deadlineMissed": "Deadline missed",
+      "draft": "Draft",
+      "sent": "Submitted",
+      "underReview": "Under review",
+      "approved": "Approved",
+      "returned": "Returned",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "restrictions": {
+      "none": "No restriction",
+      "warningOnly": "Warning only",
+      "partial": "Partial restriction",
+      "portalBlocked": "Portal blocked"
+    },
+    "restrictionPanel": {
+      "defaultReason": "Reenrollment was not completed within the deadline.",
+      "defaultRemovalReason": "Restriction removed by the administrator.",
+      "consequence": "Consequence",
+      "blockPortal": "Block portal",
+      "adminReason": "Administrative reason",
+      "studentMessage": "Message to the student",
+      "studentMessagePlaceholder": "Leave blank to use the default message.",
+      "selectedCount": "{count, plural, =0 {No students selected} one {# student selected} other {# students selected}}",
+      "setNoRestriction": "Set no restriction",
+      "applyConsequence": "Apply consequence",
+      "processError": "Could not process the restriction.",
+      "applySuccess": "{count, plural, one {Consequence applied to # student.} other {Consequence applied to # students.}}",
+      "removeSuccess": "{count, plural, one {Restriction removed from # student.} other {Restrictions removed from # students.}}"
+    },
+    "errors": {
+      "invalidPeriod": "Invalid reenrollment period.",
+      "loadStudents": "Could not load the students."
+    },
+    "students": {
+      "selectPage": "Select students on this page",
+      "loading": "Loading students...",
+      "empty": "No students found with these filters.",
+      "enrollment": "Enrollment",
+      "notProvided": "Not provided",
+      "noCampus": "No campus",
+      "semester": "Semester {semester}",
+      "protocol": "Protocol",
+      "subjects": "Subjects",
+      "updatedAt": "Updated at",
+      "reason": "Reason",
+      "completed": "Reenrollment completed",
+      "pendingAfterDeadline": "Pending after deadline",
+      "waitingStudent": "Waiting for student"
+    },
+    "pagination": {
+      "summary": "Page {page} of {pages} · {count, plural, one {# record} other {# records}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "confirm": {
+      "applyTitle": "Apply consequence",
+      "removeTitle": "Remove restriction",
+      "applyMessage": "Apply “{restriction}” to {count, plural, one {# student} other {# students}}? This action will be recorded in the history.",
+      "removeMessage": "Set {count, plural, one {# student} other {# students}} to “No restriction”? The removal will be recorded in the history.",
+      "processing": "Processing...",
+      "apply": "Apply",
+      "remove": "Remove restriction",
+      "back": "Back"
+    },
+    "apiErrors": {
+      "unauthorized": "You are not authorized to perform this operation.",
+      "periodNotFound": "Reenrollment period not found.",
+      "noDestinationCourse": "The period has no destination program.",
+      "semesterNotIdentified": "Could not identify the semester of the eligible students.",
+      "invalidRestrictionAction": "Invalid restriction action.",
+      "selectAtLeastOne": "Select at least one student.",
+      "tooManyStudents": "The limit is 500 students per operation.",
+      "invalidRestrictionType": "Select a valid restriction type.",
+      "cancelledPeriod": "Restrictions cannot be applied to a cancelled period.",
+      "beforeDeadline": "The restriction can only be applied after the deadline has ended.",
+      "ineligibleStudents": "One or more selected students are not eligible for this period.",
+      "completedStudents": "The restriction cannot be applied to students whose reenrollment was submitted, is under review, or was approved."
+    }
   }
 }

@@ -17486,5 +17486,121 @@
       "processing": "A processar...",
       "back": "Voltar"
     }
+  },
+  "AdminSemesterReenrollmentStudents": {
+    "backToPeriods": "← Voltar aos períodos",
+    "title": "Alunos da reinscrição",
+    "periodFallback": "Período de reinscrição",
+    "periodCard": {
+      "semesterTransition": "{current}.º → {target}.º semestre",
+      "deadlineClosed": "Prazo encerrado",
+      "deadlineOpen": "Prazo em curso"
+    },
+    "summary": {
+      "eligible": "Elegíveis",
+      "notStarted": "Não iniciaram",
+      "drafts": "Rascunhos",
+      "sent": "Enviadas",
+      "underReview": "Em análise",
+      "approved": "Aprovadas",
+      "returned": "Devolvidas",
+      "rejected": "Recusadas",
+      "deadlineMissed": "Prazo perdido",
+      "afterDeadline": "Após o prazo",
+      "withRestriction": "Com restrição",
+      "withoutRestriction": "Sem restrição"
+    },
+    "filters": {
+      "searchPlaceholder": "Nome ou matrícula",
+      "allSituations": "Todas as situações",
+      "notCompleted": "Não realizou",
+      "pendingAfterDeadline": "Pendente após o prazo",
+      "allCampuses": "Todos os polos",
+      "allRestrictions": "Todas as restrições",
+      "apply": "Filtrar",
+      "clear": "Limpar"
+    },
+    "situations": {
+      "notStarted": "Não iniciou",
+      "deadlineMissed": "Prazo perdido",
+      "draft": "Rascunho",
+      "sent": "Enviada",
+      "underReview": "Em análise",
+      "approved": "Aprovada",
+      "returned": "Devolvida",
+      "rejected": "Recusada",
+      "cancelled": "Cancelada",
+      "expired": "Expirada"
+    },
+    "restrictions": {
+      "none": "Sem restrição",
+      "warningOnly": "Apenas aviso",
+      "partial": "Restrição parcial",
+      "portalBlocked": "Portal bloqueado"
+    },
+    "restrictionPanel": {
+      "defaultReason": "Reinscrição não realizada dentro do prazo.",
+      "defaultRemovalReason": "Restrição removida pelo administrador.",
+      "consequence": "Consequência",
+      "blockPortal": "Bloquear portal",
+      "adminReason": "Motivo administrativo",
+      "studentMessage": "Mensagem para o aluno",
+      "studentMessagePlaceholder": "Se ficar em branco, o sistema utilizará a mensagem predefinida.",
+      "selectedCount": "{count, plural, =0 {Nenhum aluno selecionado} one {# aluno selecionado} other {# alunos selecionados}}",
+      "setNoRestriction": "Definir sem restrição",
+      "applyConsequence": "Aplicar consequência",
+      "processError": "Não foi possível processar a restrição.",
+      "applySuccess": "{count, plural, one {Consequência aplicada a # aluno.} other {Consequência aplicada a # alunos.}}",
+      "removeSuccess": "{count, plural, one {Restrição removida de # aluno.} other {Restrições removidas de # alunos.}}"
+    },
+    "errors": {
+      "invalidPeriod": "Período de reinscrição inválido.",
+      "loadStudents": "Não foi possível carregar os alunos."
+    },
+    "students": {
+      "selectPage": "Selecionar alunos desta página",
+      "loading": "A carregar alunos...",
+      "empty": "Nenhum aluno encontrado com estes filtros.",
+      "enrollment": "Matrícula",
+      "notProvided": "Não indicada",
+      "noCampus": "Sem polo",
+      "semester": "{semester}.º semestre",
+      "protocol": "Protocolo",
+      "subjects": "Unidades curriculares",
+      "updatedAt": "Atualizado em",
+      "reason": "Motivo",
+      "completed": "Reinscrição realizada",
+      "pendingAfterDeadline": "Pendente após o prazo",
+      "waitingStudent": "A aguardar aluno"
+    },
+    "pagination": {
+      "summary": "Página {page} de {pages} · {count, plural, one {# registo} other {# registos}}",
+      "previous": "Anterior",
+      "next": "Seguinte"
+    },
+    "confirm": {
+      "applyTitle": "Aplicar consequência",
+      "removeTitle": "Remover restrição",
+      "applyMessage": "Aplicar “{restriction}” a {count, plural, one {# aluno} other {# alunos}}? Esta ação ficará registada no histórico.",
+      "removeMessage": "Definir {count, plural, one {# aluno} other {# alunos}} como “Sem restrição”? A remoção ficará registada no histórico.",
+      "processing": "A processar...",
+      "apply": "Aplicar",
+      "remove": "Remover restrição",
+      "back": "Voltar"
+    },
+    "apiErrors": {
+      "unauthorized": "Não tem autorização para realizar esta operação.",
+      "periodNotFound": "Período de reinscrição não encontrado.",
+      "noDestinationCourse": "O período não possui curso de destino.",
+      "semesterNotIdentified": "Não foi possível identificar o semestre dos alunos elegíveis.",
+      "invalidRestrictionAction": "Ação de restrição inválida.",
+      "selectAtLeastOne": "Selecione pelo menos um aluno.",
+      "tooManyStudents": "O limite é de 500 alunos por operação.",
+      "invalidRestrictionType": "Selecione um tipo de restrição válido.",
+      "cancelledPeriod": "Não é possível aplicar restrições num período cancelado.",
+      "beforeDeadline": "A restrição só pode ser aplicada após o encerramento do prazo.",
+      "ineligibleStudents": "Um ou mais alunos selecionados não são elegíveis para este período.",
+      "completedStudents": "A restrição não pode ser aplicada a alunos com reinscrição enviada, em análise ou aprovada."
+    }
   }
 }

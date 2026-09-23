@@ -17700,5 +17700,121 @@
       "processing": "Traitement...",
       "back": "Retour"
     }
+  },
+  "AdminSemesterReenrollmentStudents": {
+    "backToPeriods": "← Retour aux périodes",
+    "title": "Étudiants de réinscription",
+    "periodFallback": "Période de réinscription",
+    "periodCard": {
+      "semesterTransition": "{current}e → {target}e semestre",
+      "deadlineClosed": "Délai expiré",
+      "deadlineOpen": "Délai en cours"
+    },
+    "summary": {
+      "eligible": "Éligibles",
+      "notStarted": "Non commencées",
+      "drafts": "Brouillons",
+      "sent": "Envoyées",
+      "underReview": "En analyse",
+      "approved": "Approuvées",
+      "returned": "Retournées",
+      "rejected": "Refusées",
+      "deadlineMissed": "Délai dépassé",
+      "afterDeadline": "Après le délai",
+      "withRestriction": "Avec restriction",
+      "withoutRestriction": "Sans restriction"
+    },
+    "filters": {
+      "searchPlaceholder": "Nom ou numéro d'inscription",
+      "allSituations": "Toutes les situations",
+      "notCompleted": "Non effectuée",
+      "pendingAfterDeadline": "En attente après le délai",
+      "allCampuses": "Tous les campus",
+      "allRestrictions": "Toutes les restrictions",
+      "apply": "Filtrer",
+      "clear": "Effacer"
+    },
+    "situations": {
+      "notStarted": "Non commencée",
+      "deadlineMissed": "Délai dépassé",
+      "draft": "Brouillon",
+      "sent": "Envoyée",
+      "underReview": "En analyse",
+      "approved": "Approuvée",
+      "returned": "Retournée",
+      "rejected": "Refusée",
+      "cancelled": "Annulée",
+      "expired": "Expirée"
+    },
+    "restrictions": {
+      "none": "Sans restriction",
+      "warningOnly": "Avertissement uniquement",
+      "partial": "Restriction partielle",
+      "portalBlocked": "Portail bloqué"
+    },
+    "restrictionPanel": {
+      "defaultReason": "La réinscription n'a pas été effectuée dans le délai imparti.",
+      "defaultRemovalReason": "Restriction supprimée par l’administrateur.",
+      "consequence": "Conséquence",
+      "blockPortal": "Bloquer le portail",
+      "adminReason": "Motif administratif",
+      "studentMessage": "Message à l’étudiant",
+      "studentMessagePlaceholder": "Laissez vide pour utiliser le message par défaut.",
+      "selectedCount": "{count, plural, =0 {Aucun étudiant sélectionné} one {# étudiant sélectionné} other {# étudiants sélectionnés}}",
+      "setNoRestriction": "Définir sans restriction",
+      "applyConsequence": "Appliquer la conséquence",
+      "processError": "Impossible de traiter la restriction.",
+      "applySuccess": "{count, plural, one {Conséquence appliquée à # étudiant.} other {Conséquence appliquée à # étudiants.}}",
+      "removeSuccess": "{count, plural, one {Restriction supprimée pour # étudiant.} other {Restrictions supprimées pour # étudiants.}}"
+    },
+    "errors": {
+      "invalidPeriod": "Période de réinscription invalide.",
+      "loadStudents": "Impossible de charger les étudiants."
+    },
+    "students": {
+      "selectPage": "Sélectionner les étudiants de cette page",
+      "loading": "Chargement des étudiants...",
+      "empty": "Aucun étudiant trouvé avec ces filtres.",
+      "enrollment": "Inscription",
+      "notProvided": "Non renseignée",
+      "noCampus": "Sans campus",
+      "semester": "{semester}e semestre",
+      "protocol": "Protocole",
+      "subjects": "Unités d’enseignement",
+      "updatedAt": "Mis à jour le",
+      "reason": "Motif",
+      "completed": "Réinscription effectuée",
+      "pendingAfterDeadline": "En attente après le délai",
+      "waitingStudent": "En attente de l’étudiant"
+    },
+    "pagination": {
+      "summary": "Page {page} sur {pages} · {count, plural, one {# enregistrement} other {# enregistrements}}",
+      "previous": "Précédente",
+      "next": "Suivante"
+    },
+    "confirm": {
+      "applyTitle": "Appliquer la conséquence",
+      "removeTitle": "Supprimer la restriction",
+      "applyMessage": "Appliquer « {restriction} » à {count, plural, one {# étudiant} other {# étudiants}} ? Cette action sera enregistrée dans l’historique.",
+      "removeMessage": "Définir {count, plural, one {# étudiant} other {# étudiants}} comme « Sans restriction » ? La suppression sera enregistrée dans l’historique.",
+      "processing": "Traitement...",
+      "apply": "Appliquer",
+      "remove": "Supprimer la restriction",
+      "back": "Retour"
+    },
+    "apiErrors": {
+      "unauthorized": "Vous n’êtes pas autorisé à effectuer cette opération.",
+      "periodNotFound": "Période de réinscription introuvable.",
+      "noDestinationCourse": "La période ne comporte aucun programme de destination.",
+      "semesterNotIdentified": "Impossible d’identifier le semestre des étudiants éligibles.",
+      "invalidRestrictionAction": "Action de restriction invalide.",
+      "selectAtLeastOne": "Sélectionnez au moins un étudiant.",
+      "tooManyStudents": "La limite est de 500 étudiants par opération.",
+      "invalidRestrictionType": "Sélectionnez un type de restriction valide.",
+      "cancelledPeriod": "Aucune restriction ne peut être appliquée à une période annulée.",
+      "beforeDeadline": "La restriction ne peut être appliquée qu’après la fin du délai.",
+      "ineligibleStudents": "Un ou plusieurs étudiants sélectionnés ne sont pas éligibles pour cette période.",
+      "completedStudents": "La restriction ne peut pas être appliquée aux étudiants dont la réinscription a été envoyée, est en cours d’analyse ou a été approuvée."
+    }
   }
 }

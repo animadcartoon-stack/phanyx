@@ -17700,5 +17700,121 @@
       "processing": "Procesando...",
       "back": "Volver"
     }
+  },
+  "AdminSemesterReenrollmentStudents": {
+    "backToPeriods": "← Volver a los períodos",
+    "title": "Estudiantes de rematrícula",
+    "periodFallback": "Período de rematrícula",
+    "periodCard": {
+      "semesterTransition": "{current}.º → {target}.º semestre",
+      "deadlineClosed": "Plazo cerrado",
+      "deadlineOpen": "Plazo en curso"
+    },
+    "summary": {
+      "eligible": "Elegibles",
+      "notStarted": "No iniciaron",
+      "drafts": "Borradores",
+      "sent": "Enviadas",
+      "underReview": "En análisis",
+      "approved": "Aprobadas",
+      "returned": "Devueltas",
+      "rejected": "Rechazadas",
+      "deadlineMissed": "Plazo vencido",
+      "afterDeadline": "Después del plazo",
+      "withRestriction": "Con restricción",
+      "withoutRestriction": "Sin restricción"
+    },
+    "filters": {
+      "searchPlaceholder": "Nombre o matrícula",
+      "allSituations": "Todas las situaciones",
+      "notCompleted": "No realizó",
+      "pendingAfterDeadline": "Pendiente después del plazo",
+      "allCampuses": "Todos los campus",
+      "allRestrictions": "Todas las restricciones",
+      "apply": "Filtrar",
+      "clear": "Limpiar"
+    },
+    "situations": {
+      "notStarted": "No inició",
+      "deadlineMissed": "Plazo vencido",
+      "draft": "Borrador",
+      "sent": "Enviada",
+      "underReview": "En análisis",
+      "approved": "Aprobada",
+      "returned": "Devuelta",
+      "rejected": "Rechazada",
+      "cancelled": "Cancelada",
+      "expired": "Expirada"
+    },
+    "restrictions": {
+      "none": "Sin restricción",
+      "warningOnly": "Solo aviso",
+      "partial": "Restricción parcial",
+      "portalBlocked": "Portal bloqueado"
+    },
+    "restrictionPanel": {
+      "defaultReason": "La rematrícula no se realizó dentro del plazo.",
+      "defaultRemovalReason": "Restricción eliminada por el administrador.",
+      "consequence": "Consecuencia",
+      "blockPortal": "Bloquear portal",
+      "adminReason": "Motivo administrativo",
+      "studentMessage": "Mensaje para el estudiante",
+      "studentMessagePlaceholder": "Si se deja en blanco, el sistema utilizará el mensaje predeterminado.",
+      "selectedCount": "{count, plural, =0 {Ningún estudiante seleccionado} one {# estudiante seleccionado} other {# estudiantes seleccionados}}",
+      "setNoRestriction": "Definir sin restricción",
+      "applyConsequence": "Aplicar consecuencia",
+      "processError": "No fue posible procesar la restricción.",
+      "applySuccess": "{count, plural, one {Consecuencia aplicada a # estudiante.} other {Consecuencia aplicada a # estudiantes.}}",
+      "removeSuccess": "{count, plural, one {Restricción eliminada de # estudiante.} other {Restricciones eliminadas de # estudiantes.}}"
+    },
+    "errors": {
+      "invalidPeriod": "Período de rematrícula inválido.",
+      "loadStudents": "No fue posible cargar los estudiantes."
+    },
+    "students": {
+      "selectPage": "Seleccionar estudiantes de esta página",
+      "loading": "Cargando estudiantes...",
+      "empty": "No se encontraron estudiantes con estos filtros.",
+      "enrollment": "Matrícula",
+      "notProvided": "No informada",
+      "noCampus": "Sin campus",
+      "semester": "{semester}.º semestre",
+      "protocol": "Protocolo",
+      "subjects": "Asignaturas",
+      "updatedAt": "Actualizado el",
+      "reason": "Motivo",
+      "completed": "Rematrícula realizada",
+      "pendingAfterDeadline": "Pendiente después del plazo",
+      "waitingStudent": "Esperando al estudiante"
+    },
+    "pagination": {
+      "summary": "Página {page} de {pages} · {count, plural, one {# registro} other {# registros}}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "confirm": {
+      "applyTitle": "Aplicar consecuencia",
+      "removeTitle": "Eliminar restricción",
+      "applyMessage": "¿Aplicar “{restriction}” a {count, plural, one {# estudiante} other {# estudiantes}}? Esta acción quedará registrada en el historial.",
+      "removeMessage": "¿Definir {count, plural, one {# estudiante} other {# estudiantes}} como “Sin restricción”? La eliminación quedará registrada en el historial.",
+      "processing": "Procesando...",
+      "apply": "Aplicar",
+      "remove": "Eliminar restricción",
+      "back": "Volver"
+    },
+    "apiErrors": {
+      "unauthorized": "No tienes autorización para realizar esta operación.",
+      "periodNotFound": "Período de rematrícula no encontrado.",
+      "noDestinationCourse": "El período no tiene un programa de destino.",
+      "semesterNotIdentified": "No fue posible identificar el semestre de los estudiantes elegibles.",
+      "invalidRestrictionAction": "Acción de restricción inválida.",
+      "selectAtLeastOne": "Selecciona al menos un estudiante.",
+      "tooManyStudents": "El límite es de 500 estudiantes por operación.",
+      "invalidRestrictionType": "Selecciona un tipo de restricción válido.",
+      "cancelledPeriod": "No se pueden aplicar restricciones a un período cancelado.",
+      "beforeDeadline": "La restricción solo puede aplicarse después de que finalice el plazo.",
+      "ineligibleStudents": "Uno o más estudiantes seleccionados no son elegibles para este período.",
+      "completedStudents": "La restricción no puede aplicarse a estudiantes cuya rematrícula fue enviada, está en análisis o fue aprobada."
+    }
   }
 }

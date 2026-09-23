@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import {
   FormEvent,
   useCallback,
@@ -158,46 +159,16 @@ const RESUMO_INICIAL: ResumoPainel = {
   semRestricao: 0,
 };
 
-function nomeSituacao(valor?: string | null) {
-  const nomes: Record<string, string> = {
-    NAO_INICIOU: "Não iniciou",
-    PRAZO_PERDIDO: "Prazo perdido",
-    RASCUNHO: "Rascunho",
-    ENVIADA: "Enviada",
-    EM_ANALISE: "Em análise",
-    APROVADA: "Aprovada",
-    DEVOLVIDA: "Devolvida",
-    RECUSADA: "Recusada",
-    CANCELADA: "Cancelada",
-    EXPIRADA: "Expirada",
-  };
-
-  return valor
-    ? nomes[valor] || valor
-    : "Não iniciou";
-}
-
-function nomeRestricao(tipo: TipoRestricao) {
-  const nomes: Record<TipoRestricao, string> = {
-    NENHUMA: "Sem restrição",
-    SOMENTE_AVISO: "Somente aviso",
-    RESTRICAO_PARCIAL: "Restrição parcial",
-    BLOQUEIO_PORTAL: "Portal bloqueado",
-  };
-
-  return nomes[tipo];
-}
-
 function classeSituacao(valor?: string | null) {
   if (valor === "APROVADA") {
-    return "border-emerald-300 bg-emerald-50 text-emerald-800";
+    return "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200";
   }
 
   if (
     valor === "ENVIADA" ||
     valor === "EM_ANALISE"
   ) {
-    return "border-blue-300 bg-blue-50 text-blue-800";
+    return "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-200";
   }
 
   if (
@@ -205,50 +176,33 @@ function classeSituacao(valor?: string | null) {
     valor === "RECUSADA" ||
     valor === "EXPIRADA"
   ) {
-    return "border-red-300 bg-red-50 text-red-800";
+    return "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200";
   }
 
   if (
     valor === "RASCUNHO" ||
     valor === "DEVOLVIDA"
   ) {
-    return "border-amber-300 bg-amber-50 text-amber-800";
+    return "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200";
   }
 
-  return "border-slate-300 bg-slate-50 text-slate-700";
+  return "border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
 }
 
 function classeRestricao(tipo: TipoRestricao) {
   if (tipo === "BLOQUEIO_PORTAL") {
-    return "border-red-300 bg-red-50 text-red-800";
+    return "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200";
   }
 
   if (tipo === "RESTRICAO_PARCIAL") {
-    return "border-orange-300 bg-orange-50 text-orange-800";
+    return "border-orange-300 bg-orange-50 text-orange-800 dark:border-orange-700 dark:bg-orange-950/50 dark:text-orange-200";
   }
 
   if (tipo === "SOMENTE_AVISO") {
-    return "border-amber-300 bg-amber-50 text-amber-800";
+    return "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200";
   }
 
-  return "border-slate-300 bg-slate-50 text-slate-700";
-}
-
-function formatarData(valor?: string | null) {
-  if (!valor) {
-    return "—";
-  }
-
-  const data = new Date(valor);
-
-  if (Number.isNaN(data.getTime())) {
-    return "—";
-  }
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(data);
+  return "border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200";
 }
 
 export default function AlunosRematriculaPage() {
@@ -257,6 +211,90 @@ export default function AlunosRematriculaPage() {
   }>();
 
   const periodoId = Number(params.id);
+
+  const t = useTranslations("AdminSemesterReenrollmentStudents");
+  const locale = useLocale();
+
+  function nomeSituacao(valor?: string | null) {
+    switch (valor) {
+      case "PRAZO_PERDIDO": return t("situations.deadlineMissed");
+      case "RASCUNHO": return t("situations.draft");
+      case "ENVIADA": return t("situations.sent");
+      case "EM_ANALISE": return t("situations.underReview");
+      case "APROVADA": return t("situations.approved");
+      case "DEVOLVIDA": return t("situations.returned");
+      case "RECUSADA": return t("situations.rejected");
+      case "CANCELADA": return t("situations.cancelled");
+      case "EXPIRADA": return t("situations.expired");
+      case "NAO_INICIOU":
+      case null:
+      case undefined:
+      case "":
+        return t("situations.notStarted");
+      default:
+        return valor;
+    }
+  }
+
+  function nomeRestricao(tipo: TipoRestricao) {
+    switch (tipo) {
+      case "SOMENTE_AVISO": return t("restrictions.warningOnly");
+      case "RESTRICAO_PARCIAL": return t("restrictions.partial");
+      case "BLOQUEIO_PORTAL": return t("restrictions.portalBlocked");
+      case "NENHUMA":
+      default:
+        return t("restrictions.none");
+    }
+  }
+
+  function formatarData(valor?: string | null) {
+    if (!valor) return "—";
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) return "—";
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(data);
+  }
+
+  function traduzirErroApi(
+    mensagemApi: string | undefined,
+    contexto: "CARREGAR" | "RESTRICAO",
+  ) {
+    switch (mensagemApi) {
+      case "Não autorizado.":
+        return t("apiErrors.unauthorized");
+      case "Período de rematrícula inválido.":
+        return t("errors.invalidPeriod");
+      case "Período de rematrícula não encontrado.":
+        return t("apiErrors.periodNotFound");
+      case "O período não possui curso de destino.":
+        return t("apiErrors.noDestinationCourse");
+      case "Não foi possível identificar o semestre atual dos alunos elegíveis.":
+      case "Não foi possível identificar o semestre dos alunos elegíveis.":
+        return t("apiErrors.semesterNotIdentified");
+      case "Ação de restrição inválida.":
+        return t("apiErrors.invalidRestrictionAction");
+      case "Selecione pelo menos um aluno.":
+        return t("apiErrors.selectAtLeastOne");
+      case "O limite é de 500 alunos por operação.":
+        return t("apiErrors.tooManyStudents");
+      case "Selecione um tipo de restrição válido.":
+        return t("apiErrors.invalidRestrictionType");
+      case "Não é possível aplicar restrições em um período cancelado.":
+        return t("apiErrors.cancelledPeriod");
+      case "A restrição somente pode ser aplicada depois do encerramento do prazo.":
+        return t("apiErrors.beforeDeadline");
+      case "Um ou mais alunos selecionados não são elegíveis para este período.":
+        return t("apiErrors.ineligibleStudents");
+      case "A restrição não pode ser aplicada a alunos com rematrícula enviada, em análise ou aprovada.":
+        return t("apiErrors.completedStudents");
+      default:
+        return contexto === "CARREGAR"
+          ? t("errors.loadStudents")
+          : t("restrictionPanel.processError");
+    }
+  }
 
   const [dados, setDados] =
     useState<RespostaAlunos | null>(null);
@@ -299,8 +337,8 @@ export default function AlunosRematriculaPage() {
     );
 
   const [motivo, setMotivo] =
-    useState(
-      "Rematrícula não realizada dentro do prazo.",
+    useState(() =>
+      t("restrictionPanel.defaultReason"),
     );
 
   const [mensagemAluno, setMensagemAluno] =
@@ -322,7 +360,7 @@ export default function AlunosRematriculaPage() {
         setMensagem({
           tipo: "erro",
           texto:
-            "Período de rematrícula inválido.",
+            t("errors.invalidPeriod"),
         });
 
         setCarregando(false);
@@ -369,8 +407,10 @@ export default function AlunosRematriculaPage() {
 
         if (!resposta.ok) {
           throw new Error(
-            resultado.error ||
-              "Não foi possível carregar os alunos.",
+            traduzirErroApi(
+              resultado.error,
+              "CARREGAR",
+            ),
           );
         }
 
@@ -381,7 +421,7 @@ export default function AlunosRematriculaPage() {
           texto:
             error instanceof Error
               ? error.message
-              : "Não foi possível carregar os alunos.",
+              : t("errors.loadStudents"),
         });
       } finally {
         setCarregando(false);
@@ -393,6 +433,7 @@ export default function AlunosRematriculaPage() {
       poloId,
       tipoRestricaoFiltro,
       buscaAplicada,
+      t,
     ]);
 
   useEffect(() => {
@@ -538,7 +579,7 @@ export default function AlunosRematriculaPage() {
               : {
                   motivo:
                     motivo.trim() ||
-                    "Restrição removida pelo administrador.",
+                    t("restrictionPanel.defaultRemovalReason"),
                 }),
           }),
         },
@@ -552,16 +593,24 @@ export default function AlunosRematriculaPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          resultado.error ||
-            "Não foi possível processar a restrição.",
+          traduzirErroApi(
+            resultado.error,
+            "RESTRICAO",
+          ),
         );
       }
 
       setMensagem({
         tipo: "sucesso",
         texto:
-          resultado.message ||
-          "Ação realizada corretamente.",
+          confirmacaoRestricao.acao ===
+          "APLICAR"
+            ? t("restrictionPanel.applySuccess", {
+                count: selecionados.size,
+              })
+            : t("restrictionPanel.removeSuccess", {
+                count: selecionados.size,
+              }),
       });
 
       setConfirmacaoRestricao(
@@ -579,7 +628,7 @@ export default function AlunosRematriculaPage() {
         texto:
           error instanceof Error
             ? error.message
-            : "Não foi possível processar a restrição.",
+            : t("restrictionPanel.processError"),
       });
     } finally {
       setProcessando(false);
@@ -595,16 +644,16 @@ export default function AlunosRematriculaPage() {
               href="/admin/rematriculas-semestrais"
               className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
             >
-              ← Voltar para períodos
+              {t("backToPeriods")}
             </Link>
 
             <h1 className="mt-3 text-2xl font-black sm:text-3xl">
-              Alunos da rematrícula
+              {t("title")}
             </h1>
 
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               {dados?.periodo?.titulo ||
-                "Período de rematrícula"}
+                t("periodFallback")}
               {dados?.periodo?.curso?.nome
                 ? ` · ${dados.periodo.curso.nome}`
                 : ""}
@@ -618,8 +667,10 @@ export default function AlunosRematriculaPage() {
               </strong>
 
               <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">
-                {dados.periodo.semestreAtual}º →{" "}
-                {dados.periodo.semestreDestino}º semestre
+                {t("periodCard.semesterTransition", {
+                  current: dados.periodo.semestreAtual,
+                  target: dados.periodo.semestreDestino,
+                })}
               </span>
 
               <span
@@ -630,8 +681,8 @@ export default function AlunosRematriculaPage() {
                 }`}
               >
                 {dados.periodo.prazoEncerrado
-                  ? "Prazo encerrado"
-                  : "Prazo em andamento"}
+                  ? t("periodCard.deadlineClosed")
+                  : t("periodCard.deadlineOpen")}
               </span>
             </div>
           )}
@@ -642,8 +693,8 @@ export default function AlunosRematriculaPage() {
             className={`rounded-xl border px-4 py-3 text-sm ${
               mensagem.tipo ===
               "sucesso"
-                ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                : "border-red-300 bg-red-50 text-red-800"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200"
+                : "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200"
             }`}
           >
             {mensagem.texto}
@@ -652,18 +703,18 @@ export default function AlunosRematriculaPage() {
 
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
           {[
-            ["Elegíveis", resumo.elegiveis],
-            ["Não iniciaram", resumo.naoIniciaram],
-            ["Rascunhos", resumo.rascunhos],
-            ["Enviadas", resumo.enviadas],
-            ["Em análise", resumo.emAnalise],
-            ["Aprovadas", resumo.aprovadas],
-            ["Devolvidas", resumo.devolvidas],
-            ["Recusadas", resumo.recusadas],
-            ["Prazo perdido", resumo.prazoPerdido],
-            ["Após o prazo", resumo.pendentesAposPrazo],
-            ["Com restrição", resumo.comRestricao],
-            ["Sem restrição", resumo.semRestricao],
+            [t("summary.eligible"), resumo.elegiveis],
+            [t("summary.notStarted"), resumo.naoIniciaram],
+            [t("summary.drafts"), resumo.rascunhos],
+            [t("summary.sent"), resumo.enviadas],
+            [t("summary.underReview"), resumo.emAnalise],
+            [t("summary.approved"), resumo.aprovadas],
+            [t("summary.returned"), resumo.devolvidas],
+            [t("summary.rejected"), resumo.recusadas],
+            [t("summary.deadlineMissed"), resumo.prazoPerdido],
+            [t("summary.afterDeadline"), resumo.pendentesAposPrazo],
+            [t("summary.withRestriction"), resumo.comRestricao],
+            [t("summary.withoutRestriction"), resumo.semRestricao],
           ].map(([titulo, quantidade]) => (
             <div
               key={String(titulo)}
@@ -692,7 +743,7 @@ export default function AlunosRematriculaPage() {
                   evento.target.value,
                 )
               }
-              placeholder="Nome ou matrícula"
+              placeholder={t("filters.searchPlaceholder")}
               className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950"
             />
 
@@ -707,37 +758,37 @@ export default function AlunosRematriculaPage() {
               className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950"
             >
               <option value="TODOS">
-                Todas as situações
+                {t("filters.allSituations")}
               </option>
               <option value="NAO_REALIZOU">
-                Não realizou
+                {t("filters.notCompleted")}
               </option>
               <option value="NAO_INICIOU">
-                Não iniciou
+                {t("situations.notStarted")}
               </option>
               <option value="RASCUNHO">
-                Rascunho
+                {t("situations.draft")}
               </option>
               <option value="ENVIADA">
-                Enviada
+                {t("situations.sent")}
               </option>
               <option value="EM_ANALISE">
-                Em análise
+                {t("situations.underReview")}
               </option>
               <option value="APROVADA">
-                Aprovada
+                {t("situations.approved")}
               </option>
               <option value="DEVOLVIDA">
-                Devolvida
+                {t("situations.returned")}
               </option>
               <option value="RECUSADA">
-                Recusada
+                {t("situations.rejected")}
               </option>
               <option value="PRAZO_PERDIDO">
-                Prazo perdido
+                {t("situations.deadlineMissed")}
               </option>
               <option value="PENDENTE_APOS_PRAZO">
-                Pendente após o prazo
+                {t("filters.pendingAfterDeadline")}
               </option>
             </select>
 
@@ -752,7 +803,7 @@ export default function AlunosRematriculaPage() {
               className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950"
             >
               <option value="">
-                Todos os polos
+                {t("filters.allCampuses")}
               </option>
 
               {dados?.filtrosDisponiveis?.polos.map(
@@ -780,19 +831,19 @@ export default function AlunosRematriculaPage() {
               className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950"
             >
               <option value="TODOS">
-                Todas as restrições
+                {t("filters.allRestrictions")}
               </option>
               <option value="NENHUMA">
-                Sem restrição
+                {t("restrictions.none")}
               </option>
               <option value="SOMENTE_AVISO">
-                Somente aviso
+                {t("restrictions.warningOnly")}
               </option>
               <option value="RESTRICAO_PARCIAL">
-                Restrição parcial
+                {t("restrictions.partial")}
               </option>
               <option value="BLOQUEIO_PORTAL">
-                Portal bloqueado
+                {t("restrictions.portalBlocked")}
               </option>
             </select>
 
@@ -801,7 +852,7 @@ export default function AlunosRematriculaPage() {
                 type="submit"
                 className="h-11 flex-1 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Filtrar
+                {t("filters.apply")}
               </button>
 
               <button
@@ -811,7 +862,7 @@ export default function AlunosRematriculaPage() {
                 }
                 className="h-11 rounded-xl border border-slate-300 px-4 text-sm font-semibold"
               >
-                Limpar
+                {t("filters.clear")}
               </button>
             </div>
           </form>
@@ -821,7 +872,7 @@ export default function AlunosRematriculaPage() {
           <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Consequência
+                {t("restrictionPanel.consequence")}
               </span>
 
               <select
@@ -835,20 +886,20 @@ export default function AlunosRematriculaPage() {
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950"
               >
                 <option value="SOMENTE_AVISO">
-                  Somente aviso
+                  {t("restrictions.warningOnly")}
                 </option>
                 <option value="RESTRICAO_PARCIAL">
-                  Restrição parcial
+                  {t("restrictions.partial")}
                 </option>
                 <option value="BLOQUEIO_PORTAL">
-                  Bloquear portal
+                  {t("restrictionPanel.blockPortal")}
                 </option>
               </select>
             </label>
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Motivo administrativo
+                {t("restrictionPanel.adminReason")}
               </span>
 
               <input
@@ -865,7 +916,7 @@ export default function AlunosRematriculaPage() {
 
           <label className="mt-4 block space-y-2">
             <span className="text-sm font-semibold">
-              Mensagem para o aluno
+              {t("restrictionPanel.studentMessage")}
             </span>
 
             <textarea
@@ -876,21 +927,16 @@ export default function AlunosRematriculaPage() {
                 )
               }
               rows={3}
-              placeholder="Em branco, o sistema utilizará a mensagem padrão."
+              placeholder={t("restrictionPanel.studentMessagePlaceholder")}
               className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
             />
           </label>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
             <strong className="text-sm">
-              {selecionados.size} aluno
-              {selecionados.size === 1
-                ? ""
-                : "s"}{" "}
-              selecionado
-              {selecionados.size === 1
-                ? ""
-                : "s"}
+              {t("restrictionPanel.selectedCount", {
+                count: selecionados.size,
+              })}
             </strong>
 
             <div className="flex flex-wrap gap-2">
@@ -908,9 +954,9 @@ export default function AlunosRematriculaPage() {
                     },
                   )
                 }
-                className="h-10 rounded-xl border border-emerald-300 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 disabled:opacity-50"
+                className="h-10 rounded-xl border border-emerald-300 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 disabled:opacity-50 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200"
               >
-                Definir sem restrição
+                {t("restrictionPanel.setNoRestriction")}
               </button>
 
               <button
@@ -929,7 +975,7 @@ export default function AlunosRematriculaPage() {
                 }
                 className="h-10 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white disabled:opacity-50"
               >
-                Aplicar consequência
+                {t("restrictionPanel.applyConsequence")}
               </button>
             </div>
           </div>
@@ -953,17 +999,17 @@ export default function AlunosRematriculaPage() {
             />
 
             <strong>
-              Selecionar alunos desta página
+              {t("students.selectPage")}
             </strong>
           </div>
 
           {carregando ? (
-            <div className="p-10 text-center text-sm text-slate-600">
-              Carregando alunos...
+            <div className="p-10 text-center text-sm text-slate-600 dark:text-slate-400">
+              {t("students.loading")}
             </div>
           ) : alunos.length === 0 ? (
-            <div className="p-10 text-center text-sm text-slate-600">
-              Nenhum aluno encontrado com esses filtros.
+            <div className="p-10 text-center text-sm text-slate-600 dark:text-slate-400">
+              {t("students.empty")}
             </div>
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -1022,33 +1068,34 @@ export default function AlunosRematriculaPage() {
                       </div>
 
                       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                        Matrícula:{" "}
-                        {aluno.matricula
-                          .numero ||
-                          "Não informada"}
+                        {t("students.enrollment")}:{" "}
+                        {aluno.matricula.numero ||
+                          t("students.notProvided")}
                         {" · "}
                         {aluno.polo?.nome ||
-                          "Sem polo"}
+                          t("students.noCampus")}
                         {" · "}
-                        {aluno.matricula
-                          .semestreAtual ||
-                          "—"}
-                        º semestre
+                        {aluno.matricula.semestreAtual
+                          ? t("students.semester", {
+                              semester:
+                                aluno.matricula.semestreAtual,
+                            })
+                          : "—"}
                       </p>
 
                       {aluno.rematricula && (
                         <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                          Protocolo:{" "}
+                          {t("students.protocol")}:{" "}
                           {aluno.rematricula
                             .protocolo ||
                             "—"}
                           {" · "}
-                          Disciplinas:{" "}
+                          {t("students.subjects")}:{" "}
                           {aluno.rematricula
                             ._count?.itens ||
                             0}
                           {" · "}
-                          Atualizado em:{" "}
+                          {t("students.updatedAt")}:{" "}
                           {formatarData(
                             aluno.rematricula
                               .atualizadaEm,
@@ -1059,7 +1106,7 @@ export default function AlunosRematriculaPage() {
                       {aluno.restricao
                         .motivo && (
                         <p className="mt-2 text-xs font-medium text-red-700 dark:text-red-300">
-                          Motivo:{" "}
+                          {t("students.reason")}:{" "}
                           {
                             aluno.restricao
                               .motivo
@@ -1071,15 +1118,15 @@ export default function AlunosRematriculaPage() {
                     <div className="text-xs text-slate-600 dark:text-slate-400 lg:text-right">
                       {aluno.realizouRematricula ? (
                         <span className="font-semibold text-emerald-700 dark:text-emerald-300">
-                          Rematrícula realizada
+                          {t("students.completed")}
                         </span>
                       ) : aluno.pendenteAposPrazo ? (
                         <span className="font-semibold text-red-700 dark:text-red-300">
-                          Pendente após o prazo
+                          {t("students.pendingAfterDeadline")}
                         </span>
                       ) : (
                         <span>
-                          Aguardando aluno
+                          {t("students.waitingStudent")}
                         </span>
                       )}
                     </div>
@@ -1092,15 +1139,13 @@ export default function AlunosRematriculaPage() {
           {dados?.paginacao && (
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 px-5 py-4 text-sm dark:border-slate-700">
               <span>
-                Página{" "}
-                {dados.paginacao.pagina} de{" "}
-                {dados.paginacao.totalPaginas}
-                {" · "}
-                {
-                  dados.paginacao
-                    .totalRegistros
-                }{" "}
-                registro(s)
+                {t("pagination.summary", {
+                  page: dados.paginacao.pagina,
+                  pages:
+                    dados.paginacao.totalPaginas,
+                  count:
+                    dados.paginacao.totalRegistros,
+                })}
               </span>
 
               <div className="flex gap-2">
@@ -1120,7 +1165,7 @@ export default function AlunosRematriculaPage() {
                   }
                   className="rounded-lg border border-slate-300 px-3 py-2 font-semibold disabled:opacity-50"
                 >
-                  Anterior
+                  {t("pagination.previous")}
                 </button>
 
                 <button
@@ -1136,7 +1181,7 @@ export default function AlunosRematriculaPage() {
                   }
                   className="rounded-lg border border-slate-300 px-3 py-2 font-semibold disabled:opacity-50"
                 >
-                  Próxima
+                  {t("pagination.next")}
                 </button>
               </div>
             </div>
@@ -1152,26 +1197,34 @@ export default function AlunosRematriculaPage() {
         titulo={
           confirmacaoRestricao?.acao ===
           "APLICAR"
-            ? "Aplicar consequência"
-            : "Remover restrição"
+            ? t("confirm.applyTitle")
+            : t("confirm.removeTitle")
         }
         mensagem={
           confirmacaoRestricao?.acao ===
           "APLICAR"
-            ? `Aplicar “${nomeRestricao(
-                tipoRestricao,
-              )}” a ${selecionados.size} aluno(s)? Esta ação ficará registrada no histórico.`
-            : `Definir ${selecionados.size} aluno(s) como “Sem restrição”? A remoção ficará registrada no histórico.`
+            ? t("confirm.applyMessage", {
+                restriction:
+                  nomeRestricao(
+                    tipoRestricao,
+                  ),
+                count:
+                  selecionados.size,
+              })
+            : t("confirm.removeMessage", {
+                count:
+                  selecionados.size,
+              })
         }
         textoConfirmar={
           processando
-            ? "Processando..."
+            ? t("confirm.processing")
             : confirmacaoRestricao?.acao ===
                 "APLICAR"
-              ? "Aplicar"
-              : "Remover restrição"
+              ? t("confirm.apply")
+              : t("confirm.remove")
         }
-        textoCancelar="Voltar"
+        textoCancelar={t("confirm.back")}
         onConfirmar={
           executarRestricao
         }
