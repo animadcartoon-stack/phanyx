@@ -17336,5 +17336,184 @@
       "previous": "Previous",
       "next": "Next"
     }
+  },
+  "AdminSemesterReenrollment": {
+    "header": {
+      "eyebrow": "Academic",
+      "title": "Semester reenrollment",
+      "description": "Define when students may select subjects for the next semester and which rules must be followed."
+    },
+    "form": {
+      "editTitle": "Edit reenrollment period",
+      "newTitle": "Configure new period",
+      "editDescription": "Update the dates, rules, and settings for this period.",
+      "newDescription": "Students will only see reenrollment within the configured dates.",
+      "course": "Program",
+      "selectCourse": "Select the program",
+      "targetSemester": "Target semester",
+      "selectSemester": "Select the semester",
+      "academicPeriod": "Academic term",
+      "academicPeriodPlaceholder": "E.g. 2027.1",
+      "periodTitle": "Period title",
+      "periodTitlePlaceholder": "It will be filled in automatically if left blank",
+      "opensAt": "Reenrollment opens",
+      "closesAt": "Reenrollment closes",
+      "classesStart": "Classes start",
+      "minWorkload": "Minimum workload",
+      "maxWorkload": "Maximum workload",
+      "notDefined": "Not defined",
+      "instructions": "Instructions for students",
+      "instructionsPlaceholder": "Provide guidance on subject selection, schedules, pending items, and confirmation."
+    },
+    "classes": {
+      "title": "Participating classes",
+      "description": "Select one or more classes that will participate in this reenrollment period. The subjects offered to students will be obtained from these classes.",
+      "clearAll": "Clear all",
+      "selectAll": "Select all",
+      "selectCourseFirst": "Select the program first.",
+      "selectSemesterFirst": "Select the target semester.",
+      "noneAvailable": "No active class was found for this program and semester. Create or configure a class before publishing reenrollment.",
+      "code": "Code",
+      "disciplineCount": "{count, plural, one {# subject} other {# subjects}}",
+      "selectedCount": "{count, plural, one {# class selected.} other {# classes selected.}}"
+    },
+    "rules": {
+      "requireApproval": {
+        "title": "Require approval",
+        "description": "The registrar or academic coordination team must approve the selection."
+      },
+      "allowDraft": {
+        "title": "Allow draft",
+        "description": "Students may save their selection before submitting it."
+      },
+      "blockDelinquent": {
+        "title": "Block students with overdue balances",
+        "description": "Students with overdue balances will not be able to submit reenrollment."
+      }
+    },
+    "feedback": {
+      "selectCourse": "Select the program.",
+      "selectSemester": "Select the target semester.",
+      "requiredPeriodFields": "Enter the academic term and the reenrollment opening and closing dates.",
+      "selectClassBeforePublish": "Select at least one participating class before publishing.",
+      "saveError": "The reenrollment period could not be saved.",
+      "updated": "The period was updated successfully.",
+      "created": "The reenrollment period was created.",
+      "loadDataError": "The data could not be loaded.",
+      "loadPeriodsError": "The reenrollment periods could not be loaded.",
+      "actionError": "This action could not be completed.",
+      "actionSuccess": "Action completed successfully."
+    },
+    "extras": {
+      "title": "Allowed extracurricular subjects",
+      "description": "Choose subjects from any program in the institution that may complement the curriculum for students in this program.",
+      "selectedCount": "{count, plural, one {# subject selected} other {# subjects selected}}",
+      "selectTargetCourseFirst": "Select the target program first.",
+      "scope": {
+        "semester": {
+          "title": "This semester only",
+          "description": "The subjects will be offered only for the selected semester."
+        },
+        "course": {
+          "title": "All semesters in the program",
+          "description": "The subjects may be offered in any semester of this program."
+        }
+      },
+      "selectTargetSemesterToConfigure": "Select the target semester to configure the subjects.",
+      "search": {
+        "label": "Search subjects",
+        "placeholder": "E.g. ethics, counseling, management, missions...",
+        "minChars": "Enter at least 3 letters for a more precise search."
+      },
+      "originCourse": "Source program",
+      "allCourses": "All programs",
+      "foundCount": "{count, plural, one {# subject found} other {# subjects found}}",
+      "selectDisplayed": "Select all displayed",
+      "removeDisplayed": "Remove displayed",
+      "loading": "Loading subjects...",
+      "empty": "No subjects found.",
+      "institutionalSubject": "Institution-wide subject",
+      "rules": {
+        "required": {
+          "title": "Required",
+          "description": "The student must select it."
+        },
+        "countMinimum": {
+          "title": "Count toward minimum workload",
+          "description": "Counts toward the required minimum."
+        },
+        "countMaximum": {
+          "title": "Count toward maximum workload",
+          "description": "Counts toward the maximum limit."
+        }
+      },
+      "independentNote": "This setting is independent of the required subjects in the regular curriculum.",
+      "saving": "Saving...",
+      "save": "Save extracurricular subjects",
+      "feedback": {
+        "loadError": "The extracurricular subjects could not be loaded.",
+        "selectTargetCourse": "Select the target program.",
+        "selectTargetSemester": "Select the target semester.",
+        "saveError": "The extracurricular subjects could not be saved.",
+        "saved": "Extracurricular subjects saved."
+      }
+    },
+    "common": {
+      "notInformed": "Not provided",
+      "invalidDate": "Invalid date"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "cancelEdit": "Cancel editing",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "saveDraft": "Save draft",
+      "publishing": "Publishing...",
+      "saveAndPublish": "Save and publish",
+      "createAndPublish": "Create and publish",
+      "studentsAndRestrictions": "Students and restrictions",
+      "edit": "Edit",
+      "publish": "Publish",
+      "close": "Close",
+      "cancel": "Cancel"
+    },
+    "list": {
+      "title": "Configured periods",
+      "description": "Track the institution’s reenrollment campaigns.",
+      "loading": "Loading periods...",
+      "emptyTitle": "No reenrollment period has been configured.",
+      "emptyDescription": "Use the form above to create the first period.",
+      "defaultTitle": "Reenrollment {period}",
+      "courseNotInformed": "Program not provided",
+      "semester": "Semester {number}",
+      "opensAt": "Opens",
+      "closesAt": "Closes",
+      "classesStart": "Classes start",
+      "workload": "Workload",
+      "reenrollmentCount": "{count, plural, one {reenrollment} other {reenrollments}}",
+      "requiresApproval": "Requires approval"
+    },
+    "confirm": {
+      "publish": {
+        "title": "Publish period",
+        "message": "Once published, the period will be available to eligible students within the configured dates."
+      },
+      "close": {
+        "title": "Close period",
+        "message": "Once closed, students will no longer be able to start or submit reenrollment during this period."
+      },
+      "cancel": {
+        "title": "Cancel period",
+        "message": "The period will be cancelled and will no longer be available to students. Existing records will be preserved.",
+        "confirm": "Cancel period"
+      },
+      "processing": "Processing...",
+      "back": "Back"
+    }
   }
 }

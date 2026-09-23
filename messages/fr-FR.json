@@ -17335,5 +17335,184 @@
       "previous": "Précédente",
       "next": "Suivante"
     }
+  },
+  "AdminSemesterReenrollment": {
+    "header": {
+      "eyebrow": "Académique",
+      "title": "Réinscriptions semestrielles",
+      "description": "Définissez quand les étudiants pourront sélectionner les matières du prochain semestre et quelles règles devront être respectées."
+    },
+    "form": {
+      "editTitle": "Modifier la période de réinscription",
+      "newTitle": "Configurer une nouvelle période",
+      "editDescription": "Mettez à jour les dates, les règles et les paramètres de cette période.",
+      "newDescription": "L’étudiant ne verra la réinscription que pendant les dates définies.",
+      "course": "Formation",
+      "selectCourse": "Sélectionnez la formation",
+      "targetSemester": "Semestre de destination",
+      "selectSemester": "Sélectionnez le semestre",
+      "academicPeriod": "Période universitaire",
+      "academicPeriodPlaceholder": "Ex. : 2027.1",
+      "periodTitle": "Titre de la période",
+      "periodTitlePlaceholder": "Sera renseigné automatiquement si ce champ reste vide",
+      "opensAt": "Ouverture des réinscriptions",
+      "closesAt": "Clôture des réinscriptions",
+      "classesStart": "Début des cours",
+      "minWorkload": "Volume horaire minimal",
+      "maxWorkload": "Volume horaire maximal",
+      "notDefined": "Non défini",
+      "instructions": "Instructions pour les étudiants",
+      "instructionsPlaceholder": "Indiquez les consignes concernant le choix des matières, les horaires, les éléments en attente et la confirmation."
+    },
+    "classes": {
+      "title": "Groupes participants",
+      "description": "Sélectionnez un ou plusieurs groupes qui participeront à cette période de réinscription. Les matières proposées aux étudiants proviendront de ces groupes.",
+      "clearAll": "Tout désélectionner",
+      "selectAll": "Tout sélectionner",
+      "selectCourseFirst": "Sélectionnez d’abord la formation.",
+      "selectSemesterFirst": "Sélectionnez le semestre de destination.",
+      "noneAvailable": "Aucun groupe actif n’a été trouvé pour cette formation et ce semestre. Créez ou configurez un groupe avant de publier la réinscription.",
+      "code": "Code",
+      "disciplineCount": "{count, plural, one {# matière} other {# matières}}",
+      "selectedCount": "{count, plural, one {# groupe sélectionné.} other {# groupes sélectionnés.}}"
+    },
+    "rules": {
+      "requireApproval": {
+        "title": "Exiger une approbation",
+        "description": "Le secrétariat ou la coordination devra approuver la sélection."
+      },
+      "allowDraft": {
+        "title": "Autoriser le brouillon",
+        "description": "L’étudiant pourra enregistrer sa sélection avant de l’envoyer."
+      },
+      "blockDelinquent": {
+        "title": "Bloquer les étudiants avec impayés",
+        "description": "Les étudiants ayant des impayés ne pourront pas envoyer leur réinscription."
+      }
+    },
+    "feedback": {
+      "selectCourse": "Sélectionnez la formation.",
+      "selectSemester": "Sélectionnez le semestre de destination.",
+      "requiredPeriodFields": "Indiquez la période universitaire ainsi que les dates d’ouverture et de clôture de la réinscription.",
+      "selectClassBeforePublish": "Sélectionnez au moins un groupe participant avant de publier.",
+      "saveError": "La période de réinscription n’a pas pu être enregistrée.",
+      "updated": "La période a été mise à jour correctement.",
+      "created": "La période de réinscription a été créée.",
+      "loadDataError": "Impossible de charger les données.",
+      "loadPeriodsError": "Impossible de charger les périodes de réinscription.",
+      "actionError": "Impossible d’exécuter cette action.",
+      "actionSuccess": "Action effectuée avec succès."
+    },
+    "extras": {
+      "title": "Matières extrascolaires autorisées",
+      "description": "Choisissez des matières de n’importe quelle formation de l’établissement pouvant compléter le cursus des étudiants de cette formation.",
+      "selectedCount": "{count, plural, one {# matière sélectionnée} other {# matières sélectionnées}}",
+      "selectTargetCourseFirst": "Sélectionnez d’abord la formation de destination.",
+      "scope": {
+        "semester": {
+          "title": "Uniquement ce semestre",
+          "description": "Les matières seront proposées uniquement pour le semestre sélectionné."
+        },
+        "course": {
+          "title": "Tous les semestres de la formation",
+          "description": "Les matières pourront être proposées dans n’importe quel semestre de cette formation."
+        }
+      },
+      "selectTargetSemesterToConfigure": "Sélectionnez le semestre de destination pour configurer les matières.",
+      "search": {
+        "label": "Rechercher une matière",
+        "placeholder": "Ex. : éthique, accompagnement, gestion, missions...",
+        "minChars": "Saisissez au moins 3 lettres pour effectuer une recherche plus précise."
+      },
+      "originCourse": "Formation d’origine",
+      "allCourses": "Toutes les formations",
+      "foundCount": "{count, plural, one {# matière trouvée} other {# matières trouvées}}",
+      "selectDisplayed": "Tout sélectionner à l’écran",
+      "removeDisplayed": "Retirer les éléments affichés",
+      "loading": "Chargement des matières...",
+      "empty": "Aucune matière trouvée.",
+      "institutionalSubject": "Matière institutionnelle",
+      "rules": {
+        "required": {
+          "title": "Obligatoire",
+          "description": "L’étudiant devra la sélectionner."
+        },
+        "countMinimum": {
+          "title": "Compter dans le volume minimal",
+          "description": "S’ajoute pour atteindre le minimum."
+        },
+        "countMaximum": {
+          "title": "Compter dans le volume maximal",
+          "description": "S’ajoute jusqu’à la limite maximale."
+        }
+      },
+      "independentNote": "Ce paramétrage est indépendant des matières obligatoires du cursus régulier.",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer les matières extrascolaires",
+      "feedback": {
+        "loadError": "Impossible de charger les matières extrascolaires.",
+        "selectTargetCourse": "Sélectionnez la formation de destination.",
+        "selectTargetSemester": "Sélectionnez le semestre de destination.",
+        "saveError": "Impossible d’enregistrer les matières extrascolaires.",
+        "saved": "Matières extrascolaires enregistrées."
+      }
+    },
+    "common": {
+      "notInformed": "Non renseigné",
+      "invalidDate": "Date non valide"
+    },
+    "statuses": {
+      "draft": "Brouillon",
+      "published": "Publié",
+      "closed": "Clôturé",
+      "cancelled": "Annulé"
+    },
+    "actions": {
+      "cancelEdit": "Annuler la modification",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les modifications",
+      "saveDraft": "Enregistrer le brouillon",
+      "publishing": "Publication...",
+      "saveAndPublish": "Enregistrer et publier",
+      "createAndPublish": "Créer et publier",
+      "studentsAndRestrictions": "Étudiants et restrictions",
+      "edit": "Modifier",
+      "publish": "Publier",
+      "close": "Clôturer",
+      "cancel": "Annuler"
+    },
+    "list": {
+      "title": "Périodes configurées",
+      "description": "Suivez les campagnes de réinscription de l’établissement.",
+      "loading": "Chargement des périodes...",
+      "emptyTitle": "Aucune période de réinscription configurée.",
+      "emptyDescription": "Utilisez le formulaire ci-dessus pour créer la première période.",
+      "defaultTitle": "Réinscription {period}",
+      "courseNotInformed": "Formation non renseignée",
+      "semester": "{number}e semestre",
+      "opensAt": "Ouverture",
+      "closesAt": "Clôture",
+      "classesStart": "Début des cours",
+      "workload": "Volume horaire",
+      "reenrollmentCount": "{count, plural, one {réinscription} other {réinscriptions}}",
+      "requiresApproval": "Approbation requise"
+    },
+    "confirm": {
+      "publish": {
+        "title": "Publier la période",
+        "message": "Après publication, la période sera accessible aux étudiants éligibles pendant les dates configurées."
+      },
+      "close": {
+        "title": "Clôturer la période",
+        "message": "Après clôture, les étudiants ne pourront plus commencer ni envoyer de réinscription pour cette période."
+      },
+      "cancel": {
+        "title": "Annuler la période",
+        "message": "La période sera annulée et ne sera plus accessible aux étudiants. Les enregistrements existants seront conservés.",
+        "confirm": "Annuler la période"
+      },
+      "processing": "Traitement...",
+      "back": "Retour"
+    }
   }
 }

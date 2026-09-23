@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   useCallback,
@@ -179,34 +180,6 @@ const FORMULARIO_INICIAL = {
   permiteRascunho: true,
   bloqueiaInadimplente: false,
 };
-
-function formatarDataHora(valor?: string | null) {
-  if (!valor) {
-    return "Não informado";
-  }
-
-  const data = new Date(valor);
-
-  if (Number.isNaN(data.getTime())) {
-    return "Data inválida";
-  }
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(data);
-}
-
-function nomeStatus(status: string) {
-  const nomes: Record<string, string> = {
-    RASCUNHO: "Rascunho",
-    PUBLICADO: "Publicado",
-    ENCERRADO: "Encerrado",
-    CANCELADO: "Cancelado",
-  };
-
-  return nomes[status] || status;
-}
 
 function classeStatus(status: string) {
   if (status === "PUBLICADO") {
@@ -646,6 +619,46 @@ function pontuarDisciplinaNaBusca(
 }
 
 export default function RematriculasSemestraisPage() {
+  const t = useTranslations("AdminSemesterReenrollment");
+  const locale = useLocale();
+
+  function formatarDataHora(valor?: string | null) {
+    if (!valor) {
+      return t("common.notInformed");
+    }
+
+    const data = new Date(valor);
+
+    if (Number.isNaN(data.getTime())) {
+      return t("common.invalidDate");
+    }
+
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(data);
+  }
+
+  function nomeStatus(status: string) {
+    if (status === "RASCUNHO") {
+      return t("statuses.draft");
+    }
+
+    if (status === "PUBLICADO") {
+      return t("statuses.published");
+    }
+
+    if (status === "ENCERRADO") {
+      return t("statuses.closed");
+    }
+
+    if (status === "CANCELADO") {
+      return t("statuses.cancelled");
+    }
+
+    return status;
+  }
+
   const [cursos, setCursos] = useState<CursoOption[]>([]);
 
   const [turmas, setTurmas] =
@@ -714,7 +727,7 @@ export default function RematriculasSemestraisPage() {
       const dados = (await resposta.json()) as RespostaApi;
 
       if (!resposta.ok) {
-        throw new Error(dados.error || "Não foi possível carregar os dados.");
+        throw new Error(dados.error || t("feedback.loadDataError"));
       }
 
       setCursos(dados.cursos || []);
@@ -726,12 +739,12 @@ export default function RematriculasSemestraisPage() {
         texto:
           error instanceof Error
             ? error.message
-            : "Não foi possível carregar os períodos de rematrícula.",
+            : t("feedback.loadPeriodsError"),
       });
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     carregarDados();
@@ -794,7 +807,7 @@ export default function RematriculasSemestraisPage() {
         if (!resposta.ok) {
           throw new Error(
             dados.error ||
-            "Não foi possível carregar as disciplinas extracurriculares.",
+            t("extras.feedback.loadError"),
           );
         }
 
@@ -825,7 +838,7 @@ export default function RematriculasSemestraisPage() {
           texto:
             error instanceof Error
               ? error.message
-              : "Não foi possível carregar as disciplinas extracurriculares.",
+              : t("extras.feedback.loadError"),
         });
       } finally {
         setCarregandoExtras(false);
@@ -834,6 +847,7 @@ export default function RematriculasSemestraisPage() {
       formulario.cursoId,
       formulario.cursoSemestreId,
       escopoExtras,
+      t,
     ]);
 
   useEffect(() => {
@@ -907,13 +921,14 @@ export default function RematriculasSemestraisPage() {
       .sort((a, b) =>
         a.nome.localeCompare(
           b.nome,
-          "pt-BR",
+          locale,
         ),
       );
   }, [
     turmas,
     cursoSelecionado,
     semestreSelecionado,
+    locale,
   ]);
 
   const todasTurmasSelecionadas =
@@ -1023,10 +1038,13 @@ export default function RematriculasSemestraisPage() {
     ).sort((a, b) =>
       a.nome.localeCompare(
         b.nome,
-        "pt-BR",
+        locale,
       ),
     );
-  }, [disciplinasExtrasDisponiveis]);
+  }, [
+    disciplinasExtrasDisponiveis,
+    locale,
+  ]);
 
   const disciplinasExtrasFiltradas =
     useMemo(() => {
@@ -1062,7 +1080,7 @@ export default function RematriculasSemestraisPage() {
         ].sort((a, b) =>
           a.nome.localeCompare(
             b.nome,
-            "pt-BR",
+            locale,
           ),
         );
       }
@@ -1095,7 +1113,7 @@ export default function RematriculasSemestraisPage() {
             a.pontuacao ||
             a.disciplina.nome.localeCompare(
               b.disciplina.nome,
-              "pt-BR",
+              locale,
             ),
         )
         .map(
@@ -1106,6 +1124,7 @@ export default function RematriculasSemestraisPage() {
       disciplinasExtrasDisponiveis,
       buscaExtra,
       filtroCursoOrigemExtra,
+      locale,
     ]);
 
   function alterarCurso(cursoId: string) {
@@ -1262,7 +1281,7 @@ export default function RematriculasSemestraisPage() {
       setMensagem({
         tipo: "erro",
         texto:
-          "Selecione o curso de destino.",
+          t("extras.feedback.selectTargetCourse"),
       });
 
       return;
@@ -1276,7 +1295,7 @@ export default function RematriculasSemestraisPage() {
       setMensagem({
         tipo: "erro",
         texto:
-          "Selecione o semestre de destino.",
+          t("extras.feedback.selectTargetSemester"),
       });
 
       return;
@@ -1311,7 +1330,7 @@ export default function RematriculasSemestraisPage() {
       if (!resposta.ok) {
         throw new Error(
           dados.error ||
-          "Não foi possível salvar as disciplinas extracurriculares.",
+          t("extras.feedback.saveError"),
         );
       }
 
@@ -1319,7 +1338,7 @@ export default function RematriculasSemestraisPage() {
         tipo: "sucesso",
         texto:
           dados.message ||
-          "Disciplinas extracurriculares salvas.",
+          t("extras.feedback.saved"),
       });
 
       await carregarExtracurriculares();
@@ -1329,7 +1348,7 @@ export default function RematriculasSemestraisPage() {
         texto:
           error instanceof Error
             ? error.message
-            : "Não foi possível salvar as disciplinas extracurriculares.",
+            : t("extras.feedback.saveError"),
       });
     } finally {
       setSalvandoExtras(false);
@@ -1402,7 +1421,7 @@ export default function RematriculasSemestraisPage() {
     if (!formulario.cursoId) {
       setMensagem({
         tipo: "erro",
-        texto: "Selecione o curso.",
+        texto: t("feedback.selectCourse"),
       });
       return;
     }
@@ -1410,7 +1429,7 @@ export default function RematriculasSemestraisPage() {
     if (!formulario.cursoSemestreId) {
       setMensagem({
         tipo: "erro",
-        texto: "Selecione o semestre de destino.",
+        texto: t("feedback.selectSemester"),
       });
       return;
     }
@@ -1423,7 +1442,7 @@ export default function RematriculasSemestraisPage() {
       setMensagem({
         tipo: "erro",
         texto:
-          "Informe o período letivo, a abertura e o encerramento da rematrícula.",
+          t("feedback.requiredPeriodFields"),
       });
       return;
     }
@@ -1435,7 +1454,7 @@ export default function RematriculasSemestraisPage() {
       setMensagem({
         tipo: "erro",
         texto:
-          "Selecione pelo menos uma turma participante antes de publicar.",
+          t("feedback.selectClassBeforePublish"),
       });
 
       return;
@@ -1491,7 +1510,7 @@ export default function RematriculasSemestraisPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error || "Não foi possível salvar o período de rematrícula.",
+          dados.error || t("feedback.saveError"),
         );
       }
 
@@ -1504,8 +1523,8 @@ export default function RematriculasSemestraisPage() {
         texto:
           dados.message ||
           (editando
-            ? "O período foi atualizado corretamente."
-            : "O período de rematrícula foi criado."),
+            ? t("feedback.updated")
+            : t("feedback.created")),
       });
 
       await carregarDados();
@@ -1515,7 +1534,7 @@ export default function RematriculasSemestraisPage() {
         texto:
           error instanceof Error
             ? error.message
-            : "Não foi possível salvar o período de rematrícula.",
+            : t("feedback.saveError"),
       });
     } finally {
       setSalvando(false);
@@ -1569,7 +1588,7 @@ export default function RematriculasSemestraisPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error || "Não foi possível executar esta ação.",
+          dados.error || t("feedback.actionError"),
         );
       }
 
@@ -1577,7 +1596,7 @@ export default function RematriculasSemestraisPage() {
 
       setMensagem({
         tipo: "sucesso",
-        texto: dados.message || "Ação realizada corretamente.",
+        texto: dados.message || t("feedback.actionSuccess"),
       });
 
       await carregarDados();
@@ -1587,7 +1606,7 @@ export default function RematriculasSemestraisPage() {
         texto:
           error instanceof Error
             ? error.message
-            : "Não foi possível executar esta ação.",
+            : t("feedback.actionError"),
       });
     } finally {
       setExecutandoAcao(false);
@@ -1599,16 +1618,15 @@ export default function RematriculasSemestraisPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <header>
           <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-400">
-            Acadêmico
+            {t("header.eyebrow")}
           </p>
 
           <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
-            Rematrículas semestrais
+            {t("header.title")}
           </h1>
 
           <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-            Defina quando os alunos poderão selecionar as disciplinas do
-            próximo semestre e quais regras deverão ser respeitadas.
+            {t("header.description")}
           </p>
         </header>
 
@@ -1634,27 +1652,27 @@ export default function RematriculasSemestraisPage() {
           <div className="mb-6">
             <h2 className="text-lg font-bold">
               {periodoEmEdicaoId
-                ? "Editar período de rematrícula"
-                : "Configurar novo período"}
+                ? t("form.editTitle")
+                : t("form.newTitle")}
             </h2>
 
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               {periodoEmEdicaoId
-                ? "Atualize as datas, regras e configurações deste período."
-                : "O aluno somente visualizará a rematrícula dentro das datas estabelecidas."}
+                ? t("form.editDescription")
+                : t("form.newDescription")}
             </p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             <label className="space-y-2">
-              <span className="text-sm font-semibold">Curso</span>
+              <span className="text-sm font-semibold">{t("form.course")}</span>
 
               <select
                 value={formulario.cursoId}
                 onChange={(evento) => alterarCurso(evento.target.value)}
                 className="phanyx-rematricula-select h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
               >
-                <option value="">Selecione o curso</option>
+                <option value="">{t("form.selectCourse")}</option>
 
                 {cursos.map((curso) => (
                   <option key={curso.id} value={curso.id}>
@@ -1667,7 +1685,7 @@ export default function RematriculasSemestraisPage() {
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Semestre de destino
+                {t("form.targetSemester")}
               </span>
 
               <select
@@ -1678,7 +1696,7 @@ export default function RematriculasSemestraisPage() {
                 disabled={!cursoSelecionado}
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
-                <option value="">Selecione o semestre</option>
+                <option value="">{t("form.selectSemester")}</option>
 
                 {cursoSelecionado?.semestres.map((semestre) => (
                   <option key={semestre.id} value={semestre.id}>
@@ -1693,13 +1711,11 @@ export default function RematriculasSemestraisPage() {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <span className="text-sm font-semibold">
-                    Turmas participantes
+                    {t("classes.title")}
                   </span>
 
                   <p className="mt-1 text-xs text-slate-700 dark:text-slate-300">
-                    Selecione uma ou várias turmas que participarão
-                    deste período de rematrícula. As disciplinas
-                    oferecidas ao aluno serão obtidas dessas turmas.
+                    {t("classes.description")}
                   </p>
                 </div>
 
@@ -1710,25 +1726,23 @@ export default function RematriculasSemestraisPage() {
                     className="self-start rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
                   >
                     {todasTurmasSelecionadas
-                      ? "Desmarcar todas"
-                      : "Selecionar todas"}
+                      ? t("classes.clearAll")
+                      : t("classes.selectAll")}
                   </button>
                 )}
               </div>
 
               {!formulario.cursoId ? (
                 <div className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                  Selecione primeiro o curso.
+                  {t("classes.selectCourseFirst")}
                 </div>
               ) : !formulario.cursoSemestreId ? (
                 <div className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                  Selecione o semestre de destino.
+                  {t("classes.selectSemesterFirst")}
                 </div>
               ) : turmasDisponiveis.length === 0 ? (
                 <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                  Nenhuma turma ativa foi encontrada para este curso
-                  e semestre. Cadastre ou configure uma turma antes
-                  de publicar a rematrícula.
+                  {t("classes.noneAvailable")}
                 </div>
               ) : (
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1777,7 +1791,7 @@ export default function RematriculasSemestraisPage() {
                             >
                               {turma.codigo && (
                                 <span>
-                                  Código: {turma.codigo}
+                                  {t("classes.code")}: {turma.codigo}
                                 </span>
                               )}
 
@@ -1806,10 +1820,9 @@ export default function RematriculasSemestraisPage() {
                                   : "text-slate-800 dark:text-slate-300"
                                 }`}
                             >
-                              {turma._count.disciplinas} disciplina
-                              {turma._count.disciplinas === 1
-                                ? ""
-                                : "s"}
+                              {t("classes.disciplineCount", {
+                                count: turma._count.disciplinas,
+                              })}
 
                               {turma.periodoLetivo
                                 ? ` · ${turma.periodoLetivo}`
@@ -1825,21 +1838,16 @@ export default function RematriculasSemestraisPage() {
 
               {turmaIdsSelecionadas.length > 0 && (
                 <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                  {turmaIdsSelecionadas.length} turma
-                  {turmaIdsSelecionadas.length === 1
-                    ? ""
-                    : "s"}{" "}
-                  selecionada
-                  {turmaIdsSelecionadas.length === 1
-                    ? ""
-                    : "s"}.
+                  {t("classes.selectedCount", {
+                    count: turmaIdsSelecionadas.length,
+                  })}
                 </p>
               )}
             </div>
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Período letivo
+                {t("form.academicPeriod")}
               </span>
 
               <input
@@ -1850,14 +1858,14 @@ export default function RematriculasSemestraisPage() {
                     periodoLetivo: evento.target.value,
                   }))
                 }
-                placeholder="Ex.: 2027.1"
+                placeholder={t("form.academicPeriodPlaceholder")}
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </label>
 
             <label className="space-y-2 md:col-span-2 xl:col-span-3">
               <span className="text-sm font-semibold">
-                Título do período
+                {t("form.periodTitle")}
               </span>
 
               <input
@@ -1868,14 +1876,14 @@ export default function RematriculasSemestraisPage() {
                     titulo: evento.target.value,
                   }))
                 }
-                placeholder="Será preenchido automaticamente se ficar em branco"
+                placeholder={t("form.periodTitlePlaceholder")}
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </label>
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Abertura da rematrícula
+                {t("form.opensAt")}
               </span>
 
               <input
@@ -1893,7 +1901,7 @@ export default function RematriculasSemestraisPage() {
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Encerramento da rematrícula
+                {t("form.closesAt")}
               </span>
 
               <input
@@ -1911,7 +1919,7 @@ export default function RematriculasSemestraisPage() {
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Início das aulas
+                {t("form.classesStart")}
               </span>
 
               <input
@@ -1929,7 +1937,7 @@ export default function RematriculasSemestraisPage() {
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Carga horária mínima
+                {t("form.minWorkload")}
               </span>
 
               <input
@@ -1946,7 +1954,7 @@ export default function RematriculasSemestraisPage() {
                   semestreSelecionado?.cargaMinima !== null &&
                     semestreSelecionado?.cargaMinima !== undefined
                     ? String(semestreSelecionado.cargaMinima)
-                    : "Não definida"
+                    : t("form.notDefined")
                 }
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
@@ -1954,7 +1962,7 @@ export default function RematriculasSemestraisPage() {
 
             <label className="space-y-2">
               <span className="text-sm font-semibold">
-                Carga horária máxima
+                {t("form.maxWorkload")}
               </span>
 
               <input
@@ -1971,7 +1979,7 @@ export default function RematriculasSemestraisPage() {
                   semestreSelecionado?.cargaMaxima !== null &&
                     semestreSelecionado?.cargaMaxima !== undefined
                     ? String(semestreSelecionado.cargaMaxima)
-                    : "Não definida"
+                    : t("form.notDefined")
                 }
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
@@ -1979,7 +1987,7 @@ export default function RematriculasSemestraisPage() {
 
             <label className="space-y-2 md:col-span-2 xl:col-span-3">
               <span className="text-sm font-semibold">
-                Instruções para os alunos
+                {t("form.instructions")}
               </span>
 
               <textarea
@@ -1991,7 +1999,7 @@ export default function RematriculasSemestraisPage() {
                   }))
                 }
                 rows={4}
-                placeholder="Informe orientações sobre seleção de disciplinas, horários, pendências e confirmação."
+                placeholder={t("form.instructionsPlaceholder")}
                 className="w-full resize-y rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </label>
@@ -2013,11 +2021,11 @@ export default function RematriculasSemestraisPage() {
 
               <span>
                 <strong className="block text-sm">
-                  Exigir aprovação
+                  {t("rules.requireApproval.title")}
                 </strong>
 
                 <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">
-                  A secretaria ou coordenação deverá aprovar a seleção.
+                  {t("rules.requireApproval.description")}
                 </span>
               </span>
             </label>
@@ -2037,11 +2045,11 @@ export default function RematriculasSemestraisPage() {
 
               <span>
                 <strong className="block text-sm">
-                  Permitir rascunho
+                  {t("rules.allowDraft.title")}
                 </strong>
 
                 <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">
-                  O aluno poderá salvar a seleção antes de enviar.
+                  {t("rules.allowDraft.description")}
                 </span>
               </span>
             </label>
@@ -2061,11 +2069,11 @@ export default function RematriculasSemestraisPage() {
 
               <span>
                 <strong className="block text-sm">
-                  Bloquear inadimplentes
+                  {t("rules.blockDelinquent.title")}
                 </strong>
 
                 <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">
-                  Alunos inadimplentes não poderão enviar a rematrícula.
+                  {t("rules.blockDelinquent.description")}
                 </span>
               </span>
             </label>
@@ -2076,31 +2084,25 @@ export default function RematriculasSemestraisPage() {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <h3 className="font-bold">
-                    Disciplinas extracurriculares permitidas
+                    {t("extras.title")}
                   </h3>
 
                   <p className="mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-                    Escolha disciplinas de qualquer curso da instituição que poderão
-                    complementar a grade dos alunos deste curso.
+                    {t("extras.description")}
                   </p>
                 </div>
 
                 <div className="phanyx-extras-contador rounded-xl border px-3 py-2 text-xs">
-                  {itensExtras.length} disciplina
-                  {itensExtras.length === 1
-                    ? ""
-                    : "s"}{" "}
-                  selecionada
-                  {itensExtras.length === 1
-                    ? ""
-                    : "s"}
+                  {t("extras.selectedCount", {
+                    count: itensExtras.length,
+                  })}
                 </div>
               </div>
             </div>
 
             {!formulario.cursoId ? (
               <div className="phanyx-extras-estado-vazio p-5 text-sm">
-                Selecione primeiro o curso de destino.
+                {t("extras.selectTargetCourseFirst")}
               </div>
             ) : (
               <div className="space-y-5 p-5">
@@ -2120,11 +2122,11 @@ export default function RematriculasSemestraisPage() {
                       }`}
                   >
                     <strong className="block text-sm">
-                      Somente neste semestre
+                      {t("extras.scope.semester.title")}
                     </strong>
 
                     <span className="mt-1 block text-xs">
-                      As disciplinas serão oferecidas apenas para o semestre selecionado.
+                      {t("extras.scope.semester.description")}
                     </span>
                   </button>
 
@@ -2143,11 +2145,11 @@ export default function RematriculasSemestraisPage() {
                       }`}
                   >
                     <strong className="block text-sm">
-                      Todos os semestres do curso
+                      {t("extras.scope.course.title")}
                     </strong>
 
                     <span className="mt-1 block text-xs">
-                      As disciplinas poderão ser oferecidas em qualquer semestre deste curso.
+                      {t("extras.scope.course.description")}
                     </span>
                   </button>
                 </div>
@@ -2156,14 +2158,14 @@ export default function RematriculasSemestraisPage() {
                   "SEMESTRE_ESPECIFICO" &&
                   !formulario.cursoSemestreId ? (
                   <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                    Selecione o semestre de destino para configurar as disciplinas.
+                    {t("extras.selectTargetSemesterToConfigure")}
                   </div>
                 ) : (
                   <>
                     <div className="grid gap-3 md:grid-cols-2">
                       <label className="space-y-2">
                         <span className="text-sm font-semibold">
-                          Buscar disciplina
+                          {t("extras.search.label")}
                         </span>
 
                         <input
@@ -2173,7 +2175,7 @@ export default function RematriculasSemestraisPage() {
                               evento.target.value,
                             )
                           }
-                          placeholder="Ex.: ética, aconselhamento, gestão, missões..."
+                          placeholder={t("extras.search.placeholder")}
                           className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
                         />
                         {buscaExtra.trim() &&
@@ -2181,14 +2183,14 @@ export default function RematriculasSemestraisPage() {
                             buscaExtra,
                           ).length === 0 && (
                             <span className="mt-1 block text-xs font-medium text-amber-700 dark:text-amber-300">
-                              Digite pelo menos 3 letras para realizar uma busca mais precisa.
+                              {t("extras.search.minChars")}
                             </span>
                           )}
                       </label>
 
                       <label className="space-y-2">
                         <span className="text-sm font-semibold">
-                          Curso de origem
+                          {t("extras.originCourse")}
                         </span>
 
                         <select
@@ -2203,7 +2205,7 @@ export default function RematriculasSemestraisPage() {
                           className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none"
                         >
                           <option value="">
-                            Todos os cursos
+                            {t("extras.allCourses")}
                           </option>
 
                           {cursosOrigemExtras.map(
@@ -2225,19 +2227,10 @@ export default function RematriculasSemestraisPage() {
 
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <span className="phanyx-extras-contagem text-xs">
-                        {
-                          disciplinasExtrasFiltradas.length
-                        }{" "}
-                        disciplina
-                        {disciplinasExtrasFiltradas.length ===
-                          1
-                          ? ""
-                          : "s"}{" "}
-                        encontrada
-                        {disciplinasExtrasFiltradas.length ===
-                          1
-                          ? ""
-                          : "s"}
+                        {t("extras.foundCount", {
+                          count:
+                            disciplinasExtrasFiltradas.length,
+                        })}
                       </span>
 
                       <div className="flex flex-wrap gap-2">
@@ -2252,7 +2245,7 @@ export default function RematriculasSemestraisPage() {
                           }
                           className="phanyx-rematricula-selecionar-exibidas rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
                         >
-                          Selecionar todas exibidas
+                          {t("extras.selectDisplayed")}
                         </button>
 
                         <button
@@ -2266,19 +2259,19 @@ export default function RematriculasSemestraisPage() {
                           }
                           className="phanyx-rematricula-remover-exibidas rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
                         >
-                          Remover exibidas
+                          {t("extras.removeDisplayed")}
                         </button>
                       </div>
                     </div>
 
                     {carregandoExtras ? (
                       <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-                        Carregando disciplinas...
+                        {t("extras.loading")}
                       </div>
                     ) : disciplinasExtrasFiltradas.length ===
                       0 ? (
                       <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
-                        Nenhuma disciplina encontrada.
+                        {t("extras.empty")}
                       </div>
                     ) : (
                       <div className="phanyx-extras-lista max-h-[560px] space-y-3 overflow-y-auto pr-1">
@@ -2338,11 +2331,11 @@ export default function RematriculasSemestraisPage() {
                                     </div>
 
                                     <p className="phanyx-extras-disciplina-meta mt-1 text-xs">
-                                      Curso de origem:{" "}
+                                      {t("extras.originCourse")}:{" "}
                                       {disciplina
                                         .curso
                                         ?.nome ||
-                                        "Disciplina institucional"}
+                                        t("extras.institutionalSubject")}
                                       {" · "}
                                       {
                                         disciplina.cargaHoraria ??
@@ -2386,11 +2379,11 @@ export default function RematriculasSemestraisPage() {
 
                                         <span>
                                           <strong className="block">
-                                            Obrigatória
+                                            {t("extras.rules.required.title")}
                                           </strong>
 
                                           <span className="text-slate-600 dark:text-slate-400">
-                                            O aluno deverá selecioná-la.
+                                            {t("extras.rules.required.description")}
                                           </span>
                                         </span>
                                       </label>
@@ -2417,11 +2410,11 @@ export default function RematriculasSemestraisPage() {
 
                                         <span>
                                           <strong className="block">
-                                            Contar na carga mínima
+                                            {t("extras.rules.countMinimum.title")}
                                           </strong>
 
                                           <span className="text-slate-600 dark:text-slate-400">
-                                            Soma para atingir o mínimo.
+                                            {t("extras.rules.countMinimum.description")}
                                           </span>
                                         </span>
                                       </label>
@@ -2448,11 +2441,11 @@ export default function RematriculasSemestraisPage() {
 
                                         <span>
                                           <strong className="block">
-                                            Contar na carga máxima
+                                            {t("extras.rules.countMaximum.title")}
                                           </strong>
 
                                           <span className="text-slate-600 dark:text-slate-400">
-                                            Soma para o limite máximo.
+                                            {t("extras.rules.countMaximum.description")}
                                           </span>
                                         </span>
                                       </label>
@@ -2467,7 +2460,7 @@ export default function RematriculasSemestraisPage() {
 
                     <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs text-slate-600 dark:text-slate-400">
-                        Esta configuração é independente das disciplinas obrigatórias da grade regular.
+                        {t("extras.independentNote")}
                       </p>
 
                       <button
@@ -2482,8 +2475,8 @@ export default function RematriculasSemestraisPage() {
                         className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {salvandoExtras
-                          ? "Salvando..."
-                          : "Salvar extracurriculares"}
+                          ? t("extras.saving")
+                          : t("extras.save")}
                       </button>
                     </div>
                   </>
@@ -2501,7 +2494,7 @@ export default function RematriculasSemestraisPage() {
                 onClick={cancelarEdicao}
                 className="h-11 rounded-xl border border-red-300 bg-white px-5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar edição
+                {t("actions.cancelEdit")}
               </button>
             )}
 
@@ -2511,10 +2504,10 @@ export default function RematriculasSemestraisPage() {
               className="phanyx-rematricula-botao-rascunho h-11 rounded-xl border px-5 text-sm font-semibold transition disabled:cursor-not-allowed"
             >
               {salvando
-                ? "Salvando..."
+                ? t("actions.saving")
                 : periodoEmEdicaoId
-                  ? "Salvar alterações"
-                  : "Salvar rascunho"}
+                  ? t("actions.saveChanges")
+                  : t("actions.saveDraft")}
             </button>
 
             <button
@@ -2524,10 +2517,10 @@ export default function RematriculasSemestraisPage() {
               className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {salvando
-                ? "Publicando..."
+                ? t("actions.publishing")
                 : periodoEmEdicaoId
-                  ? "Salvar e publicar"
-                  : "Criar e publicar"}
+                  ? t("actions.saveAndPublish")
+                  : t("actions.createAndPublish")}
             </button>
           </div>
         </form>
@@ -2535,26 +2528,26 @@ export default function RematriculasSemestraisPage() {
         <section className="phanyx-rematriculas-lista rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="border-b border-slate-200 px-5 py-4 dark:border-slate-800">
             <h2 className="text-lg font-bold">
-              Períodos configurados
+              {t("list.title")}
             </h2>
 
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              Acompanhe as campanhas de rematrícula da instituição.
+              {t("list.description")}
             </p>
           </div>
 
           {carregando ? (
             <div className="p-8 text-center text-sm text-slate-600 dark:text-slate-400">
-              Carregando períodos...
+              {t("list.loading")}
             </div>
           ) : periodos.length === 0 ? (
             <div className="p-8 text-center">
               <p className="font-semibold">
-                Nenhum período de rematrícula configurado.
+                {t("list.emptyTitle")}
               </p>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Utilize o formulário acima para criar o primeiro período.
+                {t("list.emptyDescription")}
               </p>
             </div>
           ) : (
@@ -2568,7 +2561,9 @@ export default function RematriculasSemestraisPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-bold">
                         {periodo.titulo ||
-                          `Rematrícula ${periodo.periodoLetivo}`}
+                          t("list.defaultTitle", {
+                            period: periodo.periodoLetivo,
+                          })}
                       </h3>
 
                       <span
@@ -2581,17 +2576,22 @@ export default function RematriculasSemestraisPage() {
                     </div>
 
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                      {periodo.curso?.nome || "Curso não informado"} ·{" "}
+                      {periodo.curso?.nome || t("list.courseNotInformed")} ·{" "}
                       {periodo.cursoSemestre?.numero ||
-                        periodo.semestreNumero ||
-                        "—"}
-                      º semestre · {periodo.periodoLetivo}
+                      periodo.semestreNumero
+                        ? t("list.semester", {
+                            number:
+                              periodo.cursoSemestre?.numero ||
+                              periodo.semestreNumero,
+                          })
+                        : "—"}{" "}
+                      · {periodo.periodoLetivo}
                     </p>
 
                     <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
                       <div>
                         <span className="block text-xs font-semibold uppercase text-slate-500">
-                          Abertura
+                          {t("list.opensAt")}
                         </span>
                         <span className="mt-1 block">
                           {formatarDataHora(periodo.dataInicio)}
@@ -2600,7 +2600,7 @@ export default function RematriculasSemestraisPage() {
 
                       <div>
                         <span className="block text-xs font-semibold uppercase text-slate-500">
-                          Encerramento
+                          {t("list.closesAt")}
                         </span>
                         <span className="mt-1 block">
                           {formatarDataHora(periodo.dataFim)}
@@ -2609,7 +2609,7 @@ export default function RematriculasSemestraisPage() {
 
                       <div>
                         <span className="block text-xs font-semibold uppercase text-slate-500">
-                          Início das aulas
+                          {t("list.classesStart")}
                         </span>
                         <span className="mt-1 block">
                           {formatarDataHora(periodo.dataInicioAulas)}
@@ -2618,7 +2618,7 @@ export default function RematriculasSemestraisPage() {
 
                       <div>
                         <span className="block text-xs font-semibold uppercase text-slate-500">
-                          Carga horária
+                          {t("list.workload")}
                         </span>
                         <span className="mt-1 block">
                           {periodo.cargaMinimaOverride ??
@@ -2641,7 +2641,10 @@ export default function RematriculasSemestraisPage() {
                       </span>
 
                       <span className="text-xs">
-                        rematrículas
+                        {t("list.reenrollmentCount", {
+                          count:
+                            periodo._count.rematriculas,
+                        })}
                       </span>
                     </div>
 
@@ -2650,7 +2653,7 @@ export default function RematriculasSemestraisPage() {
                         href={`/admin/rematriculas-semestrais/${periodo.id}`}
                         className="phanyx-rematricula-alunos-restricoes rounded-lg border px-3 py-2 text-xs font-semibold transition"
                       >
-                        Alunos e restrições
+                        {t("actions.studentsAndRestrictions")}
                       </Link>
 
                       {(periodo.status === "RASCUNHO" ||
@@ -2660,7 +2663,7 @@ export default function RematriculasSemestraisPage() {
                             onClick={() => editarPeriodo(periodo)}
                             className="phanyx-rematricula-botao-editar rounded-lg border px-3 py-2 text-xs font-semibold transition"
                           >
-                            Editar
+                            {t("actions.edit")}
                           </button>
                         )}
 
@@ -2675,7 +2678,7 @@ export default function RematriculasSemestraisPage() {
                           }
                           className="rounded-lg border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
                         >
-                          Publicar
+                          {t("actions.publish")}
                         </button>
                       )}
 
@@ -2690,7 +2693,7 @@ export default function RematriculasSemestraisPage() {
                           }
                           className="rounded-lg border border-amber-500 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
                         >
-                          Encerrar
+                          {t("actions.close")}
                         </button>
                       )}
 
@@ -2706,14 +2709,14 @@ export default function RematriculasSemestraisPage() {
                             }
                             className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
                           >
-                            Cancelar
+                            {t("actions.cancel")}
                           </button>
                         )}
                     </div>
 
                     {periodo.exigeAprovacao && (
                       <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
-                        Exige aprovação
+                        {t("list.requiresApproval")}
                       </span>
                     )}
                   </div>
@@ -2728,28 +2731,28 @@ export default function RematriculasSemestraisPage() {
         aberto={confirmacaoPeriodo !== null}
         titulo={
           confirmacaoPeriodo?.acao === "PUBLICAR"
-            ? "Publicar período"
+            ? t("confirm.publish.title")
             : confirmacaoPeriodo?.acao === "ENCERRAR"
-              ? "Encerrar período"
-              : "Cancelar período"
+              ? t("confirm.close.title")
+              : t("confirm.cancel.title")
         }
         mensagem={
           confirmacaoPeriodo?.acao === "PUBLICAR"
-            ? "Ao publicar, o período ficará disponível aos alunos elegíveis dentro das datas configuradas."
+            ? t("confirm.publish.message")
             : confirmacaoPeriodo?.acao === "ENCERRAR"
-              ? "Ao encerrar, os alunos não poderão mais iniciar ou enviar rematrículas neste período."
-              : "O período será cancelado e deixará de ficar disponível aos alunos. Os registros existentes serão preservados."
+              ? t("confirm.close.message")
+              : t("confirm.cancel.message")
         }
         textoConfirmar={
           executandoAcao
-            ? "Processando..."
+            ? t("confirm.processing")
             : confirmacaoPeriodo?.acao === "PUBLICAR"
-              ? "Publicar"
+              ? t("actions.publish")
               : confirmacaoPeriodo?.acao === "ENCERRAR"
-                ? "Encerrar"
-                : "Cancelar período"
+                ? t("actions.close")
+                : t("confirm.cancel.confirm")
         }
-        textoCancelar="Voltar"
+        textoCancelar={t("confirm.back")}
         onConfirmar={executarAcaoPeriodo}
         onCancelar={() => {
           if (!executandoAcao) {
@@ -2757,6 +2760,30 @@ export default function RematriculasSemestraisPage() {
           }
         }}
       />
+
+
+      {/* AJUSTE EXCLUSIVO DO TEMA SISTEMA - EXTRACURRICULARES */}
+      <style jsx global>{`
+        html[data-theme="system"].dark
+          .phanyx-rematriculas-semestrais
+          .phanyx-extras-painel {
+          background: #18181b !important;
+          border-color: #3f3f46 !important;
+        }
+
+        html[data-theme="system"].dark
+          .phanyx-rematriculas-semestrais
+          .phanyx-extras-cabecalho {
+          background: transparent !important;
+          border-color: #3f3f46 !important;
+        }
+
+        html[data-theme="system"].dark
+          .phanyx-rematriculas-semestrais
+          .phanyx-extras-estado-vazio {
+          background: transparent !important;
+        }
+      `}</style>
 
     </main>
   );

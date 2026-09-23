@@ -17335,5 +17335,184 @@
       "previous": "Anterior",
       "next": "Siguiente"
     }
+  },
+  "AdminSemesterReenrollment": {
+    "header": {
+      "eyebrow": "Académico",
+      "title": "Rematrículas semestrales",
+      "description": "Define cuándo los estudiantes podrán seleccionar las asignaturas del próximo semestre y qué reglas deberán respetarse."
+    },
+    "form": {
+      "editTitle": "Editar período de rematrícula",
+      "newTitle": "Configurar nuevo período",
+      "editDescription": "Actualiza las fechas, reglas y configuraciones de este período.",
+      "newDescription": "El estudiante solo verá la rematrícula dentro de las fechas establecidas.",
+      "course": "Curso",
+      "selectCourse": "Selecciona el curso",
+      "targetSemester": "Semestre de destino",
+      "selectSemester": "Selecciona el semestre",
+      "academicPeriod": "Período académico",
+      "academicPeriodPlaceholder": "Ej.: 2027.1",
+      "periodTitle": "Título del período",
+      "periodTitlePlaceholder": "Se completará automáticamente si se deja en blanco",
+      "opensAt": "Apertura de la rematrícula",
+      "closesAt": "Cierre de la rematrícula",
+      "classesStart": "Inicio de las clases",
+      "minWorkload": "Carga horaria mínima",
+      "maxWorkload": "Carga horaria máxima",
+      "notDefined": "No definida",
+      "instructions": "Instrucciones para los estudiantes",
+      "instructionsPlaceholder": "Indica orientaciones sobre selección de asignaturas, horarios, pendientes y confirmación."
+    },
+    "classes": {
+      "title": "Grupos participantes",
+      "description": "Selecciona uno o varios grupos que participarán en este período de rematrícula. Las asignaturas ofrecidas al estudiante se obtendrán de estos grupos.",
+      "clearAll": "Desmarcar todos",
+      "selectAll": "Seleccionar todos",
+      "selectCourseFirst": "Selecciona primero el curso.",
+      "selectSemesterFirst": "Selecciona el semestre de destino.",
+      "noneAvailable": "No se encontró ningún grupo activo para este curso y semestre. Crea o configura un grupo antes de publicar la rematrícula.",
+      "code": "Código",
+      "disciplineCount": "{count, plural, one {# asignatura} other {# asignaturas}}",
+      "selectedCount": "{count, plural, one {# grupo seleccionado.} other {# grupos seleccionados.}}"
+    },
+    "rules": {
+      "requireApproval": {
+        "title": "Requerir aprobación",
+        "description": "La secretaría o la coordinación deberá aprobar la selección."
+      },
+      "allowDraft": {
+        "title": "Permitir borrador",
+        "description": "El estudiante podrá guardar la selección antes de enviarla."
+      },
+      "blockDelinquent": {
+        "title": "Bloquear estudiantes con pagos pendientes",
+        "description": "Los estudiantes con pagos pendientes no podrán enviar la rematrícula."
+      }
+    },
+    "feedback": {
+      "selectCourse": "Selecciona el curso.",
+      "selectSemester": "Selecciona el semestre de destino.",
+      "requiredPeriodFields": "Indica el período académico, la apertura y el cierre de la rematrícula.",
+      "selectClassBeforePublish": "Selecciona al menos un grupo participante antes de publicar.",
+      "saveError": "No se pudo guardar el período de rematrícula.",
+      "updated": "El período se actualizó correctamente.",
+      "created": "El período de rematrícula fue creado.",
+      "loadDataError": "No se pudieron cargar los datos.",
+      "loadPeriodsError": "No se pudieron cargar los períodos de rematrícula.",
+      "actionError": "No se pudo ejecutar esta acción.",
+      "actionSuccess": "Acción realizada correctamente."
+    },
+    "extras": {
+      "title": "Asignaturas extracurriculares permitidas",
+      "description": "Elige asignaturas de cualquier curso de la institución que puedan complementar el plan de estudios de los estudiantes de este curso.",
+      "selectedCount": "{count, plural, one {# asignatura seleccionada} other {# asignaturas seleccionadas}}",
+      "selectTargetCourseFirst": "Selecciona primero el curso de destino.",
+      "scope": {
+        "semester": {
+          "title": "Solo en este semestre",
+          "description": "Las asignaturas se ofrecerán únicamente en el semestre seleccionado."
+        },
+        "course": {
+          "title": "Todos los semestres del curso",
+          "description": "Las asignaturas podrán ofrecerse en cualquier semestre de este curso."
+        }
+      },
+      "selectTargetSemesterToConfigure": "Selecciona el semestre de destino para configurar las asignaturas.",
+      "search": {
+        "label": "Buscar asignatura",
+        "placeholder": "Ej.: ética, asesoramiento, gestión, misiones...",
+        "minChars": "Escribe al menos 3 letras para realizar una búsqueda más precisa."
+      },
+      "originCourse": "Curso de origen",
+      "allCourses": "Todos los cursos",
+      "foundCount": "{count, plural, one {# asignatura encontrada} other {# asignaturas encontradas}}",
+      "selectDisplayed": "Seleccionar todas las mostradas",
+      "removeDisplayed": "Eliminar las mostradas",
+      "loading": "Cargando asignaturas...",
+      "empty": "No se encontró ninguna asignatura.",
+      "institutionalSubject": "Asignatura institucional",
+      "rules": {
+        "required": {
+          "title": "Obligatoria",
+          "description": "El estudiante deberá seleccionarla."
+        },
+        "countMinimum": {
+          "title": "Contar para la carga mínima",
+          "description": "Suma para alcanzar el mínimo."
+        },
+        "countMaximum": {
+          "title": "Contar para la carga máxima",
+          "description": "Suma para el límite máximo."
+        }
+      },
+      "independentNote": "Esta configuración es independiente de las asignaturas obligatorias del plan de estudios regular.",
+      "saving": "Guardando...",
+      "save": "Guardar extracurriculares",
+      "feedback": {
+        "loadError": "No se pudieron cargar las asignaturas extracurriculares.",
+        "selectTargetCourse": "Selecciona el curso de destino.",
+        "selectTargetSemester": "Selecciona el semestre de destino.",
+        "saveError": "No se pudieron guardar las asignaturas extracurriculares.",
+        "saved": "Asignaturas extracurriculares guardadas."
+      }
+    },
+    "common": {
+      "notInformed": "No informado",
+      "invalidDate": "Fecha no válida"
+    },
+    "statuses": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "cancelled": "Cancelado"
+    },
+    "actions": {
+      "cancelEdit": "Cancelar edición",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios",
+      "saveDraft": "Guardar borrador",
+      "publishing": "Publicando...",
+      "saveAndPublish": "Guardar y publicar",
+      "createAndPublish": "Crear y publicar",
+      "studentsAndRestrictions": "Estudiantes y restricciones",
+      "edit": "Editar",
+      "publish": "Publicar",
+      "close": "Cerrar",
+      "cancel": "Cancelar"
+    },
+    "list": {
+      "title": "Períodos configurados",
+      "description": "Consulta las campañas de rematrícula de la institución.",
+      "loading": "Cargando períodos...",
+      "emptyTitle": "No hay ningún período de rematrícula configurado.",
+      "emptyDescription": "Utiliza el formulario anterior para crear el primer período.",
+      "defaultTitle": "Rematrícula {period}",
+      "courseNotInformed": "Curso no informado",
+      "semester": "{number}.º semestre",
+      "opensAt": "Apertura",
+      "closesAt": "Cierre",
+      "classesStart": "Inicio de las clases",
+      "workload": "Carga horaria",
+      "reenrollmentCount": "{count, plural, one {rematrícula} other {rematrículas}}",
+      "requiresApproval": "Requiere aprobación"
+    },
+    "confirm": {
+      "publish": {
+        "title": "Publicar período",
+        "message": "Al publicar, el período estará disponible para los estudiantes elegibles dentro de las fechas configuradas."
+      },
+      "close": {
+        "title": "Cerrar período",
+        "message": "Al cerrar, los estudiantes ya no podrán iniciar ni enviar rematrículas en este período."
+      },
+      "cancel": {
+        "title": "Cancelar período",
+        "message": "El período se cancelará y dejará de estar disponible para los estudiantes. Los registros existentes se conservarán.",
+        "confirm": "Cancelar período"
+      },
+      "processing": "Procesando...",
+      "back": "Volver"
+    }
   }
 }
