@@ -335,6 +335,8 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
               select: {
                 turmaId: true,
 
+                disciplinaId: true,
+
                 notaMaxima: true,
               },
             },
@@ -569,6 +571,23 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
     entregasAvaliadasPorAluno.set(entrega.alunoId, lista);
   }
 
+  const tentativasProvaAvaliadasPorAluno = new Map<
+    number,
+    typeof tentativasProvaAvaliadas
+  >();
+
+  for (const tentativa of tentativasProvaAvaliadas) {
+    const lista =
+      tentativasProvaAvaliadasPorAluno.get(tentativa.alunoId) ?? [];
+
+    lista.push(tentativa);
+
+    tentativasProvaAvaliadasPorAluno.set(
+      tentativa.alunoId,
+      lista,
+    );
+  }
+
   const atividadesPorTurma = new Map<number, typeof atividades>();
 
   for (const atividade of atividades) {
@@ -659,6 +678,88 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
     });
 
     /*
+     * Provas modernas:
+     *
+     * - CORRIGIDA representa nota definitiva;
+     * - FINALIZADA so entra sem questao discursiva;
+     * - varias tentativas da mesma prova contam como
+     *   uma unica avaliacao: a melhor tentativa valida.
+     */
+    const tentativasProvaCandidatas = (
+      tentativasProvaAvaliadasPorAluno.get(aluno.alunoId) ?? []
+    ).filter((tentativa) => {
+      if (!aluno.turmaIds.has(tentativa.prova.turmaId)) {
+        return false;
+      }
+
+      const disciplinaId = tentativa.prova.disciplinaId;
+
+      if (
+        disciplinaId !== null &&
+        disciplinaId !== undefined &&
+        !aluno.paresTurmaDisciplina.has(
+          chaveTurmaDisciplina(
+            tentativa.prova.turmaId,
+            disciplinaId,
+          ),
+        )
+      ) {
+        return false;
+      }
+
+      const temDiscursiva = tentativa.prova.questoes.some(
+        (questao) => questao.tipo === "discursiva",
+      );
+
+      if (tentativa.status === "CORRIGIDA") {
+        return true;
+      }
+
+      return (
+        tentativa.status === "FINALIZADA" &&
+        !temDiscursiva
+      );
+    });
+
+    const melhorTentativaPorProva = new Map<
+      number,
+      (typeof tentativasProvaAvaliadas)[number]
+    >();
+
+    for (const tentativa of tentativasProvaCandidatas) {
+      if (tentativa.notaFinal === null) {
+        continue;
+      }
+
+      const atual = melhorTentativaPorProva.get(
+        tentativa.provaId,
+      );
+
+      if (
+        !atual ||
+        atual.notaFinal === null ||
+        tentativa.notaFinal > atual.notaFinal ||
+        (
+          tentativa.notaFinal === atual.notaFinal &&
+          tentativa.tentativaNumero > atual.tentativaNumero
+        )
+      ) {
+        melhorTentativaPorProva.set(
+          tentativa.provaId,
+          tentativa,
+        );
+      }
+    }
+
+    const tentativasProvaNota = Array.from(
+      melhorTentativaPorProva.values(),
+    );
+
+    const provaIdsComTentativaAvaliada = new Set(
+      tentativasProvaNota.map((tentativa) => tentativa.provaId),
+    );
+
+    /*
      * Se existir uma EntregaAtividade
      * avaliada para uma atividade,
      * ela é a fonte principal.
@@ -684,7 +785,15 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
           return false;
         }
 
-        const disciplinaId = nota.atividade?.disciplinaId;
+        if (
+          nota.provaId !== null &&
+          provaIdsComTentativaAvaliada.has(nota.provaId)
+        ) {
+          return false;
+        }
+
+        const disciplinaId =
+          nota.atividade?.disciplinaId ?? nota.prova?.disciplinaId;
 
         if (disciplinaId === null || disciplinaId === undefined) {
           return true;
@@ -723,6 +832,31 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
           valor: limitarPercentual((entrega.nota / notaMaxima) * 100),
 
           data: entrega.corrigidaEm ?? entrega.updatedAt,
+        };
+      }),
+
+      ...tentativasProvaNota.map((tentativa) => {
+        const notaMaxima = tentativa.prova.notaMaxima;
+
+        if (
+          !notaMaxima ||
+          notaMaxima <= 0 ||
+          tentativa.notaFinal === null
+        ) {
+          return null;
+        }
+
+        const data =
+          tentativa.status === "CORRIGIDA"
+            ? tentativa.corrigidaEm ?? tentativa.updatedAt
+            : tentativa.finishedAt ?? tentativa.updatedAt;
+
+        return {
+          valor: limitarPercentual(
+            (tentativa.notaFinal / notaMaxima) * 100,
+          ),
+
+          data,
         };
       }),
     ]

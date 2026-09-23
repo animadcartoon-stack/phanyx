@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { solicitarReanalisePorAlteracaoAcademica } from "@/lib/student-success/solicitar-reanalise-por-alteracao-academica";
 
 export async function POST(
   _req: Request,
@@ -145,6 +146,35 @@ export async function POST(
     const aprovado = discursivasPendentes.length === 0
       ? notaAuto >= 7
       : false;
+
+    /*
+     * Prova totalmente objetiva:
+     * a nota ja e definitiva neste ponto.
+     *
+     * Quando existem discursivas, a nota ainda
+     * e parcial e a reanalise ocorrera somente
+     * apos a correcao definitiva pelo professor.
+     */
+    if (discursivasPendentes.length === 0) {
+      try {
+        await solicitarReanalisePorAlteracaoAcademica({
+          instituicaoId: user.instituicaoId,
+
+          alunoIds: [
+            aluno.id,
+          ],
+
+          executadoPorId:
+            user.id,
+        });
+      }
+      catch (error) {
+        console.error(
+          "[STUDENT_SUCCESS_FINALIZACAO_PROVA_REANALISE]",
+          error
+        );
+      }
+    }
 
     return NextResponse.json({
       ok: true,

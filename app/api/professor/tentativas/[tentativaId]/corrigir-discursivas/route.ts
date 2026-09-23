@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuth, assertProfessor } from "@/lib/auth/getAuth";
 import { corrigirDiscursivasSchema } from "@/lib/validators/prova";
+import { solicitarReanalisePorAlteracaoAcademica } from "@/lib/student-success/solicitar-reanalise-por-alteracao-academica";
 
 export async function PATCH(
   req: NextRequest,
@@ -79,7 +80,7 @@ export async function PATCH(
         );
       }
 
-      if (resposta.questao.tipo !== "DISCURSIVA") {
+      if (resposta.questao.tipo !== "discursiva") {
         return NextResponse.json(
           { error: `Resposta ${item.respostaId} não é discursiva` },
           { status: 400 }
@@ -109,13 +110,13 @@ export async function PATCH(
     let notaTotal = 0;
 
     for (const resposta of respostasAtualizadas) {
-      if (resposta.questao.tipo === "MULTIPLA_ESCOLHA") {
+      if (resposta.questao.tipo === "multipla_escolha") {
         if (resposta.alternativa?.correta) {
           notaTotal += Number(resposta.questao.valor || 0);
         }
       }
 
-      if (resposta.questao.tipo === "DISCURSIVA") {
+      if (resposta.questao.tipo === "discursiva") {
         notaTotal += Number(resposta.nota || 0);
       }
     }
@@ -127,6 +128,32 @@ export async function PATCH(
     status: "CORRIGIDA",
   },
 });
+
+    /*
+     * A correcao definitiva da prova altera
+     * o desempenho academico do aluno.
+     *
+     * A falha da reanalise nao pode impedir
+     * a correcao da tentativa.
+     */
+    try {
+      await solicitarReanalisePorAlteracaoAcademica({
+        instituicaoId: auth.instituicaoId,
+
+        alunoIds: [
+          tentativa.alunoId,
+        ],
+
+        executadoPorId:
+          auth.userId,
+      });
+    }
+    catch (error) {
+      console.error(
+        "[STUDENT_SUCCESS_CORRECAO_PROVA_REANALISE]",
+        error
+      );
+    }
 
     return NextResponse.json({
       success: true,
