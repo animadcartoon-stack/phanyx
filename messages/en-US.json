@@ -17817,5 +17817,61 @@
       "ineligibleStudents": "One or more selected students are not eligible for this period.",
       "completedStudents": "The restriction cannot be applied to students whose reenrollment was submitted, is under review, or was approved."
     }
+  },
+  "AdminLibraryReports": {
+    "title": "Library Reports",
+    "subtitle": "Library circulation, collection, fines, digital usage, and ranking indicators.",
+    "loading": "Loading reports...",
+    "period": "Period: {start} to {end}",
+    "filters": {
+      "start": "Start date",
+      "end": "End date",
+      "apply": "Apply period"
+    },
+    "sections": {
+      "circulation": "Circulation",
+      "fines": "Fines",
+      "collection": "Collection",
+      "digital": "Digital usage",
+      "mostBorrowed": "Most borrowed items",
+      "activeUsers": "Most active users"
+    },
+    "cards": {
+      "loans": "Loans",
+      "returns": "Returns",
+      "renewals": "Renewals",
+      "reservations": "Reservations",
+      "finesCount": "Fines generated",
+      "finesGenerated": "Amount generated",
+      "finesPaid": "Amount paid",
+      "finesOpen": "Outstanding amount",
+      "titles": "Titles",
+      "copies": "Copies",
+      "availableCopies": "Available",
+      "unavailableCopies": "Unavailable",
+      "digitalAccesses": "Digital accesses",
+      "uniqueUsers": "Unique users",
+      "views": "Views",
+      "completedReads": "Completed reads"
+    },
+    "empty": {
+      "ranking": "No records found for the selected period."
+    },
+    "errors": {
+      "load": "Library reports could not be loaded.",
+      "export": "The report could not be exported.",
+      "exportExcel": "The Excel file could not be generated.",
+      "exportPdf": "The PDF file could not be generated."
+    },
+    "actions": {
+      "exportCsv": "Export CSV",
+      "exporting": "Exporting...",
+      "exportExcel": "Export Excel",
+      "exportingExcel": "Generating Excel...",
+      "exportPdf": "Export PDF",
+      "exportingPdf": "Generating PDF...",
+      "moreFormats": "More formats",
+      "csvHelp": "Data file for spreadsheets and integrations with other systems."
+    }
   }
 }

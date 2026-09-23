@@ -17816,5 +17816,61 @@
       "ineligibleStudents": "Uno o más estudiantes seleccionados no son elegibles para este período.",
       "completedStudents": "La restricción no puede aplicarse a estudiantes cuya rematrícula fue enviada, está en análisis o fue aprobada."
     }
+  },
+  "AdminLibraryReports": {
+    "title": "Informes de la Biblioteca",
+    "subtitle": "Indicadores de circulación, colección, multas, uso digital y rankings de la biblioteca.",
+    "loading": "Cargando informes...",
+    "period": "Período: {start} a {end}",
+    "filters": {
+      "start": "Fecha inicial",
+      "end": "Fecha final",
+      "apply": "Aplicar período"
+    },
+    "sections": {
+      "circulation": "Circulación",
+      "fines": "Multas",
+      "collection": "Colección",
+      "digital": "Uso digital",
+      "mostBorrowed": "Ítems más prestados",
+      "activeUsers": "Usuarios más activos"
+    },
+    "cards": {
+      "loans": "Préstamos",
+      "returns": "Devoluciones",
+      "renewals": "Renovaciones",
+      "reservations": "Reservas",
+      "finesCount": "Multas generadas",
+      "finesGenerated": "Valor generado",
+      "finesPaid": "Valor pagado",
+      "finesOpen": "Valor pendiente",
+      "titles": "Títulos",
+      "copies": "Ejemplares",
+      "availableCopies": "Disponibles",
+      "unavailableCopies": "No disponibles",
+      "digitalAccesses": "Accesos digitales",
+      "uniqueUsers": "Usuarios únicos",
+      "views": "Visualizaciones",
+      "completedReads": "Lecturas completadas"
+    },
+    "empty": {
+      "ranking": "No se encontraron registros en el período."
+    },
+    "errors": {
+      "load": "No fue posible cargar los informes de la biblioteca.",
+      "export": "No fue posible exportar el informe.",
+      "exportExcel": "No fue posible generar el archivo Excel.",
+      "exportPdf": "No fue posible generar el archivo PDF."
+    },
+    "actions": {
+      "exportCsv": "Exportar CSV",
+      "exporting": "Exportando...",
+      "exportExcel": "Exportar Excel",
+      "exportingExcel": "Generando Excel...",
+      "exportPdf": "Exportar PDF",
+      "exportingPdf": "Generando PDF...",
+      "moreFormats": "Más formatos",
+      "csvHelp": "Archivo de datos para hojas de cálculo e integraciones con otros sistemas."
+    }
   }
 }

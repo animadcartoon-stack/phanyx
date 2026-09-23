@@ -615,6 +615,10 @@ export default function AdminShell({
     "biblioteca.reservas.gerenciar",
   );
 
+  const podeVerRelatoriosBiblioteca = podeAcessar(
+    "biblioteca.relatorios.ver",
+  );
+
   const podeGerenciarConfiguracoesBiblioteca = podeAcessar(
     "biblioteca.configuracoes.gerenciar",
   );
@@ -1335,6 +1339,17 @@ export default function AdminShell({
                             )}
                           >
                             {String.fromCodePoint(0x1F4B8)} {tNav("fines")}
+                          </Link>
+                        )}
+
+                        {podeVerRelatoriosBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/relatorios"
+                            className={getLinkClass(
+                              "/admin/biblioteca/relatorios",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F4CA)} {tNav("reports")}
                           </Link>
                         )}
 
@@ -2079,6 +2094,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             {String.fromCodePoint(0x1F4B8)} {tNav("fines")}
+                          </Link>
+                        )}
+
+                        {podeVerRelatoriosBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/relatorios"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F4CA)} {tNav("reports")}
                           </Link>
                         )}
 
