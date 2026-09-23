@@ -223,7 +223,8 @@
     "mobilityAgreements": "Protocolos",
     "mobilityPrograms": "Programas",
     "mobilityOffers": "Ofertas / Editais",
-    "mobilityApplications": "Candidaturas"
+    "mobilityApplications": "Candidaturas",
+    "audit": "Auditoria"
   },
   "MonthlyCampaign": {
     "origin": "Campanha mensal",
@@ -17679,6 +17680,122 @@
         "title": "Histórico Profissional",
         "description": "Todo o percurso do colaborador."
       }
+    }
+  },
+  "AdminLibraryAudit": {
+    "title": "Auditoria da Biblioteca",
+    "subtitle": "Histórico de operações administrativas e alterações realizadas na biblioteca.",
+    "loading": "A carregar auditoria...",
+    "empty": "Nenhum registo de auditoria encontrado para os filtros indicados.",
+    "system": "Sistema",
+    "filters": {
+      "start": "Data inicial",
+      "end": "Data final",
+      "action": "Ação",
+      "allActions": "Todas as ações",
+      "entity": "Entidade",
+      "allEntities": "Todas as entidades",
+      "user": "Utilizador",
+      "allUsers": "Todos os utilizadores",
+      "search": "Pesquisar",
+      "searchPlaceholder": "Descrição, entidade, ID, nome ou e-mail",
+      "apply": "Aplicar filtros",
+      "clear": "Limpar"
+    },
+    "cards": {
+      "total": "Registos encontrados"
+    },
+    "table": {
+      "title": "Histórico de auditoria",
+      "date": "Data e hora",
+      "action": "Ação",
+      "entity": "Entidade",
+      "user": "Utilizador",
+      "description": "Descrição",
+      "details": "Detalhes",
+      "view": "Ver detalhes"
+    },
+    "pagination": {
+      "page": "Página {current} de {total} · {records} registos",
+      "previous": "Anterior",
+      "next": "Seguinte"
+    },
+    "details": {
+      "title": "Detalhes da auditoria",
+      "close": "Fechar",
+      "action": "Ação",
+      "entity": "Entidade",
+      "user": "Utilizador",
+      "description": "Descrição original",
+      "userAgent": "Navegador / dispositivo",
+      "before": "Dados anteriores",
+      "after": "Dados posteriores",
+      "metadata": "Metadados",
+      "noData": "Nenhum dado registado."
+    },
+    "errors": {
+      "load": "Não foi possível carregar a auditoria da biblioteca."
+    },
+    "actions": {
+      "CRIAR": "Criar",
+      "VISUALIZAR": "Visualizar",
+      "ATUALIZAR": "Atualizar",
+      "PUBLICAR": "Publicar",
+      "ARQUIVAR": "Arquivar",
+      "RESTAURAR": "Restaurar",
+      "EXCLUIR": "Eliminar",
+      "BAIXAR": "Baixar",
+      "EMPRESTAR": "Emprestar",
+      "RENOVAR": "Renovar",
+      "RESERVAR": "Reservar",
+      "DEVOLVER": "Devolver",
+      "INICIAR_MANUTENCAO": "Iniciar manutenção",
+      "CONCLUIR_MANUTENCAO": "Concluir manutenção",
+      "CANCELAR_MANUTENCAO": "Cancelar manutenção",
+      "CANCELAR": "Cancelar",
+      "CONFIGURAR": "Configurar",
+      "CONCEDER_ACESSO": "Conceder acesso",
+      "REVOGAR_ACESSO": "Revogar acesso"
+    },
+    "entities": {
+      "item": "Item do acervo",
+      "copy": "Exemplar",
+      "loan": "Empréstimo",
+      "reservation": "Reserva",
+      "renewal": "Renovação",
+      "maintenance": "Manutenção de exemplar",
+      "file": "Ficheiro",
+      "configuration": "Configuração",
+      "operator": "Operador",
+      "module": "Módulo da Biblioteca"
+    },
+    "descriptions": {
+      "fileUploadAuthorized": "Carregamento do ficheiro autorizado para o acervo da Biblioteca Virtual.",
+      "fileUploadCompleted": "Carregamento do ficheiro concluído e armazenamento contabilizado.",
+      "fileSetPrincipal": "Ficheiro definido como principal do item da Biblioteca Virtual.",
+      "fileAutoPrincipalNoOther": "Ficheiro definido automaticamente como principal por não existir outro ficheiro principal ativo no item.",
+      "fileAutoPrincipalAfterDelete": "Ficheiro promovido automaticamente a principal após eliminação do ficheiro principal anterior.",
+      "fileRemoved": "Ficheiro removido do armazenamento privado da Biblioteca Virtual.",
+      "configurationUpdated": "Configurações da Biblioteca atualizadas.",
+      "loanCreated": "Empréstimo de exemplar registado na Biblioteca Virtual.",
+      "loanRenewed": "Empréstimo renovado na Biblioteca Virtual.",
+      "loanReturned": "Devolução de exemplar registada na Biblioteca Virtual.",
+      "copyCreated": "Exemplar registado no acervo da Biblioteca Virtual.",
+      "copyUpdated": "Exemplar atualizado na Biblioteca Virtual.",
+      "copyWithdrawn": "Baixa de exemplar realizada na Biblioteca Virtual.",
+      "itemCreatedDraft": "Item registado no acervo como rascunho.",
+      "itemUpdated": "Dados bibliográficos e de acesso do item foram atualizados.",
+      "maintenanceStarted": "Exemplar enviado para manutenção na Biblioteca Virtual.",
+      "maintenanceCompleted": "Manutenção concluída e exemplar libertado para circulação.",
+      "maintenanceCanceled": "Manutenção do exemplar cancelada na Biblioteca Virtual.",
+      "reservationExpired": "Reserva expirada automaticamente.",
+      "reservationQueued": "Reserva adicionada à fila da Biblioteca Virtual.",
+      "reservationAvailableAfterExpiration": "Reserva disponibilizada automaticamente após expiração da reserva anterior.",
+      "reservationAvailableImmediately": "Reserva disponibilizada imediatamente na Biblioteca Virtual.",
+      "reservationAvailableAfterCancellation": "Reserva disponibilizada automaticamente após cancelamento da reserva anterior.",
+      "reservationAvailableAfterReturn": "Reserva disponibilizada automaticamente após devolução de exemplar.",
+      "reservationCanceled": "Reserva cancelada na Biblioteca Virtual.",
+      "moduleGrantedCourtesy": "Biblioteca Virtual concedida à IBE como cortesia permanente, sem cobrança."
     }
   }
 }

@@ -223,7 +223,8 @@
     "mobilityAgreements": "Accords",
     "mobilityPrograms": "Programmes",
     "mobilityOffers": "Offres / Appels",
-    "mobilityApplications": "Candidatures"
+    "mobilityApplications": "Candidatures",
+    "audit": "Audit"
   },
   "MonthlyCampaign": {
     "origin": "Campagne mensuelle de sensibilisation",
@@ -17893,6 +17894,122 @@
         "title": "Historique professionnel",
         "description": "L'ensemble du parcours professionnel du collaborateur."
       }
+    }
+  },
+  "AdminLibraryAudit": {
+    "title": "Audit de la Bibliothèque",
+    "subtitle": "Historique des opérations administratives et des modifications effectuées dans la bibliothèque.",
+    "loading": "Chargement de l'audit...",
+    "empty": "Aucun enregistrement d'audit trouvé pour les filtres sélectionnés.",
+    "system": "Système",
+    "filters": {
+      "start": "Date de début",
+      "end": "Date de fin",
+      "action": "Action",
+      "allActions": "Toutes les actions",
+      "entity": "Entité",
+      "allEntities": "Toutes les entités",
+      "user": "Utilisateur",
+      "allUsers": "Tous les utilisateurs",
+      "search": "Rechercher",
+      "searchPlaceholder": "Description, entité, ID, nom ou e-mail",
+      "apply": "Appliquer les filtres",
+      "clear": "Effacer"
+    },
+    "cards": {
+      "total": "Enregistrements trouvés"
+    },
+    "table": {
+      "title": "Historique d'audit",
+      "date": "Date et heure",
+      "action": "Action",
+      "entity": "Entité",
+      "user": "Utilisateur",
+      "description": "Description",
+      "details": "Détails",
+      "view": "Voir les détails"
+    },
+    "pagination": {
+      "page": "Page {current} sur {total} · {records} enregistrements",
+      "previous": "Précédente",
+      "next": "Suivante"
+    },
+    "details": {
+      "title": "Détails de l'audit",
+      "close": "Fermer",
+      "action": "Action",
+      "entity": "Entité",
+      "user": "Utilisateur",
+      "description": "Description originale",
+      "userAgent": "Navigateur / appareil",
+      "before": "Données précédentes",
+      "after": "Données suivantes",
+      "metadata": "Métadonnées",
+      "noData": "Aucune donnée enregistrée."
+    },
+    "errors": {
+      "load": "Impossible de charger l'audit de la bibliothèque."
+    },
+    "actions": {
+      "CRIAR": "Créer",
+      "VISUALIZAR": "Visualiser",
+      "ATUALIZAR": "Mettre à jour",
+      "PUBLICAR": "Publier",
+      "ARQUIVAR": "Archiver",
+      "RESTAURAR": "Restaurer",
+      "EXCLUIR": "Supprimer",
+      "BAIXAR": "Retirer",
+      "EMPRESTAR": "Prêter",
+      "RENOVAR": "Renouveler",
+      "RESERVAR": "Réserver",
+      "DEVOLVER": "Retourner",
+      "INICIAR_MANUTENCAO": "Démarrer la maintenance",
+      "CONCLUIR_MANUTENCAO": "Terminer la maintenance",
+      "CANCELAR_MANUTENCAO": "Annuler la maintenance",
+      "CANCELAR": "Annuler",
+      "CONFIGURAR": "Configurer",
+      "CONCEDER_ACESSO": "Accorder l'accès",
+      "REVOGAR_ACESSO": "Révoquer l'accès"
+    },
+    "entities": {
+      "item": "Document du fonds",
+      "copy": "Exemplaire",
+      "loan": "Emprunt",
+      "reservation": "Réservation",
+      "renewal": "Renouvellement",
+      "maintenance": "Maintenance d'exemplaire",
+      "file": "Fichier",
+      "configuration": "Configuration",
+      "operator": "Opérateur",
+      "module": "Module Bibliothèque"
+    },
+    "descriptions": {
+      "fileUploadAuthorized": "Téléversement du fichier autorisé pour le fonds de la Bibliothèque numérique.",
+      "fileUploadCompleted": "Téléversement du fichier terminé et stockage comptabilisé.",
+      "fileSetPrincipal": "Fichier défini comme fichier principal du document de la Bibliothèque numérique.",
+      "fileAutoPrincipalNoOther": "Fichier automatiquement défini comme principal car aucun autre fichier principal actif n'existe pour ce document.",
+      "fileAutoPrincipalAfterDelete": "Fichier automatiquement promu comme principal après la suppression du fichier principal précédent.",
+      "fileRemoved": "Fichier supprimé du stockage privé de la Bibliothèque numérique.",
+      "configurationUpdated": "Paramètres de la Bibliothèque mis à jour.",
+      "loanCreated": "Emprunt d'un exemplaire enregistré dans la Bibliothèque numérique.",
+      "loanRenewed": "Emprunt renouvelé dans la Bibliothèque numérique.",
+      "loanReturned": "Retour d'un exemplaire enregistré dans la Bibliothèque numérique.",
+      "copyCreated": "Exemplaire ajouté au fonds de la Bibliothèque numérique.",
+      "copyUpdated": "Exemplaire mis à jour dans la Bibliothèque numérique.",
+      "copyWithdrawn": "Exemplaire retiré de la Bibliothèque numérique.",
+      "itemCreatedDraft": "Document ajouté au fonds comme brouillon.",
+      "itemUpdated": "Les données bibliographiques et d'accès du document ont été mises à jour.",
+      "maintenanceStarted": "Exemplaire envoyé en maintenance dans la Bibliothèque numérique.",
+      "maintenanceCompleted": "Maintenance terminée et exemplaire remis en circulation.",
+      "maintenanceCanceled": "Maintenance de l'exemplaire annulée dans la Bibliothèque numérique.",
+      "reservationExpired": "Réservation expirée automatiquement.",
+      "reservationQueued": "Réservation ajoutée à la file de la Bibliothèque numérique.",
+      "reservationAvailableAfterExpiration": "Réservation automatiquement rendue disponible après l'expiration de la réservation précédente.",
+      "reservationAvailableImmediately": "Réservation rendue immédiatement disponible dans la Bibliothèque numérique.",
+      "reservationAvailableAfterCancellation": "Réservation automatiquement rendue disponible après l'annulation de la réservation précédente.",
+      "reservationAvailableAfterReturn": "Réservation automatiquement rendue disponible après le retour d'un exemplaire.",
+      "reservationCanceled": "Réservation annulée dans la Bibliothèque numérique.",
+      "moduleGrantedCourtesy": "Bibliothèque numérique accordée gratuitement et de manière permanente à l'IBE."
     }
   }
 }

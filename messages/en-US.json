@@ -223,7 +223,8 @@
     "mobilityAgreements": "Agreements",
     "mobilityPrograms": "Programs",
     "mobilityOffers": "Offers / Calls",
-    "mobilityApplications": "Applications"
+    "mobilityApplications": "Applications",
+    "audit": "Audit"
   },
   "MonthlyCampaign": {
     "origin": "Monthly Awareness Campaign",
@@ -17894,6 +17895,122 @@
         "title": "Employment History",
         "description": "The employee's complete work history."
       }
+    }
+  },
+  "AdminLibraryAudit": {
+    "title": "Library Audit",
+    "subtitle": "History of administrative operations and changes performed in the library.",
+    "loading": "Loading audit records...",
+    "empty": "No audit records were found for the selected filters.",
+    "system": "System",
+    "filters": {
+      "start": "Start date",
+      "end": "End date",
+      "action": "Action",
+      "allActions": "All actions",
+      "entity": "Entity",
+      "allEntities": "All entities",
+      "user": "User",
+      "allUsers": "All users",
+      "search": "Search",
+      "searchPlaceholder": "Description, entity, ID, name, or email",
+      "apply": "Apply filters",
+      "clear": "Clear"
+    },
+    "cards": {
+      "total": "Records found"
+    },
+    "table": {
+      "title": "Audit history",
+      "date": "Date and time",
+      "action": "Action",
+      "entity": "Entity",
+      "user": "User",
+      "description": "Description",
+      "details": "Details",
+      "view": "View details"
+    },
+    "pagination": {
+      "page": "Page {current} of {total} · {records} records",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "details": {
+      "title": "Audit details",
+      "close": "Close",
+      "action": "Action",
+      "entity": "Entity",
+      "user": "User",
+      "description": "Original description",
+      "userAgent": "Browser / device",
+      "before": "Previous data",
+      "after": "Updated data",
+      "metadata": "Metadata",
+      "noData": "No data recorded."
+    },
+    "errors": {
+      "load": "Library audit records could not be loaded."
+    },
+    "actions": {
+      "CRIAR": "Create",
+      "VISUALIZAR": "View",
+      "ATUALIZAR": "Update",
+      "PUBLICAR": "Publish",
+      "ARQUIVAR": "Archive",
+      "RESTAURAR": "Restore",
+      "EXCLUIR": "Delete",
+      "BAIXAR": "Withdraw",
+      "EMPRESTAR": "Lend",
+      "RENOVAR": "Renew",
+      "RESERVAR": "Reserve",
+      "DEVOLVER": "Return",
+      "INICIAR_MANUTENCAO": "Start maintenance",
+      "CONCLUIR_MANUTENCAO": "Complete maintenance",
+      "CANCELAR_MANUTENCAO": "Cancel maintenance",
+      "CANCELAR": "Cancel",
+      "CONFIGURAR": "Configure",
+      "CONCEDER_ACESSO": "Grant access",
+      "REVOGAR_ACESSO": "Revoke access"
+    },
+    "entities": {
+      "item": "Collection item",
+      "copy": "Copy",
+      "loan": "Loan",
+      "reservation": "Reservation",
+      "renewal": "Renewal",
+      "maintenance": "Copy maintenance",
+      "file": "File",
+      "configuration": "Configuration",
+      "operator": "Operator",
+      "module": "Library module"
+    },
+    "descriptions": {
+      "fileUploadAuthorized": "File upload authorized for the Digital Library collection.",
+      "fileUploadCompleted": "File upload completed and storage usage recorded.",
+      "fileSetPrincipal": "File set as the main file for the Digital Library item.",
+      "fileAutoPrincipalNoOther": "File automatically set as the main file because no other active main file exists for the item.",
+      "fileAutoPrincipalAfterDelete": "File automatically promoted to main after the previous main file was deleted.",
+      "fileRemoved": "File removed from the Digital Library private storage.",
+      "configurationUpdated": "Library settings updated.",
+      "loanCreated": "Copy loan registered in the Digital Library.",
+      "loanRenewed": "Loan renewed in the Digital Library.",
+      "loanReturned": "Copy return registered in the Digital Library.",
+      "copyCreated": "Copy added to the Digital Library collection.",
+      "copyUpdated": "Copy updated in the Digital Library.",
+      "copyWithdrawn": "Copy withdrawn from the Digital Library.",
+      "itemCreatedDraft": "Collection item created as a draft.",
+      "itemUpdated": "The item's bibliographic and access data were updated.",
+      "maintenanceStarted": "Copy sent for maintenance in the Digital Library.",
+      "maintenanceCompleted": "Maintenance completed and the copy released for circulation.",
+      "maintenanceCanceled": "Copy maintenance canceled in the Digital Library.",
+      "reservationExpired": "Reservation expired automatically.",
+      "reservationQueued": "Reservation added to the Digital Library queue.",
+      "reservationAvailableAfterExpiration": "Reservation automatically made available after the previous reservation expired.",
+      "reservationAvailableImmediately": "Reservation made immediately available in the Digital Library.",
+      "reservationAvailableAfterCancellation": "Reservation automatically made available after the previous reservation was canceled.",
+      "reservationAvailableAfterReturn": "Reservation automatically made available after a copy was returned.",
+      "reservationCanceled": "Reservation canceled in the Digital Library.",
+      "moduleGrantedCourtesy": "Digital Library permanently granted to IBE as a complimentary service with no charge."
     }
   }
 }

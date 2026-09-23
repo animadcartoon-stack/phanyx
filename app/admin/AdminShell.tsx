@@ -619,6 +619,10 @@ export default function AdminShell({
     "biblioteca.relatorios.ver",
   );
 
+  const podeVerAuditoriaBiblioteca = podeAcessar(
+    "biblioteca.auditoria.ver",
+  );
+
   const podeGerenciarConfiguracoesBiblioteca = podeAcessar(
     "biblioteca.configuracoes.gerenciar",
   );
@@ -1350,6 +1354,17 @@ export default function AdminShell({
                             )}
                           >
                             {String.fromCodePoint(0x1F4CA)} {tNav("reports")}
+                          </Link>
+                        )}
+
+                        {podeVerAuditoriaBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/auditoria"
+                            className={getLinkClass(
+                              "/admin/biblioteca/auditoria",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F6E1)} {tNav("audit")}
                           </Link>
                         )}
 
