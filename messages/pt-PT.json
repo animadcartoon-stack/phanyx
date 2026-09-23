@@ -17116,6 +17116,43 @@
       "title": "Não foi possível carregar os empréstimos",
       "load": "Ocorreu um erro ao consultar os empréstimos."
     },
+    "actions": {
+      "renewButton": "Renovar",
+      "returnButton": "Registar devolução",
+      "cancel": "Cancelar",
+      "processing": "A processar...",
+      "renewTitle": "Renovar empréstimo",
+      "renewDescription": "Confirme a renovação de {item} para {user}. As regras de renovação e a fila de reservas serão verificadas automaticamente.",
+      "returnTitle": "Registar devolução",
+      "returnDescription": "Registe a devolução de {item}, emprestado a {user}.",
+      "condition": "Condição do exemplar",
+      "conditions": {
+        "normal": "Normal",
+        "wear": "Desgaste",
+        "damaged": "Danificado",
+        "incomplete": "Incompleto",
+        "lost": "Perdido"
+      },
+      "notes": "Observação",
+      "renewNotesPlaceholder": "Observação opcional sobre a renovação...",
+      "returnNotesPlaceholder": "Observação opcional sobre a devolução...",
+      "confirmRenew": "Confirmar renovação",
+      "confirmReturn": "Confirmar devolução",
+      "renewSuccess": "Empréstimo renovado com sucesso.",
+      "returnSuccess": "Devolução registada com sucesso.",
+      "errors": {
+        "impersonation": "As operações de circulação ficam bloqueadas durante uma sessão de suporte.",
+        "overdue": "Empréstimos em atraso não podem ser renovados.",
+        "notActive": "Este empréstimo não está ativo e não pode ser renovado.",
+        "renewalDisabled": "A renovação está desativada nas configurações da biblioteca.",
+        "renewalLimit": "O limite de renovações deste empréstimo foi atingido.",
+        "reservationQueue": "Existe outro utilizador a aguardar esta obra. A fila de reservas impede a renovação.",
+        "invalidCondition": "Indique uma condição válida para o exemplar.",
+        "invalidNotes": "A observação indicada é inválida ou excede o limite permitido.",
+        "renew": "Não foi possível renovar este empréstimo.",
+        "return": "Não foi possível registar esta devolução."
+      }
+    },
     "pagination": {
       "page": "Página {page} de {total}",
       "previous": "Anterior",

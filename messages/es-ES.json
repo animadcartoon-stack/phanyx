@@ -17330,6 +17330,43 @@
       "title": "No se pudieron cargar los préstamos",
       "load": "Se produjo un error al consultar los préstamos."
     },
+    "actions": {
+      "renewButton": "Renovar",
+      "returnButton": "Registrar devolución",
+      "cancel": "Cancelar",
+      "processing": "Procesando...",
+      "renewTitle": "Renovar préstamo",
+      "renewDescription": "Confirma la renovación de {item} para {user}. Las reglas de renovación y la cola de reservas se comprobarán automáticamente.",
+      "returnTitle": "Registrar devolución",
+      "returnDescription": "Registra la devolución de {item}, prestado a {user}.",
+      "condition": "Estado del ejemplar",
+      "conditions": {
+        "normal": "Normal",
+        "wear": "Desgaste",
+        "damaged": "Dañado",
+        "incomplete": "Incompleto",
+        "lost": "Perdido"
+      },
+      "notes": "Observación",
+      "renewNotesPlaceholder": "Observación opcional sobre la renovación...",
+      "returnNotesPlaceholder": "Observación opcional sobre la devolución...",
+      "confirmRenew": "Confirmar renovación",
+      "confirmReturn": "Confirmar devolución",
+      "renewSuccess": "Préstamo renovado correctamente.",
+      "returnSuccess": "Devolución registrada correctamente.",
+      "errors": {
+        "impersonation": "Las operaciones de circulación están bloqueadas durante una sesión de soporte.",
+        "overdue": "Los préstamos vencidos no pueden renovarse.",
+        "notActive": "Este préstamo no está activo y no puede renovarse.",
+        "renewalDisabled": "La renovación está deshabilitada en la configuración de la biblioteca.",
+        "renewalLimit": "Este préstamo ha alcanzado su límite de renovaciones.",
+        "reservationQueue": "Hay otro usuario esperando esta obra. La cola de reservas impide la renovación.",
+        "invalidCondition": "Selecciona un estado válido para el ejemplar.",
+        "invalidNotes": "La observación no es válida o supera el límite permitido.",
+        "renew": "No se pudo renovar este préstamo.",
+        "return": "No se pudo registrar esta devolución."
+      }
+    },
     "pagination": {
       "page": "Página {page} de {total}",
       "previous": "Anterior",
