@@ -143,6 +143,7 @@
     "overview": "Vue d'ensemble",
     "collection": "Collection",
     "loans": "Prêts",
+    "reservations": "Réservations",
     "receipts": "Encaissements",
     "cashRegister": "Caisse",
     "reports": "Rapports",
@@ -17271,6 +17272,89 @@
         "weeklyHours": "Volume hebdomadaire",
         "monthlyHours": "Volume mensuel"
       }
+    }
+  },
+  "AdminLibraryReservations": {
+    "eyebrow": "Circulation de la bibliothèque",
+    "title": "Réservations",
+    "description": "Suivez la file d'attente, les exemplaires disponibles au retrait et les réservations honorées, expirées ou annulées.",
+    "backToCollection": "Retour au fonds",
+    "filters": {
+      "todas": "Toutes",
+      "aguardando": "En attente",
+      "disponiveis": "Disponibles",
+      "atendidas": "Honorées",
+      "expiradas": "Expirées",
+      "canceladas": "Annulées"
+    },
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Utilisateur, e-mail, titre, code, inventaire, ISBN...",
+      "button": "Rechercher",
+      "clear": "Effacer"
+    },
+    "results": {
+      "title": "Réservations trouvées",
+      "count": "{count} enregistrements",
+      "hint": "La file d'attente est organisée automatiquement par document."
+    },
+    "loading": "Chargement des réservations...",
+    "empty": {
+      "title": "Aucune réservation trouvée",
+      "description": "Aucune réservation ne correspond aux filtres sélectionnés."
+    },
+    "table": {
+      "user": "Utilisateur",
+      "item": "Document / exemplaire",
+      "reservedAt": "Réservation",
+      "queue": "File",
+      "deadline": "Disponibilité / délai",
+      "status": "Statut",
+      "actions": "Actions",
+      "tomb": "Inventaire",
+      "noCopyAssigned": "Aucun exemplaire attribué",
+      "queuePosition": "Position {position}",
+      "deadlineExpired": "Délai de retrait expiré",
+      "pickupDeadline": "Délai de retrait",
+      "attendedAt": "Honorée le",
+      "canceledAt": "Annulée le",
+      "openItem": "Ouvrir le document",
+      "horizontalScroll": "Faire défiler le tableau horizontalement"
+    },
+    "statuses": {
+      "aguardando": "En attente",
+      "disponivel": "Disponible",
+      "atendida": "Honorée",
+      "expirada": "Expirée",
+      "cancelada": "Annulée",
+      "availableExpired": "Délai expiré"
+    },
+    "actions": {
+      "cancelButton": "Annuler la réservation",
+      "cancelTitle": "Annuler la réservation",
+      "cancelDescription": "Confirmez l'annulation de la réservation de {item} pour {user}. Si une autre personne est en attente, PHANYX réorganisera automatiquement la file.",
+      "reason": "Motif de l'annulation",
+      "reasonPlaceholder": "Motif facultatif de l'annulation...",
+      "close": "Retour",
+      "processing": "Traitement...",
+      "confirmCancel": "Confirmer l'annulation",
+      "cancelSuccess": "Réservation annulée avec succès.",
+      "errors": {
+        "impersonation": "Les opérations de réservation sont bloquées pendant une session d'assistance.",
+        "notFound": "La réservation est introuvable.",
+        "notCancelable": "Cette réservation ne peut plus être annulée.",
+        "invalidReason": "Le motif est invalide ou dépasse la limite autorisée.",
+        "cancel": "Impossible d'annuler cette réservation."
+      }
+    },
+    "errors": {
+      "title": "Impossible de charger les réservations",
+      "load": "Une erreur s'est produite lors de la consultation des réservations."
+    },
+    "pagination": {
+      "page": "Page {page} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
     }
   },
   "AdminLibraryLoans": {

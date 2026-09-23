@@ -143,6 +143,7 @@
     "overview": "Overview",
     "collection": "Collection",
     "loans": "Loans",
+    "reservations": "Reservations",
     "receipts": "Receipts",
     "cashRegister": "Cash Register",
     "reports": "Reports",
@@ -17272,6 +17273,89 @@
         "weeklyHours": "Weekly workload",
         "monthlyHours": "Monthly workload"
       }
+    }
+  },
+  "AdminLibraryReservations": {
+    "eyebrow": "Library circulation",
+    "title": "Reservations",
+    "description": "Track the waiting list, items available for pickup, fulfilled, expired, and canceled reservations.",
+    "backToCollection": "Back to collection",
+    "filters": {
+      "todas": "All",
+      "aguardando": "Waiting",
+      "disponiveis": "Available",
+      "atendidas": "Fulfilled",
+      "expiradas": "Expired",
+      "canceladas": "Canceled"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "User, email, title, code, accession number, ISBN...",
+      "button": "Search",
+      "clear": "Clear"
+    },
+    "results": {
+      "title": "Reservations found",
+      "count": "{count} records",
+      "hint": "The waiting list is automatically organized by item."
+    },
+    "loading": "Loading reservations...",
+    "empty": {
+      "title": "No reservations found",
+      "description": "There are no reservations matching the selected filters."
+    },
+    "table": {
+      "user": "User",
+      "item": "Item / copy",
+      "reservedAt": "Reserved",
+      "queue": "Queue",
+      "deadline": "Availability / deadline",
+      "status": "Status",
+      "actions": "Actions",
+      "tomb": "Accession",
+      "noCopyAssigned": "No copy assigned",
+      "queuePosition": "Position {position}",
+      "deadlineExpired": "Pickup deadline expired",
+      "pickupDeadline": "Pickup deadline",
+      "attendedAt": "Fulfilled at",
+      "canceledAt": "Canceled at",
+      "openItem": "Open item",
+      "horizontalScroll": "Scroll table horizontally"
+    },
+    "statuses": {
+      "aguardando": "Waiting",
+      "disponivel": "Available",
+      "atendida": "Fulfilled",
+      "expirada": "Expired",
+      "cancelada": "Canceled",
+      "availableExpired": "Deadline expired"
+    },
+    "actions": {
+      "cancelButton": "Cancel reservation",
+      "cancelTitle": "Cancel reservation",
+      "cancelDescription": "Confirm the cancellation of the reservation for {item} by {user}. If someone else is waiting, PHANYX will automatically reorganize the queue.",
+      "reason": "Cancellation reason",
+      "reasonPlaceholder": "Optional reason for cancellation...",
+      "close": "Back",
+      "processing": "Processing...",
+      "confirmCancel": "Confirm cancellation",
+      "cancelSuccess": "Reservation canceled successfully.",
+      "errors": {
+        "impersonation": "Reservation operations are blocked during a support session.",
+        "notFound": "The reservation was not found.",
+        "notCancelable": "This reservation can no longer be canceled.",
+        "invalidReason": "The reason is invalid or exceeds the allowed limit.",
+        "cancel": "This reservation could not be canceled."
+      }
+    },
+    "errors": {
+      "title": "Reservations could not be loaded",
+      "load": "An error occurred while retrieving reservations."
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
     }
   },
   "AdminLibraryLoans": {

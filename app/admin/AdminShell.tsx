@@ -611,6 +611,10 @@ export default function AdminShell({
     "biblioteca.emprestimos.gerenciar",
   );
 
+  const podeGerenciarReservasBiblioteca = podeAcessar(
+    "biblioteca.reservas.gerenciar",
+  );
+
   const podeGerenciarConfiguracoesBiblioteca = podeAcessar(
     "biblioteca.configuracoes.gerenciar",
   );
@@ -1310,6 +1314,17 @@ export default function AdminShell({
                             )}
                           >
                             📖 {tNav("loans")}
+                          </Link>
+                        )}
+
+                        {podeGerenciarReservasBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/reservas"
+                            className={getLinkClass(
+                              "/admin/biblioteca/reservas",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F516)} {tNav("reservations")}
                           </Link>
                         )}
 
@@ -2037,6 +2052,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             📖 {tNav("loans")}
+                          </Link>
+                        )}
+
+                        {podeGerenciarReservasBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/reservas"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F516)} {tNav("reservations")}
                           </Link>
                         )}
 

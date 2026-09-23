@@ -143,6 +143,7 @@
     "overview": "Visão geral",
     "collection": "Acervo",
     "loans": "Empréstimos",
+    "reservations": "Reservas",
     "receipts": "Recebimentos",
     "cashRegister": "Caixa",
     "reports": "Relatórios",
@@ -17041,6 +17042,89 @@
         "weeklyHours": "Carga semanal",
         "monthlyHours": "Carga mensal"
       }
+    }
+  },
+  "AdminLibraryReservations": {
+    "eyebrow": "Circulação da Biblioteca",
+    "title": "Reservas",
+    "description": "Acompanhe a fila de espera, exemplares disponíveis para retirada, reservas atendidas, expiradas e canceladas.",
+    "backToCollection": "Voltar ao acervo",
+    "filters": {
+      "todas": "Todas",
+      "aguardando": "Aguardando",
+      "disponiveis": "Disponíveis",
+      "atendidas": "Atendidas",
+      "expiradas": "Expiradas",
+      "canceladas": "Canceladas"
+    },
+    "search": {
+      "label": "Pesquisar",
+      "placeholder": "Usuário, e-mail, título, código, tombo, ISBN...",
+      "button": "Pesquisar",
+      "clear": "Limpar"
+    },
+    "results": {
+      "title": "Reservas encontradas",
+      "count": "{count} registros",
+      "hint": "A fila é organizada automaticamente por obra."
+    },
+    "loading": "Carregando reservas...",
+    "empty": {
+      "title": "Nenhuma reserva encontrada",
+      "description": "Não há reservas que correspondam aos filtros selecionados."
+    },
+    "table": {
+      "user": "Usuário",
+      "item": "Obra / exemplar",
+      "reservedAt": "Reserva",
+      "queue": "Fila",
+      "deadline": "Disponibilidade / prazo",
+      "status": "Situação",
+      "actions": "Ações",
+      "tomb": "Tombo",
+      "noCopyAssigned": "Sem exemplar definido",
+      "queuePosition": "{position}ª posição",
+      "deadlineExpired": "Prazo de retirada vencido",
+      "pickupDeadline": "Prazo para retirada",
+      "attendedAt": "Atendida em",
+      "canceledAt": "Cancelada em",
+      "openItem": "Abrir item",
+      "horizontalScroll": "Mover tabela horizontalmente"
+    },
+    "statuses": {
+      "aguardando": "Aguardando",
+      "disponivel": "Disponível",
+      "atendida": "Atendida",
+      "expirada": "Expirada",
+      "cancelada": "Cancelada",
+      "availableExpired": "Prazo vencido"
+    },
+    "actions": {
+      "cancelButton": "Cancelar reserva",
+      "cancelTitle": "Cancelar reserva",
+      "cancelDescription": "Confirme o cancelamento da reserva de {item} para {user}. Se houver outra pessoa na fila, o PHANYX reorganizará as posições automaticamente.",
+      "reason": "Motivo do cancelamento",
+      "reasonPlaceholder": "Motivo opcional para o cancelamento...",
+      "close": "Voltar",
+      "processing": "Processando...",
+      "confirmCancel": "Confirmar cancelamento",
+      "cancelSuccess": "Reserva cancelada com sucesso.",
+      "errors": {
+        "impersonation": "Operações de reservas ficam bloqueadas durante uma sessão de suporte.",
+        "notFound": "A reserva não foi encontrada.",
+        "notCancelable": "Esta reserva não pode mais ser cancelada.",
+        "invalidReason": "O motivo informado é inválido ou excede o limite permitido.",
+        "cancel": "Não foi possível cancelar esta reserva."
+      }
+    },
+    "errors": {
+      "title": "Não foi possível carregar as reservas",
+      "load": "Ocorreu um erro ao consultar as reservas."
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Próxima"
     }
   },
   "AdminLibraryLoans": {
