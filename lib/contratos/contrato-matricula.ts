@@ -256,6 +256,10 @@ export async function montarContratoMatricula(
               "matricula",
           },
           {
+            contexto:
+              "Enrollment",
+          },
+          {
             contexto: null,
           },
         ],

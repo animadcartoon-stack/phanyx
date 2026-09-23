@@ -284,6 +284,7 @@ export async function GET(req: Request) {
           { contexto: "MATRICULA" },
           { contexto: "Matrícula" },
           { contexto: "matricula" },
+          { contexto: "Enrollment" },
           { contexto: null },
         ],
       },
