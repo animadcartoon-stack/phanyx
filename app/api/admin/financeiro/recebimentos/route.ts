@@ -170,11 +170,41 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     const status = String(searchParams.get("status") || "").trim();
     const tipo = String(searchParams.get("tipo") || "").trim();
     const poloId = String(searchParams.get("poloId") || "").trim();
+
+    const lancamentoIdTexto =
+      String(
+        searchParams.get("lancamentoId") || "",
+      ).trim();
+
+    const lancamentoId =
+      lancamentoIdTexto
+        ? Number(lancamentoIdTexto)
+        : null;
+
+    if (
+      lancamentoIdTexto &&
+      (
+        typeof lancamentoId !== "number" ||
+        !Number.isInteger(lancamentoId) ||
+        lancamentoId <= 0
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Lan?amento inv?lido",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
     
 
     const lancamentos = await prisma.lancamentoFinanceiro.findMany({
       where: {
   instituicaoId: user.instituicaoId,
+  ...(lancamentoId ? { id: lancamentoId } : {}),
   ...(status ? { status: status as any } : {}),
   ...(tipo ? { tipo: tipo as any } : {}),
   ...(poloId ? { poloId: Number(poloId) } : {}),

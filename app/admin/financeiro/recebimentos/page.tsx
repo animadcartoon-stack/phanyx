@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
 
@@ -533,6 +534,14 @@ export default function AdminFinanceiroRecebimentosPage() {
   const t = useTranslations("AdminFinanceiroRecebimentos");
   const locale = useLocale();
 
+  const searchParams =
+    useSearchParams();
+
+  const lancamentoIdDireto =
+    String(
+      searchParams.get("lancamentoId") || "",
+    ).trim();
+
   const [tourAberto, setTourAberto] = useState(false);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -634,10 +643,41 @@ export default function AdminFinanceiroRecebimentosPage() {
 setSucesso("");
 
       const query = new URLSearchParams();
-      if (busca.trim()) query.set("busca", busca.trim());
-      if (status) query.set("status", status);
-      if (tipo) query.set("tipo", tipo);
-      if (poloId) query.set("poloId", poloId);
+
+      if (lancamentoIdDireto) {
+        query.set(
+          "lancamentoId",
+          lancamentoIdDireto,
+        );
+      } else {
+        if (busca.trim()) {
+          query.set(
+            "busca",
+            busca.trim(),
+          );
+        }
+
+        if (status) {
+          query.set(
+            "status",
+            status,
+          );
+        }
+
+        if (tipo) {
+          query.set(
+            "tipo",
+            tipo,
+          );
+        }
+
+        if (poloId) {
+          query.set(
+            "poloId",
+            poloId,
+          );
+        }
+      }
 
       const res = await fetch(
         `/api/admin/financeiro/recebimentos?${query.toString()}`,
@@ -690,7 +730,13 @@ async function carregarPolos() {
     }, 300);
 
     return () => clearTimeout(t);
-  }, [busca, status, tipo, poloId]);
+  }, [
+    busca,
+    status,
+    tipo,
+    poloId,
+    lancamentoIdDireto,
+  ]);
 
   
 

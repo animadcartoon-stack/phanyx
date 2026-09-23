@@ -144,6 +144,7 @@
     "collection": "Collection",
     "loans": "Prêts",
     "reservations": "Réservations",
+    "fines": "Amendes",
     "receipts": "Encaissements",
     "cashRegister": "Caisse",
     "reports": "Rapports",
@@ -17272,6 +17273,70 @@
         "weeklyHours": "Volume hebdomadaire",
         "monthlyHours": "Volume mensuel"
       }
+    }
+  },
+  "AdminLibraryFines": {
+    "eyebrow": "Circulation de la bibliothèque",
+    "title": "Amendes",
+    "description": "Suivez les amendes de retard, les écritures financières, les paiements et les amendes sans écriture financière.",
+    "backToLoans": "Retour aux prêts",
+    "filters": {
+      "todas": "Toutes",
+      "pendentes": "En attente",
+      "parciais": "Partielles",
+      "atrasadas": "En retard",
+      "pagas": "Payées",
+      "canceladas": "Annulées",
+      "sem_lancamento": "Sans écriture"
+    },
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Utilisateur, e-mail, titre, code, inventaire, ISBN...",
+      "button": "Rechercher",
+      "clear": "Effacer"
+    },
+    "results": {
+      "title": "Amendes trouvées",
+      "count": "{count} enregistrements",
+      "hint": "Les écritures financières sont automatiquement associées aux retours en retard."
+    },
+    "loading": "Chargement des amendes...",
+    "empty": {
+      "title": "Aucune amende trouvée",
+      "description": "Aucune amende ne correspond aux filtres sélectionnés."
+    },
+    "table": {
+      "user": "Utilisateur",
+      "item": "Document / exemplaire",
+      "delay": "Retard",
+      "fine": "Amende",
+      "dueDate": "Échéance",
+      "paid": "Payé",
+      "status": "Statut",
+      "actions": "Actions",
+      "tomb": "Inventaire",
+      "days": "jour(s)",
+      "launch": "Écriture #{id}",
+      "openItem": "Ouvrir le document",
+      "horizontalScroll": "Faire défiler le tableau horizontalement",
+      "openFinance": "Ouvrir dans le module financier"
+    },
+    "statuses": {
+      "pendente": "En attente",
+      "parcial": "Partielle",
+      "atrasado": "En retard",
+      "pago": "Payée",
+      "cancelado": "Annulée",
+      "sem_lancamento": "Sans écriture"
+    },
+    "errors": {
+      "title": "Impossible de charger les amendes",
+      "load": "Une erreur s'est produite lors de la consultation des amendes de la bibliothèque."
+    },
+    "pagination": {
+      "page": "Page {page} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
     }
   },
   "AdminLibraryReservations": {

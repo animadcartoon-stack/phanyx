@@ -1327,6 +1327,16 @@ export default function AdminShell({
                             {String.fromCodePoint(0x1F516)} {tNav("reservations")}
                           </Link>
                         )}
+                        {podeGerenciarEmprestimosBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/multas"
+                            className={getLinkClass(
+                              "/admin/biblioteca/multas",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F4B8)} {tNav("fines")}
+                          </Link>
+                        )}
 
                         {podeGerenciarConfiguracoesBiblioteca && (
                           <Link
@@ -2061,6 +2071,14 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             {String.fromCodePoint(0x1F516)} {tNav("reservations")}
+                          </Link>
+                        )}
+                        {podeGerenciarEmprestimosBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/multas"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F4B8)} {tNav("fines")}
                           </Link>
                         )}
 

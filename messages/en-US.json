@@ -144,6 +144,7 @@
     "collection": "Collection",
     "loans": "Loans",
     "reservations": "Reservations",
+    "fines": "Fines",
     "receipts": "Receipts",
     "cashRegister": "Cash Register",
     "reports": "Reports",
@@ -17273,6 +17274,70 @@
         "weeklyHours": "Weekly workload",
         "monthlyHours": "Monthly workload"
       }
+    }
+  },
+  "AdminLibraryFines": {
+    "eyebrow": "Library circulation",
+    "title": "Fines",
+    "description": "Track overdue fines, financial charges, payments, and fines without a financial entry.",
+    "backToLoans": "Back to loans",
+    "filters": {
+      "todas": "All",
+      "pendentes": "Pending",
+      "parciais": "Partial",
+      "atrasadas": "Overdue",
+      "pagas": "Paid",
+      "canceladas": "Canceled",
+      "sem_lancamento": "No financial entry"
+    },
+    "search": {
+      "label": "Search",
+      "placeholder": "User, email, title, code, accession number, ISBN...",
+      "button": "Search",
+      "clear": "Clear"
+    },
+    "results": {
+      "title": "Fines found",
+      "count": "{count} records",
+      "hint": "Financial charges are automatically linked to overdue returns."
+    },
+    "loading": "Loading fines...",
+    "empty": {
+      "title": "No fines found",
+      "description": "There are no fines matching the selected filters."
+    },
+    "table": {
+      "user": "User",
+      "item": "Item / copy",
+      "delay": "Delay",
+      "fine": "Fine",
+      "dueDate": "Due date",
+      "paid": "Paid",
+      "status": "Status",
+      "actions": "Actions",
+      "tomb": "Accession",
+      "days": "day(s)",
+      "launch": "Entry #{id}",
+      "openItem": "Open item",
+      "horizontalScroll": "Scroll table horizontally",
+      "openFinance": "Open in Finance"
+    },
+    "statuses": {
+      "pendente": "Pending",
+      "parcial": "Partial",
+      "atrasado": "Overdue",
+      "pago": "Paid",
+      "cancelado": "Canceled",
+      "sem_lancamento": "No financial entry"
+    },
+    "errors": {
+      "title": "Fines could not be loaded",
+      "load": "An error occurred while retrieving library fines."
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
     }
   },
   "AdminLibraryReservations": {

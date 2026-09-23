@@ -144,6 +144,7 @@
     "collection": "Colección",
     "loans": "Préstamos",
     "reservations": "Reservas",
+    "fines": "Multas",
     "receipts": "Cobros",
     "cashRegister": "Caja",
     "reports": "Informes",
@@ -17272,6 +17273,70 @@
         "weeklyHours": "Carga semanal",
         "monthlyHours": "Carga mensual"
       }
+    }
+  },
+  "AdminLibraryFines": {
+    "eyebrow": "Circulación de la biblioteca",
+    "title": "Multas",
+    "description": "Consulta multas por retraso, cargos financieros, pagos y multas sin asiento financiero.",
+    "backToLoans": "Volver a préstamos",
+    "filters": {
+      "todas": "Todas",
+      "pendentes": "Pendientes",
+      "parciais": "Parciales",
+      "atrasadas": "Vencidas",
+      "pagas": "Pagadas",
+      "canceladas": "Canceladas",
+      "sem_lancamento": "Sin asiento"
+    },
+    "search": {
+      "label": "Buscar",
+      "placeholder": "Usuario, correo, título, código, inventario, ISBN...",
+      "button": "Buscar",
+      "clear": "Limpiar"
+    },
+    "results": {
+      "title": "Multas encontradas",
+      "count": "{count} registros",
+      "hint": "Los cargos financieros se vinculan automáticamente a las devoluciones con retraso."
+    },
+    "loading": "Cargando multas...",
+    "empty": {
+      "title": "No se encontraron multas",
+      "description": "No hay multas que coincidan con los filtros seleccionados."
+    },
+    "table": {
+      "user": "Usuario",
+      "item": "Obra / ejemplar",
+      "delay": "Retraso",
+      "fine": "Multa",
+      "dueDate": "Vencimiento",
+      "paid": "Pagado",
+      "status": "Situación",
+      "actions": "Acciones",
+      "tomb": "Inventario",
+      "days": "día(s)",
+      "launch": "Asiento #{id}",
+      "openItem": "Abrir obra",
+      "horizontalScroll": "Mover tabla horizontalmente",
+      "openFinance": "Abrir en Finanzas"
+    },
+    "statuses": {
+      "pendente": "Pendiente",
+      "parcial": "Parcial",
+      "atrasado": "Vencida",
+      "pago": "Pagada",
+      "cancelado": "Cancelada",
+      "sem_lancamento": "Sin asiento"
+    },
+    "errors": {
+      "title": "No se pudieron cargar las multas",
+      "load": "Se produjo un error al consultar las multas de la biblioteca."
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Siguiente"
     }
   },
   "AdminLibraryReservations": {

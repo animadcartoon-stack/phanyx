@@ -144,6 +144,7 @@
     "collection": "Acervo",
     "loans": "Empréstimos",
     "reservations": "Reservas",
+    "fines": "Multas",
     "receipts": "Recebimentos",
     "cashRegister": "Caixa",
     "reports": "Relatórios",
@@ -17042,6 +17043,70 @@
         "weeklyHours": "Carga semanal",
         "monthlyHours": "Carga mensal"
       }
+    }
+  },
+  "AdminLibraryFines": {
+    "eyebrow": "Circulação da Biblioteca",
+    "title": "Multas",
+    "description": "Acompanhe multas por atraso, cobranças financeiras, pagamentos e ocorrências sem lançamento financeiro.",
+    "backToLoans": "Voltar aos empréstimos",
+    "filters": {
+      "todas": "Todas",
+      "pendentes": "Pendentes",
+      "parciais": "Parciais",
+      "atrasadas": "Atrasadas",
+      "pagas": "Pagas",
+      "canceladas": "Canceladas",
+      "sem_lancamento": "Sem lançamento"
+    },
+    "search": {
+      "label": "Pesquisar",
+      "placeholder": "Usuário, e-mail, título, código, tombo, ISBN...",
+      "button": "Pesquisar",
+      "clear": "Limpar"
+    },
+    "results": {
+      "title": "Multas encontradas",
+      "count": "{count} registros",
+      "hint": "As cobranças financeiras são vinculadas automaticamente à devolução com atraso."
+    },
+    "loading": "Carregando multas...",
+    "empty": {
+      "title": "Nenhuma multa encontrada",
+      "description": "Não há multas que correspondam aos filtros selecionados."
+    },
+    "table": {
+      "user": "Usuário",
+      "item": "Obra / exemplar",
+      "delay": "Atraso",
+      "fine": "Multa",
+      "dueDate": "Vencimento",
+      "paid": "Pago",
+      "status": "Situação",
+      "actions": "Ações",
+      "tomb": "Tombo",
+      "days": "dia(s)",
+      "launch": "Lançamento #{id}",
+      "openItem": "Abrir item",
+      "horizontalScroll": "Mover tabela horizontalmente",
+      "openFinance": "Abrir no Financeiro"
+    },
+    "statuses": {
+      "pendente": "Pendente",
+      "parcial": "Parcial",
+      "atrasado": "Atrasada",
+      "pago": "Paga",
+      "cancelado": "Cancelada",
+      "sem_lancamento": "Sem lançamento"
+    },
+    "errors": {
+      "title": "Não foi possível carregar as multas",
+      "load": "Ocorreu um erro ao consultar as multas da biblioteca."
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Próxima"
     }
   },
   "AdminLibraryReservations": {
