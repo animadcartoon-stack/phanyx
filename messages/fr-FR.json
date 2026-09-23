@@ -17330,6 +17330,43 @@
       "title": "Impossible de charger les prêts",
       "load": "Une erreur s'est produite lors de la consultation des prêts."
     },
+    "actions": {
+      "renewButton": "Renouveler",
+      "returnButton": "Enregistrer le retour",
+      "cancel": "Annuler",
+      "processing": "Traitement...",
+      "renewTitle": "Renouveler le prêt",
+      "renewDescription": "Confirmez le renouvellement de {item} pour {user}. Les règles de renouvellement et la file de réservation seront vérifiées automatiquement.",
+      "returnTitle": "Enregistrer le retour",
+      "returnDescription": "Enregistrez le retour de {item}, emprunté par {user}.",
+      "condition": "État de l'exemplaire",
+      "conditions": {
+        "normal": "Normal",
+        "wear": "Usure",
+        "damaged": "Endommagé",
+        "incomplete": "Incomplet",
+        "lost": "Perdu"
+      },
+      "notes": "Observation",
+      "renewNotesPlaceholder": "Observation facultative sur le renouvellement...",
+      "returnNotesPlaceholder": "Observation facultative sur le retour...",
+      "confirmRenew": "Confirmer le renouvellement",
+      "confirmReturn": "Confirmer le retour",
+      "renewSuccess": "Prêt renouvelé avec succès.",
+      "returnSuccess": "Retour enregistré avec succès.",
+      "errors": {
+        "impersonation": "Les opérations de circulation sont bloquées pendant une session d'assistance.",
+        "overdue": "Les prêts en retard ne peuvent pas être renouvelés.",
+        "notActive": "Ce prêt n'est pas actif et ne peut pas être renouvelé.",
+        "renewalDisabled": "Le renouvellement est désactivé dans les paramètres de la bibliothèque.",
+        "renewalLimit": "Ce prêt a atteint sa limite de renouvellements.",
+        "reservationQueue": "Un autre utilisateur attend ce document. La file de réservation empêche le renouvellement.",
+        "invalidCondition": "Sélectionnez un état valide pour l'exemplaire.",
+        "invalidNotes": "L'observation est invalide ou dépasse la limite autorisée.",
+        "renew": "Impossible de renouveler ce prêt.",
+        "return": "Impossible d'enregistrer ce retour."
+      }
+    },
     "pagination": {
       "page": "Page {page} sur {total}",
       "previous": "Précédente",

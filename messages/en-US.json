@@ -17331,6 +17331,43 @@
       "title": "Loans could not be loaded",
       "load": "An error occurred while retrieving the loans."
     },
+    "actions": {
+      "renewButton": "Renew",
+      "returnButton": "Register return",
+      "cancel": "Cancel",
+      "processing": "Processing...",
+      "renewTitle": "Renew loan",
+      "renewDescription": "Confirm the renewal of {item} for {user}. Renewal rules and the reservation queue will be checked automatically.",
+      "returnTitle": "Register return",
+      "returnDescription": "Register the return of {item}, borrowed by {user}.",
+      "condition": "Copy condition",
+      "conditions": {
+        "normal": "Normal",
+        "wear": "Wear",
+        "damaged": "Damaged",
+        "incomplete": "Incomplete",
+        "lost": "Lost"
+      },
+      "notes": "Notes",
+      "renewNotesPlaceholder": "Optional note about the renewal...",
+      "returnNotesPlaceholder": "Optional note about the return...",
+      "confirmRenew": "Confirm renewal",
+      "confirmReturn": "Confirm return",
+      "renewSuccess": "Loan renewed successfully.",
+      "returnSuccess": "Return registered successfully.",
+      "errors": {
+        "impersonation": "Circulation operations are blocked during a support session.",
+        "overdue": "Overdue loans cannot be renewed.",
+        "notActive": "This loan is not active and cannot be renewed.",
+        "renewalDisabled": "Loan renewal is disabled in the library settings.",
+        "renewalLimit": "This loan has reached its renewal limit.",
+        "reservationQueue": "Another user is waiting for this item. The reservation queue prevents renewal.",
+        "invalidCondition": "Select a valid condition for the copy.",
+        "invalidNotes": "The note is invalid or exceeds the allowed limit.",
+        "renew": "This loan could not be renewed.",
+        "return": "This return could not be registered."
+      }
+    },
     "pagination": {
       "page": "Page {page} of {total}",
       "previous": "Previous",
