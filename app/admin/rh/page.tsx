@@ -1,62 +1,55 @@
-export default function RHPage() {
-  return (
-    <div className="space-y-6">
+import { useTranslations } from "next-intl";
 
+export default function RHPage() {
+  const t = useTranslations("AdminHRDashboard");
+
+  const cards = [
+    {
+      title: t("cards.employees.title"),
+      description: t("cards.employees.description"),
+    },
+    {
+      title: t("cards.departments.title"),
+      description: t("cards.departments.description"),
+    },
+    {
+      title: t("cards.documents.title"),
+      description: t("cards.documents.description"),
+    },
+    {
+      title: t("cards.history.title"),
+      description: t("cards.history.description"),
+    },
+  ];
+
+  return (
+    <div className="space-y-6 text-slate-950 dark:text-slate-100">
       <div>
-        <h1 className="text-3xl font-bold">
-          👥 Recursos Humanos
+        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
+          {t("title")}
         </h1>
 
-        <p className="mt-2 text-slate-500">
-          Gestão completa de funcionários, departamentos,
-          admissões, desligamentos, documentos e histórico funcional.
+        <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
+          {t("description")}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card) => (
+          <div
+            key={card.title}
+            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+          >
+            <h3 className="font-semibold text-slate-950 dark:text-white">
+              {card.title}
+            </h3>
 
-        <div className="rounded-3xl border p-5">
-          <h3 className="font-semibold">
-            Funcionários
-          </h3>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Cadastro e gestão de colaboradores.
-          </p>
-        </div>
-
-        <div className="rounded-3xl border p-5">
-          <h3 className="font-semibold">
-            Departamentos
-          </h3>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Setores e permissões.
-          </p>
-        </div>
-
-        <div className="rounded-3xl border p-5">
-          <h3 className="font-semibold">
-            Documentos RH
-          </h3>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Contratos, advertências e férias.
-          </p>
-        </div>
-
-        <div className="rounded-3xl border p-5">
-          <h3 className="font-semibold">
-            Histórico Funcional
-          </h3>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Toda trajetória do colaborador.
-          </p>
-        </div>
-
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              {card.description}
+            </p>
+          </div>
+        ))}
       </div>
-
     </div>
   );
 }

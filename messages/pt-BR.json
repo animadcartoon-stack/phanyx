@@ -17642,5 +17642,27 @@
       "moreFormats": "Mais formatos",
       "csvHelp": "Arquivo de dados para planilhas e integrações com outros sistemas."
     }
+  },
+  "AdminHRDashboard": {
+    "title": "👥 Recursos Humanos",
+    "description": "Gestão completa de funcionários, departamentos, admissões, desligamentos, documentos e histórico funcional.",
+    "cards": {
+      "employees": {
+        "title": "Funcionários",
+        "description": "Cadastro e gestão de colaboradores."
+      },
+      "departments": {
+        "title": "Departamentos",
+        "description": "Setores e permissões."
+      },
+      "documents": {
+        "title": "Documentos RH",
+        "description": "Contratos, advertências e férias."
+      },
+      "history": {
+        "title": "Histórico Funcional",
+        "description": "Toda a trajetória do colaborador."
+      }
+    }
   }
 }

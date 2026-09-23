@@ -17872,5 +17872,27 @@
       "moreFormats": "Plus de formats",
       "csvHelp": "Fichier de données pour tableurs et intégrations avec d'autres systèmes."
     }
+  },
+  "AdminHRDashboard": {
+    "title": "👥 Ressources humaines",
+    "description": "Gestion complète des collaborateurs, départements, admissions, départs, documents et historique professionnel.",
+    "cards": {
+      "employees": {
+        "title": "Collaborateurs",
+        "description": "Enregistrement et gestion des collaborateurs."
+      },
+      "departments": {
+        "title": "Départements",
+        "description": "Services et autorisations."
+      },
+      "documents": {
+        "title": "Documents RH",
+        "description": "Contrats, avertissements et congés."
+      },
+      "history": {
+        "title": "Historique professionnel",
+        "description": "L'ensemble du parcours professionnel du collaborateur."
+      }
+    }
   }
 }

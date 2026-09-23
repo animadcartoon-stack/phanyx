@@ -17873,5 +17873,27 @@
       "moreFormats": "More formats",
       "csvHelp": "Data file for spreadsheets and integrations with other systems."
     }
+  },
+  "AdminHRDashboard": {
+    "title": "👥 Human Resources",
+    "description": "Complete management of employees, departments, admissions, terminations, documents, and employment history.",
+    "cards": {
+      "employees": {
+        "title": "Employees",
+        "description": "Employee registration and management."
+      },
+      "departments": {
+        "title": "Departments",
+        "description": "Departments and permissions."
+      },
+      "documents": {
+        "title": "HR Documents",
+        "description": "Contracts, warnings, and vacation records."
+      },
+      "history": {
+        "title": "Employment History",
+        "description": "The employee's complete work history."
+      }
+    }
   }
 }
