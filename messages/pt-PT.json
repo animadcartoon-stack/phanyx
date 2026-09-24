@@ -13204,7 +13204,17 @@
         "Suspensão": "Suspensão",
         "Geral": "Geral"
       },
-      "tokens": {},
+      "tokens": {
+        "bolsa": "bolsa",
+        "mensalidades": "mensalidades",
+        "mensalidade": "mensalidade",
+        "original": "original",
+        "com": "com",
+        "desconto": "desconto",
+        "quantidade": "quantidade",
+        "beneficio": "benefício",
+        "texto": "texto"
+      },
       "entitySuffixes": {},
       "titleOverrides": {
         "{{nomeAluno}}": "Nome do aluno",
@@ -13244,7 +13254,16 @@
         "{{tipoRescisao}}": "Tipo de cessação",
         "{{valorRescisao}}": "Valor da cessação",
         "{{blocoValoresRescisao}}": "Bloco de valores da cessação",
-        "{{blocoRescisaoAssinaturaCompleto}}": "Bloco completo da cessação com assinaturas"
+        "{{blocoRescisaoAssinaturaCompleto}}": "Bloco completo da cessação com assinaturas",
+        "{{percentualBolsa}}": "Percentagem da bolsa de estudo",
+        "{{valorMensalidadeOriginal}}": "Valor original da mensalidade",
+        "{{valorDescontoBolsa}}": "Valor do desconto da bolsa de estudo",
+        "{{valorMensalidadeComBolsa}}": "Valor da mensalidade após a bolsa",
+        "{{quantidadeMensalidades}}": "Número de mensalidades",
+        "{{valorTotalMensalidadesOriginal}}": "Valor total original das mensalidades",
+        "{{valorTotalBeneficioBolsa}}": "Valor total do benefício da bolsa",
+        "{{valorTotalMensalidadesComBolsa}}": "Valor total das mensalidades após a bolsa",
+        "{{textoBolsaContrato}}": "Texto da cláusula da bolsa de estudo"
       },
       "special": {
         "eventosHolerite": {

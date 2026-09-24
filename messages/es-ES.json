@@ -13395,7 +13395,16 @@
         "total_descontos": "total de deducciones",
         "status_matricula": "estado de la matrícula",
         "status_aluno": "estado del alumno",
-        "numero_matricula": "número de matrícula"
+        "numero_matricula": "número de matrícula",
+        "bolsa": "beca",
+        "mensalidades": "mensualidades",
+        "mensalidade": "mensualidad",
+        "original": "original",
+        "com": "con",
+        "desconto": "descuento",
+        "quantidade": "cantidad",
+        "beneficio": "beneficio",
+        "texto": "texto"
       },
       "entitySuffixes": {
         "aluno": "del alumno",
@@ -13458,7 +13467,16 @@
         "{{tipoRescisao}}": "Tipo de rescisión",
         "{{valorRescisao}}": "Importe de la rescisión",
         "{{blocoValoresRescisao}}": "Bloque de importes de la rescisión",
-        "{{blocoRescisaoAssinaturaCompleto}}": "Bloque completo de rescisión y firmas"
+        "{{blocoRescisaoAssinaturaCompleto}}": "Bloque completo de rescisión y firmas",
+        "{{percentualBolsa}}": "Porcentaje de la beca",
+        "{{valorMensalidadeOriginal}}": "Importe original de la mensualidad",
+        "{{valorDescontoBolsa}}": "Descuento mensual de la beca",
+        "{{valorMensalidadeComBolsa}}": "Mensualidad tras la beca",
+        "{{quantidadeMensalidades}}": "Número de mensualidades",
+        "{{valorTotalMensalidadesOriginal}}": "Importe total original de las mensualidades",
+        "{{valorTotalBeneficioBolsa}}": "Beneficio total de la beca",
+        "{{valorTotalMensalidadesComBolsa}}": "Importe total de las mensualidades tras la beca",
+        "{{textoBolsaContrato}}": "Texto de la cláusula de beca"
       },
       "special": {
         "eventosHolerite": {

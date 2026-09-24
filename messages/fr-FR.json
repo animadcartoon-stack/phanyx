@@ -13395,7 +13395,16 @@
         "total_descontos": "total des retenues",
         "status_matricula": "statut de l'inscription",
         "status_aluno": "statut de l'étudiant",
-        "numero_matricula": "numéro d'inscription"
+        "numero_matricula": "numéro d'inscription",
+        "bolsa": "bourse",
+        "mensalidades": "mensualités",
+        "mensalidade": "mensualité",
+        "original": "initial",
+        "com": "avec",
+        "desconto": "réduction",
+        "quantidade": "nombre",
+        "beneficio": "avantage",
+        "texto": "texte"
       },
       "entitySuffixes": {
         "aluno": "de l'étudiant",
@@ -13458,7 +13467,16 @@
         "{{tipoRescisao}}": "Type de rupture",
         "{{valorRescisao}}": "Montant de la rupture",
         "{{blocoValoresRescisao}}": "Bloc des montants de la rupture",
-        "{{blocoRescisaoAssinaturaCompleto}}": "Bloc complet de rupture et signatures"
+        "{{blocoRescisaoAssinaturaCompleto}}": "Bloc complet de rupture et signatures",
+        "{{percentualBolsa}}": "Pourcentage de la bourse",
+        "{{valorMensalidadeOriginal}}": "Montant initial de la mensualité",
+        "{{valorDescontoBolsa}}": "Réduction mensuelle liée à la bourse",
+        "{{valorMensalidadeComBolsa}}": "Mensualité après application de la bourse",
+        "{{quantidadeMensalidades}}": "Nombre de mensualités",
+        "{{valorTotalMensalidadesOriginal}}": "Montant total initial des mensualités",
+        "{{valorTotalBeneficioBolsa}}": "Montant total de la bourse",
+        "{{valorTotalMensalidadesComBolsa}}": "Montant total des mensualités après bourse",
+        "{{textoBolsaContrato}}": "Texte de la clause de bourse"
       },
       "special": {
         "eventosHolerite": {

@@ -461,18 +461,13 @@ export async function GET(req: Request) {
         null;
     }
 
-    const disciplinasLista = matricula.itens
-      .map((item) => {
-        const disciplinaNome = item.disciplina?.nome?.trim();
-        const turmaNome = item.turma?.nome?.trim();
-
-        if (!disciplinaNome) return null;
-
-        return turmaNome
-          ? `${disciplinaNome} — Turma ${turmaNome}`
-          : disciplinaNome;
-      })
-      .filter(Boolean);
+    const disciplinasLista = Array.from(
+      new Set(
+        matricula.itens
+          .map((item) => item.disciplina?.nome?.trim())
+          .filter(Boolean) as string[]
+      )
+    );
 
     const turmasLista = Array.from(
       new Set(
@@ -484,7 +479,7 @@ export async function GET(req: Request) {
 
     const cursoNome =
       matricula.curso?.nome?.trim() ||
-      (turmasLista.length > 0 ? turmasLista.join(", ") : "Curso não informado");
+      "Curso não informado";
 
     const disciplinasTexto =
       disciplinasLista.length > 0

@@ -13396,7 +13396,16 @@
         "total_descontos": "total deductions",
         "status_matricula": "enrollment status",
         "status_aluno": "student status",
-        "numero_matricula": "enrollment number"
+        "numero_matricula": "enrollment number",
+        "bolsa": "scholarship",
+        "mensalidades": "tuition installments",
+        "mensalidade": "tuition installment",
+        "original": "original",
+        "com": "with",
+        "desconto": "discount",
+        "quantidade": "number",
+        "beneficio": "benefit",
+        "texto": "text"
       },
       "entitySuffixes": {
         "aluno": "Student",
@@ -13459,7 +13468,16 @@
         "{{tipoRescisao}}": "Termination type",
         "{{valorRescisao}}": "Termination amount",
         "{{blocoValoresRescisao}}": "Termination amounts block",
-        "{{blocoRescisaoAssinaturaCompleto}}": "Complete termination and signature block"
+        "{{blocoRescisaoAssinaturaCompleto}}": "Complete termination and signature block",
+        "{{percentualBolsa}}": "Scholarship percentage",
+        "{{valorMensalidadeOriginal}}": "Original tuition installment",
+        "{{valorDescontoBolsa}}": "Monthly scholarship discount",
+        "{{valorMensalidadeComBolsa}}": "Tuition installment after scholarship",
+        "{{quantidadeMensalidades}}": "Number of tuition installments",
+        "{{valorTotalMensalidadesOriginal}}": "Original total tuition amount",
+        "{{valorTotalBeneficioBolsa}}": "Total scholarship benefit",
+        "{{valorTotalMensalidadesComBolsa}}": "Total tuition amount after scholarship",
+        "{{textoBolsaContrato}}": "Scholarship clause text"
       },
       "special": {
         "eventosHolerite": {

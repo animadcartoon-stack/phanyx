@@ -271,55 +271,19 @@ export async function montarContratoMatricula(
     });
 
   const disciplinasLista =
-    matricula.itens
-      .map(
-        (item: any) => {
-          const disciplinaNome =
-            item.disciplina
-              ?.nome
-              ?.trim();
-
-          const turmaNome =
-            item.turma
-              ?.nome
-              ?.trim();
-
-          if (
-            !disciplinaNome
-          ) {
-            return null;
-          }
-
-          return turmaNome
-            ? `${disciplinaNome} \u2014 Turma ${turmaNome}`
-            : disciplinaNome;
-        }
-      )
-      .filter(Boolean) as string[];
-
-  const turmasLista =
     Array.from(
       new Set(
         matricula.itens
-          .map(
-            (item: any) =>
-              item.turma
-                ?.nome
-                ?.trim()
+          .map((item: any) =>
+            item.disciplina?.nome?.trim()
           )
           .filter(Boolean) as string[]
       )
     );
 
   const cursoNome =
-    matricula.curso
-      ?.nome
-      ?.trim() ||
-    (
-      turmasLista.length > 0
-        ? turmasLista.join(", ")
-        : "Curso n\u00e3o informado"
-    );
+    matricula.curso?.nome?.trim() ||
+    "Curso não informado";
 
   const disciplinasTexto =
     disciplinasLista.length > 0

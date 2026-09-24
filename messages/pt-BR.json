@@ -13203,7 +13203,17 @@
         "Suspensão": "Suspensão",
         "Geral": "Geral"
       },
-      "tokens": {},
+      "tokens": {
+        "bolsa": "bolsa",
+        "mensalidades": "mensalidades",
+        "mensalidade": "mensalidade",
+        "original": "original",
+        "com": "com",
+        "desconto": "desconto",
+        "quantidade": "quantidade",
+        "beneficio": "benefício",
+        "texto": "texto"
+      },
       "entitySuffixes": {},
       "titleOverrides": {
         "{{numeroAutorizacaoCurso}}": "Número de autorização do curso",
@@ -13228,7 +13238,16 @@
         "{{tipoRescisao}}": "Tipo de rescisão",
         "{{valorRescisao}}": "Valor da rescisão",
         "{{blocoValoresRescisao}}": "Bloco de valores da rescisão",
-        "{{blocoRescisaoAssinaturaCompleto}}": "Bloco completo de rescisão e assinaturas"
+        "{{blocoRescisaoAssinaturaCompleto}}": "Bloco completo de rescisão e assinaturas",
+        "{{percentualBolsa}}": "Percentual da bolsa",
+        "{{valorMensalidadeOriginal}}": "Valor original da mensalidade",
+        "{{valorDescontoBolsa}}": "Valor do desconto da bolsa",
+        "{{valorMensalidadeComBolsa}}": "Valor da mensalidade após a bolsa",
+        "{{quantidadeMensalidades}}": "Quantidade de mensalidades",
+        "{{valorTotalMensalidadesOriginal}}": "Valor-base total das mensalidades",
+        "{{valorTotalBeneficioBolsa}}": "Benefício total da bolsa",
+        "{{valorTotalMensalidadesComBolsa}}": "Total das mensalidades após a bolsa",
+        "{{textoBolsaContrato}}": "Texto automático da bolsa"
       },
       "special": {
         "eventosHolerite": {
