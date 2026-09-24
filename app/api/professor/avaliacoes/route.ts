@@ -1,60 +1,130 @@
-import { NextResponse } from "next/server";
+import {
+  NextResponse,
+} from "next/server";
+
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+import {
+  montarFiltroProvasProfessor,
+} from "@/lib/services/provaProfessor.service";
+
 export async function GET() {
-  const user = await getUserFromToken();
+  const user =
+    await getUserFromToken();
 
   if (!user) {
-    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    return NextResponse.json(
+      {
+        error:
+          "N\u00e3o autenticado",
+      },
+      {
+        status: 401,
+      }
+    );
   }
 
-  const professor = await prisma.professor.findFirst({
-    where: {
-      userId: user.id,
-      instituicaoId: user.instituicaoId,
-    },
-  });
+  const professor =
+    await prisma.professor.findFirst({
+      where: {
+        userId:
+          user.id,
+
+        instituicaoId:
+          user.instituicaoId,
+      },
+
+      select: {
+        id: true,
+      },
+    });
 
   if (!professor) {
-    return NextResponse.json({ error: "Professor não encontrado" }, { status: 404 });
+    return NextResponse.json(
+      {
+        error:
+          "Professor n\u00e3o encontrado",
+      },
+      {
+        status: 404,
+      }
+    );
   }
 
-  const tentativas = await prisma.tentativaProva.findMany({
-  where: {
-    prova: {
-      turma: {
-        disciplina: {
-          professorId: professor.id,
+  const filtroProvas =
+    await montarFiltroProvasProfessor({
+      professorId:
+        professor.id,
+
+      instituicaoId:
+        user.instituicaoId,
+    });
+
+  const tentativas =
+    await prisma
+      .tentativaProva
+      .findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          prova:
+            filtroProvas,
         },
-      },
-    },
-  },
-    include: {
-      aluno: {
+
         include: {
-          user: true,
+          aluno: {
+            include: {
+              user: true,
+            },
+          },
+
+          prova: true,
         },
-      },
-      prova: true,
-    },
-    orderBy: {
-      finishedAt: "desc",
-    },
-  });
 
-  const resultado = tentativas.map((t) => ({
-  tentativaId: t.id,
-  aluno: t.aluno.user.nome ?? t.aluno.user.email,
-  prova: t.prova.titulo,
-  nota: t.notaFinal,
-  status:
-    t.notaFinal == null
-      ? "PENDENTE"
-      : t.notaFinal >= 7
-      ? "APROVADO"
-      : "REPROVADO",
-}));
+        orderBy: {
+          finishedAt:
+            "desc",
+        },
+      });
 
-  return NextResponse.json(resultado);
+  const resultado =
+    tentativas.map(
+      (tentativa) => ({
+        tentativaId:
+          tentativa.id,
+
+        aluno:
+          tentativa.aluno
+            .user.nome ??
+          tentativa.aluno
+            .user.email,
+
+        prova:
+          tentativa.prova
+            .titulo,
+
+        nota:
+          tentativa.notaFinal,
+
+        /*
+         * Mantida a regra existente.
+         * A media minima sera auditada
+         * separadamente.
+         */
+        status:
+          tentativa.notaFinal ==
+          null
+            ? "PENDENTE"
+            : tentativa.notaFinal >=
+                7
+              ? "APROVADO"
+              : "REPROVADO",
+      })
+    );
+
+  return NextResponse.json(
+    resultado
+  );
 }

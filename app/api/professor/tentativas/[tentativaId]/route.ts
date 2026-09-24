@@ -1,113 +1,169 @@
-import { NextRequest, NextResponse } from "next/server";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
+
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+  provaPertenceAoProfessor,
+} from "@/lib/services/provaProfessor.service";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ tentativaId: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{
+      tentativaId: string;
+    }>;
+  }
 ) {
   try {
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
-    }
-
-    const tentativaId = Number((await params).tentativaId);
-
-    if (!Number.isFinite(tentativaId) || tentativaId <= 0) {
       return NextResponse.json(
-        { error: "tentativaId inválido" },
-        { status: 400 }
+        {
+          error: "NAO_AUTORIZADO",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    const professor = await prisma.professor.findFirst({
-      where: {
-        userId: user.id,
-        instituicaoId: user.instituicaoId,
-      },
-      select: { id: true },
-    });
+    const tentativaId =
+      Number(
+        (await params).tentativaId
+      );
+
+    if (
+      !Number.isFinite(tentativaId) ||
+      tentativaId <= 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "tentativaId inv\u00e1lido",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const professor =
+      await prisma.professor.findFirst({
+        where: {
+          userId: user.id,
+          instituicaoId:
+            user.instituicaoId,
+        },
+
+        select: {
+          id: true,
+        },
+      });
 
     if (!professor) {
       return NextResponse.json(
-        { error: "Professor não encontrado" },
-        { status: 404 }
+        {
+          error:
+            "Professor n\u00e3o encontrado",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    const tentativa: any = await prisma.tentativaProva.findFirst({
-  where: {
-    id: tentativaId,
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-    aluno: {
-      include: {
-        user: true,
-      },
-    },
-    prova: true,
-    respostas: {
-      include: {
-        questao: true,
-        alternativa: true,
-      },
-      orderBy: {
-        questaoId: "asc",
-      } as any,
-    },
-  },
-});
+    const tentativa: any =
+      await prisma.tentativaProva.findFirst({
+        where: {
+          id: tentativaId,
+          instituicaoId:
+            user.instituicaoId,
+        },
 
-if (!tentativa) {
-  return NextResponse.json(
-    { error: "Tentativa não encontrada ou sem permissão" },
-    { status: 404 }
-  );
-}
+        include: {
+          aluno: {
+            include: {
+              user: true,
+            },
+          },
 
-const turmaIdDaProva = Number(tentativa.prova?.turmaId);
+          prova: true,
 
-if (!Number.isFinite(turmaIdDaProva) || turmaIdDaProva <= 0) {
-  return NextResponse.json(
-    { error: "Turma da prova não encontrada" },
-    { status: 404 }
-  );
-}
+          respostas: {
+            include: {
+              questao: true,
+              alternativa: true,
+            },
 
-const turmaPermitida = await prisma.turma.findFirst({
-  where: {
-    id: turmaIdDaProva,
-    instituicaoId: user.instituicaoId,
-    professorId: professor.id,
-  },
-  select: {
-    id: true,
-  },
-});
-
-if (!turmaPermitida) {
-  return NextResponse.json(
-    { error: "Tentativa não encontrada ou sem permissão" },
-    { status: 404 }
-  );
-}
+            orderBy: {
+              questaoId: "asc",
+            } as any,
+          },
+        },
+      });
 
     if (!tentativa) {
       return NextResponse.json(
-        { error: "Tentativa não encontrada ou sem permissão" },
-        { status: 404 }
+        {
+          error:
+            "Tentativa n\u00e3o encontrada ou sem permiss\u00e3o",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    return NextResponse.json(tentativa);
-  } catch (e: any) {
-    console.error("ERRO AO BUSCAR TENTATIVA:", e);
+    try {
+      await provaPertenceAoProfessor({
+        provaId:
+          tentativa.provaId,
+
+        professorId:
+          professor.id,
+
+        instituicaoId:
+          user.instituicaoId,
+      });
+    }
+    catch {
+      return NextResponse.json(
+        {
+          error:
+            "Tentativa n\u00e3o encontrada ou sem permiss\u00e3o",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
     return NextResponse.json(
-      { error: e?.message || "Erro ao buscar tentativa" },
-      { status: 500 }
+      tentativa
+    );
+  }
+  catch (e: any) {
+    console.error(
+      "ERRO AO BUSCAR TENTATIVA:",
+      e
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          e?.message ||
+          "Erro ao buscar tentativa",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
