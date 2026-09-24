@@ -224,7 +224,8 @@
     "mobilityPrograms": "Programas",
     "mobilityOffers": "Ofertas / Editais",
     "mobilityApplications": "Candidaturas",
-    "audit": "Auditoria"
+    "audit": "Auditoria",
+    "operators": "Operadores"
   },
   "MonthlyCampaign": {
     "origin": "Campanha Nacional",
@@ -17798,7 +17799,139 @@
       "reservationAvailableAfterCancellation": "Reserva disponibilizada automaticamente após cancelamento da reserva anterior.",
       "reservationAvailableAfterReturn": "Reserva disponibilizada automaticamente após devolução de exemplar.",
       "reservationCanceled": "Reserva cancelada na Biblioteca Virtual.",
-      "moduleGrantedCourtesy": "Biblioteca Virtual concedida à IBE como cortesia permanente, sem cobrança."
+      "moduleGrantedCourtesy": "Biblioteca Virtual concedida à IBE como cortesia permanente, sem cobrança.",
+      "operatorAccessGranted": "Acesso de operador da Biblioteca concedido.",
+      "operatorPermissionsUpdated": "Permissões do operador da Biblioteca atualizadas.",
+      "operatorAccessRevoked": "Acesso de operador da Biblioteca revogado.",
+      "operatorAccessRestored": "Acesso de operador da Biblioteca restaurado."
+    }
+  },
+  "AdminLibraryOperators": {
+    "title": "Operadores da Biblioteca",
+    "subtitle": "Gerencie os funcionários autorizados a operar a Biblioteca e defina permissões específicas para cada responsabilidade.",
+    "loading": "Carregando operadores...",
+    "cards": {
+      "total": "Total de operadores",
+      "active": "Ativos",
+      "revoked": "Revogados",
+      "eligible": "Funcionários elegíveis"
+    },
+    "sections": {
+      "active": "Operadores ativos",
+      "revoked": "Acessos revogados"
+    },
+    "status": {
+      "active": "Ativo",
+      "revoked": "Revogado"
+    },
+    "labels": {
+      "permissions": "permissões",
+      "noPosition": "Cargo/setor não informado",
+      "reason": "Motivo:",
+      "created": "Criado em {date}",
+      "revokedAt": "Revogado em {date}"
+    },
+    "empty": {
+      "title": "Nenhum operador cadastrado",
+      "description": "Adicione funcionários para delegar responsabilidades específicas na gestão da Biblioteca.",
+      "action": "Cadastrar primeiro operador"
+    },
+    "actions": {
+      "add": "Adicionar operador",
+      "edit": "Editar permissões",
+      "revoke": "Revogar acesso",
+      "restore": "Restaurar acesso",
+      "close": "Fechar",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "confirmRevoke": "Revogar acesso",
+      "confirmRestore": "Restaurar acesso"
+    },
+    "modal": {
+      "addTitle": "Adicionar operador",
+      "editTitle": "Editar operador",
+      "description": "Defina quais recursos da Biblioteca este funcionário poderá administrar.",
+      "employee": "Funcionário",
+      "selectEmployee": "Selecione um funcionário",
+      "permissionsTitle": "Permissões do operador",
+      "permissionsHelp": "Ative somente as responsabilidades necessárias para este operador."
+    },
+    "revoke": {
+      "title": "Revogar acesso de operador",
+      "description": "O acesso de {name} à gestão da Biblioteca será revogado.",
+      "reason": "Motivo da revogação",
+      "placeholder": "Informe por que este acesso está sendo revogado..."
+    },
+    "restore": {
+      "title": "Restaurar acesso",
+      "description": "Restaurar o acesso de {name} com as permissões anteriormente configuradas?"
+    },
+    "messages": {
+      "created": "Operador cadastrado com sucesso.",
+      "updated": "Permissões atualizadas com sucesso.",
+      "revoked": "Acesso do operador revogado com sucesso.",
+      "restored": "Acesso do operador restaurado com sucesso."
+    },
+    "errors": {
+      "load": "Não foi possível carregar os operadores da Biblioteca.",
+      "save": "Não foi possível salvar o operador.",
+      "revoke": "Não foi possível revogar o acesso.",
+      "restore": "Não foi possível restaurar o acesso.",
+      "selectEmployee": "Selecione um funcionário.",
+      "revokeReason": "Informe o motivo da revogação."
+    },
+    "permissions": {
+      "podeCatalogar": {
+        "short": "Catalogar",
+        "title": "Catálogo",
+        "description": "Criar e editar itens, exemplares e arquivos do acervo."
+      },
+      "podePublicar": {
+        "short": "Publicar",
+        "title": "Publicação",
+        "description": "Publicar itens e moderar conteúdo do acervo."
+      },
+      "podeArquivar": {
+        "short": "Arquivar",
+        "title": "Arquivamento",
+        "description": "Arquivar itens, baixar exemplares e excluir arquivos."
+      },
+      "podeGerenciarEmprestimo": {
+        "short": "Empréstimos",
+        "title": "Empréstimos",
+        "description": "Gerenciar empréstimos e renovações."
+      },
+      "podeGerenciarReserva": {
+        "short": "Reservas",
+        "title": "Reservas",
+        "description": "Gerenciar reservas e filas de espera."
+      },
+      "podeGerenciarColecao": {
+        "short": "Coleções",
+        "title": "Coleções",
+        "description": "Gerenciar prateleiras, coleções e recomendações."
+      },
+      "podeGerenciarLicenca": {
+        "short": "Licenças",
+        "title": "Licenças",
+        "description": "Gerenciar licenças e direitos de acesso."
+      },
+      "podeGerenciarOperador": {
+        "short": "Operadores",
+        "title": "Operadores",
+        "description": "Cadastrar e administrar outros operadores."
+      },
+      "podeVisualizarRelatorio": {
+        "short": "Relatórios",
+        "title": "Relatórios",
+        "description": "Visualizar relatórios e auditoria da Biblioteca."
+      },
+      "podeGerenciarConfiguracao": {
+        "short": "Configurações",
+        "title": "Configurações",
+        "description": "Alterar configurações e armazenamento da Biblioteca."
+      }
     }
   }
 }

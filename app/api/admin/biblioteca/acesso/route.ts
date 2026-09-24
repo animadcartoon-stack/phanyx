@@ -72,6 +72,36 @@ export async function GET() {
           ? {
               id: contexto.operador.id,
               ativo: contexto.operador.ativo,
+
+              podeCatalogar:
+                contexto.operador.podeCatalogar,
+
+              podePublicar:
+                contexto.operador.podePublicar,
+
+              podeArquivar:
+                contexto.operador.podeArquivar,
+
+              podeGerenciarEmprestimo:
+                contexto.operador.podeGerenciarEmprestimo,
+
+              podeGerenciarReserva:
+                contexto.operador.podeGerenciarReserva,
+
+              podeGerenciarColecao:
+                contexto.operador.podeGerenciarColecao,
+
+              podeGerenciarLicenca:
+                contexto.operador.podeGerenciarLicenca,
+
+              podeGerenciarOperador:
+                contexto.operador.podeGerenciarOperador,
+
+              podeVisualizarRelatorio:
+                contexto.operador.podeVisualizarRelatorio,
+
+              podeGerenciarConfiguracao:
+                contexto.operador.podeGerenciarConfiguracao,
             }
           : null,
 

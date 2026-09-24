@@ -10,6 +10,27 @@ import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 import { useTranslations } from "next-intl";
 
+type BibliotecaOperadorMenu = {
+  id: number;
+  ativo: boolean;
+
+  podeCatalogar: boolean;
+  podePublicar: boolean;
+  podeArquivar: boolean;
+  podeGerenciarEmprestimo: boolean;
+  podeGerenciarReserva: boolean;
+  podeGerenciarColecao: boolean;
+  podeGerenciarLicenca: boolean;
+  podeGerenciarOperador: boolean;
+  podeVisualizarRelatorio: boolean;
+  podeGerenciarConfiguracao: boolean;
+};
+
+type BibliotecaAcessoMenu = {
+  disponivel?: boolean;
+  operador?: BibliotecaOperadorMenu | null;
+};
+
 type UsuarioLogado = {
   id?: number;
   nome?: string;
@@ -151,6 +172,9 @@ export default function AdminShell({
     nome?: string;
     fotoPerfil?: string | null;
   } | null>(null);
+  const [acessoBiblioteca, setAcessoBiblioteca] =
+    useState<BibliotecaAcessoMenu | null>(null);
+
   const [carregandoUsuario, setCarregandoUsuario] = useState(!usuarioInicial);
   const [sessaoExpirada, setSessaoExpirada] = useState(false);
   const [menuMobileAberto, setMenuMobileAberto] = useState<string | null>(null);
@@ -291,12 +315,22 @@ export default function AdminShell({
       const promessaFuncionario = carregarFuncionario();
 
       try {
-        const [resUsuario, resPermissoes] = await Promise.all([
+        const [
+          resUsuario,
+          resPermissoes,
+          resBiblioteca,
+        ] = await Promise.all([
           fetch("/api/auth/me", {
             cache: "no-store",
             credentials: "include",
           }),
+
           fetch("/api/admin/permissoes/me", {
+            cache: "no-store",
+            credentials: "include",
+          }),
+
+          fetch("/api/admin/biblioteca/acesso", {
             cache: "no-store",
             credentials: "include",
           }),
@@ -305,6 +339,7 @@ export default function AdminShell({
         if (!resUsuario.ok) {
           setUsuario(null);
           setPermissoes([]);
+          setAcessoBiblioteca(null);
           return;
         }
 
@@ -320,6 +355,17 @@ export default function AdminShell({
           );
         } else if (!usuarioInicial) {
           setPermissoes([]);
+        }
+
+        if (resBiblioteca.ok) {
+          const bibliotecaData =
+            await resBiblioteca.json();
+
+          setAcessoBiblioteca(
+            bibliotecaData ?? null,
+          );
+        } else {
+          setAcessoBiblioteca(null);
         }
       } catch {
         /*
@@ -596,6 +642,11 @@ export default function AdminShell({
   const podeVerAssinaturaPhanyx =
     usuarioAdmin || temPermissao("assinatura.ver");
 
+  const operadorBiblioteca =
+    acessoBiblioteca?.operador?.ativo
+      ? acessoBiblioteca.operador
+      : null;
+
   const podeVerBiblioteca =
     !carregandoUsuario &&
     (usuarioAdmin ||
@@ -603,29 +654,66 @@ export default function AdminShell({
       permissoes.some(
         (chave) =>
           chave === "biblioteca.ver" || chave.startsWith("biblioteca."),
+      ) ||
+      Boolean(
+        operadorBiblioteca,
       ));
 
-  const podeVerAcervoBiblioteca = podeAcessar("biblioteca.catalogo.ver");
+  const podeVerAcervoBiblioteca =
+    podeAcessar(
+      "biblioteca.catalogo.ver",
+    ) ||
+    Boolean(
+      operadorBiblioteca,
+    );
 
-  const podeGerenciarEmprestimosBiblioteca = podeAcessar(
-    "biblioteca.emprestimos.gerenciar",
-  );
+  const podeGerenciarEmprestimosBiblioteca =
+    podeAcessar(
+      "biblioteca.emprestimos.gerenciar",
+    ) ||
+    operadorBiblioteca
+      ?.podeGerenciarEmprestimo ===
+      true;
 
-  const podeGerenciarReservasBiblioteca = podeAcessar(
-    "biblioteca.reservas.gerenciar",
-  );
+  const podeGerenciarReservasBiblioteca =
+    podeAcessar(
+      "biblioteca.reservas.gerenciar",
+    ) ||
+    operadorBiblioteca
+      ?.podeGerenciarReserva ===
+      true;
 
-  const podeVerRelatoriosBiblioteca = podeAcessar(
-    "biblioteca.relatorios.ver",
-  );
+  const podeVerRelatoriosBiblioteca =
+    podeAcessar(
+      "biblioteca.relatorios.ver",
+    ) ||
+    operadorBiblioteca
+      ?.podeVisualizarRelatorio ===
+      true;
 
-  const podeVerAuditoriaBiblioteca = podeAcessar(
-    "biblioteca.auditoria.ver",
-  );
+  const podeVerAuditoriaBiblioteca =
+    podeAcessar(
+      "biblioteca.auditoria.ver",
+    ) ||
+    operadorBiblioteca
+      ?.podeVisualizarRelatorio ===
+      true;
 
-  const podeGerenciarConfiguracoesBiblioteca = podeAcessar(
-    "biblioteca.configuracoes.gerenciar",
-  );
+  const podeVerOperadoresBiblioteca =
+    podeAcessar(
+      "biblioteca.operadores.ver",
+    ) ||
+    Boolean(
+      operadorBiblioteca,
+    );
+
+  const podeGerenciarConfiguracoesBiblioteca =
+    podeAcessar(
+      "biblioteca.configuracoes.gerenciar",
+    ) ||
+    operadorBiblioteca
+      ?.podeGerenciarConfiguracao ===
+      true;
 
   const podeVerMobilidade =
     podeAcessar("mobilidade.ver") ||
@@ -1365,6 +1453,17 @@ export default function AdminShell({
                             )}
                           >
                             {String.fromCodePoint(0x1F6E1)} {tNav("audit")}
+                          </Link>
+                        )}
+
+                        {podeVerOperadoresBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/operadores"
+                            className={getLinkClass(
+                              "/admin/biblioteca/operadores",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F465)} {tNav("operators")}
                           </Link>
                         )}
 
@@ -2118,6 +2217,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             {String.fromCodePoint(0x1F4CA)} {tNav("reports")}
+                          </Link>
+                        )}
+
+                        {podeVerOperadoresBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/operadores"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F465)} {tNav("operators")}
                           </Link>
                         )}
 

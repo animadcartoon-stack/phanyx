@@ -457,6 +457,18 @@ export default function BibliotecaAuditoriaPage() {
     }
 
     const mapa: Record<string, string> = {
+      "Acesso de operador da Biblioteca concedido.":
+        "operatorAccessGranted",
+
+      "Permissões do operador da Biblioteca atualizadas.":
+        "operatorPermissionsUpdated",
+
+      "Acesso de operador da Biblioteca revogado.":
+        "operatorAccessRevoked",
+
+      "Acesso de operador da Biblioteca restaurado.":
+        "operatorAccessRestored",
+
       "Upload de arquivo autorizado para o acervo da Biblioteca Virtual.":
         "fileUploadAuthorized",
 
@@ -1287,7 +1299,11 @@ export default function BibliotecaAuditoriaPage() {
 
                   <p className="mt-1 font-black">
                     {selecionado.usuario
-                      ?.nome ||
+                      ?.nome
+                      ?.trim() ||
+                      selecionado.usuario
+                        ?.email
+                        ?.trim() ||
                       t(
                         "system",
                       )}

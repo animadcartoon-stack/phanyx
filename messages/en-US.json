@@ -224,7 +224,8 @@
     "mobilityPrograms": "Programs",
     "mobilityOffers": "Offers / Calls",
     "mobilityApplications": "Applications",
-    "audit": "Audit"
+    "audit": "Audit",
+    "operators": "Operators"
   },
   "MonthlyCampaign": {
     "origin": "Monthly Awareness Campaign",
@@ -18028,7 +18029,139 @@
       "reservationAvailableAfterCancellation": "Reservation automatically made available after the previous reservation was canceled.",
       "reservationAvailableAfterReturn": "Reservation automatically made available after a copy was returned.",
       "reservationCanceled": "Reservation canceled in the Digital Library.",
-      "moduleGrantedCourtesy": "Digital Library permanently granted to IBE as a complimentary service with no charge."
+      "moduleGrantedCourtesy": "Digital Library permanently granted to IBE as a complimentary service with no charge.",
+      "operatorAccessGranted": "Library operator access granted.",
+      "operatorPermissionsUpdated": "Library operator permissions updated.",
+      "operatorAccessRevoked": "Library operator access revoked.",
+      "operatorAccessRestored": "Library operator access restored."
+    }
+  },
+  "AdminLibraryOperators": {
+    "title": "Library Operators",
+    "subtitle": "Manage employees authorized to operate the Library and assign specific permissions for each responsibility.",
+    "loading": "Loading operators...",
+    "cards": {
+      "total": "Total operators",
+      "active": "Active",
+      "revoked": "Revoked",
+      "eligible": "Eligible employees"
+    },
+    "sections": {
+      "active": "Active operators",
+      "revoked": "Revoked access"
+    },
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "labels": {
+      "permissions": "permissions",
+      "noPosition": "Position/department not provided",
+      "reason": "Reason:",
+      "created": "Created on {date}",
+      "revokedAt": "Revoked on {date}"
+    },
+    "empty": {
+      "title": "No operators registered",
+      "description": "Add employees to delegate specific Library management responsibilities.",
+      "action": "Add first operator"
+    },
+    "actions": {
+      "add": "Add operator",
+      "edit": "Edit permissions",
+      "revoke": "Revoke access",
+      "restore": "Restore access",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "confirmRevoke": "Revoke access",
+      "confirmRestore": "Restore access"
+    },
+    "modal": {
+      "addTitle": "Add operator",
+      "editTitle": "Edit operator",
+      "description": "Choose which Library resources this employee may administer.",
+      "employee": "Employee",
+      "selectEmployee": "Select an employee",
+      "permissionsTitle": "Operator permissions",
+      "permissionsHelp": "Enable only the responsibilities required for this operator."
+    },
+    "revoke": {
+      "title": "Revoke operator access",
+      "description": "{name}'s Library management access will be revoked.",
+      "reason": "Reason for revocation",
+      "placeholder": "Explain why this access is being revoked..."
+    },
+    "restore": {
+      "title": "Restore access",
+      "description": "Restore {name}'s access with the previously configured permissions?"
+    },
+    "messages": {
+      "created": "Operator added successfully.",
+      "updated": "Permissions updated successfully.",
+      "revoked": "Operator access revoked successfully.",
+      "restored": "Operator access restored successfully."
+    },
+    "errors": {
+      "load": "Library operators could not be loaded.",
+      "save": "The operator could not be saved.",
+      "revoke": "Access could not be revoked.",
+      "restore": "Access could not be restored.",
+      "selectEmployee": "Select an employee.",
+      "revokeReason": "Enter a reason for revocation."
+    },
+    "permissions": {
+      "podeCatalogar": {
+        "short": "Catalog",
+        "title": "Catalog",
+        "description": "Create and edit collection items, copies, and files."
+      },
+      "podePublicar": {
+        "short": "Publish",
+        "title": "Publishing",
+        "description": "Publish items and moderate collection content."
+      },
+      "podeArquivar": {
+        "short": "Archive",
+        "title": "Archiving",
+        "description": "Archive items, withdraw copies, and delete files."
+      },
+      "podeGerenciarEmprestimo": {
+        "short": "Loans",
+        "title": "Loans",
+        "description": "Manage loans and renewals."
+      },
+      "podeGerenciarReserva": {
+        "short": "Reservations",
+        "title": "Reservations",
+        "description": "Manage reservations and waiting lists."
+      },
+      "podeGerenciarColecao": {
+        "short": "Collections",
+        "title": "Collections",
+        "description": "Manage shelves, collections, and recommendations."
+      },
+      "podeGerenciarLicenca": {
+        "short": "Licenses",
+        "title": "Licenses",
+        "description": "Manage licenses and access rights."
+      },
+      "podeGerenciarOperador": {
+        "short": "Operators",
+        "title": "Operators",
+        "description": "Add and manage other library operators."
+      },
+      "podeVisualizarRelatorio": {
+        "short": "Reports",
+        "title": "Reports",
+        "description": "View Library reports and audit history."
+      },
+      "podeGerenciarConfiguracao": {
+        "short": "Settings",
+        "title": "Settings",
+        "description": "Change Library settings and storage configuration."
+      }
     }
   }
 }
