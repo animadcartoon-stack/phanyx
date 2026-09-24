@@ -554,6 +554,23 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
+    const localesDocumento =
+      new Set([
+        "pt-BR",
+        "pt-PT",
+        "en-US",
+        "es-ES",
+        "fr-FR",
+      ]);
+
+    const localeDocumento =
+      localesDocumento.has(
+        String(body?.locale || "")
+      )
+        ? String(body.locale)
+        : "pt-BR";
+
+
     const templateId = Number(body?.templateId);
     const alunoId = body?.alunoId ? Number(body.alunoId) : null;
     const matriculaId = body?.matriculaId ? Number(body.matriculaId) : null;
@@ -1364,7 +1381,8 @@ export async function POST(req: Request) {
 
           const dadosBolsaDocumento =
             montarDadosBolsaDocumento(
-              matricula
+              matricula,
+              localeDocumento
             );
 
           const valoresTemplate: Record<

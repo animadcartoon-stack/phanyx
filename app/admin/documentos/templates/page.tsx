@@ -1574,6 +1574,7 @@ function AdminDocumentosTemplatesPage() {
         },
         credentials: "include",
         body: JSON.stringify({
+            locale,
           tipo,
 
           conteudo:

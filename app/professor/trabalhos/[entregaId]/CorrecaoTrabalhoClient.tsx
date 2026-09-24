@@ -380,7 +380,7 @@ export default function CorrecaoTrabalhoClient({
 
       const resp =
         await fetch(
-          "/api/professor/trabalhos",
+          `/api/professor/entregas/${trabalho.entregaId}/corrigir`,
           {
             method: "PATCH",
 

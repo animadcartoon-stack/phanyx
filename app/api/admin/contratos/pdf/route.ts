@@ -188,6 +188,27 @@ export async function GET(req: Request) {
     const matriculaId = Number(searchParams.get("matriculaId"));
     const alunoId = Number(searchParams.get("alunoId"));
 
+    const localesDocumento =
+      new Set([
+        "pt-BR",
+        "pt-PT",
+        "en-US",
+        "es-ES",
+        "fr-FR",
+      ]);
+
+    const localeDocumento =
+      localesDocumento.has(
+        String(
+          searchParams.get("locale") ||
+          ""
+        )
+      )
+        ? String(
+            searchParams.get("locale")
+          )
+        : "pt-BR";
+
     const aluno =
       Number.isFinite(alunoId) && alunoId > 0
         ? await prisma.aluno.findFirst({
@@ -224,9 +245,9 @@ export async function GET(req: Request) {
 
     let url = "";
     if (Number.isFinite(matriculaId) && matriculaId > 0) {
-      url = `${origem}/api/admin/contratos/gerar?matriculaId=${matriculaId}`;
+      url = `${origem}/api/admin/contratos/gerar?matriculaId=${matriculaId}&locale=${encodeURIComponent(localeDocumento)}`;
     } else {
-      url = `${origem}/api/admin/contratos/gerar?alunoId=${alunoId}`;
+      url = `${origem}/api/admin/contratos/gerar?alunoId=${alunoId}&locale=${encodeURIComponent(localeDocumento)}`;
     }
 
     const contratoRes = await fetch(url, {

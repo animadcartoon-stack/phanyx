@@ -106,7 +106,7 @@ export default function AdminContratosPage() {
       setLoadingContrato(true);
       setMensagem("");
 
-      const res = await fetch(`/api/admin/contratos/gerar?alunoId=${id}`, {
+      const res = await fetch(`/api/admin/contratos/gerar?alunoId=${id}&locale=${encodeURIComponent(locale)}`, {
         cache: "no-store",
       });
 
@@ -430,7 +430,7 @@ export default function AdminContratosPage() {
                     if (!alunoId) return;
 
                     window.open(
-                      `/api/admin/contratos/pdf?alunoId=${alunoId}`,
+                      `/api/admin/contratos/pdf?alunoId=${alunoId}&locale=${encodeURIComponent(locale)}`,
                       "_blank",
                     );
                   }}

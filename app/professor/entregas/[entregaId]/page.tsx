@@ -351,9 +351,9 @@ export default function CorrigirEntregaPage() {
 
       const res =
         await fetch(
-          `/api/professor/atividades/${atividadeId}/corrigir`,
+          `/api/professor/entregas/${entregaId}/corrigir`,
           {
-            method: "POST",
+            method: "PATCH",
 
             credentials:
               "include",

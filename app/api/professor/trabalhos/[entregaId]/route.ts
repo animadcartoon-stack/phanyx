@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { atividadePertenceAoProfessor } from "@/lib/services/atividadeProfessor.service";
 
 export const dynamic = "force-dynamic";
 
@@ -40,18 +41,6 @@ export async function GET(
       where: {
         id: entregaId,
         instituicaoId: user.instituicaoId,
-        atividade: {
-          turma: {
-            OR: [
-              { professorId: professor.id },
-              {
-                disciplinas: {
-                  some: { professorId: professor.id },
-                },
-              },
-            ],
-          },
-        },
       },
       include: {
         aluno: {
@@ -89,6 +78,22 @@ export async function GET(
     if (!entrega) {
       return NextResponse.json(
         { error: "Entrega não encontrada ou sem permissão" },
+        { status: 404 }
+      );
+    }
+
+    try {
+      await atividadePertenceAoProfessor({
+        atividadeId: entrega.atividadeId,
+        professorId: professor.id,
+        instituicaoId: user.instituicaoId,
+      });
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            "Entrega n?o encontrada ou sem permiss?o",
+        },
         { status: 404 }
       );
     }

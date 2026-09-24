@@ -1069,6 +1069,7 @@ export default function GerarDocumentoPage() {
           },
 
           body: JSON.stringify({
+            locale,
             templateId:
               Number(templateId),
 

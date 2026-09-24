@@ -7,12 +7,12 @@ import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function formatarDataAtual() {
+function formatarDataAtual(localeDocumento) {
   return new Date().toLocaleDateString("pt-BR");
 }
 
-function formatarMoeda(valor: number) {
-  return Number(valor || 0).toLocaleString("pt-BR", {
+function formatarMoeda(valor: number, locale = "pt-BR") {
+  return Number(valor || 0).toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
@@ -154,6 +154,27 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const matriculaIdParam = Number(searchParams.get("matriculaId"));
     const alunoIdParam = Number(searchParams.get("alunoId"));
+
+    const localesDocumento =
+      new Set([
+        "pt-BR",
+        "pt-PT",
+        "en-US",
+        "es-ES",
+        "fr-FR",
+      ]);
+
+    const localeDocumento =
+      localesDocumento.has(
+        String(
+          searchParams.get("locale") ||
+          ""
+        )
+      )
+        ? String(
+            searchParams.get("locale")
+          )
+        : "pt-BR";
 
     let matricula = null as any;
 
@@ -572,7 +593,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
     const dadosBolsaDocumento =
       montarDadosBolsaDocumento(
-        matricula
+        matricula,
+        localeDocumento
       );
 
     const contratoGerado =
@@ -736,7 +758,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
               matricula.curso
                 ?.valorMatricula ??
               0
-            )
+            ),
+            localeDocumento
           ),
 
         cidadeAssinatura:

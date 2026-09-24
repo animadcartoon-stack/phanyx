@@ -177,6 +177,23 @@ export async function POST(
     const body =
       await req.json();
 
+    const localesDocumento =
+      new Set([
+        "pt-BR",
+        "pt-PT",
+        "en-US",
+        "es-ES",
+        "fr-FR",
+      ]);
+
+    const localeDocumento =
+      localesDocumento.has(
+        String(body?.locale || "")
+      )
+        ? String(body.locale)
+        : "pt-BR";
+
+
     const camposVisuais =
       Array.isArray(
         body?.camposVisuais
@@ -194,8 +211,11 @@ export async function POST(
           },
         });
 
-    const configDocumento =
-      config as any;
+    const configDocumento = {
+      ...(config || {}),
+      __documentLocale:
+        localeDocumento,
+    } as any;
 
     const baseUrl =
       new URL(req.url).origin;
@@ -205,7 +225,7 @@ export async function POST(
         String(
           body?.conteudo || ""
         ),
-        config
+        configDocumento
       );
 
     conteudoHtml =

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { atividadePertenceAoProfessor } from "@/lib/services/atividadeProfessor.service";
 import { getAuth, assertProfessor } from "@/lib/auth/getAuth";
 
 export async function GET(
@@ -87,9 +88,18 @@ export async function GET(
       );
     }
 
-    if (entrega.atividade.turma.professorId !== professor.id) {
+    try {
+      await atividadePertenceAoProfessor({
+        atividadeId: entrega.atividade.id,
+        professorId: professor.id,
+        instituicaoId: auth.instituicaoId,
+      });
+    } catch {
       return NextResponse.json(
-        { error: "Você não tem permissão para acessar esta entrega" },
+        {
+          error:
+            "Voc? n?o tem permiss?o para acessar esta entrega",
+        },
         { status: 403 }
       );
     }
