@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Funcionario = {
   id: number;
@@ -42,6 +43,17 @@ type DadosContabilidade = {
 };
 
 export default function ContabilidadeRHPage() {
+  const t = useTranslations("AdminHRAccounting");
+  const locale = useLocale();
+
+  function payslipStatus(value: string) {
+    switch (value) {
+      case "GERADO": return t("generatedStatus");
+      case "PAGO": return t("paidStatus");
+      case "PROCESSANDO": return t("processingStatus");
+      default: return value;
+    }
+  }
   const hoje = new Date();
 
   const [mes, setMes] = useState(String(hoje.getMonth() + 1));
@@ -52,7 +64,7 @@ export default function ContabilidadeRHPage() {
   const [tipoRelatorio, setTipoRelatorio] = useState("contabil");
   const [modalEmailAberto, setModalEmailAberto] = useState(false);
   const [emailDestino, setEmailDestino] = useState("");
-  const [emailAssunto, setEmailAssunto] = useState("Relatório RH");
+  const [emailAssunto, setEmailAssunto] = useState(t("reportGeneric"));
   const [emailMensagem, setEmailMensagem] = useState("");
   const [enviandoEmail, setEnviandoEmail] = useState(false);
   const [sucesso, setSucesso] = useState("");
@@ -61,30 +73,30 @@ export default function ContabilidadeRHPage() {
   const [erroEmail, setErroEmail] = useState("");
 
 const tiposRelatorio = [
-  { value: "contabil", label: "Relatório Contábil da Competência" },
-  { value: "folha", label: "Folha / Holerites" },
-  { value: "encargos", label: "Encargos e Provisões" },
-  { value: "rescisao", label: "Rescisões" },
-  { value: "ferias", label: "Férias" },
-  { value: "beneficios", label: "Benefícios" },
-  { value: "ocorrencias", label: "Ocorrências Funcionais" },
-  { value: "exames", label: "Exames Médicos / ASO" },
-  { value: "historico", label: "Histórico Funcional" },
-  { value: "arquivados", label: "Arquivados / Auditoria" },
-  { value: "geral", label: "Relatório Geral RH" },
+  { value: "contabil", label: t("reportAccounting") },
+  { value: "folha", label: t("reportPayroll") },
+  { value: "encargos", label: t("reportCharges") },
+  { value: "rescisao", label: t("reportTermination") },
+  { value: "ferias", label: t("reportVacation") },
+  { value: "beneficios", label: t("reportBenefits") },
+  { value: "ocorrencias", label: t("reportOccurrences") },
+  { value: "exames", label: t("reportExams") },
+  { value: "historico", label: t("reportHistory") },
+  { value: "arquivados", label: t("reportArchived") },
+  { value: "geral", label: t("reportGeneral") },
 ];
 
 function nomeRelatorioAtual() {
   return (
     tiposRelatorio.find((item) => item.value === tipoRelatorio)?.label ||
-    "Relatório RH"
+    t("reportGeneric")
   );
 }
 
   function moeda(valor: number | string | null | undefined) {
     const numero = Number(valor || 0);
 
-    return numero.toLocaleString("pt-BR", {
+    return numero.toLocaleString(locale, {
       style: "currency",
       currency: "BRL",
     });
@@ -102,17 +114,17 @@ function nomeRelatorioAtual() {
 
       const data = await res.json();
 
-console.log("CONTABILIDADE RH", data);
+
 
 if (!res.ok) {
   throw new Error(
-    data?.error || "Erro ao carregar contabilidade RH."
+    t("loadError")
   );
 }
 
       setDados(data);
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar contabilidade RH.");
+      setErro(error?.message || t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -150,16 +162,14 @@ async function enviarEmail() {
       }),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao enviar relatório por e-mail.");
+      throw new Error(t("sendError"));
     }
 
-    setSucesso("Relatório enviado por e-mail com sucesso.");
+    setSucesso(t("sendSuccess"));
     setModalEmailAberto(false);
   } catch (error: any) {
-    setErroEmail(error?.message || "Erro ao enviar relatório por e-mail.");
+    setErroEmail(error?.message || t("sendError"));
   } finally {
     setEnviandoEmail(false);
   }
@@ -184,16 +194,15 @@ async function enviarEmail() {
     <div className="phanyx-rh-contabilidade-page space-y-6 text-slate-950 dark:text-white">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-400">
-          RH Empresarial
+          {t("department")}
         </p>
 
         <h1 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">
-          Contabilidade RH
+          {t("title")}
         </h1>
 
         <p className="mt-2 max-w-3xl text-sm text-slate-700 dark:text-slate-300">
-          Confira totais da folha, salários, vencimentos, descontos, líquido e
-          encargos estimados do Departamento Pessoal.
+          {t("description")}
         </p>
       </div>
 
@@ -213,7 +222,7 @@ async function enviarEmail() {
         <div className="grid gap-4 md:grid-cols-5">
           <div className="relative md:col-span-2">
   <label className="text-xs font-bold uppercase text-slate-800 dark:text-slate-200">
-    Tipo de relatório
+    {t("reportType")}
   </label>
 
   <button
@@ -253,7 +262,7 @@ async function enviarEmail() {
 </div>
           <div>
             <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
-              Mês
+              {t("month")}
             </label>
 
             <select
@@ -271,7 +280,7 @@ async function enviarEmail() {
 
           <div>
             <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
-              Ano
+              {t("year")}
             </label>
 
             <input
@@ -289,7 +298,7 @@ async function enviarEmail() {
     disabled={loading}
     className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
   >
-    {loading ? "Carregando..." : "Filtrar competência"}
+    {loading ? t("loading") : t("filterPeriod")}
   </button>
 
   <button
@@ -297,7 +306,7 @@ async function enviarEmail() {
   onClick={gerarPdf}
   className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-black text-white shadow-sm hover:bg-emerald-700"
 >
-  Gerar PDF
+  {t("generatePdf")}
 </button>
 
 <button
@@ -305,7 +314,7 @@ async function enviarEmail() {
   onClick={exportarExcel}
   className="rounded-xl bg-cyan-600 px-5 py-2 text-sm font-black text-white shadow-sm hover:bg-cyan-700"
 >
-  Exportar Excel
+  {t("exportExcel")}
 </button>
 
 <button
@@ -321,7 +330,7 @@ async function enviarEmail() {
   }}
   className="rounded-xl bg-amber-500 px-5 py-2 text-sm font-black text-slate-950 shadow-sm hover:bg-amber-400"
 >
-  Enviar por e-mail
+  {t("sendEmail")}
 </button>
 </div>
           </div>
@@ -331,7 +340,7 @@ async function enviarEmail() {
       <section className="grid gap-4 md:grid-cols-4">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Salários base
+            {t("baseSalaries")}
           </p>
           <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
             {moeda(dados?.totais.salarios)}
@@ -340,7 +349,7 @@ async function enviarEmail() {
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Vencimentos
+            {t("earnings")}
           </p>
           <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
             {moeda(dados?.totais.vencimentos)}
@@ -349,7 +358,7 @@ async function enviarEmail() {
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Descontos
+            {t("deductions")}
           </p>
           <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
             {moeda(dados?.totais.descontos)}
@@ -358,7 +367,7 @@ async function enviarEmail() {
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Líquido
+            {t("net")}
           </p>
           <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
             {moeda(dados?.totais.liquido)}
@@ -368,13 +377,13 @@ async function enviarEmail() {
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-          Encargos e provisões estimadas
+          {t("estimatedCharges")}
         </h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-5">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              INSS Patronal
+              {t("employerInss")}
             </p>
             <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
               {moeda(dados?.encargosEstimados.inssPatronal)}
@@ -383,7 +392,7 @@ async function enviarEmail() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              FGTS
+              {t("fgts")}
             </p>
             <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
               {moeda(dados?.encargosEstimados.fgts)}
@@ -392,7 +401,7 @@ async function enviarEmail() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              Provisão férias
+              {t("vacationProvision")}
             </p>
             <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
               {moeda(dados?.encargosEstimados.provisaoFerias)}
@@ -401,7 +410,7 @@ async function enviarEmail() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              Provisão 13º
+              {t("thirteenthProvision")}
             </p>
             <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
               {moeda(dados?.encargosEstimados.provisaoDecimo)}
@@ -410,7 +419,7 @@ async function enviarEmail() {
 
           <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
             <p className="text-xs font-bold uppercase text-blue-700 dark:text-blue-300">
-              Total estimado
+              {t("estimatedTotal")}
             </p>
             <p className="mt-2 text-lg font-black text-slate-950 dark:text-white">
               {moeda(totalEncargos)}
@@ -421,20 +430,20 @@ async function enviarEmail() {
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-          Holerites da competência
+          {t("payslips")}
         </h2>
 
         <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-slate-100 text-left text-slate-700 dark:bg-slate-800 dark:text-slate-300">
               <tr>
-                <th className="p-3">Funcionário</th>
-                <th className="p-3">Cargo / Departamento</th>
-                <th className="p-3">Salário</th>
-                <th className="p-3">Vencimentos</th>
-                <th className="p-3">Descontos</th>
-                <th className="p-3">Líquido</th>
-                <th className="p-3">Status</th>
+                <th className="p-3">{t("employee")}</th>
+                <th className="p-3">{t("roleDepartment")}</th>
+                <th className="p-3">{t("salary")}</th>
+                <th className="p-3">{t("earnings")}</th>
+                <th className="p-3">{t("deductions")}</th>
+                <th className="p-3">{t("net")}</th>
+                <th className="p-3">{t("status")}</th>
               </tr>
             </thead>
 
@@ -445,7 +454,7 @@ async function enviarEmail() {
                     colSpan={7}
                     className="p-5 text-center text-slate-600 dark:text-slate-300"
                   >
-                    Carregando...
+                    {t("loading")}
                   </td>
                 </tr>
               ) : !dados || dados.holerites.length === 0 ? (
@@ -454,7 +463,7 @@ async function enviarEmail() {
                     colSpan={7}
                     className="p-5 text-center text-slate-600 dark:text-slate-300"
                   >
-                    Nenhum holerite encontrado nesta competência.
+                    {t("empty")}
                   </td>
                 </tr>
               ) : (
@@ -492,7 +501,7 @@ async function enviarEmail() {
 
                     <td className="p-3">
                       <span className="inline-flex rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-black uppercase text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200">
-  {item.status || "GERADO"}
+  {payslipStatus(item.status || "GERADO")}
 </span>
                     </td>
                   </tr>
@@ -509,11 +518,11 @@ async function enviarEmail() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700 dark:text-blue-400">
-            Envio de relatório
+            {t("emailSection")}
           </p>
 
           <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
-            Enviar por e-mail
+            {t("sendEmail")}
           </h2>
 
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -526,27 +535,27 @@ async function enviarEmail() {
   onClick={() => setModalEmailAberto(false)}
   className="rounded-full border border-slate-400 bg-white px-3 py-1 text-sm font-black text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
 >
-  Fechar
+  {t("close")}
 </button>
       </div>
 
       <div className="mt-5 space-y-4">
         <div>
           <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
-            E-mail da contabilidade
+            {t("accountingEmail")}
           </label>
 
           <input
             value={emailDestino}
             onChange={(e) => setEmailDestino(e.target.value)}
-            placeholder="contabilidade@empresa.com.br"
+            placeholder={t("emailPlaceholder")}
             className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </div>
 
         <div>
           <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
-            Assunto
+            {t("subject")}
           </label>
 
           <input
@@ -558,14 +567,14 @@ async function enviarEmail() {
 
         <div>
           <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
-            Mensagem
+            {t("message")}
           </label>
 
           <textarea
             value={emailMensagem}
             onChange={(e) => setEmailMensagem(e.target.value)}
             rows={4}
-            placeholder="Segue relatório RH da competência para conferência."
+            placeholder={t("messagePlaceholder")}
             className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </div>
@@ -575,7 +584,7 @@ async function enviarEmail() {
   </div>
 )}
         <div className="rounded-2xl border border-blue-300 bg-blue-50 p-4 text-sm font-semibold text-blue-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
-  O envio deve anexar o PDF e a planilha Excel do relatório selecionado.
+  {t("emailHint")}
 </div>
 
         <div className="flex flex-wrap justify-end gap-3">
@@ -584,7 +593,7 @@ async function enviarEmail() {
   onClick={() => setModalEmailAberto(false)}
   className="rounded-xl border border-slate-400 bg-white px-5 py-2 text-sm font-black text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
 >
-  Cancelar
+  {t("cancel")}
 </button>
 
           <button
@@ -593,7 +602,7 @@ async function enviarEmail() {
             disabled={enviandoEmail || !emailDestino.trim()}
             className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
           >
-            {enviandoEmail ? "Enviando..." : "Enviar relatório"}
+            {enviandoEmail ? t("sending") : t("sendReport")}
           </button>
         </div>
       </div>
