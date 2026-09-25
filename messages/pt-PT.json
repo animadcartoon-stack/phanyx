@@ -4129,6 +4129,9 @@
       "alt": "Fotografia oficial do aluno",
       "title": "Fotografia oficial do aluno",
       "description": "Esta é a fotografia institucional utilizada em cartões, identificação e documentos oficiais. Não é a fotografia pessoal que o aluno altera no próprio perfil.",
+      "formats": "Formatos aceites: JPG, JPEG ou PNG.",
+      "maxSize": "Tamanho máximo: 2 MB.",
+      "recommendation": "Recomendado: fotografia quadrada, com pelo menos 600 × 600 px e o rosto centrado.",
       "uploading": "A enviar...",
       "upload": "Enviar fotografia",
       "remove": "Remover fotografia"
@@ -4206,6 +4209,7 @@
       "saveChanges": "Guardar alterações",
       "cancelEditing": "Cancelar edição",
       "reactivateStudent": "Reativar aluno",
+      "downloadContract": "Transferir contrato",
       "editRegistration": "Editar registo",
       "cancelStudent": "Cancelar aluno",
       "mainData": "Dados principais",

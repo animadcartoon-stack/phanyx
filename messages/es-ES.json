@@ -4129,6 +4129,9 @@
       "alt": "Foto oficial del estudiante",
       "title": "Foto oficial del estudiante",
       "description": "Esta foto institucional se utiliza en credenciales, registros de identificación y documentos oficiales. No es la foto personal que el estudiante modifica en su perfil.",
+      "formats": "Formatos aceptados: JPG, JPEG o PNG.",
+      "maxSize": "Tamaño máximo: 2 MB.",
+      "recommendation": "Recomendado: foto cuadrada de al menos 600 × 600 px, con el rostro centrado.",
       "uploading": "Enviando...",
       "upload": "Enviar foto",
       "remove": "Eliminar foto"
@@ -4206,6 +4209,7 @@
       "saveChanges": "Guardar cambios",
       "cancelEditing": "Cancelar edición",
       "reactivateStudent": "Reactivar estudiante",
+      "downloadContract": "Descargar contrato",
       "editRegistration": "Editar registro",
       "cancelStudent": "Cancelar estudiante",
       "mainData": "Datos principales",

@@ -491,8 +491,8 @@ function AdminAlunosPage() {
         }
       );
     } catch {
-      // O aviso visual continuarÃ¡ funcionando
-      // caso o navegador bloqueie o Ã¡udio.
+      // O aviso visual continuará funcionando
+      // caso o navegador bloqueie o áudio.
     }
   }
 
@@ -2200,7 +2200,7 @@ function AdminAlunosPage() {
                   >
                     {turma.nome}
                     {turma.disciplinaNome
-                      ? ` â€¢ ${turma.disciplinaNome}`
+                      ? ` • ${turma.disciplinaNome}`
                       : ""}
                   </option>
                 ))}
@@ -2556,8 +2556,8 @@ function AdminAlunosPage() {
                               {t("drawer.institutionalPhoto")}
                             </p>
                             <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
-                              Formatos aceitos: JPG, JPEG ou PNG. Tamanho mÃ¡ximo: 2 MB.
-                              Recomendado: foto quadrada, no mÃ­nimo 600x600 px, com rosto centralizado.
+                              {t("photo.formats")} {t("photo.maxSize")}
+                              {t("photo.recommendation")}
                             </p>
                             <div className="mt-3 flex flex-wrap items-center gap-2">
                               <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
@@ -2923,7 +2923,7 @@ function AdminAlunosPage() {
                             }
                             className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
                           >
-                            ðŸ“„ Baixar contrato
+                            {t("drawer.downloadContract")}
                           </button>
 
                           {alunoSelecionado.statusAluno === "CANCELADO" ? (
@@ -2946,7 +2946,7 @@ function AdminAlunosPage() {
                                 }}
                                 className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
                               >
-                                âœï¸ {t("drawer.editRegistration")}
+                                {t("drawer.editRegistration")}
                               </button>
                               <button
                                 onClick={() => cancelarAluno(alunoSelecionado.id)}
@@ -3410,7 +3410,7 @@ function AdminAlunosPage() {
                             })}
                           </span>
 
-                          <span>{matriculaExpandida ? "âŒƒ" : "âŒ„"}</span>
+                          <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
                         </button>
 
                         {matriculaExpandida && (
@@ -3766,7 +3766,7 @@ function AdminAlunosPage() {
                   : "bg-red-100"
                   }`}
               >
-                {modalAvisoTipo === "sucesso" ? "âœ…" : "âš ï¸"}
+                {modalAvisoTipo === "sucesso" ? "✅" : "⚠️"}
               </div>
 
               <div className="flex-1">

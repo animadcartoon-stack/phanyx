@@ -4129,6 +4129,9 @@
       "alt": "Foto oficial do aluno",
       "title": "Foto oficial do aluno",
       "description": "Esta é a foto institucional usada em crachás, identificação e documentos oficiais. Não é a foto pessoal que o aluno altera no próprio perfil.",
+      "formats": "Formatos aceitos: JPG, JPEG ou PNG.",
+      "maxSize": "Tamanho máximo: 2 MB.",
+      "recommendation": "Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.",
       "uploading": "Enviando...",
       "upload": "Enviar foto",
       "remove": "Remover foto"
@@ -4206,6 +4209,7 @@
       "saveChanges": "Salvar alterações",
       "cancelEditing": "Cancelar edição",
       "reactivateStudent": "Reativar aluno",
+      "downloadContract": "Baixar contrato",
       "editRegistration": "Editar cadastro",
       "cancelStudent": "Cancelar aluno",
       "mainData": "Dados principais",

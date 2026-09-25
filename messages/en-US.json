@@ -4130,6 +4130,9 @@
       "alt": "Official student photo",
       "title": "Official student photo",
       "description": "This institutional photo is used on ID cards, identification records and official documents. It is not the personal profile photo managed by the student.",
+      "formats": "Accepted formats: JPG, JPEG or PNG.",
+      "maxSize": "Maximum size: 2 MB.",
+      "recommendation": "Recommended: square photo, at least 600 × 600 px, with the face centered.",
       "uploading": "Uploading...",
       "upload": "Upload photo",
       "remove": "Remove photo"
@@ -4207,6 +4210,7 @@
       "saveChanges": "Save changes",
       "cancelEditing": "Cancel editing",
       "reactivateStudent": "Reactivate student",
+      "downloadContract": "Download contract",
       "editRegistration": "Edit registration",
       "cancelStudent": "Cancel student",
       "mainData": "Main information",
