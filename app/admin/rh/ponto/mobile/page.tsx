@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { useLocale, useTranslations } from "next-intl";
 
 type ConfiguracaoPontoMobile = {
   id?: number;
@@ -44,6 +45,8 @@ const configuracaoPadrao: ConfiguracaoPontoMobile = {
 };
 
 export default function PontoMobileConfiguracaoPage() {
+  const t = useTranslations("AdminHRPointMobile");
+  const locale = useLocale();
   const [configuracao, setConfiguracao] =
     useState<ConfiguracaoPontoMobile>(configuracaoPadrao);
 
@@ -105,8 +108,7 @@ useEffect(() => {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-            "Não foi possível carregar a configuração."
+          (locale === "pt-BR" && dados?.error) || t("loadError")
         );
       }
 
@@ -144,7 +146,7 @@ if (identidade?.slug) {
         "erro",
         error instanceof Error
           ? error.message
-          : "Não foi possível carregar o Ponto Mobile."
+          : t("loadError")
       );
     } finally {
       setCarregando(false);
@@ -184,8 +186,7 @@ if (identidade?.slug) {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-            "Não foi possível salvar a configuração."
+          (locale === "pt-BR" && dados?.error) || t("saveError")
         );
       }
 
@@ -198,15 +199,14 @@ if (identidade?.slug) {
 
       mostrarToast(
         "sucesso",
-        dados?.mensagem ||
-          "Configuração do Ponto Mobile salva com sucesso."
+        (locale === "pt-BR" && dados?.mensagem) || t("saveSuccess")
       );
     } catch (error) {
       mostrarToast(
         "erro",
         error instanceof Error
           ? error.message
-          : "Não foi possível salvar a configuração."
+          : t("saveError")
       );
     } finally {
       setSalvando(false);
@@ -233,12 +233,12 @@ if (identidade?.slug) {
 
       mostrarToast(
         "sucesso",
-        "Link do PHANYX RH copiado com sucesso."
+        t("copySuccess")
       );
     } catch {
       mostrarToast(
         "erro",
-        "Não foi possível copiar o link."
+        t("copyError")
       );
     }
   }
@@ -258,7 +258,7 @@ if (identidade?.slug) {
   } catch {
     mostrarToast(
       "erro",
-      "Não foi possível gerar o QR Code."
+      t("qrError")
     );
   }
 }
@@ -267,7 +267,7 @@ function baixarQrCode() {
   if (!qrCodeUrl) {
     mostrarToast(
       "erro",
-      "O QR Code ainda não foi gerado."
+      t("qrUnavailable")
     );
     return;
   }
@@ -282,7 +282,7 @@ function imprimirQrCode() {
   if (!qrCodeUrl) {
     mostrarToast(
       "erro",
-      "O QR Code ainda não foi gerado."
+      t("qrUnavailable")
     );
     return;
   }
@@ -296,15 +296,15 @@ function imprimirQrCode() {
   if (!janela) {
     mostrarToast(
       "erro",
-      "Não foi possível abrir a janela de impressão."
+      t("printWindowError")
     );
     return;
   }
 
   janela.document.write(`
-    <html>
+    <html lang="${locale}">
       <head>
-        <title>QR Code - PHANYX RH</title>
+        <title>${t("printTitle")}</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -352,8 +352,8 @@ function imprimirQrCode() {
       <body>
         <div class="box">
           <h1>PHANYX RH</h1>
-          <p>Escaneie o QR Code abaixo para acessar o aplicativo de ponto do funcionário.</p>
-          <img src="${qrCodeUrl}" alt="QR Code PHANYX RH" />
+          <p>${t("printInstruction")}</p>
+          <img src="${qrCodeUrl}" alt="${t("qrAlt")}" />
           <p class="link">${linkAplicativo}</p>
         </div>
       </body>
@@ -370,9 +370,7 @@ function imprimirQrCode() {
       <main className="phanyx-ponto-mobile-page min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <div className="mx-auto max-w-6xl">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-              Carregando configurações do Ponto Mobile...
-            </p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">{t("loading")}</p>
           </div>
         </div>
       </main>
@@ -401,15 +399,9 @@ function imprimirQrCode() {
             RH PHANYX
           </p>
 
-          <h1 className="text-3xl font-black tracking-tight">
-            Ponto Mobile
-          </h1>
+          <h1 className="text-3xl font-black tracking-tight">{t("title")}</h1>
 
-          <p className="max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Configure o registro de ponto pelo celular com
-            foto, localização e liberação individual dos
-            funcionários.
-          </p>
+          <p className="max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">{t("description")}</p>
         </header>
 
         <section
@@ -421,15 +413,9 @@ function imprimirQrCode() {
         >
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-xl font-black">
-                Ativação do Ponto Mobile
-              </h2>
+              <h2 className="text-xl font-black">{t("activation")}</h2>
 
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Quando ativado, somente funcionários
-                individualmente liberados pelo RH poderão
-                registrar ponto pelo celular.
-              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{t("activationDescription")}</p>
             </div>
 
             <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
@@ -447,8 +433,8 @@ function imprimirQrCode() {
 
               <span className="text-sm font-bold">
                 {configuracao.ativo
-                  ? "Ponto Mobile ativado"
-                  : "Ponto Mobile desativado"}
+                  ? t("enabled")
+                  : t("disabled")}
               </span>
             </label>
           </div>
@@ -457,20 +443,15 @@ function imprimirQrCode() {
         <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
           <section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
             <div className="mb-6">
-              <h2 className="text-xl font-black">
-                Regras do registro
-              </h2>
+              <h2 className="text-xl font-black">{t("rules")}</h2>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Defina quais validações serão solicitadas no
-                celular do funcionário.
-              </p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("rulesDescription")}</p>
             </div>
 
             <div className="space-y-4">
               <CampoConfiguracao
-                titulo="Exigir foto no momento do ponto"
-                descricao="A câmera frontal será aberta para capturar uma foto ao vivo."
+                titulo={t("photoTitle")}
+                descricao={t("photoDescription")}
                 marcado={configuracao.exigirFoto}
                 aoAlterar={(valor) =>
                   atualizarCampo("exigirFoto", valor)
@@ -478,8 +459,8 @@ function imprimirQrCode() {
               />
 
               <CampoConfiguracao
-                titulo="Exigir localização do celular"
-                descricao="O PHANYX solicitará a localização no momento do registro."
+                titulo={t("locationTitle")}
+                descricao={t("locationDescription")}
                 marcado={configuracao.exigirLocalizacao}
                 aoAlterar={(valor) =>
                   atualizarCampo(
@@ -490,8 +471,8 @@ function imprimirQrCode() {
               />
 
               <CampoConfiguracao
-                titulo="Ativar reconhecimento facial"
-                descricao="A foto capturada será comparada com a foto oficial do funcionário."
+                titulo={t("facialTitle")}
+                descricao={t("facialDescription")}
                 marcado={
                   configuracao.reconhecimentoFacialAtivo
                 }
@@ -504,8 +485,8 @@ function imprimirQrCode() {
               />
 
               <CampoConfiguracao
-                titulo="Exigir prova de vida"
-                descricao="Solicitará uma ação diante da câmera para reduzir o uso de fotografias."
+                titulo={t("livenessTitle")}
+                descricao={t("livenessDescription")}
                 marcado={configuracao.exigirProvaVida}
                 desabilitado={
                   !configuracao.reconhecimentoFacialAtivo
@@ -519,8 +500,8 @@ function imprimirQrCode() {
               />
 
               <CampoConfiguracao
-                titulo="Permitir registro fora da área"
-                descricao="O ponto será registrado, mas ficará sinalizado para análise do RH."
+                titulo={t("outsideAreaTitle")}
+                descricao={t("outsideAreaDescription")}
                 marcado={
                   configuracao.permitirForaDoRaio
                 }
@@ -537,14 +518,9 @@ function imprimirQrCode() {
               <label
                 htmlFor="raioPadraoMetros"
                 className="block text-sm font-black"
-              >
-                Raio padrão permitido
-              </label>
+              >{t("allowedRadius")}</label>
 
-              <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">
-                Distância padrão entre o funcionário e o
-                local autorizado.
-              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-400">{t("radiusDescription")}</p>
 
               <div className="mt-3 flex items-center gap-3">
                 <input
@@ -568,60 +544,40 @@ function imprimirQrCode() {
                   className="w-36 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-900 outline-none ring-blue-500 focus:ring-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                 />
 
-                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">
-                  metros
-                </span>
+                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">{t("meters")}</span>
               </div>
             </div>
           </section>
 
 <section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
-  <h2 className="text-lg font-black text-blue-950 dark:text-blue-100">
-    Locais autorizados
-  </h2>
+  <h2 className="text-lg font-black text-blue-950 dark:text-blue-100">{t("authorizedLocations")}</h2>
 
-  <p className="mt-2 text-sm leading-6 text-blue-900/80 dark:text-blue-200">
-    Cadastre sedes, polos e áreas permitidas para o
-    registro de ponto pelo celular.
-  </p>
+  <p className="mt-2 text-sm leading-6 text-blue-900/80 dark:text-blue-200">{t("locationsDescription")}</p>
 
   <Link
     href="/admin/rh/ponto/mobile/locais"
     className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-700 px-4 py-3 text-center text-sm font-black text-white transition hover:bg-blue-800"
-  >
-    Gerenciar locais
-  </Link>
+  >{t("manageLocations")}</Link>
 </section>
 
           <div className="space-y-6">
             <section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
-              <h2 className="text-lg font-black text-blue-950 dark:text-blue-100">
-                Funcionários autorizados
-              </h2>
+              <h2 className="text-lg font-black text-blue-950 dark:text-blue-100">{t("authorizedEmployees")}</h2>
 
-              <p className="mt-2 text-sm leading-6 text-blue-900/80 dark:text-blue-200">
-                Mesmo com o recurso ativado, cada funcionário
-                precisa ser liberado individualmente pelo RH.
-              </p>
+              <p className="mt-2 text-sm leading-6 text-blue-900/80 dark:text-blue-200">{t("employeesDescription")}</p>
 
               <Link
                 href="/admin/rh/ponto/mobile/funcionarios"
                 className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-700 px-4 py-3 text-center text-sm font-black text-white transition hover:bg-blue-800"
-              >
-                Gerenciar funcionários
-              </Link>
+              >{t("manageEmployees")}</Link>
             </section>
 
            <section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
-  <h2 className="text-lg font-black">
-    Link e QR Code do PHANYX RH
-  </h2>
+  <h2 className="text-lg font-black">{t("appLinkHeading")}</h2>
 
   {identidadeInstituicao?.nome && (
-  <div className="mt-3 rounded-2xl border border-slate-700 p-4">
-    <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-300">
-      Aplicativo desta instituição
-    </p>
+  <div className="mt-3 rounded-2xl border border-slate-300 p-4 dark:border-slate-700">
+    <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">{t("institutionApp")}</p>
 
     <p className="mt-1 text-base font-black">
       {identidadeInstituicao.nome}
@@ -641,22 +597,17 @@ function imprimirQrCode() {
   </div>
 )}
 
-  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-    Copie o link, envie o QR Code ao funcionário ou imprima
-    para facilitar a instalação do aplicativo.
-  </p>
+  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{t("linkDescription")}</p>
 
   <div className="mt-5 flex justify-center">
     {qrCodeUrl ? (
       <img
         src={qrCodeUrl}
-        alt="QR Code do PHANYX RH"
+        alt={t("qrAlt")}
         className="h-52 w-52 rounded-2xl border border-slate-300 bg-white p-3 dark:border-slate-700"
       />
     ) : (
-      <div className="flex h-52 w-52 items-center justify-center rounded-2xl border border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-        Gerando QR Code...
-      </div>
+      <div className="flex h-52 w-52 items-center justify-center rounded-2xl border border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">{t("generatingQr")}</div>
     )}
   </div>
 
@@ -669,39 +620,26 @@ function imprimirQrCode() {
       type="button"
       onClick={copiarLink}
       className="phanyx-ponto-mobile-copy-button min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
-    >
-      Copiar link
-    </button>
+    >{t("copyLink")}</button>
 
     <button
       type="button"
       onClick={baixarQrCode}
       className="phanyx-ponto-mobile-copy-button min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
-    >
-      Baixar QR Code
-    </button>
+    >{t("downloadQr")}</button>
 
     <button
       type="button"
       onClick={imprimirQrCode}
       className="phanyx-ponto-mobile-copy-button min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
-    >
-      Imprimir QR Code
-    </button>
+    >{t("printQr")}</button>
   </div>
 </section>
 
             <section className="phanyx-ponto-mobile-note-card rounded-3xl border p-5">
-              <p className="text-sm font-black text-amber-950 dark:text-amber-100">
-                Liberação individual obrigatória
-              </p>
+              <p className="text-sm font-black text-amber-950 dark:text-amber-100">{t("individualRelease")}</p>
 
-              <p className="mt-2 text-xs leading-5 text-amber-900/80 dark:text-amber-200">
-                Nenhum funcionário será liberado
-                automaticamente. O RH deverá autorizar cada
-                pessoa que poderá usar o celular para bater
-                ponto.
-              </p>
+              <p className="mt-2 text-xs leading-5 text-amber-900/80 dark:text-amber-200">{t("individualReleaseDescription")}</p>
             </section>
           </div>
         </div>
@@ -710,9 +648,7 @@ function imprimirQrCode() {
           <Link
             href="/admin/rh/ponto/configuracoes"
             className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-          >
-            Voltar
-          </Link>
+          >{t("back")}</Link>
 
           <button
             type="button"
@@ -721,8 +657,8 @@ function imprimirQrCode() {
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-700 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {salvando
-              ? "Salvando..."
-              : "Salvar configuração"}
+              ? t("saving")
+              : t("save")}
           </button>
         </div>
       </div>
