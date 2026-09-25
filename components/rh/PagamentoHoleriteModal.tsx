@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import { useEffect, useMemo, useState } from "react";
 import BuscaBanco, {
     type BancoSelecionado,
@@ -155,15 +157,15 @@ function numero(valor: unknown) {
     return Number(texto) || 0;
 }
 
-function moeda(valor: number) {
-    return valor.toLocaleString("pt-BR", {
+function moeda(valor: number, locale: string) {
+    return valor.toLocaleString(locale, {
         style: "currency",
         currency: "BRL",
     });
 }
 
-function valorInput(valor: number) {
-    return valor.toFixed(2).replace(".", ",");
+function valorInput(valor: number, locale: string) {
+    return new Intl.NumberFormat(locale, { useGrouping: false, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valor);
 }
 
 function dataHoraLocalAgora() {
@@ -187,6 +189,7 @@ function criarItemPagamento(
     valor: number,
     conta: ContaBancariaPagamento | null,
     origemConta: OrigemContaPagamento,
+    locale: string,
 ): ItemPagamentoForm {
     const possuiPix = Boolean(conta?.chavePix);
 
@@ -196,7 +199,7 @@ function criarItemPagamento(
         origemConta: conta ? origemConta : "MANUAL",
         contaBancariaFuncionarioId: conta?.id ?? null,
         formaPagamento: possuiPix ? "PIX" : "TRANSFERENCIA",
-        valorPago: valorInput(valor),
+        valorPago: valorInput(valor, locale),
         pagoEm: dataHoraLocalAgora(),
         identificadorTransacao: "",
         bancoOrigemTexto: "",
@@ -221,6 +224,8 @@ function criarItemPagamento(
 
 function montarItensPagamento(
     preparacao: PreparacaoPagamento,
+    locale: string,
+    labels: { salary: string; commission: string; variable: string },
 ): ItemPagamentoForm[] {
     const itens: ItemPagamentoForm[] = [];
 
@@ -228,10 +233,11 @@ function montarItensPagamento(
         itens.push(
             criarItemPagamento(
                 "SALARIO_E_DEMAIS",
-                "Salário e demais valores",
+                labels.salary,
                 preparacao.composicao.salarioEDemais,
                 preparacao.contas.salario,
                 "CONTA_SALARIO",
+                locale,
             ),
         );
     }
@@ -240,10 +246,11 @@ function montarItensPagamento(
         itens.push(
             criarItemPagamento(
                 "COMISSAO",
-                "Comissão",
+                labels.commission,
                 preparacao.composicao.comissao,
                 preparacao.contas.destinoPreferencialComissao,
                 preparacao.contas.origemPreferencialComissao,
+                locale,
             ),
         );
     }
@@ -252,10 +259,11 @@ function montarItensPagamento(
         itens.push(
             criarItemPagamento(
                 "REMUNERACAO_VARIAVEL",
-                "Remuneração variável",
+                labels.variable,
                 preparacao.composicao.remuneracaoVariavel,
                 preparacao.contas.destinoPreferencialComissao,
                 preparacao.contas.origemPreferencialComissao,
+                locale,
             ),
         );
     }
@@ -268,6 +276,9 @@ export default function PagamentoHoleriteModal({
     onFechar,
     onConcluido,
 }: Props) {
+    const t = useTranslations("AdminHRPayslipPayment");
+    const locale = useLocale();
+    const formatMoney = (value: number) => moeda(value, locale);
     const [preparacao, setPreparacao] = useState<PreparacaoPagamento | null>(null);
     const [itens, setItens] = useState<ItemPagamentoForm[]>([]);
     const [observacoesGerais, setObservacoesGerais] = useState("");
@@ -302,19 +313,21 @@ export default function PagamentoHoleriteModal({
 
                 if (!resposta.ok) {
                     throw new Error(
-                        dados?.error || "Não foi possível preparar o pagamento.",
+                        t("errorPrepare"),
                     );
                 }
 
                 const preparacaoRecebida = dados as PreparacaoPagamento;
 
                 setPreparacao(preparacaoRecebida);
-                setItens(montarItensPagamento(preparacaoRecebida));
+                setItens(montarItensPagamento(preparacaoRecebida, locale, {
+                    salary: t("salary"), commission: t("commission"), variable: t("variable"),
+                }));
             } catch (error: any) {
                 if (error?.name === "AbortError") return;
 
                 setErro(
-                    error?.message || "Não foi possível carregar os dados bancários.",
+                    error?.message || t("errorBanks"),
                 );
             } finally {
                 if (!controller.signal.aborted) {
@@ -326,7 +339,7 @@ export default function PagamentoHoleriteModal({
         carregarPreparacao();
 
         return () => controller.abort();
-    }, [holerite.id]);
+    }, [holerite.id, locale, t]);
 
     function atualizarItem<K extends keyof ItemPagamentoForm>(
         index: number,
@@ -429,18 +442,16 @@ export default function PagamentoHoleriteModal({
             setPixCopiadoIndex(index);
             window.setTimeout(() => setPixCopiadoIndex(null), 2200);
         } catch {
-            setErro("Não foi possível copiar a chave Pix automaticamente.");
+            setErro(t("errorCopy"));
         }
     }
 
     function validarItens() {
-        if (!preparacao) return "Os dados do pagamento ainda não foram carregados.";
-        if (itens.length === 0) return "Nenhum item de pagamento foi preparado.";
+        if (!preparacao) return t("errorNotLoaded");
+        if (itens.length === 0) return t("errorNoItems");
 
         if (Math.abs(totalItens - preparacao.holerite.valorLiquido) > 0.009) {
-            return `A soma dos pagamentos deve ser ${moeda(
-                preparacao.holerite.valorLiquido,
-            )}.`;
+            return t("errorTotal", { amount: formatMoney(preparacao.holerite.valorLiquido) });
         }
 
         for (let index = 0; index < itens.length; index += 1) {
@@ -448,19 +459,19 @@ export default function PagamentoHoleriteModal({
             const numeroItem = index + 1;
 
             if (numero(item.valorPago) <= 0) {
-                return `Informe um valor válido no item ${numeroItem}.`;
+                return t("errorAmount", { number: numeroItem });
             }
 
             const data = new Date(item.pagoEm);
             if (!item.pagoEm || Number.isNaN(data.getTime())) {
-                return `Informe a data e o horário do item ${numeroItem}.`;
+                return t("errorDate", { number: numeroItem });
             }
 
             if (
                 FORMAS_QUE_EXIGEM_TRANSACAO.has(item.formaPagamento) &&
                 !item.identificadorTransacao.trim()
             ) {
-                return `Informe o comprovante ou referência do item ${numeroItem}.`;
+                return t("errorProof", { number: numeroItem });
             }
 
             if (
@@ -468,21 +479,21 @@ export default function PagamentoHoleriteModal({
                 !item.bancoOrigemNome.trim() &&
                 !item.bancoOrigemTexto.trim()
             ) {
-                return `Informe o banco pagador/origem do item ${numeroItem}.`;
+                return t("errorPayingBank", { number: numeroItem });
             }
 
             if (
                 item.formaPagamento === "PIX" &&
                 !item.chavePixDestino.trim()
             ) {
-                return `Informe a chave Pix do destinatário no item ${numeroItem}.`;
+                return t("errorRecipientPix", { number: numeroItem });
             }
 
             if (
                 FORMAS_QUE_EXIGEM_CONTA_DESTINO.has(item.formaPagamento) &&
                 (!item.bancoDestinoNome.trim() || !item.contaDestino.trim())
             ) {
-                return `Informe o banco e a conta de destino no item ${numeroItem}.`;
+                return t("errorRecipientAccount", { number: numeroItem });
             }
         }
 
@@ -550,13 +561,13 @@ export default function PagamentoHoleriteModal({
 
             if (!resposta.ok) {
                 throw new Error(
-                    dados?.error || "Não foi possível gerar o recibo de pagamento.",
+                    t("errorGenerate"),
                 );
             }
 
             const mensagem = [
-                dados?.message || "Recibo de pagamento gerado.",
-                dados?.reciboNumero ? `Número: ${dados.reciboNumero}.` : null,
+                t("success"),
+                dados?.reciboNumero ? t("receiptNumber", { number: dados.reciboNumero }) : null,
             ]
                 .filter(Boolean)
                 .join(" ");
@@ -564,7 +575,7 @@ export default function PagamentoHoleriteModal({
             await onConcluido(mensagem);
             onFechar();
         } catch (error: any) {
-            setErro(error?.message || "Erro ao registrar o pagamento.");
+            setErro(error?.message || t("errorRegister"));
         } finally {
             setSalvando(false);
         }
@@ -575,11 +586,8 @@ export default function PagamentoHoleriteModal({
             <div className="my-4 max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <h2 className="text-xl font-bold">Registrar pagamento</h2>
-                        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
-                            Confira a conta salarial e a conta preferencial de comissão. Cada
-                            transferência deve ter seu próprio comprovante ou referência.
-                        </p>
+                        <h2 className="text-xl font-bold">{t("title")}</h2>
+                        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">{t("intro")}</p>
                     </div>
 
                     <button
@@ -587,21 +595,19 @@ export default function PagamentoHoleriteModal({
                         onClick={onFechar}
                         disabled={salvando}
                         className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                        Fechar
-                    </button>
+                    >{t("close")}</button>
                 </div>
 
                 <div className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-3">
                     <p>
-                        <strong>Funcionário:</strong>
+                        <strong>{t("employeeColon")}</strong>
                         <span className="mt-1 block">
-                            {holerite.funcionario?.nome || "Funcionário"}
+                            {holerite.funcionario?.nome || t("employee")}
                         </span>
                     </p>
 
                     <p>
-                        <strong>Competência:</strong>
+                        <strong>{t("periodColon")}</strong>
                         <span className="mt-1 block">
                             {String(holerite.competenciaMes).padStart(2, "0")}/
                             {holerite.competenciaAno}
@@ -609,17 +615,15 @@ export default function PagamentoHoleriteModal({
                     </p>
 
                     <p>
-                        <strong>Valor líquido:</strong>
+                        <strong>{t("netAmountColon")}</strong>
                         <span className="mt-1 block font-bold text-emerald-700 dark:text-emerald-300">
-                            {moeda(numero(holerite.valorLiquido))}
+                            {formatMoney(numero(holerite.valorLiquido))}
                         </span>
                     </p>
                 </div>
 
                 {carregando && (
-                    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm font-semibold text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
-                        Carregando contas bancárias e composição do holerite...
-                    </div>
+                    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm font-semibold text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">{t("loading")}</div>
                 )}
 
                 {!carregando && erro && itens.length === 0 && (
@@ -632,29 +636,23 @@ export default function PagamentoHoleriteModal({
                     <>
                         <div className="mt-5 grid gap-3 sm:grid-cols-3">
                             <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                                    Salário e demais valores
-                                </p>
+                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t("salary")}</p>
                                 <p className="mt-2 text-xl font-black">
-                                    {moeda(preparacao.composicao.salarioEDemais)}
+                                    {formatMoney(preparacao.composicao.salarioEDemais)}
                                 </p>
                             </div>
 
                             <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                                    Comissão
-                                </p>
+                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t("commission")}</p>
                                 <p className="mt-2 text-xl font-black">
-                                    {moeda(preparacao.composicao.comissao)}
+                                    {formatMoney(preparacao.composicao.comissao)}
                                 </p>
                             </div>
 
                             <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                                    Remuneração variável
-                                </p>
+                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t("variable")}</p>
                                 <p className="mt-2 text-xl font-black">
-                                    {moeda(preparacao.composicao.remuneracaoVariavel)}
+                                    {formatMoney(preparacao.composicao.remuneracaoVariavel)}
                                 </p>
                             </div>
                         </div>
@@ -675,7 +673,7 @@ export default function PagamentoHoleriteModal({
                                         <div className="flex flex-wrap items-start justify-between gap-3">
                                             <div>
                                                 <p className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                                    Pagamento {index + 1}
+                                                    {t("paymentN", { number: index + 1 })}
                                                 </p>
                                                 <h3 className="mt-1 text-lg font-black">
                                                     {item.titulo}
@@ -683,15 +681,13 @@ export default function PagamentoHoleriteModal({
                                             </div>
 
                                             <span className="rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-                                                {moeda(numero(item.valorPago))}
+                                                {formatMoney(numero(item.valorPago))}
                                             </span>
                                         </div>
 
                                         <div className="mt-5 grid gap-4 lg:grid-cols-2">
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Conta recebedora
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("receivingAccount")}</label>
 
                                                 <select
                                                     value={item.origemConta}
@@ -706,35 +702,25 @@ export default function PagamentoHoleriteModal({
                                                 >
                                                     {item.tipoItem === "SALARIO_E_DEMAIS" &&
                                                         preparacao.contas.salario && (
-                                                            <option value="CONTA_SALARIO">
-                                                                Conta padrão de salário
-                                                            </option>
+                                                            <option value="CONTA_SALARIO">{t("salaryDefault")}</option>
                                                         )}
 
                                                     {item.tipoItem !== "SALARIO_E_DEMAIS" &&
                                                         preparacao.contas.comissao && (
-                                                            <option value="CONTA_COMISSAO">
-                                                                Conta preferencial de comissão
-                                                            </option>
+                                                            <option value="CONTA_COMISSAO">{t("commissionPreferred")}</option>
                                                         )}
 
                                                     {item.tipoItem !== "SALARIO_E_DEMAIS" &&
                                                         preparacao.contas.salario && (
-                                                            <option value="CONTA_SALARIO">
-                                                                Usar conta padrão de salário
-                                                            </option>
+                                                            <option value="CONTA_SALARIO">{t("useSalaryDefault")}</option>
                                                         )}
 
-                                                    <option value="MANUAL">
-                                                        Informar outra conta manualmente
-                                                    </option>
+                                                    <option value="MANUAL">{t("manualAccount")}</option>
                                                 </select>
                                             </div>
 
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Forma de pagamento
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("method")}</label>
 
                                                 <select
                                                     value={item.formaPagamento}
@@ -748,49 +734,43 @@ export default function PagamentoHoleriteModal({
                                                     disabled={salvando}
                                                     className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                                                 >
-                                                    <option value="FOLHA_BANCARIA">Folha bancária</option>
+                                                    <option value="FOLHA_BANCARIA">{t("payroll")}</option>
                                                     <option value="PIX">PIX</option>
-                                                    <option value="TRANSFERENCIA">
-                                                        Transferência bancária
-                                                    </option>
-                                                    <option value="CONTA_SALARIO">Conta-salário</option>
-                                                    <option value="DINHEIRO">Dinheiro</option>
-                                                    <option value="CHEQUE">Cheque</option>
-                                                    <option value="OUTRO">Outro</option>
+                                                    <option value="TRANSFERENCIA">{t("transfer")}</option>
+                                                    <option value="CONTA_SALARIO">{t("salaryAccount")}</option>
+                                                    <option value="DINHEIRO">{t("cash")}</option>
+                                                    <option value="CHEQUE">{t("cheque")}</option>
+                                                    <option value="OUTRO">{t("other")}</option>
                                                 </select>
                                             </div>
                                         </div>
 
                                         {contaAutomatica ? (
                                             <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
-                                                <p className="font-black text-slate-900 dark:text-white">
-                                                    Dados cadastrados do destinatário
-                                                </p>
+                                                <p className="font-black text-slate-900 dark:text-white">{t("savedRecipient")}</p>
 
                                                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                                                     <p>
-                                                        <strong>Banco:</strong>{" "}
-                                                        {item.bancoDestinoTexto || "Não informado"}
+                                                        <strong>{t("bankColon")}</strong>{" "}
+                                                        {item.bancoDestinoTexto || t("notInformedMasc")}
                                                     </p>
                                                     <p>
-                                                        <strong>Agência:</strong>{" "}
-                                                        {item.agenciaDestino || "Não informada"}
+                                                        <strong>{t("agencyColon")}</strong>{" "}
+                                                        {item.agenciaDestino || t("notInformedFem")}
                                                     </p>
                                                     <p>
-                                                        <strong>Conta:</strong>{" "}
-                                                        {item.contaDestino || "Não informada"}
+                                                        <strong>{t("accountColon")}</strong>{" "}
+                                                        {item.contaDestino || t("notInformedFem")}
                                                     </p>
                                                     <p>
-                                                        <strong>Titular:</strong>{" "}
-                                                        {item.titularDestino || "Não informado"}
+                                                        <strong>{t("holderColon")}</strong>{" "}
+                                                        {item.titularDestino || t("notInformedMasc")}
                                                     </p>
                                                 </div>
 
                                                 {item.chavePixDestino && (
                                                     <div className="mt-4 rounded-xl border border-blue-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-                                                        <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                                                            Chave Pix para realizar o pagamento
-                                                        </p>
+                                                        <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t("pixKeyForPayment")}</p>
                                                         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
                                                             <code className="min-w-0 flex-1 break-all rounded-lg bg-white px-3 py-2 text-sm text-slate-900 dark:bg-slate-950 dark:text-white">
                                                                 {item.chavePixDestino}
@@ -802,9 +782,7 @@ export default function PagamentoHoleriteModal({
                                                                 }
                                                                 className="rounded-xl border border-blue-500 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/40"
                                                             >
-                                                                {pixCopiadoIndex === index
-                                                                    ? "Chave copiada"
-                                                                    : "Copiar chave"}
+                                                                {pixCopiadoIndex === index ? t("copied") : t("copyKey")}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -812,22 +790,16 @@ export default function PagamentoHoleriteModal({
 
                                                 {item.formaPagamento === "PIX" &&
                                                     !item.chavePixDestino && (
-                                                        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-medium text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
-                                                            Esta conta não possui chave Pix cadastrada. Altere
-                                                            a forma para transferência ou escolha uma conta
-                                                            manual.
-                                                        </div>
+                                                        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm font-medium text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">{t("missingPix")}</div>
                                                     )}
                                             </div>
                                         ) : (
                                             <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-                                                <h4 className="font-black">Dados manuais do destino</h4>
+                                                <h4 className="font-black">{t("manualRecipient")}</h4>
 
                                                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Banco recebedor/destino
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("receivingBank")}</label>
                                                         <BuscaBanco
                                                             value={item.bancoDestinoTexto}
                                                             onChange={(
@@ -851,15 +823,13 @@ export default function PagamentoHoleriteModal({
                                                                 );
                                                             }}
                                                             disabled={salvando}
-                                                            placeholder="Código ou nome do banco"
-                                                            ariaLabel="Buscar banco recebedor"
+                                                            placeholder={t("bankCodeOrName")}
+                                                            ariaLabel={t("searchRecipientBank")}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Tipo de conta
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("accountType")}</label>
                                                         <select
                                                             value={item.tipoContaDestino}
                                                             onChange={(event) =>
@@ -871,19 +841,17 @@ export default function PagamentoHoleriteModal({
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
                                                         >
-                                                            <option value="">Selecione</option>
-                                                            <option value="CORRENTE">Conta corrente</option>
-                                                            <option value="POUPANCA">Poupança</option>
-                                                            <option value="SALARIO">Conta-salário</option>
-                                                            <option value="PAGAMENTO">Conta de pagamento</option>
-                                                            <option value="OUTRA">Outra</option>
+                                                            <option value="">{t("select")}</option>
+                                                            <option value="CORRENTE">{t("checkingAccount")}</option>
+                                                            <option value="POUPANCA">{t("savings")}</option>
+                                                            <option value="SALARIO">{t("salaryAccount")}</option>
+                                                            <option value="PAGAMENTO">{t("paymentAccount")}</option>
+                                                            <option value="OUTRA">{t("otherF")}</option>
                                                         </select>
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Agência
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("agency")}</label>
                                                         <input
                                                             value={item.agenciaDestino}
                                                             onChange={(event) =>
@@ -894,14 +862,12 @@ export default function PagamentoHoleriteModal({
                                                                 )
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                                            placeholder="Agência"
+                                                            placeholder={t("agency")}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Conta
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("account")}</label>
                                                         <input
                                                             value={item.contaDestino}
                                                             onChange={(event) =>
@@ -912,14 +878,12 @@ export default function PagamentoHoleriteModal({
                                                                 )
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                                            placeholder="Conta com dígito"
+                                                            placeholder={t("accountWithDigit")}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Tipo de chave Pix
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("pixKeyType")}</label>
                                                         <select
                                                             value={item.tipoChavePixDestino}
                                                             onChange={(event) =>
@@ -931,19 +895,17 @@ export default function PagamentoHoleriteModal({
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
                                                         >
-                                                            <option value="">Selecione</option>
+                                                            <option value="">{t("select")}</option>
                                                             <option value="CPF">CPF</option>
                                                             <option value="CNPJ">CNPJ</option>
-                                                            <option value="EMAIL">E-mail</option>
-                                                            <option value="TELEFONE">Telefone</option>
-                                                            <option value="ALEATORIA">Chave aleatória</option>
+                                                            <option value="EMAIL">{t("email")}</option>
+                                                            <option value="TELEFONE">{t("phone")}</option>
+                                                            <option value="ALEATORIA">{t("randomKey")}</option>
                                                         </select>
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Chave Pix
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("pixKey")}</label>
                                                         <input
                                                             value={item.chavePixDestino}
                                                             onChange={(event) =>
@@ -954,14 +916,12 @@ export default function PagamentoHoleriteModal({
                                                                 )
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                                            placeholder="Chave Pix do funcionário"
+                                                            placeholder={t("employeePixKey")}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            Titular
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("holder")}</label>
                                                         <input
                                                             value={item.titularDestino}
                                                             onChange={(event) =>
@@ -972,14 +932,12 @@ export default function PagamentoHoleriteModal({
                                                                 )
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                                            placeholder="Nome do titular"
+                                                            placeholder={t("holderName")}
                                                         />
                                                     </div>
 
                                                     <div>
-                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                            CPF/CNPJ do titular
-                                                        </label>
+                                                        <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("holderDocument")}</label>
                                                         <input
                                                             value={item.titularDocumento}
                                                             onChange={(event) =>
@@ -990,7 +948,7 @@ export default function PagamentoHoleriteModal({
                                                                 )
                                                             }
                                                             className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                                            placeholder="Documento do titular"
+                                                            placeholder={t("holderDocumentPlaceholder")}
                                                         />
                                                     </div>
                                                 </div>
@@ -1011,12 +969,7 @@ export default function PagamentoHoleriteModal({
                                                             className="mt-1 h-4 w-4"
                                                         />
                                                         <span>
-                                                            <strong className="block">
-                                                                Salvar esta conta como preferencial para futuras
-                                                                comissões
-                                                            </strong>
-                                                            A conta salarial não será substituída.
-                                                        </span>
+                                                            <strong className="block">{t("savePreferred")}</strong>{t("salaryUnchanged")}</span>
                                                     </label>
                                                 )}
                                             </div>
@@ -1024,9 +977,7 @@ export default function PagamentoHoleriteModal({
 
                                         <div className="mt-5 grid gap-4 sm:grid-cols-2">
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Data e horário do pagamento
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("paymentDate")}</label>
                                                 <input
                                                     type="datetime-local"
                                                     value={item.pagoEm}
@@ -1043,9 +994,7 @@ export default function PagamentoHoleriteModal({
                                             </div>
 
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Valor desta parte
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("partialValue")}</label>
                                                 <input
                                                     value={item.valorPago}
                                                     readOnly
@@ -1054,9 +1003,7 @@ export default function PagamentoHoleriteModal({
                                             </div>
 
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Comprovante ou referência da transação
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("proof")}</label>
                                                 <input
                                                     value={item.identificadorTransacao}
                                                     onChange={(event) =>
@@ -1069,23 +1016,18 @@ export default function PagamentoHoleriteModal({
                                                     disabled={salvando}
                                                     placeholder={
                                                         item.formaPagamento === "PIX"
-                                                            ? "ID/E2E exibido no comprovante"
-                                                            : "Número, código ou referência"
+                                                            ? t("idE2e")
+                                                            : t("numberCodeReference")
                                                     }
                                                     className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
                                                 />
                                                 {item.formaPagamento === "PIX" && (
-                                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                        O ID/E2E identifica o Pix já realizado. Ele não
-                                                        substitui a chave Pix do destinatário.
-                                                    </p>
+                                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("idE2eHelp")}</p>
                                                 )}
                                             </div>
 
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Banco pagador/origem
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("payingBank")}</label>
                                                 <BuscaBanco
                                                     value={item.bancoOrigemTexto}
                                                     onChange={(
@@ -1105,18 +1047,14 @@ export default function PagamentoHoleriteModal({
                                                         );
                                                     }}
                                                     disabled={salvando}
-                                                    placeholder="Código ou nome do banco pagador"
-                                                    ariaLabel="Buscar banco pagador"
+                                                    placeholder={t("payingBankCode")}
+                                                    ariaLabel={t("searchPayingBank")}
                                                 />
-                                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                    Banco da instituição de onde o valor saiu.
-                                                </p>
+                                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("payingBankHelp")}</p>
                                             </div>
 
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Agência de origem, se aplicável
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("sourceAgency")}</label>
                                                 <input
                                                     value={item.agenciaOrigem}
                                                     onChange={(event) =>
@@ -1128,14 +1066,12 @@ export default function PagamentoHoleriteModal({
                                                     }
                                                     disabled={salvando}
                                                     className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
-                                                    placeholder="Agência da instituição"
+                                                    placeholder={t("sourceAgencyPlaceholder")}
                                                 />
                                             </div>
 
                                             <div>
-                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                    Conta de origem, se aplicável
-                                                </label>
+                                                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("sourceAccount")}</label>
                                                 <input
                                                     value={item.contaOrigem}
                                                     onChange={(event) =>
@@ -1147,15 +1083,13 @@ export default function PagamentoHoleriteModal({
                                                     }
                                                     disabled={salvando}
                                                     className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
-                                                    placeholder="Conta da instituição"
+                                                    placeholder={t("sourceAccountPlaceholder")}
                                                 />
                                             </div>
                                         </div>
 
                                         <div className="mt-4">
-                                            <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                                Observações desta parte
-                                            </label>
+                                            <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("partNotes")}</label>
                                             <textarea
                                                 value={item.observacoes}
                                                 onChange={(event) =>
@@ -1168,7 +1102,7 @@ export default function PagamentoHoleriteModal({
                                                 rows={2}
                                                 maxLength={3000}
                                                 className="mt-2 w-full resize-none rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
-                                                placeholder="Informações específicas deste pagamento."
+                                                placeholder={t("partNotesPlaceholder")}
                                             />
                                         </div>
                                     </section>
@@ -1177,9 +1111,7 @@ export default function PagamentoHoleriteModal({
                         </div>
 
                         <div className="mt-5">
-                            <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                                Observações gerais do recibo
-                            </label>
+                            <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("receiptNotes")}</label>
                             <textarea
                                 value={observacoesGerais}
                                 onChange={(event) =>
@@ -1189,15 +1121,11 @@ export default function PagamentoHoleriteModal({
                                 maxLength={3000}
                                 disabled={salvando}
                                 className="mt-2 w-full resize-none rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-900"
-                                placeholder="Informações gerais sobre o pagamento."
+                                placeholder={t("receiptNotesPlaceholder")}
                             />
                         </div>
 
-                        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-                            O recibo preservará o destino, os valores e as referências usados
-                            em cada pagamento. Alterações futuras nas contas do funcionário
-                            não modificarão os registros antigos.
-                        </div>
+                        <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">{t("immutableNotice")}</div>
 
                         {erro && (
                             <div className="mt-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
@@ -1207,7 +1135,7 @@ export default function PagamentoHoleriteModal({
 
                         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                             <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                                Total preparado: {moeda(totalItens)}
+                                {t("totalPrepared", { amount: formatMoney(totalItens) })}
                             </p>
 
                             <div className="flex flex-wrap justify-end gap-3">
@@ -1216,9 +1144,7 @@ export default function PagamentoHoleriteModal({
                                     disabled={salvando}
                                     onClick={onFechar}
                                     className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
-                                >
-                                    Cancelar
-                                </button>
+                                >{t("cancel")}</button>
 
                                 <button
                                     type="button"
@@ -1227,8 +1153,8 @@ export default function PagamentoHoleriteModal({
                                     className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {salvando
-                                        ? "Gerando recibo..."
-                                        : "Gerar recibo de pagamento"}
+                                        ? t("generating")
+                                        : t("generate")}
                                 </button>
                             </div>
                         </div>
