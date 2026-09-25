@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 type Departamento = {
   id: number;
@@ -66,91 +67,80 @@ type AbaPagina = "visao-geral" | "novo-programa";
 const TIPOS = [
   {
     value: "BONUS",
-    label: "Bônus",
-    descricao: "Pagamento adicional por meta, desempenho ou resultado.",
+    labelKey: "typeBonus",
+    descriptionKey: "typeBonusDesc",
   },
   {
     value: "PREMIO",
-    label: "Prêmio",
-    descricao: "Reconhecimento financeiro por desempenho extraordinário.",
+    labelKey: "typePrize",
+    descriptionKey: "typePrizeDesc",
   },
   {
     value: "PARTICIPACAO_RESULTADOS",
-    label: "Participação nos resultados",
-    descricao: "Distribuição baseada nos resultados alcançados.",
+    labelKey: "typeResults",
+    descriptionKey: "typeResultsDesc",
   },
   {
     value: "PARTICIPACAO_LUCROS",
-    label: "Participação nos lucros",
-    descricao: "Distribuição vinculada ao lucro apurado pela instituição.",
+    labelKey: "typeProfits",
+    descriptionKey: "typeProfitsDesc",
   },
   {
     value: "OUTRO",
-    label: "Outra remuneração",
-    descricao: "Outra verba variável definida pela instituição.",
+    labelKey: "typeOther",
+    descriptionKey: "typeOtherDesc",
   },
-];
+] as const;
 
 const ABRANGENCIAS = [
   {
     value: "TODOS_FUNCIONARIOS",
-    label: "Todos os funcionários",
+    labelKey: "scopeAll",
   },
   {
     value: "DEPARTAMENTO",
-    label: "Departamento específico",
+    labelKey: "scopeDepartment",
   },
   {
     value: "FUNCIONARIOS_SELECIONADOS",
-    label: "Funcionários selecionados",
+    labelKey: "scopeSelected",
   },
-];
+] as const;
 
 const METODOS_DISTRIBUICAO = [
   {
     value: "VALOR_FIXO_INDIVIDUAL",
-    label: "Valor fixo por funcionário",
+    labelKey: "methodFixed",
   },
   {
     value: "IGUALITARIO",
-    label: "Divisão igualitária",
+    labelKey: "methodEqual",
   },
   {
     value: "PROPORCIONAL_SALARIO",
-    label: "Proporcional ao salário",
+    labelKey: "methodSalary",
   },
   {
     value: "PROPORCIONAL_TEMPO_TRABALHADO",
-    label: "Proporcional ao tempo trabalhado",
+    labelKey: "methodTime",
   },
   {
     value: "PERCENTUAL_INDIVIDUAL",
-    label: "Percentual individual",
+    labelKey: "methodPercent",
   },
   {
     value: "PONTUACAO",
-    label: "Sistema de pontuação ou peso",
+    labelKey: "methodPoints",
   },
   {
     value: "MANUAL",
-    label: "Definição manual",
+    labelKey: "methodManual",
   },
-];
+] as const;
 
-const MESES = [
-  { value: "1", label: "Janeiro" },
-  { value: "2", label: "Fevereiro" },
-  { value: "3", label: "Março" },
-  { value: "4", label: "Abril" },
-  { value: "5", label: "Maio" },
-  { value: "6", label: "Junho" },
-  { value: "7", label: "Julho" },
-  { value: "8", label: "Agosto" },
-  { value: "9", label: "Setembro" },
-  { value: "10", label: "Outubro" },
-  { value: "11", label: "Novembro" },
-  { value: "12", label: "Dezembro" },
-];
+const MESES = Array.from({ length: 12 }, (_, index) => ({
+  value: String(index + 1),
+}));
 
 const FORM_INICIAL = {
   nome: "",
@@ -176,33 +166,33 @@ const FORM_INICIAL = {
   permitirAjusteManual: true,
 };
 
-function formatarMoeda(valor: string | number | null | undefined) {
+function formatarMoeda(valor: string | number | null | undefined, locale: string) {
   const numero = Number(valor || 0);
 
-  return numero.toLocaleString("pt-BR", {
+  return numero.toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarData(valor?: string | null) {
+function formatarData(valor: string | null | undefined, locale: string) {
   if (!valor) return "-";
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) return "-";
 
-  return data.toLocaleDateString("pt-BR");
+  return data.toLocaleDateString(locale);
 }
 
-function formatarDataHora(valor?: string | null) {
+function formatarDataHora(valor: string | null | undefined, locale: string) {
   if (!valor) return "-";
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) return "-";
 
-  return data.toLocaleString("pt-BR", {
+  return data.toLocaleString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -221,23 +211,49 @@ function labelPorValor(
 function classeStatus(status: string) {
   switch (status) {
     case "ATIVO":
-      return "border-emerald-500/30 bg-emerald-500/15 text-emerald-300";
+      return "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-300";
 
     case "EM_APURACAO":
-      return "border-blue-500/30 bg-blue-500/15 text-blue-300";
+      return "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/15 dark:text-blue-300";
 
     case "FECHADO":
-      return "border-violet-500/30 bg-violet-500/15 text-violet-300";
+      return "border-violet-300 bg-violet-50 text-violet-800 dark:border-violet-500/30 dark:bg-violet-500/15 dark:text-violet-300";
 
     case "CANCELADO":
-      return "border-red-500/30 bg-red-500/15 text-red-300";
+      return "border-red-300 bg-red-50 text-red-800 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-300";
 
     default:
-      return "border-amber-500/30 bg-amber-500/15 text-amber-300";
+      return "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-300";
   }
 }
 
 export default function RemuneracaoVariavelPage() {
+  const t = useTranslations("AdminHRVariablePay");
+  const locale = useLocale();
+  const tipos = TIPOS.map((item) => ({
+    ...item,
+    label: t(item.labelKey),
+    descricao: t(item.descriptionKey),
+  }));
+  const abrangencias = ABRANGENCIAS.map((item) => ({
+    ...item,
+    label: t(item.labelKey),
+  }));
+  const metodos = METODOS_DISTRIBUICAO.map((item) => ({
+    ...item,
+    label: t(item.labelKey),
+  }));
+  const monthFormatter = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    timeZone: "UTC",
+  });
+  const statusKeys: Record<string, "statusActive" | "statusCalculating" | "statusClosed" | "statusCancelled" | "statusDraft"> = {
+    ATIVO: "statusActive",
+    EM_APURACAO: "statusCalculating",
+    FECHADO: "statusClosed",
+    CANCELADO: "statusCancelled",
+    RASCUNHO: "statusDraft",
+  };
   const [aba, setAba] = useState<AbaPagina>("visao-geral");
   const [programas, setProgramas] = useState<
     ProgramaRemuneracaoVariavel[]
@@ -265,9 +281,9 @@ export default function RemuneracaoVariavelPage() {
 
   const tipoSelecionado = useMemo(
     () =>
-      TIPOS.find((item) => item.value === form.tipo) ||
-      TIPOS[0],
-    [form.tipo]
+      tipos.find((item) => item.value === form.tipo) ||
+      tipos[0],
+    [form.tipo, locale]
   );
 
   async function carregarDados() {
@@ -287,8 +303,7 @@ export default function RemuneracaoVariavelPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível carregar a remuneração variável."
+          (locale === "pt-BR" && dados.error) || t("loadError")
         );
       }
 
@@ -327,8 +342,7 @@ export default function RemuneracaoVariavelPage() {
       });
     } catch (error: any) {
       setErro(
-        error?.message ||
-          "Erro ao carregar a remuneração variável."
+        (locale === "pt-BR" && error?.message) || t("loadError")
       );
     } finally {
       setCarregando(false);
@@ -373,23 +387,20 @@ export default function RemuneracaoVariavelPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível criar o programa."
+          (locale === "pt-BR" && dados.error) || t("createError")
         );
       }
 
       setForm(FORM_INICIAL);
       setSucesso(
-        dados.message ||
-          "Programa de remuneração variável criado."
+        (locale === "pt-BR" && dados.message) || t("createSuccess")
       );
       setAba("visao-geral");
 
       await carregarDados();
     } catch (error: any) {
       setErro(
-        error?.message ||
-          "Erro ao criar o programa de remuneração variável."
+        (locale === "pt-BR" && error?.message) || t("createError")
       );
     } finally {
       setSalvando(false);
@@ -397,22 +408,15 @@ export default function RemuneracaoVariavelPage() {
   }
 
   return (
-    <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen p-4 sm:p-6">
+    <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen bg-slate-50 p-4 text-slate-950 dark:bg-slate-950 dark:text-slate-100 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.22em] text-blue-300">
-              Pessoal / RH
-            </p>
+            <p className="text-sm font-bold uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">{t("breadcrumb")}</p>
 
-            <h1 className="mt-2 text-3xl font-black">
-              Remuneração Variável
-            </h1>
+            <h1 className="mt-2 text-3xl font-black">{t("title")}</h1>
 
-            <p className="mt-2 max-w-3xl text-sm text-slate-400">
-              Gerencie comissões, bônus, prêmios, participação
-              nos resultados e participação nos lucros.
-            </p>
+            <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-400">{t("description")}</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -425,11 +429,9 @@ export default function RemuneracaoVariavelPage() {
               className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${
                 aba === "visao-geral"
                   ? "phanyx-remuneracao-tab-ativa border-blue-500 bg-blue-600 text-white"
-                  : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-blue-400"
+                  : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 hover:border-blue-400"
               }`}
-            >
-              Visão geral
-            </button>
+            >{t("overview")}</button>
 
             <button
               type="button"
@@ -441,22 +443,20 @@ export default function RemuneracaoVariavelPage() {
               className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${
                 aba === "novo-programa"
                   ? "phanyx-remuneracao-tab-ativa border-blue-500 bg-blue-600 text-white"
-                  : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-blue-400"
+                  : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 hover:border-blue-400"
               }`}
-            >
-              + Novo programa
-            </button>
+            >{t("newProgram")}</button>
           </div>
         </header>
 
         {erro && (
-          <div className="rounded-2xl border border-red-500/30 bg-red-950/40 p-4 text-sm text-red-200">
+          <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-500/30 dark:bg-red-950/40 dark:text-red-200">
             {erro}
           </div>
         )}
 
         {sucesso && (
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/40 p-4 text-sm text-emerald-200">
+          <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-200">
             {sucesso}
           </div>
         )}
@@ -464,121 +464,83 @@ export default function RemuneracaoVariavelPage() {
         {aba === "visao-geral" && (
           <>
             <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                  Programas cadastrados
-                </p>
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">{t("programsRegistered")}</p>
 
                 <p className="mt-3 text-3xl font-black">
                   {resumo.totalProgramas}
                 </p>
 
-                <p className="mt-2 text-xs text-slate-400">
-                  {resumo.programasAtivos} ativos e{" "}
-                  {resumo.programasRascunho} em rascunho
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                  {t("programsSummary", { active: resumo.programasAtivos, draft: resumo.programasRascunho })}
                 </p>
               </article>
 
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                  Comissões pendentes
-                </p>
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">{t("pendingCommissions")}</p>
 
                 <p className="mt-3 text-3xl font-black">
                   {resumo.comissoesPendentes}
                 </p>
 
-                <p className="mt-2 text-xs text-slate-400">
-                  Vendas e matrículas aguardando aprovação
-                </p>
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">{t("salesPendingApproval")}</p>
               </article>
 
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                  Outros lançamentos
-                </p>
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">{t("otherEntries")}</p>
 
                 <p className="mt-3 text-3xl font-black">
                   {resumo.remuneracoesPendentes}
                 </p>
 
-                <p className="mt-2 text-xs text-slate-400">
-                  Bônus, prêmios e participações pendentes
-                </p>
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">{t("otherEntriesDescription")}</p>
               </article>
 
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-                  Valor pendente
-                </p>
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-400">{t("pendingValue")}</p>
 
                 <p className="mt-3 text-3xl font-black">
-                  {formatarMoeda(resumo.totalValorPendente)}
+                  {formatarMoeda(resumo.totalValorPendente, locale)}
                 </p>
 
-                <p className="mt-2 text-xs text-slate-400">
-                  {resumo.totalLancamentosPendentes} lançamentos
-                  aguardando análise
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                  {t("entriesPending", { count: resumo.totalLancamentosPendentes })}
                 </p>
               </article>
             </section>
 
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
                 <div className="text-2xl">📈</div>
-                <h2 className="mt-3 font-black">
-                  Comissões
-                </h2>
-                <p className="mt-2 text-sm text-slate-400">
-                  Valores por matrícula, venda, renovação ou
-                  recebimento.
-                </p>
+                <h2 className="mt-3 font-black">{t("commissions")}</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{t("commissionsDescription")}</p>
               </article>
 
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
                 <div className="text-2xl">🏆</div>
-                <h2 className="mt-3 font-black">
-                  Bônus e prêmios
-                </h2>
-                <p className="mt-2 text-sm text-slate-400">
-                  Reconhecimento por desempenho, produtividade e
-                  metas.
-                </p>
+                <h2 className="mt-3 font-black">{t("bonusesPrizes")}</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{t("bonusesDescription")}</p>
               </article>
 
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
                 <div className="text-2xl">🤝</div>
-                <h2 className="mt-3 font-black">
-                  Resultados e lucros
-                </h2>
-                <p className="mt-2 text-sm text-slate-400">
-                  Distribuição para todos, por departamento ou
-                  pessoas selecionadas.
-                </p>
+                <h2 className="mt-3 font-black">{t("resultsProfits")}</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{t("resultsDescription")}</p>
               </article>
 
-              <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+              <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
                 <div className="text-2xl">🧾</div>
-                <h2 className="mt-3 font-black">
-                  Integração com folha
-                </h2>
-                <p className="mt-2 text-sm text-slate-400">
-                  Lançamentos aprovados serão enviados ao holerite.
-                </p>
+                <h2 className="mt-3 font-black">{t("payrollIntegration")}</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{t("payrollDescription")}</p>
               </article>
             </section>
 
-            <section className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-xl">
-              <div className="flex flex-col gap-3 border-b border-slate-800 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 shadow-xl">
+              <div className="flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-lg font-black">
-                    Programas de remuneração
-                  </h2>
+                  <h2 className="text-lg font-black">{t("programs")}</h2>
 
-                  <p className="mt-1 text-sm text-slate-400">
-                    Programas de bônus, prêmio e participação
-                    cadastrados pela instituição.
-                  </p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("programsDescription")}</p>
                 </div>
 
                 <button
@@ -589,51 +551,39 @@ export default function RemuneracaoVariavelPage() {
                     setSucesso("");
                   }}
                   className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-500"
-                >
-                  + Criar programa
-                </button>
+                >{t("createProgram")}</button>
               </div>
 
               {carregando ? (
-                <div className="p-6 text-sm text-slate-400">
-                  Carregando programas...
-                </div>
+                <div className="p-6 text-sm text-slate-600 dark:text-slate-400">{t("loading")}</div>
               ) : programas.length === 0 ? (
                 <div className="p-8 text-center">
                   <div className="text-4xl">💰</div>
 
-                  <h3 className="mt-4 text-lg font-black">
-                    Nenhum programa cadastrado
-                  </h3>
+                  <h3 className="mt-4 text-lg font-black">{t("noPrograms")}</h3>
 
-                  <p className="mx-auto mt-2 max-w-xl text-sm text-slate-400">
-                    Crie o primeiro programa para distribuir bônus,
-                    prêmios, participação nos resultados ou nos
-                    lucros.
-                  </p>
+                  <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600 dark:text-slate-400">{t("emptyDescription")}</p>
 
                   <button
                     type="button"
                     onClick={() => setAba("novo-programa")}
                     className="phanyx-remuneracao-botao-primario mt-5 rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-blue-500"
-                  >
-                    Criar primeiro programa
-                  </button>
+                  >{t("createFirst")}</button>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
-                    <thead className="bg-slate-950/70 text-left text-xs uppercase tracking-wide text-slate-400">
+                    <thead className="bg-slate-100 dark:bg-slate-950/70 text-left text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
                       <tr>
-                        <th className="p-3">Programa</th>
-                        <th className="p-3">Tipo</th>
-                        <th className="p-3">Abrangência</th>
-                        <th className="p-3">Competência</th>
-                        <th className="p-3">Participantes</th>
-                        <th className="p-3">Fundo</th>
-                        <th className="p-3">Auditoria</th>
-                        <th className="p-3">Status</th>
-                        <th className="p-3">Ações</th>
+                        <th className="p-3">{t("program")}</th>
+                        <th className="p-3">{t("type")}</th>
+                        <th className="p-3">{t("scope")}</th>
+                        <th className="p-3">{t("period")}</th>
+                        <th className="p-3">{t("participants")}</th>
+                        <th className="p-3">{t("fund")}</th>
+                        <th className="p-3">{t("audit")}</th>
+                        <th className="p-3">{t("status")}</th>
+                        <th className="p-3">{t("actions")}</th>
                       </tr>
                     </thead>
 
@@ -641,7 +591,7 @@ export default function RemuneracaoVariavelPage() {
                       {programas.map((programa) => (
                         <tr
                           key={programa.id}
-                          className="border-t border-slate-800"
+                          className="border-t border-slate-200 dark:border-slate-800"
                         >
                           <td className="p-3">
                             <p className="font-bold">
@@ -649,27 +599,27 @@ export default function RemuneracaoVariavelPage() {
                             </p>
 
                             {programa.departamento?.nome && (
-                              <p className="mt-1 text-xs text-slate-400">
+                              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                                 {programa.departamento.nome}
                               </p>
                             )}
                           </td>
 
-                          <td className="p-3 text-slate-300">
+                          <td className="p-3 text-slate-700 dark:text-slate-300">
                             {labelPorValor(
-                              TIPOS,
+                              tipos,
                               programa.tipo
                             )}
                           </td>
 
-                          <td className="p-3 text-slate-300">
+                          <td className="p-3 text-slate-700 dark:text-slate-300">
                             {labelPorValor(
-                              ABRANGENCIAS,
+                              abrangencias,
                               programa.abrangencia
                             )}
                           </td>
 
-                          <td className="p-3 text-slate-300">
+                          <td className="p-3 text-slate-700 dark:text-slate-300">
                             {programa.competenciaMes &&
                             programa.competenciaAno
                               ? `${String(
@@ -680,21 +630,22 @@ export default function RemuneracaoVariavelPage() {
                               : programa.periodoInicio ||
                                   programa.periodoFim
                                 ? `${formatarData(
-                                    programa.periodoInicio
-                                  )} até ${formatarData(
-                                    programa.periodoFim
+                                    programa.periodoInicio, locale
+                                  )} ${t("until")} ${formatarData(
+                                    programa.periodoFim, locale
                                   )}`
                                 : "-"}
                           </td>
 
-                          <td className="p-3 text-slate-300">
+                          <td className="p-3 text-slate-700 dark:text-slate-300">
                             {programa._count?.participantes || 0}
                           </td>
 
-                          <td className="p-3 text-slate-300">
+                          <td className="p-3 text-slate-700 dark:text-slate-300">
                             {programa.valorFundo
                               ? formatarMoeda(
-                                  programa.valorFundo
+                                  programa.valorFundo,
+                                  locale
                                 )
                               : programa.percentualFundo
                                 ? `${programa.percentualFundo}%`
@@ -705,18 +656,15 @@ export default function RemuneracaoVariavelPage() {
   <p className="font-semibold">
   {programa.criadoPor?.nome?.trim() ||
     programa.criadoPor?.email ||
-    `Usuário ID ${programa.criadoPorId ?? "-"}`}
+    t("userIdFallback", { id: programa.criadoPorId ?? "-" })}
 </p>
 
-  <p className="mt-1 text-xs text-slate-400">
-    ID do usuário:{" "}
-    {programa.criadoPor?.id ||
-      programa.criadoPorId ||
-      "-"}
+  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+    {t("userId", { id: programa.criadoPor?.id || programa.criadoPorId || "-" })}
   </p>
 
-  <p className="mt-1 text-xs text-slate-400">
-    Criado em: {formatarDataHora(programa.criadoEm)}
+  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+    {t("createdAt", { date: formatarDataHora(programa.criadoEm, locale) })}
   </p>
 </td>
 
@@ -726,10 +674,9 @@ export default function RemuneracaoVariavelPage() {
                                 programa.status
                               )}`}
                             >
-                              {programa.status.replaceAll(
-                                "_",
-                                " "
-                              )}
+                              {statusKeys[programa.status]
+                                ? t(statusKeys[programa.status])
+                                : programa.status.replaceAll("_", " ")}
                             </span>
                           </td>
 
@@ -737,9 +684,7 @@ export default function RemuneracaoVariavelPage() {
   <Link
     href={`/admin/rh/remuneracao-variavel/${programa.id}`}
     className="phanyx-remuneracao-botao-primario inline-flex whitespace-nowrap rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-500"
-  >
-    Gerenciar
-  </Link>
+  >{t("manage")}</Link>
 </td>
 
                         </tr>
@@ -757,23 +702,16 @@ export default function RemuneracaoVariavelPage() {
             onSubmit={salvarPrograma}
             className="space-y-6"
           >
-            <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+            <section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
               <div>
-                <h2 className="text-lg font-black">
-                  Identificação do programa
-                </h2>
+                <h2 className="text-lg font-black">{t("programIdentity")}</h2>
 
-                <p className="mt-1 text-sm text-slate-400">
-                  Defina qual remuneração será distribuída e quem
-                  poderá participar.
-                </p>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("identityDescription")}</p>
               </div>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <label className="space-y-1 md:col-span-2">
-                  <span className="text-xs font-bold text-slate-300">
-                    Nome do programa
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("programName")}</span>
 
                   <input
                     required
@@ -784,15 +722,13 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    placeholder="Ex.: Programa de participação nos resultados 2026"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    placeholder={t("namePlaceholder")}
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Tipo de remuneração
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("payType")}</span>
 
                   <select
                     value={form.tipo}
@@ -802,9 +738,9 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   >
-                    {TIPOS.map((tipo) => (
+                    {tipos.map((tipo) => (
                       <option
                         key={tipo.value}
                         value={tipo.value}
@@ -814,15 +750,13 @@ export default function RemuneracaoVariavelPage() {
                     ))}
                   </select>
 
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     {tipoSelecionado.descricao}
                   </p>
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Abrangência
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("scope")}</span>
 
                   <select
                     value={form.abrangencia}
@@ -838,9 +772,9 @@ export default function RemuneracaoVariavelPage() {
                         atualizarForm("departamentoId", "");
                       }
                     }}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   >
-                    {ABRANGENCIAS.map((abrangencia) => (
+                    {abrangencias.map((abrangencia) => (
                       <option
                         key={abrangencia.value}
                         value={abrangencia.value}
@@ -853,9 +787,7 @@ export default function RemuneracaoVariavelPage() {
 
                 {form.abrangencia === "DEPARTAMENTO" && (
                   <label className="space-y-1">
-                    <span className="text-xs font-bold text-slate-300">
-                      Departamento participante
-                    </span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("participatingDepartment")}</span>
 
                     <select
                       required
@@ -866,11 +798,9 @@ export default function RemuneracaoVariavelPage() {
                           event.target.value
                         )
                       }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                      className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                     >
-                      <option value="">
-                        Selecione o departamento
-                      </option>
+                      <option value="">{t("selectDepartment")}</option>
 
                       {departamentos.map((departamento) => (
                         <option
@@ -885,9 +815,7 @@ export default function RemuneracaoVariavelPage() {
                 )}
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Método de distribuição
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("distributionMethod")}</span>
 
                   <select
                     value={form.metodoDistribuicao}
@@ -897,9 +825,9 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   >
-                    {METODOS_DISTRIBUICAO.map((metodo) => (
+                    {metodos.map((metodo) => (
                       <option
                         key={metodo.value}
                         value={metodo.value}
@@ -911,9 +839,7 @@ export default function RemuneracaoVariavelPage() {
                 </label>
 
                 <label className="space-y-1 md:col-span-2">
-                  <span className="text-xs font-bold text-slate-300">
-                    Descrição
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("programDescription")}</span>
 
                   <textarea
                     value={form.descricao}
@@ -924,28 +850,21 @@ export default function RemuneracaoVariavelPage() {
                       )
                     }
                     rows={3}
-                    placeholder="Descreva a finalidade, as metas e os critérios gerais do programa."
-                    className="w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    placeholder={t("descriptionPlaceholder")}
+                    className="w-full resize-y rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-              <h2 className="text-lg font-black">
-                Competência e período
-              </h2>
+            <section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+              <h2 className="text-lg font-black">{t("periodSection")}</h2>
 
-              <p className="mt-1 text-sm text-slate-400">
-                A competência define em qual folha o pagamento
-                deverá ser considerado.
-              </p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("periodDescription")}</p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Mês da competência
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("periodMonth")}</span>
 
                   <select
                     value={form.competenciaMes}
@@ -955,25 +874,23 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   >
-                    <option value="">Selecione</option>
+                    <option value="">{t("select")}</option>
 
                     {MESES.map((mes) => (
                       <option
                         key={mes.value}
                         value={mes.value}
                       >
-                        {mes.label}
+                        {monthFormatter.format(new Date(Date.UTC(2020, Number(mes.value) - 1, 1)))}
                       </option>
                     ))}
                   </select>
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Ano da competência
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("periodYear")}</span>
 
                   <input
                     type="number"
@@ -987,14 +904,12 @@ export default function RemuneracaoVariavelPage() {
                       )
                     }
                     placeholder="2026"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Início da apuração
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("periodStart")}</span>
 
                   <input
                     type="date"
@@ -1005,14 +920,12 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Final da apuração
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("periodEnd")}</span>
 
                   <input
                     type="date"
@@ -1023,27 +936,20 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-              <h2 className="text-lg font-black">
-                Valores e limites
-              </h2>
+            <section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+              <h2 className="text-lg font-black">{t("valuesSection")}</h2>
 
-              <p className="mt-1 text-sm text-slate-400">
-                Informe o fundo disponível ou o percentual que será
-                distribuído.
-              </p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("valuesDescription")}</p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Valor total do fundo
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("fundValue")}</span>
 
                   <input
                     value={form.valorFundo}
@@ -1053,16 +959,14 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    placeholder="0,00"
+                    placeholder={t("decimalPlaceholder")}
                     inputMode="decimal"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Percentual do fundo
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("fundPercent")}</span>
 
                   <input
                     value={form.percentualFundo}
@@ -1072,16 +976,14 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    placeholder="Ex.: 5"
+                    placeholder={t("percentPlaceholder")}
                     inputMode="decimal"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Valor mínimo individual
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("individualMinimum")}</span>
 
                   <input
                     value={form.valorMinimoIndividual}
@@ -1091,16 +993,14 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    placeholder="0,00"
+                    placeholder={t("decimalPlaceholder")}
                     inputMode="decimal"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-xs font-bold text-slate-300">
-                    Valor máximo individual
-                  </span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("individualMaximum")}</span>
 
                   <input
                     value={form.valorMaximoIndividual}
@@ -1110,26 +1010,21 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    placeholder="0,00"
+                    placeholder={t("decimalPlaceholder")}
                     inputMode="decimal"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
-              <h2 className="text-lg font-black">
-                Elegibilidade
-              </h2>
+            <section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
+              <h2 className="text-lg font-black">{t("eligibility")}</h2>
 
-              <p className="mt-1 text-sm text-slate-400">
-                Determine quais condições os funcionários devem
-                cumprir.
-              </p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("eligibilityDescription")}</p>
 
               <div className="mt-5 grid gap-3 md:grid-cols-2">
-                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
                   <input
                     type="checkbox"
                     checked={form.exigirFuncionarioAtivo}
@@ -1143,17 +1038,13 @@ export default function RemuneracaoVariavelPage() {
                   />
 
                   <span>
-                    <span className="block text-sm font-bold">
-                      Exigir funcionário ativo
-                    </span>
+                    <span className="block text-sm font-bold">{t("requireActive")}</span>
 
-                    <span className="mt-1 block text-xs text-slate-400">
-                      Funcionários desligados não serão incluídos.
-                    </span>
+                    <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">{t("requireActiveDescription")}</span>
                   </span>
                 </label>
 
-                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
                   <input
                     type="checkbox"
                     checked={form.excluirEmExperiencia}
@@ -1167,17 +1058,13 @@ export default function RemuneracaoVariavelPage() {
                   />
 
                   <span>
-                    <span className="block text-sm font-bold">
-                      Excluir período de experiência
-                    </span>
+                    <span className="block text-sm font-bold">{t("excludeProbation")}</span>
 
-                    <span className="mt-1 block text-xs text-slate-400">
-                      Funcionários em experiência não participarão.
-                    </span>
+                    <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">{t("excludeProbationDescription")}</span>
                   </span>
                 </label>
 
-                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
                   <input
                     type="checkbox"
                     checked={form.considerarSalarioBase}
@@ -1191,17 +1078,13 @@ export default function RemuneracaoVariavelPage() {
                   />
 
                   <span>
-                    <span className="block text-sm font-bold">
-                      Considerar salário-base
-                    </span>
+                    <span className="block text-sm font-bold">{t("considerSalary")}</span>
 
-                    <span className="mt-1 block text-xs text-slate-400">
-                      O salário poderá influenciar a distribuição.
-                    </span>
+                    <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">{t("considerSalaryDescription")}</span>
                   </span>
                 </label>
 
-                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
                   <input
                     type="checkbox"
                     checked={form.considerarTempoTrabalhado}
@@ -1215,18 +1098,13 @@ export default function RemuneracaoVariavelPage() {
                   />
 
                   <span>
-                    <span className="block text-sm font-bold">
-                      Considerar tempo trabalhado
-                    </span>
+                    <span className="block text-sm font-bold">{t("considerTime")}</span>
 
-                    <span className="mt-1 block text-xs text-slate-400">
-                      Funcionários com períodos diferentes poderão
-                      receber valores proporcionais.
-                    </span>
+                    <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">{t("considerTimeDescription")}</span>
                   </span>
                 </label>
 
-                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <label className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
                   <input
                     type="checkbox"
                     checked={form.permitirAjusteManual}
@@ -1240,21 +1118,14 @@ export default function RemuneracaoVariavelPage() {
                   />
 
                   <span>
-                    <span className="block text-sm font-bold">
-                      Permitir ajuste manual
-                    </span>
+                    <span className="block text-sm font-bold">{t("manualAdjustment")}</span>
 
-                    <span className="mt-1 block text-xs text-slate-400">
-                      O RH poderá corrigir valores antes da
-                      aprovação.
-                    </span>
+                    <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">{t("manualAdjustmentDescription")}</span>
                   </span>
                 </label>
 
-                <label className="phanyx-remuneracao-elegibilidade-card space-y-1 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-                  <span className="text-xs font-bold text-slate-300">
-                    Dias mínimos desde a admissão
-                  </span>
+                <label className="phanyx-remuneracao-elegibilidade-card space-y-1 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("minimumTenure")}</span>
 
                   <input
                     type="number"
@@ -1266,16 +1137,14 @@ export default function RemuneracaoVariavelPage() {
                         event.target.value
                       )
                     }
-                    placeholder="Ex.: 90"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                    placeholder={t("tenurePlaceholder")}
+                    className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                   />
                 </label>
               </div>
 
               <label className="mt-4 block space-y-1">
-                <span className="text-xs font-bold text-slate-300">
-                  Observações internas
-                </span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("internalNotes")}</span>
 
                 <textarea
                   value={form.observacoes}
@@ -1286,8 +1155,8 @@ export default function RemuneracaoVariavelPage() {
                     )
                   }
                   rows={3}
-                  placeholder="Registre orientações internas para o RH e os gestores."
-                  className="w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
+                  placeholder={t("notesPlaceholder")}
+                  className="w-full resize-y rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
                 />
               </label>
             </section>
@@ -1299,10 +1168,8 @@ export default function RemuneracaoVariavelPage() {
                   setAba("visao-geral");
                   setErro("");
                 }}
-                className="rounded-xl border border-slate-700 bg-slate-900 px-5 py-2.5 text-sm font-bold text-slate-300 transition hover:border-slate-500"
-              >
-                Cancelar
-              </button>
+                className="rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900 px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:border-slate-500"
+              >{t("cancel")}</button>
 
               <button
                 type="submit"
@@ -1310,8 +1177,8 @@ export default function RemuneracaoVariavelPage() {
                 className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {salvando
-                  ? "Salvando..."
-                  : "Criar programa como rascunho"}
+                  ? t("saving")
+                  : t("createDraft")}
               </button>
             </div>
           </form>
