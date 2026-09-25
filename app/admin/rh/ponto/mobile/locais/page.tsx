@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type LocalPontoMobile = {
   id: number;
@@ -145,6 +146,8 @@ function formatarCepDigitado(valor: string) {
 }
 
 export default function LocaisPontoMobilePage() {
+  const t = useTranslations("AdminHRPointMobileLocations");
+  const locale = useLocale();
   const [locais, setLocais] = useState<
     LocalPontoMobile[]
   >([]);
@@ -308,8 +311,7 @@ const [
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível carregar os locais."
+          (locale === "pt-BR" && dados.error) || t("loadError")
         );
       }
 
@@ -334,9 +336,9 @@ const [
     } catch (error) {
       mostrarToast(
         "erro",
-        error instanceof Error
+        locale === "pt-BR" && error instanceof Error
           ? error.message
-          : "Não foi possível carregar os locais."
+          : t("loadError")
       );
     } finally {
       setCarregando(false);
@@ -432,7 +434,7 @@ const [
   });
 
   setAtribuicaoLocalizacao(
-  "Localização já cadastrada para este endereço."
+  t("locationExisting")
 );
 
   setModalAberto(true);
@@ -453,7 +455,7 @@ const [
     if (!/^\d{8}$/.test(cepLimpo)) {
       mostrarToast(
         "erro",
-        "Informe um CEP válido com 8 números."
+        t("cepInvalid")
       );
 
       return;
@@ -475,8 +477,7 @@ const [
 
     if (!resposta.ok || !dados.endereco) {
       throw new Error(
-        dados.error ||
-          "Não foi possível localizar o CEP."
+        (locale === "pt-BR" && dados.error) || t("cepLookupError")
       );
     }
 
@@ -524,21 +525,21 @@ const [
 
 setAtribuicaoLocalizacao(
   recebeuCoordenadas
-    ? "Coordenadas fornecidas automaticamente pela consulta do CEP."
+    ? t("coordinatesFromCep")
     : ""
 );
 
     mostrarToast(
       "sucesso",
-      dados.aviso ||
-        "Endereço localizado. Confira os dados."
+      locale === "pt-BR" && dados.aviso ||
+        (recebeuCoordenadas ? t("addressFound") : t("cepNoCoordinates"))
     );
   } catch (error) {
     mostrarToast(
       "erro",
-      error instanceof Error
+      locale === "pt-BR" && error instanceof Error
         ? error.message
-        : "Não foi possível localizar o CEP."
+        : t("cepLookupError")
     );
   } finally {
     setBuscandoCep(false);
@@ -552,7 +553,7 @@ async function confirmarLocalizacaoEndereco() {
   if (!/^\d{8}$/.test(cepLimpo)) {
     mostrarToast(
       "erro",
-      "Informe e busque um CEP válido."
+      t("cepSearchFirst")
     );
     return;
   }
@@ -562,7 +563,7 @@ async function confirmarLocalizacaoEndereco() {
   ) {
     mostrarToast(
       "erro",
-      "Informe o logradouro do endereço."
+      t("streetRequired")
     );
     return;
   }
@@ -570,7 +571,7 @@ async function confirmarLocalizacaoEndereco() {
   if (!formulario.numero.trim()) {
     mostrarToast(
       "erro",
-      "Informe o número do endereço ou use S/N."
+      t("numberRequired")
     );
     return;
   }
@@ -578,7 +579,7 @@ async function confirmarLocalizacaoEndereco() {
   if (!formulario.cidade.trim()) {
     mostrarToast(
       "erro",
-      "Informe a cidade do endereço."
+      t("cityAddressRequired")
     );
     return;
   }
@@ -590,7 +591,7 @@ async function confirmarLocalizacaoEndereco() {
   ) {
     mostrarToast(
       "erro",
-      "Informe a sigla do estado com 2 letras."
+      t("stateRequired")
     );
     return;
   }
@@ -643,8 +644,7 @@ async function confirmarLocalizacaoEndereco() {
       !dados.localizacao
     ) {
       throw new Error(
-        dados.error ||
-          "Não foi possível localizar este endereço."
+        (locale === "pt-BR" && dados.error) || t("geocodeError")
       );
     }
 
@@ -662,13 +662,17 @@ async function confirmarLocalizacaoEndereco() {
 
     setAtribuicaoLocalizacao(
       dados.atribuicao ||
-        "© OpenStreetMap contributors"
+        t("osmAttribution")
     );
 
     mostrarToast(
       "sucesso",
-      dados.aviso ||
-        "Localização do endereço confirmada."
+      locale === "pt-BR" && dados.aviso ||
+        (dados.origem === "CACHE"
+          ? t("geocodeCache")
+          : dados.localizacao.precisao === "EXATA"
+            ? t("geocodeExact")
+            : t("geocodeApproximate"))
     );
   } catch (error) {
     setFormulario((anterior) => ({
@@ -681,9 +685,9 @@ async function confirmarLocalizacaoEndereco() {
 
     mostrarToast(
       "erro",
-      error instanceof Error
+      locale === "pt-BR" && error instanceof Error
         ? error.message
-        : "Não foi possível confirmar a localização."
+        : t("geocodeError")
     );
   } finally {
     setConfirmandoEndereco(false);
@@ -696,7 +700,7 @@ async function confirmarLocalizacaoEndereco() {
 
       if (!navigator.geolocation) {
         throw new Error(
-          "Este navegador não oferece acesso à localização."
+          t("browserNoLocation")
         );
       }
 
@@ -730,14 +734,12 @@ async function confirmarLocalizacaoEndereco() {
       }));
 
       setAtribuicaoLocalizacao(
-  "Localização confirmada pelo GPS deste dispositivo."
+  t("coordinatesFromGps")
 );
 
       mostrarToast(
         "sucesso",
-        `Localização obtida com precisão aproximada de ${Math.round(
-          posicao.coords.accuracy
-        )} metros.`
+        t("gpsAccuracy", { meters: Math.round(posicao.coords.accuracy) })
       );
     } catch (error: any) {
       const codigo = Number(
@@ -745,21 +747,21 @@ async function confirmarLocalizacaoEndereco() {
       );
 
       let mensagem =
-        "Não foi possível obter a localização.";
+        t("gpsError");
 
       if (codigo === 1) {
         mensagem =
-          "A permissão de localização foi negada pelo navegador.";
+          t("gpsPermissionDenied");
       }
 
       if (codigo === 2) {
         mensagem =
-          "O dispositivo não conseguiu identificar a localização.";
+          t("gpsPositionUnavailable");
       }
 
       if (codigo === 3) {
         mensagem =
-          "A localização demorou muito para responder.";
+          t("gpsTimeout");
       }
 
       mostrarToast(
@@ -785,7 +787,7 @@ async function confirmarLocalizacaoEndereco() {
   if (formulario.nome.trim().length < 2) {
     mostrarToast(
       "erro",
-      "Informe o nome do local."
+      t("nameRequired")
     );
     return;
   }
@@ -793,7 +795,7 @@ async function confirmarLocalizacaoEndereco() {
   if (!/^\d{8}$/.test(cepLimpo)) {
     mostrarToast(
       "erro",
-      "Informe um CEP válido com 8 números."
+      t("cepInvalid")
     );
     return;
   }
@@ -804,7 +806,7 @@ async function confirmarLocalizacaoEndereco() {
   ) {
     mostrarToast(
       "erro",
-      "Busque o CEP ou informe o logradouro."
+      t("streetSearchRequired")
     );
     return;
   }
@@ -812,7 +814,7 @@ async function confirmarLocalizacaoEndereco() {
   if (!formulario.numero.trim()) {
     mostrarToast(
       "erro",
-      "Informe o número do endereço ou use S/N."
+      t("numberRequired")
     );
     return;
   }
@@ -820,7 +822,7 @@ async function confirmarLocalizacaoEndereco() {
   if (!formulario.cidade.trim()) {
     mostrarToast(
       "erro",
-      "Informe a cidade."
+      t("cityRequired")
     );
     return;
   }
@@ -832,7 +834,7 @@ async function confirmarLocalizacaoEndereco() {
   ) {
     mostrarToast(
       "erro",
-      "Informe a sigla do estado com 2 letras."
+      t("stateRequired")
     );
     return;
   }
@@ -843,7 +845,7 @@ async function confirmarLocalizacaoEndereco() {
   ) {
     mostrarToast(
       "erro",
-      "Confirme a localização do endereço ou use sua localização atual antes de salvar."
+      t("coordinatesRequired")
     );
     return;
   }
@@ -859,7 +861,7 @@ async function confirmarLocalizacaoEndereco() {
   ) {
     mostrarToast(
       "erro",
-      "O raio deve estar entre 10 e 5.000 metros."
+      t("radiusRange")
     );
     return;
   }
@@ -898,15 +900,13 @@ async function confirmarLocalizacaoEndereco() {
 
     if (!resposta.ok) {
       throw new Error(
-        dados?.error ||
-          "Não foi possível salvar o local."
+        (locale === "pt-BR" && dados?.error) || t("saveError")
       );
     }
 
     mostrarToast(
       "sucesso",
-      dados?.mensagem ||
-        "Local salvo com sucesso."
+      (locale === "pt-BR" && dados?.mensagem) || t("saveSuccess")
     );
 
     setModalAberto(false);
@@ -923,9 +923,9 @@ async function confirmarLocalizacaoEndereco() {
   } catch (error) {
     mostrarToast(
       "erro",
-      error instanceof Error
+      locale === "pt-BR" && error instanceof Error
         ? error.message
-        : "Não foi possível salvar o local."
+        : t("saveError")
     );
   } finally {
     setSalvando(false);
@@ -978,25 +978,24 @@ async function confirmarLocalizacaoEndereco() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-            "Não foi possível atualizar o local."
+          (locale === "pt-BR" && dados?.error) || t("updateError")
         );
       }
 
       mostrarToast(
         "sucesso",
         !local.ativo
-          ? "Local ativado com sucesso."
-          : "Local desativado com sucesso."
+          ? t("activatedSuccess")
+          : t("deactivatedSuccess")
       );
 
       await carregarLocais();
     } catch (error) {
       mostrarToast(
         "erro",
-        error instanceof Error
+        locale === "pt-BR" && error instanceof Error
           ? error.message
-          : "Não foi possível atualizar o local."
+          : t("updateError")
       );
     } finally {
       setProcessandoLocalId(null);
@@ -1026,47 +1025,38 @@ async function confirmarLocalizacaoEndereco() {
               RH PHANYX
             </p>
 
-            <h1 className="mt-2 text-3xl font-black">
-              Locais autorizados
-            </h1>
+            <h1 className="mt-2 text-3xl font-black">{t("title")}</h1>
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Cadastre as sedes, polos e demais áreas onde o
-              funcionário poderá registrar ponto pelo celular.
-            </p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">{t("description")}</p>
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link
               href="/admin/rh/ponto/mobile"
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-            >
-              Voltar
-            </Link>
+            >{t("back")}</Link>
 
             <button
               type="button"
               onClick={abrirNovoLocal}
               className="min-h-11 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white hover:bg-blue-800"
-            >
-              Cadastrar local
-            </button>
+            >{t("createLocation")}</button>
           </div>
         </header>
 
         <section className="grid gap-4 sm:grid-cols-3">
           <Resumo
-            titulo="Total encontrado"
+            titulo={t("totalFound")}
             valor={paginacao.total}
           />
 
           <Resumo
-            titulo="Ativos nesta página"
+            titulo={t("activeThisPage")}
             valor={totalAtivos}
           />
 
           <Resumo
-            titulo="Raio padrão"
+            titulo={t("defaultRadius")}
             valor={`${raioPadraoMetros} m`}
           />
         </section>
@@ -1077,9 +1067,7 @@ async function confirmarLocalizacaoEndereco() {
             className="grid gap-4 lg:grid-cols-[1fr_230px_auto]"
           >
             <div>
-              <label className="mb-2 block text-sm font-black">
-                Buscar local
-              </label>
+              <label className="mb-2 block text-sm font-black">{t("searchLocation")}</label>
 
               <input
                 value={busca}
@@ -1088,15 +1076,13 @@ async function confirmarLocalizacaoEndereco() {
                     evento.target.value
                   )
                 }
-                placeholder="Nome ou endereço"
+                placeholder={t("searchPlaceholder")}
                 className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none ring-blue-500 focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-black">
-                Situação
-              </label>
+              <label className="mb-2 block text-sm font-black">{t("status")}</label>
 
               <select
                 value={filtroStatus}
@@ -1110,52 +1096,36 @@ async function confirmarLocalizacaoEndereco() {
                 }}
                 className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold dark:border-slate-700 dark:bg-slate-950"
               >
-                <option value="TODOS">
-                  Todos
-                </option>
+                <option value="TODOS">{t("all")}</option>
 
-                <option value="ATIVOS">
-                  Ativos
-                </option>
+                <option value="ATIVOS">{t("activePlural")}</option>
 
-                <option value="INATIVOS">
-                  Inativos
-                </option>
+                <option value="INATIVOS">{t("inactivePlural")}</option>
               </select>
             </div>
 
             <button
               type="submit"
               className="min-h-11 self-end rounded-xl bg-slate-800 px-5 py-3 text-sm font-black text-white dark:bg-blue-700"
-            >
-              Buscar
-            </button>
+            >{t("search")}</button>
           </form>
         </section>
 
         {carregando ? (
           <section className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
-              Carregando locais...
-            </p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-300">{t("loading")}</p>
           </section>
         ) : locais.length === 0 ? (
           <section className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-lg font-black">
-              Nenhum local encontrado
-            </p>
+            <p className="text-lg font-black">{t("noLocations")}</p>
 
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Cadastre a primeira sede ou altere os filtros.
-            </p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("emptyDescription")}</p>
 
             <button
               type="button"
               onClick={abrirNovoLocal}
               className="mt-5 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white"
-            >
-              Cadastrar local
-            </button>
+            >{t("createLocation")}</button>
           </section>
         ) : (
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -1172,7 +1142,7 @@ async function confirmarLocalizacaoEndereco() {
 
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                       {local.endereco ||
-                        "Endereço não informado"}
+                        t("addressUnknown")}
                     </p>
                   </div>
 
@@ -1184,32 +1154,30 @@ async function confirmarLocalizacaoEndereco() {
                     }`}
                   >
                     {local.ativo
-                      ? "Ativo"
-                      : "Inativo"}
+                      ? t("active")
+                      : t("inactive")}
                   </span>
                 </div>
 
                 <div className="mt-5 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950/60">
   <p>
-    <strong>CEP:</strong>{" "}
-    {local.cep || "Não informado"}
+    <strong>{t("cepLabel")}</strong>{" "}
+    {local.cep || t("notProvidedMasculine")}
   </p>
 
   <p>
-    <strong>Cidade:</strong>{" "}
+    <strong>{t("cityLabel")}</strong>{" "}
     {[local.cidade, local.estado]
       .filter(Boolean)
-      .join(" - ") || "Não informada"}
+      .join(" - ") || t("notProvidedFeminine")}
   </p>
 
   <p>
-    <strong>Raio permitido:</strong>{" "}
+    <strong>{t("allowedRadiusLabel")}</strong>{" "}
     {local.raioMetros} metros
   </p>
 
-  <p className="text-xs text-slate-500 dark:text-slate-400">
-    Localização técnica armazenada internamente.
-  </p>
+  <p className="text-xs text-slate-500 dark:text-slate-400">{t("technicalLocation")}</p>
 </div>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
@@ -1219,9 +1187,7 @@ async function confirmarLocalizacaoEndereco() {
                       abrirEdicao(local)
                     }
                     className="min-h-10 rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-xs font-black text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200"
-                  >
-                    Editar
-                  </button>
+                  >{t("edit")}</button>
 
                   <button
                     type="button"
@@ -1240,10 +1206,10 @@ async function confirmarLocalizacaoEndereco() {
                   >
                     {processandoLocalId ===
                     local.id
-                      ? "Processando..."
+                      ? t("processing")
                       : local.ativo
-                        ? "Desativar"
-                        : "Ativar"}
+                        ? t("deactivate")
+                        : t("activate")}
                   </button>
                 </div>
               </article>
@@ -1264,13 +1230,10 @@ async function confirmarLocalizacaoEndereco() {
               )
             }
             className="min-h-11 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black disabled:opacity-40 dark:border-slate-700 dark:bg-slate-900"
-          >
-            Anterior
-          </button>
+          >{t("previous")}</button>
 
           <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
-            Página {paginacao.pagina} de{" "}
-            {paginacao.totalPaginas}
+            {t("pagination", { page: paginacao.pagina, pages: paginacao.totalPaginas })}
           </p>
 
           <button
@@ -1285,9 +1248,7 @@ async function confirmarLocalizacaoEndereco() {
               )
             }
             className="min-h-11 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black disabled:opacity-40 dark:border-slate-700 dark:bg-slate-900"
-          >
-            Próxima
-          </button>
+          >{t("next")}</button>
         </div>
       </div>
 
@@ -1300,14 +1261,12 @@ async function confirmarLocalizacaoEndereco() {
 >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-                  Ponto Mobile
-                </p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("mobileTitle")}</p>
 
                 <h2 className="mt-2 text-2xl font-black">
                   {localEmEdicao
-                    ? "Editar local"
-                    : "Cadastrar local"}
+                    ? t("editLocation")
+                    : t("createLocation")}
                 </h2>
               </div>
 
@@ -1315,17 +1274,13 @@ async function confirmarLocalizacaoEndereco() {
                 type="button"
                 onClick={fecharModal}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-xl font-black dark:border-slate-700"
-                aria-label="Fechar"
-              >
-                ×
-              </button>
+                aria-label={t("close")}
+              >×</button>
             </div>
 
             <div className="mt-6 space-y-5">
   <div>
-    <label className="mb-2 block text-sm font-black">
-      Nome do local
-    </label>
+    <label className="mb-2 block text-sm font-black">{t("locationName")}</label>
 
     <input
       value={formulario.nome}
@@ -1335,15 +1290,13 @@ async function confirmarLocalizacaoEndereco() {
           evento.target.value
         )
       }
-      placeholder="Ex.: Sede IBE"
+      placeholder={t("namePlaceholder")}
       className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
     />
   </div>
 
   <div>
-    <label className="mb-2 block text-sm font-black">
-      CEP
-    </label>
+    <label className="mb-2 block text-sm font-black">{t("cepField")}</label>
 
     <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
       <input
@@ -1375,16 +1328,14 @@ async function confirmarLocalizacaoEndereco() {
         className="min-h-12 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white disabled:opacity-50"
       >
         {buscandoCep
-          ? "Buscando..."
-          : "Buscar CEP"}
+          ? t("searching")
+          : t("searchCep")}
       </button>
     </div>
   </div>
 
   <div>
-    <label className="mb-2 block text-sm font-black">
-      Logradouro
-    </label>
+    <label className="mb-2 block text-sm font-black">{t("street")}</label>
 
     <input
       value={formulario.logradouro}
@@ -1394,16 +1345,14 @@ async function confirmarLocalizacaoEndereco() {
     evento.target.value
   )
 }
-      placeholder="Rua, avenida ou estrada"
+      placeholder={t("streetPlaceholder")}
       className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
     />
   </div>
 
   <div className="grid gap-4 sm:grid-cols-2">
     <div>
-      <label className="mb-2 block text-sm font-black">
-        Número
-      </label>
+      <label className="mb-2 block text-sm font-black">{t("number")}</label>
 
       <input
         value={formulario.numero}
@@ -1413,16 +1362,14 @@ async function confirmarLocalizacaoEndereco() {
     evento.target.value
   )
 }
-    
-        placeholder="Ex.: 398 ou S/N"
+
+        placeholder={t("numberPlaceholder")}
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
     </div>
 
     <div>
-      <label className="mb-2 block text-sm font-black">
-        Complemento
-      </label>
+      <label className="mb-2 block text-sm font-black">{t("complement")}</label>
 
       <input
         value={
@@ -1434,16 +1381,14 @@ async function confirmarLocalizacaoEndereco() {
     evento.target.value
   )
 }
-        placeholder="Opcional"
+        placeholder={t("optional")}
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
     </div>
   </div>
 
   <div>
-    <label className="mb-2 block text-sm font-black">
-      Bairro
-    </label>
+    <label className="mb-2 block text-sm font-black">{t("district")}</label>
 
     <input
       value={formulario.bairro}
@@ -1453,16 +1398,14 @@ async function confirmarLocalizacaoEndereco() {
     evento.target.value
   )
 }
-      placeholder="Bairro"
+      placeholder={t("district")}
       className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
     />
   </div>
 
   <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
     <div>
-      <label className="mb-2 block text-sm font-black">
-        Cidade
-      </label>
+      <label className="mb-2 block text-sm font-black">{t("city")}</label>
 
       <input
         value={formulario.cidade}
@@ -1472,15 +1415,13 @@ async function confirmarLocalizacaoEndereco() {
     evento.target.value
   )
 }
-        placeholder="Cidade"
+        placeholder={t("city")}
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
     </div>
 
     <div>
-      <label className="mb-2 block text-sm font-black">
-        Estado
-      </label>
+      <label className="mb-2 block text-sm font-black">{t("state")}</label>
 
       <input
         value={formulario.estado}
@@ -1510,8 +1451,8 @@ async function confirmarLocalizacaoEndereco() {
   className="min-h-12 w-full rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white disabled:opacity-50"
 >
   {confirmandoEndereco
-    ? "Confirmando endereço..."
-    : "Confirmar localização do endereço"}
+    ? t("confirmingAddress")
+    : t("confirmAddress")}
 </button>
 
   <button
@@ -1521,8 +1462,8 @@ async function confirmarLocalizacaoEndereco() {
     className="min-h-12 w-full rounded-xl border border-blue-300 bg-blue-50 px-4 py-3 text-sm font-black text-blue-800 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200"
   >
     {obtendoLocalizacao
-      ? "Obtendo localização..."
-      : "Usar minha localização atual"}
+      ? t("gettingLocation")
+      : t("useCurrentLocation")}
   </button>
 
   <div
@@ -1536,15 +1477,15 @@ async function confirmarLocalizacaoEndereco() {
   <p className="text-sm font-black">
     {formulario.latitude &&
     formulario.longitude
-      ? "Localização confirmada"
-      : "Localização ainda não confirmada"}
+      ? t("locationConfirmed")
+      : t("locationNotConfirmed")}
   </p>
 
   <p className="mt-1 text-xs leading-5">
     {formulario.latitude &&
     formulario.longitude
-      ? "A posição foi confirmada e ficará armazenada internamente para o cálculo do raio."
-      : "Depois de preencher o número, clique em Confirmar localização do endereço. O GPS atual continua disponível como alternativa."}
+      ? t("locationSavedInternally")
+      : t("confirmGuidance")}
   </p>
 
   {atribuicaoLocalizacao && (
@@ -1555,9 +1496,7 @@ async function confirmarLocalizacaoEndereco() {
 </div>
 
   <div>
-    <label className="mb-2 block text-sm font-black">
-      Raio permitido
-    </label>
+    <label className="mb-2 block text-sm font-black">{t("allowedRadius")}</label>
 
     <div className="flex items-center gap-3">
       <input
@@ -1575,9 +1514,7 @@ async function confirmarLocalizacaoEndereco() {
         className="min-h-12 w-40 rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
 
-      <span className="text-sm font-bold">
-        metros
-      </span>
+      <span className="text-sm font-bold">{t("meters")}</span>
     </div>
   </div>
 
@@ -1594,9 +1531,7 @@ async function confirmarLocalizacaoEndereco() {
       className="h-5 w-5 accent-blue-600"
     />
 
-    <span className="text-sm font-black">
-      Local ativo
-    </span>
+    <span className="text-sm font-black">{t("activeLocation")}</span>
   </label>
 </div>
 
@@ -1606,9 +1541,7 @@ async function confirmarLocalizacaoEndereco() {
                 disabled={salvando}
                 onClick={fecharModal}
                 className="min-h-12 rounded-xl border border-slate-300 px-5 py-3 font-black dark:border-slate-700"
-              >
-                Cancelar
-              </button>
+              >{t("cancel")}</button>
 
               <button
                 type="submit"
@@ -1616,8 +1549,8 @@ async function confirmarLocalizacaoEndereco() {
                 className="min-h-12 rounded-xl bg-blue-700 px-5 py-3 font-black text-white disabled:opacity-50"
               >
                 {salvando
-                  ? "Salvando..."
-                  : "Salvar local"}
+                  ? t("saving")
+                  : t("saveLocation")}
               </button>
             </div>
           </form>
