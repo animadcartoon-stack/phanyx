@@ -19725,5 +19725,30 @@
     "title": "Configuration du pointage",
     "tokenKey": "Jeton / clé API",
     "yes": "Oui"
+  },
+  "AdminHRPointAfdImport": {
+    "attention": "Attention",
+    "attentionEnd": "renseigné dans la fiche de l’employé avec le même identifiant que celui utilisé par la pointeuse.",
+    "attentionStart": "Pour que l’importation fonctionne correctement, chaque employé doit avoir le champ",
+    "createdRecords": "Enregistrements créés",
+    "description": "Importez le fichier AFD exporté par la pointeuse. PHANYX identifiera les employés grâce à leur code de pointage ou au PIS/PASEP et enregistrera automatiquement les pointages.",
+    "employeesDaysFound": "Couples employé-jour trouvés",
+    "fileLabel": "Fichier AFD (.txt)",
+    "fileLines": "Lignes du fichier",
+    "fileRequired": "Sélectionnez un fichier AFD à importer.",
+    "ignoredLines": "Lignes ignorées",
+    "importAfd": "Importer AFD",
+    "importError": "Impossible d’importer le fichier AFD.",
+    "importSuccess": "Fichier AFD importé avec succès.",
+    "importing": "Importation...",
+    "or": "ou",
+    "pisPasep": "PIS/PASEP",
+    "readLines": "Lignes lues",
+    "selectedFile": "Fichier sélectionné :",
+    "summaryHeading": "Résumé de l’importation",
+    "timeClockCode": "Code de pointage",
+    "title": "Importation AFD",
+    "updatedRecords": "Enregistrements mis à jour",
+    "uploadHeading": "Téléverser un fichier AFD"
   }
 }

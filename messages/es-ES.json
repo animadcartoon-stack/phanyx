@@ -19725,5 +19725,30 @@
     "title": "Configuración del control horario",
     "tokenKey": "Token / clave de API",
     "yes": "Sí"
+  },
+  "AdminHRPointAfdImport": {
+    "attention": "Atención",
+    "attentionEnd": "rellenado en la ficha del empleado con el mismo identificador utilizado en el reloj de fichaje.",
+    "attentionStart": "Para que la importación funcione correctamente, cada empleado debe tener el campo",
+    "createdRecords": "Registros creados",
+    "description": "Importe el archivo AFD exportado del reloj de fichaje. PHANYX localizará a los empleados por el código de fichaje o PIS/PASEP y guardará los fichajes automáticamente.",
+    "employeesDaysFound": "Empleados/días encontrados",
+    "fileLabel": "Archivo AFD (.txt)",
+    "fileLines": "Líneas en el archivo",
+    "fileRequired": "Seleccione un archivo AFD para importarlo.",
+    "ignoredLines": "Líneas ignoradas",
+    "importAfd": "Importar AFD",
+    "importError": "No se pudo importar el archivo AFD.",
+    "importSuccess": "Archivo AFD importado correctamente.",
+    "importing": "Importando...",
+    "or": "o",
+    "pisPasep": "PIS/PASEP",
+    "readLines": "Líneas leídas",
+    "selectedFile": "Archivo seleccionado:",
+    "summaryHeading": "Resumen de la importación",
+    "timeClockCode": "Código de fichaje",
+    "title": "Importación AFD",
+    "updatedRecords": "Registros actualizados",
+    "uploadHeading": "Cargar archivo AFD"
   }
 }

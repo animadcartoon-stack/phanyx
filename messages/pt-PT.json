@@ -19512,5 +19512,30 @@
     "title": "Configurações de Ponto",
     "tokenKey": "Token / chave da API",
     "yes": "Sim"
+  },
+  "AdminHRPointAfdImport": {
+    "attention": "Atenção",
+    "attentionEnd": "preenchido na ficha do funcionário com o mesmo identificador utilizado no relógio de ponto.",
+    "attentionStart": "Para que a importação funcione corretamente, cada funcionário deve ter o campo",
+    "createdRecords": "Registos criados",
+    "description": "Importe o ficheiro AFD exportado do relógio de ponto. O PHANYX localizará os funcionários pelo Código de Ponto ou PIS/PASEP e guardará os registos automaticamente.",
+    "employeesDaysFound": "Funcionários/dias encontrados",
+    "fileLabel": "Ficheiro AFD (.txt)",
+    "fileLines": "Linhas no ficheiro",
+    "fileRequired": "Selecione um ficheiro AFD para importar.",
+    "ignoredLines": "Linhas ignoradas",
+    "importAfd": "Importar AFD",
+    "importError": "Erro ao importar o ficheiro AFD.",
+    "importSuccess": "Ficheiro AFD importado com sucesso.",
+    "importing": "A importar...",
+    "or": "ou",
+    "pisPasep": "PIS/PASEP",
+    "readLines": "Linhas lidas",
+    "selectedFile": "Ficheiro selecionado:",
+    "summaryHeading": "Resumo da importação",
+    "timeClockCode": "Código de Ponto",
+    "title": "Importação AFD",
+    "updatedRecords": "Registos atualizados",
+    "uploadHeading": "Enviar ficheiro AFD"
   }
 }

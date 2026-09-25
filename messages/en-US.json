@@ -19726,5 +19726,30 @@
     "title": "Time clock settings",
     "tokenKey": "Token / API key",
     "yes": "Yes"
+  },
+  "AdminHRPointAfdImport": {
+    "attention": "Important",
+    "attentionEnd": "field filled in on the employee record with the same identifier used by the time clock.",
+    "attentionStart": "For the import to work correctly, each employee must have the",
+    "createdRecords": "Records created",
+    "description": "Import the AFD file exported by the time clock. PHANYX will match employees by time clock code or PIS/PASEP and save their punches automatically.",
+    "employeesDaysFound": "Employee-day groups found",
+    "fileLabel": "AFD file (.txt)",
+    "fileLines": "Lines in file",
+    "fileRequired": "Select an AFD file to import.",
+    "ignoredLines": "Lines skipped",
+    "importAfd": "Import AFD",
+    "importError": "Could not import the AFD file.",
+    "importSuccess": "AFD file imported successfully.",
+    "importing": "Importing...",
+    "or": "or",
+    "pisPasep": "PIS/PASEP",
+    "readLines": "Lines read",
+    "selectedFile": "Selected file:",
+    "summaryHeading": "Import summary",
+    "timeClockCode": "Time Clock Code",
+    "title": "AFD import",
+    "updatedRecords": "Records updated",
+    "uploadHeading": "Upload AFD file"
   }
 }
