@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type OcorrenciaArquivada = {
   id: number;
@@ -224,19 +225,19 @@ restauradoPor?: {
   } | null;
 };
 
-function formatarData(data?: string | null) {
+function formatarDataLocal(data: string | null | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("pt-BR");
+  return d.toLocaleDateString(locale);
 }
 
-function formatarDataHora(data?: string | null) {
+function formatarDataHoraLocal(data: string | null | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
 
-  return d.toLocaleString("pt-BR", {
+  return d.toLocaleString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -246,6 +247,64 @@ function formatarDataHora(data?: string | null) {
 }
 
 export default function ArquivadosRHPage() {
+  const t = useTranslations("AdminHRArchived");
+  const occurrenceT = useTranslations("AdminHROccurrences");
+  const examT = useTranslations("AdminHRExams");
+  const documentT = useTranslations("AdminHRDocuments");
+  const locale = useLocale();
+  const formatarData = (data?: string | null) => formatarDataLocal(data, locale);
+  const formatarDataHora = (data?: string | null) => formatarDataHoraLocal(data, locale);
+  const formatarValor = (value: number) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(value);
+  function occurrenceType(value: string) {
+    switch (value) {
+      case "ADVERTENCIA": return occurrenceT("warningType");
+      case "SUSPENSAO": return occurrenceT("suspensionType");
+      case "ELOGIO": return occurrenceT("commendationType");
+      case "PROMOCAO": return occurrenceT("promotionType");
+      case "MUDANCA_CARGO": return occurrenceT("roleChangeType");
+      case "MUDANCA_SALARIAL": return occurrenceT("salaryChangeType");
+      case "AFASTAMENTO_MEDICO": return occurrenceT("medicalLeaveType");
+      case "AFASTAMENTO_MATERNIDADE": return occurrenceT("maternityLeaveType");
+      case "AFASTAMENTO_PERICIA": return occurrenceT("assessmentLeaveType");
+      case "RETORNO_TRABALHO": return occurrenceT("returnToWorkType");
+      default: return value;
+    }
+  }
+  function examType(value: string) {
+    switch (value) {
+      case "ASO Admissional": return examT("admissionExam");
+      case "ASO Periódico": return examT("periodicExam");
+      case "ASO Retorno ao Trabalho": return examT("returnExam");
+      case "ASO Mudança de Função": return examT("roleChangeExam");
+      case "ASO Demissional": return examT("dismissalExam");
+      case "Outro": return examT("otherExam");
+      default: return value;
+    }
+  }
+  function examResult(value: string) {
+    switch (value) {
+      case "APTO": return examT("fit");
+      case "INAPTO": return examT("unfit");
+      case "APTO COM RESTRIÇÕES": return examT("fitWithRestrictions");
+      case "PENDENTE": return examT("pending");
+      case "CANCELADO": return examT("cancelled");
+      default: return value;
+    }
+  }
+  function documentType(value: string) {
+    switch (value) {
+      case "DECLARACAO": return documentT("typeDeclaration");
+      case "ADVERTENCIA": return documentT("typeWarning");
+      case "SUSPENSAO": return documentT("typeSuspension");
+      case "TERMO_RESPONSABILIDADE": return documentT("typeResponsibility");
+      case "TERMO_RECEBIMENTO": return documentT("typeReceipt");
+      case "AVALIACAO_DESEMPENHO": return documentT("typePerformance");
+      case "DOCUMENTO_LIVRE": return documentT("typeFree");
+      default: return value;
+    }
+  }
+
 
     const [busca, setBusca] = useState("");
     const [mostrarSugestoesBusca, setMostrarSugestoesBusca] = useState(false);
@@ -256,6 +315,7 @@ export default function ArquivadosRHPage() {
     const [rescisoes, setRescisoes] = useState<RescisaoArquivada[]>([]);
     const [documentos, setDocumentos] = useState<DocumentoArquivado[]>([]);
     const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState("");
     const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
     const [restaurandoId, setRestaurandoId] = useState<number | null>(null);
 
@@ -288,6 +348,7 @@ useEffect(() => {
   async function carregarOcorrenciasArquivadas() {
     try {
       setCarregando(true);
+      setErro("");
 
       const res = await fetch(
         "/api/admin/rh/arquivados/ocorrencias"
@@ -295,7 +356,7 @@ useEffect(() => {
 
       if (!res.ok) {
         throw new Error(
-          "Não foi possível carregar as ocorrências arquivadas."
+          t("loadError")
         );
       }
 
@@ -305,7 +366,7 @@ useEffect(() => {
       const resHolerites = await fetch("/api/admin/rh/arquivados/holerites");
 
 if (!resHolerites.ok) {
-  throw new Error("Não foi possível carregar os holerites arquivados.");
+  throw new Error(t("loadError"));
 }
 
 const dadosHolerites = await resHolerites.json();
@@ -320,19 +381,19 @@ const [resFerias, resExames, resRescisoes, resDocumentos] =
   ]);
 
 if (!resFerias.ok) {
-  throw new Error("Não foi possível carregar as férias arquivadas.");
+  throw new Error(t("loadError"));
 }
 
 if (!resExames.ok) {
-  throw new Error("Não foi possível carregar os exames arquivados.");
+  throw new Error(t("loadError"));
 }
 
 if (!resRescisoes.ok) {
-  throw new Error("Não foi possível carregar as rescisões arquivadas.");
+  throw new Error(t("loadError"));
 }
 
 if (!resDocumentos.ok) {
-  throw new Error("Não foi possível carregar os documentos arquivados.");
+  throw new Error(t("loadError"));
 }
 
 const dadosFerias = await resFerias.json();
@@ -347,16 +408,18 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
 
     } catch (error) {
       console.error(error);
+      setErro(t("loadError"));
     } finally {
       setCarregando(false);
     }
   }
 
   carregarOcorrenciasArquivadas();
-}, []);
+}, [t]);
 
 async function restaurarOcorrencia(id: number) {
   try {
+    setErro("");
     setRestaurandoId(id);
 
     const res = await fetch(
@@ -377,7 +440,7 @@ async function restaurarOcorrencia(id: number) {
 
     if (!res.ok) {
       throw new Error(
-        dados?.error || "Erro ao restaurar ocorrência."
+        dados?.error || t("restoreError")
       );
     }
 
@@ -388,6 +451,7 @@ async function restaurarOcorrencia(id: number) {
 setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
+    setErro(t("restoreError"));
   } finally {
     setRestaurandoId(null);
   }
@@ -395,6 +459,7 @@ setMotivoRestauracao("");
 
 async function restaurarHolerite(id: number) {
   try {
+    setErro("");
     setRestaurandoId(id);
 
     const res = await fetch("/api/admin/rh/arquivados/holerites", {
@@ -411,7 +476,7 @@ async function restaurarHolerite(id: number) {
     const dados = await res.json();
 
     if (!res.ok) {
-      throw new Error(dados?.error || "Erro ao restaurar holerite.");
+      throw new Error(dados?.error || t("restoreError"));
     }
 
     setHolerites((atual) => atual.filter((h) => h.id !== id));
@@ -419,6 +484,7 @@ async function restaurarHolerite(id: number) {
     setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
+    setErro(t("restoreError"));
   } finally {
     setRestaurandoId(null);
   }
@@ -430,6 +496,7 @@ async function restaurarDocumento(id: number) {
       return;
     }
 
+    setErro("");
     setRestaurandoId(id);
 
     const res = await fetch("/api/admin/rh/arquivados/documentos", {
@@ -446,7 +513,7 @@ async function restaurarDocumento(id: number) {
     const dados = await res.json();
 
     if (!res.ok) {
-      throw new Error(dados?.error || "Erro ao restaurar documento.");
+      throw new Error(dados?.error || t("restoreError"));
     }
 
     setDocumentos((atual) => atual.filter((d) => d.id !== id));
@@ -454,6 +521,7 @@ async function restaurarDocumento(id: number) {
     setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
+    setErro(t("restoreError"));
   } finally {
     setRestaurandoId(null);
   }
@@ -463,6 +531,7 @@ async function restaurarFerias(id: number) {
   try {
     if (!motivoRestauracao.trim()) return;
 
+    setErro("");
     setRestaurandoId(id);
 
     const res = await fetch(`/api/admin/rh/ferias/${id}/restaurar`, {
@@ -478,7 +547,7 @@ async function restaurarFerias(id: number) {
     const dados = await res.json();
 
     if (!res.ok) {
-      throw new Error(dados?.error || "Erro ao restaurar férias.");
+      throw new Error(dados?.error || t("restoreError"));
     }
 
     setFerias((atual) => atual.filter((f) => f.id !== id));
@@ -486,6 +555,7 @@ async function restaurarFerias(id: number) {
     setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
+    setErro(t("restoreError"));
   } finally {
     setRestaurandoId(null);
   }
@@ -493,11 +563,11 @@ async function restaurarFerias(id: number) {
 
 async function restaurarExame(id: number) {
   try {
+    setErro("");
     setRestaurandoId(id);
 
-    const motivo =
-      motivoRestauracao.trim() ||
-      "Exame médico restaurado pela tela de Arquivados RH.";
+    if (!motivoRestauracao.trim()) return;
+    const motivo = motivoRestauracao.trim();
 
     const res = await fetch(`/api/admin/rh/exames/${id}/restaurar`, {
       method: "PATCH",
@@ -510,7 +580,7 @@ async function restaurarExame(id: number) {
     const dados = await res.json();
 
     if (!res.ok) {
-      throw new Error(dados?.error || "Erro ao restaurar exame.");
+      throw new Error(dados?.error || t("restoreError"));
     }
 
     setExames((atual) => atual.filter((e) => e.id !== id));
@@ -518,6 +588,7 @@ async function restaurarExame(id: number) {
     setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
+    setErro(t("restoreError"));
   } finally {
     setRestaurandoId(null);
   }
@@ -527,6 +598,7 @@ async function restaurarRescisao(id: number) {
   try {
     if (!motivoRestauracao.trim()) return;
 
+    setErro("");
     setRestaurandoId(id);
 
     const res = await fetch(`/api/admin/rh/rescisoes/${id}/restaurar`, {
@@ -542,7 +614,7 @@ async function restaurarRescisao(id: number) {
     const dados = await res.json();
 
     if (!res.ok) {
-      throw new Error(dados?.error || "Erro ao restaurar rescisão.");
+      throw new Error(dados?.error || t("restoreError"));
     }
 
     setRescisoes((atual) => atual.filter((r) => r.id !== id));
@@ -550,6 +622,7 @@ async function restaurarRescisao(id: number) {
     setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
+    setErro(t("restoreError"));
   } finally {
     setRestaurandoId(null);
   }
@@ -558,25 +631,20 @@ async function restaurarRescisao(id: number) {
   return (
     <div className="phanyx-rh-page space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-600 dark:text-cyan-400">
-          RH EMPRESARIAL
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-600 dark:text-cyan-400">{t("eyebrow")}</p>
 
-        <h1 className="mt-2 text-4xl font-black text-slate-950 dark:text-white">
-          Arquivados RH
-        </h1>
+        <h1 className="mt-2 text-4xl font-black text-slate-950 dark:text-white">{t("heading")}</h1>
 
-        <p className="mt-2 text-slate-700 dark:text-slate-400">
-          Registros preservados para auditoria, direção e compliance.
-        </p>
+        <p className="mt-2 text-slate-700 dark:text-slate-400">{t("description")}</p>
       </div>
 
+      {erro && <p role="alert" className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">{erro}</p>}
       <div className="grid gap-4 md:grid-cols-4">
   {[
-    { titulo: "Ocorrências", total: ocorrencias.length, subtitulo: "Arquivadas" },
-    { titulo: "Holerites", total: holerites.length, subtitulo: "Arquivados" },
-    { titulo: "Férias", total: ferias.length, subtitulo: "Arquivadas" },
-    { titulo: "Exames", total: exames.length, subtitulo: "Arquivados" },
+    { titulo: t("occurrences"), total: ocorrencias.length, subtitulo: t("archivedFemale") },
+    { titulo: t("payslips"), total: holerites.length, subtitulo: t("archivedMale") },
+    { titulo: t("vacations"), total: ferias.length, subtitulo: t("archivedFemale") },
+    { titulo: t("exams"), total: exames.length, subtitulo: t("archivedMale") },
   ].map((card) => (
     <div
       key={card.titulo}
@@ -605,11 +673,9 @@ async function restaurarRescisao(id: number) {
   className={`rounded-2xl px-4 py-2 text-sm font-bold ${
     abaAtiva === "OCORRENCIAS"
       ? "bg-cyan-600 text-white"
-      : "border border-slate-700 text-slate-300"
+      : "border border-slate-300 text-slate-700 dark:border-slate-700 dark:text-slate-300"
   }`}
->
-  Ocorrências
-</button>
+>{t("occurrences")}</button>
 
     <button
   type="button"
@@ -617,11 +683,9 @@ async function restaurarRescisao(id: number) {
   className={`rounded-2xl px-4 py-2 text-sm font-bold ${
     abaAtiva === "HOLERITES"
       ? "bg-amber-600 text-white"
-      : "border border-slate-700 text-slate-300"
+      : "border border-slate-300 text-slate-700 dark:border-slate-700 dark:text-slate-300"
   }`}
->
-  Holerites
-</button>
+>{t("payslips")}</button>
 
     <button
   type="button"
@@ -629,11 +693,9 @@ async function restaurarRescisao(id: number) {
   className={`rounded-2xl px-4 py-2 text-sm font-bold ${
     abaAtiva === "FERIAS"
       ? "bg-emerald-600 text-white"
-      : "border border-slate-700 text-slate-300"
+      : "border border-slate-300 text-slate-700 dark:border-slate-700 dark:text-slate-300"
   }`}
->
-  Férias
-</button>
+>{t("vacations")}</button>
 
     <button
   type="button"
@@ -641,11 +703,9 @@ async function restaurarRescisao(id: number) {
   className={`rounded-2xl px-4 py-2 text-sm font-bold ${
     abaAtiva === "EXAMES"
       ? "bg-purple-600 text-white"
-      : "border border-slate-700 text-slate-300"
+      : "border border-slate-300 text-slate-700 dark:border-slate-700 dark:text-slate-300"
   }`}
->
-  Exames
-</button>
+>{t("exams")}</button>
 
     <button
   type="button"
@@ -653,11 +713,9 @@ async function restaurarRescisao(id: number) {
   className={`rounded-2xl px-4 py-2 text-sm font-bold ${
     abaAtiva === "RESCISOES"
       ? "bg-red-600 text-white"
-      : "border border-slate-700 text-slate-300"
+      : "border border-slate-300 text-slate-700 dark:border-slate-700 dark:text-slate-300"
   }`}
->
-  Rescisões
-</button>
+>{t("terminations")}</button>
 
     <button
   type="button"
@@ -665,17 +723,13 @@ async function restaurarRescisao(id: number) {
   className={`rounded-2xl px-4 py-2 text-sm font-bold ${
     abaAtiva === "DOCUMENTOS"
       ? "bg-blue-600 text-white"
-      : "border border-slate-700 text-slate-300"
+      : "border border-slate-300 text-slate-700 dark:border-slate-700 dark:text-slate-300"
   }`}
->
-  Documentos RH
-</button>
+>{t("documents")}</button>
   </div>
 
   <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950/40">
-  <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-700 dark:text-cyan-300">
-    Busca 
-  </p>
+  <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-700 dark:text-cyan-300">{t("search")}</p>
 
   <input
     type="text"
@@ -684,12 +738,12 @@ async function restaurarRescisao(id: number) {
   setBusca(e.target.value);
   setMostrarSugestoesBusca(true);
 }}
-    placeholder="Busque por funcionário, título, tipo, competência, motivo ou responsável..."
-    className="mt-3 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 dark:text-slate-500 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+    placeholder={t("searchPlaceholder")}
+    className="mt-3 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
   />
 
 {mostrarSugestoesBusca && busca.length > 0 && sugestoesBusca.length > 0 && (
-  <div className="mt-2 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
+  <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950">
     {sugestoesBusca.map((sugestao) => (
       <button
         key={sugestao}
@@ -698,7 +752,7 @@ async function restaurarRescisao(id: number) {
   setBusca(sugestao!);
   setMostrarSugestoesBusca(false);
 }}
-        className="block w-full border-b border-slate-800 px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-900"
+        className="block w-full border-b border-slate-200 px-4 py-3 text-left text-sm text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
       >
         {sugestao}
       </button>
@@ -706,48 +760,30 @@ async function restaurarRescisao(id: number) {
   </div>
 )}
 
-  <p className="mt-2 text-xs text-slate-700 dark:text-slate-400">
-    A busca considera registros arquivados, motivos, datas e responsáveis pela auditoria.
-  </p>
+  <p className="mt-2 text-xs text-slate-700 dark:text-slate-400">{t("searchHint")}</p>
 </div>
-
-{!["OCORRENCIAS", "HOLERITES", "FERIAS", "EXAMES", "RESCISOES", "DOCUMENTOS"].includes(
-  abaAtiva
-) && (
-  <div className="mt-6 rounded-2xl border border-dashed border-slate-700 p-8 text-center">
-    <p className="text-lg font-bold text-white">
-      {abaAtiva} em preparação
-    </p>
-
-    <p className="mt-2 text-sm text-slate-400">
-      Esta aba será conectada aos registros arquivados do banco na próxima etapa.
-    </p>
-  </div>
-)}
 
 {abaAtiva === "HOLERITES" && (
   <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
         <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          <th className="p-3">Funcionário</th>
-          <th className="p-3">Competência</th>
-          <th className="p-3">Valor líquido</th>
-          <th className="p-3">Criado em</th>
-          <th className="p-3">Criado por</th>
-          <th className="p-3">Arquivado em</th>
-          <th className="p-3">Arquivado por</th>
-          <th className="p-3">Motivo</th>
-          <th className="p-3">Ações</th>
+          <th className="p-3">{t("employee")}</th>
+          <th className="p-3">{t("competence")}</th>
+          <th className="p-3">{t("netValue")}</th>
+          <th className="p-3">{t("createdAt")}</th>
+          <th className="p-3">{t("createdBy")}</th>
+          <th className="p-3">{t("archivedAt")}</th>
+          <th className="p-3">{t("archivedBy")}</th>
+          <th className="p-3">{t("reason")}</th>
+          <th className="p-3">{t("actions")}</th>
         </tr>
       </thead>
 
       <tbody>
         {holerites.length === 0 ? (
           <tr>
-            <td colSpan={9} className="p-6 text-center text-slate-400">
-              Nenhum holerite arquivado encontrado.
-            </td>
+            <td colSpan={9} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("emptyPayslips")}</td>
           </tr>
         ) : (
           holerites
@@ -763,43 +799,43 @@ async function restaurarRescisao(id: number) {
               );
             })
             .map((holerite) => (
-              <tr key={holerite.id} className="border-b border-slate-800">
-                <td className="p-3 text-white">
+              <tr key={holerite.id} className="border-b border-slate-200 dark:border-slate-800">
+                <td className="p-3 text-slate-900 dark:text-white">
                   {holerite.funcionario?.nome || "-"}
                 </td>
 
-                <td className="p-3 text-slate-300">
+                <td className="p-3 text-slate-700 dark:text-slate-300">
                   {String(holerite.competenciaMes).padStart(2, "0")}/
                   {holerite.competenciaAno}
                 </td>
 
-                <td className="p-3 text-slate-300">
-                  R$ {Number(holerite.valorLiquido || 0).toFixed(2)}
+                <td className="p-3 text-slate-700 dark:text-slate-300">
+                  {formatarValor(Number(holerite.valorLiquido || 0))}
                 </td>
 
-                <td className="p-3 text-slate-300">
+                <td className="p-3 text-slate-700 dark:text-slate-300">
                   {formatarDataHora(holerite.criadoEm)}
                 </td>
 
-                <td className="p-3 text-slate-300">
+                <td className="p-3 text-slate-700 dark:text-slate-300">
                   {holerite.criadoPor?.nome ||
                     holerite.criadoPor?.email ||
                     holerite.criadoPorId ||
                     "-"}
                 </td>
 
-                <td className="p-3 text-slate-300">
+                <td className="p-3 text-slate-700 dark:text-slate-300">
                   {formatarDataHora(holerite.arquivadoEm)}
                 </td>
 
-                <td className="p-3 text-slate-300">
+                <td className="p-3 text-slate-700 dark:text-slate-300">
                   {holerite.arquivadoPor?.nome ||
                     holerite.arquivadoPor?.email ||
                     holerite.arquivadoPorId ||
                     "-"}
                 </td>
 
-                <td className="p-3 text-slate-300">
+                <td className="p-3 text-slate-700 dark:text-slate-300">
                   {holerite.motivoArquivo || "-"}
                 </td>
 
@@ -810,9 +846,9 @@ async function restaurarRescisao(id: number) {
                       setItemParaRestaurar({
                         tipo: "HOLERITE",
                         id: holerite.id,
-                        titulo: `Holerite ${String(
-                          holerite.competenciaMes
-                        ).padStart(2, "0")}/${holerite.competenciaAno}`,
+                        titulo: t("payslipRecord", {
+                          competence: `${String(holerite.competenciaMes).padStart(2, "0")}/${holerite.competenciaAno}`,
+                        }),
                         funcionario: holerite.funcionario?.nome || "-",
                       });
                       setMotivoRestauracao("");
@@ -821,8 +857,8 @@ async function restaurarRescisao(id: number) {
                     className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
                   >
                     {restaurandoId === holerite.id
-                      ? "Restaurando..."
-                      : "Restaurar"}
+                      ? t("restoring")
+                      : t("restore")}
                   </button>
                 </td>
               </tr>
@@ -838,53 +874,51 @@ async function restaurarRescisao(id: number) {
     <table className="min-w-full">
       <thead>
         <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          <th className="p-3">Funcionário</th>
-          <th className="p-3">Período</th>
-          <th className="p-3">Dias</th>
-          <th className="p-3">Criado em</th>
-          <th className="p-3">Criado por</th>
-          <th className="p-3">Arquivado em</th>
-          <th className="p-3">Arquivado por</th>
-          <th className="p-3">Motivo</th>
-          <th className="p-3">Ações</th>
+          <th className="p-3">{t("employee")}</th>
+          <th className="p-3">{t("period")}</th>
+          <th className="p-3">{t("days")}</th>
+          <th className="p-3">{t("createdAt")}</th>
+          <th className="p-3">{t("createdBy")}</th>
+          <th className="p-3">{t("archivedAt")}</th>
+          <th className="p-3">{t("archivedBy")}</th>
+          <th className="p-3">{t("reason")}</th>
+          <th className="p-3">{t("actions")}</th>
         </tr>
       </thead>
 
       <tbody>
         {ferias.length === 0 ? (
           <tr>
-            <td colSpan={9} className="p-6 text-center text-slate-400">
-              Nenhuma férias arquivada encontrada.
-            </td>
+            <td colSpan={9} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("emptyVacations")}</td>
           </tr>
         ) : (
           ferias.map((item) => (
-            <tr key={item.id} className="border-b border-slate-800">
-              <td className="p-3 text-white">{item.funcionario?.nome || "-"}</td>
+            <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800">
+              <td className="p-3 text-slate-900 dark:text-white">{item.funcionario?.nome || "-"}</td>
 
-              <td className="p-3 text-slate-300">
-                {formatarData(item.dataInicio)} até {formatarData(item.dataFim)}
+              <td className="p-3 text-slate-700 dark:text-slate-300">
+                {formatarData(item.dataInicio)} {t("until")} {formatarData(item.dataFim)}
               </td>
 
-              <td className="p-3 text-slate-300">{item.dias}</td>
+              <td className="p-3 text-slate-700 dark:text-slate-300">{item.dias}</td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(item.criadoEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.criadoPor?.nome || item.criadoPor?.email || item.criadoPorId || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(item.arquivadaEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.arquivadaPor?.nome || item.arquivadaPor?.email || item.arquivadaPorId || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.motivoArquivo || "-"}
               </td>
               <td className="p-3">
@@ -894,7 +928,7 @@ async function restaurarRescisao(id: number) {
       setItemParaRestaurar({
         tipo: "FERIAS",
         id: item.id,
-        titulo: `Férias de ${formatarData(item.dataInicio)} até ${formatarData(item.dataFim)}`,
+        titulo: t("vacationRecord", { start: formatarData(item.dataInicio), end: formatarData(item.dataFim) }),
         funcionario: item.funcionario?.nome || "-",
       });
       setMotivoRestauracao("");
@@ -902,7 +936,7 @@ async function restaurarRescisao(id: number) {
     disabled={restaurandoId === item.id}
     className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
   >
-    {restaurandoId === item.id ? "Restaurando..." : "Restaurar"}
+    {restaurandoId === item.id ? t("restoring") : t("restore")}
   </button>
 </td>
             </tr>
@@ -918,75 +952,76 @@ async function restaurarRescisao(id: number) {
     <table className="min-w-full">
       <thead>
         <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          <th className="p-3">Funcionário</th>
-          <th className="p-3">Tipo</th>
-          <th className="p-3">Data</th>
-          <th className="p-3">Resultado</th>
-          <th className="p-3">Criado em</th>
-          <th className="p-3">Criado por</th>
-          <th className="p-3">Arquivado em</th>
-          <th className="p-3">Arquivado por</th>
-          <th className="p-3">Motivo</th>
-          <th className="p-3">Ações</th>
+          <th className="p-3">{t("employee")}</th>
+          <th className="p-3">{t("type")}</th>
+          <th className="p-3">{t("date")}</th>
+          <th className="p-3">{t("result")}</th>
+          <th className="p-3">{t("createdAt")}</th>
+          <th className="p-3">{t("createdBy")}</th>
+          <th className="p-3">{t("archivedAt")}</th>
+          <th className="p-3">{t("archivedBy")}</th>
+          <th className="p-3">{t("reason")}</th>
+          <th className="p-3">{t("actions")}</th>
         </tr>
       </thead>
 
       <tbody>
         {exames.length === 0 ? (
           <tr>
-            <td colSpan={10} className="p-6 text-center text-slate-400">
-              Nenhum exame arquivado encontrado.
-            </td>
+            <td colSpan={10} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("emptyExams")}</td>
           </tr>
         ) : (
           exames.map((item) => (
-            <tr key={item.id} className="border-b border-slate-800">
-              <td className="p-3 text-white">
+            <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800">
+              <td className="p-3 text-slate-900 dark:text-white">
                 {item.funcionario?.nome || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">{item.tipo}</td>
+              <td className="p-3 text-slate-700 dark:text-slate-300">{examType(item.tipo)}</td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarData(item.dataExame)}
               </td>
 
-              <td className="p-3 text-slate-300">
-                {item.resultado || "-"}
+              <td className="p-3 text-slate-700 dark:text-slate-300">
+                {item.resultado ? examResult(item.resultado) : "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(item.criadoEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.criadoPor?.nome ||
                   item.criadoPor?.email ||
                   item.criadoPorId ||
                   "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(item.arquivadoEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.arquivadoPor?.nome ||
                   item.arquivadoPor?.email ||
                   item.arquivadoPorId ||
                   "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.motivoArquivo || "-"}
               </td>
               <td className="p-3">
   <button
-    onClick={() => restaurarExame(item.id)}
+    type="button"
+    onClick={() => {
+      setItemParaRestaurar({ tipo: "EXAME", id: item.id,
+        titulo: examType(item.tipo), funcionario: item.funcionario?.nome || "-" });
+      setMotivoRestauracao("");
+    }}
     className="rounded-lg border border-emerald-500 px-3 py-1 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
-  >
-    Restaurar
-  </button>
+  >{t("restore")}</button>
 </td>
             </tr>
           ))
@@ -1001,62 +1036,60 @@ async function restaurarRescisao(id: number) {
     <table className="min-w-full">
       <thead>
         <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          <th className="p-3">Funcionário</th>
-          <th className="p-3">Tipo</th>
-          <th className="p-3">Desligamento</th>
-          <th className="p-3">Criado em</th>
-          <th className="p-3">Criado por</th>
-          <th className="p-3">Arquivado em</th>
-          <th className="p-3">Arquivado por</th>
-          <th className="p-3">Motivo</th>
+          <th className="p-3">{t("employee")}</th>
+          <th className="p-3">{t("type")}</th>
+          <th className="p-3">{t("terminationDate")}</th>
+          <th className="p-3">{t("createdAt")}</th>
+          <th className="p-3">{t("createdBy")}</th>
+          <th className="p-3">{t("archivedAt")}</th>
+          <th className="p-3">{t("archivedBy")}</th>
+          <th className="p-3">{t("reason")}</th>
         </tr>
       </thead>
 
       <tbody>
         {rescisoes.length === 0 ? (
           <tr>
-            <td colSpan={8} className="p-6 text-center text-slate-400">
-              Nenhuma rescisão arquivada encontrada.
-            </td>
+            <td colSpan={8} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("emptyTerminations")}</td>
           </tr>
         ) : (
           rescisoes.map((item) => (
-            <tr key={item.id} className="border-b border-slate-800">
-              <td className="p-3 text-white">
+            <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800">
+              <td className="p-3 text-slate-900 dark:text-white">
                 {item.funcionario?.nome || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.tipo}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarData(item.dataDesligamento)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(item.criadoEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.criadoPor?.nome ||
                   item.criadoPor?.email ||
                   item.criadoPorId ||
                   "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(item.arquivadaEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.arquivadaPor?.nome ||
                   item.arquivadaPor?.email ||
                   item.arquivadaPorId ||
                   "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.motivoArquivo || "-"}
               </td>
             </tr>
@@ -1072,57 +1105,55 @@ async function restaurarRescisao(id: number) {
     <table className="min-w-full">
       <thead>
   <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-    <th className="p-3">Funcionário</th>
-    <th className="p-3">Título</th>
-    <th className="p-3">Tipo</th>
-    <th className="p-3">Criado em</th>
-    <th className="p-3">Criado por</th>
-    <th className="p-3">Arquivado em</th>
-    <th className="p-3">Arquivado por</th>
-    <th className="p-3">Motivo</th>
-    <th className="p-3">Ações</th>
+    <th className="p-3">{t("employee")}</th>
+    <th className="p-3">{t("documentTitle")}</th>
+    <th className="p-3">{t("type")}</th>
+    <th className="p-3">{t("createdAt")}</th>
+    <th className="p-3">{t("createdBy")}</th>
+    <th className="p-3">{t("archivedAt")}</th>
+    <th className="p-3">{t("archivedBy")}</th>
+    <th className="p-3">{t("reason")}</th>
+    <th className="p-3">{t("actions")}</th>
   </tr>
 </thead>
 
       <tbody>
         {documentos.length === 0 ? (
           <tr>
-            <td colSpan={9} className="p-6 text-center text-slate-400">
-              Nenhum documento arquivado encontrado.
-            </td>
+            <td colSpan={9} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("emptyDocuments")}</td>
           </tr>
         ) : (
           documentos.map((item) => (
-            <tr key={item.id} className="border-b border-slate-800">
-              <td className="p-3 text-white">
+            <tr key={item.id} className="border-b border-slate-200 dark:border-slate-800">
+              <td className="p-3 text-slate-900 dark:text-white">
                 {item.funcionario?.nome || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {item.titulo}
               </td>
 
-              <td className="p-3 text-slate-300">
-                {item.tipo}
+              <td className="p-3 text-slate-700 dark:text-slate-300">
+                {documentType(item.tipo)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
   {formatarDataHora(item.criadoEm || item.dataDocumento)}
 </td>
 
-<td className="p-3 text-slate-300">
+<td className="p-3 text-slate-700 dark:text-slate-300">
   {item.criadoPor?.nome || item.criadoPor?.email || item.criadoPorId || "-"}
 </td>
 
-<td className="p-3 text-slate-300">
+<td className="p-3 text-slate-700 dark:text-slate-300">
   {formatarDataHora(item.arquivadoEm)}
 </td>
 
-<td className="p-3 text-slate-300">
+<td className="p-3 text-slate-700 dark:text-slate-300">
   {item.arquivadoPor?.nome || item.arquivadoPor?.email || item.arquivadoPorId || "-"}
 </td>
 
-<td className="p-3 text-slate-300">
+<td className="p-3 text-slate-700 dark:text-slate-300">
   {item.motivoArquivo || "-"}
 </td>
 
@@ -1133,7 +1164,7 @@ async function restaurarRescisao(id: number) {
   setItemParaRestaurar({
     tipo: "DOCUMENTO",
     id: item.id,
-    titulo: item.titulo || "Documento RH",
+    titulo: item.titulo || t("documentRecord"),
     funcionario: item.funcionario?.nome || "-",
   });
   setMotivoRestauracao("");
@@ -1142,8 +1173,8 @@ async function restaurarRescisao(id: number) {
     className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
   >
     {restaurandoId === item.id
-      ? "Restaurando..."
-      : "Restaurar"}
+      ? t("restoring")
+      : t("restore")}
   </button>
 </td>
             </tr>
@@ -1159,80 +1190,81 @@ async function restaurarRescisao(id: number) {
     <table className="min-w-full">
       <thead>
         <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          <th className="p-3">Funcionário</th>
-          <th className="p-3">Tipo</th>
-          <th className="p-3">Data</th>
-          <th className="p-3">Criado em</th>
-          <th className="p-3">Criado por</th>
-          <th className="p-3">Arquivado em</th>
-          <th className="p-3">Arquivado por</th>
-          <th className="p-3">Motivo</th>
-          <th className="p-3">Ações</th>
+          <th className="p-3">{t("employee")}</th>
+          <th className="p-3">{t("type")}</th>
+          <th className="p-3">{t("date")}</th>
+          <th className="p-3">{t("createdAt")}</th>
+          <th className="p-3">{t("createdBy")}</th>
+          <th className="p-3">{t("archivedAt")}</th>
+          <th className="p-3">{t("archivedBy")}</th>
+          <th className="p-3">{t("reason")}</th>
+          <th className="p-3">{t("actions")}</th>
         </tr>
       </thead>
 
       <tbody>
         {carregando ? (
           <tr>
-            <td colSpan={9} className="p-6 text-center text-slate-400">
-              Carregando...
-            </td>
+            <td colSpan={9} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("loading")}</td>
           </tr>
         ) : ocorrencias.length === 0 ? (
           <tr>
-            <td colSpan={9} className="p-6 text-center text-slate-400">
-              Nenhuma ocorrência arquivada encontrada.
-            </td>
+            <td colSpan={9} className="p-6 text-center text-slate-600 dark:text-slate-400">{t("emptyOccurrences")}</td>
           </tr>
         ) : (
           ocorrencias.map((ocorrencia) => (
-            <tr key={ocorrencia.id} className="border-b border-slate-800">
+            <tr key={ocorrencia.id} className="border-b border-slate-200 dark:border-slate-800">
               <td className="p-3 text-slate-900 dark:text-white">
                 {ocorrencia.funcionario?.nome || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
-                {ocorrencia.tipo}
+              <td className="p-3 text-slate-700 dark:text-slate-300">
+                {occurrenceType(ocorrencia.tipo)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarData(ocorrencia.dataEvento)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(ocorrencia.criadoEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {ocorrencia.criadoPor?.nome ||
                   ocorrencia.criadoPor?.email ||
                   ocorrencia.criadoPorId ||
                   "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {formatarDataHora(ocorrencia.arquivadaEm)}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {ocorrencia.arquivadaPor?.nome ||
                   ocorrencia.arquivadaPor?.email ||
                   ocorrencia.arquivadaPorId ||
                   "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
+              <td className="p-3 text-slate-700 dark:text-slate-300">
                 {ocorrencia.motivoArquivo || "-"}
               </td>
 
               <td className="p-3">
                 <button
                   type="button"
-                  onClick={() => restaurarOcorrencia(ocorrencia.id)}
+                  onClick={() => {
+                    setItemParaRestaurar({ tipo: "OCORRENCIA", id: ocorrencia.id,
+                      titulo: occurrenceType(ocorrencia.tipo),
+                      funcionario: ocorrencia.funcionario?.nome || "-" });
+                    setMotivoRestauracao("");
+                  }}
                   disabled={restaurandoId === ocorrencia.id}
                   className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
                 >
-                  {restaurandoId === ocorrencia.id ? "Restaurando..." : "Restaurar"}
+                  {restaurandoId === ocorrencia.id ? t("restoring") : t("restore")}
                 </button>
               </td>
             </tr>
@@ -1246,34 +1278,28 @@ async function restaurarRescisao(id: number) {
 
 {itemParaRestaurar && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-    <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-      <h2 className="text-xl font-bold text-white">
-        Restaurar registro RH
-      </h2>
+    <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+      <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("restoreHeading")}</h2>
 
-      <p className="mt-3 text-sm text-slate-300">
-        A restauração será registrada com data, hora, usuário responsável e motivo para auditoria.
-      </p>
+      <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">{t("restoreDescription")}</p>
 
-      <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
         <p>
-          <strong>Registro:</strong> {itemParaRestaurar.titulo}
+          <strong>{t("recordColon")}</strong> {itemParaRestaurar.titulo}
         </p>
 
         <p className="mt-2">
-          <strong>Funcionário:</strong> {itemParaRestaurar.funcionario || "-"}
+          <strong>{t("employeeColon")}</strong> {itemParaRestaurar.funcionario || "-"}
         </p>
       </div>
 
-      <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
-        Motivo da restauração
-      </label>
+      <label className="mt-5 block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">{t("restoreReason")}</label>
 
       <textarea
         value={motivoRestauracao}
         onChange={(e) => setMotivoRestauracao(e.target.value)}
-        className="mt-2 min-h-28 w-full rounded-2xl border border-slate-700 bg-slate-900 p-4 text-sm text-white outline-none focus:border-emerald-500"
-        placeholder="Explique por que este registro está sendo restaurado."
+        className="mt-2 min-h-28 w-full rounded-2xl border border-slate-300 bg-white p-4 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white outline-none focus:border-emerald-500"
+        placeholder={t("restorePlaceholder")}
       />
 
       <div className="mt-6 flex justify-end gap-3">
@@ -1284,10 +1310,8 @@ async function restaurarRescisao(id: number) {
             setMotivoRestauracao("");
           }}
           disabled={restaurandoId !== null}
-          className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-        >
-          Cancelar
-        </button>
+          className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 disabled:opacity-60"
+        >{t("cancel")}</button>
 
         <button
   type="button"
@@ -1321,7 +1345,7 @@ async function restaurarRescisao(id: number) {
   disabled={restaurandoId !== null || !motivoRestauracao.trim()}
   className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
 >
-  {restaurandoId !== null ? "Restaurando..." : "Restaurar registro"}
+  {restaurandoId !== null ? t("restoring") : t("restoreRecord")}
 </button>
       </div>
     </div>
