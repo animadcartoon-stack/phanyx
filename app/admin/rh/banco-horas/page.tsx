@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type RegistroPonto = {
   id: number;
@@ -21,21 +22,27 @@ function numero(v: any) {
   return Number(v || 0);
 }
 
-function formatarHoras(v: number) {
+function formatarHoras(v: number, locale: string) {
   const sinal = v > 0 ? "+" : v < 0 ? "-" : "";
-  return `${sinal}${Math.abs(v).toFixed(2)}h`;
+  const horas = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Math.abs(v));
+  return `${sinal}${horas}h`;
 }
 
 export default function BancoHorasPage() {
+  const t = useTranslations("AdminHRTimeBank");
+  const locale = useLocale();
   const [pontos, setPontos] = useState<RegistroPonto[]>([]);
   const [busca, setBusca] = useState("");
   const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState("");
+  const [erro, setErro] = useState(false);
 
   async function carregar() {
     try {
       setCarregando(true);
-      setErro("");
+      setErro(false);
 
       const res = await fetch("/api/admin/rh/ponto", {
         cache: "no-store",
@@ -44,13 +51,11 @@ export default function BancoHorasPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar banco de horas.");
-      }
+      if (!res.ok) throw new Error();
 
       setPontos(Array.isArray(data) ? data : []);
-    } catch (e: any) {
-      setErro(e.message || "Erro ao carregar banco de horas.");
+    } catch {
+      setErro(true);
     } finally {
       setCarregando(false);
     }
@@ -93,9 +98,9 @@ export default function BancoHorasPage() {
     });
 
     return Array.from(mapa.values()).sort((a, b) =>
-      a.funcionario.nome.localeCompare(b.funcionario.nome, "pt-BR")
+      a.funcionario.nome.localeCompare(b.funcionario.nome, locale)
     );
-  }, [pontos]);
+  }, [pontos, locale]);
 
   const filtrados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -129,89 +134,89 @@ export default function BancoHorasPage() {
   }, [resumo]);
 
   return (
-    <main className="phanyx-rh-page min-h-screen p-6">
+    <main className="phanyx-rh-page min-h-screen p-6 text-slate-950 dark:text-white">
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-300">
-            PHANYX RH
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">
+            {t("eyebrow")}
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold">Banco de Horas</h1>
+          <h1 className="mt-2 text-3xl font-bold">{t("title")}</h1>
 
-          <p className="mt-2 max-w-3xl text-sm text-slate-400">
-            Acompanhe créditos, débitos e saldo acumulado de horas por
-            funcionário com base nos registros de ponto.
+          <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+            {t("description")}
           </p>
         </div>
 
         {erro && (
-          <div className="rounded-2xl border border-red-500/30 bg-red-950/40 p-4 text-sm text-red-200">
-            {erro}
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-950/40 dark:text-red-200">
+            {t("loadError")}
           </div>
         )}
 
         <section className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-            <p className="text-sm text-slate-400">Funcionários</p>
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/80">
+            <p className="text-sm text-slate-600 dark:text-slate-400">{t("employees")}</p>
             <p className="mt-2 text-2xl font-bold">{totais.funcionarios}</p>
           </div>
 
-          <div className="rounded-3xl border border-emerald-500/20 bg-emerald-950/20 p-5">
-            <p className="text-sm text-emerald-200">Créditos</p>
-            <p className="mt-2 text-2xl font-bold text-emerald-300">
-              {formatarHoras(totais.creditos)}
+          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-500/20 dark:bg-emerald-950/20">
+            <p className="text-sm text-emerald-800 dark:text-emerald-200">{t("credits")}</p>
+            <p className="mt-2 text-2xl font-bold text-emerald-800 dark:text-emerald-300">
+              {formatarHoras(totais.creditos, locale)}
             </p>
           </div>
 
-          <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-5">
-            <p className="text-sm text-red-200">Débitos</p>
-            <p className="mt-2 text-2xl font-bold text-red-300">
-              {formatarHoras(-totais.debitos)}
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-5 dark:border-red-500/20 dark:bg-red-950/20">
+            <p className="text-sm text-red-800 dark:text-red-200">{t("debits")}</p>
+            <p className="mt-2 text-2xl font-bold text-red-800 dark:text-red-300">
+              {formatarHoras(-totais.debitos, locale)}
             </p>
           </div>
 
-          <div className="rounded-3xl border border-blue-500/20 bg-blue-950/20 p-5">
-            <p className="text-sm text-blue-200">Saldo Geral</p>
+          <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-500/20 dark:bg-blue-950/20">
+            <p className="text-sm text-blue-800 dark:text-blue-200">{t("overallBalance")}</p>
             <p
               className={`mt-2 text-2xl font-bold ${
-                totais.saldo >= 0 ? "text-emerald-300" : "text-red-300"
+                totais.saldo >= 0 ? "text-emerald-800 dark:text-emerald-300" : "text-red-800 dark:text-red-300"
               }`}
             >
-              {formatarHoras(totais.saldo)}
+              {formatarHoras(totais.saldo, locale)}
             </p>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900/80">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-lg font-bold">Saldo por funcionário</h2>
+            <h2 className="text-lg font-bold">{t("balanceByEmployee")}</h2>
 
             <input
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar por funcionário, cargo ou departamento"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white md:w-[420px]"
+              placeholder={t("search")}
+              aria-label={t("search")}
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white md:w-[420px]"
             />
           </div>
 
           {carregando ? (
-            <div className="mt-5 text-sm text-slate-400">Carregando...</div>
+            <div className="mt-5 text-sm text-slate-600 dark:text-slate-400">{t("loading")}</div>
           ) : filtrados.length === 0 ? (
-            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-950 p-5 text-sm text-slate-400">
-              Nenhum saldo de banco de horas encontrado.
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+              {t("empty")}
             </div>
           ) : (
             <div className="mt-5 overflow-x-auto">
               <table className="min-w-full text-sm">
-                <thead className="bg-slate-950/70 text-left text-xs uppercase tracking-wide text-slate-400">
+                <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600 dark:bg-slate-950/70 dark:text-slate-400">
                   <tr>
-                    <th className="p-3">Funcionário</th>
-                    <th className="p-3">Cargo / Departamento</th>
-                    <th className="p-3">Créditos</th>
-                    <th className="p-3">Débitos</th>
-                    <th className="p-3">Saldo</th>
-                    <th className="p-3">Registros</th>
-                    <th className="p-3">Último ponto</th>
+                    <th className="p-3">{t("employee")}</th>
+                    <th className="p-3">{t("roleDepartment")}</th>
+                    <th className="p-3">{t("credits")}</th>
+                    <th className="p-3">{t("debits")}</th>
+                    <th className="p-3">{t("balance")}</th>
+                    <th className="p-3">{t("records")}</th>
+                    <th className="p-3">{t("lastClockIn")}</th>
                   </tr>
                 </thead>
 
@@ -219,40 +224,40 @@ export default function BancoHorasPage() {
                   {filtrados.map((r) => (
                     <tr
                       key={r.funcionario.id}
-                      className="border-t border-slate-800"
+                      className="border-t border-slate-200 dark:border-slate-800"
                     >
                       <td className="p-3 font-semibold">
                         {r.funcionario.nome}
                       </td>
 
-                      <td className="p-3 text-slate-300">
+                      <td className="p-3 text-slate-700 dark:text-slate-300">
                         {r.funcionario.cargo || "-"}
                         {r.funcionario.departamento?.nome
                           ? ` • ${r.funcionario.departamento.nome}`
                           : ""}
                       </td>
 
-                      <td className="p-3 font-bold text-emerald-300">
-                        {formatarHoras(r.creditos)}
+                      <td className="p-3 font-bold text-emerald-800 dark:text-emerald-300">
+                        {formatarHoras(r.creditos, locale)}
                       </td>
 
-                      <td className="p-3 font-bold text-red-300">
-                        {formatarHoras(-r.debitos)}
+                      <td className="p-3 font-bold text-red-800 dark:text-red-300">
+                        {formatarHoras(-r.debitos, locale)}
                       </td>
 
                       <td
                         className={`p-3 font-bold ${
-                          r.saldo >= 0 ? "text-emerald-300" : "text-red-300"
+                          r.saldo >= 0 ? "text-emerald-800 dark:text-emerald-300" : "text-red-800 dark:text-red-300"
                         }`}
                       >
-                        {formatarHoras(r.saldo)}
+                        {formatarHoras(r.saldo, locale)}
                       </td>
 
-                      <td className="p-3 text-slate-300">{r.registros}</td>
+                      <td className="p-3 text-slate-700 dark:text-slate-300">{r.registros}</td>
 
-                      <td className="p-3 text-slate-300">
+                      <td className="p-3 text-slate-700 dark:text-slate-300">
                         {r.ultimaData
-                          ? new Date(r.ultimaData).toLocaleDateString("pt-BR")
+                          ? new Date(r.ultimaData).toLocaleDateString(locale)
                           : "-"}
                       </td>
                     </tr>

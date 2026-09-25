@@ -18623,5 +18623,24 @@
       "ACESSO_EXTERNO_AUTORIZADO": "Acceso externo autorizado",
       "OUTRO": "Otro"
     }
+  },
+  "AdminHRTimeBank": {
+    "eyebrow": "PHANYX RR. HH.",
+    "title": "Banco de horas",
+    "description": "Consulte los créditos, débitos y el saldo acumulado de horas de cada empleado según los registros de asistencia.",
+    "loadError": "No se pudo cargar el banco de horas.",
+    "employees": "Empleados",
+    "credits": "Créditos",
+    "debits": "Débitos",
+    "overallBalance": "Saldo general",
+    "balanceByEmployee": "Saldo por empleado",
+    "search": "Buscar por empleado, cargo o departamento",
+    "loading": "Cargando...",
+    "empty": "No se encontraron saldos en el banco de horas.",
+    "employee": "Empleado",
+    "roleDepartment": "Cargo / Departamento",
+    "balance": "Saldo",
+    "records": "Registros",
+    "lastClockIn": "Último registro de asistencia"
   }
 }

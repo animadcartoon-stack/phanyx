@@ -18624,5 +18624,24 @@
       "ACESSO_EXTERNO_AUTORIZADO": "Authorized external access",
       "OUTRO": "Other"
     }
+  },
+  "AdminHRTimeBank": {
+    "eyebrow": "PHANYX HR",
+    "title": "Banked Hours",
+    "description": "Track credited hours, debited hours, and each employee's cumulative balance based on time records.",
+    "loadError": "Could not load banked hours.",
+    "employees": "Employees",
+    "credits": "Credits",
+    "debits": "Debits",
+    "overallBalance": "Overall balance",
+    "balanceByEmployee": "Balance by employee",
+    "search": "Search by employee, role, or department",
+    "loading": "Loading...",
+    "empty": "No banked-hours balances found.",
+    "employee": "Employee",
+    "roleDepartment": "Role / Department",
+    "balance": "Balance",
+    "records": "Records",
+    "lastClockIn": "Latest time entry"
   }
 }

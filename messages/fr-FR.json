@@ -18623,5 +18623,24 @@
       "ACESSO_EXTERNO_AUTORIZADO": "Accès externe autorisé",
       "OUTRO": "Autre"
     }
+  },
+  "AdminHRTimeBank": {
+    "eyebrow": "PHANYX RH",
+    "title": "Banque d'heures",
+    "description": "Suivez les heures créditées, débitées et le solde cumulé de chaque collaborateur à partir des relevés de pointage.",
+    "loadError": "Impossible de charger la banque d'heures.",
+    "employees": "Collaborateurs",
+    "credits": "Crédits",
+    "debits": "Débits",
+    "overallBalance": "Solde global",
+    "balanceByEmployee": "Solde par collaborateur",
+    "search": "Rechercher par collaborateur, poste ou service",
+    "loading": "Chargement...",
+    "empty": "Aucun solde d'heures trouvé.",
+    "employee": "Collaborateur",
+    "roleDepartment": "Poste / Service",
+    "balance": "Solde",
+    "records": "Enregistrements",
+    "lastClockIn": "Dernier pointage"
   }
 }
