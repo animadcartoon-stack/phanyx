@@ -707,6 +707,10 @@ export default function AdminShell({
       operadorBiblioteca,
     );
 
+  const podeVerPrateleirasBiblioteca =
+    podeAcessar("biblioteca.prateleiras.gerenciar") ||
+    operadorBiblioteca?.podeGerenciarColecao === true;
+
   const podeVerLicencasBiblioteca =
     podeAcessar(
       "biblioteca.licencas.ver",
@@ -1407,6 +1411,15 @@ export default function AdminShell({
                             className={getLinkClass("/admin/biblioteca/acervo")}
                           >
                             📚 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeVerPrateleirasBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/prateleiras"
+                            className={getLinkClass("/admin/biblioteca/prateleiras")}
+                          >
+                            {String.fromCodePoint(0x1F4DA)} {tNav("shelves")}
                           </Link>
                         )}
 
@@ -2201,6 +2214,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             📖 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeVerPrateleirasBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/prateleiras"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F4DA)} {tNav("shelves")}
                           </Link>
                         )}
 

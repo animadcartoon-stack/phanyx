@@ -431,6 +431,7 @@ export default function BibliotecaAuditoriaPage() {
       BibliotecaConfiguracao: "configuration",
       BibliotecaOperador: "operator",
       BibliotecaLicenca: "license",
+      BibliotecaPrateleira: "shelf",
       ModuloAdicionalInstituicao: "module",
     };
 
@@ -482,6 +483,26 @@ export default function BibliotecaAuditoriaPage() {
       "Licença da Biblioteca restaurada.":
         "licenseRestored",
 
+      "Prateleira da Biblioteca cadastrada.":
+        "shelfCreated",
+
+      "Prateleira da Biblioteca atualizada.":
+        "shelfUpdated",
+
+      "Prateleira da Biblioteca desativada.":
+        "shelfDeactivated",
+
+      "Prateleira da Biblioteca restaurada.":
+        "shelfRestored",
+
+      "Item adicionado à prateleira da Biblioteca.":
+        "shelfItemAdded",
+
+      "Item removido da prateleira da Biblioteca.":
+        "shelfItemRemoved",
+
+      "Ordem dos itens da prateleira atualizada.":
+        "shelfItemsReordered",
       "Upload de arquivo autorizado para o acervo da Biblioteca Virtual.":
         "fileUploadAuthorized",
 
