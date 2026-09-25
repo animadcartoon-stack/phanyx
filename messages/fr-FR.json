@@ -13798,7 +13798,12 @@
       "readOnly": "Lecture seule",
       "empty": "Aucun paiement en ligne IBE enregistré aujourd’hui.",
       "total": "Total en ligne",
-      "payments": "Paiements"
+      "payments": "Paiements",
+      "reconcile": "Rapprocher les paiements en ligne",
+      "reconciling": "Vérification sur Asaas...",
+      "reconcileSuccess": "{charges} paiement(s) rapproché(s) ; {students} accès rétabli(s).",
+      "reconcilePending": "{count} écriture(s) nécessitent une vérification ; consultez les écritures et les paiements Asaas.",
+      "reconcileError": "Impossible de vérifier les paiements auprès d’Asaas."
     },
     "cards": {
       "status": "Statut",

@@ -36,6 +36,11 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
       vencimento: {
         lt: dataLimite,
       },
+      NOT: {
+        tipo: "MATRICULA",
+        descricao: { startsWith: "Matrícula online IBE" },
+        matricula: { is: { realizadaPeloAluno: true } },
+      },
     },
     data: {
       status: "ATRASADO",
@@ -107,6 +112,11 @@ export async function GET(_req: NextRequest) {
       where: {
         instituicaoId: user.instituicaoId,
         status: "ATRASADO",
+        NOT: {
+          tipo: "MATRICULA",
+          descricao: { startsWith: "Matrícula online IBE" },
+          matricula: { is: { realizadaPeloAluno: true } },
+        },
       },
       include: {
         aluno: {

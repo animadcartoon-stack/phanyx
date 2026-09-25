@@ -221,6 +221,9 @@ const cobrancasPendentes =
   caixaManual,
   caixaOnlineIbe,
   podeVerCaixaOnlineIbe,
+  podeReconciliarOnlineIbe:
+    Number(user.instituicaoId) === Number(process.env.IBE_INSTITUICAO_ID || 0) &&
+    ["ADMIN", "FINANCEIRO"].includes(user.role),
   cobrancasPendentes,
 });
 

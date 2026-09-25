@@ -627,6 +627,8 @@ export default function AdminFinanceiroCaixaPage() {
   const [caixa, setCaixa] = useState<Caixa | null>(null);
   const [caixaOnlineIbe, setCaixaOnlineIbe] = useState<Caixa | null>(null);
   const [podeVerCaixaOnlineIbe, setPodeVerCaixaOnlineIbe] = useState(false);
+  const [podeReconciliarOnlineIbe, setPodeReconciliarOnlineIbe] = useState(false);
+  const [reconciliandoOnline, setReconciliandoOnline] = useState(false);
   const [cobrancasPendentes, setCobrancasPendentes] =
     useState<CobrancaPendente[]>([]);
 
@@ -672,6 +674,7 @@ export default function AdminFinanceiroCaixaPage() {
       setCaixa(data?.caixaManual || null);
       setCaixaOnlineIbe(data?.caixaOnlineIbe || null);
       setPodeVerCaixaOnlineIbe(Boolean(data?.podeVerCaixaOnlineIbe));
+      setPodeReconciliarOnlineIbe(Boolean(data?.podeReconciliarOnlineIbe));
       setCobrancasPendentes(
         Array.isArray(data?.cobrancasPendentes)
           ? data.cobrancasPendentes
@@ -689,6 +692,39 @@ export default function AdminFinanceiroCaixaPage() {
   useEffect(() => {
     carregarCaixa();
   }, []);
+
+  async function reconciliarMatriculasOnline() {
+    try {
+      setReconciliandoOnline(true);
+      setErro("");
+      setSucesso("");
+
+      const resposta = await fetch("/api/admin/financeiro/reconciliar-online-ibe", {
+        method: "POST",
+        credentials: "include",
+      });
+      const resultado = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(resultado?.error || t("onlineCash.reconcileError"));
+      }
+
+      await carregarCaixa();
+      setSucesso(t("onlineCash.reconcileSuccess", {
+        charges: resultado.regularizados,
+        students: resultado.acessosLiberados,
+      }));
+      if (resultado.pendencias?.length || resultado.limiteAtingido) {
+        setErro(t("onlineCash.reconcilePending", {
+          count: resultado.pendencias?.length || 0,
+        }));
+      }
+    } catch (erro: any) {
+      setErro(erro?.message || t("onlineCash.reconcileError"));
+    } finally {
+      setReconciliandoOnline(false);
+    }
+  }
 
   useEffect(() => {
     const abrirTour = () => {
@@ -984,9 +1020,21 @@ export default function AdminFinanceiroCaixaPage() {
               </p>
             </div>
 
-            <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
-              {t("onlineCash.readOnly")}
-            </span>
+            <div className="flex flex-col items-end gap-2">
+              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
+                {t("onlineCash.readOnly")}
+              </span>
+              {podeReconciliarOnlineIbe && (
+                <button
+                  type="button"
+                  disabled={reconciliandoOnline}
+                  onClick={reconciliarMatriculasOnline}
+                  className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {t(reconciliandoOnline ? "onlineCash.reconciling" : "onlineCash.reconcile")}
+                </button>
+              )}
+            </div>
           </div>
 
           {!caixaOnlineIbe ? (

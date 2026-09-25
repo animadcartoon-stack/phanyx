@@ -13798,7 +13798,12 @@
       "readOnly": "Solo lectura",
       "empty": "Hoy no se han registrado pagos online IBE.",
       "total": "Total online",
-      "payments": "Pagos"
+      "payments": "Pagos",
+      "reconcile": "Conciliar pagos en línea",
+      "reconciling": "Verificando en Asaas...",
+      "reconcileSuccess": "{charges} cobro(s) conciliado(s); {students} acceso(s) restablecido(s).",
+      "reconcilePending": "{count} registro(s) requieren revisión; compruebe los registros y pagos en Asaas.",
+      "reconcileError": "No se pudieron verificar los pagos en Asaas."
     },
     "cards": {
       "status": "Estado",

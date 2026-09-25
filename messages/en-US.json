@@ -13799,7 +13799,12 @@
       "readOnly": "Read only",
       "empty": "No IBE online payments have been recorded today.",
       "total": "Online total",
-      "payments": "Payments"
+      "payments": "Payments",
+      "reconcile": "Reconcile online payments",
+      "reconciling": "Checking Asaas...",
+      "reconcileSuccess": "{charges} charge(s) reconciled; {students} student access(es) restored.",
+      "reconcilePending": "{count} entry/entries need review; check the records and Asaas payments.",
+      "reconcileError": "Could not verify payments with Asaas."
     },
     "cards": {
       "status": "Status",

@@ -72,6 +72,9 @@ export async function POST() {
       },
       include: {
         pagamentos: true,
+        matricula: {
+          select: { realizadaPeloAluno: true },
+        },
       },
       orderBy: {
         vencimento: "asc",
@@ -87,6 +90,16 @@ export async function POST() {
     const contadorMensalidadesAtrasadas: Record<number, number> = {};
 
     for (const lancamento of lancamentos) {
+      // O Asaas confirma e quita a matrícula online no webhook. Ela não
+      // possui Pagamento manual e não pode ser recalculada por esta rotina.
+      if (
+        lancamento.tipo === "MATRICULA" &&
+        lancamento.matricula?.realizadaPeloAluno === true &&
+        lancamento.descricao?.startsWith("Matrícula online IBE")
+      ) {
+        continue;
+      }
+
       const valorOriginal = Number(lancamento.valorOriginal || 0);
 
       const totalPago = arredondar2(
