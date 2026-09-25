@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import { useEffect, useMemo, useState } from "react";
 
 type Funcionario = {
@@ -47,11 +49,11 @@ const tiposRescisao = [
   "Outros",
 ];
 
-function dataBR(data?: string | null) {
+function dataBR(data: string | null | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("pt-BR");
+  return d.toLocaleDateString(locale);
 }
 
 function dataInput(data?: string | null) {
@@ -66,8 +68,8 @@ function numero(valor: unknown) {
   return Number(String(valor).replace(",", ".")) || 0;
 }
 
-function moeda(valor: unknown) {
-  return numero(valor).toLocaleString("pt-BR", {
+function moeda(valor: unknown, locale: string) {
+  return numero(valor).toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
@@ -91,6 +93,23 @@ function diferencaMesesProporcionais(dataInicio: string, dataFim: string) {
 }
 
 export default function RescisoesRHPage() {
+  const t = useTranslations("AdminHRTerminations");
+  const locale = useLocale();
+  const money = (value: unknown) => moeda(value, locale);
+  const date = (value?: string | null) => dataBR(value, locale);
+  const numberPlaceholder = new Intl.NumberFormat(locale, { useGrouping: false, minimumFractionDigits: 2 }).format(0);
+  const typeLabels: Record<string, string> = {
+    "Pedido de demissão": t("typeResignation"),
+    "Dispensa sem justa causa": t("typeDismissal"),
+    "Dispensa por justa causa": t("typeForCause"),
+    "Término de contrato": t("typeEndContract"),
+    "Acordo entre as partes": t("typeAgreement"),
+    "Outros": t("typeOther"),
+  };
+  const statusLabels: Record<string, string> = {
+    EM_ANDAMENTO: t("statusInProgress"), FINALIZADA: t("statusFinalized"),
+    CANCELADA: t("statusCancelled"), ARQUIVADA: t("statusArchived"),
+  };
   const [rescisoes, setRescisoes] = useState<RescisaoRH[]>([]);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
@@ -300,7 +319,7 @@ useEffect(() => {
       return JSON.parse(texto);
     } catch {
       throw new Error(
-        `${nomeRota} não retornou JSON. Verifique se a rota existe e se não está redirecionando para HTML.`
+        t("invalidResponse", { route: nomeRota })
       );
     }
   }
@@ -322,7 +341,7 @@ useEffect(() => {
 
       if (!resFuncionarios.ok) {
         throw new Error(
-          dataFuncionarios?.error || "Erro ao carregar funcionários."
+          t("employeesError")
         );
       }
 
@@ -345,7 +364,7 @@ useEffect(() => {
       );
 
       if (!resRescisoes.ok) {
-        throw new Error(dataRescisoes?.error || "Erro ao carregar rescisões.");
+        throw new Error(t("loadError"));
       }
 
       const resTemplates = await fetch("/api/admin/documentos/templates", {
@@ -359,7 +378,7 @@ const dataTemplates = await lerJsonSeguro(
 );
 
 if (!resTemplates.ok) {
-  throw new Error(dataTemplates?.error || "Erro ao carregar templates.");
+  throw new Error(t("templatesError"));
 }
 
 const tiposRescisaoTemplate = [
@@ -379,7 +398,7 @@ setTemplatesRh(
 
       setRescisoes(Array.isArray(dataRescisoes) ? dataRescisoes : []);
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar dados.");
+      setErro(error?.message || t("dataError"));
     } finally {
       setLoading(false);
     }
@@ -409,20 +428,20 @@ setTemplatesRh(
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        motivo: "Arquivamento realizado pela tela de rescisões.",
+        motivo: t("archiveAudit"),
       }),
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao arquivar rescisão.");
+      throw new Error(t("archiveError"));
     }
 
-    setMensagem("Rescisão arquivada com sucesso.");
+    setMensagem(t("archiveSuccess"));
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao arquivar rescisão.");
+    setErro(error?.message || t("archiveError"));
   }
 }
 
@@ -436,20 +455,20 @@ async function cancelarRescisao(id: number) {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        motivo: "Cancelamento realizado pela tela de rescisões.",
+        motivo: t("cancelAudit"),
       }),
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao cancelar rescisão.");
+      throw new Error(t("cancelError"));
     }
 
-    setMensagem("Rescisão cancelada com sucesso.");
+    setMensagem(t("cancelSuccess"));
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao cancelar rescisão.");
+    setErro(error?.message || t("cancelError"));
   }
 }
 
@@ -461,12 +480,12 @@ async function gerarDocumentoRescisao(item: RescisaoRH) {
     const templateId = Number(templatePorRescisao[item.id] || 0);
 
     if (!templateId) {
-      setErro("Selecione um template antes de gerar o documento da rescisão.");
+      setErro(t("templateRequired"));
       return;
     }
 
     if (!item.funcionario?.id) {
-      setErro("Funcionário não identificado nesta rescisão.");
+      setErro(t("employeeNotFound"));
       return;
     }
 
@@ -486,16 +505,16 @@ async function gerarDocumentoRescisao(item: RescisaoRH) {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao gerar documento da rescisão.");
+      throw new Error(t("documentError"));
     }
 
-    setMensagem("Documento da rescisão gerado com sucesso em Documentos RH.");
+    setMensagem(t("documentSuccess"));
 
 if (data?.id) {
   window.open(`/api/admin/rh/documentos/${data.id}/imprimir`, "_blank");
 }
   } catch (error: any) {
-    setErro(error?.message || "Erro ao gerar documento da rescisão.");
+    setErro(error?.message || t("documentError"));
   } finally {
     setGerandoDocumentoId(null);
   }
@@ -508,17 +527,17 @@ if (data?.id) {
       setMensagem("");
 
       if (!funcionarioId) {
-        setErro("Selecione um funcionário antes de registrar a rescisão.");
+        setErro(t("employeeRequired"));
         return;
       }
 
       if (!tipo.trim()) {
-        setErro("Informe o tipo de rescisão.");
+        setErro(t("typeRequired"));
         return;
       }
 
       if (!dataDesligamento) {
-        setErro("Informe a data de desligamento.");
+        setErro(t("dateRequired"));
         return;
       }
 
@@ -579,14 +598,14 @@ if (data?.id) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao registrar rescisão.");
+        throw new Error(t("registerError"));
       }
 
-      setMensagem("Rescisão registrada com sucesso.");
+      setMensagem(t("registerSuccess"));
       limparFormulario();
       await carregarDados();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao salvar rescisão.");
+      setErro(error?.message || t("saveError"));
     } finally {
       setSalvando(false);
     }
@@ -595,17 +614,11 @@ if (data?.id) {
   return (
     <div className="phanyx-rh-page space-y-6 text-slate-950 dark:text-white">
       <div>
-        <p className="text-sm font-bold uppercase text-red-700 dark:text-red-400">
-          Departamento Pessoal
-        </p>
+        <p className="text-sm font-bold uppercase text-red-700 dark:text-red-400">{t("department")}</p>
 
-        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
-          Rescisões
-        </h1>
+        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">{t("title")}</h1>
 
-        <p className="text-sm text-slate-700 dark:text-slate-300">
-          Registre desligamentos, valores rescisórios, motivos e documentos para auditoria.
-        </p>
+        <p className="text-sm text-slate-700 dark:text-slate-300">{t("description")}</p>
       </div>
 
       {mensagem && (
@@ -622,50 +635,44 @@ if (data?.id) {
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Total</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("total")}</p>
           <p className="text-2xl font-bold">{resumo.total}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Em andamento</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("inProgress")}</p>
           <p className="text-2xl font-bold">{resumo.andamento}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Finalizadas</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("finalized")}</p>
           <p className="text-2xl font-bold">{resumo.finalizadas}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Canceladas</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("cancelled")}</p>
           <p className="text-2xl font-bold">{resumo.canceladas}</p>
         </div>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
   <div className="mb-6 border-b border-slate-200 pb-4 dark:border-slate-700">
-    <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
-      Departamento Pessoal
-    </p>
+    <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">{t("department")}</p>
 
-    <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-      Registrar rescisão
-    </h2>
+    <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{t("register")}</h2>
 
-    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-      Cadastre desligamentos, calcule verbas rescisórias e gere documentos para auditoria.
-    </p>
+    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{t("formHelp")}</p>
   </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Funcionário</label>
+            <label className="text-sm font-medium">{t("employee")}</label>
             <select
               value={funcionarioId}
               onChange={(e) => setFuncionarioId(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="">Selecione</option>
+              <option value="">{t("select")}</option>
               {funcionarios.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.nome} {f.cargo ? `- ${f.cargo}` : ""}
@@ -675,7 +682,7 @@ if (data?.id) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Tipo de rescisão</label>
+            <label className="text-sm font-medium">{t("terminationType")}</label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
@@ -683,14 +690,14 @@ if (data?.id) {
             >
               {tiposRescisao.map((item) => (
                 <option key={item} value={item}>
-                  {item}
+                  {typeLabels[item] || item}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="text-sm font-medium">Data do aviso</label>
+            <label className="text-sm font-medium">{t("noticeDate")}</label>
             <input
               type="date"
               value={dataAviso}
@@ -700,7 +707,7 @@ if (data?.id) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Data de desligamento</label>
+            <label className="text-sm font-medium">{t("terminationDate")}</label>
             <input
               type="date"
               value={dataDesligamento}
@@ -710,7 +717,7 @@ if (data?.id) {
           </div>
 
 <div>
-  <label className="text-sm font-medium">Data de admissão</label>
+  <label className="text-sm font-medium">{t("hireDate")}</label>
   <input
     type="date"
     value={dataAdmissaoBase}
@@ -720,7 +727,7 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Comunicação oficial</label>
+  <label className="text-sm font-medium">{t("officialNotice")}</label>
   <input
     type="date"
     value={dataComunicacaoOficial}
@@ -730,17 +737,17 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Salário base mensal</label>
+  <label className="text-sm font-medium">{t("monthlySalary")}</label>
   <input
     value={salarioBaseMensal}
     onChange={(e) => setSalarioBaseMensal(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">Dependentes IRRF</label>
+  <label className="text-sm font-medium">{t("dependents")}</label>
   <input
     type="number"
     min="0"
@@ -752,7 +759,7 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Filhos salário-família</label>
+  <label className="text-sm font-medium">{t("familyAllowanceChildren")}</label>
   <input
     type="number"
     min="0"
@@ -764,21 +771,21 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Tipo de aviso prévio</label>
+  <label className="text-sm font-medium">{t("noticeType")}</label>
   <select
     value={tipoAvisoPrevio}
     onChange={(e) => setTipoAvisoPrevio(e.target.value)}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   >
-    <option value="Trabalhado">Trabalhado</option>
-    <option value="Indenizado pelo empregador">Indenizado pelo empregador</option>
-    <option value="Não cumprido pelo empregado">Não cumprido pelo empregado</option>
-    <option value="Dispensado">Dispensado</option>
+    <option value="Trabalhado">{t("noticeWorked")}</option>
+    <option value="Indenizado pelo empregador">{t("noticeEmployerPaid")}</option>
+    <option value="Não cumprido pelo empregado">{t("noticeEmployeeNotServed")}</option>
+    <option value="Dispensado">{t("noticeWaived")}</option>
   </select>
 </div>
 
 <div>
-  <label className="text-sm font-medium">Dias aviso trabalhado</label>
+  <label className="text-sm font-medium">{t("workedNoticeDays")}</label>
   <input
     type="number"
     min="0"
@@ -790,7 +797,7 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Dias aviso indenizado</label>
+  <label className="text-sm font-medium">{t("paidNoticeDays")}</label>
   <input
     type="number"
     min="0"
@@ -802,59 +809,59 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Saldo FGTS</label>
+  <label className="text-sm font-medium">{t("fgtsBalance")}</label>
   <input
     value={saldoFgts}
     onChange={(e) => setSaldoFgts(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">FGTS mês anterior</label>
+  <label className="text-sm font-medium">{t("fgtsPrevious")}</label>
   <input
     value={fgtsMesAnterior}
     onChange={(e) => setFgtsMesAnterior(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">FGTS mês rescisão</label>
+  <label className="text-sm font-medium">{t("fgtsCurrent")}</label>
   <input
     value={fgtsMesRescisao}
     onChange={(e) => setFgtsMesRescisao(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">Multa FGTS</label>
+  <label className="text-sm font-medium">{t("fgtsPenalty")}</label>
   <input
     value={multaFgts}
     onChange={(e) => setMultaFgts(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">Possui férias vencidas?</label>
+  <label className="text-sm font-medium">{t("overdueVacationQuestion")}</label>
   <select
     value={possuiFeriasVencidas ? "SIM" : "NAO"}
     onChange={(e) => setPossuiFeriasVencidas(e.target.value === "SIM")}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   >
-    <option value="NAO">Não</option>
-    <option value="SIM">Sim</option>
+    <option value="NAO">{t("no")}</option>
+    <option value="SIM">{t("yes")}</option>
   </select>
 </div>
 
 <div>
-  <label className="text-sm font-medium">Qtd. férias vencidas</label>
+  <label className="text-sm font-medium">{t("overdueVacationCount")}</label>
   <input
     type="number"
     min="0"
@@ -866,7 +873,7 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Meses férias proporcionais</label>
+  <label className="text-sm font-medium">{t("proportionalVacationMonths")}</label>
   <input
     type="number"
     min="0"
@@ -879,7 +886,7 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Meses 13º proporcional</label>
+  <label className="text-sm font-medium">{t("thirteenthMonths")}</label>
   <input
     type="number"
     min="0"
@@ -892,108 +899,108 @@ if (data?.id) {
 </div>
 
 <div>
-  <label className="text-sm font-medium">Desconto INSS</label>
+  <label className="text-sm font-medium">{t("inssDeduction")}</label>
   <input
     value={descontoInss}
     onChange={(e) => setDescontoInss(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">Desconto IRRF</label>
+  <label className="text-sm font-medium">{t("irrfDeduction")}</label>
   <input
     value={descontoIrrf}
     onChange={(e) => setDescontoIrrf(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
 <div>
-  <label className="text-sm font-medium">Outros descontos</label>
+  <label className="text-sm font-medium">{t("otherDeductions")}</label>
   <input
     value={outrosDescontos}
     onChange={(e) => setOutrosDescontos(e.target.value)}
-    placeholder="0,00"
+    placeholder={numberPlaceholder}
     className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
   />
 </div>
 
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Motivo</label>
+            <label className="text-sm font-medium">{t("reason")}</label>
             <input
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
-              placeholder="Motivo do desligamento"
+              placeholder={t("reasonPlaceholder")}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Saldo de salário</label>
+            <label className="text-sm font-medium">{t("salaryBalance")}</label>
             <input
               value={saldoSalario}
               onChange={(e) => setSaldoSalario(e.target.value)}
-              placeholder="0,00"
+              placeholder={numberPlaceholder}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Férias vencidas</label>
+            <label className="text-sm font-medium">{t("overdueVacation")}</label>
             <input
               value={feriasVencidas}
               onChange={(e) => setFeriasVencidas(e.target.value)}
-              placeholder="0,00"
+              placeholder={numberPlaceholder}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Férias proporcionais</label>
+            <label className="text-sm font-medium">{t("proportionalVacation")}</label>
             <input
               value={feriasProporcionais}
               onChange={(e) => setFeriasProporcionais(e.target.value)}
-              placeholder="0,00"
+              placeholder={numberPlaceholder}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">13º proporcional</label>
+            <label className="text-sm font-medium">{t("thirteenthSalary")}</label>
             <input
               value={decimoTerceiroProporcional}
               onChange={(e) => setDecimoTerceiroProporcional(e.target.value)}
-              placeholder="0,00"
+              placeholder={numberPlaceholder}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Aviso prévio</label>
+            <label className="text-sm font-medium">{t("notice")}</label>
             <input
               value={avisoPrevio}
               onChange={(e) => setAvisoPrevio(e.target.value)}
-              placeholder="0,00"
+              placeholder={numberPlaceholder}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-  <p className="text-sm text-slate-700 dark:text-slate-300">Valor estimado</p>
-  <p className="text-xl font-bold text-slate-950 dark:text-white">{moeda(valorRescisao)}</p>
+  <p className="text-sm text-slate-700 dark:text-slate-300">{t("estimatedAmount")}</p>
+  <p className="text-xl font-bold text-slate-950 dark:text-white">{money(valorRescisao)}</p>
 </div>
 
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Observações</label>
+            <label className="text-sm font-medium">{t("notes")}</label>
             <textarea
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               rows={3}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Observações internas"
+              placeholder={t("notesPlaceholder")}
             />
           </div>
         </div>
@@ -1004,41 +1011,35 @@ if (data?.id) {
           disabled={salvando}
           className="mt-5 rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {salvando ? "Salvando..." : "Registrar rescisão"}
+          {salvando ? t("saving") : t("register")}
         </button>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-          Rescisões cadastradas
-        </h2>
+        <h2 className="text-xl font-bold text-slate-950 dark:text-white">{t("records")}</h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left dark:border-slate-700">
-                <th className="p-3">Funcionário</th>
-                <th className="p-3">Tipo</th>
-                <th className="p-3">Aviso</th>
-                <th className="p-3">Desligamento</th>
-                <th className="p-3">Valor</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Ações</th>
+                <th className="p-3">{t("employee")}</th>
+                <th className="p-3">{t("type")}</th>
+                <th className="p-3">{t("noticeShort")}</th>
+                <th className="p-3">{t("terminationShort")}</th>
+                <th className="p-3">{t("amount")}</th>
+                <th className="p-3">{t("status")}</th>
+                <th className="p-3">{t("actions")}</th>
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={7}>
-                    Carregando...
-                  </td>
+                  <td className="p-3 text-slate-500" colSpan={7}>{t("loading")}</td>
                 </tr>
               ) : rescisoesFiltradas.length === 0 ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={7}>
-                    Nenhuma rescisão cadastrada.
-                  </td>
+                  <td className="p-3 text-slate-500" colSpan={7}>{t("empty")}</td>
                 </tr>
               ) : (
                 rescisoesFiltradas.map((item) => (
@@ -1050,17 +1051,17 @@ if (data?.id) {
                       {item.funcionario?.nome || "-"}
                     </td>
 
-                    <td className="p-3">{item.tipo}</td>
+                    <td className="p-3">{typeLabels[item.tipo] || item.tipo}</td>
 
-                    <td className="p-3">{dataBR(item.dataAviso)}</td>
+                    <td className="p-3">{date(item.dataAviso)}</td>
 
-                    <td className="p-3">{dataBR(item.dataDesligamento)}</td>
+                    <td className="p-3">{date(item.dataDesligamento)}</td>
 
-                    <td className="p-3">{moeda(item.valorRescisao)}</td>
+                    <td className="p-3">{money(item.valorRescisao)}</td>
 
                     <td className="p-3">
                       <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-200">
-                        {item.status}
+                        {statusLabels[item.status] || item.status}
                       </span>
                     </td>
                     <td className="p-3">
@@ -1075,7 +1076,7 @@ if (data?.id) {
   }
   className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
 >
-  <option value="">Template</option>
+  <option value="">{t("template")}</option>
   {templatesRh.map((template) => (
     <option key={template.id} value={template.id}>
       {template.nome}
@@ -1089,24 +1090,20 @@ if (data?.id) {
   disabled={gerandoDocumentoId === item.id}
   className="rounded-lg border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
 >
-  {gerandoDocumentoId === item.id ? "Gerando..." : "Gerar documento"}
+  {gerandoDocumentoId === item.id ? t("generating") : t("generateDocument")}
 </button>
     <button
   type="button"
   onClick={() => arquivarRescisao(item.id)}
   className="phanyx-rh-archive-action"
->
-  Arquivar
-</button>
+>{t("archive")}</button>
 
     {item.status !== "CANCELADA" && (
       <button
         type="button"
         onClick={() => cancelarRescisao(item.id)}
         className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
-      >
-        Cancelar
-      </button>
+      >{t("cancel")}</button>
     )}
   </div>
 </td>
