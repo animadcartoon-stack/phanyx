@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type HistoricoRH = {
   id: number;
@@ -20,6 +21,8 @@ type HistoricoRH = {
 };
 
 export default function HistoricoRHPage() {
+  const t = useTranslations("AdminHRHistory");
+  const locale = useLocale();
   const [historicos, setHistoricos] = useState<HistoricoRH[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -41,7 +44,7 @@ const historicosFiltrados = useMemo(() => {
   const lista = [...historicos].sort((a, b) =>
     String(a.funcionario?.nome || "").localeCompare(
       String(b.funcionario?.nome || ""),
-      "pt-BR"
+      locale
     )
   );
 
@@ -62,7 +65,7 @@ const historicosFiltrados = useMemo(() => {
       titulo.includes(termo)
     );
   });
-}, [historicos, busca]);
+}, [historicos, busca, locale]);
 
 const sugestoes = useMemo(() => {
   const termo = normalizar(busca);
@@ -80,9 +83,9 @@ const sugestoes = useMemo(() => {
   });
 
   return Array.from(nomes.values())
-    .sort((a, b) => a.localeCompare(b, "pt-BR"))
+    .sort((a, b) => a.localeCompare(b, locale))
     .slice(0, 8);
-}, [historicos, busca]);
+}, [historicos, busca, locale]);
 
   async function carregarHistorico() {
     try {
@@ -96,12 +99,12 @@ const sugestoes = useMemo(() => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar histórico.");
+        throw new Error(t("loadError"));
       }
 
       setHistoricos(Array.isArray(data) ? data : []);
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar histórico.");
+      setErro(error?.message || t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -115,21 +118,20 @@ const sugestoes = useMemo(() => {
     <div className="phanyx-rh-page mx-auto max-w-6xl space-y-6 p-6">
       <div>
         <p className="text-sm font-bold uppercase text-blue-700 dark:text-blue-400">
-  Departamento Pessoal
+  {t("department")}
 </p>
 
 <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
-  Histórico Funcional
+  {t("title")}
 </h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Acompanhe admissões, férias, advertências, suspensões, exames,
-          desligamentos e demais eventos funcionais.
+          {t("description")}
         </p>
         <div className="relative mt-5 max-w-xl">
   <input
     value={busca}
     onChange={(e) => setBusca(e.target.value)}
-    placeholder="Buscar por funcionário, cargo, departamento ou evento..."
+    placeholder={t("searchPlaceholder")}
 className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-500 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400"  />
 
   {busca.trim() && sugestoes.length > 0 && (
@@ -150,18 +152,18 @@ className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sl
       </div>
 
       {erro && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
           {erro}
         </div>
       )}
 
       {loading ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-          Carregando histórico funcional...
+          {t("loading")}
         </div>
       ) : historicosFiltrados.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-          Nenhum evento funcional registrado ainda.
+          {t("empty")}
         </div>
       ) : (
         <div className="space-y-4">
@@ -181,7 +183,7 @@ className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sl
                   </h2>
 
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    Funcionário:{" "}
+                    {t("employee")}: {" "}
                     <strong>{item.funcionario?.nome || "-"}</strong>
                     {item.funcionario?.cargo
                       ? ` • ${item.funcionario.cargo}`
@@ -199,13 +201,13 @@ className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sl
 
                   {item.observacoes && (
                     <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                      Observações: {item.observacoes}
+                      {t("notes")}: {item.observacoes}
                     </p>
                   )}
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 !bg-slate-50 px-4 py-2 text-sm font-semibold !text-slate-700 dark:border-slate-700 dark:!bg-slate-800 dark:!text-slate-200">
-  {new Date(item.dataEvento).toLocaleDateString("pt-BR")}
+  {new Date(item.dataEvento).toLocaleDateString(locale)}
 </div>
               </div>
             </div>
