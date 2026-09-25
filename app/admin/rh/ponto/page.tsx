@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import {
   Fragment,
   useCallback,
@@ -125,9 +127,7 @@ function numero(valor: unknown) {
     : 0;
 }
 
-function formatarDataLocal(
-  dataLocal: string
-) {
+function formatarDataLocal(dataLocal: string, locale: string) {
   const correspondencia =
     /^(\d{4})-(\d{2})-(\d{2})$/.exec(
       dataLocal
@@ -140,13 +140,10 @@ function formatarDataLocal(
   const [, ano, mes, dia] =
     correspondencia;
 
-  return `${dia}/${mes}/${ano}`;
+  return new Date(Date.UTC(Number(ano), Number(mes) - 1, Number(dia))).toLocaleDateString(locale, { timeZone: "UTC" });
 }
 
-function formatarHora(
-  dataHora: string,
-  fusoHorario: string
-) {
+function formatarHora(dataHora: string, fusoHorario: string, locale: string) {
   const data = new Date(dataHora);
 
   if (Number.isNaN(data.getTime())) {
@@ -154,9 +151,7 @@ function formatarHora(
   }
 
   try {
-    return new Intl.DateTimeFormat(
-      "pt-BR",
-      {
+    return new Intl.DateTimeFormat(locale, {
         timeZone: fusoHorario,
         hour: "2-digit",
         minute: "2-digit",
@@ -164,9 +159,7 @@ function formatarHora(
       }
     ).format(data);
   } catch {
-    return data.toLocaleTimeString(
-      "pt-BR"
-    );
+    return data.toLocaleTimeString(locale);
   }
 }
 
@@ -209,25 +202,15 @@ function formatarHoraParaEdicao(
   }
 }
 
-function rotuloTipo(tipo: string) {
-  switch (
-    String(tipo || "").toUpperCase()
-  ) {
-    case "ENTRADA":
-      return "Entrada";
+function ehEntrada(tipo: string) {
+  return ["ENTRADA", "RETORNO_ALMOCO"].includes(String(tipo || "").toUpperCase());
+}
 
-    case "RETORNO_ALMOCO":
-      return "Entrada";
-
-    case "SAIDA":
-      return "Saída";
-
-    case "SAIDA_ALMOCO":
-      return "Saída";
-
-    default:
-      return tipo || "Marcação";
-  }
+function rotuloTipo(tipo: string, entrada: string, saida: string, marcacao: string) {
+  const valor = String(tipo || "").toUpperCase();
+  if (ehEntrada(valor)) return entrada;
+  if (["SAIDA", "SAIDA_ALMOCO"].includes(valor)) return saida;
+  return tipo || marcacao;
 }
 
 function valorDataHoraLocalPadrao() {
@@ -248,18 +231,14 @@ function valorDataHoraLocalPadrao() {
     .slice(0, 16);
 }
 
-function formatarDataHoraCompleta(
-  dataIso: string
-) {
+function formatarDataHoraCompleta(dataIso: string, locale: string) {
   const data = new Date(dataIso);
 
   if (Number.isNaN(data.getTime())) {
     return dataIso;
   }
 
-  return data.toLocaleString(
-    "pt-BR",
-    {
+  return data.toLocaleString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -402,6 +381,29 @@ function formatarHorasDecimais(
 }
 
 export default function PontoRHPage() {
+  const t = useTranslations("AdminHRTimeTracking");
+  const locale = useLocale();
+  const displayDate = (value: string) => formatarDataLocal(value, locale);
+  const displayTime = (value: string, zone: string) => formatarHora(value, zone, locale);
+  const displayDateTime = (value: string) => formatarDataHoraCompleta(value, locale);
+  const displayType = (value: string) => rotuloTipo(value, t("entry"), t("exit"), t("marking"));
+  const statusLabels: Record<string, string> = {
+    REGISTRADO: t("statusRecorded"), ABERTO: t("statusOpen"), CORRIGIDO: t("statusCorrected"),
+    INCONSISTENTE: t("statusInconsistent"), PENDENTE: t("statusPending"),
+    INVALIDADO: t("statusInvalidated"), CANCELADO: t("statusCancelled"),
+    VALIDA: t("statusValid"), INVALIDADA: t("statusInvalid"),
+    ATIVA: t("statusActive"), UTILIZADA: t("statusUsed"), EXPIRADA: t("statusExpired"),
+  };
+  const locationLabels: Record<string, string> = {
+    NAO_VERIFICADA: t("locationNotChecked"), VALIDADA: t("locationValidated"),
+    FORA_DO_RAIO: t("locationOutside"), SEM_LOCALIZACAO: t("locationMissing"),
+  };
+  const originLabels: Record<string, string> = {
+    MANUAL: t("originManual"), MOBILE: t("originMobile"), AFD: t("originAfd"),
+  };
+  const labelStatus = (value: string) => statusLabels[String(value || "").toUpperCase()] || value;
+  const labelLocation = (value: string) => locationLabels[String(value || "").toUpperCase()] || value;
+  const labelOrigin = (value: string) => originLabels[String(value || "").toUpperCase()] || value;
   const [pontos, setPontos] =
     useState<RegistroPonto[]>([]);
 
@@ -615,8 +617,7 @@ const [
 
           if (!resposta.ok) {
             throw new Error(
-              dados.error ||
-                "Não foi possível carregar os pontos."
+              (locale.startsWith("pt") && dados.error) || t("loadError")
             );
           }
 
@@ -658,13 +659,13 @@ const [
           setErro(
             error instanceof Error
               ? error.message
-              : "Não foi possível carregar os pontos."
+              : t("loadError")
           );
         } finally {
           setLoading(false);
         }
       },
-      []
+      [t, locale]
     );
 
   useEffect(() => {
@@ -802,13 +803,13 @@ const [
           .length < 10
       ) {
         throw new Error(
-          "Informe o motivo da autorização com pelo menos 10 caracteres."
+          t("authorizationReasonMin")
         );
       }
 
       if (!validoAte) {
         throw new Error(
-          "Informe até quando a autorização será válida."
+          t("authorizationExpiryRequired")
         );
       }
 
@@ -846,14 +847,12 @@ const [
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível autorizar a correção."
+          (locale.startsWith("pt") && dados.error) || t("authorizationError")
         );
       }
 
       setSucesso(
-        dados.mensagem ||
-          "Correção autorizada."
+        (locale.startsWith("pt") && dados.mensagem) || t("authorizationSuccess")
       );
 
       setModalAutorizacaoAberto(
@@ -870,7 +869,7 @@ const [
       setErroModalAutorizacao(
   error instanceof Error
     ? error.message
-    : "Não foi possível autorizar a correção."
+    : t("authorizationError")
 );
     } finally {
       setProcessandoAutorizacao(
@@ -905,7 +904,7 @@ const [
           .length < 5
       ) {
         throw new Error(
-          "Informe o motivo do cancelamento."
+          t("cancellationReasonRequired")
         );
       }
 
@@ -936,14 +935,12 @@ const [
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível cancelar a autorização."
+          (locale.startsWith("pt") && dados.error) || t("cancellationError")
         );
       }
 
       setSucesso(
-        dados.mensagem ||
-          "Autorização cancelada."
+        (locale.startsWith("pt") && dados.mensagem) || t("cancellationSuccess")
       );
 
       setModalAutorizacaoAberto(
@@ -960,7 +957,7 @@ const [
       setErroModalAutorizacao(
   error instanceof Error
     ? error.message
-    : "Não foi possível autorizar a correção."
+    : t("cancellationError")
 );
     } finally {
       setProcessandoAutorizacao(
@@ -988,9 +985,7 @@ const [
             : null,
 
         tipo:
-          rotuloTipo(
-            marcacao.tipo
-          ) === "Entrada"
+          ehEntrada(marcacao.tipo)
             ? ("ENTRADA" as const)
             : ("SAIDA" as const),
 
@@ -1087,7 +1082,7 @@ async function enviarCorrecaoRH() {
       10
     ) {
       throw new Error(
-        "Informe o motivo da correção com pelo menos 10 caracteres."
+        t("correctionReasonMin")
       );
     }
 
@@ -1095,7 +1090,7 @@ async function enviarCorrecaoRH() {
       marcacoesCorrecaoRH.length === 0
     ) {
       throw new Error(
-        "Informe pelo menos uma marcação."
+        t("markingRequired")
       );
     }
 
@@ -1103,7 +1098,7 @@ async function enviarCorrecaoRH() {
       marcacoesCorrecaoRH.length > 20
     ) {
       throw new Error(
-        "O limite é de 20 marcações por jornada."
+        t("markingLimit")
       );
     }
 
@@ -1115,7 +1110,7 @@ async function enviarCorrecaoRH() {
 
     if (possuiHorarioVazio) {
       throw new Error(
-        "Preencha o horário de todas as marcações."
+        t("markingTimeRequired")
       );
     }
 
@@ -1154,14 +1149,12 @@ async function enviarCorrecaoRH() {
 
     if (!resposta.ok) {
       throw new Error(
-        dados?.error ||
-          "Não foi possível aplicar a correção pelo RH."
+        (locale.startsWith("pt") && dados?.error) || t("correctionError")
       );
     }
 
     setSucesso(
-      dados?.mensagem ||
-        "Correção realizada pelo RH."
+      (locale.startsWith("pt") && dados?.mensagem) || t("correctionSuccess")
     );
 
     setModalCorrecaoRHAberto(false);
@@ -1177,7 +1170,7 @@ async function enviarCorrecaoRH() {
     setErroModalCorrecaoRH(
       error instanceof Error
         ? error.message
-        : "Não foi possível aplicar a correção pelo RH."
+        : t("correctionError")
     );
   } finally {
     setProcessandoCorrecaoRH(false);
@@ -1187,15 +1180,9 @@ async function enviarCorrecaoRH() {
   return (
     <div className="phanyx-rh-page w-full max-w-full space-y-6 overflow-x-hidden px-4 py-6 sm:px-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
-          ⏱️ Controle de Ponto
-        </h1>
+        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">{t("title")}</h1>
 
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Consulte todas as entradas e
-          saídas registradas pelos
-          funcionários.
-        </p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("description")}</p>
       </div>
 
       {erro && (
@@ -1212,9 +1199,7 @@ async function enviarCorrecaoRH() {
 
       <section className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Jornadas encontradas
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("shiftsFound")}</p>
 
           <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
             {total}
@@ -1222,9 +1207,7 @@ async function enviarCorrecaoRH() {
         </div>
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Marcações nesta página
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("pageMarkings")}</p>
 
           <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
             {quantidadeMarcacoes}
@@ -1232,9 +1215,7 @@ async function enviarCorrecaoRH() {
         </div>
 
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Fuso horário
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t("timeZone")}</p>
 
           <p className="mt-2 break-words text-sm font-black text-slate-950 dark:text-white">
             {fusoHorario}
@@ -1245,9 +1226,7 @@ async function enviarCorrecaoRH() {
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <div className="xl:col-span-2">
-            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Funcionário
-            </label>
+            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("employee")}</label>
 
             <input
               value={filtros.busca}
@@ -1260,15 +1239,13 @@ async function enviarCorrecaoRH() {
                   })
                 )
               }
-              placeholder="Nome, cargo ou código"
+              placeholder={t("employeeSearchPlaceholder")}
               className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Data inicial
-            </label>
+            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("startDate")}</label>
 
             <input
               type="date"
@@ -1289,9 +1266,7 @@ async function enviarCorrecaoRH() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Data final
-            </label>
+            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("endDate")}</label>
 
             <input
               type="date"
@@ -1310,9 +1285,7 @@ async function enviarCorrecaoRH() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Tipo
-            </label>
+            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("type")}</label>
 
             <select
               value={filtros.tipo}
@@ -1328,24 +1301,16 @@ async function enviarCorrecaoRH() {
               }
               className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="TODOS">
-                Entrada e saída
-              </option>
+              <option value="TODOS">{t("entryAndExit")}</option>
 
-              <option value="ENTRADA">
-                Entrada
-              </option>
+              <option value="ENTRADA">{t("entry")}</option>
 
-              <option value="SAIDA">
-                Saída
-              </option>
+              <option value="SAIDA">{t("exit")}</option>
             </select>
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              Situação
-            </label>
+            <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("situation")}</label>
 
             <select
               value={
@@ -1364,17 +1329,11 @@ async function enviarCorrecaoRH() {
               }
               className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="TODOS">
-                Todas
-              </option>
+              <option value="TODOS">{t("all")}</option>
 
-              <option value="VALIDA">
-                Válidas
-              </option>
+              <option value="VALIDA">{t("validPlural")}</option>
 
-              <option value="INVALIDADA">
-                Invalidadas
-              </option>
+              <option value="INVALIDADA">{t("invalidPlural")}</option>
             </select>
           </div>
         </div>
@@ -1387,8 +1346,8 @@ async function enviarCorrecaoRH() {
             className="rounded-xl bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
           >
             {loading
-              ? "Carregando..."
-              : "Buscar"}
+              ? t("loading")
+              : t("search")}
           </button>
 
           <button
@@ -1396,61 +1355,37 @@ async function enviarCorrecaoRH() {
             onClick={limparFiltros}
             disabled={loading}
             className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-          >
-            Limpar filtros
-          </button>
+          >{t("clearFilters")}</button>
         </div>
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="mb-5 text-lg font-bold text-slate-900 dark:text-white">
-          Registros de Ponto
-        </h2>
+        <h2 className="mb-5 text-lg font-bold text-slate-900 dark:text-white">{t("records")}</h2>
 
         {loading ? (
-  <div className="rounded-2xl border !border-slate-200 !bg-slate-50 p-5 text-sm font-bold !text-slate-700 shadow-sm dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200">
-    Carregando pontos...
-  </div>
+  <div className="rounded-2xl border !border-slate-200 !bg-slate-50 p-5 text-sm font-bold !text-slate-700 shadow-sm dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200">{t("loadingRecords")}</div>
 ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.14em] text-slate-500 dark:border-slate-700">
-                  <th className="px-3 py-3">
-                    Funcionário
-                  </th>
+                  <th className="px-3 py-3">{t("employee")}</th>
 
-                  <th className="px-3 py-3">
-                    Data
-                  </th>
+                  <th className="px-3 py-3">{t("date")}</th>
 
-                  <th className="px-3 py-3">
-                    Marcações do dia
-                  </th>
+                  <th className="px-3 py-3">{t("dayMarkings")}</th>
 
-                  <th className="px-3 py-3">
-                    Trabalhadas
-                  </th>
+                  <th className="px-3 py-3">{t("worked")}</th>
 
-                  <th className="px-3 py-3">
-                    Extras
-                  </th>
+                  <th className="px-3 py-3">{t("overtime")}</th>
 
-                  <th className="px-3 py-3">
-                    Atraso
-                  </th>
+                  <th className="px-3 py-3">{t("late")}</th>
 
-                  <th className="px-3 py-3">
-                    Saldo
-                  </th>
+                  <th className="px-3 py-3">{t("balance")}</th>
 
-                  <th className="px-3 py-3">
-                    Status
-                  </th>
+                  <th className="px-3 py-3">{t("status")}</th>
 
-                  <th className="min-w-[190px] px-3 py-3 text-center">
-  Ações
-</th>
+                  <th className="min-w-[190px] px-3 py-3 text-center">{t("actions")}</th>
                 </tr>
               </thead>
 
@@ -1506,16 +1441,14 @@ const marcacoesSubstituidas =
                         </td>
 
                         <td className="whitespace-nowrap px-3 py-4 font-bold">
-                          {formatarDataLocal(
+                          {displayDate(
                             ponto.dataLocal
                           )}
                         </td>
 
                         <td className="px-3 py-4">
                           {marcacoesValidas.length === 0 ? (
-                            <span className="text-slate-500">
-                              Sem marcações
-                            </span>
+                            <span className="text-slate-500">{t("noMarkings")}</span>
                           ) : (
                             <div className="flex max-w-[420px] flex-wrap gap-2">
                               {marcacoesValidas.map(
@@ -1525,18 +1458,16 @@ const marcacoesSubstituidas =
                                       marcacao.id
                                     }
                                     className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-  rotuloTipo(
-    marcacao.tipo
-  ) === "Entrada"
+  ehEntrada(marcacao.tipo)
     ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
     : "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
 }`}
                                   >
-                                    {formatarHora(
+                                    {displayTime(
                                       marcacao.dataHora,
                                       fusoHorario
                                     )}{" "}
-                                    {rotuloTipo(
+                                    {displayType(
                                       marcacao.tipo
                                     )}
                                   </span>
@@ -1583,7 +1514,7 @@ const marcacoesSubstituidas =
     ponto.status
   )}`}
 >
-  {ponto.status}
+  {labelStatus(ponto.status)}
 </span>
                         </td>
 
@@ -1599,16 +1530,14 @@ const marcacoesSubstituidas =
       className="min-h-9 w-full rounded-xl border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-black !text-white shadow-sm transition hover:border-blue-700 hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500"
     >
       {expandido
-        ? "Ocultar detalhes"
-        : "Ver detalhes"}
+        ? t("hideDetails")
+        : t("viewDetails")}
     </button>
 
     {ponto.autorizacaoCorrecao?.status ===
     "ATIVA" ? (
       <>
-        <span className="flex min-h-9 w-full items-center justify-center rounded-xl border border-emerald-600 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">
-          Correção autorizada
-        </span>
+        <span className="flex min-h-9 w-full items-center justify-center rounded-xl border border-emerald-600 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">{t("correctionAuthorized")}</span>
 
         <button
           type="button"
@@ -1616,9 +1545,7 @@ const marcacoesSubstituidas =
             abrirModalCancelar(ponto)
           }
           className="min-h-9 w-full rounded-xl border border-red-600 bg-white px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-50 dark:border-red-700 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/60"
-        >
-          Cancelar autorização
-        </button>
+        >{t("cancelAuthorization")}</button>
       </>
     ) : (
       <button
@@ -1627,9 +1554,7 @@ const marcacoesSubstituidas =
           abrirModalAutorizar(ponto)
         }
         className="min-h-9 w-full rounded-xl border border-emerald-600 bg-emerald-600 px-3 py-2 text-xs font-black !text-white shadow-sm transition hover:border-emerald-700 hover:bg-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500"
-      >
-        Autorizar correção
-      </button>
+      >{t("authorizeCorrection")}</button>
     )}
     <button
   type="button"
@@ -1637,9 +1562,7 @@ const marcacoesSubstituidas =
     abrirModalCorrecaoRH(ponto)
   }
   className="min-h-9 w-full rounded-xl border border-amber-500 bg-amber-500 px-3 py-2 text-xs font-black !text-slate-950 shadow-sm transition hover:border-amber-600 hover:bg-amber-600 dark:border-amber-400 dark:bg-amber-500 dark:!text-slate-950 dark:hover:bg-amber-400"
->
-  Corrigir pelo RH
-</button>
+>{t("correctByHr")}</button>
   </div>
 </td>
                       </tr>
@@ -1668,16 +1591,11 @@ const marcacoesSubstituidas =
                                     <div className="flex items-start justify-between gap-3">
                                       <div>
                                         <p className="font-black text-slate-950 dark:text-white">
-                                          {indice +
-                                            1}
-                                          ª marcação —{" "}
-                                          {rotuloTipo(
-                                            marcacao.tipo
-                                          )}
+                                          {t("markingNumberWithType", { number: indice + 1, type: displayType(marcacao.tipo) })}
                                         </p>
 
                                         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                                          {formatarHora(
+                                          {displayTime(
                                             marcacao.dataHora,
                                             fusoHorario
                                           )}
@@ -1692,36 +1610,29 @@ const marcacoesSubstituidas =
                                             : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200"
                                         }`}
                                       >
-                                        {
-                                          marcacao.status
-                                        }
+                                        {labelStatus(marcacao.status)}
                                       </span>
                                     </div>
 
                                     <div className="mt-3 space-y-1 text-xs text-slate-500 dark:text-slate-400">
                                       <p>
-                                        Local:{" "}
+                                        {t("locationLabel")}{" "}
                                         {marcacao.localNome ||
-                                          "Não informado"}
+                                          t("notProvided")}
                                       </p>
 
                                       <p>
-                                        Situação da
-                                        localização:{" "}
-                                        {
-                                          marcacao.statusLocalizacao
-                                        }
+                                        {t("locationSituationLabel")}{" "}
+                                        {labelLocation(marcacao.statusLocalizacao)}
                                       </p>
 
                                       <p>
-                                        Origem:{" "}
-                                        {
-                                          marcacao.origem
-                                        }
+                                        {t("originLabel")}{" "}
+                                        {labelOrigin(marcacao.origem)}
                                       </p>
 
                                       <p className="break-all">
-                                        Comprovante:{" "}
+                                        {t("receiptLabel")}{" "}
                                         {
                                           marcacao.comprovanteCodigo
                                         }
@@ -1735,8 +1646,7 @@ const marcacoesSubstituidas =
 {marcacoesSubstituidas.length > 0 && (
   <details className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
     <summary className="cursor-pointer font-black text-red-700 dark:text-red-200">
-      Ver marcações substituídas (
-      {marcacoesSubstituidas.length})
+      {t("replacedMarkings", { count: marcacoesSubstituidas.length })}
     </summary>
 
     <div className="mt-4 grid gap-3 lg:grid-cols-2">
@@ -1747,21 +1657,19 @@ const marcacoesSubstituidas =
             className="rounded-2xl border border-red-300 bg-white p-4 text-red-700 line-through dark:border-red-900 dark:bg-slate-900 dark:text-red-200"
           >
             <p className="font-black">
-              {rotuloTipo(
+              {displayType(
                 marcacao.tipo
               )}
             </p>
 
             <p className="mt-1 text-sm">
-              {formatarHora(
+              {displayTime(
                 marcacao.dataHora,
                 fusoHorario
               )}
             </p>
 
-            <p className="mt-2 text-xs no-underline">
-              Registro original preservado para auditoria.
-            </p>
+            <p className="mt-2 text-xs no-underline">{t("originalPreserved")}</p>
           </div>
         )
       )}
@@ -1770,35 +1678,21 @@ const marcacoesSubstituidas =
 )}
 
                             {marcacoesValidas.length === 0 && (
-                              <p className="text-sm text-slate-500">
-                                Este registro não
-                                possui marcações
-                                individuais.
-                              </p>
+                              <p className="text-sm text-slate-500">{t("noIndividualMarkings")}</p>
                             )}
 
                             {ponto
                               .autorizacaoCorrecao && (
                               <div className="mt-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
-                                <p className="font-black">
-                                  Autorização de correção
-                                </p>
+                                <p className="font-black">{t("correctionAuthorization")}</p>
 
                                 <p className="mt-2">
-                                  <strong>
-                                    Situação:
-                                  </strong>{" "}
-                                  {
-                                    ponto
-                                      .autorizacaoCorrecao
-                                      .status
-                                  }
+                                  <strong>{t("situationLabel")}</strong>{" "}
+                                  {labelStatus(ponto.autorizacaoCorrecao.status)}
                                 </p>
 
                                 <p className="mt-1">
-                                  <strong>
-                                    Autorizado por:
-                                  </strong>{" "}
+                                  <strong>{t("authorizedByLabel")}</strong>{" "}
                                   {
                                     ponto
                                       .autorizacaoCorrecao
@@ -1808,10 +1702,8 @@ const marcacoesSubstituidas =
                                 </p>
 
                                 <p className="mt-1">
-                                  <strong>
-                                    Válida até:
-                                  </strong>{" "}
-                                  {formatarDataHoraCompleta(
+                                  <strong>{t("validUntilLabel")}</strong>{" "}
+                                  {displayDateTime(
                                     ponto
                                       .autorizacaoCorrecao
                                       .validoAte
@@ -1819,9 +1711,7 @@ const marcacoesSubstituidas =
                                 </p>
 
                                 <p className="mt-1">
-                                  <strong>
-                                    Motivo:
-                                  </strong>{" "}
+                                  <strong>{t("reasonLabel")}</strong>{" "}
                                   {
                                     ponto
                                       .autorizacaoCorrecao
@@ -1833,9 +1723,7 @@ const marcacoesSubstituidas =
 
                             {ponto.observacoes && (
                               <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                                <strong>
-                                  Observações:
-                                </strong>{" "}
+                                <strong>{t("notesLabel")}</strong>{" "}
                                 {
                                   ponto.observacoes
                                 }
@@ -1862,13 +1750,10 @@ const marcacoesSubstituidas =
               mudarPagina(pagina - 1)
             }
             className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-          >
-            Anterior
-          </button>
+          >{t("previous")}</button>
 
           <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
-            Página {pagina} de{" "}
-            {totalPaginas}
+            {t("pagination", { page: pagina, total: totalPaginas })}
           </p>
 
           <button
@@ -1881,9 +1766,7 @@ const marcacoesSubstituidas =
               mudarPagina(pagina + 1)
             }
             className="rounded-xl border border-slate-300 bg-white px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-          >
-            Próxima
-          </button>
+          >{t("next")}</button>
         </div>
       </section>
 
@@ -1893,15 +1776,13 @@ const marcacoesSubstituidas =
           <section className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
-                  Correção de ponto
-                </p>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">{t("timeCorrection")}</p>
 
                 <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">
                   {modoModalAutorizacao ===
                   "AUTORIZAR"
-                    ? "Autorizar funcionário"
-                    : "Cancelar autorização"}
+                    ? t("authorizeEmployee")
+                    : t("cancelAuthorization")}
                 </h2>
               </div>
 
@@ -1914,7 +1795,7 @@ const marcacoesSubstituidas =
                   fecharModalAutorizacao
                 }
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-xl font-black text-slate-600 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200"
-                aria-label="Fechar"
+                aria-label={t("close")}
               >
                 ×
               </button>
@@ -1929,8 +1810,8 @@ const marcacoesSubstituidas =
               </p>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                Ponto de{" "}
-                {formatarDataLocal(
+                {t("recordOf")}{" "}
+                {displayDate(
                   pontoAutorizacao
                     .dataLocal
                 )}
@@ -1947,26 +1828,20 @@ const marcacoesSubstituidas =
             "AUTORIZAR" ? (
               <>
                 <div className="mt-5">
-                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-                    Autorizado por
-                  </label>
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("authorizedBy")}</label>
 
                   <div className="rounded-xl border border-slate-300 bg-slate-100 p-3 font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                     {responsavelAtual?.nome ||
-                      "Usuário do RH conectado"}
+                      t("connectedHrUser")}
                   </div>
 
                   <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-                    Esse nome vem do usuário
-                    autenticado e não pode ser
-                    digitado pelo funcionário.
+                    {t("authorizedByExplanation")}
                   </p>
                 </div>
 
                 <div className="mt-5">
-                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-                    Motivo da autorização
-                  </label>
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("authorizationReason")}</label>
 
                   <textarea
                     value={
@@ -1978,19 +1853,17 @@ const marcacoesSubstituidas =
                           .value
                       )
                     }
-                    placeholder="Exemplo: funcionário esqueceu de registrar a saída do expediente."
+                    placeholder={t("authorizationReasonPlaceholder")}
                     className="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   />
 
                   <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-  {motivoAutorizacao.trim().length}/10 caracteres mínimos
+  {t("minimumCharacters", { count: motivoAutorizacao.trim().length })}
 </p>
                 </div>
 
                 <div className="mt-5">
-                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-                    Autorização válida até
-                  </label>
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("authorizationValidUntil")}</label>
 
                   <input
                     type="datetime-local"
@@ -2009,9 +1882,7 @@ const marcacoesSubstituidas =
               <>
                 <div className="mt-5 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
                   <p>
-                    <strong>
-                      Autorizado por:
-                    </strong>{" "}
+                    <strong>{t("authorizedByLabel")}</strong>{" "}
                     {
                       pontoAutorizacao
                         .autorizacaoCorrecao
@@ -2021,12 +1892,10 @@ const marcacoesSubstituidas =
                   </p>
 
                   <p className="mt-1">
-                    <strong>
-                      Válida até:
-                    </strong>{" "}
+                    <strong>{t("validUntilLabel")}</strong>{" "}
                     {pontoAutorizacao
                       .autorizacaoCorrecao
-                      ? formatarDataHoraCompleta(
+                      ? displayDateTime(
                           pontoAutorizacao
                             .autorizacaoCorrecao
                             .validoAte
@@ -2036,9 +1905,7 @@ const marcacoesSubstituidas =
                 </div>
 
                 <div className="mt-5">
-                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-                    Motivo do cancelamento
-                  </label>
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("cancellationReason")}</label>
 
                   <textarea
                     value={
@@ -2050,7 +1917,7 @@ const marcacoesSubstituidas =
                           .value
                       )
                     }
-                    placeholder="Informe por que a autorização está sendo cancelada."
+                    placeholder={t("cancellationReasonPlaceholder")}
                     className="min-h-[110px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   />
                 </div>
@@ -2067,9 +1934,7 @@ const marcacoesSubstituidas =
                   fecharModalAutorizacao
                 }
                 className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 py-3 font-black text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-              >
-                Voltar
-              </button>
+              >{t("back")}</button>
 
               <button
                 type="button"
@@ -2090,11 +1955,11 @@ const marcacoesSubstituidas =
                 }`}
               >
                 {processandoAutorizacao
-                  ? "Processando..."
+                  ? t("processing")
                   : modoModalAutorizacao ===
                       "AUTORIZAR"
-                    ? "Autorizar correção"
-                    : "Cancelar autorização"}
+                    ? t("authorizeCorrection")
+                    : t("cancelAuthorization")}
               </button>
             </div>
           </section>
@@ -2108,13 +1973,9 @@ const marcacoesSubstituidas =
       <section className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-300">
-              Correção administrativa
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-300">{t("administrativeCorrection")}</p>
 
-            <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">
-              Corrigir ponto pelo RH
-            </h2>
+            <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">{t("correctRecordByHr")}</h2>
           </div>
 
           <button
@@ -2126,7 +1987,7 @@ const marcacoesSubstituidas =
               fecharModalCorrecaoRH
             }
             className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-xl font-black text-slate-600 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200"
-            aria-label="Fechar"
+            aria-label={t("close")}
           >
             ×
           </button>
@@ -2141,27 +2002,23 @@ const marcacoesSubstituidas =
           </p>
 
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Ponto de{" "}
-            {formatarDataLocal(
+            {t("recordOf")}{" "}
+            {displayDate(
               pontoCorrecaoRH.dataLocal
             )}
           </p>
         </div>
 
         <div className="mt-5">
-          <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-            Corrigido por
-          </label>
+          <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("correctedBy")}</label>
 
           <div className="rounded-xl border border-slate-300 bg-slate-100 p-3 font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
             {responsavelAtual?.nome ||
-              "Responsável do RH conectado"}
+              t("connectedHrManager")}
           </div>
 
           <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-            O responsável é identificado
-            automaticamente pelo usuário
-            conectado.
+            {t("correctedByExplanation")}
           </p>
         </div>
 
@@ -2180,7 +2037,7 @@ const marcacoesSubstituidas =
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-black text-slate-900 dark:text-white">
-                    {indice + 1}ª marcação
+                    {t("markingNumber", { number: indice + 1 })}
                   </p>
 
                   <button
@@ -2194,9 +2051,7 @@ const marcacoesSubstituidas =
                       )
                     }
                     className="rounded-xl border border-red-500 px-3 py-2 text-xs font-black text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-200 dark:hover:bg-red-950/30"
-                  >
-                    Remover
-                  </button>
+                  >{t("remove")}</button>
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -2219,13 +2074,9 @@ const marcacoesSubstituidas =
                     }
                     className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-amber-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   >
-                    <option value="ENTRADA">
-                      Entrada
-                    </option>
+                    <option value="ENTRADA">{t("entry")}</option>
 
-                    <option value="SAIDA">
-                      Saída
-                    </option>
+                    <option value="SAIDA">{t("exit")}</option>
                   </select>
 
                   <input
@@ -2264,9 +2115,7 @@ const marcacoesSubstituidas =
               )
             }
             className="min-h-12 rounded-xl border border-emerald-600 bg-emerald-50 px-4 py-3 font-black text-emerald-800 disabled:opacity-50 dark:bg-emerald-950/30 dark:text-emerald-200"
-          >
-            + Adicionar entrada
-          </button>
+          >{t("addEntry")}</button>
 
           <button
             type="button"
@@ -2279,15 +2128,11 @@ const marcacoesSubstituidas =
               )
             }
             className="min-h-12 rounded-xl border border-blue-600 bg-blue-50 px-4 py-3 font-black text-blue-800 disabled:opacity-50 dark:bg-blue-950/30 dark:text-blue-200"
-          >
-            + Adicionar saída
-          </button>
+          >{t("addExit")}</button>
         </div>
 
         <div className="mt-6">
-          <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-            Motivo obrigatório da correção
-          </label>
+          <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">{t("requiredCorrectionReason")}</label>
 
           <textarea
             value={motivoCorrecaoRH}
@@ -2299,24 +2144,16 @@ const marcacoesSubstituidas =
                 evento.target.value
               )
             }
-            placeholder="Explique detalhadamente por que o RH está alterando este registro."
+            placeholder={t("correctionReasonPlaceholder")}
             className="min-h-[130px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-amber-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            {
-              motivoCorrecaoRH.trim()
-                .length
-            }
-            /10 caracteres mínimos
+            {t("minimumCharacters", { count: motivoCorrecaoRH.trim().length })}
           </p>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
-          As marcações atuais serão
-          preservadas na auditoria. Nenhum
-          registro anterior será apagado.
-        </div>
+        <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">{t("auditPreservation")}</div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <button
@@ -2328,9 +2165,7 @@ const marcacoesSubstituidas =
               fecharModalCorrecaoRH
             }
             className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 py-3 font-black text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-          >
-            Voltar
-          </button>
+          >{t("back")}</button>
 
           <button
             type="button"
@@ -2341,8 +2176,8 @@ const marcacoesSubstituidas =
             className="min-h-12 rounded-xl bg-amber-500 px-4 py-3 font-black text-slate-950 hover:bg-amber-600 disabled:opacity-50"
           >
             {processandoCorrecaoRH
-              ? "Aplicando correção..."
-              : "Confirmar correção pelo RH"}
+              ? t("applyingCorrection")
+              : t("confirmCorrection")}
           </button>
         </div>
       </section>
