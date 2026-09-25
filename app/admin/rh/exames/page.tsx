@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Funcionario = {
   id: number;
@@ -33,11 +34,11 @@ const tiposExame = [
   "Outro",
 ];
 
-function dataBR(data?: string | null) {
+function dataBR(data: string | null | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("pt-BR");
+  return d.toLocaleDateString(locale);
 }
 
 function diasParaVencer(data?: string | null) {
@@ -57,6 +58,31 @@ function diasParaVencer(data?: string | null) {
 }
 
 export default function ExamesMedicosRHPage() {
+  const t = useTranslations("AdminHRMedicalExams");
+  const locale = useLocale();
+
+  function examTypeLabel(value: string) {
+    switch (value) {
+      case "ASO Admissional": return t("admissionExam");
+      case "ASO Periódico": return t("periodicExam");
+      case "ASO Retorno ao Trabalho": return t("returnExam");
+      case "ASO Mudança de Função": return t("roleChangeExam");
+      case "ASO Demissional": return t("dismissalExam");
+      case "Outro": return t("otherExam");
+      default: return value;
+    }
+  }
+
+  function resultLabel(value: string) {
+    switch (value) {
+      case "APTO": return t("fit");
+      case "INAPTO": return t("unfit");
+      case "APTO COM RESTRIÇÕES": return t("fitWithRestrictions");
+      case "PENDENTE": return t("pending");
+      case "CANCELADO": return t("cancelled");
+      default: return value;
+    }
+  }
   const [exames, setExames] = useState<ExameMedicoRH[]>([]);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +113,7 @@ export default function ExamesMedicosRHPage() {
     }).length;
 
     const aptos = exames.filter((e) =>
-      String(e.resultado || "").toUpperCase().includes("APTO")
+      (e.resultado === "APTO" || e.resultado === "APTO COM RESTRIÇÕES")
     ).length;
 
     return {
@@ -109,7 +135,7 @@ export default function ExamesMedicosRHPage() {
       return JSON.parse(texto);
     } catch {
       throw new Error(
-        `${nomeRota} não retornou JSON. Verifique se a rota existe e se não está redirecionando para HTML.`
+        t("notJson", { route: nomeRota })
       );
     }
   }
@@ -131,7 +157,7 @@ export default function ExamesMedicosRHPage() {
 
       if (!resFuncionarios.ok) {
         throw new Error(
-          dataFuncionarios?.error || "Erro ao carregar funcionários."
+          t("loadEmployeesError")
         );
       }
 
@@ -154,12 +180,12 @@ export default function ExamesMedicosRHPage() {
       );
 
       if (!resExames.ok) {
-        throw new Error(dataExames?.error || "Erro ao carregar exames.");
+        throw new Error(t("loadExamsError"));
       }
 
       setExames(Array.isArray(dataExames) ? dataExames : []);
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar dados.");
+      setErro(error?.message || t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -188,20 +214,18 @@ export default function ExamesMedicosRHPage() {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        motivo: "Arquivamento realizado pela tela de exames médicos.",
+        motivo: t("archiveReasonSystem"),
       }),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao arquivar exame médico.");
+      throw new Error(t("archiveError"));
     }
 
-    setMensagem("Exame médico arquivado com sucesso.");
+    setMensagem(t("archiveSuccess"));
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao arquivar exame médico.");
+    setErro(error?.message || t("archiveError"));
   }
 }
 
@@ -215,20 +239,18 @@ async function cancelarExame(id: number) {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        motivo: "Cancelamento realizado pela tela de exames médicos.",
+        motivo: t("cancelReasonSystem"),
       }),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao cancelar exame médico.");
+      throw new Error(t("cancelError"));
     }
 
-    setMensagem("Exame médico cancelado com sucesso.");
+    setMensagem(t("cancelSuccess"));
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao cancelar exame médico.");
+    setErro(error?.message || t("cancelError"));
   }
 }
 
@@ -239,17 +261,17 @@ async function cancelarExame(id: number) {
       setMensagem("");
 
       if (!funcionarioId) {
-        setErro("Selecione um funcionário antes de registrar o exame.");
+        setErro(t("selectEmployeeError"));
         return;
       }
 
       if (!tipo.trim()) {
-        setErro("Informe o tipo de exame.");
+        setErro(t("examTypeError"));
         return;
       }
 
       if (!dataExame) {
-        setErro("Informe a data do exame.");
+        setErro(t("examDateError"));
         return;
       }
 
@@ -273,17 +295,15 @@ async function cancelarExame(id: number) {
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao registrar exame médico.");
+        throw new Error(t("saveError"));
       }
 
-      setMensagem("Exame médico registrado com sucesso.");
+      setMensagem(t("saveSuccess"));
       limparFormulario();
       await carregarDados();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao salvar exame médico.");
+      setErro(error?.message || t("saveError"));
     } finally {
       setSalvando(false);
     }
@@ -293,15 +313,15 @@ async function cancelarExame(id: number) {
     <div className="phanyx-rh-page space-y-6 text-slate-950 dark:text-white">
       <div>
         <p className="text-sm font-bold uppercase text-purple-700 dark:text-purple-400">
-          Departamento Pessoal
+          {t("department")}
         </p>
 
         <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
-          Exames Médicos / ASO
+          {t("title")}
         </h1>
 
         <p className="text-sm text-slate-700 dark:text-slate-300">
-          Registre ASO admissional, periódico, retorno ao trabalho, mudança de função e demissional.
+          {t("description")}
         </p>
       </div>
 
@@ -319,42 +339,42 @@ async function cancelarExame(id: number) {
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Total</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("total")}</p>
           <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.total}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Aptos</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("fitPlural")}</p>
           <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.aptos}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <p className="text-sm text-slate-700 dark:text-slate-300">
-            Vencendo em 30 dias
+            {t("expiringSoon")}
           </p>
           <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.vencendo}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Vencidos</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("expiredPlural")}</p>
           <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.vencidos}</p>
         </div>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
         <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-          Registrar exame médico
+          {t("registerTitle")}
         </h2>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="md:col-span-3">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Funcionário</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("employee")}</label>
             <select
               value={funcionarioId}
               onChange={(e) => setFuncionarioId(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-purple-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="">Selecione</option>
+              <option value="">{t("select")}</option>
               {funcionarios.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.nome} {f.cargo ? `- ${f.cargo}` : ""}
@@ -364,7 +384,7 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de exame</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("examType")}</label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
@@ -372,14 +392,14 @@ async function cancelarExame(id: number) {
             >
               {tiposExame.map((item) => (
                 <option key={item} value={item}>
-                  {item}
+                  {examTypeLabel(item)}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Data do exame</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("examDate")}</label>
             <input
               type="date"
               value={dataExame}
@@ -389,7 +409,7 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Validade</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("validUntil")}</label>
             <input
               type="date"
               value={validade}
@@ -399,22 +419,22 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Clínica</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("clinic")}</label>
             <input
               value={clinica}
               onChange={(e) => setClinica(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Nome da clínica"
+              placeholder={t("clinicPlaceholder")}
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Médico</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("physician")}</label>
             <input
               value={medico}
               onChange={(e) => setMedico(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Nome do médico"
+              placeholder={t("physicianPlaceholder")}
             />
           </div>
 
@@ -429,22 +449,22 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Resultado</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("result")}</label>
             <select
               value={resultado}
               onChange={(e) => setResultado(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-purple-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="APTO">APTO</option>
-              <option value="INAPTO">INAPTO</option>
-              <option value="APTO COM RESTRIÇÕES">APTO COM RESTRIÇÕES</option>
-              <option value="PENDENTE">PENDENTE</option>
+              <option value="APTO">{t("fit")}</option>
+              <option value="INAPTO">{t("unfit")}</option>
+              <option value="APTO COM RESTRIÇÕES">{t("fitWithRestrictions")}</option>
+              <option value="PENDENTE">{t("pending")}</option>
             </select>
           </div>
 
          <div>
   <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-    Documento do Exame (PDF, JPG ou PNG)
+    {t("examDocument")}
   </label>
 
   <input
@@ -473,12 +493,12 @@ async function cancelarExame(id: number) {
         const data = await resp.json();
 
         if (!resp.ok) {
-          throw new Error(data.error);
+          throw new Error(t("uploadError"));
         }
 
         setArquivoUrl(data.url);
       } catch (err: any) {
-        setErro(err.message || "Erro ao enviar arquivo.");
+        setErro(err.message || t("uploadError"));
       }
     }}
   />
@@ -490,19 +510,19 @@ async function cancelarExame(id: number) {
       rel="noopener noreferrer"
       className="mt-2 inline-flex text-sm text-blue-600 hover:underline dark:text-blue-400"
     >
-      Visualizar documento enviado
+      {t("viewUploaded")}
     </a>
   )}
 </div>
 
           <div className="md:col-span-3">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Observações</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("notes")}</label>
             <textarea
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               rows={3}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Observações internas"
+              placeholder={t("notesPlaceholder")}
             />
           </div>
         </div>
@@ -513,41 +533,41 @@ async function cancelarExame(id: number) {
           disabled={salvando}
           className="mt-5 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {salvando ? "Salvando..." : "Registrar exame"}
+          {salvando ? t("saving") : t("register")}
         </button>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
         <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-          Exames cadastrados
+          {t("registered")}
         </h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left dark:border-slate-700">
-                <th className="p-3 text-slate-700 dark:text-slate-300">Funcionário</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Tipo</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Data</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Validade</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Resultado</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Clínica/Médico</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Arquivo</th>
-                <th className="p-3 text-slate-700 dark:text-slate-300">Ações</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("employee")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("type")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("date")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("validUntil")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("result")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("clinicPhysician")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("file")}</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">{t("actions")}</th>
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={8}>
-                    Carregando...
+                  <td className="p-3 text-slate-600 dark:text-slate-400" colSpan={8}>
+                    {t("loading")}
                   </td>
                 </tr>
               ) : exames.length === 0 ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={8}>
-                    Nenhum exame médico cadastrado.
+                  <td className="p-3 text-slate-600 dark:text-slate-400" colSpan={8}>
+                    {t("empty")}
                   </td>
                 </tr>
               ) : (
@@ -563,9 +583,9 @@ async function cancelarExame(id: number) {
                         {item.funcionario?.nome || "-"}
                       </td>
 
-                      <td className="p-3">{item.tipo}</td>
+                      <td className="p-3">{examTypeLabel(item.tipo)}</td>
 
-                      <td className="p-3">{dataBR(item.dataExame)}</td>
+                      <td className="p-3">{dataBR(item.dataExame, locale)}</td>
 
                       <td className="p-3">
                         <span
@@ -577,15 +597,15 @@ async function cancelarExame(id: number) {
                               : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200"
                           }`}
                         >
-                          {item.validade ? dataBR(item.validade) : "Sem validade"}
+                          {item.validade ? dataBR(item.validade, locale) : t("noExpiry")}
                         </span>
                       </td>
 
-                      <td className="p-3">{item.resultado || "-"}</td>
+                      <td className="p-3">{item.resultado ? resultLabel(item.resultado) : "-"}</td>
 
                       <td className="p-3">
                         <div>{item.clinica || "-"}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-700 dark:text-slate-400">
+                        <div className="text-xs text-slate-600 dark:text-slate-400">
                           {item.medico || ""} {item.crm ? `• CRM ${item.crm}` : ""}
                         </div>
                       </td>
@@ -599,7 +619,7 @@ async function cancelarExame(id: number) {
         rel="noopener noreferrer"
         className="rounded-lg border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-950/40"
       >
-        Abrir
+        {t("open")}
       </a>
 
       <a
@@ -607,7 +627,7 @@ async function cancelarExame(id: number) {
         download
         className="rounded-lg border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
       >
-        Baixar
+        {t("download")}
       </a>
     </div>
   ) : (
@@ -621,7 +641,7 @@ async function cancelarExame(id: number) {
   onClick={() => arquivarExame(item.id)}
   className="phanyx-rh-archive-action"
 >
-  Arquivar
+  {t("archive")}
 </button>
 
     {item.resultado !== "CANCELADO" && (
@@ -630,7 +650,7 @@ async function cancelarExame(id: number) {
         onClick={() => cancelarExame(item.id)}
         className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
       >
-        Cancelar
+        {t("cancel")}
       </button>
     )}
   </div>
