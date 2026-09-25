@@ -3165,6 +3165,19 @@
       "publishSuccess": "Examen publié avec succès",
       "closeError": "Erreur lors de la clôture de l’examen",
       "closeSuccess": "Examen clôturé avec succès"
+    },
+    "academicLink": {
+      "title": "Groupe et matière",
+      "description": "Définissez le groupe et la matière auxquels cette évaluation sera appliquée.",
+      "discipline": "Matière",
+      "group": "Groupe",
+      "selectDiscipline": "Sélectionnez la matière",
+      "selectGroup": "Sélectionnez le groupe",
+      "save": "Enregistrer l’association",
+      "saving": "Enregistrement...",
+      "loadError": "Erreur lors du chargement des groupes disponibles",
+      "saveError": "Erreur lors de l’enregistrement du groupe et de la matière",
+      "saveSuccess": "Groupe et matière mis à jour avec succès"
     }
   },
   "ProfessorNewExam": {

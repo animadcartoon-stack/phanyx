@@ -44,6 +44,9 @@ export async function GET() {
         itens: {
           where: {
             instituicaoId: user.instituicaoId,
+            status: {
+              in: ["A_CURSAR", "EM_CURSO"] as any,
+            },
           },
           include: {
             disciplina: true,

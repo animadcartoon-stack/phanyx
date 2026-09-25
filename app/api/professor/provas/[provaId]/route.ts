@@ -2,332 +2,680 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+import {
+  provaPertenceAoProfessor,
+} from "@/lib/services/provaProfessor.service";
+
+import {
+  obterParesTurmaDisciplinaProfessor,
+} from "@/lib/professor-escopo-academico";
+
+async function obterProfessor(
+  userId: number,
+  instituicaoId: number
+) {
+  return prisma.professor.findFirst({
+    where: {
+      userId,
+      instituicaoId,
+    },
+
+    select: {
+      id: true,
+    },
+  });
+}
+
+function provaIdValido(
+  valor: string
+) {
+  const id = Number(valor);
+
+  return Number.isFinite(id) &&
+    id > 0
+    ? id
+    : null;
+}
+
 export async function GET(
   _req: Request,
-  { params }: { params: { provaId: string } }
+  {
+    params,
+  }: {
+    params: {
+      provaId: string;
+    };
+  }
 ) {
   try {
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
-    if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    if (
+      !user ||
+      String(user.role).toUpperCase() !==
+        "PROFESSOR"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Sem permiss\u00e3o",
+        },
+        {
+          status: 403,
+        }
+      );
     }
 
-    const professor = await prisma.professor.findFirst({
-      where: {
-        userId: user.id,
-        instituicaoId: user.instituicaoId,
-      },
-    });
+    const professor =
+      await obterProfessor(
+        user.id,
+        user.instituicaoId
+      );
 
     if (!professor) {
       return NextResponse.json(
-        { error: "Professor não encontrado" },
-        { status: 404 }
+        {
+          error:
+            "Professor n\u00e3o encontrado",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    const provaId = Number(params.provaId);
+    const provaId =
+      provaIdValido(
+        params.provaId
+      );
 
-    if (!Number.isFinite(provaId) || provaId <= 0) {
-      return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
+    if (!provaId) {
+      return NextResponse.json(
+        {
+          error:
+            "Prova inv\u00e1lida",
+        },
+        {
+          status: 400,
+        }
+      );
     }
 
-    const prova = await prisma.prova.findFirst({
-      where: {
-        id: provaId,
-        instituicaoId: user.instituicaoId,
-        turma: {
-          professorId: professor.id,
+    try {
+      await provaPertenceAoProfessor({
+        provaId,
+        professorId:
+          professor.id,
+        instituicaoId:
+          user.instituicaoId,
+      });
+    }
+    catch {
+      return NextResponse.json(
+        {
+          error:
+            "Prova n\u00e3o encontrada",
         },
-      },
-      include: {
-        turma: {
-  include: {
-    disciplinas: {
-      include: {
-        disciplina: true,
-      },
-    },
-  },
-},
-        questoes: {
-          orderBy: { ordem: "asc" },
-          include: {
-            alternativas: {
-              orderBy: { ordem: "asc" },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    const prova =
+      await prisma.prova.findFirst({
+        where: {
+          id: provaId,
+          instituicaoId:
+            user.instituicaoId,
+        },
+
+        include: {
+          disciplina:
+            true,
+
+          turma: {
+            include: {
+              disciplinas: {
+                include: {
+                  disciplina:
+                    true,
+                },
+              },
+            },
+          },
+
+          questoes: {
+            orderBy: {
+              ordem:
+                "asc",
+            },
+
+            include: {
+              alternativas: {
+                orderBy: {
+                  ordem:
+                    "asc",
+                },
+              },
             },
           },
         },
-      },
-    });
+      });
 
     if (!prova) {
       return NextResponse.json(
-        { error: "Prova não encontrada" },
-        { status: 404 }
+        {
+          error:
+            "Prova n\u00e3o encontrada",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    return NextResponse.json(prova);
-  } catch (e: any) {
     return NextResponse.json(
-      { error: e.message || "Erro ao buscar prova" },
-      { status: 500 }
+      prova
+    );
+  }
+  catch (e: any) {
+    return NextResponse.json(
+      {
+        error:
+          e?.message ||
+          "Erro ao buscar prova",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { provaId: string } }
+  {
+    params,
+  }: {
+    params: {
+      provaId: string;
+    };
+  }
 ) {
   try {
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
-    if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    if (
+      !user ||
+      String(user.role).toUpperCase() !==
+        "PROFESSOR"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Sem permiss\u00e3o",
+        },
+        {
+          status: 403,
+        }
+      );
     }
 
-    const professor = await prisma.professor.findFirst({
-      where: {
-        userId: user.id,
-        instituicaoId: user.instituicaoId,
-      },
-    });
+    const professor =
+      await obterProfessor(
+        user.id,
+        user.instituicaoId
+      );
 
     if (!professor) {
       return NextResponse.json(
-        { error: "Professor não encontrado" },
-        { status: 404 }
+        {
+          error:
+            "Professor n\u00e3o encontrado",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    const provaId = Number(params.provaId);
+    const provaId =
+      provaIdValido(
+        params.provaId
+      );
 
-    if (!Number.isFinite(provaId) || provaId <= 0) {
-      return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
-    }
-
-    const body = await req.json();
-
-    const provaExistente = await prisma.prova.findFirst({
-      where: {
-        id: provaId,
-        instituicaoId: user.instituicaoId,
-        turma: {
-          professorId: professor.id,
-        },
-      },
-    });
-
-    if (!provaExistente) {
+    if (!provaId) {
       return NextResponse.json(
-        { error: "Prova não encontrada" },
-        { status: 404 }
+        {
+          error:
+            "Prova inv\u00e1lida",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    let turmaIdFinal = provaExistente.turmaId;
+    let provaExistente: any;
 
-    if (body.turmaId !== undefined) {
-      if (!body.turmaId) {
-        return NextResponse.json(
-          { error: "A prova precisa continuar vinculada a uma turma" },
-          { status: 400 }
-        );
-      }
-
-      const turmaValida = await prisma.turma.findFirst({
-        where: {
-          id: Number(body.turmaId),
-          instituicaoId: user.instituicaoId,
-          professorId: professor.id,
+    try {
+      provaExistente =
+        await provaPertenceAoProfessor({
+          provaId,
+          professorId:
+            professor.id,
+          instituicaoId:
+            user.instituicaoId,
+        });
+    }
+    catch {
+      return NextResponse.json(
+        {
+          error:
+            "Prova n\u00e3o encontrada",
         },
-      });
-
-      if (!turmaValida) {
-        return NextResponse.json(
-          { error: "Turma inválida para este professor" },
-          { status: 403 }
-        );
-      }
-
-      turmaIdFinal = Number(body.turmaId);
+        {
+          status: 404,
+        }
+      );
     }
 
-    const provaAtualizada = await prisma.prova.update({
-      where: { id: provaId },
-      data: {
-        titulo: body.titulo ?? provaExistente.titulo,
-        descricao:
-          body.descricao !== undefined
-            ? body.descricao || null
-            : provaExistente.descricao,
-        notaMaxima:
-          body.notaMaxima !== undefined
-            ? Number(body.notaMaxima)
-            : provaExistente.notaMaxima,
-        tempoMin:
-          body.tempoMin !== undefined
-            ? body.tempoMin
-              ? Number(body.tempoMin)
-              : null
-            : provaExistente.tempoMin,
-        tentativasMax:
-          body.tentativasMax !== undefined
-            ? Number(body.tentativasMax)
-            : provaExistente.tentativasMax,
-        disponivelEm:
-          body.disponivelEm !== undefined
-            ? body.disponivelEm
-              ? new Date(body.disponivelEm)
-              : null
-            : provaExistente.disponivelEm,
-        expiraEm:
-          body.expiraEm !== undefined
-            ? body.expiraEm
-              ? new Date(body.expiraEm)
-              : null
-            : provaExistente.expiraEm,
-        turmaId: turmaIdFinal,
-      },
-      include: {
-        turma: {
-  include: {
-    disciplinas: {
-      include: {
-        disciplina: true,
-      },
-    },
-  },
-},
-        questoes: {
-          orderBy: { ordem: "asc" },
-          include: {
-            alternativas: {
-              orderBy: { ordem: "asc" },
+    if (
+      provaExistente.status !==
+      "RASCUNHO"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Os dados da prova s\u00f3 podem ser alterados enquanto ela estiver em rascunho",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+
+    const body =
+      await req.json();
+
+    const turmaIdFinal =
+      body.turmaId !== undefined
+        ? Number(
+            body.turmaId
+          )
+        : Number(
+            provaExistente.turmaId
+          );
+
+    const disciplinaIdFinal =
+      body.disciplinaId !== undefined
+        ? Number(
+            body.disciplinaId
+          )
+        : Number(
+            provaExistente.disciplinaId
+          );
+
+    if (
+      !Number.isFinite(
+        turmaIdFinal
+      ) ||
+      turmaIdFinal <= 0 ||
+      !Number.isFinite(
+        disciplinaIdFinal
+      ) ||
+      disciplinaIdFinal <= 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A prova precisa permanecer vinculada a uma turma e disciplina v\u00e1lidas",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * Se turma ou disciplina forem alteradas,
+     * o novo par precisa continuar dentro
+     * do escopo academico do professor.
+     */
+    if (
+      turmaIdFinal !==
+        provaExistente.turmaId ||
+      disciplinaIdFinal !==
+        provaExistente.disciplinaId
+    ) {
+      const paresPermitidos =
+        await obterParesTurmaDisciplinaProfessor({
+          instituicaoId:
+            user.instituicaoId,
+
+          professorId:
+            professor.id,
+        });
+
+      const permitido =
+        paresPermitidos.some(
+          (par) =>
+            par.turmaId ===
+              turmaIdFinal &&
+            par.disciplinaId ===
+              disciplinaIdFinal
+        );
+
+      if (!permitido) {
+        return NextResponse.json(
+          {
+            error:
+              "Turma e disciplina n\u00e3o est\u00e3o dispon\u00edveis para este professor",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+    }
+
+    const provaAtualizada =
+      await prisma.prova.update({
+        where: {
+          id: provaId,
+        },
+
+        data: {
+          titulo:
+            body.titulo ??
+            provaExistente.titulo,
+
+          descricao:
+            body.descricao !==
+            undefined
+              ? body.descricao ||
+                null
+              : provaExistente.descricao,
+
+          notaMaxima:
+            body.notaMaxima !==
+            undefined
+              ? Number(
+                  body.notaMaxima
+                )
+              : provaExistente.notaMaxima,
+
+          tempoMin:
+            body.tempoMin !==
+            undefined
+              ? body.tempoMin
+                ? Number(
+                    body.tempoMin
+                  )
+                : null
+              : provaExistente.tempoMin,
+
+          tentativasMax:
+            body.tentativasMax !==
+            undefined
+              ? Number(
+                  body.tentativasMax
+                )
+              : provaExistente.tentativasMax,
+
+          disponivelEm:
+            body.disponivelEm !==
+            undefined
+              ? body.disponivelEm
+                ? new Date(
+                    body.disponivelEm
+                  )
+                : null
+              : provaExistente.disponivelEm,
+
+          expiraEm:
+            body.expiraEm !==
+            undefined
+              ? body.expiraEm
+                ? new Date(
+                    body.expiraEm
+                  )
+                : null
+              : provaExistente.expiraEm,
+
+          turmaId:
+            turmaIdFinal,
+
+          disciplinaId:
+            disciplinaIdFinal,
+        },
+
+        include: {
+          disciplina:
+            true,
+
+          turma: {
+            include: {
+              disciplinas: {
+                include: {
+                  disciplina:
+                    true,
+                },
+              },
+            },
+          },
+
+          questoes: {
+            orderBy: {
+              ordem:
+                "asc",
+            },
+
+            include: {
+              alternativas: {
+                orderBy: {
+                  ordem:
+                    "asc",
+                },
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    return NextResponse.json(provaAtualizada);
-  } catch (e: any) {
     return NextResponse.json(
-      { error: e.message || "Erro ao atualizar prova" },
-      { status: 500 }
+      provaAtualizada
+    );
+  }
+  catch (e: any) {
+    return NextResponse.json(
+      {
+        error:
+          e?.message ||
+          "Erro ao atualizar prova",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { provaId: string } }
+  {
+    params,
+  }: {
+    params: {
+      provaId: string;
+    };
+  }
 ) {
   try {
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
-    if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    if (
+      !user ||
+      String(user.role).toUpperCase() !==
+        "PROFESSOR"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Sem permiss\u00e3o",
+        },
+        {
+          status: 403,
+        }
+      );
     }
 
-    const professor = await prisma.professor.findFirst({
-      where: {
-        userId: user.id,
-        instituicaoId: user.instituicaoId,
-      },
-      select: { id: true },
-    });
+    const professor =
+      await obterProfessor(
+        user.id,
+        user.instituicaoId
+      );
 
     if (!professor) {
       return NextResponse.json(
-        { error: "Professor não encontrado" },
-        { status: 404 }
+        {
+          error:
+            "Professor n\u00e3o encontrado",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    const provaId = Number(params.provaId);
+    const provaId =
+      provaIdValido(
+        params.provaId
+      );
 
-    if (!Number.isFinite(provaId) || provaId <= 0) {
-      return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
-    }
-
-    const prova = await prisma.prova.findFirst({
-      where: {
-        id: provaId,
-        instituicaoId: user.instituicaoId,
-        turma: {
-          professorId: professor.id,
-        },
-      },
-      select: {
-        id: true,
-        ativa: true,
-      },
-    });
-
-    if (!prova) {
+    if (!provaId) {
       return NextResponse.json(
-        { error: "Prova não encontrada" },
-        { status: 404 }
+        {
+          error:
+            "Prova inv\u00e1lida",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    if (prova.ativa) {
+    let prova: any;
+
+    try {
+      prova =
+        await provaPertenceAoProfessor({
+          provaId,
+          professorId:
+            professor.id,
+          instituicaoId:
+            user.instituicaoId,
+        });
+    }
+    catch {
       return NextResponse.json(
-        { error: "Só é permitido excluir provas em rascunho." },
-        { status: 400 }
+        {
+          error:
+            "Prova n\u00e3o encontrada",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    await prisma.respostaProva.deleteMany({
-      where: {
-        questao: {
-          provaId,
+    if (
+      prova.status !==
+      "RASCUNHO"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "S\u00f3 \u00e9 permitido excluir provas em rascunho.",
         },
-        instituicaoId: user.instituicaoId,
-      },
-    });
+        {
+          status: 400,
+        }
+      );
+    }
 
-    await prisma.tentativaProva.deleteMany({
-      where: {
-        provaId,
-        instituicaoId: user.instituicaoId,
-      },
-    });
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.respostaProva.deleteMany({
+          where: {
+            questao: {
+              provaId,
+            },
 
-    await prisma.alternativa.deleteMany({
-      where: {
-        questao: {
-          provaId,
-        },
-        instituicaoId: user.instituicaoId,
-      },
-    });
+            instituicaoId:
+              user.instituicaoId,
+          },
+        });
 
-    await prisma.questao.deleteMany({
-      where: {
-        provaId,
-        instituicaoId: user.instituicaoId,
-      },
-    });
+        await tx.tentativaProva.deleteMany({
+          where: {
+            provaId,
 
-    await prisma.prova.delete({
-      where: {
-        id: provaId,
-      },
-    });
+            instituicaoId:
+              user.instituicaoId,
+          },
+        });
+
+        await tx.alternativa.deleteMany({
+          where: {
+            questao: {
+              provaId,
+            },
+
+            instituicaoId:
+              user.instituicaoId,
+          },
+        });
+
+        await tx.questao.deleteMany({
+          where: {
+            provaId,
+
+            instituicaoId:
+              user.instituicaoId,
+          },
+        });
+
+        await tx.prova.delete({
+          where: {
+            id: provaId,
+          },
+        });
+      }
+    );
 
     return NextResponse.json({
       ok: true,
-      message: "Prova excluída com sucesso.",
+
+      message:
+        "Prova exclu\u00edda com sucesso.",
     });
-  } catch (e: any) {
+  }
+  catch (e: any) {
     return NextResponse.json(
-      { error: e.message || "Erro ao excluir prova" },
-      { status: 500 }
+      {
+        error:
+          e?.message ||
+          "Erro ao excluir prova",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }

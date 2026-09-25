@@ -16,9 +16,7 @@ type Alternativa = {
 
 type Questao = {
   id: number;
-  enunciado: string;
-  pergunta?: string;
-  tipo:
+  enunciado: string;  tipo:
     | "MULTIPLA_ESCOLHA"
     | "DISCURSIVA";
   valor: number;
@@ -26,11 +24,31 @@ type Questao = {
   alternativas: Alternativa[];
 };
 
+type TurmaProfessor = {
+  id: number;
+  nome: string;
+  disciplinaId: number;
+  disciplina?: {
+    id: number;
+    nome: string;
+  } | null;
+};
+
 type Prova = {
   id: number;
   titulo: string;
   notaMaxima: number;
   tempoMin?: number | null;
+  turmaId: number;
+  disciplinaId: number;
+  turma?: {
+    id: number;
+    nome: string;
+  } | null;
+  disciplina?: {
+    id: number;
+    nome: string;
+  } | null;
   status:
     | "RASCUNHO"
     | "PUBLICADA"
@@ -97,6 +115,26 @@ export default function ProvaPage() {
   const [
     modalEncerrarAberto,
     setModalEncerrarAberto,
+  ] = useState(false);
+
+  const [
+    turmasProfessor,
+    setTurmasProfessor,
+  ] = useState<TurmaProfessor[]>([]);
+
+  const [
+    disciplinaIdEdicao,
+    setDisciplinaIdEdicao,
+  ] = useState("");
+
+  const [
+    turmaIdEdicao,
+    setTurmaIdEdicao,
+  ] = useState("");
+
+  const [
+    salvandoVinculo,
+    setSalvandoVinculo,
   ] = useState(false);
 
   useEffect(() => {
@@ -204,6 +242,262 @@ export default function ProvaPage() {
   useEffect(() => {
     carregarProva();
   }, [provaId, t]);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarTurmasProfessor() {
+      try {
+        const res =
+          await fetch(
+            "/api/professor/turmas",
+            {
+              cache: "no-store",
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if (!res.ok) {
+          throw new Error();
+        }
+
+        const lista =
+          Array.isArray(data)
+            ? data
+            : Array.isArray(data?.turmas)
+              ? data.turmas
+              : [];
+
+        if (ativo) {
+          setTurmasProfessor(
+            lista
+          );
+        }
+      } catch {
+        if (ativo) {
+          setTurmasProfessor(
+            []
+          );
+
+          mostrarFeedback(
+            "erro",
+            t(
+              "academicLink.loadError"
+            )
+          );
+        }
+      }
+    }
+
+    carregarTurmasProfessor();
+
+    return () => {
+      ativo = false;
+    };
+  }, [t]);
+
+  useEffect(() => {
+    if (!prova) {
+      return;
+    }
+
+    setDisciplinaIdEdicao(
+      String(
+        prova.disciplinaId ||
+          prova.disciplina?.id ||
+          ""
+      )
+    );
+
+    setTurmaIdEdicao(
+      String(
+        prova.turmaId ||
+          prova.turma?.id ||
+          ""
+      )
+    );
+  }, [
+    prova?.id,
+    prova?.disciplinaId,
+    prova?.turmaId,
+  ]);
+
+  const disciplinasDisponiveis =
+    useMemo(() => {
+      const mapa =
+        new Map<
+          number,
+          {
+            id: number;
+            nome: string;
+          }
+        >();
+
+      for (
+        const turma of
+          turmasProfessor
+      ) {
+        const id =
+          Number(
+            turma.disciplinaId ||
+              turma.disciplina?.id
+          );
+
+        if (
+          !Number.isFinite(id) ||
+          id <= 0
+        ) {
+          continue;
+        }
+
+        mapa.set(id, {
+          id,
+          nome:
+            turma.disciplina?.nome ||
+            String(id),
+        });
+      }
+
+      return Array.from(
+        mapa.values()
+      ).sort((a, b) =>
+        a.nome.localeCompare(
+          b.nome,
+          "pt-BR"
+        )
+      );
+    }, [turmasProfessor]);
+
+  const turmasDisponiveis =
+    useMemo(() => {
+      const disciplinaId =
+        Number(
+          disciplinaIdEdicao
+        );
+
+      if (
+        !Number.isFinite(
+          disciplinaId
+        ) ||
+        disciplinaId <= 0
+      ) {
+        return [];
+      }
+
+      return turmasProfessor
+        .filter(
+          (turma) =>
+            Number(
+              turma.disciplinaId ||
+                turma.disciplina?.id
+            ) === disciplinaId
+        )
+        .sort((a, b) =>
+          a.nome.localeCompare(
+            b.nome,
+            "pt-BR"
+          )
+        );
+    }, [
+      turmasProfessor,
+      disciplinaIdEdicao,
+    ]);
+
+  async function salvarVinculoAcademico() {
+    if (!prova) {
+      return;
+    }
+
+    const disciplinaId =
+      Number(
+        disciplinaIdEdicao
+      );
+
+    const turmaId =
+      Number(
+        turmaIdEdicao
+      );
+
+    if (
+      !Number.isFinite(
+        disciplinaId
+      ) ||
+      disciplinaId <= 0 ||
+      !Number.isFinite(
+        turmaId
+      ) ||
+      turmaId <= 0
+    ) {
+      mostrarFeedback(
+        "erro",
+        t(
+          "academicLink.saveError"
+        )
+      );
+
+      return;
+    }
+
+    try {
+      setSalvandoVinculo(true);
+
+      const res =
+        await fetch(
+          `/api/professor/provas/${prova.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            credentials:
+              "include",
+            body: JSON.stringify({
+              disciplinaId,
+              turmaId,
+            }),
+          }
+        );
+
+      const data =
+        await res
+          .json()
+          .catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+            t(
+              "academicLink.saveError"
+            )
+        );
+      }
+
+      await carregarProva();
+
+      mostrarFeedback(
+        "sucesso",
+        t(
+          "academicLink.saveSuccess"
+        )
+      );
+    } catch {
+      mostrarFeedback(
+        "erro",
+        t(
+          "academicLink.saveError"
+        )
+      );
+    } finally {
+      setSalvandoVinculo(
+        false
+      );
+    }
+  }
+
+
 
   const totalQuestoes =
     prova?.questoes?.length ||
@@ -516,6 +810,143 @@ export default function ProvaPage() {
             </div>
           </div>
 
+          {prova.status ===
+            "RASCUNHO" && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  {t(
+                    "academicLink.title"
+                  )}
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+                  {t(
+                    "academicLink.description"
+                  )}
+                </p>
+              </div>
+
+              <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "academicLink.discipline"
+                    )}
+                  </span>
+
+                  <select
+                    value={
+                      disciplinaIdEdicao
+                    }
+                    onChange={(event) => {
+                      setDisciplinaIdEdicao(
+                        event.target.value
+                      );
+
+                      setTurmaIdEdicao(
+                        ""
+                      );
+                    }}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
+                    <option value="">
+                      {t(
+                        "academicLink.selectDiscipline"
+                      )}
+                    </option>
+
+                    {disciplinasDisponiveis.map(
+                      (disciplina) => (
+                        <option
+                          key={
+                            disciplina.id
+                          }
+                          value={
+                            disciplina.id
+                          }
+                        >
+                          {
+                            disciplina.nome
+                          }
+                        </option>
+                      )
+                    )}
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    {t(
+                      "academicLink.group"
+                    )}
+                  </span>
+
+                  <select
+                    value={
+                      turmaIdEdicao
+                    }
+                    onChange={(event) =>
+                      setTurmaIdEdicao(
+                        event.target.value
+                      )
+                    }
+                    disabled={
+                      !disciplinaIdEdicao
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
+                    <option value="">
+                      {t(
+                        "academicLink.selectGroup"
+                      )}
+                    </option>
+
+                    {turmasDisponiveis.map(
+                      (turma) => (
+                        <option
+                          key={
+                            turma.id
+                          }
+                          value={
+                            turma.id
+                          }
+                        >
+                          {
+                            turma.nome
+                          }
+                        </option>
+                      )
+                    )}
+                  </select>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={
+                    salvarVinculoAcademico
+                  }
+                  disabled={
+                    salvandoVinculo ||
+                    !disciplinaIdEdicao ||
+                    !turmaIdEdicao
+                  }
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {salvandoVinculo
+                    ? t(
+                        "academicLink.saving"
+                      )
+                    : t(
+                        "academicLink.save"
+                      )}
+                </button>
+              </div>
+            </div>
+          )}
+
+
+
           <div className="grid gap-4 md:grid-cols-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -678,14 +1109,6 @@ export default function ProvaPage() {
                             questao.enunciado
                           }
                         </p>
-
-                        {questao.pergunta && (
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {
-                              questao.pergunta
-                            }
-                          </p>
-                        )}
 
                         {questao.tipo ===
                           "MULTIPLA_ESCOLHA" && (

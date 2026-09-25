@@ -54,8 +54,17 @@ export async function POST(
     }
 
     if (
-      ["CONCLUIDO", "CANCELADO", "TRANCADO", "DESLIGADO"].includes(
-        String(aluno.statusAluno)
+      [
+        "TRANCADO",
+        "TRANSFERIDO",
+        "DESLIGADO",
+        "FORMADO",
+        "CANCELADO",
+        "SUSPENSO",
+      ].includes(
+        String(
+          aluno.statusAluno || ""
+        ).toUpperCase()
       )
     ) {
       return NextResponse.json(
@@ -75,8 +84,14 @@ export async function POST(
         id: true,
         titulo: true,
         notaMaxima: true,
-        turmaId: true,
-        status: true,
+        turmaId:
+          true,
+
+        disciplinaId:
+          true,
+
+        status:
+          true,
         ativa: true,
         publicadaAt: true,
         encerradaAt: true,
@@ -107,17 +122,13 @@ export async function POST(
         turma: {
           select: {
             id: true,
-            disciplinas: {
-              take: 1,
-              select: {
-                disciplina: {
-                  select: {
-                    id: true,
-                    nome: true,
-                  },
-                },
-              },
-            },
+          },
+        },
+
+        disciplina: {
+          select: {
+            id: true,
+            nome: true,
           },
         },
         alunosLiberados: {
@@ -133,8 +144,25 @@ export async function POST(
 
     if (!prova) {
       return NextResponse.json(
-        { error: "Prova não encontrada" },
-        { status: 404 }
+        {
+          error:
+            "Prova n\u00e3o encontrada",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if (!prova.disciplinaId) {
+      return NextResponse.json(
+        {
+          error:
+            "A prova n\u00e3o possui disciplina definida.",
+        },
+        {
+          status: 409,
+        }
       );
     }
 
@@ -147,6 +175,16 @@ export async function POST(
           turmaId:
             prova.turmaId,
 
+          disciplinaId:
+            prova.disciplinaId,
+
+          status: {
+            in: [
+              "A_CURSAR",
+              "EM_CURSO",
+            ] as any,
+          },
+
           matricula: {
             alunoId:
               aluno.id,
@@ -155,8 +193,12 @@ export async function POST(
               user.instituicaoId,
 
             status: {
-              not:
+              notIn: [
                 "CANCELADA",
+                "TRANCADA",
+                "CONCLUIDA",
+                "SUSPENSA",
+              ] as any,
             },
 
             excluidaEm:
@@ -229,9 +271,17 @@ export async function POST(
     if (prova.exigirAulasConcluidas) {
       const aulasDaTurma = await prisma.aula.findMany({
         where: {
-          turmaId: prova.turmaId,
-          instituicaoId: user.instituicaoId,
-          publicada: true,
+          turmaId:
+            prova.turmaId,
+
+          disciplinaId:
+            prova.disciplinaId,
+
+          instituicaoId:
+            user.instituicaoId,
+
+          publicada:
+            true,
         },
         select: { id: true },
       });
@@ -295,10 +345,10 @@ export async function POST(
           titulo: prova.titulo ?? "Prova",
           notaMaxima: prova.notaMaxima ?? 10,
           disciplinaId:
-            prova.turma.disciplinas[0]?.disciplina?.id ?? null,
+            prova.disciplinaId,
           turmaId: prova.turmaId,
           disciplinaNome:
-            prova.turma.disciplinas[0]?.disciplina?.nome ?? null,
+            prova.disciplina?.nome ?? null,
           questoes: prova.questoes,
         },
       });
@@ -346,9 +396,9 @@ export async function POST(
         id: prova.id,
         titulo: prova.titulo ?? "Prova",
         notaMaxima: prova.notaMaxima ?? 10,
-        disciplinaId: prova.turma.disciplinas[0]?.disciplina?.id ?? null,
+        disciplinaId: prova.disciplinaId,
         turmaId: prova.turmaId,
-        disciplinaNome: prova.turma.disciplinas[0]?.disciplina?.nome ?? null,
+        disciplinaNome: prova.disciplina?.nome ?? null,
         questoes: prova.questoes,
       },
     });

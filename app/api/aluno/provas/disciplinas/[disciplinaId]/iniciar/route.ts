@@ -89,9 +89,16 @@ export async function POST(
           alunoId: aluno.id,
           instituicaoId: user.instituicaoId,
         status: {
-            not: "CANCELADA",
+            notIn: [
+              "CANCELADA",
+              "TRANCADA",
+              "CONCLUIDA",
+              "SUSPENSA",
+            ] as any,
           },
-          excluidaEm: null,
+
+          excluidaEm:
+            null,
         },
       },
       select: {
@@ -111,15 +118,20 @@ export async function POST(
     const prova = await prisma.prova.findFirst({
       where: {
         instituicaoId: user.instituicaoId,
-        turmaId: itemMatricula.turmaId,
-        ativa: true,
-        status: "PUBLICADA" as any,
-        turma: {
-          disciplinas: {
-            some: {
-              disciplinaId,
-            },
-          },
+        turmaId:
+          itemMatricula.turmaId,
+
+        disciplinaId,
+
+        ativa:
+          true,
+
+        status:
+          "PUBLICADA" as any,
+
+        publicadaAt: {
+          not:
+            null,
         },
         OR: [
           {

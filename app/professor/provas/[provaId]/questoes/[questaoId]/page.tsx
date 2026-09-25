@@ -24,9 +24,7 @@ type TipoQuestao =
 
 type Questao = {
   id: number;
-  enunciado: string;
-  pergunta?: string;
-  tipo:
+  enunciado: string;  tipo:
     | TipoQuestao
     | "multipla_escolha"
     | "discursiva";
@@ -91,11 +89,6 @@ export default function QuestaoPage() {
   const [
     enunciado,
     setEnunciado,
-  ] = useState("");
-
-  const [
-    pergunta,
-    setPergunta,
   ] = useState("");
 
   const [
@@ -286,11 +279,6 @@ export default function QuestaoPage() {
           ""
       );
 
-      setPergunta(
-        questaoEncontrada.pergunta ||
-          ""
-      );
-
       setTipo(
         tipoInterface
       );
@@ -394,11 +382,6 @@ export default function QuestaoPage() {
               {
                 enunciado:
                   enunciado.trim(),
-
-                pergunta:
-                  pergunta.trim()
-                    ? pergunta.trim()
-                    : null,
 
                 tipo,
 
@@ -722,34 +705,6 @@ export default function QuestaoPage() {
                 rows={5}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="pergunta-complementar"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-200"
-              >
-                {t(
-                  "fields.complementaryQuestion"
-                )}
-              </label>
-
-              <input
-                id="pergunta-complementar"
-                type="text"
-                value={
-                  pergunta
-                }
-                onChange={(e) =>
-                  setPergunta(
-                    e.target.value
-                  )
-                }
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
-                placeholder={t(
-                  "fields.optional"
-                )}
               />
             </div>
 

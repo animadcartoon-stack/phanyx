@@ -2929,6 +2929,37 @@ function AdminMatriculasPage() {
           const turmaAtual =
             anterior[disciplinaId];
 
+          const pertenceGradePrincipal =
+            disciplinasEdicaoSelecionadas.includes(
+              disciplinaId
+            );
+
+          const ofertaDaTurmaPrincipal =
+            ofertas.find(
+              (oferta) =>
+                oferta.turmaId ===
+                turmaPrincipalId
+            );
+
+          /*
+           * Na edi??o da matr?cula, quando a turma
+           * principal muda, as disciplinas da grade
+           * principal devem acompanhar a nova turma
+           * sempre que ela oferecer a disciplina.
+           *
+           * Depend?ncias, adiantamentos e extras
+           * continuam podendo usar outra oferta.
+           */
+          if (
+            pertenceGradePrincipal &&
+            ofertaDaTurmaPrincipal
+          ) {
+            novo[disciplinaId] =
+              ofertaDaTurmaPrincipal.turmaId;
+
+            continue;
+          }
+
           const turmaAtualValida =
             ofertas.some(
               (oferta) =>
@@ -2944,11 +2975,8 @@ function AdminMatriculasPage() {
           }
 
           const ofertaPreferencial =
-            ofertas.find(
-              (oferta) =>
-                oferta.turmaId ===
-                turmaPrincipalId
-            ) || ofertas[0];
+            ofertaDaTurmaPrincipal ||
+            ofertas[0];
 
           if (ofertaPreferencial) {
             novo[disciplinaId] =
@@ -2961,6 +2989,7 @@ function AdminMatriculasPage() {
     );
   }, [
     disciplinasIdsSelecionadasEdicao,
+    disciplinasEdicaoSelecionadas,
     ofertasPorDisciplina,
     matriculaEditando?.id,
     matriculaEditando

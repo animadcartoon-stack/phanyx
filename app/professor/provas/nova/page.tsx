@@ -22,6 +22,7 @@ type Turma = {
   id: number;
   nome?: string;
   disciplinaId?: number;
+  disciplina?: Disciplina | null;
 };
 
 type AlunoTurma = {
@@ -236,14 +237,10 @@ export default function NovaProvaPage() {
         setErro("");
 
         const [
-          resDisciplinas,
           resTurmas,
           resCursos,
         ] =
           await Promise.all([
-            fetch(
-              "/api/professor/disciplinas"
-            ),
             fetch(
               "/api/professor/turmas"
             ),
@@ -252,10 +249,7 @@ export default function NovaProvaPage() {
             ),
           ]);
 
-        const disciplinasData =
-          resDisciplinas.ok
-            ? await resDisciplinas.json()
-            : [];
+
 
         const turmasData =
           resTurmas.ok
@@ -267,20 +261,56 @@ export default function NovaProvaPage() {
             ? await resCursos.json()
             : [];
 
-        setDisciplinas(
-          Array.isArray(
-            disciplinasData
-          )
-            ? disciplinasData
-            : []
-        );
-
-        setTurmas(
+        const turmasValidas: Turma[] =
           Array.isArray(
             turmasData
           )
             ? turmasData
-            : []
+            : [];
+
+        /*
+         * Para criar prova, Disciplina e Turma
+         * devem nascer do mesmo escopo academico.
+         *
+         * /api/professor/turmas ja retorna somente
+         * pares Turma + Disciplina autorizados.
+         */
+        const disciplinasDisponiveis =
+          Array.from(
+            new Map<number, Disciplina>(
+              turmasValidas
+                .filter(
+                  (turma) =>
+                    typeof turma.disciplinaId ===
+                      "number" &&
+                    Number.isFinite(
+                      turma.disciplinaId
+                    )
+                )
+                .map(
+                  (turma) => [
+                    turma.disciplinaId as number,
+                    {
+                      id:
+                        turma.disciplinaId as number,
+
+                      nome:
+                        turma.disciplina?.nome,
+
+                      titulo:
+                        turma.disciplina?.titulo,
+                    },
+                  ]
+                )
+            ).values()
+          );
+
+        setDisciplinas(
+          disciplinasDisponiveis
+        );
+
+        setTurmas(
+          turmasValidas
         );
 
         setCursos(

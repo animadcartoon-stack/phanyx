@@ -3165,6 +3165,19 @@
       "publishSuccess": "Examen publicado correctamente",
       "closeError": "Error al cerrar el examen",
       "closeSuccess": "Examen cerrado correctamente"
+    },
+    "academicLink": {
+      "title": "Grupo y asignatura",
+      "description": "Defina en qué grupo y asignatura se aplicará este examen.",
+      "discipline": "Asignatura",
+      "group": "Grupo",
+      "selectDiscipline": "Seleccione la asignatura",
+      "selectGroup": "Seleccione el grupo",
+      "save": "Guardar vínculo",
+      "saving": "Guardando...",
+      "loadError": "Error al cargar los grupos disponibles",
+      "saveError": "Error al guardar el grupo y la asignatura",
+      "saveSuccess": "Grupo y asignatura actualizados correctamente"
     }
   },
   "ProfessorNewExam": {

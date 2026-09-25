@@ -87,6 +87,11 @@ export async function GET(req: NextRequest) {
       where: {
         instituicaoId: user.instituicaoId,
 
+        status: {
+          in: ["A_CURSAR", "EM_CURSO"] as any,
+        },
+
+
         matricula: {
           status: {
             not: "CANCELADA",

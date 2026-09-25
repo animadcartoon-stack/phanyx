@@ -53,6 +53,9 @@ export async function GET(
     itens: {
       where: {
         disciplinaId,
+        status: {
+          in: ["A_CURSAR", "EM_CURSO"] as any,
+        },
         ...(Number.isFinite(turmaId) && turmaId > 0 ? { turmaId } : {}),
       },
       select: {

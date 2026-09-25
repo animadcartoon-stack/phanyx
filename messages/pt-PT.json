@@ -3165,6 +3165,19 @@
       "publishSuccess": "Prova publicada com sucesso",
       "closeError": "Erro ao encerrar a prova",
       "closeSuccess": "Prova encerrada com sucesso"
+    },
+    "academicLink": {
+      "title": "Turma e disciplina",
+      "description": "Defina em que turma e disciplina esta prova será aplicada.",
+      "discipline": "Disciplina",
+      "group": "Turma",
+      "selectDiscipline": "Selecione a disciplina",
+      "selectGroup": "Selecione a turma",
+      "save": "Guardar associação",
+      "saving": "A guardar...",
+      "loadError": "Erro ao carregar as turmas disponíveis",
+      "saveError": "Erro ao guardar turma e disciplina",
+      "saveSuccess": "Turma e disciplina atualizadas com sucesso"
     }
   },
   "ProfessorNewExam": {

@@ -88,39 +88,99 @@ export async function PATCH(
       );
     }
 
-    const questao: any = await prisma.questao.findFirst({
-      where: {
-        id: questaoId,
-        provaId,
-      },
-    });
+    const questao =
+      await prisma.questao.findFirst({
+        where: {
+          id: questaoId,
+          provaId,
+          instituicaoId:
+            user.instituicaoId,
+        },
+
+        select: {
+          id: true,
+          enunciado: true,
+          tipo: true,
+          valor: true,
+          respostaModelo: true,
+        },
+      });
 
     if (!questao) {
       return NextResponse.json(
-        { error: "Questão não encontrada" },
-        { status: 404 }
+        {
+          error:
+            "Quest\u00e3o n\u00e3o encontrada",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    const updated = await prisma.questao.update({
-      where: { id: questaoId },
-      data: {
-        enunciado:
-          parsed.data.enunciado !== undefined
-            ? parsed.data.enunciado
-            : questao.enunciado,
+    const tipoFinal =
+      parsed.data.tipo !== undefined
+        ? tipoConvertido
+        : questao.tipo;
 
-        tipo:
-          parsed.data.tipo !== undefined
-            ? tipoConvertido
-            : questao.tipo,
+    /*
+     * Uma questao discursiva nao pode manter
+     * alternativas de multipla escolha.
+     *
+     * A limpeza acontece na mesma transacao
+     * da atualizacao da questao.
+     */
+    const updated =
+      await prisma.$transaction(
+        async (tx) => {
+          if (
+            tipoFinal ===
+            "discursiva"
+          ) {
+            await tx.alternativa.deleteMany({
+              where: {
+                questaoId,
 
-        valor:
-          parsed.data.valor !== undefined
-            ? parsed.data.valor
-            : questao.valor,
-      } as any,
-    });
+                instituicaoId:
+                  user.instituicaoId,
+              },
+            });
+          }
+
+          return tx.questao.update({
+            where: {
+              id: questaoId,
+            },
+
+            data: {
+              enunciado:
+                parsed.data.enunciado !==
+                undefined
+                  ? parsed.data.enunciado
+                  : questao.enunciado,
+
+              tipo:
+                tipoFinal as any,
+
+              valor:
+                parsed.data.valor !==
+                undefined
+                  ? parsed.data.valor
+                  : questao.valor,
+
+              /*
+               * Resposta-modelo pertence apenas
+               * a questoes discursivas.
+               */
+              respostaModelo:
+                tipoFinal ===
+                "multipla_escolha"
+                  ? null
+                  : questao.respostaModelo,
+            },
+          });
+        }
+      );
 
     return NextResponse.json(updated);
   } catch (e: any) {

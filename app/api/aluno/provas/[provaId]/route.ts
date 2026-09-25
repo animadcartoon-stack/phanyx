@@ -32,14 +32,42 @@ export async function GET(
       },
       select: {
         id: true,
+        ativo: true,
+        statusAluno: true,
       },
     });
 
     if (!aluno) {
       return NextResponse.json({ error: "Aluno não encontrado" }, { status: 404 });
     }
+    if (
+      !aluno.ativo ||
+      [
+        "TRANCADO",
+        "TRANSFERIDO",
+        "DESLIGADO",
+        "FORMADO",
+        "CANCELADO",
+        "SUSPENSO",
+      ].includes(
+        String(
+          aluno.statusAluno || ""
+        ).toUpperCase()
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Seu status acad\u00eamico n\u00e3o permite acessar novas provas.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
 
-    const provaId = Number(params.provaId);
+    const provaId =
+      Number(params.provaId);
 
     if (!Number.isFinite(provaId) || provaId <= 0) {
       return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
@@ -47,9 +75,45 @@ export async function GET(
 
     const prova = await prisma.prova.findFirst({
       where: {
-  id: provaId,
-  instituicaoId: user.instituicaoId,
-},
+        id:
+          provaId,
+
+        instituicaoId:
+          user.instituicaoId,
+
+        ativa:
+          true,
+
+        status:
+          "PUBLICADA" as any,
+
+        publicadaAt: {
+          not:
+            null,
+        },
+
+        OR: [
+          {
+            tipoPublico:
+              "TURMA",
+          },
+          {
+            tipoPublico:
+              "ALUNOS_SELECIONADOS",
+
+            alunosLiberados: {
+              some: {
+                alunoId:
+                  aluno.id,
+
+                instituicaoId:
+                  user.instituicaoId,
+              },
+            },
+          },
+        ],
+      },
+
       include: {
         questoes: {
           orderBy: {
@@ -80,7 +144,27 @@ export async function GET(
     });
 
     if (!prova) {
-      return NextResponse.json({ error: "Prova não encontrada" }, { status: 404 });
+      return NextResponse.json(
+        {
+          error:
+            "Prova n\u00e3o encontrada ou indispon\u00edvel",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if (!prova.disciplinaId) {
+      return NextResponse.json(
+        {
+          error:
+            "A prova n\u00e3o possui disciplina definida.",
+        },
+        {
+          status: 409,
+        }
+      );
     }
 
     const vinculoOperacional =
@@ -92,6 +176,16 @@ export async function GET(
           turmaId:
             prova.turmaId,
 
+          disciplinaId:
+            prova.disciplinaId,
+
+          status: {
+            in: [
+              "A_CURSAR",
+              "EM_CURSO",
+            ] as any,
+          },
+
           matricula: {
             alunoId:
               aluno.id,
@@ -100,8 +194,12 @@ export async function GET(
               user.instituicaoId,
 
             status: {
-              not:
+              notIn: [
                 "CANCELADA",
+                "TRANCADA",
+                "CONCLUIDA",
+                "SUSPENSA",
+              ] as any,
             },
 
             excluidaEm:

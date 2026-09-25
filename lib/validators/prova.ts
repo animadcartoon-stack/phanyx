@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 export const createQuestaoSchema = z.object({
-  enunciado: z.string().min(1, "Enunciado é obrigatório"),
-  pergunta: z.string().trim().optional().or(z.literal("")),
-  tipo: z.enum(["MULTIPLA_ESCOLHA", "DISCURSIVA"]),
+  enunciado: z.string().min(1, "Enunciado é obrigatório"),  tipo: z.enum(["MULTIPLA_ESCOLHA", "DISCURSIVA"]),
   valor: z.number().min(0, "Valor não pode ser negativo").optional(),
 });
 
@@ -20,9 +18,7 @@ export const createAlternativaSchema = z.object({
 
 
 export const updateQuestaoSchema = z.object({
-  enunciado: z.string().min(1, "Enunciado é obrigatório").optional(),
-  pergunta: z.string().trim().optional().or(z.literal("")),
-  tipo: z.enum(["MULTIPLA_ESCOLHA", "DISCURSIVA"]).optional(),
+  enunciado: z.string().min(1, "Enunciado é obrigatório").optional(),  tipo: z.enum(["MULTIPLA_ESCOLHA", "DISCURSIVA"]).optional(),
   valor: z.number().min(0, "Valor não pode ser negativo").optional(),
 });
 

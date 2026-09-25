@@ -18,7 +18,11 @@ export async function GET(
         userId: user.id,
         instituicaoId: user.instituicaoId,
       },
-      select: { id: true },
+      select: {
+        id: true,
+        ativo: true,
+        statusAluno: true,
+      },
     });
 
     if (!aluno) {
@@ -27,8 +31,34 @@ export async function GET(
         { status: 404 }
       );
     }
+    if (
+      !aluno.ativo ||
+      [
+        "TRANCADO",
+        "TRANSFERIDO",
+        "DESLIGADO",
+        "FORMADO",
+        "CANCELADO",
+        "SUSPENSO",
+      ].includes(
+        String(
+          aluno.statusAluno || ""
+        ).toUpperCase()
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Seu status acad\u00eamico n\u00e3o permite acessar novas provas.",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
 
-    const disciplinaId = Number(params.disciplinaId);
+    const disciplinaId =
+      Number(params.disciplinaId);
 
     if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
       return NextResponse.json(
@@ -45,6 +75,13 @@ export async function GET(
 
           disciplinaId,
 
+          status: {
+            in: [
+              "A_CURSAR",
+              "EM_CURSO",
+            ] as any,
+          },
+
           matricula: {
             alunoId:
               aluno.id,
@@ -53,8 +90,12 @@ export async function GET(
               user.instituicaoId,
 
             status: {
-              not:
+              notIn: [
                 "CANCELADA",
+                "TRANCADA",
+                "CONCLUIDA",
+                "SUSPENSA",
+              ] as any,
             },
 
             excluidaEm:
@@ -64,6 +105,7 @@ export async function GET(
 
         select: {
           id: true,
+          turmaId: true,
         },
       });
 
@@ -79,18 +121,83 @@ export async function GET(
       );
     }
 
-    const prova = await prisma.prova.findFirst({
-  where: {
-    instituicaoId: user.instituicaoId,
-    ativa: true,
-    turma: {
-  disciplinas: {
-    some: {
-      disciplinaId: disciplinaId,
-    },
-  },
-},
-  },
+    const agora = new Date();
+
+    const prova =
+      await prisma.prova.findFirst({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+
+          turmaId:
+            vinculoOperacional.turmaId,
+
+          disciplinaId,
+
+          ativa:
+            true,
+
+          status:
+            "PUBLICADA" as any,
+
+          publicadaAt: {
+            not:
+              null,
+          },
+
+          AND: [
+            {
+              OR: [
+                {
+                  disponivelEm:
+                    null,
+                },
+                {
+                  disponivelEm: {
+                    lte:
+                      agora,
+                  },
+                },
+              ],
+            },
+            {
+              OR: [
+                {
+                  expiraEm:
+                    null,
+                },
+                {
+                  expiraEm: {
+                    gte:
+                      agora,
+                  },
+                },
+              ],
+            },
+            {
+              OR: [
+                {
+                  tipoPublico:
+                    "TURMA",
+                },
+                {
+                  tipoPublico:
+                    "ALUNOS_SELECIONADOS",
+
+                  alunosLiberados: {
+                    some: {
+                      alunoId:
+                        aluno.id,
+
+                      instituicaoId:
+                        user.instituicaoId,
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
       orderBy: {
         createdAt: "desc",
       },

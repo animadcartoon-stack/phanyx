@@ -59,7 +59,13 @@ if (contratoPendente) {
     },
   include: {
     itens: {
-  include: {
+  where: {
+          instituicaoId: user.instituicaoId,
+          status: {
+            in: ["A_CURSAR", "EM_CURSO"] as any,
+          },
+        },
+        include: {
     disciplina: true,
     turma: {
       include: {

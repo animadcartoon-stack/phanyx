@@ -3165,6 +3165,19 @@
       "publishSuccess": "Exam published successfully",
       "closeError": "Error closing exam",
       "closeSuccess": "Exam closed successfully"
+    },
+    "academicLink": {
+      "title": "Class and subject",
+      "description": "Choose the class and subject where this exam will be applied.",
+      "discipline": "Subject",
+      "group": "Class",
+      "selectDiscipline": "Select a subject",
+      "selectGroup": "Select a class",
+      "save": "Save assignment",
+      "saving": "Saving...",
+      "loadError": "Could not load available classes",
+      "saveError": "Could not save class and subject",
+      "saveSuccess": "Class and subject updated successfully"
     }
   },
   "ProfessorNewExam": {
