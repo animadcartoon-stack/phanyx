@@ -423,7 +423,7 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     }
 
     if (
-  lancamento.matriculaId &&
+  lancamento.tipo === "MATRICULA" &&
   lancamento.matricula?.realizadaPeloAluno === true
 ) {
   return NextResponse.json(

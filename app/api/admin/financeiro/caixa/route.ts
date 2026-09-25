@@ -104,9 +104,14 @@ await fecharCaixasOnlineIbeAntigos();
     not: null,
   },
 
-  matricula: {
-    is: {
-      realizadaPeloAluno: false,
+  // Somente a cobrança de matrícula online é liquidada no caixa Asaas.
+  // Mensalidades vinculadas à mesma matrícula podem receber baixa manual.
+  NOT: {
+    tipo: "MATRICULA",
+    matricula: {
+      is: {
+        realizadaPeloAluno: true,
+      },
     },
   },
 
