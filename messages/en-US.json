@@ -225,7 +225,8 @@
     "mobilityOffers": "Offers / Calls",
     "mobilityApplications": "Applications",
     "audit": "Audit",
-    "operators": "Operators"
+    "operators": "Operators",
+    "licenses": "Licenses"
   },
   "MonthlyCampaign": {
     "origin": "Monthly Awareness Campaign",
@@ -18001,7 +18002,8 @@
       "file": "File",
       "configuration": "Configuration",
       "operator": "Operator",
-      "module": "Library module"
+      "module": "Library module",
+      "license": "License"
     },
     "descriptions": {
       "fileUploadAuthorized": "File upload authorized for the Digital Library collection.",
@@ -18033,7 +18035,11 @@
       "operatorAccessGranted": "Library operator access granted.",
       "operatorPermissionsUpdated": "Library operator permissions updated.",
       "operatorAccessRevoked": "Library operator access revoked.",
-      "operatorAccessRestored": "Library operator access restored."
+      "operatorAccessRestored": "Library operator access restored.",
+      "licenseCreated": "Library license created.",
+      "licenseUpdated": "Library license updated.",
+      "licenseDeactivated": "Library license deactivated.",
+      "licenseRestored": "Library license restored."
     }
   },
   "AdminLibraryOperators": {
@@ -18500,5 +18506,123 @@
     "validationsStatusSuspended": "Suspended",
     "validationsStatusActive": "Active",
     "validationsStatusCompleted": "Completed"
+  },
+  "AdminLibraryLicenses": {
+    "title": "Library Licenses",
+    "subtitle": "Manage licenses, usage rights, validity periods, and access permissions for collection items.",
+    "loading": "Loading licenses...",
+    "cards": {
+      "total": "Total licenses",
+      "active": "Active",
+      "expired": "Expired",
+      "futureInactive": "Future / inactive"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Title, item, rights holder, number, source, or territory",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "type": "Rights type",
+      "allTypes": "All types"
+    },
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "future": "Future",
+      "inactive": "Inactive"
+    },
+    "empty": {
+      "title": "No licenses registered",
+      "description": "Add licenses and usage rights to control viewing, downloading, printing, copying, and lending of collection items.",
+      "action": "Add first license",
+      "filtered": "No licenses match the selected filters."
+    },
+    "actions": {
+      "add": "Add license",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "restore": "Restore",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "confirmDeactivate": "Deactivate license",
+      "confirmRestore": "Restore license"
+    },
+    "modal": {
+      "addTitle": "Add license",
+      "editTitle": "Edit license",
+      "description": "Define the rights, usage limits, and validity period for this license."
+    },
+    "fields": {
+      "item": "Collection item",
+      "selectItem": "Select an item",
+      "type": "Rights type",
+      "title": "License title",
+      "rightsHolder": "Rights holder",
+      "number": "License number",
+      "origin": "Source",
+      "start": "Valid from",
+      "end": "Valid until",
+      "quantity": "License quantity",
+      "simultaneous": "Simultaneous accesses",
+      "territory": "Territory",
+      "licenseUrl": "License URL",
+      "proofUrl": "Proof URL",
+      "description": "Description",
+      "notes": "Internal notes"
+    },
+    "labels": {
+      "validity": "Validity",
+      "capacity": "Access limits",
+      "licensesCount": "{count} licenses",
+      "simultaneousCount": "{count} simultaneous",
+      "rightsHolder": "Rights holder:",
+      "noTerritory": "Territory not specified"
+    },
+    "rights": {
+      "title": "Permitted rights",
+      "help": "Enable only the forms of use authorized by this license.",
+      "view": "Viewing",
+      "download": "Download",
+      "print": "Printing",
+      "copy": "Copying",
+      "loan": "Lending"
+    },
+    "deactivate": {
+      "title": "Deactivate license",
+      "description": "The license {title} will be deactivated.",
+      "placeholder": "Enter the reason for deactivation..."
+    },
+    "restore": {
+      "title": "Restore license",
+      "description": "Restore the license {title}?"
+    },
+    "messages": {
+      "created": "License added successfully.",
+      "updated": "License updated successfully.",
+      "deactivated": "License deactivated successfully.",
+      "restored": "License restored successfully."
+    },
+    "errors": {
+      "load": "Library licenses could not be loaded.",
+      "save": "The license could not be saved.",
+      "selectItem": "Select a collection item.",
+      "deactivateReason": "Enter a reason for deactivation.",
+      "deactivate": "The license could not be deactivated.",
+      "restore": "The license could not be restored."
+    },
+    "types": {
+      "DOMINIO_PUBLICO": "Public domain",
+      "AUTORIA_INSTITUICAO": "Institutional authorship",
+      "CREATIVE_COMMONS": "Creative Commons",
+      "LICENCA_ABERTA": "Open license",
+      "LICENCA_ADQUIRIDA": "Acquired license",
+      "AUTORIZACAO_AUTOR": "Author authorization",
+      "AUTORIZACAO_EDITORA": "Publisher authorization",
+      "MATERIAL_ACADEMICO_INTERNO": "Internal academic material",
+      "ACESSO_EXTERNO_AUTORIZADO": "Authorized external access",
+      "OUTRO": "Other"
+    }
   }
 }

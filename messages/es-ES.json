@@ -225,7 +225,8 @@
     "mobilityOffers": "Ofertas / Convocatorias",
     "mobilityApplications": "Candidaturas",
     "audit": "Auditoría",
-    "operators": "Operadores"
+    "operators": "Operadores",
+    "licenses": "Licencias"
   },
   "MonthlyCampaign": {
     "origin": "Campaña mensual de concienciación",
@@ -18000,7 +18001,8 @@
       "file": "Archivo",
       "configuration": "Configuración",
       "operator": "Operador",
-      "module": "Módulo de Biblioteca"
+      "module": "Módulo de Biblioteca",
+      "license": "Licencia"
     },
     "descriptions": {
       "fileUploadAuthorized": "Carga de archivo autorizada para el acervo de la Biblioteca Digital.",
@@ -18032,7 +18034,11 @@
       "operatorAccessGranted": "Acceso de operador de la Biblioteca concedido.",
       "operatorPermissionsUpdated": "Permisos del operador de la Biblioteca actualizados.",
       "operatorAccessRevoked": "Acceso de operador de la Biblioteca revocado.",
-      "operatorAccessRestored": "Acceso de operador de la Biblioteca restaurado."
+      "operatorAccessRestored": "Acceso de operador de la Biblioteca restaurado.",
+      "licenseCreated": "Licencia de la Biblioteca registrada.",
+      "licenseUpdated": "Licencia de la Biblioteca actualizada.",
+      "licenseDeactivated": "Licencia de la Biblioteca desactivada.",
+      "licenseRestored": "Licencia de la Biblioteca restaurada."
     }
   },
   "AdminLibraryOperators": {
@@ -18499,5 +18505,123 @@
     "validationsStatusSuspended": "Suspendida",
     "validationsStatusActive": "Activo",
     "validationsStatusCompleted": "Finalizado"
+  },
+  "AdminLibraryLicenses": {
+    "title": "Licencias de la Biblioteca",
+    "subtitle": "Gestione licencias, derechos de uso, vigencia y permisos de acceso a los elementos del acervo.",
+    "loading": "Cargando licencias...",
+    "cards": {
+      "total": "Total de licencias",
+      "active": "Activas",
+      "expired": "Vencidas",
+      "futureInactive": "Futuras / inactivas"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Título, elemento, titular, número, origen o territorio",
+      "status": "Estado",
+      "allStatuses": "Todos los estados",
+      "type": "Tipo de derecho",
+      "allTypes": "Todos los tipos"
+    },
+    "status": {
+      "active": "Activa",
+      "expired": "Vencida",
+      "future": "Futura",
+      "inactive": "Inactiva"
+    },
+    "empty": {
+      "title": "No hay licencias registradas",
+      "description": "Registre licencias y derechos de uso para controlar visualización, descarga, impresión, copia y préstamo de los elementos del acervo.",
+      "action": "Registrar primera licencia",
+      "filtered": "Ninguna licencia coincide con los filtros seleccionados."
+    },
+    "actions": {
+      "add": "Añadir licencia",
+      "edit": "Editar",
+      "deactivate": "Desactivar",
+      "restore": "Restaurar",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "confirmDeactivate": "Desactivar licencia",
+      "confirmRestore": "Restaurar licencia"
+    },
+    "modal": {
+      "addTitle": "Añadir licencia",
+      "editTitle": "Editar licencia",
+      "description": "Defina los derechos, límites de uso y periodo de vigencia de esta licencia."
+    },
+    "fields": {
+      "item": "Elemento del acervo",
+      "selectItem": "Seleccione un elemento",
+      "type": "Tipo de derecho",
+      "title": "Título de la licencia",
+      "rightsHolder": "Titular de los derechos",
+      "number": "Número de licencia",
+      "origin": "Origen",
+      "start": "Inicio de vigencia",
+      "end": "Fin de vigencia",
+      "quantity": "Cantidad de licencias",
+      "simultaneous": "Accesos simultáneos",
+      "territory": "Territorio",
+      "licenseUrl": "URL de la licencia",
+      "proofUrl": "URL del comprobante",
+      "description": "Descripción",
+      "notes": "Observaciones internas"
+    },
+    "labels": {
+      "validity": "Vigencia",
+      "capacity": "Límites de acceso",
+      "licensesCount": "{count} licencias",
+      "simultaneousCount": "{count} simultáneos",
+      "rightsHolder": "Titular:",
+      "noTerritory": "Territorio no informado"
+    },
+    "rights": {
+      "title": "Derechos permitidos",
+      "help": "Active solamente las formas de uso autorizadas por esta licencia.",
+      "view": "Visualización",
+      "download": "Descarga",
+      "print": "Impresión",
+      "copy": "Copia",
+      "loan": "Préstamo"
+    },
+    "deactivate": {
+      "title": "Desactivar licencia",
+      "description": "La licencia {title} será desactivada.",
+      "placeholder": "Indique el motivo de la desactivación..."
+    },
+    "restore": {
+      "title": "Restaurar licencia",
+      "description": "¿Restaurar la licencia {title}?"
+    },
+    "messages": {
+      "created": "Licencia registrada correctamente.",
+      "updated": "Licencia actualizada correctamente.",
+      "deactivated": "Licencia desactivada correctamente.",
+      "restored": "Licencia restaurada correctamente."
+    },
+    "errors": {
+      "load": "No se pudieron cargar las licencias de la Biblioteca.",
+      "save": "No se pudo guardar la licencia.",
+      "selectItem": "Seleccione un elemento del acervo.",
+      "deactivateReason": "Indique el motivo de la desactivación.",
+      "deactivate": "No se pudo desactivar la licencia.",
+      "restore": "No se pudo restaurar la licencia."
+    },
+    "types": {
+      "DOMINIO_PUBLICO": "Dominio público",
+      "AUTORIA_INSTITUICAO": "Autoría de la institución",
+      "CREATIVE_COMMONS": "Creative Commons",
+      "LICENCA_ABERTA": "Licencia abierta",
+      "LICENCA_ADQUIRIDA": "Licencia adquirida",
+      "AUTORIZACAO_AUTOR": "Autorización del autor",
+      "AUTORIZACAO_EDITORA": "Autorización de la editorial",
+      "MATERIAL_ACADEMICO_INTERNO": "Material académico interno",
+      "ACESSO_EXTERNO_AUTORIZADO": "Acceso externo autorizado",
+      "OUTRO": "Otro"
+    }
   }
 }

@@ -707,6 +707,14 @@ export default function AdminShell({
       operadorBiblioteca,
     );
 
+  const podeVerLicencasBiblioteca =
+    podeAcessar(
+      "biblioteca.licencas.ver",
+    ) ||
+    Boolean(
+      operadorBiblioteca,
+    );
+
   const podeGerenciarConfiguracoesBiblioteca =
     podeAcessar(
       "biblioteca.configuracoes.gerenciar",
@@ -1453,6 +1461,17 @@ export default function AdminShell({
                             )}
                           >
                             {String.fromCodePoint(0x1F6E1)} {tNav("audit")}
+                          </Link>
+                        )}
+
+                        {podeVerLicencasBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/licencas"
+                            className={getLinkClass(
+                              "/admin/biblioteca/licencas",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F4DC)} {tNav("licenses")}
                           </Link>
                         )}
 
@@ -2217,6 +2236,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             {String.fromCodePoint(0x1F4CA)} {tNav("reports")}
+                          </Link>
+                        )}
+
+                        {podeVerLicencasBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/licencas"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F4DC)} {tNav("licenses")}
                           </Link>
                         )}
 

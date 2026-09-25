@@ -430,6 +430,7 @@ export default function BibliotecaAuditoriaPage() {
       BibliotecaArquivo: "file",
       BibliotecaConfiguracao: "configuration",
       BibliotecaOperador: "operator",
+      BibliotecaLicenca: "license",
       ModuloAdicionalInstituicao: "module",
     };
 
@@ -468,6 +469,18 @@ export default function BibliotecaAuditoriaPage() {
 
       "Acesso de operador da Biblioteca restaurado.":
         "operatorAccessRestored",
+
+      "Licença da Biblioteca cadastrada.":
+        "licenseCreated",
+
+      "Licença da Biblioteca atualizada.":
+        "licenseUpdated",
+
+      "Licença da Biblioteca desativada.":
+        "licenseDeactivated",
+
+      "Licença da Biblioteca restaurada.":
+        "licenseRestored",
 
       "Upload de arquivo autorizado para o acervo da Biblioteca Virtual.":
         "fileUploadAuthorized",
