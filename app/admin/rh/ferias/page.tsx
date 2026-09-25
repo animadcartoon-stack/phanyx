@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Funcionario = {
   id: number;
@@ -29,16 +30,16 @@ type FeriasRH = {
   observacoes?: string | null;
 };
 
-function dataBR(data?: string | null) {
+function dataBR(data: string | null | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("pt-BR");
+  return d.toLocaleDateString(locale);
 }
 
-function moeda(valor: any) {
+function moeda(valor: unknown, locale: string) {
   const numero = Number(valor || 0);
-  return new Intl.NumberFormat("pt-BR", {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "BRL",
   }).format(numero);
@@ -64,6 +65,19 @@ function calcularRetorno(fim: string) {
 }
 
 export default function Page() {
+  const t = useTranslations("AdminHRVacation");
+  const locale = useLocale();
+
+  function statusLabel(value: string) {
+    switch (value) {
+      case "AGENDADA": return t("scheduled");
+      case "EM_ANDAMENTO": return t("inProgress");
+      case "CONCLUIDA": return t("completed");
+      case "CANCELADA": return t("cancelled");
+      case "ARQUIVADA": return t("archived");
+      default: return value;
+    }
+  }
   const [ferias, setFerias] = useState<FeriasRH[]>([]);
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,7 +137,7 @@ export default function Page() {
     return JSON.parse(texto);
   } catch {
     throw new Error(
-      `${nomeRota} não retornou JSON. Verifique se a rota existe e se não está redirecionando para HTML.`
+      t("notJson", { route: nomeRota })
     );
   }
 }
@@ -145,7 +159,7 @@ async function carregarDados() {
 
     if (!resFuncionarios.ok) {
       throw new Error(
-        dataFuncionarios?.error || "Erro ao carregar funcionários."
+        t("loadEmployeesError")
       );
     }
 
@@ -165,12 +179,12 @@ async function carregarDados() {
     const dataFerias = await lerJsonSeguro(resFerias, "/api/admin/rh/ferias");
 
     if (!resFerias.ok) {
-      throw new Error(dataFerias?.error || "Erro ao carregar férias.");
+      throw new Error(t("loadVacationError"));
     }
 
     setFerias(Array.isArray(dataFerias) ? dataFerias : []);
   } catch (error: any) {
-    setErro(error?.message || "Erro ao carregar dados.");
+    setErro(error?.message || t("loadError"));
   } finally {
     setLoading(false);
   }
@@ -200,20 +214,18 @@ async function carregarDados() {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        motivo: "Arquivamento realizado pela tela de férias.",
+        motivo: t("archiveReasonSystem"),
       }),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao arquivar férias.");
+      throw new Error(t("archiveError"));
     }
 
-    setMensagem("Férias arquivadas com sucesso.");
+    setMensagem(t("archiveSuccess"));
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao arquivar férias.");
+    setErro(error?.message || t("archiveError"));
   } finally {
     setAcaoId(null);
   }
@@ -230,20 +242,18 @@ async function cancelarFerias(id: number) {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        motivo: "Cancelamento realizado pela tela de férias.",
+        motivo: t("cancelReasonSystem"),
       }),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      throw new Error(data?.error || "Erro ao cancelar férias.");
+      throw new Error(t("cancelError"));
     }
 
-    setMensagem("Férias canceladas com sucesso.");
+    setMensagem(t("cancelSuccess"));
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao cancelar férias.");
+    setErro(error?.message || t("cancelError"));
   } finally {
     setAcaoId(null);
   }
@@ -256,17 +266,17 @@ async function cancelarFerias(id: number) {
       setMensagem("");
 
       if (!funcionarioId) {
-  setErro("Selecione um funcionário antes de programar as férias.");
+  setErro(t("selectEmployeeError"));
   return;
 }
 
 if (!periodoAquisitivoInicio || !periodoAquisitivoFim) {
-  setErro("Informe o período aquisitivo das férias.");
+  setErro(t("accrualPeriodError"));
   return;
 }
 
 if (!periodoGozoInicio || !periodoGozoFim) {
-  setErro("Informe o início e o fim das férias.");
+  setErro(t("vacationPeriodError"));
   return;
 }
       const res = await fetch("/api/admin/rh/ferias", {
@@ -293,33 +303,31 @@ if (!periodoGozoInicio || !periodoGozoFim) {
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao programar férias.");
+        throw new Error(t("scheduleError"));
       }
 
-      setMensagem("Férias programadas com sucesso.");
+      setMensagem(t("scheduleSuccess"));
       limparFormulario();
       await carregarDados();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao salvar férias.");
+      setErro(error?.message || t("scheduleError"));
     } finally {
       setSalvando(false);
     }
   }
 
   return (
-    <div className="phanyx-rh-page phanyx-rh-ferias-page space-y-6">
+    <div className="phanyx-rh-page phanyx-rh-ferias-page space-y-6 text-slate-900 dark:text-white">
       <div>
         <p className="text-sm font-bold uppercase text-blue-700 dark:text-blue-400">
-          Departamento Pessoal
+          {t("department")}
         </p>
         <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
-  Férias
+  {t("title")}
 </h1>
         <p className="text-sm text-slate-700 dark:text-slate-300">
-          Programe férias, calcule valores e prepare documentos para assinatura.
+          {t("description")}
         </p>
       </div>
 
@@ -337,40 +345,40 @@ if (!periodoGozoInicio || !periodoGozoFim) {
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Total</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("total")}</p>
           <p className="text-2xl font-bold">{resumo.total}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Agendadas</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("scheduledPlural")}</p>
           <p className="text-2xl font-bold">{resumo.agendadas}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Em andamento</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("inProgress")}</p>
           <p className="text-2xl font-bold">{resumo.andamento}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-700 dark:text-slate-300">Concluídas</p>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{t("completedPlural")}</p>
           <p className="text-2xl font-bold">{resumo.concluidas}</p>
         </div>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
         <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-  Programar férias
+  {t("scheduleTitle")}
 </h2>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Funcionário</label>
+            <label className="text-sm font-medium">{t("employee")}</label>
             <select
               value={funcionarioId}
               onChange={(e) => setFuncionarioId(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="">Selecione</option>
+              <option value="">{t("select")}</option>
               {funcionarios.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.nome} {f.cargo ? `- ${f.cargo}` : ""}
@@ -380,7 +388,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Período aquisitivo início</label>
+            <label className="text-sm font-medium">{t("accrualStart")}</label>
             <input
               type="date"
               value={periodoAquisitivoInicio}
@@ -390,7 +398,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Período aquisitivo fim</label>
+            <label className="text-sm font-medium">{t("accrualEnd")}</label>
             <input
               type="date"
               value={periodoAquisitivoFim}
@@ -400,7 +408,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Dias</label>
+            <label className="text-sm font-medium">{t("days")}</label>
             <input
               type="number"
               min="1"
@@ -411,7 +419,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Início das férias</label>
+            <label className="text-sm font-medium">{t("vacationStart")}</label>
             <input
               type="date"
               value={periodoGozoInicio}
@@ -421,7 +429,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Fim das férias</label>
+            <label className="text-sm font-medium">{t("vacationEnd")}</label>
             <input
               type="date"
               value={periodoGozoFim}
@@ -431,7 +439,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Retorno ao trabalho</label>
+            <label className="text-sm font-medium">{t("returnToWork")}</label>
             <input
               type="date"
               value={dataRetorno}
@@ -441,7 +449,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Data de pagamento</label>
+            <label className="text-sm font-medium">{t("paymentDate")}</label>
             <input
               type="date"
               value={dataPagamento}
@@ -456,11 +464,11 @@ if (!periodoGozoInicio || !periodoGozoFim) {
               checked={abonoPecuniario}
               onChange={(e) => setAbonoPecuniario(e.target.checked)}
             />
-            Abono pecuniário
+            {t("cashAllowance")}
           </label>
 
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Observações</label>
+            <label className="text-sm font-medium">{t("notes")}</label>
             <textarea
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
@@ -472,18 +480,18 @@ if (!periodoGozoInicio || !periodoGozoFim) {
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-            <p className="text-sm text-slate-700 dark:text-slate-300">Valor férias</p>
-            <p className="text-xl font-bold">{moeda(valorFerias)}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">{t("vacationAmount")}</p>
+            <p className="text-xl font-bold">{moeda(valorFerias, locale)}</p>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-            <p className="text-sm text-slate-700 dark:text-slate-300">1/3 constitucional</p>
-            <p className="text-xl font-bold">{moeda(valorTercoConstitucional)}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">{t("constitutionalThird")}</p>
+            <p className="text-xl font-bold">{moeda(valorTercoConstitucional, locale)}</p>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-            <p className="text-sm text-slate-700 dark:text-slate-300">Total estimado</p>
-            <p className="text-xl font-bold">{moeda(valorLiquidoFerias)}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">{t("estimatedTotal")}</p>
+            <p className="text-xl font-bold">{moeda(valorLiquidoFerias, locale)}</p>
           </div>
         </div>
 
@@ -493,40 +501,40 @@ if (!periodoGozoInicio || !periodoGozoFim) {
           disabled={salvando}
           className="mt-5 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {salvando ? "Salvando..." : "Programar férias"}
+          {salvando ? t("saving") : t("schedule")}
         </button>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
         <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-  Férias cadastradas
+  {t("registered")}
 </h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left dark:border-slate-700">
-                <th className="p-3">Funcionário</th>
-                <th className="p-3">Período aquisitivo</th>
-                <th className="p-3">Gozo</th>
-                <th className="p-3">Dias</th>
-                <th className="p-3">Valor</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Ações</th>
+                <th className="p-3">{t("employee")}</th>
+                <th className="p-3">{t("accrualPeriod")}</th>
+                <th className="p-3">{t("vacationPeriod")}</th>
+                <th className="p-3">{t("days")}</th>
+                <th className="p-3">{t("amount")}</th>
+                <th className="p-3">{t("status")}</th>
+                <th className="p-3">{t("actions")}</th>
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={7}>
-                    Carregando...
+                  <td className="p-3 text-slate-600 dark:text-slate-400" colSpan={7}>
+                    {t("loading")}
                   </td>
                 </tr>
               ) : ferias.length === 0 ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={7}>
-                    Nenhuma férias cadastrada.
+                  <td className="p-3 text-slate-600 dark:text-slate-400" colSpan={7}>
+                    {t("empty")}
                   </td>
                 </tr>
               ) : (
@@ -539,17 +547,17 @@ if (!periodoGozoInicio || !periodoGozoFim) {
                       {item.funcionario?.nome || "-"}
                     </td>
                     <td className="p-3">
-                      {dataBR(item.periodoAquisitivoInicio)} até{" "}
-                      {dataBR(item.periodoAquisitivoFim)}
+                      {dataBR(item.periodoAquisitivoInicio, locale)} {t("until")}{" "}
+                      {dataBR(item.periodoAquisitivoFim, locale)}
                     </td>
                     <td className="p-3">
-                      {dataBR(item.dataInicio)} até {dataBR(item.dataFim)}
+                      {dataBR(item.dataInicio, locale)} {t("until")} {dataBR(item.dataFim, locale)}
                     </td>
                     <td className="p-3">{item.dias}</td>
-                    <td className="p-3">{moeda(item.valorLiquidoFerias)}</td>
+                    <td className="p-3">{moeda(item.valorLiquidoFerias, locale)}</td>
                     <td className="p-3">
                       <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/40 dark:text-blue-200">
-                        {item.status}
+                        {statusLabel(item.status)}
                       </span>
                     </td>
                     <td className="p-3">
@@ -560,7 +568,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
     rel="noopener noreferrer"
     className="rounded-lg border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
   >
-    Aviso
+    {t("notice")}
   </a>
 
   <a
@@ -569,7 +577,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
     rel="noopener noreferrer"
     className="rounded-lg border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-950/40"
   >
-    Recibo
+    {t("receipt")}
   </a>
 
   <button
@@ -578,7 +586,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
   disabled={acaoId === item.id}
   className="phanyx-rh-archive-action"
 >
-  {acaoId === item.id ? "Aguarde..." : "Arquivar"}
+  {acaoId === item.id ? t("pleaseWait") : t("archive")}
 </button>
 
   {item.status !== "CANCELADA" && (
@@ -588,7 +596,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
       disabled={acaoId === item.id}
       className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
     >
-      Cancelar
+      {t("cancel")}
     </button>
   )}
 </div>
