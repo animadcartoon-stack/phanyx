@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type FuncionarioPontoMobile = {
   id: number;
@@ -35,7 +36,7 @@ type FiltroAcesso = "TODOS" | "LIBERADOS" | "BLOQUEADOS";
 
 function normalizarBusca(valor?: string | null) {
   return String(valor || "")
-    .toLocaleLowerCase("pt-BR")
+    .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9@.\s-]/g, " ")
@@ -165,6 +166,8 @@ function pontuarFuncionario(
 }
 
 export default function FuncionariosPontoMobilePage() {
+  const t = useTranslations("AdminHRPointMobileEmployees");
+  const locale = useLocale();
   const [funcionarios, setFuncionarios] = useState<
     FuncionarioPontoMobile[]
   >([]);
@@ -233,13 +236,13 @@ export default function FuncionariosPontoMobilePage() {
 
       return itemA.funcionario.nome.localeCompare(
         itemB.funcionario.nome,
-        "pt-BR",
+        locale,
         {
           sensitivity: "base",
         }
       );
     });
-}, [funcionarios, busca, filtroAcesso]);
+}, [funcionarios, busca, filtroAcesso, locale]);
 
 const funcionariosFiltrados = useMemo(() => {
   const termo = normalizarBusca(busca);
@@ -323,8 +326,7 @@ const sugestoesBusca = useMemo(() => {
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível carregar os funcionários."
+          (locale === "pt-BR" && dados.error) || t("loadError")
         );
       }
 
@@ -340,9 +342,9 @@ const sugestoesBusca = useMemo(() => {
     } catch (error) {
       mostrarToast(
         "erro",
-        error instanceof Error
+        locale === "pt-BR" && error instanceof Error
           ? error.message
-          : "Não foi possível carregar os funcionários."
+          : t("loadError")
       );
     } finally {
       setCarregando(false);
@@ -390,7 +392,7 @@ const sugestoesBusca = useMemo(() => {
     if (funcionarioIds.length === 0) {
       mostrarToast(
         "erro",
-        "Selecione pelo menos um funcionário."
+        t("selectAtLeastOne")
       );
 
       return;
@@ -418,8 +420,7 @@ const sugestoesBusca = useMemo(() => {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-            "Não foi possível atualizar o acesso."
+          (locale === "pt-BR" && dados?.error) || t("updateError")
         );
       }
 
@@ -445,15 +446,14 @@ const sugestoesBusca = useMemo(() => {
 
       mostrarToast(
         "sucesso",
-        dados?.mensagem ||
-          "Acesso ao Ponto Mobile atualizado."
+        (locale === "pt-BR" && dados?.mensagem) || t("updateSuccess")
       );
     } catch (error) {
       mostrarToast(
         "erro",
-        error instanceof Error
+        locale === "pt-BR" && error instanceof Error
           ? error.message
-          : "Não foi possível atualizar o acesso."
+          : t("updateError")
       );
     } finally {
       setProcessando(false);
@@ -469,7 +469,7 @@ const sugestoesBusca = useMemo(() => {
       return null;
     }
 
-    return valor.toLocaleDateString("pt-BR", {
+    return valor.toLocaleDateString(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -481,9 +481,7 @@ const sugestoesBusca = useMemo(() => {
       <main className="phanyx-ponto-mobile-funcionarios-page min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <div className="mx-auto max-w-7xl">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-              Carregando funcionários...
-            </p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">{t("loading")}</p>
           </div>
         </div>
       </main>
@@ -513,56 +511,42 @@ const sugestoesBusca = useMemo(() => {
               RH PHANYX
             </p>
 
-            <h1 className="mt-2 text-3xl font-black tracking-tight">
-              Funcionários do Ponto Mobile
-            </h1>
+            <h1 className="mt-2 text-3xl font-black tracking-tight">{t("title")}</h1>
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Libere somente os funcionários autorizados a
-              registrar ponto pelo celular.
-            </p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">{t("description")}</p>
           </div>
 
           <Link
             href="/admin/rh/ponto/mobile"
             className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-          >
-            Voltar para configurações
-          </Link>
+          >{t("backSettings")}</Link>
         </header>
 
         {!pontoMobileAtivo && (
           <section className="phanyx-ponto-mobile-inativo-card rounded-3xl border p-5">
-            <p className="font-black text-amber-950 dark:text-amber-100">
-              O Ponto Mobile está desativado
-            </p>
+            <p className="font-black text-amber-950 dark:text-amber-100">{t("disabledTitle")}</p>
 
-            <p className="mt-2 text-sm leading-6 text-amber-900 dark:text-amber-200">
-              Você pode organizar as liberações agora, mas
-              nenhum funcionário conseguirá registrar ponto
-              pelo celular enquanto a instituição não ativar
-              o recurso.
-            </p>
+            <p className="mt-2 text-sm leading-6 text-amber-900 dark:text-amber-200">{t("disabledDescription")}</p>
           </section>
         )}
 
         <section className="grid gap-4 sm:grid-cols-3">
           <ResumoCard
-            titulo="Funcionários"
+            titulo={t("employees")}
             valor={funcionarios.length}
-            descricao="Total encontrado"
+            descricao={t("totalFound")}
           />
 
           <ResumoCard
-            titulo="Liberados"
+            titulo={t("allowedPlural")}
             valor={totalLiberados}
-            descricao="Podem usar o celular"
+            descricao={t("canUsePhone")}
           />
 
           <ResumoCard
-            titulo="Bloqueados"
+            titulo={t("blockedPlural")}
             valor={totalBloqueados}
-            descricao="Sem acesso mobile"
+            descricao={t("noMobileAccess")}
           />
         </section>
 
@@ -572,9 +556,7 @@ const sugestoesBusca = useMemo(() => {
   <label
     htmlFor="buscaFuncionarios"
     className="mb-2 block text-sm font-black"
-  >
-    Buscar funcionário
-  </label>
+  >{t("searchEmployee")}</label>
 
   <input
     id="buscaFuncionarios"
@@ -595,7 +577,7 @@ const sugestoesBusca = useMemo(() => {
       setBusca(evento.target.value);
       setBuscaFocada(true);
     }}
-    placeholder="Nome, e-mail ou cargo"
+    placeholder={t("searchPlaceholder")}
     className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-blue-500 focus:ring-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
   />
 
@@ -632,15 +614,13 @@ const sugestoesBusca = useMemo(() => {
                 ]
                   .filter(Boolean)
                   .join(" • ") ||
-                  "Funcionário"}
+                  t("employeeFallback")}
               </span>
             </span>
           </button>
         ))
       ) : (
-        <div className="p-4 text-center text-sm text-slate-500 dark:text-slate-300">
-          Nenhuma sugestão encontrada.
-        </div>
+        <div className="p-4 text-center text-sm text-slate-500 dark:text-slate-300">{t("noSuggestions")}</div>
       )}
     </div>
   )}
@@ -650,9 +630,7 @@ const sugestoesBusca = useMemo(() => {
               <label
                 htmlFor="filtroAcesso"
                 className="mb-2 block text-sm font-black"
-              >
-                Situação
-              </label>
+              >{t("status")}</label>
 
               <select
                 id="filtroAcesso"
@@ -664,17 +642,11 @@ const sugestoesBusca = useMemo(() => {
                 }
                 className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-900 outline-none ring-blue-500 focus:ring-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               >
-                <option value="TODOS">
-                  Todos
-                </option>
+                <option value="TODOS">{t("all")}</option>
 
-                <option value="LIBERADOS">
-                  Liberados
-                </option>
+                <option value="LIBERADOS">{t("allowedPlural")}</option>
 
-                <option value="BLOQUEADOS">
-                  Bloqueados
-                </option>
+                <option value="BLOQUEADOS">{t("blockedPlural")}</option>
               </select>
             </div>
           </div>
@@ -683,13 +655,13 @@ const sugestoesBusca = useMemo(() => {
         <section className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex flex-col gap-4 border-b border-slate-200 p-5 dark:border-slate-800 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-black">
-                Lista de funcionários
-              </h2>
+              <h2 className="text-lg font-black">{t("employeeList")}</h2>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                {funcionariosFiltrados.length} resultado(s) •{" "}
-                {selecionados.length} selecionado(s)
+                {t("resultsSummary", {
+                  count: funcionariosFiltrados.length,
+                  selected: selecionados.length,
+                })}
               </p>
             </div>
 
@@ -706,8 +678,8 @@ const sugestoesBusca = useMemo(() => {
                 className="min-h-11 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {processando
-                  ? "Processando..."
-                  : "Liberar selecionados"}
+                  ? t("processing")
+                  : t("allowSelected")}
               </button>
 
               <button
@@ -720,21 +692,15 @@ const sugestoesBusca = useMemo(() => {
                   atualizarAcesso(selecionados, false)
                 }
                 className="min-h-11 rounded-xl bg-red-700 px-5 py-3 text-sm font-black text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Bloquear selecionados
-              </button>
+              >{t("blockSelected")}</button>
             </div>
           </div>
 
           {funcionariosFiltrados.length === 0 ? (
             <div className="p-10 text-center">
-              <p className="font-black">
-                Nenhum funcionário encontrado
-              </p>
+              <p className="font-black">{t("noEmployees")}</p>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Altere a busca ou o filtro selecionado.
-              </p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("changeSearch")}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -749,25 +715,17 @@ const sugestoesBusca = useMemo(() => {
                         }
                         onChange={alternarTodosFiltrados}
                         className="h-5 w-5 accent-blue-600"
-                        aria-label="Selecionar funcionários exibidos"
+                        aria-label={t("selectShown")}
                       />
                     </th>
 
-                    <th className="px-3 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                      Funcionário
-                    </th>
+                    <th className="px-3 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">{t("employeeHeader")}</th>
 
-                    <th className="px-3 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                      Cargo
-                    </th>
+                    <th className="px-3 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">{t("position")}</th>
 
-                    <th className="px-3 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                      Situação
-                    </th>
+                    <th className="px-3 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">{t("status")}</th>
 
-                    <th className="px-5 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                      Ação
-                    </th>
+                    <th className="px-5 py-4 text-right text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-300">{t("action")}</th>
                   </tr>
                 </thead>
 
@@ -801,7 +759,7 @@ const sugestoesBusca = useMemo(() => {
                                 )
                               }
                               className="h-5 w-5 accent-blue-600"
-                              aria-label={`Selecionar ${funcionario.nome}`}
+                              aria-label={t("selectEmployee", { name: funcionario.nome })}
                             />
                           </td>
 
@@ -821,7 +779,7 @@ const sugestoesBusca = useMemo(() => {
 
                                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                                   {funcionario.email ||
-                                    "E-mail não informado"}
+                                    t("noEmail")}
                                 </p>
                               </div>
                             </div>
@@ -829,32 +787,28 @@ const sugestoesBusca = useMemo(() => {
 
                           <td className="px-3 py-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
                             {funcionario.cargo ||
-                              "Cargo não informado"}
+                              t("noPosition")}
                           </td>
 
                           <td className="px-3 py-4">
                             {funcionario.pontoMobileLiberado ? (
                               <div>
-                                <span className="inline-flex rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">
-                                  Liberado
-                                </span>
+                                <span className="inline-flex rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">{t("allowed")}</span>
 
                                 {dataLiberacao && (
                                   <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                                    Desde {dataLiberacao}
+                                    {t("sinceDate", { date: dataLiberacao })}
                                   </p>
                                 )}
 
                                 {validoAte && (
                                   <p className="mt-1 text-xs font-bold text-amber-700 dark:text-amber-300">
-                                    Válido até {validoAte}
+                                    {t("validUntil", { date: validoAte })}
                                   </p>
                                 )}
                               </div>
                             ) : (
-                              <span className="inline-flex rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-                                Bloqueado
-                              </span>
+                              <span className="inline-flex rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">{t("blocked")}</span>
                             )}
                           </td>
 
@@ -875,8 +829,8 @@ const sugestoesBusca = useMemo(() => {
                               }`}
                             >
                               {funcionario.pontoMobileLiberado
-                                ? "Bloquear"
-                                : "Liberar"}
+                                ? t("block")
+                                : t("allow")}
                             </button>
                           </td>
                         </tr>
@@ -890,16 +844,9 @@ const sugestoesBusca = useMemo(() => {
         </section>
 
         <section className="phanyx-ponto-mobile-seguranca-card rounded-3xl border p-5">
-          <p className="font-black text-blue-950 dark:text-blue-100">
-            Regra de segurança
-          </p>
+          <p className="font-black text-blue-950 dark:text-blue-100">{t("securityRule")}</p>
 
-          <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">
-            Instalar o PHANYX RH não libera o funcionário
-            automaticamente. A API verificará esta
-            autorização novamente em cada tentativa de
-            registro.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-blue-900 dark:text-blue-200">{t("securityDescription")}</p>
         </section>
       </div>
     </main>
@@ -943,6 +890,7 @@ function FuncionarioAvatar({
   nome,
   fotoPerfil,
 }: FuncionarioAvatarProps) {
+  const t = useTranslations("AdminHRPointMobileEmployees");
   const iniciais = nome
     .split(" ")
     .filter(Boolean)
@@ -954,7 +902,7 @@ function FuncionarioAvatar({
     return (
       <img
         src={fotoPerfil}
-        alt={`Foto de ${nome}`}
+        alt={t("photoAlt", { name: nome })}
         className="h-11 w-11 shrink-0 rounded-full border border-slate-300 object-cover dark:border-slate-700"
       />
     );
