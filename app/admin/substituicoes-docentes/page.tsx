@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 type StatusSubstituicao =
   | "AGENDADA"
@@ -69,6 +70,8 @@ const motivosSubstituicao = [
 ];
 
 export default function SubstituicoesDocentesPage() {
+  const t = useTranslations("AdminOperations");
+  const locale = useLocale();
   const [substituicoes, setSubstituicoes] = useState<SubstituicaoDocente[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [vinculosTitular, setVinculosTitular] = useState<VinculoTitular[]>([]);
@@ -118,7 +121,7 @@ export default function SubstituicoesDocentesPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao carregar substituições docentes.");
+        throw new Error((locale.startsWith("pt") ? (json?.error || t("substitutionsLoadError")) : t("substitutionsLoadError")));
       }
 
       setSubstituicoes(Array.isArray(json.items) ? json.items : []);
@@ -129,7 +132,7 @@ export default function SubstituicoesDocentesPage() {
     } catch (e: any) {
       mostrarFeedback(
         "erro",
-        e?.message || "Erro ao carregar substituições docentes."
+        (locale.startsWith("pt") ? (e?.message || t("substitutionsLoadError")) : t("substitutionsLoadError"))
       );
     } finally {
       setLoading(false);
@@ -219,7 +222,7 @@ export default function SubstituicoesDocentesPage() {
       setSalvando(true);
 
       if (!vinculoSelecionado) {
-        throw new Error("Selecione uma turma e disciplina vinculada ao professor titular.");
+        throw new Error(t("substitutionsSelectError"));
       }
 
       const motivoFinal =
@@ -245,15 +248,15 @@ export default function SubstituicoesDocentesPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao cadastrar substituição.");
+        throw new Error((locale.startsWith("pt") ? (json?.error || t("substitutionsCreateError")) : t("substitutionsCreateError")));
       }
 
       limparFormulario();
       setModalAberto(false);
       await carregarDados();
-      mostrarFeedback("sucesso", "Substituição docente cadastrada com sucesso.");
+      mostrarFeedback("sucesso", t("substitutionsCreated"));
     } catch (e: any) {
-      mostrarFeedback("erro", e?.message || "Erro ao cadastrar substituição.");
+      mostrarFeedback("erro", (locale.startsWith("pt") ? (e?.message || t("substitutionsCreateError")) : t("substitutionsCreateError")));
     } finally {
       setSalvando(false);
     }
@@ -261,7 +264,7 @@ export default function SubstituicoesDocentesPage() {
 
   function formatarData(data?: string | null) {
     if (!data) return "-";
-    return new Date(data).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+    return new Date(data).toLocaleDateString(locale, { timeZone: "UTC" });
   }
 
   function statusClasse(status: StatusSubstituicao) {
@@ -289,13 +292,13 @@ export default function SubstituicoesDocentesPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json?.error || "Erro ao atualizar substituição.");
+        throw new Error((locale.startsWith("pt") ? (json?.error || t("substitutionsUpdateError")) : t("substitutionsUpdateError")));
       }
 
       await carregarDados();
-      mostrarFeedback("sucesso", "Substituição atualizada com sucesso.");
+      mostrarFeedback("sucesso", t("substitutionsUpdated"));
     } catch (e: any) {
-      mostrarFeedback("erro", e?.message || "Erro ao atualizar substituição.");
+      mostrarFeedback("erro", (locale.startsWith("pt") ? (e?.message || t("substitutionsUpdateError")) : t("substitutionsUpdateError")));
     } finally {
       setSalvando(false);
     }
@@ -318,14 +321,13 @@ export default function SubstituicoesDocentesPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-              Acadêmico
+              {t("commonAcademic")}
             </p>
             <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">
-              Substituições Docentes
+              {t("substitutionsTitle")}
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Controle professores substitutos sem compartilhar login do professor titular.
-              O aluno continua acessando a mesma turma e disciplina.
+              {t("substitutionsIntro")}
             </p>
           </div>
 
@@ -334,18 +336,18 @@ export default function SubstituicoesDocentesPage() {
             onClick={() => setModalAberto(true)}
             className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-700"
           >
-            + Nova Substituição
+            {t("substitutionsNew")}
           </button>
         </div>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
-          ["Ativas", resumo.ativas],
-          ["Agendadas", resumo.agendadas],
-          ["Encerradas", resumo.encerradas],
-          ["Canceladas", resumo.canceladas],
-          ["Total", resumo.total],
+          [t("substitutionsActivePlural"), resumo.ativas],
+          [t("substitutionsScheduledPlural"), resumo.agendadas],
+          [t("substitutionsClosedPlural"), resumo.encerradas],
+          [t("substitutionsCancelledPlural"), resumo.canceladas],
+          [t("commonTotal"), resumo.total],
         ].map(([label, valor]) => (
           <div
             key={label}
@@ -366,7 +368,7 @@ export default function SubstituicoesDocentesPage() {
           <input
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por professor, turma, disciplina, curso ou motivo..."
+            placeholder={t("substitutionsSearch")}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
           />
 
@@ -375,12 +377,12 @@ export default function SubstituicoesDocentesPage() {
             onChange={(e) => setFiltroStatus(e.target.value)}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
           >
-            <option value="">Todos os status</option>
-            <option value="AGENDADA">Agendada</option>
+            <option value="">{t("commonAllStatuses")}</option>
+            <option value="AGENDADA">{t("substitutionsScheduled")}</option>
             <option value="ATIVA">Ativa</option>
-            <option value="SUSPENSA">Suspensa</option>
-            <option value="ENCERRADA">Encerrada</option>
-            <option value="CANCELADA">Cancelada</option>
+            <option value="SUSPENSA">{t("substitutionsSuspended")}</option>
+            <option value="ENCERRADA">{t("substitutionsClosed")}</option>
+            <option value="CANCELADA">{t("substitutionsCancelled")}</option>
           </select>
         </div>
       </section>
@@ -388,17 +390,17 @@ export default function SubstituicoesDocentesPage() {
       <section className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="border-b border-slate-200 p-5 dark:border-slate-800">
           <h2 className="text-lg font-black text-slate-900 dark:text-white">
-            Registros de substituição
+            {t("substitutionsRecords")}
           </h2>
         </div>
 
         {loading ? (
           <div className="p-6 text-sm text-slate-500 dark:text-slate-400">
-            Carregando substituições...
+            {t("substitutionsLoading")}
           </div>
         ) : listaFiltrada.length === 0 ? (
           <div className="p-6 text-sm text-slate-500 dark:text-slate-400">
-            Nenhuma substituição encontrada.
+            {t("substitutionsEmpty")}
           </div>
         ) : (
           <>
@@ -406,14 +408,14 @@ export default function SubstituicoesDocentesPage() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900 dark:text-slate-400">
                   <tr>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Titular</th>
-                    <th className="px-4 py-3">Substituto</th>
-                    <th className="px-4 py-3">Turma</th>
-                    <th className="px-4 py-3">Disciplina</th>
-                    <th className="px-4 py-3">Início</th>
-                    <th className="px-4 py-3">Fim</th>
-                    <th className="px-4 py-3">Ações</th>
+                    <th className="px-4 py-3">{t("commonStatus")}</th>
+                    <th className="px-4 py-3">{t("substitutionsOwner")}</th>
+                    <th className="px-4 py-3">{t("substitutionsSubstitute")}</th>
+                    <th className="px-4 py-3">{t("commonClass")}</th>
+                    <th className="px-4 py-3">{t("commonSubject")}</th>
+                    <th className="px-4 py-3">{t("substitutionsStart")}</th>
+                    <th className="px-4 py-3">{t("substitutionsEnd")}</th>
+                    <th className="px-4 py-3">{t("substitutionsActions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -424,7 +426,7 @@ export default function SubstituicoesDocentesPage() {
                     >
                       <td className="px-4 py-3">
                         <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClasse(item.status)}`}>
-                          {item.status}
+                          {t(({ AGENDADA: "substitutionsScheduled", ATIVA: "classesActive", SUSPENSA: "substitutionsSuspended", ENCERRADA: "substitutionsClosed", CANCELADA: "substitutionsCancelled" } as const)[item.status])}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
@@ -452,7 +454,7 @@ export default function SubstituicoesDocentesPage() {
                             onClick={() => setSubstituicaoVisualizada(item)}
                             className="phanyx-substituicoes-visualizar rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold transition dark:border-slate-700"
                           >
-                            Visualizar
+                            {t("substitutionsView")}
                           </button>
 
                           {item.status === "ATIVA" && (
@@ -463,7 +465,7 @@ export default function SubstituicoesDocentesPage() {
                                 disabled={salvando}
                                 className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
                               >
-                                Suspender
+                                {t("substitutionsSuspend")}
                               </button>
 
                               <button
@@ -472,7 +474,7 @@ export default function SubstituicoesDocentesPage() {
                                 disabled={salvando}
                                 className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
                               >
-                                Encerrar
+                                {t("substitutionsFinish")}
                               </button>
                             </>
                           )}
@@ -485,7 +487,7 @@ export default function SubstituicoesDocentesPage() {
                                 disabled={salvando}
                                 className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 transition hover:bg-blue-100 disabled:opacity-60"
                               >
-                                Reativar
+                                {t("substitutionsReactivate")}
                               </button>
 
                               <button
@@ -494,7 +496,7 @@ export default function SubstituicoesDocentesPage() {
                                 disabled={salvando}
                                 className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
                               >
-                                Encerrar
+                                {t("substitutionsFinish")}
                               </button>
                             </>
                           )}
@@ -508,7 +510,7 @@ export default function SubstituicoesDocentesPage() {
                                 disabled={salvando}
                                 className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
                               >
-                                Cancelar
+                                {t("commonCancel")}
                               </button>
                             )}
                         </div>
@@ -527,7 +529,7 @@ export default function SubstituicoesDocentesPage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClasse(item.status)}`}>
-                      {item.status}
+                      {t(({ AGENDADA: "substitutionsScheduled", ATIVA: "classesActive", SUSPENSA: "substitutionsSuspended", ENCERRADA: "substitutionsClosed", CANCELADA: "substitutionsCancelled" } as const)[item.status])}
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
                       {formatarData(item.dataInicio)}
@@ -536,18 +538,18 @@ export default function SubstituicoesDocentesPage() {
 
                   <div className="mt-4 space-y-2 text-sm">
                     <p>
-                      <strong>Titular:</strong>{" "}
+                      <strong>{t("commonOwnerPrefix")}</strong>{" "}
                       {item.professorTitular?.nome || "-"}
                     </p>
                     <p>
-                      <strong>Substituto:</strong>{" "}
+                      <strong>{t("commonSubstitutePrefix")}</strong>{" "}
                       {item.professorSubstituto?.nome || "-"}
                     </p>
                     <p>
-                      <strong>Turma:</strong> {item.turma?.nome || "-"}
+                      <strong>{t("commonClassPrefix")}</strong> {item.turma?.nome || "-"}
                     </p>
                     <p>
-                      <strong>Disciplina:</strong>{" "}
+                      <strong>{t("commonSubjectPrefix")}</strong>{" "}
                       {item.disciplina?.nome || "-"}
                     </p>
                   </div>
@@ -564,10 +566,10 @@ export default function SubstituicoesDocentesPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-black text-slate-900 dark:text-white">
-                  Nova Substituição Docente
+                  {t("substitutionsNewTitle")}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  O substituto usará o próprio login e receberá acesso temporário.
+                  {t("substitutionsModalHelp")}
                 </p>
               </div>
 
@@ -576,18 +578,18 @@ export default function SubstituicoesDocentesPage() {
                 onClick={() => setModalAberto(false)}
                 className="phanyx-substituicoes-fechar rounded-full px-3 py-1 text-sm font-bold transition"
               >
-                Fechar
+                {t("commonClose")}
               </button>
             </div>
 
             <form onSubmit={criarSubstituicao} className="mt-6 grid gap-4 md:grid-cols-2">
               <select required value={professorTitularId} onChange={(e) => setProfessorTitularId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
-                <option value="">Professor titular</option>
+                <option value="">{t("commonPrimaryTeacher")}</option>
                 {professores.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
               </select>
 
               <select required value={professorSubstitutoId} onChange={(e) => setProfessorSubstitutoId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
-                <option value="">Professor substituto</option>
+                <option value="">{t("commonSubstituteTeacher")}</option>
                 {professores.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
               </select>
 
@@ -598,7 +600,7 @@ export default function SubstituicoesDocentesPage() {
                 className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2"
               >
                 <option value="">
-                  Selecione uma turma e disciplina do professor titular
+                  {t("substitutionsSelectAssignment")}
                 </option>
 
                 {vinculosDoTitular.map((v) => (
@@ -613,7 +615,7 @@ export default function SubstituicoesDocentesPage() {
                   <div className="grid gap-3 md:grid-cols-3">
                     <div>
                       <p className="text-xs font-bold uppercase text-slate-500">
-                        Curso
+                        {t("commonCourse")}
                       </p>
                       <p className="font-semibold">
                         {vinculoSelecionado.cursoNome}
@@ -622,7 +624,7 @@ export default function SubstituicoesDocentesPage() {
 
                     <div>
                       <p className="text-xs font-bold uppercase text-slate-500">
-                        Turma
+                        {t("commonClass")}
                       </p>
                       <p className="font-semibold">
                         {vinculoSelecionado.turmaNome}
@@ -631,7 +633,7 @@ export default function SubstituicoesDocentesPage() {
 
                     <div>
                       <p className="text-xs font-bold uppercase text-slate-500">
-                        Disciplina
+                        {t("commonSubject")}
                       </p>
                       <p className="font-semibold">
                         {vinculoSelecionado.disciplinaNome}
@@ -643,25 +645,25 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="md:col-span-2 mt-1">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                  Período
+                  {t("substitutionsPeriod")}
                 </h3>
               </div>
 
-              <input required type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
+              <input aria-label={t("commonStartDate")} required type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
 
-              <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
+              <input aria-label={t("commonEndDate")} type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
 
-              <input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Motivo da substituição" className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2" />
+              <input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder={t("substitutionsReasonPlaceholder")} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2" />
 
-              <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Observações" className="min-h-28 rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2" />
+              <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder={t("substitutionsObservations")} className="min-h-28 rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2" />
 
               <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:justify-end">
                 <button type="button" onClick={() => setModalAberto(false)} className="rounded-2xl border px-5 py-3 text-sm font-bold dark:border-slate-700">
-                  Cancelar
+                  {t("commonCancel")}
                 </button>
 
                 <button disabled={salvando} className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-700 disabled:opacity-60">
-                  {salvando ? "Salvando..." : "Cadastrar substituição"}
+                  {salvando ? t("visitorsSaving") : t("substitutionsRegister")}
                 </button>
               </div>
             </form>
@@ -675,15 +677,15 @@ export default function SubstituicoesDocentesPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
-                  Registro oficial
+                  {t("substitutionsOfficial")}
                 </p>
 
                 <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
-                  Substituição Docente
+                  {t("substitutionsSingular")}
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Detalhes da substituição cadastrada no PHANYX.
+                  {t("substitutionsDetailHelp")}
                 </p>
               </div>
 
@@ -692,33 +694,33 @@ export default function SubstituicoesDocentesPage() {
                 onClick={() => setSubstituicaoVisualizada(null)}
                 className="phanyx-substituicoes-fechar rounded-full px-3 py-1 text-sm font-bold transition"
               >
-                Fechar
+                {t("commonClose")}
               </button>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Status
+                  {t("commonStatus")}
                 </p>
                 <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
-                  {substituicaoVisualizada.status}
+                  {t(({ AGENDADA: "substitutionsScheduled", ATIVA: "classesActive", SUSPENSA: "substitutionsSuspended", ENCERRADA: "substitutionsClosed", CANCELADA: "substitutionsCancelled" } as const)[substituicaoVisualizada.status])}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Período
+                  {t("substitutionsPeriod")}
                 </p>
                 <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
-                  {formatarData(substituicaoVisualizada.dataInicio)} até{" "}
+                  {formatarData(substituicaoVisualizada.dataInicio)} {t("substitutionsUntil")}{" "}
                   {formatarData(substituicaoVisualizada.dataFim)}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Professor titular
+                  {t("commonPrimaryTeacher")}
                 </p>
                 <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
                   {substituicaoVisualizada.professorTitular?.nome || "-"}
@@ -727,7 +729,7 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Professor substituto
+                  {t("commonSubstituteTeacher")}
                 </p>
                 <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
                   {substituicaoVisualizada.professorSubstituto?.nome || "-"}
@@ -736,7 +738,7 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Curso
+                  {t("commonCourse")}
                 </p>
                 <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
                   {substituicaoVisualizada.curso?.nome || "-"}
@@ -745,7 +747,7 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Turma
+                  {t("commonClass")}
                 </p>
                 <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
                   {substituicaoVisualizada.turma?.nome || "-"}
@@ -754,7 +756,7 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Disciplina
+                  {t("commonSubject")}
                 </p>
                 <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
                   {substituicaoVisualizada.disciplina?.nome || "-"}
@@ -763,7 +765,7 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Motivo
+                  {t("substitutionsReason")}
                 </p>
                 <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-200">
                   {substituicaoVisualizada.motivo || "-"}
@@ -772,7 +774,7 @@ export default function SubstituicoesDocentesPage() {
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
                 <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
-                  Observações
+                  {t("substitutionsObservations")}
                 </p>
                 <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">
                   {substituicaoVisualizada.observacoes || "-"}

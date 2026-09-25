@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type ValidacaoResponse = {
   valido?: boolean;
@@ -45,35 +46,18 @@ type ValidacaoResponse = {
   };
 };
 
-function formatarData(data?: string) {
+function formatarData(data: string | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleString("pt-BR");
-}
-
-function labelTipo(tipo?: string) {
-  switch (tipo) {
-    case "CONTRATO":
-      return "Contrato";
-    case "DECLARACAO":
-      return "Declaração";
-    case "RECIBO":
-      return "Recibo";
-    case "COMPROVANTE":
-      return "Comprovante";
-    case "TRANCAMENTO":
-      return "Trancamento";
-    case "COMPARECIMENTO":
-      return "Comparecimento";
-    case "HISTORICO":
-      return "Histórico";
-    default:
-      return tipo || "-";
-  }
+  return d.toLocaleString(locale);
 }
 
 export default function AdminValidacoesPage() {
+  const t = useTranslations("AdminOperations");
+  const locale = useLocale();
+  const tipos: Record<string, string> = { CONTRATO: t("validationsContract"), DECLARACAO: t("validationsDeclaration"), RECIBO: t("validationsReceipt"), COMPROVANTE: t("validationsProof"), TRANCAMENTO: t("validationsSuspension"), COMPARECIMENTO: t("validationsAttendance"), HISTORICO: t("validationsTranscript") };
+  const statusLabels: Record<string, string> = { CANCELADO: t("validationsStatusCancelled"), CANCELADA: t("validationsStatusCancelled"), INVALIDADO: t("validationsStatusInvalidated"), INVALIDADA: t("validationsStatusInvalidated"), EMITIDO: t("validationsStatusIssued"), ASSINADO: t("validationsStatusSigned"), PENDENTE: t("validationsStatusPending"), TRANCADA: t("validationsStatusSuspended"), TRANCADO: t("validationsStatusSuspended"), ATIVO: t("validationsStatusActive"), ATIVA: t("validationsStatusActive"), CONCLUIDO: t("validationsStatusCompleted"), CONCLUIDA: t("validationsStatusCompleted") };
   const [codigo, setCodigo] = useState("");
   const [loading, setLoading] = useState(false);
   const [resultado, setResultado] = useState<ValidacaoResponse | null>(null);
@@ -88,14 +72,14 @@ export default function AdminValidacoesPage() {
   }, [resultado]);
 
   const nomeInstituicao = useMemo(() => {
-  return resultado?.documento?.instituicao?.nome || "Instituição";
-}, [resultado]);
+  return resultado?.documento?.instituicao?.nome || t("validationsInstitution");
+}, [resultado, t]);
 
   async function validarCodigo() {
     const codigoLimpo = codigo.trim();
 
     if (!codigoLimpo) {
-      setErro("Digite um código para validar.");
+      setErro(t("validationsEnterCode"));
       setResultado(null);
       return;
     }
@@ -115,11 +99,12 @@ export default function AdminValidacoesPage() {
       setResultado(data);
 
       if (!res.ok && !data?.valido) {
-        setErro(data?.error || data?.mensagem || "Não foi possível validar.");
+        if (res.status === 403 || res.status === 429) setResultado(null);
+        setErro(locale.startsWith("pt") ? (data?.error || data?.mensagem || t("validationsError")) : (res.status === 403 || res.status === 429 ? t("validationsBlocked") : t("validationsError")));
       }
     } catch (e) {
       console.error(e);
-      setErro("Erro ao consultar a validação do documento.");
+      setErro(t("validationsQueryError"));
       setResultado(null);
     } finally {
       setLoading(false);
@@ -132,26 +117,25 @@ export default function AdminValidacoesPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="phanyx-doc-muted text-sm font-semibold uppercase tracking-[0.2em]">
-              Validação administrativa
+              {t("validationsEyebrow")}
             </p>
             <h1 className="phanyx-doc-title mt-3 text-3xl font-bold">
-              Validar documento
+              {t("validationsTitle")}
             </h1>
             <p className="phanyx-doc-muted mt-4 max-w-2xl">
-              Consulte a autenticidade de contratos e documentos emitidos pelo
-              sistema digitando o código de validação.
+              {t("validationsIntro")}
             </p>
           </div>
 
           <div className="phanyx-doc-preview px-4 py-3 text-sm">
-            Uso interno do administrativo
+            {t("validationsInternal")}
           </div>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-[1fr_auto]">
           <div>
             <label className="phanyx-doc-label mb-2 block text-sm">
-              Código de validação
+              {t("validationsCode")}
             </label>
             <input
               value={codigo}
@@ -170,7 +154,7 @@ export default function AdminValidacoesPage() {
               disabled={loading}
               className="phanyx-doc-primary-action disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Validando..." : "Validar documento"}
+              {loading ? t("validationsValidating") : t("validationsTitle")}
             </button>
           </div>
         </div>
@@ -188,16 +172,15 @@ export default function AdminValidacoesPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="phanyx-doc-muted text-sm font-semibold uppercase tracking-[0.2em]">
-                  Resultado da consulta
+                  {t("validationsResult")}
                 </p>
                 <h2 className="phanyx-doc-title mt-3 text-2xl font-bold">
                   {resultado.valido
-                    ? "Documento localizado"
-                    : "Documento inválido ou não encontrado"}
+                    ? t("validationsFound")
+                    : resultado.statusValidacao === "INVALIDADO" ? t("validationsInvalidated") : t("validationsInvalid")}
                 </h2>
                 <p className="phanyx-doc-muted mt-3">
-                  {resultado.mensagem ||
-                    "Consulte os detalhes abaixo para conferência."}
+                  {locale.startsWith("pt") && resultado.mensagem ? resultado.mensagem : resultado.valido ? t("validationsValidMessage") : resultado.statusValidacao === "INVALIDADO" ? t("validationsInvalidatedMessage") : t("validationsMissingMessage")}
                 </p>
               </div>
 
@@ -208,13 +191,13 @@ export default function AdminValidacoesPage() {
                     : "border-red-300 bg-red-50 text-red-700"
                 }`}
               >
-                {resultado.valido ? "✔ Documento válido" : "✖ Não localizado"}
+                {resultado.valido ? t("validationsValidBadge") : t("validationsMissingBadge")}
               </div>
             </div>
 
             <div className="phanyx-doc-preview mt-6 p-5">
               <p className="phanyx-doc-muted text-xs font-semibold uppercase tracking-wide">
-                Código consultado
+                {t("validationsCheckedCode")}
               </p>
               <p className="phanyx-doc-value mt-2 text-lg font-bold">
                 {resultado.codigo || codigo}
@@ -226,73 +209,73 @@ export default function AdminValidacoesPage() {
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 className="phanyx-doc-section-title text-lg font-semibold">
-                  Dados do documento
+                  {t("validationsDocumentData")}
                 </h3>
 
                 <div className="phanyx-doc-value mt-4 space-y-3 text-sm">
                   <p>
-                    <strong>Título:</strong> {resultado.documento.titulo}
+                    <strong>{t("commonTitlePrefix")}</strong> {resultado.documento.titulo}
                   </p>
                   <p>
-                    <strong>Tipo:</strong>{" "}
-                    {labelTipo(resultado.documento.tipo)}
+                    <strong>{t("commonTypePrefix")}</strong>{" "}
+                    {tipos[resultado.documento.tipo] || resultado.documento.tipo}
                   </p>
                   <p>
-                    <strong>Status:</strong> {resultado.documento.status || "-"}
+                    <strong>{t("commonStatusPrefix")}</strong> {statusLabels[resultado.documento.status.toUpperCase()] || resultado.documento.status || "-"}
                   </p>
                   <p>
-                    <strong>Emitido em:</strong>{" "}
-                    {formatarData(resultado.documento.criadoEm)}
+                    <strong>{t("commonIssuedPrefix")}</strong>{" "}
+                    {formatarData(resultado.documento.criadoEm, locale)}
                   </p>
                   <p>
-                    <strong>Atualizado em:</strong>{" "}
-                    {formatarData(resultado.documento.atualizadoEm)}
+                    <strong>{t("commonUpdatedPrefix")}</strong>{" "}
+                    {formatarData(resultado.documento.atualizadoEm, locale)}
                   </p>
                   <p>
-                    <strong>Template:</strong>{" "}
+                    <strong>{t("commonTemplatePrefix")}</strong>{" "}
                     {resultado.documento.template?.nome || "-"}
                   </p>
                   <p>
-                    <strong>Exige assinatura:</strong>{" "}
-                    {resultado.documento.exigeAssinatura ? "Sim" : "Não"}
+                    <strong>{t("commonSignaturePrefix")}</strong>{" "}
+                    {resultado.documento.exigeAssinatura ? t("commonYes") : t("commonNo")}
                   </p>
                 </div>
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 className="phanyx-doc-section-title text-lg font-semibold">
-                  Dados vinculados
+                  {t("validationsLinkedData")}
                 </h3>
 
                 <div className="phanyx-doc-value mt-4 space-y-3 text-sm">
                   <p>
-                    <strong>Aluno:</strong> {nomeExibicao}
+                    <strong>{t("commonStudentPrefix")}</strong> {nomeExibicao}
                   </p>
                   <p>
-                    <strong>Matrícula:</strong>{" "}
+                    <strong>{t("commonEnrollmentPrefix")}</strong>{" "}
                     {resultado.documento.aluno?.matricula || "-"}
                   </p>
                   <p>
-                    <strong>CPF:</strong>{" "}
+                    <strong>{t("commonCpfPrefix")}</strong>{" "}
                     {resultado.documento.aluno?.cpf || "-"}
                   </p>
                   <p>
-                    <strong>Curso:</strong>{" "}
+                    <strong>{t("commonCoursePrefix")}</strong>{" "}
                     {resultado.documento.matricula?.curso?.nome || "-"}
                   </p>
                   <p>
-                    <strong>Semestre:</strong>{" "}
+                    <strong>{t("commonSemesterPrefix")}</strong>{" "}
                     {resultado.documento.matricula?.semestre ?? "-"}
                   </p>
                   <p>
-                    <strong>Status da matrícula:</strong>{" "}
-                    {resultado.documento.matricula?.status || "-"}
+                    <strong>{t("commonEnrollmentStatusPrefix")}</strong>{" "}
+                    {statusLabels[resultado.documento.matricula?.status?.toUpperCase() || ""] || resultado.documento.matricula?.status || "-"}
                   </p>
                   <p>
-                    <strong>Instituição:</strong> {nomeInstituicao}
+                    <strong>{t("commonInstitutionPrefix")}</strong> {nomeInstituicao}
                   </p>
                   <p>
-                    <strong>CNPJ:</strong>{" "}
+                    <strong>{t("commonCnpjPrefix")}</strong>{" "}
                     {resultado.documento.instituicao?.cnpj || "-"}
                   </p>
                 </div>
@@ -301,11 +284,10 @@ export default function AdminValidacoesPage() {
           ) : (
             <div className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm">
               <h3 className="phanyx-doc-section-title text-lg font-semibold">
-                Nenhum documento válido encontrado
+                {t("validationsNotFound")}
               </h3>
               <p className="mt-3 text-sm text-slate-600">
-                Verifique se o código foi digitado corretamente e se o documento
-                foi salvo na base antes da validação.
+                {t("validationsTryAgain")}
               </p>
             </div>
           )}

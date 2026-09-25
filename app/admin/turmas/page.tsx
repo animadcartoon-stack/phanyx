@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 
@@ -85,6 +86,8 @@ interface Turma {
 type FeedbackTipo = "sucesso" | "erro" | "";
 
 function AdminTurmasPage() {
+  const t = useTranslations("AdminOperations");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -270,7 +273,7 @@ function AdminTurmasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detalhe || data.error || "Erro ao criar turma");
+        throw new Error((locale.startsWith("pt") ? (data.detalhe || data.error || t("classesCreateError")) : t("classesCreateError")));
       }
 
       setNome("");
@@ -298,9 +301,9 @@ function AdminTurmasPage() {
       setStatusPorDisciplina({});
       setHorariosPorDisciplina({});
       await carregarTurmas();
-      mostrarFeedback("sucesso", "Turma criada com sucesso.");
+      mostrarFeedback("sucesso", t("classesCreated"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao criar turma");
+      mostrarFeedback("erro", (locale.startsWith("pt") ? (error?.message || t("classesCreateError")) : t("classesCreateError")));
     } finally {
       setCriando(false);
     }
@@ -469,14 +472,14 @@ function AdminTurmasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao atualizar turma");
+        throw new Error((locale.startsWith("pt") ? (data.error || t("classesUpdateError")) : t("classesUpdateError")));
       }
 
       setEditandoId(null);
       await carregarTurmas();
-      mostrarFeedback("sucesso", "Turma atualizada com sucesso.");
+      mostrarFeedback("sucesso", t("classesUpdated"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao atualizar turma");
+      mostrarFeedback("erro", (locale.startsWith("pt") ? (error?.message || t("classesUpdateError")) : t("classesUpdateError")));
     } finally {
       setSalvandoId(null);
     }
@@ -496,14 +499,14 @@ function AdminTurmasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao excluir turma");
+        throw new Error((locale.startsWith("pt") ? (data.error || t("classesDeleteError")) : t("classesDeleteError")));
       }
 
       setTurmaParaExcluir(null);
       await carregarTurmas();
-      mostrarFeedback("sucesso", "Turma excluída com sucesso.");
+      mostrarFeedback("sucesso", t("classesDeleted"));
     } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao excluir turma");
+      mostrarFeedback("erro", (locale.startsWith("pt") ? (error?.message || t("classesDeleteError")) : t("classesDeleteError")));
     } finally {
       setExcluindoId(null);
     }
@@ -749,7 +752,7 @@ function AdminTurmasPage() {
 
     const semestreTexto =
       disciplina.semestre
-        ? `semestre ${disciplina.semestre}`
+        ? normalizarBuscaDisciplina(`${t("classesSemester")} ${disciplina.semestre}`)
         : "";
 
     let pontuacao = 0;
@@ -947,6 +950,7 @@ function AdminTurmasPage() {
         disciplinasBaseCriacao,
         buscaDisciplina,
         disciplinasSelecionadas,
+        t,
       ],
     );
 
@@ -1018,25 +1022,26 @@ function AdminTurmasPage() {
         disciplinasBaseEdicao,
         editBuscaDisciplina,
         editDisciplinasSelecionadas,
+        t,
       ],
     );
 
   function labelStatusTurma(status?: StatusTurma) {
     switch (status) {
       case "AGUARDANDO":
-        return "Aguardando";
+        return t("classesWaiting");
       case "A_INICIAR":
-        return "A iniciar";
+        return t("classesUpcoming");
       case "ATIVA":
-        return "Ativa";
+        return t("classesActive");
       case "INATIVA":
-        return "Inativa";
+        return t("classesInactive");
       case "CONCLUIDA":
-        return "Concluída";
+        return t("classesCompleted");
       case "CANCELADA":
-        return "Cancelada";
+        return t("classesCancelled");
       case "NAO_FORMADA":
-        return "Não formada";
+        return t("classesNotFormed");
       default:
         return "-";
     }
@@ -1163,8 +1168,8 @@ function AdminTurmasPage() {
                 <div className="flex-1">
                   <h2 className="text-lg font-bold text-slate-900">
                     {feedbackTipo === "sucesso"
-                      ? "Tudo certo"
-                      : "Não foi possível concluir"}
+                      ? t("commonDone")
+                      : t("commonNoAction")}
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -1182,24 +1187,24 @@ function AdminTurmasPage() {
                   }}
                   className="rounded-2xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700"
                 >
-                  Entendi
+                  {t("commonUnderstood")}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        <h1 className="text-2xl font-bold">🏫 Turmas</h1>
+        <h1 className="text-2xl font-bold">{t("classesTitle")}</h1>
 
         <form
           onSubmit={criarTurma}
           className="phanyx-turmas-form space-y-4 rounded-lg border bg-white p-6"
         >
-          <h2 className="font-semibold">Nova turma</h2>
+          <h2 className="font-semibold">{t("classesNew")}</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
-              placeholder="Nome da turma"
+              placeholder={t("classesName")}
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               className="w-full border rounded-lg p-2"
@@ -1207,7 +1212,7 @@ function AdminTurmasPage() {
             />
 
             <input
-              placeholder="Código da turma"
+              placeholder={t("classesCode")}
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
               className="w-full border rounded-lg p-2"
@@ -1219,7 +1224,7 @@ function AdminTurmasPage() {
               className="w-full border rounded-lg p-2"
               required
             >
-              <option value="">Selecione o curso</option>
+              <option value="">{t("commonChooseCourse")}</option>
               {cursos.map((curso) => (
                 <option key={curso.id} value={curso.id}>
                   {curso.nome}
@@ -1231,7 +1236,7 @@ function AdminTurmasPage() {
               onChange={(e) => setProfessorId(e.target.value)}
               className="w-full border rounded-lg p-2"
             >
-              <option value="">Professor responsável</option>
+              <option value="">{t("commonTeacherResponsible")}</option>
               {professores.map((professor) => (
                 <option key={professor.id} value={professor.id}>
                   {professor.nome}
@@ -1239,7 +1244,7 @@ function AdminTurmasPage() {
               ))}
             </select>
             <div>
-              <label className="text-sm text-gray-600">Semestre da turma</label>
+              <label className="text-sm text-gray-600">{t("classesSemester")}</label>
               <input
                 value={semestre}
                 onChange={(e) => setSemestre(e.target.value)}
@@ -1250,7 +1255,7 @@ function AdminTurmasPage() {
 
             <div>
               <label className="text-sm text-gray-600 dark:text-slate-300">
-                Período letivo
+                {t("classesTerm")}
               </label>
 
               <input
@@ -1266,7 +1271,7 @@ function AdminTurmasPage() {
 
             <div>
               <label className="text-sm text-gray-600 dark:text-slate-300">
-                Turno
+                {t("classesShift")}
               </label>
 
               <select
@@ -1277,34 +1282,34 @@ function AdminTurmasPage() {
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
                 <option value="">
-                  Selecione o turno
+                  {t("classesSelectShift")}
                 </option>
 
                 <option value="MATUTINO">
-                  Matutino
+                  {t("classesMorning")}
                 </option>
 
                 <option value="VESPERTINO">
-                  Vespertino
+                  {t("classesAfternoon")}
                 </option>
 
                 <option value="NOTURNO">
-                  Noturno
+                  {t("classesEvening")}
                 </option>
 
                 <option value="INTEGRAL">
-                  Integral
+                  {t("classesFullDay")}
                 </option>
 
                 <option value="FLEXIVEL">
-                  Flexível
+                  {t("classesFlexible")}
                 </option>
               </select>
             </div>
 
             <div>
               <label className="text-sm text-gray-600 dark:text-slate-300">
-                Modalidade
+                {t("classesMode")}
               </label>
 
               <select
@@ -1324,15 +1329,15 @@ function AdminTurmasPage() {
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
                 <option value="PRESENCIAL">
-                  Presencial
+                  {t("classesInPerson")}
                 </option>
 
                 <option value="EAD">
-                  EAD
+                  {t("classesRemote")}
                 </option>
 
                 <option value="HIBRIDA">
-                  Híbrida
+                  {t("classesHybrid")}
                 </option>
               </select>
             </div>
@@ -1340,28 +1345,28 @@ function AdminTurmasPage() {
             {modalidade !== "EAD" && (
               <>
                 <input
-                  placeholder="Prédio"
+                  placeholder={t("classesBuilding")}
                   value={predio}
                   onChange={(e) => setPredio(e.target.value)}
                   className="w-full border rounded-lg p-2"
                 />
 
                 <input
-                  placeholder="Ala"
+                  placeholder={t("classesWing")}
                   value={ala}
                   onChange={(e) => setAla(e.target.value)}
                   className="w-full border rounded-lg p-2"
                 />
 
                 <input
-                  placeholder="Andar"
+                  placeholder={t("classesFloor")}
                   value={andar}
                   onChange={(e) => setAndar(e.target.value)}
                   className="w-full border rounded-lg p-2"
                 />
 
                 <input
-                  placeholder="Sala"
+                  placeholder={t("classesRoom")}
                   value={sala}
                   onChange={(e) => setSala(e.target.value)}
                   className="w-full border rounded-lg p-2"
@@ -1370,7 +1375,7 @@ function AdminTurmasPage() {
             )}
 
             <div>
-              <label className="text-sm text-gray-600">Capacidade mínima</label>
+              <label className="text-sm text-gray-600">{t("classesMinCapacity")}</label>
               <input
                 type="number"
                 min="1"
@@ -1380,7 +1385,7 @@ function AdminTurmasPage() {
               />
             </div>
             <div>
-              <label className="text-sm text-gray-600">Capacidade máxima</label>
+              <label className="text-sm text-gray-600">{t("classesMaxCapacity")}</label>
               <input
                 type="number"
                 min="1"
@@ -1395,13 +1400,13 @@ function AdminTurmasPage() {
               onChange={(e) => setStatusTurma(e.target.value as StatusTurma)}
               className="w-full border rounded-lg p-2"
             >
-              <option value="AGUARDANDO">Aguardando</option>
-              <option value="A_INICIAR">A iniciar</option>
-              <option value="ATIVA">Ativa</option>
-              <option value="INATIVA">Inativa</option>
-              <option value="CONCLUIDA">Concluída</option>
-              <option value="CANCELADA">Cancelada</option>
-              <option value="NAO_FORMADA">Não formada</option>
+              <option value="AGUARDANDO">{t("classesWaiting")}</option>
+              <option value="A_INICIAR">{t("classesUpcoming")}</option>
+              <option value="ATIVA">{t("classesActive")}</option>
+              <option value="INATIVA">{t("classesInactive")}</option>
+              <option value="CONCLUIDA">{t("classesCompleted")}</option>
+              <option value="CANCELADA">{t("classesCancelled")}</option>
+              <option value="NAO_FORMADA">{t("classesNotFormed")}</option>
             </select>
 
             <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1412,13 +1417,13 @@ function AdminTurmasPage() {
                   className="flex h-[46px] w-full items-center justify-between rounded-lg border p-3 text-left"
                 >
                   <span className="text-sm font-medium">
-                    Disciplinas da turma
+                    {t("classesSubjects")}
                     {disciplinasSelecionadas.length > 0
-                      ? ` (${disciplinasSelecionadas.length} selecionada(s))`
+                      ? t("classesSelectedShort", { count: disciplinasSelecionadas.length })
                       : ""}
                   </span>
                   <span className="text-sm text-gray-500">
-                    {disciplinasAbertas ? "▲ Fechar" : "▼ Abrir"}
+                    {disciplinasAbertas ? t("classesClose") : t("classesOpen")}
                   </span>
                 </button>
 
@@ -1426,7 +1431,7 @@ function AdminTurmasPage() {
                   <div className="phanyx-turma-busca-painel mt-2 rounded-xl border p-3">
                     <label className="block">
                       <span className="phanyx-turma-busca-titulo mb-2 block text-sm font-bold">
-                        Buscar disciplina
+                        {t("classesSearchSubject")}
                       </span>
 
                       <input
@@ -1437,32 +1442,18 @@ function AdminTurmasPage() {
                             e.target.value,
                           )
                         }
-                        placeholder="Ex.: Antropologia, ética, ATB, missões..."
+                        placeholder={t("classesSubjectExample")}
                         className="phanyx-turma-busca-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
                       />
                     </label>
 
                     <div className="phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                       <span>
-                        {
-                          disciplinasFiltradas.length
-                        }{" "}
-                        sugestão
-                        {disciplinasFiltradas.length ===
-                          1
-                          ? ""
-                          : "ões"}
+                        {t("classesSuggestionCount", { count: disciplinasFiltradas.length })}
                       </span>
 
                       <span>
-                        {
-                          disciplinasSelecionadas.length
-                        }{" "}
-                        selecionada
-                        {disciplinasSelecionadas.length ===
-                          1
-                          ? ""
-                          : "s"}
+                        {t("classesSelectedCount", { count: disciplinasSelecionadas.length })}
                       </span>
                     </div>
                   </div>
@@ -1474,10 +1465,7 @@ function AdminTurmasPage() {
                       {disciplinasFiltradas.length ===
                         0 && (
                           <div className="rounded-lg border border-dashed border-slate-300 p-5 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
-                            Nenhuma disciplina encontrada.
-                            Tente pesquisar pelo nome,
-                            código, curso, semestre ou uma
-                            palavra relacionada.
+                            {t("classesSubjectNone")}
                           </div>
                         )}
                       {disciplinasFiltradas.map((disciplina) => {
@@ -1529,7 +1517,7 @@ function AdminTurmasPage() {
                                   }
                                   className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900"
                                 >
-                                  <option value="">Professor desta disciplina</option>
+                                  <option value="">{t("classesSubjectTeacher")}</option>
                                   {professoresDaDisciplina(disciplina).map((professor) => (
                                     <option key={professor.id} value={professor.id}>
                                       {professor.nome}
@@ -1540,7 +1528,7 @@ function AdminTurmasPage() {
                                 <div className="phanyx-turma-horarios-card rounded-xl border p-3">
                                   <div className="mb-2 flex items-center justify-between gap-3">
                                     <p className="phanyx-turma-horarios-titulo text-sm font-bold">
-                                      Horários desta disciplina
+                                      {t("classesSubjectSchedule")}
                                     </p>
 
                                     <button
@@ -1556,13 +1544,13 @@ function AdminTurmasPage() {
                                       }
                                       className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-bold text-white hover:bg-blue-700"
                                     >
-                                      + horário
+                                      {t("classesAddSchedule")}
                                     </button>
                                   </div>
 
                                   {(horariosPorDisciplina[disciplina.id] || []).length === 0 ? (
                                     <p className="phanyx-turma-horarios-texto text-xs">
-                                      Nenhum horário cadastrado. Adicione pelo menos um horário para permitir lembrete automático ao professor.
+                                      {t("classesNoSchedule")}
                                     </p>
                                   ) : (
                                     <div className="space-y-2">
@@ -1585,17 +1573,18 @@ function AdminTurmasPage() {
                                             }
                                             className="h-[40px] rounded-lg border bg-white p-2 text-sm"
                                           >
-                                            <option value="1">Segunda</option>
-                                            <option value="2">Terça</option>
-                                            <option value="3">Quarta</option>
-                                            <option value="4">Quinta</option>
-                                            <option value="5">Sexta</option>
-                                            <option value="6">Sábado</option>
-                                            <option value="0">Domingo</option>
+                                            <option value="1">{t("classesMon")}</option>
+                                            <option value="2">{t("classesTue")}</option>
+                                            <option value="3">{t("classesWed")}</option>
+                                            <option value="4">{t("classesThu")}</option>
+                                            <option value="5">{t("classesFri")}</option>
+                                            <option value="6">{t("classesSat")}</option>
+                                            <option value="0">{t("classesSun")}</option>
                                           </select>
 
                                           <input
                                             type="time"
+                                            aria-label={t("commonStartTime")}
                                             value={horario.horaInicio}
                                             onChange={(e) =>
                                               setHorariosPorDisciplina((prev) => {
@@ -1612,6 +1601,7 @@ function AdminTurmasPage() {
 
                                           <input
                                             type="time"
+                                            aria-label={t("commonEndTime")}
                                             value={horario.horaFim}
                                             onChange={(e) =>
                                               setHorariosPorDisciplina((prev) => {
@@ -1637,7 +1627,7 @@ function AdminTurmasPage() {
                                             }
                                             className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50"
                                           >
-                                            Remover
+                                            {t("commonRemove")}
                                           </button>
                                         </div>
                                       ))}
@@ -1660,7 +1650,7 @@ function AdminTurmasPage() {
                   onChange={(e) => setPoloId(e.target.value)}
                   className="h-[46px] w-full rounded-lg border p-3"
                 >
-                  <option value="">Polo da turma</option>
+                  <option value="">{t("classesCampus")}</option>
                   {polos.map((polo) => (
                     <option key={polo.id} value={polo.id}>
                       {polo.nome}
@@ -1676,7 +1666,7 @@ function AdminTurmasPage() {
                 checked={ativa}
                 onChange={(e) => setAtiva(e.target.checked)}
               />
-              Turma ativa
+              {t("classesEnabled")}
             </label>
           </div>
 
@@ -1684,17 +1674,17 @@ function AdminTurmasPage() {
             disabled={criando}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
           >
-            {criando ? "Criando..." : "Criar turma"}
+            {criando ? t("classesCreating") : t("classesCreate")}
           </button>
         </form>
 
         <div className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="font-semibold">Lista de turmas</h2>
+            <h2 className="font-semibold">{t("classesList")}</h2>
 
             <input
               type="text"
-              placeholder="Buscar por nome, código, semestre, disciplinas ou curso"
+              placeholder={t("classesSearch")}
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full md:w-[520px] border rounded-lg p-2"
@@ -1703,7 +1693,7 @@ function AdminTurmasPage() {
 
           {turmasFiltradas.length === 0 ? (
             <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
-              Nenhuma turma encontrada para essa busca.
+              {t("classesEmpty")}
             </div>
           ) : (
             turmasFiltradas.map((turma) => {
@@ -1728,18 +1718,18 @@ function AdminTurmasPage() {
                           value={editNome}
                           onChange={(e) => setEditNome(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Nome da turma"
+                          placeholder={t("classesName")}
                         />
 
                         <input
                           value={editCodigo}
                           onChange={(e) => setEditCodigo(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Código da turma"
+                          placeholder={t("classesCode")}
                         />
 
                         <div>
-                          <label className="text-sm text-gray-600">Semestre da turma</label>
+                          <label className="text-sm text-gray-600">{t("classesSemester")}</label>
                           <input
                             value={editSemestre}
                             onChange={(e) => setEditSemestre(e.target.value)}
@@ -1749,7 +1739,7 @@ function AdminTurmasPage() {
 
                         <div>
                           <label className="text-sm text-gray-600 dark:text-slate-300">
-                            Período letivo
+                            {t("classesTerm")}
                           </label>
 
                           <input
@@ -1766,7 +1756,7 @@ function AdminTurmasPage() {
 
                         <div>
                           <label className="text-sm text-gray-600 dark:text-slate-300">
-                            Turno
+                            {t("classesShift")}
                           </label>
 
                           <select
@@ -1779,29 +1769,29 @@ function AdminTurmasPage() {
                             className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                           >
                             <option value="">
-                              Selecione o turno
+                              {t("classesSelectShift")}
                             </option>
                             <option value="MATUTINO">
-                              Matutino
+                              {t("classesMorning")}
                             </option>
                             <option value="VESPERTINO">
-                              Vespertino
+                              {t("classesAfternoon")}
                             </option>
                             <option value="NOTURNO">
-                              Noturno
+                              {t("classesEvening")}
                             </option>
                             <option value="INTEGRAL">
-                              Integral
+                              {t("classesFullDay")}
                             </option>
                             <option value="FLEXIVEL">
-                              Flexível
+                              {t("classesFlexible")}
                             </option>
                           </select>
                         </div>
 
                         <div>
                           <label className="text-sm text-gray-600 dark:text-slate-300">
-                            Modalidade
+                            {t("classesMode")}
                           </label>
 
                           <select
@@ -1822,13 +1812,13 @@ function AdminTurmasPage() {
                             className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                           >
                             <option value="PRESENCIAL">
-                              Presencial
+                              {t("classesInPerson")}
                             </option>
                             <option value="EAD">
-                              EAD
+                              {t("classesRemote")}
                             </option>
                             <option value="HIBRIDA">
-                              Híbrida
+                              {t("classesHybrid")}
                             </option>
                           </select>
                         </div>
@@ -1836,28 +1826,28 @@ function AdminTurmasPage() {
                           value={editPredio}
                           onChange={(e) => setEditPredio(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Prédio"
+                          placeholder={t("classesBuilding")}
                         />
 
                         <input
                           value={editAla}
                           onChange={(e) => setEditAla(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Ala"
+                          placeholder={t("classesWing")}
                         />
 
                         <input
                           value={editAndar}
                           onChange={(e) => setEditAndar(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Andar"
+                          placeholder={t("classesFloor")}
                         />
 
                         <input
                           value={editSala}
                           onChange={(e) => setEditSala(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Sala"
+                          placeholder={t("classesRoom")}
                         />
                         <input
                           type="number"
@@ -1865,7 +1855,7 @@ function AdminTurmasPage() {
                           value={editCapacidadeMinima}
                           onChange={(e) => setEditCapacidadeMinima(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Capacidade mínima"
+                          placeholder={t("classesMinCapacity")}
                         />
 
                         <input
@@ -1874,7 +1864,7 @@ function AdminTurmasPage() {
                           value={editCapacidadeMaxima}
                           onChange={(e) => setEditCapacidadeMaxima(e.target.value)}
                           className="border p-2 rounded"
-                          placeholder="Capacidade máxima"
+                          placeholder={t("classesMaxCapacity")}
                         />
 
                         <select
@@ -1884,13 +1874,13 @@ function AdminTurmasPage() {
                           }
                           className="border p-2 rounded"
                         >
-                          <option value="AGUARDANDO">Aguardando</option>
-                          <option value="A_INICIAR">A iniciar</option>
-                          <option value="ATIVA">Ativa</option>
-                          <option value="INATIVA">Inativa</option>
-                          <option value="CONCLUIDA">Concluída</option>
-                          <option value="CANCELADA">Cancelada</option>
-                          <option value="NAO_FORMADA">Não formada</option>
+                          <option value="AGUARDANDO">{t("classesWaiting")}</option>
+                          <option value="A_INICIAR">{t("classesUpcoming")}</option>
+                          <option value="ATIVA">{t("classesActive")}</option>
+                          <option value="INATIVA">{t("classesInactive")}</option>
+                          <option value="CONCLUIDA">{t("classesCompleted")}</option>
+                          <option value="CANCELADA">{t("classesCancelled")}</option>
+                          <option value="NAO_FORMADA">{t("classesNotFormed")}</option>
                         </select>
 
                         <div className="md:col-span-2">
@@ -1900,13 +1890,13 @@ function AdminTurmasPage() {
                             className="flex h-[46px] w-full items-center justify-between rounded-lg border p-3 text-left"
                           >
                             <span className="text-sm font-medium">
-                              Disciplinas da turma
+                              {t("classesSubjects")}
                               {editDisciplinasSelecionadas.length > 0
-                                ? ` (${editDisciplinasSelecionadas.length} selecionada(s))`
+                                ? t("classesSelectedShort", { count: editDisciplinasSelecionadas.length })
                                 : ""}
                             </span>
                             <span className="text-sm text-gray-500">
-                              {editDisciplinasAbertas ? "▲ Fechar" : "▼ Abrir"}
+                              {editDisciplinasAbertas ? t("classesClose") : t("classesOpen")}
                             </span>
                           </button>
 
@@ -1914,7 +1904,7 @@ function AdminTurmasPage() {
                             <div className="phanyx-turma-busca-painel mt-2 rounded-xl border p-3">
                               <label className="block">
                                 <span className="phanyx-turma-busca-titulo mb-2 block text-sm font-bold">
-                                  Buscar disciplina
+                                  {t("classesSearchSubject")}
                                 </span>
 
                                 <input
@@ -1927,32 +1917,18 @@ function AdminTurmasPage() {
                                       e.target.value,
                                     )
                                   }
-                                  placeholder="Nome, código, curso, semestre ou assunto"
+                                  placeholder={t("classesSearchSubjectHint")}
                                   className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                                 />
                               </label>
 
                               <div className="phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                                 <span>
-                                  {
-                                    editDisciplinasFiltradas.length
-                                  }{" "}
-                                  sugestão
-                                  {editDisciplinasFiltradas.length ===
-                                    1
-                                    ? ""
-                                    : "ões"}
+                                  {t("classesSuggestionCount", { count: editDisciplinasFiltradas.length })}
                                 </span>
 
                                 <span>
-                                  {
-                                    editDisciplinasSelecionadas.length
-                                  }{" "}
-                                  selecionada
-                                  {editDisciplinasSelecionadas.length ===
-                                    1
-                                    ? ""
-                                    : "s"}
+                                  {t("classesSelectedCount", { count: editDisciplinasSelecionadas.length })}
                                 </span>
                               </div>
                             </div>
@@ -1964,8 +1940,7 @@ function AdminTurmasPage() {
                                 {editDisciplinasFiltradas.length ===
                                   0 && (
                                     <div className="rounded-lg border border-dashed border-slate-300 p-5 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
-                                      Nenhuma disciplina encontrada
-                                      para esta busca.
+                                      {t("classesSubjectNoneEdit")}
                                     </div>
                                   )}
                                 {editDisciplinasFiltradas.map((disciplina) => {
@@ -2001,7 +1976,7 @@ function AdminTurmasPage() {
                                         />
 
                                         <span className="text-sm font-semibold text-slate-900">
-                                          {disciplina.nome || `Disciplina ${disciplina.id}`}
+                                          {disciplina.nome || t("classesFallbackSubject", { id: disciplina.id })}
                                         </span>
                                       </label>
 
@@ -2017,7 +1992,7 @@ function AdminTurmasPage() {
                                             }
                                             className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
                                           >
-                                            <option value="">Professor desta disciplina</option>
+                                            <option value="">{t("classesSubjectTeacher")}</option>
                                             {professores.map((professor) => (
                                               <option key={professor.id} value={professor.id}>
                                                 {professor.nome}
@@ -2028,6 +2003,7 @@ function AdminTurmasPage() {
                                           <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
                                             <input
                                               type="date"
+                                              aria-label={t("commonStartDate")}
                                               value={datasInicioPorDisciplina[disciplina.id] || ""}
                                               onChange={(e) =>
                                                 setDatasInicioPorDisciplina((prev) => ({
@@ -2040,6 +2016,7 @@ function AdminTurmasPage() {
 
                                             <input
                                               type="date"
+                                              aria-label={t("commonEndDate")}
                                               value={datasFimPorDisciplina[disciplina.id] || ""}
                                               onChange={(e) =>
                                                 setDatasFimPorDisciplina((prev) => ({
@@ -2060,11 +2037,11 @@ function AdminTurmasPage() {
                                               }
                                               className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900"
                                             >
-                                              <option value="">Status</option>
-                                              <option value="A_INICIAR">A iniciar</option>
-                                              <option value="EM_ANDAMENTO">Em andamento</option>
-                                              <option value="ENCERRADA">Encerrada</option>
-                                              <option value="CONCLUIDA">Concluída</option>
+                                              <option value="">{t("commonStatus")}</option>
+                                              <option value="A_INICIAR">{t("classesUpcoming")}</option>
+                                              <option value="EM_ANDAMENTO">{t("classesOngoing")}</option>
+                                              <option value="ENCERRADA">{t("classesClosed")}</option>
+                                              <option value="CONCLUIDA">{t("classesCompleted")}</option>
                                             </select>
                                           </div>
                                         </>
@@ -2083,7 +2060,7 @@ function AdminTurmasPage() {
                             checked={editAtiva}
                             onChange={(e) => setEditAtiva(e.target.checked)}
                           />
-                          Turma ativa
+                          {t("classesEnabled")}
                         </label>
                       </div>
                       <select
@@ -2091,7 +2068,7 @@ function AdminTurmasPage() {
                         onChange={(e) => setEditProfessorId(e.target.value)}
                         className="border p-2 rounded"
                       >
-                        <option value="">Professor responsável</option>
+                        <option value="">{t("commonTeacherResponsible")}</option>
                         {professores.map((professor) => (
                           <option key={professor.id} value={professor.id}>
                             {professor.nome}
@@ -2104,14 +2081,14 @@ function AdminTurmasPage() {
                           disabled={salvandoId === turma.id}
                           className="bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50"
                         >
-                          {salvandoId === turma.id ? "Salvando..." : "Salvar"}
+                          {salvandoId === turma.id ? t("visitorsSaving") : t("commonSave")}
                         </button>
 
                         <button
                           onClick={() => setEditandoId(null)}
                           className="bg-gray-400 text-white px-3 py-1 rounded"
                         >
-                          Cancelar
+                          {t("commonCancel")}
                         </button>
                       </div>
                     </div>
@@ -2119,53 +2096,53 @@ function AdminTurmasPage() {
                     <>
                       <p className="font-medium">{turma.nome}</p>
                       <p className="text-sm text-gray-600">
-                        Código: {turma.codigo || "-"}
+                        {t("commonCodePrefix")} {turma.codigo || "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Curso: {turma.curso?.nome || "-"}
-                      </p>
-
-                      <p className="text-sm text-gray-600">
-                        Professor: {turma.professor?.nome || "-"}
+                        {t("commonCoursePrefix")} {turma.curso?.nome || "-"}
                       </p>
 
                       <p className="text-sm text-gray-600">
-                        Disciplinas:{" "}
+                        {t("commonTeacherPrefix")} {turma.professor?.nome || "-"}
+                      </p>
+
+                      <p className="text-sm text-gray-600">
+                        {t("commonSubjectsPrefix")}{" "}
                         {turma.disciplinas && turma.disciplinas.length > 0
                           ? turma.disciplinas.map((d) => d.nome).join(", ")
                           : "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Semestre: {turma.semestre}
+                        {t("commonSemesterPrefix")} {turma.semestre}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Período letivo: {turma.periodoLetivo || "-"}
+                        {t("commonTermPrefix")} {turma.periodoLetivo || "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Status da turma: {labelStatusTurma(turma.statusTurma)}
+                        {t("classesClassStatus")} {labelStatusTurma(turma.statusTurma)}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Ativa: {turma.ativa ? "Sim" : "Não"}
+                        {t("commonActivePrefix")} {turma.ativa ? t("commonYes") : t("commonNo")}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Capacidade mínima: {capacidadeMinima ?? "-"}
+                        {t("commonMinCapacityPrefix")} {capacidadeMinima ?? "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Capacidade máxima: {capacidadeMaxima ?? "-"}
+                        {t("commonMaxCapacityPrefix")} {capacidadeMaxima ?? "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Matriculados: {matriculados}
+                        {t("classesEnrolled")} {matriculados}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Vagas restantes: {vagasRestantes ?? "-"}
+                        {t("classesRemaining")} {vagasRestantes ?? "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Atingiu mínimo:{" "}
+                        {t("classesMinimumMet")}{" "}
                         {atingiuMinimo === null
                           ? "-"
                           : atingiuMinimo
-                            ? "Sim"
-                            : "Não"}
+                            ? t("commonYes")
+                            : t("commonNo")}
                       </p>
 
                       <div className="flex gap-4 mt-3">
@@ -2173,14 +2150,14 @@ function AdminTurmasPage() {
                           onClick={() => iniciarEdicao(turma)}
                           className="text-blue-600 text-sm"
                         >
-                          Editar
+                          {t("commonEdit")}
                         </button>
 
                         <button
                           onClick={() => setTurmaParaExcluir(turma)}
                           className="text-red-600 text-sm"
                         >
-                          Excluir
+                          {t("commonDelete")}
                         </button>
                       </div>
                     </>
@@ -2202,14 +2179,13 @@ function AdminTurmasPage() {
 
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar exclusão
+                  {t("classesConfirmDelete")}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja excluir a turma{" "}
-                  <strong>&quot;{turmaParaExcluir.nome}&quot;</strong>?
+                  {t("classesDeleteAsk", { name: turmaParaExcluir.nome })}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
-                  Esta ação não pode ser desfeita.
+                  {t("classesIrreversible")}
                 </p>
               </div>
             </div>
@@ -2221,7 +2197,7 @@ function AdminTurmasPage() {
                 disabled={excluindoId === turmaParaExcluir.id}
                 className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
+                {t("commonCancel")}
               </button>
 
               <button
@@ -2231,8 +2207,8 @@ function AdminTurmasPage() {
                 className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {excluindoId === turmaParaExcluir.id
-                  ? "Excluindo..."
-                  : "Confirmar exclusão"}
+                  ? t("meetingsDeleting")
+                  : t("classesConfirmDelete")}
               </button>
             </div>
           </div>

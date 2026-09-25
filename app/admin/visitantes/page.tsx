@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import withAuth from "@/components/auth/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
@@ -87,14 +88,14 @@ function dataParaInput(valor?: string | null) {
   return data.toISOString().slice(0, 16);
 }
 
-function formatarData(valor?: string | null) {
+function formatarData(valor: string | null | undefined, locale: string) {
   if (!valor) return "-";
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) return "-";
 
-  return data.toLocaleString("pt-BR");
+  return data.toLocaleString(locale);
 }
 
 function classeStatus(status: StatusVisitante) {
@@ -118,6 +119,8 @@ function classeStatus(status: StatusVisitante) {
 }
 
 function AdminVisitantesPage() {
+  const t = useTranslations("AdminOperations");
+  const locale = useLocale();
   const [visitantes, setVisitantes] = useState<Visitante[]>([]);
   const [form, setForm] = useState<FormVisitante>(formInicial);
   const [editandoId, setEditandoId] = useState<number | null>(null);
@@ -173,12 +176,12 @@ function AdminVisitantesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar visitantes.");
+        throw new Error((locale.startsWith("pt") ? (data.error || t("visitorsLoadError")) : t("visitorsLoadError")));
       }
 
       setVisitantes(Array.isArray(data.visitantes) ? data.visitantes : []);
     } catch (e: any) {
-      setErro(e.message || "Erro ao carregar visitantes.");
+      setErro((locale.startsWith("pt") ? (e.message || t("visitorsLoadError")) : t("visitorsLoadError")));
     } finally {
       setCarregando(false);
     }
@@ -195,12 +198,12 @@ function AdminVisitantesPage() {
     ];
 
     if (!tiposPermitidos.includes(arquivo.type)) {
-      setErro("Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP.");
+      setErro(t("visitorsPhotoFormat"));
       return;
     }
 
     if (arquivo.size > 2 * 1024 * 1024) {
-      setErro("Foto muito grande. Envie uma foto com no máximo 2 MB.");
+      setErro(t("visitorsPhotoSize"));
       return;
     }
 
@@ -221,7 +224,7 @@ function AdminVisitantesPage() {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar foto.");
+        throw new Error((locale.startsWith("pt") ? (data?.error || t("visitorsUploadError")) : t("visitorsUploadError")));
       }
 
       const url =
@@ -231,13 +234,13 @@ function AdminVisitantesPage() {
         data?.publicUrl;
 
       if (!url) {
-        throw new Error("Upload realizado, mas a URL da foto não retornou.");
+        throw new Error(t("visitorsPhotoUrlError"));
       }
 
       atualizarForm("fotoPerfil", url);
-      setSucesso("Foto do visitante enviada com sucesso.");
+      setSucesso(t("visitorsPhotoSent"));
     } catch (e: any) {
-      setErro(e.message || "Erro ao enviar foto do visitante.");
+      setErro((locale.startsWith("pt") ? (e.message || t("visitorsUploadVisitorError")) : t("visitorsUploadVisitorError")));
     } finally {
       setEnviandoFoto(false);
     }
@@ -278,7 +281,7 @@ function AdminVisitantesPage() {
     e.preventDefault();
 
     if (!form.nome.trim()) {
-      setErro("Informe o nome do visitante.");
+      setErro(t("visitorsNameRequired"));
       return;
     }
 
@@ -303,19 +306,19 @@ function AdminVisitantesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao salvar visitante.");
+        throw new Error((locale.startsWith("pt") ? (data.error || t("visitorsSaveError")) : t("visitorsSaveError")));
       }
 
       setSucesso(
         editandoId
-          ? "Visitante atualizado com sucesso."
-          : "Visitante cadastrado com sucesso."
+          ? t("visitorsUpdated")
+          : t("visitorsCreated")
       );
 
       limparFormulario();
       await carregarVisitantes();
     } catch (e: any) {
-      setErro(e.message || "Erro ao salvar visitante.");
+      setErro((locale.startsWith("pt") ? (e.message || t("visitorsSaveError")) : t("visitorsSaveError")));
     } finally {
       setSalvando(false);
     }
@@ -341,20 +344,20 @@ function AdminVisitantesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao alterar visitante.");
+        throw new Error((locale.startsWith("pt") ? (data.error || t("visitorsActionError")) : t("visitorsActionError")));
       }
 
       const mensagens = {
-        REGISTRAR_ENTRADA: "Entrada registrada com sucesso.",
-        REGISTRAR_SAIDA: "Saída registrada com sucesso.",
-        CANCELAR: "Visitante cancelado com sucesso.",
-        BLOQUEAR: "Visitante bloqueado com sucesso.",
+        REGISTRAR_ENTRADA: t("visitorsCheckedIn"),
+        REGISTRAR_SAIDA: t("visitorsCheckedOut"),
+        CANCELAR: t("visitorsCancelled"),
+        BLOQUEAR: t("visitorsBlocked"),
       };
 
       setSucesso(mensagens[acao]);
       await carregarVisitantes();
     } catch (e: any) {
-      setErro(e.message || "Erro ao alterar visitante.");
+      setErro((locale.startsWith("pt") ? (e.message || t("visitorsActionError")) : t("visitorsActionError")));
     }
   }
 
@@ -368,7 +371,7 @@ function AdminVisitantesPage() {
       {erro && (
         <PhanyxToast
           tipo="erro"
-          titulo="Não foi possível concluir"
+          titulo={t("commonNoAction")}
           mensagem={erro}
           onClose={() => setErro("")}
         />
@@ -377,7 +380,7 @@ function AdminVisitantesPage() {
       {sucesso && (
         <PhanyxToast
           tipo="sucesso"
-          titulo="Tudo certo"
+          titulo={t("commonDone")}
           mensagem={sucesso}
           onClose={() => setSucesso("")}
         />
@@ -386,23 +389,22 @@ function AdminVisitantesPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-600 dark:text-blue-300">
-            PHANYX Controle de Acesso
+            {t("visitorsEyebrow")}
           </p>
 
           <h1 className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-            Visitantes
+            {t("visitorsTitle")}
           </h1>
 
           <p className="mt-2 max-w-3xl text-sm font-medium text-slate-600 dark:text-slate-400">
-            Cadastro temporário para portaria, recepção, eventos, fornecedores,
-            palestrantes e emissão de crachás provisórios.
+            {t("visitorsIntro")}
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="phanyx-visitantes-resumo-card rounded-3xl border p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-              Dentro da instituição
+              {t("visitorsInside")}
             </p>
             <strong className="mt-2 block text-3xl text-green-600 dark:text-green-300">
               {totalDentro}
@@ -411,7 +413,7 @@ function AdminVisitantesPage() {
 
           <div className="phanyx-visitantes-resumo-card rounded-3xl border p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-              Aguardando entrada
+              {t("visitorsWaiting")}
             </p>
             <strong className="mt-2 block text-3xl text-yellow-600 dark:text-yellow-300">
               {totalAguardando}
@@ -420,7 +422,7 @@ function AdminVisitantesPage() {
 
           <div className="phanyx-visitantes-resumo-card rounded-3xl border p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-              Sem foto oficial
+              {t("visitorsNoPhoto")}
             </p>
             <strong className="mt-2 block text-3xl text-red-600 dark:text-red-300">
               {totalSemFoto}
@@ -435,12 +437,11 @@ function AdminVisitantesPage() {
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-                {editandoId ? "Editar visitante" : "Novo visitante"}
+                {editandoId ? t("visitorsEdit") : t("visitorsNew")}
               </h2>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Visitantes não recebem login. Este cadastro é apenas para
-                controle de acesso e crachá.
+                {t("visitorsFormHelp")}
               </p>
             </div>
 
@@ -450,7 +451,7 @@ function AdminVisitantesPage() {
                 onClick={limparFormulario}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Cancelar edição
+                {t("visitorsCancelEdit")}
               </button>
             )}
           </div>
@@ -461,7 +462,7 @@ function AdminVisitantesPage() {
                 {form.fotoPerfil ? (
                   <img
                     src={form.fotoPerfil}
-                    alt={form.nome || "Foto do visitante"}
+                    alt={form.nome || t("visitorsPhoto")}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -473,16 +474,16 @@ function AdminVisitantesPage() {
 
               <div className="flex-1">
                 <h3 className="font-bold text-slate-950 dark:text-white">
-                  Foto do visitante
+                  {t("visitorsPhoto")}
                 </h3>
 
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Usada em crachás provisórios e identificação na portaria.
+                  {t("visitorsPhotoHelp")}
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
-                    {enviandoFoto ? "Enviando..." : "Enviar foto"}
+                    {enviandoFoto ? t("visitorsUploading") : t("visitorsUploadPhoto")}
                     <input
                       type="file"
                       accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -500,7 +501,7 @@ function AdminVisitantesPage() {
                       onClick={() => atualizarForm("fotoPerfil", "")}
                       className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                     >
-                      Remover foto
+                      {t("visitorsRemovePhoto")}
                     </button>
                   )}
                 </div>
@@ -511,7 +512,7 @@ function AdminVisitantesPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <label className="space-y-1 md:col-span-2">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Nome do visitante *
+                {t("visitorsName")}
               </span>
               <input
                 value={form.nome}
@@ -523,7 +524,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Status
+                {t("commonStatus")}
               </span>
               <select
                 value={form.status}
@@ -532,17 +533,17 @@ function AdminVisitantesPage() {
                 }
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               >
-                <option value="AGUARDANDO">Aguardando</option>
-                <option value="DENTRO">Dentro</option>
-                <option value="SAIU">Saiu</option>
-                <option value="CANCELADO">Cancelado</option>
-                <option value="BLOQUEADO">Bloqueado</option>
+                <option value="AGUARDANDO">{t("visitorsStatusWaiting")}</option>
+                <option value="DENTRO">{t("visitorsStatusInside")}</option>
+                <option value="SAIU">{t("visitorsStatusLeft")}</option>
+                <option value="CANCELADO">{t("visitorsStatusCancelled")}</option>
+                <option value="BLOQUEADO">{t("visitorsStatusBlocked")}</option>
               </select>
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Tipo de documento
+                {t("visitorsDocumentType")}
               </span>
               <select
                 value={form.documentoTipo}
@@ -552,14 +553,14 @@ function AdminVisitantesPage() {
                 <option value="CPF">CPF</option>
                 <option value="RG">RG</option>
                 <option value="CNH">CNH</option>
-                <option value="PASSAPORTE">Passaporte</option>
-                <option value="OUTRO">Outro</option>
+                <option value="PASSAPORTE">{t("visitorsPassport")}</option>
+                <option value="OUTRO">{t("visitorsOther")}</option>
               </select>
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Nº documento
+                {t("visitorsDocumentNo")}
               </span>
               <input
                 value={form.documentoNumero}
@@ -572,7 +573,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Telefone
+                {t("commonPhone")}
               </span>
               <input
                 value={form.telefone}
@@ -583,7 +584,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Email
+                {t("commonEmail")}
               </span>
               <input
                 type="email"
@@ -595,7 +596,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Empresa / organização
+                {t("visitorsCompany")}
               </span>
               <input
                 value={form.empresa}
@@ -606,19 +607,19 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Destino
+                {t("commonDestination")}
               </span>
               <input
                 value={form.destino}
                 onChange={(e) => atualizarForm("destino", e.target.value)}
-                placeholder="Ex.: Diretoria, Secretaria, Biblioteca"
+                placeholder={t("visitorsDestinationHint")}
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Pessoa visitada
+                {t("visitorsVisitedPerson")}
               </span>
               <input
                 value={form.pessoaVisitada}
@@ -631,7 +632,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Setor visitado
+                {t("visitorsDepartment")}
               </span>
               <input
                 value={form.setorVisitado}
@@ -644,19 +645,19 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Evento
+                {t("commonEvent")}
               </span>
               <input
                 value={form.evento}
                 onChange={(e) => atualizarForm("evento", e.target.value)}
-                placeholder="Ex.: Congresso, culto, reunião"
+                placeholder={t("visitorsEventHint")}
                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
             </label>
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Entrada prevista
+                {t("visitorsExpectedEntry")}
               </span>
               <input
                 type="datetime-local"
@@ -670,7 +671,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Saída prevista
+                {t("visitorsExpectedExit")}
               </span>
               <input
                 type="datetime-local"
@@ -684,7 +685,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Crachá válido até
+                {t("visitorsBadgeUntil")}
               </span>
               <input
                 type="datetime-local"
@@ -698,7 +699,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1 md:col-span-3">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Motivo da visita
+                {t("visitorsVisitReason")}
               </span>
               <input
                 value={form.motivo}
@@ -709,7 +710,7 @@ function AdminVisitantesPage() {
 
             <label className="space-y-1 md:col-span-3">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Observações
+                {t("commonNotes")}
               </span>
               <textarea
                 value={form.observacoes}
@@ -727,10 +728,10 @@ function AdminVisitantesPage() {
               className="rounded-2xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
             >
               {salvando
-                ? "Salvando..."
+                ? t("visitorsSaving")
                 : editandoId
-                  ? "Salvar alterações"
-                  : "Cadastrar visitante"}
+                  ? t("visitorsSaveChanges")
+                  : t("visitorsRegister")}
             </button>
           </div>
         </form>
@@ -739,10 +740,10 @@ function AdminVisitantesPage() {
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-                Visitantes cadastrados
+                {t("visitorsRegistered")}
               </h2>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Controle de entrada, saída, pendências de foto e eventos.
+                {t("visitorsListHelp")}
               </p>
             </div>
 
@@ -750,7 +751,7 @@ function AdminVisitantesPage() {
               <input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Buscar visitante"
+                placeholder={t("visitorsSearch")}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
 
@@ -759,18 +760,18 @@ function AdminVisitantesPage() {
                 onChange={(e) => setStatusFiltro(e.target.value)}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               >
-                <option value="">Todos os status</option>
-                <option value="AGUARDANDO">Aguardando</option>
-                <option value="DENTRO">Dentro</option>
-                <option value="SAIU">Saiu</option>
-                <option value="CANCELADO">Cancelado</option>
-                <option value="BLOQUEADO">Bloqueado</option>
+                <option value="">{t("commonAllStatuses")}</option>
+                <option value="AGUARDANDO">{t("visitorsStatusWaiting")}</option>
+                <option value="DENTRO">{t("visitorsStatusInside")}</option>
+                <option value="SAIU">{t("visitorsStatusLeft")}</option>
+                <option value="CANCELADO">{t("visitorsStatusCancelled")}</option>
+                <option value="BLOQUEADO">{t("visitorsStatusBlocked")}</option>
               </select>
 
               <input
                 value={eventoFiltro}
                 onChange={(e) => setEventoFiltro(e.target.value)}
-                placeholder="Filtrar evento"
+                placeholder={t("visitorsFilterEvent")}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
 
@@ -779,18 +780,18 @@ function AdminVisitantesPage() {
                 onClick={carregarVisitantes}
                 className="phanyx-visitantes-filtrar-btn rounded-xl border px-4 py-2 text-sm font-bold"
               >
-                Filtrar
+                {t("visitorsFilter")}
               </button>
             </div>
           </div>
 
           {carregando ? (
             <div className="rounded-2xl border border-slate-200 p-5 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-              Carregando visitantes...
+              {t("visitorsLoading")}
             </div>
           ) : visitantes.length === 0 ? (
             <div className="rounded-2xl border border-slate-200 p-5 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-              Nenhum visitante encontrado.
+              {t("visitorsEmpty")}
             </div>
           ) : (
             <div className="space-y-3">
@@ -822,28 +823,28 @@ function AdminVisitantesPage() {
                           </h3>
 
                           <span className={classeStatus(visitante.status)}>
-                            {visitante.status}
+                            {t(({ AGUARDANDO: "visitorsStatusWaiting", DENTRO: "visitorsStatusInside", SAIU: "visitorsStatusLeft", CANCELADO: "visitorsStatusCancelled", BLOQUEADO: "visitorsStatusBlocked" } as const)[visitante.status])}
                           </span>
 
                           {!visitante.fotoPerfil && (
                             <span className="phanyx-visitantes-status phanyx-visitantes-status-sem-foto">
-                              Sem foto
+                              {t("visitorsNoPhotoBadge")}
                             </span>
                           )}
                         </div>
 
                         <div className="mt-2 grid gap-1 text-sm text-slate-600 dark:text-slate-400 md:grid-cols-2">
-                          <p>Código: {visitante.codigoVisitante}</p>
-                          <p>Documento: {visitante.documentoNumero || "-"}</p>
-                          <p>Empresa: {visitante.empresa || "-"}</p>
-                          <p>Destino: {visitante.destino || "-"}</p>
-                          <p>Pessoa visitada: {visitante.pessoaVisitada || "-"}</p>
-                          <p>Evento: {visitante.evento || "-"}</p>
-                          <p>Entrada: {formatarData(visitante.entradaEm)}</p>
-                          <p>Saída: {formatarData(visitante.saidaEm)}</p>
+                          <p>{t("commonCodePrefix")} {visitante.codigoVisitante}</p>
+                          <p>{t("commonDocumentPrefix")} {visitante.documentoNumero || "-"}</p>
+                          <p>{t("commonCompanyPrefix")} {visitante.empresa || "-"}</p>
+                          <p>{t("commonDestinationPrefix")} {visitante.destino || "-"}</p>
+                          <p>{t("commonVisitorPrefix")} {visitante.pessoaVisitada || "-"}</p>
+                          <p>{t("commonEventPrefix")} {visitante.evento || "-"}</p>
+                          <p>{t("commonEntryPrefix")} {formatarData(visitante.entradaEm, locale)}</p>
+                          <p>{t("commonExitPrefix")} {formatarData(visitante.saidaEm, locale)}</p>
                           <p>
-                            Crachá válido até:{" "}
-                            {formatarData(visitante.crachaValidoAte)}
+                            {t("commonBadgeUntilPrefix")}{" "}
+                            {formatarData(visitante.crachaValidoAte, locale)}
                           </p>
                         </div>
                       </div>
@@ -857,7 +858,7 @@ function AdminVisitantesPage() {
                         }
                         className="phanyx-visitantes-acao phanyx-visitantes-acao-editar"
                       >
-                        Editar
+                        {t("commonEdit")}
                       </button>
 
                       <button
@@ -870,7 +871,7 @@ function AdminVisitantesPage() {
                         }
                         className="phanyx-visitantes-acao phanyx-visitantes-acao-entrada"
                       >
-                        Entrada
+                        {t("visitorsEntry")}
                       </button>
 
                       <button
@@ -883,7 +884,7 @@ function AdminVisitantesPage() {
                         }
                         className="phanyx-visitantes-acao phanyx-visitantes-acao-saida"
                       >
-                        Saída
+                        {t("visitorsExit")}
                       </button>
 
                       <button
@@ -896,7 +897,7 @@ function AdminVisitantesPage() {
                         }
                         className="phanyx-visitantes-acao phanyx-visitantes-acao-bloquear"
                       >
-                        Bloquear
+                        {t("visitorsBlock")}
                       </button>
                     </div>
                   </div>

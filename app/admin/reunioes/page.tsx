@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 type PessoaOpcao = {
   id: number;
@@ -49,14 +50,6 @@ type Reuniao = {
   curso?: { nome: string } | null;
 };
 
-const publicoLabel: Record<string, string> = {
-  TODA_EQUIPE: "Toda equipe administrativa",
-  TODOS_ALUNOS: "Todos os alunos matriculados",
-  SETOR: "Setor",
-  TURMA: "Turma",
-  CURSO: "Curso",
-  INDIVIDUAL: "Individual",
-};
 
 function normalizarTexto(texto: string) {
   return texto
@@ -68,6 +61,8 @@ function normalizarTexto(texto: string) {
 }
 
 export default function AdminReunioesPage() {
+  const t = useTranslations("AdminOperations");
+  const locale = useLocale();
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [link, setLink] = useState("");
@@ -119,9 +114,9 @@ export default function AdminReunioesPage() {
     });
 
     return Array.from(mapa.values()).sort((a, b) =>
-      a.nome.localeCompare(b.nome, "pt-BR")
+      a.nome.localeCompare(b.nome, locale)
     );
-  }, [opcoes]);
+  }, [opcoes, locale]);
 
   const pessoasFiltradas = useMemo(() => {
     const termo = normalizarTexto(buscaPessoa);
@@ -152,10 +147,10 @@ export default function AdminReunioesPage() {
         if (aComeca && !bComeca) return -1;
         if (!aComeca && bComeca) return 1;
 
-        return nomeA.localeCompare(nomeB, "pt-BR");
+        return nomeA.localeCompare(nomeB, locale);
       })
       .slice(0, 40);
-  }, [buscaPessoa, pessoasIndividuais]);
+  }, [buscaPessoa, pessoasIndividuais, locale]);
 
   const participantesSelecionados = useMemo(() => {
     return pessoasIndividuais.filter((pessoa) => {
@@ -168,9 +163,14 @@ export default function AdminReunioesPage() {
   }, [pessoasIndividuais, participantesUserIds, participantesAlunoIds]);
 
   async function carregarReunioes() {
-    const res = await fetch("/api/reunioes", { cache: "no-store" });
-    const data = await res.json();
-    setReunioes(Array.isArray(data) ? data : []);
+    try {
+      const res = await fetch("/api/reunioes", { cache: "no-store" });
+      if (!res.ok) throw new Error(t("meetingsLoadError"));
+      const data = await res.json();
+      setReunioes(Array.isArray(data) ? data : []);
+    } catch {
+      setErro(t("meetingsLoadError"));
+    }
   }
 
   async function carregarOpcoes() {
@@ -180,7 +180,7 @@ export default function AdminReunioesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar opções.");
+        throw new Error((locale.startsWith("pt") ? (data?.error || t("meetingsOptionsError")) : t("meetingsOptionsError")));
       }
 
       setOpcoes({
@@ -192,7 +192,7 @@ export default function AdminReunioesPage() {
         cursos: Array.isArray(data.cursos) ? data.cursos : [],
       });
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar opções.");
+      setErro((locale.startsWith("pt") ? (error?.message || t("meetingsOptionsError")) : t("meetingsOptionsError")));
     } finally {
       setCarregandoOpcoes(false);
     }
@@ -264,10 +264,10 @@ export default function AdminReunioesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao criar reunião.");
+        throw new Error((locale.startsWith("pt") ? (data?.error || t("meetingsCreateError")) : t("meetingsCreateError")));
       }
 
-      setMensagem("Reunião criada com sucesso e participantes vinculados.");
+      setMensagem(t("meetingsCreated"));
       setTitulo("");
       setDescricao("");
       setLink("");
@@ -277,7 +277,7 @@ export default function AdminReunioesPage() {
 
       await carregarReunioes();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao criar reunião.");
+      setErro((locale.startsWith("pt") ? (error?.message || t("meetingsCreateError")) : t("meetingsCreateError")));
     } finally {
       setLoading(false);
     }
@@ -308,8 +308,7 @@ export default function AdminReunioesPage() {
 
       if (!res.ok) {
         throw new Error(
-          data?.error ||
-          "Erro ao excluir reunião."
+          (locale.startsWith("pt") ? (data?.error || t("meetingsDeleteError")) : t("meetingsDeleteError"))
         );
       }
 
@@ -322,14 +321,13 @@ export default function AdminReunioesPage() {
       );
 
       setMensagem(
-        "Reunião excluída com sucesso."
+        t("meetingsDeleted")
       );
 
       setReuniaoParaExcluir(null);
     } catch (error: any) {
       setErro(
-        error?.message ||
-        "Erro ao excluir reunião."
+        (locale.startsWith("pt") ? (error?.message || t("meetingsDeleteError")) : t("meetingsDeleteError"))
       );
     } finally {
       setExcluindoId(null);
@@ -345,10 +343,10 @@ export default function AdminReunioesPage() {
     <div className="phanyx-admin-reunioes-page mx-auto max-w-6xl space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          📅 Reuniões PHANYX
+          {t("meetingsTitle")}
         </h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Crie reuniões por equipe, setor, turma, curso, aluno individual ou todos os alunos.
+          {t("meetingsIntro")}
         </p>
       </div>
 
@@ -368,12 +366,12 @@ export default function AdminReunioesPage() {
         <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Criar nova reunião
+              {t("meetingsNew")}
             </h2>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               {carregandoOpcoes
-                ? "Carregando setores, turmas, cursos e participantes..."
-                : "Escolha o público e o PHANYX vincula os participantes automaticamente."}
+                ? t("meetingsLoading")
+                : t("meetingsHelp")}
             </p>
           </div>
         </div>
@@ -381,19 +379,19 @@ export default function AdminReunioesPage() {
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-              Título
+              {t("commonTitle")}
             </label>
             <input
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
-              placeholder="Ex: Reunião pedagógica"
+              placeholder={t("meetingsExample")}
             />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-              Link da reunião
+              {t("meetingsLink")}
             </label>
             <input
               value={link}
@@ -405,7 +403,7 @@ export default function AdminReunioesPage() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-              Data e hora
+              {t("meetingsDate")}
             </label>
             <input
               type="datetime-local"
@@ -417,7 +415,7 @@ export default function AdminReunioesPage() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-              Público
+              {t("meetingsAudience")}
             </label>
             <select
               value={publicoTipo}
@@ -427,26 +425,26 @@ export default function AdminReunioesPage() {
               }}
               className="phanyx-reuniao-publico-select w-full rounded-xl border px-4 py-3 outline-none"
             >
-              <option value="TODA_EQUIPE">Toda equipe administrativa</option>
-              <option value="SETOR">Setor</option>
-              <option value="INDIVIDUAL">Individual</option>
-              <option value="TURMA">Turma</option>
-              <option value="CURSO">Curso</option>
-              <option value="TODOS_ALUNOS">Todos os alunos matriculados</option>
+              <option value="TODA_EQUIPE">{t("meetingsWholeTeam")}</option>
+              <option value="SETOR">{t("commonDepartment")}</option>
+              <option value="INDIVIDUAL">{t("commonIndividual")}</option>
+              <option value="TURMA">{t("commonClass")}</option>
+              <option value="CURSO">{t("commonCourse")}</option>
+              <option value="TODOS_ALUNOS">{t("meetingsAllStudents")}</option>
             </select>
           </div>
 
           {publicoTipo === "SETOR" && (
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                Setor
+                {t("commonDepartment")}
               </label>
               <select
                 value={setor}
                 onChange={(e) => setSetor(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
               >
-                <option value="">Selecione um setor</option>
+                <option value="">{t("meetingsSelectDepartment")}</option>
                 {opcoes.setores.map((item) => (
                   <option key={item} value={item}>
                     {item}
@@ -459,14 +457,14 @@ export default function AdminReunioesPage() {
           {publicoTipo === "TURMA" && (
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                Turma
+                {t("commonClass")}
               </label>
               <select
                 value={turmaId}
                 onChange={(e) => setTurmaId(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
               >
-                <option value="">Selecione uma turma</option>
+                <option value="">{t("meetingsSelectClass")}</option>
                 {opcoes.turmas.map((turma) => (
                   <option key={turma.id} value={turma.id}>
                     {turma.nome}
@@ -481,14 +479,14 @@ export default function AdminReunioesPage() {
           {publicoTipo === "CURSO" && (
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                Curso
+                {t("commonCourse")}
               </label>
               <select
                 value={cursoId}
                 onChange={(e) => setCursoId(e.target.value)}
                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
               >
-                <option value="">Selecione um curso</option>
+                <option value="">{t("meetingsSelectCourse")}</option>
                 {opcoes.cursos.map((curso) => (
                   <option key={curso.id} value={curso.id}>
                     {curso.nome}
@@ -502,7 +500,7 @@ export default function AdminReunioesPage() {
           {publicoTipo === "INDIVIDUAL" && (
             <div className="phanyx-reuniao-individual-card md:col-span-2 rounded-2xl border p-4">
               <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                Buscar participantes
+                {t("meetingsSearchParticipants")}
               </label>
 
               <input
@@ -511,13 +509,13 @@ export default function AdminReunioesPage() {
                   setBuscaPessoa(e.target.value)
                 }
                 className="phanyx-reuniao-busca-participante w-full rounded-xl border px-4 py-3 outline-none"
-                placeholder="Digite nome, matrícula, email ou setor"
+                placeholder={t("meetingsSearchPlaceholder")}
               />
 
               <div className="phanyx-reuniao-lista-participantes mt-3 max-h-72 overflow-y-auto rounded-xl border">
                 {pessoasFiltradas.length === 0 ? (
                   <p className="p-4 text-sm text-slate-500 dark:text-slate-300">
-                    Nenhuma pessoa encontrada.
+                    {t("meetingsNobody")}
                   </p>
                 ) : (
                   pessoasFiltradas.map((pessoa) => {
@@ -550,7 +548,7 @@ export default function AdminReunioesPage() {
                           <span
                             className="phanyx-reuniao-participante-detalhes block text-xs"
                           >
-                            {pessoa.role}
+                            {pessoa.role === "ALUNO" ? t("roleStudent") : pessoa.role === "PROFESSOR" ? t("roleTeacher") : t("roleEmployee")}
                             {pessoa.matricula ? ` • ${pessoa.matricula}` : ""}
                             {pessoa.setor ? ` • ${pessoa.setor}` : ""}
                             {pessoa.email ? ` • ${pessoa.email}` : ""}
@@ -558,7 +556,7 @@ export default function AdminReunioesPage() {
                         </span>
 
                         <span className="text-xs font-bold">
-                          {selecionado ? "Selecionado" : "Adicionar"}
+                          {selecionado ? t("meetingsSelected") : t("meetingsAdd")}
                         </span>
                       </button>
                     );
@@ -569,7 +567,7 @@ export default function AdminReunioesPage() {
               {participantesSelecionados.length > 0 && (
                 <div className="phanyx-reuniao-selecionados-card mt-3 rounded-xl border p-3">
                   <p className="phanyx-reuniao-selecionados-titulo mb-2 text-xs font-bold uppercase tracking-[0.18em]">
-                    Participantes selecionados
+                    {t("meetingsSelectedParticipants")}
                   </p>
 
                   <div className="flex flex-wrap gap-2">
@@ -591,13 +589,13 @@ export default function AdminReunioesPage() {
 
           <div className="md:col-span-2">
             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
-              Descrição
+              {t("meetingsDescription")}
             </label>
             <textarea
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               className="min-h-28 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
-              placeholder="Descreva o objetivo da reunião..."
+              placeholder={t("meetingsDescriptionPlaceholder")}
             />
           </div>
         </div>
@@ -608,18 +606,18 @@ export default function AdminReunioesPage() {
           disabled={loading}
           className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {loading ? "Criando reunião..." : "Criar reunião"}
+          {loading ? t("meetingsCreating") : t("meetingsCreate")}
         </button>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
-          Reuniões marcadas
+          {t("meetingsScheduled")}
         </h2>
 
         {reunioes.length === 0 ? (
           <p className="text-sm text-slate-500 dark:text-slate-300">
-            Nenhuma reunião marcada ainda.
+            {t("meetingsEmpty")}
           </p>
         ) : (
           <div className="space-y-3">
@@ -634,15 +632,15 @@ export default function AdminReunioesPage() {
                       {reuniao.titulo}
                     </h3>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      {new Date(reuniao.dataHora).toLocaleString("pt-BR")}
+                      {new Date(reuniao.dataHora).toLocaleString(locale)}
                     </p>
                     <p className="mt-1 text-xs text-blue-500">
-                      {publicoLabel[reuniao.publicoTipo] || reuniao.publicoTipo}
+                      {({ TODA_EQUIPE: t("meetingsWholeTeam"), TODOS_ALUNOS: t("meetingsAllStudents"), SETOR: t("commonDepartment"), TURMA: t("commonClass"), CURSO: t("commonCourse"), INDIVIDUAL: t("commonIndividual") } as Record<string, string>)[reuniao.publicoTipo] || reuniao.publicoTipo}
                       {reuniao.setor ? ` • ${reuniao.setor}` : ""}
                       {reuniao.turma?.nome ? ` • ${reuniao.turma.nome}` : ""}
                       {reuniao.curso?.nome ? ` • ${reuniao.curso.nome}` : ""}
                       {" • "}
-                      {reuniao.participantes?.length || 0} participante(s)
+                      {t("meetingsParticipants", { count: reuniao.participantes?.length || 0 })}
                     </p>
                   </div>
 
@@ -653,7 +651,7 @@ export default function AdminReunioesPage() {
                       rel="noreferrer"
                       className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-blue-600"
                     >
-                      Abrir reunião
+                      {t("meetingsOpen")}
                     </a>
 
                     <button
@@ -688,7 +686,7 @@ export default function AdminReunioesPage() {
   dark:hover:bg-red-800
 "
                     >
-                      Excluir
+                      {t("commonDelete")}
                     </button>
                   </div>
                 </div>
@@ -733,21 +731,15 @@ export default function AdminReunioesPage() {
           >
             <div className="mb-4">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                Excluir reunião
+                {t("meetingsDelete")}
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Tem certeza que deseja excluir
-                a reunião{" "}
-                <strong className="text-slate-900 dark:text-white">
-                  {reuniaoParaExcluir.titulo}
-                </strong>
-                ?
+                {t("meetingsDeleteAsk", { title: reuniaoParaExcluir.titulo })}
               </p>
 
               <p className="mt-2 text-sm text-red-600 dark:text-red-300">
-                A reunião e os participantes
-                vinculados a ela serão removidos.
+                {t("meetingsDeleteWarning")}
               </p>
             </div>
 
@@ -773,7 +765,7 @@ export default function AdminReunioesPage() {
   disabled:opacity-50
 "
               >
-                Cancelar
+                {t("commonCancel")}
               </button>
 
               <button
@@ -796,8 +788,8 @@ export default function AdminReunioesPage() {
           "
               >
                 {excluindoId !== null
-                  ? "Excluindo..."
-                  : "Excluir reunião"}
+                  ? t("meetingsDeleting")
+                  : t("meetingsDelete")}
               </button>
             </div>
           </div>
