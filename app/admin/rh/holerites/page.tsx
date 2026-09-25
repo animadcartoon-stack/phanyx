@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import PagamentoHoleriteModal from "@/components/rh/PagamentoHoleriteModal";
 import AssinaturaRhHoleriteModal from "@/components/rh/AssinaturaRhHoleriteModal";
 import ReciboAssinadoManualModal from "@/components/rh/ReciboAssinadoManualModal";
@@ -127,8 +128,8 @@ const eventoInicial: Evento = {
   valor: "",
 };
 
-function moeda(valor: number) {
-  return valor.toLocaleString("pt-BR", {
+function moeda(valor: number, locale: string) {
+  return valor.toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
@@ -136,19 +137,39 @@ function moeda(valor: number) {
 
 function numero(valor: unknown) {
   if (valor === null || valor === undefined || valor === "") return 0;
-  return Number(String(valor).replace(",", ".")) || 0;
+  const text = String(valor).trim().replace(/[^\d,.-]/g, "");
+  const comma = text.lastIndexOf(",");
+  const dot = text.lastIndexOf(".");
+  const decimal = comma > dot ? "," : ".";
+  const normalized = text.replace(decimal === "," ? /\./g : /,/g, "")
+    .replace(decimal, ".");
+  return Number(normalized) || 0;
 }
 
-function dataHoraBR(valor?: string | null) {
+function dataHoraLocal(valor: string | null | undefined, locale: string) {
   if (!valor) return "-";
 
-  return new Date(valor).toLocaleString("pt-BR", {
+  return new Date(valor).toLocaleString(locale, {
     dateStyle: "short",
     timeStyle: "short",
   });
 }
 
 export default function Page() {
+  const t = useTranslations("AdminHRPayslips");
+  const locale = useLocale();
+  const formatMoney = (value: number) => moeda(value, locale);
+  const formatDateTime = (value?: string | null) => dataHoraLocal(value, locale);
+  function statusLabel(value: string) {
+    switch (value.toUpperCase()) {
+      case "GERADO": return t("statusGenerated");
+      case "PAGO": return t("statusPaid");
+      case "ARQUIVADO": return t("statusArchived");
+      case "CANCELADO": return t("statusCancelled");
+      case "AGUARDANDO_ASSINATURA": return t("statusAwaitingSignature");
+      default: return value;
+    }
+  }
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [holerites, setHolerites] = useState<Holerite[]>([]);
 
@@ -248,11 +269,11 @@ export default function Page() {
         ]);
 
       if (!resFuncionarios.ok) {
-        throw new Error("Não foi possível carregar os funcionários.");
+        throw new Error(t("loadError"));
       }
 
       if (!resHolerites.ok) {
-        throw new Error("Não foi possível carregar os holerites.");
+        throw new Error(t("loadError"));
       }
 
       const dadosFuncionarios = await resFuncionarios.json();
@@ -277,7 +298,7 @@ export default function Page() {
         Array.isArray(dadosEventosFolha) ? dadosEventosFolha : [],
       );
     } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar dados de holerites.");
+      setErro(t("loadError"));
     } finally {
       setCarregando(false);
     }
@@ -316,7 +337,7 @@ export default function Page() {
     if (!holeriteParaArquivar) return;
 
     if (!motivoArquivo.trim()) {
-      setErro("Informe o motivo do arquivamento.");
+      setErro(t("archiveReasonRequired"));
       return;
     }
 
@@ -340,16 +361,16 @@ export default function Page() {
 
       if (!res.ok) {
         throw new Error(
-          dados?.error || "Não foi possível arquivar o holerite.",
+          t("archiveError"),
         );
       }
 
-      setSucesso("Holerite arquivado com sucesso.");
+      setSucesso(t("archiveSuccess"));
       setHoleriteParaArquivar(null);
       setMotivoArquivo("");
       await carregarDados();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao arquivar holerite.");
+      setErro(t("archiveError"));
     } finally {
       setArquivando(false);
     }
@@ -397,7 +418,7 @@ export default function Page() {
           funcionarioNome: String(
             dados?.funcionarioNome ||
             holerite.funcionario?.nome ||
-            "Funcionário",
+            t("employee"),
           ),
 
           cadastroCpfUrl: String(
@@ -406,8 +427,7 @@ export default function Page() {
           ),
 
           mensagem: String(
-            dados?.error ||
-            "Cadastre um CPF válido antes de gerar o link de assinatura.",
+            t("cpfRequired"),
           ),
         });
 
@@ -420,8 +440,7 @@ export default function Page() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-          "Não foi possível gerar o link de assinatura.",
+          t("linkError"),
         );
       }
 
@@ -440,11 +459,11 @@ export default function Page() {
       });
 
       setSucesso(
-        dados?.message || "Link seguro de assinatura gerado com sucesso.",
+        t("linkSuccess"),
       );
     } catch (error: any) {
       setErroAssinatura(
-        error?.message || "Erro ao gerar o link de assinatura.",
+        t("linkError"),
       );
     } finally {
       setGerandoLinkAssinatura(false);
@@ -479,7 +498,7 @@ export default function Page() {
       }, 2500);
     } catch {
       setErroAssinatura(
-        "Não foi possível copiar automaticamente. Selecione o link e copie manualmente.",
+        t("copyError"),
       );
     }
   }
@@ -497,17 +516,17 @@ export default function Page() {
       setSucesso("");
 
       if (!funcionarioId) {
-        setErro("Selecione um funcionário antes de gerar o holerite.");
+        setErro(t("employeeRequired"));
         return;
       }
 
       if (!competenciaMes || !competenciaAno) {
-        setErro("Informe a competência do holerite.");
+        setErro(t("periodRequired"));
         return;
       }
 
       if (numero(salarioBase) <= 0) {
-        setErro("Informe um salário base válido.");
+        setErro(t("salaryRequired"));
         return;
       }
 
@@ -516,7 +535,7 @@ export default function Page() {
       );
 
       if (eventosValidos.length === 0) {
-        setErro("Adicione pelo menos um evento com descrição e valor.");
+        setErro(t("eventRequired"));
         return;
       }
 
@@ -542,14 +561,14 @@ export default function Page() {
       const dados = await res.json().catch(() => null);
 
       if (!res.ok) {
-        throw new Error(dados?.error || "Não foi possível gerar o holerite.");
+        throw new Error(t("generateError"));
       }
 
-      setSucesso("Holerite gerado com sucesso.");
+      setSucesso(t("generateSuccess"));
       setEventos([{ ...eventoInicial }]);
       await carregarDados();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao gerar holerite.");
+      setErro(t("generateError"));
     } finally {
       setSalvando(false);
     }
@@ -558,16 +577,9 @@ export default function Page() {
   return (
     <div className="phanyx-rh-page phanyx-holerite-page space-y-6">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
-          RH Empresarial
-        </p>
-        <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
-          Holerites
-        </h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Gere holerites com salário base, vencimentos, descontos e líquido
-          automático.
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">{t("eyebrow")}</p>
+        <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">{t("heading")}</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("description")}</p>
       </div>
 
       {erro && (
@@ -583,22 +595,18 @@ export default function Page() {
       )}
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-          Novo holerite
-        </h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("newPayslip")}</h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-4">
           <div className="relative md:col-span-2">
-            <label className="text-xs font-bold uppercase text-slate-500">
-              Funcionário
-            </label>
+            <label className="text-xs font-bold uppercase text-slate-500">{t("employee")}</label>
             <input
               value={funcionarioBusca}
               onChange={(e) => {
                 setFuncionarioBusca(e.target.value);
                 setFuncionarioId(null);
               }}
-              placeholder="Digite o nome do funcionário"
+              placeholder={t("employeePlaceholder")}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             />
 
@@ -615,7 +623,7 @@ export default function Page() {
                       {funcionario.nome}
                     </span>
                     <span className="block text-xs text-slate-500 dark:text-slate-400">
-                      {funcionario.cargo || "Sem cargo informado"}
+                      {funcionario.cargo || t("noRoleProvided")}
                     </span>
                   </button>
                 ))}
@@ -624,9 +632,7 @@ export default function Page() {
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-500">
-              Mês
-            </label>
+            <label className="text-xs font-bold uppercase text-slate-500">{t("month")}</label>
             <input
               type="number"
               min={1}
@@ -638,9 +644,7 @@ export default function Page() {
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-500">
-              Ano
-            </label>
+            <label className="text-xs font-bold uppercase text-slate-500">{t("year")}</label>
             <input
               type="number"
               value={competenciaAno}
@@ -650,42 +654,34 @@ export default function Page() {
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-500">
-              Salário base
-            </label>
+            <label className="text-xs font-bold uppercase text-slate-500">{t("baseSalary")}</label>
             <input
               value={salarioBase}
               onChange={(e) => setSalarioBase(e.target.value)}
-              placeholder="0,00"
+              placeholder={t("amountPlaceholder")}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             />
           </div>
 
           <div className="md:col-span-3">
-            <label className="text-xs font-bold uppercase text-slate-500">
-              Funcionário selecionado
-            </label>
+            <label className="text-xs font-bold uppercase text-slate-500">{t("selectedEmployee")}</label>
             <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
               {funcionarioSelecionado
-                ? `${funcionarioSelecionado.nome} • ${funcionarioSelecionado.cargo || "Sem cargo"}`
-                : "Nenhum funcionário selecionado"}
+                ? `${funcionarioSelecionado.nome} • ${funcionarioSelecionado.cargo || t("noRole")}`
+                : t("noneSelected")}
             </div>
           </div>
         </div>
 
         <div className="mt-6 space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="font-bold text-slate-900 dark:text-white">
-              Eventos do holerite
-            </h3>
+            <h3 className="font-bold text-slate-900 dark:text-white">{t("payslipEvents")}</h3>
 
             <button
               type="button"
               onClick={adicionarEvento}
               className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
-            >
-              + Adicionar evento
-            </button>
+            >{t("addEvent")}</button>
           </div>
 
           {eventos.map((evento, index) => (
@@ -714,7 +710,7 @@ export default function Page() {
                 }}
                 className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white md:col-span-2"
               >
-                <option value="">Selecione um evento</option>
+                <option value="">{t("selectEvent")}</option>
 
                 {eventosPadrao
                   .filter((item) => item.tipo !== "INFORMATIVO")
@@ -726,7 +722,7 @@ export default function Page() {
               </select>
 
               <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 md:col-span-1">
-                {evento.descricao || "Descrição do evento"}
+                {evento.descricao || t("eventDescription")}
               </div>
 
               <input
@@ -734,7 +730,7 @@ export default function Page() {
                 onChange={(e) =>
                   atualizarEvento(index, "referencia", e.target.value)
                 }
-                placeholder="Referência"
+                placeholder={t("reference")}
                 className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               />
 
@@ -749,8 +745,8 @@ export default function Page() {
                 }
                 className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               >
-                <option value="VENCIMENTO">Vencimento</option>
-                <option value="DESCONTO">Desconto</option>
+                <option value="VENCIMENTO">{t("earning")}</option>
+                <option value="DESCONTO">{t("deduction")}</option>
               </select>
 
               <div className="flex gap-2">
@@ -759,7 +755,7 @@ export default function Page() {
                   onChange={(e) =>
                     atualizarEvento(index, "valor", e.target.value)
                   }
-                  placeholder="Valor"
+                  placeholder={t("value")}
                   className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                 />
 
@@ -779,29 +775,23 @@ export default function Page() {
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              Total vencimentos
-            </p>
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("totalEarnings")}</p>
             <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-              {moeda(totalVencimentos)}
+              {formatMoney(totalVencimentos)}
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              Total descontos
-            </p>
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("totalDeductions")}</p>
             <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-              {moeda(totalDescontos)}
+              {formatMoney(totalDescontos)}
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
-              Valor líquido
-            </p>
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("netPay")}</p>
             <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
-              {moeda(valorLiquido)}
+              {formatMoney(valorLiquido)}
             </p>
           </div>
         </div>
@@ -813,43 +803,37 @@ export default function Page() {
             disabled={salvando}
             className="phanyx-rh-primary-action"
           >
-            {salvando ? "Gerando..." : "Gerar holerite"}
+            {salvando ? t("generating") : t("generatePayslip")}
           </button>
         </div>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-          Holerites gerados
-        </h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t("generatedPayslips")}</h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800">
-                <th className="py-3">Funcionário</th>
-                <th className="py-3">Competência</th>
-                <th className="py-3">Salário</th>
-                <th className="py-3">Vencimentos</th>
-                <th className="py-3">Descontos</th>
-                <th className="py-3">Líquido</th>
-                <th className="py-3">Status</th>
-                <th className="py-3 text-right">Ações</th>
+                <th className="py-3">{t("employee")}</th>
+                <th className="py-3">{t("period")}</th>
+                <th className="py-3">{t("salary")}</th>
+                <th className="py-3">{t("earnings")}</th>
+                <th className="py-3">{t("deductions")}</th>
+                <th className="py-3">{t("net")}</th>
+                <th className="py-3">{t("status")}</th>
+                <th className="py-3 text-right">{t("actions")}</th>
               </tr>
             </thead>
 
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-slate-500">
-                    Carregando holerites...
-                  </td>
+                  <td colSpan={8} className="py-6 text-center text-slate-500">{t("loading")}</td>
                 </tr>
               ) : holerites.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-slate-500">
-                    Nenhum holerite gerado ainda.
-                  </td>
+                  <td colSpan={8} className="py-6 text-center text-slate-500">{t("empty")}</td>
                 </tr>
               ) : (
                 holerites.map((holerite) => {
@@ -941,27 +925,27 @@ export default function Page() {
                       className="border-b border-slate-100 dark:border-slate-800"
                     >
                       <td className="py-3 font-semibold text-slate-900 dark:text-white">
-                        {holerite.funcionario?.nome || "Funcionário"}
+                        {holerite.funcionario?.nome || t("employee")}
                       </td>
                       <td className="py-3 text-slate-600 dark:text-slate-300">
                         {String(holerite.competenciaMes).padStart(2, "0")}/
                         {holerite.competenciaAno}
                       </td>
                       <td className="py-3 text-slate-600 dark:text-slate-300">
-                        {moeda(numero(holerite.salarioBase))}
+                        {formatMoney(numero(holerite.salarioBase))}
                       </td>
                       <td className="py-3 text-emerald-700 dark:text-emerald-300">
-                        {moeda(numero(holerite.totalVencimentos))}
+                        {formatMoney(numero(holerite.totalVencimentos))}
                       </td>
                       <td className="py-3 text-red-700 dark:text-red-300">
-                        {moeda(numero(holerite.totalDescontos))}
+                        {formatMoney(numero(holerite.totalDescontos))}
                       </td>
                       <td className="py-3 font-bold text-blue-700 dark:text-blue-300">
-                        {moeda(numero(holerite.valorLiquido))}
+                        {formatMoney(numero(holerite.valorLiquido))}
                       </td>
                       <td className="py-3">
                         <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-700">
-                          {holerite.status || "GERADO"}
+                          {statusLabel(holerite.status || "GERADO")}
                         </span>
                       </td>
                       <td className="py-3 text-right">
@@ -970,27 +954,20 @@ export default function Page() {
                             href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
-                          >
-                            📄 PDF
-                          </a>
+                            className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-500 dark:text-emerald-300 hover:text-white"
+                          >{t("pdf")}</a>
 
                           {possuiRecibo && (
                             <a
                               href={`/api/admin/rh/holerites/${holerite.id}/recibo-pagamento/pdf`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={
-                                reciboAssinadoManual
-                                  ? "📄 Ver recibo original"
-                                  : reciboAssinadoDigital
-                                    ? "📄 Recibo assinado"
-                                    : "📄 Ver recibo"}
+                              className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
                               
                             >
                           {reciboAssinado
-                            ? "📄 Recibo assinado"
-                            : "📄 Ver recibo"}
+                            ? t("signedReceipt")
+                            : t("viewReceipt")}
                         </a>
                           )}
 
@@ -1003,26 +980,19 @@ export default function Page() {
                               setSucesso("");
                             }}
                             className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
-                          >
-                            ✍️ Assinar como RH
-                          </button>
+                          >{t("signAsHR")}</button>
                         )}
 
                         {reciboAssinadoPeloRh && (
                           <span
                             title={
                               pagamentoAtual?.assinadoRhNomeSnapshot
-                                ? `Assinado por ${pagamentoAtual.assinadoRhNomeSnapshot} em ${dataHoraBR(
-                                  pagamentoAtual.assinadoRhEm,
-                                )}`
-                                : `Assinado pelo RH em ${dataHoraBR(
-                                  pagamentoAtual?.assinadoRhEm,
-                                )}`
+                                ? t("signedByNameAt", { name: pagamentoAtual.assinadoRhNomeSnapshot,
+                                  date: formatDateTime(pagamentoAtual.assinadoRhEm) })
+                                : t("signedByHRAt", { date: formatDateTime(pagamentoAtual?.assinadoRhEm) })
                             }
                             className="inline-flex items-center rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200"
-                          >
-                            ✓ Assinado pelo RH
-                          </span>
+                          >{t("signedByHR")}</span>
                         )}
 
                                                   {podeEnviarReciboManual && (
@@ -1036,38 +1006,30 @@ export default function Page() {
                                 setSucesso("");
                               }}
                               className="rounded-xl border border-amber-600 px-3 py-1 text-sm font-semibold text-amber-800 transition hover:bg-amber-600 hover:text-white dark:text-amber-300"
-                            >
-                              🖨️ Imprimir e enviar assinado
-                            </button>
+                            >{t("printAndUpload")}</button>
                           )}
 
                           {reciboAssinadoManual &&
   documentoManualAtual && (
     <>
       <span
-        title={`Documento ${documentoManualAtual.arquivoNome} enviado por ${documentoManualAtual.enviadoPorNomeSnapshot} em ${dataHoraBR(
-          documentoManualAtual.criadoEm,
-        )}`}
+        title={t("manualDocumentTooltip", { file: documentoManualAtual.arquivoNome,
+          name: documentoManualAtual.enviadoPorNomeSnapshot,
+          date: formatDateTime(documentoManualAtual.criadoEm) })}
         className="inline-flex items-center rounded-xl border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
-      >
-        ✓ Assinatura manual recebida
-      </span>
+      >{t("manualSignatureReceived")}</span>
 
       <a
         href={`/api/admin/rh/holerites/${holerite.id}/recibo-assinado-manual/${documentoManualAtual.id}`}
         target="_blank"
         rel="noopener noreferrer"
         className="rounded-xl border border-slate-400 px-3 py-1 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
-      >
-        👁️ Ver documento assinado
-      </a>
+      >{t("viewSignedDocument")}</a>
 
       <a
         href={`/api/admin/rh/holerites/${holerite.id}/recibo-assinado-manual/${documentoManualAtual.id}?download=1`}
         className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
-      >
-        ⬇️ Baixar documento assinado
-      </a>
+      >{t("downloadSignedDocument")}</a>
     </>
   )}
 
@@ -1078,8 +1040,8 @@ export default function Page() {
                             className="rounded-xl border border-violet-600 px-3 py-1 text-sm font-semibold text-violet-700 transition hover:bg-violet-600 hover:text-white dark:text-violet-300"
                           >
                             {linkJaFoiGerado
-                              ? "Gerar novo link"
-                              : "Gerar link de assinatura"}
+                              ? t("newLink")
+                              : t("signatureLink")}
                           </button>
                         )}
 
@@ -1099,9 +1061,7 @@ export default function Page() {
                                 setSucesso("");
                               }}
                               className="rounded-xl border border-emerald-600 px-3 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-600 hover:text-white dark:text-emerald-300"
-                            >
-                              Registrar pagamento
-                            </button>
+                            >{t("registerPayment")}</button>
                           )}
 
                         <button
@@ -1110,10 +1070,8 @@ export default function Page() {
                             setHoleriteParaArquivar(holerite);
                             setMotivoArquivo("");
                           }}
-                          className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
-                        >
-                          Arquivar
-                        </button>
+                          className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-800 transition hover:bg-amber-500 dark:text-amber-300 hover:text-white"
+                        >{t("archive")}</button>
                       </div>
                     </td>
                     </tr>
@@ -1128,36 +1086,31 @@ export default function Page() {
       {
     holeriteParaArquivar && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-        <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-          <h2 className="text-xl font-bold text-white">Arquivar holerite</h2>
+        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("archivePayslip")}</h2>
 
-          <p className="mt-3 text-sm text-slate-300">
-            Este holerite não será excluído do sistema. Ele ficará preservado
-            para auditoria, direção e conferências futuras.
-          </p>
+          <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">{t("archiveDescription")}</p>
 
-          <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
             <p>
-              <strong>Funcionário:</strong>{" "}
-              {holeriteParaArquivar.funcionario?.nome || "Funcionário"}
+              <strong>{t("employeeColon")}</strong>{" "}
+              {holeriteParaArquivar.funcionario?.nome || t("employee")}
             </p>
             <p className="mt-2">
-              <strong>Competência:</strong>{" "}
+              <strong>{t("periodColon")}</strong>{" "}
               {String(holeriteParaArquivar.competenciaMes).padStart(2, "0")}/
               {holeriteParaArquivar.competenciaAno}
             </p>
           </div>
 
-          <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
-            Motivo do arquivamento
-          </label>
+          <label className="mt-5 block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">{t("archiveReason")}</label>
 
           <textarea
             value={motivoArquivo}
             onChange={(e) => setMotivoArquivo(e.target.value)}
             rows={4}
-            placeholder="Explique por que este holerite está sendo arquivado."
-            className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+            placeholder={t("archivePlaceholder")}
+            className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white outline-none focus:border-amber-500"
           />
 
           {erro && (
@@ -1175,10 +1128,8 @@ export default function Page() {
                 setErro("");
               }}
               disabled={arquivando}
-              className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-            >
-              Cancelar
-            </button>
+              className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 disabled:opacity-60"
+            >{t("cancel")}</button>
 
             <button
               type="button"
@@ -1186,7 +1137,7 @@ export default function Page() {
               disabled={arquivando}
               className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
             >
-              {arquivando ? "Arquivando..." : "Arquivar holerite"}
+              {arquivando ? t("archiving") : t("archivePayslip")}
             </button>
           </div>
         </div>
@@ -1204,7 +1155,7 @@ export default function Page() {
         }}
         onConcluido={async (mensagem) => {
           setErro("");
-          setSucesso(mensagem);
+          setSucesso(t("actionSuccess"));
           await carregarDados();
         }}
       />
@@ -1220,7 +1171,7 @@ export default function Page() {
         }}
         onConcluido={async (mensagem) => {
           setErro("");
-          setSucesso(mensagem);
+          setSucesso(t("actionSuccess"));
           await carregarDados();
         }}
       />
@@ -1236,7 +1187,7 @@ export default function Page() {
           }}
           onConcluido={async (mensagem) => {
             setErro("");
-            setSucesso(mensagem);
+            setSucesso(t("actionSuccess"));
             await carregarDados();
           }}
         />
@@ -1246,37 +1197,30 @@ export default function Page() {
     holeriteParaAssinatura && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
         <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-          <h2 className="text-xl font-bold">
-            Assinatura digital do recibo
-          </h2>
+          <h2 className="text-xl font-bold">{t("digitalSignature")}</h2>
 
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Gere um link individual para o funcionário conferir o recibo,
-            confirmar o recebimento e assinar digitalmente.
-          </p>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("digitalSignatureDescription")}</p>
 
           <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
             <p>
-              <strong>Funcionário:</strong>{" "}
-              {holeriteParaAssinatura.funcionario?.nome || "Funcionário"}
+              <strong>{t("employeeColon")}</strong>{" "}
+              {holeriteParaAssinatura.funcionario?.nome || t("employee")}
             </p>
 
             <p className="mt-2">
-              <strong>Competência:</strong>{" "}
+              <strong>{t("periodColon")}</strong>{" "}
               {String(holeriteParaAssinatura.competenciaMes).padStart(2, "0")}/
               {holeriteParaAssinatura.competenciaAno}
             </p>
 
             <p className="mt-2">
-              <strong>Valor do recibo:</strong>{" "}
-              {moeda(numero(holeriteParaAssinatura.valorLiquido))}
+              <strong>{t("receiptValueColon")}</strong>{" "}
+              {formatMoney(numero(holeriteParaAssinatura.valorLiquido))}
             </p>
           </div>
 
           {gerandoLinkAssinatura && (
-            <div className="mt-5 rounded-2xl border border-violet-200 bg-violet-50 p-5 text-center text-sm font-semibold text-violet-800 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-200">
-              Gerando link seguro de assinatura...
-            </div>
+            <div className="mt-5 rounded-2xl border border-violet-200 bg-violet-50 p-5 text-center text-sm font-semibold text-violet-800 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-200">{t("creatingLink")}</div>
           )}
 
           {erroAssinatura && (
@@ -1288,35 +1232,31 @@ export default function Page() {
           {linkAssinatura && (
             <div className="mt-5 space-y-4">
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-                <p className="font-bold">
-                  Link gerado com sucesso
-                </p>
+                <p className="font-bold">{t("linkCreated")}</p>
 
                 <p className="mt-2">
-                  <strong>Recibo:</strong>{" "}
+                  <strong>{t("receiptColon")}</strong>{" "}
                   {linkAssinatura.reciboNumero}
                 </p>
 
                 <p className="mt-1">
-                  <strong>Funcionário:</strong>{" "}
+                  <strong>{t("employeeColon")}</strong>{" "}
                   {linkAssinatura.funcionario.nome}
                 </p>
 
                 <p className="mt-1">
-                  <strong>E-mail cadastrado:</strong>{" "}
+                  <strong>{t("registeredEmailColon")}</strong>{" "}
                   {linkAssinatura.funcionario.email}
                 </p>
 
                 <p className="mt-1">
-                  <strong>Válido até:</strong>{" "}
-                  {dataHoraBR(linkAssinatura.expiraEm)}
+                  <strong>{t("validUntilColon")}</strong>{" "}
+                  {formatDateTime(linkAssinatura.expiraEm)}
                 </p>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">
-                  Link individual de assinatura
-                </label>
+                <label className="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">{t("individualLink")}</label>
 
                 <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                   <input
@@ -1331,16 +1271,12 @@ export default function Page() {
                     onClick={copiarLinkAssinatura}
                     className="rounded-2xl bg-violet-600 px-5 py-3 text-sm font-bold text-white hover:bg-violet-700"
                   >
-                    {linkCopiado ? "Link copiado" : "Copiar link"}
+                    {linkCopiado ? t("linkCopied") : t("copyLink")}
                   </button>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                O link é individual e válido por sete dias. Ao gerar um novo
-                link, o anterior deixa de funcionar. Encaminhe-o somente ao
-                funcionário responsável pelo recibo.
-              </div>
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">{t("linkNote")}</div>
             </div>
           )}
 
@@ -1350,9 +1286,7 @@ export default function Page() {
                 type="button"
                 onClick={() => gerarLinkAssinatura(holeriteParaAssinatura)}
                 className="rounded-2xl bg-violet-600 px-5 py-2 text-sm font-bold text-white hover:bg-violet-700"
-              >
-                Tentar novamente
-              </button>
+              >{t("retry")}</button>
             )}
 
             {linkAssinatura && (
@@ -1361,9 +1295,7 @@ export default function Page() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-2xl border border-violet-600 px-5 py-2 text-sm font-bold text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/40"
-              >
-                Abrir página de assinatura
-              </a>
+              >{t("openSignaturePage")}</a>
             )}
 
             <button
@@ -1371,9 +1303,7 @@ export default function Page() {
               onClick={fecharModalAssinatura}
               disabled={gerandoLinkAssinatura}
               className="rounded-2xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              Fechar
-            </button>
+            >{t("close")}</button>
           </div>
         </div>
       </div>
@@ -1385,16 +1315,16 @@ export default function Page() {
     titulo={
       avisoCpfAssinatura?.codigo ===
         "CPF_FUNCIONARIO_INVALIDO"
-        ? "CPF do funcionário inválido"
-        : "CPF do funcionário não cadastrado"
+        ? t("invalidCpf")
+        : t("missingCpf")
     }
     mensagem={
       avisoCpfAssinatura
-        ? `${avisoCpfAssinatura.mensagem} O CPF será utilizado para validar a identidade do funcionário no momento da assinatura do recibo.`
+        ? t("cpfExplanation", { message: avisoCpfAssinatura.mensagem })
         : ""
     }
-    textoConfirmar="Cadastrar CPF"
-    textoCancelar="Agora não"
+    textoConfirmar={t("registerCpf")}
+    textoCancelar={t("notNow")}
     onCancelar={() => {
       setAvisoCpfAssinatura(null);
     }}
