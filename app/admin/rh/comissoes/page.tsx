@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import {
   useCallback,
   useEffect,
@@ -126,54 +128,27 @@ const resumoInicial: ResumoComissoes = {
   valorEnviadoHolerite: 0,
 };
 
-const meses = [
-  { valor: "1", nome: "Janeiro" },
-  { valor: "2", nome: "Fevereiro" },
-  { valor: "3", nome: "Março" },
-  { valor: "4", nome: "Abril" },
-  { valor: "5", nome: "Maio" },
-  { valor: "6", nome: "Junho" },
-  { valor: "7", nome: "Julho" },
-  { valor: "8", nome: "Agosto" },
-  { valor: "9", nome: "Setembro" },
-  { valor: "10", nome: "Outubro" },
-  { valor: "11", nome: "Novembro" },
-  { valor: "12", nome: "Dezembro" },
-];
+const meses = Array.from({ length: 12 }, (_, index) => String(index + 1));
 
-function formatarMoeda(valor: unknown) {
+function formatarMoeda(valor: unknown, locale: string) {
   const numero = Number(valor || 0);
 
-  return numero.toLocaleString("pt-BR", {
+  return numero.toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarDataHora(valor?: string | null) {
-  if (!valor) return "Não informado";
+function formatarDataHora(valor: string | null | undefined, locale: string, ausente: string) {
+  if (!valor) return ausente;
 
   const data = new Date(valor);
 
   if (Number.isNaN(data.getTime())) {
-    return "Não informado";
+    return ausente;
   }
 
-  return data.toLocaleString("pt-BR");
-}
-
-function rotuloStatus(status: StatusComissao) {
-  const rotulos: Record<StatusComissao, string> = {
-    PENDENTE: "Pendente",
-    APROVADO: "Aprovada",
-    REPROVADO: "Reprovada",
-    ENVIADO_HOLERITE: "Enviada ao holerite",
-    PAGO: "Paga",
-    ESTORNADO: "Estornada",
-    CANCELADO: "Cancelada",
-  };
-
-  return rotulos[status];
+  return data.toLocaleString(locale);
 }
 
 function classeStatus(status: StatusComissao) {
@@ -198,6 +173,18 @@ function classeStatus(status: StatusComissao) {
 }
 
 export default function AdminRHComissoesPage() {
+  const t = useTranslations("AdminHRCommissions");
+  const locale = useLocale();
+  const money = (value: unknown) => formatarMoeda(value, locale);
+  const dateTime = (value?: string | null) => formatarDataHora(value, locale, t("notInformed"));
+  const statusLabels: Record<StatusComissao, string> = {
+    PENDENTE: t("statusPending"), APROVADO: t("statusApproved"),
+    REPROVADO: t("statusRejected"), ENVIADO_HOLERITE: t("statusSent"),
+    PAGO: t("statusPaid"), ESTORNADO: t("statusReversed"), CANCELADO: t("statusCancelled"),
+  };
+  const monthName = (month: string) => new Intl.DateTimeFormat(locale, {
+    month: "long", timeZone: "UTC",
+  }).format(new Date(Date.UTC(2020, Number(month) - 1, 1)));
   const agora = new Date();
 
   const [lancamentos, setLancamentos] =
@@ -288,8 +275,7 @@ export default function AdminRHComissoesPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-          "Não foi possível carregar as comissões."
+          t("loadError")
         );
       }
 
@@ -307,7 +293,7 @@ export default function AdminRHComissoesPage() {
     } catch (error: any) {
       setErro(
         error?.message ||
-        "Não foi possível carregar as comissões."
+        t("loadError")
       );
 
       setLancamentos([]);
@@ -315,7 +301,7 @@ export default function AdminRHComissoesPage() {
     } finally {
       setLoading(false);
     }
-  }, [ano, busca, mes, status]);
+  }, [ano, busca, mes, status, t]);
 
   useEffect(() => {
     const temporizador = window.setTimeout(
@@ -430,7 +416,7 @@ export default function AdminRHComissoesPage() {
       lancamentoIds.length === 0
     ) {
       setErro(
-        "Selecione pelo menos uma comissão pendente."
+        t("pendingRequired")
       );
       return;
     }
@@ -462,14 +448,12 @@ export default function AdminRHComissoesPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-          "Não foi possível processar as comissões."
+          t("processError")
         );
       }
 
       setSucesso(
-        dados?.message ||
-        "Comissões processadas com sucesso."
+        t("processSuccess")
       );
 
       setSelecionados(new Set());
@@ -481,7 +465,7 @@ export default function AdminRHComissoesPage() {
     } catch (error: any) {
       setErro(
         error?.message ||
-        "Não foi possível processar as comissões."
+        t("processError")
       );
     } finally {
       setProcessando(false);
@@ -493,7 +477,7 @@ export default function AdminRHComissoesPage() {
   ) {
     if (lancamentoIds.length === 0) {
       setErro(
-        "Selecione pelo menos uma comissão aprovada."
+        t("approvedRequired")
       );
       return;
     }
@@ -522,14 +506,12 @@ export default function AdminRHComissoesPage() {
 
       if (!resposta.ok) {
         throw new Error(
-          dados?.error ||
-          "Não foi possível enviar a comissão ao holerite."
+          t("sendError")
         );
       }
 
       setSucesso(
-        dados?.message ||
-        "Comissão enviada ao holerite com sucesso."
+        t("sendSuccess")
       );
 
       setSelecionados(new Set());
@@ -538,7 +520,7 @@ export default function AdminRHComissoesPage() {
     } catch (error: any) {
       setErro(
         error?.message ||
-        "Não foi possível enviar a comissão ao holerite."
+        t("sendError")
       );
     } finally {
       setProcessando(false);
@@ -550,7 +532,7 @@ export default function AdminRHComissoesPage() {
   ) {
     if (ids.length === 0) {
       setErro(
-        "Selecione pelo menos uma comissão pendente."
+        t("pendingRequired")
       );
       return;
     }
@@ -574,7 +556,7 @@ export default function AdminRHComissoesPage() {
       motivoReprovacao.trim().length < 5
     ) {
       setErro(
-        "Informe um motivo com pelo menos 5 caracteres."
+        t("reasonRequired")
       );
       return;
     }
@@ -589,15 +571,9 @@ export default function AdminRHComissoesPage() {
   return (
     <div className="phanyx-rh-comissoes-page max-w-7xl space-y-6">
       <header>
-        <h1 className="text-2xl font-black">
-          💰 Comissões comerciais
-        </h1>
+        <h1 className="text-2xl font-black">{t("title")}</h1>
 
-        <p className="mt-1 text-sm phanyx-comissoes-texto-secundario">
-          Analise as comissões geradas pelas vendas,
-          aprove os valores corretos e registre
-          reprovações com motivo auditável.
-        </p>
+        <p className="mt-1 text-sm phanyx-comissoes-texto-secundario">{t("intro")}</p>
       </header>
 
       {erro && (
@@ -608,9 +584,7 @@ export default function AdminRHComissoesPage() {
 
       {sucesso && (
         <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-800">
-          <p className="font-black">
-            Tudo certo.
-          </p>
+          <p className="font-black">{t("successHeading")}</p>
 
           <p className="mt-1">
             {sucesso}
@@ -621,77 +595,63 @@ export default function AdminRHComissoesPage() {
       <section className="phanyx-comissoes-panel rounded-3xl border p-5 shadow-sm">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
-            <p className="text-sm phanyx-comissoes-texto-secundario">
-              Pendentes
-            </p>
+            <p className="text-sm phanyx-comissoes-texto-secundario">{t("pending")}</p>
 
             <p className="mt-1 text-2xl font-black">
               {resumo.pendentes}
             </p>
 
             <p className="mt-2 text-sm font-bold text-amber-700">
-              {formatarMoeda(
+              {money(
                 resumo.valorPendente
               )}
             </p>
           </div>
 
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
-            <p className="text-sm phanyx-comissoes-texto-secundario">
-              Aprovadas
-            </p>
+            <p className="text-sm phanyx-comissoes-texto-secundario">{t("approved")}</p>
 
             <p className="mt-1 text-2xl font-black">
               {resumo.aprovados}
             </p>
 
             <p className="mt-2 text-sm font-bold text-emerald-700">
-              {formatarMoeda(
+              {money(
                 resumo.valorAprovado
               )}
             </p>
           </div>
 
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
-            <p className="text-sm phanyx-comissoes-texto-secundario">
-              Enviadas ao holerite
-            </p>
+            <p className="text-sm phanyx-comissoes-texto-secundario">{t("sent")}</p>
 
             <p className="mt-1 text-2xl font-black">
               {resumo.enviadosHolerite}
             </p>
 
             <p className="mt-2 text-sm font-bold text-violet-700">
-              {formatarMoeda(resumo.valorEnviadoHolerite)}
+              {money(resumo.valorEnviadoHolerite)}
             </p>
           </div>
 
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
-            <p className="text-sm phanyx-comissoes-texto-secundario">
-              Reprovadas
-            </p>
+            <p className="text-sm phanyx-comissoes-texto-secundario">{t("rejected")}</p>
 
             <p className="mt-1 text-2xl font-black">
               {resumo.reprovados}
             </p>
 
-            <p className="mt-2 text-sm phanyx-comissoes-texto-secundario">
-              Com justificativa registrada
-            </p>
+            <p className="mt-2 text-sm phanyx-comissoes-texto-secundario">{t("justified")}</p>
           </div>
 
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
-            <p className="text-sm phanyx-comissoes-texto-secundario">
-              Total encontrado
-            </p>
+            <p className="text-sm phanyx-comissoes-texto-secundario">{t("totalFound")}</p>
 
             <p className="mt-1 text-2xl font-black">
               {resumo.total}
             </p>
 
-            <p className="mt-2 text-sm phanyx-comissoes-texto-secundario">
-              Na competência e filtros atuais
-            </p>
+            <p className="mt-2 text-sm phanyx-comissoes-texto-secundario">{t("filteredPeriod")}</p>
           </div>
         </div>
       </section>
@@ -699,9 +659,7 @@ export default function AdminRHComissoesPage() {
       <section className="phanyx-comissoes-panel rounded-3xl border p-5 shadow-sm">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div className="xl:col-span-2">
-            <label className="mb-2 block text-sm font-black">
-              Buscar
-            </label>
+            <label className="mb-2 block text-sm font-black">{t("search")}</label>
 
             <input
               value={busca}
@@ -710,15 +668,13 @@ export default function AdminRHComissoesPage() {
                   evento.target.value
                 )
               }
-              placeholder="Vendedor, aluno, curso, matrícula, plano ou regra..."
+              placeholder={t("searchPlaceholder")}
               className="phanyx-comissoes-input w-full rounded-xl border px-4 py-3 outline-none"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-black">
-              Status
-            </label>
+            <label className="mb-2 block text-sm font-black">{t("status")}</label>
 
             <select
               value={status}
@@ -729,44 +685,26 @@ export default function AdminRHComissoesPage() {
               }
               className="phanyx-comissoes-input w-full rounded-xl border px-4 py-3 outline-none"
             >
-              <option value="">
-                Todos
-              </option>
+              <option value="">{t("all")}</option>
 
-              <option value="PENDENTE">
-                Pendentes
-              </option>
+              <option value="PENDENTE">{t("pending")}</option>
 
-              <option value="APROVADO">
-                Aprovadas
-              </option>
+              <option value="APROVADO">{t("approved")}</option>
 
-              <option value="REPROVADO">
-                Reprovadas
-              </option>
+              <option value="REPROVADO">{t("rejected")}</option>
 
-              <option value="ENVIADO_HOLERITE">
-                Enviadas ao holerite
-              </option>
+              <option value="ENVIADO_HOLERITE">{t("sent")}</option>
 
-              <option value="PAGO">
-                Pagas
-              </option>
+              <option value="PAGO">{t("paid")}</option>
 
-              <option value="ESTORNADO">
-                Estornadas
-              </option>
+              <option value="ESTORNADO">{t("reversed")}</option>
 
-              <option value="CANCELADO">
-                Canceladas
-              </option>
+              <option value="CANCELADO">{t("cancelled")}</option>
             </select>
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-black">
-              Mês
-            </label>
+            <label className="mb-2 block text-sm font-black">{t("month")}</label>
 
             <select
               value={mes}
@@ -777,25 +715,18 @@ export default function AdminRHComissoesPage() {
               }
               className="phanyx-comissoes-input w-full rounded-xl border px-4 py-3 outline-none"
             >
-              <option value="">
-                Todos
-              </option>
+              <option value="">{t("all")}</option>
 
-              {meses.map((item) => (
-                <option
-                  key={item.valor}
-                  value={item.valor}
-                >
-                  {item.nome}
+              {meses.map((month) => (
+                <option key={month} value={month}>
+                  {monthName(month)}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-black">
-              Ano
-            </label>
+            <label className="mb-2 block text-sm font-black">{t("year")}</label>
 
             <select
               value={ano}
@@ -806,9 +737,7 @@ export default function AdminRHComissoesPage() {
               }
               className="phanyx-comissoes-input w-full rounded-xl border px-4 py-3 outline-none"
             >
-              <option value="">
-                Todos
-              </option>
+              <option value="">{t("all")}</option>
 
               {anosDisponiveis.map(
                 (anoItem) => (
@@ -830,14 +759,10 @@ export default function AdminRHComissoesPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="font-black">
-                {idsSelecionados.length} comissão(ões)
-                selecionada(s)
+                {t("selectedCount", { count: idsSelecionados.length })}
               </p>
 
-              <p className="mt-1 text-sm phanyx-comissoes-texto-secundario">
-                Apenas lançamentos pendentes podem ser
-                aprovados ou reprovados.
-              </p>
+              <p className="mt-1 text-sm phanyx-comissoes-texto-secundario">{t("pendingOnly")}</p>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -851,9 +776,7 @@ export default function AdminRHComissoesPage() {
                   )
                 }
                 className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Aprovar selecionadas
-              </button>
+              >{t("approveSelected")}</button>
 
               <button
                 type="button"
@@ -864,9 +787,7 @@ export default function AdminRHComissoesPage() {
                   )
                 }
                 className="rounded-xl bg-red-600 px-4 py-2 text-sm font-black text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Reprovar selecionadas
-              </button>
+              >{t("rejectSelected")}</button>
 
               <button
                 type="button"
@@ -877,9 +798,7 @@ export default function AdminRHComissoesPage() {
                   )
                 }
                 className="phanyx-comissoes-botao-neutro rounded-xl border px-4 py-2 text-sm font-black"
-              >
-                Limpar seleção
-              </button>
+              >{t("clearSelection")}</button>
             </div>
           </div>
         </section>
@@ -888,14 +807,9 @@ export default function AdminRHComissoesPage() {
       <section className="phanyx-comissoes-panel overflow-hidden rounded-3xl border shadow-sm">
         <div className="flex flex-col gap-3 border-b p-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-xl font-black">
-              Lançamentos de comissão
-            </h2>
+            <h2 className="text-xl font-black">{t("entries")}</h2>
 
-            <p className="mt-1 text-sm phanyx-comissoes-texto-secundario">
-              Valores gerados automaticamente ou
-              inseridos manualmente.
-            </p>
+            <p className="mt-1 text-sm phanyx-comissoes-texto-secundario">{t("entriesHelp")}</p>
           </div>
 
           <button
@@ -905,20 +819,15 @@ export default function AdminRHComissoesPage() {
             className="phanyx-comissoes-botao-neutro rounded-xl border px-4 py-2 text-sm font-black disabled:opacity-60"
           >
             {loading
-              ? "Atualizando..."
-              : "Recarregar"}
+              ? t("refreshing")
+              : t("reload")}
           </button>
         </div>
 
         {loading ? (
-          <div className="p-10 text-center phanyx-comissoes-texto-secundario">
-            Carregando comissões...
-          </div>
+          <div className="p-10 text-center phanyx-comissoes-texto-secundario">{t("loading")}</div>
         ) : lancamentos.length === 0 ? (
-          <div className="p-10 text-center phanyx-comissoes-texto-secundario">
-            Nenhuma comissão encontrada para os filtros
-            informados.
-          </div>
+          <div className="p-10 text-center phanyx-comissoes-texto-secundario">{t("empty")}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="phanyx-comissoes-table min-w-[1180px] w-full text-left text-sm">
@@ -933,38 +842,24 @@ export default function AdminRHComissoesPage() {
                       onChange={
                         alternarTodosPendentes
                       }
-                      aria-label="Selecionar comissões pendentes"
+                      aria-label={t("selectPending")}
                       className="h-4 w-4"
                     />
                   </th>
 
-                  <th className="px-4 py-3">
-                    Vendedor
-                  </th>
+                  <th className="px-4 py-3">{t("seller")}</th>
 
-                  <th className="px-4 py-3">
-                    Venda
-                  </th>
+                  <th className="px-4 py-3">{t("sale")}</th>
 
-                  <th className="px-4 py-3">
-                    Regra
-                  </th>
+                  <th className="px-4 py-3">{t("rule")}</th>
 
-                  <th className="px-4 py-3">
-                    Cálculo
-                  </th>
+                  <th className="px-4 py-3">{t("calculation")}</th>
 
-                  <th className="px-4 py-3">
-                    Valor
-                  </th>
+                  <th className="px-4 py-3">{t("amount")}</th>
 
-                  <th className="px-4 py-3">
-                    Status
-                  </th>
+                  <th className="px-4 py-3">{t("status")}</th>
 
-                  <th className="px-4 py-3 text-right">
-                    Ações
-                  </th>
+                  <th className="px-4 py-3 text-right">{t("actions")}</th>
                 </tr>
               </thead>
 
@@ -995,7 +890,7 @@ export default function AdminRHComissoesPage() {
                                   lancamento.id
                                 )
                               }
-                              aria-label={`Selecionar comissão de ${lancamento.funcionarioNomeSnapshot}`}
+                              aria-label={t("selectFor", { name: lancamento.funcionarioNomeSnapshot })}
                               className="h-4 w-4 disabled:cursor-not-allowed disabled:opacity-40"
                             />
                           </td>
@@ -1010,32 +905,32 @@ export default function AdminRHComissoesPage() {
                             <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
                               {lancamento.funcionario
                                 ?.cargo ||
-                                "Cargo não informado"}
+                                t("jobMissing")}
                             </p>
 
                             <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
                               {lancamento.funcionario
                                 ?.departamento?.nome ||
-                                "Departamento não informado"}
+                                t("departmentMissing")}
                             </p>
                           </td>
 
                           <td className="px-4 py-4 align-top">
                             <p className="font-bold">
                               {lancamento.alunoNomeSnapshot ||
-                                "Aluno não informado"}
+                                t("studentMissing")}
                             </p>
 
                             <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-                              Matrícula:{" "}
+                              {t("enrollmentColon")}{" "}
                               {lancamento.matriculaNumeroSnapshot ||
                                 lancamento.matriculaId ||
-                                "Não informada"}
+                                t("notInformedF")}
                             </p>
 
                             <p className="mt-1 max-w-[220px] text-xs phanyx-comissoes-texto-secundario">
                               {lancamento.cursoNomeSnapshot ||
-                                "Curso não informado"}
+                                t("courseMissing")}
                             </p>
                           </td>
 
@@ -1055,9 +950,9 @@ export default function AdminRHComissoesPage() {
 
                           <td className="px-4 py-4 align-top">
                             <p>
-                              Base:{" "}
+                              {t("baseColon")}{" "}
                               <strong>
-                                {formatarMoeda(
+                                {money(
                                   lancamento.baseCalculo
                                 )}
                               </strong>
@@ -1065,7 +960,7 @@ export default function AdminRHComissoesPage() {
 
                             {lancamento.percentualAplicado && (
                               <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-                                Percentual:{" "}
+                                {t("percentageColon")}{" "}
                                 {
                                   lancamento.percentualAplicado
                                 }
@@ -1074,7 +969,7 @@ export default function AdminRHComissoesPage() {
                             )}
 
                             <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-                              Participação:{" "}
+                              {t("participationColon")}{" "}
                               {
                                 lancamento.percentualParticipacao
                               }
@@ -1084,15 +979,15 @@ export default function AdminRHComissoesPage() {
 
                           <td className="px-4 py-4 align-top">
                             <p className="text-lg font-black">
-                              {formatarMoeda(
+                              {money(
                                 lancamento.valorCalculado
                               )}
                             </p>
 
                             {lancamento.valorAprovado && (
                               <p className="mt-1 text-xs font-bold text-emerald-700">
-                                Aprovado:{" "}
-                                {formatarMoeda(
+                                {t("approvedColon")}{" "}
+                                {money(
                                   lancamento.valorAprovado
                                 )}
                               </p>
@@ -1108,9 +1003,7 @@ export default function AdminRHComissoesPage() {
                                 ),
                               ].join(" ")}
                             >
-                              {rotuloStatus(
-                                lancamento.status
-                              )}
+                              {statusLabels[lancamento.status]}
                             </span>
 
                             <p className="mt-2 text-xs phanyx-comissoes-texto-secundario">
@@ -1136,8 +1029,8 @@ export default function AdminRHComissoesPage() {
                                 className="phanyx-comissoes-botao-neutro rounded-lg border px-3 py-2 text-xs font-black"
                               >
                                 {detalhesAbertosNeste
-                                  ? "Ocultar"
-                                  : "Detalhes"}
+                                  ? t("hide")
+                                  : t("details")}
                               </button>
 
                               {lancamento.status === "APROVADO" && (
@@ -1152,8 +1045,8 @@ export default function AdminRHComissoesPage() {
                                   className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-black text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                   {processando
-                                    ? "Enviando..."
-                                    : "Enviar ao holerite"}
+                                    ? t("sending")
+                                    : t("sendToPayslip")}
                                 </button>
                               )}
 
@@ -1173,9 +1066,7 @@ export default function AdminRHComissoesPage() {
                                       )
                                     }
                                     className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-black text-white hover:bg-emerald-700 disabled:opacity-60"
-                                  >
-                                    Aprovar
-                                  </button>
+                                  >{t("approve")}</button>
 
                                   <button
                                     type="button"
@@ -1188,9 +1079,7 @@ export default function AdminRHComissoesPage() {
                                       ])
                                     }
                                     className="rounded-lg bg-red-600 px-3 py-2 text-xs font-black text-white hover:bg-red-700 disabled:opacity-60"
-                                  >
-                                    Reprovar
-                                  </button>
+                                  >{t("reject")}</button>
                                 </>
                               )}
                             </div>
@@ -1207,9 +1096,7 @@ export default function AdminRHComissoesPage() {
                             >
                               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                                 <div>
-                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                    Descrição
-                                  </p>
+                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("description")}</p>
 
                                   <p className="mt-1 text-sm">
                                     {
@@ -1219,9 +1106,7 @@ export default function AdminRHComissoesPage() {
                                 </div>
 
                                 <div>
-                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                    Origem
-                                  </p>
+                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("origin")}</p>
 
                                   <p className="mt-1 text-sm font-bold">
                                     {
@@ -1231,103 +1116,91 @@ export default function AdminRHComissoesPage() {
                                 </div>
 
                                 <div>
-                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                    Calculada em
-                                  </p>
+                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("calculatedAt")}</p>
 
                                   <p className="mt-1 text-sm">
-                                    {formatarDataHora(
+                                    {dateTime(
                                       lancamento.calculadoEm
                                     )}
                                   </p>
                                 </div>
 
                                 <div>
-                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                    Pagamento
-                                  </p>
+                                  <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("payment")}</p>
 
                                   <p className="mt-1 text-sm">
                                     {lancamento.pagamentoId
                                       ? `#${lancamento.pagamentoId}`
-                                      : "Não vinculado"}
+                                      : t("notLinked")}
                                   </p>
                                 </div>
 
                                 {lancamento.aprovadoEm && (
                                   <div>
-                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                      Aprovação
-                                    </p>
+                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("approval")}</p>
 
                                     <p className="mt-1 text-sm">
-                                      {formatarDataHora(
+                                      {dateTime(
                                         lancamento.aprovadoEm
                                       )}
                                     </p>
 
                                     <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-                                      Por:{" "}
+                                      {t("byColon")}{" "}
                                       {lancamento
                                         .aprovadoPor
                                         ?.nome ||
                                         lancamento
                                           .aprovadoPor
                                           ?.email ||
-                                        "Não informado"}
+                                        t("notInformed")}
                                     </p>
                                   </div>
                                 )}
 
                                 {lancamento.enviadoHoleriteEm && (
                                   <div>
-                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                      Envio ao holerite
-                                    </p>
+                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("sendAt")}</p>
 
                                     <p className="mt-1 text-sm">
-                                      {formatarDataHora(lancamento.enviadoHoleriteEm)}
+                                      {dateTime(lancamento.enviadoHoleriteEm)}
                                     </p>
 
                                     <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-                                      Por:{" "}
+                                      {t("byColon")}{" "}
                                       {lancamento.enviadoHoleritePor?.nome ||
                                         lancamento.enviadoHoleritePor?.email ||
-                                        "Responsável não registrado"}
+                                        t("staffMissing")}
                                     </p>
                                   </div>
                                 )}
 
                                 {lancamento.reprovadoEm && (
                                   <div>
-                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-                                      Reprovação
-                                    </p>
+                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">{t("rejection")}</p>
 
                                     <p className="mt-1 text-sm">
-                                      {formatarDataHora(
+                                      {dateTime(
                                         lancamento.reprovadoEm
                                       )}
                                     </p>
 
                                     <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-                                      Por:{" "}
+                                      {t("byColon")}{" "}
                                       {lancamento
                                         .reprovadoPor
                                         ?.nome ||
                                         lancamento
                                           .reprovadoPor
                                           ?.email ||
-                                        "Não informado"}
+                                        t("notInformed")}
                                     </p>
                                   </div>
                                 )}
 
                                 {lancamento.motivoReprovacao && (
                                   <div className="md:col-span-2">
-                                    <p className="text-xs font-black uppercase tracking-wide text-red-700">
-                                      Motivo da reprovação
-                                    </p>
+                                    <p className="text-xs font-black uppercase tracking-wide text-red-700">{t("rejectionReason")}</p>
 
                                     <p className="mt-1 text-sm">
                                       {
@@ -1361,22 +1234,13 @@ export default function AdminRHComissoesPage() {
             <h2
               id="titulo-reprovar-comissao"
               className="text-xl font-black"
-            >
-              Reprovar comissão
-            </h2>
+            >{t("rejectCommission")}</h2>
 
             <p className="mt-2 text-sm phanyx-comissoes-texto-secundario">
-              Você está reprovando{" "}
-              <strong>
-                {idsParaReprovar.length}
-              </strong>{" "}
-              comissão(ões). O motivo ficará registrado
-              para auditoria.
+              {t("rejectDescription", { count: idsParaReprovar.length })}
             </p>
 
-            <label className="mt-5 block text-sm font-black">
-              Motivo da reprovação
-            </label>
+            <label className="mt-5 block text-sm font-black">{t("rejectionReason")}</label>
 
             <textarea
               value={motivoReprovacao}
@@ -1386,13 +1250,11 @@ export default function AdminRHComissoesPage() {
                 )
               }
               rows={5}
-              placeholder="Explique por que esta comissão não deve ser aprovada..."
+              placeholder={t("reasonPlaceholder")}
               className="phanyx-comissoes-input mt-2 w-full resize-none rounded-xl border px-4 py-3 outline-none"
             />
 
-            <p className="mt-2 text-xs phanyx-comissoes-texto-secundario">
-              Mínimo de 5 caracteres.
-            </p>
+            <p className="mt-2 text-xs phanyx-comissoes-texto-secundario">{t("reasonHelp")}</p>
 
             <div className="mt-6 flex flex-wrap justify-end gap-2">
               <button
@@ -1400,9 +1262,7 @@ export default function AdminRHComissoesPage() {
                 disabled={processando}
                 onClick={fecharReprovacao}
                 className="phanyx-comissoes-botao-neutro rounded-xl border px-4 py-2 text-sm font-black"
-              >
-                Cancelar
-              </button>
+              >{t("cancel")}</button>
 
               <button
                 type="button"
@@ -1417,8 +1277,8 @@ export default function AdminRHComissoesPage() {
                 className="rounded-xl bg-red-600 px-4 py-2 text-sm font-black text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {processando
-                  ? "Reprovando..."
-                  : "Confirmar reprovação"}
+                  ? t("rejecting")
+                  : t("confirmReject")}
               </button>
             </div>
           </div>
