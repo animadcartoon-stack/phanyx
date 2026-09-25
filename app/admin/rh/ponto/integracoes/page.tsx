@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type Integracao = {
   id: number;
@@ -12,6 +13,20 @@ type Integracao = {
 };
 
 export default function IntegracoesPontoPage() {
+  const t = useTranslations("AdminHRPointIntegrations");
+  const locale = useLocale();
+  const providerLabel = (provider: string) =>
+    provider === "API_GENERICA" ? t("genericApi") :
+    provider === "OUTRO" ? t("other") : provider.replaceAll("_", " ");
+  const statusLabels: Record<string, string> = {
+    CONFIGURADA: t("statusConfigured"),
+    CONECTADA: t("statusConnected"),
+    FALHA_CONEXAO: t("statusConnectionFailed"),
+    SINCRONIZADA: t("statusSyncRecorded"),
+    NAO_CONFIGURADA: t("statusNotConfigured"),
+  };
+  const statusLabel = (status: string) =>
+    statusLabels[String(status || "").toUpperCase()] || status;
   const [integracoes, setIntegracoes] = useState<Integracao[]>([]);
 
   const [nome, setNome] = useState("");
@@ -28,17 +43,19 @@ export default function IntegracoesPontoPage() {
   const [loading, setLoading] = useState(false);
 
   async function carregarIntegracoes() {
-    const res = await fetch(
-      "/api/admin/rh/ponto/integracoes",
-      {
+    try {
+      const res = await fetch("/api/admin/rh/ponto/integracoes", {
         cache: "no-store",
         credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(res.status === 401 ? t("notAuthorized") : t("loadError"));
       }
-    );
-
-    const data = await res.json();
-
-    setIntegracoes(Array.isArray(data) ? data : []);
+      setIntegracoes(Array.isArray(data) ? data : []);
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : t("loadError"));
+    }
   }
 
   async function salvar() {
@@ -71,10 +88,10 @@ export default function IntegracoesPontoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao salvar.");
+        throw new Error((locale === "pt-BR" && data?.error) || t("saveError"));
       }
 
-      setSucesso("Integração salva com sucesso.");
+      setSucesso(t("saveSuccess"));
 
       setNome("");
       setBaseUrl("");
@@ -86,7 +103,7 @@ export default function IntegracoesPontoPage() {
 
       await carregarIntegracoes();
     } catch (error: any) {
-      setErro(error?.message || "Erro ao salvar.");
+      setErro(error?.message || t("saveError"));
     } finally {
       setLoading(false);
     }
@@ -97,97 +114,91 @@ export default function IntegracoesPontoPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
+    <div className="mx-auto max-w-7xl space-y-6 p-6 text-slate-900 dark:text-slate-100">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-          🔗 Integrações de Ponto
-        </h1>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{t("title")}</h1>
 
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Conecte relógios de ponto e sistemas externos ao PHANYX.
-        </p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{t("description")}</p>
       </div>
 
       {erro && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
           {erro}
         </div>
       )}
 
       {sucesso && (
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-green-700">
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200">
           {sucesso}
         </div>
       )}
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="mb-5 text-lg font-bold">
-          Nova Integração
-        </h2>
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+        <h2 className="mb-5 text-lg font-bold">{t("newIntegration")}</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
 
           <input
-            placeholder="Nome da integração"
+            placeholder={t("namePlaceholder")}
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <select
             value={provedor}
             onChange={(e) => setProvedor(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           >
-            <option value="API_GENERICA">API Genérica</option>
+            <option value="API_GENERICA">{t("genericApi")}</option>
             <option value="CONTROL_ID">Control iD</option>
             <option value="TOPDATA">TopData</option>
             <option value="HENRY">Henry</option>
             <option value="AHGORA">Ahgora</option>
-            <option value="OUTRO">Outro</option>
+            <option value="OUTRO">{t("other")}</option>
           </select>
 
           <input
-            placeholder="Base URL"
+            placeholder={t("baseUrlPlaceholder")}
             value={baseUrl}
             onChange={(e) => setBaseUrl(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <input
-            placeholder="API Key"
+            placeholder={t("apiKeyPlaceholder")}
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <input
-            placeholder="Usuário"
+            placeholder={t("usernamePlaceholder")}
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <input
-            placeholder="Senha"
+            placeholder={t("passwordPlaceholder")}
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
 
           <input
-            placeholder="Token"
+            placeholder={t("tokenPlaceholder")}
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            className="rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950 md:col-span-2"
+            className="rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white md:col-span-2"
           />
         </div>
 
         <textarea
-          placeholder="Observações"
+          placeholder={t("notesPlaceholder")}
           value={observacoes}
           onChange={(e) => setObservacoes(e.target.value)}
-          className="mt-4 min-h-[120px] w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+          className="mt-4 min-h-[120px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
         />
 
         <button
@@ -195,16 +206,16 @@ export default function IntegracoesPontoPage() {
           disabled={loading}
           className="mt-5 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
         >
-          {loading ? "Salvando..." : "Salvar Integração"}
+          {loading ? t("saving") : t("saveIntegration")}
         </button>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="mb-5 text-lg font-bold">
-          Integrações Configuradas
-        </h2>
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+        <h2 className="mb-5 text-lg font-bold">{t("configuredIntegrations")}</h2>
 
+        <p className="mb-4 text-sm text-amber-800 dark:text-amber-200">{t("syncNotice")}</p>
         <div className="space-y-3">
+          {integracoes.length === 0 && <p className="text-sm text-slate-600 dark:text-slate-300">{t("noIntegrations")}</p>}
           {integracoes.map((item) => (
             <div
               key={item.id}
@@ -214,16 +225,16 @@ export default function IntegracoesPontoPage() {
                 {item.nome}
               </div>
 
-              <div className="text-sm text-slate-500">
-                {item.provedor}
+              <div className="text-sm text-slate-600 dark:text-slate-300">
+                {providerLabel(item.provedor)}
               </div>
 
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-slate-600 dark:text-slate-300">
                 {item.baseUrl || "-"}
               </div>
 
               <div className="mt-2">
-                Status: {item.status}
+                {t("statusLabel")} {statusLabel(item.status)}
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
 
@@ -231,6 +242,8 @@ export default function IntegracoesPontoPage() {
     type="button"
     onClick={async () => {
       try {
+        setErro("");
+        setSucesso("");
         const res = await fetch(
           `/api/admin/rh/ponto/integracoes/${item.id}/testar`,
           {
@@ -242,21 +255,20 @@ export default function IntegracoesPontoPage() {
         const data = await res.json();
 
         if (!res.ok) {
-          setErro(data.error || "Erro ao testar conexão.");
+          setErro((locale === "pt-BR" && data.error) || (res.status === 404 ? t("integrationNotFound") : data.error === "Informe a Base URL antes de testar." ? t("baseUrlRequired") : t("testError")));
+          await carregarIntegracoes();
           return;
         }
 
-        setSucesso("Conexão testada com sucesso.");
+        setSucesso(t("testSuccess"));
 
         await carregarIntegracoes();
       } catch {
-        setErro("Erro ao testar conexão.");
+        setErro(t("testError"));
       }
     }}
     className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-  >
-    🔍 Testar Conexão
-  </button>
+  >{t("testConnection")}</button>
 
 <button
   type="button"
@@ -276,23 +288,21 @@ export default function IntegracoesPontoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(data.error || "Erro ao sincronizar.");
+        setErro((locale === "pt-BR" && data.error) || (res.status === 404 ? t("integrationNotFound") : t("syncError")));
         return;
       }
 
       setSucesso(
-        `Sincronização concluída. ${data.registrosImportados || 0} registros importados.`
+        t("syncResult", { count: Number(data.registrosImportados || 0) })
       );
 
       await carregarIntegracoes();
     } catch {
-      setErro("Erro ao sincronizar.");
+      setErro(t("syncError"));
     }
   }}
   className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
->
-  🔄 Sincronizar Marcações
-</button>
+>{t("recordSync")}</button>
 
 </div>
             </div>
