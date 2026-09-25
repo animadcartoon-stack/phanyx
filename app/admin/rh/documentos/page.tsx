@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 
 type DocumentoRH = {
   id: number;
@@ -26,11 +27,11 @@ type DocumentoRH = {
   } | null;
 };
 
-function formatarData(data?: string | null) {
+function formatarData(data: string | null | undefined, locale: string) {
   if (!data) return "-";
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
-  return d.toLocaleDateString("pt-BR");
+  return d.toLocaleDateString(locale);
 }
 
 function normalizarTexto(texto?: string | null) {
@@ -70,7 +71,7 @@ function distanciaLevenshtein(a: string, b: string) {
   return dp[s.length][t.length];
 }
 
-function pontuarDocumento(documento: DocumentoRH, termoBusca: string) {
+function pontuarDocumento(documento: DocumentoRH, termoBusca: string, rotulos: string[] = []) {
   const termo = normalizarTexto(termoBusca);
 
   if (!termo) return 0;
@@ -82,6 +83,7 @@ function pontuarDocumento(documento: DocumentoRH, termoBusca: string) {
     documento.tipo,
     documento.status,
     documento.dataDocumento,
+    ...rotulos,
   ]
     .filter(Boolean)
     .map((item) => normalizarTexto(item));
@@ -100,6 +102,31 @@ function pontuarDocumento(documento: DocumentoRH, termoBusca: string) {
 }
 
 export default function DocumentosRHPage() {
+  const t = useTranslations("AdminHRDocuments");
+  const locale = useLocale();
+
+  const tipoLabel = useCallback((value: string) => {
+    switch (value) {
+      case "DECLARACAO": return t("typeDeclaration");
+      case "ADVERTENCIA": return t("typeWarning");
+      case "SUSPENSAO": return t("typeSuspension");
+      case "TERMO_RESPONSABILIDADE": return t("typeResponsibility");
+      case "TERMO_RECEBIMENTO": return t("typeReceipt");
+      case "AVALIACAO_DESEMPENHO": return t("typePerformance");
+      case "DOCUMENTO_LIVRE": return t("typeFree");
+      default: return value;
+    }
+  }, [t]);
+
+  const statusLabel = useCallback((value: string) => {
+    switch (value) {
+      case "GERADO": return t("statusGenerated");
+      case "ASSINADO": return t("statusSigned");
+      case "PENDENTE": return t("statusPending");
+      case "ARQUIVADO": return t("statusArchived");
+      default: return value;
+    }
+  }, [t]);
   const [documentos, setDocumentos] = useState<DocumentoRH[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [documentoParaArquivar, setDocumentoParaArquivar] =
@@ -110,6 +137,7 @@ export default function DocumentosRHPage() {
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
+  const [erroArquivo, setErroArquivo] = useState("");
 
   async function carregarDocumentos() {
     try {
@@ -134,7 +162,7 @@ export default function DocumentosRHPage() {
     return documentos
       .map((documento) => ({
         documento,
-        pontuacao: pontuarDocumento(documento, termo),
+        pontuacao: pontuarDocumento(documento, termo, [tipoLabel(documento.tipo), statusLabel(documento.status)]),
       }))
       .filter((item) => item.pontuacao > 35)
       .sort((a, b) => {
@@ -147,7 +175,7 @@ export default function DocumentosRHPage() {
         );
       })
       .slice(0, 8);
-  }, [documentos, busca]);
+  }, [documentos, busca, tipoLabel, statusLabel]);
 
   const documentosFiltrados = useMemo(() => {
     const termo = busca.trim();
@@ -163,7 +191,7 @@ export default function DocumentosRHPage() {
         return (
           bateStatus &&
           bateTipo &&
-          pontuarDocumento(documento, termo) > 35
+          pontuarDocumento(documento, termo, [tipoLabel(documento.tipo), statusLabel(documento.status)]) > 35
         );
       })
       .sort((a, b) => {
@@ -173,15 +201,16 @@ export default function DocumentosRHPage() {
           );
         }
 
-        return pontuarDocumento(b, termo) - pontuarDocumento(a, termo);
+        return pontuarDocumento(b, termo, [tipoLabel(b.tipo), statusLabel(b.status)]) - pontuarDocumento(a, termo, [tipoLabel(a.tipo), statusLabel(a.status)]);
       });
-  }, [documentos, busca, filtroStatus, filtroTipo]);
+  }, [documentos, busca, filtroStatus, filtroTipo, tipoLabel, statusLabel]);
 
   async function arquivarDocumento() {
     if (!documentoParaArquivar) return;
 
     try {
       setArquivando(true);
+      setErroArquivo("");
 
       const res = await fetch("/api/admin/rh/documentos", {
         method: "PATCH",
@@ -192,15 +221,15 @@ export default function DocumentosRHPage() {
         }),
       });
 
-      const dados = await res.json();
-
       if (!res.ok) {
-        throw new Error(dados?.error || "Erro ao arquivar documento.");
+        throw new Error(t("archiveError"));
       }
 
       setDocumentoParaArquivar(null);
       setMotivoArquivo("");
       await carregarDocumentos();
+    } catch {
+      setErroArquivo(t("archiveError"));
     } finally {
       setArquivando(false);
     }
@@ -211,32 +240,31 @@ export default function DocumentosRHPage() {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
-              RH EMPRESARIAL
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-700 dark:text-cyan-400">
+              {t("brand")}
             </p>
 
             <h1 className="mt-2 text-4xl font-black text-[#020617] dark:text-white">
-              Documentos RH
+              {t("title")}
             </h1>
 
             <p className="mt-2 text-slate-600 dark:text-slate-400">
-              Dossiê documental dos funcionários, preservado para auditoria,
-              compliance e histórico permanente.
+              {t("description")}
             </p>
           </div>
 
           <Link
             href="/admin/rh/documentos/gerar"
-            className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-slate-900 dark:text-white shadow-lg transition hover:bg-blue-500"
+            className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
           >
-            + Novo Documento RH
+            {t("newDocument")}
           </Link>
         </div>
 
         <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
           <div className="relative">
             <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
-              Busca
+              {t("search")}
             </label>
 
             <input
@@ -246,8 +274,8 @@ export default function DocumentosRHPage() {
                 setMostrarSugestoes(true);
               }}
               onFocus={() => setMostrarSugestoes(true)}
-              placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-900 dark:text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+              placeholder={t("searchPlaceholder")}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
             />
 
             {mostrarSugestoes && busca.trim() && sugestoesBusca.length > 0 && (
@@ -268,7 +296,7 @@ export default function DocumentosRHPage() {
                     </div>
 
                     <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                      {documento.titulo} • {documento.tipo} • {documento.status}
+                      {documento.titulo} • {tipoLabel(documento.tipo)} • {statusLabel(documento.status)}
                     </div>
                   </button>
                 ))}
@@ -276,47 +304,45 @@ export default function DocumentosRHPage() {
             )}
 
             {mostrarSugestoes && busca.trim() && sugestoesBusca.length === 0 && (
-              <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-700 dark:text-slate-400 shadow-2xl">
-                Nenhum documento encontrado.
+              <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
+                {t("noResults")}
               </div>
             )}
           </div>
 
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em]text-slate-700 dark:text-slate-400">
-              Status
-            </label>
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
+              {t("status")}            </label>
 
             <select
               value={filtroStatus}
               onChange={(e) => setFiltroStatus(e.target.value)}
               className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="">Todos</option>
-              <option value="GERADO">Gerado</option>
-              <option value="ASSINADO">Assinado</option>
-              <option value="PENDENTE">Pendente</option>
+              <option value="">{t("all")}</option>
+              <option value="GERADO">{t("statusGenerated")}</option>
+              <option value="ASSINADO">{t("statusSigned")}</option>
+              <option value="PENDENTE">{t("statusPending")}</option>
             </select>
           </div>
 
           <div>
             <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
-              Tipo
-            </label>
+              {t("type")}            </label>
 
             <select
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
               className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             >
-              <option value="">Todos</option>
-              <option value="DECLARACAO">Declaração</option>
-              <option value="ADVERTENCIA">Advertência</option>
-              <option value="SUSPENSAO">Suspensão</option>
-              <option value="TERMO_RESPONSABILIDADE">Termo responsabilidade</option>
-              <option value="TERMO_RECEBIMENTO">Termo recebimento</option>
-              <option value="AVALIACAO_DESEMPENHO">Avaliação desempenho</option>
-              <option value="DOCUMENTO_LIVRE">Documento livre</option>
+              <option value="">{t("all")}</option>
+              <option value="DECLARACAO">{t("typeDeclaration")}</option>
+              <option value="ADVERTENCIA">{t("typeWarning")}</option>
+              <option value="SUSPENSAO">{t("typeSuspension")}</option>
+              <option value="TERMO_RESPONSABILIDADE">{t("typeResponsibility")}</option>
+              <option value="TERMO_RECEBIMENTO">{t("typeReceipt")}</option>
+              <option value="AVALIACAO_DESEMPENHO">{t("typePerformance")}</option>
+              <option value="DOCUMENTO_LIVRE">{t("typeFree")}</option>
             </select>
           </div>
         </div>
@@ -324,21 +350,21 @@ export default function DocumentosRHPage() {
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-          Documentos gerados
+          {t("generatedDocuments")}
         </h2>
 
         <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
           <table className="min-w-full">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-100 text-left text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
-                <th className="p-3">Funcionário</th>
-                <th className="p-3">Título</th>
-                <th className="p-3">Tipo</th>
-                <th className="p-3">Criado em</th>
-                <th className="p-3">Criado por</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Arquivo</th>
-                <th className="p-3">Ações</th>
+                <th className="p-3">{t("employee")}</th>
+                <th className="p-3">{t("documentTitle")}</th>
+                <th className="p-3">{t("type")}</th>
+                <th className="p-3">{t("createdAt")}</th>
+                <th className="p-3">{t("createdBy")}</th>
+                <th className="p-3">{t("status")}</th>
+                <th className="p-3">{t("file")}</th>
+                <th className="p-3">{t("actions")}</th>
               </tr>
             </thead>
 
@@ -346,13 +372,13 @@ export default function DocumentosRHPage() {
               {carregando ? (
                 <tr>
                   <td colSpan={8} className="p-6 text-center text-slate-700 dark:text-slate-400">
-                    Carregando...
+                    {t("loading")}
                   </td>
                 </tr>
               ) : documentosFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="p-6 text-center text-slate-700 dark:text-slate-400">
-                    Nenhum documento RH gerado ainda.
+                    {t("empty")}
                   </td>
                 </tr>
               ) : (
@@ -367,11 +393,11 @@ export default function DocumentosRHPage() {
                     </td>
 
                     <td className="p-3 text-slate-700 dark:text-slate-300">
-                      {documento.tipo}
+                      {tipoLabel(documento.tipo)}
                     </td>
 
                     <td className="p-3 text-slate-700 dark:text-slate-300">
-                      {formatarData(documento.criadoEm)}
+                      {formatarData(documento.criadoEm, locale)}
                     </td>
 
                     <td className="p-3 text-slate-700 dark:text-slate-300">
@@ -379,7 +405,7 @@ export default function DocumentosRHPage() {
                     </td>
 
                     <td className="p-3 text-slate-700 dark:text-slate-300">
-                      {documento.status}
+                      {statusLabel(documento.status)}
                     </td>
 
                     <td className="p-3">
@@ -391,7 +417,7 @@ export default function DocumentosRHPage() {
                             rel="noopener noreferrer"
                             className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
                           >
-                            Abrir
+                            {t("open")}
                           </a>
                         ) : (
                           <a
@@ -400,7 +426,7 @@ export default function DocumentosRHPage() {
                             rel="noopener noreferrer"
                             className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
                           >
-                            Abrir
+                            {t("open")}
                           </a>
                         )}
 
@@ -410,7 +436,7 @@ export default function DocumentosRHPage() {
                           rel="noopener noreferrer"
                           className="rounded-xl border border-emerald-500 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
                         >
-                          Imprimir
+                          {t("print")}
                         </a>
                       </div>
                     </td>
@@ -421,10 +447,11 @@ export default function DocumentosRHPage() {
                         onClick={() => {
                           setDocumentoParaArquivar(documento);
                           setMotivoArquivo("");
+                          setErroArquivo("");
                         }}
-                        className="rounded-xl border border-amber-500 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500 hover:text-slate-900 dark:text-white"
+                        className="rounded-xl border border-amber-600 px-3 py-2 text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-500 hover:text-slate-900 dark:text-white"
                       >
-                        Arquivar
+                        {t("archive")}
                       </button>
                     </td>
                   </tr>
@@ -456,7 +483,7 @@ export default function DocumentosRHPage() {
           dark:text-white
         "
             >
-              Arquivar documento RH
+              {t("archiveTitle")}
             </h2>
 
             <p
@@ -466,8 +493,7 @@ export default function DocumentosRHPage() {
           dark:text-slate-300
         "
             >
-              Este documento não será excluído. Ele ficará preservado para
-              auditoria e poderá ser restaurado depois.
+              {t("archiveDescription")}
             </p>
 
            <div
@@ -478,14 +504,14 @@ export default function DocumentosRHPage() {
 >
   <p>
     <strong className="text-slate-950 dark:text-white">
-      Documento:
+      {t("document")}:
     </strong>{" "}
     {documentoParaArquivar.titulo}
   </p>
 
   <p className="mt-2">
     <strong className="text-slate-950 dark:text-white">
-      Funcionário:
+      {t("employee")}:
     </strong>{" "}
     {documentoParaArquivar.funcionario?.nome || "-"}
   </p>
@@ -500,7 +526,7 @@ export default function DocumentosRHPage() {
           dark:text-slate-300
         "
             >
-              Motivo do arquivamento
+              {t("archiveReason")}
             </label>
 
             <textarea
@@ -514,15 +540,20 @@ export default function DocumentosRHPage() {
   rounded-2xl border p-4
   text-sm outline-none
 "
-              placeholder="Explique por que este documento está sendo arquivado."
+              placeholder={t("archivePlaceholder")}
             />
+
+            {erroArquivo && (
+              <p role="alert" className="mt-3 text-sm font-medium text-red-700 dark:text-red-300">{erroArquivo}</p>
+            )}
 
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() =>
-                  setDocumentoParaArquivar(null)
-                }
+                onClick={() => {
+                  setDocumentoParaArquivar(null);
+                  setErroArquivo("");
+                }}
                 disabled={arquivando}
                 className="
   phanyx-rh-arquivar-cancelar
@@ -530,7 +561,7 @@ export default function DocumentosRHPage() {
   text-sm font-bold
 "
               >
-                Cancelar
+                {t("cancel")}
               </button>
 
               <button
@@ -547,8 +578,8 @@ export default function DocumentosRHPage() {
 "
               >
                 {arquivando
-                  ? "Arquivando..."
-                  : "Arquivar documento"}
+                  ? t("archiving")
+                  : t("archiveDocument")}
               </button>
             </div>
           </div>
