@@ -263,48 +263,48 @@ function iconeModal(modal: TipoModal) {
   switch (modal) {
     case "ONIBUS":
     case "MICRO_ONIBUS":
-      return "ðŸšŒ";
+      return "🚌";
 
     case "VAN":
-      return "ðŸš";
+      return "🚐";
 
     case "AUTOMOVEL":
-      return "ðŸš—";
+      return "🚗";
 
     case "VEICULO_AUTONOMO":
-      return "ðŸ¤–";
+      return "🤖";
 
     case "AVIAO":
-      return "âœˆï¸";
+      return "✈️";
 
     case "HELICOPTERO":
-      return "ðŸš";
+      return "🚁";
 
     case "TREM":
-      return "ðŸš†";
+      return "🚆";
 
     case "METRO":
-      return "ðŸš‡";
+      return "🚇";
 
     case "BONDE":
-      return "ðŸš‹";
+      return "🚋";
 
     case "BARCO":
     case "FERRY":
     case "NAVIO":
-      return "â›´ï¸";
+      return "⛴️";
 
     case "TRANSPORTE_PUBLICO":
-      return "ðŸš";
+      return "🚍";
 
     case "BICICLETA":
-      return "ðŸš²";
+      return "🚲";
 
     case "CAMINHADA":
-      return "ðŸš¶";
+      return "🚶";
 
     default:
-      return "ðŸšš";
+      return "🚚";
   }
 }
 
@@ -358,7 +358,7 @@ function SelectPhanyx({
             aberto ? "rotate-180" : "",
           ].join(" ")}
         >
-          â–¼
+          ▼
         </span>
       </button>
 
@@ -390,7 +390,7 @@ function SelectPhanyx({
               >
                 <span>{option.label}</span>
 
-                {selecionado ? <span>âœ“</span> : null}
+                {selecionado ? <span>✓</span> : null}
               </button>
             );
           })}
@@ -1299,7 +1299,7 @@ export default function TransporteAtividadeExterna({
     <div className="phanyx-transporte space-y-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-black">ðŸšŒ {t("title")}</h2>
+          <h2 className="text-xl font-black">🚌 {t("title")}</h2>
 
           <p className="mt-1 text-sm opacity-80">{t("description")}</p>
         </div>
@@ -1355,25 +1355,25 @@ export default function TransporteAtividadeExterna({
         <ResumoCard
           valor={resumo.totalTrechos}
           rotulo={t("summary.segments")}
-          icone="ðŸ›£ï¸"
+          icone="🛣️"
         />
 
         <ResumoCard
           valor={resumo.totalVeiculos}
           rotulo={t("summary.vehicles")}
-          icone="ðŸš"
+          icone="🚐"
         />
 
         <ResumoCard
           valor={resumo.totalCondutores}
           rotulo={t("summary.drivers")}
-          icone="ðŸ§‘â€âœˆï¸"
+          icone="🧑‍✈️"
         />
 
         <ResumoCard
           valor={resumo.totalPassageiros}
           rotulo={t("summary.passengers")}
-          icone="ðŸ‘¥"
+          icone="👥"
         />
       </div>
 
@@ -1439,7 +1439,7 @@ export default function TransporteAtividadeExterna({
           </div>
 
           <div className="my-5 grid gap-5 xl:grid-cols-2">
-            <LocalCard titulo={`ðŸ“ ${t("form.origin")}`}>
+            <LocalCard titulo={`📍 ${t("form.origin")}`}>
               <Campo label={t("form.placeName")} obrigatorio>
                 <input
                   value={formulario.origemNome}
@@ -1489,7 +1489,7 @@ export default function TransporteAtividadeExterna({
               </div>
             </LocalCard>
 
-            <LocalCard titulo={`ðŸ ${t("form.destination")}`}>
+            <LocalCard titulo={`🏁 ${t("form.destination")}`}>
               <Campo label={t("form.placeName")} obrigatorio>
                 <input
                   value={formulario.destinoNome}
@@ -1598,7 +1598,7 @@ export default function TransporteAtividadeExterna({
 
         {trechos.length === 0 ? (
           <div className="phanyx-transporte-empty mt-5 rounded-xl border p-8 text-center">
-            <div className="text-3xl">ðŸ›£ï¸</div>
+            <div className="text-3xl">🛣️</div>
 
             <p className="mt-3 font-extrabold">{t("segments.emptyTitle")}</p>
 
@@ -1655,7 +1655,7 @@ export default function TransporteAtividadeExterna({
                   />
 
                   <div className="hidden text-center text-2xl opacity-55 lg:block">
-                    â†’
+                    →
                   </div>
 
                   <LocalResumo
@@ -1716,7 +1716,7 @@ export default function TransporteAtividadeExterna({
                 <div className="mt-4 rounded-2xl border p-4">
                   <div className="flex flex-col gap-1">
                     <h5 className="text-sm font-black">
-                      ðŸš {t("vehicleAssignment.title")}
+                      🚐 {t("vehicleAssignment.title")}
                     </h5>
 
                     <p className="text-xs font-bold opacity-65">
@@ -1761,13 +1761,13 @@ export default function TransporteAtividadeExterna({
                             <div className="flex flex-col gap-2">
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold">
-                                  ðŸš{" "}
+                                  🚐{" "}
                                   {vinculo.veiculo.nomeIdentificacao ||
                                     vinculo.veiculo.placa ||
                                     vinculo.veiculo.tipo}
                                   {vinculo.veiculo.nomeIdentificacao &&
                                   vinculo.veiculo.placa
-                                    ? ` â€¢ ${vinculo.veiculo.placa}`
+                                    ? ` • ${vinculo.veiculo.placa}`
                                     : ""}
                                 </span>
 
@@ -1793,7 +1793,7 @@ export default function TransporteAtividadeExterna({
                                     )}
                                     className="flex h-7 w-7 items-center justify-center rounded-full border text-sm font-black opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
                                   >
-                                    Ã—
+                                    ×
                                   </button>
                                 ) : null}
                               </div>
@@ -1949,7 +1949,7 @@ export default function TransporteAtividadeExterna({
 
                             <div className="mt-3 border-t pt-3">
                               <div className="text-xs font-black uppercase tracking-wide opacity-65">
-                                ðŸ§‘â€âœˆï¸ {t("driverAssignment.title")}
+                                🧑‍✈️ {t("driverAssignment.title")}
                               </div>
 
                               {vinculo.condutores.length > 0 ? (
@@ -1961,7 +1961,7 @@ export default function TransporteAtividadeExterna({
                                     >
                                       <div className="flex flex-wrap items-center gap-2">
                                         <span className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold">
-                                          ðŸ§‘â€âœˆï¸ {atribuicao.condutor.nome} â€¢{" "}
+                                          🧑‍✈️ {atribuicao.condutor.nome} •{" "}
                                           {t(
                                             `driverAssignment.roles.${atribuicao.papel}`,
                                           )}
@@ -1988,7 +1988,7 @@ export default function TransporteAtividadeExterna({
                                             )}
                                             className="flex h-7 w-7 items-center justify-center rounded-full border text-sm font-black opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
                                           >
-                                            Ã—
+                                            ×
                                           </button>
                                         ) : null}
                                       </div>
@@ -2151,7 +2151,7 @@ export default function TransporteAtividadeExterna({
 
                             <div className="mt-4 border-t pt-3">
                               <div className="text-xs font-black uppercase tracking-wide opacity-65">
-                                ðŸ‘¥ {t("passengerAssignment.title")}
+                                👥 {t("passengerAssignment.title")}
                               </div>
 
                               {vinculo.passageiros.length > 0 ? (
@@ -2184,13 +2184,13 @@ export default function TransporteAtividadeExterna({
                                       >
                                         <div className="flex flex-wrap items-center gap-2">
                                           <span className="phanyx-transporte-chip rounded-full border px-3 py-1.5 text-xs font-bold">
-                                            ðŸ‘¤ {nomeParticipante}
-                                            {" â€¢ "}
+                                            👤 {nomeParticipante}
+                                            {" • "}
                                             {t(
                                               `passengerAssignment.status.${passageiro.status}`,
                                             )}
                                             {passageiro.assento
-                                              ? ` â€¢ ${t(
+                                              ? ` • ${t(
                                                   "passengerAssignment.seat",
                                                 )}: ${passageiro.assento}`
                                               : ""}
@@ -2218,7 +2218,7 @@ export default function TransporteAtividadeExterna({
                                               )}
                                               className="flex h-7 w-7 items-center justify-center rounded-full border text-sm font-black opacity-60 transition hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
                                             >
-                                              Ã—
+                                              ×
                                             </button>
                                           ) : null}
                                         </div>
@@ -2457,7 +2457,7 @@ export default function TransporteAtividadeExterna({
                                             value: String(participante.id),
 
                                             label: participante.aluno.matricula
-                                              ? `${nome} â€¢ ${participante.aluno.matricula}`
+                                              ? `${nome} • ${participante.aluno.matricula}`
                                               : nome,
                                           };
                                         },
@@ -2576,7 +2576,7 @@ export default function TransporteAtividadeExterna({
                                     veiculo.placa,
                                   ]
                                     .filter(Boolean)
-                                    .join(" â€¢ "),
+                                    .join(" • "),
                                 }))}
                             />
                           </div>
