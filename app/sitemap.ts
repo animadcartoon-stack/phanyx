@@ -6,7 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...marketingLocales.filter((locale) => locale !== "pt-BR").flatMap((locale) =>
-      (["home", "academic", "plans"] as const).map((section) => ({
+      (["home", "academic", "plans", "school", "lms", "success"] as const).map((section) => ({
         url: `${baseUrl}${marketingPath(locale, section)}`,
         lastModified: new Date(),
         changeFrequency: "monthly" as const,
