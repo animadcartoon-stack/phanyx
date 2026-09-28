@@ -874,6 +874,7 @@ export default function BibliotecaItemPage() {
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [enviandoCapa, setEnviandoCapa] = useState(false);
   const [editando, setEditando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast>(null);
@@ -1644,6 +1645,54 @@ export default function BibliotecaItemPage() {
     );
   }
 
+  async function enviarCapa(evento: ChangeEvent<HTMLInputElement>) {
+    const arquivo = evento.target.files?.[0];
+    evento.target.value = "";
+
+    if (!arquivo || !podeEditar || !editando || enviandoCapa || salvando) return;
+
+    if (!(["image/png", "image/jpeg", "image/webp"].includes(arquivo.type)) ||
+        arquivo.size > 4 * 1024 * 1024) {
+      setToast({ tipo: "erro", mensagem: ui("coverUploadInvalid") });
+      return;
+    }
+
+    setEnviandoCapa(true);
+
+    try {
+      const dados = new FormData();
+      dados.append("file", arquivo);
+
+      const resposta = await fetch(`/api/admin/biblioteca/acervo/${itemId}/capa`, {
+        method: "POST",
+        body: dados,
+      });
+      const resultado = (await resposta.json()) as { url?: string; error?: string };
+
+      if (!resposta.ok || !resultado.url) {
+        throw new Error(resultado.error || ui("coverUploadError"));
+      }
+
+      setFormulario((atual) =>
+        atual
+          ? {
+              ...atual,
+              capaUrl: resultado.url || "",
+              miniaturaUrl: atual.miniaturaUrl || resultado.url || "",
+            }
+          : atual
+      );
+      setToast({ tipo: "sucesso", mensagem: ui("coverUploadSuccess") });
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+        mensagem: falha instanceof Error ? falha.message : ui("coverUploadError"),
+      });
+    } finally {
+      setEnviandoCapa(false);
+    }
+  }
+
   function cancelarEdicao() {
     if (item) {
       setFormulario(criarFormulario(item));
@@ -1984,7 +2033,7 @@ export default function BibliotecaItemPage() {
   async function salvar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
 
-    if (!formulario || !podeEditar || salvando) {
+    if (!formulario || !podeEditar || salvando || enviandoCapa) {
       return;
     }
 
@@ -4024,6 +4073,21 @@ export default function BibliotecaItemPage() {
                   disabled={camposBloqueados}
                 />
               </label>
+              {editando ? (
+                <label className="bib-field bib-field-span-2">
+                  <span>{ui("uploadCover")}</span>
+                  <input
+                    type="file"
+                    className="bib-input"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(evento) => void enviarCapa(evento)}
+                    disabled={salvando || enviandoCapa}
+                  />
+                  <small>
+                    {enviandoCapa ? ui("coverUploading") : ui("coverUploadHelp")}
+                  </small>
+                </label>
+              ) : null}
               <label className="bib-field">
                 <span>{ui("thumbnailUrl")}</span>
                 <input
@@ -5049,14 +5113,14 @@ export default function BibliotecaItemPage() {
                   type="button"
                   className="bib-button bib-button-secondary"
                   onClick={cancelarEdicao}
-                  disabled={salvando}
+                  disabled={salvando || enviandoCapa}
                 >
                   {ui("cancel")}
                 </button>
                 <button
                   type="submit"
                   className="bib-button bib-button-primary"
-                  disabled={salvando || !alterado}
+                  disabled={salvando || enviandoCapa || !alterado}
                 >
                   {salvando ? ui("saving") : ui("saveChanges")}
                 </button>
