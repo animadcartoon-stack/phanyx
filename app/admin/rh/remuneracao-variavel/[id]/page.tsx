@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 type Funcionario = {
   id: number;
@@ -138,18 +139,18 @@ type PreviaDistribuicao = {
 };
 
 function formatarMoeda(
-  valor?: string | number | null
+  valor: string | number | null | undefined, locale: string
 ) {
-  return Number(valor || 0).toLocaleString("pt-BR", {
+  return Number(valor || 0).toLocaleString(locale, {
     style: "currency",
     currency: "BRL",
   });
 }
 
-function formatarDataHora(valor?: string | null) {
+function formatarDataHora(valor: string | null | undefined, locale: string) {
   if (!valor) return "-";
 
-  return new Date(valor).toLocaleString("pt-BR", {
+  return new Date(valor).toLocaleString(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -215,31 +216,81 @@ function criarSugestoes(
 function classeStatusLancamento(status: string) {
   switch (String(status || "").toUpperCase()) {
     case "PENDENTE":
-      return "border-amber-500/40 bg-amber-500/15 text-amber-700";
+      return "border-amber-500/40 bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300";
 
     case "APROVADO":
-      return "border-emerald-500/40 bg-emerald-500/15 text-emerald-700";
+      return "border-emerald-500/40 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300";
 
     case "REPROVADO":
-      return "border-red-500/40 bg-red-500/15 text-red-700";
+      return "border-red-500/40 bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300";
 
     case "ENVIADO_HOLERITE":
   return "phanyx-remuneracao-status-enviado border-blue-500/40 bg-blue-500/15 text-blue-700";
-      
+
 
     case "PAGO":
-      return "border-violet-500/40 bg-violet-500/15 text-violet-700";
+      return "border-violet-500/40 bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-300";
 
     case "ESTORNADO":
     case "CANCELADO":
-      return "border-slate-500/40 bg-slate-500/15 text-slate-700";
+      return "border-slate-500/40 bg-slate-100 text-slate-800 dark:bg-slate-500/15 dark:text-slate-300";
 
     default:
-      return "border-slate-500/40 bg-slate-500/15 text-slate-700";
+      return "border-slate-500/40 bg-slate-100 text-slate-800 dark:bg-slate-500/15 dark:text-slate-300";
   }
 }
 
 export default function GerenciarRemuneracaoVariavelPage() {
+  const t = useTranslations("AdminHRVariablePayDetail");
+  const locale = useLocale();
+  const enumKeys: Record<string, "statusDraft" | "statusActive" | "statusPending" | "statusApproved" | "statusRejected" | "statusSent" | "statusPaid" | "statusReversed" | "statusCancelled" | "statusCalculating" | "statusClosed" | "scopeAll" | "scopeDepartment" | "scopeSelected" | "methodFixed" | "methodEqual" | "methodSalary" | "methodTime" | "methodPercent" | "methodPoints" | "methodManual"> = {
+    RASCUNHO: "statusDraft", ATIVO: "statusActive", PENDENTE: "statusPending",
+    APROVADO: "statusApproved", REPROVADO: "statusRejected",
+    ENVIADO_HOLERITE: "statusSent", PAGO: "statusPaid", ESTORNADO: "statusReversed",
+    CANCELADO: "statusCancelled", EM_APURACAO: "statusCalculating", FECHADO: "statusClosed",
+    TODOS_FUNCIONARIOS: "scopeAll", DEPARTAMENTO: "scopeDepartment",
+    FUNCIONARIOS_SELECIONADOS: "scopeSelected", VALOR_FIXO_INDIVIDUAL: "methodFixed",
+    IGUALITARIO: "methodEqual", PROPORCIONAL_SALARIO: "methodSalary",
+    PROPORCIONAL_TEMPO_TRABALHADO: "methodTime", PERCENTUAL_INDIVIDUAL: "methodPercent",
+    PONTUACAO: "methodPoints", MANUAL: "methodManual",
+  };
+  const enumLabel = (value: string) => enumKeys[value]
+    ? t(enumKeys[value]) : formatarTexto(value);
+
+  const traduzirMensagemApi = (message: string) => {
+    switch (message) {
+      case 'Divisão igualitária': return t("apiCriterionEqual");
+      case 'Proporcional ao salário-base': return t("apiCriterionSalary");
+      case 'Proporcional ao tempo trabalhado': return t("apiCriterionTime");
+      case 'Percentual individual': return t("apiCriterionPercent");
+      case 'Peso ou pontuação': return t("apiCriterionPoints");
+      case 'Valor fixo individual': return t("apiCriterionFixed");
+      case 'Definição manual': return t("apiCriterionManual");
+      case 'Informe um valor monetário para o fundo antes de gerar os lançamentos.': return t("apiFundRequired");
+      case 'O percentual do fundo foi informado, mas ainda é necessário definir o valor monetário apurado.': return t("apiFundPercentMissing");
+      case 'Não existem salários-base válidos para calcular a distribuição proporcional.': return t("apiNoSalaries");
+      case 'Não existem períodos trabalhados válidos para calcular a distribuição.': return t("apiNoTime");
+      case 'A soma dos pesos dos participantes precisa ser maior que zero.': return t("apiNoWeights");
+      case 'Salário-base não informado ou igual a zero.': return t("apiSalaryMissing");
+      case 'Não foi possível calcular o período trabalhado.': return t("apiTimeMissing");
+      case 'Percentual individual não informado.': return t("apiPercentMissing");
+      case 'Valor fixo individual não informado.': return t("apiFixedMissing");
+      case 'O RH ainda não definiu o valor manual.': return t("apiManualMissing");
+      case 'Método de distribuição não reconhecido.': return t("apiMethodUnknown");
+      case 'O valor previsto ultrapassa o fundo configurado.': return t("apiOverFund");
+      case 'Existe saldo do fundo ainda não distribuído.': return t("apiFundRemaining");
+      case 'Funcionário inativo ou desligado.': return t("apiInactive");
+      case 'Funcionário em período de experiência.': return t("apiProbation");
+      case 'Data de admissão não informada.': return t("apiAdmissionMissing");
+    }
+    const min = /^Aplicado o valor mínimo individual de R\$ (\d+[.,]\d+)\.$/.exec(message);
+    if (min) return t("apiMinApplied", {amount: formatarMoeda(Number(min[1].replace(",", ".")), locale)});
+    const max = /^Aplicado o valor máximo individual de R\$ (\d+[.,]\d+)\.$/.exec(message);
+    if (max) return t("apiMaxApplied", {amount: formatarMoeda(Number(max[1].replace(",", ".")), locale)});
+    const days = /^Possui (\d+) dias desde a admissão; mínimo exigido: (\d+)\.$/.exec(message);
+    if (days) return t("apiTooNew", {days: Number(days[1]), minimum: Number(days[2])});
+    return message;
+  };
   const params = useParams<{ id: string }>();
   const programaId = Number(params.id);
 
@@ -378,8 +429,7 @@ const [enviandoHolerite, setEnviandoHolerite] =
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível carregar o programa."
+          (locale === "pt-BR" && dados.error) || t("loadFailed")
         );
       }
 
@@ -400,7 +450,7 @@ setResumoLancamentos(
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao carregar o programa."
+          t("loadFailed")
       );
     } finally {
       setCarregando(false);
@@ -411,9 +461,9 @@ setResumoLancamentos(
     if (programaId) {
       carregar();
     }
-  }, [programaId]);
+  }, [programaId, locale]);
 
- 
+
   function alternarFuncionario(id: number) {
     setSelecionados((atuais) =>
       atuais.includes(id)
@@ -447,12 +497,11 @@ setResumoLancamentos(
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível incluir os participantes."
+          (locale === "pt-BR" && dados.error) || t("participantsFailed")
         );
       }
 
-      setSucesso(dados.message);
+      setSucesso((locale === "pt-BR" && dados.message) || t("participantsSuccess"));
       setSelecionados([]);
       setPrevia(null);
 
@@ -460,7 +509,7 @@ setResumoLancamentos(
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Erro ao incluir os participantes."
+          t("participantsFailed")
       );
     } finally {
       setProcessando(false);
@@ -491,8 +540,7 @@ setResumoLancamentos(
 
     if (!resposta.ok) {
       throw new Error(
-        dados.error ||
-          "Não foi possível calcular a distribuição."
+        (locale === "pt-BR" && dados.error) || t("previewFailed")
       );
     }
 
@@ -501,7 +549,7 @@ setResumoLancamentos(
   } catch (error: any) {
     setErro(
       error?.message ||
-        "Erro ao calcular a distribuição."
+        t("previewFailed")
     );
   } finally {
     setCalculandoPrevia(false);
@@ -511,7 +559,7 @@ setResumoLancamentos(
 async function ativarPrograma() {
   if (!previa) {
     setErro(
-      "Calcule a prévia antes de ativar o programa."
+      t("previewRequired")
     );
     return;
   }
@@ -539,7 +587,7 @@ async function ativarPrograma() {
     const dados = await resposta.json();
 
     if (!resposta.ok) {
-      const detalhes = Array.isArray(
+      const detalhes = locale === "pt-BR" && Array.isArray(
         dados.detalhes
       )
         ? ` ${dados.detalhes.join(" ")}`
@@ -547,8 +595,7 @@ async function ativarPrograma() {
 
       throw new Error(
         `${
-          dados.error ||
-          "Não foi possível ativar o programa."
+          (locale === "pt-BR" && dados.error) || t("activateFailed")
         }${detalhes}`
       );
     }
@@ -557,15 +604,14 @@ async function ativarPrograma() {
     setPrevia(null);
 
     setSucesso(
-      dados.message ||
-        "Programa ativado e lançamentos gerados."
+      (locale === "pt-BR" && dados.message) || t("activateSuccess")
     );
 
     await carregar();
   } catch (error: any) {
     setErro(
       error?.message ||
-        "Erro ao ativar o programa."
+        t("activateFailed")
     );
   } finally {
     setAtivandoPrograma(false);
@@ -615,7 +661,7 @@ async function processarLancamentos(
 ) {
   if (selecionadosLancamentos.length === 0) {
     setErro(
-      "Selecione pelo menos um lançamento pendente."
+      t("selectPending")
     );
     return;
   }
@@ -649,14 +695,12 @@ async function processarLancamentos(
 
     if (!resposta.ok) {
       throw new Error(
-        dados.error ||
-          "Não foi possível processar os lançamentos."
+        (locale === "pt-BR" && dados.error) || t("processFailed")
       );
     }
 
     setSucesso(
-      dados.message ||
-        "Lançamentos processados com sucesso."
+      (locale === "pt-BR" && dados.message) || t("processSuccess")
     );
 
     setSelecionadosLancamentos([]);
@@ -669,7 +713,7 @@ async function processarLancamentos(
   } catch (error: any) {
     setErro(
       error?.message ||
-        "Erro ao processar os lançamentos."
+        t("processFailed")
     );
   } finally {
     setProcessandoLancamentos(false);
@@ -687,7 +731,7 @@ async function reprovarLancamentosSelecionados() {
 
   if (motivo.length < 5) {
     setErro(
-      "Informe o motivo da reprovação com pelo menos 5 caracteres."
+      t("rejectReasonRequired")
     );
     return;
   }
@@ -719,7 +763,7 @@ function fecharModalReabertura() {
 async function reabrirLancamento() {
   if (!lancamentoReabertura) {
     setErro(
-      "O lançamento para reabertura não foi identificado."
+      t("reopenMissing")
     );
     return;
   }
@@ -728,7 +772,7 @@ async function reabrirLancamento() {
 
   if (motivo.length < 5) {
     setErro(
-      "Informe o motivo da reabertura com pelo menos 5 caracteres."
+      t("reopenReasonRequired")
     );
     return;
   }
@@ -758,14 +802,12 @@ async function reabrirLancamento() {
 
     if (!resposta.ok) {
       throw new Error(
-        dados.error ||
-          "Não foi possível reabrir o lançamento."
+        (locale === "pt-BR" && dados.error) || t("reopenFailed")
       );
     }
 
     setSucesso(
-      dados.message ||
-        "Lançamento reaberto e devolvido para análise."
+      (locale === "pt-BR" && dados.message) || t("reopenSuccess")
     );
 
     setSelecionadosLancamentos([]);
@@ -778,7 +820,7 @@ async function reabrirLancamento() {
   } catch (error: any) {
     setErro(
       error?.message ||
-        "Erro ao reabrir o lançamento."
+        t("reopenFailed")
     );
   } finally {
     setReabrindoLancamento(false);
@@ -824,7 +866,7 @@ function alternarTodosLancamentosAprovados() {
 async function enviarAprovadosAoHolerite() {
   if (selecionadosEnvioHolerite.length === 0) {
     setErro(
-      "Selecione pelo menos um lançamento aprovado."
+      t("selectApproved")
     );
     return;
   }
@@ -855,14 +897,12 @@ async function enviarAprovadosAoHolerite() {
 
     if (!resposta.ok) {
       throw new Error(
-        dados.error ||
-          "Não foi possível enviar os lançamentos ao holerite."
+        (locale === "pt-BR" && dados.error) || t("sendFailed")
       );
     }
 
     setSucesso(
-      dados.message ||
-        "Lançamentos enviados ao holerite."
+      (locale === "pt-BR" && dados.message) || t("sendSuccess")
     );
 
     setSelecionadosEnvioHolerite([]);
@@ -873,7 +913,7 @@ async function enviarAprovadosAoHolerite() {
   } catch (error: any) {
     setErro(
       error?.message ||
-        "Erro ao enviar os lançamentos ao holerite."
+        t("sendFailed")
     );
   } finally {
     setEnviandoHolerite(false);
@@ -882,16 +922,16 @@ async function enviarAprovadosAoHolerite() {
 
   if (carregando) {
     return (
-      <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen p-6">
-        <p>Carregando programa...</p>
+      <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen text-slate-900 dark:text-slate-100 p-6">
+        <p>{t("loading")}</p>
       </main>
     );
   }
 
   if (!programa) {
     return (
-      <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen p-6">
-        <p>{erro || "Programa não encontrado."}</p>
+      <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen text-slate-900 dark:text-slate-100 p-6">
+        <p>{erro || t("notFound")}</p>
       </main>
     );
   }
@@ -899,7 +939,7 @@ async function enviarAprovadosAoHolerite() {
   const exigeSelecao =
     programa.abrangencia ===
     "FUNCIONARIOS_SELECIONADOS";
-    
+
     const statusPrograma = String(programa.status || "")
   .trim()
   .toUpperCase();
@@ -989,11 +1029,11 @@ const valorSelecionadoEnvioHolerite =
         participante.funcionarioCargoSnapshot,
         participante.funcionarioDepartamentoSnapshot,
         participante.funcionarioCargoSnapshot
-          ? `cargo ${participante.funcionarioCargoSnapshot}`
+          ? `${t("jobTitle")} ${participante.funcionarioCargoSnapshot}`
           : null,
         participante.funcionarioDepartamentoSnapshot
-          ? `departamento ${participante.funcionarioDepartamentoSnapshot}`
-          : "sem departamento",
+          ? `${t("department")} ${participante.funcionarioDepartamentoSnapshot}`
+          : t("noDepartment"),
       ],
       buscaParticipantes
     )
@@ -1010,17 +1050,17 @@ const funcionariosFiltrados = funcionarios.filter(
         funcionario.cargo,
         funcionario.departamento?.nome,
         funcionario.cargo
-          ? `cargo ${funcionario.cargo}`
-          : "cargo não informado",
+          ? `${t("jobTitle")} ${funcionario.cargo}`
+          : t("noJobTitle"),
         funcionario.departamento?.nome
-          ? `departamento ${funcionario.departamento.nome}`
-          : "sem departamento",
+          ? `${t("department")} ${funcionario.departamento.nome}`
+          : t("noDepartment"),
         funcionario.jaParticipa
-          ? "já incluído já incluídos participante"
-          : "não incluído não incluídos disponível",
+          ? t("alreadyIncluded")
+          : t("notIncluded"),
         funcionario.elegivel
-          ? "elegível elegíveis apto"
-          : "inelegível inelegíveis inapto",
+          ? t("eligible")
+          : t("ineligible"),
       ],
       buscaFuncionarios
     )
@@ -1037,13 +1077,13 @@ const sugestoesParticipantes = criarSugestoes(
     ),
     ...programa.participantes.map((participante) =>
       participante.funcionarioCargoSnapshot
-        ? `Cargo: ${participante.funcionarioCargoSnapshot}`
+        ? t("jobPrefix", {value: participante.funcionarioCargoSnapshot})
         : null
     ),
     ...programa.participantes.map((participante) =>
       participante.funcionarioDepartamentoSnapshot
-        ? `Departamento: ${participante.funcionarioDepartamentoSnapshot}`
-        : "Sem departamento"
+        ? t("departmentPrefix", {value: participante.funcionarioDepartamentoSnapshot})
+        : t("noDepartment")
     ),
   ],
   buscaParticipantes
@@ -1051,22 +1091,22 @@ const sugestoesParticipantes = criarSugestoes(
 
 const sugestoesFuncionarios = criarSugestoes(
   [
-    "Já incluídos",
-    "Não incluídos",
-    "Elegíveis",
-    "Inelegíveis",
-    "Sem departamento",
+    t("alreadyIncluded"),
+    t("notIncluded"),
+    t("eligible"),
+    t("ineligible"),
+    t("noDepartment"),
     ...funcionarios.map(
       (funcionario) => funcionario.nome
     ),
     ...funcionarios.map((funcionario) =>
       funcionario.cargo
-        ? `Cargo: ${funcionario.cargo}`
+        ? t("jobPrefix", {value: funcionario.cargo})
         : null
     ),
     ...funcionarios.map((funcionario) =>
       funcionario.departamento?.nome
-        ? `Departamento: ${funcionario.departamento.nome}`
+        ? t("departmentPrefix", {value: funcionario.departamento.nome})
         : null
     ),
   ],
@@ -1074,104 +1114,89 @@ const sugestoesFuncionarios = criarSugestoes(
 );
 
   return (
-    <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen p-4 sm:p-6">
+    <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen text-slate-900 dark:text-slate-100 p-4 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <Link
               href="/admin/rh/remuneracao-variavel"
-              className="text-sm font-bold text-blue-400 hover:underline"
-            >
-              ← Voltar para Remuneração Variável
-            </Link>
+              className="text-sm font-bold text-blue-700 hover:underline dark:text-blue-300"
+            >{t("back")}</Link>
 
-            <p className="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-blue-300">
-              Gerenciamento do programa
-            </p>
+            <p className="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-blue-700 dark:text-blue-300">{t("programManagement")}</p>
 
             <h1 className="mt-2 text-3xl font-black">
               {programa.nome}
             </h1>
 
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               {programa.descricao ||
-                "Programa sem descrição informada."}
+                t("noDescription")}
             </p>
           </div>
 
-          <span className="inline-flex w-fit rounded-full border border-amber-500/30 bg-amber-500/15 px-3 py-1 text-xs font-black text-amber-300">
-            {formatarTexto(programa.status)}
+          <span className="inline-flex w-fit rounded-full border border-amber-500/50 bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/15 px-3 py-1 text-xs font-black text-amber-700 dark:text-amber-300">
+            {enumLabel(programa.status)}
           </span>
         </header>
 
         {erro && (
-          <div className="rounded-2xl border border-red-500/30 bg-red-950/40 p-4 text-sm text-red-200">
+          <div className="rounded-2xl border border-red-500/30 bg-red-50 dark:bg-red-950/40 p-4 text-sm text-red-800 dark:text-red-200">
             {erro}
           </div>
         )}
 
         {sucesso && (
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/40 p-4 text-sm text-emerald-200">
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/40 p-4 text-sm text-emerald-800 dark:text-emerald-200">
             {sucesso}
           </div>
         )}
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-            <p className="text-xs font-bold uppercase text-slate-400">
-              Abrangência
-            </p>
+          <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("scope")}</p>
             <p className="mt-3 font-black">
-              {formatarTexto(programa.abrangencia)}
+              {enumLabel(programa.abrangencia)}
             </p>
             {programa.departamento?.nome && (
-              <p className="mt-2 text-xs text-slate-400">
+              <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
                 {programa.departamento.nome}
               </p>
             )}
           </article>
 
-          <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-            <p className="text-xs font-bold uppercase text-slate-400">
-              Método
-            </p>
+          <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("method")}</p>
             <p className="mt-3 font-black">
-              {formatarTexto(
-                programa.metodoDistribuicao
-              )}
+              {enumLabel(programa.metodoDistribuicao)}
             </p>
           </article>
 
-          <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-            <p className="text-xs font-bold uppercase text-slate-400">
-              Fundo
-            </p>
+          <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("fund")}</p>
             <p className="mt-3 text-xl font-black">
               {programa.valorFundo
-                ? formatarMoeda(programa.valorFundo)
+                ? formatarMoeda(programa.valorFundo, locale)
                 : programa.percentualFundo
                   ? `${programa.percentualFundo}%`
                   : "-"}
             </p>
           </article>
 
-          <article className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-            <p className="text-xs font-bold uppercase text-slate-400">
-              Auditoria
-            </p>
+          <article className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5">
+            <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("audit")}</p>
             <p className="mt-3 font-black">
               {programa.criadoPor?.nome ||
                 programa.criadoPor?.email ||
-                `Usuário ID ${programa.criadoPorId ?? "-"}`}
+                t("userId", {id: programa.criadoPorId ?? "-"})}
             </p>
-            <p className="mt-2 text-xs text-slate-400">
-              Criado em:{" "}
-              {formatarDataHora(programa.criadoEm)}
+            <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+              {t("createdAt", {date: formatarDataHora(programa.criadoEm, locale)})}
             </p>
           </article>
         </section>
 
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+        <section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <button
       type="button"
@@ -1182,13 +1207,10 @@ const sugestoesFuncionarios = criarSugestoes(
       className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
     >
       <div>
-        <h2 className="text-lg font-black">
-          Participantes
-        </h2>
+        <h2 className="text-lg font-black">{t("participants")}</h2>
 
-        <p className="mt-1 text-sm text-slate-400">
-          {programa.participantes.length} funcionário(s)
-          incluído(s) no programa.
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          {t("participantsCount", {count: programa.participantes.length})}
         </p>
       </div>
 
@@ -1208,12 +1230,12 @@ const sugestoesFuncionarios = criarSugestoes(
       className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
     >
       {processando
-        ? "Incluindo..."
+        ? t("including")
         : exigeSelecao
-          ? `Incluir selecionados (${selecionados.length})`
+          ? t("includeSelected", {count: selecionados.length})
           : programa.participantes.length > 0
-  ? "Atualizar participantes elegíveis"
-  : "Gerar participantes elegíveis"}
+  ? t("updateEligible")
+  : t("generateEligible")}
     </button>
   </div>
 
@@ -1226,8 +1248,8 @@ const sugestoesFuncionarios = criarSugestoes(
           onChange={(event) =>
             setBuscaParticipantes(event.target.value)
           }
-          placeholder="Busque com suas palavras: nome, cargo ou departamento..."
-          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+          placeholder={t("searchByWords")}
+          className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
         />
 
         {sugestoesParticipantes.length > 0 && (
@@ -1247,30 +1269,25 @@ const sugestoesFuncionarios = criarSugestoes(
           </div>
         )}
 
-        <p className="mt-3 text-xs text-slate-400">
-          Mostrando {participantesExibidos.length} de{" "}
-          {participantesFiltrados.length} resultado(s).
+        <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+          {t("showingResults", {shown: participantesExibidos.length, total: participantesFiltrados.length})}
           {participantesFiltrados.length > 30 &&
-            " Refine a busca para localizar outros participantes."}
+            t("refineParticipants")}
         </p>
       </div>
 
       {programa.participantes.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">
-          Nenhum participante incluído ainda.
-        </div>
+        <div className="mt-5 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 text-sm text-slate-600 dark:text-slate-400">{t("noParticipants")}</div>
       ) : participantesFiltrados.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">
-          Nenhum participante corresponde à busca.
-        </div>
+        <div className="mt-5 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 text-sm text-slate-600 dark:text-slate-400">{t("noParticipantMatch")}</div>
       ) : (
         <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-950/70 text-left text-xs uppercase text-slate-400">
+            <thead className="bg-slate-100 dark:bg-slate-950/70 text-left text-xs uppercase text-slate-600 dark:text-slate-400">
               <tr>
-                <th className="p-3">Funcionário</th>
-                <th className="p-3">Cargo</th>
-                <th className="p-3">Departamento</th>
+                <th className="p-3">{t("employee")}</th>
+                <th className="p-3">{t("jobTitle")}</th>
+                <th className="p-3">{t("department")}</th>
               </tr>
             </thead>
 
@@ -1279,7 +1296,7 @@ const sugestoesFuncionarios = criarSugestoes(
                 (participante) => (
                   <tr
                     key={participante.id}
-                    className="border-t border-slate-800"
+                    className="border-t border-slate-200 dark:border-slate-800"
                   >
                     <td className="p-3 font-bold">
                       {
@@ -1287,12 +1304,12 @@ const sugestoesFuncionarios = criarSugestoes(
                       }
                     </td>
 
-                    <td className="p-3 text-slate-300">
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
                       {participante.funcionarioCargoSnapshot ||
                         "-"}
                     </td>
 
-                    <td className="p-3 text-slate-300">
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
                       {participante.funcionarioDepartamentoSnapshot ||
                         "-"}
                     </td>
@@ -1302,13 +1319,13 @@ const sugestoesFuncionarios = criarSugestoes(
             </tbody>
           </table>
         </div>
-        
+
       )}
     </>
   )}
 </section>
 
-<section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+<section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <button
       type="button"
@@ -1319,13 +1336,10 @@ const sugestoesFuncionarios = criarSugestoes(
       className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
     >
       <div>
-        <h2 className="text-lg font-black">
-          Prévia da distribuição
-        </h2>
+        <h2 className="text-lg font-black">{t("preview")}</h2>
 
-        <p className="mt-1 text-sm text-slate-400">
-          Confira quanto cada funcionário receberá antes
-          de gerar lançamentos.
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          {t("previewDescription")}
         </p>
       </div>
 
@@ -1344,76 +1358,62 @@ const sugestoesFuncionarios = criarSugestoes(
       className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
     >
       {calculandoPrevia
-        ? "Calculando..."
+        ? t("calculating")
         : previa
-          ? "Recalcular prévia"
-          : "Calcular prévia"}
+          ? t("recalculate")
+          : t("calculate")}
     </button>
   </div>
 
   {previaAberta && (
     <>
       {!previa ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">
-          Clique em “Calcular prévia” para visualizar
-          os valores individuais.
-        </div>
+        <div className="mt-5 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 text-sm text-slate-600 dark:text-slate-400">{t("previewHint")}</div>
       ) : (
         <>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <p className="text-xs font-bold uppercase text-slate-400">
-                Participantes
-              </p>
+            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+              <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("participants")}</p>
 
               <p className="mt-2 text-2xl font-black">
                 {previa.totalParticipantes}
               </p>
             </article>
 
-            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <p className="text-xs font-bold uppercase text-slate-400">
-                Fundo
-              </p>
+            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+              <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("fund")}</p>
 
               <p className="mt-2 text-2xl font-black">
-                {formatarMoeda(previa.valorFundo)}
+                {formatarMoeda(previa.valorFundo, locale)}
               </p>
             </article>
 
-            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <p className="text-xs font-bold uppercase text-slate-400">
-                Total distribuído
-              </p>
+            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+              <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("totalDistributed")}</p>
 
               <p className="mt-2 text-2xl font-black">
                 {formatarMoeda(
-                  previa.totalDistribuido
-                )}
+                  previa.totalDistribuido, locale)}
               </p>
             </article>
 
-            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <p className="text-xs font-bold uppercase text-slate-400">
-                Saldo
-              </p>
+            <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+              <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("balance")}</p>
 
               <p className="mt-2 text-2xl font-black">
-                {formatarMoeda(previa.saldo)}
+                {formatarMoeda(previa.saldo, locale)}
               </p>
             </article>
           </div>
 
           {previa.alertasGerais.length > 0 && (
             <div className="mt-5 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
-              <p className="text-sm font-black">
-                Pontos de atenção
-              </p>
+              <p className="text-sm font-black">{t("alerts")}</p>
 
               <div className="mt-2 space-y-1 text-sm">
                 {previa.alertasGerais.map(
                   (alerta) => (
-                    <p key={alerta}>• {alerta}</p>
+                    <p key={alerta}>• {traduzirMensagemApi(alerta)}</p>
                   )
                 )}
               </div>
@@ -1422,12 +1422,12 @@ const sugestoesFuncionarios = criarSugestoes(
 
           <div className="mt-5 overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="bg-slate-950/70 text-left text-xs uppercase text-slate-400">
+              <thead className="bg-slate-100 dark:bg-slate-950/70 text-left text-xs uppercase text-slate-600 dark:text-slate-400">
                 <tr>
-                  <th className="p-3">Funcionário</th>
-                  <th className="p-3">Critério</th>
-                  <th className="p-3">Valor previsto</th>
-                  <th className="p-3">Observações</th>
+                  <th className="p-3">{t("employee")}</th>
+                  <th className="p-3">{t("criterion")}</th>
+                  <th className="p-3">{t("expectedAmount")}</th>
+                  <th className="p-3">{t("notes")}</th>
                 </tr>
               </thead>
 
@@ -1435,37 +1435,35 @@ const sugestoesFuncionarios = criarSugestoes(
   {previa.linhas.map((linha) => (
     <tr
       key={linha.participanteId}
-      className="border-t border-slate-800"
+      className="border-t border-slate-200 dark:border-slate-800"
     >
       <td className="p-3">
         <p className="font-black">
           {linha.funcionarioNome}
         </p>
 
-        <p className="mt-1 text-xs text-slate-400">
-          {linha.funcionarioCargo || "Cargo não informado"}
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+          {linha.funcionarioCargo || t("noJobTitle")}
           {" • "}
-          {linha.funcionarioDepartamento || "Sem departamento"}
+          {linha.funcionarioDepartamento || t("noDepartment")}
         </p>
       </td>
 
       <td className="p-3">
-        {linha.criterio}
+        {traduzirMensagemApi(linha.criterio)}
       </td>
 
       <td className="p-3 text-base font-black">
-        {formatarMoeda(linha.valorPrevisto)}
+        {formatarMoeda(linha.valorPrevisto, locale)}
       </td>
 
       <td className="p-3">
         {linha.alertas.length === 0 ? (
-          <span className="text-emerald-600">
-            Cálculo válido
-          </span>
+          <span className="text-emerald-700 dark:text-emerald-400">{t("validCalculation")}</span>
         ) : (
-          <div className="space-y-1 text-xs text-amber-600">
+          <div className="space-y-1 text-xs text-amber-700 dark:text-amber-400">
             {linha.alertas.map((alerta) => (
-              <p key={alerta}>• {alerta}</p>
+              <p key={alerta}>• {traduzirMensagemApi(alerta)}</p>
             ))}
           </div>
         )}
@@ -1477,22 +1475,17 @@ const sugestoesFuncionarios = criarSugestoes(
 </div>
 
 {programaEmRascunho && (
-  <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-700 p-4 sm:flex-row sm:items-center sm:justify-between">
+  <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <p className="font-black">
-        Ativação do programa
-      </p>
+      <p className="font-black">{t("activation")}</p>
 
-      <p className="mt-1 text-sm text-slate-400">
-        Serão gerados {previa.totalParticipantes} lançamentos
-        pendentes, totalizando{" "}
-        {formatarMoeda(previa.totalDistribuido)}.
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        {t("activationSummary", {count: previa.totalParticipantes, amount: formatarMoeda(previa.totalDistribuido, locale)})}
       </p>
 
       {previa.saldo > 0 && (
-        <p className="mt-1 text-xs text-amber-600">
-          Permanecerá um saldo não distribuído de{" "}
-          {formatarMoeda(previa.saldo)}.
+        <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
+          {t("remainingBalance", {amount: formatarMoeda(previa.saldo, locale)})}
         </p>
       )}
     </div>
@@ -1506,9 +1499,7 @@ const sugestoesFuncionarios = criarSugestoes(
       }
       onClick={() => setModalAtivacaoAberto(true)}
       className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Ativar programa e gerar lançamentos
-    </button>
+    >{t("activateAndGenerate")}</button>
   </div>
 )}
 
@@ -1518,7 +1509,7 @@ const sugestoesFuncionarios = criarSugestoes(
   )}
 </section>
 
-<section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+<section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <button
       type="button"
@@ -1529,13 +1520,10 @@ const sugestoesFuncionarios = criarSugestoes(
       className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
     >
       <div>
-        <h2 className="text-lg font-black">
-          Lançamentos e aprovação
-        </h2>
+        <h2 className="text-lg font-black">{t("entriesApproval")}</h2>
 
-        <p className="mt-1 text-sm text-slate-400">
-          {resumoLancamentos.total} lançamento(s), sendo{" "}
-          {resumoLancamentos.pendentes} pendente(s).
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          {t("entriesCount", {count: resumoLancamentos.total, pending: resumoLancamentos.pendentes})}
         </p>
       </div>
 
@@ -1548,52 +1536,42 @@ const sugestoesFuncionarios = criarSugestoes(
   {lancamentosAberto && (
     <>
       <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-          <p className="text-xs font-bold uppercase text-slate-400">
-            Pendentes
-          </p>
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("pendingPlural")}</p>
 
           <p className="mt-2 text-2xl font-black">
             {resumoLancamentos.pendentes}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
             {formatarMoeda(
-              resumoLancamentos.valorPendente
-            )}
+              resumoLancamentos.valorPendente, locale)}
           </p>
         </article>
 
-        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-          <p className="text-xs font-bold uppercase text-slate-400">
-            Aprovados
-          </p>
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("approvedPlural")}</p>
 
           <p className="mt-2 text-2xl font-black">
             {resumoLancamentos.aprovados}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
             {formatarMoeda(
-              resumoLancamentos.valorAprovado
-            )}
+              resumoLancamentos.valorAprovado, locale)}
           </p>
         </article>
 
-        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-          <p className="text-xs font-bold uppercase text-slate-400">
-            Reprovados
-          </p>
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("rejectedPlural")}</p>
 
           <p className="mt-2 text-2xl font-black">
             {resumoLancamentos.reprovados}
           </p>
         </article>
 
-        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-          <p className="text-xs font-bold uppercase text-slate-400">
-            Enviados ao holerite
-          </p>
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">{t("sentPlural")}</p>
 
           <p className="mt-2 text-2xl font-black">
             {resumoLancamentos.enviadosHolerite}
@@ -1602,24 +1580,17 @@ const sugestoesFuncionarios = criarSugestoes(
       </div>
 
       {lancamentos.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">
-          Nenhum lançamento foi gerado para este programa.
-        </div>
+        <div className="mt-5 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 text-sm text-slate-600 dark:text-slate-400">{t("noEntries")}</div>
       ) : (
         <>
           {programaAtivo &&
             resumoLancamentos.pendentes > 0 && (
-              <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-slate-700 p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="font-black">
-                    Aprovação dos lançamentos
-                  </p>
+                  <p className="font-black">{t("approval")}</p>
 
-                  <p className="mt-1 text-sm text-slate-400">
-                    {selecionadosLancamentos.length} selecionado(s), totalizando{" "}
-                    {formatarMoeda(
-                      valorLancamentosSelecionados
-                    )}.
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                    {t("selectedSummary", {count: selecionadosLancamentos.length, amount: formatarMoeda(valorLancamentosSelecionados, locale)})}
                   </p>
                 </div>
 
@@ -1634,9 +1605,7 @@ const sugestoesFuncionarios = criarSugestoes(
                       setModalReprovacaoAberto(true)
                     }
                     className="phanyx-remuneracao-botao-reprovar rounded-xl border px-4 py-2.5 text-sm font-black disabled:cursor-not-allowed"
-                  >
-                    Reprovar selecionados
-                  </button>
+                  >{t("rejectSelected")}</button>
 
                   <button
                     type="button"
@@ -1648,9 +1617,7 @@ const sugestoesFuncionarios = criarSugestoes(
                       setModalAprovacaoAberto(true)
                     }
                     className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Aprovar selecionados
-                  </button>
+                  >{t("approveSelected")}</button>
                 </div>
               </div>
             )}
@@ -1659,21 +1626,14 @@ const sugestoesFuncionarios = criarSugestoes(
   resumoLancamentos.aprovados > 0 && (
     <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-blue-500/50 p-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <p className="font-black">
-          Envio ao holerite
+        <p className="font-black">{t("payrollSend")}</p>
+
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          {t("approvedSelectedSummary", {count: selecionadosEnvioHolerite.length, amount: formatarMoeda(valorSelecionadoEnvioHolerite, locale)})}
         </p>
 
-        <p className="mt-1 text-sm text-slate-400">
-          {selecionadosEnvioHolerite.length} aprovado(s)
-          selecionado(s), totalizando{" "}
-          {formatarMoeda(
-            valorSelecionadoEnvioHolerite
-          )}.
-        </p>
-
-        <p className="mt-1 text-xs text-slate-400">
-          O valor será incluído como vencimento no
-          holerite da competência correspondente.
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+          {t("payrollAmountHint")}
         </p>
       </div>
 
@@ -1687,11 +1647,11 @@ const sugestoesFuncionarios = criarSugestoes(
           onClick={
             alternarTodosLancamentosAprovados
           }
-          className="rounded-xl border border-slate-600 px-4 py-2.5 text-sm font-black disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2.5 text-sm font-black disabled:cursor-not-allowed disabled:opacity-50"
         >
           {todosAprovadosSelecionados
-            ? "Limpar seleção"
-            : "Selecionar todos aprovados"}
+            ? t("clearSelection")
+            : t("selectAllApproved")}
         </button>
 
         <button
@@ -1704,21 +1664,19 @@ const sugestoesFuncionarios = criarSugestoes(
             setModalEnvioHoleriteAberto(true)
           }
           className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Enviar selecionados ao holerite
-        </button>
+        >{t("sendSelected")}</button>
       </div>
     </div>
   )}
 
           <div className="mt-5 overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="bg-slate-950/70 text-left text-xs uppercase text-slate-400">
+              <thead className="bg-slate-100 dark:bg-slate-950/70 text-left text-xs uppercase text-slate-600 dark:text-slate-400">
                 <tr>
                   <th className="p-3">
                     <input
                       type="checkbox"
-                      aria-label="Selecionar todos os lançamentos pendentes"
+                      aria-label={t("selectAllPending")}
                       checked={
                         todosPendentesSelecionados
                       }
@@ -1732,25 +1690,15 @@ const sugestoesFuncionarios = criarSugestoes(
                     />
                   </th>
 
-                  <th className="p-3">
-                    Funcionário
-                  </th>
+                  <th className="p-3">{t("employee")}</th>
 
-                  <th className="p-3">
-                    Competência
-                  </th>
+                  <th className="p-3">{t("period")}</th>
 
-                  <th className="p-3">
-                    Valor
-                  </th>
+                  <th className="p-3">{t("amount")}</th>
 
-                  <th className="p-3">
-                    Status
-                  </th>
+                  <th className="p-3">{t("status")}</th>
 
-                  <th className="p-3">
-                    Auditoria
-                  </th>
+                  <th className="p-3">{t("audit")}</th>
                 </tr>
               </thead>
 
@@ -1776,22 +1724,22 @@ let dataAuditoria:
   | null
   | undefined = lancamento.calculadoEm;
 
-let rotuloUsuarioAuditoria = "Gerado por";
-let rotuloDataAuditoria = "Gerado em";
+let rotuloUsuarioAuditoria = t("generatedBy");
+let rotuloDataAuditoria = t("generatedAt");
 
 switch (statusLancamento) {
   case "APROVADO":
     usuarioAuditoria = lancamento.aprovadoPor;
     dataAuditoria = lancamento.aprovadoEm;
-    rotuloUsuarioAuditoria = "Aprovado por";
-    rotuloDataAuditoria = "Aprovado em";
+    rotuloUsuarioAuditoria = t("approvedBy");
+    rotuloDataAuditoria = t("approvedAt");
     break;
 
   case "REPROVADO":
     usuarioAuditoria = lancamento.reprovadoPor;
     dataAuditoria = lancamento.reprovadoEm;
-    rotuloUsuarioAuditoria = "Reprovado por";
-    rotuloDataAuditoria = "Reprovado em";
+    rotuloUsuarioAuditoria = t("rejectedBy");
+    rotuloDataAuditoria = t("rejectedAt");
     break;
 
   case "ENVIADO_HOLERITE":
@@ -1799,8 +1747,8 @@ switch (statusLancamento) {
       lancamento.enviadoHoleritePor;
     dataAuditoria =
       lancamento.enviadoHoleriteEm;
-    rotuloUsuarioAuditoria = "Enviado por";
-    rotuloDataAuditoria = "Enviado em";
+    rotuloUsuarioAuditoria = t("sentBy");
+    rotuloDataAuditoria = t("sentAt");
     break;
 
   case "PAGO":
@@ -1810,32 +1758,32 @@ switch (statusLancamento) {
       lancamento.pagoEm ||
       lancamento.enviadoHoleriteEm;
     rotuloUsuarioAuditoria =
-      "Responsável registrado";
+      t("registeredBy");
     rotuloDataAuditoria = lancamento.pagoEm
-      ? "Pago em"
-      : "Enviado em";
+      ? t("paidAt")
+      : t("sentAt");
     break;
 
   case "ESTORNADO":
     usuarioAuditoria = lancamento.estornadoPor;
     dataAuditoria = lancamento.estornadoEm;
-    rotuloUsuarioAuditoria = "Estornado por";
-    rotuloDataAuditoria = "Estornado em";
+    rotuloUsuarioAuditoria = t("reversedBy");
+    rotuloDataAuditoria = t("reversedAt");
     break;
 }
 
                   return (
                     <tr
                       key={lancamento.id}
-                      className="border-t border-slate-800"
+                      className="border-t border-slate-200 dark:border-slate-800"
                     >
                       <td className="p-3">
                         <input
   type="checkbox"
   aria-label={
     pendente
-      ? `Selecionar lançamento de ${lancamento.funcionarioNomeSnapshot} para aprovação`
-      : `Selecionar lançamento de ${lancamento.funcionarioNomeSnapshot} para envio ao holerite`
+      ? t("selectForApproval", {name: lancamento.funcionarioNomeSnapshot})
+      : t("selectForPayroll", {name: lancamento.funcionarioNomeSnapshot})
   }
   disabled={
     (!pendente && !aprovado) ||
@@ -1875,12 +1823,12 @@ switch (statusLancamento) {
                           }
                         </p>
 
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                           {lancamento.funcionarioCargoSnapshot ||
-                            "Cargo não informado"}
+                            t("noJobTitle")}
                           {" • "}
                           {lancamento.funcionarioDepartamentoSnapshot ||
-                            "Sem departamento"}
+                            t("noDepartment")}
                         </p>
                       </td>
 
@@ -1894,8 +1842,7 @@ switch (statusLancamento) {
                       <td className="p-3 text-base font-black">
                         {formatarMoeda(
                           lancamento.valorAprovado ??
-                            lancamento.valorCalculado
-                        )}
+                            lancamento.valorCalculado, locale)}
                       </td>
 
                       <td className="p-3">
@@ -1904,14 +1851,12 @@ switch (statusLancamento) {
                             lancamento.status
                           )}`}
                         >
-                          {formatarTexto(
-                            lancamento.status
-                          )}
+                          {enumLabel(lancamento.status)}
                         </span>
                       </td>
 
                       <td className="p-3">
-  <p className="text-xs font-bold uppercase text-slate-400">
+  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
     {rotuloUsuarioAuditoria}
   </p>
 
@@ -1920,24 +1865,24 @@ switch (statusLancamento) {
       usuarioAuditoria?.email ||
       (statusLancamento ===
       "ENVIADO_HOLERITE"
-        ? "Usuário do envio não registrado"
-        : "Aguardando análise")}
+        ? t("sentUserUnknown")
+        : t("awaitingReview"))}
   </p>
 
   {usuarioAuditoria?.id && (
-    <p className="mt-1 text-xs text-slate-400">
-      ID do usuário: {usuarioAuditoria.id}
+    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+      {t("userIdLabel", {id: usuarioAuditoria.id})}
     </p>
   )}
 
-  <p className="mt-1 text-xs text-slate-400">
+  <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
     {rotuloDataAuditoria}:{" "}
-    {formatarDataHora(dataAuditoria)}
+    {formatarDataHora(dataAuditoria, locale)}
   </p>
 
   {lancamento.motivoReprovacao && (
-    <p className="mt-2 text-xs text-red-600">
-      Motivo:{" "}
+    <p className="mt-2 text-xs text-red-700 dark:text-red-400">
+      {t("reasonLabel")}{" "}
       {lancamento.motivoReprovacao}
     </p>
   )}
@@ -1950,9 +1895,7 @@ switch (statusLancamento) {
         abrirModalReabertura(lancamento)
       }
       className="mt-3 rounded-xl border border-amber-500 px-3 py-2 text-xs font-black transition hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Reabrir análise
-    </button>
+    >{t("reopenReview")}</button>
   )}
 </td>
                     </tr>
@@ -1967,7 +1910,7 @@ switch (statusLancamento) {
   )}
 </section>
 
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+        <section className="rounded-3xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80 p-5 shadow-xl">
   <button
     type="button"
     aria-expanded={funcionariosAberto}
@@ -1977,13 +1920,10 @@ switch (statusLancamento) {
     className="flex w-full items-center justify-between gap-4 text-left"
   >
     <div>
-      <h2 className="text-lg font-black">
-        Funcionários disponíveis
-      </h2>
+      <h2 className="text-lg font-black">{t("availableEmployees")}</h2>
 
-      <p className="mt-1 text-sm text-slate-400">
-        Abra para localizar, revisar ou selecionar
-        funcionários.
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        {t("availableHint")}
       </p>
     </div>
 
@@ -2001,8 +1941,8 @@ switch (statusLancamento) {
           onChange={(event) =>
             setBuscaFuncionarios(event.target.value)
           }
-          placeholder='Busque: "Comercial", "vendedor", "já incluído", "inelegível"...'
-          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+          placeholder={t("searchEmployees")}
+          className="w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
         />
 
         <div className="mt-2 flex flex-wrap gap-2">
@@ -2020,24 +1960,21 @@ switch (statusLancamento) {
           ))}
         </div>
 
-        <p className="mt-3 text-xs text-slate-400">
-          Mostrando {funcionariosExibidos.length} de{" "}
-          {funcionariosFiltrados.length} resultado(s).
+        <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
+          {t("showingResults", {shown: funcionariosExibidos.length, total: funcionariosFiltrados.length})}
           {funcionariosFiltrados.length > 30 &&
-            " Refine a busca para localizar outros funcionários."}
+            t("refineEmployees")}
         </p>
       </div>
 
       <div className="mt-5 space-y-3">
         {funcionariosExibidos.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">
-            Nenhum funcionário corresponde à busca.
-          </p>
+          <p className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 text-sm text-slate-600 dark:text-slate-400">{t("noEmployeeMatch")}</p>
         ) : (
           funcionariosExibidos.map((funcionario) => (
             <label
               key={funcionario.id}
-              className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950/50 p-4"
+              className="phanyx-remuneracao-elegibilidade-card flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50 p-4"
             >
               {exigeSelecao && (
                 <input
@@ -2063,36 +2000,31 @@ switch (statusLancamento) {
                   </p>
 
                   {funcionario.jaParticipa && (
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-1 text-xs font-bold text-emerald-300">
-                      Já incluído
-                    </span>
+                    <span className="rounded-full bg-emerald-500/15 px-2 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300">{t("alreadyIncluded")}</span>
                   )}
 
                   {!funcionario.elegivel && (
-                    <span className="rounded-full bg-red-500/15 px-2 py-1 text-xs font-bold text-red-300">
-                      Inelegível
-                    </span>
+                    <span className="rounded-full bg-red-500/15 px-2 py-1 text-xs font-bold text-red-700 dark:text-red-300">{t("ineligible")}</span>
                   )}
                 </div>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                   {funcionario.cargo ||
-                    "Cargo não informado"}
+                    t("noJobTitle")}
                   {" • "}
                   {funcionario.departamento?.nome ||
-                    "Sem departamento"}
+                    t("noDepartment")}
                   {" • "}
                   {formatarMoeda(
-                    funcionario.salarioBase
-                  )}
+                    funcionario.salarioBase, locale)}
                 </p>
 
                 {funcionario.motivosInelegibilidade
                   .length > 0 && (
-                  <div className="mt-2 text-xs text-red-300">
+                  <div className="mt-2 text-xs text-red-700 dark:text-red-300">
                     {funcionario.motivosInelegibilidade.map(
                       (motivo) => (
-                        <p key={motivo}>• {motivo}</p>
+                        <p key={motivo}>• {traduzirMensagemApi(motivo)}</p>
                       )
                     )}
                   </div>
@@ -2117,36 +2049,26 @@ switch (statusLancamento) {
     >
       <button
         type="button"
-        aria-label="Fechar reabertura"
+        aria-label={t("closeReopen")}
         onClick={fecharModalReabertura}
         className="absolute inset-0 bg-black/70"
       />
 
       <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-500">
-          Correção auditada
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-500">{t("auditCorrection")}</p>
 
         <h2
           id="titulo-modal-reabertura"
           className="mt-2 text-2xl font-black"
-        >
-          Reabrir lançamento?
-        </h2>
+        >{t("reopenQuestion")}</h2>
 
         <p className="mt-4 text-sm">
-          O lançamento de{" "}
-          <strong>
-            {
-              lancamentoReabertura.funcionarioNomeSnapshot
-            }
-          </strong>{" "}
-          voltará para o status pendente.
+          {t("reopenIntro", {name: lancamentoReabertura.funcionarioNomeSnapshot})}
         </p>
 
         <div className="mt-5 rounded-2xl border p-4 text-sm">
           <p>
-            <strong>Competência:</strong>{" "}
+            <strong>{t("period")}:</strong>{" "}
             {String(
               lancamentoReabertura.competenciaMes
             ).padStart(2, "0")}
@@ -2154,26 +2076,21 @@ switch (statusLancamento) {
           </p>
 
           <p className="mt-2">
-            <strong>Valor:</strong>{" "}
+            <strong>{t("amount")}:</strong>{" "}
             {formatarMoeda(
               lancamentoReabertura.valorAprovado ??
-                lancamentoReabertura.valorCalculado
-            )}
+                lancamentoReabertura.valorCalculado, locale)}
           </p>
 
           <p className="mt-2">
-            <strong>
-              Motivo anterior da reprovação:
-            </strong>{" "}
+            <strong>{t("previousRejection")}</strong>{" "}
             {lancamentoReabertura.motivoReprovacao ||
-              "Não informado"}
+              t("notProvided")}
           </p>
         </div>
 
         <label className="mt-5 block">
-          <span className="text-sm font-black">
-            Motivo da reabertura
-          </span>
+          <span className="text-sm font-black">{t("reopenReason")}</span>
 
           <textarea
             value={motivoReabertura}
@@ -2182,17 +2099,15 @@ switch (statusLancamento) {
                 event.target.value
               )
             }
-            placeholder="Explique por que este lançamento precisa voltar para análise."
+            placeholder={t("reopenPlaceholder")}
             rows={4}
             disabled={reabrindoLancamento}
-            className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400 disabled:opacity-60"
+            className="mt-2 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400 disabled:opacity-60"
           />
         </label>
 
         <div className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-          A reprovação anterior não será apagada do
-          histórico. O PHANYX registrará quem reabriu,
-          quando reabriu e a justificativa informada.
+          {t("reopenAuditHint")}
         </div>
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -2201,9 +2116,7 @@ switch (statusLancamento) {
             disabled={reabrindoLancamento}
             onClick={fecharModalReabertura}
             className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
-          >
-            Cancelar
-          </button>
+          >{t("cancel")}</button>
 
           <button
             type="button"
@@ -2215,8 +2128,8 @@ switch (statusLancamento) {
             className="rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {reabrindoLancamento
-              ? "Reabrindo..."
-              : "Confirmar reabertura"}
+              ? t("reopening")
+              : t("confirmReopen")}
           </button>
         </div>
       </div>
@@ -2232,7 +2145,7 @@ switch (statusLancamento) {
   >
     <button
       type="button"
-      aria-label="Fechar confirmação de envio"
+      aria-label={t("closeSend")}
       onClick={() =>
         !enviandoHolerite &&
         setModalEnvioHoleriteAberto(false)
@@ -2241,46 +2154,26 @@ switch (statusLancamento) {
     />
 
     <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">
-        Integração com a folha
-      </p>
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">{t("payrollIntegration")}</p>
 
       <h2
         id="titulo-modal-envio-holerite"
         className="mt-2 text-2xl font-black"
-      >
-        Enviar ao holerite?
-      </h2>
+      >{t("sendQuestion")}</h2>
 
       <p className="mt-4 text-sm">
-        Serão enviados{" "}
-        <strong>
-          {selecionadosEnvioHolerite.length} lançamento(s)
-        </strong>
-        , totalizando{" "}
-        <strong>
-          {formatarMoeda(
-            valorSelecionadoEnvioHolerite
-          )}
-        </strong>
-        .
+        {t("sendModalSummary", {count: selecionadosEnvioHolerite.length, amount: formatarMoeda(valorSelecionadoEnvioHolerite, locale)})}
       </p>
 
       <div className="mt-5 rounded-2xl border p-4 text-sm">
-        <p className="font-black">
-          O que acontecerá
+        <p className="font-black">{t("whatHappens")}</p>
+
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
+          {t("payslipCreateHint")}
         </p>
 
-        <p className="mt-2 text-slate-400">
-          O PHANYX criará o holerite da competência
-          quando ele ainda não existir ou acrescentará
-          o valor ao holerite existente.
-        </p>
-
-        <p className="mt-2 text-slate-400">
-          Cada remuneração será registrada como um
-          evento do tipo vencimento. Esta ação não marca
-          o holerite como pago.
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
+          {t("earningsHint")}
         </p>
       </div>
 
@@ -2292,9 +2185,7 @@ switch (statusLancamento) {
             setModalEnvioHoleriteAberto(false)
           }
           className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
-        >
-          Cancelar
-        </button>
+        >{t("cancel")}</button>
 
         <button
           type="button"
@@ -2303,8 +2194,8 @@ switch (statusLancamento) {
           className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {enviandoHolerite
-            ? "Enviando..."
-            : "Confirmar envio ao holerite"}
+            ? t("sending")
+            : t("confirmSend")}
         </button>
       </div>
     </div>
@@ -2320,7 +2211,7 @@ switch (statusLancamento) {
   >
     <button
       type="button"
-      aria-label="Fechar confirmação"
+      aria-label={t("closeConfirm")}
       onClick={() =>
         !processandoLancamentos &&
         setModalAprovacaoAberto(false)
@@ -2332,27 +2223,14 @@ switch (statusLancamento) {
       <h2
         id="titulo-modal-aprovacao"
         className="text-2xl font-black"
-      >
-        Aprovar lançamentos?
-      </h2>
+      >{t("approveQuestion")}</h2>
 
       <p className="mt-4 text-sm">
-        Serão aprovados{" "}
-        <strong>
-          {selecionadosLancamentos.length} lançamento(s)
-        </strong>
-        , totalizando{" "}
-        <strong>
-          {formatarMoeda(
-            valorLancamentosSelecionados
-          )}
-        </strong>
-        .
+        {t("approveModalSummary", {count: selecionadosLancamentos.length, amount: formatarMoeda(valorLancamentosSelecionados, locale)})}
       </p>
 
-      <p className="mt-4 text-sm text-slate-400">
-        Os valores aprovados ficarão prontos para a
-        próxima etapa de envio ao holerite.
+      <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+        {t("approveHint")}
       </p>
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -2363,9 +2241,7 @@ switch (statusLancamento) {
             setModalAprovacaoAberto(false)
           }
           className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
-        >
-          Cancelar
-        </button>
+        >{t("cancel")}</button>
 
         <button
           type="button"
@@ -2376,8 +2252,8 @@ switch (statusLancamento) {
           className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {processandoLancamentos
-            ? "Aprovando..."
-            : "Confirmar aprovação"}
+            ? t("approving")
+            : t("confirmApprove")}
         </button>
       </div>
     </div>
@@ -2393,7 +2269,7 @@ switch (statusLancamento) {
   >
     <button
       type="button"
-      aria-label="Fechar reprovação"
+      aria-label={t("closeReject")}
       onClick={() =>
         !processandoLancamentos &&
         setModalReprovacaoAberto(false)
@@ -2405,28 +2281,14 @@ switch (statusLancamento) {
       <h2
         id="titulo-modal-reprovacao"
         className="text-2xl font-black"
-      >
-        Reprovar lançamentos?
-      </h2>
+      >{t("rejectQuestion")}</h2>
 
       <p className="mt-4 text-sm">
-        Serão reprovados{" "}
-        <strong>
-          {selecionadosLancamentos.length} lançamento(s)
-        </strong>
-        , totalizando{" "}
-        <strong>
-          {formatarMoeda(
-            valorLancamentosSelecionados
-          )}
-        </strong>
-        .
+        {t("rejectModalSummary", {count: selecionadosLancamentos.length, amount: formatarMoeda(valorLancamentosSelecionados, locale)})}
       </p>
 
       <label className="mt-5 block">
-        <span className="text-sm font-black">
-          Motivo da reprovação
-        </span>
+        <span className="text-sm font-black">{t("rejectionReason")}</span>
 
         <textarea
           value={motivoReprovacao}
@@ -2435,9 +2297,9 @@ switch (statusLancamento) {
               event.target.value
             )
           }
-          placeholder="Explique por que os lançamentos estão sendo reprovados."
+          placeholder={t("rejectPlaceholder")}
           rows={4}
-          className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+          className="mt-2 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
         />
       </label>
 
@@ -2450,9 +2312,7 @@ switch (statusLancamento) {
             setMotivoReprovacao("");
           }}
           className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
-        >
-          Cancelar
-        </button>
+        >{t("cancel")}</button>
 
         <button
           type="button"
@@ -2466,8 +2326,8 @@ switch (statusLancamento) {
           className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {processandoLancamentos
-            ? "Reprovando..."
-            : "Confirmar reprovação"}
+            ? t("rejecting")
+            : t("confirmReject")}
         </button>
       </div>
     </div>
@@ -2483,7 +2343,7 @@ switch (statusLancamento) {
   >
     <button
       type="button"
-      aria-label="Fechar confirmação"
+      aria-label={t("closeConfirm")}
       onClick={() =>
         !ativandoPrograma &&
         setModalAtivacaoAberto(false)
@@ -2494,21 +2354,17 @@ switch (statusLancamento) {
     <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">
-            Confirmação
-          </p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">{t("confirmation")}</p>
 
           <h2
             id="titulo-modal-ativacao"
             className="mt-2 text-2xl font-black"
-          >
-            Ativar programa?
-          </h2>
+          >{t("activateQuestion")}</h2>
         </div>
 
         <button
           type="button"
-          aria-label="Fechar"
+          aria-label={t("close")}
           disabled={ativandoPrograma}
           onClick={() =>
             setModalAtivacaoAberto(false)
@@ -2520,25 +2376,12 @@ switch (statusLancamento) {
       </div>
 
       <p className="mt-4 text-sm">
-        Serão criados{" "}
-        <strong>
-          {previa.totalParticipantes} lançamentos
-          pendentes
-        </strong>
-        , totalizando{" "}
-        <strong>
-          {formatarMoeda(
-            previa.totalDistribuido
-          )}
-        </strong>
-        .
+        {t("activateModalSummary", {count: previa.totalParticipantes, amount: formatarMoeda(previa.totalDistribuido, locale)})}
       </p>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border p-4">
-          <p className="text-xs font-bold uppercase">
-            Participantes
-          </p>
+          <p className="text-xs font-bold uppercase">{t("participants")}</p>
 
           <p className="mt-2 text-2xl font-black">
             {previa.totalParticipantes}
@@ -2546,33 +2389,23 @@ switch (statusLancamento) {
         </div>
 
         <div className="rounded-2xl border p-4">
-          <p className="text-xs font-bold uppercase">
-            Total
-          </p>
+          <p className="text-xs font-bold uppercase">{t("total")}</p>
 
           <p className="mt-2 text-2xl font-black">
             {formatarMoeda(
-              previa.totalDistribuido
-            )}
+              previa.totalDistribuido, locale)}
           </p>
         </div>
       </div>
 
       {previa.saldo > 0 && (
         <div className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-          O programa possui saldo não distribuído de{" "}
-          <strong>
-            {formatarMoeda(previa.saldo)}
-          </strong>
-          .
+          {t("undistributedBalance", {amount: formatarMoeda(previa.saldo, locale)})}
         </div>
       )}
 
       <p className="mt-5 text-sm">
-        Após a ativação, participantes e regras não
-        poderão ser alterados livremente. Os valores
-        ainda precisarão ser aprovados antes do envio ao
-        holerite.
+        {t("afterActivation")}
       </p>
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -2583,9 +2416,7 @@ switch (statusLancamento) {
             setModalAtivacaoAberto(false)
           }
           className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
-        >
-          Cancelar
-        </button>
+        >{t("cancel")}</button>
 
         <button
           type="button"
@@ -2594,8 +2425,8 @@ switch (statusLancamento) {
           className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
           {ativandoPrograma
-            ? "Ativando..."
-            : "Ativar e gerar lançamentos"}
+            ? t("activating")
+            : t("activateGenerate")}
         </button>
       </div>
     </div>
