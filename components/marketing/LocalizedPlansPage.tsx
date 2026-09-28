@@ -20,6 +20,7 @@ export default function LocalizedPlansPage({ locale }: { locale: ForeignLocale }
   const marketing = marketingCopy[locale];
   const words = labels[locale];
   const [country, setCountry] = useState<MarketCountry>(defaultMarketCountry[locale]);
+  const countryStorageKey = `PHANYX_MARKET_COUNTRY_${locale}`;
   const prices = marketPricing[country];
   const [students, setStudents] = useState(250);
   const [units, setUnits] = useState(1);
@@ -31,18 +32,9 @@ export default function LocalizedPlansPage({ locale }: { locale: ForeignLocale }
   const unitDetails = (index: number) => index === 2 ? t.enterpriseUnits : `${words.extra}: ${format(prices.extraUnit[index])} ${words.monthly}.`;
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("PHANYX_MARKET_COUNTRY");
-    if (marketCountries.includes(stored as MarketCountry)) {
-      setCountry(stored as MarketCountry);
-      return;
-    }
-    fetch("/api/public/market-country")
-      .then((response) => response.ok ? response.json() : null)
-      .then((data: { country?: string } | null) => {
-        if (marketCountries.includes(data?.country as MarketCountry)) setCountry(data?.country as MarketCountry);
-      })
-      .catch(() => {});
-  }, []);
+    const stored = window.localStorage.getItem(countryStorageKey);
+    setCountry(marketCountries.includes(stored as MarketCountry) ? stored as MarketCountry : defaultMarketCountry[locale]);
+  }, [countryStorageKey, locale]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,7 +76,7 @@ export default function LocalizedPlansPage({ locale }: { locale: ForeignLocale }
           <div className="mx-auto max-w-3xl text-center"><h2 className="text-3xl font-bold md:text-4xl">{t.simulatorTitle}</h2><p className="mt-4 text-slate-600">{t.simulatorDescription}</p></div>
           <div className="mx-auto mt-10 max-w-5xl rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
             <label className="mb-5 block max-w-sm text-sm font-bold">{words.country}
-              <select value={country} onChange={(event) => { const chosen = event.target.value as MarketCountry; setCountry(chosen); window.localStorage.setItem("PHANYX_MARKET_COUNTRY", chosen); }} className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-4 py-3">
+              <select value={country} onChange={(event) => { const chosen = event.target.value as MarketCountry; setCountry(chosen); window.localStorage.setItem(countryStorageKey, chosen); }} className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-4 py-3">
                 {marketCountries.map((code) => <option key={code} value={code}>{new Intl.DisplayNames([locale], { type: "region" }).of(code)} ({marketPricing[code].currency})</option>)}
               </select>
             </label>
