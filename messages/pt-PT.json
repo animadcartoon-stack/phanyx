@@ -20250,8 +20250,9 @@
     "year": "Ano",
     "pages": "Páginas",
     "categories": "Categorias",
-    "physicalAvailable": "{count} exemplares físicos disponíveis",
+    "physicalAvailable": "{count, plural, one {# exemplar físico disponível} other {# exemplares físicos disponíveis}}",
     "digitalCatalogued": "Item digital catalogado. Consulte a biblioteca para saber como aceder.",
+    "externalAvailable": "Leitura online disponível através da ligação abaixo.",
     "openExternal": "Abrir leitura online ↗",
     "consultLibrary": "Consulte a biblioteca para saber como obter este item.",
     "types": {
