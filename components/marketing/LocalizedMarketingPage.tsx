@@ -4,6 +4,7 @@ import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import type { ForeignLocale } from "@/lib/localized-plans";
 import { localizedHome } from "@/lib/localized-home";
 import { marketingCopy, marketingPath, type MarketingSection } from "@/lib/public-marketing";
+import { searchIntentCopy } from "@/lib/search-intents";
 
 export default function LocalizedMarketingPage({ locale, section }: { locale: ForeignLocale; section: Extract<MarketingSection, "home" | "academic"> }) {
   const t = localizedHome[locale];
@@ -61,6 +62,16 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{copy.features.map((feature) => <article key={feature.title} className="rounded-2xl border border-slate-200 p-5 shadow-sm"><h3 className="font-bold">{feature.title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{feature.description}</p></article>)}</div>
           <Link href={plans} className="mt-7 inline-flex font-bold text-blue-700 hover:underline">{copy.navPlans} →</Link>
         </div></section>
+
+        <section className="mx-auto max-w-7xl px-6 py-14 md:px-10 lg:px-12">
+          <h2 className="text-2xl font-bold">{copy.navAcademic}</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">{(["school", "lms", "success"] as const).map((intent) => (
+            <Link key={intent} href={marketingPath(locale, intent)} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 hover:border-blue-400 hover:bg-blue-50">
+              <h3 className="font-bold text-blue-900">{searchIntentCopy[locale][intent].heading}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-700">{searchIntentCopy[locale][intent].description}</p>
+            </Link>
+          ))}</div>
+        </section>
 
         <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12"><div className="max-w-3xl"><p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">{t.modulesKicker}</p><h2 className="mt-3 text-3xl font-bold md:text-4xl">{t.modulesTitle}</h2><p className="mt-4 text-lg text-slate-600">{t.modulesDescription}</p></div>
           <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">{t.modules.map((module) => <article key={module.title} className="rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm"><div className="text-3xl">{module.emoji}</div><h3 className="mt-4 text-xl font-bold">{module.title}</h3><p className="mt-3 text-slate-600">{module.description}</p></article>)}</div>

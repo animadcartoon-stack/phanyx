@@ -15,13 +15,14 @@ export default function LocalizedHeader({ locale, section }: { locale: LocalePha
         </Link>
         <nav aria-label="Main navigation" className="flex items-center gap-5 text-sm">
           <Link href={marketingPath(locale, "academic")} className="hover:text-blue-500">{copy.navAcademic}</Link>
+          {locale !== "pt-BR" && <Link href={marketingPath(locale, "school")} className="hidden hover:text-blue-500 lg:inline">{locale === "en-US" ? "Schools" : locale === "pt-PT" ? "Escolas" : locale === "es-ES" ? "Centros" : "Établissements"}</Link>}
           <Link href={marketingPath(locale, "plans")} className="hover:text-blue-500">{copy.navPlans}</Link>
         </nav>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <details className="relative">
             <summary className={`cursor-pointer rounded-lg border px-3 py-2 ${dark ? "border-white/30" : "border-slate-300"}`}>{locale} ▾</summary>
             <nav aria-label="Languages" className="absolute right-0 top-full z-50 mt-2 min-w-44 rounded-xl border border-slate-200 bg-white p-2 text-slate-900 shadow-xl">
-              {marketingLocales.map((item) => <Link key={item} href={marketingPath(item, section)} hrefLang={item} className="block rounded-lg px-3 py-2 hover:bg-blue-50">{marketingCopy[item].name}</Link>)}
+              {marketingLocales.filter((item) => section !== "success" || item !== "pt-BR").map((item) => <Link key={item} href={marketingPath(item, section)} hrefLang={item} className="block rounded-lg px-3 py-2 hover:bg-blue-50">{marketingCopy[item].name}</Link>)}
             </nav>
           </details>
           <a href={`https://wa.me/5548988101240?text=${encodeURIComponent(`${copy.contact} — PHANYX`)}`} target="_blank" rel="noopener noreferrer" className={`hidden rounded-xl border px-4 py-2 md:inline-flex ${dark ? "border-white/20 bg-white/10" : "border-slate-300"}`}>{copy.contact}</a>

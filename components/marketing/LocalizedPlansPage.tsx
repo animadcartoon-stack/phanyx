@@ -4,21 +4,45 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import { localizedPlans, type ForeignLocale } from "@/lib/localized-plans";
+import { defaultMarketCountry, marketCountries, marketPricing, type MarketCountry } from "@/lib/market-pricing";
 import { marketingCopy, marketingPath } from "@/lib/public-marketing";
 
-const bases = [49, 99, 199];
-const studentsRate = [3, 5, 7];
 const planCodes = ["ESSENCIAL", "PROFISSIONAL", "ENTERPRISE"];
+const labels = {
+  "en-US": { country: "Institution country", perStudent: "per active student", includedOne: "1 active unit included", includedThree: "up to 3 active units included", byContract: "units defined by contract", extra: "Each additional active unit", monthly: "per month", note: "Prices follow the selected country, independently of page language. The international trial and billing are arranged by proposal; automatic checkout currently charges in BRL." },
+  "pt-PT": { country: "País da instituição", perStudent: "por estudante ativo", includedOne: "1 unidade ativa incluída", includedThree: "até 3 unidades ativas incluídas", byContract: "unidades por contrato", extra: "Cada unidade ativa adicional", monthly: "por mês", note: "Os preços seguem o país escolhido, independentemente do idioma. O teste e a faturação internacional são definidos por proposta; a adesão automática atual cobra em reais." },
+  "es-ES": { country: "País de la institución", perStudent: "por estudiante activo", includedOne: "1 unidad activa incluida", includedThree: "hasta 3 unidades activas incluidas", byContract: "unidades según contrato", extra: "Cada unidad activa adicional", monthly: "al mes", note: "Los precios corresponden al país elegido, independientemente del idioma. La prueba y la facturación internacional se acuerdan por propuesta; el pago automático actual cobra en reales." },
+  "fr-FR": { country: "Pays de l'établissement", perStudent: "par étudiant actif", includedOne: "1 unité active incluse", includedThree: "jusqu'à 3 unités actives incluses", byContract: "unités selon le contrat", extra: "Chaque unité active supplémentaire", monthly: "par mois", note: "Les tarifs correspondent au pays choisi, indépendamment de la langue. L'essai et la facturation internationale font l'objet d'une proposition ; le paiement automatique actuel est en réals." },
+} as const;
 
 export default function LocalizedPlansPage({ locale }: { locale: ForeignLocale }) {
   const t = localizedPlans[locale];
   const marketing = marketingCopy[locale];
+  const words = labels[locale];
+  const [country, setCountry] = useState<MarketCountry>(defaultMarketCountry[locale]);
+  const prices = marketPricing[country];
   const [students, setStudents] = useState(250);
   const [units, setUnits] = useState(1);
-  const format = (value: number) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(value);
+  const format = (value: number) => new Intl.NumberFormat(locale, { style: "currency", currency: prices.currency }).format(value);
   const extraUnits = (index: number) => index === 0 ? Math.max(0, units - 1) : index === 1 ? Math.max(0, units - 3) : 0;
-  const total = (index: number) => bases[index] + Math.max(0, students) * studentsRate[index] + extraUnits(index) * (index === 0 ? 49 : 79);
-  const whatsapp = (name: string) => `https://wa.me/5548988101240?text=${encodeURIComponent(`${t.proposal}: PHANYX ${name} (${locale})`)}`;
+  const total = (index: number) => prices.base[index] + Math.max(0, students) * prices.student[index] + (index < 2 ? extraUnits(index) * prices.extraUnit[index] : 0);
+  const whatsapp = (name: string) => `https://wa.me/5548988101240?text=${encodeURIComponent(`${t.proposal}: PHANYX ${name} (${locale}, ${prices.currency})`)}`;
+  const period = (index: number) => `/${locale === "en-US" ? "month" : locale === "fr-FR" ? "mois" : locale === "es-ES" ? "mes" : "mês"} + ${format(prices.student[index])} ${words.perStudent} + ${index === 0 ? words.includedOne : index === 1 ? words.includedThree : words.byContract}`;
+  const unitDetails = (index: number) => index === 2 ? t.enterpriseUnits : `${words.extra}: ${format(prices.extraUnit[index])} ${words.monthly}.`;
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("PHANYX_MARKET_COUNTRY");
+    if (marketCountries.includes(stored as MarketCountry)) {
+      setCountry(stored as MarketCountry);
+      return;
+    }
+    fetch("/api/public/market-country")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data: { country?: string } | null) => {
+        if (marketCountries.includes(data?.country as MarketCountry)) setCountry(data?.country as MarketCountry);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -59,10 +83,15 @@ export default function LocalizedPlansPage({ locale }: { locale: ForeignLocale }
         <section id="calculadora-planos" className="bg-slate-50"><div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
           <div className="mx-auto max-w-3xl text-center"><h2 className="text-3xl font-bold md:text-4xl">{t.simulatorTitle}</h2><p className="mt-4 text-slate-600">{t.simulatorDescription}</p></div>
           <div className="mx-auto mt-10 max-w-5xl rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <label className="mb-5 block max-w-sm text-sm font-bold">{words.country}
+              <select value={country} onChange={(event) => { const chosen = event.target.value as MarketCountry; setCountry(chosen); window.localStorage.setItem("PHANYX_MARKET_COUNTRY", chosen); }} className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-4 py-3">
+                {marketCountries.map((code) => <option key={code} value={code}>{new Intl.DisplayNames([locale], { type: "region" }).of(code)} ({marketPricing[code].currency})</option>)}
+              </select>
+            </label>
             <div className="grid gap-5 sm:grid-cols-2"><label className="text-sm font-bold">{t.students}<input type="number" min="1" value={students} onChange={(event) => setStudents(Math.max(1, Number(event.target.value) || 1))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3" /></label><label className="text-sm font-bold">{t.unitsLabel}<input type="number" min="1" value={units} onChange={(event) => setUnits(Math.max(1, Number(event.target.value) || 1))} className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3" /></label></div>
             <p className="mt-3 text-sm text-slate-500">{t.unitHint}</p>
-            <div className="mt-8 grid gap-5 lg:grid-cols-3">{t.plans.map((plan, index) => <div key={plan.subtitle} className="rounded-2xl border border-blue-100 bg-blue-50 p-5"><h3 className="font-bold text-blue-950">{marketing.tiers[index].name}</h3><p className="mt-2 text-sm text-blue-800">R$ {bases[index]} + ({students} × R$ {studentsRate[index]}){index < 2 && extraUnits(index) > 0 ? ` + ${extraUnits(index)} × R$ ${index === 0 ? 49 : 79}` : ""}</p><p className="mt-3 text-3xl font-black text-blue-950">{format(total(index))}{index === 2 && "+"}</p><p className="mt-1 text-xs text-slate-600">{t.total}</p><p className="mt-2 text-xs text-slate-600">{index === 2 ? t.enterpriseUnits : t.included}</p></div>)}</div>
-            <p className="mt-6 text-sm text-slate-600">{marketing.pricingNote}</p>
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">{t.plans.map((plan, index) => <div key={plan.subtitle} className="rounded-2xl border border-blue-100 bg-blue-50 p-5"><h3 className="font-bold text-blue-950">{marketing.tiers[index].name}</h3><p className="mt-2 text-sm text-blue-800">{format(prices.base[index])} + ({students} × {format(prices.student[index])}){index < 2 && extraUnits(index) > 0 ? ` + ${extraUnits(index)} × ${format(prices.extraUnit[index])}` : ""}</p><p className="mt-3 text-3xl font-black text-blue-950">{format(total(index))}{index === 2 && "+"}</p><p className="mt-1 text-xs text-slate-600">{t.total}</p><p className="mt-2 text-xs text-slate-600">{index === 2 ? t.enterpriseUnits : t.included}</p></div>)}</div>
+            <p className="mt-6 text-sm text-slate-600">{words.note}</p>
             <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center"><h3 className="text-lg font-bold text-blue-950">{t.finalTitle}</h3><p className="mt-2 text-sm text-blue-800">{t.finalDescription}</p><div className="mt-5 flex flex-wrap justify-center gap-3"><a href={whatsapp("trial")} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold !text-white">{t.freeTrial}</a><a href={whatsapp("proposal")} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-blue-300 bg-white px-5 py-3 text-sm font-bold text-blue-700">{t.proposal}</a></div></div>
           </div>
           <div id="planos" className="mt-12 grid scroll-mt-24 gap-8 xl:grid-cols-3">{t.plans.map((plan, index) => {
@@ -70,8 +99,8 @@ export default function LocalizedPlansPage({ locale }: { locale: ForeignLocale }
             return <article key={plan.subtitle} className={`relative rounded-[28px] border p-8 shadow-sm ${featured ? "border-blue-600 bg-slate-950 text-white shadow-2xl ring-1 ring-blue-500/30" : "border-slate-200 bg-white text-slate-900"}`}>
               {index > 0 && <span className={`absolute -top-3 left-6 rounded-full px-4 py-1 text-xs font-bold tracking-widest !text-white ${featured ? "bg-blue-600" : "bg-slate-900"}`}>{featured ? t.recommended : t.advanced}</span>}
               <p className={`text-sm font-semibold uppercase tracking-[0.2em] ${featured ? "text-blue-200" : "text-blue-700"}`}>{marketing.tiers[index].name}</p><h3 className="mt-3 min-h-20 text-2xl font-bold">{plan.subtitle}</h3>
-              <div className="mt-6"><span className="text-4xl font-extrabold">R$ {bases[index]}</span><p className={`mt-2 text-sm ${featured ? "text-slate-300" : "text-slate-500"}`}>{plan.period}</p><p className={`mt-3 text-xs leading-5 ${featured ? "text-blue-100" : "text-blue-700"}`}>{plan.units}</p><p className={`mt-4 min-h-28 text-sm leading-7 ${featured ? "text-slate-200" : "text-slate-600"}`}>{plan.description}</p></div>
-              <div className="mt-8 space-y-3"><Link href={`/adesao?plano=${planCodes[index]}`} className={`block rounded-2xl px-5 py-4 text-center text-sm font-black !text-white ${featured ? "bg-blue-600 hover:bg-blue-500" : "bg-slate-900 hover:bg-slate-800"}`}>{t.start}</Link><a href={whatsapp(planCodes[index])} target="_blank" rel="noopener noreferrer" className={`block rounded-2xl border px-5 py-4 text-center text-sm font-bold ${featured ? "border-white/20 bg-white/10 text-white" : "border-slate-300 text-slate-800"}`}>{index === 2 ? t.proposal : t.specialist}</a></div>
+              <div className="mt-6"><span className="text-4xl font-extrabold">{format(prices.base[index])}</span><p className={`mt-2 text-sm ${featured ? "text-slate-300" : "text-slate-500"}`}>{period(index)}</p><p className={`mt-3 text-xs leading-5 ${featured ? "text-blue-100" : "text-blue-700"}`}>{unitDetails(index)}</p><p className={`mt-4 min-h-28 text-sm leading-7 ${featured ? "text-slate-200" : "text-slate-600"}`}>{plan.description}</p></div>
+              <div className="mt-8 space-y-3"><a href={whatsapp(planCodes[index])} target="_blank" rel="noopener noreferrer" className={`block rounded-2xl px-5 py-4 text-center text-sm font-black !text-white ${featured ? "bg-blue-600 hover:bg-blue-500" : "bg-slate-900 hover:bg-slate-800"}`}>{t.start}</a><a href={whatsapp(planCodes[index])} target="_blank" rel="noopener noreferrer" className={`block rounded-2xl border px-5 py-4 text-center text-sm font-bold ${featured ? "border-white/20 bg-white/10 text-white" : "border-slate-300 text-slate-800"}`}>{index === 2 ? t.proposal : t.specialist}</a></div>
               <p className={`mt-3 text-xs ${featured ? "text-slate-300" : "text-slate-500"}`}>{t.trialNote}</p>
               <div className={`mt-8 border-t pt-8 ${featured ? "border-white/10" : "border-slate-200"}`}><h4 className="text-xs font-bold uppercase tracking-widest">{t.includes}:</h4><ul className="mt-4 space-y-3">{plan.features.map((feature) => <li key={feature} className={`flex gap-3 text-sm ${featured ? "text-slate-200" : "text-slate-600"}`}><span>✓</span><span>{feature}</span></li>)}</ul></div>
               <div className={`mt-8 rounded-2xl p-4 ${featured ? "bg-white/10" : "bg-slate-50"}`}><p className="text-xs font-bold uppercase tracking-widest">{t.idealLabel}</p><p className="mt-2 text-sm">{plan.ideal}</p></div>

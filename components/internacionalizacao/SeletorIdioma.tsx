@@ -329,6 +329,13 @@ export default function SeletorIdioma({
             document.documentElement.lang =
                 novoLocale;
 
+            // An explicit login URL locale takes precedence over the cookie on reload.
+            if (window.location.pathname === "/login") {
+                const url = new URL(window.location.href);
+                url.searchParams.set("lang", novoLocale);
+                window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+            }
+
             window.location.reload();
         } catch {
             setLocaleSelecionado(
