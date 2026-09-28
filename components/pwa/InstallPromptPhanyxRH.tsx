@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -39,6 +40,7 @@ export default function InstallPromptPhanyxRH({
 }: {
   nomeInstituicao: string;
 }) {
+  const t = useTranslations("RhAppAccess");
   const [eventoInstalacao, setEventoInstalacao] =
     useState<BeforeInstallPromptEvent | null>(null);
 
@@ -166,63 +168,61 @@ export default function InstallPromptPhanyxRH({
 
   return (
     <div className="fixed inset-x-3 bottom-5 z-[200] mx-auto max-w-md">
-      <div className="max-h-[82vh] overflow-y-auto rounded-3xl border border-slate-700 bg-slate-900 p-5 text-white shadow-2xl">
+      <div className="max-h-[82vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white shadow-2xl">
         <div className="flex items-start gap-4">
           <img
             src="/app-rh-icon-192.png"
-            alt="RH Ponto"
+            alt={t("productName")}
             className="h-16 w-16 rounded-2xl border border-slate-600 bg-white object-contain p-1"
           />
 
           <div className="min-w-0">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-300">
-              RH Ponto
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
+              {t("productName")}
             </p>
 
-            <h2 className="mt-1 text-lg font-black text-white">
-              Instalar RH - {nomeInstituicao}
+            <h2 className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+              {t("install.title", {name: nomeInstituicao})}
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              Adicione o aplicativo à tela inicial para
-              registrar seu ponto rapidamente.
+            <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+              {t("install.description")}
             </p>
           </div>
         </div>
 
         {mostrarInstrucoes && sistema === "ios" && (
-          <div className="mt-4 rounded-2xl border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-300">
-            <p className="font-black text-white">
-              Instalar no iPhone
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            <p className="font-black text-slate-900 dark:text-white">
+              {t("install.iphoneTitle")}
             </p>
 
             <ol className="mt-3 list-decimal space-y-1 pl-5">
-              <li>Abra esta página no Safari.</li>
-              <li>Toque no botão Compartilhar.</li>
+              <li>{t("install.iosStep1")}</li>
+              <li>{t("install.iosStep2")}</li>
               <li>
-                Escolha “Adicionar à Tela de Início”.
+                {t("install.iosStep3")}
               </li>
-              <li>Confirme em “Adicionar”.</li>
+              <li>{t("install.iosStep4")}</li>
             </ol>
           </div>
         )}
 
         {mostrarInstrucoes && sistema !== "ios" && (
-          <div className="mt-4 rounded-2xl border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-300">
-            <p className="font-black text-white">
-              Instalar no Android
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950 text-sm leading-6 text-slate-700 dark:text-slate-300">
+            <p className="font-black text-slate-900 dark:text-white">
+              {t("install.androidTitle")}
             </p>
 
             <ol className="mt-3 list-decimal space-y-1 pl-5">
-              <li>Use o Chrome ou Brave.</li>
+              <li>{t("install.androidStep1")}</li>
               <li>
-                Toque nos três pontinhos do navegador.
+                {t("install.androidStep2")}
               </li>
               <li>
-                Escolha “Instalar app” ou “Adicionar à
-                tela inicial”.
+                {t("install.androidStep3")}
               </li>
-              <li>Confirme a instalação.</li>
+              <li>{t("install.androidStep4")}</li>
             </ol>
           </div>
         )}
@@ -231,9 +231,9 @@ export default function InstallPromptPhanyxRH({
           <button
             type="button"
             onClick={fechar}
-            className="rounded-2xl border border-slate-600 bg-slate-900 px-4 py-3 text-sm font-bold text-slate-300"
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-600 dark:bg-slate-900 text-sm font-bold text-slate-700 dark:text-slate-300"
           >
-            Agora não
+            {t("install.notNow")}
           </button>
 
           <button
@@ -243,13 +243,13 @@ export default function InstallPromptPhanyxRH({
       ? fechar
       : instalar
   }
-  className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white"
+  className="rounded-2xl bg-blue-700 px-4 py-3 text-sm font-black text-white hover:bg-blue-800"
 >
   {mostrarInstrucoes
-    ? "Entendi"
+    ? t("install.gotIt")
     : eventoInstalacao
-      ? "Instalar aplicativo"
-      : "Como instalar"}
+      ? t("install.installApp")
+      : t("install.howToInstall")}
 </button>
         </div>
       </div>
