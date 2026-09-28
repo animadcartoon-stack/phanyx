@@ -20464,8 +20464,9 @@
     "year": "Year",
     "pages": "Pages",
     "categories": "Categories",
-    "physicalAvailable": "{count} physical copies available",
+    "physicalAvailable": "{count, plural, one {# physical copy available} other {# physical copies available}}",
     "digitalCatalogued": "Digital item catalogued. Contact the library for access details.",
+    "externalAvailable": "Online reading is available through the link below.",
     "openExternal": "Read online ↗",
     "consultLibrary": "Contact the library to find out how to obtain this item.",
     "types": {

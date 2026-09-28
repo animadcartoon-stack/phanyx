@@ -20463,8 +20463,9 @@
     "year": "Année",
     "pages": "Pages",
     "categories": "Catégories",
-    "physicalAvailable": "{count} exemplaires physiques disponibles",
+    "physicalAvailable": "{count, plural, one {# exemplaire physique disponible} other {# exemplaires physiques disponibles}}",
     "digitalCatalogued": "Document numérique répertorié. Contactez la bibliothèque pour les modalités d’accès.",
+    "externalAvailable": "La lecture en ligne est disponible via le lien ci-dessous.",
     "openExternal": "Lire en ligne ↗",
     "consultLibrary": "Contactez la bibliothèque pour obtenir ce document.",
     "types": {

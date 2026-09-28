@@ -20463,8 +20463,9 @@
     "year": "Año",
     "pages": "Páginas",
     "categories": "Categorías",
-    "physicalAvailable": "{count} ejemplares físicos disponibles",
+    "physicalAvailable": "{count, plural, one {# ejemplar físico disponible} other {# ejemplares físicos disponibles}}",
     "digitalCatalogued": "Material digital catalogado. Consulta la biblioteca para obtener acceso.",
+    "externalAvailable": "La lectura en línea está disponible en el enlace siguiente.",
     "openExternal": "Leer en línea ↗",
     "consultLibrary": "Consulta la biblioteca para saber cómo obtener este material.",
     "types": {
