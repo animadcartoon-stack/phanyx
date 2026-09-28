@@ -92,7 +92,7 @@ export async function DetalheCatalogoLeitor({ portal, slug }: { portal: PortalLe
           {item.issn && <div><dt className="font-semibold">ISSN</dt><dd>{item.issn}</dd></div>}
           {item.categorias.length > 0 && <div><dt className="font-semibold">{t("categories")}</dt><dd>{item.categorias.map((c) => c.categoria.nome).join(", ")}</dd></div>}
         </dl>
-        <p className="rounded-xl bg-slate-100 p-3 text-sm font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-100">{item.exemplaresDisponiveis > 0 ? t("physicalAvailable", { count: item.exemplaresDisponiveis }) : item.acessoDisponivel ? t("digitalCatalogued") : t("consultLibrary")}</p>
+        <p className="rounded-xl bg-slate-100 p-3 text-sm font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-100">{item.linkExterno ? t("externalAvailable") : item.exemplaresDisponiveis > 0 ? t("physicalAvailable", { count: item.exemplaresDisponiveis }) : item.acessoDisponivel ? t("digitalCatalogued") : t("consultLibrary")}</p>
         {item.linkExterno && <a href={item.linkExterno} target="_blank" rel="noopener noreferrer" className="inline-flex rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-700 dark:bg-white dark:text-slate-950">{t("openExternal")}</a>}
       </div>
     </div>
