@@ -1,14 +1,23 @@
 import { MetadataRoute } from "next";
+import { marketingAlternates, marketingLocales, marketingPath } from "@/lib/public-marketing";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://phanyx.com.br";
 
   return [
+    ...marketingLocales.filter((locale) => locale !== "pt-BR").flatMap((locale) =>
+      (["home", "academic", "plans"] as const).map((section) => ({
+        url: `${baseUrl}${marketingPath(locale, section)}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly" as const,
+        alternates: { languages: Object.fromEntries(Object.entries(marketingAlternates(section).languages).map(([key, path]) => [key, `${baseUrl}${path}`])) },
+      }))),
     {
       url: baseUrl,
       lastModified: new Date(),
       priority: 1,
       changeFrequency: "daily",
+      alternates: { languages: Object.fromEntries(Object.entries(marketingAlternates("home").languages).map(([key, path]) => [key, `${baseUrl}${path}`])) },
     },
     {
       url: `${baseUrl}/sistema-escolar`,
@@ -76,6 +85,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       priority: 1,
       changeFrequency: "weekly",
+      alternates: { languages: Object.fromEntries(Object.entries(marketingAlternates("academic").languages).map(([key, path]) => [key, `${baseUrl}${path}`])) },
     },
     {
       url: `${baseUrl}/plataforma-ead`,
@@ -94,6 +104,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       priority: 0.8,
       changeFrequency: "monthly",
+      alternates: { languages: Object.fromEntries(Object.entries(marketingAlternates("plans").languages).map(([key, path]) => [key, `${baseUrl}${path}`])) },
     },
     {
   url: `${baseUrl}/gestao-escolar`,

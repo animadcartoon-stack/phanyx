@@ -20778,5 +20778,99 @@
       "statusApplied": "Appliquée",
       "statusUnknown": "Statut inconnu"
     }
+  },
+  "PublicLogin": {
+    "loading": "Chargement...",
+    "metadataTitle": "Connexion à PHANYX",
+    "chooseAccess": "Choisissez votre accès",
+    "chooseAccessDescription": "Sélectionnez votre espace pour vous connecter.",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "signingIn": "Connexion...",
+    "signInRh": "Connexion RH",
+    "signIn": "Se connecter",
+    "forgotPassword": "Mot de passe oublié ?",
+    "cards": {
+      "student": {
+        "title": "Étudiant",
+        "description": "Accédez aux cours, notes et activités."
+      },
+      "teacher": {
+        "title": "Enseignant",
+        "description": "Gérez les classes, cours et évaluations."
+      },
+      "institution": {
+        "title": "Établissement",
+        "description": "Accédez à la gestion de votre établissement."
+      }
+    },
+    "portals": {
+      "admin": {
+        "title": "Administration",
+        "subtitle": "Connectez-vous avec votre compte institutionnel."
+      },
+      "professor": {
+        "title": "Espace enseignant",
+        "subtitle": "Connectez-vous avec votre compte enseignant."
+      },
+      "aluno": {
+        "title": "Espace étudiant",
+        "subtitle": "Connectez-vous avec votre compte étudiant."
+      },
+      "rh": {
+        "title": "PHANYX RH",
+        "subtitle": "Connectez-vous avec votre compte RH."
+      }
+    },
+    "errors": {
+      "credentialsRequired": "Saisissez votre adresse e-mail et votre mot de passe.",
+      "userNotFound": "Utilisateur introuvable.",
+      "accessBlocked": "Votre accès est bloqué. Contactez l'administration de l'établissement.",
+      "invalidPassword": "Mot de passe incorrect.",
+      "noInstitution": "Cet utilisateur n'est associé à aucun établissement.",
+      "institutionNotFound": "Établissement introuvable.",
+      "unitInactive": "L'accès à cette unité est inactif. Contactez l'administration de l'établissement contractant.",
+      "subscriptionBlocked": "L'accès de cet établissement à PHANYX est bloqué. Contactez son administration.",
+      "rhInstitutionMissing": "L'établissement RH n'a pas pu être identifié. Ouvrez de nouveau le lien fourni par les RH.",
+      "rhInstitutionInactive": "L'établissement indiqué est introuvable ou inactif.",
+      "rhWrongInstitution": "Cet utilisateur n'appartient pas à l'établissement sélectionné.",
+      "rhPointInactive": "Le pointage mobile n'est pas encore activé dans cet établissement.",
+      "rhEmployeeMissing": "Cet utilisateur n'a pas de dossier d'employé dans cet établissement.",
+      "rhAccessPending": "Les RH n'ont pas encore autorisé votre accès au pointage mobile.",
+      "rhAccessExpired": "Votre autorisation de pointage mobile a expiré. Contactez les RH.",
+      "wrongAdminPortal": "Cet espace est réservé à l'administration.",
+      "wrongTeacherPortal": "Cet espace est réservé aux enseignants.",
+      "wrongStudentPortal": "Cet espace est réservé aux étudiants.",
+      "loginFailed": "Impossible de se connecter au pointage RH.",
+      "invalidRole": "Aucun espace n'est disponible pour votre profil."
+    },
+    "recovery": {
+      "title": "Réinitialiser le mot de passe",
+      "description": "Saisissez votre adresse e-mail pour recevoir un lien.",
+      "requestFailed": "Impossible de demander la réinitialisation.",
+      "sent": "Si cette adresse est enregistrée, vous recevrez un e-mail avec les instructions.",
+      "emailPlaceholder": "Votre adresse e-mail",
+      "sending": "Envoi...",
+      "sendLink": "Envoyer le lien",
+      "backToLogin": "Retour à la connexion"
+    },
+    "choosePage": {
+      "metadataTitle": "Choisissez votre espace | PHANYX",
+      "welcome": "Bienvenue sur PHANYX",
+      "title": "Comment souhaitez-vous vous connecter ?",
+      "description": "Sélectionnez votre profil pour accéder à votre établissement.",
+      "studentTitle": "Étudiant",
+      "studentDescription": "Accédez aux cours, notes et activités.",
+      "studentAction": "Ouvrir l'espace étudiant",
+      "teacherTitle": "Enseignant",
+      "teacherDescription": "Gérez les classes, cours et évaluations.",
+      "teacherAction": "Ouvrir l'espace enseignant",
+      "institutionTitle": "Établissement",
+      "institutionDescription": "Gérez votre établissement au même endroit.",
+      "institutionAction": "Ouvrir l'administration",
+      "backToSite": "Retour au site"
+    }
   }
 }

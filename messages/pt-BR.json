@@ -20549,5 +20549,99 @@
       "statusApplied": "Aplicada",
       "statusUnknown": "Situação desconhecida"
     }
+  },
+  "PublicLogin": {
+    "loading": "Carregando...",
+    "metadataTitle": "Entrar no PHANYX",
+    "chooseAccess": "Escolha seu acesso",
+    "chooseAccessDescription": "Selecione a área da sua instituição para entrar.",
+    "email": "E-mail",
+    "password": "Senha",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "signingIn": "Entrando...",
+    "signInRh": "Entrar no RH",
+    "signIn": "Entrar",
+    "forgotPassword": "Esqueci minha senha",
+    "cards": {
+      "student": {
+        "title": "Aluno",
+        "description": "Acesse suas aulas, notas e atividades."
+      },
+      "teacher": {
+        "title": "Professor",
+        "description": "Gerencie suas turmas, aulas e avaliações."
+      },
+      "institution": {
+        "title": "Instituição",
+        "description": "Acesse a administração da instituição."
+      }
+    },
+    "portals": {
+      "admin": {
+        "title": "Área administrativa",
+        "subtitle": "Entre com sua conta institucional."
+      },
+      "professor": {
+        "title": "Área do professor",
+        "subtitle": "Entre com sua conta de professor."
+      },
+      "aluno": {
+        "title": "Área do aluno",
+        "subtitle": "Entre com sua conta de aluno."
+      },
+      "rh": {
+        "title": "PHANYX RH",
+        "subtitle": "Entre com seu acesso do RH."
+      }
+    },
+    "errors": {
+      "credentialsRequired": "Informe seu e-mail e sua senha.",
+      "userNotFound": "Usuário não encontrado.",
+      "accessBlocked": "Seu acesso está bloqueado. Procure a administração da instituição.",
+      "invalidPassword": "Senha inválida.",
+      "noInstitution": "Usuário sem instituição vinculada.",
+      "institutionNotFound": "Instituição não encontrada.",
+      "unitInactive": "O acesso desta unidade está inativo. Procure a administração da instituição contratante.",
+      "subscriptionBlocked": "O acesso da instituição ao PHANYX está bloqueado. Procure a administração da instituição.",
+      "rhInstitutionMissing": "A instituição do RH não foi identificada. Abra novamente o link fornecido pelo setor de RH.",
+      "rhInstitutionInactive": "A instituição informada não foi encontrada ou está inativa.",
+      "rhWrongInstitution": "Este usuário não pertence à instituição selecionada.",
+      "rhPointInactive": "O Ponto Mobile ainda não está ativo nesta instituição.",
+      "rhEmployeeMissing": "Este usuário não possui cadastro de funcionário nesta instituição.",
+      "rhAccessPending": "Seu acesso ao Ponto Mobile ainda não foi liberado pelo RH.",
+      "rhAccessExpired": "Sua liberação para o Ponto Mobile expirou. Procure o setor de RH.",
+      "wrongAdminPortal": "Este acesso é exclusivo da administração.",
+      "wrongTeacherPortal": "Este acesso é exclusivo dos professores.",
+      "wrongStudentPortal": "Este acesso é exclusivo dos alunos.",
+      "loginFailed": "Não foi possível entrar no PHANYX.",
+      "invalidRole": "Seu perfil não possui uma área de acesso disponível."
+    },
+    "recovery": {
+      "title": "Recuperar senha",
+      "description": "Informe seu e-mail para receber o link de recuperação.",
+      "requestFailed": "Não foi possível solicitar a recuperação.",
+      "sent": "Se o endereço estiver cadastrado, você receberá um e-mail com as instruções.",
+      "emailPlaceholder": "Seu e-mail",
+      "sending": "Enviando...",
+      "sendLink": "Enviar link",
+      "backToLogin": "Voltar ao login"
+    },
+    "choosePage": {
+      "metadataTitle": "Escolha seu acesso | PHANYX",
+      "welcome": "Bem-vindo ao PHANYX",
+      "title": "Como deseja entrar?",
+      "description": "Selecione seu perfil para acessar o ambiente da sua instituição.",
+      "studentTitle": "Aluno",
+      "studentDescription": "Acesse aulas, notas e atividades.",
+      "studentAction": "Acessar área do aluno",
+      "teacherTitle": "Professor",
+      "teacherDescription": "Gerencie turmas, aulas e avaliações.",
+      "teacherAction": "Acessar área do professor",
+      "institutionTitle": "Instituição",
+      "institutionDescription": "Gerencie sua instituição em um só lugar.",
+      "institutionAction": "Acessar administração",
+      "backToSite": "Voltar ao site"
+    }
   }
 }

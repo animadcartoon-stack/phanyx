@@ -20779,5 +20779,99 @@
       "statusApplied": "Applied",
       "statusUnknown": "Unknown status"
     }
+  },
+  "PublicLogin": {
+    "loading": "Loading...",
+    "metadataTitle": "Sign in to PHANYX",
+    "chooseAccess": "Choose your access",
+    "chooseAccessDescription": "Select your institution portal to sign in.",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "signingIn": "Signing in...",
+    "signInRh": "Sign in to HR",
+    "signIn": "Sign in",
+    "forgotPassword": "Forgot your password?",
+    "cards": {
+      "student": {
+        "title": "Student",
+        "description": "Access classes, grades and activities."
+      },
+      "teacher": {
+        "title": "Teacher",
+        "description": "Manage classes, lessons and assessments."
+      },
+      "institution": {
+        "title": "Institution",
+        "description": "Open your institution administration."
+      }
+    },
+    "portals": {
+      "admin": {
+        "title": "Administration",
+        "subtitle": "Sign in with your institution account."
+      },
+      "professor": {
+        "title": "Teacher portal",
+        "subtitle": "Sign in with your teacher account."
+      },
+      "aluno": {
+        "title": "Student portal",
+        "subtitle": "Sign in with your student account."
+      },
+      "rh": {
+        "title": "PHANYX HR",
+        "subtitle": "Sign in with your HR account."
+      }
+    },
+    "errors": {
+      "credentialsRequired": "Enter your email and password.",
+      "userNotFound": "User not found.",
+      "accessBlocked": "Your access is blocked. Contact your institution's administration.",
+      "invalidPassword": "Incorrect password.",
+      "noInstitution": "This user is not linked to an institution.",
+      "institutionNotFound": "Institution not found.",
+      "unitInactive": "Access to this unit is inactive. Contact the contracting institution's administration.",
+      "subscriptionBlocked": "This institution's PHANYX access is blocked. Contact the institution's administration.",
+      "rhInstitutionMissing": "The HR institution could not be identified. Open the link provided by HR again.",
+      "rhInstitutionInactive": "The selected institution was not found or is inactive.",
+      "rhWrongInstitution": "This user does not belong to the selected institution.",
+      "rhPointInactive": "Mobile time tracking is not enabled at this institution yet.",
+      "rhEmployeeMissing": "This user has no employee record at this institution.",
+      "rhAccessPending": "HR has not authorized your mobile time tracking access yet.",
+      "rhAccessExpired": "Your mobile time tracking authorization has expired. Contact HR.",
+      "wrongAdminPortal": "This portal is for institution administrators.",
+      "wrongTeacherPortal": "This portal is for teachers.",
+      "wrongStudentPortal": "This portal is for students.",
+      "loginFailed": "Could not sign in to the PHANYX.",
+      "invalidRole": "No portal is available for your account role."
+    },
+    "recovery": {
+      "title": "Reset password",
+      "description": "Enter your email to receive a password reset link.",
+      "requestFailed": "Could not request a password reset.",
+      "sent": "If the address is registered, you will receive an email with instructions.",
+      "emailPlaceholder": "Your email",
+      "sending": "Sending...",
+      "sendLink": "Send link",
+      "backToLogin": "Back to sign in"
+    },
+    "choosePage": {
+      "metadataTitle": "Choose your portal | PHANYX",
+      "welcome": "Welcome to PHANYX",
+      "title": "How would you like to sign in?",
+      "description": "Select your role to enter your institution portal.",
+      "studentTitle": "Student",
+      "studentDescription": "Access classes, grades and activities.",
+      "studentAction": "Open student portal",
+      "teacherTitle": "Teacher",
+      "teacherDescription": "Manage classes, lessons and assessments.",
+      "teacherAction": "Open teacher portal",
+      "institutionTitle": "Institution",
+      "institutionDescription": "Manage your institution in one place.",
+      "institutionAction": "Open administration",
+      "backToSite": "Back to website"
+    }
   }
 }

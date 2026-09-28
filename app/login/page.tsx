@@ -9,8 +9,10 @@ import {
   type FormEvent,
 } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
+import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 
 type Portal =
   | "admin"
@@ -20,6 +22,7 @@ type Portal =
 
 function LoginContent() {
   const searchParams = useSearchParams();
+  const t = useTranslations("PublicLogin");
 
   const portal = useMemo<Portal>(() => {
     const valor = searchParams.get("portal");
@@ -62,37 +65,8 @@ function LoginContent() {
     }, 120);
   }
 
-  const titulo = useMemo(() => {
-  if (portalSelecionado === "rh") {
-    return "Login do Funcionário";
-  }
-
-  if (portalSelecionado === "professor") {
-    return "Login do Professor";
-  }
-
-  if (portalSelecionado === "aluno") {
-    return "Login do Aluno";
-  }
-
-  return "Login da Instituição";
-}, [portalSelecionado]);
-
-  const subtitulo = useMemo(() => {
-  if (portalSelecionado === "rh") {
-    return "Entre com seu e-mail e senha para acessar o RH Ponto.";
-  }
-
-  if (portalSelecionado === "professor") {
-    return "Acesse sua área docente com seu email e senha.";
-  }
-
-  if (portalSelecionado === "aluno") {
-    return "Acesse sua área do aluno com seu email e senha.";
-  }
-
-  return "Acesse o painel administrativo da instituição.";
-}, [portalSelecionado]);
+  const titulo = t(`portals.${portalSelecionado}.title`);
+  const subtitulo = t(`portals.${portalSelecionado}.subtitle`);
 
   async function handleLogin() {
     try {
@@ -116,7 +90,27 @@ function LoginContent() {
       const json = await res.json();
 
       if (!res.ok) {
-        setErro(json.error || "Email ou senha inválidos");
+        const mensagens: Record<string, string> = {
+          CREDENCIAIS_OBRIGATORIAS: t("errors.credentialsRequired"),
+          USUARIO_NAO_ENCONTRADO: t("errors.userNotFound"),
+          ACESSO_BLOQUEADO: t("errors.accessBlocked"),
+          SENHA_INVALIDA: t("errors.invalidPassword"),
+          SEM_INSTITUICAO: t("errors.noInstitution"),
+          INSTITUICAO_NAO_ENCONTRADA: t("errors.institutionNotFound"),
+          UNIDADE_INATIVA: t("errors.unitInactive"),
+          ASSINATURA_BLOQUEADA: t("errors.subscriptionBlocked"),
+          RH_INSTITUICAO_NAO_IDENTIFICADA: t("errors.rhInstitutionMissing"),
+          RH_INSTITUICAO_INATIVA: t("errors.rhInstitutionInactive"),
+          RH_INSTITUICAO_DIFERENTE: t("errors.rhWrongInstitution"),
+          RH_PONTO_INATIVO: t("errors.rhPointInactive"),
+          RH_FUNCIONARIO_NAO_ENCONTRADO: t("errors.rhEmployeeMissing"),
+          RH_ACESSO_NAO_LIBERADO: t("errors.rhAccessPending"),
+          RH_ACESSO_EXPIRADO: t("errors.rhAccessExpired"),
+          PORTAL_INCORRETO_ADMIN: t("errors.wrongAdminPortal"),
+          PORTAL_INCORRETO_PROFESSOR: t("errors.wrongTeacherPortal"),
+          PORTAL_INCORRETO_ALUNO: t("errors.wrongStudentPortal"),
+        };
+        setErro(mensagens[String(json?.codigo || "")] || t("errors.loginFailed"));
         return;
       }
 if (
@@ -157,9 +151,9 @@ if (
         return;
       }
 
-      setErro("Perfil de usuário inválido");
+      setErro(t("errors.invalidRole"));
     } catch {
-      setErro("Não foi possível fazer login");
+      setErro(t("errors.loginFailed"));
     } finally {
       setLoading(false);
     }
@@ -186,6 +180,9 @@ if (
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_45%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.12),transparent_30%)] lg:hidden" />
 
         <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-8 lg:justify-center">
+          <div className="mb-5 flex justify-end lg:absolute lg:right-5 lg:top-6">
+            <SeletorIdioma className="w-56" />
+          </div>
           <div className="mb-8 flex flex-col items-center text-center lg:hidden">
             <Image
               src="/images/portal-login-hero.png"
@@ -197,11 +194,11 @@ if (
             />
 
             <h1 className="mt-6 text-3xl font-black text-slate-900">
-              Escolha seu acesso
+              {t("chooseAccess")}
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-slate-500">
-              Entre como aluno, professor ou instituição.
+              {t("chooseAccessDescription")}
             </p>
           </div>
 
@@ -220,10 +217,10 @@ if (
 
                 <div>
                   <h2 className="text-lg font-black text-slate-900">
-                    Área do aluno
+                    {t("cards.student.title")}
                   </h2>
                   <p className="text-sm text-slate-500">
-                    Aulas, atividades, boletim e certificados.
+                    {t("cards.student.description")}
                   </p>
                 </div>
               </div>
@@ -243,10 +240,10 @@ if (
 
                 <div>
                   <h2 className="text-lg font-black text-slate-900">
-                    Área do professor
+                    {t("cards.teacher.title")}
                   </h2>
                   <p className="text-sm text-slate-500">
-                    Turmas, avaliações e materiais.
+                    {t("cards.teacher.description")}
                   </p>
                 </div>
               </div>
@@ -266,10 +263,10 @@ if (
 
                 <div>
                   <h2 className="text-lg font-black text-slate-900">
-                    Instituição
+                    {t("cards.institution.title")}
                   </h2>
                   <p className="text-sm text-slate-500">
-                    Gestão acadêmica e administrativa.
+                    {t("cards.institution.description")}
                   </p>
                 </div>
               </div>
@@ -300,7 +297,8 @@ if (
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
   <input
     type="email"
-    placeholder="Email"
+    placeholder={t("email")}
+    aria-label={t("email")}
     value={email}
     onChange={(e) => setEmail(e.target.value)}
     autoComplete="email"
@@ -312,7 +310,8 @@ if (
       type={mostrarSenha ? "text" : "password"}
       value={senha}
       onChange={(e) => setSenha(e.target.value)}
-      placeholder="Senha"
+      placeholder={t("password")}
+      aria-label={t("password")}
       autoComplete="current-password"
       className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-12 outline-none"
     />
@@ -321,7 +320,7 @@ if (
       type="button"
       onClick={() => setMostrarSenha(!mostrarSenha)}
       className="absolute right-4 top-1/2 -translate-y-1/2 text-lg"
-      aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+      aria-label={mostrarSenha ? t("hidePassword") : t("showPassword")}
     >
       {mostrarSenha ? "🙈" : "👁️"}
     </button>
@@ -339,17 +338,17 @@ if (
     className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white disabled:opacity-60"
   >
     {loading
-      ? "Entrando..."
+      ? t("signingIn")
       : portalSelecionado === "rh"
-        ? "Entrar no RH Ponto"
-        : "Entrar"}
+        ? t("signInRh")
+        : t("signIn")}
   </button>
 
   <a
     href={`/esqueci-senha?portal=${portalSelecionado}`}
     className="block text-center text-sm font-medium text-blue-600"
   >
-    Esqueci minha senha
+    {t("forgotPassword")}
   </a>
 </form>
           </div>
@@ -360,8 +359,9 @@ if (
 }
 
 export default function LoginPage() {
+  const t = useTranslations("PublicLogin");
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <Suspense fallback={<div>{t("loading")}</div>}>
       <LoginContent />
     </Suspense>
   );

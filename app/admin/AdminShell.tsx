@@ -1674,7 +1674,7 @@ export default function AdminShell({
                               "/admin/rh/remuneracao-variavel",
                             )}
                           >
-                            🏢 {tNav("departments")}
+                            💰 {tNav("variableCompensation")}
                           </Link>
                         )}
 

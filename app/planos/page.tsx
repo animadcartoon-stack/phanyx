@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
+import { marketingCopy } from "@/lib/public-marketing";
 
 const planos = [
   {
@@ -97,7 +98,7 @@ regraUnidades:
   recursos: [
   "Tudo do plano Profissional",
 
-  "Modelos ativos de certificado ilimitados",
+  "Editor de certificados com mais de 20 modelos ativos ao mesmo tempo (sem limite)",
   "Certificados e crachás avançados para múltiplos polos",
   "Modelos institucionais com personalização ampliada",
 
@@ -367,21 +368,6 @@ const totalEnterprise =
   const custoAlunoEssencial = totalEssencial / alunosSimulacao;
 const custoAlunoProfissional = totalProfissional / alunosSimulacao;
 const custoAlunoEnterprise = totalEnterprise / alunosSimulacao;
-
-useEffect(() => {
-  const timer = setTimeout(() => {
-    const alvo = document.getElementById("calculadora-planos");
-
-if (alvo) {
-  window.scrollTo({
-    top: alvo.offsetTop + 800,
-    behavior: "smooth",
-  });
-}
-  }, 150);
-
-  return () => clearTimeout(timer);
-}, []);
 
   return (
     <>
@@ -928,6 +914,22 @@ if (alvo) {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="border-y border-blue-100 bg-blue-50/60">
+          <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
+            <h2 className="text-3xl font-bold md:text-4xl">{marketingCopy["pt-BR"].featuresTitle}</h2>
+            <p className="mt-3 text-slate-600">{marketingCopy["pt-BR"].featuresDescription}</p>
+            <div className="mt-9 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {marketingCopy["pt-BR"].features.map((feature) => (
+                <article key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="text-xl font-bold">{feature.title}</h3>
+                  <p className="mt-2 leading-7 text-slate-600">{feature.description}</p>
+                </article>
+              ))}
+            </div>
+            <p className="mt-7 text-sm text-slate-600">A disponibilidade de cada novo módulo e as condições de contratação são confirmadas na proposta comercial.</p>
           </div>
         </section>
 

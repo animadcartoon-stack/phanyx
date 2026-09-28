@@ -2,9 +2,12 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
+import { marketingAlternates } from "@/lib/public-marketing";
+import { marketingCopy } from "@/lib/public-marketing";
 
 export const metadata = {
-  title: "PHANYX | Sistema de Gestão Escolar, Acadêmica e Plataforma EAD",
+  alternates: marketingAlternates("home"),
+  title: { absolute: "PHANYX | Sistema de Gestão Escolar, Acadêmica e Plataforma EAD" },
   description:
     "PHANYX é uma plataforma completa para gestão acadêmica, EAD, financeiro, documentos, certificados e portais para aluno e professor.",
 
@@ -22,7 +25,7 @@ export const metadata = {
     title: "PHANYX | Gestão Acadêmica, EAD e Plataforma Escolar",
     description:
       "Sistema completo para escolas, faculdades, seminários e cursos livres.",
-    url: "https://www.phanyx.com.br",
+    url: "https://phanyx.com.br",
     siteName: "PHANYX",
     images: [
       {
@@ -388,6 +391,22 @@ export default function HomePage() {
           >
             💬 Suporte
           </a>
+        </section>
+
+        <section className="border-b border-slate-200 bg-white">
+          <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
+            <h2 className="text-3xl font-bold text-slate-950 md:text-4xl">{marketingCopy["pt-BR"].featuresTitle}</h2>
+            <p className="mt-3 text-slate-600">{marketingCopy["pt-BR"].featuresDescription}</p>
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {marketingCopy["pt-BR"].features.map((feature) => (
+                <article key={feature.title} className="rounded-2xl border border-slate-200 p-5 shadow-sm">
+                  <h3 className="font-bold text-slate-950">{feature.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{feature.description}</p>
+                </article>
+              ))}
+            </div>
+            <Link href="/planos" className="mt-7 inline-flex font-bold text-blue-700 hover:underline">Ver planos →</Link>
+          </div>
         </section>
 
         <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">

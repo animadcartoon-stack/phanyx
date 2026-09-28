@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { marketingCopy, marketingLocales, marketingPath, type MarketingSection } from "@/lib/public-marketing";
 
 const navItems = [
   { label: "Planos", href: "/planos" },
@@ -14,6 +15,7 @@ export default function Header() {
   const pathname = usePathname();
   const t = useTranslations("Header");
   const isHome = pathname === "/";
+  const marketingSection: MarketingSection = pathname === "/planos" ? "plans" : pathname === "/gestao-academica" ? "academic" : "home";
 
   const isAluno = pathname.startsWith("/aluno");
   const isProfessor = pathname.startsWith("/professor");
@@ -94,6 +96,20 @@ export default function Header() {
               );
             })}
           </nav>
+        )}
+
+        {(pathname === "/" || pathname === "/planos" || pathname === "/gestao-academica") && (
+          <details className="relative text-xs">
+            <summary className={`cursor-pointer rounded-lg border px-2 py-2 ${isHome ? "border-white/30 text-white" : "border-slate-300 text-slate-900"}`}>PT-BR ▾</summary>
+            <nav aria-label="Idiomas" className="absolute right-0 top-full z-50 mt-2 min-w-44 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+              {marketingLocales.map((locale) => (
+                <Link key={locale} href={marketingPath(locale, marketingSection)} hrefLang={locale}
+                  className="block rounded-lg px-3 py-2 text-slate-800 hover:bg-blue-50">
+                  {marketingCopy[locale].name}
+                </Link>
+              ))}
+            </nav>
+          </details>
         )}
 
         {!isPortalAlunoOuProfessor && (
