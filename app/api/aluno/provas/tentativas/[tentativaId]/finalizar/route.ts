@@ -128,43 +128,109 @@ export async function POST(
 
   let notaCalculada = 0;
 
+  const correcoesObjetivas: Array<{
+    respostaId: number;
+    correta: boolean;
+    nota: number;
+  }> = [];
+
   for (const q of tentativa.prova.questoes) {
-  if (String(q.tipo).toUpperCase() !== "MULTIPLA_ESCOLHA") continue;
-
-    const correta = q.alternativas.find((a) => a.correta);
-    if (!correta) continue;
-
-    const respostaAluno = tentativa.respostas.find(
-      (r) => r.questaoId === q.id
-    );
-
-    if (!respostaAluno?.alternativaId) continue;
-
-    if (respostaAluno.alternativaId === correta.id) {
-      notaCalculada += q.valor ?? 1;
+    if (
+      String(q.tipo).toUpperCase() !==
+      "MULTIPLA_ESCOLHA"
+    ) {
+      continue;
     }
+
+    const alternativaCorreta =
+      q.alternativas.find(
+        (alternativa) => alternativa.correta
+      );
+
+    if (!alternativaCorreta) {
+      continue;
+    }
+
+    const respostaAluno =
+      tentativa.respostas.find(
+        (resposta) =>
+          resposta.questaoId === q.id
+      );
+
+    if (!respostaAluno) {
+      continue;
+    }
+
+    const acertou =
+      respostaAluno.alternativaId !== null &&
+      respostaAluno.alternativaId ===
+        alternativaCorreta.id;
+
+    const pontos = acertou
+      ? Number(q.valor ?? 1)
+      : 0;
+
+    notaCalculada += pontos;
+
+    correcoesObjetivas.push({
+      respostaId: respostaAluno.id,
+      correta: acertou,
+      nota: pontos,
+    });
   }
 
-  const notaMax = tentativa.prova.notaMaxima || 10;
-  const notaFinal = Math.max(
+  const notaMax =
+    tentativa.prova.notaMaxima || 10;
+
+  const notaObjetiva = Math.max(
     0,
-    Math.min(notaMax, Number(notaCalculada.toFixed(2)))
+    Math.min(
+      notaMax,
+      Number(notaCalculada.toFixed(2))
+    )
   );
 
-  const updated = await prisma.tentativaProva.update({
-    where: { id: tentativa.id },
-    data: {
-      notaFinal,
-      finalizada: true,
-      status: "FINALIZADA",
-      finishedAt: new Date(),
-    },
-    select: {
-      id: true,
-      notaFinal: true,
-      finalizada: true,
-    },
-  });
+  const notaFinal = notaObjetiva;
+  const agoraFinalizacao = new Date();
+
+  const updated = await prisma.$transaction(
+    async (tx) => {
+      for (
+        const correcao of correcoesObjetivas
+      ) {
+        await tx.respostaProva.update({
+          where: {
+            id: correcao.respostaId,
+          },
+          data: {
+            correta: correcao.correta,
+            nota: correcao.nota,
+            corrigidaManual: false,
+            corrigidaEm: agoraFinalizacao,
+          },
+        });
+      }
+
+      return tx.tentativaProva.update({
+        where: {
+          id: tentativa.id,
+        },
+        data: {
+          notaObjetiva,
+          notaFinal,
+          finalizada: true,
+          status: "FINALIZADA",
+          finishedAt: agoraFinalizacao,
+        },
+        select: {
+          id: true,
+          notaObjetiva: true,
+          notaFinal: true,
+          finalizada: true,
+        },
+      });
+    }
+  );
 
   return NextResponse.json(updated);
 }
