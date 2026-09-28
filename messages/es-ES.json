@@ -274,7 +274,8 @@
     "meetings": "Reuniones",
     "registrationData": "Datos de registro",
     "registrationDescription": "Mantén tus datos actualizados para contratos, documentos y registros académicos.",
-    "updateMyData": "Actualizar mis datos"
+    "updateMyData": "Actualizar mis datos",
+    "library": "Biblioteca"
   },
   "StudentSidebar": {
     "areaTitle": "Área del Estudiante",
@@ -290,7 +291,8 @@
     "academicHistory": "Historial académico",
     "meetings": "Reuniones",
     "certificates": "Certificados",
-    "ombudsman": "Defensoría"
+    "ombudsman": "Defensoría",
+    "library": "Biblioteca"
   },
   "StudentDashboard": {
     "errors": {
@@ -1629,7 +1631,8 @@
       "assessments": "Evaluaciones",
       "assignments": "Trabajos",
       "meetings": "Reuniones",
-      "ombudsman": "Defensoría"
+      "ombudsman": "Defensoría",
+      "library": "Biblioteca"
     }
   },
   "ProfessorClassGradebook": {
@@ -3871,7 +3874,8 @@
       "assessments": "Evaluaciones",
       "assignments": "Trabajos",
       "meetings": "Reuniones",
-      "ombudsman": "Defensoría"
+      "ombudsman": "Defensoría",
+      "library": "Biblioteca"
     }
   },
   "StudentReenrollment": {
@@ -20412,5 +20416,54 @@
     "userIdLabel": "ID del usuario: {id}",
     "validCalculation": "Cálculo válido",
     "whatHappens": "Qué sucederá"
+  },
+  "ReaderLibrary": {
+    "eyebrow": "Biblioteca virtual",
+    "title": "Explorar el catálogo",
+    "intro": "Encuentra libros y materiales publicados por tu institución.",
+    "unavailableTitle": "Biblioteca no disponible",
+    "unavailableText": "La Biblioteca Virtual no está disponible en esta institución por el momento.",
+    "searchLabel": "Buscar en el catálogo",
+    "searchPlaceholder": "Título, autor o subtítulo",
+    "search": "Buscar",
+    "shelves": "Estantes y colecciones",
+    "allItems": "Todo el catálogo",
+    "collection": "Catálogo",
+    "resultCount": "{count} resultados",
+    "empty": "No se encontraron materiales.",
+    "pagination": "Paginación",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {page} de {total}",
+    "back": "Volver al catálogo",
+    "authors": "Autores",
+    "publisher": "Editorial",
+    "year": "Año",
+    "pages": "Páginas",
+    "categories": "Categorías",
+    "physicalAvailable": "{count} ejemplares físicos disponibles",
+    "digitalCatalogued": "Material digital catalogado. Consulta la biblioteca para obtener acceso.",
+    "consultLibrary": "Consulta la biblioteca para saber cómo obtener este material.",
+    "types": {
+      "LIVRO": "Libro",
+      "EBOOK": "Libro digital",
+      "ARTIGO_CIENTIFICO": "Artículo científico",
+      "REVISTA": "Revista",
+      "PERIODICO": "Publicación periódica",
+      "APOSTILA": "Apuntes",
+      "TCC": "Trabajo final",
+      "MONOGRAFIA": "Monografía",
+      "DISSERTACAO": "Disertación",
+      "TESE": "Tesis",
+      "PESQUISA": "Investigación",
+      "DOCUMENTO": "Documento",
+      "VIDEO": "Vídeo",
+      "DOCUMENTARIO": "Documental",
+      "AUDIO": "Audio",
+      "AUDIOLIVRO": "Audiolibro",
+      "PODCAST": "Pódcast",
+      "LINK_EXTERNO": "Enlace externo",
+      "OUTRO": "Otro"
+    }
   }
 }

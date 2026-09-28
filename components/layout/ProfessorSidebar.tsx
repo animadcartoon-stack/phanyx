@@ -8,6 +8,7 @@ import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotification
 import { useTranslations } from "next-intl";
 
 type VisibilidadeProfessor = {
+  biblioteca?: boolean;
   painel?: boolean;
   turmas?: boolean;
   substituicoes?: boolean;
@@ -37,6 +38,7 @@ export default function ProfessorSidebar({
   const t = useTranslations("ProfessorSidebar");
 
   const podeVer = {
+    biblioteca: visibilidade?.biblioteca ?? false,
     painel: visibilidade?.painel ?? true,
     turmas: visibilidade?.turmas ?? true,
     substituicoes: visibilidade?.substituicoes ?? true,
@@ -69,6 +71,10 @@ export default function ProfessorSidebar({
     podeVer.materiais && {
       label: t("menu.materials"),
       href: "/professor/aulas",
+    },
+    podeVer.biblioteca && {
+      label: t("menu.library"),
+      href: "/professor/biblioteca",
     },
     podeVer.atividades && {
       label: t("menu.activities"),

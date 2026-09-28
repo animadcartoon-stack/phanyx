@@ -8,6 +8,7 @@ import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
 
 type VisibilidadeAluno = {
+  biblioteca?: boolean;
   painel?: boolean;
   rematricula?: boolean;
   disciplinas?: boolean;
@@ -48,6 +49,7 @@ export default function AlunoSidebar({
     aluno?.nome || t("student");
 
   const podeVer = {
+    biblioteca: visibilidade?.biblioteca ?? false,
     painel:
       visibilidade?.painel ?? true,
 
@@ -113,6 +115,12 @@ export default function AlunoSidebar({
       label: t("subjects"),
       href: "/aluno/disciplinas",
       icon: "📘",
+    },
+
+    podeVer.biblioteca && {
+      label: t("library"),
+      href: "/aluno/biblioteca",
+      icon: "📚",
     },
 
     podeVer.progresso && {

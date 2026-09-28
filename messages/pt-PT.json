@@ -274,7 +274,8 @@
     "meetings": "Reuniões",
     "registrationData": "Dados de registo",
     "registrationDescription": "Mantenha os seus dados atualizados para contratos, documentos e registos académicos.",
-    "updateMyData": "Atualizar os meus dados"
+    "updateMyData": "Atualizar os meus dados",
+    "library": "Biblioteca"
   },
   "StudentSidebar": {
     "areaTitle": "Área do Aluno",
@@ -290,7 +291,8 @@
     "academicHistory": "Histórico académico",
     "meetings": "Reuniões",
     "certificates": "Certificados",
-    "ombudsman": "Provedoria"
+    "ombudsman": "Provedoria",
+    "library": "Biblioteca"
   },
   "StudentDashboard": {
     "errors": {
@@ -1629,7 +1631,8 @@
       "assessments": "Avaliações",
       "assignments": "Trabalhos",
       "meetings": "Reuniões",
-      "ombudsman": "Provedoria"
+      "ombudsman": "Provedoria",
+      "library": "Biblioteca"
     }
   },
   "ProfessorClassGradebook": {
@@ -3871,7 +3874,8 @@
       "assessments": "Avaliações",
       "assignments": "Trabalhos",
       "meetings": "Reuniões",
-      "ombudsman": "Provedoria"
+      "ombudsman": "Provedoria",
+      "library": "Biblioteca"
     }
   },
   "StudentReenrollment": {
@@ -20199,5 +20203,54 @@
     "userIdLabel": "ID do utilizador: {id}",
     "validCalculation": "Cálculo válido",
     "whatHappens": "O que irá acontecer"
+  },
+  "ReaderLibrary": {
+    "eyebrow": "Biblioteca virtual",
+    "title": "Explore o acervo",
+    "intro": "Encontre livros e materiais publicados pela sua instituição.",
+    "unavailableTitle": "Biblioteca indisponível",
+    "unavailableText": "A Biblioteca Virtual não está disponível nesta instituição neste momento.",
+    "searchLabel": "Pesquisar no acervo",
+    "searchPlaceholder": "Título, autor ou subtítulo",
+    "search": "Pesquisar",
+    "shelves": "Estantes e coleções",
+    "allItems": "Todo o acervo",
+    "collection": "Acervo",
+    "resultCount": "{count} resultados",
+    "empty": "Nenhum item encontrado.",
+    "pagination": "Paginação",
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "pageOf": "Página {page} de {total}",
+    "back": "Voltar ao acervo",
+    "authors": "Autores",
+    "publisher": "Editora",
+    "year": "Ano",
+    "pages": "Páginas",
+    "categories": "Categorias",
+    "physicalAvailable": "{count} exemplares físicos disponíveis",
+    "digitalCatalogued": "Item digital catalogado. Consulte a biblioteca para saber como aceder.",
+    "consultLibrary": "Consulte a biblioteca para saber como obter este item.",
+    "types": {
+      "LIVRO": "Livro",
+      "EBOOK": "Livro digital",
+      "ARTIGO_CIENTIFICO": "Artigo científico",
+      "REVISTA": "Revista",
+      "PERIODICO": "Periódico",
+      "APOSTILA": "Sebenta",
+      "TCC": "Trabalho de conclusão",
+      "MONOGRAFIA": "Monografia",
+      "DISSERTACAO": "Dissertação",
+      "TESE": "Tese",
+      "PESQUISA": "Investigação",
+      "DOCUMENTO": "Documento",
+      "VIDEO": "Vídeo",
+      "DOCUMENTARIO": "Documentário",
+      "AUDIO": "Áudio",
+      "AUDIOLIVRO": "Audiolivro",
+      "PODCAST": "Podcast",
+      "LINK_EXTERNO": "Ligação externa",
+      "OUTRO": "Outro"
+    }
   }
 }
