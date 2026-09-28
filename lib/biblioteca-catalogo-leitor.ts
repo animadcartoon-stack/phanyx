@@ -120,10 +120,22 @@ export async function obterItemCatalogo(leitor: Leitor, slug: string) {
         select: { id: true }, take: 1,
       },
       acessoLivre: true,
+      arquivos: {
+        where: { instituicaoId: leitor.instituicaoId, tipo: "LINK_EXTERNO", status: "DISPONIVEL", arquivadoEm: null },
+        select: { urlExterna: true }, take: 1, orderBy: { id: "desc" },
+      },
       _count: { select: { exemplares: { where: { instituicaoId: leitor.instituicaoId, status: "DISPONIVEL" } } } },
     },
   });
   if (!item) notFound();
-  const { licencas, acessoLivre, ...publico } = item;
-  return { ...publico, acessoDisponivel: acessoLivre || licencas.length > 0, exemplaresDisponiveis: item._count.exemplares };
+  const { licencas, acessoLivre, arquivos, ...publico } = item;
+  const candidato = arquivos[0]?.urlExterna;
+  let linkExterno: string | null = null;
+  if (candidato && (acessoLivre || licencas.length > 0)) {
+    try {
+      const url = new URL(candidato);
+      if (url.protocol === "https:" && !url.username && !url.password) linkExterno = url.href;
+    } catch { /* Um endereço inválido nunca é entregue ao leitor. */ }
+  }
+  return { ...publico, linkExterno, acessoDisponivel: acessoLivre || licencas.length > 0, exemplaresDisponiveis: item._count.exemplares };
 }

@@ -33,6 +33,7 @@ type CategoriaItem = {
 type ArquivoItem = {
   id: number;
   tipo: string;
+  urlExterna?: string | null;
   status: string;
   nomeOriginal: string;
   extensao: string | null;
@@ -382,6 +383,8 @@ type RespostaItem = {
 
   permissoes?: {
     podeEditar: boolean;
+    podePublicar?: boolean;
+    podeRetirar?: boolean;
     podeEnviarArquivo: boolean;
     podeGerenciarArquivo: boolean;
     impersonacao: boolean;
@@ -845,6 +848,14 @@ export default function BibliotecaItemPage() {
   const [item, setItem] = useState<ItemDetalhe | null>(null);
   const [formulario, setFormulario] = useState<FormularioItem | null>(null);
   const [podeEditar, setPodeEditar] = useState(false);
+  const [podePublicar, setPodePublicar] = useState(false);
+  const [podeRetirar, setPodeRetirar] = useState(false);
+  const [confirmarRetirada, setConfirmarRetirada] = useState(false);
+  const [retirando, setRetirando] = useState(false);
+  const [confirmarPublicacao, setConfirmarPublicacao] = useState(false);
+  const [publicando, setPublicando] = useState(false);
+  const [linkExterno, setLinkExterno] = useState("");
+  const [salvandoLink, setSalvandoLink] = useState(false);
   const [impersonacao, setImpersonacao] = useState(false);
   const [downloadPermitido, setDownloadPermitido] = useState(false);
 
@@ -1072,8 +1083,11 @@ export default function BibliotecaItemPage() {
         }
 
         setItem(resultado.item);
+        setLinkExterno(resultado.item.arquivos.find((arquivo) => arquivo.tipo === "LINK_EXTERNO")?.urlExterna || "");
         setFormulario(criarFormulario(resultado.item));
         setPodeEditar(resultado.permissoes?.podeEditar === true);
+        setPodePublicar(resultado.permissoes?.podePublicar === true);
+        setPodeRetirar(resultado.permissoes?.podeRetirar === true);
         setImpersonacao(resultado.permissoes?.impersonacao === true);
         setDownloadPermitido(resultado.configuracao?.permitirDownload === true);
         setInstituicaoId(
@@ -2007,6 +2021,77 @@ export default function BibliotecaItemPage() {
       });
     } finally {
       setSalvando(false);
+    }
+  }
+
+  async function publicarItem() {
+    if (!item || !podePublicar || publicando || editando) return;
+    setPublicando(true);
+
+    try {
+      const resposta = await fetch(`/api/admin/biblioteca/acervo/${itemId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acao: "PUBLICAR" }),
+      });
+      const resultado = (await resposta.json()) as RespostaItem;
+      if (!resposta.ok || !resultado.item) {
+        throw new Error(obterMensagemErro(resultado, ui("publishError")));
+      }
+
+      setItem(resultado.item);
+      setFormulario(criarFormulario(resultado.item));
+      setPodePublicar(false);
+      setPodeRetirar(true);
+      setConfirmarPublicacao(false);
+      setToast({ tipo: "sucesso", mensagem: ui("publishSuccess") });
+    } catch (falha) {
+      setToast({
+        tipo: "erro",
+        mensagem: falha instanceof Error ? falha.message : ui("publishError"),
+      });
+    } finally {
+      setPublicando(false);
+    }
+  }
+
+  async function retirarItem() {
+    if (!item || !podeRetirar || retirando || editando) return;
+    setRetirando(true);
+    try {
+      const resposta = await fetch(`/api/admin/biblioteca/acervo/${itemId}`, { method: "DELETE" });
+      const resultado = await resposta.json() as RespostaItem;
+      if (!resposta.ok || !resultado.item) throw new Error(obterMensagemErro(resultado, ui("withdrawError")));
+      setItem(resultado.item);
+      setFormulario(criarFormulario(resultado.item));
+      setPodeRetirar(false);
+      setPodePublicar(true);
+      setConfirmarRetirada(false);
+      setToast({ tipo: "sucesso", mensagem: ui("withdrawSuccess") });
+    } catch (falha) {
+      setToast({ tipo: "erro", mensagem: falha instanceof Error ? falha.message : ui("withdrawError") });
+    } finally {
+      setRetirando(false);
+    }
+  }
+
+  async function salvarLinkExterno() {
+    if (!item || !podeGerenciarArquivo || salvandoLink || impersonacao) return;
+    setSalvandoLink(true);
+    try {
+      const resposta = await fetch(`/api/admin/biblioteca/acervo/${itemId}/link-externo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: linkExterno.trim() }),
+      });
+      const resultado = await resposta.json() as { ok?: boolean; error?: string };
+      if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || ui("externalLinkError"));
+      setToast({ tipo: "sucesso", mensagem: ui("externalLinkSuccess") });
+      setAtualizacao((valor) => valor + 1);
+    } catch (falha) {
+      setToast({ tipo: "erro", mensagem: falha instanceof Error ? falha.message : ui("externalLinkError") });
+    } finally {
+      setSalvandoLink(false);
     }
   }
 
@@ -3524,6 +3609,19 @@ export default function BibliotecaItemPage() {
                 {t("editItem")}
               </button>
             ) : null}
+
+            {!editando && podePublicar ? (
+              <button
+                type="button"
+                className="bib-button bib-button-primary"
+                onClick={() => setConfirmarPublicacao(true)}
+              >
+                {ui("publishItem")}
+              </button>
+            ) : null}
+            {!editando && podeRetirar ? (
+              <button type="button" className="bib-button bib-button-secondary" onClick={() => setConfirmarRetirada(true)}>{ui("withdrawItem")}</button>
+            ) : null}
           </div>
         </section>
 
@@ -4181,6 +4279,16 @@ export default function BibliotecaItemPage() {
                 </div>
               </header>
 
+              {item.modalidade === "LINK_EXTERNO" ? (
+                <div className="bib-detail-grid">
+                  <label className="bib-field bib-field-span-2">
+                    <span>{ui("externalLinkLabel")}</span>
+                    <input className="bib-input" type="url" value={linkExterno} onChange={(evento) => setLinkExterno(evento.target.value)} placeholder="https://" maxLength={2048} disabled={!podeGerenciarArquivo || impersonacao || salvandoLink} />
+                  </label>
+                  {podeGerenciarArquivo && !impersonacao ? <button type="button" className="bib-button bib-button-secondary" disabled={salvandoLink} onClick={() => void salvarLinkExterno()}>{salvandoLink ? ui("saving") : ui("saveExternalLink")}</button> : null}
+                </div>
+              ) : null}
+
               {enviandoArquivo ? (
                 <div className="bib-feedback">
                   <div
@@ -4226,7 +4334,7 @@ export default function BibliotecaItemPage() {
                         <small>
                           {rotuloEnumLocalizado(arquivo.tipo)}
                           {" · "}
-                          {formatarBytes(arquivo.tamanhoBytes)}
+                          {arquivo.tipo === "LINK_EXTERNO" ? arquivo.urlExterna : formatarBytes(arquivo.tamanhoBytes)}
                           {" · "}
                           {ui("version")} {arquivo.versao}
                           {" · "}
@@ -4239,7 +4347,9 @@ export default function BibliotecaItemPage() {
                           </span>
                         ) : null}
 
-                        {arquivo.status === "DISPONIVEL" ? (
+                        {arquivo.tipo === "LINK_EXTERNO" && arquivo.urlExterna ? (
+                          <div className="bib-file-actions"><a className="bib-file-action" href={arquivo.urlExterna} target="_blank" rel="noopener noreferrer">{ui("view")}</a></div>
+                        ) : arquivo.status === "DISPONIVEL" ? (
                           <div className="bib-file-actions">
                             <a
                               href={`/api/admin/biblioteca/arquivos/${arquivo.id}/conteudo`}
@@ -4954,6 +5064,76 @@ export default function BibliotecaItemPage() {
             </div>
           ) : null}
         </form>
+
+        {confirmarPublicacao && item ? (
+          <div className="bib-modal-backdrop" role="presentation">
+            <section
+              className="bib-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="titulo-publicar-item"
+            >
+              <header className="bib-modal-header">
+                <div>
+                  <span className="bib-modal-kicker">{ui("virtualLibrary")}</span>
+                  <h2 id="titulo-publicar-item">{ui("publishTitle")}</h2>
+                  <p>{ui("publishDescription")}</p>
+                </div>
+                <button
+                  type="button"
+                  className="bib-modal-close"
+                  onClick={() => setConfirmarPublicacao(false)}
+                  disabled={publicando}
+                  aria-label={ui("close")}
+                >
+                  ×
+                </button>
+              </header>
+              <div className="bib-modal-body">
+                <div className="bib-feedback bib-feedback-warning">
+                  <div>
+                    <strong>{item.titulo}</strong>
+                    <p>{ui("publishNotice")}</p>
+                  </div>
+                </div>
+              </div>
+              <footer className="bib-modal-footer">
+                <button
+                  type="button"
+                  className="bib-button bib-button-secondary"
+                  onClick={() => setConfirmarPublicacao(false)}
+                  disabled={publicando}
+                >
+                  {ui("cancel")}
+                </button>
+                <button
+                  type="button"
+                  className="bib-button bib-button-primary"
+                  onClick={() => void publicarItem()}
+                  disabled={publicando}
+                >
+                  {publicando ? ui("publishing") : ui("publishItem")}
+                </button>
+              </footer>
+            </section>
+          </div>
+        ) : null}
+
+        {confirmarRetirada && item ? (
+          <div className="bib-modal-backdrop" role="presentation">
+            <section className="bib-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-retirar-item">
+              <header className="bib-modal-header">
+                <div><span className="bib-modal-kicker">{ui("virtualLibrary")}</span><h2 id="titulo-retirar-item">{ui("withdrawItem")}</h2><p>{ui("withdrawNotice")}</p></div>
+                <button type="button" className="bib-modal-close" onClick={() => setConfirmarRetirada(false)} disabled={retirando} aria-label={ui("close")}>×</button>
+              </header>
+              <div className="bib-modal-body"><strong>{item.titulo}</strong></div>
+              <footer className="bib-modal-footer">
+                <button type="button" className="bib-button bib-button-secondary" onClick={() => setConfirmarRetirada(false)} disabled={retirando}>{ui("cancel")}</button>
+                <button type="button" className="bib-button bib-button-primary" onClick={() => void retirarItem()} disabled={retirando}>{retirando ? ui("withdrawing") : ui("withdrawItem")}</button>
+              </footer>
+            </section>
+          </div>
+        ) : null}
 
         {historicoArquivosAberto ? (
           <div className="bib-modal-backdrop" role="presentation">
