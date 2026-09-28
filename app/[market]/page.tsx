@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import LocalizedMarketingPage from "@/components/marketing/LocalizedMarketingPage";
+import type { ForeignLocale } from "@/lib/localized-plans";
 import { localeEhSuportado, type LocalePhanyx } from "@/i18n/config";
 import { marketingAlternates, marketingCopy, marketingPath } from "@/lib/public-marketing";
 
@@ -21,5 +22,5 @@ export async function generateMetadata({ params }: { params: Promise<{ market: s
 export default async function MarketHomePage({ params }: { params: Promise<{ market: string }> }) {
   const { market } = await params;
   if (!localeEhSuportado(market) || market === "pt-BR") notFound();
-  return <LocalizedMarketingPage locale={market as LocalePhanyx} section="home" />;
+  return <LocalizedMarketingPage locale={market as ForeignLocale} section="home" />;
 }

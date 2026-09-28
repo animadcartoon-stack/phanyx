@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { marketingCopy } from "@/lib/public-marketing";
@@ -368,6 +368,16 @@ const totalEnterprise =
   const custoAlunoEssencial = totalEssencial / alunosSimulacao;
 const custoAlunoProfissional = totalProfissional / alunosSimulacao;
 const custoAlunoEnterprise = totalEnterprise / alunosSimulacao;
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    const alvo = document.getElementById("calculadora-planos");
+    if (alvo) {
+      window.scrollTo({ top: alvo.offsetTop + 800, behavior: "smooth" });
+    }
+  }, 150);
+  return () => clearTimeout(timer);
+}, []);
 
   return (
     <>

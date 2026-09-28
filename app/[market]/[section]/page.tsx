@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import LocalizedMarketingPage from "@/components/marketing/LocalizedMarketingPage";
+import LocalizedPlansPage from "@/components/marketing/LocalizedPlansPage";
+import type { ForeignLocale } from "@/lib/localized-plans";
 import { localeEhSuportado, type LocalePhanyx } from "@/i18n/config";
 import { marketingAlternates, marketingCopy, marketingLocales, marketingPath, marketingSection } from "@/lib/public-marketing";
 
@@ -30,5 +32,6 @@ export default async function MarketSectionPage({ params }: { params: Promise<{ 
   if (!localeEhSuportado(market) || market === "pt-BR") notFound();
   const section = marketingSection(market, slug);
   if (!section || section === "home") notFound();
-  return <LocalizedMarketingPage locale={market as LocalePhanyx} section={section} />;
+  if (section === "plans") return <LocalizedPlansPage locale={market as ForeignLocale} />;
+  return <LocalizedMarketingPage locale={market as ForeignLocale} section="academic" />;
 }
