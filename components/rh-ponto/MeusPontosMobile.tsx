@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type TipoFiltro =
   | "TODOS"
@@ -142,27 +143,19 @@ function obterDispositivoId() {
   }
 }
 
-function formatarDataLocal(
-  dataLocal: string
-) {
-  const correspondencia =
-    /^(\d{4})-(\d{2})-(\d{2})$/.exec(
-      dataLocal
-    );
-
-  if (!correspondencia) {
-    return dataLocal || "-";
-  }
-
-  const [, ano, mes, dia] =
-    correspondencia;
-
-  return `${dia}/${mes}/${ano}`;
+function formatarDataLocal(dataLocal: string, locale: string) {
+  const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dataLocal);
+  if (!partes) return dataLocal || "-";
+  const data = new Date(Date.UTC(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3])));
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: "UTC", day: "2-digit", month: "2-digit", year: "numeric"
+  }).format(data);
 }
 
 function formatarHora(
   dataHora: string,
-  fusoHorario: string
+  fusoHorario: string,
+  locale: string
 ) {
   const data = new Date(dataHora);
 
@@ -172,7 +165,7 @@ function formatarHora(
 
   try {
     return new Intl.DateTimeFormat(
-      "pt-BR",
+      locale,
       {
         timeZone: fusoHorario,
         hour: "2-digit",
@@ -182,7 +175,7 @@ function formatarHora(
     ).format(data);
   } catch {
     return data.toLocaleTimeString(
-      "pt-BR"
+      locale
     );
   }
 }
@@ -232,7 +225,8 @@ function horaParaEdicao(
 }
 
 function formatarDataHoraCompleta(
-  dataIso: string
+  dataIso: string,
+  locale: string
 ) {
   const data = new Date(dataIso);
 
@@ -241,7 +235,7 @@ function formatarDataHoraCompleta(
   }
 
   return data.toLocaleString(
-    "pt-BR",
+    locale,
     {
       day: "2-digit",
       month: "2-digit",
@@ -252,61 +246,51 @@ function formatarDataHoraCompleta(
   );
 }
 
-function rotuloTipo(tipo: string) {
-  switch (
-    String(tipo || "").toUpperCase()
-  ) {
+type TranslatePoint = (key: string, values?: Record<string, string | number>) => string;
+
+function rotuloTipo(tipo: string, tr: TranslatePoint) {
+  switch (String(tipo || "").toUpperCase()) {
     case "ENTRADA":
-    case "RETORNO_ALMOCO":
-      return "Entrada";
-
+    case "RETORNO_ALMOCO": return tr("history.typeEntry");
     case "SAIDA":
-    case "SAIDA_ALMOCO":
-      return "Saída";
-
-    default:
-      return tipo || "Marcação";
+    case "SAIDA_ALMOCO": return tr("history.typeExit");
+    default: return tr("history.typeUnknown");
   }
 }
 
 function tipoNormalizado(
   tipo: string
 ): "ENTRADA" | "SAIDA" {
-  return rotuloTipo(tipo) === "Saída"
+  return String(tipo || "").toUpperCase().startsWith("SAIDA")
     ? "SAIDA"
     : "ENTRADA";
 }
 
-function rotuloLocalizacao(
-  status: string
-) {
-  switch (status) {
-    case "DENTRO_DO_RAIO":
-      return "Dentro do local autorizado";
+function rotuloLocalizacao(status: string, tr: TranslatePoint) {
+  const keys: Record<string, string> = {
+    DENTRO_DO_RAIO: "history.locationInside",
+    FORA_DO_RAIO_PERMITIDA: "history.locationOutsideAllowed",
+    CORRECAO_AUTORIZADA: "history.locationCorrectionAuthorized",
+    CORRECAO_RH: "history.locationCorrectionRH",
+    NAO_EXIGIDA: "history.locationNotRequired",
+    SEM_LOCAL_ATIVO: "history.locationNoSite",
+    NAO_VERIFICADA: "history.locationUnverified"
+  };
+  return tr(keys[status] || "history.locationUnknown");
+}
 
-    case "FORA_DO_RAIO_PERMITIDA":
-      return "Fora do raio — autorizado";
-
-    case "CORRECAO_AUTORIZADA":
-      return "Correção autorizada pelo RH";
-
-      case "CORRECAO_RH":
-  return "Correção realizada pelo RH";
-
-    case "NAO_EXIGIDA":
-      return "Localização não exigida";
-
-    case "SEM_LOCAL_ATIVO":
-      return "Sem local cadastrado";
-
-    case "NAO_VERIFICADA":
-      return "Localização não verificada";
-
-    default:
-      return status
-        .replaceAll("_", " ")
-        .toLocaleLowerCase("pt-BR");
-  }
+function rotuloSituacao(status: string, tr: TranslatePoint) {
+  const keys: Record<string, string> = {
+    ABERTO: "history.statusOpen",
+    FECHADO: "history.statusClosed",
+    VALIDA: "history.statusValid",
+    INVALIDADA: "history.statusInvalidated",
+    CORRIGIDA: "history.statusCorrected",
+    ATIVA: "history.statusActive",
+    PENDENTE: "history.statusPending",
+    APLICADA: "history.statusApplied"
+  };
+  return tr(keys[status] || "history.statusUnknown");
 }
 
 function numero(valor: unknown) {
@@ -342,7 +326,8 @@ function formatarHorasDecimais(
 }
 
 function limparMotivoAutorizacao(
-  valor: unknown
+  valor: unknown,
+  tr: TranslatePoint
 ) {
   const texto = String(valor || "")
     .trim();
@@ -361,13 +346,15 @@ function limparMotivoAutorizacao(
   return (
     textoLimpo ||
     texto ||
-    "Motivo não informado"
+    tr("history.reasonNotProvided")
   );
 }
 
 export default function MeusPontosMobile({
   slug,
 }: MeusPontosMobileProps) {
+  const t = useTranslations("RhAppPoint");
+  const locale = useLocale();
   const [dataInicio, setDataInicio] =
     useState("");
 
@@ -517,8 +504,7 @@ export default function MeusPontosMobile({
             }
 
             throw new Error(
-              dados.error ||
-                "Não foi possível carregar seus pontos."
+              t("history.loadFailed")
             );
           }
 
@@ -555,13 +541,13 @@ export default function MeusPontosMobile({
           setErro(
             error instanceof Error
               ? error.message
-              : "Não foi possível carregar seus pontos."
+              : t("history.loadFailed")
           );
         } finally {
           setLoading(false);
         }
       },
-      [slug]
+      [slug, t]
     );
 
   useEffect(() => {
@@ -643,7 +629,7 @@ export default function MeusPontosMobile({
       "ATIVA"
     ) {
       setErro(
-        "Esta jornada não possui uma autorização ativa do RH."
+        t("history.authorizationRequired")
       );
 
       return;
@@ -757,13 +743,13 @@ export default function MeusPontosMobile({
           .length < 10
       ) {
         throw new Error(
-          "Informe o motivo da correção com pelo menos 10 caracteres."
+          t("history.reasonMinLength")
         );
       }
 
       if (itensEdicao.length === 0) {
         throw new Error(
-          "Adicione ao menos uma entrada ou saída."
+          t("history.addAtLeastOne")
         );
       }
 
@@ -778,7 +764,7 @@ export default function MeusPontosMobile({
 
       if (itemInvalido) {
         throw new Error(
-          "Preencha todos os horários antes de enviar."
+          t("history.fillAllTimes")
         );
       }
 
@@ -832,23 +818,21 @@ export default function MeusPontosMobile({
         }
 
         throw new Error(
-          dados.error ||
-            "Não foi possível enviar a correção."
+          t("history.submitFailed")
         );
       }
 
       const complementoWhatsapp =
         dados.whatsappStatus ===
         "PENDENTE_CONFIGURACAO"
-          ? " O responsável foi notificado dentro do PHANYX; o WhatsApp ficou pendente de configuração institucional."
+          ? " " + t("history.whatsappNotConfigured")
           : dados.whatsappStatus ===
               "SEM_TELEFONE"
-            ? " O responsável foi notificado dentro do PHANYX; não há telefone cadastrado para o aviso por WhatsApp."
+            ? " " + t("history.whatsappNoPhone")
             : "";
 
       setSucesso(
-        (dados.mensagem ||
-          "Correção aplicada com sucesso.") +
+        t("history.correctionSuccess") +
           complementoWhatsapp
       );
 
@@ -864,7 +848,7 @@ export default function MeusPontosMobile({
       setErro(
         error instanceof Error
           ? error.message
-          : "Não foi possível enviar a correção."
+          : t("history.submitFailed")
       );
     } finally {
       setEnviandoCorrecao(false);
@@ -874,34 +858,25 @@ export default function MeusPontosMobile({
   return (
     <section
       id="meus-pontos"
-      className="rounded-[30px] border border-slate-700 bg-slate-900 p-6 shadow-xl"
+      className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6 shadow-xl"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-            Meus pontos
-          </p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("history.title")}</p>
 
-          <h2 className="mt-2 text-xl font-black text-white">
-            Histórico por dia
-          </h2>
+          <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">{t("history.byDay")}</h2>
 
-          <p className="mt-2 text-sm leading-6 text-slate-300">
-            Cada card reúne todas as
-            entradas e saídas daquele dia.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{t("history.dayDescription")}</p>
         </div>
 
-        <span className="shrink-0 rounded-full border border-blue-800 bg-blue-950 px-3 py-2 text-xs font-black text-blue-200">
-          {total} dias
+        <span className="shrink-0 rounded-full border border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950 px-3 py-2 text-xs font-black text-blue-800 dark:text-blue-200">
+          {t("history.days", {count: total})}
         </span>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400">
-            Data inicial
-          </label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{t("history.startDate")}</label>
 
           <input
             type="date"
@@ -911,14 +886,12 @@ export default function MeusPontosMobile({
                 evento.target.value
               )
             }
-            className="min-h-12 w-full rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-blue-500"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400">
-            Data final
-          </label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{t("history.endDate")}</label>
 
           <input
             type="date"
@@ -928,14 +901,12 @@ export default function MeusPontosMobile({
                 evento.target.value
               )
             }
-            className="min-h-12 w-full rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-blue-500"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400">
-            Tipo
-          </label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{t("history.type")}</label>
 
           <select
             value={tipo}
@@ -945,26 +916,18 @@ export default function MeusPontosMobile({
                   .value as TipoFiltro
               )
             }
-            className="min-h-12 w-full rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-blue-500"
           >
-            <option value="TODOS">
-              Entrada e saída
-            </option>
+            <option value="TODOS">{t("history.allTypes")}</option>
 
-            <option value="ENTRADA">
-              Entrada
-            </option>
+            <option value="ENTRADA">{t("history.typeEntry")}</option>
 
-            <option value="SAIDA">
-              Saída
-            </option>
+            <option value="SAIDA">{t("history.typeExit")}</option>
           </select>
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-400">
-            Situação
-          </label>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{t("history.situation")}</label>
 
           <select
             value={situacao}
@@ -974,23 +937,15 @@ export default function MeusPontosMobile({
                   .value as SituacaoFiltro
               )
             }
-            className="min-h-12 w-full rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 text-slate-900 dark:text-white outline-none focus:border-blue-500"
           >
-            <option value="TODOS">
-              Todas
-            </option>
+            <option value="TODOS">{t("history.allSituations")}</option>
 
-            <option value="VALIDA">
-              Válidas
-            </option>
+            <option value="VALIDA">{t("history.valid")}</option>
 
-            <option value="INVALIDADA">
-              Invalidadas
-            </option>
+            <option value="INVALIDADA">{t("history.invalidated")}</option>
 
-            <option value="CORRIGIDA">
-              Corrigidas
-            </option>
+            <option value="CORRIGIDA">{t("history.corrected")}</option>
           </select>
         </div>
       </div>
@@ -1003,42 +958,35 @@ export default function MeusPontosMobile({
           className="min-h-12 rounded-2xl bg-blue-600 px-4 py-3 font-black text-white disabled:opacity-50"
         >
           {loading
-            ? "Carregando..."
-            : "Buscar pontos"}
+            ? t("history.loading")
+            : t("history.search")}
         </button>
 
         <button
           type="button"
           onClick={limparFiltros}
           disabled={loading}
-          className="min-h-12 rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 font-black text-slate-200 disabled:opacity-50"
-        >
-          Limpar filtros
-        </button>
+          className="min-h-12 rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 font-black text-slate-800 dark:text-slate-200 disabled:opacity-50"
+        >{t("history.clearFilters")}</button>
       </div>
 
       {erro && (
-        <div className="mt-5 rounded-2xl border border-red-800 bg-red-950/40 p-4 text-sm text-red-200">
+        <div className="mt-5 rounded-2xl border border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/40 p-4 text-sm text-red-800 dark:text-red-200">
           {erro}
         </div>
       )}
 
       {sucesso && (
-        <div className="mt-5 rounded-2xl border border-emerald-800 bg-emerald-950/40 p-4 text-sm leading-6 text-emerald-200">
+        <div className="mt-5 rounded-2xl border border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40 p-4 text-sm leading-6 text-emerald-800 dark:text-emerald-200">
           {sucesso}
         </div>
       )}
 
       <div className="mt-5 space-y-4">
         {loading ? (
-          <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-5 text-sm font-bold text-slate-300">
-            Carregando seus pontos...
-          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 p-5 text-sm font-bold text-slate-700 dark:text-slate-300">{t("history.loadingHistory")}</div>
         ) : jornadas.length === 0 ? (
-          <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-5 text-sm text-slate-400">
-            Nenhuma jornada encontrada
-            com os filtros informados.
-          </div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 p-5 text-sm text-slate-600 dark:text-slate-400">{t("history.empty")}</div>
         ) : (
           jornadas.map((jornada) => {
             const atuais =
@@ -1080,32 +1028,27 @@ export default function MeusPontosMobile({
             return (
               <article
                 key={jornada.id}
-                className="rounded-[26px] border border-slate-700 bg-slate-950/50 p-5"
+                className="rounded-[26px] border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/50 p-5"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                      Jornada
-                    </p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{t("history.day")}</p>
 
-                    <h3 className="mt-1 text-xl font-black text-white">
+                    <h3 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
                       {formatarDataLocal(
-                        jornada.dataLocal
+                        jornada.dataLocal, locale
                       )}
                     </h3>
                   </div>
 
-                  <span className="rounded-full border border-slate-600 bg-slate-900 px-3 py-1 text-xs font-black text-slate-200">
-                    {jornada.status}
+                  <span className="rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-black text-slate-800 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
+                    {rotuloSituacao(jornada.status, t)}
                   </span>
                 </div>
 
                 <div className="mt-4 space-y-3">
                   {atuais.length === 0 ? (
-                    <p className="rounded-2xl border border-slate-700 bg-slate-900 p-4 text-sm text-slate-400">
-                      Nenhuma marcação válida
-                      neste dia.
-                    </p>
+                    <p className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-4 text-sm text-slate-600 dark:text-slate-400">{t("history.noValidMarks")}</p>
                   ) : (
                     atuais.map(
                       (
@@ -1113,9 +1056,9 @@ export default function MeusPontosMobile({
                         indice
                       ) => {
                         const entrada =
-                          rotuloTipo(
+                          tipoNormalizado(
                             marcacao.tipo
-                          ) === "Entrada";
+                          ) === "ENTRADA";
 
                         return (
                           <div
@@ -1124,41 +1067,39 @@ export default function MeusPontosMobile({
                             }
                             className={`rounded-2xl border p-4 ${
                               entrada
-                                ? "border-emerald-800 bg-emerald-950/25"
-                                : "border-blue-800 bg-blue-950/25"
+                                ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/25"
+                                : "border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/25"
                             }`}
                           >
                             <div className="flex items-center justify-between gap-3">
                               <div>
-                                <p className="text-xs font-bold text-slate-400">
-                                  {indice +
-                                    1}
-                                  ª marcação
+                                <p className="text-xs font-bold text-slate-600 dark:text-slate-400">
+                                  {t("history.ordinalMark", {number: indice + 1})}
                                 </p>
 
-                                <p className="mt-1 font-black text-white">
+                                <p className="mt-1 font-black text-slate-900 dark:text-white">
                                   {rotuloTipo(
-                                    marcacao.tipo
+                                    marcacao.tipo, t
                                   )}
                                 </p>
                               </div>
 
-                              <p className="font-mono text-sm font-black text-blue-200">
+                              <p className="font-mono text-sm font-black text-blue-800 dark:text-blue-200">
                                 {formatarHora(
                                   marcacao.dataHora,
-                                  fusoHorario
+                                  fusoHorario, locale
                                 )}
                               </p>
                             </div>
 
-                            <p className="mt-3 text-xs leading-5 text-slate-400">
+                            <p className="mt-3 text-xs leading-5 text-slate-600 dark:text-slate-400">
                               {rotuloLocalizacao(
-                                marcacao.statusLocalizacao
+                                marcacao.statusLocalizacao, t
                               )}
                             </p>
 
                             {marcacao.localNome && (
-                              <p className="mt-1 text-xs text-slate-400">
+                              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                                 {
                                   marcacao.localNome
                                 }
@@ -1171,13 +1112,11 @@ export default function MeusPontosMobile({
                   )}
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl border border-slate-700 bg-slate-900 p-3 text-center">
+                <div className="mt-4 grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-3 text-center">
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-slate-500">
-                      Trabalhadas
-                    </p>
+                    <p className="text-[10px] font-bold uppercase text-slate-600 dark:text-slate-500">{t("history.worked")}</p>
 
-                    <p className="mt-1 text-sm font-black text-white">
+                    <p className="mt-1 text-sm font-black text-slate-900 dark:text-white">
                       {formatarHorasDecimais(
   jornada.horasTrabalhadas
 )}
@@ -1185,11 +1124,9 @@ export default function MeusPontosMobile({
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-slate-500">
-                      Extras
-                    </p>
+                    <p className="text-[10px] font-bold uppercase text-slate-600 dark:text-slate-500">{t("history.overtime")}</p>
 
-                    <p className="mt-1 text-sm font-black text-emerald-300">
+                    <p className="mt-1 text-sm font-black text-emerald-700 dark:text-emerald-300">
                       {formatarHorasDecimais(
   jornada.horasExtras
 )}
@@ -1197,11 +1134,9 @@ export default function MeusPontosMobile({
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-slate-500">
-                      Atraso
-                    </p>
+                    <p className="text-[10px] font-bold uppercase text-slate-600 dark:text-slate-500">{t("history.late")}</p>
 
-                    <p className="mt-1 text-sm font-black text-red-300">
+                    <p className="mt-1 text-sm font-black text-red-700 dark:text-red-300">
                       {formatarHorasDecimais(
   jornada.horasAtraso
 )}
@@ -1213,24 +1148,20 @@ export default function MeusPontosMobile({
                   <div
                     className={`mt-4 rounded-2xl border p-4 ${
                       autorizacaoAtiva
-                        ? "border-emerald-800 bg-emerald-950/30"
-                        : "border-slate-700 bg-slate-900"
+                        ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                        : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
                     }`}
                   >
-                    <p className="text-sm font-black text-white">
+                    <p className="text-sm font-black text-slate-900 dark:text-white">
                       {autorizacaoAtiva
-  ? "Correção autorizada"
+  ? t("history.correctionAuthorized")
   : correcaoDiretaRH
-    ? "Correção realizada pelo RH"
-    : `Autorização ${jornada.autorizacao.status.toLocaleLowerCase(
-        "pt-BR"
-      )}`}
+    ? t("history.correctionByRH")
+    : t("history.authorizationStatus", {status: rotuloSituacao(jornada.autorizacao.status, t)})}
                     </p>
 
-                    <p className="mt-2 text-xs leading-5 text-slate-300">
-                      <strong>
-                        Autorizado por:
-                      </strong>{" "}
+                    <p className="mt-2 text-xs leading-5 text-slate-700 dark:text-slate-300">
+                      <strong>{t("history.authorizedBy")}</strong>{" "}
                       {
                         jornada
                           .autorizacao
@@ -1239,24 +1170,20 @@ export default function MeusPontosMobile({
                       }
                     </p>
 
-                    <p className="mt-1 text-xs leading-5 text-slate-300">
-                      <strong>
-                        Motivo:
-                      </strong>{" "}
+                    <p className="mt-1 text-xs leading-5 text-slate-700 dark:text-slate-300">
+                      <strong>{t("history.reason")}</strong>{" "}
                       {limparMotivoAutorizacao(
-  jornada.autorizacao
-    .motivoAutorizacao
+  jornada.autorizacao.motivoAutorizacao, t
 )}
                     </p>
 
-                    <p className="mt-1 text-xs leading-5 text-slate-300">
-                      <strong>
-                        Válida até:
-                      </strong>{" "}
+                    <p className="mt-1 text-xs leading-5 text-slate-700 dark:text-slate-300">
+                      <strong>{t("history.validUntil")}</strong>{" "}
                       {formatarDataHoraCompleta(
                         jornada
                           .autorizacao
-                          .validoAte
+                          .validoAte,
+                        locale
                       )}
                     </p>
 
@@ -1269,34 +1196,24 @@ export default function MeusPontosMobile({
                           )
                         }
                         className="mt-4 min-h-12 w-full rounded-2xl bg-emerald-600 px-4 py-3 font-black text-white"
-                      >
-                        Editar ponto
-                      </button>
+                      >{t("history.edit")}</button>
                     )}
                   </div>
                 )}
 
                 {!jornada.autorizacao && (
-                  <div className="mt-4 rounded-2xl border border-slate-700 bg-slate-900 p-4">
-                    <p className="text-sm font-black text-slate-200">
-                      Edição bloqueada
-                    </p>
+                  <div className="mt-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-4">
+                    <p className="text-sm font-black text-slate-800 dark:text-slate-200">{t("history.editBlocked")}</p>
 
-                    <p className="mt-2 text-xs leading-5 text-slate-400">
-                      O botão Editar ponto
-                      aparece somente quando
-                      o RH autoriza este dia.
-                    </p>
+                    <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">{t("history.editBlockedDescription")}</p>
                   </div>
                 )}
 
                 {jornada.ultimaSolicitacao && (
-                  <div className="mt-4 rounded-2xl border border-amber-800 bg-amber-950/25 p-4">
-                    <p className="text-xs font-black uppercase tracking-wider text-amber-200">
-                      Última correção
-                    </p>
+                  <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/25 p-4">
+                    <p className="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-200">{t("history.latestCorrection")}</p>
 
-                    <p className="mt-2 text-sm text-amber-100">
+                    <p className="mt-2 text-sm text-amber-900 dark:text-amber-100">
                       {
                         jornada
                           .ultimaSolicitacao
@@ -1304,21 +1221,16 @@ export default function MeusPontosMobile({
                       }
                     </p>
 
-                    <p className="mt-2 text-xs text-amber-300">
-                      Situação:{" "}
-                      {
-                        jornada
-                          .ultimaSolicitacao
-                          .status
-                      }
+                    <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">{t("history.statusLabel")}{" "}
+                      {rotuloSituacao(jornada.ultimaSolicitacao.status, t)}
                     </p>
                   </div>
                 )}
 
                 {anteriores.length > 0 && (
-                  <details className="mt-4 rounded-2xl border border-slate-700 bg-slate-900 p-4">
-                    <summary className="cursor-pointer text-sm font-black text-slate-300">
-                      Ver {anteriores.length} marcação(ões) substituída(s)
+                  <details className="mt-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-4">
+                    <summary className="cursor-pointer text-sm font-black text-slate-700 dark:text-slate-300">
+                      {t("history.replacedMarks", {count: anteriores.length})}
                     </summary>
 
                     <div className="mt-3 space-y-2">
@@ -1328,18 +1240,18 @@ export default function MeusPontosMobile({
                             key={
                               marcacao.id
                             }
-                            className="flex items-center justify-between gap-3 rounded-xl border border-red-900 bg-red-950/25 p-3 text-xs text-red-200 line-through"
+                            className="flex items-center justify-between gap-3 rounded-xl border border-red-300 bg-red-50 dark:border-red-900 dark:bg-red-950/25 p-3 text-xs text-red-800 dark:text-red-200 line-through"
                           >
                             <span>
                               {rotuloTipo(
-                                marcacao.tipo
+                                marcacao.tipo, t
                               )}
                             </span>
 
                             <span className="font-mono">
                               {formatarHora(
                                 marcacao.dataHora,
-                                fusoHorario
+                                fusoHorario, locale
                               )}
                             </span>
                           </div>
@@ -1363,16 +1275,13 @@ export default function MeusPontosMobile({
           onClick={() =>
             mudarPagina(pagina - 1)
           }
-          className="min-h-11 rounded-2xl border border-slate-600 bg-slate-950 px-4 py-2 text-sm font-black text-slate-200 disabled:opacity-40"
-        >
-          Anterior
-        </button>
+          className="min-h-11 rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-2 text-sm font-black text-slate-800 dark:text-slate-200 disabled:opacity-40"
+        >{t("history.previous")}</button>
 
-        <p className="text-xs font-bold text-slate-400">
-          Página {pagina} de{" "}
-          {totalPaginas}
+        <p className="text-xs font-bold text-slate-600 dark:text-slate-400">
+          {t("history.pagination", {page: pagina, total: totalPaginas})}
           <br />
-          {quantidadeMarcacoes} marcações
+          {t("history.marksCount", {count: quantidadeMarcacoes})}
         </p>
 
         <button
@@ -1384,26 +1293,21 @@ export default function MeusPontosMobile({
           onClick={() =>
             mudarPagina(pagina + 1)
           }
-          className="min-h-11 rounded-2xl border border-slate-600 bg-slate-950 px-4 py-2 text-sm font-black text-slate-200 disabled:opacity-40"
-        >
-          Próxima
-        </button>
+          className="min-h-11 rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-2 text-sm font-black text-slate-800 dark:text-slate-200 disabled:opacity-40"
+        >{t("history.next")}</button>
       </div>
 
       {jornadaEditando &&
         jornadaEditando.autorizacao && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm">
-          <section className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[30px] border border-slate-700 bg-slate-900 p-5 shadow-2xl">
+          <section className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
-                  Correção autorizada
-                </p>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">{t("history.correctionAuthorized")}</p>
 
-                <h2 className="mt-2 text-xl font-black text-white">
+                <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">
                   {formatarDataLocal(
-                    jornadaEditando
-                      .dataLocal
+                    jornadaEditando.dataLocal, locale
                   )}
                 </h2>
               </div>
@@ -1412,28 +1316,26 @@ export default function MeusPontosMobile({
                 type="button"
                 onClick={fecharEditor}
                 disabled={enviandoCorrecao}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-950 text-xl font-black text-slate-200 disabled:opacity-50"
-                aria-label="Fechar editor"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 text-xl font-black text-slate-800 dark:text-slate-200 disabled:opacity-50"
+                aria-label={t("history.closeEditor")}
               >
                 ×
               </button>
             </div>
 
-            <div className="mt-4 rounded-2xl border border-emerald-800 bg-emerald-950/30 p-4">
-              <p className="text-sm font-black text-emerald-100">
-  Autorizado por
+            <div className="mt-4 rounded-2xl border border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30 p-4">
+              <p className="text-sm font-black text-emerald-900 dark:text-emerald-100">
+  {t("history.authorizedBy")}
 </p>
 
-<p className="mt-1 text-sm font-bold text-emerald-200">
+<p className="mt-1 text-sm font-bold text-emerald-800 dark:text-emerald-200">
   {jornadaEditando.autorizacao.autorizadoPor.nome ||
-    "Responsável do RH"}
+    t("history.rhManager")}
 </p>
 
-<p className="mt-4 text-xs font-black uppercase tracking-wider text-emerald-200">
-  Motivo da autorização
-</p>
+<p className="mt-4 text-xs font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-200">{t("history.authorizationReason")}</p>
 
-<p className="mt-1 text-sm leading-6 text-emerald-300">
+<p className="mt-1 text-sm leading-6 text-emerald-700 dark:text-emerald-300">
   {jornadaEditando.autorizacao.motivoAutorizacao}
 </p>
             </div>
@@ -1443,11 +1345,11 @@ export default function MeusPontosMobile({
                 (item, indice) => (
                   <div
                     key={item.chave}
-                    className="rounded-2xl border border-slate-700 bg-slate-950/60 p-4"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 p-4"
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-xs font-black uppercase tracking-wider text-slate-400">
-                        {indice + 1}ª marcação
+                      <p className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                        {t("history.ordinalMark", {number: indice + 1})}
                       </p>
 
                       <button
@@ -1460,10 +1362,8 @@ export default function MeusPontosMobile({
                             item.chave
                           )
                         }
-                        className="rounded-xl border border-red-800 bg-red-950/30 px-3 py-2 text-xs font-black text-red-200 disabled:opacity-50"
-                      >
-                        Remover
-                      </button>
+                        className="rounded-xl border border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30 px-3 py-2 text-xs font-black text-red-800 dark:text-red-200 disabled:opacity-50"
+                      >{t("history.remove")}</button>
                     </div>
 
                     <div className="mt-3 grid grid-cols-2 gap-3">
@@ -1479,15 +1379,11 @@ export default function MeusPontosMobile({
                             evento.target.value
                           )
                         }
-                        className="min-h-12 rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 font-bold text-white"
+                        className="min-h-12 rounded-xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-3 py-2 font-bold text-slate-900 dark:text-white"
                       >
-                        <option value="ENTRADA">
-                          Entrada
-                        </option>
+                        <option value="ENTRADA">{t("history.typeEntry")}</option>
 
-                        <option value="SAIDA">
-                          Saída
-                        </option>
+                        <option value="SAIDA">{t("history.typeExit")}</option>
                       </select>
 
                       <input
@@ -1503,7 +1399,7 @@ export default function MeusPontosMobile({
                             evento.target.value
                           )
                         }
-                        className="min-h-12 rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 font-bold text-white"
+                        className="min-h-12 rounded-xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-3 py-2 font-bold text-slate-900 dark:text-white"
                       />
                     </div>
                   </div>
@@ -1522,10 +1418,8 @@ export default function MeusPontosMobile({
                     "ENTRADA"
                   )
                 }
-                className="min-h-12 rounded-2xl border border-emerald-700 bg-emerald-950/30 px-4 py-3 font-black text-emerald-200 disabled:opacity-50"
-              >
-                + Adicionar entrada
-              </button>
+                className="min-h-12 rounded-2xl border border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30 px-4 py-3 font-black text-emerald-800 dark:text-emerald-200 disabled:opacity-50"
+              >{t("history.addEntry")}</button>
 
               <button
                 type="button"
@@ -1537,16 +1431,12 @@ export default function MeusPontosMobile({
                     "SAIDA"
                   )
                 }
-                className="min-h-12 rounded-2xl border border-blue-700 bg-blue-950/30 px-4 py-3 font-black text-blue-200 disabled:opacity-50"
-              >
-                + Adicionar saída
-              </button>
+                className="min-h-12 rounded-2xl border border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30 px-4 py-3 font-black text-blue-800 dark:text-blue-200 disabled:opacity-50"
+              >{t("history.addExit")}</button>
             </div>
 
             <div className="mt-5">
-              <label className="mb-1 block text-sm font-black text-slate-200">
-                Motivo da correção
-              </label>
+              <label className="mb-1 block text-sm font-black text-slate-800 dark:text-slate-200">{t("history.correctionReason")}</label>
 
               <textarea
                 value={motivoFuncionario}
@@ -1558,22 +1448,13 @@ export default function MeusPontosMobile({
                     evento.target.value
                   )
                 }
-                placeholder="Explique o que foi corrigido ou acrescentado."
-                className="min-h-[120px] w-full rounded-2xl border border-slate-600 bg-slate-950 p-4 text-white outline-none focus:border-blue-500"
+                placeholder={t("history.reasonPlaceholder")}
+                className="min-h-[120px] w-full rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 p-4 text-slate-900 dark:text-white outline-none focus:border-blue-500"
               />
             </div>
 
-            <div className="mt-5 rounded-2xl border border-amber-800 bg-amber-950/25 p-4">
-              <p className="text-xs leading-5 text-amber-200">
-                Ao enviar, as marcações
-                anteriores serão preservadas
-                como histórico, o responsável
-                do RH será notificado
-                imediatamente dentro do
-                PHANYX e o aviso de WhatsApp
-                será registrado conforme a
-                configuração da instituição.
-              </p>
+            <div className="mt-5 rounded-2xl border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/25 p-4">
+              <p className="text-xs leading-5 text-amber-800 dark:text-amber-200">{t("history.submitExplanation")}</p>
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -1583,10 +1464,8 @@ export default function MeusPontosMobile({
                 disabled={
                   enviandoCorrecao
                 }
-                className="min-h-12 rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 font-black text-slate-200 disabled:opacity-50"
-              >
-                Cancelar
-              </button>
+                className="min-h-12 rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 font-black text-slate-800 dark:text-slate-200 disabled:opacity-50"
+              >{t("history.cancel")}</button>
 
               <button
                 type="button"
@@ -1597,8 +1476,8 @@ export default function MeusPontosMobile({
                 className="min-h-12 rounded-2xl bg-emerald-600 px-4 py-3 font-black text-white disabled:opacity-50"
               >
                 {enviandoCorrecao
-                  ? "Enviando..."
-                  : "Enviar correção"}
+                  ? t("history.sending")
+                  : t("history.submitCorrection")}
               </button>
             </div>
           </section>
