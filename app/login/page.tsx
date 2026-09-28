@@ -55,7 +55,9 @@ function LoginContent() {
 
   function escolherPortal(novoPortal: Portal) {
     setPortalSelecionado(novoPortal);
-    window.history.replaceState(null, "", `/login?portal=${novoPortal}`);
+    const url = new URL(window.location.href);
+    url.searchParams.set("portal", novoPortal);
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 
     setTimeout(() => {
       formLoginRef.current?.scrollIntoView({
