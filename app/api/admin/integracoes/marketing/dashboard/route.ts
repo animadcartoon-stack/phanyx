@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { getUserFromToken } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
@@ -68,7 +67,7 @@ export async function GET() {
     const oauthRefreshToken = process.env.GOOGLE_ANALYTICS_OAUTH_REFRESH_TOKEN;
 
     if (oauthClientId && oauthClientSecret && oauthRefreshToken) {
-      const oauth2Client = new OAuth2Client(
+      const oauth2Client = new google.auth.OAuth2(
         oauthClientId,
         oauthClientSecret
       );

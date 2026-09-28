@@ -274,7 +274,8 @@
     "meetings": "Meetings",
     "registrationData": "Registration details",
     "registrationDescription": "Keep your information updated for contracts, documents and academic records.",
-    "updateMyData": "Update my information"
+    "updateMyData": "Update my information",
+    "library": "Library"
   },
   "StudentSidebar": {
     "areaTitle": "Student Portal",
@@ -290,7 +291,8 @@
     "academicHistory": "Academic Record",
     "meetings": "Meetings",
     "certificates": "Certificates",
-    "ombudsman": "Ombudsman"
+    "ombudsman": "Ombudsman",
+    "library": "Library"
   },
   "StudentDashboard": {
     "errors": {
@@ -1629,7 +1631,8 @@
       "assessments": "Assessments",
       "assignments": "Assignments",
       "meetings": "Meetings",
-      "ombudsman": "Ombudsman"
+      "ombudsman": "Ombudsman",
+      "library": "Library"
     }
   },
   "ProfessorClassGradebook": {
@@ -3871,7 +3874,8 @@
       "assessments": "Assessments",
       "assignments": "Assignments",
       "meetings": "Meetings",
-      "ombudsman": "Ombudsman"
+      "ombudsman": "Ombudsman",
+      "library": "Library"
     }
   },
   "StudentReenrollment": {
@@ -20413,5 +20417,54 @@
     "userIdLabel": "User ID: {id}",
     "validCalculation": "Valid calculation",
     "whatHappens": "What will happen"
+  },
+  "ReaderLibrary": {
+    "eyebrow": "Virtual library",
+    "title": "Explore the collection",
+    "intro": "Find books and materials published by your institution.",
+    "unavailableTitle": "Library unavailable",
+    "unavailableText": "The virtual library is currently unavailable at this institution.",
+    "searchLabel": "Search the collection",
+    "searchPlaceholder": "Title, author, or subtitle",
+    "search": "Search",
+    "shelves": "Shelves and collections",
+    "allItems": "All items",
+    "collection": "Collection",
+    "resultCount": "{count} results",
+    "empty": "No items found.",
+    "pagination": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {page} of {total}",
+    "back": "Back to collection",
+    "authors": "Authors",
+    "publisher": "Publisher",
+    "year": "Year",
+    "pages": "Pages",
+    "categories": "Categories",
+    "physicalAvailable": "{count} physical copies available",
+    "digitalCatalogued": "Digital item catalogued. Contact the library for access details.",
+    "consultLibrary": "Contact the library to find out how to obtain this item.",
+    "types": {
+      "LIVRO": "Book",
+      "EBOOK": "E-book",
+      "ARTIGO_CIENTIFICO": "Research article",
+      "REVISTA": "Magazine",
+      "PERIODICO": "Journal",
+      "APOSTILA": "Course notes",
+      "TCC": "Final project",
+      "MONOGRAFIA": "Monograph",
+      "DISSERTACAO": "Dissertation",
+      "TESE": "Thesis",
+      "PESQUISA": "Research",
+      "DOCUMENTO": "Document",
+      "VIDEO": "Video",
+      "DOCUMENTARIO": "Documentary",
+      "AUDIO": "Audio",
+      "AUDIOLIVRO": "Audiobook",
+      "PODCAST": "Podcast",
+      "LINK_EXTERNO": "External link",
+      "OUTRO": "Other"
+    }
   }
 }

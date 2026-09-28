@@ -14,6 +14,7 @@ import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import { paginaVisivel } from "@/lib/portal-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 import { getTranslations } from "next-intl/server";
+import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
 
 export default async function ProfessorLayout({
   children,
@@ -102,6 +103,7 @@ export default async function ProfessorLayout({
 
   const visibilidadeProfessor =
     {
+      biblioteca: await bibliotecaDisponivel(professor.instituicaoId),
       painel:
         await paginaVisivel(
           professor.instituicaoId,
@@ -206,6 +208,7 @@ export default async function ProfessorLayout({
                 className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 lg:hidden"
               >
                 <div className="grid grid-cols-5 gap-1 text-[9px] font-semibold text-slate-600 dark:text-slate-300">
+                  {visibilidadeProfessor.biblioteca && <a href="/professor/biblioteca" className={classeItemMobile}><span aria-hidden="true" className="text-lg">📚</span><span className="mt-0.5 max-w-full truncate">{t("mobileNav.library")}</span></a>}
                   {visibilidadeProfessor.painel && (
                     <a
                       href="/professor"

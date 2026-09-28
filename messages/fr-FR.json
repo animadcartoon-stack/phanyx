@@ -274,7 +274,8 @@
     "meetings": "Réunions",
     "registrationData": "Données d'inscription",
     "registrationDescription": "Maintenez vos informations à jour pour les contrats, documents et dossiers académiques.",
-    "updateMyData": "Mettre à jour mes données"
+    "updateMyData": "Mettre à jour mes données",
+    "library": "Bibliothèque"
   },
   "StudentSidebar": {
     "areaTitle": "Espace étudiant",
@@ -290,7 +291,8 @@
     "academicHistory": "Dossier académique",
     "meetings": "Réunions",
     "certificates": "Certificats",
-    "ombudsman": "Médiation"
+    "ombudsman": "Médiation",
+    "library": "Bibliothèque"
   },
   "StudentDashboard": {
     "errors": {
@@ -1629,7 +1631,8 @@
       "assessments": "Évaluations",
       "assignments": "Travaux",
       "meetings": "Réunions",
-      "ombudsman": "Médiation"
+      "ombudsman": "Médiation",
+      "library": "Bibliothèque"
     }
   },
   "ProfessorClassGradebook": {
@@ -3871,7 +3874,8 @@
       "assessments": "Évaluations",
       "assignments": "Travaux",
       "meetings": "Réunions",
-      "ombudsman": "Médiation"
+      "ombudsman": "Médiation",
+      "library": "Bibliothèque"
     }
   },
   "StudentReenrollment": {
@@ -20412,5 +20416,54 @@
     "userIdLabel": "ID utilisateur : {id}",
     "validCalculation": "Calcul valide",
     "whatHappens": "Ce qui va se passer"
+  },
+  "ReaderLibrary": {
+    "eyebrow": "Bibliothèque virtuelle",
+    "title": "Explorer le catalogue",
+    "intro": "Découvrez les livres et documents publiés par votre établissement.",
+    "unavailableTitle": "Bibliothèque indisponible",
+    "unavailableText": "La bibliothèque virtuelle est actuellement indisponible dans cet établissement.",
+    "searchLabel": "Rechercher dans le catalogue",
+    "searchPlaceholder": "Titre, auteur ou sous-titre",
+    "search": "Rechercher",
+    "shelves": "Rayons et collections",
+    "allItems": "Tout le catalogue",
+    "collection": "Catalogue",
+    "resultCount": "{count} résultats",
+    "empty": "Aucun document trouvé.",
+    "pagination": "Pagination",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "pageOf": "Page {page} sur {total}",
+    "back": "Retour au catalogue",
+    "authors": "Auteurs",
+    "publisher": "Éditeur",
+    "year": "Année",
+    "pages": "Pages",
+    "categories": "Catégories",
+    "physicalAvailable": "{count} exemplaires physiques disponibles",
+    "digitalCatalogued": "Document numérique répertorié. Contactez la bibliothèque pour les modalités d’accès.",
+    "consultLibrary": "Contactez la bibliothèque pour obtenir ce document.",
+    "types": {
+      "LIVRO": "Livre",
+      "EBOOK": "Livre numérique",
+      "ARTIGO_CIENTIFICO": "Article scientifique",
+      "REVISTA": "Magazine",
+      "PERIODICO": "Revue",
+      "APOSTILA": "Support de cours",
+      "TCC": "Projet de fin d’études",
+      "MONOGRAFIA": "Monographie",
+      "DISSERTACAO": "Mémoire",
+      "TESE": "Thèse",
+      "PESQUISA": "Recherche",
+      "DOCUMENTO": "Document",
+      "VIDEO": "Vidéo",
+      "DOCUMENTARIO": "Documentaire",
+      "AUDIO": "Audio",
+      "AUDIOLIVRO": "Livre audio",
+      "PODCAST": "Podcast",
+      "LINK_EXTERNO": "Lien externe",
+      "OUTRO": "Autre"
+    }
   }
 }
