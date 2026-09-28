@@ -4459,8 +4459,8 @@
   },
   "AdminStudentSuccess": {
     "title": "Student Success",
-    "subtitle": "Inteligência e acompanhamento acadêmico",
-    "description": "Identifique sinais acadêmicos que precisam de atenção e acompanhe a evolução dos alunos.",
+    "subtitle": "Inteligência acadêmica para identificar riscos e orientar intervenções",
+    "description": "O PHANYX analisa frequência, desempenho, atividades pendentes e evolução acadêmica para identificar alunos que precisam de atenção, explicar os principais fatores de risco e acompanhar o resultado das intervenções.",
     "cards": {
       "critical": "Risco crítico",
       "risk": "Em risco",
@@ -4532,7 +4532,7 @@
       "coverage": "Cobertura dos dados"
     },
     "overview": {
-      "title": "Visão geral",
+      "title": "Panorama acadêmico",
       "monitoredStudents": "Alunos monitorados",
       "studentsWithSignals": "Alunos com sinais de atenção"
     },

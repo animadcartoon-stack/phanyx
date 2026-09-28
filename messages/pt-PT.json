@@ -4459,8 +4459,8 @@
   },
   "AdminStudentSuccess": {
     "title": "Student Success",
-    "subtitle": "Inteligência e acompanhamento académico",
-    "description": "Identifique sinais académicos que necessitam de atenção e acompanhe a evolução dos alunos.",
+    "subtitle": "Inteligência académica para identificar riscos e orientar intervenções",
+    "description": "O PHANYX analisa assiduidade, desempenho, atividades pendentes e evolução académica para identificar alunos que precisam de atenção, explicar os principais fatores de risco e acompanhar o resultado das intervenções.",
     "cards": {
       "critical": "Risco crítico",
       "risk": "Em risco",
@@ -4532,7 +4532,7 @@
       "coverage": "Cobertura dos dados"
     },
     "overview": {
-      "title": "Visão geral",
+      "title": "Panorama académico",
       "monitoredStudents": "Alunos monitorizados",
       "studentsWithSignals": "Alunos com sinais de atenção"
     },

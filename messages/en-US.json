@@ -4460,8 +4460,8 @@
   },
   "AdminStudentSuccess": {
     "title": "Student Success",
-    "subtitle": "Academic intelligence and student monitoring",
-    "description": "Identify academic signals that require attention and monitor student progress.",
+    "subtitle": "Academic intelligence to identify risks and guide interventions",
+    "description": "PHANYX analyzes attendance, performance, overdue activities, and academic progress to identify students who need attention, explain the main risk factors, and track intervention outcomes.",
     "cards": {
       "critical": "Critical risk",
       "risk": "At risk",
@@ -4533,7 +4533,7 @@
       "coverage": "Data coverage"
     },
     "overview": {
-      "title": "Overview",
+      "title": "Academic overview",
       "monitoredStudents": "Students monitored",
       "studentsWithSignals": "Students with attention signals"
     },
