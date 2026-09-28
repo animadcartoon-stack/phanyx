@@ -20551,6 +20551,11 @@
       "gotIt": "Entendido",
       "installApp": "Instalar aplicación",
       "howToInstall": "Cómo instalar"
+    },
+    "manifest": {
+      "name": "RR. HH. - {name}",
+      "shortName": "RR. HH. - {name}",
+      "description": "Aplicación de control horario y recursos humanos de {name}."
     }
   },
   "RhAppPoint": {

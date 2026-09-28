@@ -20551,6 +20551,11 @@
       "gotIt": "Compris",
       "installApp": "Installer l'application",
       "howToInstall": "Comment installer"
+    },
+    "manifest": {
+      "name": "RH - {name}",
+      "shortName": "RH - {name}",
+      "description": "Application de pointage et de gestion RH de {name}."
     }
   },
   "RhAppPoint": {

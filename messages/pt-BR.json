@@ -20322,6 +20322,11 @@
       "gotIt": "Entendi",
       "installApp": "Instalar aplicativo",
       "howToInstall": "Como instalar"
+    },
+    "manifest": {
+      "name": "RH - {name}",
+      "shortName": "RH - {name}",
+      "description": "Aplicativo de ponto e RH de {name}."
     }
   },
   "RhAppPoint": {

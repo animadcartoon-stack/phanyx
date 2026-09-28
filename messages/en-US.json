@@ -20552,6 +20552,11 @@
       "gotIt": "Got it",
       "installApp": "Install app",
       "howToInstall": "How to install"
+    },
+    "manifest": {
+      "name": "HR - {name}",
+      "shortName": "HR - {name}",
+      "description": "Time tracking and HR app for {name}."
     }
   },
   "RhAppPoint": {

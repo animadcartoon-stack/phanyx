@@ -20338,6 +20338,11 @@
       "gotIt": "Entendi",
       "installApp": "Instalar aplicação",
       "howToInstall": "Como instalar"
+    },
+    "manifest": {
+      "name": "RH - {name}",
+      "shortName": "RH - {name}",
+      "description": "Aplicação de registo de ponto e recursos humanos de {name}."
     }
   },
   "RhAppPoint": {
