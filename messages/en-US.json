@@ -20466,5 +20466,31 @@
       "LINK_EXTERNO": "External link",
       "OUTRO": "Other"
     }
+  },
+  "RhAppEntry": {
+    "androidStep1": "Open this page in Chrome.",
+    "androidStep2": "Tap the browser’s three-dot menu.",
+    "androidStep3": "Choose “Install app” or “Add to Home screen”.",
+    "androidStep4": "Confirm the installation.",
+    "employeeApp": "Employee app",
+    "firstAccess": "To access PHANYX HR for the first time, use the link or QR code sent by your institution's HR team.",
+    "footer": "PHANYX — Integrated people and education management",
+    "heroDescription": "Clock in on your phone with a photo, identification, and location.",
+    "howToInstall": "How to install on your phone",
+    "individualAccess": "🔐 Access granted individually by HR",
+    "installAndroid": "Install on Android",
+    "installIphone": "Install on iPhone",
+    "installationNote": "Installing the app does not automatically enable time tracking. Your institution’s HR team must grant access.",
+    "installed": "PHANYX HR opened as an app",
+    "iosStep1": "Open this page in Safari.",
+    "iosStep2": "Tap the Share button.",
+    "iosStep3": "Choose “Add to Home Screen”.",
+    "iosStep4": "Confirm by tapping “Add”.",
+    "location": "📍 Check of the clock-in location",
+    "metadataDescription": "PHANYX app for time tracking and access to HR resources.",
+    "officialTime": "🕒 Official PHANYX time",
+    "openInstitutionLink": "Open the link provided by your institution",
+    "photo": "📷 Photo taken when clocking in",
+    "quickSecure": "Fast and secure time tracking"
   }
 }

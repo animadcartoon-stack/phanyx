@@ -20465,5 +20465,31 @@
       "LINK_EXTERNO": "Enlace externo",
       "OUTRO": "Otro"
     }
+  },
+  "RhAppEntry": {
+    "androidStep1": "Abra esta página en Chrome.",
+    "androidStep2": "Toque el menú de los tres puntos del navegador.",
+    "androidStep3": "Seleccione «Instalar aplicación» o «Añadir a pantalla de inicio».",
+    "androidStep4": "Confirme la instalación.",
+    "employeeApp": "Aplicación para empleados",
+    "firstAccess": "Para acceder a PHANYX RH por primera vez, utilice el enlace o código QR enviado por Recursos Humanos de su institución.",
+    "footer": "PHANYX — Gestión integrada de personas y educación",
+    "heroDescription": "Registre su jornada desde el móvil con foto, identificación y ubicación.",
+    "howToInstall": "Cómo instalar en el móvil",
+    "individualAccess": "🔐 Acceso autorizado individualmente por Recursos Humanos",
+    "installAndroid": "Instalar en Android",
+    "installIphone": "Instalar en iPhone",
+    "installationNote": "La instalación de la aplicación no habilita automáticamente el registro de jornada. Recursos Humanos de la institución debe autorizar el acceso.",
+    "installed": "PHANYX RH abierto como aplicación",
+    "iosStep1": "Abra esta página en Safari.",
+    "iosStep2": "Toque el botón Compartir.",
+    "iosStep3": "Seleccione «Añadir a pantalla de inicio».",
+    "iosStep4": "Confirme pulsando «Añadir».",
+    "location": "📍 Verificación del lugar de registro",
+    "metadataDescription": "Aplicación PHANYX para registrar la jornada y acceder a los recursos de Recursos Humanos.",
+    "officialTime": "🕒 Hora oficial de PHANYX",
+    "openInstitutionLink": "Abra el enlace proporcionado por su institución",
+    "photo": "📷 Foto tomada al registrar la jornada",
+    "quickSecure": "Registro rápido y seguro"
   }
 }

@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("RhAppEntry");
+  return {
   title: "PHANYX RH",
 
   description:
-    "Aplicativo do PHANYX para registro de ponto e acesso aos recursos de RH.",
+    t("metadataDescription"),
 
   manifest: "/manifest-rh.json",
 
@@ -23,7 +26,8 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

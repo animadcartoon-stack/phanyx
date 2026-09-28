@@ -20465,5 +20465,31 @@
       "LINK_EXTERNO": "Lien externe",
       "OUTRO": "Autre"
     }
+  },
+  "RhAppEntry": {
+    "androidStep1": "Ouvrez cette page dans Chrome.",
+    "androidStep2": "Touchez le menu à trois points du navigateur.",
+    "androidStep3": "Choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».",
+    "androidStep4": "Confirmez l’installation.",
+    "employeeApp": "Application du personnel",
+    "firstAccess": "Pour accéder à PHANYX RH pour la première fois, utilisez le lien ou le code QR envoyé par le service RH de votre établissement.",
+    "footer": "PHANYX — Gestion intégrée des personnes et de l’éducation",
+    "heroDescription": "Pointez depuis votre téléphone avec photo, identification et localisation.",
+    "howToInstall": "Installer sur votre téléphone",
+    "individualAccess": "🔐 Accès accordé individuellement par les RH",
+    "installAndroid": "Installer sur Android",
+    "installIphone": "Installer sur iPhone",
+    "installationNote": "L’installation de l’application n’active pas automatiquement le pointage. Le service RH de l’établissement doit autoriser l’accès.",
+    "installed": "PHANYX RH ouvert comme application",
+    "iosStep1": "Ouvrez cette page dans Safari.",
+    "iosStep2": "Touchez le bouton Partager.",
+    "iosStep3": "Choisissez « Sur l’écran d’accueil ».",
+    "iosStep4": "Confirmez en touchant « Ajouter ».",
+    "location": "📍 Vérification du lieu de pointage",
+    "metadataDescription": "Application PHANYX de pointage et d’accès aux services RH.",
+    "officialTime": "🕒 Heure officielle PHANYX",
+    "openInstitutionLink": "Ouvrez le lien fourni par votre établissement",
+    "photo": "📷 Photo prise au moment du pointage",
+    "quickSecure": "Pointage rapide et sécurisé"
   }
 }

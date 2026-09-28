@@ -20252,5 +20252,31 @@
       "LINK_EXTERNO": "Ligação externa",
       "OUTRO": "Outro"
     }
+  },
+  "RhAppEntry": {
+    "androidStep1": "Abra esta página no Chrome.",
+    "androidStep2": "Toque nos três pontos do navegador.",
+    "androidStep3": "Escolha «Instalar aplicação» ou «Adicionar ao ecrã principal».",
+    "androidStep4": "Confirme a instalação.",
+    "employeeApp": "Aplicação do funcionário",
+    "firstAccess": "Para aceder ao PHANYX RH pela primeira vez, utilize a ligação ou o código QR enviado pelos RH da instituição onde trabalha.",
+    "footer": "PHANYX — Gestão integrada de pessoas e educação",
+    "heroDescription": "Registe o ponto no telemóvel com fotografia, identificação e localização.",
+    "howToInstall": "Como instalar no telemóvel",
+    "individualAccess": "🔐 Acesso autorizado individualmente pelos RH",
+    "installAndroid": "Instalar no Android",
+    "installIphone": "Instalar no iPhone",
+    "installationNote": "A instalação da aplicação não autoriza automaticamente o registo de ponto. O acesso tem de ser autorizado pelos RH da instituição.",
+    "installed": "PHANYX RH aberto como aplicação",
+    "iosStep1": "Abra esta página no Safari.",
+    "iosStep2": "Toque no botão Partilhar.",
+    "iosStep3": "Escolha «Adicionar ao ecrã principal».",
+    "iosStep4": "Confirme em «Adicionar».",
+    "location": "📍 Verificação do local do registo",
+    "metadataDescription": "Aplicação PHANYX para registo de ponto e acesso aos recursos de RH.",
+    "officialTime": "🕒 Hora oficial do PHANYX",
+    "openInstitutionLink": "Abra a ligação fornecida pela sua instituição",
+    "photo": "📷 Fotografia tirada no momento do registo",
+    "quickSecure": "Registo rápido e seguro"
   }
 }

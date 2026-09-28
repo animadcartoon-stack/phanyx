@@ -20236,5 +20236,31 @@
       "LINK_EXTERNO": "Link externo",
       "OUTRO": "Outro"
     }
+  },
+  "RhAppEntry": {
+    "androidStep1": "Abra esta página pelo Chrome.",
+    "androidStep2": "Toque nos três pontinhos do navegador.",
+    "androidStep3": "Escolha “Instalar app” ou “Adicionar à tela inicial”.",
+    "androidStep4": "Confirme a instalação.",
+    "employeeApp": "Aplicativo do funcionário",
+    "firstAccess": "Para acessar o PHANYX RH pela primeira vez, utilize o link ou o QR Code enviado pelo setor de RH da instituição onde você trabalha.",
+    "footer": "PHANYX — Gestão integrada de pessoas e educação",
+    "heroDescription": "Registre seu ponto pelo celular com foto, identificação e localização.",
+    "howToInstall": "Como instalar no celular",
+    "individualAccess": "🔐 Uso liberado individualmente pelo RH",
+    "installAndroid": "Instalar no Android",
+    "installIphone": "Instalar no iPhone",
+    "installationNote": "A instalação do aplicativo não libera o registro de ponto automaticamente. O acesso precisa ser autorizado pelo RH da instituição.",
+    "installed": "PHANYX RH aberto como aplicativo",
+    "iosStep1": "Abra esta página pelo Safari.",
+    "iosStep2": "Toque no botão Compartilhar.",
+    "iosStep3": "Escolha “Adicionar à Tela de Início”.",
+    "iosStep4": "Confirme em “Adicionar”.",
+    "location": "📍 Verificação do local do registro",
+    "metadataDescription": "Aplicativo do PHANYX para registro de ponto e acesso aos recursos de RH.",
+    "officialTime": "🕒 Horário oficial do PHANYX",
+    "openInstitutionLink": "Abra o link fornecido pela sua instituição",
+    "photo": "📷 Foto capturada no momento do ponto",
+    "quickSecure": "Registro rápido e seguro"
   }
 }
