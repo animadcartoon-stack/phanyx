@@ -1,13 +1,13 @@
 import type { LocalePhanyx } from "@/i18n/config";
 
-export type MarketingSection = "home" | "academic" | "plans";
+export type MarketingSection = "home" | "academic" | "plans" | "school" | "lms" | "success";
 
-const slugs: Record<LocalePhanyx, { academic: string; plans: string }> = {
-  "pt-BR": { academic: "gestao-academica", plans: "planos" },
-  "pt-PT": { academic: "gestao-academica", plans: "planos" },
-  "en-US": { academic: "academic-management", plans: "plans" },
-  "es-ES": { academic: "gestion-academica", plans: "planes" },
-  "fr-FR": { academic: "gestion-academique", plans: "tarifs" },
+const slugs: Record<LocalePhanyx, { academic: string; plans: string; school: string; lms: string; success: string }> = {
+  "pt-BR": { academic: "gestao-academica", plans: "planos", school: "sistema-escolar", lms: "plataforma-ead", success: "sucesso-estudantil" },
+  "pt-PT": { academic: "gestao-academica", plans: "planos", school: "software-gestao-escolar", lms: "plataforma-ensino-online", success: "sucesso-estudantes" },
+  "en-US": { academic: "academic-management", plans: "plans", school: "school-management-software", lms: "learning-management-system", success: "student-success-platform" },
+  "es-ES": { academic: "gestion-academica", plans: "planes", school: "software-gestion-escolar", lms: "plataforma-educacion-online", success: "seguimiento-estudiantes" },
+  "fr-FR": { academic: "gestion-academique", plans: "tarifs", school: "logiciel-gestion-scolaire", lms: "plateforme-enseignement-en-ligne", success: "suivi-reussite-etudiants" },
 };
 
 export const marketingLocales: LocalePhanyx[] = ["pt-BR", "pt-PT", "en-US", "es-ES", "fr-FR"];
@@ -18,17 +18,22 @@ export function marketingPath(locale: LocalePhanyx, section: MarketingSection) {
 }
 
 export function marketingSection(locale: LocalePhanyx, slug: string): MarketingSection | null {
-  if (slug === slugs[locale].academic) return "academic";
-  if (slug === slugs[locale].plans) return "plans";
+  for (const section of ["academic", "plans", "school", "lms", "success"] as const) {
+    if (slug === slugs[locale][section]) return section;
+  }
   return null;
 }
 
 export function marketingAlternates(section: MarketingSection) {
+  const locales = section === "home" || section === "academic" || section === "plans"
+    ? marketingLocales
+    : marketingLocales.filter((locale) => locale !== "pt-BR");
+  const fallback = locales.includes("pt-BR") ? "pt-BR" : "en-US";
   return {
-    canonical: marketingPath("pt-BR", section),
+    canonical: marketingPath(fallback, section),
     languages: {
-      ...Object.fromEntries(marketingLocales.map((locale) => [locale, marketingPath(locale, section)])),
-      "x-default": marketingPath("pt-BR", section),
+      ...Object.fromEntries(locales.map((locale) => [locale, marketingPath(locale, section)])),
+      "x-default": marketingPath(fallback, section),
     } as Record<LocalePhanyx | "x-default", string>,
   };
 }
@@ -51,7 +56,7 @@ type Copy = {
   featuresDescription: string;
   features: { title: string; description: string }[];
   tiersTitle: string;
-  tiers: { name: string; description: string; brazilPrice: string }[];
+  tiers: { name: string; description: string; marketPrice: string }[];
   pricingNote: string;
   askProposal: string;
 };
@@ -82,9 +87,9 @@ export const marketingCopy: Record<LocalePhanyx, Copy> = {
     ],
     tiersTitle: "Escolha o plano para sua instituição",
     tiers: [
-      { name: "Essencial", description: "Base acadêmica, áreas de acesso, financeiro e documentos para começar. 1 modelo ativo de certificado.", brazilPrice: "Brasil: R$ 49/mês + R$ 3 por aluno ativo; 1 unidade incluída." },
-      { name: "Profissional", description: "Operação acadêmica ampliada com LMS, crachás, RH e até 20 modelos ativos de certificado.", brazilPrice: "Brasil: R$ 99/mês + R$ 5 por aluno ativo; até 3 unidades incluídas." },
-      { name: "Enterprise", description: "Mais escala, personalização, integrações e modelos ativos de certificado ilimitados.", brazilPrice: "Brasil: R$ 199/mês + R$ 7 por aluno ativo; unidades definidas em contrato." },
+      { name: "Essencial", description: "Base acadêmica, áreas de acesso, financeiro e documentos para começar. 1 modelo ativo de certificado.", marketPrice: "Brasil: R$ 49/mês + R$ 3 por aluno ativo; 1 unidade incluída." },
+      { name: "Profissional", description: "Operação acadêmica ampliada com LMS, crachás, RH e até 20 modelos ativos de certificado.", marketPrice: "Brasil: R$ 99/mês + R$ 5 por aluno ativo; até 3 unidades incluídas." },
+      { name: "Enterprise", description: "Mais escala, personalização, integrações e modelos ativos de certificado ilimitados.", marketPrice: "Brasil: R$ 199/mês + R$ 7 por aluno ativo; unidades definidas em contrato." },
     ],
     pricingNote: "Os preços exibidos na página brasileira estão em reais. Disponibilidade dos novos módulos e condições em outros países são confirmadas na proposta comercial.",
     askProposal: "Solicitar proposta",
@@ -114,11 +119,11 @@ export const marketingCopy: Record<LocalePhanyx, Copy> = {
     ],
     tiersTitle: "Escolha o plano para a sua instituição",
     tiers: [
-      { name: "Essencial", description: "Base académica, áreas de acesso, finanças e documentos. 1 modelo de certificado ativo.", brazilPrice: "Brasil: 49 R$/mês + 3 R$ por estudante ativo; 1 unidade incluída." },
-      { name: "Profissional", description: "Operação ampliada com LMS, cartões, RH e até 20 modelos de certificado ativos.", brazilPrice: "Brasil: 99 R$/mês + 5 R$ por estudante ativo; até 3 unidades incluídas." },
-      { name: "Enterprise", description: "Mais escala, personalização, integrações e modelos de certificado ativos ilimitados.", brazilPrice: "Brasil: 199 R$/mês + 7 R$ por estudante ativo; unidades definidas por contrato." },
+      { name: "Essencial", description: "Base académica, áreas de acesso, finanças e documentos. 1 modelo de certificado ativo.", marketPrice: "Portugal: 25 €/mês + 0,75 € por estudante ativo; 1 unidade incluída." },
+      { name: "Profissional", description: "Operação ampliada com LMS, cartões, RH e até 20 modelos de certificado ativos.", marketPrice: "Portugal: 49 €/mês + 1,25 € por estudante ativo; até 3 unidades incluídas." },
+      { name: "Enterprise", description: "Mais escala, personalização, integrações e modelos de certificado ativos ilimitados.", marketPrice: "Portugal: 99 €/mês + 1,75 € por estudante ativo; unidades definidas por contrato." },
     ],
-    pricingNote: "Os preços da página brasileira estão em reais. A disponibilidade dos novos módulos e as condições em Portugal são confirmadas numa proposta comercial.",
+    pricingNote: "Valores de referência em euros para Portugal. O período experimental e a faturação em euros requerem proposta comercial; a adesão automática atual cobra em reais.",
     askProposal: "Pedir proposta",
   },
   "en-US": {
@@ -146,11 +151,11 @@ export const marketingCopy: Record<LocalePhanyx, Copy> = {
     ],
     tiersTitle: "Find the right plan for your institution",
     tiers: [
-      { name: "Essential", description: "Academic essentials, portals, finance and documents. 1 active certificate template.", brazilPrice: "Brazil: BRL 49/month + BRL 3 per active student; 1 unit included." },
-      { name: "Professional", description: "Broader operations with LMS, ID badges, HR and up to 20 active certificate templates.", brazilPrice: "Brazil: BRL 99/month + BRL 5 per active student; up to 3 units included." },
-      { name: "Enterprise", description: "More scale, customization, integrations and unlimited active certificate templates.", brazilPrice: "Brazil: BRL 199/month + BRL 7 per active student; units set by contract." },
+      { name: "Essential", description: "Academic essentials, portals, finance and documents. 1 active certificate template.", marketPrice: "US: $29/month + $1 per active student; 1 unit included." },
+      { name: "Professional", description: "Broader operations with LMS, ID badges, HR and up to 20 active certificate templates.", marketPrice: "US: $59/month + $1.50 per active student; up to 3 units included." },
+      { name: "Enterprise", description: "More scale, customization, integrations and unlimited active certificate templates.", marketPrice: "US: $119/month + $2 per active student; units set by contract." },
     ],
-    pricingNote: "Prices on the Brazilian page are in BRL. Availability of new modules and local pricing are confirmed in a commercial proposal.",
+    pricingNote: "US dollar price list for US institutions. The free trial and USD billing require a commercial proposal; the current self-service checkout charges in Brazilian reais.",
     askProposal: "Request a proposal",
   },
   "es-ES": {
@@ -178,11 +183,11 @@ export const marketingCopy: Record<LocalePhanyx, Copy> = {
     ],
     tiersTitle: "Elige el plan para tu institución",
     tiers: [
-      { name: "Esencial", description: "Gestión académica, portales, finanzas y documentos. 1 modelo de certificado activo.", brazilPrice: "Brasil: 49 BRL/mes + 3 BRL por estudiante activo; 1 unidad incluida." },
-      { name: "Profesional", description: "Operación ampliada con LMS, acreditaciones, RR. HH. y hasta 20 modelos de certificado activos.", brazilPrice: "Brasil: 99 BRL/mes + 5 BRL por estudiante activo; hasta 3 unidades incluidas." },
-      { name: "Enterprise", description: "Más escala, personalización, integraciones y modelos de certificado activos ilimitados.", brazilPrice: "Brasil: 199 BRL/mes + 7 BRL por estudiante activo; unidades según contrato." },
+      { name: "Esencial", description: "Gestión académica, portales, finanzas y documentos. 1 modelo de certificado activo.", marketPrice: "España: 25 €/mes + 0,75 € por estudiante activo; 1 unidad incluida." },
+      { name: "Profesional", description: "Operación ampliada con LMS, acreditaciones, RR. HH. y hasta 20 modelos de certificado activos.", marketPrice: "España: 49 €/mes + 1,25 € por estudiante activo; hasta 3 unidades incluidas." },
+      { name: "Enterprise", description: "Más escala, personalización, integraciones y modelos de certificado activos ilimitados.", marketPrice: "España: 99 €/mes + 1,75 € por estudiante activo; unidades según contrato." },
     ],
-    pricingNote: "Los precios de la página brasileña están en reales. La disponibilidad de nuevos módulos y los precios locales se confirman en una propuesta comercial.",
+    pricingNote: "Precios de referencia en euros para España. La prueba y la facturación en euros requieren una propuesta; el pago automático actual se realiza en reales brasileños.",
     askProposal: "Solicitar propuesta",
   },
   "fr-FR": {
@@ -210,11 +215,11 @@ export const marketingCopy: Record<LocalePhanyx, Copy> = {
     ],
     tiersTitle: "Choisissez une offre pour votre établissement",
     tiers: [
-      { name: "Essentiel", description: "Gestion académique, portails, finances et documents. 1 modèle de certificat actif.", brazilPrice: "Brésil : 49 BRL/mois + 3 BRL par étudiant actif ; 1 unité incluse." },
-      { name: "Professionnel", description: "Fonctions étendues avec LMS, badges, RH et jusqu'à 20 modèles de certificat actifs.", brazilPrice: "Brésil : 99 BRL/mois + 5 BRL par étudiant actif ; jusqu'à 3 unités incluses." },
-      { name: "Enterprise", description: "Plus d'évolutivité, de personnalisation, d'intégrations et de modèles de certificat actifs illimités.", brazilPrice: "Brésil : 199 BRL/mois + 7 BRL par étudiant actif ; unités définies par contrat." },
+      { name: "Essentiel", description: "Gestion académique, portails, finances et documents. 1 modèle de certificat actif.", marketPrice: "France : 25 €/mois + 0,75 € par étudiant actif ; 1 unité incluse." },
+      { name: "Professionnel", description: "Fonctions étendues avec LMS, badges, RH et jusqu'à 20 modèles de certificat actifs.", marketPrice: "France : 49 €/mois + 1,25 € par étudiant actif ; jusqu'à 3 unités incluses." },
+      { name: "Enterprise", description: "Plus d'évolutivité, de personnalisation, d'intégrations et de modèles de certificat actifs illimités.", marketPrice: "France : 99 €/mois + 1,75 € par étudiant actif ; unités définies par contrat." },
     ],
-    pricingNote: "Les prix de la page brésilienne sont en réals. La disponibilité des nouveaux modules et les prix locaux sont confirmés dans une proposition commerciale.",
+    pricingNote: "Tarifs indicatifs en euros pour la France. L’essai et la facturation en euros nécessitent une proposition ; le paiement automatique actuel est en réals brésiliens.",
     askProposal: "Demander un devis",
   },
 };
