@@ -133,8 +133,12 @@ export default function ProvaPage() {
           ...data.prova,
           questoes: questoesOrdenadas.map((questao) => ({
             ...questao,
+            tipo:
+              (String(questao.tipo).toUpperCase() === "MULTIPLA_ESCOLHA"
+                ? "MULTIPLA_ESCOLHA"
+                : "DISCURSIVA") as QuestaoApi["tipo"],
             alternativas:
-              questao.tipo === "MULTIPLA_ESCOLHA"
+              String(questao.tipo).toUpperCase() === "MULTIPLA_ESCOLHA"
                 ? (questao.alternativas ?? []).slice().sort((a, b) => {
                     const ordemA = a.ordem ?? 0;
                     const ordemB = b.ordem ?? 0;

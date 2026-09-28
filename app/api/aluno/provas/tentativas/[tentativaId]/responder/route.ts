@@ -170,7 +170,10 @@ export async function POST(
     let alternativaId: number | null = null;
     let respostaTexto: string | null = null;
 
-    if (questao.tipo === "MULTIPLA_ESCOLHA") {
+    const tipoQuestao =
+      String(questao.tipo).toUpperCase();
+
+    if (tipoQuestao === "MULTIPLA_ESCOLHA") {
       alternativaId =
         body.alternativaId !== undefined && body.alternativaId !== null
           ? Number(body.alternativaId)
@@ -200,7 +203,7 @@ export async function POST(
       }
     }
 
-    if (questao.tipo === "DISCURSIVA") {
+    if (tipoQuestao === "DISCURSIVA") {
       respostaTexto =
         body.respostaTexto !== undefined && body.respostaTexto !== null
           ? String(body.respostaTexto).trim()

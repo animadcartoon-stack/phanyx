@@ -267,7 +267,10 @@ export async function POST(
       questoes: prova.questoes.map((questao) => ({
         id: questao.id,
         enunciado: questao.enunciado,
-        tipo: questao.tipo,
+        tipo:
+          String(questao.tipo).toUpperCase() === "MULTIPLA_ESCOLHA"
+            ? "MULTIPLA_ESCOLHA"
+            : "DISCURSIVA",
         valor: questao.valor,
         ordem: questao.ordem,
         alternativas:
