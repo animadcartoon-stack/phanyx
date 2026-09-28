@@ -49,11 +49,12 @@ export default getRequestConfig(async () => {
   )?.value;
 
   const localeDaPagina = requestHeaders.get("x-phanyx-public-locale");
+  const inicioEmIngles = requestHeaders.get("x-phanyx-portal-default-en") === "1";
   const locale = localeEhSuportado(localeDaPagina)
     ? localeDaPagina
     : localeEhSuportado(localeSalvo)
       ? localeSalvo
-      : LOCALE_PADRAO;
+      : inicioEmIngles ? "en-US" : LOCALE_PADRAO;
 
   return {
     locale,
