@@ -3075,6 +3075,568 @@ export default function AdminStudentSuccessPage() {
           </div>
         </section>
 
+        {/* ALUNOS PARA ACOMPANHAMENTO */}
+        <section
+          className="
+            phanyx-student-success-panel
+            overflow-hidden
+            rounded-2xl
+            border
+            border-slate-200
+            bg-white
+            shadow-sm
+            dark:border-slate-800
+            dark:bg-slate-900
+          "
+        >
+          <div
+            className="
+              border-b
+              border-slate-200
+              px-5
+              py-5
+              dark:border-slate-800
+              sm:px-6
+            "
+          >
+            <h2
+              className="
+                phanyx-student-success-panel-title
+                text-lg
+                font-bold
+                text-slate-950
+                dark:text-white
+              "
+            >
+              {t("studentsAttention.title")}
+            </h2>
+
+            <p
+              className="
+                phanyx-student-success-muted
+                mt-1
+                text-sm
+                leading-6
+                text-slate-600
+                dark:text-slate-300
+              "
+            >
+              {t("studentsAttention.description")}
+            </p>
+          </div>
+
+          {!carregando && !erro ? (
+            <div
+              className="
+      border-b
+      border-slate-200
+      p-4
+      dark:border-slate-800
+      sm:p-5
+    "
+            >
+              <div
+                className="
+        flex
+        flex-col
+        gap-4
+      "
+              >
+                <div
+                  className="
+          relative
+        "
+                >
+                  <span
+                    className="
+            pointer-events-none
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            text-slate-400
+          "
+                    aria-hidden="true"
+                  >
+                    🔎
+                  </span>
+
+                  <input
+                    type="search"
+                    value={busca}
+                    onChange={(event) => setBusca(event.target.value)}
+                    placeholder={t("filters.searchPlaceholder")}
+                    className="
+                     phanyx-student-success-search
+            w-full
+            rounded-xl
+            border
+            border-slate-300
+            bg-white
+            py-3
+            pl-11
+            pr-4
+            text-sm
+            font-medium
+            text-slate-900
+            outline-none
+            transition
+            placeholder:text-slate-400
+            focus:border-blue-500
+            focus:ring-2
+            focus:ring-blue-500/20
+            dark:border-slate-700
+            dark:bg-slate-950
+            dark:text-white
+          "
+                  />
+                </div>
+
+                <div
+                  className="
+    flex
+    flex-wrap
+    gap-2
+  "
+                >
+                  {(
+                    [
+                      [
+                        "TODOS",
+                        t("filters.all"),
+                        dados?.resumo.monitorados ?? 0,
+                      ],
+                      [
+                        "CRITICO",
+                        t("levels.CRITICO"),
+                        dados?.resumo.critico ?? 0,
+                      ],
+                      ["RISCO", t("levels.RISCO"), dados?.resumo.risco ?? 0],
+                      [
+                        "ATENCAO",
+                        t("levels.ATENCAO"),
+                        dados?.resumo.atencao ?? 0,
+                      ],
+                      ["NORMAL", t("levels.NORMAL"), dados?.resumo.normal ?? 0],
+                      [
+                        "DADOS_INSUFICIENTES",
+                        t("levels.DADOS_INSUFICIENTES"),
+                        dados?.resumo.dadosInsuficientes ?? 0,
+                      ],
+                    ] as const
+                  ).map(([valor, titulo, quantidade]) => (
+                    <button
+                      key={valor}
+                      type="button"
+                      onClick={() => setFiltroNivel(valor)}
+                      className={[
+                        "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
+
+                        filtroNivel === valor
+                          ? "phanyx-student-success-filter-active"
+                          : "phanyx-student-success-filter-inactive",
+                      ].join(" ")}
+                    >
+                      {titulo}
+
+                      <span
+                        className="
+            ml-2
+            opacity-100
+          "
+                      >
+                        {quantidade}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {carregando ? (
+            <div
+              className="
+                flex
+                min-h-[280px]
+                items-center
+                justify-center
+                p-6
+              "
+            >
+              <div
+                className="
+                  max-w-md
+                  text-center
+                "
+              >
+                <div
+                  className="
+                    mx-auto
+                    h-10
+                    w-10
+                    animate-spin
+                    rounded-full
+                    border-4
+                    border-slate-200
+                    border-t-blue-600
+                    dark:border-slate-700
+                    dark:border-t-blue-400
+                  "
+                  aria-hidden="true"
+                />
+
+                <p
+                  className="
+                    phanyx-student-success-muted
+                    mt-4
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                    dark:text-slate-200
+                  "
+                >
+                  {t("states.loading")}
+                </p>
+              </div>
+            </div>
+          ) : erro ? (
+            <div
+              className="
+                flex
+                min-h-[240px]
+                items-center
+                justify-center
+                p-6
+              "
+            >
+              <div
+                className="
+                  max-w-md
+                  text-center
+                "
+              >
+                <p
+                  className="
+                    font-semibold
+                    text-red-700
+                    dark:text-red-300
+                  "
+                >
+                  {t("states.error")}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => void carregarDados()}
+                  className="
+                    mt-4
+                    rounded-xl
+                    bg-blue-700
+                    px-4
+                    py-2
+                    text-sm
+                    font-semibold
+                    text-white
+                    transition
+                    hover:bg-blue-800
+                  "
+                >
+                  {t("actions.refresh")}
+                </button>
+              </div>
+            </div>
+          ) : alunosFiltrados.length === 0 ? (
+            <div
+              className="
+                flex
+                min-h-[240px]
+                items-center
+                justify-center
+                p-6
+              "
+            >
+              <p
+                className="
+                  phanyx-student-success-muted
+                  text-center
+                  text-sm
+                  font-semibold
+                  text-slate-700
+                  dark:text-slate-200
+                "
+              >
+                {t("states.noRisk")}
+              </p>
+            </div>
+          ) : (
+            <div
+              className="
+                overflow-x-auto
+              "
+            >
+              <table
+                className="
+    phanyx-student-success-table
+    w-full
+    min-w-[900px]
+    border-collapse
+  "
+              >
+                <thead
+                  className="
+                    bg-slate-50
+                    dark:bg-slate-950/60
+                  "
+                >
+                  <tr>
+                    <th
+                      className="
+                        px-5
+                        py-3
+                        text-left
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t("table.student")}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-left
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t("table.risk")}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t("table.score")}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t("table.frequency")}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t("table.performance")}
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-wide
+                        text-slate-600
+                        dark:text-slate-300
+                      "
+                    >
+                      {t("table.pendingActivities")}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody
+                  className="
+                    divide-y
+                    divide-slate-200
+                    dark:divide-slate-800
+                  "
+                >
+                  {alunosFiltrados.map((aluno) => {
+                    const dadosInsuficientes =
+                      aluno.analise.nivel === "DADOS_INSUFICIENTES";
+
+                    return (
+                      <tr
+                        key={aluno.alunoId}
+                        onClick={() => setAlunoSelecionado(aluno)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+
+                            setAlunoSelecionado(aluno);
+                          }
+                        }}
+                        tabIndex={0}
+                        className="
+  phanyx-student-success-row
+  cursor-pointer
+  transition-colors
+  focus:outline-none
+  focus:ring-2
+  focus:ring-inset
+  focus:ring-blue-500
+"
+                      >
+                        <td
+                          className="
+                              px-5
+                              py-4
+                            "
+                        >
+                          <div
+                            className="
+    phanyx-student-success-student-name
+    font-semibold
+    text-slate-950
+    dark:text-white
+  "
+                          >
+                            {aluno.nome}
+                          </div>
+
+                          {aluno.matricula ? (
+                            <div
+                              className="
+    phanyx-student-success-student-registration
+    mt-1
+    text-xs
+    text-slate-500
+    dark:text-slate-400
+  "
+                            >
+                              {aluno.matricula}
+                            </div>
+                          ) : null}
+                        </td>
+
+                        <td
+                          className="
+                              px-4
+                              py-4
+                            "
+                        >
+                          <span
+                            className={[
+                              "phanyx-student-success-risk-badge inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                              classeNivel(aluno.analise.nivel),
+                            ].join(" ")}
+                          >
+                            {t(`levels.${aluno.analise.nivel}`)}
+                          </span>
+                        </td>
+
+                        <td
+                          className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                        >
+                          {dadosInsuficientes ? "—" : aluno.analise.pontuacao}
+                        </td>
+
+                        <td
+                          className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                        >
+                          {formatarPercentual(
+                            aluno.indicadores.frequenciaPercentual,
+                          )}
+                        </td>
+
+                        <td
+                          className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-semibold
+                              text-slate-700
+                              dark:text-slate-200
+                            "
+                        >
+                          {formatarPercentual(
+                            aluno.indicadores.mediaPercentual,
+                          )}
+                        </td>
+
+                        <td
+                          className="
+                              px-4
+                              py-4
+                              text-center
+                              text-sm
+                              font-bold
+                              text-slate-800
+                              dark:text-slate-100
+                            "
+                        >
+                          {aluno.indicadores.atividadesVencidas}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
         <section
           className="
     phanyx-student-success-effectiveness
@@ -4966,568 +5528,6 @@ export default function AdminStudentSuccessPage() {
                 </div>
               )}
             </>
-          )}
-        </section>
-
-        {/* ALUNOS PARA ACOMPANHAMENTO */}
-        <section
-          className="
-            phanyx-student-success-panel
-            overflow-hidden
-            rounded-2xl
-            border
-            border-slate-200
-            bg-white
-            shadow-sm
-            dark:border-slate-800
-            dark:bg-slate-900
-          "
-        >
-          <div
-            className="
-              border-b
-              border-slate-200
-              px-5
-              py-5
-              dark:border-slate-800
-              sm:px-6
-            "
-          >
-            <h2
-              className="
-                phanyx-student-success-panel-title
-                text-lg
-                font-bold
-                text-slate-950
-                dark:text-white
-              "
-            >
-              {t("studentsAttention.title")}
-            </h2>
-
-            <p
-              className="
-                phanyx-student-success-muted
-                mt-1
-                text-sm
-                leading-6
-                text-slate-600
-                dark:text-slate-300
-              "
-            >
-              {t("studentsAttention.description")}
-            </p>
-          </div>
-
-          {!carregando && !erro ? (
-            <div
-              className="
-      border-b
-      border-slate-200
-      p-4
-      dark:border-slate-800
-      sm:p-5
-    "
-            >
-              <div
-                className="
-        flex
-        flex-col
-        gap-4
-      "
-              >
-                <div
-                  className="
-          relative
-        "
-                >
-                  <span
-                    className="
-            pointer-events-none
-            absolute
-            left-4
-            top-1/2
-            -translate-y-1/2
-            text-slate-400
-          "
-                    aria-hidden="true"
-                  >
-                    🔎
-                  </span>
-
-                  <input
-                    type="search"
-                    value={busca}
-                    onChange={(event) => setBusca(event.target.value)}
-                    placeholder={t("filters.searchPlaceholder")}
-                    className="
-                     phanyx-student-success-search
-            w-full
-            rounded-xl
-            border
-            border-slate-300
-            bg-white
-            py-3
-            pl-11
-            pr-4
-            text-sm
-            font-medium
-            text-slate-900
-            outline-none
-            transition
-            placeholder:text-slate-400
-            focus:border-blue-500
-            focus:ring-2
-            focus:ring-blue-500/20
-            dark:border-slate-700
-            dark:bg-slate-950
-            dark:text-white
-          "
-                  />
-                </div>
-
-                <div
-                  className="
-    flex
-    flex-wrap
-    gap-2
-  "
-                >
-                  {(
-                    [
-                      [
-                        "TODOS",
-                        t("filters.all"),
-                        dados?.resumo.monitorados ?? 0,
-                      ],
-                      [
-                        "CRITICO",
-                        t("levels.CRITICO"),
-                        dados?.resumo.critico ?? 0,
-                      ],
-                      ["RISCO", t("levels.RISCO"), dados?.resumo.risco ?? 0],
-                      [
-                        "ATENCAO",
-                        t("levels.ATENCAO"),
-                        dados?.resumo.atencao ?? 0,
-                      ],
-                      ["NORMAL", t("levels.NORMAL"), dados?.resumo.normal ?? 0],
-                      [
-                        "DADOS_INSUFICIENTES",
-                        t("levels.DADOS_INSUFICIENTES"),
-                        dados?.resumo.dadosInsuficientes ?? 0,
-                      ],
-                    ] as const
-                  ).map(([valor, titulo, quantidade]) => (
-                    <button
-                      key={valor}
-                      type="button"
-                      onClick={() => setFiltroNivel(valor)}
-                      className={[
-                        "phanyx-student-success-filter rounded-full border px-4 py-2 text-sm font-semibold transition",
-
-                        filtroNivel === valor
-                          ? "phanyx-student-success-filter-active"
-                          : "phanyx-student-success-filter-inactive",
-                      ].join(" ")}
-                    >
-                      {titulo}
-
-                      <span
-                        className="
-            ml-2
-            opacity-100
-          "
-                      >
-                        {quantidade}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {carregando ? (
-            <div
-              className="
-                flex
-                min-h-[280px]
-                items-center
-                justify-center
-                p-6
-              "
-            >
-              <div
-                className="
-                  max-w-md
-                  text-center
-                "
-              >
-                <div
-                  className="
-                    mx-auto
-                    h-10
-                    w-10
-                    animate-spin
-                    rounded-full
-                    border-4
-                    border-slate-200
-                    border-t-blue-600
-                    dark:border-slate-700
-                    dark:border-t-blue-400
-                  "
-                  aria-hidden="true"
-                />
-
-                <p
-                  className="
-                    phanyx-student-success-muted
-                    mt-4
-                    text-sm
-                    font-semibold
-                    text-slate-700
-                    dark:text-slate-200
-                  "
-                >
-                  {t("states.loading")}
-                </p>
-              </div>
-            </div>
-          ) : erro ? (
-            <div
-              className="
-                flex
-                min-h-[240px]
-                items-center
-                justify-center
-                p-6
-              "
-            >
-              <div
-                className="
-                  max-w-md
-                  text-center
-                "
-              >
-                <p
-                  className="
-                    font-semibold
-                    text-red-700
-                    dark:text-red-300
-                  "
-                >
-                  {t("states.error")}
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => void carregarDados()}
-                  className="
-                    mt-4
-                    rounded-xl
-                    bg-blue-700
-                    px-4
-                    py-2
-                    text-sm
-                    font-semibold
-                    text-white
-                    transition
-                    hover:bg-blue-800
-                  "
-                >
-                  {t("actions.refresh")}
-                </button>
-              </div>
-            </div>
-          ) : alunosFiltrados.length === 0 ? (
-            <div
-              className="
-                flex
-                min-h-[240px]
-                items-center
-                justify-center
-                p-6
-              "
-            >
-              <p
-                className="
-                  phanyx-student-success-muted
-                  text-center
-                  text-sm
-                  font-semibold
-                  text-slate-700
-                  dark:text-slate-200
-                "
-              >
-                {t("states.noRisk")}
-              </p>
-            </div>
-          ) : (
-            <div
-              className="
-                overflow-x-auto
-              "
-            >
-              <table
-                className="
-    phanyx-student-success-table
-    w-full
-    min-w-[900px]
-    border-collapse
-  "
-              >
-                <thead
-                  className="
-                    bg-slate-50
-                    dark:bg-slate-950/60
-                  "
-                >
-                  <tr>
-                    <th
-                      className="
-                        px-5
-                        py-3
-                        text-left
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t("table.student")}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-left
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t("table.risk")}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t("table.score")}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t("table.frequency")}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t("table.performance")}
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        text-center
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-slate-600
-                        dark:text-slate-300
-                      "
-                    >
-                      {t("table.pendingActivities")}
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody
-                  className="
-                    divide-y
-                    divide-slate-200
-                    dark:divide-slate-800
-                  "
-                >
-                  {alunosFiltrados.map((aluno) => {
-                    const dadosInsuficientes =
-                      aluno.analise.nivel === "DADOS_INSUFICIENTES";
-
-                    return (
-                      <tr
-                        key={aluno.alunoId}
-                        onClick={() => setAlunoSelecionado(aluno)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-
-                            setAlunoSelecionado(aluno);
-                          }
-                        }}
-                        tabIndex={0}
-                        className="
-  phanyx-student-success-row
-  cursor-pointer
-  transition-colors
-  focus:outline-none
-  focus:ring-2
-  focus:ring-inset
-  focus:ring-blue-500
-"
-                      >
-                        <td
-                          className="
-                              px-5
-                              py-4
-                            "
-                        >
-                          <div
-                            className="
-    phanyx-student-success-student-name
-    font-semibold
-    text-slate-950
-    dark:text-white
-  "
-                          >
-                            {aluno.nome}
-                          </div>
-
-                          {aluno.matricula ? (
-                            <div
-                              className="
-    phanyx-student-success-student-registration
-    mt-1
-    text-xs
-    text-slate-500
-    dark:text-slate-400
-  "
-                            >
-                              {aluno.matricula}
-                            </div>
-                          ) : null}
-                        </td>
-
-                        <td
-                          className="
-                              px-4
-                              py-4
-                            "
-                        >
-                          <span
-                            className={[
-                              "phanyx-student-success-risk-badge inline-flex rounded-full border px-3 py-1 text-xs font-bold",
-                              classeNivel(aluno.analise.nivel),
-                            ].join(" ")}
-                          >
-                            {t(`levels.${aluno.analise.nivel}`)}
-                          </span>
-                        </td>
-
-                        <td
-                          className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-bold
-                              text-slate-800
-                              dark:text-slate-100
-                            "
-                        >
-                          {dadosInsuficientes ? "—" : aluno.analise.pontuacao}
-                        </td>
-
-                        <td
-                          className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-semibold
-                              text-slate-700
-                              dark:text-slate-200
-                            "
-                        >
-                          {formatarPercentual(
-                            aluno.indicadores.frequenciaPercentual,
-                          )}
-                        </td>
-
-                        <td
-                          className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-semibold
-                              text-slate-700
-                              dark:text-slate-200
-                            "
-                        >
-                          {formatarPercentual(
-                            aluno.indicadores.mediaPercentual,
-                          )}
-                        </td>
-
-                        <td
-                          className="
-                              px-4
-                              py-4
-                              text-center
-                              text-sm
-                              font-bold
-                              text-slate-800
-                              dark:text-slate-100
-                            "
-                        >
-                          {aluno.indicadores.atividadesVencidas}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
           )}
         </section>
 
