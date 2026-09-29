@@ -185,8 +185,6 @@ export async function POST(
 
         select: {
           id: true,
-          exigeValidade:
-            true,
 
           arquivoUrl:
             true,
@@ -225,16 +223,6 @@ export async function POST(
         corpo.validadeAte
       );
 
-    if (
-      documento.exigeValidade &&
-      !validadeAte
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "VALIDADE_OBRIGATORIA",
-        "Informe a validade deste documento."
-      );
-    }
 
     const storeId =
       obterStoreIdMobilidadeBlob();

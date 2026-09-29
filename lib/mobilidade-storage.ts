@@ -16,6 +16,8 @@ const EXTENSOES_PERMITIDAS =
     "jpeg",
     "png",
     "webp",
+    "heic",
+    "heif",
     "doc",
     "docx",
   ]);
@@ -38,6 +40,12 @@ const MIME_POR_EXTENSAO: Record<
 
   webp:
     "image/webp",
+
+  heic:
+    "image/heic",
+
+  heif:
+    "image/heif",
 
   doc:
     "application/msword",

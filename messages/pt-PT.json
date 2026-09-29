@@ -274,7 +274,8 @@
     "meetings": "Reuniões",
     "registrationData": "Dados de registo",
     "registrationDescription": "Mantenha os seus dados atualizados para contratos, documentos e registos académicos.",
-    "updateMyData": "Atualizar os meus dados"
+    "updateMyData": "Atualizar os meus dados",
+    "mobilityShort": "Intercâmbio"
   },
   "StudentSidebar": {
     "areaTitle": "Área do Aluno",
@@ -290,7 +291,59 @@
     "academicHistory": "Histórico académico",
     "meetings": "Reuniões",
     "certificates": "Certificados",
-    "ombudsman": "Provedoria"
+    "ombudsman": "Provedoria",
+    "internationalMobility": "Mobilidade Internacional"
+  },
+  "StudentMobility": {
+    "eyebrow": "Mobilidade Internacional",
+    "title": "As minhas candidaturas",
+    "subtitle": "Acompanhe os seus processos de intercâmbio e a documentação exigida em cada candidatura.",
+    "loading": "A carregar as suas candidaturas...",
+    "errorTitle": "Não foi possível carregar as suas candidaturas.",
+    "tryAgain": "Tentar novamente",
+    "emptyTitle": "Nenhuma candidatura encontrada",
+    "emptyDescription": "Quando participar num processo de mobilidade internacional, este aparecerá aqui.",
+    "application": "Candidatura #{id}",
+    "partner": "Instituição parceira",
+    "year": "Ano",
+    "period": "Período",
+    "mobilityPeriod": "Período da mobilidade",
+    "documents": "Documentação",
+    "approvedOfTotal": "{approved} de {total} documento(s) aprovado(s)",
+    "pendingRequired": "{count} obrigatório(s) pendente(s)",
+    "required": "Obrigatório",
+    "optional": "Opcional",
+    "validityRequired": "Validade exigida",
+    "validUntil": "Válido até {date}",
+    "file": "Ficheiro: {name}",
+    "waitingUpload": "A aguardar o envio do ficheiro.",
+    "reviewReason": "Motivo",
+    "reviewNotes": "Observações",
+    "applicationReason": "Observação da candidatura",
+    "statuses": {
+      "RASCUNHO": "Rascunho",
+      "ENVIADA": "Enviada",
+      "EM_ANALISE": "Em análise",
+      "DOCUMENTACAO_PENDENTE": "Documentação pendente",
+      "ELEGIVEL": "Elegível",
+      "INELEGIVEL": "Inelegível",
+      "EM_SELECAO": "Em seleção",
+      "CLASSIFICADA": "Classificada",
+      "LISTA_ESPERA": "Lista de espera",
+      "APROVADA": "Aprovada",
+      "REPROVADA": "Reprovada",
+      "DESISTENTE": "Desistente",
+      "CANCELADA": "Cancelada"
+    },
+    "documentStatuses": {
+      "NAO_ENVIADO": "Não enviado",
+      "ENVIADO": "Enviado",
+      "EM_ANALISE": "Em análise",
+      "APROVADO": "Aprovado",
+      "REJEITADO": "Rejeitado",
+      "CORRECAO_SOLICITADA": "Correção solicitada",
+      "EXPIRADO": "Expirado"
+    }
   },
   "StudentDashboard": {
     "errors": {

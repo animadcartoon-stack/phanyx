@@ -18,6 +18,7 @@ type VisibilidadeAluno = {
   historico?: boolean;
   reunioes?: boolean;
   certificados?: boolean;
+  mobilidade?: boolean;
   ouvidoria?: boolean;
 };
 
@@ -86,6 +87,10 @@ export default function AlunoSidebar({
     certificados:
       visibilidade?.certificados ??
       true,
+
+    mobilidade:
+      visibilidade?.mobilidade ??
+      false,
 
     ouvidoria:
       visibilidade?.ouvidoria ??
@@ -157,6 +162,14 @@ export default function AlunoSidebar({
       label: t("certificates"),
       href: "/aluno/certificados",
       icon: "🏅",
+    },
+
+    podeVer.mobilidade && {
+      label: t(
+        "internationalMobility"
+      ),
+      href: "/aluno/mobilidade",
+      icon: "🌍",
     },
 
     podeVer.ouvidoria && {

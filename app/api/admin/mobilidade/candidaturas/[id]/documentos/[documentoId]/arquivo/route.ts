@@ -1,4 +1,4 @@
-﻿import { get } from "@vercel/blob";
+import { get } from "@vercel/blob";
 
 import {
   NextRequest,
@@ -152,24 +152,63 @@ export async function GET(
       );
     }
 
-    const resultado =
+    /*
+     * O Blob é privado.
+     *
+     * Em vez de depender de get() com
+     * credencial implícita, geramos uma
+     * URL assinada de leitura, da mesma
+     * forma segura já usada no upload.
+     */
+    let pathname: string;
+
+    try {
+      const url =
+        new URL(
+          documento.arquivoUrl
+        );
+
+      pathname =
+        decodeURIComponent(
+          url.pathname.replace(
+            /^\/+/,
+            ""
+          )
+        );
+    } catch {
+      throw new ErroMobilidade(
+        500,
+        "ARQUIVO_URL_INVALIDA",
+        "A referência do arquivo armazenado é inválida."
+      );
+    }
+
+    if (!pathname) {
+      throw new ErroMobilidade(
+        500,
+        "ARQUIVO_URL_INVALIDA",
+        "A referência do arquivo armazenado é inválida."
+      );
+    }
+
+    const resultadoBlob =
       await get(
-        documento.arquivoUrl,
+        pathname,
         {
           access:
             "private",
 
           storeId,
-useCache:
+
+          useCache:
             false,
         }
       );
 
     if (
-      !resultado ||
-      resultado.statusCode !==
-        200 ||
-      !resultado.stream
+      !resultadoBlob ||
+      resultadoBlob.statusCode !== 200 ||
+      !resultadoBlob.stream
     ) {
       throw new ErroMobilidade(
         404,
@@ -181,7 +220,7 @@ useCache:
     const buffer =
       Buffer.from(
         await new Response(
-          resultado.stream
+          resultadoBlob.stream
         ).arrayBuffer()
       );
 

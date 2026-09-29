@@ -274,7 +274,8 @@
     "meetings": "Réunions",
     "registrationData": "Données d'inscription",
     "registrationDescription": "Maintenez vos informations à jour pour les contrats, documents et dossiers académiques.",
-    "updateMyData": "Mettre à jour mes données"
+    "updateMyData": "Mettre à jour mes données",
+    "mobilityShort": "Mobilité"
   },
   "StudentSidebar": {
     "areaTitle": "Espace étudiant",
@@ -290,7 +291,59 @@
     "academicHistory": "Dossier académique",
     "meetings": "Réunions",
     "certificates": "Certificats",
-    "ombudsman": "Médiation"
+    "ombudsman": "Médiation",
+    "internationalMobility": "Mobilité internationale"
+  },
+  "StudentMobility": {
+    "eyebrow": "Mobilité internationale",
+    "title": "Mes candidatures",
+    "subtitle": "Suivez vos démarches d'échange et les documents requis pour chaque candidature.",
+    "loading": "Chargement de vos candidatures...",
+    "errorTitle": "Impossible de charger vos candidatures.",
+    "tryAgain": "Réessayer",
+    "emptyTitle": "Aucune candidature trouvée",
+    "emptyDescription": "Lorsque vous participerez à une mobilité internationale, elle apparaîtra ici.",
+    "application": "Candidature n°{id}",
+    "partner": "Établissement partenaire",
+    "year": "Année",
+    "period": "Période",
+    "mobilityPeriod": "Période de mobilité",
+    "documents": "Documents",
+    "approvedOfTotal": "{approved} document(s) approuvé(s) sur {total}",
+    "pendingRequired": "{count} document(s) obligatoire(s) en attente",
+    "required": "Obligatoire",
+    "optional": "Facultatif",
+    "validityRequired": "Date de validité requise",
+    "validUntil": "Valable jusqu'au {date}",
+    "file": "Fichier : {name}",
+    "waitingUpload": "En attente de l'envoi du fichier.",
+    "reviewReason": "Motif",
+    "reviewNotes": "Observations",
+    "applicationReason": "Observation de la candidature",
+    "statuses": {
+      "RASCUNHO": "Brouillon",
+      "ENVIADA": "Envoyée",
+      "EM_ANALISE": "En analyse",
+      "DOCUMENTACAO_PENDENTE": "Documents en attente",
+      "ELEGIVEL": "Éligible",
+      "INELEGIVEL": "Non éligible",
+      "EM_SELECAO": "En sélection",
+      "CLASSIFICADA": "Classée",
+      "LISTA_ESPERA": "Liste d'attente",
+      "APROVADA": "Approuvée",
+      "REPROVADA": "Non approuvée",
+      "DESISTENTE": "Retirée",
+      "CANCELADA": "Annulée"
+    },
+    "documentStatuses": {
+      "NAO_ENVIADO": "Non envoyé",
+      "ENVIADO": "Envoyé",
+      "EM_ANALISE": "En analyse",
+      "APROVADO": "Approuvé",
+      "REJEITADO": "Rejeté",
+      "CORRECAO_SOLICITADA": "Correction demandée",
+      "EXPIRADO": "Expiré"
+    }
   },
   "StudentDashboard": {
     "errors": {

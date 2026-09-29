@@ -274,7 +274,8 @@
     "meetings": "Meetings",
     "registrationData": "Registration details",
     "registrationDescription": "Keep your information updated for contracts, documents and academic records.",
-    "updateMyData": "Update my information"
+    "updateMyData": "Update my information",
+    "mobilityShort": "Mobility"
   },
   "StudentSidebar": {
     "areaTitle": "Student Portal",
@@ -290,7 +291,59 @@
     "academicHistory": "Academic Record",
     "meetings": "Meetings",
     "certificates": "Certificates",
-    "ombudsman": "Ombudsman"
+    "ombudsman": "Ombudsman",
+    "internationalMobility": "International Mobility"
+  },
+  "StudentMobility": {
+    "eyebrow": "International Mobility",
+    "title": "My applications",
+    "subtitle": "Track your exchange processes and the documents required for each application.",
+    "loading": "Loading your applications...",
+    "errorTitle": "Your applications could not be loaded.",
+    "tryAgain": "Try again",
+    "emptyTitle": "No applications found",
+    "emptyDescription": "When you participate in an international mobility process, it will appear here.",
+    "application": "Application #{id}",
+    "partner": "Partner institution",
+    "year": "Year",
+    "period": "Period",
+    "mobilityPeriod": "Mobility period",
+    "documents": "Documents",
+    "approvedOfTotal": "{approved} of {total} document(s) approved",
+    "pendingRequired": "{count} required document(s) pending",
+    "required": "Required",
+    "optional": "Optional",
+    "validityRequired": "Expiration required",
+    "validUntil": "Valid until {date}",
+    "file": "File: {name}",
+    "waitingUpload": "Waiting for file upload.",
+    "reviewReason": "Reason",
+    "reviewNotes": "Notes",
+    "applicationReason": "Application note",
+    "statuses": {
+      "RASCUNHO": "Draft",
+      "ENVIADA": "Submitted",
+      "EM_ANALISE": "Under review",
+      "DOCUMENTACAO_PENDENTE": "Documents pending",
+      "ELEGIVEL": "Eligible",
+      "INELEGIVEL": "Ineligible",
+      "EM_SELECAO": "In selection",
+      "CLASSIFICADA": "Ranked",
+      "LISTA_ESPERA": "Waitlist",
+      "APROVADA": "Approved",
+      "REPROVADA": "Not approved",
+      "DESISTENTE": "Withdrawn",
+      "CANCELADA": "Cancelled"
+    },
+    "documentStatuses": {
+      "NAO_ENVIADO": "Not submitted",
+      "ENVIADO": "Submitted",
+      "EM_ANALISE": "Under review",
+      "APROVADO": "Approved",
+      "REJEITADO": "Rejected",
+      "CORRECAO_SOLICITADA": "Correction requested",
+      "EXPIRADO": "Expired"
+    }
   },
   "StudentDashboard": {
     "errors": {
