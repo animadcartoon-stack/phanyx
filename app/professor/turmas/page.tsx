@@ -485,7 +485,7 @@ function TurmaAgrupadaCard({
                               </button>
 
                               <button
-                                onClick={() => router.push(`/professor/turmas/${disciplina.id}/boletim`)}
+                                onClick={() => router.push(`/professor/turmas/${disciplina.id}/boletim?disciplinaId=${disciplina.disciplina?.id}`)}
                                 className="rounded-xl border border-green-200 px-3 py-2 text-sm font-bold text-green-700 hover:bg-green-50"
                               >
                                 {t("actions.gradebook")}
