@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -378,6 +379,17 @@ export default function CentralCaptacaoPage() {
   ] =
     useState("");
 
+  const areaTabelaRef =
+    useRef<HTMLDivElement>(null);
+  const tabelaRef =
+    useRef<HTMLTableElement>(null);
+  const rolagemSuperiorRef =
+    useRef<HTMLDivElement>(null);
+  const [larguraTabela, setLarguraTabela] =
+    useState(0);
+  const [mostrarRolagemSuperior, setMostrarRolagemSuperior] =
+    useState(false);
+
   useEffect(() => {
     const media =
       window.matchMedia(
@@ -578,6 +590,33 @@ export default function CentralCaptacaoPage() {
   useEffect(() => {
     void carregar();
   }, [carregar]);
+
+  useEffect(() => {
+    const area = areaTabelaRef.current;
+    const tabela = tabelaRef.current;
+
+    if (!area || !tabela) {
+      return;
+    }
+
+    const atualizarRolagem = () => {
+      const largura = tabela.scrollWidth;
+      setLarguraTabela(largura);
+      setMostrarRolagemSuperior(
+        largura > area.clientWidth + 1
+      );
+    };
+
+    atualizarRolagem();
+
+    const observador = new ResizeObserver(
+      atualizarRolagem
+    );
+    observador.observe(area);
+    observador.observe(tabela);
+
+    return () => observador.disconnect();
+  }, [dados]);
 
   const c =
     useMemo(
@@ -1743,8 +1782,49 @@ export default function CentralCaptacaoPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left text-sm">
+              <>
+                <div
+                  ref={rolagemSuperiorRef}
+                  role="region"
+                  aria-label={t("latest.title")}
+                  tabIndex={0}
+                  className={
+                    mostrarRolagemSuperior
+                      ? "h-4 overflow-x-auto overflow-y-hidden"
+                      : "hidden"
+                  }
+                  onScroll={(event) => {
+                    const area = areaTabelaRef.current;
+                    if (
+                      area &&
+                      area.scrollLeft !== event.currentTarget.scrollLeft
+                    ) {
+                      area.scrollLeft = event.currentTarget.scrollLeft;
+                    }
+                  }}
+                >
+                  <div
+                    className="h-px"
+                    style={{ width: larguraTabela }}
+                  />
+                </div>
+                <div
+                  ref={areaTabelaRef}
+                  className="overflow-x-auto"
+                  onScroll={(event) => {
+                    const topo = rolagemSuperiorRef.current;
+                    if (
+                      topo &&
+                      topo.scrollLeft !== event.currentTarget.scrollLeft
+                    ) {
+                      topo.scrollLeft = event.currentTarget.scrollLeft;
+                    }
+                  }}
+                >
+                  <table
+                    ref={tabelaRef}
+                    className="min-w-full text-left text-sm"
+                  >
                   <thead
                     className={
                       c.tabelaCabecalho
@@ -1920,8 +2000,9 @@ export default function CentralCaptacaoPage() {
                       )
                     )}
                   </tbody>
-                </table>
-              </div>
+                  </table>
+                </div>
+              </>
             )}
           </section>
         )}
