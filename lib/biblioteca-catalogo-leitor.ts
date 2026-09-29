@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { ErroBiblioteca, obterContextoBiblioteca } from "@/lib/biblioteca-acesso";
+import { podeBaixarPdfBiblioteca } from "@/lib/biblioteca-direitos-download";
 
 export type PortalLeitor = "aluno" | "professor";
 
@@ -116,26 +117,37 @@ export async function obterItemCatalogo(leitor: Leitor, slug: string) {
       editora: { select: { nome: true } },
       categorias: { select: { categoria: { select: { nome: true } } } },
       licencas: {
-        where: { instituicaoId: leitor.instituicaoId, ativo: true, permitirVisualizacao: true, OR: [{ inicioVigencia: null }, { inicioVigencia: { lte: new Date() } }], AND: [{ OR: [{ fimVigencia: null }, { fimVigencia: { gte: new Date() } }] }] },
-        select: { id: true }, take: 1,
+        where: { instituicaoId: leitor.instituicaoId, ativo: true, OR: [{ inicioVigencia: null }, { inicioVigencia: { lte: new Date() } }], AND: [{ OR: [{ fimVigencia: null }, { fimVigencia: { gte: new Date() } }] }] },
+        select: { id: true, permitirVisualizacao: true, permitirDownload: true },
       },
       acessoLivre: true,
+      permitirDownload: true,
       arquivos: {
-        where: { instituicaoId: leitor.instituicaoId, tipo: "LINK_EXTERNO", status: "DISPONIVEL", arquivadoEm: null },
-        select: { urlExterna: true }, take: 1, orderBy: { id: "desc" },
+        where: { instituicaoId: leitor.instituicaoId, tipo: { in: ["LINK_EXTERNO", "PDF"] }, status: "DISPONIVEL", arquivadoEm: null },
+        select: { id: true, tipo: true, urlExterna: true, storageKey: true }, orderBy: [{ principal: "desc" }, { id: "desc" }],
       },
       _count: { select: { exemplares: { where: { instituicaoId: leitor.instituicaoId, status: "DISPONIVEL" } } } },
     },
   });
   if (!item) notFound();
-  const { licencas, acessoLivre, arquivos, ...publico } = item;
-  const candidato = arquivos[0]?.urlExterna;
+  const { licencas, acessoLivre, permitirDownload, arquivos, ...publico } = item;
+  const candidato = arquivos.find((arquivo) => arquivo.tipo === "LINK_EXTERNO")?.urlExterna;
   let linkExterno: string | null = null;
-  if (candidato && (acessoLivre || licencas.length > 0)) {
+  const acessoDisponivel = acessoLivre || licencas.some((licenca) => licenca.permitirVisualizacao);
+  if (candidato && acessoDisponivel) {
     try {
       const url = new URL(candidato);
       if (url.protocol === "https:" && !url.username && !url.password) linkExterno = url.href;
     } catch { /* Um endereço inválido nunca é entregue ao leitor. */ }
   }
-  return { ...publico, linkExterno, acessoDisponivel: acessoLivre || licencas.length > 0, exemplaresDisponiveis: item._count.exemplares };
+  const pdf = ["ACESSO_LIVRE", "DOWNLOAD_AUTORIZADO"].includes(item.modalidade)
+    ? arquivos.find((arquivo) => arquivo.tipo === "PDF" && arquivo.storageKey) : null;
+  const configuracao = pdf ? await prisma.bibliotecaConfiguracao.findUnique({
+    where: { instituicaoId: leitor.instituicaoId }, select: { permitirDownload: true },
+  }) : null;
+  const podeBaixarPdf = Boolean(pdf && podeBaixarPdfBiblioteca({
+    configuracao, item: { permitirDownload, acessoLivre }, licencas,
+  }));
+  return { ...publico, linkExterno, pdfArquivoId: podeBaixarPdf ? pdf!.id : null,
+    acessoDisponivel, exemplaresDisponiveis: item._count.exemplares };
 }
