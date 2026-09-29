@@ -1279,6 +1279,7 @@
       "CONFIRMADO": "Confirmed",
       "EM_EMBARQUE": "Boarding",
       "EM_TRANSITO": "In transit",
+      "EM_DESEMBARQUE": "Disembarking",
       "CONCLUIDO": "Completed",
       "CANCELADO": "Canceled"
     },

@@ -30,6 +30,7 @@ type StatusTrecho =
   | "CONFIRMADO"
   | "EM_EMBARQUE"
   | "EM_TRANSITO"
+  | "EM_DESEMBARQUE"
   | "CONCLUIDO"
   | "CANCELADO";
 
@@ -518,6 +519,10 @@ export default function TransporteAtividadeExterna({
   const [erro, setErro] = useState("");
 
   const [sucesso, setSucesso] = useState("");
+
+  // ERRO_LOCAL_VEICULO_PHANYX
+  const [erroVeiculoPorId, setErroVeiculoPorId] =
+    useState<Record<number, string>>({});
 
   async function carregar() {
     setCarregando(true);
@@ -1065,6 +1070,21 @@ export default function TransporteAtividadeExterna({
     setErro("");
     setSucesso("");
 
+    setErroVeiculoPorId((atual) => {
+      const proximo = { ...atual };
+      delete proximo[trechoVeiculoId];
+      return proximo;
+    });
+
+    const registrarErroVeiculo = (mensagem: string) => {
+      setErro(mensagem);
+
+      setErroVeiculoPorId((atual) => ({
+        ...atual,
+        [trechoVeiculoId]: mensagem,
+      }));
+    };
+
     try {
       const resposta = await fetch(
         `/api/admin/atividades-externas/${atividadeId}/transporte`,
@@ -1092,25 +1112,25 @@ export default function TransporteAtividadeExterna({
 
       if (!resposta.ok || !dados.ok) {
         if (dados.error === "TRANSICAO_STATUS_VEICULO_INVALIDA") {
-          setErro(t("vehicleAssignment.invalidStatusTransition"));
+          registrarErroVeiculo(t("vehicleAssignment.invalidStatusTransition"));
 
           return;
         }
 
         if (dados.error === "VEICULO_SEM_CONDUTOR") {
-          setErro(t("vehicleAssignment.noDriver"));
+          registrarErroVeiculo(t("vehicleAssignment.noDriver"));
 
           return;
         }
 
         if (dados.error === "PASSAGEIROS_PENDENTES_EMBARQUE") {
-          setErro(t("vehicleAssignment.pendingPassengers"));
+          registrarErroVeiculo(t("vehicleAssignment.pendingPassengers"));
 
           return;
         }
 
         if (dados.error === "TRECHO_NAO_PERMITE_OPERACAO") {
-          setErro(t("vehicleAssignment.segmentNotOperational"));
+          registrarErroVeiculo(t("vehicleAssignment.segmentNotOperational"));
 
           return;
         }
@@ -1132,7 +1152,7 @@ export default function TransporteAtividadeExterna({
     } catch (error) {
       console.error("[TRANSPORTE_ATIVIDADE_ATUALIZAR_STATUS_VEICULO]", error);
 
-      setErro(t("vehicleAssignment.statusUpdateError"));
+      registrarErroVeiculo(t("vehicleAssignment.statusUpdateError"));
     } finally {
       setAtualizandoStatusVeiculo(null);
     }
@@ -1925,7 +1945,16 @@ export default function TransporteAtividadeExterna({
                               ) : null}
                             </div>
 
-                            {vinculo.embarqueReal || vinculo.desembarqueReal ? (
+                            {erroVeiculoPorId[vinculo.id] ? (
+                          <div
+                            role="alert"
+                            className="phanyx-transporte-error mt-2 rounded-xl border px-3 py-2 text-xs font-semibold"
+                          >
+                            {erroVeiculoPorId[vinculo.id]}
+                          </div>
+                        ) : null}
+
+                        {vinculo.embarqueReal || vinculo.desembarqueReal ? (
                               <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium opacity-70">
                                 {vinculo.embarqueReal ? (
                                   <div>

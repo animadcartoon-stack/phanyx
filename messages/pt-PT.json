@@ -1279,6 +1279,7 @@
       "CONFIRMADO": "Confirmado",
       "EM_EMBARQUE": "Em embarque",
       "EM_TRANSITO": "Em trânsito",
+      "EM_DESEMBARQUE": "Em desembarque",
       "CONCLUIDO": "Concluído",
       "CANCELADO": "Cancelado"
     },
