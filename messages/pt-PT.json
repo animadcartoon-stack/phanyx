@@ -20254,6 +20254,11 @@
     "digitalCatalogued": "Item digital catalogado. Consulte a biblioteca para saber como aceder.",
     "externalAvailable": "Leitura online disponível através da ligação abaixo.",
     "openExternal": "Abrir leitura online ↗",
+    "pdfAvailable": "PDF disponível para descarregamento autorizado.",
+    "downloadPdf": "Descarregar PDF",
+    "rightsTitle": "Direitos de autor e citações",
+    "rightsNotice": "Utilize esta obra de acordo com a licença. Em trabalhos académicos, cite apenas os excertos necessários, indicando o autor e a fonte. No Brasil, a reprodução ou distribuição não autorizada de uma obra protegida pode dar origem a responsabilidade civil e penal (Lei n.º 9.610/1998 e artigo 184.º do Código Penal brasileiro).",
+    "downloadResponsibility": "O descarregamento foi autorizado para este item. A partilha do ficheiro depende dos direitos concedidos pela licença.",
     "consultLibrary": "Consulte a biblioteca para saber como obter este item.",
     "types": {
       "LIVRO": "Livro",

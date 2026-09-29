@@ -20467,6 +20467,11 @@
     "digitalCatalogued": "Material digital catalogado. Consulta la biblioteca para obtener acceso.",
     "externalAvailable": "La lectura en línea está disponible en el enlace siguiente.",
     "openExternal": "Leer en línea ↗",
+    "pdfAvailable": "PDF disponible para descarga autorizada.",
+    "downloadPdf": "Descargar PDF",
+    "rightsTitle": "Derechos de autor y citas",
+    "rightsNotice": "Utiliza esta obra conforme a su licencia. En trabajos académicos, cita solo los fragmentos necesarios e indica el autor y la fuente. En Brasil, la reproducción o distribución no autorizada de una obra protegida puede conllevar responsabilidad civil y penal (Ley 9.610/1998 y artículo 184 del Código Penal brasileño).",
+    "downloadResponsibility": "La descarga está autorizada para este material. Compartir el archivo depende de los derechos concedidos por su licencia.",
     "consultLibrary": "Consulta la biblioteca para saber cómo obtener este material.",
     "types": {
       "LIVRO": "Libro",
