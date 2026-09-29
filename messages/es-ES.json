@@ -276,6 +276,8 @@
     "registrationDescription": "Mantén tus datos actualizados para contratos, documentos y registros académicos.",
     "updateMyData": "Actualizar mis datos",
     "library": "Biblioteca"
+  ,
+    "mobilityShort": "Movilidad"
   },
   "StudentSidebar": {
     "areaTitle": "Área del Estudiante",
@@ -293,6 +295,85 @@
     "certificates": "Certificados",
     "ombudsman": "Defensoría",
     "library": "Biblioteca"
+  ,
+    "internationalMobility": "Movilidad Internacional"
+  },
+  "StudentMobility": {
+    "eyebrow": "Movilidad Internacional",
+    "title": "Mis candidaturas",
+    "subtitle": "Sigue tus procesos de intercambio y la documentación requerida para cada candidatura.",
+    "loading": "Cargando tus candidaturas...",
+    "errorTitle": "No se pudieron cargar tus candidaturas.",
+    "tryAgain": "Intentar de nuevo",
+    "emptyTitle": "No se encontraron candidaturas",
+    "emptyDescription": "Cuando participes en un proceso de movilidad internacional, aparecerá aquí.",
+    "application": "Candidatura #{id}",
+    "partner": "Institución asociada",
+    "year": "Año",
+    "period": "Período",
+    "mobilityPeriod": "Período de movilidad",
+    "documents": "Documentación",
+    "approvedOfTotal": "{approved} de {total} documento(s) aprobado(s)",
+    "pendingRequired": "{count} obligatorio(s) pendiente(s)",
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "validityRequired": "Validez requerida",
+    "validUntil": "Válido hasta {date}",
+    "file": "Archivo: {name}",
+    "waitingUpload": "Pendiente del envío del archivo.",
+    "reviewReason": "Motivo",
+    "reviewNotes": "Observaciones",
+    "applicationReason": "Observación de la candidatura",
+    "statuses": {
+      "RASCUNHO": "Borrador",
+      "ENVIADA": "Enviada",
+      "EM_ANALISE": "En análisis",
+      "DOCUMENTACAO_PENDENTE": "Documentación pendiente",
+      "ELEGIVEL": "Elegible",
+      "INELEGIVEL": "No elegible",
+      "EM_SELECAO": "En selección",
+      "CLASSIFICADA": "Clasificada",
+      "LISTA_ESPERA": "Lista de espera",
+      "APROVADA": "Aprobada",
+      "REPROVADA": "No aprobada",
+      "DESISTENTE": "Desistida",
+      "CANCELADA": "Cancelada"
+    },
+    "documentStatuses": {
+      "NAO_ENVIADO": "No enviado",
+      "ENVIADO": "Enviado",
+      "EM_ANALISE": "En análisis",
+      "APROVADO": "Aprobado",
+      "REJEITADO": "Rechazado",
+      "CORRECAO_SOLICITADA": "Corrección solicitada",
+      "EXPIRADO": "Caducado"
+    }
+  ,
+    "upload": {
+      "title": "Enviar documento",
+      "replaceTitle": "Sustituir documento",
+      "validity": "Fecha de validez del documento",
+      "selectFile": "Seleccionar archivo",
+      "selectedFile": "Archivo seleccionado: {name}",
+      "send": "Enviar documento",
+      "replace": "Sustituir documento",
+      "sending": "Enviando...",
+      "progress": "Envío: {progress}%",
+      "formats": "PDF, JPG, PNG, WEBP, DOC o DOCX • hasta 25 MB",
+      "success": "Documento enviado correctamente. Ahora quedará pendiente de revisión.",
+      "lockedApproved": "Este documento ya ha sido aprobado y no puede sustituirse.",
+      "lockedReview": "Este documento está en revisión y no puede sustituirse ahora.",
+      "errors": {
+        "missingFile": "Selecciona un archivo para enviar.",
+        "validity": "Indica una fecha de validez correcta para este documento.",
+        "size": "El archivo debe tener un tamaño máximo de 25 MB.",
+        "format": "Selecciona un archivo PDF, JPG, PNG, WEBP, DOC o DOCX válido.",
+        "locked": "Este documento no puede sustituirse en este momento.",
+        "unavailable": "El almacenamiento de documentos no está disponible temporalmente.",
+        "transfer": "No se pudo transferir el archivo. Inténtalo de nuevo.",
+        "generic": "No se pudo enviar el documento. Inténtalo de nuevo."
+      }
+    }
   },
   "StudentDashboard": {
     "errors": {

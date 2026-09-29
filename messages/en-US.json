@@ -276,6 +276,8 @@
     "registrationDescription": "Keep your information updated for contracts, documents and academic records.",
     "updateMyData": "Update my information",
     "library": "Library"
+  ,
+    "mobilityShort": "Mobility"
   },
   "StudentSidebar": {
     "areaTitle": "Student Portal",
@@ -293,6 +295,85 @@
     "certificates": "Certificates",
     "ombudsman": "Ombudsman",
     "library": "Library"
+  ,
+    "internationalMobility": "International Mobility"
+  },
+  "StudentMobility": {
+    "eyebrow": "International Mobility",
+    "title": "My applications",
+    "subtitle": "Track your exchange processes and the documents required for each application.",
+    "loading": "Loading your applications...",
+    "errorTitle": "Your applications could not be loaded.",
+    "tryAgain": "Try again",
+    "emptyTitle": "No applications found",
+    "emptyDescription": "When you participate in an international mobility process, it will appear here.",
+    "application": "Application #{id}",
+    "partner": "Partner institution",
+    "year": "Year",
+    "period": "Period",
+    "mobilityPeriod": "Mobility period",
+    "documents": "Documents",
+    "approvedOfTotal": "{approved} of {total} document(s) approved",
+    "pendingRequired": "{count} required document(s) pending",
+    "required": "Required",
+    "optional": "Optional",
+    "validityRequired": "Expiration required",
+    "validUntil": "Valid until {date}",
+    "file": "File: {name}",
+    "waitingUpload": "Waiting for file upload.",
+    "reviewReason": "Reason",
+    "reviewNotes": "Notes",
+    "applicationReason": "Application note",
+    "statuses": {
+      "RASCUNHO": "Draft",
+      "ENVIADA": "Submitted",
+      "EM_ANALISE": "Under review",
+      "DOCUMENTACAO_PENDENTE": "Documents pending",
+      "ELEGIVEL": "Eligible",
+      "INELEGIVEL": "Ineligible",
+      "EM_SELECAO": "In selection",
+      "CLASSIFICADA": "Ranked",
+      "LISTA_ESPERA": "Waitlist",
+      "APROVADA": "Approved",
+      "REPROVADA": "Not approved",
+      "DESISTENTE": "Withdrawn",
+      "CANCELADA": "Cancelled"
+    },
+    "documentStatuses": {
+      "NAO_ENVIADO": "Not submitted",
+      "ENVIADO": "Submitted",
+      "EM_ANALISE": "Under review",
+      "APROVADO": "Approved",
+      "REJEITADO": "Rejected",
+      "CORRECAO_SOLICITADA": "Correction requested",
+      "EXPIRADO": "Expired"
+    }
+  ,
+    "upload": {
+      "title": "Upload document",
+      "replaceTitle": "Replace document",
+      "validity": "Document expiration date",
+      "selectFile": "Select file",
+      "selectedFile": "Selected file: {name}",
+      "send": "Upload document",
+      "replace": "Replace document",
+      "sending": "Uploading...",
+      "progress": "Upload: {progress}%",
+      "formats": "PDF, JPG, PNG, WEBP, DOC or DOCX • up to 25 MB",
+      "success": "Document uploaded successfully. It is now awaiting review.",
+      "lockedApproved": "This document has already been approved and cannot be replaced.",
+      "lockedReview": "This document is under review and cannot be replaced right now.",
+      "errors": {
+        "missingFile": "Select a file to upload.",
+        "validity": "Enter a valid expiration date for this document.",
+        "size": "The file must be no larger than 25 MB.",
+        "format": "Select a valid PDF, JPG, PNG, WEBP, DOC or DOCX file.",
+        "locked": "This document cannot be replaced at this time.",
+        "unavailable": "Document storage is temporarily unavailable.",
+        "transfer": "The file could not be transferred. Please try again.",
+        "generic": "The document could not be uploaded. Please try again."
+      }
+    }
   },
   "StudentDashboard": {
     "errors": {
