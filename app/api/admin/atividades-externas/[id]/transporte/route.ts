@@ -2075,34 +2075,103 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
             },
           });
       } else {
-        passageiroAtualizado =
-          await prisma.atividadeExternaTrechoPassageiro.update({
-            where: {
-              id: passageiro.id,
-            },
+        passageiroAtualizado = await prisma.$transaction(
+          async (tx) => {
+            const passageiroDesembarcado =
+              await tx.atividadeExternaTrechoPassageiro.update({
+                where: {
+                  id: passageiro.id,
+                },
 
-            data: {
-              status: "DESEMBARCADO",
+                data: {
+                  status: "DESEMBARCADO",
 
-              desembarcadoEm: agora,
+                  desembarcadoEm: agora,
 
-              desembarqueConfirmadoPorId: usuario.id,
+                  desembarqueConfirmadoPorId: usuario.id,
 
-              atualizadoPorId: usuario.id,
-            },
+                  atualizadoPorId: usuario.id,
+                },
 
-            select: {
-              id: true,
-              participanteId: true,
-              trechoVeiculoId: true,
-              status: true,
-              embarcadoEm: true,
-              desembarcadoEm: true,
-              embarqueConfirmadoPorId: true,
-              desembarqueConfirmadoPorId: true,
-              updatedAt: true,
-            },
-          });
+                select: {
+                  id: true,
+                  participanteId: true,
+                  trechoVeiculoId: true,
+                  status: true,
+                  embarcadoEm: true,
+                  desembarcadoEm: true,
+                  embarqueConfirmadoPorId: true,
+                  desembarqueConfirmadoPorId: true,
+                  updatedAt: true,
+                },
+              });
+
+            const [
+              passageirosAindaEmbarcados,
+              veiculosAtivos,
+              veiculosQueChegaram,
+            ] = await Promise.all([
+              tx.atividadeExternaTrechoPassageiro.count({
+                where: {
+                  instituicaoId: usuario.instituicaoId,
+
+                  atividadeExternaTrechoId:
+                    passageiro.atividadeExternaTrechoId,
+
+                  status: "EMBARCADO",
+                },
+              }),
+
+              tx.atividadeExternaTrechoVeiculo.count({
+                where: {
+                  instituicaoId: usuario.instituicaoId,
+
+                  atividadeExternaTrechoId:
+                    passageiro.atividadeExternaTrechoId,
+
+                  status: {
+                    not: "CANCELADO",
+                  },
+                },
+              }),
+
+              tx.atividadeExternaTrechoVeiculo.count({
+                where: {
+                  instituicaoId: usuario.instituicaoId,
+
+                  atividadeExternaTrechoId:
+                    passageiro.atividadeExternaTrechoId,
+
+                  status: "CHEGOU",
+                },
+              }),
+            ]);
+
+            if (
+              passageirosAindaEmbarcados === 0 &&
+              veiculosAtivos > 0 &&
+              veiculosQueChegaram === veiculosAtivos
+            ) {
+              await tx.atividadeExternaTrecho.updateMany({
+                where: {
+                  id: passageiro.atividadeExternaTrechoId,
+
+                  instituicaoId: usuario.instituicaoId,
+
+                  status: "EM_DESEMBARQUE",
+                },
+
+                data: {
+                  status: "CONCLUIDO",
+
+                  atualizadoPorId: usuario.id,
+                },
+              });
+            }
+
+            return passageiroDesembarcado;
+          },
+        );
       }
 
       return NextResponse.json({
@@ -2397,13 +2466,29 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
           | "CONFIRMADO"
           | "EM_EMBARQUE"
           | "EM_TRANSITO"
+          | "EM_DESEMBARQUE"
           | "CONCLUIDO" = "PLANEJADO";
 
         if (
           veiculosAtivos.length > 0 &&
           veiculosAtivos.every((item) => item.status === "CHEGOU")
         ) {
-          statusTrechoCalculado = "CONCLUIDO";
+          const passageirosAindaEmbarcadosNoTrecho =
+            await tx.atividadeExternaTrechoPassageiro.count({
+              where: {
+                instituicaoId: usuario.instituicaoId,
+
+                atividadeExternaTrechoId:
+                  trechoVeiculo.atividadeExternaTrechoId,
+
+                status: "EMBARCADO",
+              },
+            });
+
+          statusTrechoCalculado =
+            passageirosAindaEmbarcadosNoTrecho > 0
+              ? "EM_DESEMBARQUE"
+              : "CONCLUIDO";
         } else if (
           veiculosAtivos.some(
             (item) => item.status === "EM_TRANSITO" || item.status === "CHEGOU",
@@ -2431,8 +2516,17 @@ export async function POST(request: NextRequest, contexto: ContextoRota) {
 
                 atualizadoPorId: usuario.id,
               }
-            : statusTrechoCalculado === "CONCLUIDO"
+            : statusTrechoCalculado === "EM_DESEMBARQUE"
               ? {
+                  status: "EM_DESEMBARQUE" as const,
+
+                  chegadaReal:
+                    trechoVeiculo.atividadeExternaTrecho.chegadaReal ?? agora,
+
+                  atualizadoPorId: usuario.id,
+                }
+              : statusTrechoCalculado === "CONCLUIDO"
+                ? {
                   status: "CONCLUIDO" as const,
 
                   chegadaReal:
