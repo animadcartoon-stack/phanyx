@@ -4,6 +4,7 @@ import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import { marketingAlternates } from "@/lib/public-marketing";
 import { marketingCopy } from "@/lib/public-marketing";
+import { marketingPath } from "@/lib/public-marketing";
 
 export const metadata = {
   alternates: marketingAlternates("home"),
@@ -120,6 +121,11 @@ const faqs = [
 ];
 
 const paginasSeo = [
+  {
+    titulo: "Gestão de matrículas escolares",
+    descricao: "Organize alunos, cursos e turmas com os registros acadêmicos na mesma plataforma.",
+    href: marketingPath("pt-BR", "enrollment"),
+  },
   {
     titulo: "Gestão escolar",
     descricao:
