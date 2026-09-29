@@ -9,6 +9,7 @@ import {
 import {
   useParams,
   useRouter,
+  useSearchParams,
 } from "next/navigation";
 import {
   useLocale,
@@ -353,6 +354,8 @@ export default function BoletimTurmaPage() {
   const router =
     useRouter();
 
+  const searchParams = useSearchParams();
+
   const locale =
     useLocale();
 
@@ -371,6 +374,16 @@ export default function BoletimTurmaPage() {
       idTexto
     )
       ? Number(idTexto)
+      : 0;
+
+  const disciplinaIdTexto =
+    String(searchParams.get("disciplinaId") || "").trim();
+
+  const disciplinaId =
+    /^\d+$/.test(
+      disciplinaIdTexto
+    )
+      ? Number(disciplinaIdTexto)
       : 0;
 
   const [
@@ -510,13 +523,31 @@ export default function BoletimTurmaPage() {
           return;
         }
 
+        if (
+          !Number.isInteger(
+            disciplinaId
+          ) ||
+          disciplinaId <= 0
+        ) {
+          setData(null);
+
+          setErro(
+            t(
+              "feedback.invalidResponse"
+            )
+          );
+
+          setLoading(false);
+          return;
+        }
+
         try {
           setLoading(true);
           setErro("");
 
           const res =
             await fetch(
-              `/api/professor/turmas/${turmaId}/boletim`,
+              `/api/professor/turmas/${turmaId}/boletim?disciplinaId=${disciplinaId}`,
               {
                 credentials:
                   "include",
@@ -575,6 +606,7 @@ export default function BoletimTurmaPage() {
       },
       [
         turmaId,
+        disciplinaId,
         t,
       ]
     );
@@ -890,7 +922,7 @@ export default function BoletimTurmaPage() {
 
           <div className="flex flex-col items-start gap-1 sm:items-end">
             <a
-              href={`/api/professor/turmas/${turmaId}/boletim/csv`}
+              href={`/api/professor/turmas/${turmaId}/boletim/csv?disciplinaId=${disciplinaId}`}
               download
               className="w-fit rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-green-700"
             >
