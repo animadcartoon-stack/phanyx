@@ -143,6 +143,7 @@ function AdminAlunosPage() {
   const t = useTranslations(
     "AdminStudents"
   );
+  const tImportStudents = useTranslations("AdminStudentsImport");
 
   const tTelefone =
     useTranslations(
@@ -1948,6 +1949,16 @@ function AdminAlunosPage() {
 >
   {t("actions.newStudent")}
 </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  router.push("/admin/alunos/importar")
+                }
+                className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-100 dark:hover:bg-violet-950/60"
+              >
+                {tImportStudents("action")}
+              </button>
 
               <button
                 type="button"

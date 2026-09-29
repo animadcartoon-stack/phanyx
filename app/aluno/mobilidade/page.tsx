@@ -211,7 +211,228 @@ export default function MobilidadeAlunoPage() {
   ] =
     useState(false);
 
-  function statusCandidatura(
+  
+  const [
+    arquivoPorDocumento,
+    setArquivoPorDocumento,
+  ] =
+    useState<
+      Record<number, File | null>
+    >({});
+
+  const [
+    validadePorDocumento,
+    setValidadePorDocumento,
+  ] =
+    useState<
+      Record<number, string>
+    >({});
+
+  const [
+    enviandoDocumentoId,
+    setEnviandoDocumentoId,
+  ] =
+    useState<number | null>(
+      null
+    );
+
+  const [
+    progressoPorDocumento,
+    setProgressoPorDocumento,
+  ] =
+    useState<
+      Record<number, number>
+    >({});
+
+  const [
+    mensagemPorDocumento,
+    setMensagemPorDocumento,
+  ] =
+    useState<
+      Record<
+        number,
+        {
+          tipo:
+            | "sucesso"
+            | "erro";
+          texto: string;
+        }
+      >
+    >({});
+  function mimeArquivoMobilidade(
+    nome: string
+  ) {
+    const extensao =
+      nome
+        .split(".")
+        .pop()
+        ?.toLowerCase() ??
+      "";
+
+    const mimes:
+      Record<string, string> = {
+        pdf:
+          "application/pdf",
+
+        jpg:
+          "image/jpeg",
+
+        jpeg:
+          "image/jpeg",
+
+        png:
+          "image/png",
+
+        webp:
+          "image/webp",
+
+        doc:
+          "application/msword",
+
+        docx:
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      };
+
+    return (
+      mimes[extensao] ??
+      null
+    );
+  }
+
+  function mensagemErroUpload(
+    codigo?: string
+  ) {
+    switch (codigo) {
+      case "VALIDADE_OBRIGATORIA":
+      case "VALIDADE_INVALIDA":
+        return t(
+          "upload.errors.validity"
+        );
+
+      case "ARQUIVO_MUITO_GRANDE":
+      case "ARQUIVO_TAMANHO_INVALIDO":
+        return t(
+          "upload.errors.size"
+        );
+
+      case "ARQUIVO_FORMATO_INVALIDO":
+      case "ARQUIVO_NOME_INVALIDO":
+        return t(
+          "upload.errors.format"
+        );
+
+      case "DOCUMENTO_NAO_EDITAVEL":
+        return t(
+          "upload.errors.locked"
+        );
+
+      case "BLOB_NAO_CONFIGURADO":
+        return t(
+          "upload.errors.unavailable"
+        );
+
+      default:
+        return t(
+          "upload.errors.generic"
+        );
+    }
+  }
+
+  function enviarPutComProgresso(
+    url: string,
+    arquivo: File,
+    mimeType: string,
+    documentoId: number
+  ) {
+    return new Promise<void>(
+      (
+        resolve,
+        reject
+      ) => {
+        const xhr =
+          new XMLHttpRequest();
+
+        xhr.open(
+          "PUT",
+          url,
+          true
+        );
+
+        xhr.setRequestHeader(
+          "Content-Type",
+          mimeType
+        );
+
+        xhr.upload.onprogress =
+          (
+            evento
+          ) => {
+            if (
+              !evento.lengthComputable
+            ) {
+              return;
+            }
+
+            const progresso =
+              Math.min(
+                100,
+                Math.round(
+                  (
+                    evento.loaded /
+                    evento.total
+                  ) *
+                    100
+                )
+              );
+
+            setProgressoPorDocumento(
+              (
+                anterior
+              ) => ({
+                ...anterior,
+
+                [documentoId]:
+                  progresso,
+              })
+            );
+          };
+
+        xhr.onload =
+          () => {
+            if (
+              xhr.status >=
+                200 &&
+              xhr.status <
+                300
+            ) {
+              resolve();
+              return;
+            }
+
+            reject(
+              new Error(
+                "UPLOAD_PUT_FALHOU"
+              )
+            );
+          };
+
+        xhr.onerror =
+          () => {
+            reject(
+              new Error(
+                "UPLOAD_PUT_FALHOU"
+              )
+            );
+          };
+
+        xhr.send(
+          arquivo
+        );
+      }
+    );
+  }
+
+function statusCandidatura(
     status:
       StatusCandidatura
   ) {
@@ -443,6 +664,350 @@ export default function MobilidadeAlunoPage() {
     } finally {
       setCarregando(
         false
+      );
+    }
+  }
+
+  async function enviarDocumento(
+    candidaturaId: number,
+    documento: Documento
+  ) {
+    const arquivo =
+      arquivoPorDocumento[
+        documento.id
+      ] ??
+      null;
+
+    const validade =
+      validadePorDocumento[
+        documento.id
+      ] ??
+      documento.validadeAte
+        ?.slice(
+          0,
+          10
+        ) ??
+      "";
+
+    if (!arquivo) {
+      setMensagemPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]: {
+            tipo:
+              "erro",
+
+            texto:
+              t(
+                "upload.errors.missingFile"
+              ),
+          },
+        })
+      );
+
+      return;
+    }
+
+    if (
+      documento.exigeValidade &&
+      !validade
+    ) {
+      setMensagemPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]: {
+            tipo:
+              "erro",
+
+            texto:
+              t(
+                "upload.errors.validity"
+              ),
+          },
+        })
+      );
+
+      return;
+    }
+
+    if (
+      arquivo.size >
+      25 *
+        1024 *
+        1024
+    ) {
+      setMensagemPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]: {
+            tipo:
+              "erro",
+
+            texto:
+              t(
+                "upload.errors.size"
+              ),
+          },
+        })
+      );
+
+      return;
+    }
+
+    const mimeType =
+      mimeArquivoMobilidade(
+        arquivo.name
+      );
+
+    if (!mimeType) {
+      setMensagemPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]: {
+            tipo:
+              "erro",
+
+            texto:
+              t(
+                "upload.errors.format"
+              ),
+          },
+        })
+      );
+
+      return;
+    }
+
+    setEnviandoDocumentoId(
+      documento.id
+    );
+
+    setProgressoPorDocumento(
+      (
+        anterior
+      ) => ({
+        ...anterior,
+
+        [documento.id]:
+          0,
+      })
+    );
+
+    setMensagemPorDocumento(
+      (
+        anterior
+      ) => {
+        const novo = {
+          ...anterior,
+        };
+
+        delete novo[
+          documento.id
+        ];
+
+        return novo;
+      }
+    );
+
+    try {
+      const respostaAutorizar =
+        await fetch(
+          `/api/aluno/mobilidade/candidaturas/${candidaturaId}/documentos/${documento.id}/upload`,
+          {
+            method:
+              "POST",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                nomeOriginal:
+                  arquivo.name,
+
+                mimeType,
+
+                tamanhoBytes:
+                  arquivo.size,
+
+                validadeAte:
+                  validade ||
+                  null,
+              }),
+          }
+        );
+
+      const autorizado =
+        (await respostaAutorizar.json()) as {
+          ok?: boolean;
+          codigo?: string;
+          presignedUrl?: string;
+          pathname?: string;
+          mimeType?: string;
+        };
+
+      if (
+        !respostaAutorizar.ok ||
+        !autorizado.ok ||
+        !autorizado.presignedUrl ||
+        !autorizado.pathname ||
+        !autorizado.mimeType
+      ) {
+        throw new Error(
+          mensagemErroUpload(
+            autorizado.codigo
+          )
+        );
+      }
+
+      await enviarPutComProgresso(
+        autorizado.presignedUrl,
+        arquivo,
+        autorizado.mimeType,
+        documento.id
+      );
+
+      const respostaFinalizar =
+        await fetch(
+          `/api/aluno/mobilidade/candidaturas/${candidaturaId}/documentos/${documento.id}/upload/finalizar`,
+          {
+            method:
+              "POST",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                pathname:
+                  autorizado.pathname,
+
+                nomeOriginal:
+                  arquivo.name,
+
+                validadeAte:
+                  validade ||
+                  null,
+              }),
+          }
+        );
+
+      const finalizado =
+        (await respostaFinalizar.json()) as {
+          ok?: boolean;
+          codigo?: string;
+        };
+
+      if (
+        !respostaFinalizar.ok ||
+        !finalizado.ok
+      ) {
+        throw new Error(
+          mensagemErroUpload(
+            finalizado.codigo
+          )
+        );
+      }
+
+      setProgressoPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]:
+            100,
+        })
+      );
+
+      setArquivoPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]:
+            null,
+        })
+      );
+
+      setMensagemPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]: {
+            tipo:
+              "sucesso",
+
+            texto:
+              t(
+                "upload.success"
+              ),
+          },
+        })
+      );
+
+      await carregar();
+    } catch (
+      erroUpload
+    ) {
+      const texto =
+        erroUpload instanceof
+          Error &&
+        erroUpload.message ===
+          "UPLOAD_PUT_FALHOU"
+          ? t(
+              "upload.errors.transfer"
+            )
+          : erroUpload instanceof
+                Error &&
+              erroUpload.message
+            ? erroUpload.message
+            : t(
+                "upload.errors.generic"
+              );
+
+      setMensagemPorDocumento(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [documento.id]: {
+            tipo:
+              "erro",
+
+            texto,
+          },
+        })
+      );
+    } finally {
+      setEnviandoDocumentoId(
+        null
       );
     }
   }
@@ -728,9 +1293,82 @@ export default function MobilidadeAlunoPage() {
                           documento
                         ) => {
                           const validade =
+
                             formatarData(
+
                               documento.validadeAte
+
                             );
+
+
+                          const arquivoSelecionado =
+
+                            arquivoPorDocumento[
+
+                              documento.id
+
+                            ] ??
+
+                            null;
+
+
+                          const validadeSelecionada =
+
+                            validadePorDocumento[
+
+                              documento.id
+
+                            ] ??
+
+                            documento.validadeAte
+
+                              ?.slice(
+
+                                0,
+
+                                10
+
+                              ) ??
+
+                            "";
+
+
+                          const enviando =
+
+                            enviandoDocumentoId ===
+
+                            documento.id;
+
+
+                          const progresso =
+
+                            progressoPorDocumento[
+
+                              documento.id
+
+                            ] ??
+
+                            0;
+
+
+                          const mensagem =
+
+                            mensagemPorDocumento[
+
+                              documento.id
+
+                            ];
+
+
+                          const podeEnviar =
+
+                            documento.status !==
+
+                              "APROVADO" &&
+
+                            documento.status !==
+
+                              "EM_ANALISE";
 
                           return (
                             <div
@@ -804,6 +1442,627 @@ export default function MobilidadeAlunoPage() {
                                       )}
                                     </p>
                                   )}
+
+                                  {podeEnviar ? (
+
+
+                                    <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900 dark:bg-blue-950/20">
+
+
+                                      <p className="text-sm font-bold text-slate-950 dark:text-white">
+
+
+                                        {documento.arquivoNome
+
+
+                                          ? t(
+
+
+                                              "upload.replaceTitle"
+
+
+                                            )
+
+
+                                          : t(
+
+
+                                              "upload.title"
+
+
+                                            )}
+
+
+                                      </p>
+
+
+
+                                      <div className="mt-3 flex flex-col gap-3 lg:flex-row lg:items-end">
+
+
+                                        {documento.exigeValidade && (
+
+
+                                          <label className="block w-full lg:max-w-[230px]">
+
+
+                                            <span className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-200">
+
+
+                                              {t(
+
+
+                                                "upload.validity"
+
+
+                                              )}
+
+
+                                            </span>
+
+
+
+                                            <input
+
+
+                                              type="date"
+
+
+                                              value={
+
+
+                                                validadeSelecionada
+
+
+                                              }
+
+
+                                              disabled={
+
+
+                                                enviando
+
+
+                                              }
+
+
+                                              onChange={(
+
+
+                                                evento
+
+
+                                              ) =>
+
+
+                                                setValidadePorDocumento(
+
+
+                                                  (
+
+
+                                                    anterior
+
+
+                                                  ) => ({
+
+
+                                                    ...anterior,
+
+
+                                                    [documento.id]:
+
+
+                                                      evento.target.value,
+
+
+                                                  })
+
+
+                                                )
+
+
+                                              }
+
+
+                                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:focus:ring-blue-900"
+
+
+                                            />
+
+
+                                          </label>
+
+
+                                        )}
+
+
+
+                                        <div className="flex flex-1 flex-col gap-2">
+
+
+                                          <input
+
+
+                                            id={`arquivo-mobilidade-${documento.id}`}
+
+
+                                            type="file"
+
+
+                                            accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+
+
+                                            disabled={
+
+
+                                              enviando
+
+
+                                            }
+
+
+                                            onClick={(
+
+
+                                              evento
+
+
+                                            ) => {
+
+
+                                              evento.currentTarget.value =
+
+
+                                                "";
+
+
+                                            }}
+
+
+                                            onChange={(
+
+
+                                              evento
+
+
+                                            ) => {
+
+
+                                              const selecionado =
+
+
+                                                evento.target.files?.[0] ??
+
+
+                                                null;
+
+
+
+                                              setArquivoPorDocumento(
+
+
+                                                (
+
+
+                                                  anterior
+
+
+                                                ) => ({
+
+
+                                                  ...anterior,
+
+
+                                                  [documento.id]:
+
+
+                                                    selecionado,
+
+
+                                                })
+
+
+                                              );
+
+
+
+                                              setMensagemPorDocumento(
+
+
+                                                (
+
+
+                                                  anterior
+
+
+                                                ) => {
+
+
+                                                  const novo = {
+
+
+                                                    ...anterior,
+
+
+                                                  };
+
+
+
+                                                  delete novo[
+
+
+                                                    documento.id
+
+
+                                                  ];
+
+
+
+                                                  return novo;
+
+
+                                                }
+
+
+                                              );
+
+
+                                            }}
+
+
+                                            className="sr-only"
+
+
+                                          />
+
+
+
+                                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+
+
+                                            <label
+
+
+                                              htmlFor={`arquivo-mobilidade-${documento.id}`}
+
+
+                                              className={`inline-flex cursor-pointer items-center justify-center rounded-xl border border-blue-300 bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 dark:border-blue-700 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-blue-950/40 ${
+
+
+                                                enviando
+
+
+                                                  ? "pointer-events-none opacity-60"
+
+
+                                                  : ""
+
+
+                                              }`}
+
+
+                                            >
+
+
+                                              {t(
+
+
+                                                "upload.selectFile"
+
+
+                                              )}
+
+
+                                            </label>
+
+
+
+                                            {arquivoSelecionado && (
+
+
+                                              <span className="min-w-0 truncate text-xs font-medium text-slate-600 dark:text-slate-300">
+
+
+                                                {t(
+
+
+                                                  "upload.selectedFile",
+
+
+                                                  {
+
+
+                                                    name:
+
+
+                                                      arquivoSelecionado.name,
+
+
+                                                  }
+
+
+                                                )}
+
+
+                                              </span>
+
+
+                                            )}
+
+
+                                          </div>
+
+
+                                        </div>
+
+
+                                      </div>
+
+
+
+                                      {enviando && (
+
+
+                                        <div className="mt-4">
+
+
+                                          <div className="h-2 overflow-hidden rounded-full bg-blue-100 dark:bg-slate-800">
+
+
+                                            <div
+
+
+                                              className="h-full rounded-full bg-blue-600 transition-all"
+
+
+                                              style={{
+
+
+                                                width:
+
+
+                                                  `${progresso}%`,
+
+
+                                              }}
+
+
+                                            />
+
+
+                                          </div>
+
+
+
+                                          <p className="mt-1 text-xs font-medium text-blue-700 dark:text-blue-300">
+
+
+                                            {t(
+
+
+                                              "upload.progress",
+
+
+                                              {
+
+
+                                                progress:
+
+
+                                                  progresso,
+
+
+                                              }
+
+
+                                            )}
+
+
+                                          </p>
+
+
+                                        </div>
+
+
+                                      )}
+
+
+
+                                      {mensagem && (
+
+
+                                        <div
+
+
+                                          className={`mt-3 rounded-xl border px-3 py-2 text-xs font-medium ${
+
+
+                                            mensagem.tipo ===
+
+
+                                            "sucesso"
+
+
+                                              ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200"
+
+
+                                              : "border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-200"
+
+
+                                          }`}
+
+
+                                        >
+
+
+                                          {
+
+
+                                            mensagem.texto
+
+
+                                          }
+
+
+                                        </div>
+
+
+                                      )}
+
+
+
+                                      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+
+
+                                          {t(
+
+
+                                            "upload.formats"
+
+
+                                          )}
+
+
+                                        </p>
+
+
+
+                                        <button
+
+
+                                          type="button"
+
+
+                                          disabled={
+
+
+                                            enviando ||
+
+
+                                            !arquivoSelecionado ||
+
+
+                                            (
+
+
+                                              documento.exigeValidade &&
+
+
+                                              !validadeSelecionada
+
+
+                                            )
+
+
+                                          }
+
+
+                                          onClick={() =>
+
+
+                                            void enviarDocumento(
+
+
+                                              candidatura.id,
+
+
+                                              documento
+
+
+                                            )
+
+
+                                          }
+
+
+                                          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+
+
+                                        >
+
+
+                                          {enviando
+
+
+                                            ? t(
+
+
+                                                "upload.sending"
+
+
+                                              )
+
+
+                                            : documento.arquivoNome
+
+
+                                              ? t(
+
+
+                                                  "upload.replace"
+
+
+                                                )
+
+
+                                              : t(
+
+
+                                                  "upload.send"
+
+
+                                                )}
+
+
+                                        </button>
+
+
+                                      </div>
+
+
+                                    </div>
+
+
+                                  ) : (
+
+
+                                    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+
+
+                                      {documento.status ===
+
+
+                                      "APROVADO"
+
+
+                                        ? t(
+
+
+                                            "upload.lockedApproved"
+
+
+                                          )
+
+
+                                        : t(
+
+
+                                            "upload.lockedReview"
+
+
+                                          )}
+
+
+                                    </div>
+
+
+                                  )}
+
+
 
                                   {documento.motivoRejeicao && (
                                     <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">

@@ -141,6 +141,7 @@ const ITEM_DETALHE_SELECT = {
       tipo: true,
       status: true,
       nomeOriginal: true,
+      urlExterna: true,
       extensao: true,
       mimeType: true,
       tamanhoBytes: true,
@@ -700,6 +701,41 @@ export async function GET(
       }
     }
 
+    const estadosPublicaveis: StatusItemBiblioteca[] = [
+      StatusItemBiblioteca.RASCUNHO,
+      StatusItemBiblioteca.EM_REVISAO,
+      StatusItemBiblioteca.INDISPONIVEL,
+    ];
+    let podePublicar =
+      !usuario.impersonacao &&
+      estadosPublicaveis.includes(item.status) &&
+      (item.modalidade !== ModalidadeAcessoBiblioteca.LINK_EXTERNO ||
+        item.arquivos.some((arquivo) =>
+          arquivo.tipo === "LINK_EXTERNO" &&
+          arquivo.status === StatusArquivoBiblioteca.DISPONIVEL &&
+          Boolean(arquivo.urlExterna)
+        ));
+
+    if (podePublicar) {
+      try {
+        exigirPermissaoBiblioteca(
+          usuario,
+          contexto,
+          "biblioteca.catalogo.publicar"
+        );
+      } catch {
+        podePublicar = false;
+      }
+    }
+    let podeRetirar = !usuario.impersonacao && item.status === StatusItemBiblioteca.PUBLICADO;
+    if (podeRetirar) {
+      try {
+        exigirPermissaoBiblioteca(usuario, contexto, "biblioteca.catalogo.publicar");
+      } catch {
+        podeRetirar = false;
+      }
+    }
+
     return responder({
       ok: true,
 
@@ -713,6 +749,8 @@ export async function GET(
 
       permissoes: {
         podeEditar,
+        podePublicar,
+        podeRetirar,
         podeEnviarArquivo,
         podeExcluirArquivo,
         podeGerenciarArquivo,
@@ -1117,6 +1155,179 @@ export async function PATCH(
           false,
       },
     });
+  } catch (erro) {
+    return responderErro(erro);
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: ContextoRota
+) {
+  try {
+    const usuario = await getUserFromToken();
+    const contexto = await obterContextoBiblioteca(usuario);
+
+    if (!usuario) {
+      falhar(401, "Usuário não autenticado.", "NAO_AUTENTICADO");
+    }
+    if (usuario.impersonacao) {
+      falhar(
+        403,
+        "Não é permitido publicar itens durante uma sessão de suporte.",
+        "OPERACAO_BLOQUEADA_EM_IMPERSONACAO"
+      );
+    }
+    exigirPermissaoBiblioteca(
+      usuario,
+      contexto,
+      "biblioteca.catalogo.publicar"
+    );
+
+    const corpo = await lerCorpo(request);
+    if (corpo.acao !== "PUBLICAR") {
+      falhar(400, "Ação de publicação inválida.", "ACAO_INVALIDA");
+    }
+
+    const itemId = obterItemId(params);
+    const estadosPublicaveis: StatusItemBiblioteca[] = [
+      StatusItemBiblioteca.RASCUNHO,
+      StatusItemBiblioteca.EM_REVISAO,
+      StatusItemBiblioteca.INDISPONIVEL,
+    ];
+    const agora = new Date();
+    const publicado = await prisma.$transaction(async (transacao) => {
+      const anterior = await transacao.bibliotecaItem.findFirst({
+        where: { id: itemId, instituicaoId: contexto.instituicaoId },
+        select: { id: true, titulo: true, status: true, publicadoEm: true },
+      });
+      if (!anterior) {
+        falhar(404, "Item não encontrado nesta biblioteca.", "ITEM_NAO_ENCONTRADO");
+      }
+      if (!estadosPublicaveis.includes(anterior.status)) {
+        falhar(409, "O item não está em um estado publicável.", "STATUS_NAO_PUBLICAVEL");
+      }
+      if (!anterior.titulo.trim()) {
+        falhar(400, "Informe o título antes de publicar.", "TITULO_OBRIGATORIO");
+      }
+      const modalidade = await transacao.bibliotecaItem.findFirstOrThrow({
+        where: { id: itemId, instituicaoId: contexto.instituicaoId },
+        select: { modalidade: true },
+      });
+      if (modalidade.modalidade === ModalidadeAcessoBiblioteca.LINK_EXTERNO) {
+        const link = await transacao.bibliotecaArquivo.findFirst({
+          where: {
+            instituicaoId: contexto.instituicaoId,
+            itemId,
+            tipo: "LINK_EXTERNO",
+            status: StatusArquivoBiblioteca.DISPONIVEL,
+            arquivadoEm: null,
+            urlExterna: { not: null },
+          },
+          select: { id: true },
+        });
+        if (!link) {
+          falhar(409, "Cadastre o endereço online antes de publicar.", "LINK_EXTERNO_AUSENTE");
+        }
+      }
+
+      // A condição no UPDATE impede publicar um item arquivado em outra sessão.
+      const resultado = await transacao.bibliotecaItem.updateMany({
+        where: {
+          id: itemId,
+          instituicaoId: contexto.instituicaoId,
+          status: { in: estadosPublicaveis },
+        },
+        data: {
+          status: StatusItemBiblioteca.PUBLICADO,
+          publicadoEm: agora,
+          publicadoPorId: usuario.id,
+          atualizadoPorId: usuario.id,
+          arquivadoEm: null,
+          arquivadoPorId: null,
+          motivoArquivamento: null,
+        },
+      });
+      if (resultado.count !== 1) {
+        falhar(409, "O status do item mudou. Atualize a página.", "STATUS_ALTERADO");
+      }
+
+      await transacao.bibliotecaAuditoria.create({
+        data: {
+          instituicaoId: contexto.instituicaoId,
+          usuarioId: usuario.id,
+          entidade: "BibliotecaItem",
+          entidadeId: String(itemId),
+          acao: AcaoAuditoriaBiblioteca.PUBLICAR,
+          descricao: "Item publicado no catálogo para alunos e professores.",
+          dadosAnteriores: {
+            status: anterior.status,
+            publicadoEm: anterior.publicadoEm?.toISOString() ?? null,
+          },
+          dadosPosteriores: {
+            status: StatusItemBiblioteca.PUBLICADO,
+            publicadoEm: agora.toISOString(),
+          },
+          metadados: { origem: "api_admin_biblioteca_acervo_item" },
+          ip: obterIp(request),
+          userAgent: request.headers.get("user-agent")?.slice(0, 2_000) || null,
+        },
+      });
+
+      return transacao.bibliotecaItem.findFirstOrThrow({
+        where: { id: itemId, instituicaoId: contexto.instituicaoId },
+        select: ITEM_DETALHE_SELECT,
+      });
+    });
+
+    return responder({
+      ok: true,
+      mensagem: "Item publicado com sucesso.",
+      item: serializarItemParaResposta(publicado),
+      permissoes: { podePublicar: false },
+    });
+  } catch (erro) {
+    return responderErro(erro);
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: ContextoRota) {
+  try {
+    const usuario = await getUserFromToken();
+    const contexto = await obterContextoBiblioteca(usuario);
+    if (!usuario) falhar(401, "Usuário não autenticado.", "NAO_AUTENTICADO");
+    if (usuario.impersonacao) falhar(403, "Operação bloqueada durante sessão de suporte.", "OPERACAO_BLOQUEADA_EM_IMPERSONACAO");
+    exigirPermissaoBiblioteca(usuario, contexto, "biblioteca.catalogo.publicar");
+    const itemId = obterItemId(params);
+    const item = await prisma.$transaction(async (tx) => {
+      const anterior = await tx.bibliotecaItem.findFirst({
+        where: { id: itemId, instituicaoId: contexto.instituicaoId },
+        select: { status: true },
+      });
+      if (!anterior) falhar(404, "Item não encontrado.", "ITEM_NAO_ENCONTRADO");
+      if (anterior.status !== StatusItemBiblioteca.PUBLICADO) falhar(409, "O item não está publicado.", "STATUS_INVALIDO");
+      const resultado = await tx.bibliotecaItem.updateMany({
+        where: { id: itemId, instituicaoId: contexto.instituicaoId, status: StatusItemBiblioteca.PUBLICADO },
+        data: { status: StatusItemBiblioteca.RASCUNHO, atualizadoPorId: usuario.id },
+      });
+      if (resultado.count !== 1) falhar(409, "O status do item mudou. Atualize a página.", "STATUS_ALTERADO");
+      await tx.bibliotecaAuditoria.create({ data: {
+        instituicaoId: contexto.instituicaoId, usuarioId: usuario.id,
+        entidade: "BibliotecaItem", entidadeId: String(itemId),
+        acao: AcaoAuditoriaBiblioteca.ATUALIZAR,
+        descricao: "Item retirado do catálogo e devolvido ao rascunho.",
+        dadosAnteriores: { status: StatusItemBiblioteca.PUBLICADO },
+        dadosPosteriores: { status: StatusItemBiblioteca.RASCUNHO },
+        metadados: { origem: "api_admin_biblioteca_acervo_item" },
+        ip: obterIp(request),
+        userAgent: request.headers.get("user-agent")?.slice(0, 2_000) || null,
+      } });
+      return tx.bibliotecaItem.findFirstOrThrow({
+        where: { id: itemId, instituicaoId: contexto.instituicaoId },
+        select: ITEM_DETALHE_SELECT,
+      });
+    });
+    return responder({ ok: true, item: serializarItemParaResposta(item) });
   } catch (erro) {
     return responderErro(erro);
   }

@@ -78,6 +78,7 @@ export async function POST(req: Request) {
     if (!email || !senha) {
       return NextResponse.json(
         {
+          codigo: "CREDENCIAIS_OBRIGATORIAS",
           error: "Email e senha são obrigatórios.",
         },
         {
@@ -103,6 +104,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         {
+          codigo: "USUARIO_NAO_ENCONTRADO",
           error: "Usuário não encontrado.",
         },
         {
@@ -114,6 +116,7 @@ export async function POST(req: Request) {
     if (user.ativo === false) {
       return NextResponse.json(
         {
+          codigo: "ACESSO_BLOQUEADO",
           error:
             "Seu acesso está bloqueado. Procure a administração da instituição.",
         },
@@ -131,6 +134,7 @@ export async function POST(req: Request) {
     if (!senhaValida) {
       return NextResponse.json(
         {
+          codigo: "SENHA_INVALIDA",
           error: "Senha inválida.",
         },
         {
@@ -142,6 +146,7 @@ export async function POST(req: Request) {
     if (!user.instituicaoId) {
       return NextResponse.json(
         {
+          codigo: "SEM_INSTITUICAO",
           error: "Usuário sem instituição vinculada.",
         },
         {
@@ -168,6 +173,7 @@ export async function POST(req: Request) {
       if (!instituicaoAssinatura) {
         return NextResponse.json(
           {
+            codigo: "INSTITUICAO_NAO_ENCONTRADA",
             error:
               "A instituição vinculada a este usuário não foi encontrada.",
           },
@@ -180,6 +186,7 @@ export async function POST(req: Request) {
       if (instituicaoAssinatura.ativo === false) {
         return NextResponse.json(
           {
+            codigo: "UNIDADE_INATIVA",
             error:
               "O acesso desta unidade está inativo. Procure a administração da instituição contratante.",
           },
@@ -214,6 +221,7 @@ export async function POST(req: Request) {
       if (!podeUsarPhanyx) {
         return NextResponse.json(
           {
+            codigo: "ASSINATURA_BLOQUEADA",
             error:
               mensagemBloqueioAssinatura(
                 statusParaValidar,
@@ -245,6 +253,7 @@ export async function POST(req: Request) {
       if (!slugRecebido) {
         return NextResponse.json(
           {
+            codigo: "RH_INSTITUICAO_NAO_IDENTIFICADA",
             error:
               "A instituição do RH não foi identificada. Abra novamente o link fornecido pelo setor de RH.",
           },
@@ -272,6 +281,7 @@ export async function POST(req: Request) {
       ) {
         return NextResponse.json(
           {
+            codigo: "RH_INSTITUICAO_INATIVA",
             error:
               "A instituição informada não foi encontrada ou está inativa.",
           },
@@ -286,6 +296,7 @@ export async function POST(req: Request) {
       ) {
         return NextResponse.json(
           {
+            codigo: "RH_INSTITUICAO_DIFERENTE",
             error:
               "Este usuário não pertence à instituição selecionada.",
           },
@@ -322,6 +333,7 @@ export async function POST(req: Request) {
       if (!configuracaoPontoMobile?.ativo) {
         return NextResponse.json(
           {
+            codigo: "RH_PONTO_INATIVO",
             error:
               "O Ponto Mobile ainda não está ativo nesta instituição.",
           },
@@ -334,6 +346,7 @@ export async function POST(req: Request) {
       if (!funcionario) {
         return NextResponse.json(
           {
+            codigo: "RH_FUNCIONARIO_NAO_ENCONTRADO",
             error:
               "Este usuário não possui cadastro de funcionário nesta instituição.",
           },
@@ -346,6 +359,7 @@ export async function POST(req: Request) {
       if (!funcionario.pontoMobileLiberado) {
         return NextResponse.json(
           {
+            codigo: "RH_ACESSO_NAO_LIBERADO",
             error:
               "Seu acesso ao Ponto Mobile ainda não foi liberado pelo RH.",
           },
@@ -362,6 +376,7 @@ export async function POST(req: Request) {
       ) {
         return NextResponse.json(
           {
+            codigo: "RH_ACESSO_EXPIRADO",
             error:
               "Sua liberação para o Ponto Mobile expirou. Procure o setor de RH.",
           },
@@ -383,6 +398,7 @@ export async function POST(req: Request) {
       ) {
         return NextResponse.json(
           {
+            codigo: `PORTAL_INCORRETO_${portalNormalizado.toUpperCase()}`,
             error:
               mensagemPortalIncorreto(
                 portalNormalizado
@@ -470,6 +486,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
+        codigo: "ERRO_INTERNO",
         error: "Erro interno no servidor.",
       },
       {

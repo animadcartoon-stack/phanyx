@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 type TipoMarcacao =
   | "ENTRADA"
@@ -175,7 +176,8 @@ function obterDispositivoId() {
 
 function formatarDataHora(
   dataIso: string,
-  fusoHorario: string
+  fusoHorario: string,
+  locale: string
 ) {
   const data = new Date(dataIso);
 
@@ -184,7 +186,7 @@ function formatarDataHora(
   }
 
   try {
-    return new Intl.DateTimeFormat("pt-BR", {
+    return new Intl.DateTimeFormat(locale, {
       timeZone: fusoHorario,
       day: "2-digit",
       month: "2-digit",
@@ -194,13 +196,14 @@ function formatarDataHora(
       second: "2-digit",
     }).format(data);
   } catch {
-    return data.toLocaleString("pt-BR");
+    return data.toLocaleString(locale);
   }
 }
 
 function formatarHorario(
   dataIso: string,
-  fusoHorario: string
+  fusoHorario: string,
+  locale: string
 ) {
   const data = new Date(dataIso);
 
@@ -209,136 +212,60 @@ function formatarHorario(
   }
 
   try {
-    return new Intl.DateTimeFormat("pt-BR", {
+    return new Intl.DateTimeFormat(locale, {
       timeZone: fusoHorario,
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
     }).format(data);
   } catch {
-    return data.toLocaleTimeString("pt-BR");
+    return data.toLocaleTimeString(locale);
   }
 }
 
-function rotuloTipoMarcacao(tipo: string) {
+type TranslatePoint = (key: string, values?: Record<string, string | number>) => string;
+
+function rotuloTipoMarcacao(tipo: string, tr: TranslatePoint) {
   switch (tipo) {
-    case "ENTRADA":
-      return "Entrada";
-
-    case "SAIDA_ALMOCO":
-      return "Saída para almoço";
-
-    case "RETORNO_ALMOCO":
-      return "Retorno do almoço";
-
-    case "SAIDA":
-      return "Saída";
-
-    default:
-      return tipo;
+    case "ENTRADA": return tr("registration.typeEntry");
+    case "SAIDA_ALMOCO": return tr("registration.typeLunchOut");
+    case "RETORNO_ALMOCO": return tr("registration.typeLunchReturn");
+    case "SAIDA": return tr("registration.typeExit");
+    default: return tr("registration.chooseEntryExit");
   }
 }
 
-function rotuloStatusLocalizacao(
-  status: string
-) {
+function rotuloStatusLocalizacao(status: string, tr: TranslatePoint) {
   switch (status) {
-    case "DENTRO_DO_RAIO":
-      return "Dentro do local autorizado";
-
-    case "FORA_DO_RAIO_PERMITIDA":
-      return "Fora do raio — permitido";
-
-    case "NAO_EXIGIDA":
-      return "Localização não exigida";
-
-    case "SEM_LOCAL_ATIVO":
-      return "Sem local cadastrado";
-
-    case "NAO_VERIFICADA":
-      return "Não verificada";
-
-    default:
-      return status
-        .replaceAll("_", " ")
-        .toLocaleLowerCase("pt-BR");
+    case "DENTRO_DO_RAIO": return tr("registration.locationInside");
+    case "FORA_DO_RAIO_PERMITIDA": return tr("registration.locationOutsideAllowed");
+    case "NAO_EXIGIDA": return tr("registration.locationNotRequired");
+    case "SEM_LOCAL_ATIVO": return tr("registration.locationNoSite");
+    case "NAO_VERIFICADA": return tr("registration.locationUnverified");
+    default: return tr("registration.locationUnknown");
   }
 }
 
-function mensagemErroLocalizacao(
-  error: unknown
-) {
-  const codigo = Number(
-    (error as GeolocationPositionError)?.code
-  );
-
-  if (codigo === 1) {
-    return (
-      "A permissão de localização foi negada. " +
-      "Abra as configurações do navegador e permita " +
-      "o acesso à localização para o PHANYX RH."
-    );
-  }
-
-  if (codigo === 2) {
-    return (
-      "O celular não conseguiu determinar sua localização. " +
-      "Ative o GPS e tente novamente."
-    );
-  }
-
-  if (codigo === 3) {
-    return (
-      "A localização demorou muito para responder. " +
-      "Vá para um local com melhor sinal e tente novamente."
-    );
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Não foi possível obter sua localização.";
+function mensagemErroLocalizacao(error: unknown, tr: TranslatePoint) {
+  const codigo = Number((error as GeolocationPositionError)?.code);
+  if (codigo === 1) return tr("registration.geoDenied");
+  if (codigo === 2) return tr("registration.geoUnavailable");
+  if (codigo === 3) return tr("registration.geoTimeout");
+  return tr("registration.geoFailed");
 }
 
-function mensagemErroCamera(error: unknown) {
-  const nome = String(
-    (error as DOMException)?.name || ""
-  );
-
-  if (
-    nome === "NotAllowedError" ||
-    nome === "PermissionDeniedError"
-  ) {
-    return (
-      "A permissão da câmera foi negada. " +
-      "Abra as configurações do navegador e permita " +
-      "o acesso à câmera para o PHANYX RH."
-    );
+function mensagemErroCamera(error: unknown, tr: TranslatePoint) {
+  const nome = String((error as DOMException)?.name || "");
+  if (nome === "NotAllowedError" || nome === "PermissionDeniedError") {
+    return tr("registration.cameraDenied");
   }
-
-  if (
-    nome === "NotFoundError" ||
-    nome === "DevicesNotFoundError"
-  ) {
-    return "Nenhuma câmera foi encontrada neste dispositivo.";
+  if (nome === "NotFoundError" || nome === "DevicesNotFoundError") {
+    return tr("registration.cameraNotFound");
   }
-
-  if (
-    nome === "NotReadableError" ||
-    nome === "TrackStartError"
-  ) {
-    return (
-      "A câmera está sendo usada por outro aplicativo. " +
-      "Feche o outro aplicativo e tente novamente."
-    );
+  if (nome === "NotReadableError" || nome === "TrackStartError") {
+    return tr("registration.cameraBusy");
   }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Não foi possível abrir a câmera.";
+  return tr("registration.cameraFailed");
 }
 
 function converterCanvasEmBlob(
@@ -356,7 +283,8 @@ function converterCanvasEmBlob(
 }
 
 async function criarFotoCompactada(
-  video: HTMLVideoElement
+  video: HTMLVideoElement,
+  tr: TranslatePoint
 ) {
   const larguraOriginal =
     video.videoWidth || 720;
@@ -408,7 +336,7 @@ async function criarFotoCompactada(
 
     if (!contexto) {
       throw new Error(
-        "Não foi possível preparar a captura da foto."
+        tr("registration.photoPrepareFailed")
       );
     }
 
@@ -441,13 +369,15 @@ async function criarFotoCompactada(
   }
 
   throw new Error(
-    "A foto ficou muito grande. Tente novamente com melhor iluminação."
+    tr("registration.photoTooLarge")
   );
 }
 
 export default function RegistroPontoMobile({
   slug,
 }: RegistroPontoMobileProps) {
+  const t = useTranslations("RhAppPoint");
+  const locale = useLocale();
   const videoRef =
     useRef<HTMLVideoElement | null>(null);
 
@@ -590,8 +520,7 @@ export default function RegistroPontoMobile({
           }
 
           throw new Error(
-            dados.error ||
-              "Não foi possível carregar o registro de ponto."
+            t("registration.loadFailed")
           );
         }
 
@@ -618,7 +547,7 @@ export default function RegistroPontoMobile({
         const mensagem =
           error instanceof Error
             ? error.message
-            : "Não foi possível carregar o registro de ponto.";
+            : t("registration.loadFailed");
 
         setMensagemErro(mensagem);
 
@@ -629,7 +558,7 @@ export default function RegistroPontoMobile({
         }
       }
     },
-    [slug]
+    [slug, t]
   );
 
   useEffect(() => {
@@ -681,7 +610,7 @@ export default function RegistroPontoMobile({
       "America/Sao_Paulo";
 
     try {
-      return new Intl.DateTimeFormat("pt-BR", {
+      return new Intl.DateTimeFormat(locale, {
         timeZone: fusoHorario,
         hour: "2-digit",
         minute: "2-digit",
@@ -689,11 +618,12 @@ export default function RegistroPontoMobile({
       }).format(dataHoraAtualServidor);
     } catch {
       return dataHoraAtualServidor
-        .toLocaleTimeString("pt-BR");
+        .toLocaleTimeString(locale);
     }
   }, [
     contexto?.servidor.fusoHorario,
     dataHoraAtualServidor,
+    locale,
   ]);
 
   const fotoPronta =
@@ -751,7 +681,7 @@ export default function RegistroPontoMobile({
         !navigator.mediaDevices.getUserMedia
       ) {
         throw new Error(
-          "Este navegador não oferece acesso à câmera."
+          t("registration.cameraUnsupported")
         );
       }
 
@@ -794,7 +724,7 @@ export default function RegistroPontoMobile({
       pararCamera();
 
       setMensagemErro(
-        mensagemErroCamera(error)
+        mensagemErroCamera(error, t)
       );
     } finally {
       setAbrindoCamera(false);
@@ -813,12 +743,12 @@ export default function RegistroPontoMobile({
         video.readyState < 2
       ) {
         throw new Error(
-          "A câmera ainda não está pronta. Aguarde um instante."
+          t("registration.cameraNotReady")
         );
       }
 
       const blob =
-        await criarFotoCompactada(video);
+        await criarFotoCompactada(video, t);
 
       revogarPreview();
 
@@ -839,22 +769,22 @@ export default function RegistroPontoMobile({
         setMensagemSucesso(
           configuracao?.exigirLocalizacao &&
           !localizacao
-            ? "Foto ao vivo capturada. Escolha Entrada ou Saída e obtenha sua localização."
-            : "Foto ao vivo capturada. Agora escolha Entrada ou Saída."
+            ? t("registration.photoCapturedChooseAndLocate")
+            : t("registration.photoCapturedChoose")
         );
       } else {
         setMensagemSucesso(
           configuracao?.exigirLocalizacao &&
           !localizacao
-            ? "Foto ao vivo capturada. Agora obtenha sua localização."
-            : "Foto ao vivo capturada. Você já pode registrar o ponto."
+            ? t("registration.photoCapturedLocate")
+            : t("registration.photoCapturedReady")
         );
       }
     } catch (error) {
       setMensagemErro(
         error instanceof Error
           ? error.message
-          : "Não foi possível capturar a foto."
+          : t("registration.photoCaptureFailed")
       );
     }
   }
@@ -866,7 +796,7 @@ export default function RegistroPontoMobile({
 
       if (!navigator.geolocation) {
         throw new Error(
-          "Este navegador não oferece acesso à localização."
+          t("registration.geoUnsupported")
         );
       }
 
@@ -902,18 +832,18 @@ export default function RegistroPontoMobile({
 
       setMensagemSucesso(
         tipoSelecionado
-          ? `Localização obtida com precisão aproximada de ${Math.round(
-              novaLocalizacao.precisaoMetros
-            )} metros.`
-          : `Localização obtida com precisão aproximada de ${Math.round(
-              novaLocalizacao.precisaoMetros
-            )} metros. Agora escolha Entrada ou Saída.`
+          ? t("registration.geoAccuracy", {
+              meters: Math.round(novaLocalizacao.precisaoMetros)
+            })
+          : t("registration.geoAccuracyChoose", {
+              meters: Math.round(novaLocalizacao.precisaoMetros)
+            })
       );
 
       return novaLocalizacao;
     } catch (error) {
       const mensagem =
-        mensagemErroLocalizacao(error);
+        mensagemErroLocalizacao(error, t);
 
       setMensagemErro(mensagem);
 
@@ -933,7 +863,7 @@ export default function RegistroPontoMobile({
     }
 
     setEtapaProcessamento(
-      "Enviando foto com segurança..."
+      t("registration.uploadingPhoto")
     );
 
     const extensao =
@@ -982,8 +912,7 @@ export default function RegistroPontoMobile({
 
       if (!resposta.ok) {
         throw new Error(
-          dados.error ||
-            "Não foi possível enviar a foto."
+          t("registration.photoUploadFailed")
         );
       }
 
@@ -992,7 +921,7 @@ export default function RegistroPontoMobile({
 
       if (!pathname) {
         throw new Error(
-          "O armazenamento não retornou o endereço interno da foto."
+          t("registration.photoAddressMissing")
         );
       }
 
@@ -1005,7 +934,7 @@ export default function RegistroPontoMobile({
         error.name === "AbortError"
       ) {
         throw new Error(
-          "O envio da foto demorou muito. Verifique sua conexão e tente novamente."
+          t("registration.photoUploadTimeout")
         );
       }
 
@@ -1023,7 +952,7 @@ export default function RegistroPontoMobile({
       setComprovante(null);
 
       setEtapaProcessamento(
-        "Conferindo sua autorização..."
+        t("registration.checkingAccess")
       );
 
       const contextoAtual =
@@ -1034,7 +963,7 @@ export default function RegistroPontoMobile({
 
       if (!tipoParaRegistrar) {
         throw new Error(
-          "Escolha se deseja registrar uma entrada ou uma saída."
+          t("registration.chooseTypeError")
         );
       }
 
@@ -1043,7 +972,7 @@ export default function RegistroPontoMobile({
           .reconhecimentoFacialAtivo
       ) {
         throw new Error(
-          "O reconhecimento facial está ativado, mas ainda não foi configurado."
+          t("registration.facePending")
         );
       }
 
@@ -1052,7 +981,7 @@ export default function RegistroPontoMobile({
           .exigirProvaVida
       ) {
         throw new Error(
-          "A prova de vida está ativada, mas ainda não foi configurada."
+          t("registration.livenessPending")
         );
       }
 
@@ -1063,7 +992,7 @@ export default function RegistroPontoMobile({
         !fotoPathname
       ) {
         throw new Error(
-          "Tire uma foto ao vivo antes de registrar o ponto."
+          t("registration.takeLivePhoto")
         );
       }
 
@@ -1082,7 +1011,7 @@ export default function RegistroPontoMobile({
         localizacaoExpirada
       ) {
         setEtapaProcessamento(
-          "Obtendo sua localização..."
+          t("registration.gettingLocation")
         );
 
         localizacaoParaEnvio =
@@ -1098,7 +1027,7 @@ export default function RegistroPontoMobile({
         !pathnameFoto
       ) {
         throw new Error(
-          "A foto obrigatória não foi enviada."
+          t("registration.requiredPhotoMissing")
         );
       }
 
@@ -1108,7 +1037,7 @@ export default function RegistroPontoMobile({
       }
 
       setEtapaProcessamento(
-        "Registrando o ponto..."
+        t("registration.registering")
       );
 
       const resposta = await fetch(
@@ -1164,8 +1093,7 @@ export default function RegistroPontoMobile({
         }
 
         throw new Error(
-          dados.error ||
-            "Não foi possível registrar o ponto."
+          t("registration.registerFailed")
         );
       }
 
@@ -1174,15 +1102,16 @@ export default function RegistroPontoMobile({
         !dados.marcacao
       ) {
         throw new Error(
-          "O servidor não retornou o comprovante da marcação."
+          t("registration.receiptMissing")
         );
       }
 
       setComprovante(dados.marcacao);
 
       setMensagemSucesso(
-        dados.mensagem ||
-          "Ponto registrado com sucesso."
+        dados.repetida
+          ? t("registration.alreadyProcessed")
+          : t("registration.registerSuccess")
       );
 
       idempotenciaRef.current = null;
@@ -1196,7 +1125,7 @@ export default function RegistroPontoMobile({
       setMensagemErro(
         error instanceof Error
           ? error.message
-          : "Não foi possível registrar o ponto."
+          : t("registration.registerFailed")
       );
     } finally {
       setProcessando(false);
@@ -1206,24 +1135,20 @@ export default function RegistroPontoMobile({
 
   if (carregandoContexto && !contexto) {
     return (
-      <section className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
-        <p className="text-sm font-bold text-slate-300">
-          Carregando registro de ponto...
-        </p>
+      <section className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6">
+        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{t("registration.loading")}</p>
       </section>
     );
   }
 
   if (!contexto) {
     return (
-      <section className="rounded-[30px] border border-red-800 bg-red-950/40 p-6">
-        <p className="font-black text-red-100">
-          Registro de ponto indisponível
-        </p>
+      <section className="rounded-[30px] border border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/40 p-6">
+        <p className="font-black text-red-900 dark:text-red-100">{t("registration.unavailable")}</p>
 
-        <p className="mt-2 text-sm leading-6 text-red-200">
+        <p className="mt-2 text-sm leading-6 text-red-800 dark:text-red-200">
           {mensagemErro ||
-            "Não foi possível carregar os dados."}
+            t("registration.dataLoadFailed")}
         </p>
 
         <button
@@ -1235,79 +1160,67 @@ export default function RegistroPontoMobile({
               .catch(() => undefined);
           }}
           className="mt-5 min-h-12 w-full rounded-2xl bg-blue-600 px-4 py-3 font-black text-white"
-        >
-          Tentar novamente
-        </button>
+        >{t("registration.retry")}</button>
       </section>
     );
   }
 
   return (
     <section className="space-y-5">
-      <div className="rounded-[30px] border border-slate-700 bg-slate-900 p-6 shadow-xl">
+      <div className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6 shadow-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-              Horário oficial
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("registration.officialTime")}</p>
 
-            <p className="mt-2 text-4xl font-black tabular-nums text-white">
+            <p className="mt-2 text-4xl font-black tabular-nums text-slate-900 dark:text-white">
               {horarioAtual}
             </p>
 
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
               {contexto.servidor.fusoHorario}
             </p>
           </div>
 
-          <span className="rounded-full border border-blue-800 bg-blue-950 px-3 py-2 text-xs font-black text-blue-200">
+          <span className="rounded-full border border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950 px-3 py-2 text-xs font-black text-blue-800 dark:text-blue-200">
             {contexto.jornada
               .ultimaMarcacaoTipo
-              ? `Última: ${rotuloTipoMarcacao(
-                  contexto.jornada
-                    .ultimaMarcacaoTipo
-                )}`
-              : "Sem marcações hoje"}
+              ? t("registration.lastMark", {
+                  type: rotuloTipoMarcacao(
+                    contexto.jornada.ultimaMarcacaoTipo,
+                    t
+                  )
+                })
+              : t("registration.noMarksToday")}
           </span>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Registro de ponto
-          </p>
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 p-4">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{t("registration.title")}</p>
 
-          <p className="mt-2 text-lg font-black text-white">
-            Escolha Entrada ou Saída antes de registrar.
-          </p>
+          <p className="mt-2 text-lg font-black text-slate-900 dark:text-white">{t("registration.chooseBeforeRegister")}</p>
         </div>
       </div>
 
-      <div className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
+      <div className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-              Tipo da marcação
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("registration.markType")}</p>
 
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              Escolha conscientemente o que deseja registrar.
-              O PHANYX não define automaticamente almoço, retorno
-              ou fim do expediente.
-            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">{t("registration.chooseCarefully")}</p>
           </div>
 
           <span
             className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${
               tipoSelecionado
-                ? "border-emerald-700 bg-emerald-950 text-emerald-200"
-                : "border-slate-600 bg-slate-950 text-slate-300"
+                ? "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200"
+                : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 text-slate-700 dark:text-slate-300"
             }`}
           >
             {tipoSelecionado
               ? rotuloTipoMarcacao(
-                  tipoSelecionado
+                  tipoSelecionado, t
                 )
-              : "Pendente"}
+              : t("registration.pending")}
           </span>
         </div>
 
@@ -1336,8 +1249,8 @@ export default function RegistroPontoMobile({
                     setMensagemSucesso(
                       opcao.tipo ===
                         "ENTRADA"
-                        ? "Entrada selecionada. Tire a foto e obtenha sua localização."
-                        : "Saída selecionada. Tire a foto e obtenha sua localização."
+                        ? t("registration.entrySelected")
+                        : t("registration.exitSelected")
                     );
                   }}
                   className={`min-h-16 rounded-2xl border px-4 py-4 text-base font-black transition disabled:opacity-50 ${
@@ -1346,13 +1259,13 @@ export default function RegistroPontoMobile({
                         "ENTRADA"
                         ? "border-emerald-500 bg-emerald-600 text-white"
                         : "border-red-500 bg-red-700 text-white"
-                      : "border-slate-600 bg-slate-950 text-slate-200"
+                      : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 text-slate-800 dark:text-slate-200"
                   }`}
                 >
                   {opcao.tipo ===
                   "ENTRADA"
-                    ? "Registrar entrada"
-                    : "Registrar saída"}
+                    ? t("registration.registerEntry")
+                    : t("registration.registerExit")}
                 </button>
               );
             }
@@ -1361,72 +1274,56 @@ export default function RegistroPontoMobile({
 
         {contexto.jornada
           .ultimaMarcacaoTipo && (
-          <p className="mt-4 text-xs leading-5 text-slate-400">
-            Última marcação de hoje: {" "}
-            <strong className="text-slate-200">
+          <p className="mt-4 text-xs leading-5 text-slate-600 dark:text-slate-400">{t("registration.lastToday")}{" "}
+            <strong className="text-slate-800 dark:text-slate-200">
               {rotuloTipoMarcacao(
-                contexto.jornada
-                  .ultimaMarcacaoTipo
+                contexto.jornada.ultimaMarcacaoTipo,
+                t
               )}
             </strong>
-            . O funcionário pode registrar novamente
-            Entrada ou Saída quando necessário.
+            {". "}{t("registration.repeatAllowed")}
           </p>
         )}
       </div>
 
       {processamentoEspecialPendente && (
-        <div className="rounded-[30px] border border-amber-700 bg-amber-950/40 p-6">
-          <p className="font-black text-amber-100">
-            Configuração pendente
-          </p>
+        <div className="rounded-[30px] border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40 p-6">
+          <p className="font-black text-amber-900 dark:text-amber-100">{t("registration.setupPending")}</p>
 
-          <p className="mt-2 text-sm leading-6 text-amber-200">
-            O reconhecimento facial ou a prova de vida
-            está ativado, mas esse processamento ainda
-            precisa ser configurado pelo PHANYX.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-amber-800 dark:text-amber-200">{t("registration.setupPendingDescription")}</p>
         </div>
       )}
 
       {semLocalAutorizado && (
-        <div className="rounded-[30px] border border-amber-700 bg-amber-950/40 p-6">
-          <p className="font-black text-amber-100">
-            Local autorizado não cadastrado
-          </p>
+        <div className="rounded-[30px] border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40 p-6">
+          <p className="font-black text-amber-900 dark:text-amber-100">{t("registration.noAuthorizedSite")}</p>
 
-          <p className="mt-2 text-sm leading-6 text-amber-200">
-            O RH precisa cadastrar ao menos um local
-            autorizado antes que o ponto possa ser
-            registrado pelo celular.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-amber-800 dark:text-amber-200">{t("registration.noAuthorizedSiteDescription")}</p>
         </div>
       )}
 
-      <div className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
+      <div className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-              Foto ao vivo
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("registration.livePhoto")}</p>
 
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {configuracao?.exigirFoto
-                ? "Obrigatória para esta instituição"
-                : "Não obrigatória"}
+                ? t("registration.required")
+                : t("registration.optional")}
             </p>
           </div>
 
           <span
             className={`rounded-full border px-3 py-1 text-xs font-black ${
               fotoPronta
-                ? "border-emerald-700 bg-emerald-950 text-emerald-200"
-                : "border-slate-600 bg-slate-950 text-slate-300"
+                ? "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200"
+                : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 text-slate-700 dark:text-slate-300"
             }`}
           >
             {fotoPronta
-              ? "Foto pronta"
-              : "Pendente"}
+              ? t("registration.photoReady")
+              : t("registration.pending")}
           </span>
         </div>
 
@@ -1446,7 +1343,7 @@ export default function RegistroPontoMobile({
           <div className="mt-5 overflow-hidden rounded-3xl border border-emerald-700 bg-black">
             <img
               src={fotoPreview}
-              alt="Foto capturada para o registro de ponto"
+              alt={t("registration.photoAlt")}
               className="aspect-[3/4] w-full object-cover"
             />
           </div>
@@ -1463,10 +1360,10 @@ export default function RegistroPontoMobile({
               className="min-h-12 rounded-2xl bg-blue-600 px-4 py-3 font-black text-white disabled:opacity-50"
             >
               {abrindoCamera
-                ? "Abrindo câmera..."
+                ? t("registration.openingCamera")
                 : fotoPronta
-                  ? "Refazer foto"
-                  : "Abrir câmera"}
+                  ? t("registration.retakePhoto")
+                  : t("registration.openCamera")}
             </button>
           ) : (
             <button
@@ -1474,72 +1371,59 @@ export default function RegistroPontoMobile({
               disabled={processando}
               onClick={capturarFoto}
               className="min-h-12 rounded-2xl bg-emerald-600 px-4 py-3 font-black text-white disabled:opacity-50"
-            >
-              Tirar foto
-            </button>
+            >{t("registration.takePhoto")}</button>
           )}
 
           {cameraAtiva ? (
             <button
               type="button"
               onClick={pararCamera}
-              className="min-h-12 rounded-2xl border border-slate-600 bg-slate-950 px-4 py-3 font-black text-slate-200"
-            >
-              Cancelar câmera
-            </button>
+              className="min-h-12 rounded-2xl border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 px-4 py-3 font-black text-slate-800 dark:text-slate-200"
+            >{t("registration.cancelCamera")}</button>
           ) : fotoPronta ? (
             <button
               type="button"
               disabled={processando}
               onClick={limparFoto}
-              className="min-h-12 rounded-2xl border border-red-800 bg-red-950/40 px-4 py-3 font-black text-red-200 disabled:opacity-50"
-            >
-              Remover foto
-            </button>
+              className="min-h-12 rounded-2xl border border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/40 px-4 py-3 font-black text-red-800 dark:text-red-200 disabled:opacity-50"
+            >{t("registration.removePhoto")}</button>
           ) : null}
         </div>
       </div>
 
-      <div className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
+      <div className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-              Localização
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("registration.location")}</p>
 
-            <p className="mt-2 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
               {configuracao?.exigirLocalizacao
-                ? "Obrigatória para esta instituição"
-                : "Não obrigatória"}
+                ? t("registration.required")
+                : t("registration.optional")}
             </p>
           </div>
 
           <span
             className={`rounded-full border px-3 py-1 text-xs font-black ${
               localizacao
-                ? "border-emerald-700 bg-emerald-950 text-emerald-200"
-                : "border-slate-600 bg-slate-950 text-slate-300"
+                ? "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200"
+                : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-950 text-slate-700 dark:text-slate-300"
             }`}
           >
             {localizacao
-              ? "Localizada"
-              : "Pendente"}
+              ? t("registration.located")
+              : t("registration.pending")}
           </span>
         </div>
 
         {localizacao && (
-          <div className="mt-5 rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
-            <p className="text-sm font-bold text-emerald-200">
-              Localização obtida
-            </p>
+          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 p-4">
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">{t("registration.locationObtained")}</p>
 
-            <p className="mt-2 text-xs leading-5 text-slate-400">
-              Precisão aproximada:{" "}
+            <p className="mt-2 text-xs leading-5 text-slate-600 dark:text-slate-400">{t("registration.approxAccuracy")}{" "}
               {Math.round(
                 localizacao.precisaoMetros
-              )}{" "}
-              metros.
-            </p>
+              )}{" "}{t("registration.meters")}</p>
           </div>
         )}
 
@@ -1553,35 +1437,31 @@ export default function RegistroPontoMobile({
             obterLocalizacaoAtual()
               .catch(() => undefined);
           }}
-          className="mt-5 min-h-12 w-full rounded-2xl border border-blue-700 bg-blue-950 px-4 py-3 font-black text-blue-200 disabled:opacity-50"
+          className="mt-5 min-h-12 w-full rounded-2xl border border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-950 px-4 py-3 font-black text-blue-800 dark:text-blue-200 disabled:opacity-50"
         >
           {obtendoLocalizacao
-            ? "Obtendo localização..."
+            ? t("registration.gettingLocationShort")
             : localizacao
-              ? "Atualizar localização"
-              : "Obter localização"}
+              ? t("registration.updateLocation")
+              : t("registration.getLocation")}
         </button>
       </div>
 
       {mensagemErro && (
-        <div className="rounded-[26px] border border-red-800 bg-red-950/50 p-5">
-          <p className="font-black text-red-100">
-            Não foi possível concluir
-          </p>
+        <div className="rounded-[26px] border border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/50 p-5">
+          <p className="font-black text-red-900 dark:text-red-100">{t("registration.couldNotFinish")}</p>
 
-          <p className="mt-2 text-sm leading-6 text-red-200">
+          <p className="mt-2 text-sm leading-6 text-red-800 dark:text-red-200">
             {mensagemErro}
           </p>
         </div>
       )}
 
       {mensagemSucesso && (
-        <div className="rounded-[26px] border border-emerald-800 bg-emerald-950/40 p-5">
-          <p className="font-black text-emerald-100">
-            Tudo certo
-          </p>
+        <div className="rounded-[26px] border border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40 p-5">
+          <p className="font-black text-emerald-900 dark:text-emerald-100">{t("registration.allSet")}</p>
 
-          <p className="mt-2 text-sm leading-6 text-emerald-200">
+          <p className="mt-2 text-sm leading-6 text-emerald-800 dark:text-emerald-200">
             {mensagemSucesso}
           </p>
         </div>
@@ -1591,65 +1471,61 @@ export default function RegistroPontoMobile({
         type="button"
         disabled={botaoDesabilitado}
         onClick={registrarPonto}
-        className="min-h-16 w-full rounded-[22px] bg-blue-600 px-5 py-4 text-lg font-black text-white shadow-xl transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+        className="min-h-16 w-full rounded-[22px] bg-blue-600 px-5 py-4 text-lg font-black text-white shadow-xl transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-700 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
       >
         {processando
           ? etapaProcessamento ||
-            "Processando..."
+            t("registration.processing")
           : !tipoSelecionado
-            ? "Escolha Entrada ou Saída"
+            ? t("registration.chooseEntryExit")
             : tipoSelecionado ===
                 "ENTRADA"
-              ? "Registrar entrada"
-              : "Registrar saída"}
+              ? t("registration.registerEntry")
+              : t("registration.registerExit")}
       </button>
 
       {!processando &&
         (tipoMarcacaoAusente ||
           fotoObrigatoriaAusente ||
           localizacaoObrigatoriaAusente) && (
-          <p className="text-center text-xs leading-5 text-slate-400">
+          <p className="text-center text-xs leading-5 text-slate-600 dark:text-slate-400">
             {tipoMarcacaoAusente
-              ? "Escolha Entrada ou Saída para continuar."
+              ? t("registration.chooseToContinue")
               : fotoObrigatoriaAusente &&
                   localizacaoObrigatoriaAusente
-                ? "Tire a foto ao vivo e obtenha sua localização para habilitar o registro."
+                ? t("registration.takePhotoAndLocate")
                 : fotoObrigatoriaAusente
-                  ? "Tire a foto ao vivo para habilitar o registro."
-                  : "Obtenha sua localização para habilitar o registro."}
+                  ? t("registration.takePhotoToEnable")
+                  : t("registration.locateToEnable")}
           </p>
         )}
 
       {comprovante && (
-        <div className="rounded-[30px] border border-emerald-700 bg-emerald-950/40 p-6 shadow-xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
-            Comprovante de marcação
-          </p>
+        <div className="rounded-[30px] border border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/40 p-6 shadow-xl">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">{t("registration.receiptTitle")}</p>
 
-          <h3 className="mt-3 text-xl font-black text-white">
-            {comprovante.tipoRotulo}
+          <h3 className="mt-3 text-xl font-black text-slate-900 dark:text-white">
+            {rotuloTipoMarcacao(comprovante.tipo, t)}
           </h3>
 
-          <p className="mt-3 text-sm text-emerald-100">
+          <p className="mt-3 text-sm text-emerald-900 dark:text-emerald-100">
             {formatarDataHora(
               comprovante.dataHora,
-              contexto.servidor.fusoHorario
+              contexto.servidor.fusoHorario,
+              locale
             )}
           </p>
 
-          <div className="mt-5 rounded-2xl border border-emerald-800 bg-slate-950/50 p-4">
-            <p className="text-xs text-slate-400">
-              Código do comprovante
-            </p>
+          <div className="mt-5 rounded-2xl border border-emerald-300 bg-white/70 dark:border-emerald-800 dark:bg-slate-950/50 p-4">
+            <p className="text-xs text-slate-600 dark:text-slate-400">{t("registration.receiptCode")}</p>
 
-            <p className="mt-2 break-all font-mono text-sm font-black text-emerald-200">
+            <p className="mt-2 break-all font-mono text-sm font-black text-emerald-800 dark:text-emerald-200">
               {comprovante.comprovanteCodigo}
             </p>
           </div>
 
           {comprovante.localNome && (
-            <p className="mt-4 text-sm text-emerald-100">
-              Local:{" "}
+            <p className="mt-4 text-sm text-emerald-900 dark:text-emerald-100">{t("registration.siteLabel")}{" "}
               <strong>
                 {comprovante.localNome}
               </strong>
@@ -1658,27 +1534,20 @@ export default function RegistroPontoMobile({
 
           {typeof comprovante.distanciaMetros ===
             "number" && (
-            <p className="mt-2 text-xs text-emerald-200">
-              Distância aproximada:{" "}
+            <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200">{t("registration.approxDistance")}{" "}
               {Math.round(
                 comprovante.distanciaMetros
-              )}{" "}
-              metros.
-            </p>
+              )}{" "}{t("registration.meters")}</p>
           )}
         </div>
       )}
 
-      <div className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-          Marcações de hoje
-        </p>
+      <div className="rounded-[30px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900 p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">{t("registration.todayMarks")}</p>
 
         {contexto.jornada.marcacoesHoje.length ===
         0 ? (
-          <p className="mt-4 text-sm text-slate-400">
-            Nenhuma marcação registrada hoje.
-          </p>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{t("registration.noTodayMarks")}</p>
         ) : (
           <div className="mt-4 space-y-3">
             {contexto.jornada.marcacoesHoje.map(
@@ -1687,27 +1556,28 @@ export default function RegistroPontoMobile({
                   key={
                     marcacao.comprovanteCodigo
                   }
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-700 bg-slate-950/60 p-4"
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/60 p-4"
                 >
                   <div>
-                    <p className="font-black text-white">
+                    <p className="font-black text-slate-900 dark:text-white">
                       {rotuloTipoMarcacao(
-                        marcacao.tipo
+                        marcacao.tipo, t
                       )}
                     </p>
 
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
                       {rotuloStatusLocalizacao(
-                        marcacao.statusLocalizacao
+                        marcacao.statusLocalizacao, t
                       )}
                     </p>
                   </div>
 
-                  <p className="shrink-0 font-mono text-sm font-black text-blue-200">
+                  <p className="shrink-0 font-mono text-sm font-black text-blue-800 dark:text-blue-200">
                     {formatarHorario(
                       marcacao.dataHora,
                       contexto.servidor
-                        .fusoHorario
+                        .fusoHorario,
+                      locale
                     )}
                   </p>
                 </div>

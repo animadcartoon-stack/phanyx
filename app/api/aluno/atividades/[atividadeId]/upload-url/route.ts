@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getAuth, assertAluno } from "@/lib/auth/getAuth";
-import { S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
-import { formatUrl } from "@aws-sdk/util-format-url";
-import { Hash } from "@smithy/hash-node";
-import { HttpRequest } from "@smithy/protocol-http";
-import { parseUrl } from "@smithy/url-parser";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 function sanitizeFileName(nome: string) {
   return nome
@@ -196,32 +193,28 @@ if (!accountId || !accessKeyId || !secretAccessKey) {
 
 const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
 const objectUrl = `${endpoint}/${bucketName}/${key}`;
-const contentType = "application/octet-stream";
+const contentType = mimeType || "application/octet-stream";
 
-const presigner = new S3RequestPresigner({
+const r2 = new S3Client({
   region: "auto",
+  endpoint,
+  forcePathStyle: true,
+  requestChecksumCalculation: "WHEN_REQUIRED",
   credentials: {
     accessKeyId,
     secretAccessKey,
   },
-  sha256: Hash.bind(null, "sha256"),
 });
 
-const signedRequest = await presigner.presign(
-  new HttpRequest({
-    ...parseUrl(objectUrl),
-    method: "PUT",
-    headers: {
-      host: `${accountId}.r2.cloudflarestorage.com`,
-      "content-type": contentType,
-    },
+const uploadUrl = await getSignedUrl(
+  r2,
+  new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    ContentType: contentType,
   }),
-  {
-    expiresIn: 60 * 10,
-  }
+  { expiresIn: 60 * 10, signableHeaders: new Set(["content-type"]) }
 );
-
-const uploadUrl = formatUrl(signedRequest);
 
     const arquivoUrl = `${publicUrlBase}/${key}`;
 

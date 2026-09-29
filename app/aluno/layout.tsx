@@ -11,6 +11,7 @@ import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import { paginaVisivel } from "@/lib/portal-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
+import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
 
 export default async function AlunoLayout({
   children,
@@ -339,6 +340,7 @@ export default async function AlunoLayout({
     ) > 0;
 
   const visibilidadeAluno = {
+    biblioteca: await bibliotecaDisponivel(aluno.instituicaoId),
     painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
     rematricula: mostrarRematricula,
     disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
@@ -371,6 +373,7 @@ export default async function AlunoLayout({
             <AlunoSidebar
               aluno={aluno}
               visibilidade={{
+                biblioteca: visibilidadeAluno.biblioteca,
                 painel: visibilidadeAluno.painel,
                 rematricula: visibilidadeAluno.rematricula,
                 disciplinas: visibilidadeAluno.disciplinas,
@@ -397,6 +400,7 @@ export default async function AlunoLayout({
 
           <nav className="fixed bottom-0 left-0 right-0 z-[70] overflow-x-auto border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur dark:border-slate-700 dark:bg-slate-950/95 lg:hidden">
             <div className="grid w-max auto-cols-[78px] grid-flow-col gap-1 text-[9px] font-semibold text-slate-700 dark:text-slate-200">
+              {visibilidadeAluno.biblioteca && <a href="/aluno/biblioteca" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 transition hover:bg-slate-100 dark:hover:bg-slate-800"><span className="text-lg" aria-hidden="true">📚</span>{tAluno("library")}</a>}
               {visibilidadeAluno.painel && (
                 <a
                   href="/aluno"

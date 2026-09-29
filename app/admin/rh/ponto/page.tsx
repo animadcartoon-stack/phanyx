@@ -1343,7 +1343,7 @@ async function enviarCorrecaoRH() {
             type="button"
             onClick={aplicarFiltros}
             disabled={loading}
-            className="rounded-xl bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-xl bg-blue-600 px-5 py-3 font-bold !text-white hover:bg-blue-700 disabled:opacity-50"
           >
             {loading
               ? t("loading")
@@ -1385,7 +1385,7 @@ async function enviarCorrecaoRH() {
 
                   <th className="px-3 py-3">{t("status")}</th>
 
-                  <th className="min-w-[190px] px-3 py-3 text-center">{t("actions")}</th>
+                  <th className="sticky right-0 z-20 min-w-[190px] border-l border-slate-200 bg-slate-50 px-3 py-3 text-center dark:border-slate-700 dark:bg-slate-800">{t("actions")}</th>
                 </tr>
               </thead>
 
@@ -1518,7 +1518,7 @@ const marcacoesSubstituidas =
 </span>
                         </td>
 
-                        <td className="min-w-[190px] px-3 py-4">
+                        <td className="sticky right-0 z-10 min-w-[190px] border-l border-slate-200 bg-white px-3 py-4 dark:border-slate-700 dark:bg-slate-900">
   <div className="mx-auto flex w-[175px] flex-col gap-2">
     <button
       type="button"

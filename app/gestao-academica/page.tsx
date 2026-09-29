@@ -1,9 +1,11 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { marketingAlternates } from "@/lib/public-marketing";
 
 export const metadata = {
-  title: "Sistema de Gestão Acadêmica | PHANYX",
+  alternates: marketingAlternates("academic"),
+  title: { absolute: "Sistema de Gestão Acadêmica | PHANYX" },
   description:
     "Sistema de gestão acadêmica para escolas, faculdades e instituições de ensino. Controle cursos, disciplinas, matrículas, notas, histórico escolar e desempenho dos alunos.",
   keywords: [

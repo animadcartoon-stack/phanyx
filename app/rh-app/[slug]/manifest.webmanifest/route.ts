@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-function criarNomeCurto(nome: string) {
-  const nomeLimpo = String(nome || "Instituição").trim();
+function criarNomeCurto(nome: string, fallback: string) {
+  const nomeLimpo = String(nome || fallback).trim();
 
   const primeiraParte = nomeLimpo
     .split(/\s*[–—-]\s*/)
@@ -43,6 +44,11 @@ export async function GET(
     };
   }
 ) {
+  const [locale, t] = await Promise.all([
+    getLocale(),
+    getTranslations("RhAppAccess"),
+  ]);
+
   try {
     const slug = decodeURIComponent(
       String(params.slug || "")
@@ -52,7 +58,7 @@ export async function GET(
 
     if (!slug) {
       return NextResponse.json(
-        { error: "Instituição não informada." },
+        { error: t("errors.institutionMissing") },
         { status: 400 }
       );
     }
@@ -77,7 +83,7 @@ export async function GET(
 
     if (!instituicao || !instituicao.ativo) {
       return NextResponse.json(
-        { error: "Instituição não encontrada." },
+        { error: t("errors.institutionNotFound") },
         { status: 404 }
       );
     }
@@ -86,56 +92,45 @@ export async function GET(
       instituicao.configuracaoInstituicao?.nomeFantasia?.trim() ||
       instituicao.nome;
 
-    const nomeCurto = criarNomeCurto(nomeInstituicao);
+    const nomeCurto = criarNomeCurto(
+      nomeInstituicao,
+      t("institutionFallback")
+    );
 
     const caminhoApp = `/rh-app/${encodeURIComponent(
-  instituicao.slug
-)}`;
+      instituicao.slug
+    )}`;
 
-const manifesto = {
-  id: `${caminhoApp}/`,
-
-  name: `RH - ${nomeInstituicao}`,
-
-  short_name: `RH - ${nomeCurto}`,
-
-  description: `Aplicativo de ponto e RH de ${nomeInstituicao}.`,
-
-  start_url: caminhoApp,
-
-  scope: `${caminhoApp}/`,
-
-  display: "standalone",
-
-  orientation: "any",
-
-  background_color: "#020617",
-
-  theme_color: "#0f172a",
-
-  categories: ["business", "productivity"],
-
-  lang: "pt-BR",
-
-  dir: "ltr",
-
-  prefer_related_applications: false,
-
-  icons: [
-    {
-      src: "/app-rh-icon-192.png",
-      sizes: "192x192",
-      type: "image/png",
-      purpose: "any",
-    },
-    {
-      src: "/app-rh-icon-512.png",
-      sizes: "512x512",
-      type: "image/png",
-      purpose: "any",
-    },
-  ],
-};
+    const manifesto = {
+      id: `${caminhoApp}/`,
+      name: t("manifest.name", { name: nomeInstituicao }),
+      short_name: t("manifest.shortName", { name: nomeCurto }),
+      description: t("manifest.description", { name: nomeInstituicao }),
+      start_url: caminhoApp,
+      scope: `${caminhoApp}/`,
+      display: "standalone",
+      orientation: "any",
+      background_color: "#020617",
+      theme_color: "#0f172a",
+      categories: ["business", "productivity"],
+      lang: locale,
+      dir: "ltr",
+      prefer_related_applications: false,
+      icons: [
+        {
+          src: "/app-rh-icon-192.png",
+          sizes: "192x192",
+          type: "image/png",
+          purpose: "any",
+        },
+        {
+          src: "/app-rh-icon-512.png",
+          sizes: "512x512",
+          type: "image/png",
+          purpose: "any",
+        },
+      ],
+    };
 
     return new NextResponse(
       JSON.stringify(manifesto, null, 2),
@@ -145,9 +140,9 @@ const manifesto = {
         headers: {
           "Content-Type":
             "application/manifest+json; charset=utf-8",
-
           "Cache-Control":
-            "public, max-age=300, stale-while-revalidate=600",
+            "private, no-store, max-age=0",
+          "Content-Language": locale,
         },
       }
     );
@@ -159,8 +154,7 @@ const manifesto = {
 
     return NextResponse.json(
       {
-        error:
-          "Não foi possível gerar o aplicativo desta instituição.",
+        error: t("errors.institutionLoad"),
       },
       { status: 500 }
     );

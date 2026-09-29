@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({
   params,
@@ -11,11 +12,12 @@ export async function generateMetadata({
     String(params.slug || "")
   );
 
-  return {
-    title: "RH Ponto",
+  const t = await getTranslations("RhAppAccess");
 
-    description:
-      "Aplicativo de registro de ponto e recursos de RH.",
+  return {
+    title: t("productName"),
+
+    description: t("metadataDescription"),
 
     manifest: `/rh-app/${slug}/manifest.webmanifest`,
 
@@ -27,7 +29,7 @@ export async function generateMetadata({
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
-      title: "RH Ponto",
+      title: t("productName"),
     },
 
     robots: {

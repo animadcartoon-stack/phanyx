@@ -1,4 +1,5 @@
 ﻿import {
+  MobilidadeStatusCandidatura,
   MobilidadeStatusDocumento,
 } from "@prisma/client";
 
@@ -302,41 +303,152 @@ export async function PATCH(
         status
       );
 
-    await prisma.mobilidadeCandidaturaDocumento.update({
-      where: {
-        id:
-          atual.id,
-      },
+    const agora =
+      new Date();
 
-      data: {
-        status,
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.mobilidadeCandidaturaDocumento.update({
+          where: {
+            id:
+              atual.id,
+          },
 
-        validadeAte,
+          data: {
+            status,
 
-        motivoRejeicao:
-          status ===
-            MobilidadeStatusDocumento.REJEITADO ||
-          status ===
-            MobilidadeStatusDocumento.CORRECAO_SOLICITADA
-            ? motivoRejeicao
-            : null,
+            validadeAte,
 
-        observacoes,
+            motivoRejeicao:
+              status ===
+                MobilidadeStatusDocumento.REJEITADO ||
+              status ===
+                MobilidadeStatusDocumento.CORRECAO_SOLICITADA
+                ? motivoRejeicao
+                : null,
 
-        analisadoEm:
-          analisado
-            ? new Date()
-            : null,
+            observacoes,
 
-        analisadoPorId:
-          analisado
-            ? (
+            analisadoEm:
+              analisado
+                ? agora
+                : null,
+
+            analisadoPorId:
+              analisado
+                ? (
+                    usuario?.id ??
+                    null
+                  )
+                : null,
+          },
+        });
+
+        const pendentesObrigatorios =
+          await tx.mobilidadeCandidaturaDocumento.count({
+            where: {
+              candidaturaId,
+
+              instituicaoId,
+
+              obrigatorio:
+                true,
+
+              status: {
+                not:
+                  MobilidadeStatusDocumento.APROVADO,
+              },
+            },
+          });
+
+        const candidatura =
+          await tx.mobilidadeCandidatura.findFirst({
+            where: {
+              id:
+                candidaturaId,
+
+              instituicaoId,
+            },
+
+            select: {
+              status:
+                true,
+            },
+          });
+
+        if (!candidatura) {
+          throw new ErroMobilidade(
+            404,
+            "CANDIDATURA_NAO_ENCONTRADA",
+            "Candidatura n?o encontrada."
+          );
+        }
+
+        /*
+         * Todos os documentos obrigat?rios aprovados:
+         * DOCUMENTACAO_PENDENTE -> ELEGIVEL
+         */
+        if (
+          pendentesObrigatorios ===
+            0 &&
+          candidatura.status ===
+            MobilidadeStatusCandidatura.DOCUMENTACAO_PENDENTE
+        ) {
+          await tx.mobilidadeCandidatura.update({
+            where: {
+              id:
+                candidaturaId,
+            },
+
+            data: {
+              status:
+                MobilidadeStatusCandidatura.ELEGIVEL,
+
+              analisadaEm:
+                agora,
+
+              analisadoPorId:
                 usuario?.id ??
-                null
-              )
-            : null,
-      },
-    });
+                null,
+            },
+          });
+        }
+
+        /*
+         * Se um documento obrigat?rio deixar de estar aprovado,
+         * uma candidatura ainda apenas ELEGIVEL volta para
+         * DOCUMENTACAO_PENDENTE.
+         *
+         * Estados posteriores (EM_SELECAO, CLASSIFICADA,
+         * APROVADA etc.) n?o s?o alterados automaticamente.
+         */
+        if (
+          pendentesObrigatorios >
+            0 &&
+          candidatura.status ===
+            MobilidadeStatusCandidatura.ELEGIVEL
+        ) {
+          await tx.mobilidadeCandidatura.update({
+            where: {
+              id:
+                candidaturaId,
+            },
+
+            data: {
+              status:
+                MobilidadeStatusCandidatura.DOCUMENTACAO_PENDENTE,
+
+              analisadaEm:
+                agora,
+
+              analisadoPorId:
+                usuario?.id ??
+                null,
+            },
+          });
+        }
+      }
+    );
 
     return NextResponse.json({
       ok: true,

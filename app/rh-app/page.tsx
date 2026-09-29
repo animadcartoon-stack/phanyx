@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type SistemaCelular = "android" | "ios" | "outro";
 
@@ -37,6 +37,7 @@ function estaInstalado() {
 
 export default function PhanyxRhAppPage() {
   const router = useRouter();
+  const t = useTranslations("RhAppEntry");
 
   const [sistema, setSistema] =
     useState<SistemaCelular>("outro");
@@ -63,10 +64,10 @@ useEffect(() => {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 text-white">
+    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-white">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col justify-center">
-        <section className="overflow-hidden rounded-[32px] border border-slate-700 bg-slate-900 shadow-2xl">
-          <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 px-6 py-8 text-center">
+        <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+          <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 px-6 py-8 text-center text-white">
             <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white p-3 shadow-xl">
               <Image
                 src="/icon.png"
@@ -79,7 +80,7 @@ useEffect(() => {
             </div>
 
             <p className="mt-5 text-xs font-black uppercase tracking-[0.22em] text-blue-100">
-              Aplicativo do funcionário
+              {t("employeeApp")}
             </p>
 
             <h1 className="mt-2 text-3xl font-black">
@@ -87,34 +88,31 @@ useEffect(() => {
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-blue-100">
-              Registre seu ponto pelo celular com foto,
-              identificação e localização.
+              {t("heroDescription")}
             </p>
           </div>
 
           <div className="space-y-5 p-6">
-            <div className="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
-              <p className="text-sm font-black text-white">
-                Registro rápido e seguro
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/70">
+              <p className="text-sm font-black text-slate-900 dark:text-white">
+                {t("quickSecure")}
               </p>
 
-              <div className="mt-3 space-y-2 text-sm text-slate-300">
-                <p>📷 Foto capturada no momento do ponto</p>
-                <p>📍 Verificação do local do registro</p>
-                <p>🕒 Horário oficial do PHANYX</p>
-                <p>🔐 Uso liberado individualmente pelo RH</p>
+              <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <p>{t("photo")}</p>
+                <p>{t("location")}</p>
+                <p>{t("officialTime")}</p>
+                <p>{t("individualAccess")}</p>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-amber-800 bg-amber-950/40 p-4 text-center">
-  <p className="font-black text-amber-200">
-    Abra o link fornecido pela sua instituição
+            <div className="rounded-2xl border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 p-4 text-center">
+  <p className="font-black text-amber-900 dark:text-amber-200">
+    {t("openInstitutionLink")}
   </p>
 
-  <p className="mt-2 text-sm leading-6 text-amber-100">
-    Para acessar o PHANYX RH pela primeira vez, utilize o link
-    ou o QR Code enviado pelo setor de RH da instituição onde
-    você trabalha.
+  <p className="mt-2 text-sm leading-6 text-amber-800 dark:text-amber-100">
+    {t("firstAccess")}
   </p>
 </div>
             {!instalado && (
@@ -123,67 +121,64 @@ useEffect(() => {
                 onClick={() =>
                   setMostrarInstalacao((atual) => !atual)
                 }
-                className="min-h-12 w-full rounded-2xl border border-slate-600 bg-slate-900 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-800"
+                className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
               >
-                Como instalar no celular
+                {t("howToInstall")}
               </button>
             )}
 
             {instalado && (
-              <div className="rounded-2xl border border-emerald-700 bg-emerald-950/50 p-4 text-center">
-                <p className="text-sm font-black text-emerald-200">
-                  PHANYX RH aberto como aplicativo
+              <div className="rounded-2xl border border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/50 p-4 text-center">
+                <p className="text-sm font-black text-emerald-800 dark:text-emerald-200">
+                  {t("installed")}
                 </p>
               </div>
             )}
 
             {mostrarInstalacao && sistema === "ios" && (
-              <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-300">
-                <p className="font-black text-white">
-                  Instalar no iPhone
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+                <p className="font-black text-slate-900 dark:text-white">
+                  {t("installIphone")}
                 </p>
 
                 <ol className="mt-3 list-decimal space-y-1 pl-5">
-                  <li>Abra esta página pelo Safari.</li>
-                  <li>Toque no botão Compartilhar.</li>
+                  <li>{t("iosStep1")}</li>
+                  <li>{t("iosStep2")}</li>
                   <li>
-                    Escolha “Adicionar à Tela de Início”.
+                    {t("iosStep3")}
                   </li>
-                  <li>Confirme em “Adicionar”.</li>
+                  <li>{t("iosStep4")}</li>
                 </ol>
               </div>
             )}
 
             {mostrarInstalacao && sistema !== "ios" && (
-              <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-sm leading-6 text-slate-300">
-                <p className="font-black text-white">
-                  Instalar no Android
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+                <p className="font-black text-slate-900 dark:text-white">
+                  {t("installAndroid")}
                 </p>
 
                 <ol className="mt-3 list-decimal space-y-1 pl-5">
-                  <li>Abra esta página pelo Chrome.</li>
+                  <li>{t("androidStep1")}</li>
                   <li>
-                    Toque nos três pontinhos do navegador.
+                    {t("androidStep2")}
                   </li>
                   <li>
-                    Escolha “Instalar app” ou “Adicionar à
-                    tela inicial”.
+                    {t("androidStep3")}
                   </li>
-                  <li>Confirme a instalação.</li>
+                  <li>{t("androidStep4")}</li>
                 </ol>
               </div>
             )}
 
-            <p className="text-center text-xs leading-5 text-slate-400">
-              A instalação do aplicativo não libera o
-              registro de ponto automaticamente. O acesso
-              precisa ser autorizado pelo RH da instituição.
+            <p className="text-center text-xs leading-5 text-slate-600 dark:text-slate-400">
+              {t("installationNote")}
             </p>
           </div>
         </section>
 
-        <p className="mt-5 text-center text-xs text-slate-500">
-          PHANYX — Gestão integrada de pessoas e educação
+        <p className="mt-5 text-center text-xs text-slate-600 dark:text-slate-400">
+          {t("footer")}
         </p>
       </div>
     </main>

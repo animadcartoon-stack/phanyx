@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { getRequestConfig } from "next-intl/server";
 
 import {
@@ -42,14 +42,19 @@ async function carregarMensagens(
 
 export default getRequestConfig(async () => {
   const cookieStore = await cookies();
+  const requestHeaders = await headers();
 
   const localeSalvo = cookieStore.get(
     COOKIE_LOCALE_PHANYX
   )?.value;
 
-  const locale = localeEhSuportado(localeSalvo)
-    ? localeSalvo
-    : LOCALE_PADRAO;
+  const localeDaPagina = requestHeaders.get("x-phanyx-public-locale");
+  const inicioEmIngles = requestHeaders.get("x-phanyx-portal-default-en") === "1";
+  const locale = localeEhSuportado(localeDaPagina)
+    ? localeDaPagina
+    : localeEhSuportado(localeSalvo)
+      ? localeSalvo
+      : inicioEmIngles ? "en-US" : LOCALE_PADRAO;
 
   return {
     locale,

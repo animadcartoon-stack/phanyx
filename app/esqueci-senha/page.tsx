@@ -1,9 +1,12 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 
 function EsqueciSenhaContent() {
+  const t = useTranslations("PublicLogin.recovery");
   const searchParams = useSearchParams();
   const portal = searchParams.get("portal") || "admin";
 
@@ -24,39 +27,41 @@ function EsqueciSenhaContent() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao solicitar redefinição.");
+        throw new Error(t("requestFailed"));
       }
 
       setEnviado(true);
     } catch (e: any) {
-      setErro(e?.message || "Erro ao solicitar redefinição.");
+      setErro(e?.message || t("requestFailed"));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <main className="relative min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="absolute right-4 top-4 w-56">
+        <SeletorIdioma />
+      </div>
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm space-y-4">
         <div className="space-y-1 text-center">
-          <h1 className="text-2xl font-bold">Esqueci minha senha</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-sm text-gray-500">
-            Informe seu email para receber o link de redefinição.
+            {t("description")}
           </p>
         </div>
 
         {enviado ? (
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
-            Se este email estiver cadastrado, enviaremos um link de redefinição.
+            {t("sent")}
           </div>
         ) : (
           <>
             <input
               type="email"
-              placeholder="Seu email"
+              placeholder={t("emailPlaceholder")}
+              aria-label={t("emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border rounded-lg p-2"
@@ -69,7 +74,7 @@ function EsqueciSenhaContent() {
               disabled={loading || !email}
               className="w-full bg-blue-600 text-white py-2 rounded-lg disabled:opacity-60"
             >
-              {loading ? "Enviando..." : "Enviar link"}
+              {loading ? t("sending") : t("sendLink")}
             </button>
           </>
         )}
@@ -78,7 +83,7 @@ function EsqueciSenhaContent() {
           href={`/login?portal=${portal}`}
           className="block text-center text-sm text-blue-600 hover:underline"
         >
-          Voltar para o login
+          {t("backToLogin")}
         </a>
       </div>
     </main>
@@ -86,8 +91,9 @@ function EsqueciSenhaContent() {
 }
 
 export default function EsqueciSenhaPage() {
+  const t = useTranslations("PublicLogin");
   return (
-    <Suspense fallback={<div>Carregando...</div>}>
+    <Suspense fallback={<div>{t("loading")}</div>}>
       <EsqueciSenhaContent />
     </Suspense>
   );
