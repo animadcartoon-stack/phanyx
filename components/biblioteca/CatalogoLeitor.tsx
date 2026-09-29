@@ -92,8 +92,16 @@ export async function DetalheCatalogoLeitor({ portal, slug }: { portal: PortalLe
           {item.issn && <div><dt className="font-semibold">ISSN</dt><dd>{item.issn}</dd></div>}
           {item.categorias.length > 0 && <div><dt className="font-semibold">{t("categories")}</dt><dd>{item.categorias.map((c) => c.categoria.nome).join(", ")}</dd></div>}
         </dl>
-        <p className="rounded-xl bg-slate-100 p-3 text-sm font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-100">{item.linkExterno ? t("externalAvailable") : item.exemplaresDisponiveis > 0 ? t("physicalAvailable", { count: item.exemplaresDisponiveis }) : item.acessoDisponivel ? t("digitalCatalogued") : t("consultLibrary")}</p>
+        <p className="rounded-xl bg-slate-100 p-3 text-sm font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-100">{item.linkExterno ? t("externalAvailable") : item.pdfArquivoId ? t("pdfAvailable") : item.exemplaresDisponiveis > 0 ? t("physicalAvailable", { count: item.exemplaresDisponiveis }) : item.acessoDisponivel ? t("digitalCatalogued") : t("consultLibrary")}</p>
         {item.linkExterno && <a href={item.linkExterno} target="_blank" rel="noopener noreferrer" className="inline-flex rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-700 dark:bg-white dark:text-slate-950">{t("openExternal")}</a>}
+        {item.pdfArquivoId && <>
+          <aside className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-slate-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-slate-100" aria-label={t("rightsTitle")}>
+            <h2 className="font-bold">{t("rightsTitle")}</h2>
+            <p className="mt-2 leading-relaxed">{t("rightsNotice")}</p>
+            <p className="mt-2">{t("downloadResponsibility")}</p>
+          </aside>
+          <a href={`/api/biblioteca/arquivos/${item.pdfArquivoId}/download`} className="inline-flex rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-700 dark:bg-white dark:text-slate-950">{t("downloadPdf")}</a>
+        </>}
       </div>
     </div>
   </article>;
