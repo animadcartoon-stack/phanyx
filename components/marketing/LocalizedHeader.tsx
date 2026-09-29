@@ -5,7 +5,7 @@ import { marketingCopy, marketingLocales, marketingPath, type MarketingSection }
 
 export default function LocalizedHeader({ locale, section }: { locale: LocalePhanyx; section: MarketingSection }) {
   const copy = marketingCopy[locale];
-  const dark = section === "home" || section === "academic";
+  const dark = section !== "plans";
   return (
     <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${dark ? "border-white/10 bg-slate-950/90 text-white" : "border-slate-200 bg-white/95 text-slate-950"}`}>
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-2.5 md:px-10 lg:px-12">
