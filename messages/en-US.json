@@ -15275,7 +15275,9 @@
       "restoreConfirmTitle": "Restore enrollment",
       "restoreConfirmMessage": "Do you want to restore this enrollment to the normal list?",
       "restoreError": "Unable to restore the enrollment.",
-      "restoreSuccess": "Enrollment #{id} restored successfully."
+      "restoreSuccess": "Enrollment #{id} restored successfully.",
+      "statusUpdateSuccess": "Enrollment status updated successfully.",
+      "statusUpdateError": "Unable to update the enrollment status."
     },
     "quarantine": {
       "excludedAt": "Quarantined on",

@@ -15274,7 +15274,9 @@
       "restoreConfirmTitle": "Restaurer l’inscription",
       "restoreConfirmMessage": "Voulez-vous restaurer cette inscription dans la liste normale ?",
       "restoreError": "Impossible de restaurer l’inscription.",
-      "restoreSuccess": "Inscription #{id} restaurée avec succès."
+      "restoreSuccess": "Inscription #{id} restaurée avec succès.",
+      "statusUpdateSuccess": "Statut de l’inscription mis à jour avec succès.",
+      "statusUpdateError": "Impossible de mettre à jour le statut de l’inscription."
     },
     "quarantine": {
       "excludedAt": "Mise en quarantaine le",

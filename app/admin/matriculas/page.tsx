@@ -2707,16 +2707,16 @@ function AdminMatriculasPage() {
 
       if (!res.ok) {
         restaurarStatusAnterior();
-        setErro(data?.error ?? "Erro ao atualizar status da matr?cula.");
+        setErro(data?.error ?? t("messages.statusUpdateError"));
         return;
       }
 
       await carregarTudo();
-      setSucesso("Status da matr?cula atualizado com sucesso.");
+      setSucesso(t("messages.statusUpdateSuccess"));
     } catch (error) {
       restaurarStatusAnterior();
       console.error("Erro ao atualizar status:", error);
-      setErro("Erro ao atualizar status da matr?cula.");
+      setErro(t("messages.statusUpdateError"));
     } finally {
       statusAtualizandoRef.current = false;
       setStatusAtualizando(null);

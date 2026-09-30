@@ -15061,7 +15061,9 @@
       "restoreConfirmTitle": "Restaurar matrícula",
       "restoreConfirmMessage": "Pretende restaurar esta matrícula e devolvê-la à listagem normal?",
       "restoreError": "Não foi possível restaurar a matrícula.",
-      "restoreSuccess": "Matrícula #{id} restaurada com sucesso."
+      "restoreSuccess": "Matrícula #{id} restaurada com sucesso.",
+      "statusUpdateSuccess": "Estado da matrícula atualizado com sucesso.",
+      "statusUpdateError": "Não foi possível atualizar o estado da matrícula."
     },
     "quarantine": {
       "excludedAt": "Excluída em",
