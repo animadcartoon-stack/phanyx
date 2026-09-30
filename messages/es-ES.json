@@ -20945,6 +20945,44 @@
       "sendLink": "Enviar enlace",
       "backToLogin": "Volver al inicio de sesión"
     },
+    "passwordSecurity": {
+      "strengthLabel": "Seguridad de la contraseña",
+      "weak": "Débil",
+      "medium": "Media",
+      "strong": "Fuerte",
+      "minLength": "Al menos {count} caracteres",
+      "lowercase": "Una letra minúscula",
+      "uppercase": "Una letra mayúscula",
+      "number": "Un número",
+      "special": "Un carácter especial",
+      "browserSuggestion": "Tu navegador puede sugerir y guardar automáticamente una contraseña segura.",
+      "policyInvalid": "La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una letra minúscula, un número y un carácter especial."
+    },
+    "resetPassword": {
+      "title": "Restablecer contraseña",
+      "description": "Crea una nueva contraseña de acceso.",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar nueva contraseña",
+      "passwordsMismatch": "Las contraseñas no coinciden.",
+      "tokenInvalid": "El enlace para restablecer la contraseña no es válido.",
+      "linkExpired": "El enlace para restablecer la contraseña no es válido o ha caducado.",
+      "resetFailed": "No se pudo restablecer la contraseña.",
+      "success": "Contraseña restablecida correctamente.",
+      "backToLogin": "Volver al inicio de sesión",
+      "submit": "Restablecer contraseña",
+      "submitting": "Guardando..."
+    },
+    "firstAccess": {
+      "title": "Primer acceso",
+      "description": "Por seguridad, crea ahora tu nueva contraseña de acceso.",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar nueva contraseña",
+      "passwordsMismatch": "Las contraseñas no coinciden.",
+      "sessionExpired": "Tu sesión ha caducado. Inicia sesión de nuevo.",
+      "updateFailed": "No se pudo actualizar la contraseña.",
+      "save": "Guardar nueva contraseña",
+      "saving": "Guardando..."
+    },
     "choosePage": {
       "metadataTitle": "Elige tu acceso | PHANYX",
       "welcome": "Bienvenido a PHANYX",

@@ -20945,6 +20945,44 @@
       "sendLink": "Envoyer le lien",
       "backToLogin": "Retour à la connexion"
     },
+    "passwordSecurity": {
+      "strengthLabel": "Robustesse du mot de passe",
+      "weak": "Faible",
+      "medium": "Moyenne",
+      "strong": "Forte",
+      "minLength": "Au moins {count} caractères",
+      "lowercase": "Une lettre minuscule",
+      "uppercase": "Une lettre majuscule",
+      "number": "Un chiffre",
+      "special": "Un caractère spécial",
+      "browserSuggestion": "Votre navigateur peut suggérer et enregistrer automatiquement un mot de passe fort.",
+      "policyInvalid": "Le mot de passe doit contenir au moins 8 caractères, avec une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial."
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "description": "Créez un nouveau mot de passe pour votre compte.",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+      "tokenInvalid": "Le lien de réinitialisation est invalide.",
+      "linkExpired": "Le lien de réinitialisation est invalide ou a expiré.",
+      "resetFailed": "Impossible de réinitialiser le mot de passe.",
+      "success": "Mot de passe réinitialisé avec succès.",
+      "backToLogin": "Retour à la connexion",
+      "submit": "Réinitialiser le mot de passe",
+      "submitting": "Enregistrement..."
+    },
+    "firstAccess": {
+      "title": "Première connexion",
+      "description": "Pour votre sécurité, créez maintenant votre nouveau mot de passe.",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+      "sessionExpired": "Votre session a expiré. Connectez-vous de nouveau.",
+      "updateFailed": "Impossible de mettre à jour le mot de passe.",
+      "save": "Enregistrer le nouveau mot de passe",
+      "saving": "Enregistrement..."
+    },
     "choosePage": {
       "metadataTitle": "Choisissez votre espace | PHANYX",
       "welcome": "Bienvenue sur PHANYX",
