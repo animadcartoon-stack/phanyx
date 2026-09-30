@@ -21062,6 +21062,28 @@
       "responsibleDocumentType": "Tipo de documento del responsable",
       "responsibleDocumentNumber": "Número de documento del responsable",
       "responsiblePhoneCountry": "País del teléfono del responsable (ISO 2)"
+    },
+    "groups": {
+      "internationalDocuments": "INTERNACIONAL / DOCUMENTOS",
+      "address": "DIRECCIÓN",
+      "responsible": "RESPONSABLE",
+      "accessibility": "ACCESIBILIDAD"
+    },
+    "instructions": {
+      "sheetName": "Cómo usar",
+      "title": "Cómo usar el modelo de importación de alumnos",
+      "intro": "Introduzca los alumnos solamente en la hoja {sheet}.",
+      "required": "Los campos marcados con * son obligatorios.",
+      "expand": "Use los botones + sobre las columnas para abrir solo los grupos opcionales que necesite.",
+      "optional": "Puede completar ?nicamente los campos que necesite. Los grupos contra?dos son opcionales.",
+      "countryCode": "En los campos ISO 2, introduzca el código de país de dos letras, por ejemplo ES, BR o US.",
+      "technicalRow": "No muestre, edite ni elimine la fila 1 oculta. Contiene los identificadores t?cnicos utilizados por PHANYX.",
+      "saveXlsx": "Mantenga el archivo en formato XLSX para conservar los grupos y las columnas ocultas.",
+      "groupsTitle": "Grupos opcionales",
+      "groupInternational": "Internacional / documentos: nacionalidad, países de nacimiento y residencia y documentos adicionales.",
+      "groupAddress": "Dirección: calle, número, complemento, barrio, ciudad y estado/provincia.",
+      "groupResponsible": "Responsable: documentos, teléfono, país del teléfono, correo y parentesco.",
+      "groupAccessibility": "Accesibilidad: descripción de necesidades especiales y observaciones."
     }
   }
 }

@@ -21063,6 +21063,28 @@
       "responsibleDocumentType": "Guardian document type",
       "responsibleDocumentNumber": "Guardian document number",
       "responsiblePhoneCountry": "Guardian phone country (ISO 2)"
+    },
+    "groups": {
+      "internationalDocuments": "INTERNATIONAL / DOCUMENTS",
+      "address": "ADDRESS",
+      "responsible": "GUARDIAN",
+      "accessibility": "ACCESSIBILITY"
+    },
+    "instructions": {
+      "sheetName": "How to use",
+      "title": "How to use the student import template",
+      "intro": "Enter student data only on the {sheet} sheet.",
+      "required": "Fields marked with * are required.",
+      "expand": "Use the + buttons above the columns to open only the optional groups you need.",
+      "optional": "You may fill in only the fields you need. Collapsed groups are optional.",
+      "countryCode": "For ISO 2 fields, enter the two-letter country code, for example US, BR or PT.",
+      "technicalRow": "Do not unhide, edit or delete hidden row 1. It contains the technical identifiers used by PHANYX.",
+      "saveXlsx": "Keep the file in XLSX format to preserve groups and hidden columns.",
+      "groupsTitle": "Optional groups",
+      "groupInternational": "International / documents: nationality, countries of birth and residence, and additional documents.",
+      "groupAddress": "Address: street, number, complement, district, city and state.",
+      "groupResponsible": "Guardian: documents, phone, phone country, email and relationship.",
+      "groupAccessibility": "Accessibility: special-needs description and accessibility notes."
     }
   }
 }
