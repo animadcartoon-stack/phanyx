@@ -69,7 +69,7 @@ CREATE INDEX "DocumentoGerado_trancamentoMatriculaId_idx" ON "DocumentoGerado"("
 ALTER TABLE "TrancamentoMatricula" ADD CONSTRAINT "TrancamentoMatricula_instituicaoId_fkey" FOREIGN KEY ("instituicaoId") REFERENCES "Instituicao"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TrancamentoMatricula" ADD CONSTRAINT "TrancamentoMatricula_matriculaId_fkey" FOREIGN KEY ("matriculaId") REFERENCES "Matricula"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "TrancamentoMatricula" ADD CONSTRAINT "TrancamentoMatricula_matriculaId_fkey" FOREIGN KEY ("matriculaId") REFERENCES "Matricula"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TrancamentoMatricula" ADD CONSTRAINT "TrancamentoMatricula_registradoPorId_fkey" FOREIGN KEY ("registradoPorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

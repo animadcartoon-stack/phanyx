@@ -1278,7 +1278,7 @@ model TrancamentoMatricula {
   atualizadoEm                DateTime                     @updatedAt
 
   instituicao                 Instituicao                  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  matricula                   Matricula                    @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  matricula                   Matricula                    @relation(fields: [matriculaId], references: [id], onDelete: Restrict)
   registradoPor               User?                        @relation("TrancamentoMatriculaRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
   confirmadoPor               User?                        @relation("TrancamentoMatriculaConfirmadoPor", fields: [confirmadoPorId], references: [id], onDelete: SetNull)
   documentosGerados           DocumentoGerado[]
