@@ -15240,6 +15240,7 @@
     },
     "actions": {
       "aguardando": "Marquer en attente",
+      "trancar": "Mettre en pause",
       "transferir": "Transférer",
       "intercambio": "Échange",
       "moverQuarentena": "Mettre en quarantaine",
@@ -15327,6 +15328,7 @@
       "alunos__editar": "Académique - Modifier les étudiants",
       "matriculas__ver": "Académique - Voir les inscriptions",
       "matriculas__criar": "Académique - Créer des inscriptions",
+      "matriculas__trancar": "Académique - Mettre les inscriptions en pause",
       "academico__publicacoes__ver": "Soutien aux enseignants - Voir les publications en attente",
       "academico__publicacoes__gerenciar": "Soutien aux enseignants - Gérer les publications académiques",
       "academico__materiais__anexar": "Soutien aux enseignants - Joindre des ressources",

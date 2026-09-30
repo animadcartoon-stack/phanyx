@@ -1166,6 +1166,9 @@ export async function PATCH(
                     true,
 
                   status: true,
+
+                  statusAnterior:
+                    true,
                 },
               });
 
@@ -1225,6 +1228,39 @@ export async function PATCH(
               });
           }
 
+          /*
+           * O status da matricula deve
+           * continuar igual ao registrado
+           * quando o rascunho foi criado.
+           *
+           * Se outro processo alterou a
+           * matricula depois disso, o
+           * trancamento precisa ser revisto
+           * antes da confirmacao.
+           */
+          if (
+            matricula!.status !==
+            trancamento.statusAnterior
+          ) {
+            throw new ErroApi(
+              409,
+              "A situacao da matricula mudou depois da criacao deste rascunho. Revise o processo antes de confirmar.",
+              "MATRICULA_ALTERADA_APOS_RASCUNHO",
+              {
+                numeroProtocolo:
+                  trancamento
+                    .numeroProtocolo,
+
+                statusRascunho:
+                  trancamento
+                    .statusAnterior,
+
+                statusAtual:
+                  matricula!
+                    .status,
+              }
+            );
+          }
           const outroAtivo =
             await tx
               .trancamentoMatricula
@@ -1334,14 +1370,6 @@ export async function PATCH(
                 status:
                   STATUS_TRANCAMENTO.CONFIRMADO,
 
-                /*
-                 * Captura o status verdadeiro
-                 * imediatamente anterior ao
-                 * trancamento.
-                 */
-                statusAnterior:
-                  matricula!
-                    .status,
 
                 motivo:
                   dados.motivo,

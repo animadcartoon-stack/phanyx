@@ -15011,6 +15011,7 @@
     },
     "actions": {
       "aguardando": "Marcar como aguardando",
+      "trancar": "Trancar",
       "transferir": "Transferir",
       "intercambio": "Intercâmbio",
       "moverQuarentena": "Mover para quarentena",
@@ -15098,6 +15099,7 @@
       "alunos__editar": "Acadêmico - Editar alunos",
       "matriculas__ver": "Acadêmico - Ver matrículas",
       "matriculas__criar": "Acadêmico - Criar matrículas",
+      "matriculas__trancar": "Acadêmico - Trancar matrículas",
       "academico__publicacoes__ver": "Apoio Docente - Ver publicações pendentes",
       "academico__publicacoes__gerenciar": "Apoio Docente - Gerenciar publicações acadêmicas",
       "academico__materiais__anexar": "Apoio Docente - Anexar materiais",

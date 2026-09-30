@@ -15241,6 +15241,7 @@
     },
     "actions": {
       "aguardando": "Mark as pending",
+      "trancar": "Put on hold",
       "transferir": "Transfer",
       "intercambio": "Exchange",
       "moverQuarentena": "Move to quarantine",
@@ -15328,6 +15329,7 @@
       "alunos__editar": "Academic - Edit students",
       "matriculas__ver": "Academic - View enrollments",
       "matriculas__criar": "Academic - Create enrollments",
+      "matriculas__trancar": "Academic - Put enrollments on hold",
       "academico__publicacoes__ver": "Teaching Support - View pending publications",
       "academico__publicacoes__gerenciar": "Teaching Support - Manage academic publications",
       "academico__materiais__anexar": "Teaching Support - Attach materials",
