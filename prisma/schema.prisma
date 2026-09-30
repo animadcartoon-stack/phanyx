@@ -94,6 +94,7 @@ model Instituicao {
   lancamentosFinanceiros         LancamentoFinanceiro[]
   materiaisAula                  MaterialAula[]
   matriculas                     Matricula[]
+  trancamentosMatricula           TrancamentoMatricula[]
   modulos                        Modulo[]
   movimentosCaixa                MovimentoCaixa[]
   notas                          Nota[]
@@ -357,6 +358,8 @@ model User {
   anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
   crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
   crachasLotesCriados     CrachaLoteEmissao[]   @relation("CrachaLoteCriadoPor")
+  trancamentosMatriculaRegistrados TrancamentoMatricula[] @relation("TrancamentoMatriculaRegistradoPor")
+  trancamentosMatriculaConfirmados TrancamentoMatricula[] @relation("TrancamentoMatriculaConfirmadoPor")
 
   feriasRHCriadas                  FeriasRH[]               @relation("FeriasRHCriadoPor")
   feriasRHArquivadas               FeriasRH[]               @relation("FeriasRHArquivadaPor")
@@ -1178,6 +1181,7 @@ model Matricula {
   contratos               Contrato[]
   documentos              DocumentoAluno[]
   documentosGerados       DocumentoGerado[]
+  trancamentos            TrancamentoMatricula[]
   itens                   ItemMatricula[]
   lancamentosFinanceiros  LancamentoFinanceiro[]
   vendedorResponsavel     Funcionario?                     @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
@@ -1223,6 +1227,70 @@ model Matricula {
   @@index([turmaPrincipalId])
   @@index([instituicaoId, excluidaEm])
   @@index([instituicaoId, canceladaEm])
+}
+
+enum StatusTrancamentoMatricula {
+  RASCUNHO
+  CONFIRMADO
+  ENCERRADO
+  CANCELADO
+}
+
+enum UnidadeTrancamentoMatricula {
+  DIAS
+  MESES
+  SEMESTRES
+  INDETERMINADO
+}
+
+model TrancamentoMatricula {
+  id                          Int                          @id @default(autoincrement())
+  instituicaoId               Int
+  matriculaId                 Int
+
+  numeroProtocolo             String
+  status                      StatusTrancamentoMatricula   @default(RASCUNHO)
+  statusAnterior              StatusMatricula
+
+  motivo                      String                       @db.Text
+  observacoes                 String?                      @db.Text
+
+  dataInicio                  DateTime
+  dataRetornoPrevista         DateTime?
+  duracaoQuantidade           Int?
+  duracaoUnidade              UnidadeTrancamentoMatricula?
+
+  registradoPorId             Int?
+  registradoPorNomeSnapshot   String?
+  registradoPorCargoSnapshot  String?
+
+  confirmadoPorId             Int?
+  confirmadoPorNomeSnapshot   String?
+  confirmadoPorCargoSnapshot  String?
+  ipConfirmacao               String?
+  userAgentConfirmacao        String?                      @db.Text
+
+  confirmadoEm                DateTime?
+  encerradoEm                 DateTime?
+  canceladoEm                 DateTime?
+
+  criadoEm                    DateTime                     @default(now())
+  atualizadoEm                DateTime                     @updatedAt
+
+  instituicao                 Instituicao                  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula                   Matricula                    @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  registradoPor               User?                        @relation("TrancamentoMatriculaRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+  confirmadoPor               User?                        @relation("TrancamentoMatriculaConfirmadoPor", fields: [confirmadoPorId], references: [id], onDelete: SetNull)
+  documentosGerados           DocumentoGerado[]
+
+  @@unique([instituicaoId, numeroProtocolo])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([instituicaoId, matriculaId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, confirmadoEm])
+  @@index([registradoPorId])
+  @@index([confirmadoPorId])
 }
 
 model ItemMatricula {
@@ -2229,6 +2297,7 @@ model DocumentoGerado {
   instituicaoId               Int
   alunoId                     Int?
   matriculaId                 Int?
+  trancamentoMatriculaId      Int?
   templateId                  Int?
   cursoId                     Int?
   codigoValidacao             String?                       @unique
@@ -2239,12 +2308,14 @@ model DocumentoGerado {
   Curso                       Curso?                        @relation(fields: [cursoId], references: [id])
   instituicao                 Instituicao                   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   matricula                   Matricula?                    @relation(fields: [matriculaId], references: [id])
+  trancamentoMatricula       TrancamentoMatricula?        @relation(fields: [trancamentoMatriculaId], references: [id], onDelete: SetNull)
   template                    DocumentoTemplate?            @relation(fields: [templateId], references: [id])
   AuditoriaValidacaoDocumento AuditoriaValidacaoDocumento[]
 
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([matriculaId])
+  @@index([trancamentoMatriculaId])
   @@index([templateId])
   @@index([tipo])
   @@index([status])
