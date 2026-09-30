@@ -3536,12 +3536,33 @@ export async function PATCH(request: Request) {
 
     const id = Number(body.id);
     const status = String(body.status || "").trim();
+    /*
+     * TRANCADA nao e mais uma simples
+     * troca de status.
+     *
+     * O trancamento deve passar pelo
+     * processo estruturado para preservar
+     * historico academico, protocolo,
+     * responsaveis, datas e auditoria.
+     */
+    if (id > 0 && status === "TRANCADA") {
+      return NextResponse.json(
+        {
+          error: "TRANCAMENTO_REQUER_PROCESSO",
+          codigo: "TRANCAMENTO_REQUER_PROCESSO",
+          rota:
+            `/api/admin/matriculas/${id}/trancamento`,
+        },
+        {
+          status: 409,
+        }
+      );
+    }
 
 
     const statusPermitidos = [
       "A_INICIAR",
       "ATIVA",
-      "TRANCADA",
       "SUSPENSA",
       "CONCLUIDA",
       "AGUARDANDO",
@@ -3589,7 +3610,6 @@ export async function PATCH(request: Request) {
     if (status === "A_INICIAR") statusItens = "A_CURSAR";
     if (status === "AGUARDANDO") statusItens = "A_CURSAR";
     if (status === "ATIVA") statusItens = "EM_CURSO";
-    if (status === "TRANCADA") statusItens = "TRANCADO";
     /*
      * CANCELADA encerra a matricula sem apagar
      * o estado academico dos ItemMatricula.

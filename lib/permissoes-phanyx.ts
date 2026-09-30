@@ -19,6 +19,12 @@ export const PERMISSOES_PHANYX = [
 
   { chave: "matriculas.ver", nome: "Acadêmico - Ver matrículas" },
   { chave: "matriculas.criar", nome: "Acadêmico - Criar matrículas" },
+  {
+    chave: "matriculas.trancar",
+    nome: "Acadêmico - Trancar matrículas",
+    descricao:
+      "Permite preparar e confirmar processos de trancamento de matrícula, preservando o histórico acadêmico.",
+  },
 
     // =====================================================
   // ATIVIDADES EXTERNAS
