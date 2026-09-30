@@ -4402,7 +4402,6 @@ function AdminDocumentosTemplatesPage() {
                       })
                       .filter((item) => item.score > 0)
                       .sort((a, b) => b.score - a.score)
-                      .slice(0, buscaVariavel.trim() ? 4 : 999)
                       .map(({ variavel }) => (
 
                         <button
