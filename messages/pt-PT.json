@@ -21236,4 +21236,99 @@
       }
     }
   }
+,
+  "AdminExternalActivityHealth": {
+    "eyebrow": "SAÚDE E CUIDADOS",
+    "title": "Saúde",
+    "description": "Centralize informações essenciais de saúde e cuidados dos participantes para o planeamento seguro da atividade.",
+    "loading": "A carregar informações de saúde...",
+    "privacy": {
+      "title": "Dados sensíveis.",
+      "description": "As informações desta área devem ser consultadas apenas por pessoas autorizadas e utilizadas exclusivamente para proteção e atendimento do participante."
+    },
+    "summary": {
+      "participants": "Participantes",
+      "records": "Fichas preenchidas",
+      "alerts": "Com alertas",
+      "confirmed": "Confirmadas"
+    },
+    "participants": {
+      "title": "Saúde dos participantes",
+      "description": "A lista apresenta apenas indicadores. Os detalhes ficam disponíveis ao abrir a ficha individual.",
+      "search": "Pesquisar por nome ou matrícula",
+      "empty": "Nenhum participante encontrado."
+    },
+    "participant": {
+      "recordFilled": "Ficha preenchida",
+      "recordPending": "Ficha pendente",
+      "confirmed": "Confirmado pelo responsável",
+      "noRegistration": "Matrícula não informada",
+      "noAlerts": "Nenhum alerta de saúde registado."
+    },
+    "indicators": {
+      "allergy": "Alergia",
+      "foodRestriction": "Restrição alimentar",
+      "medication": "Medicação",
+      "medicationDuringActivity": "Medicação durante a atividade",
+      "healthCondition": "Condição de saúde",
+      "specialNeed": "Necessidade especial",
+      "accessibility": "Acessibilidade",
+      "individualSupport": "Acompanhamento individual"
+    },
+    "form": {
+      "eyebrow": "FICHA INDIVIDUAL"
+    },
+    "sections": {
+      "allergies": "Alergias e alimentação",
+      "allergiesDescription": "Registe alergias e restrições alimentares relevantes para a atividade.",
+      "medication": "Medicações e condições de saúde",
+      "medicationDescription": "Indique medicamentos, orientações e condições que possam exigir atenção.",
+      "accessibility": "Acessibilidade e acompanhamento",
+      "accessibilityDescription": "Registe necessidades de acessibilidade, apoio ou acompanhamento individual.",
+      "emergency": "Contacto e atendimento de emergência",
+      "emergencyDescription": "Mantenha os contactos essenciais disponíveis para uma eventual emergência.",
+      "insurance": "Plano ou seguro de saúde",
+      "insuranceDescription": "Registe informações de cobertura e a confirmação das informações pelo responsável."
+    },
+    "fields": {
+      "hasAllergy": "Possui alergia",
+      "allergies": "Alergias",
+      "hasFoodRestriction": "Possui restrição alimentar",
+      "foodRestrictions": "Restrições alimentares",
+      "usesMedication": "Utiliza medicação",
+      "medications": "Medicações",
+      "needsMedicationDuringActivity": "Necessita medicação durante a atividade",
+      "medicationInstructions": "Instruções para medicação",
+      "hasRelevantCondition": "Possui condição de saúde relevante",
+      "relevantConditions": "Condições de saúde relevantes",
+      "hasSpecialNeed": "Possui necessidade especial",
+      "specialNeeds": "Necessidades especiais",
+      "needsAccessibility": "Necessita acessibilidade",
+      "accessibilityGuidance": "Orientações de acessibilidade",
+      "needsIndividualSupport": "Necessita acompanhamento individual",
+      "individualSupportGuidance": "Orientações de acompanhamento",
+      "emergencyContactName": "Contacto de emergência",
+      "emergencyContactPhone": "Telefone",
+      "relationship": "Parentesco / relação",
+      "referenceService": "Médico ou serviço de referência",
+      "referenceServicePhone": "Telefone do serviço",
+      "emergencyNotes": "Observações para emergência",
+      "healthPlan": "Plano de saúde ou seguro",
+      "healthPlanNumber": "Número do plano ou seguro",
+      "confirmedByGuardian": "Informação confirmada pelo responsável",
+      "confirmedByGuardianDescription": "Marque apenas quando as informações tiverem sido efetivamente confirmadas pelo responsável."
+    },
+    "actions": {
+      "fill": "Preencher ficha",
+      "edit": "Editar ficha de saúde",
+      "save": "Guardar ficha",
+      "saving": "A guardar...",
+      "cancel": "Cancelar"
+    },
+    "messages": {
+      "loadError": "Não foi possível carregar as informações de saúde.",
+      "saveError": "Não foi possível guardar a ficha de saúde.",
+      "saved": "Ficha de saúde guardada com sucesso."
+    }
+  }
 }

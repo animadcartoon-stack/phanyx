@@ -16,6 +16,7 @@ import AutorizacoesAtividadeExterna from "@/components/admin/atividades-externas
 import EquipeAtividadeExterna from "@/components/admin/atividades-externas/EquipeAtividadeExterna";
 import TransporteAtividadeExterna from "@/components/admin/atividades-externas/TransporteAtividadeExterna";
 import SegurancaAtividadeExterna from "@/components/admin/atividades-externas/SegurancaAtividadeExterna";
+import SaudeAtividadeExterna from "@/components/admin/atividades-externas/SaudeAtividadeExterna";
 
 type Responsavel = {
     id: number;
@@ -899,6 +900,11 @@ export default function AtividadeExternaDetalhePage() {
                             <SegurancaAtividadeExterna
                                 atividadeId={atividade.id}
                                 onSegurancaAlterada={carregar}
+                            />
+                        ) : abaAtiva === "health" ? (
+                            <SaudeAtividadeExterna
+                                atividadeId={atividade.id}
+                                onSaudeAlterada={carregar}
                             />
                         ) : (
                             <AreaEmPreparacao

@@ -21450,4 +21450,99 @@
       }
     }
   }
+,
+  "AdminExternalActivityHealth": {
+    "eyebrow": "HEALTH AND CARE",
+    "title": "Health",
+    "description": "Centralize essential participant health and care information for safe activity planning.",
+    "loading": "Loading health information...",
+    "privacy": {
+      "title": "Sensitive data.",
+      "description": "Information in this area should only be accessed by authorized people and used exclusively to protect and assist the participant."
+    },
+    "summary": {
+      "participants": "Participants",
+      "records": "Completed records",
+      "alerts": "With alerts",
+      "confirmed": "Confirmed"
+    },
+    "participants": {
+      "title": "Participant health",
+      "description": "The list shows indicators only. Details are available when opening the individual health record.",
+      "search": "Search by name or enrollment",
+      "empty": "No participants found."
+    },
+    "participant": {
+      "recordFilled": "Record completed",
+      "recordPending": "Record pending",
+      "confirmed": "Confirmed by guardian",
+      "noRegistration": "Enrollment not informed",
+      "noAlerts": "No health alerts recorded."
+    },
+    "indicators": {
+      "allergy": "Allergy",
+      "foodRestriction": "Food restriction",
+      "medication": "Medication",
+      "medicationDuringActivity": "Medication during activity",
+      "healthCondition": "Health condition",
+      "specialNeed": "Special need",
+      "accessibility": "Accessibility",
+      "individualSupport": "Individual support"
+    },
+    "form": {
+      "eyebrow": "INDIVIDUAL HEALTH RECORD"
+    },
+    "sections": {
+      "allergies": "Allergies and food",
+      "allergiesDescription": "Record allergies and food restrictions relevant to the activity.",
+      "medication": "Medication and health conditions",
+      "medicationDescription": "Record medication, instructions, and conditions that may require attention.",
+      "accessibility": "Accessibility and support",
+      "accessibilityDescription": "Record accessibility, support, or individual assistance needs.",
+      "emergency": "Emergency contact and care",
+      "emergencyDescription": "Keep essential contacts available for a possible emergency.",
+      "insurance": "Health plan or insurance",
+      "insuranceDescription": "Record coverage information and guardian confirmation."
+    },
+    "fields": {
+      "hasAllergy": "Has an allergy",
+      "allergies": "Allergies",
+      "hasFoodRestriction": "Has a food restriction",
+      "foodRestrictions": "Food restrictions",
+      "usesMedication": "Uses medication",
+      "medications": "Medications",
+      "needsMedicationDuringActivity": "Needs medication during the activity",
+      "medicationInstructions": "Medication instructions",
+      "hasRelevantCondition": "Has a relevant health condition",
+      "relevantConditions": "Relevant health conditions",
+      "hasSpecialNeed": "Has a special need",
+      "specialNeeds": "Special needs",
+      "needsAccessibility": "Needs accessibility support",
+      "accessibilityGuidance": "Accessibility guidance",
+      "needsIndividualSupport": "Needs individual support",
+      "individualSupportGuidance": "Individual support guidance",
+      "emergencyContactName": "Emergency contact",
+      "emergencyContactPhone": "Phone",
+      "relationship": "Relationship",
+      "referenceService": "Reference doctor or service",
+      "referenceServicePhone": "Service phone",
+      "emergencyNotes": "Emergency notes",
+      "healthPlan": "Health plan or insurance",
+      "healthPlanNumber": "Plan or insurance number",
+      "confirmedByGuardian": "Information confirmed by guardian",
+      "confirmedByGuardianDescription": "Check only when the information has actually been confirmed by the guardian."
+    },
+    "actions": {
+      "fill": "Complete health record",
+      "edit": "Edit health record",
+      "save": "Save record",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "loadError": "Could not load health information.",
+      "saveError": "Could not save the health record.",
+      "saved": "Health record saved successfully."
+    }
+  }
 }
