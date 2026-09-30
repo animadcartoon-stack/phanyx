@@ -2061,6 +2061,18 @@ function cssCompartilhado(
       font-size: 5.5pt;
       letter-spacing: 0.08em;
     }
+
+    .phanyx-tesoura-corte {
+      position: absolute;
+      left: 0;
+      top: -3.2mm;
+      box-sizing: content-box;
+      width: 5mm;
+      height: 5mm;
+      padding-right: 1mm;
+      background: #ffffff;
+      color: #64748b;
+    }
   `;
 }
 
@@ -2495,6 +2507,37 @@ export function montarRenderizacaoDocumento(
           <div
             class="phanyx-linha-corte"
           >
+            <svg
+              class="phanyx-tesoura-corte"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                cx="6"
+                cy="7"
+                r="3"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <circle
+                cx="6"
+                cy="17"
+                r="3"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M8.5 8.5 20 3 M8.5 15.5 20 21 M9 9l4 3 M9 15l4-3"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+
             <span>
               LINHA DE CORTE
             </span>
