@@ -15080,42 +15080,42 @@
     }
   },
   "AdminTrancamentoMatricula": {
-    "back": "Voltar ?s matr?culas",
-    "title": "Trancar matr?cula",
-    "subtitle": "Registe o processo de trancamento preservando o hist?rico acad?mico da matr?cula.",
+    "back": "Voltar às matrículas",
+    "title": "Trancar matrícula",
+    "subtitle": "Registe o processo de trancamento preservando o histórico académico da matrícula.",
     "loading": "A carregar o processo de trancamento...",
-    "enrollmentId": "Matr?cula #{id}",
+    "enrollmentId": "Matrícula #{id}",
     "summary": {
-      "title": "Dados da matr?cula",
+      "title": "Dados da matrícula",
       "student": "Aluno",
-      "enrollment": "Matr?cula",
-      "institution": "Institui??o",
+      "enrollment": "Matrícula",
+      "institution": "Instituição",
       "campus": "Polo",
       "course": "Curso",
       "class": "Turma",
-      "status": "Situa??o atual"
+      "status": "Situação atual"
     },
     "process": {
       "title": "Processo de trancamento",
-      "description": "Preencha os dados abaixo. O protocolo ? gerado automaticamente ao guardar o primeiro rascunho.",
+      "description": "Preencha os dados abaixo. O protocolo é gerado automaticamente ao guardar o primeiro rascunho.",
       "protocol": "Protocolo",
-      "pendingProtocol": "Ser? gerado ao guardar",
+      "pendingProtocol": "Será gerado ao guardar",
       "responsible": "Registado por",
-      "role": "Cargo/fun??o",
-      "notRecorded": "Ser? registado automaticamente",
+      "role": "Cargo/função",
+      "notRecorded": "Será registado automaticamente",
       "draft": "Rascunho"
     },
     "form": {
       "reason": "Motivo do trancamento",
-      "reasonPlaceholder": "Indique o motivo do trancamento da matr?cula",
-      "reasonHelp": "Campo obrigat?rio. O motivo ficar? registado no hist?rico do processo.",
-      "startDate": "In?cio do trancamento",
-      "durationUnit": "Unidade de dura??o",
+      "reasonPlaceholder": "Indique o motivo do trancamento da matrícula",
+      "reasonHelp": "Campo obrigatório. O motivo ficará registado no histórico do processo.",
+      "startDate": "Início do trancamento",
+      "durationUnit": "Unidade de duração",
       "durationQuantity": "Quantidade",
-      "expectedReturn": "Previs?o de regresso",
-      "expectedReturnOptional": "Previs?o de regresso (opcional)",
-      "observations": "Observa??es",
-      "observationsPlaceholder": "Informa??es adicionais sobre o processo, se necess?rio",
+      "expectedReturn": "Previsão de regresso",
+      "expectedReturnOptional": "Previsão de regresso (opcional)",
+      "observations": "Observações",
+      "observationsPlaceholder": "Informações adicionais sobre o processo, se necessário",
       "selectUnit": "Selecione",
       "days": "Dias",
       "months": "Meses",
@@ -15129,10 +15129,10 @@
       "confirming": "A confirmar..."
     },
     "warnings": {
-      "title": "Aten??o",
-      "confirmed": "J? existe um trancamento confirmado em aberto para esta matr?cula.",
-      "blocked": "Esta matr?cula encontra-se numa situa??o que n?o permite iniciar ou alterar um processo de trancamento.",
-      "quarantine": "Esta matr?cula est? em quarentena e n?o pode ser trancada."
+      "title": "Atenção",
+      "confirmed": "Já existe um trancamento confirmado em aberto para esta matrícula.",
+      "blocked": "Esta matrícula encontra-se numa situação que não permite iniciar ou alterar um processo de trancamento.",
+      "quarantine": "Esta matrícula está em quarentena e não pode ser trancada."
     },
     "messages": {
       "draftSaved": "Rascunho do trancamento guardado com sucesso.",
@@ -15140,40 +15140,63 @@
       "saveFirst": "Guarde o rascunho antes de confirmar o trancamento."
     },
     "errors": {
-      "generic": "N?o foi poss?vel concluir a opera??o.",
-      "load": "N?o foi poss?vel carregar o processo de trancamento.",
+      "generic": "Não foi possível concluir a operação.",
+      "load": "Não foi possível carregar o processo de trancamento.",
       "reason": "Indique um motivo com pelo menos 3 caracteres.",
-      "startDate": "Indique uma data v?lida para o in?cio do trancamento.",
-      "unit": "Selecione a unidade de dura??o.",
+      "startDate": "Indique uma data válida para o início do trancamento.",
+      "unit": "Selecione a unidade de duração.",
       "quantity": "Indique uma quantidade inteira superior a zero.",
-      "returnDate": "Indique uma previs?o de regresso v?lida.",
-      "returnBeforeStart": "A previs?o de regresso n?o pode ser anterior ao in?cio do trancamento.",
-      "stale": "A situa??o da matr?cula mudou depois da cria??o do rascunho. Reveja e guarde o rascunho antes de tentar confirmar novamente.",
-      "active": "J? existe um processo de trancamento ativo para esta matr?cula.",
-      "permission": "N?o possui permiss?o para realizar esta opera??o."
+      "returnDate": "Indique uma previsão de regresso válida.",
+      "returnBeforeStart": "A previsão de regresso não pode ser anterior ao início do trancamento.",
+      "stale": "A situação da matrícula mudou depois da criação do rascunho. Reveja e guarde o rascunho antes de tentar confirmar novamente.",
+      "active": "Já existe um processo de trancamento ativo para esta matrícula.",
+      "permission": "Não possui permissão para realizar esta operação."
     },
     "confirmModal": {
       "title": "Confirmar trancamento",
-      "message": "Ao confirmar, a matr?cula passar? para a situa??o Trancada. O hist?rico acad?mico existente ser? preservado.",
+      "message": "Ao confirmar, a matrícula passará para a situação Trancada. O histórico académico existente será preservado.",
       "confirm": "Confirmar trancamento",
       "cancel": "Voltar"
     },
+    "documents": {
+      "title": "Documentos do trancamento",
+      "subtitle": "Gere o documento referente ao protocolo {protocol} utilizando um modelo da instituição.",
+      "generatedCount": "Documentos gerados: {count}",
+      "template": "Modelo do documento",
+      "selectTemplate": "Selecione um modelo",
+      "loadingTemplates": "A carregar modelos de trancamento...",
+      "noTemplates": "Não existe nenhum modelo ativo do tipo Trancamento disponível.",
+      "help": "O documento será preenchido com os dados deste processo e ficará associado ao protocolo.",
+      "manageTemplates": "Gerir modelos",
+      "generate": "Gerar documento",
+      "generating": "A gerar...",
+      "openPdf": "Abrir PDF",
+      "messages": {
+        "generated": "Documento gerado com sucesso."
+      },
+      "errors": {
+        "loadTemplates": "Não foi possível carregar os modelos de trancamento.",
+        "selectTemplate": "Selecione um modelo de documento.",
+        "generate": "Não foi possível gerar o documento.",
+        "invalidResponse": "O documento foi gerado, mas não foi possível identificar o ficheiro criado."
+      }
+    },
     "history": {
-      "title": "Hist?rico de trancamentos",
-      "subtitle": "Todos os processos registados para esta matr?cula.",
-      "empty": "Ainda n?o existem trancamentos registados.",
+      "title": "Histórico de trancamentos",
+      "subtitle": "Todos os processos registados para esta matrícula.",
+      "empty": "Ainda não existem trancamentos registados.",
       "protocol": "Protocolo",
-      "status": "Situa??o",
-      "previousStatus": "Situa??o anterior",
-      "period": "Per?odo",
-      "duration": "Dura??o",
+      "status": "Situação",
+      "previousStatus": "Situação anterior",
+      "period": "Período",
+      "duration": "Duração",
       "reason": "Motivo",
       "registeredBy": "Registado por",
       "confirmedBy": "Confirmado por",
       "createdAt": "Criado em",
       "confirmedAt": "Confirmado em",
       "documents": "Documentos gerados",
-      "noReturn": "Sem previs?o de regresso"
+      "noReturn": "Sem previsão de regresso"
     },
     "processStatus": {
       "RASCUNHO": "Rascunho",

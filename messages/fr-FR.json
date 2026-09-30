@@ -15295,45 +15295,45 @@
   "AdminTrancamentoMatricula": {
     "back": "Retour aux inscriptions",
     "title": "Mettre l'inscription en pause",
-    "subtitle": "Enregistrez la proc?dure de mise en pause tout en pr?servant l'historique acad?mique existant.",
-    "loading": "Chargement de la proc?dure de mise en pause...",
+    "subtitle": "Enregistrez la procédure de mise en pause tout en préservant l'historique académique existant.",
+    "loading": "Chargement de la procédure de mise en pause...",
     "enrollmentId": "Inscription #{id}",
     "summary": {
-      "title": "Donn?es de l'inscription",
-      "student": "?tudiant",
+      "title": "Données de l'inscription",
+      "student": "Étudiant",
       "enrollment": "Inscription",
-      "institution": "?tablissement",
+      "institution": "Établissement",
       "campus": "Campus",
       "course": "Formation",
       "class": "Classe",
       "status": "Statut actuel"
     },
     "process": {
-      "title": "Proc?dure de mise en pause",
-      "description": "Renseignez les informations ci-dessous. Le num?ro de protocole est g?n?r? automatiquement lors de l'enregistrement du premier brouillon.",
+      "title": "Procédure de mise en pause",
+      "description": "Renseignez les informations ci-dessous. Le numéro de protocole est généré automatiquement lors de l'enregistrement du premier brouillon.",
       "protocol": "Protocole",
-      "pendingProtocol": "G?n?r? lors de l'enregistrement",
-      "responsible": "Enregistr? par",
+      "pendingProtocol": "Généré lors de l'enregistrement",
+      "responsible": "Enregistré par",
       "role": "Poste/fonction",
-      "notRecorded": "Enregistr? automatiquement",
+      "notRecorded": "Enregistré automatiquement",
       "draft": "Brouillon"
     },
     "form": {
       "reason": "Motif de la mise en pause",
       "reasonPlaceholder": "Indiquez le motif de la mise en pause de l'inscription",
-      "reasonHelp": "Champ obligatoire. Le motif restera enregistr? dans l'historique de la proc?dure.",
-      "startDate": "D?but de la mise en pause",
-      "durationUnit": "Unit? de dur?e",
-      "durationQuantity": "Quantit?",
-      "expectedReturn": "Retour pr?vu",
-      "expectedReturnOptional": "Retour pr?vu (facultatif)",
+      "reasonHelp": "Champ obligatoire. Le motif restera enregistré dans l'historique de la procédure.",
+      "startDate": "Début de la mise en pause",
+      "durationUnit": "Unité de durée",
+      "durationQuantity": "Quantité",
+      "expectedReturn": "Retour prévu",
+      "expectedReturnOptional": "Retour prévu (facultatif)",
       "observations": "Observations",
-      "observationsPlaceholder": "Informations compl?mentaires sur la proc?dure, si n?cessaire",
-      "selectUnit": "S?lectionnez",
+      "observationsPlaceholder": "Informations complémentaires sur la procédure, si nécessaire",
+      "selectUnit": "Sélectionnez",
       "days": "Jours",
       "months": "Mois",
       "semesters": "Semestres",
-      "indefinite": "Dur?e ind?termin?e"
+      "indefinite": "Durée indéterminée"
     },
     "actions": {
       "saveDraft": "Enregistrer le brouillon",
@@ -15343,56 +15343,79 @@
     },
     "warnings": {
       "title": "Attention",
-      "confirmed": "Une mise en pause confirm?e est d?j? ouverte pour cette inscription.",
-      "blocked": "Le statut actuel de cette inscription ne permet pas de d?marrer ou de modifier une proc?dure de mise en pause.",
-      "quarantine": "Cette inscription est en quarantaine et ne peut pas ?tre mise en pause."
+      "confirmed": "Une mise en pause confirmée est déjà ouverte pour cette inscription.",
+      "blocked": "Le statut actuel de cette inscription ne permet pas de démarrer ou de modifier une procédure de mise en pause.",
+      "quarantine": "Cette inscription est en quarantaine et ne peut pas être mise en pause."
     },
     "messages": {
-      "draftSaved": "Brouillon enregistr? avec succ?s.",
-      "confirmed": "Mise en pause de l'inscription confirm?e avec succ?s.",
+      "draftSaved": "Brouillon enregistré avec succès.",
+      "confirmed": "Mise en pause de l'inscription confirmée avec succès.",
       "saveFirst": "Enregistrez le brouillon avant de confirmer la mise en pause."
     },
     "errors": {
-      "generic": "L'op?ration n'a pas pu ?tre effectu?e.",
-      "load": "Impossible de charger la proc?dure de mise en pause.",
-      "reason": "Indiquez un motif d'au moins 3 caract?res.",
-      "startDate": "Indiquez une date de d?but valide.",
-      "unit": "S?lectionnez l'unit? de dur?e.",
-      "quantity": "Indiquez un nombre entier sup?rieur ? z?ro.",
-      "returnDate": "Indiquez une date de retour pr?vue valide.",
-      "returnBeforeStart": "La date de retour pr?vue ne peut pas ?tre ant?rieure au d?but de la mise en pause.",
-      "stale": "Le statut de l'inscription a chang? apr?s la cr?ation de ce brouillon. V?rifiez et enregistrez le brouillon avant de tenter une nouvelle confirmation.",
-      "active": "Une proc?dure de mise en pause est d?j? active pour cette inscription.",
-      "permission": "Vous ne disposez pas de l'autorisation n?cessaire pour effectuer cette op?ration."
+      "generic": "L'opération n'a pas pu être effectuée.",
+      "load": "Impossible de charger la procédure de mise en pause.",
+      "reason": "Indiquez un motif d'au moins 3 caractères.",
+      "startDate": "Indiquez une date de début valide.",
+      "unit": "Sélectionnez l'unité de durée.",
+      "quantity": "Indiquez un nombre entier supérieur à zéro.",
+      "returnDate": "Indiquez une date de retour prévue valide.",
+      "returnBeforeStart": "La date de retour prévue ne peut pas être antérieure au début de la mise en pause.",
+      "stale": "Le statut de l'inscription a changé après la création de ce brouillon. Vérifiez et enregistrez le brouillon avant de tenter une nouvelle confirmation.",
+      "active": "Une procédure de mise en pause est déjà active pour cette inscription.",
+      "permission": "Vous ne disposez pas de l'autorisation nécessaire pour effectuer cette opération."
     },
     "confirmModal": {
       "title": "Confirmer la mise en pause",
-      "message": "Apr?s confirmation, l'inscription passera au statut En pause. L'historique acad?mique existant sera pr?serv?.",
+      "message": "Après confirmation, l'inscription passera au statut En pause. L'historique académique existant sera préservé.",
       "confirm": "Confirmer",
       "cancel": "Retour"
     },
+    "documents": {
+      "title": "Documents de mise en pause",
+      "subtitle": "Générez le document correspondant au protocole {protocol} à partir d'un modèle de l'établissement.",
+      "generatedCount": "Documents générés : {count}",
+      "template": "Modèle du document",
+      "selectTemplate": "Sélectionnez un modèle",
+      "loadingTemplates": "Chargement des modèles de mise en pause...",
+      "noTemplates": "Aucun modèle actif de type Mise en pause n'est disponible.",
+      "help": "Le document sera rempli avec les données de cette procédure et restera lié au protocole.",
+      "manageTemplates": "Gérer les modèles",
+      "generate": "Générer le document",
+      "generating": "Génération...",
+      "openPdf": "Ouvrir le PDF",
+      "messages": {
+        "generated": "Document généré avec succès."
+      },
+      "errors": {
+        "loadTemplates": "Impossible de charger les modèles de mise en pause.",
+        "selectTemplate": "Sélectionnez un modèle de document.",
+        "generate": "Impossible de générer le document.",
+        "invalidResponse": "Le document a été généré, mais le fichier créé n'a pas pu être identifié."
+      }
+    },
     "history": {
       "title": "Historique des mises en pause",
-      "subtitle": "Toutes les proc?dures enregistr?es pour cette inscription.",
-      "empty": "Aucune mise en pause n'a encore ?t? enregistr?e.",
+      "subtitle": "Toutes les procédures enregistrées pour cette inscription.",
+      "empty": "Aucune mise en pause n'a encore été enregistrée.",
       "protocol": "Protocole",
       "status": "Statut",
-      "previousStatus": "Statut pr?c?dent",
-      "period": "P?riode",
-      "duration": "Dur?e",
+      "previousStatus": "Statut précédent",
+      "period": "Période",
+      "duration": "Durée",
       "reason": "Motif",
-      "registeredBy": "Enregistr? par",
-      "confirmedBy": "Confirm? par",
-      "createdAt": "Cr?? le",
-      "confirmedAt": "Confirm? le",
-      "documents": "Documents g?n?r?s",
-      "noReturn": "Aucun retour pr?vu"
+      "registeredBy": "Enregistré par",
+      "confirmedBy": "Confirmé par",
+      "createdAt": "Créé le",
+      "confirmedAt": "Confirmé le",
+      "documents": "Documents générés",
+      "noReturn": "Aucun retour prévu"
     },
     "processStatus": {
       "RASCUNHO": "Brouillon",
-      "CONFIRMADO": "Confirm?",
-      "ENCERRADO": "Cl?tur?",
-      "CANCELADO": "Annul?"
+      "CONFIRMADO": "Confirmé",
+      "ENCERRADO": "Clôturé",
+      "CANCELADO": "Annulé"
     }
   },
   "AdminFuncionariosPermissoes": {

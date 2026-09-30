@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import {
+  getLegacyDocumentTagKey,
+} from "@/lib/documentos/tags-documentos";
 
 const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
   "logoInstituicao",
@@ -24,6 +27,19 @@ const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
   "blocoPolo",
 
   "responsavelLegal",
+
+  // Processo de trancamento de matricula
+  "motivoTrancamento",
+  "dataTrancamento",
+  "dataInicioTrancamento",
+  "dataFimTrancamento",
+  "tempoTrancamento",
+  "previsaoRetorno",
+  "responsavelTrancamento",
+  "cargoResponsavelTrancamento",
+  "observacoesTrancamento",
+  "numeroProtocoloTrancamento",
+  "situacaoAnteriorMatricula",
 
   "nomeAluno",
   "cpfAluno",
@@ -347,7 +363,11 @@ function montarCamposManuais(
   return tags
     .filter(
       (tag) =>
-        !TAGS_AUTOMATICAS_DOCUMENTO.has(tag)
+        !TAGS_AUTOMATICAS_DOCUMENTO.has(
+          getLegacyDocumentTagKey(
+            tag
+          )
+        )
     )
     .map((tag) => {
       const definicao =
@@ -445,7 +465,9 @@ export async function GET(
         const tagsAutomaticas =
           tags.filter((tag) =>
             TAGS_AUTOMATICAS_DOCUMENTO.has(
-              tag
+              getLegacyDocumentTagKey(
+                tag
+              )
             )
           );
 

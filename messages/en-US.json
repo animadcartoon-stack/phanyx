@@ -15372,6 +15372,29 @@
       "confirm": "Confirm hold",
       "cancel": "Back"
     },
+    "documents": {
+      "title": "Enrollment hold documents",
+      "subtitle": "Generate the document for protocol {protocol} using an institution template.",
+      "generatedCount": "Generated documents: {count}",
+      "template": "Document template",
+      "selectTemplate": "Select a template",
+      "loadingTemplates": "Loading enrollment hold templates...",
+      "noTemplates": "No active Enrollment Hold template is available.",
+      "help": "The document will be filled with this process data and permanently linked to the protocol.",
+      "manageTemplates": "Manage templates",
+      "generate": "Generate document",
+      "generating": "Generating...",
+      "openPdf": "Open PDF",
+      "messages": {
+        "generated": "Document generated successfully."
+      },
+      "errors": {
+        "loadTemplates": "Unable to load enrollment hold templates.",
+        "selectTemplate": "Select a document template.",
+        "generate": "Unable to generate the document.",
+        "invalidResponse": "The document was generated, but the created file could not be identified."
+      }
+    },
     "history": {
       "title": "Enrollment hold history",
       "subtitle": "All processes recorded for this enrollment.",

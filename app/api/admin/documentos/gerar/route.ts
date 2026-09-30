@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
-import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
+import {
+  getLegacyDocumentTagKey,
+  replaceDocumentTags,
+} from "@/lib/documentos/tags-documentos";
 import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
 
 export const dynamic = "force-dynamic";
@@ -530,6 +533,118 @@ function valorMonetarioPorExtenso(
   )}`;
 }
 
+const TAGS_TRANCAMENTO_DOCUMENTO = new Set([
+  "motivoTrancamento",
+  "dataTrancamento",
+  "dataInicioTrancamento",
+  "dataFimTrancamento",
+  "tempoTrancamento",
+  "previsaoRetorno",
+  "responsavelTrancamento",
+  "cargoResponsavelTrancamento",
+  "observacoesTrancamento",
+  "numeroProtocoloTrancamento",
+  "situacaoAnteriorMatricula",
+]);
+
+function formatarDataTrancamentoDocumento(
+  data: Date | string | null | undefined,
+  locale: string
+) {
+  if (!data) {
+    return "";
+  }
+
+  const valor = new Date(data);
+
+  if (Number.isNaN(valor.getTime())) {
+    return "";
+  }
+
+  return valor.toLocaleDateString(locale);
+}
+
+function formatarDuracaoTrancamentoDocumento(
+  trancamento: any,
+  locale: string
+) {
+  if (!trancamento) {
+    return "";
+  }
+
+  const unidade = String(
+    trancamento.duracaoUnidade || ""
+  );
+
+  const quantidade = Number(
+    trancamento.duracaoQuantidade || 0
+  );
+
+  const indefinido: Record<string, string> = {
+    "pt-BR": "Prazo indeterminado",
+    "pt-PT": "Prazo indeterminado",
+    "en-US": "Indefinite period",
+    "es-ES": "Plazo indeterminado",
+    "fr-FR": "Dur\u00e9e ind\u00e9termin\u00e9e",
+  };
+
+  if (unidade === "INDETERMINADO") {
+    return (
+      indefinido[locale] ||
+      indefinido["pt-BR"]
+    );
+  }
+
+  const rotulos: Record<
+    string,
+    Record<string, [string, string]>
+  > = {
+    "pt-BR": {
+      DIAS: ["dia", "dias"],
+      MESES: ["m\u00eas", "meses"],
+      SEMESTRES: ["semestre", "semestres"],
+    },
+    "pt-PT": {
+      DIAS: ["dia", "dias"],
+      MESES: ["m\u00eas", "meses"],
+      SEMESTRES: ["semestre", "semestres"],
+    },
+    "en-US": {
+      DIAS: ["day", "days"],
+      MESES: ["month", "months"],
+      SEMESTRES: ["semester", "semesters"],
+    },
+    "es-ES": {
+      DIAS: ["d\u00eda", "d\u00edas"],
+      MESES: ["mes", "meses"],
+      SEMESTRES: ["semestre", "semestres"],
+    },
+    "fr-FR": {
+      DIAS: ["jour", "jours"],
+      MESES: ["mois", "mois"],
+      SEMESTRES: ["semestre", "semestres"],
+    },
+  };
+
+  const idioma =
+    rotulos[locale] ||
+    rotulos["pt-BR"];
+
+  const nomes =
+    idioma[unidade];
+
+  if (!nomes || !quantidade) {
+    return "";
+  }
+
+  const rotulo =
+    quantidade === 1
+      ? nomes[0]
+      : nomes[1];
+
+  return String(quantidade) + " " + rotulo;
+}
+
 const TAGS_HOLERITE_DOCUMENTO = new Set([
   "competenciaMes",
   "competenciaAno",
@@ -573,7 +688,12 @@ export async function POST(req: Request) {
 
     const templateId = Number(body?.templateId);
     const alunoId = body?.alunoId ? Number(body.alunoId) : null;
-    const matriculaId = body?.matriculaId ? Number(body.matriculaId) : null;
+    let matriculaId = body?.matriculaId ? Number(body.matriculaId) : null;
+
+    const trancamentoMatriculaId =
+      body?.trancamentoMatriculaId
+        ? Number(body.trancamentoMatriculaId)
+        : null;
 
     const funcionarioId =
       body?.funcionarioId
@@ -810,6 +930,22 @@ export async function POST(req: Request) {
       tipoTemplateNormalizado ===
       "contrato";
 
+    const ehTrancamentoAcademico =
+      tipoTemplateNormalizado ===
+      "trancamento";
+
+    const usaTagsTrancamento =
+      Array.from(tagsDoTemplate).some(
+        (tag) =>
+          TAGS_TRANCAMENTO_DOCUMENTO.has(
+            getLegacyDocumentTagKey(tag)
+          )
+      );
+
+    const exigeProcessoTrancamento =
+      ehTrancamentoAcademico ||
+      usaTagsTrancamento;
+
     const ehDocumentoFuncionario =
       contextoTemplateNormalizado ===
       "funcionario" ||
@@ -894,6 +1030,7 @@ export async function POST(req: Request) {
     let exame = null as any;
     let rescisao = null as any;
     let ocorrencia = null as any;
+    let trancamentoDocumento = null as any;
     let cursoNome = "Curso não informado";
     let disciplinasLista: string[] = [];
     let valorContrato =
@@ -1137,6 +1274,69 @@ export async function POST(req: Request) {
             });
     }
 
+    if (exigeProcessoTrancamento) {
+      if (
+        !trancamentoMatriculaId ||
+        !Number.isInteger(trancamentoMatriculaId) ||
+        trancamentoMatriculaId <= 0
+      ) {
+        return NextResponse.json(
+          {
+            codigo:
+              "TRANCAMENTO_MATRICULA_OBRIGATORIO",
+            error:
+              "Informe o processo de trancamento correspondente antes de gerar este documento.",
+          },
+          { status: 400 }
+        );
+      }
+
+      trancamentoDocumento =
+        await prisma.trancamentoMatricula.findFirst({
+          where: {
+            id: trancamentoMatriculaId,
+            instituicaoId: user.instituicaoId,
+            status: "CONFIRMADO",
+          },
+        });
+
+      if (!trancamentoDocumento) {
+        return NextResponse.json(
+          {
+            codigo:
+              "TRANCAMENTO_MATRICULA_NAO_CONFIRMADO",
+            error:
+              "O processo de trancamento n\u00e3o foi encontrado ou ainda n\u00e3o est\u00e1 confirmado.",
+          },
+          { status: 404 }
+        );
+      }
+
+      if (
+        matriculaId &&
+        Number.isInteger(matriculaId) &&
+        matriculaId !==
+          trancamentoDocumento.matriculaId
+      ) {
+        return NextResponse.json(
+          {
+            codigo:
+              "TRANCAMENTO_MATRICULA_DIVERGENTE",
+            error:
+              "A matr\u00edcula informada n\u00e3o corresponde ao processo de trancamento selecionado.",
+          },
+          { status: 409 }
+        );
+      }
+
+      /*
+       * A matricula vem do processo informado.
+       * Nunca buscamos o ultimo trancamento.
+       */
+      matriculaId =
+        trancamentoDocumento.matriculaId;
+    }
+
     if (matriculaId && Number.isFinite(matriculaId) && matriculaId > 0) {
       matricula = await prisma.matricula.findFirst({
         where: {
@@ -1336,6 +1536,10 @@ export async function POST(req: Request) {
 
                 matriculaId:
                   matricula?.id || null,
+
+                trancamentoMatriculaId:
+                  trancamentoDocumento
+                    ?.id || null,
 
                 templateId:
                   template.id,
@@ -2179,6 +2383,70 @@ export async function POST(req: Request) {
             statusMatricula:
               matricula?.status || "-",
 
+            motivoTrancamento:
+              trancamentoDocumento
+                ?.motivo || "",
+
+            dataTrancamento:
+              formatarDataTrancamentoDocumento(
+                trancamentoDocumento
+                  ?.confirmadoEm,
+                localeDocumento
+              ),
+
+            dataInicioTrancamento:
+              formatarDataTrancamentoDocumento(
+                trancamentoDocumento
+                  ?.dataInicio,
+                localeDocumento
+              ),
+
+            dataFimTrancamento:
+              formatarDataTrancamentoDocumento(
+                trancamentoDocumento
+                  ?.dataRetornoPrevista,
+                localeDocumento
+              ),
+
+            tempoTrancamento:
+              formatarDuracaoTrancamentoDocumento(
+                trancamentoDocumento,
+                localeDocumento
+              ),
+
+            previsaoRetorno:
+              formatarDataTrancamentoDocumento(
+                trancamentoDocumento
+                  ?.dataRetornoPrevista,
+                localeDocumento
+              ),
+
+            responsavelTrancamento:
+              trancamentoDocumento
+                ?.confirmadoPorNomeSnapshot ||
+              trancamentoDocumento
+                ?.registradoPorNomeSnapshot ||
+              "",
+
+            cargoResponsavelTrancamento:
+              trancamentoDocumento
+                ?.confirmadoPorCargoSnapshot ||
+              trancamentoDocumento
+                ?.registradoPorCargoSnapshot ||
+              "",
+
+            observacoesTrancamento:
+              trancamentoDocumento
+                ?.observacoes || "",
+
+            numeroProtocoloTrancamento:
+              trancamentoDocumento
+                ?.numeroProtocolo || "",
+
+            situacaoAnteriorMatricula:
+              trancamentoDocumento
+                ?.statusAnterior || "",
+
             dataInicioAluno:
               matricula?.createdAt
                 ? new Date(
@@ -2433,6 +2701,9 @@ export async function POST(req: Request) {
 
       quantidadeVias:
         documento.quantidadeVias,
+
+      trancamentoMatriculaId:
+        documento.trancamentoMatriculaId,
 
       aluno: aluno
         ? {

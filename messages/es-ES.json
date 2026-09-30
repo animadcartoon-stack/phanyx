@@ -15293,44 +15293,44 @@
     }
   },
   "AdminTrancamentoMatricula": {
-    "back": "Volver a matr?culas",
-    "title": "Bloquear matr?cula",
-    "subtitle": "Registre el proceso de bloqueo preservando el historial acad?mico existente de la matr?cula.",
+    "back": "Volver a matrículas",
+    "title": "Bloquear matrícula",
+    "subtitle": "Registre el proceso de bloqueo preservando el historial académico existente de la matrícula.",
     "loading": "Cargando el proceso de bloqueo...",
-    "enrollmentId": "Matr?cula #{id}",
+    "enrollmentId": "Matrícula #{id}",
     "summary": {
-      "title": "Datos de la matr?cula",
+      "title": "Datos de la matrícula",
       "student": "Estudiante",
-      "enrollment": "Matr?cula",
-      "institution": "Instituci?n",
+      "enrollment": "Matrícula",
+      "institution": "Institución",
       "campus": "Sede",
       "course": "Curso",
       "class": "Clase",
-      "status": "Situaci?n actual"
+      "status": "Situación actual"
     },
     "process": {
       "title": "Proceso de bloqueo",
-      "description": "Complete los datos siguientes. El protocolo se genera autom?ticamente al guardar el primer borrador.",
+      "description": "Complete los datos siguientes. El protocolo se genera automáticamente al guardar el primer borrador.",
       "protocol": "Protocolo",
-      "pendingProtocol": "Se generar? al guardar",
+      "pendingProtocol": "Se generará al guardar",
       "responsible": "Registrado por",
-      "role": "Cargo/funci?n",
-      "notRecorded": "Se registrar? autom?ticamente",
+      "role": "Cargo/función",
+      "notRecorded": "Se registrará automáticamente",
       "draft": "Borrador"
     },
     "form": {
       "reason": "Motivo del bloqueo",
-      "reasonPlaceholder": "Indique el motivo del bloqueo de la matr?cula",
-      "reasonHelp": "Campo obligatorio. El motivo quedar? registrado en el historial del proceso.",
+      "reasonPlaceholder": "Indique el motivo del bloqueo de la matrícula",
+      "reasonHelp": "Campo obligatorio. El motivo quedará registrado en el historial del proceso.",
       "startDate": "Inicio del bloqueo",
-      "durationUnit": "Unidad de duraci?n",
+      "durationUnit": "Unidad de duración",
       "durationQuantity": "Cantidad",
-      "expectedReturn": "Previsi?n de regreso",
-      "expectedReturnOptional": "Previsi?n de regreso (opcional)",
+      "expectedReturn": "Previsión de regreso",
+      "expectedReturnOptional": "Previsión de regreso (opcional)",
       "observations": "Observaciones",
-      "observationsPlaceholder": "Informaci?n adicional sobre el proceso, si es necesaria",
+      "observationsPlaceholder": "Información adicional sobre el proceso, si es necesaria",
       "selectUnit": "Seleccione",
-      "days": "D?as",
+      "days": "Días",
       "months": "Meses",
       "semesters": "Semestres",
       "indefinite": "Plazo indeterminado"
@@ -15342,51 +15342,74 @@
       "confirming": "Confirmando..."
     },
     "warnings": {
-      "title": "Atenci?n",
-      "confirmed": "Ya existe un bloqueo confirmado y abierto para esta matr?cula.",
-      "blocked": "Esta matr?cula se encuentra en una situaci?n que no permite iniciar o modificar un proceso de bloqueo.",
-      "quarantine": "Esta matr?cula est? en cuarentena y no puede ser bloqueada."
+      "title": "Atención",
+      "confirmed": "Ya existe un bloqueo confirmado y abierto para esta matrícula.",
+      "blocked": "Esta matrícula se encuentra en una situación que no permite iniciar o modificar un proceso de bloqueo.",
+      "quarantine": "Esta matrícula está en cuarentena y no puede ser bloqueada."
     },
     "messages": {
       "draftSaved": "Borrador del bloqueo guardado correctamente.",
-      "confirmed": "Bloqueo de matr?cula confirmado correctamente.",
+      "confirmed": "Bloqueo de matrícula confirmado correctamente.",
       "saveFirst": "Guarde el borrador antes de confirmar el bloqueo."
     },
     "errors": {
-      "generic": "No se pudo completar la operaci?n.",
+      "generic": "No se pudo completar la operación.",
       "load": "No se pudo cargar el proceso de bloqueo.",
       "reason": "Indique un motivo de al menos 3 caracteres.",
-      "startDate": "Indique una fecha v?lida para el inicio del bloqueo.",
-      "unit": "Seleccione la unidad de duraci?n.",
+      "startDate": "Indique una fecha válida para el inicio del bloqueo.",
+      "unit": "Seleccione la unidad de duración.",
       "quantity": "Indique una cantidad entera mayor que cero.",
-      "returnDate": "Indique una previsi?n de regreso v?lida.",
-      "returnBeforeStart": "La previsi?n de regreso no puede ser anterior al inicio del bloqueo.",
-      "stale": "La situaci?n de la matr?cula cambi? despu?s de crear este borrador. Rev?selo y gu?rdelo antes de volver a confirmar.",
-      "active": "Ya existe un proceso de bloqueo activo para esta matr?cula.",
-      "permission": "No tiene permiso para realizar esta operaci?n."
+      "returnDate": "Indique una previsión de regreso válida.",
+      "returnBeforeStart": "La previsión de regreso no puede ser anterior al inicio del bloqueo.",
+      "stale": "La situación de la matrícula cambió después de crear este borrador. Revíselo y guárdelo antes de volver a confirmar.",
+      "active": "Ya existe un proceso de bloqueo activo para esta matrícula.",
+      "permission": "No tiene permiso para realizar esta operación."
     },
     "confirmModal": {
       "title": "Confirmar bloqueo",
-      "message": "Al confirmar, la matr?cula pasar? a la situaci?n Bloqueada. El historial acad?mico existente se conservar?.",
+      "message": "Al confirmar, la matrícula pasará a la situación Bloqueada. El historial académico existente se conservará.",
       "confirm": "Confirmar bloqueo",
       "cancel": "Volver"
     },
+    "documents": {
+      "title": "Documentos del bloqueo",
+      "subtitle": "Genere el documento correspondiente al protocolo {protocol} utilizando una plantilla de la institución.",
+      "generatedCount": "Documentos generados: {count}",
+      "template": "Plantilla del documento",
+      "selectTemplate": "Seleccione una plantilla",
+      "loadingTemplates": "Cargando plantillas de bloqueo...",
+      "noTemplates": "No hay ninguna plantilla activa del tipo Bloqueo disponible.",
+      "help": "El documento se completará con los datos de este proceso y quedará vinculado al protocolo.",
+      "manageTemplates": "Gestionar plantillas",
+      "generate": "Generar documento",
+      "generating": "Generando...",
+      "openPdf": "Abrir PDF",
+      "messages": {
+        "generated": "Documento generado correctamente."
+      },
+      "errors": {
+        "loadTemplates": "No se pudieron cargar las plantillas de bloqueo.",
+        "selectTemplate": "Seleccione una plantilla de documento.",
+        "generate": "No se pudo generar el documento.",
+        "invalidResponse": "El documento se generó, pero no fue posible identificar el archivo creado."
+      }
+    },
     "history": {
       "title": "Historial de bloqueos",
-      "subtitle": "Todos los procesos registrados para esta matr?cula.",
-      "empty": "Todav?a no hay bloqueos registrados.",
+      "subtitle": "Todos los procesos registrados para esta matrícula.",
+      "empty": "Todavía no hay bloqueos registrados.",
       "protocol": "Protocolo",
-      "status": "Situaci?n",
-      "previousStatus": "Situaci?n anterior",
-      "period": "Per?odo",
-      "duration": "Duraci?n",
+      "status": "Situación",
+      "previousStatus": "Situación anterior",
+      "period": "Período",
+      "duration": "Duración",
       "reason": "Motivo",
       "registeredBy": "Registrado por",
       "confirmedBy": "Confirmado por",
       "createdAt": "Creado el",
       "confirmedAt": "Confirmado el",
       "documents": "Documentos generados",
-      "noReturn": "Sin previsi?n de regreso"
+      "noReturn": "Sin previsión de regreso"
     },
     "processStatus": {
       "RASCUNHO": "Borrador",

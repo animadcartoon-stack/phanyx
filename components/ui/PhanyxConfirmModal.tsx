@@ -6,6 +6,7 @@ type PhanyxConfirmModalProps = {
   mensagem: string;
   textoConfirmar?: string;
   textoCancelar?: string;
+  textoCarregando?: string;
   carregando?: boolean;
   tipo?: "perigo" | "normal";
   onConfirmar: () => void;
@@ -18,6 +19,7 @@ export default function PhanyxConfirmModal({
   mensagem,
   textoConfirmar = "Confirmar",
   textoCancelar = "Cancelar",
+  textoCarregando = "Processando...",
   carregando = false,
   tipo = "normal",
   onConfirmar,
@@ -27,16 +29,16 @@ export default function PhanyxConfirmModal({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4">
-      <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-950">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
           PHANYX
         </p>
 
-        <h2 className="mt-2 text-xl font-bold text-slate-900">
+        <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
           {titulo}
         </h2>
 
-        <p className="mt-3 text-sm leading-6 text-slate-600">
+        <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
           {mensagem}
         </p>
 
@@ -45,7 +47,7 @@ export default function PhanyxConfirmModal({
             type="button"
             onClick={onCancelar}
             disabled={carregando}
-            className="rounded-xl border px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
           >
             {textoCancelar}
           </button>
@@ -60,7 +62,7 @@ export default function PhanyxConfirmModal({
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {carregando ? "Processando..." : textoConfirmar}
+            {carregando ? textoCarregando : textoConfirmar}
           </button>
         </div>
       </div>

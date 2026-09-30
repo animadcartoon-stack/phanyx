@@ -1812,6 +1812,20 @@ function AdminDocumentosTemplatesPage() {
     "{{matriculaAluno}}",
     "{{statusAluno}}",
     "{{statusMatricula}}",
+
+    // Processo de trancamento
+    "{{motivoTrancamento}}",
+    "{{dataTrancamento}}",
+    "{{dataInicioTrancamento}}",
+    "{{dataFimTrancamento}}",
+    "{{tempoTrancamento}}",
+    "{{previsaoRetorno}}",
+    "{{responsavelTrancamento}}",
+    "{{cargoResponsavelTrancamento}}",
+    "{{observacoesTrancamento}}",
+    "{{numeroProtocoloTrancamento}}",
+    "{{situacaoAnteriorMatricula}}",
+
     "{{dataMatricula}}",
     "{{dataConclusao}}",
     "{{semestreAtual}}",
@@ -2179,6 +2193,93 @@ function AdminDocumentosTemplatesPage() {
       ondeUsar: "Históricos, contratos e declarações.",
       categoria: "Documentos Gerais",
       palavras: ["status matrícula", "situação matrícula", "ativa", "desistência", "trancada"],
+    },
+    "{{motivoTrancamento}}": {
+      titulo: "Motivo do trancamento",
+      descricao: "Mostra o motivo registrado no processo espec\u00edfico de trancamento.",
+      ondeUsar: "Declara\u00e7\u00f5es, termos e documentos de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["trancamento", "motivo", "raz\u00e3o", "justificativa"],
+    },
+
+    "{{dataTrancamento}}": {
+      titulo: "Data da confirma\u00e7\u00e3o do trancamento",
+      descricao: "Mostra a data em que o processo foi confirmado.",
+      ondeUsar: "Documentos formais de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["trancamento", "data", "confirma\u00e7\u00e3o"],
+    },
+
+    "{{dataInicioTrancamento}}": {
+      titulo: "In\u00edcio do trancamento",
+      descricao: "Mostra a data inicial registrada no processo.",
+      ondeUsar: "Documentos formais de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["trancamento", "in\u00edcio", "data inicial"],
+    },
+
+    "{{dataFimTrancamento}}": {
+      titulo: "Fim previsto do trancamento",
+      descricao: "Mostra a data final prevista quando informada.",
+      ondeUsar: "Documentos de trancamento com prazo definido.",
+      categoria: "Trancamento",
+      palavras: ["trancamento", "fim", "t\u00e9rmino"],
+    },
+
+    "{{tempoTrancamento}}": {
+      titulo: "Tempo de trancamento",
+      descricao: "Mostra a dura\u00e7\u00e3o registrada no processo.",
+      ondeUsar: "Declara\u00e7\u00f5es e termos de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["trancamento", "dura\u00e7\u00e3o", "tempo", "prazo"],
+    },
+
+    "{{previsaoRetorno}}": {
+      titulo: "Previs\u00e3o de retorno",
+      descricao: "Mostra a previs\u00e3o de retorno registrada no processo.",
+      ondeUsar: "Declara\u00e7\u00f5es e termos de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["retorno", "volta", "previs\u00e3o"],
+    },
+
+    "{{responsavelTrancamento}}": {
+      titulo: "Respons\u00e1vel pelo trancamento",
+      descricao: "Mostra o respons\u00e1vel que confirmou o processo.",
+      ondeUsar: "Documentos formais e auditoria do trancamento.",
+      categoria: "Trancamento",
+      palavras: ["respons\u00e1vel", "secretaria", "diretor", "trancamento"],
+    },
+
+    "{{cargoResponsavelTrancamento}}": {
+      titulo: "Cargo do respons\u00e1vel pelo trancamento",
+      descricao: "Mostra o cargo ou fun\u00e7\u00e3o registrado no momento da confirma\u00e7\u00e3o.",
+      ondeUsar: "Documentos formais de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["cargo", "fun\u00e7\u00e3o", "respons\u00e1vel"],
+    },
+
+    "{{observacoesTrancamento}}": {
+      titulo: "Observa\u00e7\u00f5es do trancamento",
+      descricao: "Mostra as observa\u00e7\u00f5es registradas no processo espec\u00edfico.",
+      ondeUsar: "Documentos de trancamento quando a institui\u00e7\u00e3o desejar exibi-las.",
+      categoria: "Trancamento",
+      palavras: ["observa\u00e7\u00f5es", "notas", "trancamento"],
+    },
+
+    "{{numeroProtocoloTrancamento}}": {
+      titulo: "Protocolo do trancamento",
+      descricao: "Mostra o n\u00famero \u00fanico do processo de trancamento.",
+      ondeUsar: "Declara\u00e7\u00f5es, termos, comprovantes e auditoria.",
+      categoria: "Trancamento",
+      palavras: ["protocolo", "n\u00famero", "trancamento"],
+    },
+
+    "{{situacaoAnteriorMatricula}}": {
+      titulo: "Situa\u00e7\u00e3o anterior da matr\u00edcula",
+      descricao: "Mostra a situa\u00e7\u00e3o da matr\u00edcula reconhecida antes do trancamento.",
+      ondeUsar: "Documentos e registros administrativos de trancamento.",
+      categoria: "Trancamento",
+      palavras: ["situa\u00e7\u00e3o anterior", "status anterior", "matr\u00edcula"],
     },
     "{{dataMatricula}}": {
       titulo: "Data da matrícula",

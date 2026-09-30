@@ -106,6 +106,13 @@ type RespostaGet = {
   trancamentos: Trancamento[];
 };
 
+type TemplateTrancamento = {
+  id: number;
+  nome: string;
+  tipo: string;
+  ativo?: boolean;
+};
+
 type ToastState = {
   tipo: "sucesso" | "erro" | "aviso" | "info";
   mensagem: string;
@@ -266,6 +273,46 @@ function AdminTrancamentoMatriculaPage() {
   ] =
     useState("");
 
+  const [
+    templatesTrancamento,
+    setTemplatesTrancamento,
+  ] =
+    useState<TemplateTrancamento[]>(
+      []
+    );
+
+  const [
+    templateDocumentoId,
+    setTemplateDocumentoId,
+  ] =
+    useState("");
+
+  const [
+    carregandoTemplates,
+    setCarregandoTemplates,
+  ] =
+    useState(false);
+
+  const [
+    gerandoDocumento,
+    setGerandoDocumento,
+  ] =
+    useState(false);
+
+  const [
+    erroTemplates,
+    setErroTemplates,
+  ] =
+    useState("");
+
+  const [
+    ultimoDocumentoId,
+    setUltimoDocumentoId,
+  ] =
+    useState<number | null>(
+      null
+    );
+
   const rascunho =
     dados?.rascunho ??
     null;
@@ -282,6 +329,347 @@ function AdminTrancamentoMatriculaPage() {
         dados?.trancamentos,
       ]
     );
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarTemplatesTrancamento() {
+      if (!trancamentoConfirmado) {
+        setTemplatesTrancamento(
+          []
+        );
+
+        setTemplateDocumentoId(
+          ""
+        );
+
+        setErroTemplates(
+          ""
+        );
+
+        setUltimoDocumentoId(
+          null
+        );
+
+        return;
+      }
+
+      setCarregandoTemplates(
+        true
+      );
+
+      setErroTemplates(
+        ""
+      );
+
+      setUltimoDocumentoId(
+        null
+      );
+
+      try {
+        const resposta =
+          await fetch(
+            "/api/admin/documentos/templates?somenteAtivos=1",
+            {
+              credentials:
+                "include",
+
+              cache:
+                "no-store",
+            }
+          );
+
+        const payload =
+          await resposta
+            .json()
+            .catch(
+              () => null
+            );
+
+        if (
+          !resposta.ok ||
+          !Array.isArray(
+            payload
+          )
+        ) {
+          throw new Error(
+            "Falha ao carregar templates"
+          );
+        }
+
+        const filtrados:
+          TemplateTrancamento[] =
+          payload
+            .filter(
+              (item: any) =>
+                String(
+                  item?.tipo || ""
+                )
+                  .trim()
+                  .toUpperCase() ===
+                "TRANCAMENTO"
+            )
+            .map(
+              (item: any) => ({
+                id:
+                  Number(
+                    item.id
+                  ),
+
+                nome:
+                  String(
+                    item.nome || ""
+                  ),
+
+                tipo:
+                  String(
+                    item.tipo || ""
+                  ),
+
+                ativo:
+                  Boolean(
+                    item.ativo ?? true
+                  ),
+              })
+            )
+            .filter(
+              (item) =>
+                Number.isInteger(
+                  item.id
+                ) &&
+                item.id > 0 &&
+                item.nome.length > 0
+            );
+
+        if (!ativo) {
+          return;
+        }
+
+        setTemplatesTrancamento(
+          filtrados
+        );
+
+        setTemplateDocumentoId(
+          (atual) => {
+            const atualValido =
+              filtrados.some(
+                (item) =>
+                  String(
+                    item.id
+                  ) === atual
+              );
+
+            if (atualValido) {
+              return atual;
+            }
+
+            if (
+              filtrados.length === 1
+            ) {
+              return String(
+                filtrados[0].id
+              );
+            }
+
+            return "";
+          }
+        );
+      }
+      catch (error) {
+        console.error(
+          "Erro ao carregar templates de trancamento:",
+          error
+        );
+
+        if (ativo) {
+          setTemplatesTrancamento(
+            []
+          );
+
+          setTemplateDocumentoId(
+            ""
+          );
+
+          setErroTemplates(
+            t(
+              "documents.errors.loadTemplates"
+            )
+          );
+        }
+      }
+      finally {
+        if (ativo) {
+          setCarregandoTemplates(
+            false
+          );
+        }
+      }
+    }
+
+    void carregarTemplatesTrancamento();
+
+    return () => {
+      ativo = false;
+    };
+  }, [
+    trancamentoConfirmado
+      ?.id,
+  ]);
+
+  async function gerarDocumentoTrancamento() {
+    if (!trancamentoConfirmado) {
+      return;
+    }
+
+    const templateId =
+      Number(
+        templateDocumentoId
+      );
+
+    if (
+      !Number.isInteger(
+        templateId
+      ) ||
+      templateId <= 0
+    ) {
+      setToast({
+        tipo: "aviso",
+
+        mensagem:
+          t(
+            "documents.errors.selectTemplate"
+          ),
+      });
+
+      return;
+    }
+
+    setGerandoDocumento(
+      true
+    );
+
+    setUltimoDocumentoId(
+      null
+    );
+
+    try {
+      const resposta =
+        await fetch(
+          "/api/admin/documentos/gerar",
+          {
+            method: "POST",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                locale,
+
+                templateId,
+
+                matriculaId:
+                  dados?.matricula.id ??
+                  matriculaId,
+
+                trancamentoMatriculaId:
+                  trancamentoConfirmado.id,
+              }),
+          }
+        );
+
+      const payload =
+        await resposta
+          .json()
+          .catch(
+            () => null
+          );
+
+      if (!resposta.ok) {
+        console.error(
+          "Erro da API ao gerar documento de trancamento:",
+          payload
+        );
+
+        setToast({
+          tipo: "erro",
+
+          mensagem:
+            t(
+              "documents.errors.generate"
+            ),
+        });
+
+        return;
+      }
+
+      const documentoId =
+        Number(
+          payload?.id ??
+          payload?.documento?.id
+        );
+
+      await carregarDados(
+        false
+      );
+
+      if (
+        !Number.isInteger(
+          documentoId
+        ) ||
+        documentoId <= 0
+      ) {
+        setToast({
+          tipo: "erro",
+
+          mensagem:
+            t(
+              "documents.errors.invalidResponse"
+            ),
+        });
+
+        return;
+      }
+
+      setUltimoDocumentoId(
+        documentoId
+      );
+
+      setToast({
+        tipo: "sucesso",
+
+        mensagem:
+          t(
+            "documents.messages.generated"
+          ),
+      });
+    }
+    catch (error) {
+      console.error(
+        "Erro ao gerar documento de trancamento:",
+        error
+      );
+
+      setToast({
+        tipo: "erro",
+
+        mensagem:
+          t(
+            "documents.errors.generate"
+          ),
+      });
+    }
+    finally {
+      setGerandoDocumento(
+        false
+      );
+    }
+  }
 
   function labelStatusMatricula(
     status?: string | null
@@ -1614,6 +2002,189 @@ function AdminTrancamentoMatriculaPage() {
         </div>
       </section>
 
+      {trancamentoConfirmado && (
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
+                {t(
+                  "documents.title"
+                )}
+              </h2>
+
+              <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                {t(
+                  "documents.subtitle",
+                  {
+                    protocol:
+                      trancamentoConfirmado
+                        .numeroProtocolo,
+                  }
+                )}
+              </p>
+            </div>
+
+            <div className="self-start rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-200">
+              {t(
+                "documents.generatedCount",
+                {
+                  count:
+                    trancamentoConfirmado
+                      ._count
+                      ?.documentosGerados ??
+                    0,
+                }
+              )}
+            </div>
+          </div>
+
+          {erroTemplates ? (
+            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+              {erroTemplates}
+            </div>
+          ) : carregandoTemplates ? (
+            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+              {t(
+                "documents.loadingTemplates"
+              )}
+            </div>
+          ) :
+          templatesTrancamento.length ===
+          0 ? (
+            <div className="mt-5 rounded-xl border border-dashed border-slate-300 p-4 dark:border-slate-700">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                {t(
+                  "documents.noTemplates"
+                )}
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(
+                    "/admin/documentos/templates",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+                className="mt-3 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+              >
+                {t(
+                  "documents.manageTemplates"
+                )}
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {t(
+                    "documents.template"
+                  )}
+                </span>
+
+                <select
+                  value={
+                    templateDocumentoId
+                  }
+                  onChange={(evento) =>
+                    setTemplateDocumentoId(
+                      evento.target.value
+                    )
+                  }
+                  disabled={
+                    gerandoDocumento
+                  }
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-900"
+                >
+                  <option value="">
+                    {t(
+                      "documents.selectTemplate"
+                    )}
+                  </option>
+
+                  {templatesTrancamento.map(
+                    (template) => (
+                      <option
+                        key={template.id}
+                        value={template.id}
+                      >
+                        {template.nome}
+                      </option>
+                    )
+                  )}
+                </select>
+              </label>
+
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                {t(
+                  "documents.help"
+                )}
+              </p>
+
+              <div className="mt-4 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.open(
+                      "/admin/documentos/templates",
+                      "_blank",
+                      "noopener,noreferrer"
+                    )
+                  }
+                  disabled={
+                    gerandoDocumento
+                  }
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+                >
+                  {t(
+                    "documents.manageTemplates"
+                  )}
+                </button>
+
+                {ultimoDocumentoId && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.open(
+                        `/api/admin/documentos/pdf/${ultimoDocumentoId}`,
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
+                    }
+                    className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200 dark:hover:bg-blue-950"
+                  >
+                    {t(
+                      "documents.openPdf"
+                    )}
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={
+                    gerarDocumentoTrancamento
+                  }
+                  disabled={
+                    gerandoDocumento ||
+                    !templateDocumentoId
+                  }
+                  className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                >
+                  {gerandoDocumento
+                    ? t(
+                      "documents.generating"
+                    )
+                    : t(
+                      "documents.generate"
+                    )}
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <h2 className="text-lg font-semibold text-slate-950 dark:text-white">
           {t(
@@ -1831,6 +2402,11 @@ function AdminTrancamentoMatriculaPage() {
         textoCancelar={
           t(
             "confirmModal.cancel"
+          )
+        }
+        textoCarregando={
+          t(
+            "actions.confirming"
           )
         }
         onConfirmar={

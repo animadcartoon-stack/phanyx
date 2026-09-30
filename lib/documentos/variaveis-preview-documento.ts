@@ -178,6 +178,45 @@ export function montarValoresPreviewDocumento(
 
     responsavelLegal,
 
+    motivoTrancamento:
+      "Solicitação formal de trancamento da matrícula.",
+
+    dataTrancamento:
+      agora.toLocaleDateString(
+        localeDocumento
+      ),
+
+    dataInicioTrancamento:
+      "01/10/2026",
+
+    dataFimTrancamento:
+      "31/03/2027",
+
+    tempoTrancamento:
+      "1 semestre",
+
+    previsaoRetorno:
+      "01/04/2027",
+
+    responsavelTrancamento:
+      responsavelLegal,
+
+    cargoResponsavelTrancamento:
+      textoConfig(
+        config,
+        "responsavelCargo",
+        "Responsável acadêmico"
+      ),
+
+    observacoesTrancamento:
+      "Observações registradas no processo de trancamento.",
+
+    numeroProtocoloTrancamento:
+      "TRC-1-2026-00000001",
+
+    situacaoAnteriorMatricula:
+      "ATIVA",
+
     nomeAluno:
       "Aluno Exemplo",
 
