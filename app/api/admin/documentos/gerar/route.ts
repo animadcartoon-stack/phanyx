@@ -734,17 +734,16 @@ export async function POST(req: Request) {
         ? body.dadosPreenchimento
         : {};
 
-    const formatoImpressao =
+    const formatoImpressaoSolicitado:
+      | "A4_INTEIRA"
+      | "DUAS_VIAS_A4"
+      | null =
+      body?.formatoImpressao ===
+        "A4_INTEIRA" ||
       body?.formatoImpressao ===
         "DUAS_VIAS_A4"
-        ? "DUAS_VIAS_A4"
-        : "A4_INTEIRA";
-
-    const quantidadeVias =
-      formatoImpressao ===
-        "DUAS_VIAS_A4"
-        ? 2
-        : 1;
+        ? body.formatoImpressao
+        : null;
 
     const valorEnviadoSeparadamente =
       converterMoedaParaNumero(
@@ -802,6 +801,24 @@ export async function POST(req: Request) {
       );
     }
 
+    /*
+     * Quando o chamador nao informa o formato,
+     * usa a configuracao gravada no template.
+     * O formato resolvido fica salvo no documento
+     * para preservar historicamente a emissao.
+     */
+    const formatoImpressao =
+      formatoImpressaoSolicitado ??
+      (template.formatoImpressao ===
+        "DUAS_VIAS_A4"
+        ? "DUAS_VIAS_A4"
+        : "A4_INTEIRA");
+
+    const quantidadeVias =
+      formatoImpressao ===
+        "DUAS_VIAS_A4"
+        ? 2
+        : 1;
     const tagsDoTemplate =
       new Set(
         extrairTagsTemplate(
