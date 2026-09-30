@@ -5506,9 +5506,9 @@
     },
     "filters": {
       "title": "Search the collection",
-      "description": "Find items by title, ISBN, ISSN, or DOI.",
+      "description": "Find by title, author, publisher, subject, keyword, ISBN, ISSN, DOI, DDC, UDC, Cutter code, or call number.",
       "searchLabel": "Search",
-      "searchPlaceholder": "Enter a title or identifier",
+      "searchPlaceholder": "Title, author, subject, ISBN, DDC, Cutter...",
       "typeLabel": "Type",
       "allTypes": "All types",
       "statusLabel": "Status",
@@ -5547,11 +5547,15 @@
       "identifier": "Identifier",
       "noIdentifier": "No identifier",
       "year": "Year",
+      "callNumber": "Call number",
       "files": "{count, plural, =0 {0 files} one {1 file} other {# files}}",
       "copies": "{count, plural, =0 {0 copies} one {1 copy} other {# copies}}",
       "updatedAt": "Updated on {date}",
-      "open": "Open item →"
-    },
+      "open": "Open item →",
+      "author": "Author",
+      "publisher": "Publisher",
+      "subject": "Subject"
+},
     "pagination": {
       "ariaLabel": "Collection pagination",
       "previous": "← Previous",
@@ -5600,8 +5604,49 @@
       "physicalLoan": "Physical loan",
       "streaming": "Streaming",
       "externalLink": "External link"
-    }
-  },
+    },
+    "globalBatchButton": "Print labels in batch",
+    "globalBatchTitle": "Catalog batch labels",
+    "globalBatchDescription": "Select physical copies from different catalog items.",
+    "globalBatchPreviewDescription": "Review the selected labels before opening A4 printing.",
+    "globalBatchLoading": "Loading physical copies...",
+    "globalBatchLoadError": "The copies could not be loaded for printing.",
+    "globalBatchRetry": "Try again",
+    "globalBatchClose": "Close",
+    "globalBatchSearchLabel": "Search copies",
+    "globalBatchSearchPlaceholder": "Title, code, accession number, ISBN or classification...",
+    "globalBatchEligible": "{count} copies found",
+    "globalBatchSelected": "{count} copies selected",
+    "globalBatchSelectFiltered": "Select results",
+    "globalBatchClear": "Clear selection",
+    "globalBatchLabelType": "Label type",
+    "globalBatchSpine": "Spine labels",
+    "globalBatchBarcode": "Barcodes",
+    "globalBatchBoth": "Spine + barcode",
+    "globalBatchNoCopies": "No active physical copies were found.",
+    "globalBatchCancel": "Cancel",
+    "globalBatchPreview": "Preview A4 sheet",
+    "globalBatchEstimatedPages": "Estimated pages: {count}",
+    "globalBatchMore": "{count} additional selected labels are not shown in this reduced preview.",
+    "globalBatchCapacityNote": "Each copy generates 1 label. One A4 sheet holds up to 45 spine labels or 21 barcodes.",
+    "globalBatchPrintNote": "Print on A4 at 100% scale, 1 page per sheet, with headers and footers disabled.",
+    "globalBatchBack": "Back to selection",
+    "globalBatchPrint": "Print A4 sheet",
+    "globalBatchStartTitle": "Click the first label that is still available on your sheet.",
+    "globalBatchStartDescription": "Click the first unused label. Earlier positions will be treated as already used.",
+    "globalBatchStartSpine": "Spine label sheet",
+    "globalBatchStartBarcode": "Barcode label sheet",
+    "globalBatchStartHelp": "Use 1 for a new sheet. Available positions: 1 to {max}.",
+    "globalBatchPartialToggle": "This sheet has already been used",
+    "globalBatchPartialToggleHelp": "Enable this option to use the remaining labels on a partially used sheet.",
+    "globalBatchSpineLayout": "5 columns × 9 rows · 45 positions",
+    "globalBatchBarcodeLayout": "3 columns × 7 rows · 21 positions",
+    "globalBatchPositionAria": "Start at position {position}",
+    "globalBatchLegendUsed": "Already used",
+    "globalBatchLegendStart": "First available",
+    "globalBatchLegendFree": "Available",
+    "globalBatchNewSheet": "New sheet: printing will automatically start at the first position."
+},
   "AdminExternalActivities": {
     "eyebrow": "Academic management",
     "title": "External activities",
@@ -5813,6 +5858,17 @@
     "durationSeconds": "Duration in seconds",
     "classificationTitle": "Classification and presentation",
     "classificationDescription": "Physical organization, cover, and content rating.",
+    "classificationSystem": "Classification system",
+    "classificationSystemNone": "Not specified",
+    "classificationSystemDefault": "Institution default ({system})",
+    "classificationEditionInstitutionDefault": "Institution suggested edition: {edition}",
+    "automaticCallNumberPreview": "Automatic preview: {value}",
+    "automaticCallNumberSaveHelp": "It will be generated when saved if the field remains empty.",
+    "manualCallNumberPreserved": "Manual value: PHANYX will preserve this call number.",
+    "classificationSystemOther": "Other",
+    "classificationEdition": "Classification edition",
+    "cutterCode": "Cutter code",
+    "otherClassification": "Other / complementary classification",
     "bibliographicClassification": "Bibliographic classification",
     "callNumber": "Call number",
     "contentRating": "Content rating",
@@ -5843,6 +5899,76 @@
     "noAuthors": "No authors linked.",
     "categories": "Categories",
     "noCategories": "No categories linked.",
+    "loadBibliographicReferencesError": "Authors, publishers, and subjects could not be loaded.",
+    "loadingBibliographicReferences": "Loading authors, publishers, and subjects...",
+    "saveBibliographicRelationships": "Save bibliographic links",
+    "savingBibliographicRelationships": "Saving links...",
+    "saveBibliographicRelationshipsSuccess": "Bibliographic links updated successfully.",
+    "saveBibliographicRelationshipsError": "Bibliographic links could not be saved.",
+    "bibliographicRelationshipsReadOnly": "Read only",
+    "selectPublisher": "Select a publisher",
+    "selectAuthor": "Select an author",
+    "selectSubject": "Select a subject",
+    "add": "Add",
+    "remove": "Remove",
+    "currentlyLinked": "Currently linked",
+    "authorOrder": "Authorship order: {order}",
+    "moveAuthorUp": "Move author up",
+    "moveAuthorDown": "Move author down",
+    "subjectsAndCategories": "Subjects / categories",
+    "principalSubject": "Primary subject",
+    "noSubjects": "No subject linked.",
+    "createBibliographicReference": "+ Create author, publisher, or subject",
+    "referenceType": "Record type",
+    "referenceName": "Name",
+    "referenceAuthor": "Author",
+    "referencePublisher": "Publisher",
+    "referenceSubject": "Subject / category",
+    "authorSortName": "Sort name",
+    "authorSortNamePlaceholder": "E.g. Willmington, Harold L.",
+    "creatingBibliographicReference": "Creating...",
+    "createBibliographicReferenceAction": "Create and link",
+    "bibliographicReferenceCreated": "Bibliographic record created and linked.",
+    "bibliographicReferenceAlreadyExists": "The record already existed and was linked to the item.",
+    "createBibliographicReferenceError": "The bibliographic record could not be created.",
+    "roleAuthor": "Author",
+    "roleCoauthor": "Coauthor",
+    "roleOrganizer": "Organizer",
+    "roleEditor": "Editor",
+    "roleTranslator": "Translator",
+    "roleSupervisor": "Supervisor",
+    "roleCollaborator": "Contributor",
+    "spineLabel": "Spine label",
+    "barcodeLabel": "Barcode",
+    "labelsAndBarcodes": "Copy labels",
+    "labelPreviewDescription": "Review the label before printing.",
+    "loadingLabel": "Preparing label...",
+    "labelLoadError": "The label data could not be loaded.",
+    "barcodeRenderError": "The barcode could not be generated.",
+    "printWindowBlocked": "The browser blocked the print window.",
+    "noCallNumber": "No call number",
+    "copyCode": "Copy code",
+    "printLabel": "Print label",
+    "printLibraryLabel": "Library label",
+    "batchLabels": "Print labels in batch",
+    "batchLabelsDescription": "Select physical copies and the label type.",
+    "batchLabelsPreviewDescription": "Review the layout before opening A4 printing.",
+    "batchLabelsLoadError": "The copies could not be loaded for printing.",
+    "loadingBatchLabels": "Preparing label batch...",
+    "selectedCopies": "{selected} of {total} copies selected",
+    "selectAll": "Select all",
+    "clearSelection": "Clear selection",
+    "labelType": "Label type",
+    "batchSpine": "Spine labels",
+    "batchBarcode": "Barcodes",
+    "batchBoth": "Spine + barcode",
+    "previewA4": "Preview A4 sheet",
+    "noEligibleCopiesForLabels": "There are no active physical copies available for labels.",
+    "batchA4Note": "To preserve actual dimensions, print on A4 at 100% scale, 1 page per sheet, with headers and footers disabled.",
+    "backToSelection": "Back to selection",
+    "printA4": "Print A4 sheet",
+    "batchEstimatedPages": "Estimated pages: {count}",
+    "batchCapacityNote": "Each copy generates 1 label. One A4 sheet holds up to 45 spine labels or 21 barcodes.",
     "digitalFiles": "Digital files",
     "history": "🕘 History",
     "uploadingFile": "Uploading file...",
@@ -5977,6 +6103,7 @@
     "unitCampus": "Unit / Campus",
     "department": "Department",
     "room": "Room",
+    "corridor": "Aisle",
     "shelfUnit": "Bookcase",
     "shelf": "Shelf",
     "fullLocation": "Full location",
@@ -6208,8 +6335,21 @@
     "withdrawNotice": "The item will no longer appear to students and teachers and will return to draft. Its history will be preserved.",
     "withdrawing": "Removing...",
     "withdrawSuccess": "Item removed from the catalog.",
-    "withdrawError": "Could not remove the item."
-  },
+    "withdrawError": "Could not remove the item.",
+    "batchPartialToggle": "This sheet has already been used",
+    "batchPartialToggleHelp": "Enable this option to use the remaining labels on a partially used sheet.",
+    "batchStartTitle": "Click the first label that is still available on your sheet.",
+    "batchStartDescription": "Earlier positions will be treated as already used.",
+    "batchStartSpine": "Spine label sheet",
+    "batchStartBarcode": "Barcode label sheet",
+    "batchSpineLayout": "5 columns × 9 rows · 45 positions",
+    "batchBarcodeLayout": "3 columns × 7 rows · 21 positions",
+    "batchPositionAria": "Start at position {position}",
+    "batchLegendUsed": "Already used",
+    "batchLegendStart": "First available",
+    "batchLegendFree": "Available",
+    "batchNewSheet": "New sheet: printing will automatically start at the first position."
+},
   "AdminCertificates": {
     "status": {
       "ready": "Ready",
@@ -6900,6 +7040,202 @@
       "termHelp": "Used mainly in search campaigns. It can be left blank.",
       "termPlaceholder": "E.g., theology_course",
       "technicalField": "Technical field: {field}"
+    }
+  },
+  "AdminExternalActivitySafety": {
+    "eyebrow": "Risk management",
+    "title": "Safety",
+    "description": "Identify activity risks, define preventive measures, and assign owners and response plans.",
+    "loading": "Loading safety...",
+    "summary": {
+      "total": "Registered risks",
+      "open": "Under monitoring",
+      "severe": "Severe or critical",
+      "checkpoints": "Checkpoints"
+    },
+    "actions": {
+      "newRisk": "+ Add risk",
+      "edit": "Edit",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "save": "Save risk",
+      "saving": "Saving...",
+      "confirmRemove": "Confirm removal",
+      "configurePlan": "Configure plan",
+      "editPlan": "Edit plan",
+      "savePlan": "Save plan",
+      "savingPlan": "Saving...",
+      "cancelPlan": "Cancel",
+      "newCheckpoint": "+ Add checkpoint",
+      "saveCheckpoint": "Save checkpoint",
+      "savingCheckpoint": "Saving...",
+      "cancelCheckpoint": "Cancel",
+      "confirmRemoveCheckpoint": "Confirm removal",
+      "deactivateCheckpoint": "Deactivate checkpoint"
+    },
+    "form": {
+      "newTitle": "Add risk",
+      "editTitle": "Edit risk",
+      "description": "Classify the risk and record how it will be prevented and handled.",
+      "title": "Title",
+      "responsible": "Owner",
+      "noResponsible": "No owner assigned",
+      "category": "Category",
+      "status": "Status",
+      "probability": "Probability",
+      "severity": "Severity",
+      "details": "Risk description",
+      "preventiveMeasures": "Preventive measures",
+      "responsePlan": "Response plan",
+      "notes": "Notes"
+    },
+    "risks": {
+      "title": "Risk map",
+      "description": "Risks identified for this external activity.",
+      "emptyTitle": "No risks registered",
+      "emptyDescription": "Add the relevant risks for activity planning.",
+      "preventiveMeasures": "Preventive measures",
+      "responsePlan": "Response plan",
+      "responsible": "Owner"
+    },
+    "common": {
+      "notInformed": "Not provided",
+      "noResponsible": "No owner assigned"
+    },
+    "removeConfirm": "Do you really want to remove this risk?",
+    "categories": {
+      "TRANSPORTE": "Transportation",
+      "SAUDE": "Health",
+      "CLIMA": "Weather",
+      "AMBIENTE": "Environment",
+      "ATIVIDADE_FISICA": "Physical activity",
+      "AQUATICO": "Aquatic",
+      "SEGURANCA": "Safety",
+      "ALIMENTACAO": "Food",
+      "ACESSIBILIDADE": "Accessibility",
+      "COMPORTAMENTO": "Behavior",
+      "TECNOLOGIA": "Technology",
+      "OUTRO": "Other"
+    },
+    "probabilities": {
+      "MUITO_BAIXA": "Very low",
+      "BAIXA": "Low",
+      "MEDIA": "Medium",
+      "ALTA": "High",
+      "MUITO_ALTA": "Very high"
+    },
+    "severities": {
+      "LEVE": "Minor",
+      "MODERADA": "Moderate",
+      "GRAVE": "Severe",
+      "MUITO_GRAVE": "Very severe",
+      "CRITICA": "Critical"
+    },
+    "statuses": {
+      "IDENTIFICADO": "Identified",
+      "EM_TRATAMENTO": "Being treated",
+      "MITIGADO": "Mitigated",
+      "ACEITO": "Accepted",
+      "ENCERRADO": "Closed"
+    },
+    "messages": {
+      "loadError": "Could not load safety data.",
+      "titleRequired": "Enter the risk title.",
+      "saveError": "Could not save the risk.",
+      "removeError": "Could not remove the risk.",
+      "created": "Risk created successfully.",
+      "updated": "Risk updated successfully.",
+      "removed": "Risk removed successfully.",
+      "planSaved": "Emergency plan saved successfully.",
+      "planSaveError": "Could not save the emergency plan.",
+      "checkpointNameRequired": "Enter the checkpoint name.",
+      "checkpointDateInvalid": "Enter a valid date and time.",
+      "checkpointSaveError": "Could not save the checkpoint.",
+      "checkpointCreated": "Checkpoint created successfully.",
+      "checkpointUpdated": "Checkpoint updated successfully.",
+      "checkpointRemoveError": "Could not remove the checkpoint.",
+      "checkpointRemoved": "Checkpoint removed successfully.",
+      "checkpointDisabled": "This checkpoint has records and was deactivated to preserve its history."
+    },
+    "plan": {
+      "title": "Emergency plan",
+      "description": "Centralize emergency contacts, reference services, and procedures to follow in an emergency.",
+      "emptyTitle": "Emergency plan not configured yet",
+      "emptyDescription": "Add contacts, a reference hospital, meeting point, and response procedures.",
+      "sections": {
+        "contacts": "Emergency contacts",
+        "medical": "Care references",
+        "procedures": "Procedures"
+      },
+      "fields": {
+        "status": "Status",
+        "schoolContact": "Institution emergency contact",
+        "schoolPhone": "Institution phone",
+        "emergencyResponsible": "Emergency lead",
+        "emergencyResponsiblePhone": "Emergency lead phone",
+        "localEmergencyNumber": "Local emergency number",
+        "hospital": "Reference hospital",
+        "hospitalAddress": "Hospital address",
+        "hospitalPhone": "Hospital phone",
+        "alternativeService": "Alternative emergency service",
+        "alternativeServicePhone": "Alternative service phone",
+        "meetingPoint": "Emergency meeting point",
+        "evacuation": "Evacuation procedure",
+        "accident": "Accident procedure",
+        "missingPerson": "Missing person procedure",
+        "medicalEmergency": "Medical emergency procedure",
+        "severeWeather": "Severe weather procedure",
+        "generalInstructions": "General instructions",
+        "notes": "Notes"
+      },
+      "statuses": {
+        "RASCUNHO": "Draft",
+        "EM_REVISAO": "Under review",
+        "APROVADO": "Approved",
+        "ATIVO": "Active",
+        "ARQUIVADO": "Archived"
+      }
+    },
+    "checkpoints": {
+      "title": "Checkpoints",
+      "description": "Define control points for departures, arrivals, boarding, disembarking, and participant counts.",
+      "emptyTitle": "No checkpoints registered",
+      "emptyDescription": "Add control points to monitor the activity more safely.",
+      "removeConfirm": "Do you really want to remove this checkpoint?",
+      "deactivateConfirm": "This checkpoint already has records. To preserve history, it will only be deactivated.",
+      "form": {
+        "newTitle": "Add checkpoint",
+        "editTitle": "Edit checkpoint",
+        "orderInfo": "Order is assigned automatically as checkpoints are created."
+      },
+      "fields": {
+        "name": "Name",
+        "type": "Type",
+        "location": "Location",
+        "address": "Address",
+        "scheduledAt": "Scheduled time",
+        "required": "Required checkpoint",
+        "active": "Active checkpoint",
+        "notes": "Notes",
+        "records": "Records"
+      },
+      "badges": {
+        "required": "Required",
+        "optional": "Optional",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "types": {
+        "SAIDA_ORIGEM": "Departure from origin",
+        "CHEGADA_DESTINO": "Arrival at destination",
+        "SAIDA_DESTINO": "Departure from destination",
+        "RETORNO_ORIGEM": "Return to origin",
+        "EMBARQUE": "Boarding",
+        "DESEMBARQUE": "Disembarking",
+        "PONTO_ENCONTRO": "Meeting point",
+        "CONTAGEM": "Participant count",
+        "PERSONALIZADO": "Custom"
+      }
     }
   },
   "AdminExternalActivityTeam": {
@@ -10267,6 +10603,133 @@
       "suggestions": {
         "title": "Allow acquisition suggestions",
         "description": "Allows users to suggest new books, works, or materials for the collection."
+      }
+    },
+    "cataloging": {
+      "eyebrow": "Cataloging",
+      "title": "Bibliographic classification",
+      "description": "Define the institution's default classification standard and how PHANYX should assist with call-number creation.",
+      "defaultSystem": "Default system",
+      "defaultSystemHelp": "Classification system suggested automatically when cataloging new works.",
+      "other": "Other",
+      "cddEdition": "Default DDC edition",
+      "cddEditionHelp": "For example, 23 for the 23rd edition of the Dewey Decimal Classification.",
+      "udcEdition": "Default UDC edition",
+      "udcEditionHelp": "Enter the UDC edition or version adopted by the institution.",
+      "cutter": {
+        "title": "Use Cutter code",
+        "description": "Allows the Cutter code to be included when composing the call number."
+      },
+      "autoCallNumber": {
+        "title": "Generate call number automatically",
+        "description": "PHANYX can combine classification and Cutter while keeping the result manually editable."
+      }
+    },
+    "labelModels": {
+      "eyebrow": "Printing and identification",
+      "title": "Label sheet templates",
+      "description": "Configure sheets for spine labels and barcodes. Native PHANYX templates remain protected and can be used as defaults.",
+      "new": "New template",
+      "reload": "Reload",
+      "retry": "Try again",
+      "loading": "Loading label templates...",
+      "empty": "No templates are available for this type.",
+      "capacity": "labels / sheet",
+      "copySuffix": " — copy",
+      "systemProtected": "Native PHANYX template. It cannot be changed or deleted; duplicate it to create a custom version.",
+      "calibrationHelp": "Use offsets only to compensate for small physical printer differences. Positive values move printing to the right or downward.",
+      "types": {
+        "spine": "Spine label",
+        "barcode": "Barcode"
+      },
+      "badges": {
+        "system": "PHANYX",
+        "manufacturer": "Manufacturer",
+        "custom": "Custom",
+        "default": "Default",
+        "inactive": "Inactive"
+      },
+      "metrics": {
+        "sheet": "Sheet",
+        "label": "Label",
+        "grid": "Grid",
+        "offset": "Calibration"
+      },
+      "actions": {
+        "setDefault": "Set as default",
+        "edit": "Edit",
+        "duplicate": "Duplicate",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "groups": {
+        "identification": "Template identification",
+        "sheet": "Sheet and margins",
+        "labels": "Labels and grid",
+        "calibration": "Printer calibration"
+      },
+      "fields": {
+        "name": "Template name",
+        "description": "Description",
+        "type": "Label type",
+        "brand": "Brand",
+        "manufacturerCode": "Manufacturer code",
+        "sheetWidth": "Sheet width (mm)",
+        "sheetHeight": "Sheet height (mm)",
+        "orientation": "Orientation",
+        "marginTop": "Top margin (mm)",
+        "marginRight": "Right margin (mm)",
+        "marginBottom": "Bottom margin (mm)",
+        "marginLeft": "Left margin (mm)",
+        "labelWidth": "Label width (mm)",
+        "labelHeight": "Label height (mm)",
+        "columns": "Columns",
+        "rows": "Rows",
+        "horizontalGap": "Horizontal gap (mm)",
+        "verticalGap": "Vertical gap (mm)",
+        "offsetX": "Horizontal X offset (mm)",
+        "offsetY": "Vertical Y offset (mm)",
+        "active": "Active template",
+        "activeHelp": "Inactive templates remain stored but are not available for normal use.",
+        "default": "Set as default",
+        "defaultHelp": "This template will be selected initially when printing labels of this type."
+      },
+      "orientation": {
+        "portrait": "Portrait",
+        "landscape": "Landscape"
+      },
+      "modal": {
+        "eyebrow": "Sheet template",
+        "newTitle": "New label template",
+        "editTitle": "Edit label template",
+        "duplicateTitle": "Duplicate label template",
+        "close": "Close",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save template"
+      },
+      "delete": {
+        "title": "Delete label template",
+        "description": "Delete the template “{name}”? This action does not change native PHANYX templates.",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "confirm": "Delete template"
+      },
+      "validation": {
+        "name": "Enter a template name."
+      },
+      "success": {
+        "created": "Label template created successfully.",
+        "updated": "Label template updated successfully.",
+        "deleted": "Label template deleted.",
+        "defaultChanged": "Default template updated.",
+        "stateChanged": "Template status updated."
+      },
+      "errors": {
+        "load": "Could not load label templates.",
+        "save": "Could not save the label template.",
+        "action": "Could not complete this action."
       }
     },
     "circulation": {
@@ -21097,203 +21560,28 @@
       "responsibleDocumentType": "Guardian document type",
       "responsibleDocumentNumber": "Guardian document number",
       "responsiblePhoneCountry": "Guardian phone country (ISO 2)"
-    }
-  }
-,
-  "AdminExternalActivitySafety": {
-    "eyebrow": "Risk management",
-    "title": "Safety",
-    "description": "Identify activity risks, define preventive measures, and assign owners and response plans.",
-    "loading": "Loading safety...",
-    "summary": {
-      "total": "Registered risks",
-      "open": "Under monitoring",
-      "severe": "Severe or critical",
-      "checkpoints": "Checkpoints"
     },
-    "actions": {
-      "newRisk": "+ Add risk",
-      "edit": "Edit",
-      "remove": "Remove",
-      "cancel": "Cancel",
-      "save": "Save risk",
-      "saving": "Saving...",
-      "confirmRemove": "Confirm removal",
-      "configurePlan": "Configure plan",
-      "editPlan": "Edit plan",
-      "savePlan": "Save plan",
-      "savingPlan": "Saving...",
-      "cancelPlan": "Cancel",
-      "newCheckpoint": "+ Add checkpoint",
-      "saveCheckpoint": "Save checkpoint",
-      "savingCheckpoint": "Saving...",
-      "cancelCheckpoint": "Cancel",
-      "confirmRemoveCheckpoint": "Confirm removal",
-      "deactivateCheckpoint": "Deactivate checkpoint"
+    "groups": {
+      "internationalDocuments": "INTERNATIONAL / DOCUMENTS",
+      "address": "ADDRESS",
+      "responsible": "GUARDIAN",
+      "accessibility": "ACCESSIBILITY"
     },
-    "form": {
-      "newTitle": "Add risk",
-      "editTitle": "Edit risk",
-      "description": "Classify the risk and record how it will be prevented and handled.",
-      "title": "Title",
-      "responsible": "Owner",
-      "noResponsible": "No owner assigned",
-      "category": "Category",
-      "status": "Status",
-      "probability": "Probability",
-      "severity": "Severity",
-      "details": "Risk description",
-      "preventiveMeasures": "Preventive measures",
-      "responsePlan": "Response plan",
-      "notes": "Notes"
-    },
-    "risks": {
-      "title": "Risk map",
-      "description": "Risks identified for this external activity.",
-      "emptyTitle": "No risks registered",
-      "emptyDescription": "Add the relevant risks for activity planning.",
-      "preventiveMeasures": "Preventive measures",
-      "responsePlan": "Response plan",
-      "responsible": "Owner"
-    },
-    "common": {
-      "notInformed": "Not provided",
-      "noResponsible": "No owner assigned"
-    },
-    "removeConfirm": "Do you really want to remove this risk?",
-    "categories": {
-      "TRANSPORTE": "Transportation",
-      "SAUDE": "Health",
-      "CLIMA": "Weather",
-      "AMBIENTE": "Environment",
-      "ATIVIDADE_FISICA": "Physical activity",
-      "AQUATICO": "Aquatic",
-      "SEGURANCA": "Safety",
-      "ALIMENTACAO": "Food",
-      "ACESSIBILIDADE": "Accessibility",
-      "COMPORTAMENTO": "Behavior",
-      "TECNOLOGIA": "Technology",
-      "OUTRO": "Other"
-    },
-    "probabilities": {
-      "MUITO_BAIXA": "Very low",
-      "BAIXA": "Low",
-      "MEDIA": "Medium",
-      "ALTA": "High",
-      "MUITO_ALTA": "Very high"
-    },
-    "severities": {
-      "LEVE": "Minor",
-      "MODERADA": "Moderate",
-      "GRAVE": "Severe",
-      "MUITO_GRAVE": "Very severe",
-      "CRITICA": "Critical"
-    },
-    "statuses": {
-      "IDENTIFICADO": "Identified",
-      "EM_TRATAMENTO": "Being treated",
-      "MITIGADO": "Mitigated",
-      "ACEITO": "Accepted",
-      "ENCERRADO": "Closed"
-    },
-    "messages": {
-      "loadError": "Could not load safety data.",
-      "titleRequired": "Enter the risk title.",
-      "saveError": "Could not save the risk.",
-      "removeError": "Could not remove the risk.",
-      "created": "Risk created successfully.",
-      "updated": "Risk updated successfully.",
-      "removed": "Risk removed successfully.",
-      "planSaved": "Emergency plan saved successfully.",
-      "planSaveError": "Could not save the emergency plan.",
-      "checkpointNameRequired": "Enter the checkpoint name.",
-      "checkpointDateInvalid": "Enter a valid date and time.",
-      "checkpointSaveError": "Could not save the checkpoint.",
-      "checkpointCreated": "Checkpoint created successfully.",
-      "checkpointUpdated": "Checkpoint updated successfully.",
-      "checkpointRemoveError": "Could not remove the checkpoint.",
-      "checkpointRemoved": "Checkpoint removed successfully.",
-      "checkpointDisabled": "This checkpoint has records and was deactivated to preserve its history."
-    },
-    "plan": {
-      "title": "Emergency plan",
-      "description": "Centralize emergency contacts, reference services, and procedures to follow in an emergency.",
-      "emptyTitle": "Emergency plan not configured yet",
-      "emptyDescription": "Add contacts, a reference hospital, meeting point, and response procedures.",
-      "sections": {
-        "contacts": "Emergency contacts",
-        "medical": "Care references",
-        "procedures": "Procedures"
-      },
-      "fields": {
-        "status": "Status",
-        "schoolContact": "Institution emergency contact",
-        "schoolPhone": "Institution phone",
-        "emergencyResponsible": "Emergency lead",
-        "emergencyResponsiblePhone": "Emergency lead phone",
-        "localEmergencyNumber": "Local emergency number",
-        "hospital": "Reference hospital",
-        "hospitalAddress": "Hospital address",
-        "hospitalPhone": "Hospital phone",
-        "alternativeService": "Alternative emergency service",
-        "alternativeServicePhone": "Alternative service phone",
-        "meetingPoint": "Emergency meeting point",
-        "evacuation": "Evacuation procedure",
-        "accident": "Accident procedure",
-        "missingPerson": "Missing person procedure",
-        "medicalEmergency": "Medical emergency procedure",
-        "severeWeather": "Severe weather procedure",
-        "generalInstructions": "General instructions",
-        "notes": "Notes"
-      },
-      "statuses": {
-        "RASCUNHO": "Draft",
-        "EM_REVISAO": "Under review",
-        "APROVADO": "Approved",
-        "ATIVO": "Active",
-        "ARQUIVADO": "Archived"
-      }
-    },
-    "checkpoints": {
-      "title": "Checkpoints",
-      "description": "Define control points for departures, arrivals, boarding, disembarking, and participant counts.",
-      "emptyTitle": "No checkpoints registered",
-      "emptyDescription": "Add control points to monitor the activity more safely.",
-      "removeConfirm": "Do you really want to remove this checkpoint?",
-      "deactivateConfirm": "This checkpoint already has records. To preserve history, it will only be deactivated.",
-      "form": {
-        "newTitle": "Add checkpoint",
-        "editTitle": "Edit checkpoint",
-        "orderInfo": "Order is assigned automatically as checkpoints are created."
-      },
-      "fields": {
-        "name": "Name",
-        "type": "Type",
-        "location": "Location",
-        "address": "Address",
-        "scheduledAt": "Scheduled time",
-        "required": "Required checkpoint",
-        "active": "Active checkpoint",
-        "notes": "Notes",
-        "records": "Records"
-      },
-      "badges": {
-        "required": "Required",
-        "optional": "Optional",
-        "active": "Active",
-        "inactive": "Inactive"
-      },
-      "types": {
-        "SAIDA_ORIGEM": "Departure from origin",
-        "CHEGADA_DESTINO": "Arrival at destination",
-        "SAIDA_DESTINO": "Departure from destination",
-        "RETORNO_ORIGEM": "Return to origin",
-        "EMBARQUE": "Boarding",
-        "DESEMBARQUE": "Disembarking",
-        "PONTO_ENCONTRO": "Meeting point",
-        "CONTAGEM": "Participant count",
-        "PERSONALIZADO": "Custom"
-      }
+    "instructions": {
+      "sheetName": "How to use",
+      "title": "How to use the student import template",
+      "intro": "Enter student data only on the {sheet} sheet.",
+      "required": "Fields marked with * are required.",
+      "expand": "Use the + buttons above the columns to open only the optional groups you need.",
+      "optional": "You may fill in only the fields you need. Collapsed groups are optional.",
+      "countryCode": "For ISO 2 fields, enter the two-letter country code, for example US, BR or PT.",
+      "technicalRow": "Do not unhide, edit or delete hidden row 1. It contains the technical identifiers used by PHANYX.",
+      "saveXlsx": "Keep the file in XLSX format to preserve groups and hidden columns.",
+      "groupsTitle": "Optional groups",
+      "groupInternational": "International / documents: nationality, countries of birth and residence, and additional documents.",
+      "groupAddress": "Address: street, number, complement, district, city and state.",
+      "groupResponsible": "Guardian: documents, phone, phone country, email and relationship.",
+      "groupAccessibility": "Accessibility: special-needs description and accessibility notes."
     }
   }
 ,
@@ -21389,6 +21677,136 @@
       "loadError": "Could not load health information.",
       "saveError": "Could not save the health record.",
       "saved": "Health record saved successfully."
+    }
+  },
+  "AdminExternalActivityDocuments": {
+    "title": "Documents",
+    "subtitle": "Centralize files, authorizations, contracts, insurance and documents related to the external activity.",
+    "loading": "Loading documents...",
+    "summary": {
+      "total": "Total",
+      "required": "Required",
+      "pending": "Pending / review",
+      "expired": "Expired",
+      "expiring": "Expiring soon"
+    },
+    "filters": {
+      "search": "Search by title, number, file or link...",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "allLinks": "All links",
+      "showHistory": "Show archived and replaced"
+    },
+    "links": {
+      "general": "General document",
+      "participant": "Participant",
+      "provider": "Provider",
+      "vehicle": "Vehicle"
+    },
+    "statuses": {
+      "ATIVO": "Active",
+      "PENDENTE": "Pending",
+      "EM_ANALISE": "Under review",
+      "APROVADO": "Approved",
+      "REJEITADO": "Rejected",
+      "VENCIDO": "Expired",
+      "SUBSTITUIDO": "Replaced",
+      "ARQUIVADO": "Archived"
+    },
+    "badges": {
+      "required": "Required",
+      "confidential": "Confidential",
+      "expiring": "Expiring soon"
+    },
+    "card": {
+      "link": "Link",
+      "number": "Number",
+      "noFile": "No file uploaded",
+      "validUntil": "Valid until"
+    },
+    "empty": {
+      "title": "No documents found",
+      "description": "Add documents or change the filters to view other records."
+    },
+    "actions": {
+      "new": "New document",
+      "open": "Open",
+      "download": "Download",
+      "edit": "Edit",
+      "replace": "Replace",
+      "archive": "Archive",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "uploading": "Uploading file...",
+      "confirmReplace": "Replace document"
+    },
+    "modal": {
+      "newTitle": "New document",
+      "editTitle": "Edit document",
+      "replaceTitle": "Replace document",
+      "description": "Enter the document information and upload a file if needed.",
+      "replaceDescription": "The previous file will be kept in history as replaced."
+    },
+    "form": {
+      "type": "Type",
+      "title": "Title",
+      "description": "Description",
+      "number": "Document number",
+      "status": "Status",
+      "issuedAt": "Issued on",
+      "validUntil": "Valid until",
+      "participant": "Participant",
+      "provider": "Transportation provider",
+      "vehicle": "Vehicle",
+      "file": "File",
+      "fileHelp": "PDF, images, Word or Excel. 25 MB limit.",
+      "fileAlreadyExists": "This record already has a file. Use “Replace” to preserve the previous version history.",
+      "required": "Required document",
+      "requiredHelp": "Marks this document as required for the activity.",
+      "confidential": "Confidential document",
+      "confidentialHelp": "Content is available only to users with management permission.",
+      "notes": "Notes",
+      "none": "None",
+      "select": "Select..."
+    },
+    "messages": {
+      "created": "Document created successfully.",
+      "updated": "Document updated successfully.",
+      "replaced": "Document replaced successfully.",
+      "archived": "Document archived.",
+      "statusChanged": "Status updated."
+    },
+    "errors": {
+      "load": "Unable to load documents.",
+      "required": "Enter the document type and title.",
+      "save": "Unable to save the document.",
+      "status": "Unable to change the status.",
+      "fileTooLarge": "The file exceeds the 25 MB limit.",
+      "invalidFile": "This file format is not allowed.",
+      "replacementFileRequired": "Select the new file to complete the replacement."
+    },
+    "types": {
+      "ROTEIRO": "Itinerary",
+      "TERMO_AUTORIZACAO": "Authorization form",
+      "AUTORIZACAO_ASSINADA": "Signed authorization",
+      "CONTRATO_TRANSPORTE": "Transportation contract",
+      "CONTRATO_HOSPEDAGEM": "Accommodation contract",
+      "SEGURO_VIAGEM": "Travel insurance",
+      "APOLICE_TRANSPORTE": "Transportation insurance policy",
+      "LICENCA_PRESTADOR": "Provider license",
+      "DOCUMENTO_VEICULO": "Vehicle document",
+      "DOCUMENTO_CONDUTOR": "Driver document",
+      "AVALIACAO_RISCO": "Risk assessment",
+      "PLANO_EMERGENCIA": "Emergency plan",
+      "COMPROVANTE_RESERVA": "Reservation confirmation",
+      "PASSAGEM": "Ticket",
+      "HOSPEDAGEM": "Accommodation",
+      "PASSAPORTE": "Passport",
+      "VISTO": "Visa",
+      "DOCUMENTO_MEDICO": "Medical document",
+      "LISTA_PARTICIPANTES": "Participant list",
+      "OUTRO": "Other"
     }
   }
 }

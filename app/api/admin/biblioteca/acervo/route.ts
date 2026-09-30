@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import {
   AcaoAuditoriaBiblioteca,
+  BibliotecaSistemaClassificacao,
   BibliotecariaFuncaoAutor,
   ModalidadeAcessoBiblioteca,
   Prisma,
@@ -41,6 +42,11 @@ const MODALIDADES_ACESSO =
     Object.values(ModalidadeAcessoBiblioteca)
   );
 
+const SISTEMAS_CLASSIFICACAO =
+  new Set<BibliotecaSistemaClassificacao>(
+    Object.values(BibliotecaSistemaClassificacao)
+  );
+
 const FUNCOES_AUTOR =
   new Set<BibliotecariaFuncaoAutor>(
     Object.values(BibliotecariaFuncaoAutor)
@@ -72,6 +78,9 @@ const ITEM_ACERVO_SELECT = {
   numeroPaginas: true,
   duracaoSegundos: true,
   classificacaoBibliografica: true,
+  sistemaClassificacao: true,
+  edicaoClassificacao: true,
+  codigoCutter: true,
   codigoChamada: true,
   cdd: true,
   cdu: true,
@@ -392,6 +401,26 @@ function enumObrigatorio<T extends string>(
   return normalizado;
 }
 
+function enumOpcionalNulo<T extends string>(
+  valor: unknown,
+  campo: string,
+  permitidos: ReadonlySet<T>
+): T | null {
+  if (
+    valor === undefined ||
+    valor === null ||
+    valor === ""
+  ) {
+    return null;
+  }
+
+  return enumObrigatorio(
+    valor,
+    campo,
+    permitidos
+  );
+}
+
 function enumOpcional<T extends string>(
   valor: unknown,
   campo: string,
@@ -419,6 +448,123 @@ function normalizarIdentificador(
   limite: number
 ) {
   return textoOpcional(valor, campo, limite);
+}
+
+function resolverCatalogacao(
+  corpo: Record<string, unknown>,
+  configuracao: {
+    sistemaClassificacaoPadrao: BibliotecaSistemaClassificacao;
+    edicaoCDDPadrao: string | null;
+    edicaoCDUPadrao: string | null;
+    usarCutter: boolean;
+    gerarCodigoChamadaAutomaticamente: boolean;
+  } | null
+) {
+  const sistemaClassificacao =
+    enumOpcionalNulo(
+      corpo.sistemaClassificacao,
+      "sistemaClassificacao",
+      SISTEMAS_CLASSIFICACAO
+    ) ??
+    configuracao?.sistemaClassificacaoPadrao ??
+    BibliotecaSistemaClassificacao.CDD;
+
+  const classificacaoBibliografica =
+    textoOpcional(
+      corpo.classificacaoBibliografica,
+      "classificacaoBibliografica",
+      120
+    );
+
+  const cdd =
+    textoOpcional(
+      corpo.cdd,
+      "cdd",
+      80
+    );
+
+  const cdu =
+    textoOpcional(
+      corpo.cdu,
+      "cdu",
+      80
+    );
+
+  const codigoCutter =
+    textoOpcional(
+      corpo.codigoCutter,
+      "codigoCutter",
+      80
+    );
+
+  const edicaoInformada =
+    textoOpcional(
+      corpo.edicaoClassificacao,
+      "edicaoClassificacao",
+      80
+    );
+
+  const edicaoClassificacao =
+    edicaoInformada ??
+    (
+      sistemaClassificacao ===
+        BibliotecaSistemaClassificacao.CDD
+        ? configuracao?.edicaoCDDPadrao ?? null
+        : sistemaClassificacao ===
+            BibliotecaSistemaClassificacao.CDU
+          ? configuracao?.edicaoCDUPadrao ?? null
+          : null
+    );
+
+  const codigoChamadaInformado =
+    textoOpcional(
+      corpo.codigoChamada,
+      "codigoChamada",
+      120
+    );
+
+  const classificacaoPrincipal =
+    sistemaClassificacao ===
+      BibliotecaSistemaClassificacao.CDD
+      ? cdd
+      : sistemaClassificacao ===
+          BibliotecaSistemaClassificacao.CDU
+        ? cdu
+        : classificacaoBibliografica;
+
+  const partesAutomaticas = [
+    classificacaoPrincipal,
+    configuracao?.usarCutter !== false
+      ? codigoCutter
+      : null,
+  ].filter(
+    (valor): valor is string =>
+      Boolean(valor)
+  );
+
+  const codigoChamadaAutomatico =
+    partesAutomaticas.length
+      ? partesAutomaticas.join(" ")
+      : null;
+
+  const codigoChamada =
+    codigoChamadaInformado ??
+    (
+      configuracao
+        ?.gerarCodigoChamadaAutomaticamente !== false
+        ? codigoChamadaAutomatico
+        : null
+    );
+
+  return {
+    sistemaClassificacao,
+    edicaoClassificacao,
+    codigoCutter,
+    classificacaoBibliografica,
+    cdd,
+    cdu,
+    codigoChamada,
+  };
 }
 
 function normalizarPalavrasChave(
@@ -804,6 +950,113 @@ export async function GET(request: NextRequest) {
                   mode: "insensitive",
                 },
               },
+              {
+                classificacaoBibliografica: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                codigoChamada: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                codigoCutter: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                cdd: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                cdu: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                sinopse: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                descricao: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                palavrasChave: {
+                  has: busca,
+                },
+              },
+              {
+                editora: {
+                  is: {
+                    nome: {
+                      contains: busca,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+              {
+                autores: {
+                  some: {
+                    autor: {
+                      OR: [
+                        {
+                          nome: {
+                            contains: busca,
+                            mode: "insensitive",
+                          },
+                        },
+                        {
+                          nomeOrdenacao: {
+                            contains: busca,
+                            mode: "insensitive",
+                          },
+                        },
+                        {
+                          orcid: {
+                            contains: busca,
+                            mode: "insensitive",
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+              {
+                categorias: {
+                  some: {
+                    categoria: {
+                      OR: [
+                        {
+                          nome: {
+                            contains: busca,
+                            mode: "insensitive",
+                          },
+                        },
+                        {
+                          slug: {
+                            contains: busca,
+                            mode: "insensitive",
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
             ],
           }
         : {}),
@@ -1076,6 +1329,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const catalogacao =
+      resolverCatalogacao(
+        corpo,
+        contexto.configuracao
+      );
+
     const agora = new Date();
     const anoMaximo = agora.getFullYear() + 2;
     const ip = obterIp(request);
@@ -1176,26 +1435,19 @@ export async function POST(request: NextRequest) {
                 100_000_000
               ),
               classificacaoBibliografica:
-                textoOpcional(
-                  corpo.classificacaoBibliografica,
-                  "classificacaoBibliografica",
-                  120
-                ),
-              codigoChamada: textoOpcional(
-                corpo.codigoChamada,
-                "codigoChamada",
-                120
-              ),
-              cdd: textoOpcional(
-                corpo.cdd,
-                "cdd",
-                80
-              ),
-              cdu: textoOpcional(
-                corpo.cdu,
-                "cdu",
-                80
-              ),
+                catalogacao.classificacaoBibliografica,
+              sistemaClassificacao:
+                catalogacao.sistemaClassificacao,
+              edicaoClassificacao:
+                catalogacao.edicaoClassificacao,
+              codigoCutter:
+                catalogacao.codigoCutter,
+              codigoChamada:
+                catalogacao.codigoChamada,
+              cdd:
+                catalogacao.cdd,
+              cdu:
+                catalogacao.cdu,
               classificacaoIndicativa:
                 textoOpcional(
                   corpo.classificacaoIndicativa,

@@ -5505,9 +5505,9 @@
     },
     "filters": {
       "title": "Rechercher dans le fonds",
-      "description": "Recherchez des éléments par titre, ISBN, ISSN ou DOI.",
+      "description": "Recherchez par titre, auteur, éditeur, sujet, mot-clé, ISBN, ISSN, DOI, CDD, CDU, Cutter ou cote.",
       "searchLabel": "Recherche",
-      "searchPlaceholder": "Saisissez le titre ou l’identifiant",
+      "searchPlaceholder": "Titre, auteur, sujet, ISBN, CDD, Cutter...",
       "typeLabel": "Type",
       "allTypes": "Tous les types",
       "statusLabel": "Statut",
@@ -5546,10 +5546,14 @@
       "identifier": "Identifiant",
       "noIdentifier": "Sans identifiant",
       "year": "Année",
+      "callNumber": "Cote",
       "files": "{count, plural, =0 {0 fichiers} one {1 fichier} other {# fichiers}}",
       "copies": "{count, plural, =0 {0 exemplaires} one {1 exemplaire} other {# exemplaires}}",
       "updatedAt": "Mis à jour le {date}",
-      "open": "Ouvrir l’élément →"
+      "open": "Ouvrir l’élément →",
+      "author": "Auteur",
+      "publisher": "Éditeur",
+      "subject": "Sujet"
     },
     "pagination": {
       "ariaLabel": "Pagination du fonds",
@@ -5599,7 +5603,48 @@
       "physicalLoan": "Prêt physique",
       "streaming": "Streaming",
       "externalLink": "Lien externe"
-    }
+    },
+    "globalBatchButton": "Imprimer les étiquettes par lot",
+    "globalBatchTitle": "Étiquettes par lot du catalogue",
+    "globalBatchDescription": "Sélectionnez des exemplaires physiques provenant de différents ouvrages.",
+    "globalBatchPreviewDescription": "Vérifiez les étiquettes sélectionnées avant d'ouvrir l'impression A4.",
+    "globalBatchLoading": "Chargement des exemplaires physiques...",
+    "globalBatchLoadError": "Impossible de charger les exemplaires pour l'impression.",
+    "globalBatchRetry": "Réessayer",
+    "globalBatchClose": "Fermer",
+    "globalBatchSearchLabel": "Rechercher des exemplaires",
+    "globalBatchSearchPlaceholder": "Titre, code, numéro d'inventaire, ISBN ou classification...",
+    "globalBatchEligible": "{count} exemplaires trouvés",
+    "globalBatchSelected": "{count} exemplaires sélectionnés",
+    "globalBatchSelectFiltered": "Sélectionner les résultats",
+    "globalBatchClear": "Effacer la sélection",
+    "globalBatchLabelType": "Type d'étiquette",
+    "globalBatchSpine": "Étiquettes de dos",
+    "globalBatchBarcode": "Codes-barres",
+    "globalBatchBoth": "Dos + code-barres",
+    "globalBatchNoCopies": "Aucun exemplaire physique actif n'a été trouvé.",
+    "globalBatchCancel": "Annuler",
+    "globalBatchPreview": "Aperçu de la feuille A4",
+    "globalBatchEstimatedPages": "Pages prévues : {count}",
+    "globalBatchMore": "{count} étiquettes sélectionnées supplémentaires ne sont pas affichées dans cet aperçu réduit.",
+    "globalBatchCapacityNote": "Chaque exemplaire génère 1 étiquette. Une feuille A4 peut contenir jusqu'à 45 étiquettes de dos ou 21 codes-barres.",
+    "globalBatchPrintNote": "Imprimez en A4 à 100 %, 1 page par feuille, avec les en-têtes et pieds de page désactivés.",
+    "globalBatchBack": "Retour à la sélection",
+    "globalBatchPrint": "Imprimer la feuille A4",
+    "globalBatchStartTitle": "Cliquez sur la première étiquette encore disponible sur votre feuille.",
+    "globalBatchStartDescription": "Cliquez sur la première étiquette encore libre. Les positions précédentes seront considérées comme déjà utilisées.",
+    "globalBatchStartSpine": "Feuille d'étiquettes de dos",
+    "globalBatchStartBarcode": "Feuille de codes-barres",
+    "globalBatchStartHelp": "Utilisez 1 pour une feuille neuve. Positions disponibles : 1 ? {max}.",
+    "globalBatchPartialToggle": "Cette feuille a déjà été utilisée",
+    "globalBatchPartialToggleHelp": "Activez cette option pour utiliser les étiquettes restantes d'une feuille partiellement utilisée.",
+    "globalBatchSpineLayout": "5 colonnes × 9 lignes · 45 positions",
+    "globalBatchBarcodeLayout": "3 colonnes × 7 lignes · 21 positions",
+    "globalBatchPositionAria": "Commencer à la position {position}",
+    "globalBatchLegendUsed": "Déjà utilisée",
+    "globalBatchLegendStart": "Première libre",
+    "globalBatchLegendFree": "Libre",
+    "globalBatchNewSheet": "Feuille neuve : l'impression commencera automatiquement à la première position."
   },
   "AdminExternalActivities": {
     "eyebrow": "Gestion académique",
@@ -5812,6 +5857,17 @@
     "durationSeconds": "Durée en secondes",
     "classificationTitle": "Classification et présentation",
     "classificationDescription": "Organisation physique, couverture et classification par âge.",
+    "classificationSystem": "Système de classification",
+    "classificationSystemNone": "Non renseigné",
+    "classificationSystemDefault": "Valeur par défaut de l’établissement ({system})",
+    "classificationEditionInstitutionDefault": "Édition suggérée par l’établissement : {edition}",
+    "automaticCallNumberPreview": "Aperçu automatique : {value}",
+    "automaticCallNumberSaveHelp": "La cote sera générée lors de l’enregistrement si le champ reste vide.",
+    "manualCallNumberPreserved": "Valeur manuelle : PHANYX conservera cette cote.",
+    "classificationSystemOther": "Autre",
+    "classificationEdition": "Édition de la classification",
+    "cutterCode": "Code Cutter",
+    "otherClassification": "Autre classification / classification complémentaire",
     "bibliographicClassification": "Classification bibliographique",
     "callNumber": "Cote",
     "contentRating": "Classification par âge",
@@ -5842,6 +5898,76 @@
     "noAuthors": "Aucun auteur associé.",
     "categories": "Catégories",
     "noCategories": "Aucune catégorie associée.",
+    "loadBibliographicReferencesError": "Impossible de charger les auteurs, éditeurs et sujets.",
+    "loadingBibliographicReferences": "Chargement des auteurs, éditeurs et sujets...",
+    "saveBibliographicRelationships": "Enregistrer les liens bibliographiques",
+    "savingBibliographicRelationships": "Enregistrement...",
+    "saveBibliographicRelationshipsSuccess": "Liens bibliographiques mis à jour avec succès.",
+    "saveBibliographicRelationshipsError": "Impossible d'enregistrer les liens bibliographiques.",
+    "bibliographicRelationshipsReadOnly": "Lecture seule",
+    "selectPublisher": "Sélectionner un éditeur",
+    "selectAuthor": "Sélectionner un auteur",
+    "selectSubject": "Sélectionner un sujet",
+    "add": "Ajouter",
+    "remove": "Supprimer",
+    "currentlyLinked": "Actuellement lié",
+    "authorOrder": "Ordre des auteurs : {order}",
+    "moveAuthorUp": "Déplacer l'auteur vers le haut",
+    "moveAuthorDown": "Déplacer l'auteur vers le bas",
+    "subjectsAndCategories": "Sujets / catégories",
+    "principalSubject": "Sujet principal",
+    "noSubjects": "Aucun sujet lié.",
+    "createBibliographicReference": "+ Créer un auteur, éditeur ou sujet",
+    "referenceType": "Type de notice",
+    "referenceName": "Nom",
+    "referenceAuthor": "Auteur",
+    "referencePublisher": "Éditeur",
+    "referenceSubject": "Sujet / catégorie",
+    "authorSortName": "Nom de tri",
+    "authorSortNamePlaceholder": "Ex. : Willmington, Harold L.",
+    "creatingBibliographicReference": "Création...",
+    "createBibliographicReferenceAction": "Créer et lier",
+    "bibliographicReferenceCreated": "Notice bibliographique créée et liée.",
+    "bibliographicReferenceAlreadyExists": "La notice existait déjà et a été liée à l'ouvrage.",
+    "createBibliographicReferenceError": "Impossible de créer la notice bibliographique.",
+    "roleAuthor": "Auteur",
+    "roleCoauthor": "Coauteur",
+    "roleOrganizer": "Organisateur",
+    "roleEditor": "Éditeur scientifique",
+    "roleTranslator": "Traducteur",
+    "roleSupervisor": "Directeur",
+    "roleCollaborator": "Collaborateur",
+    "spineLabel": "Étiquette de dos",
+    "barcodeLabel": "Code-barres",
+    "labelsAndBarcodes": "Étiquettes de l'exemplaire",
+    "labelPreviewDescription": "Vérifiez l'étiquette avant l'impression.",
+    "loadingLabel": "Préparation de l'étiquette...",
+    "labelLoadError": "Impossible de charger les données de l'étiquette.",
+    "barcodeRenderError": "Impossible de générer le code-barres.",
+    "printWindowBlocked": "Le navigateur a bloqué la fenêtre d'impression.",
+    "noCallNumber": "Sans cote",
+    "copyCode": "Code de l'exemplaire",
+    "printLabel": "Imprimer l'étiquette",
+    "printLibraryLabel": "Étiquette de bibliothèque",
+    "batchLabels": "Imprimer les étiquettes par lot",
+    "batchLabelsDescription": "Sélectionnez les exemplaires physiques et le type d'étiquette.",
+    "batchLabelsPreviewDescription": "Vérifiez la disposition avant d'ouvrir l'impression A4.",
+    "batchLabelsLoadError": "Impossible de charger les exemplaires pour l'impression.",
+    "loadingBatchLabels": "Préparation du lot d'étiquettes...",
+    "selectedCopies": "{selected} exemplaires sélectionnés sur {total}",
+    "selectAll": "Tout sélectionner",
+    "clearSelection": "Effacer la sélection",
+    "labelType": "Type d'étiquette",
+    "batchSpine": "Étiquettes de dos",
+    "batchBarcode": "Codes-barres",
+    "batchBoth": "Dos + code-barres",
+    "previewA4": "Aperçu de la feuille A4",
+    "noEligibleCopiesForLabels": "Aucun exemplaire physique actif n'est disponible pour les étiquettes.",
+    "batchA4Note": "Pour conserver les dimensions réelles, imprimez en A4 à 100 %, 1 page par feuille, avec les en-têtes et pieds de page désactivés.",
+    "backToSelection": "Retour à la sélection",
+    "printA4": "Imprimer la feuille A4",
+    "batchEstimatedPages": "Pages prévues : {count}",
+    "batchCapacityNote": "Chaque exemplaire génère 1 étiquette. Une feuille A4 peut contenir jusqu'à 45 étiquettes de dos ou 21 codes-barres.",
     "digitalFiles": "Fichiers numériques",
     "history": "🕘 Historique",
     "uploadingFile": "Téléversement du fichier...",
@@ -5976,6 +6102,7 @@
     "unitCampus": "Unité / Campus",
     "department": "Service",
     "room": "Salle",
+    "corridor": "Allée",
     "shelfUnit": "Rayonnage",
     "shelf": "Étagère",
     "fullLocation": "Emplacement complet",
@@ -6207,8 +6334,21 @@
     "withdrawNotice": "Le document ne sera plus visible par les élèves et enseignants et repassera en brouillon. Son historique sera conservé.",
     "withdrawing": "Retrait en cours...",
     "withdrawSuccess": "Document retiré du catalogue.",
-    "withdrawError": "Impossible de retirer le document."
-  },
+    "withdrawError": "Impossible de retirer le document.",
+    "batchPartialToggle": "Cette feuille a déjà été utilisée",
+    "batchPartialToggleHelp": "Activez cette option pour utiliser les étiquettes restantes d'une feuille partiellement utilisée.",
+    "batchStartTitle": "Cliquez sur la première étiquette encore disponible sur votre feuille.",
+    "batchStartDescription": "Les positions précédentes seront considérées comme déjà utilisées.",
+    "batchStartSpine": "Feuille d'étiquettes de dos",
+    "batchStartBarcode": "Feuille de codes-barres",
+    "batchSpineLayout": "5 colonnes × 9 lignes · 45 positions",
+    "batchBarcodeLayout": "3 colonnes × 7 lignes · 21 positions",
+    "batchPositionAria": "Commencer à la position {position}",
+    "batchLegendUsed": "Déjà utilisée",
+    "batchLegendStart": "Première libre",
+    "batchLegendFree": "Libre",
+    "batchNewSheet": "Feuille neuve : l'impression commencera automatiquement à la première position."
+},
   "AdminCertificates": {
     "status": {
       "ready": "Prêt",
@@ -6899,6 +7039,202 @@
       "termHelp": "Utilisé principalement dans les campagnes de recherche. Ce champ peut rester vide.",
       "termPlaceholder": "Ex. : cours_theologie",
       "technicalField": "Champ technique : {field}"
+    }
+  },
+  "AdminExternalActivitySafety": {
+    "eyebrow": "Gestion des risques",
+    "title": "Sécurité",
+    "description": "Identifiez les risques de l’activité, définissez les mesures préventives et attribuez les responsables et les plans de réponse.",
+    "loading": "Chargement de la sécurité...",
+    "summary": {
+      "total": "Risques enregistrés",
+      "open": "Sous suivi",
+      "severe": "Graves ou critiques",
+      "checkpoints": "Checkpoints"
+    },
+    "actions": {
+      "newRisk": "+ Ajouter un risque",
+      "edit": "Modifier",
+      "remove": "Supprimer",
+      "cancel": "Annuler",
+      "save": "Enregistrer le risque",
+      "saving": "Enregistrement...",
+      "confirmRemove": "Confirmer la suppression",
+      "configurePlan": "Configurer le plan",
+      "editPlan": "Modifier le plan",
+      "savePlan": "Enregistrer le plan",
+      "savingPlan": "Enregistrement...",
+      "cancelPlan": "Annuler",
+      "newCheckpoint": "+ Ajouter un checkpoint",
+      "saveCheckpoint": "Enregistrer le checkpoint",
+      "savingCheckpoint": "Enregistrement...",
+      "cancelCheckpoint": "Annuler",
+      "confirmRemoveCheckpoint": "Confirmer la suppression",
+      "deactivateCheckpoint": "Désactiver le checkpoint"
+    },
+    "form": {
+      "newTitle": "Ajouter un risque",
+      "editTitle": "Modifier le risque",
+      "description": "Classez le risque et indiquez comment il sera prévenu et traité.",
+      "title": "Titre",
+      "responsible": "Responsable",
+      "noResponsible": "Aucun responsable défini",
+      "category": "Catégorie",
+      "status": "Statut",
+      "probability": "Probabilité",
+      "severity": "Gravité",
+      "details": "Description du risque",
+      "preventiveMeasures": "Mesures préventives",
+      "responsePlan": "Plan de réponse",
+      "notes": "Observations"
+    },
+    "risks": {
+      "title": "Cartographie des risques",
+      "description": "Risques identifiés pour cette activité externe.",
+      "emptyTitle": "Aucun risque enregistré",
+      "emptyDescription": "Ajoutez les risques pertinents pour la planification de l’activité.",
+      "preventiveMeasures": "Mesures préventives",
+      "responsePlan": "Plan de réponse",
+      "responsible": "Responsable"
+    },
+    "common": {
+      "notInformed": "Non renseigné",
+      "noResponsible": "Aucun responsable défini"
+    },
+    "removeConfirm": "Voulez-vous vraiment supprimer ce risque ?",
+    "categories": {
+      "TRANSPORTE": "Transport",
+      "SAUDE": "Santé",
+      "CLIMA": "Météo",
+      "AMBIENTE": "Environnement",
+      "ATIVIDADE_FISICA": "Activité physique",
+      "AQUATICO": "Aquatique",
+      "SEGURANCA": "Sécurité",
+      "ALIMENTACAO": "Alimentation",
+      "ACESSIBILIDADE": "Accessibilité",
+      "COMPORTAMENTO": "Comportement",
+      "TECNOLOGIA": "Technologie",
+      "OUTRO": "Autre"
+    },
+    "probabilities": {
+      "MUITO_BAIXA": "Très faible",
+      "BAIXA": "Faible",
+      "MEDIA": "Moyenne",
+      "ALTA": "Élevée",
+      "MUITO_ALTA": "Très élevée"
+    },
+    "severities": {
+      "LEVE": "Légère",
+      "MODERADA": "Modérée",
+      "GRAVE": "Grave",
+      "MUITO_GRAVE": "Très grave",
+      "CRITICA": "Critique"
+    },
+    "statuses": {
+      "IDENTIFICADO": "Identifié",
+      "EM_TRATAMENTO": "En traitement",
+      "MITIGADO": "Atténué",
+      "ACEITO": "Accepté",
+      "ENCERRADO": "Clôturé"
+    },
+    "messages": {
+      "loadError": "Impossible de charger les données de sécurité.",
+      "titleRequired": "Indiquez le titre du risque.",
+      "saveError": "Impossible d’enregistrer le risque.",
+      "removeError": "Impossible de supprimer le risque.",
+      "created": "Risque enregistré avec succès.",
+      "updated": "Risque mis à jour avec succès.",
+      "removed": "Risque supprimé avec succès.",
+      "planSaved": "Plan d’urgence enregistré avec succès.",
+      "planSaveError": "Impossible d’enregistrer le plan d’urgence.",
+      "checkpointNameRequired": "Indiquez le nom du checkpoint.",
+      "checkpointDateInvalid": "Indiquez une date et une heure valides.",
+      "checkpointSaveError": "Impossible d’enregistrer le checkpoint.",
+      "checkpointCreated": "Checkpoint enregistré avec succès.",
+      "checkpointUpdated": "Checkpoint mis à jour avec succès.",
+      "checkpointRemoveError": "Impossible de supprimer le checkpoint.",
+      "checkpointRemoved": "Checkpoint supprimé avec succès.",
+      "checkpointDisabled": "Ce checkpoint contient des enregistrements et a été désactivé afin de préserver l’historique."
+    },
+    "plan": {
+      "title": "Plan d’urgence",
+      "description": "Centralisez les contacts, les services de référence et les procédures à suivre en situation d’urgence.",
+      "emptyTitle": "Le plan d’urgence n’est pas encore configuré",
+      "emptyDescription": "Ajoutez les contacts, l’hôpital de référence, le point de rassemblement et les procédures de réponse.",
+      "sections": {
+        "contacts": "Contacts d’urgence",
+        "medical": "Références de soins",
+        "procedures": "Procédures"
+      },
+      "fields": {
+        "status": "Statut",
+        "schoolContact": "Contact d’urgence de l’institution",
+        "schoolPhone": "Téléphone de l’institution",
+        "emergencyResponsible": "Responsable de l’urgence",
+        "emergencyResponsiblePhone": "Téléphone du responsable",
+        "localEmergencyNumber": "Numéro local d’urgence",
+        "hospital": "Hôpital de référence",
+        "hospitalAddress": "Adresse de l’hôpital",
+        "hospitalPhone": "Téléphone de l’hôpital",
+        "alternativeService": "Service d’urgence alternatif",
+        "alternativeServicePhone": "Téléphone du service alternatif",
+        "meetingPoint": "Point de rassemblement d’urgence",
+        "evacuation": "Procédure d’évacuation",
+        "accident": "Procédure en cas d’accident",
+        "missingPerson": "Procédure en cas de personne disparue",
+        "medicalEmergency": "Procédure d’urgence médicale",
+        "severeWeather": "Procédure en cas d’intempéries graves",
+        "generalInstructions": "Instructions générales",
+        "notes": "Observations"
+      },
+      "statuses": {
+        "RASCUNHO": "Brouillon",
+        "EM_REVISAO": "En révision",
+        "APROVADO": "Approuvé",
+        "ATIVO": "Actif",
+        "ARQUIVADO": "Archivé"
+      }
+    },
+    "checkpoints": {
+      "title": "Checkpoints",
+      "description": "Définissez des points de contrôle pour les départs, arrivées, embarquements, débarquements et comptages des participants.",
+      "emptyTitle": "Aucun checkpoint enregistré",
+      "emptyDescription": "Ajoutez des points de contrôle pour suivre l’activité avec davantage de sécurité.",
+      "removeConfirm": "Voulez-vous vraiment supprimer ce checkpoint ?",
+      "deactivateConfirm": "Ce checkpoint contient déjà des enregistrements. Afin de préserver l’historique, il sera uniquement désactivé.",
+      "form": {
+        "newTitle": "Ajouter un checkpoint",
+        "editTitle": "Modifier le checkpoint",
+        "orderInfo": "L’ordre est attribué automatiquement lors de la création des checkpoints."
+      },
+      "fields": {
+        "name": "Nom",
+        "type": "Type",
+        "location": "Lieu",
+        "address": "Adresse",
+        "scheduledAt": "Horaire prévu",
+        "required": "Checkpoint obligatoire",
+        "active": "Checkpoint actif",
+        "notes": "Observations",
+        "records": "Enregistrements"
+      },
+      "badges": {
+        "required": "Obligatoire",
+        "optional": "Facultatif",
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "types": {
+        "SAIDA_ORIGEM": "Départ de l’origine",
+        "CHEGADA_DESTINO": "Arrivée à destination",
+        "SAIDA_DESTINO": "Départ de la destination",
+        "RETORNO_ORIGEM": "Retour à l’origine",
+        "EMBARQUE": "Embarquement",
+        "DESEMBARQUE": "Débarquement",
+        "PONTO_ENCONTRO": "Point de rassemblement",
+        "CONTAGEM": "Comptage des participants",
+        "PERSONALIZADO": "Personnalisé"
+      }
     }
   },
   "AdminExternalActivityTeam": {
@@ -10266,6 +10602,133 @@
       "suggestions": {
         "title": "Autoriser les suggestions d'acquisition",
         "description": "Permet aux utilisateurs de suggérer de nouveaux livres, ouvrages ou ressources pour la collection."
+      }
+    },
+    "cataloging": {
+      "eyebrow": "Catalogage",
+      "title": "Classification bibliographique",
+      "description": "Définissez le système de classification par défaut de l’établissement et la manière dont PHANYX doit aider à composer la cote.",
+      "defaultSystem": "Système par défaut",
+      "defaultSystemHelp": "Système proposé automatiquement lors du catalogage de nouveaux ouvrages.",
+      "other": "Autre",
+      "cddEdition": "Édition CDD par défaut",
+      "cddEditionHelp": "Ex. : 23 pour la 23e édition de la classification décimale de Dewey.",
+      "udcEdition": "Édition CDU par défaut",
+      "udcEditionHelp": "Indiquez l’édition ou la version de la CDU adoptée par l’établissement.",
+      "cutter": {
+        "title": "Utiliser le code Cutter",
+        "description": "Permet d’utiliser le code Cutter dans la composition de la cote."
+      },
+      "autoCallNumber": {
+        "title": "Générer automatiquement la cote",
+        "description": "PHANYX peut combiner la classification et le Cutter tout en laissant la cote modifiable manuellement."
+      }
+    },
+    "labelModels": {
+      "eyebrow": "Impression et identification",
+      "title": "Modèles d’étiquettes",
+      "description": "Configurez les feuilles pour les étiquettes de dos et les codes-barres. Les modèles PHANYX natifs restent protégés et peuvent être utilisés par défaut.",
+      "new": "Nouveau modèle",
+      "reload": "Recharger",
+      "retry": "Réessayer",
+      "loading": "Chargement des modèles d’étiquettes...",
+      "empty": "Aucun modèle disponible pour ce type.",
+      "capacity": "étiquettes / feuille",
+      "copySuffix": " — copie",
+      "systemProtected": "Modèle PHANYX natif. Il ne peut pas être modifié ni supprimé ; dupliquez-le pour créer une version personnalisée.",
+      "calibrationHelp": "Utilisez les décalages uniquement pour compenser de petites différences physiques de l’imprimante. Les valeurs positives déplacent l’impression vers la droite ou vers le bas.",
+      "types": {
+        "spine": "Dos",
+        "barcode": "Code-barres"
+      },
+      "badges": {
+        "system": "PHANYX",
+        "manufacturer": "Fabricant",
+        "custom": "Personnalisé",
+        "default": "Par défaut",
+        "inactive": "Inactif"
+      },
+      "metrics": {
+        "sheet": "Feuille",
+        "label": "Étiquette",
+        "grid": "Grille",
+        "offset": "Calibrage"
+      },
+      "actions": {
+        "setDefault": "Définir par défaut",
+        "edit": "Modifier",
+        "duplicate": "Dupliquer",
+        "activate": "Activer",
+        "deactivate": "Désactiver",
+        "delete": "Supprimer"
+      },
+      "groups": {
+        "identification": "Identification du modèle",
+        "sheet": "Feuille et marges",
+        "labels": "Étiquettes et grille",
+        "calibration": "Calibrage de l’imprimante"
+      },
+      "fields": {
+        "name": "Nom du modèle",
+        "description": "Description",
+        "type": "Type d’étiquette",
+        "brand": "Marque",
+        "manufacturerCode": "Code fabricant",
+        "sheetWidth": "Largeur de la feuille (mm)",
+        "sheetHeight": "Hauteur de la feuille (mm)",
+        "orientation": "Orientation",
+        "marginTop": "Marge supérieure (mm)",
+        "marginRight": "Marge droite (mm)",
+        "marginBottom": "Marge inférieure (mm)",
+        "marginLeft": "Marge gauche (mm)",
+        "labelWidth": "Largeur de l’étiquette (mm)",
+        "labelHeight": "Hauteur de l’étiquette (mm)",
+        "columns": "Colonnes",
+        "rows": "Lignes",
+        "horizontalGap": "Espacement horizontal (mm)",
+        "verticalGap": "Espacement vertical (mm)",
+        "offsetX": "Décalage horizontal X (mm)",
+        "offsetY": "Décalage vertical Y (mm)",
+        "active": "Modèle actif",
+        "activeHelp": "Les modèles inactifs restent enregistrés mais ne sont pas disponibles pour une utilisation normale.",
+        "default": "Définir par défaut",
+        "defaultHelp": "Ce modèle sera sélectionné initialement lors de l’impression d’étiquettes de ce type."
+      },
+      "orientation": {
+        "portrait": "Portrait",
+        "landscape": "Paysage"
+      },
+      "modal": {
+        "eyebrow": "Modèle de feuille",
+        "newTitle": "Nouveau modèle d’étiquettes",
+        "editTitle": "Modifier le modèle d’étiquettes",
+        "duplicateTitle": "Dupliquer le modèle d’étiquettes",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "save": "Enregistrer le modèle"
+      },
+      "delete": {
+        "title": "Supprimer le modèle d’étiquettes",
+        "description": "Supprimer le modèle « {name} » ? Cette action ne modifie pas les modèles PHANYX natifs.",
+        "cancel": "Annuler",
+        "deleting": "Suppression...",
+        "confirm": "Supprimer le modèle"
+      },
+      "validation": {
+        "name": "Indiquez le nom du modèle."
+      },
+      "success": {
+        "created": "Modèle d’étiquettes créé avec succès.",
+        "updated": "Modèle d’étiquettes mis à jour avec succès.",
+        "deleted": "Modèle d’étiquettes supprimé.",
+        "defaultChanged": "Modèle par défaut mis à jour.",
+        "stateChanged": "État du modèle mis à jour."
+      },
+      "errors": {
+        "load": "Impossible de charger les modèles d’étiquettes.",
+        "save": "Impossible d’enregistrer le modèle d’étiquettes.",
+        "action": "Impossible d’effectuer cette action."
       }
     },
     "circulation": {
@@ -21096,203 +21559,28 @@
       "responsibleDocumentType": "Type de document du responsable",
       "responsibleDocumentNumber": "Numéro du document du responsable",
       "responsiblePhoneCountry": "Pays du téléphone du responsable (ISO 2)"
-    }
-  }
-,
-  "AdminExternalActivitySafety": {
-    "eyebrow": "Gestion des risques",
-    "title": "Sécurité",
-    "description": "Identifiez les risques de l’activité, définissez les mesures préventives et attribuez les responsables et les plans de réponse.",
-    "loading": "Chargement de la sécurité...",
-    "summary": {
-      "total": "Risques enregistrés",
-      "open": "Sous suivi",
-      "severe": "Graves ou critiques",
-      "checkpoints": "Checkpoints"
     },
-    "actions": {
-      "newRisk": "+ Ajouter un risque",
-      "edit": "Modifier",
-      "remove": "Supprimer",
-      "cancel": "Annuler",
-      "save": "Enregistrer le risque",
-      "saving": "Enregistrement...",
-      "confirmRemove": "Confirmer la suppression",
-      "configurePlan": "Configurer le plan",
-      "editPlan": "Modifier le plan",
-      "savePlan": "Enregistrer le plan",
-      "savingPlan": "Enregistrement...",
-      "cancelPlan": "Annuler",
-      "newCheckpoint": "+ Ajouter un checkpoint",
-      "saveCheckpoint": "Enregistrer le checkpoint",
-      "savingCheckpoint": "Enregistrement...",
-      "cancelCheckpoint": "Annuler",
-      "confirmRemoveCheckpoint": "Confirmer la suppression",
-      "deactivateCheckpoint": "Désactiver le checkpoint"
+    "groups": {
+      "internationalDocuments": "INTERNATIONAL / DOCUMENTS",
+      "address": "ADRESSE",
+      "responsible": "RESPONSABLE",
+      "accessibility": "ACCESSIBILITÉ"
     },
-    "form": {
-      "newTitle": "Ajouter un risque",
-      "editTitle": "Modifier le risque",
-      "description": "Classez le risque et indiquez comment il sera prévenu et traité.",
-      "title": "Titre",
-      "responsible": "Responsable",
-      "noResponsible": "Aucun responsable défini",
-      "category": "Catégorie",
-      "status": "Statut",
-      "probability": "Probabilité",
-      "severity": "Gravité",
-      "details": "Description du risque",
-      "preventiveMeasures": "Mesures préventives",
-      "responsePlan": "Plan de réponse",
-      "notes": "Observations"
-    },
-    "risks": {
-      "title": "Cartographie des risques",
-      "description": "Risques identifiés pour cette activité externe.",
-      "emptyTitle": "Aucun risque enregistré",
-      "emptyDescription": "Ajoutez les risques pertinents pour la planification de l’activité.",
-      "preventiveMeasures": "Mesures préventives",
-      "responsePlan": "Plan de réponse",
-      "responsible": "Responsable"
-    },
-    "common": {
-      "notInformed": "Non renseigné",
-      "noResponsible": "Aucun responsable défini"
-    },
-    "removeConfirm": "Voulez-vous vraiment supprimer ce risque ?",
-    "categories": {
-      "TRANSPORTE": "Transport",
-      "SAUDE": "Santé",
-      "CLIMA": "Météo",
-      "AMBIENTE": "Environnement",
-      "ATIVIDADE_FISICA": "Activité physique",
-      "AQUATICO": "Aquatique",
-      "SEGURANCA": "Sécurité",
-      "ALIMENTACAO": "Alimentation",
-      "ACESSIBILIDADE": "Accessibilité",
-      "COMPORTAMENTO": "Comportement",
-      "TECNOLOGIA": "Technologie",
-      "OUTRO": "Autre"
-    },
-    "probabilities": {
-      "MUITO_BAIXA": "Très faible",
-      "BAIXA": "Faible",
-      "MEDIA": "Moyenne",
-      "ALTA": "Élevée",
-      "MUITO_ALTA": "Très élevée"
-    },
-    "severities": {
-      "LEVE": "Légère",
-      "MODERADA": "Modérée",
-      "GRAVE": "Grave",
-      "MUITO_GRAVE": "Très grave",
-      "CRITICA": "Critique"
-    },
-    "statuses": {
-      "IDENTIFICADO": "Identifié",
-      "EM_TRATAMENTO": "En traitement",
-      "MITIGADO": "Atténué",
-      "ACEITO": "Accepté",
-      "ENCERRADO": "Clôturé"
-    },
-    "messages": {
-      "loadError": "Impossible de charger les données de sécurité.",
-      "titleRequired": "Indiquez le titre du risque.",
-      "saveError": "Impossible d’enregistrer le risque.",
-      "removeError": "Impossible de supprimer le risque.",
-      "created": "Risque enregistré avec succès.",
-      "updated": "Risque mis à jour avec succès.",
-      "removed": "Risque supprimé avec succès.",
-      "planSaved": "Plan d’urgence enregistré avec succès.",
-      "planSaveError": "Impossible d’enregistrer le plan d’urgence.",
-      "checkpointNameRequired": "Indiquez le nom du checkpoint.",
-      "checkpointDateInvalid": "Indiquez une date et une heure valides.",
-      "checkpointSaveError": "Impossible d’enregistrer le checkpoint.",
-      "checkpointCreated": "Checkpoint enregistré avec succès.",
-      "checkpointUpdated": "Checkpoint mis à jour avec succès.",
-      "checkpointRemoveError": "Impossible de supprimer le checkpoint.",
-      "checkpointRemoved": "Checkpoint supprimé avec succès.",
-      "checkpointDisabled": "Ce checkpoint contient des enregistrements et a été désactivé afin de préserver l’historique."
-    },
-    "plan": {
-      "title": "Plan d’urgence",
-      "description": "Centralisez les contacts, les services de référence et les procédures à suivre en situation d’urgence.",
-      "emptyTitle": "Le plan d’urgence n’est pas encore configuré",
-      "emptyDescription": "Ajoutez les contacts, l’hôpital de référence, le point de rassemblement et les procédures de réponse.",
-      "sections": {
-        "contacts": "Contacts d’urgence",
-        "medical": "Références de soins",
-        "procedures": "Procédures"
-      },
-      "fields": {
-        "status": "Statut",
-        "schoolContact": "Contact d’urgence de l’institution",
-        "schoolPhone": "Téléphone de l’institution",
-        "emergencyResponsible": "Responsable de l’urgence",
-        "emergencyResponsiblePhone": "Téléphone du responsable",
-        "localEmergencyNumber": "Numéro local d’urgence",
-        "hospital": "Hôpital de référence",
-        "hospitalAddress": "Adresse de l’hôpital",
-        "hospitalPhone": "Téléphone de l’hôpital",
-        "alternativeService": "Service d’urgence alternatif",
-        "alternativeServicePhone": "Téléphone du service alternatif",
-        "meetingPoint": "Point de rassemblement d’urgence",
-        "evacuation": "Procédure d’évacuation",
-        "accident": "Procédure en cas d’accident",
-        "missingPerson": "Procédure en cas de personne disparue",
-        "medicalEmergency": "Procédure d’urgence médicale",
-        "severeWeather": "Procédure en cas d’intempéries graves",
-        "generalInstructions": "Instructions générales",
-        "notes": "Observations"
-      },
-      "statuses": {
-        "RASCUNHO": "Brouillon",
-        "EM_REVISAO": "En révision",
-        "APROVADO": "Approuvé",
-        "ATIVO": "Actif",
-        "ARQUIVADO": "Archivé"
-      }
-    },
-    "checkpoints": {
-      "title": "Checkpoints",
-      "description": "Définissez des points de contrôle pour les départs, arrivées, embarquements, débarquements et comptages des participants.",
-      "emptyTitle": "Aucun checkpoint enregistré",
-      "emptyDescription": "Ajoutez des points de contrôle pour suivre l’activité avec davantage de sécurité.",
-      "removeConfirm": "Voulez-vous vraiment supprimer ce checkpoint ?",
-      "deactivateConfirm": "Ce checkpoint contient déjà des enregistrements. Afin de préserver l’historique, il sera uniquement désactivé.",
-      "form": {
-        "newTitle": "Ajouter un checkpoint",
-        "editTitle": "Modifier le checkpoint",
-        "orderInfo": "L’ordre est attribué automatiquement lors de la création des checkpoints."
-      },
-      "fields": {
-        "name": "Nom",
-        "type": "Type",
-        "location": "Lieu",
-        "address": "Adresse",
-        "scheduledAt": "Horaire prévu",
-        "required": "Checkpoint obligatoire",
-        "active": "Checkpoint actif",
-        "notes": "Observations",
-        "records": "Enregistrements"
-      },
-      "badges": {
-        "required": "Obligatoire",
-        "optional": "Facultatif",
-        "active": "Actif",
-        "inactive": "Inactif"
-      },
-      "types": {
-        "SAIDA_ORIGEM": "Départ de l’origine",
-        "CHEGADA_DESTINO": "Arrivée à destination",
-        "SAIDA_DESTINO": "Départ de la destination",
-        "RETORNO_ORIGEM": "Retour à l’origine",
-        "EMBARQUE": "Embarquement",
-        "DESEMBARQUE": "Débarquement",
-        "PONTO_ENCONTRO": "Point de rassemblement",
-        "CONTAGEM": "Comptage des participants",
-        "PERSONALIZADO": "Personnalisé"
-      }
+    "instructions": {
+      "sheetName": "Mode d'emploi",
+      "title": "Comment utiliser le modèle d'importation des étudiants",
+      "intro": "Saisissez les étudiants uniquement dans la feuille {sheet}.",
+      "required": "Les champs marqués d'un * sont obligatoires.",
+      "expand": "Utilisez les boutons + au-dessus des colonnes pour ouvrir uniquement les groupes facultatifs nécessaires.",
+      "optional": "Vous pouvez renseigner uniquement les champs n?cessaires. Les groupes r?duits sont facultatifs.",
+      "countryCode": "Pour les champs ISO 2, saisissez le code pays à deux lettres, par exemple FR, BR ou US.",
+      "technicalRow": "N'affichez pas, ne modifiez pas et ne supprimez pas la ligne 1 masqu?e. Elle contient les identifiants techniques utilis?s par PHANYX.",
+      "saveXlsx": "Conservez le fichier au format XLSX pour préserver les groupes et les colonnes masquées.",
+      "groupsTitle": "Groupes facultatifs",
+      "groupInternational": "International / documents : nationalité, pays de naissance et de résidence et documents supplémentaires.",
+      "groupAddress": "Adresse : rue, numéro, complément, quartier, ville et état/province.",
+      "groupResponsible": "Responsable : documents, téléphone, pays du téléphone, e-mail et lien de parenté.",
+      "groupAccessibility": "Accessibilité : description des besoins particuliers et remarques."
     }
   }
 ,
@@ -21388,6 +21676,136 @@
       "loadError": "Impossible de charger les informations de santé.",
       "saveError": "Impossible d’enregistrer la fiche de santé.",
       "saved": "Fiche de santé enregistrée avec succès."
+    }
+  },
+  "AdminExternalActivityDocuments": {
+    "title": "Documents",
+    "subtitle": "Centralisez les fichiers, autorisations, contrats, assurances et documents liés à l’activité externe.",
+    "loading": "Chargement des documents...",
+    "summary": {
+      "total": "Total",
+      "required": "Obligatoires",
+      "pending": "En attente / examen",
+      "expired": "Expirés",
+      "expiring": "Expire bientôt"
+    },
+    "filters": {
+      "search": "Rechercher par titre, numéro, fichier ou lien...",
+      "allTypes": "Tous les types",
+      "allStatuses": "Tous les statuts",
+      "allLinks": "Tous les liens",
+      "showHistory": "Afficher les archivés et remplacés"
+    },
+    "links": {
+      "general": "Document général",
+      "participant": "Participant",
+      "provider": "Prestataire",
+      "vehicle": "Véhicule"
+    },
+    "statuses": {
+      "ATIVO": "Actif",
+      "PENDENTE": "En attente",
+      "EM_ANALISE": "En examen",
+      "APROVADO": "Approuvé",
+      "REJEITADO": "Rejeté",
+      "VENCIDO": "Expiré",
+      "SUBSTITUIDO": "Remplacé",
+      "ARQUIVADO": "Archivé"
+    },
+    "badges": {
+      "required": "Obligatoire",
+      "confidential": "Confidentiel",
+      "expiring": "Expire bientôt"
+    },
+    "card": {
+      "link": "Lien",
+      "number": "Numéro",
+      "noFile": "Aucun fichier envoyé",
+      "validUntil": "Valable jusqu’au"
+    },
+    "empty": {
+      "title": "Aucun document trouvé",
+      "description": "Ajoutez des documents ou modifiez les filtres pour afficher d’autres enregistrements."
+    },
+    "actions": {
+      "new": "Nouveau document",
+      "open": "Ouvrir",
+      "download": "Télécharger",
+      "edit": "Modifier",
+      "replace": "Remplacer",
+      "archive": "Archiver",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "uploading": "Envoi du fichier...",
+      "confirmReplace": "Remplacer le document"
+    },
+    "modal": {
+      "newTitle": "Nouveau document",
+      "editTitle": "Modifier le document",
+      "replaceTitle": "Remplacer le document",
+      "description": "Saisissez les informations du document et ajoutez un fichier si nécessaire.",
+      "replaceDescription": "Le fichier précédent sera conservé dans l’historique comme remplacé."
+    },
+    "form": {
+      "type": "Type",
+      "title": "Titre",
+      "description": "Description",
+      "number": "Numéro du document",
+      "status": "Statut",
+      "issuedAt": "Émis le",
+      "validUntil": "Valable jusqu’au",
+      "participant": "Participant",
+      "provider": "Prestataire de transport",
+      "vehicle": "Véhicule",
+      "file": "Fichier",
+      "fileHelp": "PDF, images, Word ou Excel. Limite de 25 Mo.",
+      "fileAlreadyExists": "Cet enregistrement possède déjà un fichier. Utilisez « Remplacer » pour conserver l’historique de la version précédente.",
+      "required": "Document obligatoire",
+      "requiredHelp": "Indique que ce document est requis pour l’activité.",
+      "confidential": "Document confidentiel",
+      "confidentialHelp": "Le contenu est disponible uniquement aux utilisateurs disposant d’une permission de gestion.",
+      "notes": "Observations",
+      "none": "Aucun",
+      "select": "Sélectionner..."
+    },
+    "messages": {
+      "created": "Document créé avec succès.",
+      "updated": "Document mis à jour avec succès.",
+      "replaced": "Document remplacé avec succès.",
+      "archived": "Document archivé.",
+      "statusChanged": "Statut mis à jour."
+    },
+    "errors": {
+      "load": "Impossible de charger les documents.",
+      "required": "Indiquez le type et le titre du document.",
+      "save": "Impossible d’enregistrer le document.",
+      "status": "Impossible de modifier le statut.",
+      "fileTooLarge": "Le fichier dépasse la limite de 25 Mo.",
+      "invalidFile": "Ce format de fichier n’est pas autorisé.",
+      "replacementFileRequired": "Sélectionnez le nouveau fichier pour effectuer le remplacement."
+    },
+    "types": {
+      "ROTEIRO": "Itinéraire",
+      "TERMO_AUTORIZACAO": "Formulaire d’autorisation",
+      "AUTORIZACAO_ASSINADA": "Autorisation signée",
+      "CONTRATO_TRANSPORTE": "Contrat de transport",
+      "CONTRATO_HOSPEDAGEM": "Contrat d’hébergement",
+      "SEGURO_VIAGEM": "Assurance voyage",
+      "APOLICE_TRANSPORTE": "Police d’assurance transport",
+      "LICENCA_PRESTADOR": "Licence du prestataire",
+      "DOCUMENTO_VEICULO": "Document du véhicule",
+      "DOCUMENTO_CONDUTOR": "Document du conducteur",
+      "AVALIACAO_RISCO": "Évaluation des risques",
+      "PLANO_EMERGENCIA": "Plan d’urgence",
+      "COMPROVANTE_RESERVA": "Confirmation de réservation",
+      "PASSAGEM": "Billet",
+      "HOSPEDAGEM": "Hébergement",
+      "PASSAPORTE": "Passeport",
+      "VISTO": "Visa",
+      "DOCUMENTO_MEDICO": "Document médical",
+      "LISTA_PARTICIPANTES": "Liste des participants",
+      "OUTRO": "Autre"
     }
   }
 }

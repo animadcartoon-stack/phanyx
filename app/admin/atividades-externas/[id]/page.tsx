@@ -17,6 +17,7 @@ import EquipeAtividadeExterna from "@/components/admin/atividades-externas/Equip
 import TransporteAtividadeExterna from "@/components/admin/atividades-externas/TransporteAtividadeExterna";
 import SegurancaAtividadeExterna from "@/components/admin/atividades-externas/SegurancaAtividadeExterna";
 import SaudeAtividadeExterna from "@/components/admin/atividades-externas/SaudeAtividadeExterna";
+import DocumentosAtividadeExterna from "@/components/admin/atividades-externas/DocumentosAtividadeExterna";
 
 type Responsavel = {
     id: number;
@@ -906,6 +907,11 @@ export default function AtividadeExternaDetalhePage() {
                                 atividadeId={atividade.id}
                                 onSaudeAlterada={carregar}
                             />
+                        ) : abaAtiva === "documents" ? (
+                            <DocumentosAtividadeExterna
+                                atividadeId={atividade.id}
+                                onDocumentosAlterados={carregar}
+                            />
                         ) : (
                             <AreaEmPreparacao
                                 icone={
@@ -914,9 +920,7 @@ export default function AtividadeExternaDetalhePage() {
                                             item.id === abaAtiva
                                     )?.icone || "📋"
                                 }
-                                titulo={t(
-                                    `tabs.${abaAtiva}`
-                                )}
+                                titulo={t("sectionPlaceholder.title")}
                                 descricao={t(
                                     "sectionPlaceholder.description"
                                 )}

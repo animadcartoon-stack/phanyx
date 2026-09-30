@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import EtiquetasLoteGlobal from "@/components/admin/biblioteca/EtiquetasLoteGlobal";
 import {
   useCallback,
   useEffect,
@@ -22,6 +23,18 @@ type ItemAcervo = {
   isbn13: string | null;
   issn: string | null;
   doi: string | null;
+
+  classificacaoBibliografica: string | null;
+  sistemaClassificacao:
+    | "CDD"
+    | "CDU"
+    | "OUTRO"
+    | null;
+  edicaoClassificacao: string | null;
+  codigoCutter: string | null;
+  codigoChamada: string | null;
+  cdd: string | null;
+  cdu: string | null;
   anoPublicacao: number | null;
   capaUrl: string | null;
   miniaturaUrl: string | null;
@@ -191,6 +204,39 @@ function identificadorItem(item: ItemAcervo, semIdentificador: string) {
     item.issn ||
     item.doi ||
     semIdentificador
+  );
+}
+
+function autorPrincipalItem(
+  item: ItemAcervo
+) {
+  const autorPrincipal =
+    item.autores.find(
+      (vinculo) =>
+        vinculo.funcao === "AUTOR"
+    ) ??
+    item.autores[0];
+
+  return (
+    autorPrincipal?.autor.nome ??
+    null
+  );
+}
+
+function categoriaPrincipalItem(
+  item: ItemAcervo
+) {
+  const categoriaPrincipal =
+    item.categorias.find(
+      (vinculo) =>
+        vinculo.principal
+    ) ??
+    item.categorias[0];
+
+  return (
+    categoriaPrincipal
+      ?.categoria.nome ??
+    null
   );
 }
 
@@ -675,6 +721,9 @@ export default function BibliotecaAcervoPage() {
           </div>
 
           <div className="bib-hero-actions">
+            <EtiquetasLoteGlobal
+              className="bib-button bib-button-secondary"
+            />
             <Link
               href="/admin/biblioteca"
               className="bib-button bib-button-secondary"
@@ -924,7 +973,41 @@ export default function BibliotecaAcervoPage() {
                         <b>{t("item.year")}:</b>{" "}
                         {item.anoPublicacao || "—"}
                       </span>
+
+                      {item.codigoChamada ? (
+                        <span>
+                          <b>{t("item.callNumber")}:</b>{" "}
+                          {item.codigoChamada}
+                        </span>
+                      ) : null}
                     </div>
+
+                                        {autorPrincipalItem(item) ||
+                    item.editora ||
+                    categoriaPrincipalItem(item) ? (
+                      <div className="bib-item-meta">
+                        {autorPrincipalItem(item) ? (
+                          <span>
+                            <b>{t("item.author")}:</b>{" "}
+                            {autorPrincipalItem(item)}
+                          </span>
+                        ) : null}
+
+                        {item.editora ? (
+                          <span>
+                            <b>{t("item.publisher")}:</b>{" "}
+                            {item.editora.nome}
+                          </span>
+                        ) : null}
+
+                        {categoriaPrincipalItem(item) ? (
+                          <span>
+                            <b>{t("item.subject")}:</b>{" "}
+                            {categoriaPrincipalItem(item)}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : null}
 
                     <div className="bib-item-footer">
                       <div className="bib-item-counts">

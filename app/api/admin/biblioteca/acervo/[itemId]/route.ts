@@ -1,5 +1,6 @@
 import {
   AcaoAuditoriaBiblioteca,
+  BibliotecaSistemaClassificacao,
   ModalidadeAcessoBiblioteca,
   Prisma,
   StatusArquivoBiblioteca,
@@ -39,6 +40,11 @@ const MODALIDADES_ACESSO =
     Object.values(ModalidadeAcessoBiblioteca)
   );
 
+const SISTEMAS_CLASSIFICACAO =
+  new Set<BibliotecaSistemaClassificacao>(
+    Object.values(BibliotecaSistemaClassificacao)
+  );
+
 const ITEM_DETALHE_SELECT = {
   id: true,
   tipo: true,
@@ -65,6 +71,9 @@ const ITEM_DETALHE_SELECT = {
   numeroPaginas: true,
   duracaoSegundos: true,
   classificacaoBibliografica: true,
+  sistemaClassificacao: true,
+  edicaoClassificacao: true,
+  codigoCutter: true,
   codigoChamada: true,
   cdd: true,
   cdu: true,
@@ -162,6 +171,7 @@ const ITEM_DETALHE_SELECT = {
       status: true,
       setor: true,
       sala: true,
+      corredor: true,
       estante: true,
       prateleira: true,
       localizacaoCompleta: true,
@@ -406,6 +416,144 @@ function enumObrigatorio<T extends string>(
   return normalizado;
 }
 
+function enumOpcionalNulo<T extends string>(
+  valor: unknown,
+  campo: string,
+  permitidos: ReadonlySet<T>
+): T | null {
+  if (
+    valor === undefined ||
+    valor === null ||
+    valor === ""
+  ) {
+    return null;
+  }
+
+  return enumObrigatorio(
+    valor,
+    campo,
+    permitidos
+  );
+}
+
+
+function resolverCatalogacao(
+  corpo: Record<string, unknown>,
+  configuracao: {
+    sistemaClassificacaoPadrao: BibliotecaSistemaClassificacao;
+    edicaoCDDPadrao: string | null;
+    edicaoCDUPadrao: string | null;
+    usarCutter: boolean;
+    gerarCodigoChamadaAutomaticamente: boolean;
+  } | null
+) {
+  const sistemaClassificacao =
+    enumOpcionalNulo(
+      corpo.sistemaClassificacao,
+      "sistemaClassificacao",
+      SISTEMAS_CLASSIFICACAO
+    ) ??
+    configuracao?.sistemaClassificacaoPadrao ??
+    BibliotecaSistemaClassificacao.CDD;
+
+  const classificacaoBibliografica =
+    textoOpcional(
+      corpo.classificacaoBibliografica,
+      "classificacaoBibliografica",
+      120
+    );
+
+  const cdd =
+    textoOpcional(
+      corpo.cdd,
+      "cdd",
+      80
+    );
+
+  const cdu =
+    textoOpcional(
+      corpo.cdu,
+      "cdu",
+      80
+    );
+
+  const codigoCutter =
+    textoOpcional(
+      corpo.codigoCutter,
+      "codigoCutter",
+      80
+    );
+
+  const edicaoInformada =
+    textoOpcional(
+      corpo.edicaoClassificacao,
+      "edicaoClassificacao",
+      80
+    );
+
+  const edicaoClassificacao =
+    edicaoInformada ??
+    (
+      sistemaClassificacao ===
+        BibliotecaSistemaClassificacao.CDD
+        ? configuracao?.edicaoCDDPadrao ?? null
+        : sistemaClassificacao ===
+            BibliotecaSistemaClassificacao.CDU
+          ? configuracao?.edicaoCDUPadrao ?? null
+          : null
+    );
+
+  const codigoChamadaInformado =
+    textoOpcional(
+      corpo.codigoChamada,
+      "codigoChamada",
+      120
+    );
+
+  const classificacaoPrincipal =
+    sistemaClassificacao ===
+      BibliotecaSistemaClassificacao.CDD
+      ? cdd
+      : sistemaClassificacao ===
+          BibliotecaSistemaClassificacao.CDU
+        ? cdu
+        : classificacaoBibliografica;
+
+  const partesAutomaticas = [
+    classificacaoPrincipal,
+    configuracao?.usarCutter !== false
+      ? codigoCutter
+      : null,
+  ].filter(
+    (valor): valor is string =>
+      Boolean(valor)
+  );
+
+  const codigoChamadaAutomatico =
+    partesAutomaticas.length
+      ? partesAutomaticas.join(" ")
+      : null;
+
+  const codigoChamada =
+    codigoChamadaInformado ??
+    (
+      configuracao
+        ?.gerarCodigoChamadaAutomaticamente !== false
+        ? codigoChamadaAutomatico
+        : null
+    );
+
+  return {
+    sistemaClassificacao,
+    edicaoClassificacao,
+    codigoCutter,
+    classificacaoBibliografica,
+    cdd,
+    cdu,
+    codigoChamada,
+  };
+}
+
 function normalizarPalavrasChave(valor: unknown) {
   const valores = Array.isArray(valor)
     ? valor
@@ -549,6 +697,12 @@ function serializarItemParaAuditoria(
     duracaoSegundos: item.duracaoSegundos,
     classificacaoBibliografica:
       item.classificacaoBibliografica,
+    sistemaClassificacao:
+      item.sistemaClassificacao,
+    edicaoClassificacao:
+      item.edicaoClassificacao,
+    codigoCutter:
+      item.codigoCutter,
     codigoChamada: item.codigoChamada,
     cdd: item.cdd,
     cdu: item.cdu,
@@ -762,6 +916,31 @@ export async function GET(
           contexto.configuracao
             ?.permitirDownload ??
           false,
+
+        sistemaClassificacaoPadrao:
+          contexto.configuracao
+            ?.sistemaClassificacaoPadrao ??
+          BibliotecaSistemaClassificacao.CDD,
+
+        edicaoCDDPadrao:
+          contexto.configuracao
+            ?.edicaoCDDPadrao ??
+          "23",
+
+        edicaoCDUPadrao:
+          contexto.configuracao
+            ?.edicaoCDUPadrao ??
+          null,
+
+        usarCutter:
+          contexto.configuracao
+            ?.usarCutter ??
+          true,
+
+        gerarCodigoChamadaAutomaticamente:
+          contexto.configuracao
+            ?.gerarCodigoChamadaAutomaticamente ??
+          true,
       },
 
       armazenamento: {
@@ -950,6 +1129,12 @@ export async function PATCH(
       contexto.configuracao?.permitirDownload &&
       permitirDownloadSolicitado
     );
+    const catalogacao =
+      resolverCatalogacao(
+        corpo,
+        contexto.configuracao
+      );
+
     const anoMaximo = new Date().getFullYear() + 2;
     const ip = obterIp(request);
     const userAgent = request.headers
@@ -1051,26 +1236,19 @@ export async function PATCH(
                 100_000_000
               ),
               classificacaoBibliografica:
-                textoOpcional(
-                  corpo.classificacaoBibliografica,
-                  "classificacaoBibliografica",
-                  120
-                ),
-              codigoChamada: textoOpcional(
-                corpo.codigoChamada,
-                "codigoChamada",
-                120
-              ),
-              cdd: textoOpcional(
-                corpo.cdd,
-                "cdd",
-                80
-              ),
-              cdu: textoOpcional(
-                corpo.cdu,
-                "cdu",
-                80
-              ),
+                catalogacao.classificacaoBibliografica,
+              sistemaClassificacao:
+                catalogacao.sistemaClassificacao,
+              edicaoClassificacao:
+                catalogacao.edicaoClassificacao,
+              codigoCutter:
+                catalogacao.codigoCutter,
+              codigoChamada:
+                catalogacao.codigoChamada,
+              cdd:
+                catalogacao.cdd,
+              cdu:
+                catalogacao.cdu,
               capaUrl: textoOpcional(
                 corpo.capaUrl,
                 "capaUrl",

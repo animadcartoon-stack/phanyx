@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useRef,
@@ -307,10 +307,38 @@ function AdminImportarAlunosPage() {
       const labels =
         CAMPOS.map(
           (campo) => {
-            const texto =
+            const textoBase =
               t(
                 campo.label as any
               );
+
+            const prefixoGrupo =
+              campo.chave ===
+              "paisTelefone"
+                ? t(
+                    "groups.internationalDocuments"
+                  )
+                : campo.chave ===
+                    "cep"
+                  ? t(
+                      "groups.address"
+                    )
+                  : campo.chave ===
+                      "nomeResponsavel"
+                    ? t(
+                        "groups.responsible"
+                      )
+                    : campo.chave ===
+                        "possuiNecessidadeEspecial"
+                      ? t(
+                          "groups.accessibility"
+                        )
+                      : "";
+
+            const texto =
+              prefixoGrupo
+                ? `${prefixoGrupo} - ${textoBase}`
+                : textoBase;
 
             return (
               "obrigatorio" in campo &&
@@ -349,6 +377,83 @@ function AdminImportarAlunosPage() {
           })
         );
 
+      /*
+       * Modelo XLSX didatico.
+       *
+       * As colunas principais e a primeira coluna
+       * de cada grupo ficam visiveis.
+       * Os detalhes opcionais ficam recolhidos em
+       * grupos independentes no Excel.
+       */
+      const colunasRecolhidasModelo =
+        new Set<CampoChave>([
+          // Internacional / documentos
+          "nacionalidade",
+          "paisNascimento",
+          "paisResidencia",
+          "tipoDocumento",
+          "numeroDocumento",
+
+          // Endereco
+          "endereco",
+          "numero",
+          "complemento",
+          "bairro",
+          "cidade",
+          "estado",
+
+          // Responsavel
+          "cpfResponsavel",
+          "tipoDocumentoResponsavel",
+          "numeroDocumentoResponsavel",
+          "telefoneResponsavel",
+          "paisTelefoneResponsavel",
+          "emailResponsavel",
+          "parentescoResponsavel",
+
+          // Acessibilidade
+          "descricaoNecessidadeEspecial",
+          "observacoesAcessibilidade",
+        ]);
+
+      const colunasModelo =
+        planilha["!cols"] ?? [];
+
+      CAMPOS.forEach(
+        (campo, indice) => {
+          const coluna =
+            colunasModelo[indice] ??
+            {};
+
+          const recolhida =
+            colunasRecolhidasModelo.has(
+              campo.chave
+            );
+
+          coluna.level =
+            recolhida
+              ? 1
+              : 0;
+
+          coluna.hidden =
+            recolhida;
+
+          colunasModelo[indice] =
+            coluna;
+        }
+      );
+
+      planilha["!cols"] =
+        colunasModelo;
+
+      /*
+       * Coloca os controles +/- junto das
+       * colunas-guia visiveis.
+       */
+      planilha["!outline"] = {
+        left: true,
+      };
+
       const workbook =
         XLSX.utils.book_new();
 
@@ -358,9 +463,117 @@ function AdminImportarAlunosPage() {
         t("template.sheetName")
       );
 
+      const linhasComoUsar = [
+        [
+          t(
+            "instructions.title"
+          ),
+        ],
+        [
+          t(
+            "instructions.intro",
+            {
+              sheet:
+                t(
+                  "template.sheetName"
+                ),
+            }
+          ),
+        ],
+        [],
+        [
+          "1. " +
+            t(
+              "instructions.required"
+            ),
+        ],
+        [
+          "2. " +
+            t(
+              "instructions.expand"
+            ),
+        ],
+        [
+          "3. " +
+            t(
+              "instructions.optional"
+            ),
+        ],
+        [
+          "4. " +
+            t(
+              "instructions.countryCode"
+            ),
+        ],
+        [
+          "5. " +
+            t(
+              "instructions.technicalRow"
+            ),
+        ],
+        [
+          "6. " +
+            t(
+              "instructions.saveXlsx"
+            ),
+        ],
+        [],
+        [
+          t(
+            "instructions.groupsTitle"
+          ),
+        ],
+        [
+          "- " +
+            t(
+              "instructions.groupInternational"
+            ),
+        ],
+        [
+          "- " +
+            t(
+              "instructions.groupAddress"
+            ),
+        ],
+        [
+          "- " +
+            t(
+              "instructions.groupResponsible"
+            ),
+        ],
+        [
+          "- " +
+            t(
+              "instructions.groupAccessibility"
+            ),
+        ],
+      ];
+
+      const planilhaComoUsar =
+        XLSX.utils.aoa_to_sheet(
+          linhasComoUsar
+        );
+
+      planilhaComoUsar["!cols"] = [
+        {
+          wch: 105,
+        },
+      ];
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        planilhaComoUsar,
+        t(
+          "instructions.sheetName"
+        )
+      );
+
       XLSX.writeFile(
         workbook,
-        `${t("template.fileName")}.xlsx`
+        `${t("template.fileName")}.xlsx`,
+        {
+          cellStyles: true,
+        }
       );
     } catch (error) {
       console.error(error);
@@ -1394,21 +1607,21 @@ function AdminImportarAlunosPage() {
                                   {item
                                     .dados
                                     .nome ||
-                                    "—"}
+                                    "â€”"}
                                 </td>
 
                                 <td className="px-4 py-3">
                                   {item
                                     .dados
                                     .email ||
-                                    "—"}
+                                    "â€”"}
                                 </td>
 
                                 <td className="whitespace-nowrap px-4 py-3">
                                   {item
                                     .dados
                                     .dataNascimento ||
-                                    "—"}
+                                    "â€”"}
                                 </td>
 
                                 <td className="min-w-[260px] px-4 py-3">

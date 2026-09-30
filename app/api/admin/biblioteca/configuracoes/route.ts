@@ -1,5 +1,6 @@
 import {
   AcaoAuditoriaBiblioteca,
+  BibliotecaSistemaClassificacao,
 } from "@prisma/client";
 
 import {
@@ -43,6 +44,12 @@ const CONFIGURACAO_SELECT = {
   limiteRenovacoes: true,
   limiteEmprestimos: true,
 
+  sistemaClassificacaoPadrao: true,
+  edicaoCDDPadrao: true,
+  edicaoCDUPadrao: true,
+  usarCutter: true,
+  gerarCodigoChamadaAutomaticamente: true,
+
   notificarVencimento: true,
   diasAvisoAntesVencimento: true,
   bloquearAlunoComPendencia: true,
@@ -78,6 +85,12 @@ type ConfiguracaoSelecionada = {
   limiteRenovacoes: number;
   limiteEmprestimos: number;
 
+  sistemaClassificacaoPadrao: BibliotecaSistemaClassificacao;
+  edicaoCDDPadrao: string | null;
+  edicaoCDUPadrao: string | null;
+  usarCutter: boolean;
+  gerarCodigoChamadaAutomaticamente: boolean;
+
   notificarVencimento: boolean;
   diasAvisoAntesVencimento: number;
   bloquearAlunoComPendencia: boolean;
@@ -98,6 +111,11 @@ type CorpoConfiguracao = Record<
   unknown
 >;
 
+const SISTEMAS_CLASSIFICACAO =
+  new Set<BibliotecaSistemaClassificacao>(
+    Object.values(BibliotecaSistemaClassificacao)
+  );
+
 const CONFIGURACAO_PADRAO = {
   id: null,
 
@@ -115,6 +133,12 @@ const CONFIGURACAO_PADRAO = {
   diasReservaPadrao: 2,
   limiteRenovacoes: 1,
   limiteEmprestimos: 3,
+
+  sistemaClassificacaoPadrao: "CDD",
+  edicaoCDDPadrao: "23",
+  edicaoCDUPadrao: null,
+  usarCutter: true,
+  gerarCodigoChamadaAutomaticamente: true,
 
   notificarVencimento: true,
   diasAvisoAntesVencimento: 2,
@@ -314,6 +338,27 @@ function booleanoObrigatorio(
   return valor;
 }
 
+function enumObrigatorio<T extends string>(
+  valor: unknown,
+  campo: string,
+  permitidos: ReadonlySet<T>
+): T {
+  const normalizado =
+    String(valor || "")
+      .trim()
+      .toUpperCase() as T;
+
+  if (!permitidos.has(normalizado)) {
+    falhar(
+      400,
+      `O campo ${campo} possui um valor inv?lido.`,
+      "ENUM_INVALIDO"
+    );
+  }
+
+  return normalizado;
+}
+
 function inteiroEntre(
   valor: unknown,
   campo: string,
@@ -505,6 +550,39 @@ function normalizarCorpo(
         100
       ),
 
+    sistemaClassificacaoPadrao:
+      enumObrigatorio(
+        corpo.sistemaClassificacaoPadrao,
+        "sistemaClassificacaoPadrao",
+        SISTEMAS_CLASSIFICACAO
+      ),
+
+    edicaoCDDPadrao:
+      textoOpcional(
+        corpo.edicaoCDDPadrao,
+        "edicaoCDDPadrao",
+        40
+      ),
+
+    edicaoCDUPadrao:
+      textoOpcional(
+        corpo.edicaoCDUPadrao,
+        "edicaoCDUPadrao",
+        40
+      ),
+
+    usarCutter:
+      booleanoObrigatorio(
+        corpo.usarCutter,
+        "usarCutter"
+      ),
+
+    gerarCodigoChamadaAutomaticamente:
+      booleanoObrigatorio(
+        corpo.gerarCodigoChamadaAutomaticamente,
+        "gerarCodigoChamadaAutomaticamente"
+      ),
+
     notificarVencimento:
       booleanoObrigatorio(
         corpo.notificarVencimento,
@@ -638,6 +716,21 @@ function serializarConfiguracao(
 
     limiteEmprestimos:
       configuracao.limiteEmprestimos,
+
+    sistemaClassificacaoPadrao:
+      configuracao.sistemaClassificacaoPadrao,
+
+    edicaoCDDPadrao:
+      configuracao.edicaoCDDPadrao,
+
+    edicaoCDUPadrao:
+      configuracao.edicaoCDUPadrao,
+
+    usarCutter:
+      configuracao.usarCutter,
+
+    gerarCodigoChamadaAutomaticamente:
+      configuracao.gerarCodigoChamadaAutomaticamente,
 
     notificarVencimento:
       configuracao.notificarVencimento,
