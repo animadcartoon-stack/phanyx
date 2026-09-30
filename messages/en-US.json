@@ -21099,4 +21099,201 @@
       "responsiblePhoneCountry": "Guardian phone country (ISO 2)"
     }
   }
+,
+  "AdminExternalActivitySafety": {
+    "eyebrow": "Risk management",
+    "title": "Safety",
+    "description": "Identify activity risks, define preventive measures, and assign owners and response plans.",
+    "loading": "Loading safety...",
+    "summary": {
+      "total": "Registered risks",
+      "open": "Under monitoring",
+      "severe": "Severe or critical",
+      "checkpoints": "Checkpoints"
+    },
+    "actions": {
+      "newRisk": "+ Add risk",
+      "edit": "Edit",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "save": "Save risk",
+      "saving": "Saving...",
+      "confirmRemove": "Confirm removal",
+      "configurePlan": "Configure plan",
+      "editPlan": "Edit plan",
+      "savePlan": "Save plan",
+      "savingPlan": "Saving...",
+      "cancelPlan": "Cancel",
+      "newCheckpoint": "+ Add checkpoint",
+      "saveCheckpoint": "Save checkpoint",
+      "savingCheckpoint": "Saving...",
+      "cancelCheckpoint": "Cancel",
+      "confirmRemoveCheckpoint": "Confirm removal",
+      "deactivateCheckpoint": "Deactivate checkpoint"
+    },
+    "form": {
+      "newTitle": "Add risk",
+      "editTitle": "Edit risk",
+      "description": "Classify the risk and record how it will be prevented and handled.",
+      "title": "Title",
+      "responsible": "Owner",
+      "noResponsible": "No owner assigned",
+      "category": "Category",
+      "status": "Status",
+      "probability": "Probability",
+      "severity": "Severity",
+      "details": "Risk description",
+      "preventiveMeasures": "Preventive measures",
+      "responsePlan": "Response plan",
+      "notes": "Notes"
+    },
+    "risks": {
+      "title": "Risk map",
+      "description": "Risks identified for this external activity.",
+      "emptyTitle": "No risks registered",
+      "emptyDescription": "Add the relevant risks for activity planning.",
+      "preventiveMeasures": "Preventive measures",
+      "responsePlan": "Response plan",
+      "responsible": "Owner"
+    },
+    "common": {
+      "notInformed": "Not provided",
+      "noResponsible": "No owner assigned"
+    },
+    "removeConfirm": "Do you really want to remove this risk?",
+    "categories": {
+      "TRANSPORTE": "Transportation",
+      "SAUDE": "Health",
+      "CLIMA": "Weather",
+      "AMBIENTE": "Environment",
+      "ATIVIDADE_FISICA": "Physical activity",
+      "AQUATICO": "Aquatic",
+      "SEGURANCA": "Safety",
+      "ALIMENTACAO": "Food",
+      "ACESSIBILIDADE": "Accessibility",
+      "COMPORTAMENTO": "Behavior",
+      "TECNOLOGIA": "Technology",
+      "OUTRO": "Other"
+    },
+    "probabilities": {
+      "MUITO_BAIXA": "Very low",
+      "BAIXA": "Low",
+      "MEDIA": "Medium",
+      "ALTA": "High",
+      "MUITO_ALTA": "Very high"
+    },
+    "severities": {
+      "LEVE": "Minor",
+      "MODERADA": "Moderate",
+      "GRAVE": "Severe",
+      "MUITO_GRAVE": "Very severe",
+      "CRITICA": "Critical"
+    },
+    "statuses": {
+      "IDENTIFICADO": "Identified",
+      "EM_TRATAMENTO": "Being treated",
+      "MITIGADO": "Mitigated",
+      "ACEITO": "Accepted",
+      "ENCERRADO": "Closed"
+    },
+    "messages": {
+      "loadError": "Could not load safety data.",
+      "titleRequired": "Enter the risk title.",
+      "saveError": "Could not save the risk.",
+      "removeError": "Could not remove the risk.",
+      "created": "Risk created successfully.",
+      "updated": "Risk updated successfully.",
+      "removed": "Risk removed successfully.",
+      "planSaved": "Emergency plan saved successfully.",
+      "planSaveError": "Could not save the emergency plan.",
+      "checkpointNameRequired": "Enter the checkpoint name.",
+      "checkpointDateInvalid": "Enter a valid date and time.",
+      "checkpointSaveError": "Could not save the checkpoint.",
+      "checkpointCreated": "Checkpoint created successfully.",
+      "checkpointUpdated": "Checkpoint updated successfully.",
+      "checkpointRemoveError": "Could not remove the checkpoint.",
+      "checkpointRemoved": "Checkpoint removed successfully.",
+      "checkpointDisabled": "This checkpoint has records and was deactivated to preserve its history."
+    },
+    "plan": {
+      "title": "Emergency plan",
+      "description": "Centralize emergency contacts, reference services, and procedures to follow in an emergency.",
+      "emptyTitle": "Emergency plan not configured yet",
+      "emptyDescription": "Add contacts, a reference hospital, meeting point, and response procedures.",
+      "sections": {
+        "contacts": "Emergency contacts",
+        "medical": "Care references",
+        "procedures": "Procedures"
+      },
+      "fields": {
+        "status": "Status",
+        "schoolContact": "Institution emergency contact",
+        "schoolPhone": "Institution phone",
+        "emergencyResponsible": "Emergency lead",
+        "emergencyResponsiblePhone": "Emergency lead phone",
+        "localEmergencyNumber": "Local emergency number",
+        "hospital": "Reference hospital",
+        "hospitalAddress": "Hospital address",
+        "hospitalPhone": "Hospital phone",
+        "alternativeService": "Alternative emergency service",
+        "alternativeServicePhone": "Alternative service phone",
+        "meetingPoint": "Emergency meeting point",
+        "evacuation": "Evacuation procedure",
+        "accident": "Accident procedure",
+        "missingPerson": "Missing person procedure",
+        "medicalEmergency": "Medical emergency procedure",
+        "severeWeather": "Severe weather procedure",
+        "generalInstructions": "General instructions",
+        "notes": "Notes"
+      },
+      "statuses": {
+        "RASCUNHO": "Draft",
+        "EM_REVISAO": "Under review",
+        "APROVADO": "Approved",
+        "ATIVO": "Active",
+        "ARQUIVADO": "Archived"
+      }
+    },
+    "checkpoints": {
+      "title": "Checkpoints",
+      "description": "Define control points for departures, arrivals, boarding, disembarking, and participant counts.",
+      "emptyTitle": "No checkpoints registered",
+      "emptyDescription": "Add control points to monitor the activity more safely.",
+      "removeConfirm": "Do you really want to remove this checkpoint?",
+      "deactivateConfirm": "This checkpoint already has records. To preserve history, it will only be deactivated.",
+      "form": {
+        "newTitle": "Add checkpoint",
+        "editTitle": "Edit checkpoint",
+        "orderInfo": "Order is assigned automatically as checkpoints are created."
+      },
+      "fields": {
+        "name": "Name",
+        "type": "Type",
+        "location": "Location",
+        "address": "Address",
+        "scheduledAt": "Scheduled time",
+        "required": "Required checkpoint",
+        "active": "Active checkpoint",
+        "notes": "Notes",
+        "records": "Records"
+      },
+      "badges": {
+        "required": "Required",
+        "optional": "Optional",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "types": {
+        "SAIDA_ORIGEM": "Departure from origin",
+        "CHEGADA_DESTINO": "Arrival at destination",
+        "SAIDA_DESTINO": "Departure from destination",
+        "RETORNO_ORIGEM": "Return to origin",
+        "EMBARQUE": "Boarding",
+        "DESEMBARQUE": "Disembarking",
+        "PONTO_ENCONTRO": "Meeting point",
+        "CONTAGEM": "Participant count",
+        "PERSONALIZADO": "Custom"
+      }
+    }
+  }
 }
