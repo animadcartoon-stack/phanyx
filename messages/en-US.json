@@ -20943,6 +20943,44 @@
       "sendLink": "Send link",
       "backToLogin": "Back to sign in"
     },
+    "passwordSecurity": {
+      "strengthLabel": "Password strength",
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong",
+      "minLength": "At least {count} characters",
+      "lowercase": "One lowercase letter",
+      "uppercase": "One uppercase letter",
+      "number": "One number",
+      "special": "One special character",
+      "browserSuggestion": "Your browser can automatically suggest and save a strong password.",
+      "policyInvalid": "The password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character."
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "description": "Create a new password for your account.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "passwordsMismatch": "The passwords do not match.",
+      "tokenInvalid": "The password reset link is invalid.",
+      "linkExpired": "The password reset link is invalid or has expired.",
+      "resetFailed": "Could not reset your password.",
+      "success": "Password reset successfully.",
+      "backToLogin": "Back to sign in",
+      "submit": "Reset password",
+      "submitting": "Saving..."
+    },
+    "firstAccess": {
+      "title": "First access",
+      "description": "For your security, create your new password now.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "passwordsMismatch": "The passwords do not match.",
+      "sessionExpired": "Your session has expired. Sign in again.",
+      "updateFailed": "Could not update your password.",
+      "save": "Save new password",
+      "saving": "Saving..."
+    },
     "choosePage": {
       "metadataTitle": "Choose your portal | PHANYX",
       "welcome": "Welcome to PHANYX",

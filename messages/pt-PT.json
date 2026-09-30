@@ -20729,6 +20729,44 @@
       "sendLink": "Enviar ligação",
       "backToLogin": "Voltar ao início de sessão"
     },
+    "passwordSecurity": {
+      "strengthLabel": "Força da palavra-passe",
+      "weak": "Fraca",
+      "medium": "Média",
+      "strong": "Forte",
+      "minLength": "Pelo menos {count} caracteres",
+      "lowercase": "Uma letra minúscula",
+      "uppercase": "Uma letra maiúscula",
+      "number": "Um número",
+      "special": "Um carácter especial",
+      "browserSuggestion": "O navegador pode sugerir e guardar automaticamente uma palavra-passe forte.",
+      "policyInvalid": "A palavra-passe deve ter pelo menos 8 caracteres, incluindo letra maiúscula, letra minúscula, número e carácter especial."
+    },
+    "resetPassword": {
+      "title": "Redefinir palavra-passe",
+      "description": "Crie uma nova palavra-passe de acesso.",
+      "newPassword": "Nova palavra-passe",
+      "confirmPassword": "Confirmar nova palavra-passe",
+      "passwordsMismatch": "As palavras-passe não coincidem.",
+      "tokenInvalid": "A ligação de redefinição é inválida.",
+      "linkExpired": "A ligação de redefinição é inválida ou expirou.",
+      "resetFailed": "Não foi possível redefinir a palavra-passe.",
+      "success": "Palavra-passe redefinida com sucesso.",
+      "backToLogin": "Voltar ao início de sessão",
+      "submit": "Redefinir palavra-passe",
+      "submitting": "A guardar..."
+    },
+    "firstAccess": {
+      "title": "Primeiro acesso",
+      "description": "Por segurança, defina agora a sua nova palavra-passe de acesso.",
+      "newPassword": "Nova palavra-passe",
+      "confirmPassword": "Confirmar nova palavra-passe",
+      "passwordsMismatch": "As palavras-passe não coincidem.",
+      "sessionExpired": "A sua sessão expirou. Inicie sessão novamente.",
+      "updateFailed": "Não foi possível atualizar a palavra-passe.",
+      "save": "Guardar nova palavra-passe",
+      "saving": "A guardar..."
+    },
     "choosePage": {
       "metadataTitle": "Escolha o seu acesso | PHANYX",
       "welcome": "Bem-vindo ao PHANYX",

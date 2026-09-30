@@ -415,6 +415,12 @@ export async function POST(req: Request) {
       throw new Error("JWT_SECRET não definido");
     }
 
+    const isDevelopment =
+      process.env.NODE_ENV === "development";
+
+    const duracaoSessaoLocalSegundos =
+      60 * 60 * 24 * 30;
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -432,7 +438,7 @@ export async function POST(req: Request) {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: isDevelopment ? "30d" : "1d",
       }
     );
 
@@ -464,6 +470,12 @@ export async function POST(req: Request) {
         process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
+      ...(isDevelopment
+        ? {
+            maxAge:
+              duracaoSessaoLocalSegundos,
+          }
+        : {}),
     });
 
     response.cookies.set(

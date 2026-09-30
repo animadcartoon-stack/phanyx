@@ -71,6 +71,13 @@ export default function AdminShell({
     "/admin/configuracoes/certificado",
   );
   useEffect(() => {
+    // Durante o desenvolvimento local, n?o encerramos
+    // a sess?o por inatividade. Em produ??o, a pol?tica
+    // de seguran?a permanece inalterada.
+    if (process.env.NODE_ENV === "development") {
+      return;
+    }
+
     let timeout: NodeJS.Timeout;
 
     const tempoInatividade = 5 * 60 * 1000; // 5 minutos

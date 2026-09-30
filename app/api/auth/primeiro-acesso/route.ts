@@ -1,55 +1,119 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import {
+  NextResponse,
+} from "next/server";
+import {
+  prisma,
+} from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {
+  validatePassword,
+} from "@/lib/password-policy";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET =
+  process.env.JWT_SECRET!;
 
-export async function POST(req: Request) {
+export async function POST(
+  req: Request
+) {
   try {
-    const body = await req.json();
+    const body =
+      await req.json();
+
     const { senha } = body;
 
-    if (!senha || senha.length < 6) {
+    const validacaoSenha =
+      validatePassword(
+        String(senha || "")
+      );
+
+    if (!validacaoSenha.ok) {
       return NextResponse.json(
-        { error: "A nova senha deve ter pelo menos 6 caracteres." },
-        { status: 400 }
+        {
+          codigo:
+            "PASSWORD_POLICY_INVALID",
+          error:
+            "Password does not meet the security policy.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    const cookieHeader = req.headers.get("cookie") || "";
-    const tokenMatch = cookieHeader.match(/token=([^;]+)/);
-    const token = tokenMatch?.[1];
+    const cookieHeader =
+      req.headers.get(
+        "cookie"
+      ) || "";
+
+    const tokenMatch =
+      cookieHeader.match(
+        /token=([^;]+)/
+      );
+
+    const token =
+      tokenMatch?.[1];
 
     if (!token) {
       return NextResponse.json(
-        { error: "Token não encontrado." },
-        { status: 401 }
+        {
+          codigo:
+            "AUTH_TOKEN_MISSING",
+          error:
+            "Authentication token not found.",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      id: number;
-      email: string;
-      role: string;
-    };
+    const decoded =
+      jwt.verify(
+        token,
+        JWT_SECRET
+      ) as {
+        id: number;
+        email: string;
+        role: string;
+      };
 
-    const senhaHash = await bcrypt.hash(senha, 10);
+    const senhaHash =
+      await bcrypt.hash(
+        senha,
+        10
+      );
 
     await prisma.user.update({
-      where: { id: decoded.id },
+      where: {
+        id: decoded.id,
+      },
       data: {
         senha: senhaHash,
-        precisaTrocarSenha: false,
+        precisaTrocarSenha:
+          false,
       },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+    });
   } catch (error) {
-    console.error("ERRO PRIMEIRO ACESSO:", error);
+    console.error(
+      "FIRST ACCESS ERROR:",
+      error
+    );
+
     return NextResponse.json(
-      { error: "Erro ao atualizar senha." },
-      { status: 500 }
+      {
+        codigo:
+          "PASSWORD_UPDATE_FAILED",
+        error:
+          "Could not update password.",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
