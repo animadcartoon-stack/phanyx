@@ -15027,6 +15027,11 @@
     },
     "actions": {
       "aguardando": "Marcar como a aguardar",
+      "aIniciar": "A iniciar",
+      "ativar": "Ativar",
+      "suspender": "Suspender",
+      "concluir": "Concluir",
+      "atualizando": "A atualizar...",
       "trancar": "Trancar",
       "transferir": "Transferir",
       "intercambio": "Intercâmbio",

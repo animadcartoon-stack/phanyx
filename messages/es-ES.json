@@ -15240,6 +15240,11 @@
     },
     "actions": {
       "aguardando": "Marcar como en espera",
+      "aIniciar": "Por iniciar",
+      "ativar": "Activar",
+      "suspender": "Suspender",
+      "concluir": "Finalizar",
+      "atualizando": "Actualizando...",
       "trancar": "Bloquear",
       "transferir": "Transferir",
       "intercambio": "Intercambio",

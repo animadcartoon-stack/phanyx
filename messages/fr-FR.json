@@ -15240,6 +15240,11 @@
     },
     "actions": {
       "aguardando": "Marquer en attente",
+      "aIniciar": "À commencer",
+      "ativar": "Activer",
+      "suspender": "Suspendre",
+      "concluir": "Terminer",
+      "atualizando": "Mise à jour...",
       "trancar": "Mettre en pause",
       "transferir": "Transférer",
       "intercambio": "Échange",

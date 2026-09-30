@@ -15241,6 +15241,11 @@
     },
     "actions": {
       "aguardando": "Mark as pending",
+      "aIniciar": "Not started",
+      "ativar": "Activate",
+      "suspender": "Suspend",
+      "concluir": "Complete",
+      "atualizando": "Updating...",
       "trancar": "Put on hold",
       "transferir": "Transfer",
       "intercambio": "Exchange",

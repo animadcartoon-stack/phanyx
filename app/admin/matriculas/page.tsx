@@ -293,6 +293,11 @@ function AdminMatriculasPage() {
     setTurmaPorDisciplinaEdicao,
   ] = useState<Record<number, number>>({});
   const [matriculas, setMatriculas] = useState<MatriculaApi[]>([]);
+  const [statusAtualizando, setStatusAtualizando] = useState<{
+    matriculaId: number;
+    status: string;
+  } | null>(null);
+  const statusAtualizandoRef = useRef(false);
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [cursos, setCursos] = useState<CursoOption[]>([]);
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
@@ -2651,6 +2656,45 @@ function AdminMatriculasPage() {
   }
 
   async function alterarStatusMatricula(id: number, status: string) {
+    if (statusAtualizandoRef.current) {
+      return;
+    }
+
+    const statusAnterior =
+      matriculas.find((matricula) => matricula.id === id)?.status;
+
+    if (statusAnterior === status) {
+      return;
+    }
+
+    statusAtualizandoRef.current = true;
+
+    setStatusAtualizando({
+      matriculaId: id,
+      status,
+    });
+
+    setErro("");
+    setSucesso("");
+
+    setMatriculas((atuais) =>
+      atuais.map((matricula) =>
+        matricula.id === id
+          ? { ...matricula, status }
+          : matricula
+      )
+    );
+
+    const restaurarStatusAnterior = () => {
+      setMatriculas((atuais) =>
+        atuais.map((matricula) =>
+          matricula.id === id
+            ? { ...matricula, status: statusAnterior }
+            : matricula
+        )
+      );
+    };
+
     try {
       const res = await fetch("/api/matricula", {
         method: "PATCH",
@@ -2662,18 +2706,71 @@ function AdminMatriculasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(data?.error ?? "Erro ao atualizar status da matrícula.");
+        restaurarStatusAnterior();
+        setErro(data?.error ?? "Erro ao atualizar status da matr?cula.");
         return;
       }
 
       await carregarTudo();
-      setSucesso("Status da matrícula atualizado com sucesso.");
+      setSucesso("Status da matr?cula atualizado com sucesso.");
     } catch (error) {
+      restaurarStatusAnterior();
       console.error("Erro ao atualizar status:", error);
-      setErro("Erro ao atualizar status da matrícula.");
+      setErro("Erro ao atualizar status da matr?cula.");
+    } finally {
+      statusAtualizandoRef.current = false;
+      setStatusAtualizando(null);
     }
   }
 
+  function statusAcaoSelecionada(
+    matriculaId: number,
+    statusAlvo: string,
+    statusAtual?: string
+  ) {
+    return (
+      statusAtual === statusAlvo ||
+      (statusAtualizando?.matriculaId === matriculaId &&
+        statusAtualizando.status === statusAlvo)
+    );
+  }
+
+  function statusAcaoCarregando(
+    matriculaId: number,
+    statusAlvo: string
+  ) {
+    return (
+      statusAtualizando?.matriculaId === matriculaId &&
+      statusAtualizando.status === statusAlvo
+    );
+  }
+
+  function classeBotaoAcaoStatus(
+    matriculaId: number,
+    statusAlvo: string,
+    statusAtual: string | undefined,
+    classePadrao: string
+  ) {
+    if (
+      statusAcaoSelecionada(
+        matriculaId,
+        statusAlvo,
+        statusAtual
+      )
+    ) {
+      return (
+        "rounded-xl border border-blue-600 bg-blue-600 px-3 py-2 " +
+        "text-sm font-semibold text-white shadow-sm transition " +
+        "disabled:cursor-wait disabled:opacity-100 " +
+        "dark:border-blue-400 dark:bg-blue-500 dark:text-white"
+      );
+    }
+
+    return (
+      classePadrao +
+      " disabled:cursor-not-allowed disabled:opacity-60"
+    );
+  }
   function classeStatusMatricula(
     status?: string
   ) {
@@ -4326,29 +4423,72 @@ function AdminMatriculasPage() {
 
                               <div className="flex flex-wrap gap-2">
                                 <button
+                                  type="button"
+                                  disabled={statusAtualizando !== null}
+                                  aria-busy={statusAcaoCarregando(
+                                    m.id,
+                                    "AGUARDANDO"
+                                  )}
                                   onClick={() =>
                                     alterarStatusMatricula(
                                       m.id,
                                       "AGUARDANDO"
                                     )
                                   }
-                                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 hover:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                  className={classeBotaoAcaoStatus(
+                                    m.id,
+                                    "AGUARDANDO",
+                                    m.status,
+                                    "rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 hover:border-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                  )}
                                 >
-                                  {t("actions.aguardando")}
+                                  {statusAcaoCarregando(m.id, "AGUARDANDO")
+                                    ? t("actions.atualizando")
+                                    : t("actions.aguardando")}
                                 </button>
 
                                 <button
-                                  onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
-                                  className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                                  type="button"
+                                  disabled={statusAtualizando !== null}
+                                  aria-busy={statusAcaoCarregando(
+                                    m.id,
+                                    "A_INICIAR"
+                                  )}
+                                  onClick={() =>
+                                    alterarStatusMatricula(m.id, "A_INICIAR")
+                                  }
+                                  className={classeBotaoAcaoStatus(
+                                    m.id,
+                                    "A_INICIAR",
+                                    m.status,
+                                    "rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 hover:border-blue-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                                  )}
                                 >
-                                  A iniciar
+                                  {statusAcaoCarregando(m.id, "A_INICIAR")
+                                    ? t("actions.atualizando")
+                                    : t("actions.aIniciar")}
                                 </button>
 
                                 <button
-                                  onClick={() => alterarStatusMatricula(m.id, "ATIVA")}
-                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400"
+                                  type="button"
+                                  disabled={statusAtualizando !== null}
+                                  aria-busy={statusAcaoCarregando(
+                                    m.id,
+                                    "ATIVA"
+                                  )}
+                                  onClick={() =>
+                                    alterarStatusMatricula(m.id, "ATIVA")
+                                  }
+                                  className={classeBotaoAcaoStatus(
+                                    m.id,
+                                    "ATIVA",
+                                    m.status,
+                                    "rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 hover:border-green-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                  )}
                                 >
-                                  Ativar
+                                  {statusAcaoCarregando(m.id, "ATIVA")
+                                    ? t("actions.atualizando")
+                                    : t("actions.ativar")}
                                 </button>
 
                                 <a
@@ -4362,10 +4502,25 @@ function AdminMatriculasPage() {
                                 </a>
 
                                 <button
-                                  onClick={() => alterarStatusMatricula(m.id, "SUSPENSA")}
-                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-orange-400"
+                                  type="button"
+                                  disabled={statusAtualizando !== null}
+                                  aria-busy={statusAcaoCarregando(
+                                    m.id,
+                                    "SUSPENSA"
+                                  )}
+                                  onClick={() =>
+                                    alterarStatusMatricula(m.id, "SUSPENSA")
+                                  }
+                                  className={classeBotaoAcaoStatus(
+                                    m.id,
+                                    "SUSPENSA",
+                                    m.status,
+                                    "rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 hover:border-orange-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                  )}
                                 >
-                                  Suspender
+                                  {statusAcaoCarregando(m.id, "SUSPENSA")
+                                    ? t("actions.atualizando")
+                                    : t("actions.suspender")}
                                 </button>
 
                                 <a
@@ -4381,26 +4536,53 @@ function AdminMatriculasPage() {
                                 </a>
 
                                 <button
+                                  type="button"
+                                  disabled={statusAtualizando !== null}
+                                  aria-busy={statusAcaoCarregando(
+                                    m.id,
+                                    "INTERCAMBIO"
+                                  )}
                                   onClick={() =>
                                     alterarStatusMatricula(
                                       m.id,
                                       "INTERCAMBIO"
                                     )
                                   }
-                                  className="rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm text-indigo-800 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-slate-950 dark:text-indigo-300 dark:hover:bg-indigo-950/30"
+                                  className={classeBotaoAcaoStatus(
+                                    m.id,
+                                    "INTERCAMBIO",
+                                    m.status,
+                                    "rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm text-indigo-800 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-slate-950 dark:text-indigo-300 dark:hover:bg-indigo-950/30"
+                                  )}
                                 >
-                                  {t("actions.intercambio")}
+                                  {statusAcaoCarregando(m.id, "INTERCAMBIO")
+                                    ? t("actions.atualizando")
+                                    : t("actions.intercambio")}
                                 </button>
 
                                 <button
-                                  onClick={() => alterarStatusMatricula(m.id, "CONCLUIDA")}
-                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400"
+                                  type="button"
+                                  disabled={statusAtualizando !== null}
+                                  aria-busy={statusAcaoCarregando(
+                                    m.id,
+                                    "CONCLUIDA"
+                                  )}
+                                  onClick={() =>
+                                    alterarStatusMatricula(m.id, "CONCLUIDA")
+                                  }
+                                  className={classeBotaoAcaoStatus(
+                                    m.id,
+                                    "CONCLUIDA",
+                                    m.status,
+                                    "rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 hover:border-purple-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                  )}
                                 >
-                                  Concluir
+                                  {statusAcaoCarregando(m.id, "CONCLUIDA")
+                                    ? t("actions.atualizando")
+                                    : t("actions.concluir")}
                                 </button>
 
                               </div>
-
                               <div>
                                 {itens.length === 0 ? (
                                   <p className="text-sm text-slate-500 dark:text-slate-400">
