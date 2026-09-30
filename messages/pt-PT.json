@@ -20911,4 +20911,201 @@
       "groupAccessibility": "Acessibilidade: descrição da necessidade especial e observações."
     }
   }
+,
+  "AdminExternalActivitySafety": {
+    "eyebrow": "Gestão de riscos",
+    "title": "Segurança",
+    "description": "Identifique riscos da atividade, defina medidas preventivas e registe responsáveis e planos de resposta.",
+    "loading": "A carregar segurança...",
+    "summary": {
+      "total": "Riscos registados",
+      "open": "Em acompanhamento",
+      "severe": "Graves ou críticos",
+      "checkpoints": "Checkpoints"
+    },
+    "actions": {
+      "newRisk": "+ Adicionar risco",
+      "edit": "Editar",
+      "remove": "Remover",
+      "cancel": "Cancelar",
+      "save": "Guardar risco",
+      "saving": "A guardar...",
+      "confirmRemove": "Confirmar remoção",
+      "configurePlan": "Configurar plano",
+      "editPlan": "Editar plano",
+      "savePlan": "Guardar plano",
+      "savingPlan": "A guardar...",
+      "cancelPlan": "Cancelar",
+      "newCheckpoint": "+ Adicionar checkpoint",
+      "saveCheckpoint": "Guardar checkpoint",
+      "savingCheckpoint": "A guardar...",
+      "cancelCheckpoint": "Cancelar",
+      "confirmRemoveCheckpoint": "Confirmar remoção",
+      "deactivateCheckpoint": "Desativar checkpoint"
+    },
+    "form": {
+      "newTitle": "Adicionar risco",
+      "editTitle": "Editar risco",
+      "description": "Classifique o risco e registe como será prevenido e tratado.",
+      "title": "Título",
+      "responsible": "Responsável",
+      "noResponsible": "Sem responsável definido",
+      "category": "Categoria",
+      "status": "Estado",
+      "probability": "Probabilidade",
+      "severity": "Gravidade",
+      "details": "Descrição do risco",
+      "preventiveMeasures": "Medidas preventivas",
+      "responsePlan": "Plano de resposta",
+      "notes": "Observações"
+    },
+    "risks": {
+      "title": "Mapa de riscos",
+      "description": "Riscos identificados para esta atividade externa.",
+      "emptyTitle": "Nenhum risco registado",
+      "emptyDescription": "Adicione os riscos relevantes para o planeamento da atividade.",
+      "preventiveMeasures": "Medidas preventivas",
+      "responsePlan": "Plano de resposta",
+      "responsible": "Responsável"
+    },
+    "common": {
+      "notInformed": "Não informado",
+      "noResponsible": "Sem responsável definido"
+    },
+    "removeConfirm": "Pretende realmente remover este risco?",
+    "categories": {
+      "TRANSPORTE": "Transporte",
+      "SAUDE": "Saúde",
+      "CLIMA": "Clima",
+      "AMBIENTE": "Ambiente",
+      "ATIVIDADE_FISICA": "Atividade física",
+      "AQUATICO": "Aquático",
+      "SEGURANCA": "Segurança",
+      "ALIMENTACAO": "Alimentação",
+      "ACESSIBILIDADE": "Acessibilidade",
+      "COMPORTAMENTO": "Comportamento",
+      "TECNOLOGIA": "Tecnologia",
+      "OUTRO": "Outro"
+    },
+    "probabilities": {
+      "MUITO_BAIXA": "Muito baixa",
+      "BAIXA": "Baixa",
+      "MEDIA": "Média",
+      "ALTA": "Alta",
+      "MUITO_ALTA": "Muito alta"
+    },
+    "severities": {
+      "LEVE": "Leve",
+      "MODERADA": "Moderada",
+      "GRAVE": "Grave",
+      "MUITO_GRAVE": "Muito grave",
+      "CRITICA": "Crítica"
+    },
+    "statuses": {
+      "IDENTIFICADO": "Identificado",
+      "EM_TRATAMENTO": "Em tratamento",
+      "MITIGADO": "Mitigado",
+      "ACEITO": "Aceite",
+      "ENCERRADO": "Encerrado"
+    },
+    "messages": {
+      "loadError": "Não foi possível carregar os dados de segurança.",
+      "titleRequired": "Informe o título do risco.",
+      "saveError": "Não foi possível guardar o risco.",
+      "removeError": "Não foi possível remover o risco.",
+      "created": "Risco registado com sucesso.",
+      "updated": "Risco atualizado com sucesso.",
+      "removed": "Risco removido com sucesso.",
+      "planSaved": "Plano de emergência guardado com sucesso.",
+      "planSaveError": "Não foi possível guardar o plano de emergência.",
+      "checkpointNameRequired": "Indique o nome do checkpoint.",
+      "checkpointDateInvalid": "Indique uma data e hora válidas.",
+      "checkpointSaveError": "Não foi possível guardar o checkpoint.",
+      "checkpointCreated": "Checkpoint registado com sucesso.",
+      "checkpointUpdated": "Checkpoint atualizado com sucesso.",
+      "checkpointRemoveError": "Não foi possível remover o checkpoint.",
+      "checkpointRemoved": "Checkpoint removido com sucesso.",
+      "checkpointDisabled": "O checkpoint possui registos e foi desativado para preservar o histórico."
+    },
+    "plan": {
+      "title": "Plano de emergência",
+      "description": "Centralize contactos, serviços de referência e procedimentos a seguir em situações de emergência.",
+      "emptyTitle": "Plano de emergência ainda não configurado",
+      "emptyDescription": "Registe contactos, hospital de referência, ponto de encontro e procedimentos de resposta.",
+      "sections": {
+        "contacts": "Contactos de emergência",
+        "medical": "Referências de atendimento",
+        "procedures": "Procedimentos"
+      },
+      "fields": {
+        "status": "Estado",
+        "schoolContact": "Contacto de emergência da instituição",
+        "schoolPhone": "Telefone da instituição",
+        "emergencyResponsible": "Responsável pela emergência",
+        "emergencyResponsiblePhone": "Telefone do responsável",
+        "localEmergencyNumber": "Número local de emergência",
+        "hospital": "Hospital de referência",
+        "hospitalAddress": "Endereço do hospital",
+        "hospitalPhone": "Telefone do hospital",
+        "alternativeService": "Serviço alternativo de emergência",
+        "alternativeServicePhone": "Telefone do serviço alternativo",
+        "meetingPoint": "Ponto de encontro em emergência",
+        "evacuation": "Procedimento de evacuação",
+        "accident": "Procedimento em caso de acidente",
+        "missingPerson": "Procedimento para pessoa desaparecida",
+        "medicalEmergency": "Procedimento de emergência médica",
+        "severeWeather": "Procedimento para clima severo",
+        "generalInstructions": "Instruções gerais",
+        "notes": "Observações"
+      },
+      "statuses": {
+        "RASCUNHO": "Rascunho",
+        "EM_REVISAO": "Em revisão",
+        "APROVADO": "Aprovado",
+        "ATIVO": "Ativo",
+        "ARQUIVADO": "Arquivado"
+      }
+    },
+    "checkpoints": {
+      "title": "Checkpoints",
+      "description": "Defina pontos de controlo para acompanhar saídas, chegadas, embarques, desembarques e contagens dos participantes.",
+      "emptyTitle": "Nenhum checkpoint registado",
+      "emptyDescription": "Adicione pontos de controlo para acompanhar a atividade com mais segurança.",
+      "removeConfirm": "Pretende realmente remover este checkpoint?",
+      "deactivateConfirm": "Este checkpoint já possui registos. Para preservar o histórico, será apenas desativado.",
+      "form": {
+        "newTitle": "Adicionar checkpoint",
+        "editTitle": "Editar checkpoint",
+        "orderInfo": "A ordem é definida automaticamente conforme os checkpoints são registados."
+      },
+      "fields": {
+        "name": "Nome",
+        "type": "Tipo",
+        "location": "Local",
+        "address": "Morada",
+        "scheduledAt": "Horário previsto",
+        "required": "Checkpoint obrigatório",
+        "active": "Checkpoint ativo",
+        "notes": "Observações",
+        "records": "Registos"
+      },
+      "badges": {
+        "required": "Obrigatório",
+        "optional": "Opcional",
+        "active": "Ativo",
+        "inactive": "Inativo"
+      },
+      "types": {
+        "SAIDA_ORIGEM": "Saída da origem",
+        "CHEGADA_DESTINO": "Chegada ao destino",
+        "SAIDA_DESTINO": "Saída do destino",
+        "RETORNO_ORIGEM": "Retorno à origem",
+        "EMBARQUE": "Embarque",
+        "DESEMBARQUE": "Desembarque",
+        "PONTO_ENCONTRO": "Ponto de encontro",
+        "CONTAGEM": "Contagem de participantes",
+        "PERSONALIZADO": "Personalizado"
+      }
+    }
+  }
 }

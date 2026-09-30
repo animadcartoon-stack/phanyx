@@ -21124,4 +21124,201 @@
       "groupAccessibility": "Accesibilidad: descripción de necesidades especiales y observaciones."
     }
   }
+,
+  "AdminExternalActivitySafety": {
+    "eyebrow": "Gestión de riesgos",
+    "title": "Seguridad",
+    "description": "Identifique los riesgos de la actividad, defina medidas preventivas y registre responsables y planes de respuesta.",
+    "loading": "Cargando seguridad...",
+    "summary": {
+      "total": "Riesgos registrados",
+      "open": "En seguimiento",
+      "severe": "Graves o críticos",
+      "checkpoints": "Checkpoints"
+    },
+    "actions": {
+      "newRisk": "+ Añadir riesgo",
+      "edit": "Editar",
+      "remove": "Eliminar",
+      "cancel": "Cancelar",
+      "save": "Guardar riesgo",
+      "saving": "Guardando...",
+      "confirmRemove": "Confirmar eliminación",
+      "configurePlan": "Configurar plan",
+      "editPlan": "Editar plan",
+      "savePlan": "Guardar plan",
+      "savingPlan": "Guardando...",
+      "cancelPlan": "Cancelar",
+      "newCheckpoint": "+ Añadir checkpoint",
+      "saveCheckpoint": "Guardar checkpoint",
+      "savingCheckpoint": "Guardando...",
+      "cancelCheckpoint": "Cancelar",
+      "confirmRemoveCheckpoint": "Confirmar eliminación",
+      "deactivateCheckpoint": "Desactivar checkpoint"
+    },
+    "form": {
+      "newTitle": "Añadir riesgo",
+      "editTitle": "Editar riesgo",
+      "description": "Clasifique el riesgo y registre cómo será prevenido y tratado.",
+      "title": "Título",
+      "responsible": "Responsable",
+      "noResponsible": "Sin responsable asignado",
+      "category": "Categoría",
+      "status": "Estado",
+      "probability": "Probabilidad",
+      "severity": "Gravedad",
+      "details": "Descripción del riesgo",
+      "preventiveMeasures": "Medidas preventivas",
+      "responsePlan": "Plan de respuesta",
+      "notes": "Observaciones"
+    },
+    "risks": {
+      "title": "Mapa de riesgos",
+      "description": "Riesgos identificados para esta actividad externa.",
+      "emptyTitle": "No hay riesgos registrados",
+      "emptyDescription": "Añada los riesgos relevantes para la planificación de la actividad.",
+      "preventiveMeasures": "Medidas preventivas",
+      "responsePlan": "Plan de respuesta",
+      "responsible": "Responsable"
+    },
+    "common": {
+      "notInformed": "No informado",
+      "noResponsible": "Sin responsable asignado"
+    },
+    "removeConfirm": "¿Desea realmente eliminar este riesgo?",
+    "categories": {
+      "TRANSPORTE": "Transporte",
+      "SAUDE": "Salud",
+      "CLIMA": "Clima",
+      "AMBIENTE": "Entorno",
+      "ATIVIDADE_FISICA": "Actividad física",
+      "AQUATICO": "Acuático",
+      "SEGURANCA": "Seguridad",
+      "ALIMENTACAO": "Alimentación",
+      "ACESSIBILIDADE": "Accesibilidad",
+      "COMPORTAMENTO": "Comportamiento",
+      "TECNOLOGIA": "Tecnología",
+      "OUTRO": "Otro"
+    },
+    "probabilities": {
+      "MUITO_BAIXA": "Muy baja",
+      "BAIXA": "Baja",
+      "MEDIA": "Media",
+      "ALTA": "Alta",
+      "MUITO_ALTA": "Muy alta"
+    },
+    "severities": {
+      "LEVE": "Leve",
+      "MODERADA": "Moderada",
+      "GRAVE": "Grave",
+      "MUITO_GRAVE": "Muy grave",
+      "CRITICA": "Crítica"
+    },
+    "statuses": {
+      "IDENTIFICADO": "Identificado",
+      "EM_TRATAMENTO": "En tratamiento",
+      "MITIGADO": "Mitigado",
+      "ACEITO": "Aceptado",
+      "ENCERRADO": "Cerrado"
+    },
+    "messages": {
+      "loadError": "No fue posible cargar los datos de seguridad.",
+      "titleRequired": "Informe el título del riesgo.",
+      "saveError": "No fue posible guardar el riesgo.",
+      "removeError": "No fue posible eliminar el riesgo.",
+      "created": "Riesgo registrado correctamente.",
+      "updated": "Riesgo actualizado correctamente.",
+      "removed": "Riesgo eliminado correctamente.",
+      "planSaved": "Plan de emergencia guardado correctamente.",
+      "planSaveError": "No fue posible guardar el plan de emergencia.",
+      "checkpointNameRequired": "Informe el nombre del checkpoint.",
+      "checkpointDateInvalid": "Informe una fecha y hora válidas.",
+      "checkpointSaveError": "No fue posible guardar el checkpoint.",
+      "checkpointCreated": "Checkpoint registrado correctamente.",
+      "checkpointUpdated": "Checkpoint actualizado correctamente.",
+      "checkpointRemoveError": "No fue posible eliminar el checkpoint.",
+      "checkpointRemoved": "Checkpoint eliminado correctamente.",
+      "checkpointDisabled": "El checkpoint tiene registros y fue desactivado para preservar el historial."
+    },
+    "plan": {
+      "title": "Plan de emergencia",
+      "description": "Centralice contactos, servicios de referencia y procedimientos que deben seguirse en situaciones de emergencia.",
+      "emptyTitle": "El plan de emergencia aún no está configurado",
+      "emptyDescription": "Registre contactos, hospital de referencia, punto de encuentro y procedimientos de respuesta.",
+      "sections": {
+        "contacts": "Contactos de emergencia",
+        "medical": "Referencias de atención",
+        "procedures": "Procedimientos"
+      },
+      "fields": {
+        "status": "Estado",
+        "schoolContact": "Contacto de emergencia de la institución",
+        "schoolPhone": "Teléfono de la institución",
+        "emergencyResponsible": "Responsable de emergencia",
+        "emergencyResponsiblePhone": "Teléfono del responsable",
+        "localEmergencyNumber": "Número local de emergencia",
+        "hospital": "Hospital de referencia",
+        "hospitalAddress": "Dirección del hospital",
+        "hospitalPhone": "Teléfono del hospital",
+        "alternativeService": "Servicio alternativo de emergencia",
+        "alternativeServicePhone": "Teléfono del servicio alternativo",
+        "meetingPoint": "Punto de encuentro de emergencia",
+        "evacuation": "Procedimiento de evacuación",
+        "accident": "Procedimiento en caso de accidente",
+        "missingPerson": "Procedimiento para persona desaparecida",
+        "medicalEmergency": "Procedimiento de emergencia médica",
+        "severeWeather": "Procedimiento para clima severo",
+        "generalInstructions": "Instrucciones generales",
+        "notes": "Observaciones"
+      },
+      "statuses": {
+        "RASCUNHO": "Borrador",
+        "EM_REVISAO": "En revisión",
+        "APROVADO": "Aprobado",
+        "ATIVO": "Activo",
+        "ARQUIVADO": "Archivado"
+      }
+    },
+    "checkpoints": {
+      "title": "Checkpoints",
+      "description": "Defina puntos de control para salidas, llegadas, embarques, desembarques y recuentos de participantes.",
+      "emptyTitle": "No hay checkpoints registrados",
+      "emptyDescription": "Añada puntos de control para supervisar la actividad con mayor seguridad.",
+      "removeConfirm": "¿Desea realmente eliminar este checkpoint?",
+      "deactivateConfirm": "Este checkpoint ya tiene registros. Para preservar el historial, solo será desactivado.",
+      "form": {
+        "newTitle": "Añadir checkpoint",
+        "editTitle": "Editar checkpoint",
+        "orderInfo": "El orden se define automáticamente a medida que se registran los checkpoints."
+      },
+      "fields": {
+        "name": "Nombre",
+        "type": "Tipo",
+        "location": "Lugar",
+        "address": "Dirección",
+        "scheduledAt": "Horario previsto",
+        "required": "Checkpoint obligatorio",
+        "active": "Checkpoint activo",
+        "notes": "Observaciones",
+        "records": "Registros"
+      },
+      "badges": {
+        "required": "Obligatorio",
+        "optional": "Opcional",
+        "active": "Activo",
+        "inactive": "Inactivo"
+      },
+      "types": {
+        "SAIDA_ORIGEM": "Salida del origen",
+        "CHEGADA_DESTINO": "Llegada al destino",
+        "SAIDA_DESTINO": "Salida del destino",
+        "RETORNO_ORIGEM": "Regreso al origen",
+        "EMBARQUE": "Embarque",
+        "DESEMBARQUE": "Desembarque",
+        "PONTO_ENCONTRO": "Punto de encuentro",
+        "CONTAGEM": "Recuento de participantes",
+        "PERSONALIZADO": "Personalizado"
+      }
+    }
+  }
 }

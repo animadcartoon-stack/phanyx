@@ -15,6 +15,7 @@ import ParticipantesAtividadeExterna from "@/components/admin/atividades-externa
 import AutorizacoesAtividadeExterna from "@/components/admin/atividades-externas/AutorizacoesAtividadeExterna";
 import EquipeAtividadeExterna from "@/components/admin/atividades-externas/EquipeAtividadeExterna";
 import TransporteAtividadeExterna from "@/components/admin/atividades-externas/TransporteAtividadeExterna";
+import SegurancaAtividadeExterna from "@/components/admin/atividades-externas/SegurancaAtividadeExterna";
 
 type Responsavel = {
     id: number;
@@ -893,6 +894,11 @@ export default function AtividadeExternaDetalhePage() {
                             <TransporteAtividadeExterna
                                 atividadeId={atividade.id}
                                 onTransporteAlterado={carregar}
+                            />
+                        ) : abaAtiva === "safety" ? (
+                            <SegurancaAtividadeExterna
+                                atividadeId={atividade.id}
+                                onSegurancaAlterada={carregar}
                             />
                         ) : (
                             <AreaEmPreparacao
