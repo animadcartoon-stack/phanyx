@@ -15292,6 +15292,109 @@
       "error": "No se pudo cancelar la matrícula."
     }
   },
+  "AdminTrancamentoMatricula": {
+    "back": "Volver a matr?culas",
+    "title": "Bloquear matr?cula",
+    "subtitle": "Registre el proceso de bloqueo preservando el historial acad?mico existente de la matr?cula.",
+    "loading": "Cargando el proceso de bloqueo...",
+    "enrollmentId": "Matr?cula #{id}",
+    "summary": {
+      "title": "Datos de la matr?cula",
+      "student": "Estudiante",
+      "enrollment": "Matr?cula",
+      "institution": "Instituci?n",
+      "campus": "Sede",
+      "course": "Curso",
+      "class": "Clase",
+      "status": "Situaci?n actual"
+    },
+    "process": {
+      "title": "Proceso de bloqueo",
+      "description": "Complete los datos siguientes. El protocolo se genera autom?ticamente al guardar el primer borrador.",
+      "protocol": "Protocolo",
+      "pendingProtocol": "Se generar? al guardar",
+      "responsible": "Registrado por",
+      "role": "Cargo/funci?n",
+      "notRecorded": "Se registrar? autom?ticamente",
+      "draft": "Borrador"
+    },
+    "form": {
+      "reason": "Motivo del bloqueo",
+      "reasonPlaceholder": "Indique el motivo del bloqueo de la matr?cula",
+      "reasonHelp": "Campo obligatorio. El motivo quedar? registrado en el historial del proceso.",
+      "startDate": "Inicio del bloqueo",
+      "durationUnit": "Unidad de duraci?n",
+      "durationQuantity": "Cantidad",
+      "expectedReturn": "Previsi?n de regreso",
+      "expectedReturnOptional": "Previsi?n de regreso (opcional)",
+      "observations": "Observaciones",
+      "observationsPlaceholder": "Informaci?n adicional sobre el proceso, si es necesaria",
+      "selectUnit": "Seleccione",
+      "days": "D?as",
+      "months": "Meses",
+      "semesters": "Semestres",
+      "indefinite": "Plazo indeterminado"
+    },
+    "actions": {
+      "saveDraft": "Guardar borrador",
+      "saving": "Guardando...",
+      "confirm": "Confirmar bloqueo",
+      "confirming": "Confirmando..."
+    },
+    "warnings": {
+      "title": "Atenci?n",
+      "confirmed": "Ya existe un bloqueo confirmado y abierto para esta matr?cula.",
+      "blocked": "Esta matr?cula se encuentra en una situaci?n que no permite iniciar o modificar un proceso de bloqueo.",
+      "quarantine": "Esta matr?cula est? en cuarentena y no puede ser bloqueada."
+    },
+    "messages": {
+      "draftSaved": "Borrador del bloqueo guardado correctamente.",
+      "confirmed": "Bloqueo de matr?cula confirmado correctamente.",
+      "saveFirst": "Guarde el borrador antes de confirmar el bloqueo."
+    },
+    "errors": {
+      "generic": "No se pudo completar la operaci?n.",
+      "load": "No se pudo cargar el proceso de bloqueo.",
+      "reason": "Indique un motivo de al menos 3 caracteres.",
+      "startDate": "Indique una fecha v?lida para el inicio del bloqueo.",
+      "unit": "Seleccione la unidad de duraci?n.",
+      "quantity": "Indique una cantidad entera mayor que cero.",
+      "returnDate": "Indique una previsi?n de regreso v?lida.",
+      "returnBeforeStart": "La previsi?n de regreso no puede ser anterior al inicio del bloqueo.",
+      "stale": "La situaci?n de la matr?cula cambi? despu?s de crear este borrador. Rev?selo y gu?rdelo antes de volver a confirmar.",
+      "active": "Ya existe un proceso de bloqueo activo para esta matr?cula.",
+      "permission": "No tiene permiso para realizar esta operaci?n."
+    },
+    "confirmModal": {
+      "title": "Confirmar bloqueo",
+      "message": "Al confirmar, la matr?cula pasar? a la situaci?n Bloqueada. El historial acad?mico existente se conservar?.",
+      "confirm": "Confirmar bloqueo",
+      "cancel": "Volver"
+    },
+    "history": {
+      "title": "Historial de bloqueos",
+      "subtitle": "Todos los procesos registrados para esta matr?cula.",
+      "empty": "Todav?a no hay bloqueos registrados.",
+      "protocol": "Protocolo",
+      "status": "Situaci?n",
+      "previousStatus": "Situaci?n anterior",
+      "period": "Per?odo",
+      "duration": "Duraci?n",
+      "reason": "Motivo",
+      "registeredBy": "Registrado por",
+      "confirmedBy": "Confirmado por",
+      "createdAt": "Creado el",
+      "confirmedAt": "Confirmado el",
+      "documents": "Documentos generados",
+      "noReturn": "Sin previsi?n de regreso"
+    },
+    "processStatus": {
+      "RASCUNHO": "Borrador",
+      "CONFIRMADO": "Confirmado",
+      "ENCERRADO": "Cerrado",
+      "CANCELADO": "Cancelado"
+    }
+  },
   "AdminFuncionariosPermissoes": {
     "back": "← Volver a Empleados",
     "title": "🔐 Permisos individuales del empleado",

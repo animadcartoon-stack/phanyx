@@ -15063,6 +15063,109 @@
       "error": "Não foi possível cancelar a matrícula."
     }
   },
+  "AdminTrancamentoMatricula": {
+    "back": "Voltar para matr?culas",
+    "title": "Trancar matr?cula",
+    "subtitle": "Registre o processo de trancamento preservando o hist?rico acad?mico da matr?cula.",
+    "loading": "Carregando processo de trancamento...",
+    "enrollmentId": "Matr?cula #{id}",
+    "summary": {
+      "title": "Dados da matr?cula",
+      "student": "Aluno",
+      "enrollment": "Matr?cula",
+      "institution": "Institui??o",
+      "campus": "Polo",
+      "course": "Curso",
+      "class": "Turma",
+      "status": "Situa??o atual"
+    },
+    "process": {
+      "title": "Processo de trancamento",
+      "description": "Preencha os dados abaixo. O protocolo ? gerado automaticamente ao salvar o primeiro rascunho.",
+      "protocol": "Protocolo",
+      "pendingProtocol": "Ser? gerado ao salvar",
+      "responsible": "Registrado por",
+      "role": "Cargo/fun??o",
+      "notRecorded": "Ser? registrado automaticamente",
+      "draft": "Rascunho"
+    },
+    "form": {
+      "reason": "Motivo do trancamento",
+      "reasonPlaceholder": "Informe o motivo do trancamento da matr?cula",
+      "reasonHelp": "Campo obrigat?rio. O motivo ficar? registrado no hist?rico do processo.",
+      "startDate": "In?cio do trancamento",
+      "durationUnit": "Unidade de dura??o",
+      "durationQuantity": "Quantidade",
+      "expectedReturn": "Previs?o de retorno",
+      "expectedReturnOptional": "Previs?o de retorno (opcional)",
+      "observations": "Observa??es",
+      "observationsPlaceholder": "Informa??es adicionais sobre o processo, se necess?rio",
+      "selectUnit": "Selecione",
+      "days": "Dias",
+      "months": "Meses",
+      "semesters": "Semestres",
+      "indefinite": "Prazo indeterminado"
+    },
+    "actions": {
+      "saveDraft": "Salvar rascunho",
+      "saving": "Salvando...",
+      "confirm": "Confirmar trancamento",
+      "confirming": "Confirmando..."
+    },
+    "warnings": {
+      "title": "Aten??o",
+      "confirmed": "J? existe um trancamento confirmado em aberto para esta matr?cula.",
+      "blocked": "Esta matr?cula est? em uma situa??o que n?o permite iniciar ou alterar um processo de trancamento.",
+      "quarantine": "Esta matr?cula est? na quarentena e n?o pode ser trancada."
+    },
+    "messages": {
+      "draftSaved": "Rascunho do trancamento salvo com sucesso.",
+      "confirmed": "Trancamento confirmado com sucesso.",
+      "saveFirst": "Salve o rascunho antes de confirmar o trancamento."
+    },
+    "errors": {
+      "generic": "N?o foi poss?vel concluir a opera??o.",
+      "load": "N?o foi poss?vel carregar o processo de trancamento.",
+      "reason": "Informe um motivo com pelo menos 3 caracteres.",
+      "startDate": "Informe uma data v?lida para o in?cio do trancamento.",
+      "unit": "Selecione a unidade de dura??o.",
+      "quantity": "Informe uma quantidade inteira maior que zero.",
+      "returnDate": "Informe uma previs?o de retorno v?lida.",
+      "returnBeforeStart": "A previs?o de retorno n?o pode ser anterior ao in?cio do trancamento.",
+      "stale": "A situa??o da matr?cula mudou depois da cria??o do rascunho. Revise e salve o rascunho antes de tentar confirmar novamente.",
+      "active": "J? existe um processo de trancamento ativo para esta matr?cula.",
+      "permission": "Voc? n?o possui permiss?o para realizar esta opera??o."
+    },
+    "confirmModal": {
+      "title": "Confirmar trancamento",
+      "message": "Ao confirmar, a matr?cula passar? para a situa??o Trancada. O hist?rico acad?mico existente ser? preservado.",
+      "confirm": "Confirmar trancamento",
+      "cancel": "Voltar"
+    },
+    "history": {
+      "title": "Hist?rico de trancamentos",
+      "subtitle": "Todos os processos registrados para esta matr?cula.",
+      "empty": "Ainda n?o h? trancamentos registrados.",
+      "protocol": "Protocolo",
+      "status": "Situa??o",
+      "previousStatus": "Situa??o anterior",
+      "period": "Per?odo",
+      "duration": "Dura??o",
+      "reason": "Motivo",
+      "registeredBy": "Registrado por",
+      "confirmedBy": "Confirmado por",
+      "createdAt": "Criado em",
+      "confirmedAt": "Confirmado em",
+      "documents": "Documentos gerados",
+      "noReturn": "Sem previs?o de retorno"
+    },
+    "processStatus": {
+      "RASCUNHO": "Rascunho",
+      "CONFIRMADO": "Confirmado",
+      "ENCERRADO": "Encerrado",
+      "CANCELADO": "Cancelado"
+    }
+  },
   "AdminFuncionariosPermissoes": {
     "back": "← Voltar para Funcionários",
     "title": "🔐 Permissões individuais do funcionário",

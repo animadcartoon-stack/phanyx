@@ -4351,12 +4351,15 @@ function AdminMatriculasPage() {
                                   Ativar
                                 </button>
 
-                                <button
-                                  onClick={() => alterarStatusMatricula(m.id, "TRANCADA")}
-                                  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-yellow-400"
+                                <a
+                                  href={`/admin/matriculas/${m.id}/trancar`}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                  }}
+                                  className="rounded-xl border border-yellow-300 bg-white px-3 py-2 text-sm text-yellow-800 hover:bg-yellow-50 dark:border-yellow-800 dark:bg-slate-950 dark:text-yellow-300 dark:hover:bg-yellow-950/30"
                                 >
-                                  Trancar
-                                </button>
+                                  {t("actions.trancar")}
+                                </a>
 
                                 <button
                                   onClick={() => alterarStatusMatricula(m.id, "SUSPENSA")}

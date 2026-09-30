@@ -15292,6 +15292,109 @@
       "error": "Impossible d’annuler l’inscription."
     }
   },
+  "AdminTrancamentoMatricula": {
+    "back": "Retour aux inscriptions",
+    "title": "Mettre l'inscription en pause",
+    "subtitle": "Enregistrez la proc?dure de mise en pause tout en pr?servant l'historique acad?mique existant.",
+    "loading": "Chargement de la proc?dure de mise en pause...",
+    "enrollmentId": "Inscription #{id}",
+    "summary": {
+      "title": "Donn?es de l'inscription",
+      "student": "?tudiant",
+      "enrollment": "Inscription",
+      "institution": "?tablissement",
+      "campus": "Campus",
+      "course": "Formation",
+      "class": "Classe",
+      "status": "Statut actuel"
+    },
+    "process": {
+      "title": "Proc?dure de mise en pause",
+      "description": "Renseignez les informations ci-dessous. Le num?ro de protocole est g?n?r? automatiquement lors de l'enregistrement du premier brouillon.",
+      "protocol": "Protocole",
+      "pendingProtocol": "G?n?r? lors de l'enregistrement",
+      "responsible": "Enregistr? par",
+      "role": "Poste/fonction",
+      "notRecorded": "Enregistr? automatiquement",
+      "draft": "Brouillon"
+    },
+    "form": {
+      "reason": "Motif de la mise en pause",
+      "reasonPlaceholder": "Indiquez le motif de la mise en pause de l'inscription",
+      "reasonHelp": "Champ obligatoire. Le motif restera enregistr? dans l'historique de la proc?dure.",
+      "startDate": "D?but de la mise en pause",
+      "durationUnit": "Unit? de dur?e",
+      "durationQuantity": "Quantit?",
+      "expectedReturn": "Retour pr?vu",
+      "expectedReturnOptional": "Retour pr?vu (facultatif)",
+      "observations": "Observations",
+      "observationsPlaceholder": "Informations compl?mentaires sur la proc?dure, si n?cessaire",
+      "selectUnit": "S?lectionnez",
+      "days": "Jours",
+      "months": "Mois",
+      "semesters": "Semestres",
+      "indefinite": "Dur?e ind?termin?e"
+    },
+    "actions": {
+      "saveDraft": "Enregistrer le brouillon",
+      "saving": "Enregistrement...",
+      "confirm": "Confirmer la mise en pause",
+      "confirming": "Confirmation..."
+    },
+    "warnings": {
+      "title": "Attention",
+      "confirmed": "Une mise en pause confirm?e est d?j? ouverte pour cette inscription.",
+      "blocked": "Le statut actuel de cette inscription ne permet pas de d?marrer ou de modifier une proc?dure de mise en pause.",
+      "quarantine": "Cette inscription est en quarantaine et ne peut pas ?tre mise en pause."
+    },
+    "messages": {
+      "draftSaved": "Brouillon enregistr? avec succ?s.",
+      "confirmed": "Mise en pause de l'inscription confirm?e avec succ?s.",
+      "saveFirst": "Enregistrez le brouillon avant de confirmer la mise en pause."
+    },
+    "errors": {
+      "generic": "L'op?ration n'a pas pu ?tre effectu?e.",
+      "load": "Impossible de charger la proc?dure de mise en pause.",
+      "reason": "Indiquez un motif d'au moins 3 caract?res.",
+      "startDate": "Indiquez une date de d?but valide.",
+      "unit": "S?lectionnez l'unit? de dur?e.",
+      "quantity": "Indiquez un nombre entier sup?rieur ? z?ro.",
+      "returnDate": "Indiquez une date de retour pr?vue valide.",
+      "returnBeforeStart": "La date de retour pr?vue ne peut pas ?tre ant?rieure au d?but de la mise en pause.",
+      "stale": "Le statut de l'inscription a chang? apr?s la cr?ation de ce brouillon. V?rifiez et enregistrez le brouillon avant de tenter une nouvelle confirmation.",
+      "active": "Une proc?dure de mise en pause est d?j? active pour cette inscription.",
+      "permission": "Vous ne disposez pas de l'autorisation n?cessaire pour effectuer cette op?ration."
+    },
+    "confirmModal": {
+      "title": "Confirmer la mise en pause",
+      "message": "Apr?s confirmation, l'inscription passera au statut En pause. L'historique acad?mique existant sera pr?serv?.",
+      "confirm": "Confirmer",
+      "cancel": "Retour"
+    },
+    "history": {
+      "title": "Historique des mises en pause",
+      "subtitle": "Toutes les proc?dures enregistr?es pour cette inscription.",
+      "empty": "Aucune mise en pause n'a encore ?t? enregistr?e.",
+      "protocol": "Protocole",
+      "status": "Statut",
+      "previousStatus": "Statut pr?c?dent",
+      "period": "P?riode",
+      "duration": "Dur?e",
+      "reason": "Motif",
+      "registeredBy": "Enregistr? par",
+      "confirmedBy": "Confirm? par",
+      "createdAt": "Cr?? le",
+      "confirmedAt": "Confirm? le",
+      "documents": "Documents g?n?r?s",
+      "noReturn": "Aucun retour pr?vu"
+    },
+    "processStatus": {
+      "RASCUNHO": "Brouillon",
+      "CONFIRMADO": "Confirm?",
+      "ENCERRADO": "Cl?tur?",
+      "CANCELADO": "Annul?"
+    }
+  },
   "AdminFuncionariosPermissoes": {
     "back": "← Retour aux employés",
     "title": "🔐 Autorisations individuelles de l’employé",

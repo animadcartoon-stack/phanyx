@@ -15293,6 +15293,109 @@
       "error": "The enrollment could not be canceled."
     }
   },
+  "AdminTrancamentoMatricula": {
+    "back": "Back to enrollments",
+    "title": "Put enrollment on hold",
+    "subtitle": "Record the enrollment hold process while preserving its existing academic history.",
+    "loading": "Loading enrollment hold process...",
+    "enrollmentId": "Enrollment #{id}",
+    "summary": {
+      "title": "Enrollment details",
+      "student": "Student",
+      "enrollment": "Enrollment",
+      "institution": "Institution",
+      "campus": "Campus",
+      "course": "Course",
+      "class": "Class",
+      "status": "Current status"
+    },
+    "process": {
+      "title": "Enrollment hold process",
+      "description": "Complete the information below. A protocol number is generated automatically when the first draft is saved.",
+      "protocol": "Protocol",
+      "pendingProtocol": "Generated when saved",
+      "responsible": "Recorded by",
+      "role": "Position/role",
+      "notRecorded": "Recorded automatically",
+      "draft": "Draft"
+    },
+    "form": {
+      "reason": "Reason for the hold",
+      "reasonPlaceholder": "Enter the reason for placing this enrollment on hold",
+      "reasonHelp": "Required. The reason will remain in the process history.",
+      "startDate": "Hold start date",
+      "durationUnit": "Duration unit",
+      "durationQuantity": "Quantity",
+      "expectedReturn": "Expected return",
+      "expectedReturnOptional": "Expected return (optional)",
+      "observations": "Notes",
+      "observationsPlaceholder": "Additional information about the process, if needed",
+      "selectUnit": "Select",
+      "days": "Days",
+      "months": "Months",
+      "semesters": "Semesters",
+      "indefinite": "Indefinite"
+    },
+    "actions": {
+      "saveDraft": "Save draft",
+      "saving": "Saving...",
+      "confirm": "Confirm hold",
+      "confirming": "Confirming..."
+    },
+    "warnings": {
+      "title": "Attention",
+      "confirmed": "There is already an open confirmed hold for this enrollment.",
+      "blocked": "This enrollment is in a status that does not allow a hold process to be started or changed.",
+      "quarantine": "This enrollment is quarantined and cannot be placed on hold."
+    },
+    "messages": {
+      "draftSaved": "Hold draft saved successfully.",
+      "confirmed": "Enrollment hold confirmed successfully.",
+      "saveFirst": "Save the draft before confirming the enrollment hold."
+    },
+    "errors": {
+      "generic": "The operation could not be completed.",
+      "load": "Unable to load the enrollment hold process.",
+      "reason": "Enter a reason with at least 3 characters.",
+      "startDate": "Enter a valid hold start date.",
+      "unit": "Select the duration unit.",
+      "quantity": "Enter a whole number greater than zero.",
+      "returnDate": "Enter a valid expected return date.",
+      "returnBeforeStart": "The expected return date cannot be before the hold start date.",
+      "stale": "The enrollment status changed after this draft was created. Review and save the draft before trying to confirm again.",
+      "active": "There is already an active enrollment hold process.",
+      "permission": "You do not have permission to perform this operation."
+    },
+    "confirmModal": {
+      "title": "Confirm enrollment hold",
+      "message": "After confirmation, the enrollment status will become On hold. Existing academic history will be preserved.",
+      "confirm": "Confirm hold",
+      "cancel": "Back"
+    },
+    "history": {
+      "title": "Enrollment hold history",
+      "subtitle": "All processes recorded for this enrollment.",
+      "empty": "No enrollment holds have been recorded yet.",
+      "protocol": "Protocol",
+      "status": "Status",
+      "previousStatus": "Previous status",
+      "period": "Period",
+      "duration": "Duration",
+      "reason": "Reason",
+      "registeredBy": "Recorded by",
+      "confirmedBy": "Confirmed by",
+      "createdAt": "Created on",
+      "confirmedAt": "Confirmed on",
+      "documents": "Generated documents",
+      "noReturn": "No expected return"
+    },
+    "processStatus": {
+      "RASCUNHO": "Draft",
+      "CONFIRMADO": "Confirmed",
+      "ENCERRADO": "Closed",
+      "CANCELADO": "Canceled"
+    }
+  },
   "AdminFuncionariosPermissoes": {
     "back": "← Back to Employees",
     "title": "🔐 Individual employee permissions",

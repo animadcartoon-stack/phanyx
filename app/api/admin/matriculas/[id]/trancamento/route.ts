@@ -1204,6 +1204,9 @@ export async function PATCH(
                 },
 
                 data: {
+                  statusAnterior:
+                    matricula!.status,
+
                   motivo:
                     dados.motivo,
 
