@@ -2,6 +2,9 @@
 
 import { upload } from "@vercel/blob/client";
 import Link from "next/link";
+import CatalogacaoRelacionamentos from "@/components/admin/biblioteca/CatalogacaoRelacionamentos";
+import EtiquetaExemplar from "@/components/admin/biblioteca/EtiquetaExemplar";
+import EtiquetasLote from "@/components/admin/biblioteca/EtiquetasLote";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -169,6 +172,7 @@ type ExemplarItem = {
   unidadeSnapshot: string | null;
   setor: string | null;
   sala: string | null;
+  corredor: string | null;
   estante: string | null;
   prateleira: string | null;
   localizacaoCompleta: string | null;
@@ -202,6 +206,7 @@ type FormularioExemplar = {
   unidadeSnapshot: string;
   setor: string;
   sala: string;
+  corredor: string;
   estante: string;
   prateleira: string;
   localizacaoCompleta: string;
@@ -304,6 +309,9 @@ type ItemDetalhe = {
   numeroPaginas: number | null;
   duracaoSegundos: number | null;
   classificacaoBibliografica: string | null;
+  sistemaClassificacao: "CDD" | "CDU" | "OUTRO" | null;
+  edicaoClassificacao: string | null;
+  codigoCutter: string | null;
   codigoChamada: string | null;
   cdd: string | null;
   cdu: string | null;
@@ -357,6 +365,9 @@ type FormularioItem = {
   numeroPaginas: string;
   duracaoSegundos: string;
   classificacaoBibliografica: string;
+  sistemaClassificacao: string;
+  edicaoClassificacao: string;
+  codigoCutter: string;
   codigoChamada: string;
   cdd: string;
   cdu: string;
@@ -393,6 +404,16 @@ type RespostaItem = {
 
   configuracao?: {
     permitirDownload: boolean;
+
+    sistemaClassificacaoPadrao:
+      | "CDD"
+      | "CDU"
+      | "OUTRO";
+
+    edicaoCDDPadrao: string | null;
+    edicaoCDUPadrao: string | null;
+    usarCutter: boolean;
+    gerarCodigoChamadaAutomaticamente: boolean;
   };
 
   armazenamento?: ArmazenamentoBiblioteca;
@@ -658,6 +679,9 @@ function criarFormulario(item: ItemDetalhe): FormularioItem {
     numeroPaginas: item.numeroPaginas ? String(item.numeroPaginas) : "",
     duracaoSegundos: item.duracaoSegundos ? String(item.duracaoSegundos) : "",
     classificacaoBibliografica: item.classificacaoBibliografica || "",
+    sistemaClassificacao: item.sistemaClassificacao || "",
+    edicaoClassificacao: item.edicaoClassificacao || "",
+    codigoCutter: item.codigoCutter || "",
     codigoChamada: item.codigoChamada || "",
     cdd: item.cdd || "",
     cdu: item.cdu || "",
@@ -687,6 +711,7 @@ const FORMULARIO_EXEMPLAR_INICIAL: FormularioExemplar = {
   unidadeSnapshot: "",
   setor: "",
   sala: "",
+  corredor: "",
   estante: "",
   prateleira: "",
   localizacaoCompleta: "",
@@ -858,6 +883,20 @@ export default function BibliotecaItemPage() {
   const [salvandoLink, setSalvandoLink] = useState(false);
   const [impersonacao, setImpersonacao] = useState(false);
   const [downloadPermitido, setDownloadPermitido] = useState(false);
+
+  const [
+    configuracaoCatalogacao,
+    setConfiguracaoCatalogacao,
+  ] = useState({
+    sistemaClassificacaoPadrao:
+      "CDD" as "CDD" | "CDU" | "OUTRO",
+    edicaoCDDPadrao:
+      "23" as string | null,
+    edicaoCDUPadrao:
+      null as string | null,
+    usarCutter: true,
+    gerarCodigoChamadaAutomaticamente: true,
+  });
 
   const [instituicaoId, setInstituicaoId] = useState<number | null>(null);
 
@@ -1091,6 +1130,34 @@ export default function BibliotecaItemPage() {
         setPodeRetirar(resultado.permissoes?.podeRetirar === true);
         setImpersonacao(resultado.permissoes?.impersonacao === true);
         setDownloadPermitido(resultado.configuracao?.permitirDownload === true);
+
+        setConfiguracaoCatalogacao({
+          sistemaClassificacaoPadrao:
+            resultado.configuracao
+              ?.sistemaClassificacaoPadrao ??
+            "CDD",
+
+          edicaoCDDPadrao:
+            resultado.configuracao
+              ?.edicaoCDDPadrao ??
+            "23",
+
+          edicaoCDUPadrao:
+            resultado.configuracao
+              ?.edicaoCDUPadrao ??
+            null,
+
+          usarCutter:
+            resultado.configuracao
+              ?.usarCutter ??
+            true,
+
+          gerarCodigoChamadaAutomaticamente:
+            resultado.configuracao
+              ?.gerarCodigoChamadaAutomaticamente ??
+            true,
+        });
+
         setInstituicaoId(
           Number.isInteger(resultado.instituicaoId)
             ? resultado.instituicaoId!
@@ -1630,6 +1697,78 @@ export default function BibliotecaItemPage() {
 
     return JSON.stringify(formulario) !== JSON.stringify(criarFormulario(item));
   }, [formulario, item]);
+
+  const previaCatalogacao =
+    useMemo(() => {
+      if (!formulario) {
+        return {
+          sistema: configuracaoCatalogacao
+            .sistemaClassificacaoPadrao,
+
+          edicao: null as string | null,
+
+          codigoChamada:
+            null as string | null,
+        };
+      }
+
+      const sistema =
+        formulario
+          .sistemaClassificacao ||
+        configuracaoCatalogacao
+          .sistemaClassificacaoPadrao;
+
+      const edicaoInformada =
+        formulario
+          .edicaoClassificacao
+          .trim();
+
+      const edicao =
+        edicaoInformada ||
+        (
+          sistema === "CDD"
+            ? configuracaoCatalogacao
+                .edicaoCDDPadrao
+            : sistema === "CDU"
+              ? configuracaoCatalogacao
+                  .edicaoCDUPadrao
+              : null
+        );
+
+      const classificacao =
+        sistema === "CDD"
+          ? formulario.cdd.trim()
+          : sistema === "CDU"
+            ? formulario.cdu.trim()
+            : formulario
+                .classificacaoBibliografica
+                .trim();
+
+      const cutter =
+        configuracaoCatalogacao
+          .usarCutter
+          ? formulario
+              .codigoCutter
+              .trim()
+          : "";
+
+      const partes = [
+        classificacao,
+        cutter,
+      ].filter(Boolean);
+
+      return {
+        sistema,
+        edicao,
+        codigoChamada:
+          partes.length
+            ? partes.join(" ")
+            : null,
+      };
+    }, [
+      formulario,
+      configuracaoCatalogacao,
+    ]);
 
   function alterar<K extends keyof FormularioItem>(
     campo: K,
@@ -2554,6 +2693,8 @@ export default function BibliotecaItemPage() {
 
       sala: exemplar.sala || "",
 
+      corredor: exemplar.corredor || "",
+
       estante: exemplar.estante || "",
 
       prateleira: exemplar.prateleira || "",
@@ -2736,6 +2877,8 @@ export default function BibliotecaItemPage() {
           setor: formularioExemplar.setor.trim() || null,
 
           sala: formularioExemplar.sala.trim() || null,
+
+          corredor: formularioExemplar.corredor.trim() || null,
 
           estante: formularioExemplar.estante.trim() || null,
 
@@ -4006,17 +4149,94 @@ export default function BibliotecaItemPage() {
 
             <div className="bib-detail-grid">
               <label className="bib-field">
-                <span>{ui("bibliographicClassification")}</span>
+                <span>{ui("classificationSystem")}</span>
+                <select
+                  className="bib-input"
+                  value={formulario.sistemaClassificacao}
+                  onChange={(evento) =>
+                    alterar("sistemaClassificacao", evento.target.value)
+                  }
+                  disabled={camposBloqueados}
+                >
+                  <option value="">
+                    {ui("classificationSystemNone")}
+                  </option>
+                  <option value="CDD">CDD</option>
+                  <option value="CDU">CDU</option>
+                  <option value="OUTRO">
+                    {ui("classificationSystemOther")}
+                  </option>
+                </select>
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("classificationEdition")}</span>
                 <input
                   className="bib-input"
-                  value={formulario.classificacaoBibliografica}
+                  value={formulario.edicaoClassificacao}
                   onChange={(evento) =>
-                    alterar("classificacaoBibliografica", evento.target.value)
+                    alterar("edicaoClassificacao", evento.target.value)
                   }
-                  maxLength={120}
+                  maxLength={80}
+                  disabled={camposBloqueados}
+                  placeholder={
+                    previaCatalogacao.edicao ||
+                    undefined
+                  }
+                />
+
+                {previaCatalogacao.edicao ? (
+                  <small className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                    {ui(
+                      "classificationEditionInstitutionDefault",
+                      {
+                        edition:
+                          previaCatalogacao.edicao,
+                      }
+                    )}
+                  </small>
+                ) : null}
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("cutterCode")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.codigoCutter}
+                  onChange={(evento) =>
+                    alterar("codigoCutter", evento.target.value)
+                  }
+                  maxLength={80}
                   disabled={camposBloqueados}
                 />
               </label>
+
+              <label className="bib-field">
+                <span>CDD</span>
+                <input
+                  className="bib-input"
+                  value={formulario.cdd}
+                  onChange={(evento) =>
+                    alterar("cdd", evento.target.value)
+                  }
+                  maxLength={80}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>CDU</span>
+                <input
+                  className="bib-input"
+                  value={formulario.cdu}
+                  onChange={(evento) =>
+                    alterar("cdu", evento.target.value)
+                  }
+                  maxLength={80}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
               <label className="bib-field">
                 <span>{ui("callNumber")}</span>
                 <input
@@ -4027,41 +4247,79 @@ export default function BibliotecaItemPage() {
                   }
                   maxLength={120}
                   disabled={camposBloqueados}
+                  placeholder={
+                    !formulario
+                      .codigoChamada
+                      .trim() &&
+                    configuracaoCatalogacao
+                      .gerarCodigoChamadaAutomaticamente
+                      ? previaCatalogacao
+                          .codigoChamada ||
+                        undefined
+                      : undefined
+                  }
+                />
+
+                {formulario.codigoChamada.trim() ? (
+                  <small className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                    {ui(
+                      "manualCallNumberPreserved"
+                    )}
+                  </small>
+                ) : configuracaoCatalogacao
+                    .gerarCodigoChamadaAutomaticamente &&
+                  previaCatalogacao
+                    .codigoChamada ? (
+                  <small className="mt-1 block text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                    {ui(
+                      "automaticCallNumberPreview",
+                      {
+                        value:
+                          previaCatalogacao
+                            .codigoChamada,
+                      }
+                    )}
+
+                    {" "}
+
+                    {ui(
+                      "automaticCallNumberSaveHelp"
+                    )}
+                  </small>
+                ) : null}
+              </label>
+
+              <label className="bib-field bib-field-span-2">
+                <span>{ui("otherClassification")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.classificacaoBibliografica}
+                  onChange={(evento) =>
+                    alterar(
+                      "classificacaoBibliografica",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={120}
+                  disabled={camposBloqueados}
                 />
               </label>
+
               <label className="bib-field">
                 <span>{ui("contentRating")}</span>
                 <input
                   className="bib-input"
                   value={formulario.classificacaoIndicativa}
                   onChange={(evento) =>
-                    alterar("classificacaoIndicativa", evento.target.value)
+                    alterar(
+                      "classificacaoIndicativa",
+                      evento.target.value
+                    )
                   }
                   maxLength={80}
                   disabled={camposBloqueados}
                 />
               </label>
-              <label className="bib-field">
-                <span>CDD</span>
-                <input
-                  className="bib-input"
-                  value={formulario.cdd}
-                  onChange={(evento) => alterar("cdd", evento.target.value)}
-                  maxLength={80}
-                  disabled={camposBloqueados}
-                />
-              </label>
-              <label className="bib-field">
-                <span>CDU</span>
-                <input
-                  className="bib-input"
-                  value={formulario.cdu}
-                  onChange={(evento) => alterar("cdu", evento.target.value)}
-                  maxLength={80}
-                  disabled={camposBloqueados}
-                />
-              </label>
-              <div className="bib-field" />
               <label className="bib-field bib-field-span-2">
                 <span>{ui("coverUrl")}</span>
                 <input
@@ -4218,65 +4476,17 @@ export default function BibliotecaItemPage() {
             </label>
           </section>
 
-          <section className="bib-card bib-detail-section">
-            <header className="bib-detail-section-heading">
-              <div>
-                <span aria-hidden="true">👥</span>
-                <div>
-                  <h2>{ui("relationshipsTitle")}</h2>
-                  <p>{ui("relationshipsDescription")}</p>
-                </div>
-              </div>
-              <span className="bib-readonly-chip">
-                {ui("separateManagement")}
-              </span>
-            </header>
-
-            <div className="bib-relationship-grid">
-              <article className="bib-relationship-card">
-                <h3>{ui("publisher")}</h3>
-                {item.editora ? (
-                  <span className="bib-tag">🏢 {item.editora.nome}</span>
-                ) : (
-                  <p>{ui("noPublisher")}</p>
-                )}
-              </article>
-              <article className="bib-relationship-card">
-                <h3>{ui("authors")}</h3>
-                {item.autores.length ? (
-                  <div className="bib-tag-list">
-                    {item.autores.map((vinculo) => (
-                      <span
-                        className="bib-tag"
-                        key={`${vinculo.autor.id}-${vinculo.funcao}`}
-                      >
-                        {vinculo.autor.nome} ·{" "}
-                        {rotuloEnumLocalizado(vinculo.funcao)}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p>{ui("noAuthors")}</p>
-                )}
-              </article>
-              <article className="bib-relationship-card">
-                <h3>{ui("categories")}</h3>
-                {item.categorias.length ? (
-                  <div className="bib-tag-list">
-                    {item.categorias.map((vinculo) => (
-                      <span className="bib-tag" key={vinculo.categoria.id}>
-                        {vinculo.categoria.icone || "🏷️"}{" "}
-                        {vinculo.categoria.nome}
-                        {vinculo.principal ? ui("principalSuffix") : ""}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p>{ui("noCategories")}</p>
-                )}
-              </article>
-            </div>
-          </section>
+                    <CatalogacaoRelacionamentos
+            itemId={item.id}
+            podeEditar={podeEditar}
+            impersonacao={impersonacao}
+            editora={item.editora}
+            autores={item.autores}
+            categorias={item.categorias}
+            onSaved={() =>
+              setAtualizacao((valor) => valor + 1)
+            }
+          />
 
           <section className="bib-related-grid">
             <article className="bib-card bib-detail-section">
@@ -4489,7 +4699,11 @@ export default function BibliotecaItemPage() {
                   </div>
                 </div>
 
-                <div className="bib-exemplar-actions"></div>
+                <div className="bib-exemplar-actions">
+                  <EtiquetasLote
+                    itemId={item.id}
+                  />
+                </div>
 
                 {podeGerenciarExemplares && !impersonacao ? (
                   <button
@@ -4550,6 +4764,13 @@ export default function BibliotecaItemPage() {
                       </div>
 
                       <div className="bib-exemplar-actions">
+                        {exemplar.tipo === "FISICO" &&
+                        !exemplar.baixadoEm ? (
+                          <EtiquetaExemplar
+                            exemplarId={exemplar.id}
+                          />
+                        ) : null}
+
                         {podeGerenciarExemplares &&
                         !impersonacao &&
                         !exemplar.baixadoEm ? (
@@ -7124,6 +7345,20 @@ export default function BibliotecaItemPage() {
                       value={formularioExemplar.sala}
                       onChange={(evento) =>
                         alterarExemplar("sala", evento.target.value)
+                      }
+                      maxLength={120}
+                      disabled={salvandoExemplar}
+                    />
+                  </label>
+
+                  <label className="bib-field">
+                    <span>{ui("corridor")}</span>
+
+                    <input
+                      className="bib-input"
+                      value={formularioExemplar.corredor}
+                      onChange={(evento) =>
+                        alterarExemplar("corredor", evento.target.value)
                       }
                       maxLength={120}
                       disabled={salvandoExemplar}

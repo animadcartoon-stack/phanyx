@@ -275,9 +275,8 @@
     "registrationData": "Dados de registo",
     "registrationDescription": "Mantenha os seus dados atualizados para contratos, documentos e registos académicos.",
     "updateMyData": "Atualizar os meus dados",
+    "mobilityShort": "Intercâmbio",
     "library": "Biblioteca"
-  ,
-    "mobilityShort": "Intercâmbio"
   },
   "StudentSidebar": {
     "areaTitle": "Área do Aluno",
@@ -294,9 +293,8 @@
     "meetings": "Reuniões",
     "certificates": "Certificados",
     "ombudsman": "Provedoria",
+    "internationalMobility": "Mobilidade Internacional",
     "library": "Biblioteca"
-  ,
-    "internationalMobility": "Mobilidade Internacional"
   },
   "StudentMobility": {
     "eyebrow": "Mobilidade Internacional",
@@ -347,8 +345,7 @@
       "REJEITADO": "Rejeitado",
       "CORRECAO_SOLICITADA": "Correção solicitada",
       "EXPIRADO": "Expirado"
-    }
-  ,
+    },
     "upload": {
       "title": "Enviar documento",
       "replaceTitle": "Substituir documento",
@@ -5508,9 +5505,9 @@
     },
     "filters": {
       "title": "Pesquisar no acervo",
-      "description": "Localize itens por título, ISBN, ISSN ou DOI.",
+      "description": "Localize por título, autor, editora, assunto, palavra-chave, ISBN, ISSN, DOI, CDD, CDU, Cutter ou cota.",
       "searchLabel": "Pesquisa",
-      "searchPlaceholder": "Introduza o título ou identificador",
+      "searchPlaceholder": "Título, autor, assunto, ISBN, CDD, Cutter...",
       "typeLabel": "Tipo",
       "allTypes": "Todos os tipos",
       "statusLabel": "Estado",
@@ -5549,10 +5546,14 @@
       "identifier": "Identificador",
       "noIdentifier": "Sem identificador",
       "year": "Ano",
+      "callNumber": "Cota",
       "files": "{count, plural, =0 {0 ficheiros} one {1 ficheiro} other {# ficheiros}}",
       "copies": "{count, plural, =0 {0 exemplares} one {1 exemplar} other {# exemplares}}",
       "updatedAt": "Atualizado em {date}",
-      "open": "Abrir item →"
+      "open": "Abrir item →",
+      "author": "Autor",
+      "publisher": "Editora",
+      "subject": "Assunto"
     },
     "pagination": {
       "ariaLabel": "Paginação do acervo",
@@ -5602,7 +5603,48 @@
       "physicalLoan": "Empréstimo físico",
       "streaming": "Streaming",
       "externalLink": "Ligação externa"
-    }
+    },
+    "globalBatchButton": "Imprimir etiquetas em lote",
+    "globalBatchTitle": "Etiquetas em lote do acervo",
+    "globalBatchDescription": "Selecione exemplares físicos de diferentes obras do acervo.",
+    "globalBatchPreviewDescription": "Confirme as etiquetas selecionadas antes de abrir a impressão A4.",
+    "globalBatchLoading": "A carregar exemplares físicos...",
+    "globalBatchLoadError": "Não foi possível carregar os exemplares para impressão.",
+    "globalBatchRetry": "Tentar novamente",
+    "globalBatchClose": "Fechar",
+    "globalBatchSearchLabel": "Pesquisar exemplares",
+    "globalBatchSearchPlaceholder": "Título, código, tombo, ISBN ou classificação...",
+    "globalBatchEligible": "{count} exemplares encontrados",
+    "globalBatchSelected": "{count} exemplares selecionados",
+    "globalBatchSelectFiltered": "Selecionar resultados",
+    "globalBatchClear": "Limpar seleção",
+    "globalBatchLabelType": "Tipo de etiqueta",
+    "globalBatchSpine": "Etiquetas de lombada",
+    "globalBatchBarcode": "Códigos de barras",
+    "globalBatchBoth": "Lombada + código de barras",
+    "globalBatchNoCopies": "Nenhum exemplar físico ativo encontrado.",
+    "globalBatchCancel": "Cancelar",
+    "globalBatchPreview": "Visualizar folha A4",
+    "globalBatchEstimatedPages": "Páginas previstas: {count}",
+    "globalBatchMore": "Mais {count} etiquetas selecionadas não aparecem nesta pré-visualização reduzida.",
+    "globalBatchCapacityNote": "Cada exemplar gera 1 etiqueta. Uma folha A4 comporta até 45 etiquetas de lombada ou 21 códigos de barras.",
+    "globalBatchPrintNote": "Imprima em A4, escala 100%, 1 página por folha e com cabeçalhos e rodapés desativados.",
+    "globalBatchBack": "Voltar à seleção",
+    "globalBatchPrint": "Imprimir folha A4",
+    "globalBatchStartTitle": "Clique na primeira etiqueta que ainda está disponível na sua folha.",
+    "globalBatchStartDescription": "Clique na primeira etiqueta ainda livre. As posições anteriores serão consideradas já utilizadas.",
+    "globalBatchStartSpine": "Folha de etiquetas de lombada",
+    "globalBatchStartBarcode": "Folha de códigos de barras",
+    "globalBatchStartHelp": "Use 1 para uma folha nova. Posi??es dispon?veis: 1 a {max}.",
+    "globalBatchPartialToggle": "A folha já foi utilizada",
+    "globalBatchPartialToggleHelp": "Selecione esta opção para aproveitar etiquetas ainda disponíveis numa folha parcialmente utilizada.",
+    "globalBatchSpineLayout": "5 colunas × 9 linhas · 45 posições",
+    "globalBatchBarcodeLayout": "3 colunas × 7 linhas · 21 posições",
+    "globalBatchPositionAria": "Começar na posição {position}",
+    "globalBatchLegendUsed": "Já utilizada",
+    "globalBatchLegendStart": "Primeira livre",
+    "globalBatchLegendFree": "Livre",
+    "globalBatchNewSheet": "Folha nova: a impressão começará automaticamente na primeira posição."
   },
   "AdminExternalActivities": {
     "eyebrow": "Gestão académica",
@@ -5815,17 +5857,22 @@
     "durationSeconds": "Duração em segundos",
     "classificationTitle": "Classificação e apresentação",
     "classificationDescription": "Organização física, capa e classificação indicativa.",
+    "classificationSystem": "Sistema de classificação",
+    "classificationSystemNone": "Não indicado",
+    "classificationSystemDefault": "Predefinição da instituição ({system})",
+    "classificationEditionInstitutionDefault": "Edição sugerida pela instituição: {edition}",
+    "automaticCallNumberPreview": "Pré-visualização automática: {value}",
+    "automaticCallNumberSaveHelp": "Será gerada ao guardar se o campo permanecer vazio.",
+    "manualCallNumberPreserved": "Valor manual: o PHANYX preservará esta cota.",
+    "classificationSystemOther": "Outro",
+    "classificationEdition": "Edição da classificação",
+    "cutterCode": "Código Cutter",
+    "otherClassification": "Outra classificação / classificação complementar",
     "bibliographicClassification": "Classificação bibliográfica",
     "callNumber": "Código de chamada",
     "contentRating": "Classificação indicativa",
     "coverUrl": "URL da capa",
     "thumbnailUrl": "URL da miniatura",
-    "uploadCover": "Enviar imagem da capa",
-    "coverUploading": "A enviar capa...",
-    "coverUploadHelp": "PNG, JPEG ou WebP, até 4 MB. Guarde as alterações após o envio.",
-    "coverUploadInvalid": "Escolha uma imagem PNG, JPEG ou WebP até 4 MB.",
-    "coverUploadError": "Não foi possível enviar a capa.",
-    "coverUploadSuccess": "Capa enviada. Guarde as alterações para a aplicar ao item.",
     "accessTitle": "Acesso e recursos",
     "accessDescription": "Regras aplicadas quando o material for publicado.",
     "accessMode": "Modalidade de acesso",
@@ -5851,6 +5898,76 @@
     "noAuthors": "Nenhum autor vinculado.",
     "categories": "Categorias",
     "noCategories": "Nenhuma categoria vinculada.",
+    "loadBibliographicReferencesError": "Não foi possível carregar autores, editoras e assuntos.",
+    "loadingBibliographicReferences": "A carregar autores, editoras e assuntos...",
+    "saveBibliographicRelationships": "Guardar vínculos bibliográficos",
+    "savingBibliographicRelationships": "A guardar vínculos...",
+    "saveBibliographicRelationshipsSuccess": "Vínculos bibliográficos atualizados com sucesso.",
+    "saveBibliographicRelationshipsError": "Não foi possível guardar os vínculos bibliográficos.",
+    "bibliographicRelationshipsReadOnly": "Apenas leitura",
+    "selectPublisher": "Selecione uma editora",
+    "selectAuthor": "Selecione um autor",
+    "selectSubject": "Selecione um assunto",
+    "add": "Adicionar",
+    "remove": "Remover",
+    "currentlyLinked": "Atualmente vinculada",
+    "authorOrder": "Ordem de autoria: {order}",
+    "moveAuthorUp": "Mover autor para cima",
+    "moveAuthorDown": "Mover autor para baixo",
+    "subjectsAndCategories": "Assuntos / categorias",
+    "principalSubject": "Assunto principal",
+    "noSubjects": "Nenhum assunto vinculado.",
+    "createBibliographicReference": "+ Criar autor, editora ou assunto",
+    "referenceType": "Tipo de registo",
+    "referenceName": "Nome",
+    "referenceAuthor": "Autor",
+    "referencePublisher": "Editora",
+    "referenceSubject": "Assunto / categoria",
+    "authorSortName": "Nome para ordenação",
+    "authorSortNamePlaceholder": "Ex.: Willmington, Harold L.",
+    "creatingBibliographicReference": "A criar...",
+    "createBibliographicReferenceAction": "Criar e vincular",
+    "bibliographicReferenceCreated": "Registo bibliográfico criado e vinculado.",
+    "bibliographicReferenceAlreadyExists": "O registo já existia e foi vinculado à obra.",
+    "createBibliographicReferenceError": "Não foi possível criar o registo bibliográfico.",
+    "roleAuthor": "Autor",
+    "roleCoauthor": "Coautor",
+    "roleOrganizer": "Organizador",
+    "roleEditor": "Editor",
+    "roleTranslator": "Tradutor",
+    "roleSupervisor": "Orientador",
+    "roleCollaborator": "Colaborador",
+    "spineLabel": "Etiqueta de lombada",
+    "barcodeLabel": "Código de barras",
+    "labelsAndBarcodes": "Etiquetas do exemplar",
+    "labelPreviewDescription": "Confirme a etiqueta antes de imprimir.",
+    "loadingLabel": "A preparar etiqueta...",
+    "labelLoadError": "Não foi possível carregar os dados da etiqueta.",
+    "barcodeRenderError": "Não foi possível gerar o código de barras.",
+    "printWindowBlocked": "O navegador bloqueou a janela de impressão.",
+    "noCallNumber": "Sem cota",
+    "copyCode": "Código do exemplar",
+    "printLabel": "Imprimir etiqueta",
+    "printLibraryLabel": "Etiqueta da biblioteca",
+    "batchLabels": "Imprimir etiquetas em lote",
+    "batchLabelsDescription": "Selecione os exemplares físicos e o tipo de etiqueta.",
+    "batchLabelsPreviewDescription": "Confirme a distribuição antes de abrir a impressão A4.",
+    "batchLabelsLoadError": "Não foi possível carregar os exemplares para impressão.",
+    "loadingBatchLabels": "A preparar lote de etiquetas...",
+    "selectedCopies": "{selected} de {total} exemplares selecionados",
+    "selectAll": "Selecionar todos",
+    "clearSelection": "Limpar seleção",
+    "labelType": "Tipo de etiqueta",
+    "batchSpine": "Etiquetas de lombada",
+    "batchBarcode": "Códigos de barras",
+    "batchBoth": "Lombada + código de barras",
+    "previewA4": "Visualizar folha A4",
+    "noEligibleCopiesForLabels": "Não existem exemplares físicos ativos disponíveis para etiquetas.",
+    "batchA4Note": "Para manter as medidas reais, imprima em A4, escala 100%, 1 página por folha e desative cabeçalhos e rodapés.",
+    "backToSelection": "Voltar à seleção",
+    "printA4": "Imprimir folha A4",
+    "batchEstimatedPages": "Páginas previstas: {count}",
+    "batchCapacityNote": "Cada exemplar gera 1 etiqueta. Uma folha A4 comporta até 45 etiquetas de lombada ou 21 códigos de barras.",
     "digitalFiles": "Ficheiros digitais",
     "history": "🕘 Histórico",
     "uploadingFile": "Enviando ficheiro...",
@@ -5881,22 +5998,6 @@
     "unsavedChanges": "Existem alterações não salvas",
     "noChanges": "Nenhuma alteração realizada",
     "publicationStatusUnchanged": "O status de publicação não será alterado por esta ecrã.",
-    "publishItem": "Publicar no catálogo",
-    "publishTitle": "Publicar item",
-    "publishDescription": "Confirme a publicação para alunos e professores desta instituição.",
-    "publishNotice": "O item ficará visível no catálogo assim que a publicação estiver concluída. Confirme os dados e os direitos de acesso antes de continuar.",
-    "publishing": "A publicar...",
-    "publishSuccess": "Item publicado no catálogo.",
-    "publishError": "Não foi possível publicar o item.",
-    "externalLinkLabel": "Endereço para leitura online (HTTPS)",
-    "saveExternalLink": "Guardar ligação externa",
-    "externalLinkSuccess": "Ligação externa guardada.",
-    "externalLinkError": "Não foi possível guardar a ligação externa.",
-    "withdrawItem": "Retirar do catálogo",
-    "withdrawNotice": "O item deixará de aparecer para alunos e professores e regressará a rascunho. O histórico será preservado.",
-    "withdrawing": "A retirar...",
-    "withdrawSuccess": "Item retirado do catálogo.",
-    "withdrawError": "Não foi possível retirar o item.",
     "cancel": "Cancelar",
     "saving": "A guardar...",
     "saveChanges": "Guardar alterações",
@@ -6001,6 +6102,7 @@
     "unitCampus": "Unidade / Polo",
     "department": "Sector",
     "room": "Sala",
+    "corridor": "Corredor",
     "shelfUnit": "Estante",
     "shelf": "Prateleira",
     "fullLocation": "Localização completa",
@@ -6210,7 +6312,42 @@
     "renewalQueueBlocked": "A renovação foi bloqueada porque outra pessoa está a aguardar este item na fila de reservas.",
     "renewalNotActive": "Este empréstimo já não está ativo.",
     "renewalLimitLabel": "Limite",
-    "renewalLimitReachedShort": "Limite de renovações atingido"
+    "renewalLimitReachedShort": "Limite de renovações atingido",
+    "uploadCover": "Enviar imagem da capa",
+    "coverUploading": "A enviar capa...",
+    "coverUploadHelp": "PNG, JPEG ou WebP, até 4 MB. Guarde as alterações após o envio.",
+    "coverUploadInvalid": "Escolha uma imagem PNG, JPEG ou WebP até 4 MB.",
+    "coverUploadError": "Não foi possível enviar a capa.",
+    "coverUploadSuccess": "Capa enviada. Guarde as alterações para a aplicar ao item.",
+    "publishItem": "Publicar no catálogo",
+    "publishTitle": "Publicar item",
+    "publishDescription": "Confirme a publicação para alunos e professores desta instituição.",
+    "publishNotice": "O item ficará visível no catálogo assim que a publicação estiver concluída. Confirme os dados e os direitos de acesso antes de continuar.",
+    "publishing": "A publicar...",
+    "publishSuccess": "Item publicado no catálogo.",
+    "publishError": "Não foi possível publicar o item.",
+    "externalLinkLabel": "Endereço para leitura online (HTTPS)",
+    "saveExternalLink": "Guardar ligação externa",
+    "externalLinkSuccess": "Ligação externa guardada.",
+    "externalLinkError": "Não foi possível guardar a ligação externa.",
+    "withdrawItem": "Retirar do catálogo",
+    "withdrawNotice": "O item deixará de aparecer para alunos e professores e regressará a rascunho. O histórico será preservado.",
+    "withdrawing": "A retirar...",
+    "withdrawSuccess": "Item retirado do catálogo.",
+    "withdrawError": "Não foi possível retirar o item.",
+    "batchPartialToggle": "A folha já foi utilizada",
+    "batchPartialToggleHelp": "Selecione esta opção para aproveitar etiquetas ainda disponíveis numa folha parcialmente utilizada.",
+    "batchStartTitle": "Clique na primeira etiqueta que ainda está disponível na sua folha.",
+    "batchStartDescription": "As posições anteriores serão consideradas já utilizadas.",
+    "batchStartSpine": "Folha de etiquetas de lombada",
+    "batchStartBarcode": "Folha de códigos de barras",
+    "batchSpineLayout": "5 colunas × 9 linhas · 45 posições",
+    "batchBarcodeLayout": "3 colunas × 7 linhas · 21 posições",
+    "batchPositionAria": "Começar na posição {position}",
+    "batchLegendUsed": "Já utilizada",
+    "batchLegendStart": "Primeira livre",
+    "batchLegendFree": "Livre",
+    "batchNewSheet": "Folha nova: a impressão começará automaticamente na primeira posição."
   },
   "AdminCertificates": {
     "status": {
@@ -10269,6 +10406,133 @@
       "suggestions": {
         "title": "Permitir sugestões de aquisição",
         "description": "Permite que os utilizadores sugiram novos livros, obras ou materiais para o acervo."
+      }
+    },
+    "cataloging": {
+      "eyebrow": "Catalogação",
+      "title": "Classificação bibliográfica",
+      "description": "Defina o padrão de classificação utilizado pela instituição e como o PHANYX deverá auxiliar na formação da cota.",
+      "defaultSystem": "Sistema predefinido",
+      "defaultSystemHelp": "Sistema sugerido automaticamente ao catalogar novas obras.",
+      "other": "Outro",
+      "cddEdition": "Edição predefinida da CDD",
+      "cddEditionHelp": "Ex.: 23 para a 23.ª edição da Classificação Decimal de Dewey.",
+      "udcEdition": "Edição predefinida da CDU",
+      "udcEditionHelp": "Indique a edição ou versão da CDU adotada pela instituição.",
+      "cutter": {
+        "title": "Utilizar código Cutter",
+        "description": "Permite utilizar o código Cutter na composição da cota."
+      },
+      "autoCallNumber": {
+        "title": "Gerar cota automaticamente",
+        "description": "O PHANYX poderá combinar classificação e Cutter, mantendo a possibilidade de edição manual."
+      }
+    },
+    "labelModels": {
+      "eyebrow": "Impressão e identificação",
+      "title": "Modelos de etiquetas",
+      "description": "Configure folhas para etiquetas de lombada e códigos de barras. Os modelos PHANYX permanecem protegidos e podem ser utilizados como predefinidos.",
+      "new": "Novo modelo",
+      "reload": "Recarregar",
+      "retry": "Tentar novamente",
+      "loading": "A carregar modelos de etiquetas...",
+      "empty": "Nenhum modelo disponível para este tipo.",
+      "capacity": "etiquetas / folha",
+      "copySuffix": " — cópia",
+      "systemProtected": "Modelo nativo do PHANYX. Não pode ser alterado nem eliminado; duplique-o para criar uma versão personalizada.",
+      "calibrationHelp": "Utilize os deslocamentos apenas para compensar pequenas diferenças físicas da impressora. Valores positivos movem a impressão para a direita ou para baixo.",
+      "types": {
+        "spine": "Lombada",
+        "barcode": "Código de barras"
+      },
+      "badges": {
+        "system": "PHANYX",
+        "manufacturer": "Fabricante",
+        "custom": "Personalizado",
+        "default": "Predefinido",
+        "inactive": "Inativo"
+      },
+      "metrics": {
+        "sheet": "Folha",
+        "label": "Etiqueta",
+        "grid": "Grelha",
+        "offset": "Calibração"
+      },
+      "actions": {
+        "setDefault": "Definir como predefinido",
+        "edit": "Editar",
+        "duplicate": "Duplicar",
+        "activate": "Ativar",
+        "deactivate": "Desativar",
+        "delete": "Eliminar"
+      },
+      "groups": {
+        "identification": "Identificação do modelo",
+        "sheet": "Folha e margens",
+        "labels": "Etiquetas e grelha",
+        "calibration": "Calibração da impressora"
+      },
+      "fields": {
+        "name": "Nome do modelo",
+        "description": "Descrição",
+        "type": "Tipo de etiqueta",
+        "brand": "Marca",
+        "manufacturerCode": "Código do fabricante",
+        "sheetWidth": "Largura da folha (mm)",
+        "sheetHeight": "Altura da folha (mm)",
+        "orientation": "Orientação",
+        "marginTop": "Margem superior (mm)",
+        "marginRight": "Margem direita (mm)",
+        "marginBottom": "Margem inferior (mm)",
+        "marginLeft": "Margem esquerda (mm)",
+        "labelWidth": "Largura da etiqueta (mm)",
+        "labelHeight": "Altura da etiqueta (mm)",
+        "columns": "Colunas",
+        "rows": "Linhas",
+        "horizontalGap": "Espaço horizontal (mm)",
+        "verticalGap": "Espaço vertical (mm)",
+        "offsetX": "Deslocamento horizontal X (mm)",
+        "offsetY": "Deslocamento vertical Y (mm)",
+        "active": "Modelo ativo",
+        "activeHelp": "Os modelos inativos permanecem registados, mas não ficam disponíveis para utilização normal.",
+        "default": "Definir como predefinido",
+        "defaultHelp": "Este modelo será selecionado inicialmente ao imprimir etiquetas deste tipo."
+      },
+      "orientation": {
+        "portrait": "Retrato",
+        "landscape": "Paisagem"
+      },
+      "modal": {
+        "eyebrow": "Modelo de folha",
+        "newTitle": "Novo modelo de etiquetas",
+        "editTitle": "Editar modelo de etiquetas",
+        "duplicateTitle": "Duplicar modelo de etiquetas",
+        "close": "Fechar",
+        "cancel": "Cancelar",
+        "saving": "A guardar...",
+        "save": "Guardar modelo"
+      },
+      "delete": {
+        "title": "Eliminar modelo de etiquetas",
+        "description": "Pretende eliminar o modelo “{name}”? Esta ação não altera os modelos nativos do PHANYX.",
+        "cancel": "Cancelar",
+        "deleting": "A eliminar...",
+        "confirm": "Eliminar modelo"
+      },
+      "validation": {
+        "name": "Indique o nome do modelo."
+      },
+      "success": {
+        "created": "Modelo de etiquetas criado com sucesso.",
+        "updated": "Modelo de etiquetas atualizado com sucesso.",
+        "deleted": "Modelo de etiquetas eliminado.",
+        "defaultChanged": "Modelo predefinido atualizado.",
+        "stateChanged": "Estado do modelo atualizado."
+      },
+      "errors": {
+        "load": "Não foi possível carregar os modelos de etiquetas.",
+        "save": "Não foi possível guardar o modelo de etiquetas.",
+        "action": "Não foi possível concluir esta ação."
       }
     },
     "circulation": {
@@ -15084,132 +15348,6 @@
       "reasonRequired": "Indique um motivo com pelo menos 3 caracteres.",
       "success": "Matrícula cancelada com sucesso.",
       "error": "Não foi possível cancelar a matrícula."
-    }
-  },
-  "AdminTrancamentoMatricula": {
-    "back": "Voltar às matrículas",
-    "title": "Trancar matrícula",
-    "subtitle": "Registe o processo de trancamento preservando o histórico académico da matrícula.",
-    "loading": "A carregar o processo de trancamento...",
-    "enrollmentId": "Matrícula #{id}",
-    "summary": {
-      "title": "Dados da matrícula",
-      "student": "Aluno",
-      "enrollment": "Matrícula",
-      "institution": "Instituição",
-      "campus": "Polo",
-      "course": "Curso",
-      "class": "Turma",
-      "status": "Situação atual"
-    },
-    "process": {
-      "title": "Processo de trancamento",
-      "description": "Preencha os dados abaixo. O protocolo é gerado automaticamente ao guardar o primeiro rascunho.",
-      "protocol": "Protocolo",
-      "pendingProtocol": "Será gerado ao guardar",
-      "responsible": "Registado por",
-      "role": "Cargo/função",
-      "notRecorded": "Será registado automaticamente",
-      "draft": "Rascunho"
-    },
-    "form": {
-      "reason": "Motivo do trancamento",
-      "reasonPlaceholder": "Indique o motivo do trancamento da matrícula",
-      "reasonHelp": "Campo obrigatório. O motivo ficará registado no histórico do processo.",
-      "startDate": "Início do trancamento",
-      "durationUnit": "Unidade de duração",
-      "durationQuantity": "Quantidade",
-      "expectedReturn": "Previsão de regresso",
-      "expectedReturnOptional": "Previsão de regresso (opcional)",
-      "observations": "Observações",
-      "observationsPlaceholder": "Informações adicionais sobre o processo, se necessário",
-      "selectUnit": "Selecione",
-      "days": "Dias",
-      "months": "Meses",
-      "semesters": "Semestres",
-      "indefinite": "Prazo indeterminado"
-    },
-    "actions": {
-      "saveDraft": "Guardar rascunho",
-      "saving": "A guardar...",
-      "confirm": "Confirmar trancamento",
-      "confirming": "A confirmar..."
-    },
-    "warnings": {
-      "title": "Atenção",
-      "confirmed": "Já existe um trancamento confirmado em aberto para esta matrícula.",
-      "blocked": "Esta matrícula encontra-se numa situação que não permite iniciar ou alterar um processo de trancamento.",
-      "quarantine": "Esta matrícula está em quarentena e não pode ser trancada."
-    },
-    "messages": {
-      "draftSaved": "Rascunho do trancamento guardado com sucesso.",
-      "confirmed": "Trancamento confirmado com sucesso.",
-      "saveFirst": "Guarde o rascunho antes de confirmar o trancamento."
-    },
-    "errors": {
-      "generic": "Não foi possível concluir a operação.",
-      "load": "Não foi possível carregar o processo de trancamento.",
-      "reason": "Indique um motivo com pelo menos 3 caracteres.",
-      "startDate": "Indique uma data válida para o início do trancamento.",
-      "unit": "Selecione a unidade de duração.",
-      "quantity": "Indique uma quantidade inteira superior a zero.",
-      "returnDate": "Indique uma previsão de regresso válida.",
-      "returnBeforeStart": "A previsão de regresso não pode ser anterior ao início do trancamento.",
-      "stale": "A situação da matrícula mudou depois da criação do rascunho. Reveja e guarde o rascunho antes de tentar confirmar novamente.",
-      "active": "Já existe um processo de trancamento ativo para esta matrícula.",
-      "permission": "Não possui permissão para realizar esta operação."
-    },
-    "confirmModal": {
-      "title": "Confirmar trancamento",
-      "message": "Ao confirmar, a matrícula passará para a situação Trancada. O histórico académico existente será preservado.",
-      "confirm": "Confirmar trancamento",
-      "cancel": "Voltar"
-    },
-    "documents": {
-      "title": "Documentos do trancamento",
-      "subtitle": "Gere o documento referente ao protocolo {protocol} utilizando um modelo da instituição.",
-      "generatedCount": "Documentos gerados: {count}",
-      "template": "Modelo do documento",
-      "selectTemplate": "Selecione um modelo",
-      "loadingTemplates": "A carregar modelos de trancamento...",
-      "noTemplates": "Não existe nenhum modelo ativo do tipo Trancamento disponível.",
-      "help": "O documento será preenchido com os dados deste processo e ficará associado ao protocolo.",
-      "manageTemplates": "Gerir modelos",
-      "generate": "Gerar documento",
-      "generating": "A gerar...",
-      "openPdf": "Abrir PDF",
-      "messages": {
-        "generated": "Documento gerado com sucesso."
-      },
-      "errors": {
-        "loadTemplates": "Não foi possível carregar os modelos de trancamento.",
-        "selectTemplate": "Selecione um modelo de documento.",
-        "generate": "Não foi possível gerar o documento.",
-        "invalidResponse": "O documento foi gerado, mas não foi possível identificar o ficheiro criado."
-      }
-    },
-    "history": {
-      "title": "Histórico de trancamentos",
-      "subtitle": "Todos os processos registados para esta matrícula.",
-      "empty": "Ainda não existem trancamentos registados.",
-      "protocol": "Protocolo",
-      "status": "Situação",
-      "previousStatus": "Situação anterior",
-      "period": "Período",
-      "duration": "Duração",
-      "reason": "Motivo",
-      "registeredBy": "Registado por",
-      "confirmedBy": "Confirmado por",
-      "createdAt": "Criado em",
-      "confirmedAt": "Confirmado em",
-      "documents": "Documentos gerados",
-      "noReturn": "Sem previsão de regresso"
-    },
-    "processStatus": {
-      "RASCUNHO": "Rascunho",
-      "CONFIRMADO": "Confirmado",
-      "ENCERRADO": "Encerrado",
-      "CANCELADO": "Cancelado"
     }
   },
   "AdminFuncionariosPermissoes": {
@@ -20867,6 +21005,22 @@
       "sendLink": "Enviar ligação",
       "backToLogin": "Voltar ao início de sessão"
     },
+    "choosePage": {
+      "metadataTitle": "Escolha o seu acesso | PHANYX",
+      "welcome": "Bem-vindo ao PHANYX",
+      "title": "Como deseja entrar?",
+      "description": "Selecione o seu perfil para aceder ao ambiente da sua instituição.",
+      "studentTitle": "Estudante",
+      "studentDescription": "Aceda às aulas, notas e atividades.",
+      "studentAction": "Aceder à área do estudante",
+      "teacherTitle": "Docente",
+      "teacherDescription": "Gira turmas, aulas e avaliações.",
+      "teacherAction": "Aceder à área do docente",
+      "institutionTitle": "Instituição",
+      "institutionDescription": "Gira a sua instituição num só lugar.",
+      "institutionAction": "Aceder à administração",
+      "backToSite": "Voltar ao site"
+    },
     "passwordSecurity": {
       "strengthLabel": "Força da palavra-passe",
       "weak": "Fraca",
@@ -20904,25 +21058,8 @@
       "updateFailed": "Não foi possível atualizar a palavra-passe.",
       "save": "Guardar nova palavra-passe",
       "saving": "A guardar..."
-    },
-    "choosePage": {
-      "metadataTitle": "Escolha o seu acesso | PHANYX",
-      "welcome": "Bem-vindo ao PHANYX",
-      "title": "Como deseja entrar?",
-      "description": "Selecione o seu perfil para aceder ao ambiente da sua instituição.",
-      "studentTitle": "Estudante",
-      "studentDescription": "Aceda às aulas, notas e atividades.",
-      "studentAction": "Aceder à área do estudante",
-      "teacherTitle": "Docente",
-      "teacherDescription": "Gira turmas, aulas e avaliações.",
-      "teacherAction": "Aceder à área do docente",
-      "institutionTitle": "Instituição",
-      "institutionDescription": "Gira a sua instituição num só lugar.",
-      "institutionAction": "Aceder à administração",
-      "backToSite": "Voltar ao site"
     }
-  }
-,
+  },
   "AdminStudentsImport": {
     "action": "Importar alunos",
     "eyebrow": "GESTÃO DE ALUNOS",
@@ -21045,8 +21182,133 @@
       "groupResponsible": "Responsável: documentos, telefone, país do telefone, e-mail e parentesco.",
       "groupAccessibility": "Acessibilidade: descrição da necessidade especial e observações."
     }
-  }
-,
+  },
+  "AdminTrancamentoMatricula": {
+    "back": "Voltar às matrículas",
+    "title": "Trancar matrícula",
+    "subtitle": "Registe o processo de trancamento preservando o histórico académico da matrícula.",
+    "loading": "A carregar o processo de trancamento...",
+    "enrollmentId": "Matrícula #{id}",
+    "summary": {
+      "title": "Dados da matrícula",
+      "student": "Aluno",
+      "enrollment": "Matrícula",
+      "institution": "Instituição",
+      "campus": "Polo",
+      "course": "Curso",
+      "class": "Turma",
+      "status": "Situação atual"
+    },
+    "process": {
+      "title": "Processo de trancamento",
+      "description": "Preencha os dados abaixo. O protocolo é gerado automaticamente ao guardar o primeiro rascunho.",
+      "protocol": "Protocolo",
+      "pendingProtocol": "Será gerado ao guardar",
+      "responsible": "Registado por",
+      "role": "Cargo/função",
+      "notRecorded": "Será registado automaticamente",
+      "draft": "Rascunho"
+    },
+    "form": {
+      "reason": "Motivo do trancamento",
+      "reasonPlaceholder": "Indique o motivo do trancamento da matrícula",
+      "reasonHelp": "Campo obrigatório. O motivo ficará registado no histórico do processo.",
+      "startDate": "Início do trancamento",
+      "durationUnit": "Unidade de duração",
+      "durationQuantity": "Quantidade",
+      "expectedReturn": "Previsão de regresso",
+      "expectedReturnOptional": "Previsão de regresso (opcional)",
+      "observations": "Observações",
+      "observationsPlaceholder": "Informações adicionais sobre o processo, se necessário",
+      "selectUnit": "Selecione",
+      "days": "Dias",
+      "months": "Meses",
+      "semesters": "Semestres",
+      "indefinite": "Prazo indeterminado"
+    },
+    "actions": {
+      "saveDraft": "Guardar rascunho",
+      "saving": "A guardar...",
+      "confirm": "Confirmar trancamento",
+      "confirming": "A confirmar..."
+    },
+    "warnings": {
+      "title": "Atenção",
+      "confirmed": "Já existe um trancamento confirmado em aberto para esta matrícula.",
+      "blocked": "Esta matrícula encontra-se numa situação que não permite iniciar ou alterar um processo de trancamento.",
+      "quarantine": "Esta matrícula está em quarentena e não pode ser trancada."
+    },
+    "messages": {
+      "draftSaved": "Rascunho do trancamento guardado com sucesso.",
+      "confirmed": "Trancamento confirmado com sucesso.",
+      "saveFirst": "Guarde o rascunho antes de confirmar o trancamento."
+    },
+    "errors": {
+      "generic": "Não foi possível concluir a operação.",
+      "load": "Não foi possível carregar o processo de trancamento.",
+      "reason": "Indique um motivo com pelo menos 3 caracteres.",
+      "startDate": "Indique uma data válida para o início do trancamento.",
+      "unit": "Selecione a unidade de duração.",
+      "quantity": "Indique uma quantidade inteira superior a zero.",
+      "returnDate": "Indique uma previsão de regresso válida.",
+      "returnBeforeStart": "A previsão de regresso não pode ser anterior ao início do trancamento.",
+      "stale": "A situação da matrícula mudou depois da criação do rascunho. Reveja e guarde o rascunho antes de tentar confirmar novamente.",
+      "active": "Já existe um processo de trancamento ativo para esta matrícula.",
+      "permission": "Não possui permissão para realizar esta operação."
+    },
+    "confirmModal": {
+      "title": "Confirmar trancamento",
+      "message": "Ao confirmar, a matrícula passará para a situação Trancada. O histórico académico existente será preservado.",
+      "confirm": "Confirmar trancamento",
+      "cancel": "Voltar"
+    },
+    "documents": {
+      "title": "Documentos do trancamento",
+      "subtitle": "Gere o documento referente ao protocolo {protocol} utilizando um modelo da instituição.",
+      "generatedCount": "Documentos gerados: {count}",
+      "template": "Modelo do documento",
+      "selectTemplate": "Selecione um modelo",
+      "loadingTemplates": "A carregar modelos de trancamento...",
+      "noTemplates": "Não existe nenhum modelo ativo do tipo Trancamento disponível.",
+      "help": "O documento será preenchido com os dados deste processo e ficará associado ao protocolo.",
+      "manageTemplates": "Gerir modelos",
+      "generate": "Gerar documento",
+      "generating": "A gerar...",
+      "openPdf": "Abrir PDF",
+      "messages": {
+        "generated": "Documento gerado com sucesso."
+      },
+      "errors": {
+        "loadTemplates": "Não foi possível carregar os modelos de trancamento.",
+        "selectTemplate": "Selecione um modelo de documento.",
+        "generate": "Não foi possível gerar o documento.",
+        "invalidResponse": "O documento foi gerado, mas não foi possível identificar o ficheiro criado."
+      }
+    },
+    "history": {
+      "title": "Histórico de trancamentos",
+      "subtitle": "Todos os processos registados para esta matrícula.",
+      "empty": "Ainda não existem trancamentos registados.",
+      "protocol": "Protocolo",
+      "status": "Situação",
+      "previousStatus": "Situação anterior",
+      "period": "Período",
+      "duration": "Duração",
+      "reason": "Motivo",
+      "registeredBy": "Registado por",
+      "confirmedBy": "Confirmado por",
+      "createdAt": "Criado em",
+      "confirmedAt": "Confirmado em",
+      "documents": "Documentos gerados",
+      "noReturn": "Sem previsão de regresso"
+    },
+    "processStatus": {
+      "RASCUNHO": "Rascunho",
+      "CONFIRMADO": "Confirmado",
+      "ENCERRADO": "Encerrado",
+      "CANCELADO": "Cancelado"
+    }
+  },
   "AdminExternalActivitySafety": {
     "eyebrow": "Gestão de riscos",
     "title": "Segurança",
@@ -21242,8 +21504,7 @@
         "PERSONALIZADO": "Personalizado"
       }
     }
-  }
-,
+  },
   "AdminExternalActivityHealth": {
     "eyebrow": "SAÚDE E CUIDADOS",
     "title": "Saúde",
@@ -21336,6 +21597,136 @@
       "loadError": "Não foi possível carregar as informações de saúde.",
       "saveError": "Não foi possível guardar a ficha de saúde.",
       "saved": "Ficha de saúde guardada com sucesso."
+    }
+  },
+  "AdminExternalActivityDocuments": {
+    "title": "Documentos",
+    "subtitle": "Centralize ficheiros, autorizações, contratos, seguros e documentos relacionados com a atividade externa.",
+    "loading": "A carregar documentos...",
+    "summary": {
+      "total": "Total",
+      "required": "Obrigatórios",
+      "pending": "Pendentes / análise",
+      "expired": "Expirados",
+      "expiring": "A expirar"
+    },
+    "filters": {
+      "search": "Pesquisar por título, número, ficheiro ou vínculo...",
+      "allTypes": "Todos os tipos",
+      "allStatuses": "Todos os estados",
+      "allLinks": "Todos os vínculos",
+      "showHistory": "Mostrar arquivados e substituídos"
+    },
+    "links": {
+      "general": "Documento geral",
+      "participant": "Participante",
+      "provider": "Prestador",
+      "vehicle": "Veículo"
+    },
+    "statuses": {
+      "ATIVO": "Ativo",
+      "PENDENTE": "Pendente",
+      "EM_ANALISE": "Em análise",
+      "APROVADO": "Aprovado",
+      "REJEITADO": "Rejeitado",
+      "VENCIDO": "Expirado",
+      "SUBSTITUIDO": "Substituído",
+      "ARQUIVADO": "Arquivado"
+    },
+    "badges": {
+      "required": "Obrigatório",
+      "confidential": "Confidencial",
+      "expiring": "A expirar"
+    },
+    "card": {
+      "link": "Vínculo",
+      "number": "Número",
+      "noFile": "Sem ficheiro enviado",
+      "validUntil": "Válido até"
+    },
+    "empty": {
+      "title": "Nenhum documento encontrado",
+      "description": "Adicione documentos ou altere os filtros para ver outros registos."
+    },
+    "actions": {
+      "new": "Novo documento",
+      "open": "Abrir",
+      "download": "Descarregar",
+      "edit": "Editar",
+      "replace": "Substituir",
+      "archive": "Arquivar",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "A guardar...",
+      "uploading": "A enviar ficheiro...",
+      "confirmReplace": "Substituir documento"
+    },
+    "modal": {
+      "newTitle": "Novo documento",
+      "editTitle": "Editar documento",
+      "replaceTitle": "Substituir documento",
+      "description": "Indique os dados do documento e, se necessário, envie o ficheiro.",
+      "replaceDescription": "O ficheiro anterior será preservado no histórico como substituído."
+    },
+    "form": {
+      "type": "Tipo",
+      "title": "Título",
+      "description": "Descrição",
+      "number": "Número do documento",
+      "status": "Estado",
+      "issuedAt": "Emitido em",
+      "validUntil": "Válido até",
+      "participant": "Participante",
+      "provider": "Prestador de transporte",
+      "vehicle": "Veículo",
+      "file": "Ficheiro",
+      "fileHelp": "PDF, imagens, Word ou Excel. Limite de 25 MB.",
+      "fileAlreadyExists": "Este registo já possui ficheiro. Utilize “Substituir” para preservar o histórico da versão anterior.",
+      "required": "Documento obrigatório",
+      "requiredHelp": "Indica que este documento é necessário para a atividade.",
+      "confidential": "Documento confidencial",
+      "confidentialHelp": "O conteúdo ficará disponível apenas para utilizadores com permissão de gestão.",
+      "notes": "Observações",
+      "none": "Nenhum",
+      "select": "Selecionar..."
+    },
+    "messages": {
+      "created": "Documento criado com sucesso.",
+      "updated": "Documento atualizado com sucesso.",
+      "replaced": "Documento substituído com sucesso.",
+      "archived": "Documento arquivado.",
+      "statusChanged": "Estado atualizado."
+    },
+    "errors": {
+      "load": "Não foi possível carregar os documentos.",
+      "required": "Indique o tipo e o título do documento.",
+      "save": "Não foi possível guardar o documento.",
+      "status": "Não foi possível alterar o estado.",
+      "fileTooLarge": "O ficheiro excede o limite de 25 MB.",
+      "invalidFile": "O formato do ficheiro não é permitido.",
+      "replacementFileRequired": "Selecione o novo ficheiro para realizar a substituição."
+    },
+    "types": {
+      "ROTEIRO": "Itinerário",
+      "TERMO_AUTORIZACAO": "Termo de autorização",
+      "AUTORIZACAO_ASSINADA": "Autorização assinada",
+      "CONTRATO_TRANSPORTE": "Contrato de transporte",
+      "CONTRATO_HOSPEDAGEM": "Contrato de alojamento",
+      "SEGURO_VIAGEM": "Seguro de viagem",
+      "APOLICE_TRANSPORTE": "Apólice de transporte",
+      "LICENCA_PRESTADOR": "Licença do prestador",
+      "DOCUMENTO_VEICULO": "Documento do veículo",
+      "DOCUMENTO_CONDUTOR": "Documento do condutor",
+      "AVALIACAO_RISCO": "Avaliação de risco",
+      "PLANO_EMERGENCIA": "Plano de emergência",
+      "COMPROVANTE_RESERVA": "Comprovativo de reserva",
+      "PASSAGEM": "Bilhete de viagem",
+      "HOSPEDAGEM": "Alojamento",
+      "PASSAPORTE": "Passaporte",
+      "VISTO": "Visto",
+      "DOCUMENTO_MEDICO": "Documento médico",
+      "LISTA_PARTICIPANTES": "Lista de participantes",
+      "OUTRO": "Outro"
     }
   }
 }

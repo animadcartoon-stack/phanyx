@@ -59,6 +59,7 @@ const EXEMPLAR_SELECT = {
   unidadeSnapshot: true,
   setor: true,
   sala: true,
+  corredor: true,
   estante: true,
   prateleira: true,
   localizacaoCompleta: true,
@@ -568,6 +569,13 @@ export async function PATCH(
         120
       );
 
+    const corredor =
+      textoOpcional(
+        corpo.corredor,
+        "corredor",
+        120
+      );
+
     const estante =
       textoOpcional(
         corpo.estante,
@@ -738,6 +746,7 @@ export async function PATCH(
                   unidadeSnapshot,
                   setor,
                   sala,
+                  corredor,
                   estante,
                   prateleira,
                   localizacaoCompleta,
@@ -807,6 +816,9 @@ export async function PATCH(
                   sala:
                     atual.sala,
 
+                  corredor:
+                    atual.corredor,
+
                   estante:
                     atual.estante,
 
@@ -861,6 +873,9 @@ export async function PATCH(
 
                   sala:
                     exemplar.sala,
+
+                  corredor:
+                    exemplar.corredor,
 
                   estante:
                     exemplar.estante,

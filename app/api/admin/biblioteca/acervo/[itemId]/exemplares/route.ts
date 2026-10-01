@@ -56,6 +56,7 @@ const EXEMPLAR_SELECT = {
     unidadeSnapshot: true,
     setor: true,
     sala: true,
+    corredor: true,
     estante: true,
     prateleira: true,
     localizacaoCompleta: true,
@@ -828,6 +829,13 @@ export async function POST(
                 120
             );
 
+        const corredor =
+            textoOpcional(
+                corpo.corredor,
+                "corredor",
+                120
+            );
+
         const estante =
             textoOpcional(
                 corpo.estante,
@@ -1060,6 +1068,7 @@ export async function POST(
                                     unidadeSnapshot,
                                     setor,
                                     sala,
+                                    corredor,
                                     estante,
                                     prateleira,
                                     localizacaoCompleta,

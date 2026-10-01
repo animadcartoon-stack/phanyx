@@ -226,8 +226,6 @@ export async function POST(
 
         select: {
           id: true,
-          exigeValidade:
-            true,
         },
       });
 
@@ -285,16 +283,6 @@ export async function POST(
       );
     }
 
-    if (
-      documento.exigeValidade &&
-      !dados.validadeAte
-    ) {
-      throw new ErroMobilidade(
-        400,
-        "VALIDADE_OBRIGATORIA",
-        "Informe a validade deste documento."
-      );
-    }
 
     let storeId: string;
 

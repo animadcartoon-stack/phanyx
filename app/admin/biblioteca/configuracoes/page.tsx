@@ -13,6 +13,8 @@ import {
   useTranslations,
 } from "next-intl";
 
+import { ModelosEtiquetaBiblioteca } from "@/components/admin/biblioteca/ModelosEtiquetaBiblioteca";
+
 type ConfiguracaoApi = {
   id: number | null;
 
@@ -30,6 +32,12 @@ type ConfiguracaoApi = {
   diasReservaPadrao: number;
   limiteRenovacoes: number;
   limiteEmprestimos: number;
+
+  sistemaClassificacaoPadrao: "CDD" | "CDU" | "OUTRO";
+  edicaoCDDPadrao: string | null;
+  edicaoCDUPadrao: string | null;
+  usarCutter: boolean;
+  gerarCodigoChamadaAutomaticamente: boolean;
 
   notificarVencimento: boolean;
   diasAvisoAntesVencimento: number;
@@ -68,6 +76,12 @@ type FormularioConfiguracao = {
   limiteRenovacoes: number;
   limiteEmprestimos: number;
 
+  sistemaClassificacaoPadrao: "CDD" | "CDU" | "OUTRO";
+  edicaoCDDPadrao: string;
+  edicaoCDUPadrao: string;
+  usarCutter: boolean;
+  gerarCodigoChamadaAutomaticamente: boolean;
+
   notificarVencimento: boolean;
   diasAvisoAntesVencimento: number;
   bloquearAlunoComPendencia: boolean;
@@ -99,6 +113,12 @@ const FORMULARIO_INICIAL: FormularioConfiguracao = {
   diasReservaPadrao: 2,
   limiteRenovacoes: 1,
   limiteEmprestimos: 3,
+
+  sistemaClassificacaoPadrao: "CDD",
+  edicaoCDDPadrao: "23",
+  edicaoCDUPadrao: "",
+  usarCutter: true,
+  gerarCodigoChamadaAutomaticamente: true,
 
   notificarVencimento: true,
   diasAvisoAntesVencimento: 2,
@@ -150,6 +170,21 @@ function paraFormulario(
 
     limiteEmprestimos:
       configuracao.limiteEmprestimos,
+
+    sistemaClassificacaoPadrao:
+      configuracao.sistemaClassificacaoPadrao,
+
+    edicaoCDDPadrao:
+      configuracao.edicaoCDDPadrao ?? "",
+
+    edicaoCDUPadrao:
+      configuracao.edicaoCDUPadrao ?? "",
+
+    usarCutter:
+      configuracao.usarCutter,
+
+    gerarCodigoChamadaAutomaticamente:
+      configuracao.gerarCodigoChamadaAutomaticamente,
 
     notificarVencimento:
       configuracao.notificarVencimento,
@@ -1023,7 +1058,146 @@ export default function BibliotecaConfiguracoesPage() {
               </div>
             </section>
 
+
             <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] !text-indigo-700 dark:!text-indigo-300">
+                  {t("cataloging.eyebrow")}
+                </p>
+
+                <h2 className="mt-1 text-xl font-black !text-slate-950 dark:!text-white">
+                  {t("cataloging.title")}
+                </h2>
+
+                <p className="mt-1 max-w-3xl text-sm leading-6 !text-slate-600 dark:!text-slate-300">
+                  {t("cataloging.description")}
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-5 md:grid-cols-3">
+                <label className="block">
+                  <span className="text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    {t("cataloging.defaultSystem")}
+                  </span>
+
+                  <span className="mt-1 block text-xs leading-5 !text-slate-500 dark:!text-slate-400">
+                    {t("cataloging.defaultSystemHelp")}
+                  </span>
+
+                  <select
+                    value={formulario.sistemaClassificacaoPadrao}
+                    onChange={(evento) =>
+                      atualizar(
+                        "sistemaClassificacaoPadrao",
+                        evento.target.value as
+                          FormularioConfiguracao["sistemaClassificacaoPadrao"]
+                      )
+                    }
+                    className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
+                    <option value="CDD">
+                      CDD
+                    </option>
+
+                    <option value="CDU">
+                      CDU
+                    </option>
+
+                    <option value="OUTRO">
+                      {t("cataloging.other")}
+                    </option>
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    {t("cataloging.cddEdition")}
+                  </span>
+
+                  <span className="mt-1 block text-xs leading-5 !text-slate-500 dark:!text-slate-400">
+                    {t("cataloging.cddEditionHelp")}
+                  </span>
+
+                  <input
+                    type="text"
+                    maxLength={40}
+                    value={formulario.edicaoCDDPadrao}
+                    onChange={(evento) =>
+                      atualizar(
+                        "edicaoCDDPadrao",
+                        evento.target.value
+                      )
+                    }
+                    placeholder="23"
+                    className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-black !text-slate-800 dark:!text-slate-100">
+                    {t("cataloging.udcEdition")}
+                  </span>
+
+                  <span className="mt-1 block text-xs leading-5 !text-slate-500 dark:!text-slate-400">
+                    {t("cataloging.udcEditionHelp")}
+                  </span>
+
+                  <input
+                    type="text"
+                    maxLength={40}
+                    value={formulario.edicaoCDUPadrao}
+                    onChange={(evento) =>
+                      atualizar(
+                        "edicaoCDUPadrao",
+                        evento.target.value
+                      )
+                    }
+                    className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                <Toggle
+                  checked={formulario.usarCutter}
+                  titulo={t(
+                    "cataloging.cutter.title"
+                  )}
+                  descricao={t(
+                    "cataloging.cutter.description"
+                  )}
+                  onChange={(valor) =>
+                    atualizar(
+                      "usarCutter",
+                      valor
+                    )
+                  }
+                />
+
+                <Toggle
+                  checked={
+                    formulario
+                      .gerarCodigoChamadaAutomaticamente
+                  }
+                  titulo={t(
+                    "cataloging.autoCallNumber.title"
+                  )}
+                  descricao={t(
+                    "cataloging.autoCallNumber.description"
+                  )}
+                  onChange={(valor) =>
+                    atualizar(
+                      "gerarCodigoChamadaAutomaticamente",
+                      valor
+                    )
+                  }
+                />
+              </div>
+            </section>
+
+            <ModelosEtiquetaBiblioteca />
+
+<section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
               <h2 className="text-xl font-black !text-slate-950 dark:!text-white">
                 {t(
                   "circulation.title"

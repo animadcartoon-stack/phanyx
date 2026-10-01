@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   useEffect,
@@ -721,7 +721,7 @@ function AdminTrancamentoMatriculaPage() {
         );
 
       default:
-        return status || "—";
+        return status || "â€”";
     }
   }
 
@@ -758,7 +758,7 @@ function AdminTrancamentoMatriculaPage() {
         );
 
       default:
-        return "—";
+        return "â€”";
     }
   }
 
@@ -766,7 +766,7 @@ function AdminTrancamentoMatriculaPage() {
     valor?: string | null
   ) {
     if (!valor) {
-      return "—";
+      return "â€”";
     }
 
     const data =
@@ -779,7 +779,7 @@ function AdminTrancamentoMatriculaPage() {
         data.getTime()
       )
     ) {
-      return "—";
+      return "â€”";
     }
 
     return new Intl.DateTimeFormat(
@@ -797,7 +797,7 @@ function AdminTrancamentoMatriculaPage() {
     valor?: string | null
   ) {
     if (!valor) {
-      return "—";
+      return "â€”";
     }
 
     const data =
@@ -810,7 +810,7 @@ function AdminTrancamentoMatriculaPage() {
         data.getTime()
       )
     ) {
-      return "—";
+      return "â€”";
     }
 
     return new Intl.DateTimeFormat(
@@ -1462,7 +1462,7 @@ function AdminTrancamentoMatriculaPage() {
             }
             className="mb-3 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
           >
-            ← {t(
+            â† {t(
               "back"
             )}
           </button>
@@ -1535,7 +1535,7 @@ function AdminTrancamentoMatriculaPage() {
                 matricula
                   .aluno
                   ?.nome ||
-                "—"
+                "â€”"
               }
             />
 
@@ -1562,7 +1562,7 @@ function AdminTrancamentoMatriculaPage() {
                 matricula
                   .curso
                   ?.nome ||
-                "—"
+                "â€”"
               }
             />
 
@@ -1589,7 +1589,7 @@ function AdminTrancamentoMatriculaPage() {
                 matricula
                   .instituicao
                   ?.nome ||
-                "—"
+                "â€”"
               }
             />
 
@@ -1603,7 +1603,7 @@ function AdminTrancamentoMatriculaPage() {
                 matricula
                   .polo
                   ?.nome ||
-                "—"
+                "â€”"
               }
             />
 
@@ -1617,7 +1617,7 @@ function AdminTrancamentoMatriculaPage() {
                 matricula
                   .turmaPrincipal
                   ?.nome ||
-                "—"
+                "â€”"
               }
             />
           </div>
@@ -1737,7 +1737,7 @@ function AdminTrancamentoMatriculaPage() {
             value={
               rascunho
                 ?.registradoPorCargoSnapshot ||
-              "—"
+              "â€”"
             }
           />
         </div>
@@ -2259,7 +2259,7 @@ function AdminTrancamentoMatriculaPage() {
                       value={
                         `${formatarData(
                           item.dataInicio
-                        )} → ${
+                        )} â†’ ${
                           item.dataRetornoPrevista
                             ? formatarData(
                               item.dataRetornoPrevista
@@ -2285,7 +2285,7 @@ function AdminTrancamentoMatriculaPage() {
                           )
                           : `${
                             item.duracaoQuantidade ??
-                            "—"
+                            "â€”"
                           } ${labelUnidade(
                             item.duracaoUnidade
                           )}`
@@ -2330,7 +2330,7 @@ function AdminTrancamentoMatriculaPage() {
                       value={
                         item
                           .registradoPorNomeSnapshot ||
-                        "—"
+                        "â€”"
                       }
                     />
 
@@ -2343,7 +2343,7 @@ function AdminTrancamentoMatriculaPage() {
                       value={
                         item
                           .confirmadoPorNomeSnapshot ||
-                        "—"
+                        "â€”"
                       }
                     />
 

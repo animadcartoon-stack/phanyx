@@ -1250,6 +1250,9 @@ export default function AdminMobilityApplicationsPage() {
       STORAGE_MOBILIDADE_NAO_CONFIGURADO:
         "documents.upload.errors.storageNotConfigured",
 
+      BLOB_NAO_CONFIGURADO:
+        "documents.upload.errors.storageNotConfigured",
+
       ARQUIVO_OBRIGATORIO:
         "documents.upload.errors.fileRequired",
 
@@ -1260,6 +1263,9 @@ export default function AdminMobilityApplicationsPage() {
         "documents.upload.errors.fileTooLarge",
 
       TIPO_ARQUIVO_INVALIDO:
+        "documents.upload.errors.invalidType",
+
+      ARQUIVO_FORMATO_INVALIDO:
         "documents.upload.errors.invalidType",
 
       CONTEUDO_ARQUIVO_INVALIDO:
@@ -1348,15 +1354,88 @@ export default function AdminMobilityApplicationsPage() {
     );
 
     try {
-      const formData =
-        new FormData();
+      const extensao =
+        arquivo.name
+          .split(".")
+          .pop()
+          ?.toLowerCase() ??
+        "";
 
-      formData.append(
-        "arquivo",
-        arquivo
-      );
+      const declarado =
+        String(
+          arquivo.type || ""
+        )
+          .trim()
+          .toLowerCase();
 
-      const resposta =
+      const mimePorExtensao:
+        Record<string, string> = {
+          pdf:
+            "application/pdf",
+
+          jpg:
+            "image/jpeg",
+
+          jpeg:
+            "image/jpeg",
+
+          png:
+            "image/png",
+
+          webp:
+            "image/webp",
+
+          heic:
+            "image/heic",
+
+          heif:
+            "image/heif",
+
+          doc:
+            "application/msword",
+
+          docx:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        };
+
+      /*
+       * Alguns iPhones/navegadores enviam
+       * HEIC/HEIF como *-sequence ou até
+       * application/octet-stream.
+       *
+       * Para HEIC/HEIF a extensão conhecida
+       * define o MIME canônico usado na
+       * assinatura e no PUT.
+       */
+      const mimeType =
+        extensao === "heic"
+          ? "image/heic"
+          : extensao === "heif"
+            ? "image/heif"
+            : declarado ===
+                  "image/heic-sequence"
+              ? "image/heic"
+              : declarado ===
+                    "image/heif-sequence"
+                ? "image/heif"
+                : !declarado ||
+                    declarado ===
+                      "application/octet-stream"
+                  ? mimePorExtensao[
+                      extensao
+                    ] ?? ""
+                  : declarado;
+
+      const validadeAte =
+        documento.validadeAte
+          ? documento.validadeAte.slice(
+              0,
+              10
+            )
+          : null;
+
+      /* 1. Solicita URL privada assinada */
+      const respostaInicio =
         await fetch(
           `/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}/documentos/${documento.id}/upload`,
           {
@@ -1366,23 +1445,129 @@ export default function AdminMobilityApplicationsPage() {
             credentials:
               "include",
 
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
             body:
-              formData,
+              JSON.stringify({
+                nomeOriginal:
+                  arquivo.name,
+
+                mimeType,
+
+                tamanhoBytes:
+                  arquivo.size,
+
+                validadeAte,
+              }),
           }
         );
 
-      const corpo =
-        (await resposta.json()) as
+      const corpoInicio =
+        (await respostaInicio.json()) as
+          | {
+              ok: true;
+
+              presignedUrl:
+                string;
+
+              pathname:
+                string;
+
+              mimeType:
+                string;
+
+              validadeAte:
+                string | null;
+            }
+          | RespostaErro;
+
+      if (
+        !respostaInicio.ok ||
+        !(
+          "presignedUrl" in
+          corpoInicio
+        )
+      ) {
+        throw new Error(
+          traduzirErroUploadDocumento(
+            "codigo" in corpoInicio
+              ? corpoInicio.codigo
+              : undefined
+          )
+        );
+      }
+
+      /* 2. Envia o arquivo direto ao Blob */
+      const respostaBlob =
+        await fetch(
+          corpoInicio.presignedUrl,
+          {
+            method:
+              "PUT",
+
+            headers: {
+              "Content-Type":
+                corpoInicio.mimeType,
+            },
+
+            body:
+              arquivo,
+          }
+        );
+
+      if (!respostaBlob.ok) {
+        throw new Error(
+          t(
+            "documents.upload.error"
+          )
+        );
+      }
+
+      /* 3. Confirma o upload no PHANYX */
+      const respostaFinal =
+        await fetch(
+          `/api/admin/mobilidade/candidaturas/${candidaturaSelecionada.id}/documentos/${documento.id}/upload/finalizar`,
+          {
+            method:
+              "POST",
+
+            credentials:
+              "include",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                pathname:
+                  corpoInicio.pathname,
+
+                nomeOriginal:
+                  arquivo.name,
+
+                validadeAte:
+                  corpoInicio.validadeAte,
+              }),
+          }
+        );
+
+      const corpoFinal =
+        (await respostaFinal.json()) as
           | {
               ok: true;
             }
           | RespostaErro;
 
-      if (!resposta.ok) {
+      if (!respostaFinal.ok) {
         throw new Error(
           traduzirErroUploadDocumento(
-            "codigo" in corpo
-              ? corpo.codigo
+            "codigo" in corpoFinal
+              ? corpoFinal.codigo
               : undefined
           )
         );
@@ -1403,7 +1588,7 @@ export default function AdminMobilityApplicationsPage() {
               "documents.upload.replaced"
             )
           : t(
-              "documents.upload.uploaded"
+              "documents.upload.success"
             )
       );
     } catch (
@@ -1993,43 +2178,54 @@ export default function AdminMobilityApplicationsPage() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1250px]">
+            <div className="overflow-x-auto overscroll-x-contain">
+              <table className="w-full min-w-[980px] table-fixed lg:min-w-0">
+                <colgroup>
+                  <col className="w-[17%]" />
+                  <col className="w-[9%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[8%]" />
+                  <col className="w-[9%]" />
+                </colgroup>
                 <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/60">
                   <tr className="text-left text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.candidate")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.type")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.offer")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.academicLink")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.documents")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.result")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.status")}
                     </th>
 
-                    <th className="px-5 py-4">
+                    <th className="px-3 py-4 align-top">
                       {t("table.date")}
                     </th>
 
-                    <th className="px-5 py-4 text-right">
+                    <th className="sticky right-0 z-20 border-l border-slate-200 bg-slate-50 px-3 py-4 text-right dark:border-slate-800 dark:bg-slate-950">
                       {t("table.actions")}
                     </th>
                   </tr>
@@ -2046,7 +2242,7 @@ export default function AdminMobilityApplicationsPage() {
                         }
                         className="hover:bg-slate-50 dark:hover:bg-slate-800/60"
                       >
-                        <td className="px-5 py-4">
+                        <td className="px-3 py-4 align-top break-words">
                           <div className="font-semibold">
                             {
                               candidatura.nomeSnapshot
@@ -2059,7 +2255,7 @@ export default function AdminMobilityApplicationsPage() {
                           </div>
                         </td>
 
-                        <td className="px-5 py-4 text-sm">
+                        <td className="px-3 py-4 align-top text-sm break-words">
                           {candidatura.vinculoCandidato ===
                           "ALUNO_PHANYX"
                             ? `🎓 ${t(
@@ -2070,7 +2266,7 @@ export default function AdminMobilityApplicationsPage() {
                               )}`}
                         </td>
 
-                        <td className="px-5 py-4 text-sm">
+                        <td className="px-3 py-4 align-top text-sm break-words">
                           <div className="font-medium">
                             {
                               candidatura.oferta.titulo
@@ -2084,7 +2280,7 @@ export default function AdminMobilityApplicationsPage() {
                           </div>
                         </td>
 
-                        <td className="px-5 py-4 text-sm">
+                        <td className="px-3 py-4 align-top text-sm break-words">
                           {candidatura.matricula ? (
                             <>
                               <div className="font-medium">
@@ -2113,7 +2309,7 @@ export default function AdminMobilityApplicationsPage() {
                           )}
                         </td>
 
-                        <td className="px-5 py-4 text-sm">
+                        <td className="px-3 py-4 align-top text-sm break-words">
                           <div>
                             {
                               candidatura.documentosResumo.aprovados
@@ -2138,7 +2334,7 @@ export default function AdminMobilityApplicationsPage() {
                           )}
                         </td>
 
-                        <td className="px-5 py-4 text-sm">
+                        <td className="px-3 py-4 align-top text-sm break-words">
                           <div>
                             {candidatura.notaFinal ===
                             null
@@ -2160,9 +2356,9 @@ export default function AdminMobilityApplicationsPage() {
                           )}
                         </td>
 
-                        <td className="px-5 py-4">
+                        <td className="px-3 py-4 align-top break-words">
                           <span
-                            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${statusClasse(
+                            className={`inline-flex max-w-full whitespace-normal rounded-full border px-2.5 py-1 text-center text-xs font-bold leading-tight ${statusClasse(
                               candidatura.status
                             )}`}
                           >
@@ -2172,14 +2368,14 @@ export default function AdminMobilityApplicationsPage() {
                           </span>
                         </td>
 
-                        <td className="px-5 py-4 text-sm">
+                        <td className="px-3 py-4 align-top text-sm break-words">
                           {formatarData(
                             candidatura.enviadaEm ??
                               candidatura.createdAt
                           )}
                         </td>
 
-                        <td className="px-5 py-4 text-right">
+                        <td className="sticky right-0 z-10 border-l border-slate-100 bg-white px-3 py-4 text-right dark:border-slate-800 dark:bg-slate-900 break-words">
                           {podeGerenciar && (
                             <button
                               type="button"
@@ -2188,7 +2384,7 @@ export default function AdminMobilityApplicationsPage() {
                                   candidatura
                                 )
                               }
-                              className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                              className="whitespace-nowrap rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-800 hover:bg-blue-100 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
                             >
                               {t(
                                 "actions.process"

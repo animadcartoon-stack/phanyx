@@ -196,8 +196,38 @@ export default function TentativaPage() {
             );
           }
 
-          const tentativaRecebida =
-            data as Tentativa;
+          const tentativaRecebida: Tentativa = {
+            ...(data as Tentativa),
+
+            respostas: (
+              data.respostas as Resposta[]
+            ).map((resposta) => {
+              const tipoQuestao =
+                String(
+                  resposta.questao?.tipo ?? ""
+                ).toUpperCase();
+
+              if (
+                tipoQuestao !== "MULTIPLA_ESCOLHA" &&
+                tipoQuestao !== "DISCURSIVA"
+              ) {
+                throw new Error(
+                  t("feedback.invalidResponse")
+                );
+              }
+
+              return {
+                ...resposta,
+
+                questao: {
+                  ...resposta.questao,
+
+                  tipo:
+                    tipoQuestao as Questao["tipo"],
+                },
+              };
+            }),
+          };
 
           setTentativa(
             tentativaRecebida
@@ -599,6 +629,22 @@ export default function TentativaPage() {
             aria-live="polite"
             className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
           >
+            {sucesso}
+          </div>
+        )}
+
+        {sucesso && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="phanyx-toast-correcao-prova pointer-events-none fixed bottom-6 left-1/2 z-[100] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-green-200 bg-white px-5 py-4 text-center text-sm font-semibold text-green-700 shadow-2xl dark:border-green-800 dark:bg-slate-900 dark:text-green-300"
+          >
+            <span
+              aria-hidden="true"
+              className="mr-2"
+            >
+              &#10003;
+            </span>
             {sucesso}
           </div>
         )}

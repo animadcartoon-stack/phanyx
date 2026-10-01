@@ -1,4 +1,5 @@
 import {
+  BibliotecaSistemaClassificacao,
   StatusModuloAdicional,
   TipoModuloAdicional,
 } from "@prisma/client";
@@ -68,6 +69,13 @@ export type ContextoBiblioteca = {
     permitirReserva: boolean;
     permitirRenovacao: boolean;
     permitirSugestaoAquisicao: boolean;
+
+    sistemaClassificacaoPadrao: BibliotecaSistemaClassificacao;
+    edicaoCDDPadrao: string | null;
+    edicaoCDUPadrao: string | null;
+    usarCutter: boolean;
+    gerarCodigoChamadaAutomaticamente: boolean;
+
     armazenamentoUtilizadoBytes: bigint;
   } | null;
 
@@ -220,6 +228,13 @@ export async function obterContextoBiblioteca(
           permitirReserva: true,
           permitirRenovacao: true,
           permitirSugestaoAquisicao: true,
+
+          sistemaClassificacaoPadrao: true,
+          edicaoCDDPadrao: true,
+          edicaoCDUPadrao: true,
+          usarCutter: true,
+          gerarCodigoChamadaAutomaticamente: true,
+
           armazenamentoUtilizadoBytes: true,
         },
       }),

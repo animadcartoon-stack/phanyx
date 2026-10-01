@@ -293,6 +293,8 @@ model Instituicao {
   transferenciasMatricula                     TransferenciaMatricula[]                @relation("TransferenciaMatriculaInstituicaoOrigem")
   transferenciasMatriculaRecebidas            TransferenciaMatricula[]                @relation("TransferenciaMatriculaInstituicaoDestino")
 
+  bibliotecaModelosEtiqueta BibliotecaModeloEtiqueta[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -572,6 +574,9 @@ model User {
   mobilidadeDocumentosAnalisados           MobilidadeCandidaturaDocumento[]        @relation("MobilidadeCandidaturaDocumentoAnalisadoPor")
   transferenciasMatriculaRealizadas        TransferenciaMatricula[]                @relation("TransferenciaMatriculaRealizadaPor")
   transferenciasMatriculaDestinoAnalisadas TransferenciaMatricula[]                @relation("TransferenciaMatriculaAnalisadaDestinoPor")
+
+  bibliotecaModelosEtiquetaCriados     BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaCriadoPor")
+  bibliotecaModelosEtiquetaAtualizados BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaAtualizadoPor")
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -6072,6 +6077,28 @@ model AsaasWebhookEvento {
   @@index([asaasSubscriptionId])
 }
 
+enum BibliotecaSistemaClassificacao {
+  CDD
+  CDU
+  OUTRO
+}
+
+enum BibliotecaTipoEtiquetaFolha {
+  LOMBADA
+  CODIGO_BARRAS
+}
+
+enum BibliotecaOrigemModeloEtiqueta {
+  SISTEMA
+  FABRICANTE
+  PERSONALIZADO
+}
+
+enum BibliotecaOrientacaoFolhaEtiqueta {
+  RETRATO
+  PAISAGEM
+}
+
 model BibliotecaConfiguracao {
   id            Int @id @default(autoincrement())
   instituicaoId Int @unique
@@ -6090,6 +6117,12 @@ model BibliotecaConfiguracao {
   diasReservaPadrao    Int @default(2)
   limiteRenovacoes     Int @default(1)
   limiteEmprestimos    Int @default(3)
+
+  sistemaClassificacaoPadrao        BibliotecaSistemaClassificacao @default(CDD)
+  edicaoCDDPadrao                   String?                        @default("23")
+  edicaoCDUPadrao                   String?
+  usarCutter                        Boolean                        @default(true)
+  gerarCodigoChamadaAutomaticamente Boolean                        @default(true)
 
   notificarVencimento       Boolean  @default(true)
   diasAvisoAntesVencimento  Int      @default(2)
@@ -6117,6 +6150,64 @@ model BibliotecaConfiguracao {
   atualizadoPor User? @relation("BibliotecaConfiguracaoAtualizadaPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
 
   @@index([instituicaoId])
+}
+
+model BibliotecaModeloEtiqueta {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome      String
+  descricao String? @db.Text
+
+  tipo   BibliotecaTipoEtiquetaFolha
+  origem BibliotecaOrigemModeloEtiqueta @default(PERSONALIZADO)
+
+  marca            String?
+  codigoFabricante String?
+
+  larguraFolhaMm Decimal @db.Decimal(8, 3)
+  alturaFolhaMm  Decimal @db.Decimal(8, 3)
+
+  orientacao BibliotecaOrientacaoFolhaEtiqueta @default(RETRATO)
+
+  margemSuperiorMm Decimal @db.Decimal(8, 3)
+  margemDireitaMm  Decimal @db.Decimal(8, 3)
+  margemInferiorMm Decimal @db.Decimal(8, 3)
+  margemEsquerdaMm Decimal @db.Decimal(8, 3)
+
+  larguraEtiquetaMm Decimal @db.Decimal(8, 3)
+  alturaEtiquetaMm  Decimal @db.Decimal(8, 3)
+
+  espacoHorizontalMm Decimal @default(0) @db.Decimal(8, 3)
+  espacoVerticalMm   Decimal @default(0) @db.Decimal(8, 3)
+
+  colunas Int
+  linhas  Int
+
+  deslocamentoHorizontalMm Decimal @default(0) @db.Decimal(8, 3)
+  deslocamentoVerticalMm   Decimal @default(0) @db.Decimal(8, 3)
+
+  padrao Boolean @default(false)
+  ativo  Boolean @default(true)
+
+  criadoPorId     Int?
+  atualizadoPorId Int?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor     User? @relation("BibliotecaModeloEtiquetaCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  atualizadoPor User? @relation("BibliotecaModeloEtiquetaAtualizadoPor", fields: [atualizadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([instituicaoId, tipo, nome])
+  @@index([instituicaoId])
+  @@index([instituicaoId, tipo, ativo])
+  @@index([instituicaoId, tipo, padrao])
+  @@index([instituicaoId, origem])
+  @@index([criadoPorId])
+  @@index([atualizadoPorId])
 }
 
 model BibliotecaOperador {
@@ -6252,6 +6343,9 @@ model BibliotecaItem {
   duracaoSegundos Int?
 
   classificacaoBibliografica String?
+  sistemaClassificacao       BibliotecaSistemaClassificacao?
+  edicaoClassificacao        String?
+  codigoCutter               String?
   codigoChamada              String?
   cdd                        String?
   cdu                        String?
@@ -6569,6 +6663,7 @@ model BibliotecaExemplar {
   unidadeSnapshot     String?
   setor               String?
   sala                String?
+  corredor            String?
   estante             String?
   prateleira          String?
   localizacaoCompleta String?

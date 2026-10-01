@@ -275,9 +275,8 @@
     "registrationData": "Données d'inscription",
     "registrationDescription": "Maintenez vos informations à jour pour les contrats, documents et dossiers académiques.",
     "updateMyData": "Mettre à jour mes données",
+    "mobilityShort": "Mobilité",
     "library": "Bibliothèque"
-  ,
-    "mobilityShort": "Mobilité"
   },
   "StudentSidebar": {
     "areaTitle": "Espace étudiant",
@@ -294,9 +293,8 @@
     "meetings": "Réunions",
     "certificates": "Certificats",
     "ombudsman": "Médiation",
+    "internationalMobility": "Mobilité internationale",
     "library": "Bibliothèque"
-  ,
-    "internationalMobility": "Mobilité internationale"
   },
   "StudentMobility": {
     "eyebrow": "Mobilité internationale",
@@ -347,8 +345,7 @@
       "REJEITADO": "Rejeté",
       "CORRECAO_SOLICITADA": "Correction demandée",
       "EXPIRADO": "Expiré"
-    }
-  ,
+    },
     "upload": {
       "title": "Envoyer le document",
       "replaceTitle": "Remplacer le document",
@@ -5508,9 +5505,9 @@
     },
     "filters": {
       "title": "Rechercher dans le fonds",
-      "description": "Recherchez des éléments par titre, ISBN, ISSN ou DOI.",
+      "description": "Recherchez par titre, auteur, éditeur, sujet, mot-clé, ISBN, ISSN, DOI, CDD, CDU, Cutter ou cote.",
       "searchLabel": "Recherche",
-      "searchPlaceholder": "Saisissez le titre ou l’identifiant",
+      "searchPlaceholder": "Titre, auteur, sujet, ISBN, CDD, Cutter...",
       "typeLabel": "Type",
       "allTypes": "Tous les types",
       "statusLabel": "Statut",
@@ -5549,10 +5546,14 @@
       "identifier": "Identifiant",
       "noIdentifier": "Sans identifiant",
       "year": "Année",
+      "callNumber": "Cote",
       "files": "{count, plural, =0 {0 fichiers} one {1 fichier} other {# fichiers}}",
       "copies": "{count, plural, =0 {0 exemplaires} one {1 exemplaire} other {# exemplaires}}",
       "updatedAt": "Mis à jour le {date}",
-      "open": "Ouvrir l’élément →"
+      "open": "Ouvrir l’élément →",
+      "author": "Auteur",
+      "publisher": "Éditeur",
+      "subject": "Sujet"
     },
     "pagination": {
       "ariaLabel": "Pagination du fonds",
@@ -5602,7 +5603,48 @@
       "physicalLoan": "Prêt physique",
       "streaming": "Streaming",
       "externalLink": "Lien externe"
-    }
+    },
+    "globalBatchButton": "Imprimer les étiquettes par lot",
+    "globalBatchTitle": "Étiquettes par lot du catalogue",
+    "globalBatchDescription": "Sélectionnez des exemplaires physiques provenant de différents ouvrages.",
+    "globalBatchPreviewDescription": "Vérifiez les étiquettes sélectionnées avant d'ouvrir l'impression A4.",
+    "globalBatchLoading": "Chargement des exemplaires physiques...",
+    "globalBatchLoadError": "Impossible de charger les exemplaires pour l'impression.",
+    "globalBatchRetry": "Réessayer",
+    "globalBatchClose": "Fermer",
+    "globalBatchSearchLabel": "Rechercher des exemplaires",
+    "globalBatchSearchPlaceholder": "Titre, code, numéro d'inventaire, ISBN ou classification...",
+    "globalBatchEligible": "{count} exemplaires trouvés",
+    "globalBatchSelected": "{count} exemplaires sélectionnés",
+    "globalBatchSelectFiltered": "Sélectionner les résultats",
+    "globalBatchClear": "Effacer la sélection",
+    "globalBatchLabelType": "Type d'étiquette",
+    "globalBatchSpine": "Étiquettes de dos",
+    "globalBatchBarcode": "Codes-barres",
+    "globalBatchBoth": "Dos + code-barres",
+    "globalBatchNoCopies": "Aucun exemplaire physique actif n'a été trouvé.",
+    "globalBatchCancel": "Annuler",
+    "globalBatchPreview": "Aperçu de la feuille A4",
+    "globalBatchEstimatedPages": "Pages prévues : {count}",
+    "globalBatchMore": "{count} étiquettes sélectionnées supplémentaires ne sont pas affichées dans cet aperçu réduit.",
+    "globalBatchCapacityNote": "Chaque exemplaire génère 1 étiquette. Une feuille A4 peut contenir jusqu'à 45 étiquettes de dos ou 21 codes-barres.",
+    "globalBatchPrintNote": "Imprimez en A4 à 100 %, 1 page par feuille, avec les en-têtes et pieds de page désactivés.",
+    "globalBatchBack": "Retour à la sélection",
+    "globalBatchPrint": "Imprimer la feuille A4",
+    "globalBatchStartTitle": "Cliquez sur la première étiquette encore disponible sur votre feuille.",
+    "globalBatchStartDescription": "Cliquez sur la première étiquette encore libre. Les positions précédentes seront considérées comme déjà utilisées.",
+    "globalBatchStartSpine": "Feuille d'étiquettes de dos",
+    "globalBatchStartBarcode": "Feuille de codes-barres",
+    "globalBatchStartHelp": "Utilisez 1 pour une feuille neuve. Positions disponibles : 1 ? {max}.",
+    "globalBatchPartialToggle": "Cette feuille a déjà été utilisée",
+    "globalBatchPartialToggleHelp": "Activez cette option pour utiliser les étiquettes restantes d'une feuille partiellement utilisée.",
+    "globalBatchSpineLayout": "5 colonnes × 9 lignes · 45 positions",
+    "globalBatchBarcodeLayout": "3 colonnes × 7 lignes · 21 positions",
+    "globalBatchPositionAria": "Commencer à la position {position}",
+    "globalBatchLegendUsed": "Déjà utilisée",
+    "globalBatchLegendStart": "Première libre",
+    "globalBatchLegendFree": "Libre",
+    "globalBatchNewSheet": "Feuille neuve : l'impression commencera automatiquement à la première position."
   },
   "AdminExternalActivities": {
     "eyebrow": "Gestion académique",
@@ -5815,17 +5857,22 @@
     "durationSeconds": "Durée en secondes",
     "classificationTitle": "Classification et présentation",
     "classificationDescription": "Organisation physique, couverture et classification par âge.",
+    "classificationSystem": "Système de classification",
+    "classificationSystemNone": "Non renseigné",
+    "classificationSystemDefault": "Valeur par défaut de l’établissement ({system})",
+    "classificationEditionInstitutionDefault": "Édition suggérée par l’établissement : {edition}",
+    "automaticCallNumberPreview": "Aperçu automatique : {value}",
+    "automaticCallNumberSaveHelp": "La cote sera générée lors de l’enregistrement si le champ reste vide.",
+    "manualCallNumberPreserved": "Valeur manuelle : PHANYX conservera cette cote.",
+    "classificationSystemOther": "Autre",
+    "classificationEdition": "Édition de la classification",
+    "cutterCode": "Code Cutter",
+    "otherClassification": "Autre classification / classification complémentaire",
     "bibliographicClassification": "Classification bibliographique",
     "callNumber": "Cote",
     "contentRating": "Classification par âge",
     "coverUrl": "URL de la couverture",
     "thumbnailUrl": "URL de la miniature",
-    "uploadCover": "Importer une image de couverture",
-    "coverUploading": "Importation de la couverture...",
-    "coverUploadHelp": "PNG, JPEG ou WebP, 4 Mo maximum. Enregistrez les modifications après l'importation.",
-    "coverUploadInvalid": "Choisissez une image PNG, JPEG ou WebP de 4 Mo maximum.",
-    "coverUploadError": "Impossible d'importer la couverture.",
-    "coverUploadSuccess": "Couverture importée. Enregistrez les modifications pour l'appliquer à cet élément.",
     "accessTitle": "Accès et ressources",
     "accessDescription": "Règles appliquées lors de la publication du document.",
     "accessMode": "Mode d’accès",
@@ -5851,6 +5898,76 @@
     "noAuthors": "Aucun auteur associé.",
     "categories": "Catégories",
     "noCategories": "Aucune catégorie associée.",
+    "loadBibliographicReferencesError": "Impossible de charger les auteurs, éditeurs et sujets.",
+    "loadingBibliographicReferences": "Chargement des auteurs, éditeurs et sujets...",
+    "saveBibliographicRelationships": "Enregistrer les liens bibliographiques",
+    "savingBibliographicRelationships": "Enregistrement...",
+    "saveBibliographicRelationshipsSuccess": "Liens bibliographiques mis à jour avec succès.",
+    "saveBibliographicRelationshipsError": "Impossible d'enregistrer les liens bibliographiques.",
+    "bibliographicRelationshipsReadOnly": "Lecture seule",
+    "selectPublisher": "Sélectionner un éditeur",
+    "selectAuthor": "Sélectionner un auteur",
+    "selectSubject": "Sélectionner un sujet",
+    "add": "Ajouter",
+    "remove": "Supprimer",
+    "currentlyLinked": "Actuellement lié",
+    "authorOrder": "Ordre des auteurs : {order}",
+    "moveAuthorUp": "Déplacer l'auteur vers le haut",
+    "moveAuthorDown": "Déplacer l'auteur vers le bas",
+    "subjectsAndCategories": "Sujets / catégories",
+    "principalSubject": "Sujet principal",
+    "noSubjects": "Aucun sujet lié.",
+    "createBibliographicReference": "+ Créer un auteur, éditeur ou sujet",
+    "referenceType": "Type de notice",
+    "referenceName": "Nom",
+    "referenceAuthor": "Auteur",
+    "referencePublisher": "Éditeur",
+    "referenceSubject": "Sujet / catégorie",
+    "authorSortName": "Nom de tri",
+    "authorSortNamePlaceholder": "Ex. : Willmington, Harold L.",
+    "creatingBibliographicReference": "Création...",
+    "createBibliographicReferenceAction": "Créer et lier",
+    "bibliographicReferenceCreated": "Notice bibliographique créée et liée.",
+    "bibliographicReferenceAlreadyExists": "La notice existait déjà et a été liée à l'ouvrage.",
+    "createBibliographicReferenceError": "Impossible de créer la notice bibliographique.",
+    "roleAuthor": "Auteur",
+    "roleCoauthor": "Coauteur",
+    "roleOrganizer": "Organisateur",
+    "roleEditor": "Éditeur scientifique",
+    "roleTranslator": "Traducteur",
+    "roleSupervisor": "Directeur",
+    "roleCollaborator": "Collaborateur",
+    "spineLabel": "Étiquette de dos",
+    "barcodeLabel": "Code-barres",
+    "labelsAndBarcodes": "Étiquettes de l'exemplaire",
+    "labelPreviewDescription": "Vérifiez l'étiquette avant l'impression.",
+    "loadingLabel": "Préparation de l'étiquette...",
+    "labelLoadError": "Impossible de charger les données de l'étiquette.",
+    "barcodeRenderError": "Impossible de générer le code-barres.",
+    "printWindowBlocked": "Le navigateur a bloqué la fenêtre d'impression.",
+    "noCallNumber": "Sans cote",
+    "copyCode": "Code de l'exemplaire",
+    "printLabel": "Imprimer l'étiquette",
+    "printLibraryLabel": "Étiquette de bibliothèque",
+    "batchLabels": "Imprimer les étiquettes par lot",
+    "batchLabelsDescription": "Sélectionnez les exemplaires physiques et le type d'étiquette.",
+    "batchLabelsPreviewDescription": "Vérifiez la disposition avant d'ouvrir l'impression A4.",
+    "batchLabelsLoadError": "Impossible de charger les exemplaires pour l'impression.",
+    "loadingBatchLabels": "Préparation du lot d'étiquettes...",
+    "selectedCopies": "{selected} exemplaires sélectionnés sur {total}",
+    "selectAll": "Tout sélectionner",
+    "clearSelection": "Effacer la sélection",
+    "labelType": "Type d'étiquette",
+    "batchSpine": "Étiquettes de dos",
+    "batchBarcode": "Codes-barres",
+    "batchBoth": "Dos + code-barres",
+    "previewA4": "Aperçu de la feuille A4",
+    "noEligibleCopiesForLabels": "Aucun exemplaire physique actif n'est disponible pour les étiquettes.",
+    "batchA4Note": "Pour conserver les dimensions réelles, imprimez en A4 à 100 %, 1 page par feuille, avec les en-têtes et pieds de page désactivés.",
+    "backToSelection": "Retour à la sélection",
+    "printA4": "Imprimer la feuille A4",
+    "batchEstimatedPages": "Pages prévues : {count}",
+    "batchCapacityNote": "Chaque exemplaire génère 1 étiquette. Une feuille A4 peut contenir jusqu'à 45 étiquettes de dos ou 21 codes-barres.",
     "digitalFiles": "Fichiers numériques",
     "history": "🕘 Historique",
     "uploadingFile": "Téléversement du fichier...",
@@ -5881,22 +5998,6 @@
     "unsavedChanges": "Des modifications ne sont pas enregistrées",
     "noChanges": "Aucune modification effectuée",
     "publicationStatusUnchanged": "Le statut de publication ne sera pas modifié sur cette page.",
-    "publishItem": "Publier dans le catalogue",
-    "publishTitle": "Publier le document",
-    "publishDescription": "Confirmez la publication pour les élèves et enseignants de cet établissement.",
-    "publishNotice": "Le document sera visible dans le catalogue dès sa publication. Vérifiez les informations et les droits d’accès avant de continuer.",
-    "publishing": "Publication en cours...",
-    "publishSuccess": "Document publié dans le catalogue.",
-    "publishError": "Impossible de publier le document.",
-    "externalLinkLabel": "Adresse de lecture en ligne (HTTPS)",
-    "saveExternalLink": "Enregistrer le lien externe",
-    "externalLinkSuccess": "Lien externe enregistré.",
-    "externalLinkError": "Impossible d’enregistrer le lien externe.",
-    "withdrawItem": "Retirer du catalogue",
-    "withdrawNotice": "Le document ne sera plus visible par les élèves et enseignants et repassera en brouillon. Son historique sera conservé.",
-    "withdrawing": "Retrait en cours...",
-    "withdrawSuccess": "Document retiré du catalogue.",
-    "withdrawError": "Impossible de retirer le document.",
     "cancel": "Annuler",
     "saving": "Enregistrement...",
     "saveChanges": "Enregistrer les modifications",
@@ -6001,6 +6102,7 @@
     "unitCampus": "Unité / Campus",
     "department": "Service",
     "room": "Salle",
+    "corridor": "Allée",
     "shelfUnit": "Rayonnage",
     "shelf": "Étagère",
     "fullLocation": "Emplacement complet",
@@ -6210,7 +6312,42 @@
     "renewalQueueBlocked": "Le renouvellement a été bloqué car une autre personne attend cet exemplaire dans la file de réservation.",
     "renewalNotActive": "Ce prêt n'est plus actif.",
     "renewalLimitLabel": "Limite",
-    "renewalLimitReachedShort": "Limite de renouvellements atteinte"
+    "renewalLimitReachedShort": "Limite de renouvellements atteinte",
+    "uploadCover": "Importer une image de couverture",
+    "coverUploading": "Importation de la couverture...",
+    "coverUploadHelp": "PNG, JPEG ou WebP, 4 Mo maximum. Enregistrez les modifications après l'importation.",
+    "coverUploadInvalid": "Choisissez une image PNG, JPEG ou WebP de 4 Mo maximum.",
+    "coverUploadError": "Impossible d'importer la couverture.",
+    "coverUploadSuccess": "Couverture importée. Enregistrez les modifications pour l'appliquer à cet élément.",
+    "publishItem": "Publier dans le catalogue",
+    "publishTitle": "Publier le document",
+    "publishDescription": "Confirmez la publication pour les élèves et enseignants de cet établissement.",
+    "publishNotice": "Le document sera visible dans le catalogue dès sa publication. Vérifiez les informations et les droits d’accès avant de continuer.",
+    "publishing": "Publication en cours...",
+    "publishSuccess": "Document publié dans le catalogue.",
+    "publishError": "Impossible de publier le document.",
+    "externalLinkLabel": "Adresse de lecture en ligne (HTTPS)",
+    "saveExternalLink": "Enregistrer le lien externe",
+    "externalLinkSuccess": "Lien externe enregistré.",
+    "externalLinkError": "Impossible d’enregistrer le lien externe.",
+    "withdrawItem": "Retirer du catalogue",
+    "withdrawNotice": "Le document ne sera plus visible par les élèves et enseignants et repassera en brouillon. Son historique sera conservé.",
+    "withdrawing": "Retrait en cours...",
+    "withdrawSuccess": "Document retiré du catalogue.",
+    "withdrawError": "Impossible de retirer le document.",
+    "batchPartialToggle": "Cette feuille a déjà été utilisée",
+    "batchPartialToggleHelp": "Activez cette option pour utiliser les étiquettes restantes d'une feuille partiellement utilisée.",
+    "batchStartTitle": "Cliquez sur la première étiquette encore disponible sur votre feuille.",
+    "batchStartDescription": "Les positions précédentes seront considérées comme déjà utilisées.",
+    "batchStartSpine": "Feuille d'étiquettes de dos",
+    "batchStartBarcode": "Feuille de codes-barres",
+    "batchSpineLayout": "5 colonnes × 9 lignes · 45 positions",
+    "batchBarcodeLayout": "3 colonnes × 7 lignes · 21 positions",
+    "batchPositionAria": "Commencer à la position {position}",
+    "batchLegendUsed": "Déjà utilisée",
+    "batchLegendStart": "Première libre",
+    "batchLegendFree": "Libre",
+    "batchNewSheet": "Feuille neuve : l'impression commencera automatiquement à la première position."
   },
   "AdminCertificates": {
     "status": {
@@ -10269,6 +10406,133 @@
       "suggestions": {
         "title": "Autoriser les suggestions d'acquisition",
         "description": "Permet aux utilisateurs de suggérer de nouveaux livres, ouvrages ou ressources pour la collection."
+      }
+    },
+    "cataloging": {
+      "eyebrow": "Catalogage",
+      "title": "Classification bibliographique",
+      "description": "Définissez le système de classification par défaut de l’établissement et la manière dont PHANYX doit aider à composer la cote.",
+      "defaultSystem": "Système par défaut",
+      "defaultSystemHelp": "Système proposé automatiquement lors du catalogage de nouveaux ouvrages.",
+      "other": "Autre",
+      "cddEdition": "Édition CDD par défaut",
+      "cddEditionHelp": "Ex. : 23 pour la 23e édition de la classification décimale de Dewey.",
+      "udcEdition": "Édition CDU par défaut",
+      "udcEditionHelp": "Indiquez l’édition ou la version de la CDU adoptée par l’établissement.",
+      "cutter": {
+        "title": "Utiliser le code Cutter",
+        "description": "Permet d’utiliser le code Cutter dans la composition de la cote."
+      },
+      "autoCallNumber": {
+        "title": "Générer automatiquement la cote",
+        "description": "PHANYX peut combiner la classification et le Cutter tout en laissant la cote modifiable manuellement."
+      }
+    },
+    "labelModels": {
+      "eyebrow": "Impression et identification",
+      "title": "Modèles d’étiquettes",
+      "description": "Configurez les feuilles pour les étiquettes de dos et les codes-barres. Les modèles PHANYX natifs restent protégés et peuvent être utilisés par défaut.",
+      "new": "Nouveau modèle",
+      "reload": "Recharger",
+      "retry": "Réessayer",
+      "loading": "Chargement des modèles d’étiquettes...",
+      "empty": "Aucun modèle disponible pour ce type.",
+      "capacity": "étiquettes / feuille",
+      "copySuffix": " — copie",
+      "systemProtected": "Modèle PHANYX natif. Il ne peut pas être modifié ni supprimé ; dupliquez-le pour créer une version personnalisée.",
+      "calibrationHelp": "Utilisez les décalages uniquement pour compenser de petites différences physiques de l’imprimante. Les valeurs positives déplacent l’impression vers la droite ou vers le bas.",
+      "types": {
+        "spine": "Dos",
+        "barcode": "Code-barres"
+      },
+      "badges": {
+        "system": "PHANYX",
+        "manufacturer": "Fabricant",
+        "custom": "Personnalisé",
+        "default": "Par défaut",
+        "inactive": "Inactif"
+      },
+      "metrics": {
+        "sheet": "Feuille",
+        "label": "Étiquette",
+        "grid": "Grille",
+        "offset": "Calibrage"
+      },
+      "actions": {
+        "setDefault": "Définir par défaut",
+        "edit": "Modifier",
+        "duplicate": "Dupliquer",
+        "activate": "Activer",
+        "deactivate": "Désactiver",
+        "delete": "Supprimer"
+      },
+      "groups": {
+        "identification": "Identification du modèle",
+        "sheet": "Feuille et marges",
+        "labels": "Étiquettes et grille",
+        "calibration": "Calibrage de l’imprimante"
+      },
+      "fields": {
+        "name": "Nom du modèle",
+        "description": "Description",
+        "type": "Type d’étiquette",
+        "brand": "Marque",
+        "manufacturerCode": "Code fabricant",
+        "sheetWidth": "Largeur de la feuille (mm)",
+        "sheetHeight": "Hauteur de la feuille (mm)",
+        "orientation": "Orientation",
+        "marginTop": "Marge supérieure (mm)",
+        "marginRight": "Marge droite (mm)",
+        "marginBottom": "Marge inférieure (mm)",
+        "marginLeft": "Marge gauche (mm)",
+        "labelWidth": "Largeur de l’étiquette (mm)",
+        "labelHeight": "Hauteur de l’étiquette (mm)",
+        "columns": "Colonnes",
+        "rows": "Lignes",
+        "horizontalGap": "Espacement horizontal (mm)",
+        "verticalGap": "Espacement vertical (mm)",
+        "offsetX": "Décalage horizontal X (mm)",
+        "offsetY": "Décalage vertical Y (mm)",
+        "active": "Modèle actif",
+        "activeHelp": "Les modèles inactifs restent enregistrés mais ne sont pas disponibles pour une utilisation normale.",
+        "default": "Définir par défaut",
+        "defaultHelp": "Ce modèle sera sélectionné initialement lors de l’impression d’étiquettes de ce type."
+      },
+      "orientation": {
+        "portrait": "Portrait",
+        "landscape": "Paysage"
+      },
+      "modal": {
+        "eyebrow": "Modèle de feuille",
+        "newTitle": "Nouveau modèle d’étiquettes",
+        "editTitle": "Modifier le modèle d’étiquettes",
+        "duplicateTitle": "Dupliquer le modèle d’étiquettes",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "saving": "Enregistrement...",
+        "save": "Enregistrer le modèle"
+      },
+      "delete": {
+        "title": "Supprimer le modèle d’étiquettes",
+        "description": "Supprimer le modèle « {name} » ? Cette action ne modifie pas les modèles PHANYX natifs.",
+        "cancel": "Annuler",
+        "deleting": "Suppression...",
+        "confirm": "Supprimer le modèle"
+      },
+      "validation": {
+        "name": "Indiquez le nom du modèle."
+      },
+      "success": {
+        "created": "Modèle d’étiquettes créé avec succès.",
+        "updated": "Modèle d’étiquettes mis à jour avec succès.",
+        "deleted": "Modèle d’étiquettes supprimé.",
+        "defaultChanged": "Modèle par défaut mis à jour.",
+        "stateChanged": "État du modèle mis à jour."
+      },
+      "errors": {
+        "load": "Impossible de charger les modèles d’étiquettes.",
+        "save": "Impossible d’enregistrer le modèle d’étiquettes.",
+        "action": "Impossible d’effectuer cette action."
       }
     },
     "circulation": {
@@ -15297,132 +15561,6 @@
       "reasonRequired": "Indiquez un motif d’au moins 3 caractères.",
       "success": "Inscription annulée avec succès.",
       "error": "Impossible d’annuler l’inscription."
-    }
-  },
-  "AdminTrancamentoMatricula": {
-    "back": "Retour aux inscriptions",
-    "title": "Mettre l'inscription en pause",
-    "subtitle": "Enregistrez la procédure de mise en pause tout en préservant l'historique académique existant.",
-    "loading": "Chargement de la procédure de mise en pause...",
-    "enrollmentId": "Inscription #{id}",
-    "summary": {
-      "title": "Données de l'inscription",
-      "student": "Étudiant",
-      "enrollment": "Inscription",
-      "institution": "Établissement",
-      "campus": "Campus",
-      "course": "Formation",
-      "class": "Classe",
-      "status": "Statut actuel"
-    },
-    "process": {
-      "title": "Procédure de mise en pause",
-      "description": "Renseignez les informations ci-dessous. Le numéro de protocole est généré automatiquement lors de l'enregistrement du premier brouillon.",
-      "protocol": "Protocole",
-      "pendingProtocol": "Généré lors de l'enregistrement",
-      "responsible": "Enregistré par",
-      "role": "Poste/fonction",
-      "notRecorded": "Enregistré automatiquement",
-      "draft": "Brouillon"
-    },
-    "form": {
-      "reason": "Motif de la mise en pause",
-      "reasonPlaceholder": "Indiquez le motif de la mise en pause de l'inscription",
-      "reasonHelp": "Champ obligatoire. Le motif restera enregistré dans l'historique de la procédure.",
-      "startDate": "Début de la mise en pause",
-      "durationUnit": "Unité de durée",
-      "durationQuantity": "Quantité",
-      "expectedReturn": "Retour prévu",
-      "expectedReturnOptional": "Retour prévu (facultatif)",
-      "observations": "Observations",
-      "observationsPlaceholder": "Informations complémentaires sur la procédure, si nécessaire",
-      "selectUnit": "Sélectionnez",
-      "days": "Jours",
-      "months": "Mois",
-      "semesters": "Semestres",
-      "indefinite": "Durée indéterminée"
-    },
-    "actions": {
-      "saveDraft": "Enregistrer le brouillon",
-      "saving": "Enregistrement...",
-      "confirm": "Confirmer la mise en pause",
-      "confirming": "Confirmation..."
-    },
-    "warnings": {
-      "title": "Attention",
-      "confirmed": "Une mise en pause confirmée est déjà ouverte pour cette inscription.",
-      "blocked": "Le statut actuel de cette inscription ne permet pas de démarrer ou de modifier une procédure de mise en pause.",
-      "quarantine": "Cette inscription est en quarantaine et ne peut pas être mise en pause."
-    },
-    "messages": {
-      "draftSaved": "Brouillon enregistré avec succès.",
-      "confirmed": "Mise en pause de l'inscription confirmée avec succès.",
-      "saveFirst": "Enregistrez le brouillon avant de confirmer la mise en pause."
-    },
-    "errors": {
-      "generic": "L'opération n'a pas pu être effectuée.",
-      "load": "Impossible de charger la procédure de mise en pause.",
-      "reason": "Indiquez un motif d'au moins 3 caractères.",
-      "startDate": "Indiquez une date de début valide.",
-      "unit": "Sélectionnez l'unité de durée.",
-      "quantity": "Indiquez un nombre entier supérieur à zéro.",
-      "returnDate": "Indiquez une date de retour prévue valide.",
-      "returnBeforeStart": "La date de retour prévue ne peut pas être antérieure au début de la mise en pause.",
-      "stale": "Le statut de l'inscription a changé après la création de ce brouillon. Vérifiez et enregistrez le brouillon avant de tenter une nouvelle confirmation.",
-      "active": "Une procédure de mise en pause est déjà active pour cette inscription.",
-      "permission": "Vous ne disposez pas de l'autorisation nécessaire pour effectuer cette opération."
-    },
-    "confirmModal": {
-      "title": "Confirmer la mise en pause",
-      "message": "Après confirmation, l'inscription passera au statut En pause. L'historique académique existant sera préservé.",
-      "confirm": "Confirmer",
-      "cancel": "Retour"
-    },
-    "documents": {
-      "title": "Documents de mise en pause",
-      "subtitle": "Générez le document correspondant au protocole {protocol} à partir d'un modèle de l'établissement.",
-      "generatedCount": "Documents générés : {count}",
-      "template": "Modèle du document",
-      "selectTemplate": "Sélectionnez un modèle",
-      "loadingTemplates": "Chargement des modèles de mise en pause...",
-      "noTemplates": "Aucun modèle actif de type Mise en pause n'est disponible.",
-      "help": "Le document sera rempli avec les données de cette procédure et restera lié au protocole.",
-      "manageTemplates": "Gérer les modèles",
-      "generate": "Générer le document",
-      "generating": "Génération...",
-      "openPdf": "Ouvrir le PDF",
-      "messages": {
-        "generated": "Document généré avec succès."
-      },
-      "errors": {
-        "loadTemplates": "Impossible de charger les modèles de mise en pause.",
-        "selectTemplate": "Sélectionnez un modèle de document.",
-        "generate": "Impossible de générer le document.",
-        "invalidResponse": "Le document a été généré, mais le fichier créé n'a pas pu être identifié."
-      }
-    },
-    "history": {
-      "title": "Historique des mises en pause",
-      "subtitle": "Toutes les procédures enregistrées pour cette inscription.",
-      "empty": "Aucune mise en pause n'a encore été enregistrée.",
-      "protocol": "Protocole",
-      "status": "Statut",
-      "previousStatus": "Statut précédent",
-      "period": "Période",
-      "duration": "Durée",
-      "reason": "Motif",
-      "registeredBy": "Enregistré par",
-      "confirmedBy": "Confirmé par",
-      "createdAt": "Créé le",
-      "confirmedAt": "Confirmé le",
-      "documents": "Documents générés",
-      "noReturn": "Aucun retour prévu"
-    },
-    "processStatus": {
-      "RASCUNHO": "Brouillon",
-      "CONFIRMADO": "Confirmé",
-      "ENCERRADO": "Clôturé",
-      "CANCELADO": "Annulé"
     }
   },
   "AdminFuncionariosPermissoes": {
@@ -21080,6 +21218,22 @@
       "sendLink": "Envoyer le lien",
       "backToLogin": "Retour à la connexion"
     },
+    "choosePage": {
+      "metadataTitle": "Choisissez votre espace | PHANYX",
+      "welcome": "Bienvenue sur PHANYX",
+      "title": "Comment souhaitez-vous vous connecter ?",
+      "description": "Sélectionnez votre profil pour accéder à votre établissement.",
+      "studentTitle": "Étudiant",
+      "studentDescription": "Accédez aux cours, notes et activités.",
+      "studentAction": "Ouvrir l'espace étudiant",
+      "teacherTitle": "Enseignant",
+      "teacherDescription": "Gérez les classes, cours et évaluations.",
+      "teacherAction": "Ouvrir l'espace enseignant",
+      "institutionTitle": "Établissement",
+      "institutionDescription": "Gérez votre établissement au même endroit.",
+      "institutionAction": "Ouvrir l'administration",
+      "backToSite": "Retour au site"
+    },
     "passwordSecurity": {
       "strengthLabel": "Robustesse du mot de passe",
       "weak": "Faible",
@@ -21117,25 +21271,8 @@
       "updateFailed": "Impossible de mettre à jour le mot de passe.",
       "save": "Enregistrer le nouveau mot de passe",
       "saving": "Enregistrement..."
-    },
-    "choosePage": {
-      "metadataTitle": "Choisissez votre espace | PHANYX",
-      "welcome": "Bienvenue sur PHANYX",
-      "title": "Comment souhaitez-vous vous connecter ?",
-      "description": "Sélectionnez votre profil pour accéder à votre établissement.",
-      "studentTitle": "Étudiant",
-      "studentDescription": "Accédez aux cours, notes et activités.",
-      "studentAction": "Ouvrir l'espace étudiant",
-      "teacherTitle": "Enseignant",
-      "teacherDescription": "Gérez les classes, cours et évaluations.",
-      "teacherAction": "Ouvrir l'espace enseignant",
-      "institutionTitle": "Établissement",
-      "institutionDescription": "Gérez votre établissement au même endroit.",
-      "institutionAction": "Ouvrir l'administration",
-      "backToSite": "Retour au site"
     }
-  }
-,
+  },
   "AdminStudentsImport": {
     "action": "Importer des étudiants",
     "eyebrow": "GESTION DES ÉTUDIANTS",
@@ -21258,8 +21395,133 @@
       "groupResponsible": "Responsable : documents, téléphone, pays du téléphone, e-mail et lien de parenté.",
       "groupAccessibility": "Accessibilité : description des besoins particuliers et remarques."
     }
-  }
-,
+  },
+  "AdminTrancamentoMatricula": {
+    "back": "Retour aux inscriptions",
+    "title": "Mettre l'inscription en pause",
+    "subtitle": "Enregistrez la procédure de mise en pause tout en préservant l'historique académique existant.",
+    "loading": "Chargement de la procédure de mise en pause...",
+    "enrollmentId": "Inscription #{id}",
+    "summary": {
+      "title": "Données de l'inscription",
+      "student": "Étudiant",
+      "enrollment": "Inscription",
+      "institution": "Établissement",
+      "campus": "Campus",
+      "course": "Formation",
+      "class": "Classe",
+      "status": "Statut actuel"
+    },
+    "process": {
+      "title": "Procédure de mise en pause",
+      "description": "Renseignez les informations ci-dessous. Le numéro de protocole est généré automatiquement lors de l'enregistrement du premier brouillon.",
+      "protocol": "Protocole",
+      "pendingProtocol": "Généré lors de l'enregistrement",
+      "responsible": "Enregistré par",
+      "role": "Poste/fonction",
+      "notRecorded": "Enregistré automatiquement",
+      "draft": "Brouillon"
+    },
+    "form": {
+      "reason": "Motif de la mise en pause",
+      "reasonPlaceholder": "Indiquez le motif de la mise en pause de l'inscription",
+      "reasonHelp": "Champ obligatoire. Le motif restera enregistré dans l'historique de la procédure.",
+      "startDate": "Début de la mise en pause",
+      "durationUnit": "Unité de durée",
+      "durationQuantity": "Quantité",
+      "expectedReturn": "Retour prévu",
+      "expectedReturnOptional": "Retour prévu (facultatif)",
+      "observations": "Observations",
+      "observationsPlaceholder": "Informations complémentaires sur la procédure, si nécessaire",
+      "selectUnit": "Sélectionnez",
+      "days": "Jours",
+      "months": "Mois",
+      "semesters": "Semestres",
+      "indefinite": "Durée indéterminée"
+    },
+    "actions": {
+      "saveDraft": "Enregistrer le brouillon",
+      "saving": "Enregistrement...",
+      "confirm": "Confirmer la mise en pause",
+      "confirming": "Confirmation..."
+    },
+    "warnings": {
+      "title": "Attention",
+      "confirmed": "Une mise en pause confirmée est déjà ouverte pour cette inscription.",
+      "blocked": "Le statut actuel de cette inscription ne permet pas de démarrer ou de modifier une procédure de mise en pause.",
+      "quarantine": "Cette inscription est en quarantaine et ne peut pas être mise en pause."
+    },
+    "messages": {
+      "draftSaved": "Brouillon enregistré avec succès.",
+      "confirmed": "Mise en pause de l'inscription confirmée avec succès.",
+      "saveFirst": "Enregistrez le brouillon avant de confirmer la mise en pause."
+    },
+    "errors": {
+      "generic": "L'opération n'a pas pu être effectuée.",
+      "load": "Impossible de charger la procédure de mise en pause.",
+      "reason": "Indiquez un motif d'au moins 3 caractères.",
+      "startDate": "Indiquez une date de début valide.",
+      "unit": "Sélectionnez l'unité de durée.",
+      "quantity": "Indiquez un nombre entier supérieur à zéro.",
+      "returnDate": "Indiquez une date de retour prévue valide.",
+      "returnBeforeStart": "La date de retour prévue ne peut pas être antérieure au début de la mise en pause.",
+      "stale": "Le statut de l'inscription a changé après la création de ce brouillon. Vérifiez et enregistrez le brouillon avant de tenter une nouvelle confirmation.",
+      "active": "Une procédure de mise en pause est déjà active pour cette inscription.",
+      "permission": "Vous ne disposez pas de l'autorisation nécessaire pour effectuer cette opération."
+    },
+    "confirmModal": {
+      "title": "Confirmer la mise en pause",
+      "message": "Après confirmation, l'inscription passera au statut En pause. L'historique académique existant sera préservé.",
+      "confirm": "Confirmer",
+      "cancel": "Retour"
+    },
+    "documents": {
+      "title": "Documents de mise en pause",
+      "subtitle": "Générez le document correspondant au protocole {protocol} à partir d'un modèle de l'établissement.",
+      "generatedCount": "Documents générés : {count}",
+      "template": "Modèle du document",
+      "selectTemplate": "Sélectionnez un modèle",
+      "loadingTemplates": "Chargement des modèles de mise en pause...",
+      "noTemplates": "Aucun modèle actif de type Mise en pause n'est disponible.",
+      "help": "Le document sera rempli avec les données de cette procédure et restera lié au protocole.",
+      "manageTemplates": "Gérer les modèles",
+      "generate": "Générer le document",
+      "generating": "Génération...",
+      "openPdf": "Ouvrir le PDF",
+      "messages": {
+        "generated": "Document généré avec succès."
+      },
+      "errors": {
+        "loadTemplates": "Impossible de charger les modèles de mise en pause.",
+        "selectTemplate": "Sélectionnez un modèle de document.",
+        "generate": "Impossible de générer le document.",
+        "invalidResponse": "Le document a été généré, mais le fichier créé n'a pas pu être identifié."
+      }
+    },
+    "history": {
+      "title": "Historique des mises en pause",
+      "subtitle": "Toutes les procédures enregistrées pour cette inscription.",
+      "empty": "Aucune mise en pause n'a encore été enregistrée.",
+      "protocol": "Protocole",
+      "status": "Statut",
+      "previousStatus": "Statut précédent",
+      "period": "Période",
+      "duration": "Durée",
+      "reason": "Motif",
+      "registeredBy": "Enregistré par",
+      "confirmedBy": "Confirmé par",
+      "createdAt": "Créé le",
+      "confirmedAt": "Confirmé le",
+      "documents": "Documents générés",
+      "noReturn": "Aucun retour prévu"
+    },
+    "processStatus": {
+      "RASCUNHO": "Brouillon",
+      "CONFIRMADO": "Confirmé",
+      "ENCERRADO": "Clôturé",
+      "CANCELADO": "Annulé"
+    }
+  },
   "AdminExternalActivitySafety": {
     "eyebrow": "Gestion des risques",
     "title": "Sécurité",
@@ -21455,8 +21717,7 @@
         "PERSONALIZADO": "Personnalisé"
       }
     }
-  }
-,
+  },
   "AdminExternalActivityHealth": {
     "eyebrow": "SANTÉ ET SOINS",
     "title": "Santé",
@@ -21549,6 +21810,136 @@
       "loadError": "Impossible de charger les informations de santé.",
       "saveError": "Impossible d’enregistrer la fiche de santé.",
       "saved": "Fiche de santé enregistrée avec succès."
+    }
+  },
+  "AdminExternalActivityDocuments": {
+    "title": "Documents",
+    "subtitle": "Centralisez les fichiers, autorisations, contrats, assurances et documents liés à l’activité externe.",
+    "loading": "Chargement des documents...",
+    "summary": {
+      "total": "Total",
+      "required": "Obligatoires",
+      "pending": "En attente / examen",
+      "expired": "Expirés",
+      "expiring": "Expire bientôt"
+    },
+    "filters": {
+      "search": "Rechercher par titre, numéro, fichier ou lien...",
+      "allTypes": "Tous les types",
+      "allStatuses": "Tous les statuts",
+      "allLinks": "Tous les liens",
+      "showHistory": "Afficher les archivés et remplacés"
+    },
+    "links": {
+      "general": "Document général",
+      "participant": "Participant",
+      "provider": "Prestataire",
+      "vehicle": "Véhicule"
+    },
+    "statuses": {
+      "ATIVO": "Actif",
+      "PENDENTE": "En attente",
+      "EM_ANALISE": "En examen",
+      "APROVADO": "Approuvé",
+      "REJEITADO": "Rejeté",
+      "VENCIDO": "Expiré",
+      "SUBSTITUIDO": "Remplacé",
+      "ARQUIVADO": "Archivé"
+    },
+    "badges": {
+      "required": "Obligatoire",
+      "confidential": "Confidentiel",
+      "expiring": "Expire bientôt"
+    },
+    "card": {
+      "link": "Lien",
+      "number": "Numéro",
+      "noFile": "Aucun fichier envoyé",
+      "validUntil": "Valable jusqu’au"
+    },
+    "empty": {
+      "title": "Aucun document trouvé",
+      "description": "Ajoutez des documents ou modifiez les filtres pour afficher d’autres enregistrements."
+    },
+    "actions": {
+      "new": "Nouveau document",
+      "open": "Ouvrir",
+      "download": "Télécharger",
+      "edit": "Modifier",
+      "replace": "Remplacer",
+      "archive": "Archiver",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "uploading": "Envoi du fichier...",
+      "confirmReplace": "Remplacer le document"
+    },
+    "modal": {
+      "newTitle": "Nouveau document",
+      "editTitle": "Modifier le document",
+      "replaceTitle": "Remplacer le document",
+      "description": "Saisissez les informations du document et ajoutez un fichier si nécessaire.",
+      "replaceDescription": "Le fichier précédent sera conservé dans l’historique comme remplacé."
+    },
+    "form": {
+      "type": "Type",
+      "title": "Titre",
+      "description": "Description",
+      "number": "Numéro du document",
+      "status": "Statut",
+      "issuedAt": "Émis le",
+      "validUntil": "Valable jusqu’au",
+      "participant": "Participant",
+      "provider": "Prestataire de transport",
+      "vehicle": "Véhicule",
+      "file": "Fichier",
+      "fileHelp": "PDF, images, Word ou Excel. Limite de 25 Mo.",
+      "fileAlreadyExists": "Cet enregistrement possède déjà un fichier. Utilisez « Remplacer » pour conserver l’historique de la version précédente.",
+      "required": "Document obligatoire",
+      "requiredHelp": "Indique que ce document est requis pour l’activité.",
+      "confidential": "Document confidentiel",
+      "confidentialHelp": "Le contenu est disponible uniquement aux utilisateurs disposant d’une permission de gestion.",
+      "notes": "Observations",
+      "none": "Aucun",
+      "select": "Sélectionner..."
+    },
+    "messages": {
+      "created": "Document créé avec succès.",
+      "updated": "Document mis à jour avec succès.",
+      "replaced": "Document remplacé avec succès.",
+      "archived": "Document archivé.",
+      "statusChanged": "Statut mis à jour."
+    },
+    "errors": {
+      "load": "Impossible de charger les documents.",
+      "required": "Indiquez le type et le titre du document.",
+      "save": "Impossible d’enregistrer le document.",
+      "status": "Impossible de modifier le statut.",
+      "fileTooLarge": "Le fichier dépasse la limite de 25 Mo.",
+      "invalidFile": "Ce format de fichier n’est pas autorisé.",
+      "replacementFileRequired": "Sélectionnez le nouveau fichier pour effectuer le remplacement."
+    },
+    "types": {
+      "ROTEIRO": "Itinéraire",
+      "TERMO_AUTORIZACAO": "Formulaire d’autorisation",
+      "AUTORIZACAO_ASSINADA": "Autorisation signée",
+      "CONTRATO_TRANSPORTE": "Contrat de transport",
+      "CONTRATO_HOSPEDAGEM": "Contrat d’hébergement",
+      "SEGURO_VIAGEM": "Assurance voyage",
+      "APOLICE_TRANSPORTE": "Police d’assurance transport",
+      "LICENCA_PRESTADOR": "Licence du prestataire",
+      "DOCUMENTO_VEICULO": "Document du véhicule",
+      "DOCUMENTO_CONDUTOR": "Document du conducteur",
+      "AVALIACAO_RISCO": "Évaluation des risques",
+      "PLANO_EMERGENCIA": "Plan d’urgence",
+      "COMPROVANTE_RESERVA": "Confirmation de réservation",
+      "PASSAGEM": "Billet",
+      "HOSPEDAGEM": "Hébergement",
+      "PASSAPORTE": "Passeport",
+      "VISTO": "Visa",
+      "DOCUMENTO_MEDICO": "Document médical",
+      "LISTA_PARTICIPANTES": "Liste des participants",
+      "OUTRO": "Autre"
     }
   }
 }
