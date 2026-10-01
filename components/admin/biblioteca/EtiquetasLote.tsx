@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import JsBarcode from "jsbarcode";
 
@@ -135,7 +135,7 @@ function nomeCurtoInstituicao(
   const palavras =
     nome
       .replace(
-        /[^A-Za-zÃ€-Ã¿0-9 ]/g,
+        /[^A-Za-z\u00C0-\u00FF0-9 ]/g,
         " ",
       )
       .split(/\s+/)
