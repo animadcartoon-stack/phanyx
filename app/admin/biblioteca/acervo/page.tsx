@@ -559,16 +559,14 @@ export default function BibliotecaAcervoPage() {
 
   function executarExportacao() {
     /*
-     * Nesta primeira etapa visual,
-     * somente XLSX já está ligado
-     * ao backend existente.
-     *
-     * Os demais formatos serão
-     * conectados na próxima etapa.
+     * XLSX, CSV, MARC21 e MARCXML
+     * já utilizam a rota real.
+     * O ZIP será conectado na
+     * próxima etapa.
      */
     if (
-      formatoExportacao !==
-      "xlsx"
+      formatoExportacao ===
+      "zip"
     ) {
       setErroExportacao(
         tImport(

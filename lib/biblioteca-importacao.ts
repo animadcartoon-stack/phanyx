@@ -652,6 +652,11 @@ const COLUNAS_MARC_IMPORTACAO: Array<{
   grupo: GrupoCampoImportacao;
 }> = [
   {
+    chave: "capaUrl",
+    nome: "MARC 856$u · URL da capa",
+    grupo: "OBRA",
+  },
+  {
     chave: "idLegado",
     nome: "MARC 001 · ID do registro",
     grupo: "OBRA",
@@ -2039,7 +2044,56 @@ function dadosRegistroMarc(
         ),
     );
 
+  let capaUrlMarc =
+    "";
+
+  for (
+    const campo of
+    camposMarc(
+      registro,
+      "856",
+    )
+  ) {
+    const url =
+      campo.subcampos.find(
+        (subcampo) =>
+          subcampo.codigo ===
+          "u",
+      )?.valor?.trim() ??
+      "";
+
+    const descricao =
+      campo.subcampos
+        .filter(
+          (subcampo) =>
+            subcampo.codigo ===
+              "3" ||
+            subcampo.codigo ===
+              "y",
+        )
+        .map(
+          (subcampo) =>
+            subcampo.valor,
+        )
+        .join(" ");
+
+    if (
+      url &&
+      /\b(capa|cover)\b/i.test(
+        descricao,
+      )
+    ) {
+      capaUrlMarc =
+        url;
+
+      break;
+    }
+  }
+
   return {
+    capaUrl:
+      capaUrlMarc,
+
     idLegado:
       controleMarc(
         registro,

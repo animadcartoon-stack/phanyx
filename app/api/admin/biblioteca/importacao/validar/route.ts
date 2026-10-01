@@ -145,6 +145,36 @@ function chaveSimples(
     .toLowerCase();
 }
 
+function idPhanyxDoLegado(
+  valor:
+    | string
+    | null
+    | undefined,
+) {
+  const resultado =
+    String(valor ?? "")
+      .trim()
+      .match(
+        /^PHANYX-(\d+)$/i,
+      );
+
+  if (!resultado) {
+    return null;
+  }
+
+  const id =
+    Number(
+      resultado[1],
+    );
+
+  return (
+    Number.isSafeInteger(id) &&
+    id > 0
+  )
+    ? id
+    : null;
+}
+
 function possuiDadosExemplar(
   dados: Record<string, string>,
 ) {
@@ -388,6 +418,26 @@ export async function POST(
         ),
       );
 
+    const idsPhanyx =
+      Array.from(
+        new Set(
+          registros
+            .map(
+              (registro) =>
+                idPhanyxDoLegado(
+                  registro.dados
+                    .idLegado,
+                ),
+            )
+            .filter(
+              (
+                valor,
+              ): valor is number =>
+                valor !== null,
+            ),
+        ),
+      );
+
     const codigosInternos =
       unicos(
         registros.map(
@@ -441,6 +491,16 @@ export async function POST(
     }> = [];
 
     const filtrosItens = [
+      ...dividir(
+        idsPhanyx,
+      ).map(
+        (lote) => ({
+          id: {
+            in: lote,
+          },
+        }),
+      ),
+
       ...dividir(
         isbn10,
       ).map(
@@ -664,6 +724,10 @@ export async function POST(
     const porDoi =
       new Map<string, typeof itensUnicos[number]>();
 
+
+    const porIdPhanyx =
+      new Map<number, typeof itensUnicos[number]>();
+
     const porTitulo =
       new Map<
         string,
@@ -674,6 +738,11 @@ export async function POST(
       const item of
       itensUnicos
     ) {
+      porIdPhanyx.set(
+        item.id,
+        item,
+      );
+
       const isbn10Item =
         chaveIsbn(
           item.isbn10,
@@ -939,7 +1008,31 @@ export async function POST(
             motivoObra =
               "TITULO_AUSENTE";
           } else {
+            const idPhanyx =
+              idPhanyxDoLegado(
+                dados.idLegado,
+              );
+
+            const candidatoIdPhanyx =
+              idPhanyx
+                ? porIdPhanyx.get(
+                    idPhanyx,
+                  )
+                : undefined;
+
+            const porIdLegado =
+              candidatoIdPhanyx &&
+              normalizarTextoComparacao(
+                candidatoIdPhanyx.titulo,
+              ) ===
+                normalizarTextoComparacao(
+                  titulo,
+                )
+                ? candidatoIdPhanyx
+                : undefined;
+
             const porIdentificador =
+              porIdLegado ??
               (dados.isbn13
                 ? porIsbn13.get(
                     chaveIsbn(
@@ -969,7 +1062,9 @@ export async function POST(
                 "VINCULAR_EXISTENTE";
 
               motivoObra =
-                "IDENTIFICADOR_EXISTENTE";
+                porIdLegado
+                  ? "ID_PHANYX_EXISTENTE"
+                  : "IDENTIFICADOR_EXISTENTE";
 
               itemExistente = {
                 id:

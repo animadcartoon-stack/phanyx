@@ -1,8 +1,18 @@
 import {
   AcaoAuditoriaBiblioteca,
+  Prisma,
+  StatusArquivoBiblioteca,
+  StatusItemBiblioteca,
+  TipoArquivoBiblioteca,
+  TipoItemBiblioteca,
 } from "@prisma/client";
 
 import * as XLSX from "xlsx";
+
+import {
+  gerarMarc21Iso2709,
+  gerarMarcXml,
+} from "@/lib/biblioteca-exportacao-marc";
 
 import {
   ErroBiblioteca,
@@ -103,14 +113,284 @@ export async function GET(
       "biblioteca.catalogo.ver",
     );
 
+    const parametros =
+      new URL(
+        request.url,
+      ).searchParams;
+
+    const formato =
+      (
+        parametros.get(
+          "formato",
+        ) ||
+        "xlsx"
+      )
+        .trim()
+        .toLowerCase();
+
+    if (
+      ![
+        "xlsx",
+        "csv",
+        "marc21",
+        "marcxml",
+      ].includes(
+        formato,
+      )
+    ) {
+      throw new ErroBiblioteca(
+        400,
+        "Formato de exportação inválido.",
+        "FORMATO_EXPORTACAO_INVALIDO",
+      );
+    }
+
+    const escopo =
+      parametros.get(
+        "escopo",
+      ) ===
+      "filtros"
+        ? "filtros"
+        : "completo";
+
+    const incluirExemplares =
+      parametros.get(
+        "exemplares",
+      ) !== "0";
+
+    const incluirCapas =
+      parametros.get(
+        "capas",
+      ) !== "0";
+
+    const incluirLinks =
+      parametros.get(
+        "links",
+      ) !== "0";
+
+    const busca =
+      escopo === "filtros"
+        ? (
+            parametros.get(
+              "busca",
+            ) || ""
+          )
+            .trim()
+            .slice(
+              0,
+              150,
+            )
+        : "";
+
+    const tipoBruto =
+      escopo === "filtros"
+        ? (
+            parametros.get(
+              "tipo",
+            ) || ""
+          )
+            .trim()
+            .toUpperCase()
+        : "";
+
+    const statusBruto =
+      escopo === "filtros"
+        ? (
+            parametros.get(
+              "status",
+            ) || ""
+          )
+            .trim()
+            .toUpperCase()
+        : "";
+
+    const tipo =
+      tipoBruto &&
+      Object.values(
+        TipoItemBiblioteca,
+      ).includes(
+        tipoBruto as
+          TipoItemBiblioteca,
+      )
+        ? (
+            tipoBruto as
+              TipoItemBiblioteca
+          )
+        : null;
+
+    const status =
+      statusBruto &&
+      Object.values(
+        StatusItemBiblioteca,
+      ).includes(
+        statusBruto as
+          StatusItemBiblioteca,
+      )
+        ? (
+            statusBruto as
+              StatusItemBiblioteca
+          )
+        : null;
+
+    const onde:
+      Prisma.BibliotecaItemWhereInput =
+        {
+          instituicaoId:
+            contexto.instituicaoId,
+
+          ...(tipo
+            ? {
+                tipo,
+              }
+            : {}),
+
+          ...(status
+            ? {
+                status,
+              }
+            : {}),
+
+          ...(busca
+            ? {
+                OR: [
+                  {
+                    titulo: {
+                      contains:
+                        busca,
+                      mode:
+                        "insensitive",
+                    },
+                  },
+                  {
+                    subtitulo: {
+                      contains:
+                        busca,
+                      mode:
+                        "insensitive",
+                    },
+                  },
+                  {
+                    tituloAlternativo:
+                      {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
+                      },
+                  },
+                  {
+                    isbn10: {
+                      contains:
+                        busca,
+                    },
+                  },
+                  {
+                    isbn13: {
+                      contains:
+                        busca,
+                    },
+                  },
+                  {
+                    issn: {
+                      contains:
+                        busca,
+                    },
+                  },
+                  {
+                    doi: {
+                      contains:
+                        busca,
+                      mode:
+                        "insensitive",
+                    },
+                  },
+                  {
+                    classificacaoBibliografica:
+                      {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
+                      },
+                  },
+                  {
+                    codigoChamada:
+                      {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
+                      },
+                  },
+                  {
+                    codigoCutter:
+                      {
+                        contains:
+                          busca,
+                        mode:
+                          "insensitive",
+                      },
+                  },
+                  {
+                    cdd: {
+                      contains:
+                        busca,
+                      mode:
+                        "insensitive",
+                    },
+                  },
+                  {
+                    cdu: {
+                      contains:
+                        busca,
+                      mode:
+                        "insensitive",
+                    },
+                  },
+                  {
+                    palavrasChave:
+                      {
+                        has:
+                          busca,
+                      },
+                  },
+                  {
+                    editora: {
+                      is: {
+                        nome: {
+                          contains:
+                            busca,
+                          mode:
+                            "insensitive",
+                        },
+                      },
+                    },
+                  },
+                  {
+                    autores: {
+                      some: {
+                        autor: {
+                          nome: {
+                            contains:
+                              busca,
+                            mode:
+                              "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                ],
+              }
+            : {}),
+        };
+
     const itens =
       await prisma
         .bibliotecaItem
         .findMany({
-          where: {
-            instituicaoId:
-              contexto.instituicaoId,
-          },
+          where:
+            onde,
 
           orderBy: [
             {
@@ -172,6 +452,27 @@ export async function GET(
             capaUrl: true,
             miniaturaUrl:
               true,
+
+            arquivos: {
+              where: {
+                arquivadoEm:
+                  null,
+                tipo:
+                  TipoArquivoBiblioteca.LINK_EXTERNO,
+                status: {
+                  not:
+                    StatusArquivoBiblioteca.ARQUIVADO,
+                },
+              },
+              orderBy: {
+                id:
+                  "asc",
+              },
+              select: {
+                urlExterna:
+                  true,
+              },
+            },
 
             editora: {
               select: {
@@ -297,9 +598,13 @@ export async function GET(
           );
 
       const exemplares =
-        item.exemplares
-          .length
-          ? item.exemplares
+        incluirExemplares
+          ? (
+              item.exemplares
+                .length
+                ? item.exemplares
+                : [null]
+            )
           : [null];
 
       for (
@@ -458,14 +763,32 @@ export async function GET(
             ),
 
           "URL da capa":
-            textoPlanilha(
-              item.capaUrl,
-            ),
+            incluirCapas
+              ? textoPlanilha(
+                  item.capaUrl,
+                )
+              : "",
 
           "URL da miniatura":
-            textoPlanilha(
-              item.miniaturaUrl,
-            ),
+            incluirCapas
+              ? textoPlanilha(
+                  item.miniaturaUrl,
+                )
+              : "",
+
+          "URL externa":
+            incluirLinks
+              ? textoPlanilha(
+                  item.arquivos
+                    .map(
+                      (arquivo) =>
+                        arquivo
+                          .urlExterna,
+                    )
+                    .filter(Boolean)
+                    .join(" | "),
+                )
+              : "",
 
           "ID do exemplar":
             exemplar?.id ??
@@ -638,7 +961,7 @@ export async function GET(
         "Acervo",
       );
 
-    const buffer =
+    const bufferXlsx =
       XLSX.write(
         workbook,
         {
@@ -650,6 +973,113 @@ export async function GET(
             true,
         },
       ) as Buffer;
+
+    let buffer:
+      Buffer;
+
+    let extensaoArquivo:
+      string;
+
+    let contentType:
+      string;
+
+    let formatoAuditoria:
+      string;
+
+    switch (
+      formato
+    ) {
+      case "csv": {
+        const csv =
+          XLSX.utils
+            .sheet_to_csv(
+              planilha,
+              {
+                FS: ",",
+                RS: "\r\n",
+              },
+            );
+
+        buffer =
+          Buffer.from(
+            "\uFEFF" +
+              csv,
+            "utf8",
+          );
+
+        extensaoArquivo =
+          "csv";
+
+        contentType =
+          "text/csv; charset=utf-8";
+
+        formatoAuditoria =
+          "CSV";
+
+        break;
+      }
+
+      case "marcxml": {
+        buffer =
+          Buffer.from(
+            gerarMarcXml(
+              itens,
+              {
+                incluirCapas,
+                incluirLinks,
+              },
+            ),
+            "utf8",
+          );
+
+        extensaoArquivo =
+          "xml";
+
+        contentType =
+          "application/marcxml+xml; charset=utf-8";
+
+        formatoAuditoria =
+          "MARCXML";
+
+        break;
+      }
+
+      case "marc21": {
+        buffer =
+          gerarMarc21Iso2709(
+            itens,
+            {
+              incluirCapas,
+              incluirLinks,
+            },
+          );
+
+        extensaoArquivo =
+          "mrc";
+
+        contentType =
+          "application/marc";
+
+        formatoAuditoria =
+          "MARC21_ISO2709";
+
+        break;
+      }
+
+      default: {
+        buffer =
+          bufferXlsx;
+
+        extensaoArquivo =
+          "xlsx";
+
+        contentType =
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+        formatoAuditoria =
+          "XLSX";
+      }
+    }
 
     const agora =
       new Date();
@@ -663,7 +1093,7 @@ export async function GET(
         );
 
     const nomeArquivo =
-      `phanyx-acervo-${dataArquivo}.xlsx`;
+      `phanyx-acervo-${dataArquivo}.${extensaoArquivo}`;
 
     const userAgent =
       request.headers
@@ -705,11 +1135,19 @@ export async function GET(
             AcaoAuditoriaBiblioteca.VISUALIZAR,
 
           descricao:
-            "Acervo exportado em XLSX.",
+            `\`Acervo exportado em ${formatoAuditoria}.\``,
 
           metadados: {
             formato:
-              "XLSX",
+              formatoAuditoria,
+
+            escopo,
+
+            incluirExemplares,
+
+            incluirCapas,
+
+            incluirLinks,
 
             obras:
               itens.length,
@@ -732,7 +1170,7 @@ export async function GET(
 
         headers: {
           "Content-Type":
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            contentType,
 
           "Content-Disposition":
             `attachment; filename="${nomeArquivo}"`,

@@ -132,6 +132,36 @@ function chaveSimples(
     .toLowerCase();
 }
 
+function idPhanyxDoLegado(
+  valor:
+    | string
+    | null
+    | undefined,
+) {
+  const resultado =
+    String(valor ?? "")
+      .trim()
+      .match(
+        /^PHANYX-(\d+)$/i,
+      );
+
+  if (!resultado) {
+    return null;
+  }
+
+  const id =
+    Number(
+      resultado[1],
+    );
+
+  return (
+    Number.isSafeInteger(id) &&
+    id > 0
+  )
+    ? id
+    : null;
+}
+
 function chaveIsbn(
   valor:
     | string
@@ -1070,6 +1100,27 @@ export async function POST(
                 const filtrosIdentificador:
                   Prisma.BibliotecaItemWhereInput[] =
                   [];
+
+
+                const idPhanyx =
+                  idPhanyxDoLegado(
+                    dados.idLegado,
+                  );
+
+                if (idPhanyx) {
+                  filtrosIdentificador.push(
+                    {
+                      id:
+                        idPhanyx,
+                      titulo: {
+                        equals:
+                          titulo,
+                        mode:
+                          "insensitive",
+                      },
+                    },
+                  );
+                }
 
                 if (isbn10) {
                   filtrosIdentificador.push(
