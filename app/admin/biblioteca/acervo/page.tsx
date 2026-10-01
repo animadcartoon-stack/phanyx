@@ -105,6 +105,17 @@ type Toast = {
   mensagem: string;
 } | null;
 
+type FormatoExportacaoAcervo =
+  | "xlsx"
+  | "csv"
+  | "marc21"
+  | "marcxml"
+  | "zip";
+
+type EscopoExportacaoAcervo =
+  | "completo"
+  | "filtros";
+
 const TIPOS_ITEM = [
   "LIVRO",
   "EBOOK",
@@ -331,6 +342,50 @@ export default function BibliotecaAcervoPage() {
     useState<FormularioItem>(FORMULARIO_INICIAL);
   const [toast, setToast] = useState<Toast>(null);
 
+  const [
+    modalExportacaoAberto,
+    setModalExportacaoAberto,
+  ] = useState(false);
+
+  const [
+    formatoExportacao,
+    setFormatoExportacao,
+  ] = useState<FormatoExportacaoAcervo>(
+    "zip",
+  );
+
+  const [
+    escopoExportacao,
+    setEscopoExportacao,
+  ] = useState<EscopoExportacaoAcervo>(
+    "completo",
+  );
+
+  const [
+    incluirExemplaresExportacao,
+    setIncluirExemplaresExportacao,
+  ] = useState(true);
+
+  const [
+    incluirCapasExportacao,
+    setIncluirCapasExportacao,
+  ] = useState(true);
+
+  const [
+    incluirLinksExportacao,
+    setIncluirLinksExportacao,
+  ] = useState(true);
+
+  const [
+    incluirArquivosExportacao,
+    setIncluirArquivosExportacao,
+  ] = useState(false);
+
+  const [
+    erroExportacao,
+    setErroExportacao,
+  ] = useState("");
+
   const possuiFiltros = Boolean(
     buscaAplicada || tipo || status
   );
@@ -486,6 +541,105 @@ export default function BibliotecaAcervoPage() {
     setTipo("");
     setStatus("");
     setPagina(1);
+  }
+
+  function abrirExportacao() {
+    setErroExportacao("");
+    setModalExportacaoAberto(
+      true,
+    );
+  }
+
+  function fecharExportacao() {
+    setErroExportacao("");
+    setModalExportacaoAberto(
+      false,
+    );
+  }
+
+  function executarExportacao() {
+    /*
+     * Nesta primeira etapa visual,
+     * somente XLSX já está ligado
+     * ao backend existente.
+     *
+     * Os demais formatos serão
+     * conectados na próxima etapa.
+     */
+    if (
+      formatoExportacao !==
+      "xlsx"
+    ) {
+      setErroExportacao(
+        tImport(
+          "exportModal.pendingFormat",
+        ),
+      );
+
+      return;
+    }
+
+    const parametros =
+      new URLSearchParams({
+        formato:
+          formatoExportacao,
+
+        escopo:
+          escopoExportacao,
+
+        exemplares:
+          incluirExemplaresExportacao
+            ? "1"
+            : "0",
+
+        capas:
+          incluirCapasExportacao
+            ? "1"
+            : "0",
+
+        links:
+          incluirLinksExportacao
+            ? "1"
+            : "0",
+
+        arquivos:
+          incluirArquivosExportacao
+            ? "1"
+            : "0",
+      });
+
+    if (
+      escopoExportacao ===
+      "filtros"
+    ) {
+      if (buscaAplicada) {
+        parametros.set(
+          "busca",
+          buscaAplicada,
+        );
+      }
+
+      if (tipo) {
+        parametros.set(
+          "tipo",
+          tipo,
+        );
+      }
+
+      if (status) {
+        parametros.set(
+          "status",
+          status,
+        );
+      }
+    }
+
+    window.location.href =
+      `/api/admin/biblioteca/acervo/exportar?${parametros.toString()}`;
+
+    setModalExportacaoAberto(
+      false,
+    );
   }
 
   function abrirCadastro() {
@@ -674,6 +828,120 @@ export default function BibliotecaAcervoPage() {
           padding: 7px 10px;
         }
       }
+      .phanyx-biblioteca-acervo-page .bib-export-modal {
+        width: min(760px, calc(100vw - 32px));
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-section + .bib-export-section {
+        margin-top: 22px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-section h3 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-format-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice,
+      .phanyx-biblioteca-acervo-page .bib-export-format {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 13px;
+        border: 1px solid #dbe3ee;
+        border-radius: 12px;
+        cursor: pointer;
+        background: #ffffff;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice-active,
+      .phanyx-biblioteca-acervo-page .bib-export-format-active {
+        border-color: #059669;
+        background: #ecfdf5;
+        box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.08);
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice input,
+      .phanyx-biblioteca-acervo-page .bib-export-format input,
+      .phanyx-biblioteca-acervo-page .bib-export-options input {
+        margin-top: 2px;
+        flex: 0 0 auto;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice span,
+      .phanyx-biblioteca-acervo-page .bib-export-format span {
+        display: grid;
+        gap: 3px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice strong,
+      .phanyx-biblioteca-acervo-page .bib-export-format strong {
+        font-size: 13px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-choice small,
+      .phanyx-biblioteca-acervo-page .bib-export-format small {
+        color: #64748b;
+        line-height: 1.35;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-options label {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 11px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-license-note {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #64748b;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-recommended {
+        margin-top: 18px;
+        padding: 13px 15px;
+        border: 1px solid #a7f3d0;
+        border-radius: 12px;
+        background: #ecfdf5;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-export-recommended p {
+        margin: 4px 0 0;
+        font-size: 12px;
+      }
+
+      @media (max-width: 700px) {
+        .phanyx-biblioteca-acervo-page .bib-export-choice-grid,
+        .phanyx-biblioteca-acervo-page .bib-export-format-grid,
+        .phanyx-biblioteca-acervo-page .bib-export-options {
+          grid-template-columns: 1fr;
+        }
+      }
+
       html[data-theme="system"] .phanyx-biblioteca-acervo-page {
         background: #242424 !important;
         color: #ffffff !important;
@@ -755,12 +1023,13 @@ export default function BibliotecaAcervoPage() {
               {tImport("openImporter")}
             </Link>
 
-            <a
-              href="/api/admin/biblioteca/acervo/exportar"
+            <button
+              type="button"
               className="bib-button bib-button-secondary"
+              onClick={abrirExportacao}
             >
               {tImport("exportCollection")}
-            </a>
+            </button>
             <EtiquetasLoteGlobal
               className="bib-button bib-button-secondary"
             />
@@ -1114,6 +1383,357 @@ export default function BibliotecaAcervoPage() {
           ) : null}
         </section>
       </div>
+
+      {modalExportacaoAberto ? (
+        <div
+          className="bib-modal-backdrop"
+          role="presentation"
+          onMouseDown={(evento) => {
+            if (
+              evento.target ===
+              evento.currentTarget
+            ) {
+              fecharExportacao();
+            }
+          }}
+        >
+          <section
+            className="bib-modal bib-export-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bib-export-modal-title"
+          >
+            <header className="bib-modal-header">
+              <div>
+                <p className="bib-eyebrow">
+                  {tImport(
+                    "exportModal.eyebrow",
+                  )}
+                </p>
+
+                <h2 id="bib-export-modal-title">
+                  {tImport(
+                    "exportModal.title",
+                  )}
+                </h2>
+
+                <p>
+                  {tImport(
+                    "exportModal.description",
+                  )}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="bib-modal-close"
+                onClick={fecharExportacao}
+                aria-label={tImport(
+                  "exportModal.close",
+                )}
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="bib-modal-body">
+              {erroExportacao ? (
+                <div className="bib-feedback bib-feedback-error">
+                  <p>
+                    {erroExportacao}
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="bib-export-section">
+                <h3>
+                  {tImport(
+                    "exportModal.scopeTitle",
+                  )}
+                </h3>
+
+                <div className="bib-export-choice-grid">
+                  <label
+                    className={
+                      escopoExportacao ===
+                      "completo"
+                        ? "bib-export-choice bib-export-choice-active"
+                        : "bib-export-choice"
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="escopo-exportacao"
+                      value="completo"
+                      checked={
+                        escopoExportacao ===
+                        "completo"
+                      }
+                      onChange={() =>
+                        setEscopoExportacao(
+                          "completo",
+                        )
+                      }
+                    />
+
+                    <span>
+                      <strong>
+                        {tImport(
+                          "exportModal.scopeAll",
+                        )}
+                      </strong>
+
+                      <small>
+                        {tImport(
+                          "exportModal.scopeAllHint",
+                        )}
+                      </small>
+                    </span>
+                  </label>
+
+                  <label
+                    className={
+                      escopoExportacao ===
+                      "filtros"
+                        ? "bib-export-choice bib-export-choice-active"
+                        : "bib-export-choice"
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="escopo-exportacao"
+                      value="filtros"
+                      checked={
+                        escopoExportacao ===
+                        "filtros"
+                      }
+                      onChange={() =>
+                        setEscopoExportacao(
+                          "filtros",
+                        )
+                      }
+                    />
+
+                    <span>
+                      <strong>
+                        {tImport(
+                          "exportModal.scopeFilters",
+                        )}
+                      </strong>
+
+                      <small>
+                        {tImport(
+                          "exportModal.scopeFiltersHint",
+                        )}
+                      </small>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="bib-export-section">
+                <h3>
+                  {tImport(
+                    "exportModal.formatTitle",
+                  )}
+                </h3>
+
+                <div className="bib-export-format-grid">
+                  {(
+                    [
+                      "xlsx",
+                      "csv",
+                      "marc21",
+                      "marcxml",
+                      "zip",
+                    ] as FormatoExportacaoAcervo[]
+                  ).map(
+                    (formato) => (
+                      <label
+                        key={formato}
+                        className={
+                          formatoExportacao ===
+                          formato
+                            ? "bib-export-format bib-export-format-active"
+                            : "bib-export-format"
+                        }
+                      >
+                        <input
+                          type="radio"
+                          name="formato-exportacao"
+                          value={formato}
+                          checked={
+                            formatoExportacao ===
+                            formato
+                          }
+                          onChange={() => {
+                            setErroExportacao(
+                              "",
+                            );
+
+                            setFormatoExportacao(
+                              formato,
+                            );
+                          }}
+                        />
+
+                        <span>
+                          <strong>
+                            {tImport(
+                              `exportModal.formats.${formato}.title`,
+                            )}
+                          </strong>
+
+                          <small>
+                            {tImport(
+                              `exportModal.formats.${formato}.description`,
+                            )}
+                          </small>
+                        </span>
+                      </label>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              <div className="bib-export-section">
+                <h3>
+                  {tImport(
+                    "exportModal.contentTitle",
+                  )}
+                </h3>
+
+                <div className="bib-export-options">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={
+                        incluirExemplaresExportacao
+                      }
+                      onChange={(evento) =>
+                        setIncluirExemplaresExportacao(
+                          evento.target.checked,
+                        )
+                      }
+                    />
+
+                    <span>
+                      {tImport(
+                        "exportModal.includeCopies",
+                      )}
+                    </span>
+                  </label>
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={
+                        incluirCapasExportacao
+                      }
+                      onChange={(evento) =>
+                        setIncluirCapasExportacao(
+                          evento.target.checked,
+                        )
+                      }
+                    />
+
+                    <span>
+                      {tImport(
+                        "exportModal.includeCovers",
+                      )}
+                    </span>
+                  </label>
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={
+                        incluirLinksExportacao
+                      }
+                      onChange={(evento) =>
+                        setIncluirLinksExportacao(
+                          evento.target.checked,
+                        )
+                      }
+                    />
+
+                    <span>
+                      {tImport(
+                        "exportModal.includeLinks",
+                      )}
+                    </span>
+                  </label>
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={
+                        incluirArquivosExportacao
+                      }
+                      onChange={(evento) =>
+                        setIncluirArquivosExportacao(
+                          evento.target.checked,
+                        )
+                      }
+                    />
+
+                    <span>
+                      {tImport(
+                        "exportModal.includeFiles",
+                      )}
+                    </span>
+                  </label>
+                </div>
+
+                <p className="bib-export-license-note">
+                  {tImport(
+                    "exportModal.licenseNote",
+                  )}
+                </p>
+              </div>
+
+              {formatoExportacao ===
+              "zip" ? (
+                <div className="bib-export-recommended">
+                  <strong>
+                    {tImport(
+                      "exportModal.zipRecommendedTitle",
+                    )}
+                  </strong>
+
+                  <p>
+                    {tImport(
+                      "exportModal.zipRecommendedDescription",
+                    )}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+
+            <footer className="bib-modal-footer">
+              <button
+                type="button"
+                className="bib-button bib-button-ghost"
+                onClick={fecharExportacao}
+              >
+                {tImport(
+                  "exportModal.cancel",
+                )}
+              </button>
+
+              <button
+                type="button"
+                className="bib-button bib-button-primary"
+                onClick={executarExportacao}
+              >
+                {tImport(
+                  "exportModal.export",
+                )}
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
 
       {modalAberto ? (
         <div

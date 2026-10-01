@@ -22145,6 +22145,51 @@
       "resultMissing": "Sans couverture",
       "resultFailures": "Échecs"
     },
-    "exportCollection": "Exporter le fonds"
+    "exportCollection": "Exporter le fonds",
+    "exportModal": {
+      "eyebrow": "MIGRATION ET INTEROPÉRABILITÉ",
+      "title": "Exporter le fonds",
+      "description": "Choisissez le format et le contenu à transférer vers un autre système ou à conserver comme copie du fonds.",
+      "close": "Fermer",
+      "scopeTitle": "Périmètre",
+      "scopeAll": "Fonds complet",
+      "scopeAllHint": "Exporte toutes les œuvres de l’établissement.",
+      "scopeFilters": "Résultat des filtres actuels",
+      "scopeFiltersHint": "Exporte uniquement les éléments correspondant à la recherche, au type et au statut appliqués.",
+      "formatTitle": "Format",
+      "formats": {
+        "xlsx": {
+          "title": "XLSX — Excel",
+          "description": "Tableur complet pour vérification, traitement et importation."
+        },
+        "csv": {
+          "title": "CSV — Universel",
+          "description": "Format simple largement accepté par d’autres systèmes."
+        },
+        "marc21": {
+          "title": "MARC21 — ISO2709",
+          "description": "Format bibliographique traditionnel pour les systèmes de bibliothèque."
+        },
+        "marcxml": {
+          "title": "MARCXML — XML",
+          "description": "MARC21 en XML pour l’interopérabilité et les intégrations."
+        },
+        "zip": {
+          "title": "Archive ZIP complète",
+          "description": "Recommandée pour la migration : métadonnées, couvertures et fichiers autorisés."
+        }
+      },
+      "contentTitle": "Contenu",
+      "includeCopies": "Inclure les données des exemplaires",
+      "includeCovers": "Inclure les couvertures",
+      "includeLinks": "Inclure les liens externes",
+      "includeFiles": "Inclure les fichiers numériques autorisés",
+      "licenseNote": "Les fichiers numériques ne sont inclus que si le téléchargement est autorisé et si la licence applicable n’interdit pas l’exportation.",
+      "zipRecommendedTitle": "Recommandé pour la migration",
+      "zipRecommendedDescription": "L’archive ZIP réunira les formats d’échange et les fichiers associés dans une structure organisée pour l’importation dans un autre système.",
+      "cancel": "Annuler",
+      "export": "Exporter le fonds",
+      "pendingFormat": "Ce format est déjà prévu dans l’interface mais sera relié au moteur d’exportation à l’étape suivante. Utilisez XLSX pour le moment."
+    }
   }
 }

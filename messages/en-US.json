@@ -22146,6 +22146,51 @@
       "resultMissing": "No cover",
       "resultFailures": "Failures"
     },
-    "exportCollection": "Export collection"
+    "exportCollection": "Export collection",
+    "exportModal": {
+      "eyebrow": "MIGRATION AND INTEROPERABILITY",
+      "title": "Export collection",
+      "description": "Choose the format and content to move to another system or keep as a collection copy.",
+      "close": "Close",
+      "scopeTitle": "Scope",
+      "scopeAll": "Full collection",
+      "scopeAllHint": "Exports all items in the institution.",
+      "scopeFilters": "Current filtered results",
+      "scopeFiltersHint": "Exports only items matching the current search, type and status filters.",
+      "formatTitle": "Format",
+      "formats": {
+        "xlsx": {
+          "title": "XLSX — Excel",
+          "description": "Complete spreadsheet for review, transformation and import."
+        },
+        "csv": {
+          "title": "CSV — Universal",
+          "description": "Simple format broadly supported by other systems."
+        },
+        "marc21": {
+          "title": "MARC21 — ISO2709",
+          "description": "Traditional bibliographic exchange format for library systems."
+        },
+        "marcxml": {
+          "title": "MARCXML — XML",
+          "description": "MARC21 in XML for interoperability and integrations."
+        },
+        "zip": {
+          "title": "Complete ZIP package",
+          "description": "Recommended for migration: metadata, covers and authorized files."
+        }
+      },
+      "contentTitle": "Content",
+      "includeCopies": "Include copy data",
+      "includeCovers": "Include covers",
+      "includeLinks": "Include external links",
+      "includeFiles": "Include authorized digital files",
+      "licenseNote": "Digital files are included only when downloading is allowed and the applicable license does not prohibit export.",
+      "zipRecommendedTitle": "Recommended for migration",
+      "zipRecommendedDescription": "The ZIP package will gather exchange formats and associated files in an organized structure for import into another system.",
+      "cancel": "Cancel",
+      "export": "Export collection",
+      "pendingFormat": "This format is already available in the interface but will be connected to the export engine in the next step. Use XLSX for now."
+    }
   }
 }

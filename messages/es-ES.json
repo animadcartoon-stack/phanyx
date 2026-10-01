@@ -22145,6 +22145,51 @@
       "resultMissing": "Sin portada",
       "resultFailures": "Fallos"
     },
-    "exportCollection": "Exportar colección"
+    "exportCollection": "Exportar colección",
+    "exportModal": {
+      "eyebrow": "MIGRACIÓN E INTEROPERABILIDAD",
+      "title": "Exportar colección",
+      "description": "Elija el formato y el contenido que desea llevar a otro sistema o conservar como copia de la colección.",
+      "close": "Cerrar",
+      "scopeTitle": "Alcance",
+      "scopeAll": "Colección completa",
+      "scopeAllHint": "Exporta todas las obras de la institución.",
+      "scopeFilters": "Resultado de los filtros actuales",
+      "scopeFiltersHint": "Exporta solo lo que coincide con la búsqueda, el tipo y el estado aplicados.",
+      "formatTitle": "Formato",
+      "formats": {
+        "xlsx": {
+          "title": "XLSX — Excel",
+          "description": "Hoja completa para revisión, tratamiento e importación."
+        },
+        "csv": {
+          "title": "CSV — Universal",
+          "description": "Formato simple y ampliamente aceptado por otros sistemas."
+        },
+        "marc21": {
+          "title": "MARC21 — ISO2709",
+          "description": "Formato bibliográfico tradicional para sistemas de bibliotecas."
+        },
+        "marcxml": {
+          "title": "MARCXML — XML",
+          "description": "MARC21 en XML para interoperabilidad e integraciones."
+        },
+        "zip": {
+          "title": "Paquete completo ZIP",
+          "description": "Recomendado para migración: metadatos, portadas y archivos autorizados."
+        }
+      },
+      "contentTitle": "Contenido",
+      "includeCopies": "Incluir datos de los ejemplares",
+      "includeCovers": "Incluir portadas",
+      "includeLinks": "Incluir enlaces externos",
+      "includeFiles": "Incluir archivos digitales autorizados",
+      "licenseNote": "Los archivos digitales solo se incluirán cuando la descarga esté permitida y la licencia aplicable no prohíba la exportación.",
+      "zipRecommendedTitle": "Recomendado para migración",
+      "zipRecommendedDescription": "El paquete ZIP reunirá formatos de intercambio y archivos asociados en una estructura organizada para importar en otro sistema.",
+      "cancel": "Cancelar",
+      "export": "Exportar colección",
+      "pendingFormat": "Este formato ya está previsto en la interfaz, pero se conectará al motor de exportación en la siguiente etapa. Use XLSX por ahora."
+    }
   }
 }
