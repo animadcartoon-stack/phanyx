@@ -30,6 +30,12 @@ import {
   normalizarTextoComparacao,
 } from "@/lib/biblioteca-importacao";
 
+import {
+  criarIndiceCapasZip,
+  importarCapa,
+  type RegistroParaCapa,
+} from "@/lib/biblioteca-importacao-capas";
+
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -722,6 +728,21 @@ export async function POST(
         "confirmacao",
       );
 
+    const capasEntrada =
+      formulario.get(
+        "capasZip",
+      );
+
+    const copiarCapasUrl =
+      formulario.get(
+        "copiarCapasUrl",
+      ) !== "false";
+
+    const buscarCapasIsbn =
+      formulario.get(
+        "buscarCapasIsbn",
+      ) === "true";
+
     if (
       confirmacao !==
       "IMPORTAR"
@@ -876,6 +897,19 @@ export async function POST(
       );
     }
 
+    const arquivoCapas =
+      capasEntrada &&
+      typeof capasEntrada !== "string" &&
+      typeof capasEntrada.arrayBuffer === "function" &&
+      capasEntrada.size > 0
+        ? capasEntrada
+        : null;
+
+    const indiceCapasZip =
+      await criarIndiceCapasZip(
+        arquivoCapas,
+      );
+
     loteId =
       randomUUID();
 
@@ -964,6 +998,12 @@ export async function POST(
 
             const exemplaresCriados:
               number[] = [];
+
+            const capasPorItem =
+              new Map<
+                number,
+                RegistroParaCapa
+              >();
 
             let obrasVinculadas =
               0;
@@ -1588,6 +1628,58 @@ export async function POST(
               }
 
               if (
+                !capasPorItem.has(
+                  itemId,
+                )
+              ) {
+                capasPorItem.set(
+                  itemId,
+                  {
+                    itemId,
+                    linha:
+                      registro.linha,
+                    titulo,
+                    arquivoCapa:
+                      texto(
+                        dados.arquivoCapa,
+                      ),
+                    capaUrl:
+                      texto(
+                        dados.capaUrl,
+                      ),
+                    miniaturaUrl:
+                      texto(
+                        dados.miniaturaUrl,
+                      ),
+                    isbn10:
+                      texto(
+                        dados.isbn10,
+                      ),
+                    isbn13:
+                      texto(
+                        dados.isbn13,
+                      ),
+                    idLegado:
+                      texto(
+                        dados.idLegado,
+                      ),
+                    codigoBarras:
+                      texto(
+                        dados.codigoBarras,
+                      ),
+                    numeroTombo:
+                      texto(
+                        dados.numeroTombo,
+                      ),
+                    patrimonio:
+                      texto(
+                        dados.patrimonio,
+                      ),
+                  },
+                );
+              }
+
+              if (
                 possuiExemplar(
                   dados,
                 )
@@ -1859,7 +1951,13 @@ export async function POST(
                 },
               });
 
-            return resumo;
+            return {
+              resumo,
+              registrosCapas:
+                Array.from(
+                  capasPorItem.values(),
+                ),
+            };
           },
           {
             maxWait:
@@ -1869,10 +1967,271 @@ export async function POST(
           },
         );
 
+    let capasImportadasZip =
+      0;
+
+    let capasImportadasUrl =
+      0;
+
+    let capasImportadasIsbn =
+      0;
+
+    let capasPreservadas =
+      0;
+
+    let semCapa =
+      0;
+
+    let falhasCapas =
+      0;
+
+    const falhasCapasDetalhes:
+      Array<{
+        itemId: number;
+        titulo: string;
+        mensagem: string;
+      }> = [];
+
+    for (
+      const registroCapa of
+      resultado.registrosCapas
+    ) {
+      try {
+        const itemAtual =
+          await prisma
+            .bibliotecaItem
+            .findFirst({
+              where: {
+                id:
+                  registroCapa.itemId,
+                instituicaoId:
+                  contexto.instituicaoId,
+              },
+              select: {
+                capaUrl: true,
+                miniaturaUrl:
+                  true,
+              },
+            });
+
+        if (!itemAtual) {
+          falhasCapas += 1;
+
+          continue;
+        }
+
+        if (
+          itemAtual.capaUrl ||
+          itemAtual.miniaturaUrl
+        ) {
+          capasPreservadas +=
+            1;
+
+          continue;
+        }
+
+        const capa =
+          await importarCapa(
+            registroCapa,
+            contexto.instituicaoId,
+            indiceCapasZip,
+            {
+              copiarUrl:
+                copiarCapasUrl,
+              buscarPorIsbn:
+                buscarCapasIsbn,
+            },
+          );
+
+        if (!capa) {
+          semCapa += 1;
+
+          continue;
+        }
+
+        await prisma
+          .$transaction(
+            async (
+              transacao,
+            ) => {
+              await transacao
+                .bibliotecaItem
+                .update({
+                  where: {
+                    id:
+                      registroCapa.itemId,
+                  },
+                  data: {
+                    capaUrl:
+                      capa.url,
+                    miniaturaUrl:
+                      capa.url,
+                    atualizadoPorId:
+                      usuario.id,
+                  },
+                });
+
+              await transacao
+                .bibliotecaAuditoria
+                .create({
+                  data: {
+                    instituicaoId:
+                      contexto.instituicaoId,
+                    usuarioId:
+                      usuario.id,
+                    entidade:
+                      "BibliotecaItem",
+                    entidadeId:
+                      String(
+                        registroCapa.itemId,
+                      ),
+                    acao:
+                      AcaoAuditoriaBiblioteca.ATUALIZAR,
+                    descricao:
+                      "Capa definida por importação de acervo.",
+                    dadosAnteriores:
+                      {
+                        capaUrl:
+                          itemAtual.capaUrl,
+                        miniaturaUrl:
+                          itemAtual.miniaturaUrl,
+                      },
+                    dadosPosteriores:
+                      {
+                        capaUrl:
+                          capa.url,
+                        miniaturaUrl:
+                          capa.url,
+                      },
+                    metadados:
+                      {
+                        loteImportacaoId:
+                          loteId,
+                        origem:
+                          "IMPORTACAO_CAPA",
+                        origemCapa:
+                          capa.origem,
+                        referencia:
+                          capa.referencia,
+                      },
+                    ip,
+                    userAgent,
+                  },
+                });
+            },
+          );
+
+        if (
+          capa.origem ===
+          "ZIP"
+        ) {
+          capasImportadasZip +=
+            1;
+        } else if (
+          capa.origem ===
+          "URL"
+        ) {
+          capasImportadasUrl +=
+            1;
+        } else if (
+          capa.origem ===
+          "ISBN"
+        ) {
+          capasImportadasIsbn +=
+            1;
+        }
+      } catch (erroCapa) {
+        falhasCapas += 1;
+
+        if (
+          falhasCapasDetalhes.length <
+          50
+        ) {
+          falhasCapasDetalhes.push({
+            itemId:
+              registroCapa.itemId,
+            titulo:
+              registroCapa.titulo,
+            mensagem:
+              erroCapa instanceof
+              Error
+                ? erroCapa.message
+                : "Falha ao importar capa.",
+          });
+        }
+      }
+    }
+
+    const resultadoFinal = {
+      ...resultado.resumo,
+
+      capasZip:
+        capasImportadasZip,
+
+      capasUrl:
+        capasImportadasUrl,
+
+      capasIsbn:
+        capasImportadasIsbn,
+
+      capasPreservadas,
+
+      semCapa,
+
+      falhasCapas,
+
+      capasNoPacote:
+        indiceCapasZip
+          ?.quantidade ??
+        0,
+    };
+
+    try {
+      await prisma
+        .bibliotecaAuditoria
+        .create({
+          data: {
+            instituicaoId:
+              contexto.instituicaoId,
+            usuarioId:
+              usuario.id,
+            entidade:
+              "BibliotecaImportacaoLote",
+            entidadeId:
+              loteId,
+            acao:
+              AcaoAuditoriaBiblioteca.ATUALIZAR,
+            descricao:
+              "Processamento de capas da importação concluído.",
+            dadosPosteriores:
+              resultadoFinal,
+            metadados: {
+              ...resultadoFinal,
+              status:
+                "CONCLUIDO",
+              origem:
+                "IMPORTACAO_ARQUIVO",
+              falhasCapas:
+                falhasCapasDetalhes,
+            },
+            ip,
+            userAgent,
+          },
+        });
+    } catch (
+      erroAuditoriaCapa
+    ) {
+      console.error(
+        "Falha ao registrar resumo das capas:",
+        erroAuditoriaCapa,
+      );
+    }
+
     return responder(
       {
         ok: true,
-        resultado,
+        resultado:
+          resultadoFinal,
       },
       201,
     );

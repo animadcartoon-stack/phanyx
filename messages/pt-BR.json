@@ -21898,6 +21898,23 @@
       "authorsCreated": "Autores criados",
       "publishersCreated": "Editoras criadas",
       "viewCollection": "Ver acervo"
+    },
+    "covers": {
+      "title": "Capas e imagens",
+      "description": "Opcionalmente migre as capas do sistema anterior. O PHANYX preserva capas já existentes.",
+      "zipLabel": "Pacote ZIP de capas",
+      "zipHint": "Associe imagens por nome do arquivo, ISBN, ID legado, código de barras, tombo ou patrimônio.",
+      "copyUrl": "Copiar capas informadas por URL",
+      "copyUrlHint": "A imagem será copiada para o armazenamento do PHANYX para não depender do sistema antigo.",
+      "searchIsbn": "Buscar capa automaticamente pelo ISBN",
+      "searchIsbnHint": "Use como fallback somente quando nenhuma capa vier do ZIP ou da URL.",
+      "priority": "Prioridade: capa já existente → ZIP → URL exportada → ISBN → imagem padrão.",
+      "resultZip": "Capas do ZIP",
+      "resultUrl": "Capas por URL",
+      "resultIsbn": "Capas por ISBN",
+      "resultPreserved": "Preservadas",
+      "resultMissing": "Sem capa",
+      "resultFailures": "Falhas"
     }
   }
 }

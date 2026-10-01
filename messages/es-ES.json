@@ -22127,6 +22127,23 @@
       "authorsCreated": "Autores creados",
       "publishersCreated": "Editoriales creadas",
       "viewCollection": "Ver colección"
+    },
+    "covers": {
+      "title": "Portadas e imágenes",
+      "description": "Migre opcionalmente las portadas del sistema anterior. PHANYX conserva las portadas existentes.",
+      "zipLabel": "Paquete ZIP de portadas",
+      "zipHint": "Relacione imágenes por nombre, ISBN, ID heredado, código de barras, registro o patrimonio.",
+      "copyUrl": "Copiar portadas proporcionadas por URL",
+      "copyUrlHint": "La imagen se copiará al almacenamiento de PHANYX.",
+      "searchIsbn": "Buscar portada automáticamente por ISBN",
+      "searchIsbnHint": "Se utiliza solo cuando no hay portada en ZIP o URL.",
+      "priority": "Prioridad: portada existente → ZIP → URL → ISBN → imagen predeterminada.",
+      "resultZip": "Portadas ZIP",
+      "resultUrl": "Portadas URL",
+      "resultIsbn": "Portadas ISBN",
+      "resultPreserved": "Conservadas",
+      "resultMissing": "Sin portada",
+      "resultFailures": "Fallos"
     }
   }
 }

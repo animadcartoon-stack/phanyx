@@ -131,6 +131,14 @@ type ResultadoImportacaoFinal = {
   exemplaresCriados: number;
   autoresCriados: number;
   editorasCriadas: number;
+
+  capasZip: number;
+  capasUrl: number;
+  capasIsbn: number;
+  capasPreservadas: number;
+  semCapa: number;
+  falhasCapas: number;
+  capasNoPacote: number;
 };
 
 type RespostaImportacaoFinal = {
@@ -267,6 +275,21 @@ export default function ImportarAcervoPage() {
   ] = useState<ResultadoImportacaoFinal | null>(
     null,
   );
+
+  const [capasZip, setCapasZip] =
+    useState<File | null>(
+      null,
+    );
+
+  const [
+    copiarCapasUrl,
+    setCopiarCapasUrl,
+  ] = useState(true);
+
+  const [
+    buscarCapasIsbn,
+    setBuscarCapasIsbn,
+  ] = useState(false);
 
   const camposPorGrupo =
     useMemo(() => {
@@ -626,6 +649,27 @@ export default function ImportarAcervoPage() {
       formulario.append(
         "confirmacao",
         "IMPORTAR",
+      );
+
+      if (capasZip) {
+        formulario.append(
+          "capasZip",
+          capasZip,
+        );
+      }
+
+      formulario.append(
+        "copiarCapasUrl",
+        copiarCapasUrl
+          ? "true"
+          : "false",
+      );
+
+      formulario.append(
+        "buscarCapasIsbn",
+        buscarCapasIsbn
+          ? "true"
+          : "false",
       );
 
       const resposta =
@@ -1492,6 +1536,100 @@ export default function ImportarAcervoPage() {
               </div>
             </section>
 
+            <section className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+              <div>
+                <h2 className="text-xl font-black">
+                  {t("covers.title")}
+                </h2>
+
+                <p className="import-muted mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  {t("covers.description")}
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                <label className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                  <span className="block text-sm font-black">
+                    {t("covers.zipLabel")}
+                  </span>
+
+                  <span className="import-muted mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                    {t("covers.zipHint")}
+                  </span>
+
+                  <input
+                    type="file"
+                    accept=".zip,application/zip"
+                    className="import-input mt-3 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                    onChange={(evento) =>
+                      setCapasZip(
+                        evento.target.files?.[0] ??
+                          null,
+                      )
+                    }
+                  />
+
+                  {capasZip ? (
+                    <strong className="mt-2 block text-xs text-emerald-700 dark:text-emerald-400">
+                      {capasZip.name}
+                    </strong>
+                  ) : null}
+                </label>
+
+                <div className="space-y-3">
+                  <label className="flex gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={copiarCapasUrl}
+                      onChange={(evento) =>
+                        setCopiarCapasUrl(
+                          evento.target.checked,
+                        )
+                      }
+                      className="mt-1 h-4 w-4"
+                    />
+
+                    <span>
+                      <strong className="block text-sm">
+                        {t("covers.copyUrl")}
+                      </strong>
+
+                      <span className="import-muted mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                        {t("covers.copyUrlHint")}
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={buscarCapasIsbn}
+                      onChange={(evento) =>
+                        setBuscarCapasIsbn(
+                          evento.target.checked,
+                        )
+                      }
+                      className="mt-1 h-4 w-4"
+                    />
+
+                    <span>
+                      <strong className="block text-sm">
+                        {t("covers.searchIsbn")}
+                      </strong>
+
+                      <span className="import-muted mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                        {t("covers.searchIsbnHint")}
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600 dark:bg-slate-950 dark:text-slate-300">
+                {t("covers.priority")}
+              </div>
+            </section>
+
             <section className="import-card rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm dark:border-emerald-900 dark:bg-emerald-950/20 sm:p-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
@@ -1738,41 +1876,43 @@ export default function ImportarAcervoPage() {
                   </div>
                 </section>
 
-                <section className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <h2 className="text-lg font-black">
-                        {t("validation.nextTitle")}
-                      </h2>
-                      <p className="import-muted mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
-                        {t("validation.nextDescription")}
-                      </p>
-                    </div>
+                {!resultadoImportacao ? (
+              <section className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <div>
+                        <h2 className="text-lg font-black">
+                          {t("validation.nextTitle")}
+                        </h2>
+                        <p className="import-muted mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+                          {t("validation.nextDescription")}
+                        </p>
+                      </div>
 
-                    {resultadoImportacao ? (
-                      <Link
-                        href="/admin/biblioteca/acervo"
-                        className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700"
-                      >
-                        {t("importExecution.viewCollection")}
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={
-                          possuiBloqueiosImportacao ||
-                          importando
-                        }
-                        onClick={() =>
-                          setConfirmacaoAberta(true)
-                        }
-                        className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
-                      >
-                        {t("validation.importButton")}
-                      </button>
-                    )}
-                  </div>
-                </section>
+                      {resultadoImportacao ? (
+                        <Link
+                          href="/admin/biblioteca/acervo"
+                          className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700"
+                        >
+                          {t("importExecution.viewCollection")}
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={
+                            possuiBloqueiosImportacao ||
+                            importando
+                          }
+                          onClick={() =>
+                            setConfirmacaoAberta(true)
+                          }
+                          className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                        >
+                          {t("validation.importButton")}
+                        </button>
+                      )}
+                    </div>
+                  </section>
+            ) : null}
               </>
             ) : null}
           </>
@@ -1837,6 +1977,62 @@ export default function ImportarAcervoPage() {
                 </span>
                 <strong className="mt-1 block text-2xl font-black">
                   {resultadoImportacao.editorasCriadas}
+                </strong>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("covers.resultZip")}
+                </span>
+                <strong className="mt-1 block text-xl font-black">
+                  {resultadoImportacao.capasZip}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("covers.resultUrl")}
+                </span>
+                <strong className="mt-1 block text-xl font-black">
+                  {resultadoImportacao.capasUrl}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("covers.resultIsbn")}
+                </span>
+                <strong className="mt-1 block text-xl font-black">
+                  {resultadoImportacao.capasIsbn}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("covers.resultPreserved")}
+                </span>
+                <strong className="mt-1 block text-xl font-black">
+                  {resultadoImportacao.capasPreservadas}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("covers.resultMissing")}
+                </span>
+                <strong className="mt-1 block text-xl font-black">
+                  {resultadoImportacao.semCapa}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-3 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("covers.resultFailures")}
+                </span>
+                <strong className="mt-1 block text-xl font-black">
+                  {resultadoImportacao.falhasCapas}
                 </strong>
               </div>
             </div>

@@ -22128,6 +22128,23 @@
       "authorsCreated": "Authors created",
       "publishersCreated": "Publishers created",
       "viewCollection": "View collection"
+    },
+    "covers": {
+      "title": "Covers and images",
+      "description": "Optionally migrate cover images from the previous system. PHANYX preserves existing covers.",
+      "zipLabel": "Cover ZIP package",
+      "zipHint": "Match images by file name, ISBN, legacy ID, barcode, accession number or asset number.",
+      "copyUrl": "Copy covers provided by URL",
+      "copyUrlHint": "The image will be copied to PHANYX storage instead of depending on the previous system.",
+      "searchIsbn": "Find cover automatically by ISBN",
+      "searchIsbnHint": "Used only as a fallback when no ZIP or URL cover is available.",
+      "priority": "Priority: existing cover → ZIP → exported URL → ISBN → placeholder.",
+      "resultZip": "ZIP covers",
+      "resultUrl": "URL covers",
+      "resultIsbn": "ISBN covers",
+      "resultPreserved": "Preserved",
+      "resultMissing": "No cover",
+      "resultFailures": "Failures"
     }
   }
 }
