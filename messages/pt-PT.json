@@ -21853,7 +21853,11 @@
       "formaAquisicao": "Forma de aquisição",
       "fornecedor": "Fornecedor",
       "valorAquisicao": "Valor de aquisição",
-      "observacoes": "Observações"
+      "observacoes": "Observações",
+      "capaUrl": "URL da capa",
+      "miniaturaUrl": "URL da miniatura",
+      "arquivoCapa": "Ficheiro da capa",
+      "idLegado": "ID / código legado"
     },
     "validation": {
       "error": "Não foi possível validar o ficheiro com o acervo.",

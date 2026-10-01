@@ -22066,7 +22066,11 @@
       "formaAquisicao": "Forma de adquisición",
       "fornecedor": "Proveedor",
       "valorAquisicao": "Valor de adquisición",
-      "observacoes": "Observaciones"
+      "observacoes": "Observaciones",
+      "capaUrl": "URL de la portada",
+      "miniaturaUrl": "URL de la miniatura",
+      "arquivoCapa": "Archivo de portada",
+      "idLegado": "ID / código heredado"
     },
     "validation": {
       "error": "No fue posible validar el archivo con la colección.",

@@ -22067,7 +22067,11 @@
       "formaAquisicao": "Acquisition method",
       "fornecedor": "Supplier",
       "valorAquisicao": "Acquisition value",
-      "observacoes": "Notes"
+      "observacoes": "Notes",
+      "capaUrl": "Cover URL",
+      "miniaturaUrl": "Thumbnail URL",
+      "arquivoCapa": "Cover file",
+      "idLegado": "Legacy ID / code"
     },
     "validation": {
       "error": "The file could not be validated against the collection.",

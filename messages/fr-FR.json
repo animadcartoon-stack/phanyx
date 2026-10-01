@@ -22066,7 +22066,11 @@
       "formaAquisicao": "Mode d’acquisition",
       "fornecedor": "Fournisseur",
       "valorAquisicao": "Valeur d’acquisition",
-      "observacoes": "Notes"
+      "observacoes": "Notes",
+      "capaUrl": "URL de couverture",
+      "miniaturaUrl": "URL de miniature",
+      "arquivoCapa": "Fichier de couverture",
+      "idLegado": "ID / code hérité"
     },
     "validation": {
       "error": "Impossible de valider le fichier avec le fonds.",
