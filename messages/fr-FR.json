@@ -22106,6 +22106,23 @@
       "nextTitle": "Étape suivante : confirmer l’importation",
       "nextDescription": "Le bouton restera désactivé jusqu’à l’implémentation du lot auditable et de la confirmation finale. Rien n’a encore été enregistré.",
       "importButton": "Confirmer l’importation"
+    },
+    "importExecution": {
+      "error": "Impossible de terminer l’importation.",
+      "confirmTitle": "Confirmer l’importation du fonds ?",
+      "confirmDescription": "PHANYX importera {count} enregistrement(s) de ce fichier. L’opération sera enregistrée dans l’audit.",
+      "draftNotice": "Les nouvelles notices seront créées comme brouillons afin d’être vérifiées avant publication.",
+      "cancel": "Annuler",
+      "confirmButton": "Oui, importer le fonds",
+      "importing": "Importation...",
+      "successTitle": "Importation terminée",
+      "successDescription": "Le fonds a été importé et le lot a été enregistré dans l’audit de la Bibliothèque.",
+      "batchId": "ID du lot",
+      "worksCreated": "Notices créées",
+      "copiesCreated": "Exemplaires créés",
+      "authorsCreated": "Auteurs créés",
+      "publishersCreated": "Éditeurs créés",
+      "viewCollection": "Voir le fonds"
     }
   }
 }

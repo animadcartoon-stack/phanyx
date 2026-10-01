@@ -21893,6 +21893,23 @@
       "nextTitle": "Próxima etapa: confirmar importação",
       "nextDescription": "O botão de importação continuará bloqueado até implementarmos o lote auditável e a confirmação final. Nada foi gravado até aqui.",
       "importButton": "Confirmar importação"
+    },
+    "importExecution": {
+      "error": "Não foi possível concluir a importação.",
+      "confirmTitle": "Confirmar importação do acervo?",
+      "confirmDescription": "O PHANYX importará {count} registo(s) deste ficheiro. A operação será registada em auditoria.",
+      "draftNotice": "As novas obras serão registadas como rascunho para revisão antes da publicação.",
+      "cancel": "Cancelar",
+      "confirmButton": "Sim, importar acervo",
+      "importing": "A importar...",
+      "successTitle": "Importação concluída",
+      "successDescription": "O acervo foi importado e o lote foi registado na auditoria da Biblioteca.",
+      "batchId": "ID do lote",
+      "worksCreated": "Obras criadas",
+      "copiesCreated": "Exemplares criados",
+      "authorsCreated": "Autores criados",
+      "publishersCreated": "Editoras criadas",
+      "viewCollection": "Ver acervo"
     }
   }
 }

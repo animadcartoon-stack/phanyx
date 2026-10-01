@@ -121,6 +121,24 @@ type ResultadoValidacao = {
   }>;
 };
 
+type ResultadoImportacaoFinal = {
+  loteId: string;
+  arquivoNome: string;
+  registros: number;
+  obrasCriadas: number;
+  obrasVinculadas: number;
+  obrasReutilizadas: number;
+  exemplaresCriados: number;
+  autoresCriados: number;
+  editorasCriadas: number;
+};
+
+type RespostaImportacaoFinal = {
+  ok?: boolean;
+  error?: string;
+  codigo?: string;
+  resultado?: ResultadoImportacaoFinal;
+};
 type ValidacaoImportacao = {
   ok?: boolean;
   error?: string;
@@ -233,6 +251,23 @@ export default function ImportarAcervoPage() {
       null,
     );
 
+  const [
+    confirmacaoAberta,
+    setConfirmacaoAberta,
+  ] = useState(false);
+
+  const [
+    importando,
+    setImportando,
+  ] = useState(false);
+
+  const [
+    resultadoImportacao,
+    setResultadoImportacao,
+  ] = useState<ResultadoImportacaoFinal | null>(
+    null,
+  );
+
   const camposPorGrupo =
     useMemo(() => {
       if (!analise) {
@@ -288,6 +323,8 @@ export default function ImportarAcervoPage() {
     setAnalise(null);
     setMapeamento({});
     setValidacao(null);
+    setResultadoImportacao(null);
+    setConfirmacaoAberta(false);
     setErro("");
   }
 
@@ -318,6 +355,8 @@ export default function ImportarAcervoPage() {
     setAnalise(null);
     setMapeamento({});
     setValidacao(null);
+    setResultadoImportacao(null);
+    setConfirmacaoAberta(false);
     setErro("");
 
     if (inputRef.current) {
@@ -545,6 +584,117 @@ export default function ImportarAcervoPage() {
       setValidando(false);
     }
   }
+  const possuiBloqueiosImportacao =
+    Boolean(
+      validacao &&
+      (
+        validacao.resumo.possiveisDuplicidades > 0 ||
+        validacao.resumo.invalidos > 0 ||
+        validacao.resumo.conflitosExemplares > 0
+      ),
+    );
+
+  async function confirmarImportacao() {
+    if (
+      !arquivo ||
+      !analise ||
+      !validacao ||
+      possuiBloqueiosImportacao
+    ) {
+      return;
+    }
+
+    setImportando(true);
+    setErro("");
+
+    try {
+      const formulario =
+        new FormData();
+
+      formulario.append(
+        "arquivo",
+        arquivo,
+      );
+
+      formulario.append(
+        "mapeamento",
+        JSON.stringify(
+          mapeamento,
+        ),
+      );
+
+      formulario.append(
+        "confirmacao",
+        "IMPORTAR",
+      );
+
+      const resposta =
+        await fetch(
+          "/api/admin/biblioteca/importacao/executar",
+          {
+            method: "POST",
+            credentials: "include",
+            cache: "no-store",
+            body: formulario,
+          },
+        );
+
+      const tipoConteudo =
+        resposta.headers.get(
+          "content-type",
+        ) ?? "";
+
+      if (
+        !tipoConteudo.includes(
+          "application/json",
+        )
+      ) {
+        throw new Error(
+          t(
+            "errors.invalidResponse",
+          ),
+        );
+      }
+
+      const dados =
+        (await resposta.json()) as
+          RespostaImportacaoFinal;
+
+      if (
+        !resposta.ok ||
+        !dados.resultado
+      ) {
+        throw new Error(
+          dados.error ||
+            t(
+              "importExecution.error",
+            ),
+        );
+      }
+
+      setResultadoImportacao(
+        dados.resultado,
+      );
+
+      setConfirmacaoAberta(
+        false,
+      );
+    } catch (falha) {
+      setErro(
+        falha instanceof Error
+          ? falha.message
+          : t(
+              "importExecution.error",
+            ),
+      );
+
+      setConfirmacaoAberta(
+        false,
+      );
+    } finally {
+      setImportando(false);
+    }
+  }
   function rotuloCampo(
     chave: string,
   ) {
@@ -608,8 +758,13 @@ export default function ImportarAcervoPage() {
       numero: 4,
       titulo:
         t("steps.import"),
-      ativa: false,
-      concluida: false,
+      ativa: Boolean(
+        validacao &&
+        !resultadoImportacao
+      ),
+      concluida: Boolean(
+        resultadoImportacao
+      ),
     },
   ];
 
@@ -1594,20 +1749,185 @@ export default function ImportarAcervoPage() {
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      disabled
-                      className="cursor-not-allowed rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white opacity-50 dark:bg-slate-100 dark:text-slate-950"
-                    >
-                      {t("validation.importButton")}
-                    </button>
+                    {resultadoImportacao ? (
+                      <Link
+                        href="/admin/biblioteca/acervo"
+                        className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700"
+                      >
+                        {t("importExecution.viewCollection")}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={
+                          possuiBloqueiosImportacao ||
+                          importando
+                        }
+                        onClick={() =>
+                          setConfirmacaoAberta(true)
+                        }
+                        className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                      >
+                        {t("validation.importButton")}
+                      </button>
+                    )}
                   </div>
                 </section>
               </>
             ) : null}
           </>
         )}
+        {resultadoImportacao ? (
+          <section className="import-card rounded-2xl border border-emerald-300 bg-emerald-50 p-5 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/20 sm:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h2 className="text-xl font-black text-emerald-950 dark:text-emerald-100">
+                  {t("importExecution.successTitle")}
+                </h2>
+
+                <p className="mt-1 text-sm text-emerald-800 dark:text-emerald-200">
+                  {t("importExecution.successDescription")}
+                </p>
+
+                <p className="mt-3 break-all text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+                  {t("importExecution.batchId")}:{" "}
+                  {resultadoImportacao.loteId}
+                </p>
+              </div>
+
+              <Link
+                href="/admin/biblioteca/acervo"
+                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-center text-sm font-black text-white transition hover:bg-emerald-700"
+              >
+                {t("importExecution.viewCollection")}
+              </Link>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-4 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("importExecution.worksCreated")}
+                </span>
+                <strong className="mt-1 block text-2xl font-black">
+                  {resultadoImportacao.obrasCriadas}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-4 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("importExecution.copiesCreated")}
+                </span>
+                <strong className="mt-1 block text-2xl font-black">
+                  {resultadoImportacao.exemplaresCriados}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-4 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("importExecution.authorsCreated")}
+                </span>
+                <strong className="mt-1 block text-2xl font-black">
+                  {resultadoImportacao.autoresCriados}
+                </strong>
+              </div>
+
+              <div className="rounded-xl border border-emerald-200 bg-white/70 p-4 dark:border-emerald-900 dark:bg-slate-950/30">
+                <span className="block text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                  {t("importExecution.publishersCreated")}
+                </span>
+                <strong className="mt-1 block text-2xl font-black">
+                  {resultadoImportacao.editorasCriadas}
+                </strong>
+              </div>
+            </div>
+          </section>
+        ) : null}
       </div>
+
+      {confirmacaoAberta ? (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={(evento) => {
+            if (
+              evento.target ===
+              evento.currentTarget &&
+              !importando
+            ) {
+              setConfirmacaoAberta(false);
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirmar-importacao-titulo"
+            className="import-card w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-xl dark:bg-amber-950">
+                📥
+              </div>
+
+              <div>
+                <h2
+                  id="confirmar-importacao-titulo"
+                  className="text-xl font-black"
+                >
+                  {t("importExecution.confirmTitle")}
+                </h2>
+
+                <p className="import-muted mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {t(
+                    "importExecution.confirmDescription",
+                    {
+                      count:
+                        validacao?.resumo.registros ??
+                        0,
+                    },
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950">
+              <strong className="block">
+                {arquivo?.name}
+              </strong>
+
+              <span className="import-muted mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                {t("importExecution.draftNotice")}
+              </span>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                disabled={importando}
+                onClick={() =>
+                  setConfirmacaoAberta(false)
+                }
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              >
+                {t("importExecution.cancel")}
+              </button>
+
+              <button
+                type="button"
+                disabled={importando}
+                onClick={() =>
+                  void confirmarImportacao()
+                }
+                className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {importando
+                  ? t("importExecution.importing")
+                  : t("importExecution.confirmButton")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

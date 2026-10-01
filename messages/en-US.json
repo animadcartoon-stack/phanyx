@@ -22107,6 +22107,23 @@
       "nextTitle": "Next step: confirm import",
       "nextDescription": "The import button will remain disabled until the auditable batch and final confirmation are implemented. Nothing has been written yet.",
       "importButton": "Confirm import"
+    },
+    "importExecution": {
+      "error": "The import could not be completed.",
+      "confirmTitle": "Confirm collection import?",
+      "confirmDescription": "PHANYX will import {count} record(s) from this file. The operation will be recorded in the audit trail.",
+      "draftNotice": "New titles will be created as drafts for review before publication.",
+      "cancel": "Cancel",
+      "confirmButton": "Yes, import collection",
+      "importing": "Importing...",
+      "successTitle": "Import completed",
+      "successDescription": "The collection was imported and the batch was recorded in the Library audit trail.",
+      "batchId": "Batch ID",
+      "worksCreated": "Titles created",
+      "copiesCreated": "Copies created",
+      "authorsCreated": "Authors created",
+      "publishersCreated": "Publishers created",
+      "viewCollection": "View collection"
     }
   }
 }
