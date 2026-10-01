@@ -648,6 +648,32 @@ export default function BibliotecaAcervoPage() {
 
   const estilos = (
     <style jsx global>{`
+      .phanyx-biblioteca-acervo-page .bib-hero-actions {
+        gap: 8px;
+        align-self: flex-start;
+        margin-top: 2px;
+      }
+
+      .phanyx-biblioteca-acervo-page .bib-hero-actions .bib-button {
+        min-height: 34px;
+        padding: 7px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        line-height: 1.1;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 900px) {
+        .phanyx-biblioteca-acervo-page .bib-hero-actions {
+          align-self: stretch;
+          margin-top: 0;
+        }
+
+        .phanyx-biblioteca-acervo-page .bib-hero-actions .bib-button {
+          font-size: 11px;
+          padding: 7px 10px;
+        }
+      }
       html[data-theme="system"] .phanyx-biblioteca-acervo-page {
         background: #242424 !important;
         color: #ffffff !important;
@@ -728,6 +754,13 @@ export default function BibliotecaAcervoPage() {
             >
               {tImport("openImporter")}
             </Link>
+
+            <a
+              href="/api/admin/biblioteca/acervo/exportar"
+              className="bib-button bib-button-secondary"
+            >
+              {tImport("exportCollection")}
+            </a>
             <EtiquetasLoteGlobal
               className="bib-button bib-button-secondary"
             />

@@ -21894,8 +21894,8 @@
         "CONFLITO": "Conflito",
         "AVISO": "Novo exemplar com aviso"
       },
-      "nextTitle": "Próxima etapa: confirmar importação",
-      "nextDescription": "O botão de importação continuará bloqueado até implementarmos o lote auditável e a confirmação final. Nada foi gravado até aqui.",
+      "nextTitle": "Pronto para importar",
+      "nextDescription": "Reveja o resultado da validação e confirme a importação quando estiver seguro. Nenhum registo foi gravado até aqui.",
       "importButton": "Confirmar importação"
     },
     "importExecution": {
@@ -21931,6 +21931,7 @@
       "resultPreserved": "Preservadas",
       "resultMissing": "Sem capa",
       "resultFailures": "Falhas"
-    }
+    },
+    "exportCollection": "Exportar acervo"
   }
 }

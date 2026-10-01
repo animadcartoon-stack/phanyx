@@ -22107,8 +22107,8 @@
         "CONFLITO": "Conflicto",
         "AVISO": "Nuevo ejemplar con aviso"
       },
-      "nextTitle": "Siguiente etapa: confirmar importación",
-      "nextDescription": "El botón seguirá bloqueado hasta implementar el lote auditable y la confirmación final. No se ha guardado nada.",
+      "nextTitle": "Listo para importar",
+      "nextDescription": "Revise el resultado de la validación y confirme la importación cuando esté listo. Aún no se ha guardado ningún registro.",
       "importButton": "Confirmar importación"
     },
     "importExecution": {
@@ -22144,6 +22144,7 @@
       "resultPreserved": "Conservadas",
       "resultMissing": "Sin portada",
       "resultFailures": "Fallos"
-    }
+    },
+    "exportCollection": "Exportar colección"
   }
 }

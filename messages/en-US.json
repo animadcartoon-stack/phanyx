@@ -22108,8 +22108,8 @@
         "CONFLITO": "Conflict",
         "AVISO": "New copy with warning"
       },
-      "nextTitle": "Next step: confirm import",
-      "nextDescription": "The import button will remain disabled until the auditable batch and final confirmation are implemented. Nothing has been written yet.",
+      "nextTitle": "Ready to import",
+      "nextDescription": "Review the validation results and confirm the import when ready. No records have been written yet.",
       "importButton": "Confirm import"
     },
     "importExecution": {
@@ -22145,6 +22145,7 @@
       "resultPreserved": "Preserved",
       "resultMissing": "No cover",
       "resultFailures": "Failures"
-    }
+    },
+    "exportCollection": "Export collection"
   }
 }

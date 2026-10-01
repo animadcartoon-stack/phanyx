@@ -22107,8 +22107,8 @@
         "CONFLITO": "Conflit",
         "AVISO": "Nouvel exemplaire avec avertissement"
       },
-      "nextTitle": "Étape suivante : confirmer l’importation",
-      "nextDescription": "Le bouton restera désactivé jusqu’à l’implémentation du lot auditable et de la confirmation finale. Rien n’a encore été enregistré.",
+      "nextTitle": "Prêt à importer",
+      "nextDescription": "Vérifiez le résultat de la validation puis confirmez l’importation lorsque vous êtes prêt. Aucun enregistrement n’a encore été créé.",
       "importButton": "Confirmer l’importation"
     },
     "importExecution": {
@@ -22144,6 +22144,7 @@
       "resultPreserved": "Conservées",
       "resultMissing": "Sans couverture",
       "resultFailures": "Échecs"
-    }
+    },
+    "exportCollection": "Exporter le fonds"
   }
 }
