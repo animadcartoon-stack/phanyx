@@ -29,6 +29,9 @@ const EXTENSOES_PERMITIDAS =
     "csv",
     "xls",
     "xlsx",
+    "mrc",
+    "marc",
+    "xml",
   ]);
 
 function responder(
@@ -189,7 +192,7 @@ export async function POST(
     ) {
       throw new ErroBiblioteca(
         400,
-        "Use um arquivo CSV, XLS ou XLSX.",
+        "Use um arquivo CSV, XLS, XLSX, MARC21/ISO2709 (.mrc/.marc) ou MARCXML (.xml).",
         "FORMATO_NAO_SUPORTADO",
         {
           extensao:

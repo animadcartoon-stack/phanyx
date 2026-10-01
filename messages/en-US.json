@@ -21964,7 +21964,7 @@
       "description": "At this stage PHANYX only reads and analyzes the file. No records will be created.",
       "choose": "Click or drag the file into this area",
       "dropHint": "You will be able to review the data before importing.",
-      "fileTypes": "CSV, XLS or XLSX · up to 4 MB at this stage",
+      "fileTypes": "CSV, XLS, XLSX, MARC21/ISO2709 (.mrc) or MARCXML (.xml) ? up to 4 MB at this stage",
       "analyze": "Analyze file",
       "analyzing": "Analyzing...",
       "change": "Change file"

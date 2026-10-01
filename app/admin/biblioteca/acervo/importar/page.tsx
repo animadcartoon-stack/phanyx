@@ -348,6 +348,8 @@ export default function ImportarAcervoPage() {
     setValidacao(null);
     setResultadoImportacao(null);
     setConfirmacaoAberta(false);
+    setBuscarCapasIsbn(false);
+    setCapasZip(null);
     setErro("");
   }
 
@@ -460,6 +462,20 @@ export default function ImportarAcervoPage() {
 
       setMapeamento(inicial);
       setAnalise(dados);
+
+      const extensao =
+        dados.arquivo.extensao
+          .toLowerCase();
+
+      if (
+        extensao === "mrc" ||
+        extensao === "marc" ||
+        extensao === "xml"
+      ) {
+        setBuscarCapasIsbn(
+          true,
+        );
+      }
     } catch (falha) {
       setAnalise(null);
       setMapeamento({});
@@ -986,7 +1002,7 @@ export default function ImportarAcervoPage() {
             <input
               ref={inputRef}
               type="file"
-              accept=".csv,.xls,.xlsx"
+              accept=".csv,.xls,.xlsx,.mrc,.marc,.xml"
               className="hidden"
               onChange={
                 aoSelecionarArquivo
