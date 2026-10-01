@@ -21942,4 +21942,132 @@
       "OUTRO": "Autre"
     }
   }
+,
+"AdminLibraryImport": {
+    "openImporter": "📥 Importer le fonds",
+    "eyebrow": "BIBLIOTHÈQUE NUMÉRIQUE PHANYX",
+    "title": "Importer le fonds",
+    "description": "Migrez des notices et des exemplaires depuis un autre système vers PHANYX avec pré-analyse, correspondance et validation avant tout enregistrement.",
+    "backToCollection": "← Retour au fonds",
+    "actions": {
+      "restart": "Recommencer"
+    },
+    "steps": {
+      "ariaLabel": "Étapes de l’importation",
+      "file": "Fichier",
+      "mapping": "Correspondance",
+      "validation": "Validation",
+      "import": "Importation"
+    },
+    "upload": {
+      "title": "Sélectionnez le fichier de l’ancien système",
+      "description": "À cette étape, PHANYX lit et analyse uniquement le fichier. Aucun enregistrement ne sera créé.",
+      "choose": "Cliquez ou déposez le fichier dans cette zone",
+      "dropHint": "Vous pourrez vérifier les données avant l’importation.",
+      "fileTypes": "CSV, XLS ou XLSX · jusqu’à 4 Mo à cette étape",
+      "analyze": "Analyser le fichier",
+      "analyzing": "Analyse en cours...",
+      "change": "Changer de fichier"
+    },
+    "errors": {
+      "fileRequired": "Sélectionnez un fichier avant de continuer.",
+      "invalidResponse": "Le serveur a renvoyé une réponse non valide.",
+      "analyze": "Impossible d’analyser le fichier.",
+      "titleMapping": "Le champ Titre est obligatoire. Choisissez la colonne du fichier correspondant au titre."
+    },
+    "summary": {
+      "records": "Enregistrements",
+      "columns": "Colonnes",
+      "recognized": "Reconnues",
+      "unrecognized": "Non reconnues",
+      "file": "Fichier",
+      "sheet": "Feuille",
+      "headerLine": "Ligne d’en-tête",
+      "fileSize": "Taille"
+    },
+    "mapping": {
+      "title": "Correspondance des colonnes",
+      "description": "Vérifiez les correspondances détectées automatiquement par PHANYX et ajustez-les si nécessaire.",
+      "sourceColumn": "Colonne du fichier",
+      "destination": "Champ PHANYX",
+      "ignore": "Ne pas importer cette colonne",
+      "required": "obligatoire",
+      "automatic": "Correspondance détectée automatiquement",
+      "mappedCount": "{count} colonne(s) sur {total} associée(s)"
+    },
+    "alerts": {
+      "title": "Éléments à vérifier",
+      "description": "Ces avertissements n’ont pas modifié le fonds. Vérifiez-les avant l’importation.",
+      "codes": {
+        "COLUNA_TITULO_NAO_IDENTIFICADA": "PHANYX n’a pas pu identifier automatiquement la colonne du titre.",
+        "LINHAS_SEM_TITULO": "{count} enregistrement(s) sont sans titre.",
+        "ISBN_DUPLICADO_NO_ARQUIVO": "{count} occurrence(s) d’ISBN en double ont été trouvées dans le fichier.",
+        "CODIGO_BARRAS_DUPLICADO_NO_ARQUIVO": "{count} occurrence(s) de code-barres en double ont été trouvées dans le fichier.",
+        "TOMBO_DUPLICADO_NO_ARQUIVO": "{count} occurrence(s) de numéro d’inventaire en double ont été trouvées dans le fichier."
+      }
+    },
+    "preview": {
+      "title": "Aperçu des enregistrements",
+      "description": "Vérifiez les premières lignes telles qu’elles ont été lues dans le fichier.",
+      "row": "Ligne"
+    },
+    "ready": {
+      "title": "Fichier lu et associé",
+      "description": "À l’étape suivante, PHANYX comparera ces données au fonds actuel afin d’identifier les notices, ISBN, numéros d’inventaire et codes-barres existants. Rien n’a encore été enregistré.",
+      "continue": "Valider avec le fonds"
+    },
+    "groups": {
+      "OBRA": "Données de la notice",
+      "AUTORIA": "Auteurs",
+      "PUBLICACAO": "Publication",
+      "CLASSIFICACAO": "Classification",
+      "EXEMPLAR": "Exemplaire",
+      "AQUISICAO": "Acquisition"
+    },
+    "fields": {
+      "titulo": "Titre",
+      "subtitulo": "Sous-titre",
+      "tipo": "Type de document",
+      "palavrasChave": "Sujets / mots-clés",
+      "autor": "Auteur principal",
+      "coautor": "Coauteur",
+      "organizador": "Directeur / organisateur",
+      "tradutor": "Traducteur",
+      "orientador": "Directeur de recherche",
+      "colaborador": "Collaborateur",
+      "editora": "Éditeur",
+      "isbn": "ISBN",
+      "isbn10": "ISBN-10",
+      "isbn13": "ISBN-13",
+      "issn": "ISSN",
+      "doi": "DOI",
+      "idioma": "Langue",
+      "paisPublicacao": "Pays de publication",
+      "anoPublicacao": "Année de publication",
+      "edicao": "Édition",
+      "volume": "Volume",
+      "numero": "Numéro",
+      "numeroPaginas": "Nombre de pages",
+      "classificacaoBibliografica": "Classification bibliographique",
+      "cdd": "CDD",
+      "cdu": "CDU",
+      "codigoCutter": "Indice Cutter",
+      "codigoChamada": "Cote",
+      "codigoInterno": "Code interne de l’exemplaire",
+      "codigoBarras": "Code-barres",
+      "numeroTombo": "Numéro d’inventaire",
+      "patrimonio": "Numéro patrimonial",
+      "setor": "Section",
+      "sala": "Salle",
+      "corredor": "Allée",
+      "estante": "Rayonnage",
+      "prateleira": "Étagère",
+      "localizacaoCompleta": "Localisation complète",
+      "dataAquisicao": "Date d’acquisition",
+      "formaAquisicao": "Mode d’acquisition",
+      "fornecedor": "Fournisseur",
+      "valorAquisicao": "Valeur d’acquisition",
+      "observacoes": "Notes"
+    }
+  }
 }

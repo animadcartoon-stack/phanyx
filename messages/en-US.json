@@ -21943,4 +21943,132 @@
       "OUTRO": "Other"
     }
   }
+,
+"AdminLibraryImport": {
+    "openImporter": "📥 Import collection",
+    "eyebrow": "PHANYX DIGITAL LIBRARY",
+    "title": "Import collection",
+    "description": "Migrate titles and copies from another system to PHANYX with pre-analysis, mapping and validation before anything is written.",
+    "backToCollection": "← Back to collection",
+    "actions": {
+      "restart": "Start over"
+    },
+    "steps": {
+      "ariaLabel": "Import steps",
+      "file": "File",
+      "mapping": "Mapping",
+      "validation": "Validation",
+      "import": "Import"
+    },
+    "upload": {
+      "title": "Select the file from the previous system",
+      "description": "At this stage PHANYX only reads and analyzes the file. No records will be created.",
+      "choose": "Click or drag the file into this area",
+      "dropHint": "You will be able to review the data before importing.",
+      "fileTypes": "CSV, XLS or XLSX · up to 4 MB at this stage",
+      "analyze": "Analyze file",
+      "analyzing": "Analyzing...",
+      "change": "Change file"
+    },
+    "errors": {
+      "fileRequired": "Select a file before continuing.",
+      "invalidResponse": "The server returned an invalid response.",
+      "analyze": "The file could not be analyzed.",
+      "titleMapping": "The Title field is required. Choose which file column corresponds to the title."
+    },
+    "summary": {
+      "records": "Records",
+      "columns": "Columns",
+      "recognized": "Recognized",
+      "unrecognized": "Unrecognized",
+      "file": "File",
+      "sheet": "Sheet",
+      "headerLine": "Header row",
+      "fileSize": "Size"
+    },
+    "mapping": {
+      "title": "Column mapping",
+      "description": "Review what PHANYX detected automatically and adjust the destination of each column when needed.",
+      "sourceColumn": "File column",
+      "destination": "PHANYX field",
+      "ignore": "Do not import this column",
+      "required": "required",
+      "automatic": "Automatically identified match",
+      "mappedCount": "{count} of {total} columns mapped"
+    },
+    "alerts": {
+      "title": "Items requiring review",
+      "description": "These warnings have not changed your collection. Review them before importing.",
+      "codes": {
+        "COLUNA_TITULO_NAO_IDENTIFICADA": "PHANYX could not automatically identify the title column.",
+        "LINHAS_SEM_TITULO": "{count} record(s) have no title.",
+        "ISBN_DUPLICADO_NO_ARQUIVO": "{count} duplicate ISBN occurrence(s) were found in the file.",
+        "CODIGO_BARRAS_DUPLICADO_NO_ARQUIVO": "{count} duplicate barcode occurrence(s) were found in the file.",
+        "TOMBO_DUPLICADO_NO_ARQUIVO": "{count} duplicate accession number occurrence(s) were found in the file."
+      }
+    },
+    "preview": {
+      "title": "Record preview",
+      "description": "Review the first rows exactly as they were read from the file.",
+      "row": "Row"
+    },
+    "ready": {
+      "title": "File read and mapped",
+      "description": "Next, PHANYX will compare these data with the current collection to find existing titles, ISBNs, accession numbers and barcodes. Nothing has been written yet.",
+      "continue": "Validate against collection"
+    },
+    "groups": {
+      "OBRA": "Title data",
+      "AUTORIA": "Authorship",
+      "PUBLICACAO": "Publication",
+      "CLASSIFICACAO": "Classification",
+      "EXEMPLAR": "Copy",
+      "AQUISICAO": "Acquisition"
+    },
+    "fields": {
+      "titulo": "Title",
+      "subtitulo": "Subtitle",
+      "tipo": "Material type",
+      "palavrasChave": "Subjects / keywords",
+      "autor": "Main author",
+      "coautor": "Co-author",
+      "organizador": "Organizer",
+      "tradutor": "Translator",
+      "orientador": "Advisor",
+      "colaborador": "Contributor",
+      "editora": "Publisher",
+      "isbn": "ISBN",
+      "isbn10": "ISBN-10",
+      "isbn13": "ISBN-13",
+      "issn": "ISSN",
+      "doi": "DOI",
+      "idioma": "Language",
+      "paisPublicacao": "Publication country",
+      "anoPublicacao": "Publication year",
+      "edicao": "Edition",
+      "volume": "Volume",
+      "numero": "Number / issue",
+      "numeroPaginas": "Number of pages",
+      "classificacaoBibliografica": "Bibliographic classification",
+      "cdd": "DDC",
+      "cdu": "UDC",
+      "codigoCutter": "Cutter number",
+      "codigoChamada": "Call number",
+      "codigoInterno": "Internal copy code",
+      "codigoBarras": "Barcode",
+      "numeroTombo": "Accession number",
+      "patrimonio": "Asset number",
+      "setor": "Section",
+      "sala": "Room",
+      "corredor": "Aisle",
+      "estante": "Bookcase",
+      "prateleira": "Shelf",
+      "localizacaoCompleta": "Full location",
+      "dataAquisicao": "Acquisition date",
+      "formaAquisicao": "Acquisition method",
+      "fornecedor": "Supplier",
+      "valorAquisicao": "Acquisition value",
+      "observacoes": "Notes"
+    }
+  }
 }

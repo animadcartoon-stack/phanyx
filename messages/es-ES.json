@@ -21942,4 +21942,132 @@
       "OUTRO": "Otro"
     }
   }
+,
+"AdminLibraryImport": {
+    "openImporter": "📥 Importar colección",
+    "eyebrow": "BIBLIOTECA VIRTUAL PHANYX",
+    "title": "Importar colección",
+    "description": "Migre obras y ejemplares desde otro sistema a PHANYX con preanálisis, mapeo y validación antes de guardar cualquier dato.",
+    "backToCollection": "← Volver a la colección",
+    "actions": {
+      "restart": "Empezar de nuevo"
+    },
+    "steps": {
+      "ariaLabel": "Etapas de importación",
+      "file": "Archivo",
+      "mapping": "Mapeo",
+      "validation": "Validación",
+      "import": "Importación"
+    },
+    "upload": {
+      "title": "Seleccione el archivo del sistema anterior",
+      "description": "En esta etapa PHANYX solo lee y analiza el archivo. No se creará ningún registro.",
+      "choose": "Haga clic o arrastre el archivo a esta área",
+      "dropHint": "Podrá revisar los datos antes de importarlos.",
+      "fileTypes": "CSV, XLS o XLSX · hasta 4 MB en esta etapa",
+      "analyze": "Analizar archivo",
+      "analyzing": "Analizando...",
+      "change": "Cambiar archivo"
+    },
+    "errors": {
+      "fileRequired": "Seleccione un archivo antes de continuar.",
+      "invalidResponse": "El servidor devolvió una respuesta no válida.",
+      "analyze": "No fue posible analizar el archivo.",
+      "titleMapping": "El campo Título es obligatorio. Seleccione qué columna del archivo corresponde al título."
+    },
+    "summary": {
+      "records": "Registros",
+      "columns": "Columnas",
+      "recognized": "Reconocidas",
+      "unrecognized": "No reconocidas",
+      "file": "Archivo",
+      "sheet": "Hoja",
+      "headerLine": "Fila de encabezado",
+      "fileSize": "Tamaño"
+    },
+    "mapping": {
+      "title": "Mapeo de columnas",
+      "description": "Revise lo que PHANYX identificó automáticamente y ajuste el destino de cada columna cuando sea necesario.",
+      "sourceColumn": "Columna del archivo",
+      "destination": "Campo en PHANYX",
+      "ignore": "No importar esta columna",
+      "required": "obligatorio",
+      "automatic": "Correspondencia identificada automáticamente",
+      "mappedCount": "{count} de {total} columnas mapeadas"
+    },
+    "alerts": {
+      "title": "Puntos que requieren revisión",
+      "description": "Estas advertencias no han cambiado la colección. Revise el archivo antes de importarlo.",
+      "codes": {
+        "COLUNA_TITULO_NAO_IDENTIFICADA": "PHANYX no pudo identificar automáticamente la columna de título.",
+        "LINHAS_SEM_TITULO": "{count} registro(s) no tienen título.",
+        "ISBN_DUPLICADO_NO_ARQUIVO": "Se encontraron {count} ocurrencia(s) de ISBN duplicado en el archivo.",
+        "CODIGO_BARRAS_DUPLICADO_NO_ARQUIVO": "Se encontraron {count} ocurrencia(s) de código de barras duplicado en el archivo.",
+        "TOMBO_DUPLICADO_NO_ARQUIVO": "Se encontraron {count} ocurrencia(s) de número de registro duplicado en el archivo."
+      }
+    },
+    "preview": {
+      "title": "Vista previa de registros",
+      "description": "Revise las primeras filas exactamente como fueron leídas del archivo.",
+      "row": "Fila"
+    },
+    "ready": {
+      "title": "Archivo leído y mapeado",
+      "description": "En la siguiente etapa PHANYX comparará estos datos con la colección actual para localizar obras, ISBN, números de registro y códigos de barras existentes. Nada se ha guardado todavía.",
+      "continue": "Validar con la colección"
+    },
+    "groups": {
+      "OBRA": "Datos de la obra",
+      "AUTORIA": "Autoría",
+      "PUBLICACAO": "Publicación",
+      "CLASSIFICACAO": "Clasificación",
+      "EXEMPLAR": "Ejemplar",
+      "AQUISICAO": "Adquisición"
+    },
+    "fields": {
+      "titulo": "Título",
+      "subtitulo": "Subtítulo",
+      "tipo": "Tipo de material",
+      "palavrasChave": "Temas / palabras clave",
+      "autor": "Autor principal",
+      "coautor": "Coautor",
+      "organizador": "Organizador",
+      "tradutor": "Traductor",
+      "orientador": "Director / tutor",
+      "colaborador": "Colaborador",
+      "editora": "Editorial",
+      "isbn": "ISBN",
+      "isbn10": "ISBN-10",
+      "isbn13": "ISBN-13",
+      "issn": "ISSN",
+      "doi": "DOI",
+      "idioma": "Idioma",
+      "paisPublicacao": "País de publicación",
+      "anoPublicacao": "Año de publicación",
+      "edicao": "Edición",
+      "volume": "Volumen",
+      "numero": "Número",
+      "numeroPaginas": "Número de páginas",
+      "classificacaoBibliografica": "Clasificación bibliográfica",
+      "cdd": "CDD",
+      "cdu": "CDU",
+      "codigoCutter": "Código Cutter",
+      "codigoChamada": "Signatura",
+      "codigoInterno": "Código interno del ejemplar",
+      "codigoBarras": "Código de barras",
+      "numeroTombo": "Número de registro",
+      "patrimonio": "Patrimonio",
+      "setor": "Sector",
+      "sala": "Sala",
+      "corredor": "Pasillo",
+      "estante": "Estantería",
+      "prateleira": "Balda",
+      "localizacaoCompleta": "Ubicación completa",
+      "dataAquisicao": "Fecha de adquisición",
+      "formaAquisicao": "Forma de adquisición",
+      "fornecedor": "Proveedor",
+      "valorAquisicao": "Valor de adquisición",
+      "observacoes": "Observaciones"
+    }
+  }
 }

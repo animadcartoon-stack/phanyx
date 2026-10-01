@@ -303,6 +303,7 @@ function Esqueleto({ label }: { label: string }) {
 
 export default function BibliotecaAcervoPage() {
   const t = useTranslations("AdminLibraryCollection");
+  const tImport = useTranslations("AdminLibraryImport");
   const tDashboard = useTranslations("AdminLibraryDashboard");
   const locale = useLocale();
   const [itens, setItens] = useState<ItemAcervo[]>([]);
@@ -721,6 +722,12 @@ export default function BibliotecaAcervoPage() {
           </div>
 
           <div className="bib-hero-actions">
+            <Link
+              href="/admin/biblioteca/acervo/importar"
+              className="bib-button bib-button-secondary"
+            >
+              {tImport("openImporter")}
+            </Link>
             <EtiquetasLoteGlobal
               className="bib-button bib-button-secondary"
             />
