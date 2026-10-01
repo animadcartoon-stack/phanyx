@@ -15,6 +15,10 @@ import {
 } from "@/lib/biblioteca-exportacao-marc";
 
 import {
+  gerarPacoteBibliotecaZip,
+} from "@/lib/biblioteca-exportacao-zip";
+
+import {
   ErroBiblioteca,
   exigirPermissaoBiblioteca,
   obterContextoBiblioteca,
@@ -134,6 +138,7 @@ export async function GET(
         "csv",
         "marc21",
         "marcxml",
+        "zip",
       ].includes(
         formato,
       )
@@ -167,6 +172,21 @@ export async function GET(
       parametros.get(
         "links",
       ) !== "0";
+
+    const incluirArquivos =
+      parametros.get(
+        "arquivos",
+      ) === "1";
+
+    if (
+      incluirArquivos
+    ) {
+      exigirPermissaoBiblioteca(
+        usuario,
+        contexto,
+        "biblioteca.arquivos.download",
+      );
+    }
 
     const busca =
       escopo === "filtros"
@@ -385,12 +405,87 @@ export async function GET(
             : {}),
         };
 
+    const tamanhoLoteZip =
+      100;
+
+    const loteZip =
+      Math.max(
+        1,
+        Number.parseInt(
+          parametros.get(
+            "lote",
+          ) || "1",
+          10,
+        ) || 1,
+      );
+
+    const totalObrasZip =
+      formato === "zip"
+        ? await prisma
+            .bibliotecaItem
+            .count({
+              where:
+                onde,
+            })
+        : 0;
+
+    const totalLotesZip =
+      formato === "zip"
+        ? Math.max(
+            1,
+            Math.ceil(
+              totalObrasZip /
+                tamanhoLoteZip,
+            ),
+          )
+        : 1;
+
+    if (
+      formato === "zip" &&
+      parametros.get("modo") ===
+        "contagem"
+    ) {
+      return Response.json({
+        ok: true,
+        totalObras:
+          totalObrasZip,
+        totalLotes:
+          totalLotesZip,
+        tamanhoLote:
+          tamanhoLoteZip,
+      });
+    }
+
+    if (
+      formato === "zip" &&
+      totalObrasZip > 0 &&
+      loteZip >
+        totalLotesZip
+    ) {
+      throw new ErroBiblioteca(
+        400,
+        "O lote solicitado não existe.",
+        "LOTE_EXPORTACAO_INVALIDO",
+      );
+    }
+
     const itens =
       await prisma
         .bibliotecaItem
         .findMany({
           where:
             onde,
+
+          ...(formato === "zip"
+            ? {
+                skip:
+                  (loteZip - 1) *
+                  tamanhoLoteZip,
+
+                take:
+                  tamanhoLoteZip,
+              }
+            : {}),
 
           orderBy: [
             {
@@ -974,6 +1069,23 @@ export async function GET(
         },
       ) as Buffer;
 
+    const csv =
+      XLSX.utils
+        .sheet_to_csv(
+          planilha,
+          {
+            FS: ",",
+            RS: "\r\n",
+          },
+        );
+
+    const bufferCsv =
+      Buffer.from(
+        "\uFEFF" +
+          csv,
+        "utf8",
+      );
+
     let buffer:
       Buffer;
 
@@ -986,26 +1098,16 @@ export async function GET(
     let formatoAuditoria:
       string;
 
+    let resumoZip:
+      Record<string, number> |
+      null = null;
+
     switch (
       formato
     ) {
       case "csv": {
-        const csv =
-          XLSX.utils
-            .sheet_to_csv(
-              planilha,
-              {
-                FS: ",",
-                RS: "\r\n",
-              },
-            );
-
         buffer =
-          Buffer.from(
-            "\uFEFF" +
-              csv,
-            "utf8",
-          );
+          bufferCsv;
 
         extensaoArquivo =
           "csv";
@@ -1066,6 +1168,187 @@ export async function GET(
         break;
       }
 
+      case "zip": {
+        const bufferMarc21 =
+          gerarMarc21Iso2709(
+            itens,
+            {
+              incluirCapas,
+              incluirLinks,
+            },
+          );
+
+        const marcXml =
+          gerarMarcXml(
+            itens,
+            {
+              incluirCapas,
+              incluirLinks,
+            },
+          );
+
+        const ativosZip =
+          incluirArquivos &&
+          itens.length > 0
+            ? await prisma
+                .bibliotecaItem
+                .findMany({
+                  where: {
+                    instituicaoId:
+                      contexto.instituicaoId,
+
+                    id: {
+                      in:
+                        itens.map(
+                          (item) =>
+                            item.id,
+                        ),
+                    },
+                  },
+
+                  select: {
+                    id: true,
+
+                    permitirDownload:
+                      true,
+
+                    licencas: {
+                      select: {
+                        ativo:
+                          true,
+
+                        inicioVigencia:
+                          true,
+
+                        fimVigencia:
+                          true,
+
+                        permitirDownload:
+                          true,
+                      },
+                    },
+
+                    arquivos: {
+                      where: {
+                        arquivadoEm:
+                          null,
+                      },
+
+                      orderBy: {
+                        id:
+                          "asc",
+                      },
+
+                      select: {
+                        id: true,
+                        tipo: true,
+                        status: true,
+
+                        nomeOriginal:
+                          true,
+
+                        extensao:
+                          true,
+
+                        mimeType:
+                          true,
+
+                        tamanhoBytes:
+                          true,
+
+                        storageKey:
+                          true,
+
+                        permitirDownload:
+                          true,
+                      },
+                    },
+                  },
+                })
+            : [];
+
+        const ativosPorItem =
+          new Map<
+            number,
+            (typeof ativosZip)[number]
+          >();
+
+        for (
+          const item of
+          ativosZip
+        ) {
+          ativosPorItem.set(
+            item.id,
+            item,
+          );
+        }
+
+        const pacote =
+          await gerarPacoteBibliotecaZip({
+            itens:
+              itens.map(
+                (item) => ({
+                  id:
+                    item.id,
+
+                  titulo:
+                    item.titulo,
+
+                  isbn10:
+                    item.isbn10,
+
+                  isbn13:
+                    item.isbn13,
+
+                  capaUrl:
+                    item.capaUrl,
+
+                  miniaturaUrl:
+                    item.miniaturaUrl,
+                }),
+              ),
+
+            ativosPorItem,
+
+            bufferXlsx,
+            bufferCsv,
+            bufferMarc21,
+            marcXml,
+
+            incluirCapas,
+            incluirArquivos,
+
+            instituicaoId:
+              contexto.instituicaoId,
+
+            lote:
+              loteZip,
+
+            totalLotes:
+              totalLotesZip,
+
+            totalObras:
+              totalObrasZip,
+          });
+
+        buffer =
+          pacote.buffer;
+
+        resumoZip =
+          pacote.resumo;
+
+        extensaoArquivo =
+          "zip";
+
+        contentType =
+          "application/zip";
+
+        formatoAuditoria =
+          "ZIP_COMPLETO";
+
+        break;
+      }
+
       default: {
         buffer =
           bufferXlsx;
@@ -1092,8 +1375,23 @@ export async function GET(
           10,
         );
 
+    const sufixoLote =
+      formato === "zip"
+        ? `-parte-${String(
+            loteZip,
+          ).padStart(
+            3,
+            "0",
+          )}-de-${String(
+            totalLotesZip,
+          ).padStart(
+            3,
+            "0",
+          )}`
+        : "";
+
     const nomeArquivo =
-      `phanyx-acervo-${dataArquivo}.${extensaoArquivo}`;
+      `phanyx-acervo-${dataArquivo}${sufixoLote}.${extensaoArquivo}`;
 
     const userAgent =
       request.headers
@@ -1135,7 +1433,7 @@ export async function GET(
             AcaoAuditoriaBiblioteca.VISUALIZAR,
 
           descricao:
-            `\`Acervo exportado em ${formatoAuditoria}.\``,
+            `Acervo exportado em ${formatoAuditoria}.`,
 
           metadados: {
             formato:
@@ -1148,6 +1446,23 @@ export async function GET(
             incluirCapas,
 
             incluirLinks,
+
+            incluirArquivos,
+
+            ...(formato === "zip"
+              ? {
+                  lote:
+                    loteZip,
+
+                  totalLotes:
+                    totalLotesZip,
+
+                  totalObras:
+                    totalObrasZip,
+
+                  resumoZip,
+                }
+              : {}),
 
             obras:
               itens.length,

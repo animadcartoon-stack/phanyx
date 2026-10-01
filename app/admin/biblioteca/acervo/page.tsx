@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import EtiquetasLoteGlobal from "@/components/admin/biblioteca/EtiquetasLoteGlobal";
@@ -116,6 +116,21 @@ type EscopoExportacaoAcervo =
   | "completo"
   | "filtros";
 
+type ResumoLotesExportacao = {
+  totalObras: number;
+  totalLotes: number;
+  tamanhoLote: number;
+};
+
+type RespostaResumoLotesExportacao = {
+  ok?: boolean;
+  totalObras?: number;
+  totalLotes?: number;
+  tamanhoLote?: number;
+  error?: string;
+  codigo?: string;
+};
+
 const TIPOS_ITEM = [
   "LIVRO",
   "EBOOK",
@@ -180,11 +195,11 @@ const PAGINACAO_INICIAL: Paginacao = {
 };
 
 function formatarData(valor: string | null | undefined, locale: string) {
-  if (!valor) return "—";
+  if (!valor) return "â€”";
 
   const data = new Date(valor);
 
-  if (Number.isNaN(data.getTime())) return "—";
+  if (Number.isNaN(data.getTime())) return "â€”";
 
   return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
@@ -279,7 +294,7 @@ function EstadoVazio({
   return (
     <div className="bib-empty">
       <div className="bib-empty-icon" aria-hidden="true">
-        📚
+        ðŸ“š
       </div>
       <h2>
         {filtrado
@@ -386,6 +401,24 @@ export default function BibliotecaAcervoPage() {
     setErroExportacao,
   ] = useState("");
 
+  const [
+    loteExportacao,
+    setLoteExportacao,
+  ] = useState(1);
+
+  const [
+    resumoLotesExportacao,
+    setResumoLotesExportacao,
+  ] =
+    useState<ResumoLotesExportacao | null>(
+      null,
+    );
+
+  const [
+    carregandoLotesExportacao,
+    setCarregandoLotesExportacao,
+  ] = useState(false);
+
   const possuiFiltros = Boolean(
     buscaAplicada || tipo || status
   );
@@ -394,6 +427,181 @@ export default function BibliotecaAcervoPage() {
     1,
     paginacao.totalPaginas
   );
+
+  useEffect(() => {
+    if (
+      !modalExportacaoAberto ||
+      formatoExportacao !==
+        "zip"
+    ) {
+      setResumoLotesExportacao(
+        null,
+      );
+
+      setCarregandoLotesExportacao(
+        false,
+      );
+
+      setLoteExportacao(
+        1,
+      );
+
+      return;
+    }
+
+    const controlador =
+      new AbortController();
+
+    async function carregarResumoLotesExportacao() {
+      setCarregandoLotesExportacao(
+        true,
+      );
+
+      setResumoLotesExportacao(
+        null,
+      );
+
+      setLoteExportacao(
+        1,
+      );
+
+      setErroExportacao(
+        "",
+      );
+
+      const parametros =
+        new URLSearchParams({
+          formato:
+            "zip",
+
+          escopo:
+            escopoExportacao,
+
+          modo:
+            "contagem",
+        });
+
+      if (
+        escopoExportacao ===
+        "filtros"
+      ) {
+        if (buscaAplicada) {
+          parametros.set(
+            "busca",
+            buscaAplicada,
+          );
+        }
+
+        if (tipo) {
+          parametros.set(
+            "tipo",
+            tipo,
+          );
+        }
+
+        if (status) {
+          parametros.set(
+            "status",
+            status,
+          );
+        }
+      }
+
+      try {
+        const resposta =
+          await fetch(
+            `/api/admin/biblioteca/acervo/exportar?${parametros.toString()}`,
+            {
+              signal:
+                controlador.signal,
+
+              cache:
+                "no-store",
+            },
+          );
+
+        const dados =
+          (await resposta.json()) as
+            RespostaResumoLotesExportacao;
+
+        if (
+          !resposta.ok ||
+          dados.ok !== true ||
+          typeof dados.totalObras !==
+            "number" ||
+          typeof dados.totalLotes !==
+            "number" ||
+          typeof dados.tamanhoLote !==
+            "number"
+        ) {
+          throw new Error(
+            dados.error ||
+              "N?o foi poss?vel calcular os lotes.",
+          );
+        }
+
+        setResumoLotesExportacao({
+          totalObras:
+            Math.max(
+              0,
+              dados.totalObras,
+            ),
+
+          totalLotes:
+            Math.max(
+              1,
+              dados.totalLotes,
+            ),
+
+          tamanhoLote:
+            Math.max(
+              1,
+              dados.tamanhoLote,
+            ),
+        });
+      }
+      catch {
+        if (
+          controlador.signal.aborted
+        ) {
+          return;
+        }
+
+        setResumoLotesExportacao(
+          null,
+        );
+
+        setErroExportacao(
+          tImport(
+            "exportModal.batchError",
+          ),
+        );
+      }
+      finally {
+        if (
+          !controlador.signal.aborted
+        ) {
+          setCarregandoLotesExportacao(
+            false,
+          );
+        }
+      }
+    }
+
+    void carregarResumoLotesExportacao();
+
+    return () => {
+      controlador.abort();
+    };
+  }, [
+    modalExportacaoAberto,
+    formatoExportacao,
+    escopoExportacao,
+    buscaAplicada,
+    tipo,
+    status,
+    tImport,
+  ]);
 
   const carregarAcervo = useCallback(
     async (signal?: AbortSignal) => {
@@ -558,24 +766,6 @@ export default function BibliotecaAcervoPage() {
   }
 
   function executarExportacao() {
-    /*
-     * XLSX, CSV, MARC21 e MARCXML
-     * já utilizam a rota real.
-     * O ZIP será conectado na
-     * próxima etapa.
-     */
-    if (
-      formatoExportacao ===
-      "zip"
-    ) {
-      setErroExportacao(
-        tImport(
-          "exportModal.pendingFormat",
-        ),
-      );
-
-      return;
-    }
 
     const parametros =
       new URLSearchParams({
@@ -607,6 +797,18 @@ export default function BibliotecaAcervoPage() {
       });
 
     if (
+      formatoExportacao ===
+      "zip"
+    ) {
+      parametros.set(
+        "lote",
+        String(
+          loteExportacao,
+        ),
+      );
+    }
+
+    if (
       escopoExportacao ===
       "filtros"
     ) {
@@ -632,8 +834,25 @@ export default function BibliotecaAcervoPage() {
       }
     }
 
-    window.location.href =
+    const urlExportacao =
       `/api/admin/biblioteca/acervo/exportar?${parametros.toString()}`;
+
+    const linkDownload =
+      document.createElement("a");
+
+    linkDownload.href =
+      urlExportacao;
+
+    linkDownload.download =
+      "";
+
+    document.body.appendChild(
+      linkDownload,
+    );
+
+    linkDownload.click();
+
+    linkDownload.remove();
 
     setModalExportacaoAberto(
       false,
@@ -1050,7 +1269,7 @@ export default function BibliotecaAcervoPage() {
         <section className="bib-summary" aria-label={t("summary.ariaLabel")}>
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
-              📚
+              ðŸ“š
             </span>
             <div>
               <span>{t("summary.totalFound")}</span>
@@ -1060,7 +1279,7 @@ export default function BibliotecaAcervoPage() {
 
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
-              📄
+              ðŸ“„
             </span>
             <div>
               <span>{t("summary.currentPage")}</span>
@@ -1074,7 +1293,7 @@ export default function BibliotecaAcervoPage() {
 
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
-              🔎
+              ðŸ”Ž
             </span>
             <div>
               <span>{t("summary.showing")}</span>
@@ -1229,7 +1448,7 @@ export default function BibliotecaAcervoPage() {
                         alt=""
                       />
                     ) : (
-                      <span>📘</span>
+                      <span>ðŸ“˜</span>
                     )}
                   </div>
 
@@ -1278,7 +1497,7 @@ export default function BibliotecaAcervoPage() {
                       </span>
                       <span>
                         <b>{t("item.year")}:</b>{" "}
-                        {item.anoPublicacao || "—"}
+                        {item.anoPublicacao || "â€”"}
                       </span>
 
                       {item.codigoChamada ? (
@@ -1319,10 +1538,10 @@ export default function BibliotecaAcervoPage() {
                     <div className="bib-item-footer">
                       <div className="bib-item-counts">
                         <span>
-                          📎 {t("item.files", { count: item._count.arquivos })}
+                          ðŸ“Ž {t("item.files", { count: item._count.arquivos })}
                         </span>
                         <span>
-                          📚 {t("item.copies", { count: item._count.exemplares })}
+                          ðŸ“š {t("item.copies", { count: item._count.exemplares })}
                         </span>
                         <span>
                           {t("item.updatedAt", {
@@ -1430,7 +1649,7 @@ export default function BibliotecaAcervoPage() {
                   "exportModal.close",
                 )}
               >
-                ×
+                Ã—
               </button>
             </header>
 
@@ -1692,6 +1911,166 @@ export default function BibliotecaAcervoPage() {
 
               {formatoExportacao ===
               "zip" ? (
+                <div className="bib-export-section">
+                  <h3>
+                    {tImport(
+                      "exportModal.batchTitle",
+                    )}
+                  </h3>
+
+                  {carregandoLotesExportacao ? (
+                    <p className="bib-export-license-note">
+                      {tImport(
+                        "exportModal.batchLoading",
+                      )}
+                    </p>
+                  ) : resumoLotesExportacao ? (
+                    <>
+                      <p className="bib-export-license-note">
+                        {tImport(
+                          "exportModal.batchDescription",
+                          {
+                            size:
+                              resumoLotesExportacao.tamanhoLote,
+                          },
+                        )}
+                      </p>
+
+                      <div className="bib-filter-grid">
+                        <label>
+                          <span>
+                            {tImport(
+                              "exportModal.batchLabel",
+                              {
+                                current:
+                                  loteExportacao,
+
+                                total:
+                                  resumoLotesExportacao.totalLotes,
+                              },
+                            )}
+                          </span>
+
+                          <select
+                            className="bib-input"
+                            value={
+                              loteExportacao
+                            }
+                            onChange={(evento) =>
+                              setLoteExportacao(
+                                Number(
+                                  evento.target.value,
+                                ),
+                              )
+                            }
+                          >
+                            {Array.from(
+                              {
+                                length:
+                                  resumoLotesExportacao.totalLotes,
+                              },
+                              (
+                                _,
+                                indice,
+                              ) =>
+                                indice + 1,
+                            ).map(
+                              (
+                                numeroLote,
+                              ) => (
+                                <option
+                                  key={
+                                    numeroLote
+                                  }
+                                  value={
+                                    numeroLote
+                                  }
+                                >
+                                  {tImport(
+                                    "exportModal.batchLabel",
+                                    {
+                                      current:
+                                        numeroLote,
+
+                                      total:
+                                        resumoLotesExportacao.totalLotes,
+                                    },
+                                  )}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                        </label>
+                      </div>
+
+                      <p className="bib-export-license-note">
+                        {tImport(
+                          "exportModal.batchWorks",
+                          {
+                            count:
+                              resumoLotesExportacao.totalObras,
+                          },
+                        )}
+                      </p>
+
+                      <div className="bib-filter-actions">
+                        <button
+                          type="button"
+                          className="bib-button bib-button-ghost"
+                          disabled={
+                            loteExportacao <=
+                            1
+                          }
+                          onClick={() =>
+                            setLoteExportacao(
+                              (
+                                loteAtual,
+                              ) =>
+                                Math.max(
+                                  1,
+                                  loteAtual -
+                                    1,
+                                ),
+                            )
+                          }
+                        >
+                          {tImport(
+                            "exportModal.batchPrevious",
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="bib-button bib-button-secondary"
+                          disabled={
+                            loteExportacao >=
+                            resumoLotesExportacao.totalLotes
+                          }
+                          onClick={() =>
+                            setLoteExportacao(
+                              (
+                                loteAtual,
+                              ) =>
+                                Math.min(
+                                  resumoLotesExportacao.totalLotes,
+                                  loteAtual +
+                                    1,
+                                ),
+                            )
+                          }
+                        >
+                          {tImport(
+                            "exportModal.batchNext",
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {formatoExportacao ===
+              "zip" ? (
                 <div className="bib-export-recommended">
                   <strong>
                     {tImport(
@@ -1722,6 +2101,14 @@ export default function BibliotecaAcervoPage() {
               <button
                 type="button"
                 className="bib-button bib-button-primary"
+                disabled={
+                  formatoExportacao ===
+                    "zip" &&
+                  (
+                    carregandoLotesExportacao ||
+                    !resumoLotesExportacao
+                  )
+                }
                 onClick={executarExportacao}
               >
                 {tImport(
@@ -1766,7 +2153,7 @@ export default function BibliotecaAcervoPage() {
                 disabled={salvando}
                 aria-label={t("modal.close")}
               >
-                ×
+                Ã—
               </button>
             </header>
 
@@ -2037,7 +2424,7 @@ export default function BibliotecaAcervoPage() {
           role="status"
         >
           <span aria-hidden="true">
-            {toast.tipo === "sucesso" ? "✓" : "!"}
+            {toast.tipo === "sucesso" ? "âœ“" : "!"}
           </span>
           <p>{toast.mensagem}</p>
           <button
@@ -2045,7 +2432,7 @@ export default function BibliotecaAcervoPage() {
             onClick={() => setToast(null)}
             aria-label={t("toast.close")}
           >
-            ×
+            Ã—
           </button>
         </div>
       ) : null}
