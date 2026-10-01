@@ -1651,6 +1651,10 @@ export async function POST(
                       texto(
                         dados.miniaturaUrl,
                       ),
+                    isbn:
+                      texto(
+                        dados.isbn,
+                      ),
                     isbn10:
                       texto(
                         dados.isbn10,

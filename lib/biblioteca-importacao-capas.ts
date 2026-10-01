@@ -52,6 +52,7 @@ export type RegistroParaCapa = {
   capaUrl?: string | null;
   miniaturaUrl?: string | null;
 
+  isbn?: string | null;
   isbn10?: string | null;
   isbn13?: string | null;
   idLegado?: string | null;
@@ -727,6 +728,7 @@ function referenciasPossiveis(
         registro.arquivoCapa,
         registro.isbn13,
         registro.isbn10,
+        registro.isbn,
         registro.idLegado,
         registro.codigoBarras,
         registro.numeroTombo,
@@ -844,7 +846,8 @@ async function tentarIsbn(
   const isbn =
     isbnLimpo(
       registro.isbn13 ??
-        registro.isbn10,
+        registro.isbn10 ??
+        registro.isbn,
     );
 
   if (!isbn) {
