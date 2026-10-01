@@ -916,3 +916,223 @@ export function analisarArquivoImportacao(
       ),
   };
 }
+export type RegistroMapeadoImportacao = {
+  linha: number;
+  dados: Record<string, string>;
+};
+
+function normalizarIsbnImportacao(
+  valor: string | undefined,
+) {
+  if (!valor) return "";
+
+  return valor
+    .toUpperCase()
+    .replace(/[^0-9X]/g, "");
+}
+
+export function extrairRegistrosMapeadosImportacao(
+  buffer: Buffer,
+  nomeArquivo: string,
+  mapeamento: Record<number, string>,
+) {
+  let workbook: XLSX.WorkBook;
+
+  try {
+    workbook = XLSX.read(buffer, {
+      type: "buffer",
+      cellDates: false,
+    });
+  } catch {
+    throw new ErroArquivoImportacao(
+      "ARQUIVO_NAO_RECONHECIDO",
+      "Não foi possível interpretar o arquivo enviado.",
+    );
+  }
+
+  if (!workbook.SheetNames.length) {
+    throw new ErroArquivoImportacao(
+      "ARQUIVO_SEM_PLANILHA",
+      "O arquivo não contém uma planilha válida.",
+    );
+  }
+
+  const nomePlanilha =
+    workbook.SheetNames[0];
+
+  const planilha =
+    workbook.Sheets[nomePlanilha];
+
+  const matriz =
+    XLSX.utils.sheet_to_json<unknown[]>(
+      planilha,
+      {
+        header: 1,
+        defval: "",
+        raw: false,
+        blankrows: false,
+      },
+    );
+
+  const indiceCabecalho =
+    matriz.findIndex(
+      (linha) =>
+        Array.isArray(linha) &&
+        linha.some(
+          (celula) =>
+            textoCelula(celula).length > 0,
+        ),
+    );
+
+  if (indiceCabecalho < 0) {
+    throw new ErroArquivoImportacao(
+      "ARQUIVO_VAZIO",
+      "O arquivo não possui dados para importar.",
+    );
+  }
+
+  const linhas =
+    matriz
+      .slice(indiceCabecalho + 1)
+      .filter(
+        (linha) =>
+          Array.isArray(linha) &&
+          linha.some(
+            (celula) =>
+              textoCelula(celula).length > 0,
+          ),
+      );
+
+  if (linhas.length > 50_000) {
+    throw new ErroArquivoImportacao(
+      "MUITOS_REGISTROS",
+      "Esta etapa aceita no máximo 50.000 registros por arquivo.",
+      413,
+    );
+  }
+
+  const registros:
+    RegistroMapeadoImportacao[] =
+      linhas.map(
+        (linha, indiceLinha) => {
+          const dados:
+            Record<string, string> = {};
+
+          for (
+            const [
+              indiceTexto,
+              destino,
+            ] of Object.entries(
+              mapeamento,
+            )
+          ) {
+            if (!destino) continue;
+
+            const indice =
+              Number(indiceTexto);
+
+            if (
+              !Number.isInteger(indice) ||
+              indice < 0
+            ) {
+              continue;
+            }
+
+            const valor =
+              textoCelula(
+                linha[indice],
+              );
+
+            if (valor) {
+              dados[destino] =
+                valor;
+            }
+          }
+
+          const isbnGenerico =
+            normalizarIsbnImportacao(
+              dados.isbn,
+            );
+
+          if (
+            isbnGenerico &&
+            !dados.isbn10 &&
+            !dados.isbn13
+          ) {
+            if (
+              isbnGenerico.length === 10
+            ) {
+              dados.isbn10 =
+                isbnGenerico;
+            } else if (
+              isbnGenerico.length === 13
+            ) {
+              dados.isbn13 =
+                isbnGenerico;
+            }
+          }
+
+          if (dados.isbn10) {
+            dados.isbn10 =
+              normalizarIsbnImportacao(
+                dados.isbn10,
+              );
+          }
+
+          if (dados.isbn13) {
+            dados.isbn13 =
+              normalizarIsbnImportacao(
+                dados.isbn13,
+              );
+          }
+
+          if (dados.doi) {
+            dados.doi =
+              dados.doi
+                .trim()
+                .toLowerCase()
+                .replace(
+                  /^https?:\/\/(dx\.)?doi\.org\//,
+                  "",
+                )
+                .replace(
+                  /^doi:\s*/i,
+                  "",
+                );
+          }
+
+          return {
+            linha:
+              indiceCabecalho +
+              indiceLinha +
+              2,
+            dados,
+          };
+        },
+      );
+
+  return {
+    nomeArquivo,
+    planilha:
+      nomePlanilha,
+    registros,
+  };
+}
+
+export function normalizarTextoComparacao(
+  valor: string | null | undefined,
+) {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      "",
+    )
+    .toLowerCase()
+    .replace(
+      /[^a-z0-9]+/g,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+}

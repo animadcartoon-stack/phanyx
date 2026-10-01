@@ -21941,9 +21941,8 @@
       "LISTA_PARTICIPANTES": "Liste des participants",
       "OUTRO": "Autre"
     }
-  }
-,
-"AdminLibraryImport": {
+  },
+  "AdminLibraryImport": {
     "openImporter": "📥 Importer le fonds",
     "eyebrow": "BIBLIOTHÈQUE NUMÉRIQUE PHANYX",
     "title": "Importer le fonds",
@@ -22068,6 +22067,45 @@
       "fornecedor": "Fournisseur",
       "valorAquisicao": "Valeur d’acquisition",
       "observacoes": "Notes"
+    },
+    "validation": {
+      "error": "Impossible de valider le fichier avec le fonds.",
+      "validating": "Validation...",
+      "validateAgain": "Valider à nouveau",
+      "completedTitle": "Validation terminée",
+      "completedDescription": "PHANYX a comparé le fichier avec le fonds actuel. Aucun enregistrement n’a été créé.",
+      "summary": {
+        "newWorks": "Nouvelles notices",
+        "existingWorks": "Notices existantes",
+        "possibleDuplicates": "Doublons possibles",
+        "copyConflicts": "Conflits d’exemplaires"
+      },
+      "resultsTitle": "Résultat de la validation",
+      "resultsDescription": "Vérifiez ce qui arrivera à chaque enregistrement avant d’autoriser l’importation.",
+      "row": "Ligne",
+      "work": "Notice",
+      "workResult": "Situation de la notice",
+      "copyResult": "Situation de l’exemplaire",
+      "database": "fonds actuel",
+      "file": "fichier lui-même",
+      "conflictLine": "{field} : {value} existe déjà dans le {source}.",
+      "assetWarning": "Le numéro patrimonial {value} existe déjà dans le fonds. Vérifiez-le avant l’importation.",
+      "workActions": {
+        "CRIAR_NOVA": "Nouvelle notice",
+        "VINCULAR_EXISTENTE": "Associer à la notice existante",
+        "REUTILIZAR_DO_ARQUIVO": "Même notice dans le fichier",
+        "REVISAR_DUPLICIDADE": "Vérifier le doublon possible",
+        "INVALIDA": "Enregistrement invalide"
+      },
+      "copyActions": {
+        "SEM_EXEMPLAR": "Sans exemplaire physique",
+        "NOVO_EXEMPLAR": "Nouvel exemplaire",
+        "CONFLITO": "Conflit",
+        "AVISO": "Nouvel exemplaire avec avertissement"
+      },
+      "nextTitle": "Étape suivante : confirmer l’importation",
+      "nextDescription": "Le bouton restera désactivé jusqu’à l’implémentation du lot auditable et de la confirmation finale. Rien n’a encore été enregistré.",
+      "importButton": "Confirmer l’importation"
     }
   }
 }

@@ -21942,9 +21942,8 @@
       "LISTA_PARTICIPANTES": "Participant list",
       "OUTRO": "Other"
     }
-  }
-,
-"AdminLibraryImport": {
+  },
+  "AdminLibraryImport": {
     "openImporter": "📥 Import collection",
     "eyebrow": "PHANYX DIGITAL LIBRARY",
     "title": "Import collection",
@@ -22069,6 +22068,45 @@
       "fornecedor": "Supplier",
       "valorAquisicao": "Acquisition value",
       "observacoes": "Notes"
+    },
+    "validation": {
+      "error": "The file could not be validated against the collection.",
+      "validating": "Validating...",
+      "validateAgain": "Validate again",
+      "completedTitle": "Validation completed",
+      "completedDescription": "PHANYX compared the file with the current collection. No records were written.",
+      "summary": {
+        "newWorks": "New titles",
+        "existingWorks": "Existing titles",
+        "possibleDuplicates": "Possible duplicates",
+        "copyConflicts": "Copy conflicts"
+      },
+      "resultsTitle": "Validation results",
+      "resultsDescription": "Review what will happen to each record before enabling the import.",
+      "row": "Row",
+      "work": "Title",
+      "workResult": "Title result",
+      "copyResult": "Copy result",
+      "database": "current collection",
+      "file": "file itself",
+      "conflictLine": "{field}: {value} already appears in the {source}.",
+      "assetWarning": "Asset number {value} already exists in the collection. Review it before importing.",
+      "workActions": {
+        "CRIAR_NOVA": "New title",
+        "VINCULAR_EXISTENTE": "Link to existing title",
+        "REUTILIZAR_DO_ARQUIVO": "Same title in file",
+        "REVISAR_DUPLICIDADE": "Review possible duplicate",
+        "INVALIDA": "Invalid record"
+      },
+      "copyActions": {
+        "SEM_EXEMPLAR": "No physical copy",
+        "NOVO_EXEMPLAR": "New copy",
+        "CONFLITO": "Conflict",
+        "AVISO": "New copy with warning"
+      },
+      "nextTitle": "Next step: confirm import",
+      "nextDescription": "The import button will remain disabled until the auditable batch and final confirmation are implemented. Nothing has been written yet.",
+      "importButton": "Confirm import"
     }
   }
 }

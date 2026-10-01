@@ -21941,9 +21941,8 @@
       "LISTA_PARTICIPANTES": "Lista de participantes",
       "OUTRO": "Otro"
     }
-  }
-,
-"AdminLibraryImport": {
+  },
+  "AdminLibraryImport": {
     "openImporter": "📥 Importar colección",
     "eyebrow": "BIBLIOTECA VIRTUAL PHANYX",
     "title": "Importar colección",
@@ -22068,6 +22067,45 @@
       "fornecedor": "Proveedor",
       "valorAquisicao": "Valor de adquisición",
       "observacoes": "Observaciones"
+    },
+    "validation": {
+      "error": "No fue posible validar el archivo con la colección.",
+      "validating": "Validando...",
+      "validateAgain": "Validar nuevamente",
+      "completedTitle": "Validación concluida",
+      "completedDescription": "PHANYX comparó el archivo con la colección actual. No se guardó ningún registro.",
+      "summary": {
+        "newWorks": "Nuevas obras",
+        "existingWorks": "Obras existentes",
+        "possibleDuplicates": "Posibles duplicados",
+        "copyConflicts": "Conflictos de ejemplares"
+      },
+      "resultsTitle": "Resultado de la validación",
+      "resultsDescription": "Revise qué ocurrirá con cada registro antes de habilitar la importación.",
+      "row": "Fila",
+      "work": "Obra",
+      "workResult": "Situación de la obra",
+      "copyResult": "Situación del ejemplar",
+      "database": "colección actual",
+      "file": "propio archivo",
+      "conflictLine": "{field}: {value} ya aparece en la {source}.",
+      "assetWarning": "El patrimonio {value} ya existe en la colección. Revíselo antes de importar.",
+      "workActions": {
+        "CRIAR_NOVA": "Nueva obra",
+        "VINCULAR_EXISTENTE": "Vincular a obra existente",
+        "REUTILIZAR_DO_ARQUIVO": "Misma obra del archivo",
+        "REVISAR_DUPLICIDADE": "Revisar posible duplicado",
+        "INVALIDA": "Registro no válido"
+      },
+      "copyActions": {
+        "SEM_EXEMPLAR": "Sin ejemplar físico",
+        "NOVO_EXEMPLAR": "Nuevo ejemplar",
+        "CONFLITO": "Conflicto",
+        "AVISO": "Nuevo ejemplar con aviso"
+      },
+      "nextTitle": "Siguiente etapa: confirmar importación",
+      "nextDescription": "El botón seguirá bloqueado hasta implementar el lote auditable y la confirmación final. No se ha guardado nada.",
+      "importButton": "Confirmar importación"
     }
   }
 }

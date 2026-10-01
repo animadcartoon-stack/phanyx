@@ -21728,9 +21728,8 @@
       "LISTA_PARTICIPANTES": "Lista de participantes",
       "OUTRO": "Outro"
     }
-  }
-,
-"AdminLibraryImport": {
+  },
+  "AdminLibraryImport": {
     "openImporter": "📥 Importar acervo",
     "eyebrow": "BIBLIOTECA VIRTUAL PHANYX",
     "title": "Importar acervo",
@@ -21855,6 +21854,45 @@
       "fornecedor": "Fornecedor",
       "valorAquisicao": "Valor de aquisição",
       "observacoes": "Observações"
+    },
+    "validation": {
+      "error": "Não foi possível validar o ficheiro com o acervo.",
+      "validating": "A validar...",
+      "validateAgain": "Validar novamente",
+      "completedTitle": "Validação concluída",
+      "completedDescription": "O PHANYX comparou o ficheiro com o acervo atual. Nenhum registo foi gravado.",
+      "summary": {
+        "newWorks": "Novas obras",
+        "existingWorks": "Obras existentes",
+        "possibleDuplicates": "Possíveis duplicados",
+        "copyConflicts": "Conflitos de exemplares"
+      },
+      "resultsTitle": "Resultado da validação",
+      "resultsDescription": "Confirme o que acontecerá com cada registo antes de permitir a importação.",
+      "row": "Linha",
+      "work": "Obra",
+      "workResult": "Situação da obra",
+      "copyResult": "Situação do exemplar",
+      "database": "acervo atual",
+      "file": "próprio ficheiro",
+      "conflictLine": "{field}: {value} já aparece no {source}.",
+      "assetWarning": "O património {value} já foi encontrado no acervo. Reveja antes da importação.",
+      "workActions": {
+        "CRIAR_NOVA": "Nova obra",
+        "VINCULAR_EXISTENTE": "Associar à obra existente",
+        "REUTILIZAR_DO_ARQUIVO": "Mesma obra do ficheiro",
+        "REVISAR_DUPLICIDADE": "Rever possível duplicado",
+        "INVALIDA": "Registo inválido"
+      },
+      "copyActions": {
+        "SEM_EXEMPLAR": "Sem exemplar físico",
+        "NOVO_EXEMPLAR": "Novo exemplar",
+        "CONFLITO": "Conflito",
+        "AVISO": "Novo exemplar com aviso"
+      },
+      "nextTitle": "Próxima etapa: confirmar importação",
+      "nextDescription": "O botão de importação continuará bloqueado até implementarmos o lote auditável e a confirmação final. Nada foi gravado até aqui.",
+      "importButton": "Confirmar importação"
     }
   }
 }

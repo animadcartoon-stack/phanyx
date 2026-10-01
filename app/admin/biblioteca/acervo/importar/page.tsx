@@ -75,6 +75,69 @@ type AnaliseImportacao = {
   camposDestino: CampoDestino[];
 };
 
+type ResultadoValidacao = {
+  indice: number;
+  linha: number;
+  titulo: string | null;
+  autor: string | null;
+  isbn10: string | null;
+  isbn13: string | null;
+  doi: string | null;
+  codigoInterno: string | null;
+  codigoBarras: string | null;
+  numeroTombo: string | null;
+  patrimonio: string | null;
+  acaoObra:
+    | "CRIAR_NOVA"
+    | "VINCULAR_EXISTENTE"
+    | "REUTILIZAR_DO_ARQUIVO"
+    | "REVISAR_DUPLICIDADE"
+    | "INVALIDA";
+  motivoObra: string;
+  itemExistente: {
+    id: number;
+    titulo: string;
+    status: string;
+  } | null;
+  situacaoExemplar:
+    | "SEM_EXEMPLAR"
+    | "NOVO_EXEMPLAR"
+    | "CONFLITO"
+    | "AVISO";
+  conflitos: Array<{
+    tipo: string;
+    valor: string;
+    origem: "BANCO" | "ARQUIVO";
+    exemplarId?: number;
+    itemId?: number;
+    itemTitulo?: string;
+  }>;
+  avisos: Array<{
+    tipo: string;
+    valor: string;
+    exemplarId?: number;
+    itemId?: number;
+    itemTitulo?: string;
+  }>;
+};
+
+type ValidacaoImportacao = {
+  ok?: boolean;
+  error?: string;
+  codigo?: string;
+  resumo: {
+    registros: number;
+    novasObras: number;
+    reutilizacoesArquivo: number;
+    obrasExistentes: number;
+    possiveisDuplicidades: number;
+    invalidos: number;
+    novosExemplares: number;
+    conflitosExemplares: number;
+    avisosExemplares: number;
+  };
+  resultados: ResultadoValidacao[];
+};
 const ORDEM_GRUPOS: GrupoCampo[] = [
   "OBRA",
   "AUTORIA",
@@ -162,6 +225,14 @@ export default function ImportarAcervoPage() {
   const [erro, setErro] =
     useState("");
 
+  const [validando, setValidando] =
+    useState(false);
+
+  const [validacao, setValidacao] =
+    useState<ValidacaoImportacao | null>(
+      null,
+    );
+
   const camposPorGrupo =
     useMemo(() => {
       if (!analise) {
@@ -216,6 +287,7 @@ export default function ImportarAcervoPage() {
     setArquivo(novoArquivo);
     setAnalise(null);
     setMapeamento({});
+    setValidacao(null);
     setErro("");
   }
 
@@ -245,6 +317,7 @@ export default function ImportarAcervoPage() {
     setArquivo(null);
     setAnalise(null);
     setMapeamento({});
+    setValidacao(null);
     setErro("");
 
     if (inputRef.current) {
@@ -343,6 +416,7 @@ export default function ImportarAcervoPage() {
     indice: number,
     destino: string,
   ) {
+    setValidacao(null);
     setMapeamento(
       (atual) => {
         const proximo = {
@@ -379,6 +453,98 @@ export default function ImportarAcervoPage() {
     );
   }
 
+  async function validarContraAcervo() {
+    if (
+      !arquivo ||
+      !analise
+    ) {
+      return;
+    }
+
+    if (!tituloMapeado) {
+      setErro(
+        t("errors.titleMapping"),
+      );
+      return;
+    }
+
+    setValidando(true);
+    setErro("");
+
+    try {
+      const formulario =
+        new FormData();
+
+      formulario.append(
+        "arquivo",
+        arquivo,
+      );
+
+      formulario.append(
+        "mapeamento",
+        JSON.stringify(
+          mapeamento,
+        ),
+      );
+
+      const resposta =
+        await fetch(
+          "/api/admin/biblioteca/importacao/validar",
+          {
+            method: "POST",
+            credentials: "include",
+            cache: "no-store",
+            body: formulario,
+          },
+        );
+
+      const tipoConteudo =
+        resposta.headers.get(
+          "content-type",
+        ) ?? "";
+
+      if (
+        !tipoConteudo.includes(
+          "application/json",
+        )
+      ) {
+        throw new Error(
+          t(
+            "errors.invalidResponse",
+          ),
+        );
+      }
+
+      const dados =
+        (await resposta.json()) as
+          ValidacaoImportacao;
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+            t(
+              "validation.error",
+            ),
+        );
+      }
+
+      setValidacao(
+        dados,
+      );
+    } catch (falha) {
+      setValidacao(null);
+
+      setErro(
+        falha instanceof Error
+          ? falha.message
+          : t(
+              "validation.error",
+            ),
+      );
+    } finally {
+      setValidando(false);
+    }
+  }
   function rotuloCampo(
     chave: string,
   ) {
@@ -422,15 +588,20 @@ export default function ImportarAcervoPage() {
       titulo:
         t("steps.mapping"),
       ativa: Boolean(
-        analise,
+        analise &&
+        !validacao
       ),
-      concluida: false,
+      concluida: Boolean(
+        validacao,
+      ),
     },
     {
       numero: 3,
       titulo:
         t("steps.validation"),
-      ativa: false,
+      ativa: Boolean(
+        validacao,
+      ),
       concluida: false,
     },
     {
@@ -1170,29 +1341,270 @@ export default function ImportarAcervoPage() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h2 className="text-lg font-black text-emerald-950 dark:text-emerald-100">
-                    {t(
-                      "ready.title",
-                    )}
+                    {validacao
+                      ? t("validation.completedTitle")
+                      : t("ready.title")}
                   </h2>
 
                   <p className="mt-1 max-w-3xl text-sm text-emerald-800 dark:text-emerald-200">
-                    {t(
-                      "ready.description",
-                    )}
+                    {validacao
+                      ? t("validation.completedDescription")
+                      : t("ready.description")}
                   </p>
                 </div>
 
                 <button
                   type="button"
-                  disabled
-                  className="cursor-not-allowed rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white opacity-50"
+                  disabled={
+                    !tituloMapeado ||
+                    validando
+                  }
+                  onClick={() =>
+                    void validarContraAcervo()
+                  }
+                  className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {t(
-                    "ready.continue",
-                  )}
+                  {validando
+                    ? t("validation.validating")
+                    : validacao
+                      ? t("validation.validateAgain")
+                      : t("ready.continue")}
                 </button>
               </div>
+
+              {erro ? (
+                <div
+                  role="alert"
+                  className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200"
+                >
+                  {erro}
+                </div>
+              ) : null}
             </section>
+
+            {validacao ? (
+              <>
+                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span className="import-muted text-xs font-bold uppercase tracking-wide text-slate-500">
+                      {t("validation.summary.newWorks")}
+                    </span>
+                    <strong className="mt-2 block text-3xl font-black text-emerald-700 dark:text-emerald-400">
+                      {validacao.resumo.novasObras}
+                    </strong>
+                  </div>
+
+                  <div className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span className="import-muted text-xs font-bold uppercase tracking-wide text-slate-500">
+                      {t("validation.summary.existingWorks")}
+                    </span>
+                    <strong className="mt-2 block text-3xl font-black">
+                      {validacao.resumo.obrasExistentes}
+                    </strong>
+                  </div>
+
+                  <div className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span className="import-muted text-xs font-bold uppercase tracking-wide text-slate-500">
+                      {t("validation.summary.possibleDuplicates")}
+                    </span>
+                    <strong className="mt-2 block text-3xl font-black text-amber-700 dark:text-amber-400">
+                      {validacao.resumo.possiveisDuplicidades}
+                    </strong>
+                  </div>
+
+                  <div className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <span className="import-muted text-xs font-bold uppercase tracking-wide text-slate-500">
+                      {t("validation.summary.copyConflicts")}
+                    </span>
+                    <strong className="mt-2 block text-3xl font-black text-red-700 dark:text-red-400">
+                      {validacao.resumo.conflitosExemplares}
+                    </strong>
+                  </div>
+                </section>
+
+                <section className="import-card overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <div className="border-b border-slate-200 p-5 dark:border-slate-800 sm:p-6">
+                    <h2 className="text-xl font-black">
+                      {t("validation.resultsTitle")}
+                    </h2>
+                    <p className="import-muted mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      {t("validation.resultsDescription")}
+                    </p>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full border-collapse text-left text-sm">
+                      <thead className="bg-slate-50 dark:bg-slate-950">
+                        <tr>
+                          <th className="px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500">
+                            {t("validation.row")}
+                          </th>
+                          <th className="min-w-[260px] px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500">
+                            {t("validation.work")}
+                          </th>
+                          <th className="min-w-[220px] px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500">
+                            {t("validation.workResult")}
+                          </th>
+                          <th className="min-w-[220px] px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500">
+                            {t("validation.copyResult")}
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {validacao.resultados.map(
+                          (resultado) => (
+                            <tr
+                              key={resultado.indice}
+                              className="border-t border-slate-100 dark:border-slate-800"
+                            >
+                              <td className="whitespace-nowrap px-4 py-4 font-black">
+                                {resultado.linha}
+                              </td>
+
+                              <td className="px-4 py-4 align-top">
+                                <strong className="block">
+                                  {resultado.titulo || "—"}
+                                </strong>
+
+                                {resultado.autor ? (
+                                  <span className="import-muted mt-1 block text-xs text-slate-500">
+                                    {resultado.autor}
+                                  </span>
+                                ) : null}
+
+                                {(resultado.isbn13 ||
+                                  resultado.isbn10 ||
+                                  resultado.doi) ? (
+                                  <span className="import-muted mt-1 block text-xs text-slate-500">
+                                    {resultado.isbn13 ||
+                                      resultado.isbn10 ||
+                                      resultado.doi}
+                                  </span>
+                                ) : null}
+                              </td>
+
+                              <td className="px-4 py-4 align-top">
+                                <span
+                                  className={[
+                                    "inline-flex rounded-full px-2.5 py-1 text-xs font-black",
+                                    resultado.acaoObra === "CRIAR_NOVA"
+                                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+                                      : resultado.acaoObra === "VINCULAR_EXISTENTE"
+                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200"
+                                        : resultado.acaoObra === "REVISAR_DUPLICIDADE"
+                                          ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                                          : resultado.acaoObra === "INVALIDA"
+                                            ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200"
+                                            : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
+                                  ].join(" ")}
+                                >
+                                  {traduzir(
+                                    `validation.workActions.${resultado.acaoObra}`,
+                                  )}
+                                </span>
+
+                                {resultado.itemExistente ? (
+                                  <div className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+                                    #{resultado.itemExistente.id} ·{" "}
+                                    {resultado.itemExistente.titulo}
+                                  </div>
+                                ) : null}
+                              </td>
+
+                              <td className="px-4 py-4 align-top">
+                                <span
+                                  className={[
+                                    "inline-flex rounded-full px-2.5 py-1 text-xs font-black",
+                                    resultado.situacaoExemplar === "NOVO_EXEMPLAR"
+                                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+                                      : resultado.situacaoExemplar === "CONFLITO"
+                                        ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200"
+                                        : resultado.situacaoExemplar === "AVISO"
+                                          ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                                          : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+                                  ].join(" ")}
+                                >
+                                  {traduzir(
+                                    `validation.copyActions.${resultado.situacaoExemplar}`,
+                                  )}
+                                </span>
+
+                                {resultado.conflitos.length > 0 ? (
+                                  <div className="mt-2 space-y-1">
+                                    {resultado.conflitos.map(
+                                      (conflito, indice) => (
+                                        <div
+                                          key={`${conflito.tipo}-${indice}`}
+                                          className="text-xs font-semibold text-red-700 dark:text-red-300"
+                                        >
+                                          {traduzir(
+                                            "validation.conflictLine",
+                                            {
+                                              field: conflito.tipo,
+                                              value: conflito.valor,
+                                              source:
+                                                conflito.origem === "BANCO"
+                                                  ? t("validation.database")
+                                                  : t("validation.file"),
+                                            },
+                                          )}
+                                        </div>
+                                      ),
+                                    )}
+                                  </div>
+                                ) : null}
+
+                                {resultado.avisos.length > 0 ? (
+                                  <div className="mt-2 space-y-1">
+                                    {resultado.avisos.map(
+                                      (aviso, indice) => (
+                                        <div
+                                          key={`${aviso.tipo}-${indice}`}
+                                          className="text-xs font-semibold text-amber-700 dark:text-amber-300"
+                                        >
+                                          {traduzir(
+                                            "validation.assetWarning",
+                                            {
+                                              value: aviso.valor,
+                                            },
+                                          )}
+                                        </div>
+                                      ),
+                                    )}
+                                  </div>
+                                ) : null}
+                              </td>
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="import-card rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <h2 className="text-lg font-black">
+                        {t("validation.nextTitle")}
+                      </h2>
+                      <p className="import-muted mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+                        {t("validation.nextDescription")}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled
+                      className="cursor-not-allowed rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white opacity-50 dark:bg-slate-100 dark:text-slate-950"
+                    >
+                      {t("validation.importButton")}
+                    </button>
+                  </div>
+                </section>
+              </>
+            ) : null}
           </>
         )}
       </div>
