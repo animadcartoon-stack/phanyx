@@ -112,6 +112,15 @@ type MatriculaApi = {
   vendedorResponsavelId?: number | null;
   vendedorResponsavelNomeSnapshot?: string | null;
 
+  tipoContratacao?:
+    | "CURSO_COMPLETO"
+    | "PARCIAL"
+    | null;
+
+  disciplinasContratadas?: Array<{
+    disciplinaId: number;
+  }>;
+
   vendedorResponsavel?: {
     id: number;
     nome: string;
@@ -291,6 +300,18 @@ function AdminMatriculasPage() {
   const [disciplinasExtrasSelecionadas, setDisciplinasExtrasSelecionadas] = useState<number[]>([]);
   const [disciplinasEdicaoSelecionadas, setDisciplinasEdicaoSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasEdicaoSelecionadas, setDisciplinasExtrasEdicaoSelecionadas] = useState<number[]>([]);
+
+  const [
+    tipoContratacaoEdicao,
+    setTipoContratacaoEdicao,
+  ] = useState<TipoContratacaoMatricula>(
+    "CURSO_COMPLETO"
+  );
+
+  const [
+    disciplinasContratadasEdicaoSelecionadas,
+    setDisciplinasContratadasEdicaoSelecionadas,
+  ] = useState<number[]>([]);
   const [turmaPorDisciplina, setTurmaPorDisciplina] = useState<Record<number, number>>({});
   const [
     turmaPorDisciplinaEdicao,
@@ -1031,6 +1052,66 @@ function AdminMatriculasPage() {
       }
     );
   }
+  function alternarDisciplinaContratadaEdicao(
+    disciplinaId: number
+  ) {
+    setDisciplinasContratadasEdicaoSelecionadas(
+      (anteriores) =>
+        anteriores.includes(disciplinaId)
+          ? anteriores.filter(
+              (id) => id !== disciplinaId
+            )
+          : [
+              ...anteriores,
+              disciplinaId,
+            ]
+    );
+  }
+
+  function alternarModuloContratadoEdicao(
+    moduloId: number
+  ) {
+    const modulo =
+      modulosContrataveis.find(
+        (item) =>
+          item.id === moduloId
+      );
+
+    if (!modulo) {
+      return;
+    }
+
+    const idsModulo =
+      modulo.disciplinas.map(
+        (disciplina) =>
+          disciplina.id
+      );
+
+    setDisciplinasContratadasEdicaoSelecionadas(
+      (anteriores) => {
+        const completo =
+          idsModulo.length > 0 &&
+          idsModulo.every((id) =>
+            anteriores.includes(id)
+          );
+
+        if (completo) {
+          return anteriores.filter(
+            (id) =>
+              !idsModulo.includes(id)
+          );
+        }
+
+        return Array.from(
+          new Set([
+            ...anteriores,
+            ...idsModulo,
+          ])
+        );
+      }
+    );
+  }
+
   const disciplinasDoSemestreIds = useMemo(() => {
     return Array.from(
       new Set(
@@ -2164,6 +2245,32 @@ function AdminMatriculasPage() {
         null;
     }
 
+    setTipoContratacaoEdicao(
+      matricula.tipoContratacao ===
+        "PARCIAL"
+        ? "PARCIAL"
+        : "CURSO_COMPLETO"
+    );
+
+    setDisciplinasContratadasEdicaoSelecionadas(
+      Array.from(
+        new Set(
+          (
+            matricula.disciplinasContratadas ??
+            []
+          )
+            .map((item) =>
+              Number(item.disciplinaId)
+            )
+            .filter(
+              (id) =>
+                Number.isInteger(id) &&
+                id > 0
+            )
+        )
+      )
+    );
+
     const idsGradeDoSemestre = new Set(
       Array.isArray(semestreEncontrado?.disciplinas)
         ? semestreEncontrado.disciplinas.map((d: any) => Number(d.disciplinaId))
@@ -2219,6 +2326,25 @@ function AdminMatriculasPage() {
 
   async function salvarEdicao() {
     if (!matriculaEditando) {
+      return;
+    }
+
+    if (
+      tipoContratacaoEdicao ===
+        "PARCIAL" &&
+      disciplinasContratadasEdicaoSelecionadas
+        .length === 0
+    ) {
+      setConfirmTitulo(
+        "Defina o escopo da contratação"
+      );
+
+      setConfirmMensagem(
+        "Selecione ao menos uma disciplina para a contratação parcial."
+      );
+
+      setConfirmAcao(null);
+      setConfirmModalAberto(true);
       return;
     }
 
@@ -2369,6 +2495,15 @@ function AdminMatriculasPage() {
                   matriculaEditando
                     .cursoId
                 ),
+
+            tipoContratacao:
+              tipoContratacaoEdicao,
+
+            disciplinaIdsContratadas:
+              tipoContratacaoEdicao ===
+                "PARCIAL"
+                ? disciplinasContratadasEdicaoSelecionadas
+                : todasDisciplinasContrataveisIds,
 
             cursoSemestreId:
               matriculaEditando
@@ -5382,6 +5517,169 @@ function AdminMatriculasPage() {
               </div>
             </div>
 
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+              <h3 className="font-bold text-slate-900 dark:text-slate-100">
+                Escopo da contratação
+              </h3>
+
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                Defina o que faz parte do contrato. Este escopo é independente das disciplinas cursadas no período.
+              </p>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+                  <input
+                    type="radio"
+                    name="tipoContratacaoEdicao"
+                    checked={
+                      tipoContratacaoEdicao ===
+                      "CURSO_COMPLETO"
+                    }
+                    onChange={() =>
+                      setTipoContratacaoEdicao(
+                        "CURSO_COMPLETO"
+                      )
+                    }
+                    className="mt-1"
+                  />
+
+                  <div>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100">
+                      Curso completo
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      Todos os módulos e disciplinas da grade fazem parte do contrato.
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+                  <input
+                    type="radio"
+                    name="tipoContratacaoEdicao"
+                    checked={
+                      tipoContratacaoEdicao ===
+                      "PARCIAL"
+                    }
+                    onChange={() =>
+                      setTipoContratacaoEdicao(
+                        "PARCIAL"
+                      )
+                    }
+                    className="mt-1"
+                  />
+
+                  <div>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100">
+                      Contratação parcial
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      Escolha módulos completos ou disciplinas específicas.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              {tipoContratacaoEdicao ===
+                "PARCIAL" && (
+                <div className="mt-4 space-y-3">
+                  {modulosContrataveis.map(
+                    (modulo) => {
+                      const idsModulo =
+                        modulo.disciplinas.map(
+                          (disciplina) =>
+                            disciplina.id
+                        );
+
+                      const selecionadas =
+                        idsModulo.filter((id) =>
+                          disciplinasContratadasEdicaoSelecionadas.includes(
+                            id
+                          )
+                        ).length;
+
+                      const moduloCompleto =
+                        idsModulo.length > 0 &&
+                        selecionadas ===
+                          idsModulo.length;
+
+                      return (
+                        <div
+                          key={modulo.id}
+                          className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950"
+                        >
+                          <label className="flex cursor-pointer items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={
+                                moduloCompleto
+                              }
+                              onChange={() =>
+                                alternarModuloContratadoEdicao(
+                                  modulo.id
+                                )
+                              }
+                              className="mt-1"
+                            />
+
+                            <div>
+                              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                                {modulo.numero}º módulo
+                                {modulo.titulo
+                                  ? ` — ${modulo.titulo}`
+                                  : ""}
+                              </p>
+
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {selecionadas} de{" "}
+                                {idsModulo.length} disciplinas selecionadas
+                              </p>
+                            </div>
+                          </label>
+
+                          <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+                            {modulo.disciplinas.map(
+                              (disciplina) => (
+                                <label
+                                  key={
+                                    disciplina.id
+                                  }
+                                  className="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-800"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={disciplinasContratadasEdicaoSelecionadas.includes(
+                                      disciplina.id
+                                    )}
+                                    onChange={() =>
+                                      alternarDisciplinaContratadaEdicao(
+                                        disciplina.id
+                                      )
+                                    }
+                                    className="mt-1"
+                                  />
+
+                                  <span className="text-sm text-slate-700 dark:text-slate-200">
+                                    {disciplina.nome}
+                                    {disciplina.cargaHoraria >
+                                    0
+                                      ? ` — ${disciplina.cargaHoraria}h`
+                                      : ""}
+                                  </span>
+                                </label>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
               <MultiSelectDisciplinas
                 titulo="Disciplinas a cursar neste período"
@@ -5397,7 +5695,7 @@ function AdminMatriculasPage() {
               />
 
               <MultiSelectDisciplinas
-                titulo="Disciplinas extras contratadas"
+                titulo="Dependências, adiantamentos e outras disciplinas"
                 disciplinas={
                   disciplinasExtrasEdicaoDisponiveis
                 }

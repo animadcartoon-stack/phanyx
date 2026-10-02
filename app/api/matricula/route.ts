@@ -4039,6 +4039,54 @@ export async function PUT(request: Request) {
     const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
     const semestre = toPositiveNumberOrNull(body.semestre);
 
+    const tipoContratacaoFoiInformado =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "tipoContratacao"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "disciplinaIdsContratadas"
+      );
+
+    const tipoContratacaoEdicao =
+      body.tipoContratacao ===
+        "CURSO_COMPLETO" ||
+      body.tipoContratacao ===
+        "PARCIAL"
+        ? body.tipoContratacao
+        : null;
+
+    const disciplinaIdsContratadasEdicao =
+      Array.isArray(
+        body.disciplinaIdsContratadas
+      )
+        ? Array.from(
+            new Set(
+              body.disciplinaIdsContratadas
+                .map((id) => Number(id))
+                .filter(
+                  (id) =>
+                    Number.isInteger(id) &&
+                    id > 0
+                )
+            )
+          )
+        : [];
+
+    if (
+      tipoContratacaoFoiInformado &&
+      !tipoContratacaoEdicao
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe se a contratação é do curso completo ou parcial.",
+        },
+        { status: 400 }
+      );
+    }
+
     const turmaPrincipalFoiInformada =
       campoFoiInformado(
         body as Record<
@@ -4488,6 +4536,66 @@ export async function PUT(request: Request) {
         cursoExiste.nome;
     }
 
+    let disciplinasContratadasSnapshotEdicao:
+      | Awaited<
+          ReturnType<
+            typeof montarEscopoContratado
+          >
+        >
+      | null = null;
+
+    if (tipoContratacaoFoiInformado) {
+      if (!cursoIdFinal) {
+        return NextResponse.json(
+          {
+            error:
+              "Informe o curso para definir o escopo da contratação.",
+          },
+          { status: 400 }
+        );
+      }
+
+      try {
+        disciplinasContratadasSnapshotEdicao =
+          await montarEscopoContratado({
+            instituicaoId:
+              user.instituicaoId,
+
+            cursoId:
+              cursoIdFinal,
+
+            tipoContratacao:
+              tipoContratacaoEdicao!,
+
+            disciplinaIdsContratadas:
+              disciplinaIdsContratadasEdicao,
+          });
+      } catch (error) {
+        return NextResponse.json(
+          {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Não foi possível definir as disciplinas contratadas.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        disciplinasContratadasSnapshotEdicao
+          .length === 0
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "A contratação precisa possuir ao menos uma disciplina.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     let itensClassificados:
       ItemMatriculaNormalizado[] = [];
 
@@ -4613,6 +4721,12 @@ export async function PUT(request: Request) {
             alunoId: alunoIdFinal,
             cursoId: cursoIdFinal,
 
+            tipoContratacao:
+              tipoContratacaoFoiInformado &&
+              tipoContratacaoEdicao
+                ? tipoContratacaoEdicao
+                : undefined,
+
             turmaPrincipalId:
               turmaPrincipalFoiInformada
                 ? turmaPrincipalIdFinal
@@ -4673,6 +4787,57 @@ export async function PUT(request: Request) {
                 : undefined,
           },
         });
+
+        if (
+          tipoContratacaoFoiInformado &&
+          disciplinasContratadasSnapshotEdicao
+        ) {
+          await tx
+            .matriculaDisciplinaContratada
+            .deleteMany({
+              where: {
+                matriculaId: id,
+                instituicaoId:
+                  user.instituicaoId,
+              },
+            });
+
+          await tx
+            .matriculaDisciplinaContratada
+            .createMany({
+              data:
+                disciplinasContratadasSnapshotEdicao.map(
+                  (item) => ({
+                    instituicaoId:
+                      user.instituicaoId,
+
+                    matriculaId:
+                      id,
+
+                    disciplinaId:
+                      item.disciplinaId,
+
+                    cursoSemestreIdSnapshot:
+                      item.cursoSemestreIdSnapshot,
+
+                    semestreNumeroSnapshot:
+                      item.semestreNumeroSnapshot,
+
+                    semestreTituloSnapshot:
+                      item.semestreTituloSnapshot,
+
+                    disciplinaNomeSnapshot:
+                      item.disciplinaNomeSnapshot,
+
+                    cargaHorariaSnapshot:
+                      item.cargaHorariaSnapshot,
+
+                    ordemSnapshot:
+                      item.ordemSnapshot,
+                  })
+                ),
+            });
+        }
 
         if (
           vendedorFoiInformado &&

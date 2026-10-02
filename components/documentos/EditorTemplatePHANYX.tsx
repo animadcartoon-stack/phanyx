@@ -6521,6 +6521,35 @@ export default function EditorTemplatePHANYX({
           -webkit-text-fill-color: #ffffff !important;
         }
 
+        /*
+         * O papel representa o documento impresso.
+         * Ele permanece claro independentemente do
+         * tema do painel PHANYX.
+         */
+        .editor-template-phanyx .phanyx-document-paper,
+        .editor-template-phanyx .phanyx-document-paper .ProseMirror {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          color-scheme: light;
+        }
+
+        .editor-template-phanyx
+          .phanyx-document-paper
+          .ProseMirror
+          :where(
+            p,
+            li,
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            blockquote
+          ):not([style*="color"]) {
+          color: #0f172a !important;
+        }
+
         .editor-template-phanyx table.phanyx-doc-table {
           border-collapse: collapse;
           table-layout: fixed;
@@ -6666,11 +6695,16 @@ export default function EditorTemplatePHANYX({
           </div>
 
           <div
-            className="bg-white text-black"
+            className="phanyx-document-paper bg-white text-slate-900"
             onClickCapture={
               selecionarLinhaTabelaPersistente
             }
             style={{
+              colorScheme: "light",
+              color: "#0f172a",
+              backgroundColor:
+                "#ffffff",
+
               minHeight:
                 `${alturaUtilPaginaMm}mm`,
 
