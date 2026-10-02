@@ -4413,6 +4413,71 @@ export async function PUT(request: Request) {
             0
           );
 
+    const normalizarDataFinanceira = (
+      valor:
+        | Date
+        | string
+        | null
+        | undefined
+    ) => {
+      if (!valor) {
+        return null;
+      }
+
+      const data =
+        valor instanceof Date
+          ? valor
+          : new Date(valor);
+
+      if (
+        Number.isNaN(
+          data.getTime()
+        )
+      ) {
+        return null;
+      }
+
+      return data
+        .toISOString()
+        .slice(0, 10);
+    };
+
+    const dadosMensalidadeMudaram =
+      dadosMensalidadeForamInformados &&
+      (
+        Number(
+          matriculaExistente
+            .valorMensalidade || 0
+        ) !==
+          Number(
+            valorMensalidadeFinal || 0
+          ) ||
+
+        Number(
+          matriculaExistente
+            .quantidadeMensalidades || 0
+        ) !==
+          Number(
+            quantidadeMensalidadesFinal || 0
+          ) ||
+
+        Number(
+          matriculaExistente
+            .bolsaPercentual || 0
+        ) !==
+          Number(
+            bolsaPercentualFinal || 0
+          ) ||
+
+        normalizarDataFinanceira(
+          matriculaExistente
+            .primeiroVencimento
+        ) !==
+          normalizarDataFinanceira(
+            primeiroVencimentoFinal
+          )
+      );
+
     if (vendedorFoiInformado) {
       const vendedorAtualId =
         matriculaExistente.vendedorResponsavelId ??
@@ -4902,7 +4967,7 @@ export async function PUT(request: Request) {
         }
 
         if (
-          dadosMensalidadeForamInformados &&
+          dadosMensalidadeMudaram &&
           valorMensalidadeFinal &&
           quantidadeMensalidadesFinal &&
           primeiroVencimentoFinal
@@ -4931,6 +4996,10 @@ export async function PUT(request: Request) {
               primeiroVencimentoFinal,
           });
         }
+      },
+      {
+        maxWait: 5000,
+        timeout: 60000,
       }
     );
 

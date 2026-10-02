@@ -6526,16 +6526,15 @@ export default function EditorTemplatePHANYX({
          * Ele permanece claro independentemente do
          * tema do painel PHANYX.
          */
-        .editor-template-phanyx .phanyx-document-paper,
-        .editor-template-phanyx .phanyx-document-paper .ProseMirror {
+        .phanyx-document-paper,
+        .phanyx-document-paper .editor-template-phanyx {
           background-color: #ffffff !important;
           color: #0f172a !important;
           color-scheme: light;
         }
 
-        .editor-template-phanyx
-          .phanyx-document-paper
-          .ProseMirror
+        .phanyx-document-paper
+          .editor-template-phanyx
           :where(
             p,
             li,
