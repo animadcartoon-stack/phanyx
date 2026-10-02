@@ -9876,6 +9876,8 @@
       "editorName": "Éditeur PHANYX",
       "showPanels": "Afficher les panneaux",
       "wideScreen": "Vue étendue",
+      "lockPage": "Verrouiller l??cran",
+      "unlockPage": "D?verrouiller l??cran",
       "locked": "🔒 Verrouillé",
       "unlocked": "🔓 Déverrouillé",
       "hand": "✋ Main",
@@ -10204,6 +10206,7 @@
     },
     "errors": {
       "uploadImage": "Erreur lors de l’importation de l’image.",
+      "waitImageUpload": "Attendez la fin du t?l?versement de l?image avant d?enregistrer le brouillon.",
       "refreshModels": "Erreur lors de l’actualisation de la liste des modèles.",
       "openDraft": "Erreur lors de l’ouverture du brouillon du modèle.",
       "openElements": "Erreur lors de l’ouverture des éléments du modèle.",

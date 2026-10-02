@@ -1555,6 +1555,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(0);
   const [modoAmplo, setModoAmplo] = useState(false);
+  const [edicaoTravada, setEdicaoTravada] = useState(false);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [abaLateral, setAbaLateral] = useState<"campos" | "cena">("campos");
   const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(false);
@@ -1595,7 +1596,6 @@ export default function ConfiguracaoCertificadoPage() {
 
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
-  const [secaoAberta, setSecaoAberta] = useState<string | null>(null);
   const [modoMao, setModoMao] = useState(false);
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
@@ -1679,54 +1679,385 @@ export default function ConfiguracaoCertificadoPage() {
     selecionarCampoUnico(novoId);
   }
 
-  const handleUploadImagem = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  function carregarDimensoesImagemLocal(
+    url: string,
+  ): Promise<{
+    largura: number;
+    altura: number;
+  }> {
+    return new Promise(
+      (resolve, reject) => {
+        const imagem =
+          new window.Image();
+
+        imagem.onload = () => {
+          resolve({
+            largura:
+              imagem.naturalWidth || 180,
+            altura:
+              imagem.naturalHeight || 180,
+          });
+        };
+
+        imagem.onerror = () => {
+          reject(
+            new Error(
+              tr("errors.uploadImage"),
+            ),
+          );
+        };
+
+        imagem.src = url;
+      },
+    );
+  }
+
+  function calcularTamanhoInicialImagem(
+    larguraNatural: number,
+    alturaNatural: number,
+  ) {
+    const largura =
+      Math.max(
+        1,
+        Number(larguraNatural || 1),
+      );
+
+    const altura =
+      Math.max(
+        1,
+        Number(alturaNatural || 1),
+      );
+
+    /*
+     * O maior lado entra com 180 px.
+     * O outro lado acompanha a mesma proporcao.
+     */
+    const maiorLado =
+      Math.max(largura, altura);
+
+    const escalaInicial =
+      180 / maiorLado;
+
+    return {
+      largura:
+        Math.max(
+          1,
+          Math.round(
+            largura * escalaInicial,
+          ),
+        ),
+
+      altura:
+        Math.max(
+          1,
+          Math.round(
+            altura * escalaInicial,
+          ),
+        ),
+    };
+  }
+
+  const handleUploadImagem = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const input =
+      e.currentTarget;
+
+    const file =
+      input.files?.[0];
+
     if (!file) return;
+
+    let previewUrl = "";
+    let novoId: number | null = null;
 
     try {
       setEnviandoArquivo(true);
+      setMensagemErro("");
 
-      const formData = new FormData();
-      formData.append("file", file);
+      /*
+       * Cria uma URL local imediatamente.
+       * Assim o usuario nao precisa esperar o upload
+       * para enxergar a imagem no certificado.
+       */
+      previewUrl =
+        URL.createObjectURL(file);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const dimensoes =
+        await carregarDimensoesImagemLocal(
+          previewUrl,
+        );
 
-      const data = await res.json();
+      const tamanhoInicial =
+        calcularTamanhoInicialImagem(
+          dimensoes.largura,
+          dimensoes.altura,
+        );
 
-      if (!res.ok || !data?.url) {
-        throw new Error(data?.error || tr("errors.uploadImage"));
-      }
+      novoId =
+        -(
+          Date.now() * 1000 +
+          Math.floor(
+            Math.random() * 1000,
+          )
+        );
 
+      const novoCampo = {
+        id: novoId,
+        tempId: novoId,
+
+        tipo: "IMAGEM",
+
+        imagemUrl: previewUrl,
+        url: previewUrl,
+        src: previewUrl,
+        arquivoUrl: previewUrl,
+        previewUrl,
+
+        x: 120,
+        y: 120,
+
+        largura:
+          tamanhoInicial.largura,
+
+        altura:
+          tamanhoInicial.altura,
+
+        /*
+         * A base do crop nasce com a mesma proporcao
+         * da imagem original.
+         */
+        cropBaseW:
+          tamanhoInicial.largura,
+
+        cropBaseH:
+          tamanhoInicial.altura,
+
+        crop: {
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        },
+
+        objectFit: "contain",
+
+        rotate: 0,
+        opacity: 1,
+        ordem: 10,
+        pagina: 1,
+
+        sombraAtiva: false,
+        sombraX: 0,
+        sombraY: 0,
+        sombraBlur: 0,
+        sombraCor: "#000000",
+        sombraOpacidade: 0.25,
+      } as any;
+
+      /*
+       * Entra no certificado ANTES do upload.
+       */
       setCampos((prev) => [
         ...prev,
-        {
-          id: Date.now(),
-          tipo: "IMAGEM",
-          imagemUrl: data.url,
-          url: data.url,
-          src: data.url,
-          arquivoUrl: data.url,
-          previewUrl: data.url,
-          x: 120,
-          y: 120,
-          largura: 140,
-          altura: 140,
-          rotacao: 0,
-          opacity: 1,
-          ordem: 10,
-          pagina: 1,
-        } as any,
+        novoCampo,
       ]);
+
+      selecionarCampoUnico(
+        novoId,
+      );
+
+      /*
+       * O upload real continua em segundo plano.
+       */
+      const formData =
+        new FormData();
+
+      formData.append(
+        "file",
+        file,
+      );
+
+      const res =
+        await fetch(
+          "/api/upload",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+
+      const data =
+        await res.json();
+
+      if (
+        !res.ok ||
+        !data?.url
+      ) {
+        throw new Error(
+          data?.error ||
+            tr("errors.uploadImage"),
+        );
+      }
+
+      /*
+       * Quando o servidor terminar, troca somente
+       * a URL temporaria pela URL permanente.
+       *
+       * Largura e altura permanecem intactas.
+       */
+      setCampos((prev) =>
+        prev.map((item) =>
+          item.id === novoId
+            ? {
+                ...item,
+
+                imagemUrl:
+                  data.url,
+
+                url:
+                  data.url,
+
+                src:
+                  data.url,
+
+                arquivoUrl:
+                  data.url,
+
+                previewUrl:
+                  data.url,
+
+                objectFit:
+                  "contain",
+              }
+            : item,
+        ),
+      );
+
+      const urlParaLiberar =
+        previewUrl;
+
+      window.setTimeout(
+        () => {
+          URL.revokeObjectURL(
+            urlParaLiberar,
+          );
+        },
+        250,
+      );
     } catch (error: any) {
-      setMensagemErro(error?.message || tr("errors.uploadImage"));
+      /*
+       * Se o upload falhar, remove a previa local
+       * para nao deixar uma imagem que nao possa
+       * ser salva posteriormente.
+       */
+      if (novoId !== null) {
+        setCampos((prev) =>
+          prev.filter(
+            (item) =>
+              item.id !== novoId,
+          ),
+        );
+
+        setCamposSelecionadosIds(
+          (prev) =>
+            prev.filter(
+              (id) =>
+                id !== novoId,
+            ),
+        );
+
+        setCampoSelecionadoId(
+          (atual) =>
+            atual === novoId
+              ? null
+              : atual,
+        );
+      }
+
+      if (previewUrl) {
+        URL.revokeObjectURL(
+          previewUrl,
+        );
+      }
+
+      setMensagemErro(
+        error?.message ||
+          tr("errors.uploadImage"),
+      );
     } finally {
       setEnviandoArquivo(false);
-      e.target.value = "";
+      input.value = "";
     }
   };
+
+  useEffect(() => {
+    if (!edicaoTravada) return;
+
+    const html = document.documentElement;
+    const body = document.body;
+
+    const htmlOverflowAnterior =
+      html.style.overflow;
+
+    const bodyOverflowAnterior =
+      body.style.overflow;
+
+    const bodyOverscrollAnterior =
+      body.style.overscrollBehavior;
+
+    const bodyPaddingRightAnterior =
+      body.style.paddingRight;
+
+    /*
+     * Evita deslocamento horizontal quando
+     * a barra de rolagem da pagina desaparece.
+     */
+    const larguraScrollbar =
+      window.innerWidth -
+      document.documentElement.clientWidth;
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+
+    if (larguraScrollbar > 0) {
+      body.style.paddingRight =
+        String(larguraScrollbar) + "px";
+    }
+
+    function liberarComEscape(
+      evento: KeyboardEvent,
+    ) {
+      if (evento.key === "Escape") {
+        setEdicaoTravada(false);
+      }
+    }
+
+    window.addEventListener(
+      "keydown",
+      liberarComEscape,
+    );
+
+    return () => {
+      html.style.overflow =
+        htmlOverflowAnterior;
+
+      body.style.overflow =
+        bodyOverflowAnterior;
+
+      body.style.overscrollBehavior =
+        bodyOverscrollAnterior;
+
+      body.style.paddingRight =
+        bodyPaddingRightAnterior;
+
+      window.removeEventListener(
+        "keydown",
+        liberarComEscape,
+      );
+    };
+  }, [edicaoTravada]);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
 
@@ -3353,116 +3684,147 @@ export default function ConfiguracaoCertificadoPage() {
     }
   }
 
-  async function adicionarCampo(tipo: string, textoTipo?: "TITULO" | "TEXTO") {
-    try {
-      const larguraInicial =
+  function adicionarCampo(
+    tipo: string,
+    textoTipo?: "TITULO" | "TEXTO",
+  ) {
+    setMensagemErro("");
+
+    const larguraInicial =
+      tipo === "DISCIPLINAS_CONCLUIDAS"
+        ? 340
+        : tipo === "QR_CODE"
+          ? 120
+          : tipo === "TEXTO_LIVRE"
+            ? textoTipo === "TITULO"
+              ? 420
+              : 320
+            : 220;
+
+    const alturaInicial =
+      tipo === "DISCIPLINAS_CONCLUIDAS"
+        ? 110
+        : tipo === "QR_CODE"
+          ? 120
+          : tipo === "TEXTO_LIVRE"
+            ? textoTipo === "TITULO"
+              ? 70
+              : 120
+            : 40;
+
+    const textoInicial =
+      tipo === "TEXTO_LIVRE"
+        ? textoTipo === "TITULO"
+          ? tr("text.placeholderTitle")
+          : tr("text.placeholderText")
+        : undefined;
+
+    /*
+     * Um ID negativo identifica um elemento novo,
+     * que ainda existe somente no editor.
+     *
+     * Ele ser? persistido na vers?o RASCUNHO correta
+     * quando o usu?rio clicar em Salvar rascunho.
+     */
+    const novoId =
+      -(Date.now() * 1000 + Math.floor(Math.random() * 1000));
+
+    const maiorOrdem = campos.reduce(
+      (maior, campo) =>
+        Math.max(
+          maior,
+          Number(campo.ordem || 0),
+        ),
+      0,
+    );
+
+    const novoCampo: CampoCertificado = {
+      id: novoId,
+      tipo,
+
+      x:
+        orientacao === "paisagem"
+          ? 180
+          : 120,
+
+      y: 140,
+
+      largura: larguraInicial,
+      altura: alturaInicial,
+
+      fonte: "Helvetica",
+
+      tamanho:
         tipo === "DISCIPLINAS_CONCLUIDAS"
-          ? 340
-          : tipo === "QR_CODE"
-            ? 120
-            : tipo === "TEXTO_LIVRE"
-              ? textoTipo === "TITULO"
-                ? 420
-                : 320
-              : 220;
+          ? 14
+          : tipo === "TEXTO_LIVRE" &&
+              textoTipo === "TITULO"
+            ? 34
+            : 18,
 
-      const alturaInicial =
+      cor: "#1e3a8a",
+      alinhamento: "left",
+
+      pagina: 1,
+      ordem: maiorOrdem + 1,
+
+      texto: textoInicial,
+      textoHtml: textoInicial,
+
+      textoTipo:
+        tipo === "TEXTO_LIVRE"
+          ? textoTipo || "TEXTO"
+          : undefined,
+
+      negrito:
+        tipo === "TEXTO_LIVRE" &&
+        textoTipo === "TITULO",
+
+      italico: false,
+      sublinhado: false,
+
+      lineHeight:
         tipo === "DISCIPLINAS_CONCLUIDAS"
-          ? 110
-          : tipo === "QR_CODE"
-            ? 120
-            : tipo === "TEXTO_LIVRE"
-              ? textoTipo === "TITULO"
-                ? 70
-                : 120
-              : 40;
+          ? 1.35
+          : undefined,
 
-      const res = await fetch("/api/admin/certificado-campos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          tipo,
-          x: orientacao === "paisagem" ? 180 : 120,
-          y: 140,
-          largura: larguraInicial,
-          altura: alturaInicial,
-          fonte: "Helvetica",
-          tamanho:
-            tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? 14
-              : tipo === "TEXTO_LIVRE" && textoTipo === "TITULO"
-                ? 34
-                : tipo === "TEXTO_LIVRE"
-                  ? 18
-                  : 18,
-          cor: "#1e3a8a",
-          alinhamento: "left",
-          pagina: 1,
-          texto:
-            tipo === "TEXTO_LIVRE"
-              ? textoTipo === "TITULO"
-                ? tr("text.placeholderTitle")
-                : tr("text.placeholderText")
-              : undefined,
-          textoTipo: tipo === "TEXTO_LIVRE" ? textoTipo || "TEXTO" : undefined,
-          negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
+      quantidadeDisciplinas:
+        tipo === "DISCIPLINAS_CONCLUIDAS"
+          ? 3
+          : undefined,
 
-          lineHeight: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1.35 : undefined,
-          quantidadeDisciplinas:
-            tipo === "DISCIPLINAS_CONCLUIDAS" ? 3 : undefined,
-          colunasDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1 : undefined,
-          espacoColunasDisciplinas:
-            tipo === "DISCIPLINAS_CONCLUIDAS" ? 12 : undefined,
-          dadosJson:
-            tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? {
-                quantidadeDisciplinas: 3,
-                colunasDisciplinas: 1,
-                espacoColunasDisciplinas: 12,
-                lineHeight: 1.35,
-              }
-              : undefined,
-        }),
-      });
+      colunasDisciplinas:
+        tipo === "DISCIPLINAS_CONCLUIDAS"
+          ? 1
+          : undefined,
 
-      const data = await res.json();
+      espacoColunasDisciplinas:
+        tipo === "DISCIPLINAS_CONCLUIDAS"
+          ? 12
+          : undefined,
 
-      if (!res.ok) {
-        setMensagemErro(
-          data?.detalhe || data?.error || tr("errors.addField"),
-        );
-        return;
-      }
+      dadosJson:
+        tipo === "DISCIPLINAS_CONCLUIDAS"
+          ? {
+              quantidadeDisciplinas: 3,
+              colunasDisciplinas: 1,
+              espacoColunasDisciplinas: 12,
+              lineHeight: 1.35,
+            }
+          : undefined,
+    };
 
-      setCampos((prev) => [
+    atualizarCamposComHistorico(
+      (prev) => [
         ...prev,
         {
-          ...(data?.dadosJson || {}),
-          ...data,
-          quantidadeDisciplinas:
-            tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? (data?.dadosJson?.quantidadeDisciplinas ?? 3)
-              : data?.quantidadeDisciplinas,
-          colunasDisciplinas:
-            tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? (data?.dadosJson?.colunasDisciplinas ?? 1)
-              : data?.colunasDisciplinas,
-          espacoColunasDisciplinas:
-            tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? (data?.dadosJson?.espacoColunasDisciplinas ?? 12)
-              : data?.espacoColunasDisciplinas,
-          lineHeight:
-            tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? (data?.dadosJson?.lineHeight ?? 1.35)
-              : data?.lineHeight,
-        },
-      ]);
-      setCampoSelecionadoId(data.id);
-    } catch {
-      setMensagemErro(tr("errors.addField"));
-    }
+          ...novoCampo,
+          tempId: novoId,
+        } as any,
+      ],
+    );
+
+    selecionarCampoUnico(novoId);
   }
 
   async function atualizarCampo(
@@ -3470,6 +3832,38 @@ export default function ConfiguracaoCertificadoPage() {
     payload: Partial<CampoCertificado>,
   ) {
     try {
+      const campoAtual =
+        campos.find(
+          (campo) => campo.id === id,
+        );
+
+      const idPersistido =
+        Number(
+          (campoAtual as any)?.bancoId ||
+            id,
+        );
+
+      /*
+       * Elemento tempor?rio:
+       * atualiza somente o estado local do editor.
+       */
+      if (
+        !Number.isFinite(idPersistido) ||
+        idPersistido <= 0
+      ) {
+        setCampos((prev) =>
+          prev.map((campo) =>
+            campo.id === id
+              ? {
+                  ...campo,
+                  ...payload,
+                }
+              : campo,
+          ),
+        );
+
+        return;
+      }
       if (payload.tipo === "IMAGEM" || payload.tipo === "FORMA") {
         setCampos((prev) =>
           prev.map((c) => (c.id === id ? { ...c, ...payload } : c)),
@@ -3485,7 +3879,7 @@ export default function ConfiguracaoCertificadoPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id,
+          id: idPersistido,
           ...payload,
         }),
       });
@@ -5944,6 +6338,14 @@ export default function ConfiguracaoCertificadoPage() {
   async function salvarRascunhoCompleto(opcoes?: {
     silencioso?: boolean;
   }): Promise<boolean> {
+    if (enviandoArquivo) {
+      setMensagemErro(
+        tr("errors.waitImageUpload"),
+      );
+
+      return false;
+    }
+
     try {
       setSalvando(true);
       setMensagemErro("");
@@ -6765,10 +7167,25 @@ export default function ConfiguracaoCertificadoPage() {
               return;
             }
 
-            document.getElementById("editor-certificado")?.scrollIntoView({
+            const editor =
+              document.getElementById(
+                "editor-certificado",
+              );
+
+            if (!editor) return;
+
+            editor.scrollIntoView({
               behavior: "smooth",
               block: "start",
             });
+
+            /*
+             * Deixa o scroll suave terminar e,
+             * em seguida, congela a pagina.
+             */
+            window.setTimeout(() => {
+              setEdicaoTravada(true);
+            }, 500);
           }}
           className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
         >
@@ -7424,6 +7841,30 @@ export default function ConfiguracaoCertificadoPage() {
             className="rounded-lg bg-white/20 px-3 py-2 text-sm font-medium text-white hover:bg-white/30"
           >
             {modoAmplo ? tr("toolbar.showPanels") : tr("toolbar.wideScreen")}
+          </button>
+
+          <button
+            type="button"
+            aria-pressed={edicaoTravada}
+            onClick={() =>
+              setEdicaoTravada(
+                (travada) => !travada,
+              )
+            }
+            title={
+              edicaoTravada
+                ? tr("toolbar.unlockPage")
+                : tr("toolbar.lockPage")
+            }
+            className={
+              edicaoTravada
+                ? "rounded-lg bg-white px-2.5 py-2 text-xs font-bold text-blue-700 transition"
+                : "rounded-lg border border-white/30 bg-white/20 px-2.5 py-2 text-xs font-bold text-white transition hover:bg-white/30"
+            }
+          >
+            {edicaoTravada
+              ? tr("toolbar.unlockPage")
+              : tr("toolbar.lockPage")}
           </button>
           <div className="flex items-center gap-3">
             <button
@@ -8364,240 +8805,300 @@ export default function ConfiguracaoCertificadoPage() {
               </div>
 
               <div className="space-y-4">
-                {/* Informações do aluno */}
-                <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSecaoAberta(secaoAberta === "aluno" ? null : "aluno")
-                    }
-                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                  >
+                <details
+                  name="certificado-campos"
+                  className="group rounded-2xl border border-slate-200 bg-white"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-left [&::-webkit-details-marker]:hidden">
                     <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
                       {tr("fieldGroups.student")}
                     </span>
-                    <span className="text-slate-500">
-                      {secaoAberta === "aluno" ? "−" : "+"}
+
+                    <span className="text-slate-500 group-open:hidden">
+                      +
                     </span>
-                  </button>
 
-                  {secaoAberta === "aluno" && (
-                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-                      {[
-                        { tipo: "NOME_ALUNO", label: tr("fieldTypes.NOME_ALUNO") },
-                        {
-                          tipo: "NUMERO_MATRICULA",
-                          label: tr("fieldTypes.NUMERO_MATRICULA"),
-                        },
-                        { tipo: "CPF_ALUNO", label: tr("fieldTypes.CPF_ALUNO") },
-                        { tipo: "RG_ALUNO", label: tr("fieldTypes.RG_ALUNO") },
-                      ].map((item) => (
-                        <button
-                          key={item.tipo}
-                          type="button"
-                          onClick={() => adicionarCampo(item.tipo)}
-                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    <span className="hidden text-slate-500 group-open:inline">
+                      -
+                    </span>
+                  </summary>
 
-                {/* Informações do curso */}
-                <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSecaoAberta(secaoAberta === "curso" ? null : "curso")
-                    }
-                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                  >
+                  <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                    {[
+                      {
+                        tipo: "NOME_ALUNO",
+                        label: tr("fieldTypes.NOME_ALUNO"),
+                      },
+                      {
+                        tipo: "NUMERO_MATRICULA",
+                        label: tr("fieldTypes.NUMERO_MATRICULA"),
+                      },
+                      {
+                        tipo: "CPF_ALUNO",
+                        label: tr("fieldTypes.CPF_ALUNO"),
+                      },
+                      {
+                        tipo: "RG_ALUNO",
+                        label: tr("fieldTypes.RG_ALUNO"),
+                      },
+                    ].map((item) => (
+                      <button
+                        key={item.tipo}
+                        type="button"
+                        onClick={() =>
+                          adicionarCampo(item.tipo)
+                        }
+                        className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </details>
+
+                <details
+                  name="certificado-campos"
+                  className="group rounded-2xl border border-slate-200 bg-white"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-left [&::-webkit-details-marker]:hidden">
                     <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
                       {tr("fieldGroups.course")}
                     </span>
-                    <span className="text-slate-500">
-                      {secaoAberta === "curso" ? "−" : "+"}
+
+                    <span className="text-slate-500 group-open:hidden">
+                      +
                     </span>
-                  </button>
 
-                  {secaoAberta === "curso" && (
-                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-                      {[
-                        { tipo: "NOME_CURSO", label: tr("fieldTypes.NOME_CURSO") },
-                        {
-                          tipo: "DISCIPLINAS_CONCLUIDAS",
-                          label: tr("fieldTypes.DISCIPLINAS_CONCLUIDAS"),
-                        },
-                        { tipo: "CARGA_HORARIA", label: tr("fieldTypes.CARGA_HORARIA") },
-                        { tipo: "ANO_CONCLUSAO", label: tr("fieldTypes.ANO_CONCLUSAO") },
-                        { tipo: "DATA_CONCLUSAO", label: tr("fieldTypes.DATA_CONCLUSAO") },
-                        { tipo: "APROVEITAMENTO", label: tr("fieldTypes.APROVEITAMENTO") },
-                        { tipo: "FREQUENCIA_TOTAL", label: tr("fieldTypes.FREQUENCIA_TOTAL") },
-                        { tipo: "MODALIDADE", label: tr("fieldTypes.MODALIDADE") },
-                        { tipo: "TURMA", label: tr("fieldTypes.TURMA") },
-                        { tipo: "POLO", label: tr("fieldTypes.POLO") },
-                      ].map((item) => (
-                        <button
-                          key={item.tipo}
-                          type="button"
-                          onClick={() => adicionarCampo(item.tipo)}
-                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    <span className="hidden text-slate-500 group-open:inline">
+                      -
+                    </span>
+                  </summary>
 
-                {/* Informações institucionais */}
-                <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSecaoAberta(
-                        secaoAberta === "institucional"
-                          ? null
-                          : "institucional",
-                      )
-                    }
-                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                  >
+                  <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                    {[
+                      {
+                        tipo: "NOME_CURSO",
+                        label: tr("fieldTypes.NOME_CURSO"),
+                      },
+                      {
+                        tipo: "DISCIPLINAS_CONCLUIDAS",
+                        label: tr("fieldTypes.DISCIPLINAS_CONCLUIDAS"),
+                      },
+                      {
+                        tipo: "CARGA_HORARIA",
+                        label: tr("fieldTypes.CARGA_HORARIA"),
+                      },
+                      {
+                        tipo: "ANO_CONCLUSAO",
+                        label: tr("fieldTypes.ANO_CONCLUSAO"),
+                      },
+                      {
+                        tipo: "DATA_CONCLUSAO",
+                        label: tr("fieldTypes.DATA_CONCLUSAO"),
+                      },
+                      {
+                        tipo: "APROVEITAMENTO",
+                        label: tr("fieldTypes.APROVEITAMENTO"),
+                      },
+                      {
+                        tipo: "FREQUENCIA_TOTAL",
+                        label: tr("fieldTypes.FREQUENCIA_TOTAL"),
+                      },
+                      {
+                        tipo: "MODALIDADE",
+                        label: tr("fieldTypes.MODALIDADE"),
+                      },
+                      {
+                        tipo: "TURMA",
+                        label: tr("fieldTypes.TURMA"),
+                      },
+                      {
+                        tipo: "POLO",
+                        label: tr("fieldTypes.POLO"),
+                      },
+                    ].map((item) => (
+                      <button
+                        key={item.tipo}
+                        type="button"
+                        onClick={() =>
+                          adicionarCampo(item.tipo)
+                        }
+                        className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </details>
+
+                <details
+                  name="certificado-campos"
+                  className="group rounded-2xl border border-slate-200 bg-white"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-left [&::-webkit-details-marker]:hidden">
                     <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
                       {tr("fieldGroups.institutional")}
                     </span>
-                    <span className="text-slate-500">
-                      {secaoAberta === "institucional" ? "−" : "+"}
+
+                    <span className="text-slate-500 group-open:hidden">
+                      +
                     </span>
-                  </button>
 
-                  {secaoAberta === "institucional" && (
-                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-                      {[
-                        {
-                          tipo: "NOME_INSTITUICAO",
-                          label: tr("fieldTypes.NOME_INSTITUICAO"),
-                        },
-                        {
-                          tipo: "CNPJ_INSTITUICAO",
-                          label: tr("fieldTypes.CNPJ_INSTITUICAO"),
-                        },
-                        { tipo: "CIDADE", label: tr("fieldTypes.CIDADE") },
-                        { tipo: "DATA_EMISSAO", label: tr("fieldTypes.DATA_EMISSAO") },
-                        { tipo: "NOME_DIRETOR", label: tr("fieldTypes.NOME_DIRETOR") },
-                        { tipo: "ASSINATURA", label: tr("fieldTypes.ASSINATURA") },
-                        {
-                          tipo: "LOGO_INSTITUICAO",
-                          label: tr("fieldTypes.LOGO_INSTITUICAO"),
-                        },
-                      ].map((item) => (
-                        <button
-                          key={item.tipo}
-                          type="button"
-                          onClick={() => adicionarCampo(item.tipo)}
-                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    <span className="hidden text-slate-500 group-open:inline">
+                      -
+                    </span>
+                  </summary>
 
-                {/* Textos livres */}
-                <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSecaoAberta(secaoAberta === "textos" ? null : "textos")
-                    }
-                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                  >
+                  <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                    {[
+                      {
+                        tipo: "NOME_INSTITUICAO",
+                        label: tr("fieldTypes.NOME_INSTITUICAO"),
+                      },
+                      {
+                        tipo: "CNPJ_INSTITUICAO",
+                        label: tr("fieldTypes.CNPJ_INSTITUICAO"),
+                      },
+                      {
+                        tipo: "CIDADE",
+                        label: tr("fieldTypes.CIDADE"),
+                      },
+                      {
+                        tipo: "DATA_EMISSAO",
+                        label: tr("fieldTypes.DATA_EMISSAO"),
+                      },
+                      {
+                        tipo: "NOME_DIRETOR",
+                        label: tr("fieldTypes.NOME_DIRETOR"),
+                      },
+                      {
+                        tipo: "ASSINATURA",
+                        label: tr("fieldTypes.ASSINATURA"),
+                      },
+                      {
+                        tipo: "LOGO_INSTITUICAO",
+                        label: tr("fieldTypes.LOGO_INSTITUICAO"),
+                      },
+                    ].map((item) => (
+                      <button
+                        key={item.tipo}
+                        type="button"
+                        onClick={() =>
+                          adicionarCampo(item.tipo)
+                        }
+                        className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </details>
+
+                <details
+                  name="certificado-campos"
+                  className="group rounded-2xl border border-slate-200 bg-white"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-left [&::-webkit-details-marker]:hidden">
                     <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
                       {tr("fieldGroups.freeTexts")}
                     </span>
-                    <span className="text-slate-500">
-                      {secaoAberta === "textos" ? "−" : "+"}
+
+                    <span className="text-slate-500 group-open:hidden">
+                      +
                     </span>
-                  </button>
 
-                  {secaoAberta === "textos" && (
-                    <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")}
-                        className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
-                      >
-                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">
-                          T
-                        </span>
-                        <span className="mt-2 text-[11px] font-semibold text-slate-700">
-                          {tr("common.title")}
-                        </span>
-                      </button>
+                    <span className="hidden text-slate-500 group-open:inline">
+                      -
+                    </span>
+                  </summary>
 
-                      <button
-                        type="button"
-                        onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")}
-                        className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
-                      >
-                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">
-                          Tx
-                        </span>
-                        <span className="mt-2 text-[11px] font-semibold text-slate-700">
-                          {tr("common.text")}
-                        </span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+                  <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        adicionarCampo(
+                          "TEXTO_LIVRE",
+                          "TITULO",
+                        )
+                      }
+                      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+                    >
+                      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">
+                        T
+                      </span>
 
-                {/* Validação */}
-                <div className="rounded-2xl border border-slate-200 bg-white">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSecaoAberta(
-                        secaoAberta === "validacao" ? null : "validacao",
-                      )
-                    }
-                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                  >
+                      <span className="mt-2 text-[11px] font-semibold text-slate-700">
+                        {tr("common.title")}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        adicionarCampo(
+                          "TEXTO_LIVRE",
+                          "TEXTO",
+                        )
+                      }
+                      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+                    >
+                      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">
+                        Tx
+                      </span>
+
+                      <span className="mt-2 text-[11px] font-semibold text-slate-700">
+                        {tr("common.text")}
+                      </span>
+                    </button>
+                  </div>
+                </details>
+
+                <details
+                  name="certificado-campos"
+                  className="group rounded-2xl border border-slate-200 bg-white"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-left [&::-webkit-details-marker]:hidden">
                     <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
                       {tr("fieldGroups.validation")}
                     </span>
-                    <span className="text-slate-500">
-                      {secaoAberta === "validacao" ? "−" : "+"}
-                    </span>
-                  </button>
 
-                  {secaoAberta === "validacao" && (
-                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-                      {[
-                        {
-                          tipo: "NUMERO_CERTIFICADO",
-                          label: tr("fieldTypes.NUMERO_CERTIFICADO"),
-                        },
-                        { tipo: "QR_CODE", label: tr("fieldTypes.QR_CODE") },
-                        {
-                          tipo: "CODIGO_VALIDACAO",
-                          label: tr("fieldTypes.CODIGO_VALIDACAO"),
-                        },
-                      ].map((item) => (
-                        <button
-                          key={item.tipo}
-                          type="button"
-                          onClick={() => adicionarCampo(item.tipo)}
-                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    <span className="text-slate-500 group-open:hidden">
+                      +
+                    </span>
+
+                    <span className="hidden text-slate-500 group-open:inline">
+                      -
+                    </span>
+                  </summary>
+
+                  <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                    {[
+                      {
+                        tipo: "NUMERO_CERTIFICADO",
+                        label: tr("fieldTypes.NUMERO_CERTIFICADO"),
+                      },
+                      {
+                        tipo: "QR_CODE",
+                        label: tr("fieldTypes.QR_CODE"),
+                      },
+                      {
+                        tipo: "CODIGO_VALIDACAO",
+                        label: tr("fieldTypes.CODIGO_VALIDACAO"),
+                      },
+                    ].map((item) => (
+                      <button
+                        key={item.tipo}
+                        type="button"
+                        onClick={() =>
+                          adicionarCampo(item.tipo)
+                        }
+                        className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </details>
               </div>
             </aside>
           )}
@@ -10329,6 +10830,41 @@ export default function ConfiguracaoCertificadoPage() {
                               }}
 
                               onKeyDown={(e) => {
+                                /*
+                                 * TEXTO_LIVRE usa contentEditable.
+                                 *
+                                 * Se Delete for pressionado sem um trecho de
+                                 * texto selecionado, deixamos o evento subir
+                                 * at? o manipulador global do editor, que
+                                 * excluir? a caixa inteira.
+                                 *
+                                 * Se houver texto selecionado, mantemos o
+                                 * evento dentro do contentEditable para que
+                                 * somente aquele trecho seja apagado.
+                                 *
+                                 * Backspace continua sendo usado normalmente
+                                 * para edi??o do conte?do.
+                                 */
+                                if (e.key === "Delete") {
+                                  const editor = e.currentTarget;
+                                  const selecao = window.getSelection();
+
+                                  const temSelecaoDentroDoTexto =
+                                    Boolean(
+                                      selecao &&
+                                      selecao.rangeCount > 0 &&
+                                      !selecao.isCollapsed &&
+                                      editor.contains(
+                                        selecao.getRangeAt(0)
+                                          .commonAncestorContainer,
+                                      ),
+                                    );
+
+                                  if (!temSelecaoDentroDoTexto) {
+                                    return;
+                                  }
+                                }
+
                                 e.stopPropagation();
 
                                 if (

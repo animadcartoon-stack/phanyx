@@ -9877,6 +9877,8 @@
       "editorName": "PHANYX Editor",
       "showPanels": "Show panels",
       "wideScreen": "Wide view",
+      "lockPage": "Lock screen",
+      "unlockPage": "Unlock screen",
       "locked": "🔒 Locked",
       "unlocked": "🔓 Unlocked",
       "hand": "✋ Hand",
@@ -10205,6 +10207,7 @@
     },
     "errors": {
       "uploadImage": "Could not upload image.",
+      "waitImageUpload": "Wait for the image upload to finish before saving the draft.",
       "refreshModels": "Could not refresh the template list.",
       "openDraft": "Could not open the template draft.",
       "openElements": "Could not open the template elements.",

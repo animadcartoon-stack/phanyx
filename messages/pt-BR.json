@@ -9876,6 +9876,8 @@
       "editorName": "Editor PHANYX",
       "showPanels": "Mostrar painéis",
       "wideScreen": "Tela ampla",
+      "lockPage": "Fixar tela",
+      "unlockPage": "Liberar tela",
       "locked": "🔒 Bloqueado",
       "unlocked": "🔓 Livre",
       "hand": "✋ Mão",
@@ -10204,6 +10206,7 @@
     },
     "errors": {
       "uploadImage": "Erro ao enviar imagem.",
+      "waitImageUpload": "Aguarde o envio da imagem terminar antes de salvar o rascunho.",
       "refreshModels": "Erro ao atualizar a lista de modelos.",
       "openDraft": "Erro ao abrir o rascunho do modelo.",
       "openElements": "Erro ao abrir os elementos do modelo.",
