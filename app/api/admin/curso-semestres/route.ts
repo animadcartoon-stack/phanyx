@@ -87,8 +87,84 @@ export async function GET(req: Request) {
         },
       });
 
+    const disciplinasDiretas =
+      await prisma.disciplina.findMany({
+        where: {
+          instituicaoId:
+            user.instituicaoId,
+          cursoId,
+          ativo: true,
+          semestre: {
+            not: null,
+          },
+        },
+        orderBy: [
+          {
+            semestre: "asc",
+          },
+          {
+            nome: "asc",
+          },
+        ],
+      });
+
+    const semestresCompletos =
+      semestres.map((semestre) => {
+        const idsJaVinculados =
+          new Set(
+            semestre.disciplinas.map(
+              (item) =>
+                item.disciplinaId
+            )
+          );
+
+        const disciplinasDiretasDoSemestre =
+          disciplinasDiretas
+            .filter(
+              (disciplina) =>
+                Number(
+                  disciplina.semestre
+                ) ===
+                  Number(
+                    semestre.numero
+                  ) &&
+                !idsJaVinculados.has(
+                  disciplina.id
+                )
+            )
+            .map((disciplina) => ({
+              id:
+                -disciplina.id,
+              createdAt:
+                disciplina.createdAt,
+              updatedAt:
+                disciplina.updatedAt,
+              instituicaoId:
+                user.instituicaoId,
+              cursoSemestreId:
+                semestre.id,
+              disciplinaId:
+                disciplina.id,
+              disciplina,
+            }));
+
+        return {
+          ...semestre,
+
+          disciplinas: [
+            ...semestre.disciplinas,
+            ...disciplinasDiretasDoSemestre,
+          ].sort((a, b) =>
+            a.disciplina.nome.localeCompare(
+              b.disciplina.nome,
+              "pt-BR"
+            )
+          ),
+        };
+      });
+
     return NextResponse.json(
-      semestres
+      semestresCompletos
     );
   } catch (error: unknown) {
     console.error(

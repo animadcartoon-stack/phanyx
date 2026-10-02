@@ -77,6 +77,7 @@ export const DOCUMENT_TAG_ALIASES = {
   "diasFerias": "vacationDays",
   "diasSuspensao": "suspensionDays",
   "disciplinas": "subjects",
+  "disciplinasContratadas": "contractedSubjects",
   "disciplinasBaseNacionalComum": "nationalCommonCoreSubjects",
   "disciplinasParteDiversificada": "diversifiedCurriculumSubjects",
   "disciplinasPorSemestre": "subjectsBySemester",
