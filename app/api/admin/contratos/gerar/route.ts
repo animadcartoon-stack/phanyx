@@ -198,7 +198,20 @@ export async function GET(req: Request) {
               },
             },
           },
-          curso: true,
+          curso: {
+            include: {
+              semestres: {
+                orderBy: { numero: "asc" },
+                include: {
+                  disciplinas: {
+                    include: {
+                      disciplina: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           itens: {
             include: {
               disciplina: true,
@@ -248,7 +261,20 @@ export async function GET(req: Request) {
               },
             },
           },
-          curso: true,
+          curso: {
+            include: {
+              semestres: {
+                orderBy: { numero: "asc" },
+                include: {
+                  disciplinas: {
+                    include: {
+                      disciplina: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
           itens: {
             include: {
               disciplina: true,
@@ -486,6 +512,32 @@ export async function GET(req: Request) {
         ? disciplinasLista.map((d) => `- ${d}`).join("\n")
         : "- Não informado";
 
+
+    const disciplinasContratadasTexto =
+      matricula.curso?.semestres?.length
+        ? matricula.curso.semestres
+            .map((semestre) => {
+              const nomes = Array.from(
+                new Set(
+                  semestre.disciplinas
+                    .map((item) => item.disciplina?.nome?.trim())
+                    .filter(Boolean) as string[]
+                )
+              ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+              if (nomes.length === 0) return null;
+
+              const titulo =
+                semestre.titulo?.trim() ||
+                `${semestre.numero}º Módulo`;
+
+              return `${titulo}\n${nomes
+                .map((nome) => `- ${nome}`)
+                .join("\n")}`;
+            })
+            .filter(Boolean)
+            .join("\n\n")
+        : "- Não informado";
     const valorLancamentos = matricula.lancamentosFinanceiros.reduce(
       (acc: number, item: any) =>
         acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
@@ -683,7 +735,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
           disciplinasTexto,
 
         disciplinasContratadas:
-          disciplinasTexto,
+          disciplinasContratadasTexto,
 
         statusMatricula:
           matricula.status || "-",
