@@ -6526,27 +6526,61 @@ export default function EditorTemplatePHANYX({
          * Ele permanece claro independentemente do
          * tema do painel PHANYX.
          */
+        /*
+         * A folha representa o documento impresso.
+         * Seu fundo e seu texto nao acompanham o
+         * tema visual do painel administrativo.
+         */
+        /*
+         * A folha representa o documento impresso.
+         * Seu fundo e seu texto nao acompanham o
+         * tema visual do painel administrativo.
+         */
         .phanyx-document-paper,
         .phanyx-document-paper .editor-template-phanyx {
           background-color: #ffffff !important;
           color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
           color-scheme: light;
         }
 
         .phanyx-document-paper
+          .editor-template-phanyx,
+        .phanyx-document-paper
           .editor-template-phanyx
           :where(
             p,
+            div,
+            span,
             li,
+            strong,
+            em,
+            u,
+            a,
             h1,
             h2,
             h3,
             h4,
             h5,
             h6,
-            blockquote
-          ):not([style*="color"]) {
+            blockquote,
+            td,
+            th
+          ) {
           color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+
+        .phanyx-a4-guia-cabecalho,
+        .phanyx-a4-guia-cabecalho * {
+          color: #334155 !important;
+          -webkit-text-fill-color: #334155 !important;
+        }
+
+        .phanyx-a4-guia-rodape,
+        .phanyx-a4-guia-rodape * {
+          color: #475569 !important;
+          -webkit-text-fill-color: #475569 !important;
         }
 
         .editor-template-phanyx table.phanyx-doc-table {
