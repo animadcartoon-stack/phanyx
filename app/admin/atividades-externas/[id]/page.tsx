@@ -122,35 +122,35 @@ const ABAS: Array<{
 }> = [
         {
             id: "overview",
-            icone: "ðŸ“‹",
+            icone: "📋",
         },
         {
             id: "participants",
-            icone: "ðŸ‘¥",
+            icone: "👥",
         },
         {
             id: "permissions",
-            icone: "âœï¸",
+            icone: "✍️",
         },
         {
             id: "team",
-            icone: "ðŸ§‘â€ðŸ«",
+            icone: "🧑‍🏫",
         },
         {
             id: "transport",
-            icone: "ðŸšŒ",
+            icone: "🚌",
         },
         {
             id: "safety",
-            icone: "ðŸ›¡ï¸",
+            icone: "🛡️",
         },
         {
             id: "health",
-            icone: "ðŸ©º",
+            icone: "🩺",
         },
         {
             id: "documents",
-            icone: "ðŸ“„",
+            icone: "📄",
         },
     ];
 
@@ -159,37 +159,37 @@ function iconeTipo(
 ) {
     switch (tipo) {
         case "EXCURSAO":
-            return "ðŸšŒ";
+            return "🚌";
 
         case "VISITA_TECNICA":
-            return "ðŸ­";
+            return "🏭";
 
         case "VIAGEM_PEDAGOGICA":
-            return "ðŸŽ“";
+            return "🎓";
 
         case "ACAMPAMENTO":
-            return "â›º";
+            return "⛺";
 
         case "RETIRO":
-            return "ðŸŒ¿";
+            return "🌿";
 
         case "COMPETICAO":
-            return "ðŸ†";
+            return "🏆";
 
         case "INTERCAMBIO":
-            return "ðŸŒŽ";
+            return "🌎";
 
         case "EVENTO_ESPORTIVO":
-            return "âš½";
+            return "⚽";
 
         case "ATIVIDADE_COMUNITARIA":
-            return "ðŸ¤";
+            return "🤝";
 
         case "VIAGEM_INTERNACIONAL":
-            return "âœˆï¸";
+            return "✈️";
 
         default:
-            return "ðŸ“";
+            return "📍";
     }
 }
 
@@ -396,7 +396,7 @@ export default function AtividadeExternaDetalhePage() {
             nome &&
             localizacao.length > 0
         ) {
-            return `${nome} â€” ${localizacao.join(
+            return `${nome} — ${localizacao.join(
                 ", "
             )}`;
         }
@@ -559,7 +559,7 @@ export default function AtividadeExternaDetalhePage() {
                         href="/admin/atividades-externas"
                         className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 dark:text-blue-300"
                     >
-                        â† {t("back")}
+                        ← {t("back")}
                     </Link>
 
                     <section className="rounded-3xl border border-red-300 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/30">
@@ -593,7 +593,7 @@ export default function AtividadeExternaDetalhePage() {
             <div className="mx-auto max-w-[1600px] space-y-6">
 
                 {/* ==================================================
-            CABEÃ‡ALHO
+            CABEÇALHO
             ================================================== */}
                 <section className="phanyx-theme-card rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
 
@@ -601,7 +601,7 @@ export default function AtividadeExternaDetalhePage() {
                         href="/admin/atividades-externas"
                         className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 transition hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
                     >
-                        â† {t("back")}
+                        ← {t("back")}
                     </Link>
 
                     <div className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
@@ -626,7 +626,7 @@ export default function AtividadeExternaDetalhePage() {
 
                                     {atividade.curricular ? (
                                         <Badge>
-                                            ðŸ“˜{" "}
+                                            📘{" "}
                                             {t(
                                                 "curricular"
                                             )}
@@ -635,7 +635,7 @@ export default function AtividadeExternaDetalhePage() {
 
                                     {atividade.obrigatoria ? (
                                         <Badge>
-                                            ðŸ“Œ{" "}
+                                            📌{" "}
                                             {t(
                                                 "mandatory"
                                             )}
@@ -644,7 +644,7 @@ export default function AtividadeExternaDetalhePage() {
 
                                     {atividade.internacional ? (
                                         <Badge>
-                                            ðŸŒ{" "}
+                                            🌍{" "}
                                             {t(
                                                 "international"
                                             )}
@@ -696,7 +696,7 @@ export default function AtividadeExternaDetalhePage() {
                             "destination"
                         )}
                         valor={destinoCompleto()}
-                        icone="ðŸ“"
+                        icone="📍"
                     />
 
                     <ResumoCard
@@ -706,7 +706,7 @@ export default function AtividadeExternaDetalhePage() {
                         valor={formatarData(
                             atividade.saidaEm
                         )}
-                        icone="ðŸ•—"
+                        icone="🕗"
                     />
 
                     <ResumoCard
@@ -716,7 +716,7 @@ export default function AtividadeExternaDetalhePage() {
                         valor={formatarData(
                             atividade.retornoPrevistoEm
                         )}
-                        icone="ðŸ"
+                        icone="🏁"
                     />
 
                     <ResumoCard
@@ -724,7 +724,7 @@ export default function AtividadeExternaDetalhePage() {
                             "responsible"
                         )}
                         valor={nomeResponsavel()}
-                        icone="ðŸ‘¤"
+                        icone="👤"
                     />
                 </section>
 
@@ -736,7 +736,7 @@ export default function AtividadeExternaDetalhePage() {
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-7">
 
                         <Contador
-                            icone="ðŸ‘¥"
+                            icone="👥"
                             valor={
                                 contadores?.participantes ??
                                 0
@@ -747,7 +747,7 @@ export default function AtividadeExternaDetalhePage() {
                         />
 
                         <Contador
-                            icone="âœï¸"
+                            icone="✍️"
                             valor={
                                 contadores?.autorizacoes ??
                                 0
@@ -758,7 +758,7 @@ export default function AtividadeExternaDetalhePage() {
                         />
 
                         <Contador
-                            icone="ðŸ§‘â€ðŸ«"
+                            icone="🧑‍🏫"
                             valor={
                                 contadores?.equipe ??
                                 0
@@ -769,7 +769,7 @@ export default function AtividadeExternaDetalhePage() {
                         />
 
                         <Contador
-                            icone="ðŸšŒ"
+                            icone="🚌"
                             valor={
                                 contadores?.trechos ??
                                 0
@@ -780,7 +780,7 @@ export default function AtividadeExternaDetalhePage() {
                         />
 
                         <Contador
-                            icone="âš ï¸"
+                            icone="⚠️"
                             valor={
                                 contadores?.riscos ??
                                 0
@@ -791,7 +791,7 @@ export default function AtividadeExternaDetalhePage() {
                         />
 
                         <Contador
-                            icone="ðŸ“„"
+                            icone="📄"
                             valor={
                                 contadores?.documentos ??
                                 0
@@ -802,7 +802,7 @@ export default function AtividadeExternaDetalhePage() {
                         />
 
                         <Contador
-                            icone="ðŸ“"
+                            icone="📍"
                             valor={
                                 contadores?.checkpoints ??
                                 0
@@ -918,7 +918,7 @@ export default function AtividadeExternaDetalhePage() {
                                     ABAS.find(
                                         (item) =>
                                             item.id === abaAtiva
-                                    )?.icone || "ðŸ“‹"
+                                    )?.icone || "📋"
                                 }
                                 titulo={t("sectionPlaceholder.title")}
                                 descricao={t(
@@ -1029,7 +1029,7 @@ function VisaoGeral({
                     </div>
                 </section>
 
-                {/* DescriÃ§Ã£o */}
+                {/* Descrição */}
                 <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
 
                     <h3 className="text-sm font-black uppercase tracking-wide text-slate-700 dark:text-slate-200">
@@ -1040,7 +1040,7 @@ function VisaoGeral({
 
                     <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
                         {atividade.descricao?.trim() ||
-                            "â€”"}
+                            "—"}
                     </p>
 
                     <div className="my-5 border-t border-slate-200 dark:border-slate-700" />
@@ -1053,7 +1053,7 @@ function VisaoGeral({
 
                     <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
                         {atividade.objetivoPedagogico?.trim() ||
-                            "â€”"}
+                            "—"}
                     </p>
 
                 </section>
@@ -1179,7 +1179,7 @@ function VisaoGeral({
                                                 Boolean
                                             )
                                             .join(
-                                                " â€¢ "
+                                                " • "
                                             )}
                                     </p>
                                 </div>
@@ -1187,7 +1187,7 @@ function VisaoGeral({
                         )
                     ) : (
                         <span className="text-sm text-slate-500 dark:text-slate-400">
-                            â€”
+                            —
                         </span>
                     )}
 
