@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
 import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
+import { montarEscopoContratado } from "@/lib/matriculas/escopo-contratado";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -212,6 +213,13 @@ export async function GET(req: Request) {
               },
             },
           },
+          disciplinasContratadas: {
+            orderBy: [
+              { semestreNumeroSnapshot: "asc" },
+              { ordemSnapshot: "asc" },
+              { disciplinaNomeSnapshot: "asc" },
+            ],
+          },
           itens: {
             include: {
               disciplina: true,
@@ -274,6 +282,13 @@ export async function GET(req: Request) {
                 },
               },
             },
+          },
+          disciplinasContratadas: {
+            orderBy: [
+              { semestreNumeroSnapshot: "asc" },
+              { ordemSnapshot: "asc" },
+              { disciplinaNomeSnapshot: "asc" },
+            ],
           },
           itens: {
             include: {
@@ -513,29 +528,141 @@ export async function GET(req: Request) {
         : "- Não informado";
 
 
+    let disciplinasContratadasBase =
+      Array.isArray(
+        matricula.disciplinasContratadas
+      )
+        ? matricula.disciplinasContratadas
+        : [];
+
+    if (
+      disciplinasContratadasBase.length === 0 &&
+      matricula.cursoId
+    ) {
+      try {
+        disciplinasContratadasBase =
+          await montarEscopoContratado({
+            instituicaoId:
+              user.instituicaoId,
+            cursoId:
+              matricula.cursoId,
+            tipoContratacao:
+              "CURSO_COMPLETO",
+          });
+      } catch {
+        disciplinasContratadasBase = [];
+      }
+    }
+
+    const gruposDisciplinasContratadas =
+      new Map<
+        string,
+        {
+          numero: number | null;
+          titulo: string;
+          nomes: string[];
+        }
+      >();
+
+    for (
+      const item
+      of disciplinasContratadasBase
+    ) {
+      const numero =
+        item.semestreNumeroSnapshot ??
+        null;
+
+      const titulo =
+        item.semestreTituloSnapshot
+          ?.trim() ||
+        (
+          numero
+            ? `${numero}º Módulo`
+            : "Disciplinas contratadas"
+        );
+
+      const chave =
+        numero !== null
+          ? `modulo-${numero}`
+          : `sem-modulo-${titulo}`;
+
+      if (
+        !gruposDisciplinasContratadas.has(
+          chave
+        )
+      ) {
+        gruposDisciplinasContratadas.set(
+          chave,
+          {
+            numero,
+            titulo,
+            nomes: [],
+          }
+        );
+      }
+
+      const nome =
+        item.disciplinaNomeSnapshot
+          ?.trim();
+
+      if (nome) {
+        const grupo =
+          gruposDisciplinasContratadas.get(
+            chave
+          );
+
+        if (
+          grupo &&
+          !grupo.nomes.includes(nome)
+        ) {
+          grupo.nomes.push(nome);
+        }
+      }
+    }
+
     const disciplinasContratadasTexto =
-      matricula.curso?.semestres?.length
-        ? matricula.curso.semestres
-            .map((semestre) => {
-              const nomes = Array.from(
-                new Set(
-                  semestre.disciplinas
-                    .map((item) => item.disciplina?.nome?.trim())
-                    .filter(Boolean) as string[]
+      gruposDisciplinasContratadas.size >
+      0
+        ? Array.from(
+            gruposDisciplinasContratadas.values()
+          )
+            .sort((a, b) => {
+              if (
+                a.numero === null &&
+                b.numero !== null
+              ) {
+                return 1;
+              }
+
+              if (
+                a.numero !== null &&
+                b.numero === null
+              ) {
+                return -1;
+              }
+
+              return (
+                (a.numero ?? 0) -
+                (b.numero ?? 0)
+              );
+            })
+            .map((grupo) => {
+              const nomes =
+                [...grupo.nomes].sort(
+                  (a, b) =>
+                    a.localeCompare(
+                      b,
+                      "pt-BR"
+                    )
+                );
+
+              return `${grupo.titulo}\n${nomes
+                .map(
+                  (nome) =>
+                    `- ${nome}`
                 )
-              ).sort((a, b) => a.localeCompare(b, "pt-BR"));
-
-              if (nomes.length === 0) return null;
-
-              const titulo =
-                semestre.titulo?.trim() ||
-                `${semestre.numero}º Módulo`;
-
-              return `${titulo}\n${nomes
-                .map((nome) => `- ${nome}`)
                 .join("\n")}`;
             })
-            .filter(Boolean)
             .join("\n\n")
         : "- Não informado";
     const valorLancamentos = matricula.lancamentosFinanceiros.reduce(
@@ -733,8 +860,10 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
         disciplinas:
           disciplinasTexto,
-
         disciplinasContratadas:
+          disciplinasContratadasTexto,
+
+        disciplinasPorSemestre:
           disciplinasContratadasTexto,
 
         statusMatricula:

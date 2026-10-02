@@ -1842,6 +1842,7 @@ function AdminDocumentosTemplatesPage() {
     "{{blocoAssinaturaDiretor}}",
     "{{curso}}",
     "{{disciplinas}}",
+    "{{disciplinasContratadas}}",
     "{{valorContrato}}",
     "{{valorMatricula}}",
     "{{percentualBolsa}}",

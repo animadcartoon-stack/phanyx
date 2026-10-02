@@ -164,6 +164,10 @@ type MatriculaApi = {
   createdAt?: string;
 };
 
+type TipoContratacaoMatricula =
+  | "CURSO_COMPLETO"
+  | "PARCIAL";
+
 type MatriculaEdicao = {
   id: number;
   alunoId: string;
@@ -317,6 +321,18 @@ function AdminMatriculasPage() {
   const [cursoId, setCursoId] = useState<string>("");
   const [cursoSemestreId, setCursoSemestreId] = useState<string>("");
   const [cursoSemestreIds, setCursoSemestreIds] = useState<number[]>([]);
+
+  const [
+    tipoContratacao,
+    setTipoContratacao,
+  ] = useState<TipoContratacaoMatricula>(
+    "CURSO_COMPLETO"
+  );
+
+  const [
+    disciplinasContratadasSelecionadas,
+    setDisciplinasContratadasSelecionadas,
+  ] = useState<number[]>([]);
   const [semestresAberto, setSemestresAberto] = useState(false);
 
   const semestresDropdownRef =
@@ -890,6 +906,8 @@ function AdminMatriculasPage() {
   useEffect(() => {
     setCursoSemestreId("");
     setCursoSemestreIds([]);
+    setTipoContratacao("CURSO_COMPLETO");
+    setDisciplinasContratadasSelecionadas([]);
     setTurmasSelecionadas([]);
     setDisciplinasSelecionadas([]);
     setDisciplinasExtrasSelecionadas([]);
@@ -911,6 +929,108 @@ function AdminMatriculasPage() {
 
   const semestreSelecionado = semestresSelecionados[0] ?? null;
 
+  const modulosContrataveis = useMemo(() => {
+    return semestresCurso.map((semestre) => ({
+      id: semestre.id,
+      numero: semestre.numero,
+      titulo: semestre.titulo,
+      disciplinas: (semestre.disciplinas || [])
+        .map((vinculo) => ({
+          id: Number(
+            vinculo.disciplinaId ??
+            vinculo.disciplina?.id
+          ),
+          nome:
+            vinculo.disciplina?.nome ||
+            `Disciplina ${vinculo.disciplinaId}`,
+          cargaHoraria:
+            Number(
+              vinculo.disciplina?.cargaHoraria ??
+              0
+            ),
+        }))
+        .filter(
+          (disciplina) =>
+            Number.isInteger(disciplina.id) &&
+            disciplina.id > 0
+        ),
+    }));
+  }, [semestresCurso]);
+
+  const todasDisciplinasContrataveisIds =
+    useMemo(() => {
+      return Array.from(
+        new Set(
+          modulosContrataveis.flatMap(
+            (modulo) =>
+              modulo.disciplinas.map(
+                (disciplina) =>
+                  disciplina.id
+              )
+          )
+        )
+      );
+    }, [modulosContrataveis]);
+  function alternarDisciplinaContratada(
+    disciplinaId: number
+  ) {
+    setDisciplinasContratadasSelecionadas(
+      (anteriores) =>
+        anteriores.includes(disciplinaId)
+          ? anteriores.filter(
+              (id) => id !== disciplinaId
+            )
+          : [
+              ...anteriores,
+              disciplinaId,
+            ]
+    );
+  }
+
+  function alternarModuloContratado(
+    moduloId: number
+  ) {
+    const modulo =
+      modulosContrataveis.find(
+        (item) => item.id === moduloId
+      );
+
+    if (!modulo) {
+      return;
+    }
+
+    const idsModulo =
+      modulo.disciplinas.map(
+        (disciplina) =>
+          disciplina.id
+      );
+
+    const moduloCompleto =
+      idsModulo.length > 0 &&
+      idsModulo.every((id) =>
+        disciplinasContratadasSelecionadas.includes(
+          id
+        )
+      );
+
+    setDisciplinasContratadasSelecionadas(
+      (anteriores) => {
+        if (moduloCompleto) {
+          return anteriores.filter(
+            (id) =>
+              !idsModulo.includes(id)
+          );
+        }
+
+        return Array.from(
+          new Set([
+            ...anteriores,
+            ...idsModulo,
+          ])
+        );
+      }
+    );
+  }
   const disciplinasDoSemestreIds = useMemo(() => {
     return Array.from(
       new Set(
@@ -1600,6 +1720,15 @@ function AdminMatriculasPage() {
       );
       return;
     }
+    if (
+      tipoContratacao === "PARCIAL" &&
+      disciplinasContratadasSelecionadas.length === 0
+    ) {
+      setErro(
+        "Selecione ao menos uma disciplina para a contratação parcial."
+      );
+      return;
+    }
 
     setCreating(true);
 
@@ -1647,6 +1776,13 @@ function AdminMatriculasPage() {
 
           alunoId: Number(alunoId),
           cursoId: Number(cursoId),
+
+          tipoContratacao,
+
+          disciplinaIdsContratadas:
+            tipoContratacao === "CURSO_COMPLETO"
+              ? todasDisciplinasContrataveisIds
+              : disciplinasContratadasSelecionadas,
           vendedorResponsavelId:
             vendedorResponsavelId === ""
               ? null
@@ -1704,6 +1840,9 @@ function AdminMatriculasPage() {
       setCursoId("");
       setVendedorResponsavelId("");
       setCursoSemestreId("");
+      setCursoSemestreIds([]);
+      setTipoContratacao("CURSO_COMPLETO");
+      setDisciplinasContratadasSelecionadas([]);
       setTurmasSelecionadas([]);
       setValorPagoMatricula("");
       setFormaPagamentoMatricula("");
@@ -2173,7 +2312,7 @@ function AdminMatriculasPage() {
       );
 
       setConfirmMensagem(
-        "Selecione a turma/oferta de todas as disciplinas contratadas antes de salvar."
+        "Selecione a turma/oferta de todas as disciplinas que o aluno cursará neste período antes de salvar."
       );
 
       setConfirmAcao(null);
@@ -3800,6 +3939,167 @@ function AdminMatriculasPage() {
 
 
 
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div>
+            <h3 className="font-bold text-slate-900 dark:text-slate-100">
+              Escopo da contratação
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              Defina o que fará parte do contrato. Isso é independente das disciplinas que o aluno cursará neste período.
+            </p>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+              <input
+                type="radio"
+                name="tipoContratacao"
+                checked={
+                  tipoContratacao ===
+                  "CURSO_COMPLETO"
+                }
+                onChange={() =>
+                  setTipoContratacao(
+                    "CURSO_COMPLETO"
+                  )
+                }
+                className="mt-1"
+              />
+
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                  Curso completo
+                </p>
+
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  Todos os módulos e disciplinas da grade farão parte do contrato.
+                </p>
+
+                <p className="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  {modulosContrataveis.length} módulos •{" "}
+                  {todasDisciplinasContrataveisIds.length} disciplinas
+                </p>
+              </div>
+            </label>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+              <input
+                type="radio"
+                name="tipoContratacao"
+                checked={
+                  tipoContratacao ===
+                  "PARCIAL"
+                }
+                onChange={() =>
+                  setTipoContratacao(
+                    "PARCIAL"
+                  )
+                }
+                className="mt-1"
+              />
+
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                  Contratação parcial
+                </p>
+
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                  Selecione módulos completos ou disciplinas específicas que farão parte do contrato.
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+        {tipoContratacao === "PARCIAL" && (
+          <div className="mt-4 space-y-3">
+            {modulosContrataveis.map((modulo) => {
+              const idsModulo =
+                modulo.disciplinas.map(
+                  (disciplina) =>
+                    disciplina.id
+                );
+
+              const quantidadeSelecionada =
+                idsModulo.filter((id) =>
+                  disciplinasContratadasSelecionadas.includes(
+                    id
+                  )
+                ).length;
+
+              const moduloCompleto =
+                idsModulo.length > 0 &&
+                quantidadeSelecionada ===
+                  idsModulo.length;
+
+              return (
+                <div
+                  key={modulo.id}
+                  className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950"
+                >
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={moduloCompleto}
+                      onChange={() =>
+                        alternarModuloContratado(
+                          modulo.id
+                        )
+                      }
+                      className="mt-1"
+                    />
+
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">
+                        {modulo.numero}º módulo
+                        {modulo.titulo
+                          ? ` — ${modulo.titulo}`
+                          : ""}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        {quantidadeSelecionada} de{" "}
+                        {idsModulo.length} disciplinas selecionadas
+                      </p>
+                    </div>
+                  </label>
+
+                  <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+                    {modulo.disciplinas.map(
+                      (disciplina) => (
+                        <label
+                          key={disciplina.id}
+                          className="flex cursor-pointer items-start gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-800"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={disciplinasContratadasSelecionadas.includes(
+                              disciplina.id
+                            )}
+                            onChange={() =>
+                              alternarDisciplinaContratada(
+                                disciplina.id
+                              )
+                            }
+                            className="mt-1"
+                          />
+
+                          <span className="text-sm text-slate-700 dark:text-slate-200">
+                            {disciplina.nome}
+                            {disciplina.cargaHoraria >
+                            0
+                              ? ` — ${disciplina.cargaHoraria}h`
+                              : ""}
+                          </span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
         {semestreSelecionado ? (
           <div className="mt-5 rounded-2xl border bg-blue-50 p-4">
             <p className="font-semibold text-blue-900">
@@ -3844,7 +4144,7 @@ function AdminMatriculasPage() {
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="matriculas-multiselect-neutro">
             <MultiSelectDisciplinas
-              titulo="Disciplinas contratadas"
+              titulo="Disciplinas a cursar neste período"
               disciplinas={disciplinasDoSemestre}
               selecionadas={disciplinasSelecionadas}
               setSelecionadas={setDisciplinasSelecionadas}
@@ -5084,7 +5384,7 @@ function AdminMatriculasPage() {
 
             <div className="matriculas-multiselect-neutro mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
               <MultiSelectDisciplinas
-                titulo="Disciplinas contratadas"
+                titulo="Disciplinas a cursar neste período"
                 disciplinas={
                   disciplinasDoSemestreEdicao
                 }
