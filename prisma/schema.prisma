@@ -6423,6 +6423,16 @@ model BibliotecaAutor {
   fotoUrl         String?
   siteUrl         String?
   orcid           String?
+
+  // Identificadores de autoridade bibliografica.
+  // Todos opcionais para preservar autores ja existentes.
+  viaf       String?
+  isni       String?
+  wikidataId String?
+  lccn       String?
+
+  notaAutoridade String? @db.Text
+
   ativo           Boolean   @default(true)
 
   criadoEm     DateTime @default(now())
@@ -6430,12 +6440,17 @@ model BibliotecaAutor {
 
   instituicao Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   itens       BibliotecaItemAutor[]
+  variantes   BibliotecaAutorVariante[]
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([instituicaoId, ativo])
   @@index([nome])
   @@index([orcid])
+  @@index([viaf])
+  @@index([isni])
+  @@index([wikidataId])
+  @@index([lccn])
 }
 
 model BibliotecaEditora {
@@ -6495,6 +6510,39 @@ model BibliotecaCategoria {
   @@index([instituicaoId, ativo])
   @@index([categoriaPaiId])
   @@index([nome])
+}
+
+enum TipoVarianteAutorBiblioteca {
+  VARIANTE
+  PSEUDONIMO
+  NOME_ANTERIOR
+  TRANSLITERACAO
+  OUTRO
+}
+
+model BibliotecaAutorVariante {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  autorId       Int
+
+  nome            String
+  nomeNormalizado String
+  tipo            TipoVarianteAutorBiblioteca @default(VARIANTE)
+  idioma          String?
+  observacao      String? @db.Text
+  ativo           Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  autor BibliotecaAutor @relation(fields: [autorId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([autorId])
+  @@index([nome])
+  @@index([nomeNormalizado])
 }
 
 model BibliotecaItemAutor {
