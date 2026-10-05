@@ -291,6 +291,33 @@ type ItemDetalhe = {
   titulo: string;
   subtitulo: string | null;
   tituloAlternativo: string | null;
+
+  tituloUniforme: string | null;
+  mencaoResponsabilidade: string | null;
+  numeroControleBibliografico: string | null;
+
+  regraCatalogacao: string | null;
+  fonteCatalogacao: string | null;
+  idiomaCatalogacao: string | null;
+
+  idiomaOriginal: string | null;
+  localPublicacao: string | null;
+
+  serie: string | null;
+  numeroSerie: string | null;
+
+  detalhesFisicos: string | null;
+  dimensoes: string | null;
+  materialAcompanhante: string | null;
+
+  tiposConteudoRda: string[];
+  tiposMidiaRda: string[];
+  tiposSuporteRda: string[];
+
+  notaGeral: string | null;
+  notaBibliografia: string | null;
+  notaConteudo: string | null;
+
   slug: string;
   sinopse: string | null;
   descricao: string | null;
@@ -348,6 +375,33 @@ type FormularioItem = {
   titulo: string;
   subtitulo: string;
   tituloAlternativo: string;
+
+  tituloUniforme: string;
+  mencaoResponsabilidade: string;
+  numeroControleBibliografico: string;
+
+  regraCatalogacao: string;
+  fonteCatalogacao: string;
+  idiomaCatalogacao: string;
+
+  idiomaOriginal: string;
+  localPublicacao: string;
+
+  serie: string;
+  numeroSerie: string;
+
+  detalhesFisicos: string;
+  dimensoes: string;
+  materialAcompanhante: string;
+
+  tiposConteudoRda: string;
+  tiposMidiaRda: string;
+  tiposSuporteRda: string;
+
+  notaGeral: string;
+  notaBibliografia: string;
+  notaConteudo: string;
+
   sinopse: string;
   descricao: string;
   palavrasChave: string;
@@ -662,6 +716,64 @@ function criarFormulario(item: ItemDetalhe): FormularioItem {
     titulo: item.titulo,
     subtitulo: item.subtitulo || "",
     tituloAlternativo: item.tituloAlternativo || "",
+
+    tituloUniforme:
+      item.tituloUniforme || "",
+
+    mencaoResponsabilidade:
+      item.mencaoResponsabilidade || "",
+
+    numeroControleBibliografico:
+      item.numeroControleBibliografico || "",
+
+    regraCatalogacao:
+      item.regraCatalogacao || "",
+
+    fonteCatalogacao:
+      item.fonteCatalogacao || "",
+
+    idiomaCatalogacao:
+      item.idiomaCatalogacao || "",
+
+    idiomaOriginal:
+      item.idiomaOriginal || "",
+
+    localPublicacao:
+      item.localPublicacao || "",
+
+    serie:
+      item.serie || "",
+
+    numeroSerie:
+      item.numeroSerie || "",
+
+    detalhesFisicos:
+      item.detalhesFisicos || "",
+
+    dimensoes:
+      item.dimensoes || "",
+
+    materialAcompanhante:
+      item.materialAcompanhante || "",
+
+    tiposConteudoRda:
+      item.tiposConteudoRda.join(", "),
+
+    tiposMidiaRda:
+      item.tiposMidiaRda.join(", "),
+
+    tiposSuporteRda:
+      item.tiposSuporteRda.join(", "),
+
+    notaGeral:
+      item.notaGeral || "",
+
+    notaBibliografia:
+      item.notaBibliografia || "",
+
+    notaConteudo:
+      item.notaConteudo || "",
+
     sinopse: item.sinopse || "",
     descricao: item.descricao || "",
     palavrasChave: item.palavrasChave.join(", "),
@@ -3937,6 +4049,56 @@ export default function BibliotecaItemPage() {
                 />
               </label>
 
+              <label className="bib-field bib-field-span-2">
+                <span>{ui("uniformTitle")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.tituloUniforme}
+                  onChange={(evento) =>
+                    alterar(
+                      "tituloUniforme",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={240}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field bib-field-span-2">
+                <span>{ui("statementOfResponsibility")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.mencaoResponsabilidade}
+                  onChange={(evento) =>
+                    alterar(
+                      "mencaoResponsabilidade",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={2000}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("controlNumber")}</span>
+                <input
+                  className="bib-input"
+                  value={
+                    formulario.numeroControleBibliografico
+                  }
+                  onChange={(evento) =>
+                    alterar(
+                      "numeroControleBibliografico",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={120}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
               <label className="bib-field bib-field-span-3">
                 <span>{ui("synopsis")}</span>
                 <textarea
@@ -4052,6 +4214,38 @@ export default function BibliotecaItemPage() {
                 />
               </label>
               <label className="bib-field">
+                <span>{ui("publicationPlace")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.localPublicacao}
+                  onChange={(evento) =>
+                    alterar(
+                      "localPublicacao",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={160}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("originalLanguage")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.idiomaOriginal}
+                  onChange={(evento) =>
+                    alterar(
+                      "idiomaOriginal",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={30}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
                 <span>{ui("year")}</span>
                 <input
                   type="number"
@@ -4107,6 +4301,38 @@ export default function BibliotecaItemPage() {
                   disabled={camposBloqueados}
                 />
               </label>
+              <label className="bib-field bib-field-span-2">
+                <span>{ui("series")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.serie}
+                  onChange={(evento) =>
+                    alterar(
+                      "serie",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={240}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("seriesNumber")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.numeroSerie}
+                  onChange={(evento) =>
+                    alterar(
+                      "numeroSerie",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={80}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
               <label className="bib-field">
                 <span>{ui("pageCount")}</span>
                 <input
@@ -4130,6 +4356,180 @@ export default function BibliotecaItemPage() {
                     alterar("duracaoSegundos", evento.target.value)
                   }
                   min={1}
+                  disabled={camposBloqueados}
+                />
+              </label>
+            </div>
+          </section>
+
+
+          <section className="bib-card bib-detail-section">
+            <header className="bib-detail-section-heading">
+              <div>
+                <span aria-hidden="true">??</span>
+                <div>
+                  <h2>{ui("catalogControlTitle")}</h2>
+                  <p>{ui("catalogControlDescription")}</p>
+                </div>
+              </div>
+            </header>
+
+            <div className="bib-detail-grid">
+              <label className="bib-field">
+                <span>{ui("catalogingRule")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.regraCatalogacao}
+                  onChange={(evento) =>
+                    alterar(
+                      "regraCatalogacao",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={80}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("catalogingSource")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.fonteCatalogacao}
+                  onChange={(evento) =>
+                    alterar(
+                      "fonteCatalogacao",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={160}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("catalogingLanguage")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.idiomaCatalogacao}
+                  onChange={(evento) =>
+                    alterar(
+                      "idiomaCatalogacao",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={30}
+                  disabled={camposBloqueados}
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="bib-card bib-detail-section">
+            <header className="bib-detail-section-heading">
+              <div>
+                <span aria-hidden="true">??</span>
+                <div>
+                  <h2>{ui("physicalRdaTitle")}</h2>
+                  <p>{ui("physicalRdaDescription")}</p>
+                </div>
+              </div>
+            </header>
+
+            <div className="bib-detail-grid">
+              <label className="bib-field bib-field-span-2">
+                <span>{ui("physicalDetails")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.detalhesFisicos}
+                  onChange={(evento) =>
+                    alterar(
+                      "detalhesFisicos",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={500}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("dimensions")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.dimensoes}
+                  onChange={(evento) =>
+                    alterar(
+                      "dimensoes",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={120}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field bib-field-span-3">
+                <span>{ui("accompanyingMaterial")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.materialAcompanhante}
+                  onChange={(evento) =>
+                    alterar(
+                      "materialAcompanhante",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={500}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("rdaContentTypes")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.tiposConteudoRda}
+                  onChange={(evento) =>
+                    alterar(
+                      "tiposConteudoRda",
+                      evento.target.value
+                    )
+                  }
+                  placeholder={ui("rdaListPlaceholder")}
+                  disabled={camposBloqueados}
+                />
+                <small>{ui("rdaListHelp")}</small>
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("rdaMediaTypes")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.tiposMidiaRda}
+                  onChange={(evento) =>
+                    alterar(
+                      "tiposMidiaRda",
+                      evento.target.value
+                    )
+                  }
+                  placeholder={ui("rdaListPlaceholder")}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field">
+                <span>{ui("rdaCarrierTypes")}</span>
+                <input
+                  className="bib-input"
+                  value={formulario.tiposSuporteRda}
+                  onChange={(evento) =>
+                    alterar(
+                      "tiposSuporteRda",
+                      evento.target.value
+                    )
+                  }
+                  placeholder={ui("rdaListPlaceholder")}
                   disabled={camposBloqueados}
                 />
               </label>
@@ -4356,6 +4756,69 @@ export default function BibliotecaItemPage() {
                     alterar("miniaturaUrl", evento.target.value)
                   }
                   maxLength={2_048}
+                  disabled={camposBloqueados}
+                />
+              </label>
+            </div>
+          </section>
+
+
+          <section className="bib-card bib-detail-section">
+            <header className="bib-detail-section-heading">
+              <div>
+                <span aria-hidden="true">???</span>
+                <div>
+                  <h2>{ui("bibliographicNotesTitle")}</h2>
+                  <p>{ui("bibliographicNotesDescription")}</p>
+                </div>
+              </div>
+            </header>
+
+            <div className="bib-detail-grid">
+              <label className="bib-field bib-field-span-3">
+                <span>{ui("generalNote")}</span>
+                <textarea
+                  className="bib-input bib-textarea"
+                  value={formulario.notaGeral}
+                  onChange={(evento) =>
+                    alterar(
+                      "notaGeral",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={20000}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field bib-field-span-3">
+                <span>{ui("bibliographyNote")}</span>
+                <textarea
+                  className="bib-input bib-textarea"
+                  value={formulario.notaBibliografia}
+                  onChange={(evento) =>
+                    alterar(
+                      "notaBibliografia",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={20000}
+                  disabled={camposBloqueados}
+                />
+              </label>
+
+              <label className="bib-field bib-field-span-3">
+                <span>{ui("contentsNote")}</span>
+                <textarea
+                  className="bib-input bib-textarea"
+                  value={formulario.notaConteudo}
+                  onChange={(evento) =>
+                    alterar(
+                      "notaConteudo",
+                      evento.target.value
+                    )
+                  }
+                  maxLength={20000}
                   disabled={camposBloqueados}
                 />
               </label>
