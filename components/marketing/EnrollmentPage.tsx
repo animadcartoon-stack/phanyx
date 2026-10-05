@@ -13,8 +13,27 @@ export default function EnrollmentPage({ locale }: { locale: LocalePhanyx }) {
     <div lang={locale} className="min-h-screen bg-white text-slate-900">
       <LocalizedHeader locale={locale} section="enrollment" />
       <main>
-        <section className="bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 md:px-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-6 lg:px-12 lg:py-20">
+        <section className="relative isolate overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+          <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" fill="none">
+            <defs>
+              <linearGradient id="enrollment-flow" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0" />
+                <stop offset="55%" stopColor="#38bdf8" stopOpacity="0.12" />
+                <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.04" />
+              </linearGradient>
+            </defs>
+            <g stroke="url(#enrollment-flow)" strokeWidth="1.5">
+              <path d="M 330 565 C 570 475, 650 525, 825 385 S 1180 240, 1510 105" />
+              <path d="M 470 650 C 680 550, 735 515, 900 430 S 1240 340, 1510 245" />
+              <path d="M 650 655 C 800 580, 930 565, 1080 480 S 1350 425, 1530 360" />
+            </g>
+            <g fill="#67e8f9" opacity="0.16">
+              <circle cx="825" cy="385" r="4" />
+              <circle cx="1080" cy="480" r="3" />
+              <circle cx="1240" cy="340" r="4" />
+            </g>
+          </svg>
+          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 md:px-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-6 lg:px-12 lg:py-20">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">{copy.eyebrow}</p>
               <h1 className="mt-5 text-4xl font-bold leading-tight md:text-5xl">{copy.heading}</h1>
