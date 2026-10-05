@@ -1842,6 +1842,7 @@ function AdminDocumentosTemplatesPage() {
     "{{blocoAssinaturaDiretor}}",
     "{{curso}}",
     "{{disciplinas}}",
+    "{{disciplinasContratadas}}",
     "{{valorContrato}}",
     "{{valorMatricula}}",
     "{{percentualBolsa}}",
@@ -4028,6 +4029,31 @@ function AdminDocumentosTemplatesPage() {
       .phanyx-doc-templates-page .pdoc-badge-slate {
         background: #e2e8f0 !important;
         color: #334155 !important;
+      }
+
+
+      /*
+       * A folha A4 simula o documento impresso.
+       * O texto da folha nunca deve herdar
+       * as cores claras dos temas Escuro/Sistema.
+       */
+      #editor-template-phanyx .phanyx-document-paper,
+      #editor-template-phanyx .phanyx-document-paper .ProseMirror,
+      #editor-template-phanyx .phanyx-document-paper .ProseMirror * {
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+      }
+
+      #editor-template-phanyx .phanyx-a4-guia-cabecalho,
+      #editor-template-phanyx .phanyx-a4-guia-cabecalho * {
+        color: #334155 !important;
+        -webkit-text-fill-color: #334155 !important;
+      }
+
+      #editor-template-phanyx .phanyx-a4-guia-rodape,
+      #editor-template-phanyx .phanyx-a4-guia-rodape * {
+        color: #475569 !important;
+        -webkit-text-fill-color: #475569 !important;
       }
 
       html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-card {

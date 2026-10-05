@@ -15,6 +15,7 @@ import {
   processarComissaoAutomatica,
 } from "@/lib/comercial/processar-comissao";
 import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
+import { montarEscopoContratado } from "@/lib/matriculas/escopo-contratado";
 import { enviarContratoParaAssinatura } from "@/lib/contratos/enviar-contrato-assinatura";
 
 import {
@@ -628,6 +629,8 @@ type MatriculaBody = {
   bolsaPercentual?: number | string | null;
   quantidadeParcelas?: number | string | null;
   quantidadeMensalidades?: number | string | null;
+  tipoContratacao?: "CURSO_COMPLETO" | "PARCIAL";
+  disciplinaIdsContratadas?: Array<number | string>;
   dataPrimeiroVencimento?: string | null;
   primeiroVencimento?: string | null;
   nomeSocial?: string;
@@ -1404,6 +1407,13 @@ const includeMatricula = {
   cursoSemestre: true,
   periodoMatricula: true,
   turmaPrincipal: true,
+  disciplinasContratadas: {
+    orderBy: [
+      { semestreNumeroSnapshot: "asc" },
+      { ordemSnapshot: "asc" },
+      { disciplinaNomeSnapshot: "asc" },
+    ],
+  },
   itens: {
     include: {
       disciplina: true,
@@ -1547,7 +1557,7 @@ export async function GET(request: Request) {
         where: {
           instituicaoId: user.instituicaoId,
           excluidaEm: null,
-          itens: {
+  itens: {
             some: {
               turma: {
                 professorId: professor.id,
@@ -1858,6 +1868,38 @@ export async function POST(request: Request) {
         ? Number(body.semestre)
         : null;
 
+    const tipoContratacao =
+      body.tipoContratacao === "CURSO_COMPLETO" ||
+      body.tipoContratacao === "PARCIAL"
+        ? body.tipoContratacao
+        : null;
+
+    const disciplinaIdsContratadas =
+      Array.isArray(
+        body.disciplinaIdsContratadas
+      )
+        ? Array.from(
+            new Set(
+              body.disciplinaIdsContratadas
+                .map((id) => Number(id))
+                .filter(
+                  (id) =>
+                    Number.isInteger(id) &&
+                    id > 0
+                )
+            )
+          )
+        : [];
+
+    if (!tipoContratacao) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe se a contratação é do curso completo ou parcial.",
+        },
+        { status: 400 }
+      );
+    }
     const valorPagoMatricula =
       Number(
         body.valorPagoMatricula || 0
@@ -2277,6 +2319,52 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!cursoIdFinal) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o curso para definir o escopo da contratação.",
+        },
+        { status: 400 }
+      );
+    }
+
+    let disciplinasContratadasSnapshot;
+
+    try {
+      disciplinasContratadasSnapshot =
+        await montarEscopoContratado({
+          instituicaoId:
+            user.instituicaoId,
+          cursoId:
+            cursoIdFinal,
+          tipoContratacao,
+          disciplinaIdsContratadas,
+        });
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Não foi possível definir as disciplinas contratadas.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      disciplinasContratadasSnapshot.length ===
+      0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A grade do curso não possui disciplinas disponíveis para contratação.",
+        },
+        { status: 400 }
+      );
+    }
     const periodoMatricula =
       periodoMatriculaId !== null
         ? await prisma.periodoMatricula.findFirst({
@@ -2803,6 +2891,10 @@ export async function POST(request: Request) {
                 primeiroVencimento:
                   dataPrimeiroVencimento,
 
+
+                tipoContratacao:
+                  tipoContratacao,
+
                 vendedorResponsavelId:
                   vendedorResponsavel?.id ??
                   null,
@@ -2858,8 +2950,31 @@ export async function POST(request: Request) {
                       },
                     }
                     : undefined,
+                disciplinasContratadas: {
+                  create:
+                    disciplinasContratadasSnapshot.map(
+                      (item) => ({
+                        instituicaoId:
+                          user.instituicaoId,
+                        disciplinaId:
+                          item.disciplinaId,
+                        cursoSemestreIdSnapshot:
+                          item.cursoSemestreIdSnapshot,
+                        semestreNumeroSnapshot:
+                          item.semestreNumeroSnapshot,
+                        semestreTituloSnapshot:
+                          item.semestreTituloSnapshot,
+                        disciplinaNomeSnapshot:
+                          item.disciplinaNomeSnapshot,
+                        cargaHorariaSnapshot:
+                          item.cargaHorariaSnapshot,
+                        ordemSnapshot:
+                          item.ordemSnapshot,
+                      })
+                    ),
+                },
 
-                itens: {
+  itens: {
                   create:
                     itensClassificados.map(
                       (item) => ({
@@ -3924,6 +4039,54 @@ export async function PUT(request: Request) {
     const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
     const semestre = toPositiveNumberOrNull(body.semestre);
 
+    const tipoContratacaoFoiInformado =
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "tipoContratacao"
+      ) ||
+      campoFoiInformado(
+        body as Record<string, unknown>,
+        "disciplinaIdsContratadas"
+      );
+
+    const tipoContratacaoEdicao =
+      body.tipoContratacao ===
+        "CURSO_COMPLETO" ||
+      body.tipoContratacao ===
+        "PARCIAL"
+        ? body.tipoContratacao
+        : null;
+
+    const disciplinaIdsContratadasEdicao =
+      Array.isArray(
+        body.disciplinaIdsContratadas
+      )
+        ? Array.from(
+            new Set(
+              body.disciplinaIdsContratadas
+                .map((id) => Number(id))
+                .filter(
+                  (id) =>
+                    Number.isInteger(id) &&
+                    id > 0
+                )
+            )
+          )
+        : [];
+
+    if (
+      tipoContratacaoFoiInformado &&
+      !tipoContratacaoEdicao
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe se a contratação é do curso completo ou parcial.",
+        },
+        { status: 400 }
+      );
+    }
+
     const turmaPrincipalFoiInformada =
       campoFoiInformado(
         body as Record<
@@ -4250,6 +4413,71 @@ export async function PUT(request: Request) {
             0
           );
 
+    const normalizarDataFinanceira = (
+      valor:
+        | Date
+        | string
+        | null
+        | undefined
+    ) => {
+      if (!valor) {
+        return null;
+      }
+
+      const data =
+        valor instanceof Date
+          ? valor
+          : new Date(valor);
+
+      if (
+        Number.isNaN(
+          data.getTime()
+        )
+      ) {
+        return null;
+      }
+
+      return data
+        .toISOString()
+        .slice(0, 10);
+    };
+
+    const dadosMensalidadeMudaram =
+      dadosMensalidadeForamInformados &&
+      (
+        Number(
+          matriculaExistente
+            .valorMensalidade || 0
+        ) !==
+          Number(
+            valorMensalidadeFinal || 0
+          ) ||
+
+        Number(
+          matriculaExistente
+            .quantidadeMensalidades || 0
+        ) !==
+          Number(
+            quantidadeMensalidadesFinal || 0
+          ) ||
+
+        Number(
+          matriculaExistente
+            .bolsaPercentual || 0
+        ) !==
+          Number(
+            bolsaPercentualFinal || 0
+          ) ||
+
+        normalizarDataFinanceira(
+          matriculaExistente
+            .primeiroVencimento
+        ) !==
+          normalizarDataFinanceira(
+            primeiroVencimentoFinal
+          )
+      );
+
     if (vendedorFoiInformado) {
       const vendedorAtualId =
         matriculaExistente.vendedorResponsavelId ??
@@ -4371,6 +4599,66 @@ export async function PUT(request: Request) {
 
       cursoNomeFinal =
         cursoExiste.nome;
+    }
+
+    let disciplinasContratadasSnapshotEdicao:
+      | Awaited<
+          ReturnType<
+            typeof montarEscopoContratado
+          >
+        >
+      | null = null;
+
+    if (tipoContratacaoFoiInformado) {
+      if (!cursoIdFinal) {
+        return NextResponse.json(
+          {
+            error:
+              "Informe o curso para definir o escopo da contratação.",
+          },
+          { status: 400 }
+        );
+      }
+
+      try {
+        disciplinasContratadasSnapshotEdicao =
+          await montarEscopoContratado({
+            instituicaoId:
+              user.instituicaoId,
+
+            cursoId:
+              cursoIdFinal,
+
+            tipoContratacao:
+              tipoContratacaoEdicao!,
+
+            disciplinaIdsContratadas:
+              disciplinaIdsContratadasEdicao,
+          });
+      } catch (error) {
+        return NextResponse.json(
+          {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Não foi possível definir as disciplinas contratadas.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        disciplinasContratadasSnapshotEdicao
+          .length === 0
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "A contratação precisa possuir ao menos uma disciplina.",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     let itensClassificados:
@@ -4498,6 +4786,12 @@ export async function PUT(request: Request) {
             alunoId: alunoIdFinal,
             cursoId: cursoIdFinal,
 
+            tipoContratacao:
+              tipoContratacaoFoiInformado &&
+              tipoContratacaoEdicao
+                ? tipoContratacaoEdicao
+                : undefined,
+
             turmaPrincipalId:
               turmaPrincipalFoiInformada
                 ? turmaPrincipalIdFinal
@@ -4558,6 +4852,57 @@ export async function PUT(request: Request) {
                 : undefined,
           },
         });
+
+        if (
+          tipoContratacaoFoiInformado &&
+          disciplinasContratadasSnapshotEdicao
+        ) {
+          await tx
+            .matriculaDisciplinaContratada
+            .deleteMany({
+              where: {
+                matriculaId: id,
+                instituicaoId:
+                  user.instituicaoId,
+              },
+            });
+
+          await tx
+            .matriculaDisciplinaContratada
+            .createMany({
+              data:
+                disciplinasContratadasSnapshotEdicao.map(
+                  (item) => ({
+                    instituicaoId:
+                      user.instituicaoId,
+
+                    matriculaId:
+                      id,
+
+                    disciplinaId:
+                      item.disciplinaId,
+
+                    cursoSemestreIdSnapshot:
+                      item.cursoSemestreIdSnapshot,
+
+                    semestreNumeroSnapshot:
+                      item.semestreNumeroSnapshot,
+
+                    semestreTituloSnapshot:
+                      item.semestreTituloSnapshot,
+
+                    disciplinaNomeSnapshot:
+                      item.disciplinaNomeSnapshot,
+
+                    cargaHorariaSnapshot:
+                      item.cargaHorariaSnapshot,
+
+                    ordemSnapshot:
+                      item.ordemSnapshot,
+                  })
+                ),
+            });
+        }
 
         if (
           vendedorFoiInformado &&
@@ -4622,7 +4967,7 @@ export async function PUT(request: Request) {
         }
 
         if (
-          dadosMensalidadeForamInformados &&
+          dadosMensalidadeMudaram &&
           valorMensalidadeFinal &&
           quantidadeMensalidadesFinal &&
           primeiroVencimentoFinal
@@ -4651,6 +4996,10 @@ export async function PUT(request: Request) {
               primeiroVencimentoFinal,
           });
         }
+      },
+      {
+        maxWait: 5000,
+        timeout: 60000,
       }
     );
 

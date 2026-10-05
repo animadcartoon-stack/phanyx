@@ -94,7 +94,7 @@ model Instituicao {
   lancamentosFinanceiros         LancamentoFinanceiro[]
   materiaisAula                  MaterialAula[]
   matriculas                     Matricula[]
-  trancamentosMatricula           TrancamentoMatricula[]
+  trancamentosMatricula          TrancamentoMatricula[]
   modulos                        Modulo[]
   movimentosCaixa                MovimentoCaixa[]
   notas                          Nota[]
@@ -348,18 +348,18 @@ model User {
 
   avisosWhatsappCorrecaoPontoRHDestinatario AvisoWhatsappCorrecaoPontoRH[] @relation("AvisoWhatsappCorrecaoPontoRHDestinatario")
 
-  reunioesCriadas         Reuniao[]             @relation("ReuniaoCriadaPor")
-  reunioesParticipante    ReuniaoParticipante[]
-  documentosRHCriados     DocumentoRH[]         @relation("DocumentoRHCriadoPor")
-  documentosRHArquivados  DocumentoRH[]         @relation("DocumentoRHArquivadoPor")
-  documentosRHRestaurados DocumentoRH[]         @relation("DocumentoRHRestauradoPor")
-  ocorrenciasRHCriadas    OcorrenciaRH[]        @relation("OcorrenciaRHCriadoPor")
-  ocorrenciasRHArquivadas OcorrenciaRH[]        @relation("OcorrenciaRHArquivadaPor")
-  atividadesCriadas       Atividade[]           @relation("AtividadeCriadaPor")
-  atividadesPublicadas    Atividade[]           @relation("AtividadePublicadaPor")
-  anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
-  crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
-  crachasLotesCriados     CrachaLoteEmissao[]   @relation("CrachaLoteCriadoPor")
+  reunioesCriadas                  Reuniao[]              @relation("ReuniaoCriadaPor")
+  reunioesParticipante             ReuniaoParticipante[]
+  documentosRHCriados              DocumentoRH[]          @relation("DocumentoRHCriadoPor")
+  documentosRHArquivados           DocumentoRH[]          @relation("DocumentoRHArquivadoPor")
+  documentosRHRestaurados          DocumentoRH[]          @relation("DocumentoRHRestauradoPor")
+  ocorrenciasRHCriadas             OcorrenciaRH[]         @relation("OcorrenciaRHCriadoPor")
+  ocorrenciasRHArquivadas          OcorrenciaRH[]         @relation("OcorrenciaRHArquivadaPor")
+  atividadesCriadas                Atividade[]            @relation("AtividadeCriadaPor")
+  atividadesPublicadas             Atividade[]            @relation("AtividadePublicadaPor")
+  anexosAtividadeCriados           AtividadeAnexo[]       @relation("AtividadeAnexoCriadoPor")
+  crachaModelosCriados             CrachaModelo[]         @relation("CrachaModeloCriadoPor")
+  crachasLotesCriados              CrachaLoteEmissao[]    @relation("CrachaLoteCriadoPor")
   trancamentosMatriculaRegistrados TrancamentoMatricula[] @relation("TrancamentoMatriculaRegistradoPor")
   trancamentosMatriculaConfirmados TrancamentoMatricula[] @relation("TrancamentoMatriculaConfirmadoPor")
 
@@ -1139,55 +1139,62 @@ model TurmaDisciplinaHorario {
   @@index([ativo])
 }
 
+enum TipoContratacaoMatricula {
+  CURSO_COMPLETO
+  PARCIAL
+}
+
 model Matricula {
-  id                                      Int             @id @default(autoincrement())
+  id                                      Int                       @id @default(autoincrement())
   numeroMatriculaLegado                   String?
   sistemaOrigem                           String?
-  importadaSistemaAntigo                  Boolean         @default(false)
+  importadaSistemaAntigo                  Boolean                   @default(false)
   alunoId                                 Int
   numeroMatricula                         String?
   modalidade                              String?
-  createdAt                               DateTime        @default(now())
+  createdAt                               DateTime                  @default(now())
   instituicaoId                           Int
   poloId                                  Int?
-  status                                  StatusMatricula @default(ATIVA)
-  updatedAt                               DateTime        @updatedAt
+  status                                  StatusMatricula           @default(ATIVA)
+  updatedAt                               DateTime                  @updatedAt
   excluidaEm                              DateTime?
   excluidaPorId                           Int?
-  motivoExclusao                          String?         @db.Text
+  motivoExclusao                          String?                   @db.Text
   canceladaEm                             DateTime?
   canceladaPorId                          Int?
-  motivoCancelamento                      String?         @db.Text
+  motivoCancelamento                      String?                   @db.Text
   cursoId                                 Int?
   semestre                                Int?
   dataPrimeiroVencimento                  DateTime?
   quantidadeParcelas                      Int?
-  valorMatricula                          Decimal?        @db.Decimal(10, 2)
-  valorMensalidade                        Decimal?        @db.Decimal(10, 2)
-  bolsaPercentual                         Decimal         @default(0) @db.Decimal(5, 2)
+  valorMatricula                          Decimal?                  @db.Decimal(10, 2)
+  valorMensalidade                        Decimal?                  @db.Decimal(10, 2)
+  bolsaPercentual                         Decimal                   @default(0) @db.Decimal(5, 2)
   primeiroVencimento                      DateTime?
   quantidadeMensalidades                  Int?
+  tipoContratacao                         TipoContratacaoMatricula?
   vendedorResponsavelId                   Int?
   vendedorResponsavelNomeSnapshot         String?
-  leadOrigemId                            Int?            @unique
+  leadOrigemId                            Int?                      @unique
   origemComercial                         String?
   campanhaComercial                       String?
   atendidoComercialEm                     DateTime?
-  observacaoComercial                     String?         @db.Text
-  alunoMenorNoMomentoMatricula            Boolean         @default(false)
+  observacaoComercial                     String?                   @db.Text
+  alunoMenorNoMomentoMatricula            Boolean                   @default(false)
   idadeNoMomentoMatricula                 Int?
-  responsavelIncompletoNoMomentoMatricula Boolean         @default(false)
+  responsavelIncompletoNoMomentoMatricula Boolean                   @default(false)
   confirmacaoMenorEm                      DateTime?
   confirmacaoMenorPorUserId               Int?
   confirmacaoMenorPorFuncionarioId        Int?
   confirmacaoMenorPorNomeSnapshot         String?
-  textoConfirmacaoMenor                   String?         @db.Text
+  textoConfirmacaoMenor                   String?                   @db.Text
 
   contratos               Contrato[]
   documentos              DocumentoAluno[]
   documentosGerados       DocumentoGerado[]
   trancamentos            TrancamentoMatricula[]
   itens                   ItemMatricula[]
+  disciplinasContratadas  MatriculaDisciplinaContratada[]
   lancamentosFinanceiros  LancamentoFinanceiro[]
   vendedorResponsavel     Funcionario?                     @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
   leadOrigem              Lead?                            @relation("LeadMatriculaConvertida", fields: [leadOrigemId], references: [id], onDelete: SetNull)
@@ -1249,44 +1256,44 @@ enum UnidadeTrancamentoMatricula {
 }
 
 model TrancamentoMatricula {
-  id                          Int                          @id @default(autoincrement())
-  instituicaoId               Int
-  matriculaId                 Int
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  matriculaId   Int
 
-  numeroProtocolo             String
-  status                      StatusTrancamentoMatricula   @default(RASCUNHO)
-  statusAnterior              StatusMatricula
+  numeroProtocolo String
+  status          StatusTrancamentoMatricula @default(RASCUNHO)
+  statusAnterior  StatusMatricula
 
-  motivo                      String                       @db.Text
-  observacoes                 String?                      @db.Text
+  motivo      String  @db.Text
+  observacoes String? @db.Text
 
-  dataInicio                  DateTime
-  dataRetornoPrevista         DateTime?
-  duracaoQuantidade           Int?
-  duracaoUnidade              UnidadeTrancamentoMatricula?
+  dataInicio          DateTime
+  dataRetornoPrevista DateTime?
+  duracaoQuantidade   Int?
+  duracaoUnidade      UnidadeTrancamentoMatricula?
 
-  registradoPorId             Int?
-  registradoPorNomeSnapshot   String?
-  registradoPorCargoSnapshot  String?
+  registradoPorId            Int?
+  registradoPorNomeSnapshot  String?
+  registradoPorCargoSnapshot String?
 
-  confirmadoPorId             Int?
-  confirmadoPorNomeSnapshot   String?
-  confirmadoPorCargoSnapshot  String?
-  ipConfirmacao               String?
-  userAgentConfirmacao        String?                      @db.Text
+  confirmadoPorId            Int?
+  confirmadoPorNomeSnapshot  String?
+  confirmadoPorCargoSnapshot String?
+  ipConfirmacao              String?
+  userAgentConfirmacao       String? @db.Text
 
-  confirmadoEm                DateTime?
-  encerradoEm                 DateTime?
-  canceladoEm                 DateTime?
+  confirmadoEm DateTime?
+  encerradoEm  DateTime?
+  canceladoEm  DateTime?
 
-  criadoEm                    DateTime                     @default(now())
-  atualizadoEm                DateTime                     @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
-  instituicao                 Instituicao                  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  matricula                   Matricula                    @relation(fields: [matriculaId], references: [id], onDelete: Restrict)
-  registradoPor               User?                        @relation("TrancamentoMatriculaRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
-  confirmadoPor               User?                        @relation("TrancamentoMatriculaConfirmadoPor", fields: [confirmadoPorId], references: [id], onDelete: SetNull)
-  documentosGerados           DocumentoGerado[]
+  instituicao       Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula         Matricula         @relation(fields: [matriculaId], references: [id], onDelete: Restrict)
+  registradoPor     User?             @relation("TrancamentoMatriculaRegistradoPor", fields: [registradoPorId], references: [id], onDelete: SetNull)
+  confirmadoPor     User?             @relation("TrancamentoMatriculaConfirmadoPor", fields: [confirmadoPorId], references: [id], onDelete: SetNull)
+  documentosGerados DocumentoGerado[]
 
   @@unique([instituicaoId, numeroProtocolo])
   @@index([instituicaoId])
@@ -1321,6 +1328,29 @@ model ItemMatricula {
   @@index([disciplinaId])
   @@index([status])
   @@index([tipoItem])
+}
+
+model MatriculaDisciplinaContratada {
+  id                      Int      @id @default(autoincrement())
+  instituicaoId           Int
+  matriculaId             Int
+  disciplinaId            Int
+  cursoSemestreIdSnapshot Int?
+  semestreNumeroSnapshot  Int?
+  semestreTituloSnapshot  String?
+  disciplinaNomeSnapshot  String
+  cargaHorariaSnapshot    Int?
+  ordemSnapshot           Int?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  matricula Matricula @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+
+  @@unique([matriculaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([disciplinaId])
+  @@index([cursoSemestreIdSnapshot])
 }
 
 model Modulo {
@@ -2313,7 +2343,7 @@ model DocumentoGerado {
   Curso                       Curso?                        @relation(fields: [cursoId], references: [id])
   instituicao                 Instituicao                   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   matricula                   Matricula?                    @relation(fields: [matriculaId], references: [id])
-  trancamentoMatricula       TrancamentoMatricula?        @relation(fields: [trancamentoMatriculaId], references: [id], onDelete: SetNull)
+  trancamentoMatricula        TrancamentoMatricula?         @relation(fields: [trancamentoMatriculaId], references: [id], onDelete: SetNull)
   template                    DocumentoTemplate?            @relation(fields: [templateId], references: [id])
   AuditoriaValidacaoDocumento AuditoriaValidacaoDocumento[]
 
