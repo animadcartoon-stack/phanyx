@@ -1114,7 +1114,7 @@ function coordenadasVarinha(
 }
 
 function aplicarCliqueVarinha(
-  e: React.PointerEvent<HTMLImageElement>,
+  e: React.PointerEvent<HTMLElement>,
   modo: "substituir" | "adicionar" | "remover"
 ) {
   if (!canvasRef.current || !imagemFinal) return;
@@ -1264,7 +1264,7 @@ function iniciarArrastoVarinha(e: React.PointerEvent<HTMLImageElement>) {
   ultimoOverlayVarinhaRef.current = performance.now();
 }
 
-function continuarArrastoVarinha(e: React.PointerEvent<HTMLImageElement>) {
+function continuarArrastoVarinha(e: React.PointerEvent<HTMLElement>) {
   if (!varinhaPressionadaRef.current) return false;
 
   e.preventDefault();
@@ -1302,7 +1302,7 @@ function continuarArrastoVarinha(e: React.PointerEvent<HTMLImageElement>) {
   return true;
 }
 
-function finalizarArrastoVarinha(e?: React.PointerEvent<HTMLImageElement>) {
+function finalizarArrastoVarinha(e?: React.PointerEvent<HTMLElement>) {
   if (!varinhaPressionadaRef.current) return;
 
   if (!varinhaArrastouRef.current && e) {
