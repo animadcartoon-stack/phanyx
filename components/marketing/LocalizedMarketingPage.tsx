@@ -5,6 +5,7 @@ import type { ForeignLocale } from "@/lib/localized-plans";
 import { localizedHome } from "@/lib/localized-home";
 import { marketingCopy, marketingPath, type MarketingSection } from "@/lib/public-marketing";
 import { searchIntentCopy } from "@/lib/search-intents";
+import { schoolGuidePath } from "@/lib/school-guide";
 
 export default function LocalizedMarketingPage({ locale, section }: { locale: ForeignLocale; section: Extract<MarketingSection, "home" | "academic"> }) {
   const t = localizedHome[locale];
@@ -49,7 +50,7 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/10 p-3 sm:inline-flex">
                   <div className="flex flex-wrap gap-2">{t.portals.map((portal, index) => <Link key={portal} href={`/login?portal=${["aluno", "professor", "admin"][index]}&lang=${locale}`} className="rounded-xl border border-blue-200/40 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700">{["👨‍🎓", "👨‍🏫", "🛡️"][index]} {portal}</Link>)}</div>
                 </div>
-                <div className="mt-5 flex gap-4 text-sm"><a href="/blog" className="font-semibold text-blue-300 underline-offset-4 hover:underline">Blog</a><a href="/blog/sistema-gestao-escolar" className="font-semibold text-blue-300 underline-offset-4 hover:underline">{t.blog}</a></div>
+                <div className="mt-5 flex gap-4 text-sm"><a href="/blog" className="font-semibold text-blue-300 underline-offset-4 hover:underline">Blog</a><Link href={schoolGuidePath(locale)} className="font-semibold text-blue-300 underline-offset-4 hover:underline">{t.blog}</Link></div>
                 <div className="mt-6 hidden gap-4 xl:grid xl:grid-cols-3">{t.trust.map((item) => <div key={item.title} className="rounded-2xl border border-white/10 bg-white/10 p-4"><p className="text-xl font-bold text-white">{item.title}</p><p className="mt-2 text-sm text-slate-200">{item.description}</p></div>)}</div>
               </div>
               <div className="relative mt-2 lg:hidden"><div className="relative h-[260px] overflow-hidden rounded-[28px] border border-white/10 shadow-2xl sm:h-[300px]"><div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" /><Image src="/images/formax-hero.jpg" alt="PHANYX academic platform" fill priority className="object-cover object-[78%_center]" /><p className="absolute bottom-3 left-3 right-3 z-20 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm text-white backdrop-blur">{t.intro}</p></div></div>
