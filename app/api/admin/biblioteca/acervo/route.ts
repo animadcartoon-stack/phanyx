@@ -60,6 +60,8 @@ const ITEM_ACERVO_SELECT = {
   titulo: true,
   subtitulo: true,
   tituloAlternativo: true,
+  tituloUniforme: true,
+  numeroControleBibliografico: true,
   slug: true,
   sinopse: true,
   descricao: true,
@@ -625,6 +627,78 @@ function normalizarPalavrasChave(
   return normalizadas;
 }
 
+
+function normalizarListaCatalografica(
+  valor,
+  campo,
+  limiteItens = 20,
+  limiteTexto = 160
+) {
+  if (
+    valor === undefined ||
+    valor === null ||
+    valor === ""
+  ) {
+    return [];
+  }
+
+  const valores = Array.isArray(valor)
+    ? valor
+    : typeof valor === "string"
+      ? valor.split(",")
+      : null;
+
+  if (!valores) {
+    falhar(
+      400,
+      `O campo ${campo} deve ser uma lista de textos.`,
+      "CAMPO_INVALIDO",
+      { campo }
+    );
+  }
+
+  const normalizadas = Array.from(
+    new Set(
+      valores
+        .map((item) =>
+          String(item || "").trim()
+        )
+        .filter(Boolean)
+    )
+  );
+
+  if (normalizadas.length > limiteItens) {
+    falhar(
+      400,
+      `O campo ${campo} ultrapassa a quantidade permitida.`,
+      "LIMITE_LISTA",
+      {
+        campo,
+        limite: limiteItens,
+      }
+    );
+  }
+
+  const itemLongo = normalizadas.find(
+    (item) =>
+      item.length > limiteTexto
+  );
+
+  if (itemLongo) {
+    falhar(
+      400,
+      `Um valor de ${campo} ultrapassa o limite permitido.`,
+      "CAMPO_MUITO_LONGO",
+      {
+        campo,
+        limite: limiteTexto,
+      }
+    );
+  }
+
+  return normalizadas;
+}
+
 function normalizarAutores(
   valor: unknown
 ): VinculoAutor[] {
@@ -941,6 +1015,18 @@ export async function GET(request: NextRequest) {
                   mode: "insensitive",
                 },
               },
+              {
+                tituloUniforme: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
+              {
+                numeroControleBibliografico: {
+                  contains: busca,
+                  mode: "insensitive",
+                },
+              },
               { isbn10: { contains: busca } },
               { isbn13: { contains: busca } },
               { issn: { contains: busca } },
@@ -1176,6 +1262,104 @@ export async function POST(request: NextRequest) {
       255
     );
 
+    const dadosCatalogacaoCompleta = {
+      tituloUniforme: textoOpcional(
+        corpo.tituloUniforme,
+        "tituloUniforme",
+        240
+      ),
+      mencaoResponsabilidade: textoOpcional(
+        corpo.mencaoResponsabilidade,
+        "mencaoResponsabilidade",
+        2_000
+      ),
+      numeroControleBibliografico: textoOpcional(
+        corpo.numeroControleBibliografico,
+        "numeroControleBibliografico",
+        120
+      ),
+      regraCatalogacao: textoOpcional(
+        corpo.regraCatalogacao,
+        "regraCatalogacao",
+        80
+      ),
+      fonteCatalogacao: textoOpcional(
+        corpo.fonteCatalogacao,
+        "fonteCatalogacao",
+        160
+      ),
+      idiomaCatalogacao: textoOpcional(
+        corpo.idiomaCatalogacao,
+        "idiomaCatalogacao",
+        30
+      ),
+      idiomaOriginal: textoOpcional(
+        corpo.idiomaOriginal,
+        "idiomaOriginal",
+        30
+      ),
+      localPublicacao: textoOpcional(
+        corpo.localPublicacao,
+        "localPublicacao",
+        160
+      ),
+      serie: textoOpcional(
+        corpo.serie,
+        "serie",
+        240
+      ),
+      numeroSerie: textoOpcional(
+        corpo.numeroSerie,
+        "numeroSerie",
+        80
+      ),
+      detalhesFisicos: textoOpcional(
+        corpo.detalhesFisicos,
+        "detalhesFisicos",
+        500
+      ),
+      dimensoes: textoOpcional(
+        corpo.dimensoes,
+        "dimensoes",
+        120
+      ),
+      materialAcompanhante: textoOpcional(
+        corpo.materialAcompanhante,
+        "materialAcompanhante",
+        500
+      ),
+      tiposConteudoRda:
+        normalizarListaCatalografica(
+          corpo.tiposConteudoRda,
+          "tiposConteudoRda"
+        ),
+      tiposMidiaRda:
+        normalizarListaCatalografica(
+          corpo.tiposMidiaRda,
+          "tiposMidiaRda"
+        ),
+      tiposSuporteRda:
+        normalizarListaCatalografica(
+          corpo.tiposSuporteRda,
+          "tiposSuporteRda"
+        ),
+      notaGeral: textoOpcional(
+        corpo.notaGeral,
+        "notaGeral",
+        20_000
+      ),
+      notaBibliografia: textoOpcional(
+        corpo.notaBibliografia,
+        "notaBibliografia",
+        20_000
+      ),
+      notaConteudo: textoOpcional(
+        corpo.notaConteudo,
+        "notaConteudo",
+        20_000
+      ),
+    };
+
     const idsAutores = Array.from(
       new Set(autores.map((item) => item.autorId))
     );
@@ -1192,6 +1376,20 @@ export async function POST(request: NextRequest) {
       filtrosDuplicidade.push({
         doi: {
           equals: doi,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    if (
+      dadosCatalogacaoCompleta
+        .numeroControleBibliografico
+    ) {
+      filtrosDuplicidade.push({
+        numeroControleBibliografico: {
+          equals:
+            dadosCatalogacaoCompleta
+              .numeroControleBibliografico,
           mode: "insensitive",
         },
       });
@@ -1296,7 +1494,7 @@ export async function POST(request: NextRequest) {
     if (duplicado) {
       falhar(
         409,
-        "Já existe um item com o mesmo ISBN ou DOI nesta biblioteca.",
+        "Já existe um item com o mesmo ISBN, DOI ou número de controle bibliográfico nesta biblioteca.",
         "ITEM_POSSIVELMENTE_DUPLICADO",
         {
           itemId: duplicado.id,
@@ -1364,6 +1562,7 @@ export async function POST(request: NextRequest) {
                 "tituloAlternativo",
                 240
               ),
+              ...dadosCatalogacaoCompleta,
               slug: gerarSlug(titulo),
               sinopse: textoOpcional(
                 corpo.sinopse,
@@ -1543,6 +1742,8 @@ export async function POST(request: NextRequest) {
               })),
               categorias,
               editoraId,
+              catalogacaoCompleta:
+                dadosCatalogacaoCompleta,
             },
             metadados: {
               origem: "api_admin_biblioteca_acervo",
