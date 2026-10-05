@@ -325,9 +325,12 @@ export async function POST(
               };
             }
 
-            throw new Error(
-              "A cobrança mudou de estado durante a baixa."
-            );
+            return {
+              estado:
+                "ESTADO_ALTERADO" as const,
+              cobranca:
+                atual,
+            };
           }
 
           const atual =
@@ -854,6 +857,27 @@ export async function POST(
         cobranca:
           resultado.cobranca,
       });
+    }
+
+    if (
+      resultado.estado ===
+      "ESTADO_ALTERADO"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A cobrança mudou de estado durante a baixa. Atualize a tela e tente novamente.",
+
+          codigo:
+            "COBRANCA_ESTADO_ALTERADO",
+
+          cobranca:
+            resultado.cobranca,
+        },
+        {
+          status: 409,
+        }
+      );
     }
 
     return NextResponse.json({

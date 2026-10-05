@@ -1077,7 +1077,9 @@ export default function BoletosCompensadosPage() {
 
                           <td className="px-4 py-4">
                             <div className="flex min-w-[130px] flex-col gap-2">
-                              {cobranca.statusOperacional ===
+                              {cobranca.statusBancario ===
+                                "COMPENSADO" &&
+                                cobranca.statusOperacional ===
                                 "AGUARDANDO_BAIXA" && (
                                 <button
                                   type="button"
