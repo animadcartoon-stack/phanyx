@@ -2,11 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 
+export type CropAplicado = {
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  naturalWidth: number;
+  naturalHeight: number;
+};
+
 type Props = {
   imagem: string;
   aberto: boolean;
   onClose: () => void;
-  onAplicar: (novaImagem: string) => void;
+  onAplicar: (novaImagem: string, recorte: CropAplicado) => void | Promise<void>;
 };
 
 type Crop = {
@@ -102,7 +111,14 @@ export default function CropImageModal({
     canvas.height
   );
 
-  onAplicar(canvas.toDataURL("image/png"));
+  onAplicar(canvas.toDataURL("image/png"), {
+    x: sx,
+    y: sy,
+    largura: sw,
+    altura: sh,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+  });
 }
 
   return (

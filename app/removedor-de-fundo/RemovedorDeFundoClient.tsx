@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "@tensorflow/tfjs";
-import CropImageModal from "./components/CropImageModal";
+import CropImageModal, { type CropAplicado } from "./components/CropImageModal";
 
 type DownloadTipo = "png" | "jpg" | "webp";
 type ModoRemocao = "assinatura" | "objeto" | "pessoa";
@@ -27,8 +27,22 @@ export default function RemovedorDeFundoClient() {
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const estadoEntradaRefinamentoRef = useRef<{
+    imagemFinal: string;
+    imagemOriginal: string | null;
+    imagemBaseEdicao: string | null;
+    baseCanvas: string | null;
+    originalCanvas: string | null;
+  } | null>(null);
 
   const [pixelsSelecionados, setPixelsSelecionados] = useState<Set<number> | null>(null);
+  const pixelsSelecionadosRef = useRef<Set<number> | null>(null);
+  const varinhaPressionadaRef = useRef(false);
+  const varinhaArrastouRef = useRef(false);
+  const modoVarinhaOperacaoRef = useRef<"substituir" | "adicionar" | "remover">("substituir");
+  const inicioVarinhaRef = useRef<{ x: number; y: number } | null>(null);
+  const ultimoPontoPincelSelecaoRef = useRef<{ x: number; y: number } | null>(null);
+  const ultimoOverlayVarinhaRef = useRef(0);
 
   const [overlayVarinha, setOverlayVarinha] = useState<string | null>(null);
 
@@ -391,58 +405,123 @@ function selecionarRegiaoConectada(
 ) {
   const { width, height, data } = imageData;
 
-  const visitados = new Set<number>();
-  const fila: [number, number][] = [[startX, startY]];
+  if (
+    startX < 0 ||
+    startY < 0 ||
+    startX >= width ||
+    startY >= height
+  ) {
+    return new Set<number>();
+  }
 
   const indiceInicial = (startY * width + startX) * 4;
 
   const rBase = data[indiceInicial];
   const gBase = data[indiceInicial + 1];
   const bBase = data[indiceInicial + 2];
+  const aBase = data[indiceInicial + 3];
 
-  while (fila.length > 0) {
-    const [x, y] = fila.shift()!;
+  // A varinha normal deve obedecer exatamente ao ponto clicado.
+  // Não procuramos outra "semente" ao redor do clique.
+  const alphaMinimoVisivel = 8;
 
-    if (
-      x < 0 ||
-      y < 0 ||
-      x >= width ||
-      y >= height
-    ) {
-      continue;
-    }
-
-    const pixel = y * width + x;
-
-    if (visitados.has(pixel)) {
-      continue;
-    }
-
-    const i = pixel * 4;
-
-    if (
-      !corParecida(
-        rBase,
-        gBase,
-        bBase,
-        data[i],
-        data[i + 1],
-        data[i + 2],
-        tolerancia
-      )
-    ) {
-      continue;
-    }
-
-    visitados.add(pixel);
-
-    fila.push([x + 1, y]);
-    fila.push([x - 1, y]);
-    fila.push([x, y + 1]);
-    fila.push([x, y - 1]);
+  if (aBase <= alphaMinimoVisivel) {
+    return new Set<number>();
   }
 
-  return visitados;
+  const selecionados = new Set<number>();
+  const visitados = new Uint8Array(width * height);
+
+  // Fila com tamanho máximo de width*height.
+  // Cada pixel é marcado ao entrar na fila, evitando duplicações.
+  const fila = new Int32Array(width * height);
+  let inicioFila = 0;
+  let fimFila = 0;
+
+  const pixelInicial = startY * width + startX;
+  fila[fimFila++] = pixelInicial;
+  visitados[pixelInicial] = 1;
+
+  const limiteRgb = Math.max(18, tolerancia * 2.15);
+  const limiteCanal = Math.max(14, tolerancia * 1.55);
+  const limiteAlpha = Math.max(30, tolerancia * 2.0);
+
+  function pixelCompativel(pixel: number) {
+    const i = pixel * 4;
+
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const a = data[i + 3];
+
+    if (a <= alphaMinimoVisivel) {
+      return false;
+    }
+
+    const dr = r - rBase;
+    const dg = g - gBase;
+    const db = b - bBase;
+
+    const distanciaRgb = Math.sqrt(
+      dr * dr +
+      dg * dg +
+      db * db
+    );
+
+    const maiorDiferencaCanal = Math.max(
+      Math.abs(dr),
+      Math.abs(dg),
+      Math.abs(db)
+    );
+
+    const diferencaAlpha = Math.abs(a - aBase);
+
+    return (
+      distanciaRgb <= limiteRgb &&
+      maiorDiferencaCanal <= limiteCanal &&
+      diferencaAlpha <= limiteAlpha
+    );
+  }
+
+  while (inicioFila < fimFila) {
+    const pixel = fila[inicioFila++];
+
+    if (!pixelCompativel(pixel)) {
+      continue;
+    }
+
+    selecionados.add(pixel);
+
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+
+    function adicionar(nx: number, ny: number) {
+      if (
+        nx < 0 ||
+        ny < 0 ||
+        nx >= width ||
+        ny >= height
+      ) {
+        return;
+      }
+
+      const np = ny * width + nx;
+
+      if (visitados[np]) {
+        return;
+      }
+
+      visitados[np] = 1;
+      fila[fimFila++] = np;
+    }
+
+    adicionar(x + 1, y);
+    adicionar(x - 1, y);
+    adicionar(x, y + 1);
+    adicionar(x, y - 1);
+  }
+
+  return selecionados;
 }
   
   function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
@@ -543,6 +622,229 @@ if (originalCtx) {
     ...historicoEdicaoRef.current.slice(-14),
     imagemFinal,
   ];
+}
+
+function carregarImagemDataUrl(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Não foi possível carregar a imagem."));
+    img.src = src;
+  });
+}
+
+async function criarCanvasDeImagem(
+  src: string,
+  largura?: number,
+  altura?: number
+) {
+  const img = await carregarImagemDataUrl(src);
+  const canvas = document.createElement("canvas");
+  canvas.width = largura ?? img.naturalWidth;
+  canvas.height = altura ?? img.naturalHeight;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Não foi possível preparar o canvas.");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  return canvas;
+}
+
+async function sincronizarCanvasPrincipal(src: string) {
+  if (!canvasRef.current) return;
+
+  const img = await carregarImagemDataUrl(src);
+  const canvas = canvasRef.current;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
+}
+
+function abrirRefinamento() {
+  if (!imagemFinal) return;
+
+  estadoEntradaRefinamentoRef.current = {
+    imagemFinal,
+    imagemOriginal,
+    imagemBaseEdicao,
+    baseCanvas: baseEdicaoCanvasRef.current?.toDataURL("image/png") ?? null,
+    originalCanvas: imagemOriginalCanvasRef.current?.toDataURL("image/png") ?? null,
+  };
+
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+  setModalRefinamentoAberto(true);
+}
+
+function salvarEdicaoRefinamento() {
+  if (!canvasRef.current) return;
+
+  const atual = canvasRef.current.toDataURL("image/png");
+  setImagemFinal(atual);
+  setTemResultadoReal(true);
+
+  estadoEntradaRefinamentoRef.current = {
+    imagemFinal: atual,
+    imagemOriginal,
+    imagemBaseEdicao,
+    baseCanvas: baseEdicaoCanvasRef.current?.toDataURL("image/png") ?? null,
+    originalCanvas: imagemOriginalCanvasRef.current?.toDataURL("image/png") ?? null,
+  };
+
+  setAviso("Edição salva. Você pode continuar refinando ou concluir.");
+}
+
+function concluirRefinamento() {
+  if (canvasRef.current) {
+    setImagemFinal(canvasRef.current.toDataURL("image/png"));
+    setTemResultadoReal(true);
+  }
+
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+  estadoEntradaRefinamentoRef.current = null;
+  setModalRefinamentoAberto(false);
+}
+
+async function cancelarAlteracoesRefinamento() {
+  const estado = estadoEntradaRefinamentoRef.current;
+
+  if (estado) {
+    setImagemFinal(estado.imagemFinal);
+    setImagemOriginal(estado.imagemOriginal);
+    setImagemBaseEdicao(estado.imagemBaseEdicao);
+    setTemResultadoReal(true);
+
+    await sincronizarCanvasPrincipal(estado.imagemFinal);
+
+    baseEdicaoCanvasRef.current = estado.baseCanvas
+      ? await criarCanvasDeImagem(estado.baseCanvas)
+      : null;
+
+    imagemOriginalCanvasRef.current = estado.originalCanvas
+      ? await criarCanvasDeImagem(estado.originalCanvas)
+      : null;
+  }
+
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+  setZoomResultado(1);
+  setPanResultado({ x: 0, y: 0 });
+  estadoEntradaRefinamentoRef.current = null;
+  setModalRefinamentoAberto(false);
+  setAviso("Alterações não salvas do refinamento foram descartadas.");
+}
+
+async function cortarImagemPeloMesmoRecorte(
+  src: string,
+  recorte: CropAplicado
+) {
+  const img = await carregarImagemDataUrl(src);
+
+  const escalaX = img.naturalWidth / recorte.naturalWidth;
+  const escalaY = img.naturalHeight / recorte.naturalHeight;
+
+  const sx = Math.max(0, recorte.x * escalaX);
+  const sy = Math.max(0, recorte.y * escalaY);
+  const sw = Math.min(img.naturalWidth - sx, recorte.largura * escalaX);
+  const sh = Math.min(img.naturalHeight - sy, recorte.altura * escalaY);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(sw));
+  canvas.height = Math.max(1, Math.round(sh));
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Não foi possível aplicar o corte.");
+
+  ctx.drawImage(
+    img,
+    sx,
+    sy,
+    sw,
+    sh,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  return canvas.toDataURL("image/png");
+}
+
+async function aplicarCorteSemPerderEdicao(
+  novaImagem: string,
+  recorte: CropAplicado
+) {
+  try {
+    if (!imagemFinal) {
+      setImagemOriginal(novaImagem);
+      setTemResultadoReal(false);
+      setImagemBaseEdicao(null);
+      baseEdicaoCanvasRef.current = null;
+      imagemOriginalCanvasRef.current = null;
+      historicoEdicaoRef.current = [];
+      setPixelsSelecionados(null);
+      setOverlayVarinha(null);
+      setZoomResultado(1);
+      setPanResultado({ x: 0, y: 0 });
+      setModalCorteAberto(false);
+
+      const img = await carregarImagemDataUrl(novaImagem);
+      setDimensoesImagem({
+        largura: img.naturalWidth,
+        altura: img.naturalHeight,
+      });
+
+      setAviso("Corte aplicado à imagem original.");
+      return;
+    }
+
+    const originalCortada = imagemOriginal
+      ? await cortarImagemPeloMesmoRecorte(imagemOriginal, recorte)
+      : novaImagem;
+
+    const imgFinalCortada = await carregarImagemDataUrl(novaImagem);
+
+    setImagemOriginal(originalCortada);
+    setImagemFinal(novaImagem);
+    setImagemBaseEdicao(novaImagem);
+    setTemResultadoReal(true);
+
+    await sincronizarCanvasPrincipal(novaImagem);
+
+    baseEdicaoCanvasRef.current = await criarCanvasDeImagem(
+      novaImagem,
+      imgFinalCortada.naturalWidth,
+      imgFinalCortada.naturalHeight
+    );
+
+    imagemOriginalCanvasRef.current = await criarCanvasDeImagem(
+      originalCortada,
+      imgFinalCortada.naturalWidth,
+      imgFinalCortada.naturalHeight
+    );
+
+    historicoEdicaoRef.current = [];
+    setPixelsSelecionados(null);
+    setOverlayVarinha(null);
+    setZoomResultado(1);
+    setPanResultado({ x: 0, y: 0 });
+    setDimensoesImagem({
+      largura: imgFinalCortada.naturalWidth,
+      altura: imgFinalCortada.naturalHeight,
+    });
+    setModalCorteAberto(false);
+    setAviso("Corte aplicado sem perder o refinamento. Você pode continuar editando.");
+  } catch (error) {
+    console.error(error);
+    setAviso("Não foi possível aplicar o corte sem perder a edição.");
+  }
 }
 
   function iniciarPincelResultado(e: React.PointerEvent<HTMLImageElement>) {
@@ -699,86 +1001,399 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
   setTemResultadoReal(true);
 }
 
-function selecionarComVarinhaRefinamento(e: React.PointerEvent<HTMLImageElement>) {
-  if (!canvasRef.current || !imagemFinal) return;
+function atualizarOverlayVarinha(selecionados: Set<number> | null) {
+  if (!canvasRef.current || !selecionados || selecionados.size === 0) {
+    setOverlayVarinha(null);
+    return;
+  }
 
-  const img = e.currentTarget;
-  const rect = img.getBoundingClientRect();
-
-  const x = Math.floor(((e.clientX - rect.left) / rect.width) * canvasRef.current.width);
-  const y = Math.floor(((e.clientY - rect.top) / rect.height) * canvasRef.current.height);
-
-  const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return;
-
-  const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
-  const selecionados = selecionarRegiaoConectada(imageData, x, y, toleranciaVarinha);
-
-  setPixelsSelecionados(selecionados);
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
   const overlayCanvas = document.createElement("canvas");
-overlayCanvas.width = canvasRef.current.width;
-overlayCanvas.height = canvasRef.current.height;
+  overlayCanvas.width = width;
+  overlayCanvas.height = height;
 
-const overlayCtx = overlayCanvas.getContext("2d");
-if (overlayCtx) {
-  const overlayData = overlayCtx.createImageData(
-    overlayCanvas.width,
-    overlayCanvas.height
-  );
+  const overlayCtx = overlayCanvas.getContext("2d");
+  if (!overlayCtx) return;
 
-  selecionados.forEach((pixel) => {
-  const x = pixel % overlayCanvas.width;
-  const y = Math.floor(pixel / overlayCanvas.width);
-
-  const vizinhos = [
-    pixel - 1,
-    pixel + 1,
-    pixel - overlayCanvas.width,
-    pixel + overlayCanvas.width,
+  const overlayData = overlayCtx.createImageData(width, height);
+  const direcoes = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
   ];
 
-  const ehBorda =
-    x === 0 ||
-    y === 0 ||
-    x === overlayCanvas.width - 1 ||
-    y === overlayCanvas.height - 1 ||
-    vizinhos.some((v) => !selecionados.has(v));
+  selecionados.forEach((pixel) => {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
 
-  if (!ehBorda) return;
+    const ehBorda = direcoes.some(([dx, dy]) => {
+      const nx = x + dx;
+      const ny = y + dy;
 
-  const branco = Math.floor((x + y) / 6) % 2 === 0;
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) return true;
+      return !selecionados.has(ny * width + nx);
+    });
 
-  for (let yy = -1; yy <= 1; yy++) {
-    for (let xx = -1; xx <= 1; xx++) {
-      const nx = x + xx;
-      const ny = y + yy;
+    if (!ehBorda) return;
 
-      if (
-        nx < 0 ||
-        ny < 0 ||
-        nx >= overlayCanvas.width ||
-        ny >= overlayCanvas.height
-      ) {
-        continue;
+    const branco = Math.floor((x + y) / 6) % 2 === 0;
+
+    for (let yy = -1; yy <= 1; yy++) {
+      for (let xx = -1; xx <= 1; xx++) {
+        const nx = x + xx;
+        const ny = y + yy;
+
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+
+        const i = (ny * width + nx) * 4;
+        overlayData.data[i] = branco ? 255 : 0;
+        overlayData.data[i + 1] = branco ? 255 : 0;
+        overlayData.data[i + 2] = branco ? 255 : 0;
+        overlayData.data[i + 3] = 255;
       }
-
-      const i = (ny * overlayCanvas.width + nx) * 4;
-
-      overlayData.data[i] = branco ? 255 : 0;
-      overlayData.data[i + 1] = branco ? 255 : 0;
-      overlayData.data[i + 2] = branco ? 255 : 0;
-      overlayData.data[i + 3] = 255;
     }
-  }
-});
+  });
 
   overlayCtx.putImageData(overlayData, 0, 0);
   setOverlayVarinha(overlayCanvas.toDataURL("image/png"));
 }
-setAviso(null);}
+
+function atualizarSelecaoVarinha(
+  proximaSelecao: Set<number> | null,
+  atualizarOverlay = true
+) {
+  pixelsSelecionadosRef.current = proximaSelecao;
+  setPixelsSelecionados(proximaSelecao);
+
+  if (atualizarOverlay) {
+    atualizarOverlayVarinha(proximaSelecao);
+  }
+}
+
+function coordenadasVarinha(
+  clientX: number,
+  clientY: number,
+  img: HTMLImageElement
+) {
+  if (!canvasRef.current) return null;
+
+  const rect = img.getBoundingClientRect();
+
+  if (rect.width <= 0 || rect.height <= 0) {
+    return null;
+  }
+
+  // Não converte pontos que já estejam fora da imagem.
+  if (
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  ) {
+    return null;
+  }
+
+  const proporcaoX = (clientX - rect.left) / rect.width;
+  const proporcaoY = (clientY - rect.top) / rect.height;
+
+  const x = Math.floor(proporcaoX * canvasRef.current.width);
+  const y = Math.floor(proporcaoY * canvasRef.current.height);
+
+  if (
+    x < 0 ||
+    y < 0 ||
+    x >= canvasRef.current.width ||
+    y >= canvasRef.current.height
+  ) {
+    return null;
+  }
+
+  return { x, y };
+}
+
+function aplicarCliqueVarinha(
+  e: React.PointerEvent<HTMLImageElement>,
+  modo: "substituir" | "adicionar" | "remover"
+) {
+  if (!canvasRef.current || !imagemFinal) return;
+
+  const imagem = imagemResultadoRef.current;
+  if (!imagem) return;
+
+  const ponto = coordenadasVarinha(
+    e.clientX,
+    e.clientY,
+    imagem
+  );
+  if (!ponto) return;
+
+  const ctx = canvasRef.current.getContext("2d", {
+    willReadFrequently: true,
+  });
+  if (!ctx) return;
+
+  const imageData = ctx.getImageData(
+    0,
+    0,
+    canvasRef.current.width,
+    canvasRef.current.height
+  );
+
+  const regiao = selecionarRegiaoConectada(
+    imageData,
+    ponto.x,
+    ponto.y,
+    toleranciaVarinha
+  );
+
+  const atual = pixelsSelecionadosRef.current;
+  let selecionados: Set<number>;
+
+  if (modo === "remover") {
+    selecionados = new Set(atual ?? []);
+    regiao.forEach((pixel) => selecionados.delete(pixel));
+  } else if (modo === "adicionar") {
+    selecionados = new Set(atual ?? []);
+    regiao.forEach((pixel) => selecionados.add(pixel));
+  } else {
+    selecionados = new Set(regiao);
+  }
+
+  atualizarSelecaoVarinha(
+    selecionados.size > 0 ? selecionados : null
+  );
+
+  setAviso(null);
+}
+
+function pintarDiscoSelecao(
+  selecao: Set<number>,
+  cx: number,
+  cy: number,
+  raio: number,
+  remover: boolean
+) {
+  if (!canvasRef.current) return;
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const raio2 = raio * raio;
+
+  const minX = Math.max(0, Math.floor(cx - raio));
+  const maxX = Math.min(width - 1, Math.ceil(cx + raio));
+  const minY = Math.max(0, Math.floor(cy - raio));
+  const maxY = Math.min(height - 1, Math.ceil(cy + raio));
+
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      if (dx * dx + dy * dy > raio2) continue;
+
+      const pixel = y * width + x;
+      if (remover) selecao.delete(pixel);
+      else selecao.add(pixel);
+    }
+  }
+}
+
+function pintarTrechoSelecao(
+  de: { x: number; y: number },
+  ate: { x: number; y: number },
+  modo: "adicionar" | "remover"
+) {
+  if (!canvasRef.current) return;
+
+  const raio = Math.max(2, tamanhoPincel / 2);
+  const distancia = Math.hypot(ate.x - de.x, ate.y - de.y);
+  const passoMaximo = Math.max(1, Math.min(4, raio / 4));
+  const passos = Math.max(1, Math.ceil(distancia / passoMaximo));
+
+  // Durante o arrasto, trabalha no mesmo Set.
+  // Assim não copiamos milhares de pixels a cada movimento do mouse.
+  const selecao =
+    pixelsSelecionadosRef.current ?? new Set<number>();
+
+  pixelsSelecionadosRef.current = selecao;
+
+  for (let passo = 0; passo <= passos; passo++) {
+    const t = passo / passos;
+    const x = de.x + (ate.x - de.x) * t;
+    const y = de.y + (ate.y - de.y) * t;
+    pintarDiscoSelecao(selecao, x, y, raio, modo === "remover");
+  }
+
+  const proxima = selecao.size > 0 ? selecao : null;
+  pixelsSelecionadosRef.current = proxima;
+
+  const agora = performance.now();
+  if (agora - ultimoOverlayVarinhaRef.current >= 32) {
+    setPixelsSelecionados(
+      proxima ? new Set(proxima) : null
+    );
+    atualizarOverlayVarinha(proxima);
+    ultimoOverlayVarinhaRef.current = agora;
+  }
+}
+
+function iniciarArrastoVarinha(e: React.PointerEvent<HTMLImageElement>) {
+  if (!canvasRef.current || !imagemFinal) return;
+
+  e.preventDefault();
+  e.currentTarget.setPointerCapture(e.pointerId);
+
+  const ponto = coordenadasVarinha(
+    e.clientX,
+    e.clientY,
+    e.currentTarget
+  );
+  if (!ponto) return;
+
+  modoVarinhaOperacaoRef.current = e.ctrlKey
+    ? "remover"
+    : e.shiftKey || e.altKey
+      ? "adicionar"
+      : "substituir";
+
+  varinhaPressionadaRef.current = true;
+  varinhaArrastouRef.current = false;
+  inicioVarinhaRef.current = ponto;
+  ultimoPontoPincelSelecaoRef.current = ponto;
+  ultimoOverlayVarinhaRef.current = performance.now();
+}
+
+function continuarArrastoVarinha(e: React.PointerEvent<HTMLImageElement>) {
+  if (!varinhaPressionadaRef.current) return false;
+
+  e.preventDefault();
+
+  const imagem = imagemResultadoRef.current;
+  if (!imagem) return true;
+
+  const ponto = coordenadasVarinha(
+    e.clientX,
+    e.clientY,
+    imagem
+  );
+  const inicio = inicioVarinhaRef.current;
+  const anterior = ultimoPontoPincelSelecaoRef.current;
+  if (!ponto || !inicio || !anterior) return true;
+
+  if (!varinhaArrastouRef.current) {
+    const distanciaInicio = Math.hypot(ponto.x - inicio.x, ponto.y - inicio.y);
+    if (distanciaInicio < 3) return true;
+
+    varinhaArrastouRef.current = true;
+
+    // Arrasto normal começa uma seleção nova. Com Shift/Alt soma; Ctrl apaga.
+    if (modoVarinhaOperacaoRef.current === "substituir") {
+      pixelsSelecionadosRef.current = null;
+      setPixelsSelecionados(null);
+    }
+  }
+
+  const modoPincel =
+    modoVarinhaOperacaoRef.current === "remover" ? "remover" : "adicionar";
+
+  pintarTrechoSelecao(anterior, ponto, modoPincel);
+  ultimoPontoPincelSelecaoRef.current = ponto;
+  return true;
+}
+
+function finalizarArrastoVarinha(e?: React.PointerEvent<HTMLImageElement>) {
+  if (!varinhaPressionadaRef.current) return;
+
+  if (!varinhaArrastouRef.current && e) {
+    // Sem arrasto: comportamento clássico da varinha por cor/região.
+    aplicarCliqueVarinha(e, modoVarinhaOperacaoRef.current);
+  } else {
+    const final = pixelsSelecionadosRef.current;
+    setPixelsSelecionados(final ? new Set(final) : null);
+    atualizarOverlayVarinha(final);
+  }
+
+  varinhaPressionadaRef.current = false;
+  varinhaArrastouRef.current = false;
+  inicioVarinhaRef.current = null;
+  ultimoPontoPincelSelecaoRef.current = null;
+  ultimoOverlayVarinhaRef.current = 0;
+}
+
+function expandirSelecaoVarinha() {
+  if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
+    setAviso("Faça uma seleção com a varinha primeiro.");
+    return;
+  }
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const expandida = new Set(pixelsSelecionados);
+
+  pixelsSelecionados.forEach((pixel) => {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        expandida.add(ny * width + nx);
+      }
+    }
+  });
+
+  atualizarSelecaoVarinha(expandida);
+}
+
+function contrairSelecaoVarinha() {
+  if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
+    setAviso("Faça uma seleção com a varinha primeiro.");
+    return;
+  }
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const contraida = new Set<number>();
+
+  pixelsSelecionados.forEach((pixel) => {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+    let manter = true;
+
+    for (let dy = -1; dy <= 1 && manter; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+
+        const nx = x + dx;
+        const ny = y + dy;
+
+        if (
+          nx < 0 ||
+          ny < 0 ||
+          nx >= width ||
+          ny >= height ||
+          !pixelsSelecionados.has(ny * width + nx)
+        ) {
+          manter = false;
+          break;
+        }
+      }
+    }
+
+    if (manter) contraida.add(pixel);
+  });
+
+  const proximaSelecao = contraida.size > 0 ? contraida : null;
+  atualizarSelecaoVarinha(proximaSelecao);
+}
 
 function limparSelecaoVarinha() {
-  setOverlayVarinha(null);
+  atualizarSelecaoVarinha(null);
+  setAviso(null);
 }
 
 function apagarSelecaoVarinha() {
@@ -804,8 +1419,7 @@ function apagarSelecaoVarinha() {
 
   setImagemFinal(canvasRef.current.toDataURL("image/png"));
   setTemResultadoReal(true);
-  setPixelsSelecionados(null);
-  setOverlayVarinha(null);
+  atualizarSelecaoVarinha(null);
   setAviso("Área selecionada apagada.");
 }
 
@@ -2698,7 +3312,7 @@ setPopupComprarCreditosAberto(false);
                   Refinamento manual em tela grande
                 </h2>
                 <p className="text-[10px] sm:text-xs text-slate-300">
-                  No celular: ligue o pincel e arraste sobre a imagem. No computador: use scroll para zoom e Espaço para mover.
+                  Varinha: clique seleciona por cor. Arraste pinta a seleção seguindo o mouse; Shift ou Alt somam e Ctrl apaga da seleção. Ajuste o tamanho abaixo para mais precisão.
                 </p>
               </div>
 
@@ -2718,6 +3332,24 @@ setPopupComprarCreditosAberto(false);
   }`}
 >
   🪄 Varinha
+</button>
+
+<button
+  type="button"
+  disabled={!pixelsSelecionados}
+  onClick={expandirSelecaoVarinha}
+  className="rounded-lg border border-yellow-400/40 px-2 py-1 text-[10px] whitespace-nowrap font-black text-yellow-100 disabled:opacity-40"
+>
+  + Expandir
+</button>
+
+<button
+  type="button"
+  disabled={!pixelsSelecionados}
+  onClick={contrairSelecaoVarinha}
+  className="rounded-lg border border-yellow-400/40 px-2 py-1 text-[10px] whitespace-nowrap font-black text-yellow-100 disabled:opacity-40"
+>
+  − Contrair
 </button>
 
 <button
@@ -2749,12 +3381,13 @@ setPopupComprarCreditosAberto(false);
                       : "bg-slate-800 text-white"
                   }`}
                 >
-                  Apagar sobra
+                  {varinhaAtiva && pixelsSelecionados ? "Apagar seleção" : "Apagar sobra"}
                 </button>
 <button
   type="button"
+  disabled={!pixelsSelecionados}
   onClick={limparSelecaoVarinha}
-  className="rounded-xl border px-3 py-2 text-sm"
+  className="rounded-lg border border-white/20 px-2 py-1 text-[10px] whitespace-nowrap font-black text-white disabled:opacity-40"
 >
   Limpar seleção
 </button>
@@ -2771,6 +3404,14 @@ setPopupComprarCreditosAberto(false);
                   }`}
                 >
                   Restaurar parte
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setModalCorteAberto(true)}
+                  className="shrink-0 rounded-lg bg-amber-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-amber-300"
+                >
+                  ✂️ Cortar
                 </button>
 
                 <button
@@ -2794,16 +3435,10 @@ setPopupComprarCreditosAberto(false);
 
                 <button
   type="button"
-  onClick={() => {
-    if (canvasRef.current) {
-      setImagemFinal(canvasRef.current.toDataURL("image/png"));
-      setTemResultadoReal(true);
-      setAviso("Edição salva. Você já pode baixar ou continuar editando.");
-    }
-  }}
-  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-emerald-300"
+  onClick={salvarEdicaoRefinamento}
+  className="shrink-0 rounded-lg bg-emerald-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-emerald-300"
 >
-  Salvar
+  Salvar edição
 </button>
 
 <div className="flex items-center gap-1">
@@ -2851,24 +3486,25 @@ setPopupComprarCreditosAberto(false);
 
 <button
   type="button"
-  onClick={() => {
-    if (canvasRef.current) {
-      setImagemFinal(canvasRef.current.toDataURL("image/png"));
-      setTemResultadoReal(true);
-    }
-
-    setModalRefinamentoAberto(false);
-  }}
-  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-red-400"
+  onClick={concluirRefinamento}
+  className="shrink-0 rounded-lg bg-cyan-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-cyan-300"
 >
-  Fechar
+  Concluir
+</button>
+
+<button
+  type="button"
+  onClick={cancelarAlteracoesRefinamento}
+  className="shrink-0 rounded-lg border border-red-400/50 px-2 py-1 text-[10px] font-black text-red-100 hover:bg-red-500/20"
+>
+  Cancelar alterações
 </button>
               </div>
             </div>
 
             <div className="order-3 mt-1 max-h-[90px] overflow-y-auto rounded-lg border border-cyan-400/20 bg-slate-900 px-2 py-1 sm:order-2 sm:max-h-none">
               <Controle
-  label="Tamanho do pincel"
+  label={varinhaAtiva ? "Tamanho da seleção" : "Tamanho do pincel"}
   valor={tamanhoPincel}
   min={4}
   max={120}
@@ -2988,6 +3624,10 @@ onTouchEnd={() => {
 
   onPointerMove={(e) => {
 
+    if (varinhaAtiva && continuarArrastoVarinha(e)) {
+      return;
+    }
+
     if (
   !pincelAtivo &&
 (e.shiftKey || maoAtiva || e.pointerType === "mouse") &&
@@ -3008,7 +3648,14 @@ arrastandoImagemRef.current
   } as React.PointerEvent<HTMLImageElement>);
 }
   }}
-  onPointerUp={() => {
+  onPointerUp={(e) => {
+    finalizarArrastoVarinha(e);
+    arrastandoImagemRef.current = false;
+    editandoPincelRef.current = false;
+    ultimoPontoPincelRef.current = null;
+  }}
+  onPointerCancel={() => {
+    finalizarArrastoVarinha();
     arrastandoImagemRef.current = false;
     editandoPincelRef.current = false;
     ultimoPontoPincelRef.current = null;
@@ -3038,10 +3685,9 @@ arrastandoImagemRef.current
     onPointerDown={(e) => {
 
       if (varinhaAtiva) {
-  e.currentTarget.setPointerCapture(e.pointerId);
-  selecionarComVarinhaRefinamento(e);
-  return;
-}
+        iniciarArrastoVarinha(e);
+        return;
+      }
 
       if (pincelAtivo) {
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -3070,10 +3716,10 @@ arrastandoImagemRef.current
       width: "auto",
       height: "auto",
       maxHeight: "none",
-      touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
+      touchAction: pincelAtivo || varinhaAtiva ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
       cursor: varinhaAtiva
-  ? "url('/wand-cursor-32.png') 2 30, crosshair"
+  ? "url('/wand-cursor-32.png') 23 6, crosshair"
   : maoAtiva
     ? "grab"
     : pincelAtivo
@@ -3237,15 +3883,10 @@ arrastandoImagemRef.current
 )}
 
 <CropImageModal
-  imagem={imagemOriginal || ""}
+  imagem={imagemFinal || imagemOriginal || ""}
   aberto={modalCorteAberto}
   onClose={() => setModalCorteAberto(false)}
-  onAplicar={(novaImagem) => {
-    setImagemOriginal(novaImagem);
-    setImagemFinal(null);
-    setTemResultadoReal(false);
-    setModalCorteAberto(false);
-  }}
+  onAplicar={aplicarCorteSemPerderEdicao}
 />
 
       <section className="min-h-screen bg-[#020b2d] px-3 py-8 text-white sm:px-6 sm:py-16">
@@ -3691,7 +4332,7 @@ arrastandoImagemRef.current
           <button
             type="button"
             disabled={!imagemFinal}
-            onClick={() => setModalRefinamentoAberto(true)}
+            onClick={abrirRefinamento}
             className="rounded-lg bg-cyan-400 px-3 py-2 text-[10px] font-black text-slate-950 disabled:opacity-40"
           >
             Abrir grande
