@@ -195,11 +195,11 @@ const PAGINACAO_INICIAL: Paginacao = {
 };
 
 function formatarData(valor: string | null | undefined, locale: string) {
-  if (!valor) return "â€”";
+  if (!valor) return "—";
 
   const data = new Date(valor);
 
-  if (Number.isNaN(data.getTime())) return "â€”";
+  if (Number.isNaN(data.getTime())) return "—";
 
   return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
@@ -1448,7 +1448,7 @@ export default function BibliotecaAcervoPage() {
                         alt=""
                       />
                     ) : (
-                      <span>ðŸ“˜</span>
+                      <span>📘</span>
                     )}
                   </div>
 
@@ -1497,7 +1497,7 @@ export default function BibliotecaAcervoPage() {
                       </span>
                       <span>
                         <b>{t("item.year")}:</b>{" "}
-                        {item.anoPublicacao || "â€”"}
+                        {item.anoPublicacao || "—"}
                       </span>
 
                       {item.codigoChamada ? (
@@ -1538,7 +1538,7 @@ export default function BibliotecaAcervoPage() {
                     <div className="bib-item-footer">
                       <div className="bib-item-counts">
                         <span>
-                          ðŸ“Ž {t("item.files", { count: item._count.arquivos })}
+                          📎 {t("item.files", { count: item._count.arquivos })}
                         </span>
                         <span>
                           {"\uD83D\uDCDA"} {t("item.copies", { count: item._count.exemplares })}
@@ -1649,7 +1649,7 @@ export default function BibliotecaAcervoPage() {
                   "exportModal.close",
                 )}
               >
-                Ã—
+                ×
               </button>
             </header>
 
@@ -2153,7 +2153,7 @@ export default function BibliotecaAcervoPage() {
                 disabled={salvando}
                 aria-label={t("modal.close")}
               >
-                Ã—
+                ×
               </button>
             </header>
 
@@ -2424,7 +2424,7 @@ export default function BibliotecaAcervoPage() {
           role="status"
         >
           <span aria-hidden="true">
-            {toast.tipo === "sucesso" ? "âœ“" : "!"}
+            {toast.tipo === "sucesso" ? "✓" : "!"}
           </span>
           <p>{toast.mensagem}</p>
           <button
@@ -2432,7 +2432,7 @@ export default function BibliotecaAcervoPage() {
             onClick={() => setToast(null)}
             aria-label={t("toast.close")}
           >
-            Ã—
+            ×
           </button>
         </div>
       ) : null}

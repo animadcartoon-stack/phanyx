@@ -4366,7 +4366,7 @@ export default function BibliotecaItemPage() {
           <section className="bib-card bib-detail-section">
             <header className="bib-detail-section-heading">
               <div>
-                <span aria-hidden="true">??</span>
+                <span aria-hidden="true">📋</span>
                 <div>
                   <h2>{ui("catalogControlTitle")}</h2>
                   <p>{ui("catalogControlDescription")}</p>
@@ -4428,7 +4428,7 @@ export default function BibliotecaItemPage() {
           <section className="bib-card bib-detail-section">
             <header className="bib-detail-section-heading">
               <div>
-                <span aria-hidden="true">??</span>
+                <span aria-hidden="true">📐</span>
                 <div>
                   <h2>{ui("physicalRdaTitle")}</h2>
                   <p>{ui("physicalRdaDescription")}</p>
@@ -4766,7 +4766,7 @@ export default function BibliotecaItemPage() {
           <section className="bib-card bib-detail-section">
             <header className="bib-detail-section-heading">
               <div>
-                <span aria-hidden="true">???</span>
+                <span aria-hidden="true">🗒️</span>
                 <div>
                   <h2>{ui("bibliographicNotesTitle")}</h2>
                   <p>{ui("bibliographicNotesDescription")}</p>
