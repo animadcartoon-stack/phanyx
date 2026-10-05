@@ -107,6 +107,7 @@
   "AdminNavigation": {
     "oneOffFees": "One-off Fees",
     "generateInvoiceForInterestedParty": "Generate payment slip for prospective student",
+    "financialAccounts": "Financial accounts",
     "adminPanel": "Administrative Dashboard",
     "openGuidedTutorial": "Open guided tutorial",
     "administrative": "Administrative",
@@ -14135,7 +14136,9 @@
       "reportsTitle": "Reports",
       "reportsDescription": "Track receipts, cash flow, and financial performance.",
       "clearedSlipsTitle": "Cleared bank slips",
-      "clearedSlipsDescription": "Review provider-cleared payments, post verified amounts and handle discrepancies."
+      "clearedSlipsDescription": "Review provider-cleared payments, post verified amounts and handle discrepancies.",
+      "financialAccountsTitle": "Financial accounts",
+      "financialAccountsDescription": "Configure the institution's own banks and payment providers."
     },
     "automatic": {
       "generateTitle": "Generate monthly charges",
@@ -14188,7 +14191,101 @@
       }
     }
   },
-  "AdminFinanceCash": {
+  "AdminFinanceAccounts": {
+    "back": "Back to Finance",
+    "title": "Financial accounts",
+    "subtitle": "Register the institution's own financial accounts and payment providers. Credentials and tokens are encrypted on the server and never displayed again.",
+    "newAccount": "New account",
+    "edit": "Edit",
+    "loading": "Loading financial accounts...",
+    "emptyTitle": "No financial accounts registered",
+    "emptyDescription": "Register the first account to integrate bank slips and institutional receipts.",
+    "notConfigured": "Not configured",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "summary": {
+      "total": "Registered accounts",
+      "integrated": "Active integrations",
+      "default": "Default account"
+    },
+    "badges": {
+      "default": "Default",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "labels": {
+      "integration": "Integration",
+      "credentials": "Credentials",
+      "webhook": "Webhook",
+      "boleto": "Bank slip",
+      "webhookEndpoint": "Webhook endpoint"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "configured": "Configured",
+      "notConfigured": "Not configured"
+    },
+    "modal": {
+      "newTitle": "New financial account",
+      "editTitle": "Edit financial account",
+      "description": "Stored credentials are never loaded into the browser. Leave security fields blank to keep their current values."
+    },
+    "fields": {
+      "name": "Account name",
+      "provider": "Provider",
+      "type": "Type",
+      "currency": "Currency",
+      "environment": "Environment",
+      "externalAccount": "External account ID",
+      "bankCode": "Bank code",
+      "agency": "Branch",
+      "account": "Account",
+      "digit": "Check digit",
+      "holderName": "Account holder",
+      "holderDocument": "Holder document",
+      "credentials": "API Key / token",
+      "webhookSecret": "Webhook secret token"
+    },
+    "environments": {
+      "production": "Production",
+      "staging": "Staging",
+      "sandbox": "Sandbox"
+    },
+    "sections": {
+      "bankData": "Optional bank details",
+      "security": "Integration security",
+      "options": "Options"
+    },
+    "placeholders": {
+      "credential": "Enter the provider credential",
+      "keepCredential": "Credential already configured — leave blank to keep it",
+      "webhookSecret": "Enter the webhook secret token",
+      "keepWebhookSecret": "Token already configured — leave blank to keep it"
+    },
+    "security": {
+      "credentialConfigured": "Credential configured.",
+      "webhookConfigured": "Webhook token configured.",
+      "explanation": "For security, PHANYX never returns stored API Keys or tokens to the browser."
+    },
+    "options": {
+      "integrationActive": "Integration active",
+      "webhookActive": "Webhook active",
+      "supportsBoleto": "Supports bank slips",
+      "defaultReceipts": "Default account for receipts",
+      "accountActive": "Account active"
+    },
+    "messages": {
+      "loadError": "Unable to load financial accounts.",
+      "saveError": "Unable to save the financial account.",
+      "createSuccess": "Financial account created successfully.",
+      "updateSuccess": "Financial account updated successfully.",
+      "nameRequired": "Enter the account name.",
+      "credentialsRequired": "Configure credentials before enabling the integration.",
+      "webhookSecretRequired": "Configure the secret token before enabling the webhook."
+    }
+  },  "AdminFinanceCash": {
     "page": {
       "title": "Cash register",
       "subtitle": "Open, manage, and close the cash register."

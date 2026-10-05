@@ -107,6 +107,7 @@
   "AdminNavigation": {
     "oneOffFees": "Taxas Avulsas",
     "generateInvoiceForInterestedParty": "Gerar boleto para interessado",
+    "financialAccounts": "Contas financeiras",
     "adminPanel": "Painel Administrativo",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",
@@ -13905,7 +13906,9 @@
       "reportsTitle": "Relatórios",
       "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro.",
       "clearedSlipsTitle": "Boletos compensados",
-      "clearedSlipsDescription": "Confira boletos compensados pelo provedor, dê baixa nos valores conferidos e trate divergências."
+      "clearedSlipsDescription": "Confira boletos compensados pelo provedor, dê baixa nos valores conferidos e trate divergências.",
+      "financialAccountsTitle": "Contas financeiras",
+      "financialAccountsDescription": "Configure bancos e provedores de recebimento da própria instituição."
     },
     "automatic": {
       "generateTitle": "Gerar mensalidades",
@@ -13958,7 +13961,101 @@
       }
     }
   },
-  "AdminFinanceCash": {
+  "AdminFinanceAccounts": {
+    "back": "Voltar ao Financeiro",
+    "title": "Contas financeiras",
+    "subtitle": "Cadastre as contas e provedores que recebem os pagamentos da instituição. Credenciais e tokens ficam criptografados no servidor e nunca são exibidos novamente.",
+    "newAccount": "Nova conta",
+    "edit": "Editar",
+    "loading": "Carregando contas financeiras...",
+    "emptyTitle": "Nenhuma conta financeira cadastrada",
+    "emptyDescription": "Cadastre a primeira conta para integrar boletos e recebimentos da instituição.",
+    "notConfigured": "Não configurada",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "summary": {
+      "total": "Contas cadastradas",
+      "integrated": "Integrações ativas",
+      "default": "Conta padrão"
+    },
+    "badges": {
+      "default": "Padrão",
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "labels": {
+      "integration": "Integração",
+      "credentials": "Credenciais",
+      "webhook": "Webhook",
+      "boleto": "Boleto",
+      "webhookEndpoint": "Endpoint do webhook"
+    },
+    "status": {
+      "enabled": "Ativa",
+      "disabled": "Desativada",
+      "configured": "Configurada",
+      "notConfigured": "Não configurada"
+    },
+    "modal": {
+      "newTitle": "Nova conta financeira",
+      "editTitle": "Editar conta financeira",
+      "description": "Credenciais já salvas não são carregadas no navegador. Deixe os campos de segurança em branco para manter os valores atuais."
+    },
+    "fields": {
+      "name": "Nome da conta",
+      "provider": "Provedor",
+      "type": "Tipo",
+      "currency": "Moeda",
+      "environment": "Ambiente",
+      "externalAccount": "ID externo da conta",
+      "bankCode": "Código do banco",
+      "agency": "Agência",
+      "account": "Conta",
+      "digit": "Dígito",
+      "holderName": "Nome do titular",
+      "holderDocument": "Documento do titular",
+      "credentials": "API Key / token",
+      "webhookSecret": "Token secreto do webhook"
+    },
+    "environments": {
+      "production": "Produção",
+      "staging": "Homologação",
+      "sandbox": "Sandbox"
+    },
+    "sections": {
+      "bankData": "Dados bancários opcionais",
+      "security": "Segurança da integração",
+      "options": "Opções"
+    },
+    "placeholders": {
+      "credential": "Informe a credencial do provedor",
+      "keepCredential": "Credencial já configurada — deixe em branco para manter",
+      "webhookSecret": "Informe o token secreto do webhook",
+      "keepWebhookSecret": "Token já configurado — deixe em branco para manter"
+    },
+    "security": {
+      "credentialConfigured": "Credencial configurada.",
+      "webhookConfigured": "Token do webhook configurado.",
+      "explanation": "Por segurança, a PHANYX nunca devolve API Keys ou tokens já salvos para o navegador."
+    },
+    "options": {
+      "integrationActive": "Integração ativa",
+      "webhookActive": "Webhook ativo",
+      "supportsBoleto": "Suporta boleto",
+      "defaultReceipts": "Conta padrão para recebimentos",
+      "accountActive": "Conta ativa"
+    },
+    "messages": {
+      "loadError": "Erro ao carregar contas financeiras.",
+      "saveError": "Erro ao salvar a conta financeira.",
+      "createSuccess": "Conta financeira cadastrada com sucesso.",
+      "updateSuccess": "Conta financeira atualizada com sucesso.",
+      "nameRequired": "Informe o nome da conta.",
+      "credentialsRequired": "Configure a credencial antes de ativar a integração.",
+      "webhookSecretRequired": "Configure o token secreto antes de ativar o webhook."
+    }
+  },  "AdminFinanceCash": {
     "page": {
       "title": "Caixa",
       "subtitle": "Abertura, movimentação e fechamento de caixa."

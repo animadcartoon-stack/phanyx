@@ -206,6 +206,7 @@ export async function GET() {
 
     return NextResponse.json({
       contas: contas.map(serializarConta),
+      podeEditar: podeEditarContas(usuario),
     });
   } catch (error) {
     console.error(
@@ -404,6 +405,9 @@ export async function POST(
               webhookAtivo:
                 Boolean(
                   body?.webhookAtivo
+                ) &&
+                Boolean(
+                  webhookSecretCriptografado
                 ),
 
               integracaoAtiva:

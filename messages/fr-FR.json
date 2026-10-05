@@ -107,6 +107,7 @@
   "AdminNavigation": {
     "oneOffFees": "Frais ponctuels",
     "generateInvoiceForInterestedParty": "Générer un bordereau de paiement pour un prospect",
+    "financialAccounts": "Comptes financiers",
     "adminPanel": "Tableau de bord administratif",
     "openGuidedTutorial": "Ouvrir le tutoriel guidé",
     "administrative": "Administration",
@@ -14134,7 +14135,9 @@
       "reportsTitle": "Rapports",
       "reportsDescription": "Suivez les encaissements, la caisse et la performance financière.",
       "clearedSlipsTitle": "Bordereaux compensés",
-      "clearedSlipsDescription": "Vérifiez les paiements compensés par le prestataire, validez les montants contrôlés et traitez les écarts."
+      "clearedSlipsDescription": "Vérifiez les paiements compensés par le prestataire, validez les montants contrôlés et traitez les écarts.",
+      "financialAccountsTitle": "Comptes financiers",
+      "financialAccountsDescription": "Configurez les banques et prestataires de paiement propres à l'établissement."
     },
     "automatic": {
       "generateTitle": "Générer les échéances mensuelles",
@@ -14185,6 +14188,101 @@
           "highlight": "Gestion stratégique."
         }
       }
+    }
+  },
+  "AdminFinanceAccounts": {
+    "back": "Retour aux finances",
+    "title": "Comptes financiers",
+    "subtitle": "Enregistrez les comptes et prestataires qui reçoivent les paiements de l'établissement. Les identifiants et jetons sont chiffrés sur le serveur et ne sont jamais réaffichés.",
+    "newAccount": "Nouveau compte",
+    "edit": "Modifier",
+    "loading": "Chargement des comptes financiers...",
+    "emptyTitle": "Aucun compte financier enregistré",
+    "emptyDescription": "Enregistrez le premier compte pour intégrer les bordereaux et encaissements de l'établissement.",
+    "notConfigured": "Non configuré",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "summary": {
+      "total": "Comptes enregistrés",
+      "integrated": "Intégrations actives",
+      "default": "Compte par défaut"
+    },
+    "badges": {
+      "default": "Par défaut",
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "labels": {
+      "integration": "Intégration",
+      "credentials": "Identifiants",
+      "webhook": "Webhook",
+      "boleto": "Bordereau",
+      "webhookEndpoint": "Endpoint du webhook"
+    },
+    "status": {
+      "enabled": "Active",
+      "disabled": "Désactivée",
+      "configured": "Configurée",
+      "notConfigured": "Non configurée"
+    },
+    "modal": {
+      "newTitle": "Nouveau compte financier",
+      "editTitle": "Modifier le compte financier",
+      "description": "Les identifiants enregistrés ne sont pas chargés dans le navigateur. Laissez les champs de sécurité vides pour conserver les valeurs actuelles."
+    },
+    "fields": {
+      "name": "Nom du compte",
+      "provider": "Prestataire",
+      "type": "Type",
+      "currency": "Devise",
+      "environment": "Environnement",
+      "externalAccount": "ID externe du compte",
+      "bankCode": "Code banque",
+      "agency": "Agence",
+      "account": "Compte",
+      "digit": "Clé",
+      "holderName": "Nom du titulaire",
+      "holderDocument": "Document du titulaire",
+      "credentials": "Clé API / jeton",
+      "webhookSecret": "Jeton secret du webhook"
+    },
+    "environments": {
+      "production": "Production",
+      "staging": "Homologation",
+      "sandbox": "Sandbox"
+    },
+    "sections": {
+      "bankData": "Coordonnées bancaires facultatives",
+      "security": "Sécurité de l'intégration",
+      "options": "Options"
+    },
+    "placeholders": {
+      "credential": "Saisissez l'identifiant du prestataire",
+      "keepCredential": "Identifiant déjà configuré — laissez vide pour le conserver",
+      "webhookSecret": "Saisissez le jeton secret du webhook",
+      "keepWebhookSecret": "Jeton déjà configuré — laissez vide pour le conserver"
+    },
+    "security": {
+      "credentialConfigured": "Identifiant configuré.",
+      "webhookConfigured": "Jeton du webhook configuré.",
+      "explanation": "Pour des raisons de sécurité, PHANYX ne renvoie jamais au navigateur les clés API ou jetons déjà enregistrés."
+    },
+    "options": {
+      "integrationActive": "Intégration active",
+      "webhookActive": "Webhook actif",
+      "supportsBoleto": "Prend en charge les bordereaux",
+      "defaultReceipts": "Compte par défaut pour les encaissements",
+      "accountActive": "Compte actif"
+    },
+    "messages": {
+      "loadError": "Erreur lors du chargement des comptes financiers.",
+      "saveError": "Erreur lors de l'enregistrement du compte financier.",
+      "createSuccess": "Compte financier créé avec succès.",
+      "updateSuccess": "Compte financier mis à jour avec succès.",
+      "nameRequired": "Indiquez le nom du compte.",
+      "credentialsRequired": "Configurez les identifiants avant d'activer l'intégration.",
+      "webhookSecretRequired": "Configurez le jeton secret avant d'activer le webhook."
     }
   },
   "AdminFinanceCash": {

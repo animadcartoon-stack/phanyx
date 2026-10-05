@@ -1630,6 +1630,17 @@ export default function AdminShell({
 
                       {temPermissao("financeiro.configuracoes") && (
                         <Link
+                          href="/admin/financeiro/contas-financeiras"
+                          className={getLinkClass(
+                            "/admin/financeiro/contas-financeiras",
+                          )}
+                        >
+                          🏦 {tNav("financialAccounts")}
+                        </Link>
+                      )}
+
+                      {temPermissao("financeiro.configuracoes") && (
+                        <Link
                           href="/admin/financeiro/configuracoes"
                           className={getLinkClass(
                             "/admin/financeiro/configuracoes",
@@ -2467,6 +2478,12 @@ export default function AdminShell({
                         🧾 {tNav("generateInvoiceForProspect")}
                       </Link>
                     )}
+                    <Link
+                      href="/admin/financeiro/contas-financeiras"
+                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                    >
+                      🏦 {tNav("financialAccounts")}
+                    </Link>
                     <Link
                       href="/admin/financeiro/configuracoes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
