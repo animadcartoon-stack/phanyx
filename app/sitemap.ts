@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { marketingAlternates, marketingLocales, marketingPath, type MarketingSection } from "@/lib/public-marketing";
+import { schoolGuideAlternates, schoolGuideLocales, schoolGuidePath } from "@/lib/school-guide";
 
 const baseUrl = "https://phanyx.com.br";
 const sections: MarketingSection[] = ["home", "academic", "plans", "school", "lms", "success", "enrollment", "registrar"];
@@ -40,6 +41,9 @@ const blogPages = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const guideAlternates = Object.fromEntries(
+    Object.entries(schoolGuideAlternates().languages).map(([locale, path]) => [locale, `${baseUrl}${path}`]),
+  );
   const localizedPages: MetadataRoute.Sitemap = sections.flatMap((section) =>
     marketingLocales
       .filter((locale) => !["school", "lms", "success"].includes(section) || locale !== "pt-BR")
@@ -57,6 +61,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...localizedPages,
     ...brazilianPages.map((path) => ({ url: `${baseUrl}${path}` })),
-    ...blogPages.map((path) => ({ url: `${baseUrl}${path}` })),
+    ...blogPages.filter((path) => path !== schoolGuidePath("pt-BR")).map((path) => ({ url: `${baseUrl}${path}` })),
+    ...schoolGuideLocales.map((locale) => ({
+      url: `${baseUrl}${schoolGuidePath(locale)}`,
+      alternates: { languages: guideAlternates },
+    })),
   ];
 }
