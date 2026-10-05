@@ -664,6 +664,11 @@ export async function PATCH(
               webhookSecret
             )
           : null;
+
+      if (!webhookSecret) {
+        dados.webhookAtivo =
+          false;
+      }
     }
 
     const camposBooleanos = [
@@ -681,6 +686,74 @@ export async function PATCH(
         dados[campo] =
           Boolean(body[campo]);
       }
+    }
+
+    /*
+     * VALIDACAO_CREDENCIAL_EFETIVA
+     *
+     * A integracao nunca pode ser ativada
+     * sem credencial configurada.
+     * O webhook nunca pode ser ativado
+     * sem seu token secreto.
+     */
+    const possuiCredencialFinal =
+      dados.credenciaisCriptografadas !==
+      undefined
+        ? Boolean(
+            dados.credenciaisCriptografadas
+          )
+        : Boolean(
+            existente.credenciaisCriptografadas
+          );
+
+    const possuiWebhookSecretFinal =
+      dados.webhookSecretCriptografado !==
+      undefined
+        ? Boolean(
+            dados.webhookSecretCriptografado
+          )
+        : Boolean(
+            existente.webhookSecretCriptografado
+          );
+
+    const integracaoAtivaFinal =
+      dados.integracaoAtiva !== undefined
+        ? Boolean(
+            dados.integracaoAtiva
+          )
+        : existente.integracaoAtiva;
+
+    const webhookAtivoFinal =
+      dados.webhookAtivo !== undefined
+        ? Boolean(
+            dados.webhookAtivo
+          )
+        : existente.webhookAtivo;
+
+    if (
+      integracaoAtivaFinal &&
+      !possuiCredencialFinal
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Configure as credenciais antes de ativar a integração.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      webhookAtivoFinal &&
+      !possuiWebhookSecretFinal
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Configure o token do webhook antes de ativá-lo.",
+        },
+        { status: 400 }
+      );
     }
 
     const alterarPadrao =
