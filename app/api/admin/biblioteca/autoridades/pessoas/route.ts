@@ -15,7 +15,10 @@ import {
   respostaErroBiblioteca,
 } from "@/lib/biblioteca-acesso";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
+import {
+  getUserFromToken,
+  temAlgumaPermissao,
+} from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -873,6 +876,27 @@ export async function GET(
       "biblioteca.catalogo.ver"
     );
 
+    const podeCriar =
+      temAlgumaPermissao(
+        usuario,
+        [
+          "biblioteca.catalogo.criar",
+          "biblioteca.catalogo.editar",
+        ]
+      ) ||
+      contexto.operador?.podeCatalogar ===
+        true;
+
+    const podeEditar =
+      temAlgumaPermissao(
+        usuario,
+        [
+          "biblioteca.catalogo.editar",
+        ]
+      ) ||
+      contexto.operador?.podeCatalogar ===
+        true;
+
     const parametros =
       request.nextUrl.searchParams;
 
@@ -1035,6 +1059,11 @@ export async function GET(
     return responder({
       ok: true,
 
+      acesso: {
+        podeCriar,
+        podeEditar,
+      },
+
       pessoas,
 
       paginacao: {
@@ -1093,6 +1122,7 @@ export async function POST(
     exigirPermissaoBiblioteca(
       usuario,
       contexto,
+      "biblioteca.catalogo.criar",
       "biblioteca.catalogo.editar"
     );
 
