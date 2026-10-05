@@ -12,6 +12,7 @@ const brazilianPages = [
 const blogPages = [
   "/blog",
   "/blog/melhor-sistema-academico",
+  "/blog/melhor-sistema-gestao-escolar",
   "/blog/sistema-escolar-para-pequenas-escolas",
   "/blog/software-educacional-completo",
   "/blog/plataforma-para-ensino-online",
@@ -35,6 +36,7 @@ const blogPages = [
   "/blog/controle-financeiro-para-escolas",
   "/blog/sistema-para-cursos-profissionalizantes",
   "/blog/sistema-gestao-escolar",
+  "/blog/sistema-escolar-vs-moodle",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -43,7 +45,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       .filter((locale) => !["school", "lms", "success"].includes(section) || locale !== "pt-BR")
       .map((locale) => ({
         url: `${baseUrl}${marketingPath(locale, section)}`,
-        ...(section === "enrollment" ? { lastModified: new Date("2026-09-29") } : {}),
         alternates: {
           languages: Object.fromEntries(
             Object.entries(marketingAlternates(section).languages).map(([language, path]) => [language, `${baseUrl}${path}`]),
