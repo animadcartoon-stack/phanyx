@@ -1,13 +1,13 @@
 import type { LocalePhanyx } from "@/i18n/config";
 
-export type MarketingSection = "home" | "academic" | "plans" | "school" | "lms" | "success" | "enrollment";
+export type MarketingSection = "home" | "academic" | "plans" | "school" | "lms" | "success" | "enrollment" | "registrar";
 
 const slugs: Record<LocalePhanyx, Record<Exclude<MarketingSection, "home">, string>> = {
-  "pt-BR": { academic: "gestao-academica", plans: "planos", school: "sistema-escolar", lms: "plataforma-ead", success: "sucesso-estudantil", enrollment: "gestao-de-matriculas-escolares" },
-  "pt-PT": { academic: "gestao-academica", plans: "planos", school: "software-gestao-escolar", lms: "plataforma-ensino-online", success: "sucesso-estudantes", enrollment: "gestao-de-matriculas-escolares" },
-  "en-US": { academic: "academic-management", plans: "plans", school: "school-management-software", lms: "learning-management-system", success: "student-success-platform", enrollment: "school-enrollment-management-software" },
-  "es-ES": { academic: "gestion-academica", plans: "planes", school: "software-gestion-escolar", lms: "plataforma-educacion-online", success: "seguimiento-estudiantes", enrollment: "gestion-de-matriculas-escolares" },
-  "fr-FR": { academic: "gestion-academique", plans: "tarifs", school: "logiciel-gestion-scolaire", lms: "plateforme-enseignement-en-ligne", success: "suivi-reussite-etudiants", enrollment: "gestion-des-inscriptions-scolaires" },
+  "pt-BR": { academic: "gestao-academica", plans: "planos", school: "sistema-escolar", lms: "plataforma-ead", success: "sucesso-estudantil", enrollment: "gestao-de-matriculas-escolares", registrar: "software-para-secretaria-escolar" },
+  "pt-PT": { academic: "gestao-academica", plans: "planos", school: "software-gestao-escolar", lms: "plataforma-ensino-online", success: "sucesso-estudantes", enrollment: "gestao-de-matriculas-escolares", registrar: "software-para-secretaria-escolar" },
+  "en-US": { academic: "academic-management", plans: "plans", school: "school-management-software", lms: "learning-management-system", success: "student-success-platform", enrollment: "school-enrollment-management-software", registrar: "school-registrar-software" },
+  "es-ES": { academic: "gestion-academica", plans: "planes", school: "software-gestion-escolar", lms: "plataforma-educacion-online", success: "seguimiento-estudiantes", enrollment: "gestion-de-matriculas-escolares", registrar: "software-para-secretaria-escolar" },
+  "fr-FR": { academic: "gestion-academique", plans: "tarifs", school: "logiciel-gestion-scolaire", lms: "plateforme-enseignement-en-ligne", success: "suivi-reussite-etudiants", enrollment: "gestion-des-inscriptions-scolaires", registrar: "logiciel-secretariat-scolaire" },
 };
 
 export const marketingLocales: LocalePhanyx[] = ["pt-BR", "pt-PT", "en-US", "es-ES", "fr-FR"];
@@ -18,14 +18,14 @@ export function marketingPath(locale: LocalePhanyx, section: MarketingSection) {
 }
 
 export function marketingSection(locale: LocalePhanyx, slug: string): MarketingSection | null {
-  for (const section of ["academic", "plans", "school", "lms", "success", "enrollment"] as const) {
+  for (const section of ["academic", "plans", "school", "lms", "success", "enrollment", "registrar"] as const) {
     if (slug === slugs[locale][section]) return section;
   }
   return null;
 }
 
 export function marketingAlternates(section: MarketingSection) {
-  const locales = section === "home" || section === "academic" || section === "plans" || section === "enrollment"
+  const locales = section === "home" || section === "academic" || section === "plans" || section === "enrollment" || section === "registrar"
     ? marketingLocales
     : marketingLocales.filter((locale) => locale !== "pt-BR");
   const fallback = locales.includes("pt-BR") ? "pt-BR" : "en-US";

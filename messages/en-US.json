@@ -20923,6 +20923,11 @@
     "digitalCatalogued": "Digital item catalogued. Contact the library for access details.",
     "externalAvailable": "Online reading is available through the link below.",
     "openExternal": "Read online ↗",
+    "pdfAvailable": "PDF available for authorized download.",
+    "downloadPdf": "Download PDF",
+    "rightsTitle": "Copyright and quotations",
+    "rightsNotice": "Use this work according to its license. In academic work, quote only the passages needed and credit the author and source. In Brazil, unauthorized reproduction or distribution of a protected work may result in civil and criminal liability (Law 9,610/1998 and Article 184 of the Brazilian Penal Code).",
+    "downloadResponsibility": "Downloading is authorized for this item. Sharing the file depends on the rights granted by its license.",
     "consultLibrary": "Contact the library to find out how to obtain this item.",
     "types": {
       "LIVRO": "Book",
