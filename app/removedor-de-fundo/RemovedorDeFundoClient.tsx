@@ -156,6 +156,9 @@ const pinchOriginalRef = useRef<{
   const [texturaPincel, setTexturaPincel] = useState<TexturaPincel>("medio");
   const [featherPincel, setFeatherPincel] = useState(0.45);
 
+  const [intensidadeHalo, setIntensidadeHalo] = useState(88);
+  const [larguraHalo, setLarguraHalo] = useState(5);
+
   const [historicoMascaras, setHistoricoMascaras] = useState<ImageData[]>([]);
 
   const [mostrarLupa, setMostrarLupa] = useState(false);
@@ -999,6 +1002,248 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
   ctx.putImageData(imageData, 0, 0);
   setImagemFinal(canvas.toDataURL("image/png"));
   setTemResultadoReal(true);
+}
+
+
+function removerHaloReconstruindoBorda() {
+  const canvas = canvasRef.current;
+  if (!canvas || !imagemFinal) return;
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
+
+  salvarHistoricoEdicao();
+
+  const width = canvas.width;
+  const height = canvas.height;
+  const total = width * height;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const origem = new Uint8ClampedArray(imageData.data);
+  const destino = imageData.data;
+
+  const transparenciaLimite = 18;
+  const largura = Math.max(1, Math.min(12, Math.round(larguraHalo)));
+
+  let banda = new Uint8Array(total);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const p = y * width + x;
+      const di = p * 4;
+
+      if (origem[di + 3] <= transparenciaLimite) continue;
+
+      let encostaTransparencia = false;
+
+      for (let oy = -1; oy <= 1 && !encostaTransparencia; oy++) {
+        for (let ox = -1; ox <= 1; ox++) {
+          if (ox === 0 && oy === 0) continue;
+
+          const nx = x + ox;
+          const ny = y + oy;
+
+          if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
+            encostaTransparencia = true;
+            break;
+          }
+
+          const ndi = (ny * width + nx) * 4;
+
+          if (origem[ndi + 3] <= transparenciaLimite) {
+            encostaTransparencia = true;
+            break;
+          }
+        }
+      }
+
+      if (encostaTransparencia) banda[p] = 1;
+    }
+  }
+
+  for (let passo = 1; passo < largura; passo++) {
+    const expandida = new Uint8Array(banda);
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const p = y * width + x;
+        const di = p * 4;
+
+        if (origem[di + 3] <= transparenciaLimite || banda[p]) continue;
+
+        let vizinhoDaBanda = false;
+
+        for (let oy = -1; oy <= 1 && !vizinhoDaBanda; oy++) {
+          for (let ox = -1; ox <= 1; ox++) {
+            if (ox === 0 && oy === 0) continue;
+
+            const nx = x + ox;
+            const ny = y + oy;
+
+            if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+
+            if (banda[ny * width + nx]) {
+              vizinhoDaBanda = true;
+              break;
+            }
+          }
+        }
+
+        if (vizinhoDaBanda) expandida[p] = 1;
+      }
+    }
+
+    banda = expandida;
+  }
+
+  const ehVerdeContaminado = (
+    r: number,
+    g: number,
+    b: number
+  ) => {
+    const dominancia = g - Math.max(r, b);
+    const excesso = g - (r + b) / 2;
+
+    return g >= 42 && (dominancia >= 7 || excesso >= 12);
+  };
+
+  const raioBusca = Math.max(4, Math.min(20, largura * 3 + 2));
+  const intensidadeBase = Math.max(
+    0,
+    Math.min(1, intensidadeHalo / 100)
+  );
+
+  let alterados = 0;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const p = y * width + x;
+      if (!banda[p]) continue;
+
+      const di = p * 4;
+      const r = origem[di];
+      const g = origem[di + 1];
+      const b = origem[di + 2];
+      const a = origem[di + 3];
+
+      if (
+        a <= transparenciaLimite ||
+        !ehVerdeContaminado(r, g, b)
+      ) {
+        continue;
+      }
+
+      let somaR = 0;
+      let somaG = 0;
+      let somaB = 0;
+      let somaPeso = 0;
+      let encontrados = 0;
+
+      for (
+        let raio = 1;
+        raio <= raioBusca && encontrados < 18;
+        raio++
+      ) {
+        const minX = Math.max(0, x - raio);
+        const maxX = Math.min(width - 1, x + raio);
+        const minY = Math.max(0, y - raio);
+        const maxY = Math.min(height - 1, y + raio);
+
+        for (
+          let sy = minY;
+          sy <= maxY && encontrados < 18;
+          sy++
+        ) {
+          for (
+            let sx = minX;
+            sx <= maxX && encontrados < 18;
+            sx++
+          ) {
+            if (
+              sx !== minX &&
+              sx !== maxX &&
+              sy !== minY &&
+              sy !== maxY
+            ) {
+              continue;
+            }
+
+            const sp = sy * width + sx;
+            const sdi = sp * 4;
+            const sa = origem[sdi + 3];
+
+            if (sa < 96) continue;
+
+            const sr = origem[sdi];
+            const sg = origem[sdi + 1];
+            const sb = origem[sdi + 2];
+
+            if (ehVerdeContaminado(sr, sg, sb)) continue;
+
+            const distancia = Math.hypot(sx - x, sy - y);
+            const peso =
+              (banda[sp] ? 0.55 : 1) /
+              Math.max(1, distancia);
+
+            somaR += sr * peso;
+            somaG += sg * peso;
+            somaB += sb * peso;
+            somaPeso += peso;
+            encontrados++;
+          }
+        }
+      }
+
+      if (somaPeso <= 0) continue;
+
+      const alvoR = somaR / somaPeso;
+      const alvoG = somaG / somaPeso;
+      const alvoB = somaB / somaPeso;
+
+      const dominancia = Math.max(
+        0,
+        g - Math.max(r, b),
+        g - (r + b) / 2
+      );
+
+      const forcaContaminacao = Math.max(
+        0.3,
+        Math.min(1, dominancia / 48)
+      );
+
+      const forca = intensidadeBase * forcaContaminacao;
+
+      destino[di] = Math.round(r + (alvoR - r) * forca);
+      destino[di + 1] = Math.round(g + (alvoG - g) * forca);
+      destino[di + 2] = Math.round(b + (alvoB - b) * forca);
+      destino[di + 3] = a;
+
+      alterados++;
+    }
+  }
+
+  if (alterados === 0) {
+    historicoEdicaoRef.current.pop();
+    setAviso(
+      "Não encontrei halo verde suficiente nessa borda. Tente aumentar a largura."
+    );
+    return;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  const atualizada = canvas.toDataURL("image/png");
+  setImagemFinal(atualizada);
+  setTemResultadoReal(true);
+
+  pixelsSelecionadosRef.current = null;
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+
+  setAviso(
+    `Halo reconstruído em ${alterados.toLocaleString(
+      "pt-BR"
+    )} pixels, usando as cores do próprio desenho.`
+  );
 }
 
 function atualizarOverlayVarinha(selecionados: Set<number> | null) {
@@ -3406,7 +3651,16 @@ setPopupComprarCreditosAberto(false);
                   Restaurar parte
                 </button>
 
-                <button
+                                <button
+                  type="button"
+                  onClick={removerHaloReconstruindoBorda}
+                  className="shrink-0 rounded-lg bg-lime-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-lime-300"
+                  title="Reconstrói o contorno contaminado pelo verde usando as cores vizinhas do próprio desenho"
+                >
+                  ✨ Remover halo
+                </button>
+
+<button
                   type="button"
                   onClick={() => setModalCorteAberto(true)}
                   className="shrink-0 rounded-lg bg-amber-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-amber-300"
@@ -3511,6 +3765,40 @@ setPopupComprarCreditosAberto(false);
   compacto
   onChange={setTamanhoPincel}
 />
+
+<div className="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2">
+  <label className="rounded-lg border border-lime-400/20 bg-slate-950/60 px-2 py-1">
+    <span className="flex items-center justify-between text-[10px] font-black text-lime-100">
+      <span>Intensidade halo</span>
+      <span>{intensidadeHalo}%</span>
+    </span>
+    <input
+      type="range"
+      min={20}
+      max={100}
+      step={1}
+      value={intensidadeHalo}
+      onChange={(e) => setIntensidadeHalo(Number(e.target.value))}
+      className="w-full accent-lime-400"
+    />
+  </label>
+
+  <label className="rounded-lg border border-lime-400/20 bg-slate-950/60 px-2 py-1">
+    <span className="flex items-center justify-between text-[10px] font-black text-lime-100">
+      <span>Largura halo</span>
+      <span>{larguraHalo}px</span>
+    </span>
+    <input
+      type="range"
+      min={1}
+      max={12}
+      step={1}
+      value={larguraHalo}
+      onChange={(e) => setLarguraHalo(Number(e.target.value))}
+      className="w-full accent-lime-400"
+    />
+  </label>
+</div>
 
 <div className="mt-1 space-y-1">
   <div className="flex items-center justify-between">
