@@ -613,6 +613,32 @@ export async function POST(
           const evento =
             referencias.evento;
 
+          /*
+           * Relê a cobrança dentro da
+           * transação para não tomar
+           * decisões com um estado
+           * carregado antes dela.
+           */
+          const cobrancaAtual =
+            await tx.cobrancaFinanceira.findFirst({
+              where: {
+                id:
+                  cobranca.id,
+
+                instituicaoId:
+                  conta.instituicaoId,
+
+                contaFinanceiraId:
+                  conta.id,
+              },
+            });
+
+          if (!cobrancaAtual) {
+            throw new Error(
+              "Cobrança não encontrada durante o processamento do webhook."
+            );
+          }
+
           let resultado =
             "EVENTO_SEM_ALTERACAO";
 
@@ -629,11 +655,11 @@ export async function POST(
              * COMPENSADO ou ESTORNADO.
              */
             if (
-              cobranca.statusBancario !==
+              cobrancaAtual.statusBancario !==
                 "COMPENSADO" &&
-              cobranca.statusBancario !==
+              cobrancaAtual.statusBancario !==
                 "ESTORNADO" &&
-              cobranca.statusBancario !==
+              cobrancaAtual.statusBancario !==
                 "CANCELADO"
             ) {
               await tx.cobrancaFinanceira.update({
@@ -666,9 +692,9 @@ export async function POST(
              * a cobrança para baixa.
              */
             const estadoBancarioBloqueado =
-              cobranca.statusBancario ===
+              cobrancaAtual.statusBancario ===
                 "ESTORNADO" ||
-              cobranca.statusBancario ===
+              cobrancaAtual.statusBancario ===
                 "CANCELADO";
 
             /*
@@ -678,20 +704,20 @@ export async function POST(
              * Ela vai para análise humana.
              */
             const operacional =
-              cobranca.statusOperacional ===
+              cobrancaAtual.statusOperacional ===
                   "DIVERGENCIA" ||
-                cobranca.statusOperacional ===
+                cobrancaAtual.statusOperacional ===
                   "CANCELADO" ||
                 estadoBancarioBloqueado
                 ? "DIVERGENCIA"
-                : cobranca.statusOperacional ===
+                : cobrancaAtual.statusOperacional ===
                     "BAIXADO"
                   ? "BAIXADO"
                   : "AGUARDANDO_BAIXA";
 
             const bancario =
               estadoBancarioBloqueado
-                ? cobranca.statusBancario
+                ? cobrancaAtual.statusBancario
                 : "COMPENSADO";
 
             await tx.cobrancaFinanceira.update({
@@ -715,12 +741,12 @@ export async function POST(
 
                 pagoEm:
                   referencias.pagoEm ||
-                  cobranca.pagoEm ||
+                  cobrancaAtual.pagoEm ||
                   agora,
 
                 compensadoEm:
                   referencias.compensadoEm ||
-                  cobranca.compensadoEm ||
+                  cobrancaAtual.compensadoEm ||
                   referencias.pagoEm ||
                   agora,
 
@@ -744,11 +770,11 @@ export async function POST(
             "PAYMENT_OVERDUE"
           ) {
             const estadoFinal =
-              cobranca.statusBancario ===
+              cobrancaAtual.statusBancario ===
                 "COMPENSADO" ||
-              cobranca.statusBancario ===
+              cobrancaAtual.statusBancario ===
                 "ESTORNADO" ||
-              cobranca.statusBancario ===
+              cobrancaAtual.statusBancario ===
                 "CANCELADO";
 
             if (!estadoFinal) {
@@ -763,11 +789,11 @@ export async function POST(
                     "VENCIDO",
 
                   statusOperacional:
-                    cobranca.statusOperacional ===
+                    cobrancaAtual.statusOperacional ===
                         "BAIXADO" ||
-                      cobranca.statusOperacional ===
+                      cobrancaAtual.statusOperacional ===
                         "DIVERGENCIA"
-                      ? cobranca.statusOperacional
+                      ? cobrancaAtual.statusOperacional
                       : "AGUARDANDO_PAGAMENTO",
                 },
               });
@@ -784,9 +810,9 @@ export async function POST(
             "PAYMENT_DELETED"
           ) {
             const precisaDivergencia =
-              cobranca.statusOperacional ===
+              cobrancaAtual.statusOperacional ===
                 "BAIXADO" ||
-              cobranca.statusOperacional ===
+              cobrancaAtual.statusOperacional ===
                 "DIVERGENCIA";
 
             await tx.cobrancaFinanceira.update({
@@ -826,9 +852,9 @@ export async function POST(
 
           if (eventoEstornoEfetivo) {
             const precisaDivergencia =
-              cobranca.statusOperacional ===
+              cobrancaAtual.statusOperacional ===
                 "BAIXADO" ||
-              cobranca.statusOperacional ===
+              cobrancaAtual.statusOperacional ===
                 "DIVERGENCIA";
 
             await tx.cobrancaFinanceira.update({
@@ -881,7 +907,7 @@ export async function POST(
 
               data: {
                 statusBancario:
-                  cobranca.statusBancario ===
+                  cobrancaAtual.statusBancario ===
                   "ESTORNADO"
                     ? "ESTORNADO"
                     : "EM_PROCESSAMENTO",
@@ -934,6 +960,16 @@ export async function POST(
           });
 
           return resultado;
+        },
+        {
+          isolationLevel:
+            Prisma.TransactionIsolationLevel.Serializable,
+
+          maxWait:
+            10_000,
+
+          timeout:
+            30_000,
         }
       );
 
