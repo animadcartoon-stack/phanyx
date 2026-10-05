@@ -294,7 +294,7 @@ function EstadoVazio({
   return (
     <div className="bib-empty">
       <div className="bib-empty-icon" aria-hidden="true">
-        ðŸ“š
+        {"\uD83D\uDCDA"}
       </div>
       <h2>
         {filtrado
@@ -1269,7 +1269,7 @@ export default function BibliotecaAcervoPage() {
         <section className="bib-summary" aria-label={t("summary.ariaLabel")}>
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
-              ðŸ“š
+              {"\uD83D\uDCDA"}
             </span>
             <div>
               <span>{t("summary.totalFound")}</span>
@@ -1279,7 +1279,7 @@ export default function BibliotecaAcervoPage() {
 
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
-              ðŸ“„
+              {"\uD83D\uDCC4"}
             </span>
             <div>
               <span>{t("summary.currentPage")}</span>
@@ -1293,7 +1293,7 @@ export default function BibliotecaAcervoPage() {
 
           <div className="bib-summary-card">
             <span className="bib-summary-icon" aria-hidden="true">
-              ðŸ”Ž
+              {"\uD83D\uDD0E"}
             </span>
             <div>
               <span>{t("summary.showing")}</span>
@@ -1541,7 +1541,7 @@ export default function BibliotecaAcervoPage() {
                           ðŸ“Ž {t("item.files", { count: item._count.arquivos })}
                         </span>
                         <span>
-                          ðŸ“š {t("item.copies", { count: item._count.exemplares })}
+                          {"\uD83D\uDCDA"} {t("item.copies", { count: item._count.exemplares })}
                         </span>
                         <span>
                           {t("item.updatedAt", {

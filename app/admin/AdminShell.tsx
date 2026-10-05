@@ -1421,6 +1421,17 @@ export default function AdminShell({
                           </Link>
                         )}
 
+                        {podeVerAcervoBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/autoridades"
+                            className={getLinkClass(
+                              "/admin/biblioteca/autoridades",
+                            )}
+                          >
+                            {String.fromCodePoint(0x1F464)} {tNav("authorities")}
+                          </Link>
+                        )}
+
                         {podeVerPrateleirasBiblioteca && (
                           <Link
                             href="/admin/biblioteca/prateleiras"
@@ -2221,6 +2232,15 @@ export default function AdminShell({
                             className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             📖 {tNav("collection")}
+                          </Link>
+                        )}
+
+                        {podeVerAcervoBiblioteca && (
+                          <Link
+                            href="/admin/biblioteca/autoridades"
+                            className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                          >
+                            {String.fromCodePoint(0x1F464)} {tNav("authorities")}
                           </Link>
                         )}
 
