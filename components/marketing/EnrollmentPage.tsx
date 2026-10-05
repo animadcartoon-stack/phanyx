@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import LocalizedHeader from "@/components/marketing/LocalizedHeader";
 import { enrollmentCopy } from "@/lib/enrollment-marketing";
 import { marketingPath } from "@/lib/public-marketing";
@@ -13,14 +14,25 @@ export default function EnrollmentPage({ locale }: { locale: LocalePhanyx }) {
       <LocalizedHeader locale={locale} section="enrollment" />
       <main>
         <section className="bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
-          <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">{copy.eyebrow}</p>
-            <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-tight md:text-5xl">{copy.heading}</h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-200">{copy.intro}</p>
-            <div className="mt-9 flex flex-wrap gap-4">
-              <Link href={marketingPath(locale, "plans")} className="rounded-xl bg-blue-600 px-6 py-3 font-semibold !text-white hover:bg-blue-500">{copy.plans}</Link>
-              <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">{copy.contact}</a>
+          <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 md:px-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-6 lg:px-12 lg:py-20">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">{copy.eyebrow}</p>
+              <h1 className="mt-5 text-4xl font-bold leading-tight md:text-5xl">{copy.heading}</h1>
+              <p className="mt-6 text-lg leading-8 text-slate-200">{copy.intro}</p>
+              <div className="mt-9 flex flex-wrap gap-4">
+                <Link href={marketingPath(locale, "plans")} className="rounded-xl bg-blue-600 px-6 py-3 font-semibold !text-white hover:bg-blue-500">{copy.plans}</Link>
+                <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-white/30 px-6 py-3 font-semibold text-white hover:bg-white/10">{copy.contact}</a>
+              </div>
             </div>
+            <Image
+              src="/images/enrollment-dashboard-hero.png"
+              alt={copy.heroAlt}
+              width={1536}
+              height={1024}
+              priority
+              sizes="(max-width: 1023px) 100vw, 45vw"
+              className="mx-auto h-auto w-full max-w-2xl"
+            />
           </div>
         </section>
         <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">

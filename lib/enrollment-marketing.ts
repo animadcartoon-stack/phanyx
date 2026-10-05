@@ -6,6 +6,7 @@ type EnrollmentCopy = {
   eyebrow: string;
   heading: string;
   intro: string;
+  heroAlt: string;
   plans: string;
   contact: string;
   problemHeading: string;
@@ -31,6 +32,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     description: "Organize matrículas, alunos, cursos e turmas em uma plataforma que conecta registros acadêmicos, documentos e financeiro institucional.",
     eyebrow: "Gestão de matrículas", heading: "Organize matrículas escolares junto da operação acadêmica",
     intro: "Uma matrícula não termina no cadastro. O PHANYX conecta o vínculo do aluno ao curso e à turma, às áreas da equipe e aos registros que a instituição acompanha no dia a dia.",
+    heroAlt: "Ilustração de um painel de matrícula com aluno, curso, turma e documentos",
     plans: "Ver planos", contact: "Falar com a equipe",
     problemHeading: "Do cadastro ao acompanhamento, com o contexto no mesmo lugar",
     problem: "Quando alunos, turmas e documentos ficam espalhados, a equipe precisa reconstruir informações a cada atendimento. Na PHANYX, a matrícula faz parte da estrutura acadêmica e pode ser consultada com os dados do aluno e do curso.",
@@ -54,6 +56,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     description: "Organize matrículas, estudantes, cursos e turmas com registos académicos, documentos e finanças institucionais ligados.",
     eyebrow: "Gestão de matrículas", heading: "Matrículas escolares ligadas à gestão académica",
     intro: "Uma matrícula é o início do percurso do estudante. O PHANYX liga esse registo ao curso, à turma e às áreas de trabalho da equipa, para que a informação acompanhe a atividade académica.",
+    heroAlt: "Ilustração de um painel de matrícula com estudante, curso, turma e documentos",
     plans: "Ver planos", contact: "Falar com a equipa",
     problemHeading: "Da inscrição ao acompanhamento académico",
     problem: "Quando os registos de estudantes e turmas se encontram dispersos, cada consulta exige trabalho adicional. O PHANYX reúne a estrutura académica e os dados da matrícula num ambiente institucional.",
@@ -77,6 +80,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     description: "Connect student enrollment to courses, classes, academic records, documents and institutional finance with PHANYX.",
     eyebrow: "Enrollment management", heading: "School enrollment connected to academic operations",
     intro: "Enrollment is the start of a student's academic record. PHANYX connects students to courses and classes so your team can work with the same institutional context after enrollment.",
+    heroAlt: "Illustration of an enrollment dashboard with a student, course, class and documents",
     plans: "Explore plans", contact: "Talk to the team",
     problemHeading: "Carry enrollment information into everyday work",
     problem: "Separate lists for students, classes and documents make it harder to answer routine questions. In PHANYX, enrollment belongs to the academic structure your administrators and teaching teams use.",
@@ -100,6 +104,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     description: "Relaciona matrículas, alumnado, cursos, grupos, expedientes, documentos y finanzas institucionales con PHANYX.",
     eyebrow: "Gestión de matrículas", heading: "Matrículas escolares conectadas con la gestión académica",
     intro: "La matrícula abre el recorrido del estudiante. PHANYX vincula alumnado, cursos y grupos para que el centro trabaje con un mismo contexto durante el curso.",
+    heroAlt: "Ilustración de un panel de matrícula con estudiante, curso, grupo y documentos",
     plans: "Ver planes", contact: "Hablar con el equipo",
     problemHeading: "Información útil después de matricular", problem: "Si los datos de alumnos, grupos y documentos están repartidos, cada consulta requiere volver a reunirlos. PHANYX sitúa la matrícula dentro de la estructura académica del centro.",
     stepsHeading: "Cómo organizar el proceso", steps: [
@@ -122,6 +127,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     description: "Reliez inscriptions, étudiants, formations, classes, dossiers, documents et finances institutionnelles avec PHANYX.",
     eyebrow: "Gestion des inscriptions", heading: "Des inscriptions scolaires reliées à la gestion académique",
     intro: "L'inscription marque le début du parcours étudiant. PHANYX la relie aux formations et aux classes pour que l'équipe dispose du contexte nécessaire tout au long de l'année.",
+    heroAlt: "Illustration d'un tableau de bord d'inscription avec étudiant, formation, classe et documents",
     plans: "Voir les offres", contact: "Contacter l'équipe",
     problemHeading: "Des données utiles au-delà de l'inscription", problem: "Quand les listes d'étudiants, de classes et de documents sont séparées, les équipes doivent rassembler les informations à chaque demande. PHANYX place l'inscription dans la structure académique de l'établissement.",
     stepsHeading: "Organiser les inscriptions", steps: [
