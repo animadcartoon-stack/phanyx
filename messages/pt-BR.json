@@ -20596,6 +20596,11 @@
     "digitalCatalogued": "Item digital catalogado. Consulte a biblioteca para saber como acessá-lo.",
     "externalAvailable": "Leitura online disponível pelo link abaixo.",
     "openExternal": "Abrir leitura online ↗",
+    "pdfAvailable": "PDF disponível para download autorizado.",
+    "downloadPdf": "Baixar PDF",
+    "rightsTitle": "Direitos autorais e citações",
+    "rightsNotice": "Use esta obra conforme a licença. Para trabalhos acadêmicos, cite apenas os trechos necessários, indicando autor e fonte. A reprodução ou distribuição não autorizada de obra protegida pode gerar responsabilidade civil e penal no Brasil (Lei nº 9.610/1998 e art. 184 do Código Penal).",
+    "downloadResponsibility": "O download foi autorizado para este item. Compartilhar o arquivo depende dos direitos concedidos pela licença.",
     "consultLibrary": "Consulte a biblioteca para saber como obter este item.",
     "types": {
       "LIVRO": "Livro",

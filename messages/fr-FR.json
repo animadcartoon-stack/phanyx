@@ -20825,6 +20825,11 @@
     "digitalCatalogued": "Document numérique répertorié. Contactez la bibliothèque pour les modalités d’accès.",
     "externalAvailable": "La lecture en ligne est disponible via le lien ci-dessous.",
     "openExternal": "Lire en ligne ↗",
+    "pdfAvailable": "PDF disponible au téléchargement autorisé.",
+    "downloadPdf": "Télécharger le PDF",
+    "rightsTitle": "Droits d’auteur et citations",
+    "rightsNotice": "Utilisez cette œuvre conformément à sa licence. Dans un travail universitaire, ne citez que les passages nécessaires et indiquez l’auteur et la source. Au Brésil, la reproduction ou la diffusion non autorisée d’une œuvre protégée peut engager la responsabilité civile et pénale (loi 9.610/1998 et article 184 du Code pénal brésilien).",
+    "downloadResponsibility": "Le téléchargement est autorisé pour cette œuvre. Le partage du fichier dépend des droits accordés par sa licence.",
     "consultLibrary": "Contactez la bibliothèque pour obtenir ce document.",
     "types": {
       "LIVRO": "Livre",
