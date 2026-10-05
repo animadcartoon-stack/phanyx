@@ -1017,7 +1017,23 @@ setErro("");
               </p>
             </button>
 
-            <button
+                        <button
+              onClick={() =>
+                router.push(
+                  "/admin/financeiro/boletos-compensados"
+                )
+              }
+              className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
+            >
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                ✅ {t("cards.clearedSlipsTitle")}
+              </p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                {t("cards.clearedSlipsDescription")}
+              </p>
+            </button>
+
+<button
               onClick={() =>
                 router.push(
                   "/admin/financeiro/taxas"

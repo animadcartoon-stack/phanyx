@@ -13919,7 +13919,9 @@
       "closingTitle": "Fecho Geral",
       "closingDescription": "Consolidação dos caixas fechados por data.",
       "reportsTitle": "Relatórios",
-      "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro."
+      "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro.",
+      "clearedSlipsTitle": "Boletos compensados",
+      "clearedSlipsDescription": "Consulte boletos compensados pelo prestador, efetue a baixa dos valores conferidos e trate divergências."
     },
     "automatic": {
       "generateTitle": "Gerar mensalidades",
@@ -22090,6 +22092,70 @@
       "cancel": "Cancelar",
       "export": "Exportar acervo",
       "pendingFormat": "Este formato já está previsto no modal, mas será ligado ao motor de exportação na próxima etapa. Utilize XLSX por enquanto."
+    }
+  },
+  "AdminFinanceiroBoletosCompensados": {
+    "title": "Boletos compensados",
+    "subtitle": "Consulte os boletos recebidos pelo prestador, efetue a baixa dos valores conferidos e acompanhe divergências.",
+    "back": "Voltar ao Financeiro",
+    "refresh": "Atualizar",
+    "searchPlaceholder": "Pesquisar por aluno, matrícula, lançamento ou referência...",
+    "tabs": {
+      "awaiting": "A aguardar baixa",
+      "settled": "Baixados",
+      "divergences": "Divergências"
+    },
+    "summary": {
+      "awaiting": "A aguardar baixa",
+      "settled": "Baixados",
+      "divergences": "Divergências"
+    },
+    "table": {
+      "student": "Aluno",
+      "enrollment": "Matrícula / Curso",
+      "charge": "Cobrança",
+      "dueDate": "Vencimento",
+      "value": "Valor",
+      "account": "Conta financeira",
+      "status": "Situação",
+      "action": "Ação"
+    },
+    "buttons": {
+      "settle": "Dar baixa",
+      "settling": "A dar baixa...",
+      "viewBoleto": "Abrir boleto",
+      "previous": "Anterior",
+      "next": "Seguinte",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar baixa"
+    },
+    "modal": {
+      "title": "Confirmar baixa do boleto",
+      "description": "Confirme apenas depois de verificar o valor compensado. A baixa criará o pagamento e o movimento financeiro no PHANYX.",
+      "compensatedValue": "Valor compensado",
+      "student": "Aluno",
+      "dueDate": "Vencimento"
+    },
+    "messages": {
+      "loading": "A carregar cobranças...",
+      "empty": "Nenhuma cobrança encontrada nesta situação.",
+      "loadError": "Não foi possível carregar os boletos.",
+      "settlementError": "Não foi possível dar baixa no boleto.",
+      "settlementSuccess": "Boleto baixado com sucesso.",
+      "divergence": "Foi encontrada uma divergência. A cobrança foi enviada para análise.",
+      "page": "Página {current} de {total}"
+    },
+    "labels": {
+      "compensated": "Compensado",
+      "settled": "Baixado",
+      "divergence": "Divergência",
+      "compensatedAt": "Compensado em",
+      "settledAt": "Baixado em",
+      "settledBy": "Baixado por",
+      "charged": "Cobrado",
+      "received": "Recebido",
+      "noEnrollment": "Sem matrícula",
+      "notProvided": "Não indicado"
     }
   }
 }

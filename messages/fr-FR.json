@@ -14132,7 +14132,9 @@
       "closingTitle": "Clôture générale",
       "closingDescription": "Consolidation des caisses clôturées par date.",
       "reportsTitle": "Rapports",
-      "reportsDescription": "Suivez les encaissements, la caisse et la performance financière."
+      "reportsDescription": "Suivez les encaissements, la caisse et la performance financière.",
+      "clearedSlipsTitle": "Bordereaux compensés",
+      "clearedSlipsDescription": "Vérifiez les paiements compensés par le prestataire, validez les montants contrôlés et traitez les écarts."
     },
     "automatic": {
       "generateTitle": "Générer les échéances mensuelles",
@@ -22303,6 +22305,70 @@
       "cancel": "Annuler",
       "export": "Exporter le fonds",
       "pendingFormat": "Ce format est déjà prévu dans l’interface mais sera relié au moteur d’exportation à l’étape suivante. Utilisez XLSX pour le moment."
+    }
+  },
+  "AdminFinanceiroBoletosCompensados": {
+    "title": "Bordereaux compensés",
+    "subtitle": "Vérifiez les paiements reçus par le prestataire, comptabilisez les montants contrôlés et suivez les écarts.",
+    "back": "Retour aux Finances",
+    "refresh": "Actualiser",
+    "searchPlaceholder": "Rechercher par étudiant, inscription, écriture ou référence...",
+    "tabs": {
+      "awaiting": "En attente de validation",
+      "settled": "Validés",
+      "divergences": "Écarts"
+    },
+    "summary": {
+      "awaiting": "En attente de validation",
+      "settled": "Validés",
+      "divergences": "Écarts"
+    },
+    "table": {
+      "student": "Étudiant",
+      "enrollment": "Inscription / Formation",
+      "charge": "Créance",
+      "dueDate": "Échéance",
+      "value": "Montant",
+      "account": "Compte financier",
+      "status": "Statut",
+      "action": "Action"
+    },
+    "buttons": {
+      "settle": "Valider",
+      "settling": "Validation...",
+      "viewBoleto": "Ouvrir le bordereau",
+      "previous": "Précédente",
+      "next": "Suivante",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la validation"
+    },
+    "modal": {
+      "title": "Confirmer la validation du paiement",
+      "description": "Confirmez uniquement après avoir vérifié le montant compensé. La validation créera le paiement et le mouvement financier dans PHANYX.",
+      "compensatedValue": "Montant compensé",
+      "student": "Étudiant",
+      "dueDate": "Échéance"
+    },
+    "messages": {
+      "loading": "Chargement des créances...",
+      "empty": "Aucune créance trouvée avec ce statut.",
+      "loadError": "Impossible de charger les bordereaux.",
+      "settlementError": "Impossible de valider ce paiement.",
+      "settlementSuccess": "Paiement validé avec succès.",
+      "divergence": "Un écart a été détecté. La créance a été envoyée pour vérification.",
+      "page": "Page {current} sur {total}"
+    },
+    "labels": {
+      "compensated": "Compensé",
+      "settled": "Validé",
+      "divergence": "Écart",
+      "compensatedAt": "Compensé le",
+      "settledAt": "Validé le",
+      "settledBy": "Validé par",
+      "charged": "Facturé",
+      "received": "Reçu",
+      "noEnrollment": "Sans inscription",
+      "notProvided": "Non renseigné"
     }
   }
 }

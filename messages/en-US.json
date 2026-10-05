@@ -14133,7 +14133,9 @@
       "closingTitle": "General Closing",
       "closingDescription": "Consolidate cash registers closed by date.",
       "reportsTitle": "Reports",
-      "reportsDescription": "Track receipts, cash flow, and financial performance."
+      "reportsDescription": "Track receipts, cash flow, and financial performance.",
+      "clearedSlipsTitle": "Cleared bank slips",
+      "clearedSlipsDescription": "Review provider-cleared payments, post verified amounts and handle discrepancies."
     },
     "automatic": {
       "generateTitle": "Generate monthly charges",
@@ -22304,6 +22306,70 @@
       "cancel": "Cancel",
       "export": "Export collection",
       "pendingFormat": "This format is already available in the interface but will be connected to the export engine in the next step. Use XLSX for now."
+    }
+  },
+  "AdminFinanceiroBoletosCompensados": {
+    "title": "Cleared bank slips",
+    "subtitle": "Review payments received by the provider, post verified amounts and monitor discrepancies.",
+    "back": "Back to Finance",
+    "refresh": "Refresh",
+    "searchPlaceholder": "Search by student, enrollment, entry or reference...",
+    "tabs": {
+      "awaiting": "Awaiting posting",
+      "settled": "Posted",
+      "divergences": "Discrepancies"
+    },
+    "summary": {
+      "awaiting": "Awaiting posting",
+      "settled": "Posted",
+      "divergences": "Discrepancies"
+    },
+    "table": {
+      "student": "Student",
+      "enrollment": "Enrollment / Course",
+      "charge": "Charge",
+      "dueDate": "Due date",
+      "value": "Amount",
+      "account": "Financial account",
+      "status": "Status",
+      "action": "Action"
+    },
+    "buttons": {
+      "settle": "Post payment",
+      "settling": "Posting...",
+      "viewBoleto": "Open bank slip",
+      "previous": "Previous",
+      "next": "Next",
+      "cancel": "Cancel",
+      "confirm": "Confirm posting"
+    },
+    "modal": {
+      "title": "Confirm payment posting",
+      "description": "Confirm only after verifying the cleared amount. Posting will create the payment and financial movement in PHANYX.",
+      "compensatedValue": "Cleared amount",
+      "student": "Student",
+      "dueDate": "Due date"
+    },
+    "messages": {
+      "loading": "Loading charges...",
+      "empty": "No charges found with this status.",
+      "loadError": "Unable to load bank slips.",
+      "settlementError": "Unable to post this payment.",
+      "settlementSuccess": "Payment posted successfully.",
+      "divergence": "A discrepancy was detected. The charge was sent for review.",
+      "page": "Page {current} of {total}"
+    },
+    "labels": {
+      "compensated": "Cleared",
+      "settled": "Posted",
+      "divergence": "Discrepancy",
+      "compensatedAt": "Cleared on",
+      "settledAt": "Posted on",
+      "settledBy": "Posted by",
+      "charged": "Charged",
+      "received": "Received",
+      "noEnrollment": "No enrollment",
+      "notProvided": "Not provided"
     }
   }
 }
