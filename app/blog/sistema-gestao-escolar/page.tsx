@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
       "Um guia prático para comparar sistemas de gestão escolar conforme a rotina da sua instituição.",
     type: "article",
     url: "/blog/sistema-gestao-escolar",
+    images: ["/images/guia-sistema-gestao-escolar-sala.webp"],
   },
 };
 
@@ -58,6 +60,18 @@ export default function ArticlePage() {
           <p className="mt-6 text-lg leading-8 text-slate-700">
             A resposta depende da rotina que a instituição precisa organizar. Uma escola pequena, uma faculdade e um curso online podem exigir processos e permissões diferentes. Em vez de escolher pela lista de recursos, compare o caminho completo de alunos, professores e equipe administrativa.
           </p>
+
+          <figure className="mt-10 overflow-hidden rounded-2xl border border-slate-200">
+            <Image
+              src="/images/guia-sistema-gestao-escolar-sala.webp"
+              alt="Professora acompanha três alunos em uma atividade com computador na sala de aula"
+              width={1672}
+              height={941}
+              sizes="(max-width: 896px) 100vw, 896px"
+              className="h-auto w-full"
+              priority
+            />
+          </figure>
 
           <nav aria-label="Nesta página" className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6">
             <h2 className="text-lg font-semibold">Neste guia</h2>
