@@ -22,6 +22,7 @@ type EnrollmentCopy = {
   relatedHeading: string;
   relatedSchool: string;
   relatedAcademic: string;
+  relatedRegistrar: string;
   closingHeading: string;
   closing: string;
 };
@@ -48,7 +49,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     ],
     fitHeading: "Para que instituições?", fit: "Escolas, faculdades, cursos técnicos e cursos livres que precisam organizar matrículas dentro da operação acadêmica, com áreas para administração, professores e alunos. A configuração e os módulos disponíveis variam conforme o plano.",
     question: "A PHANYX faz a captação de alunos e a matrícula no mesmo sistema?", answer: "A plataforma possui recursos comerciais para leads e processos de matrícula na área acadêmica. A disponibilidade dos módulos comerciais depende do plano e deve ser confirmada na proposta.",
-    relatedHeading: "Explore a plataforma", relatedSchool: "Sistema de gestão escolar", relatedAcademic: "Gestão acadêmica",
+    relatedHeading: "Explore a plataforma", relatedSchool: "Sistema de gestão escolar", relatedAcademic: "Gestão acadêmica", relatedRegistrar: "Secretaria escolar",
     closingHeading: "Veja como a matrícula se encaixa na sua instituição", closing: "Compare os planos ou converse com a equipe sobre seus cursos, unidades e fluxo de trabalho.",
   },
   "pt-PT": {
@@ -72,7 +73,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     ],
     fitHeading: "Para que instituições?", fit: "Escolas, instituições de ensino superior e entidades formadoras que precisam de gerir matrículas em conjunto com a atividade académica. Módulos e número de polos dependem do plano contratado.",
     question: "É possível gerir captação e matrículas na mesma plataforma?", answer: "O PHANYX inclui ferramentas comerciais para contactos e processos académicos de matrícula. Confirme na proposta a disponibilidade dos módulos comerciais para a sua instituição.",
-    relatedHeading: "Conheça mais", relatedSchool: "Software de gestão escolar", relatedAcademic: "Gestão académica",
+    relatedHeading: "Conheça mais", relatedSchool: "Software de gestão escolar", relatedAcademic: "Gestão académica", relatedRegistrar: "Secretaria escolar",
     closingHeading: "Planeie o percurso de matrícula", closing: "Compare os planos ou fale com a equipa sobre cursos, polos e necessidades da sua instituição.",
   },
   "en-US": {
@@ -96,7 +97,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     ],
     fitHeading: "Who is it for?", fit: "Schools, colleges, training providers and other institutions that need enrollment records as part of a wider academic workflow. Available modules and included units depend on the plan.",
     question: "Does PHANYX connect recruitment and enrollment?", answer: "PHANYX has lead management tools and academic enrollment workflows. Commercial module availability depends on the plan and should be confirmed in a proposal.",
-    relatedHeading: "Explore related tools", relatedSchool: "School management software", relatedAcademic: "Academic management",
+    relatedHeading: "Explore related tools", relatedSchool: "School management software", relatedAcademic: "Academic management", relatedRegistrar: "Registrar software",
     closingHeading: "Map your enrollment process", closing: "Compare plans or discuss your courses, locations and enrollment process with the PHANYX team.",
   },
   "es-ES": {
@@ -119,7 +120,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     ],
     fitHeading: "¿A qué centros se dirige?", fit: "Centros educativos, instituciones superiores y entidades de formación que necesitan integrar las matrículas en sus operaciones académicas. Los módulos y sedes incluidos varían según el plan.",
     question: "¿Se pueden vincular captación y matrículas?", answer: "PHANYX dispone de herramientas comerciales para contactos y funciones académicas de matrícula. Consulta la propuesta para confirmar la disponibilidad de los módulos comerciales.",
-    relatedHeading: "Conoce otras funciones", relatedSchool: "Software de gestión escolar", relatedAcademic: "Gestión académica",
+    relatedHeading: "Conoce otras funciones", relatedSchool: "Software de gestión escolar", relatedAcademic: "Gestión académica", relatedRegistrar: "Secretaría escolar",
     closingHeading: "Organiza el proceso de tu centro", closing: "Compara los planes o habla con el equipo sobre cursos, sedes y matrículas.",
   },
   "fr-FR": {
@@ -142,7 +143,7 @@ export const enrollmentCopy: Record<LocalePhanyx, EnrollmentCopy> = {
     ],
     fitHeading: "Pour quels établissements ?", fit: "Écoles, établissements supérieurs et organismes de formation qui veulent relier les inscriptions à leur activité académique. Les modules et le nombre de sites inclus dépendent de l'offre.",
     question: "La prospection et les inscriptions peuvent-elles être liées ?", answer: "PHANYX propose des outils commerciaux pour les contacts ainsi que des fonctions académiques d'inscription. Vérifiez la disponibilité des modules commerciaux dans votre proposition.",
-    relatedHeading: "Découvrir la plateforme", relatedSchool: "Logiciel de gestion scolaire", relatedAcademic: "Gestion académique",
+    relatedHeading: "Découvrir la plateforme", relatedSchool: "Logiciel de gestion scolaire", relatedAcademic: "Gestion académique", relatedRegistrar: "Secrétariat scolaire",
     closingHeading: "Préparez votre processus d'inscription", closing: "Comparez les offres ou présentez vos formations, vos sites et vos besoins à l'équipe PHANYX.",
   },
 };

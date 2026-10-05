@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { marketingAlternates, marketingLocales, marketingPath, type MarketingSection } from "@/lib/public-marketing";
 
 const baseUrl = "https://phanyx.com.br";
-const sections: MarketingSection[] = ["home", "academic", "plans", "school", "lms", "success", "enrollment"];
+const sections: MarketingSection[] = ["home", "academic", "plans", "school", "lms", "success", "enrollment", "registrar"];
 
 // Keep these established Brazilian pages in the sitemap alongside the localized marketing routes.
 const brazilianPages = [

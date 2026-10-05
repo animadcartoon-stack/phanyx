@@ -82,9 +82,10 @@ export default function EnrollmentPage({ locale }: { locale: LocalePhanyx }) {
         </section>
         <section className="bg-slate-950 text-white"><div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
           <h2 className="text-3xl font-bold">{copy.relatedHeading}</h2>
-          <nav aria-label={copy.relatedHeading} className="mt-6 grid gap-4 sm:grid-cols-2">
+          <nav aria-label={copy.relatedHeading} className="mt-6 grid gap-4 sm:grid-cols-3">
             <Link href={marketingPath(locale, "school")} className="rounded-xl border border-white/20 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{copy.relatedSchool} →</Link>
             <Link href={marketingPath(locale, "academic")} className="rounded-xl border border-white/20 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{copy.relatedAcademic} →</Link>
+            <Link href={marketingPath(locale, "registrar")} className="rounded-xl border border-white/20 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{copy.relatedRegistrar} →</Link>
           </nav>
           <h2 className="mt-14 text-3xl font-bold">{copy.closingHeading}</h2>
           <p className="mt-4 max-w-3xl leading-8 text-slate-200">{copy.closing}</p>

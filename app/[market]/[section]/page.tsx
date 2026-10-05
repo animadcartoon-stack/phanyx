@@ -4,7 +4,9 @@ import LocalizedMarketingPage from "@/components/marketing/LocalizedMarketingPag
 import LocalizedPlansPage from "@/components/marketing/LocalizedPlansPage";
 import SearchIntentPage from "@/components/marketing/SearchIntentPage";
 import EnrollmentPage from "@/components/marketing/EnrollmentPage";
+import RegistrarPage from "@/components/marketing/RegistrarPage";
 import { enrollmentCopy } from "@/lib/enrollment-marketing";
+import { registrarCopy } from "@/lib/registrar-marketing";
 import { searchIntentCopy } from "@/lib/search-intents";
 import type { ForeignLocale } from "@/lib/localized-plans";
 import { localeEhSuportado, type LocalePhanyx } from "@/i18n/config";
@@ -13,7 +15,7 @@ import { marketingAlternates, marketingCopy, marketingLocales, marketingPath, ma
 export const dynamicParams = false;
 export function generateStaticParams() {
   return marketingLocales.filter((market) => market !== "pt-BR").flatMap((market) =>
-    (["academic", "plans", "school", "lms", "success", "enrollment"] as const).map((section) => ({ market, section: marketingPath(market, section).split("/").at(-1)! })));
+    (["academic", "plans", "school", "lms", "success", "enrollment", "registrar"] as const).map((section) => ({ market, section: marketingPath(market, section).split("/").at(-1)! })));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ market: string; section: string }> }): Promise<Metadata> {
@@ -23,8 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ market: s
   if (!section || section === "home") return {};
   const copy = marketingCopy[market];
   const intent = section === "school" || section === "lms" || section === "success" ? searchIntentCopy[market as ForeignLocale][section] : null;
-  const title = section === "enrollment" ? enrollmentCopy[market].title : intent?.title ?? (section === "plans" ? copy.plansTitle : copy.seoTitle);
-  const description = section === "enrollment" ? enrollmentCopy[market].description : intent?.description ?? (section === "plans" ? copy.plansDescription : copy.seoDescription);
+  const title = section === "registrar" ? registrarCopy[market].title : section === "enrollment" ? enrollmentCopy[market].title : intent?.title ?? (section === "plans" ? copy.plansTitle : copy.seoTitle);
+  const description = section === "registrar" ? registrarCopy[market].description : section === "enrollment" ? enrollmentCopy[market].description : intent?.description ?? (section === "plans" ? copy.plansDescription : copy.seoDescription);
   return {
     title: { absolute: title }, description,
     alternates: { ...marketingAlternates(section), canonical: marketingPath(market, section) },
@@ -39,6 +41,7 @@ export default async function MarketSectionPage({ params }: { params: Promise<{ 
   if (!section || section === "home") notFound();
   if (section === "plans") return <LocalizedPlansPage locale={market as ForeignLocale} />;
   if (section === "enrollment") return <EnrollmentPage locale={market} />;
+  if (section === "registrar") return <RegistrarPage locale={market} />;
   if (section === "school" || section === "lms" || section === "success") return <SearchIntentPage locale={market as ForeignLocale} section={section} />;
   return <LocalizedMarketingPage locale={market as ForeignLocale} section="academic" />;
 }
