@@ -12,9 +12,7 @@ const brazilianPages = [
 
 const blogPages = [
   "/blog",
-  "/blog/melhor-sistema-academico",
-  "/blog/melhor-sistema-gestao-escolar",
-  "/blog/sistema-escolar-para-pequenas-escolas",
+  "/blog/melhor-sistema-academico",  "/blog/sistema-escolar-para-pequenas-escolas",
   "/blog/software-educacional-completo",
   "/blog/plataforma-para-ensino-online",
   "/blog/melhor-plataforma-para-cursos-online",
@@ -26,9 +24,7 @@ const blogPages = [
   "/blog/gestao-escolar-digital",
   "/blog/software-para-gestao-escolar",
   "/blog/como-vender-cursos-online",
-  "/blog/sistema-de-gestao-escolar-online",
-  "/blog/como-escolher-sistema-escolar",
-  "/blog/sistema-escolar-gratis-vs-pago",
+  "/blog/sistema-de-gestao-escolar-online",  "/blog/sistema-escolar-gratis-vs-pago",
   "/blog/como-aumentar-matriculas-com-sistema-escolar-moderno",
   "/blog/plataforma-ead-para-cursos-livres",
   "/blog/software-para-escolas-completo",

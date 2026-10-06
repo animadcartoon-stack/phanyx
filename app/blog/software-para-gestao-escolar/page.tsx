@@ -5,6 +5,7 @@ export const metadata = {
   title: "Software para gestão escolar | PHANYX",
   description:
     "Descubra como um software para gestão escolar pode transformar a organização e o crescimento da sua instituição.",
+  alternates: { canonical: "/blog/software-para-gestao-escolar" },
 };
 
 export default function SoftwareGestaoEscolarPage() {
