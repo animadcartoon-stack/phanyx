@@ -417,38 +417,25 @@ function criarImagemAssinatura({
     campo
   ) {
     /*
-     * WYSIWYG real.
+     * PARIDADE EXATA COM O EDITOR DE TEMPLATE.
      *
-     * O editor salva x, y, largura e altura em uma matriz lógica
-     * de 480 x 150 px. O PDF usa a MESMA matriz, convertida
-     * proporcionalmente para 78 x 24,375 mm.
+     * O EditorTemplatePHANYX usa a linha-guia da área 480 x 150 px
+     * como referência:
+     * - linha em x=40..440;
+     * - linha em y=92.
      *
-     * Não existe mais projeção especial "sobre a linha".
-     * A posição salva no editor é a fonte de verdade.
+     * O PDF deve usar exatamente a MESMA transformação do editor,
+     * sem uma segunda interpretação das coordenadas salvas.
      */
-    const larguraAreaPdfMm =
-      LARGURA_BLOCO_ASSINATURA_MM;
-
-    const alturaAreaPdfMm =
-      LARGURA_BLOCO_ASSINATURA_MM *
-      ALTURA_AREA_ASSINATURA_PX /
-      LARGURA_AREA_ASSINATURA_PX;
-
     const escalaX =
-      larguraAreaPdfMm /
-      LARGURA_AREA_ASSINATURA_PX;
-
-    const escalaY =
-      alturaAreaPdfMm /
-      ALTURA_AREA_ASSINATURA_PX;
+      72 / 400;
 
     const esquerdaMm =
-      Math.max(0, campo.x) *
+      3 +
+      (
+        campo.x - 40
+      ) *
       escalaX;
-
-    const topoMm =
-      Math.max(0, campo.y) *
-      escalaY;
 
     const larguraMm =
       Math.max(
@@ -456,6 +443,16 @@ function criarImagemAssinatura({
         campo.largura *
           escalaX
       );
+
+    const escalaY =
+      15 / 92;
+
+    const topoMm =
+      Math.max(
+        0,
+        campo.y
+      ) *
+      escalaY;
 
     const alturaMm =
       Math.max(
@@ -1719,12 +1716,12 @@ function cssCompartilhado(
   .phanyx-linha-assinatura {
   position: absolute;
 
-  top: 14.95mm;
+  top: 15mm;
 
-  left: 6.5mm;
+  left: 3mm;
   right: auto;
 
-  width: 65mm;
+  width: 72mm;
 
   margin: 0;
 
@@ -1765,8 +1762,8 @@ function cssCompartilhado(
   .phanyx-assinatura-texto {
   position: absolute;
   z-index: 3;
-  left: 6.5mm;
-  width: 65mm;
+  left: 3mm;
+  width: 72mm;
   height: 3.2mm;
   margin: 0 !important;
   padding: 0 !important;
@@ -1781,24 +1778,24 @@ function cssCompartilhado(
 
 .phanyx-bloco-assinatura-visual
   .phanyx-assinatura-nome {
-  top: 16.25mm;
+  top: 16.0mm;
   font-size: 8.8pt;
   font-weight: 700;
 }
 
 .phanyx-bloco-assinatura-visual
   .phanyx-assinatura-cargo {
-  top: 19.45mm;
+  top: 19.2mm;
 }
 
 .phanyx-bloco-assinatura-visual
   .phanyx-assinatura-instituicao {
-  top: 22.65mm;
+  top: 22.4mm;
 }
 
 .phanyx-bloco-assinatura-visual
   .phanyx-assinatura-cnpj {
-  top: 25.85mm;
+  top: 25.6mm;
 }
 
 /*
