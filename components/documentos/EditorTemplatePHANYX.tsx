@@ -1596,19 +1596,29 @@ function criarBotaoRemoverAssinatura(
       pagina: 1,
     };
 
-  /* 40..440 px da linha-guia => 3..75 mm da linha final. */
-  const escalaX = 72 / 400;
-  const esquerdaMm =
-    3 + (Number(campo.x) - 40) * escalaX;
-  const larguraMm =
-    Math.max(0.2, Number(campo.largura) * escalaX);
+  /*
+   * A área 480 x 150 é a fonte de verdade.
+   * A imagem usa percentuais dessa MESMA área.
+   */
+  const esquerdaPercentual =
+    Math.max(0, Number(campo.x)) /
+    480 *
+    100;
 
-  /* y=92 px da guia => y=15 mm da linha final. */
-  const escalaY = 15 / 92;
-  const topoMm =
-    Math.max(0, Number(campo.y)) * escalaY;
-  const alturaMm =
-    Math.max(0.2, Number(campo.altura) * escalaY);
+  const topoPercentual =
+    Math.max(0, Number(campo.y)) /
+    150 *
+    100;
+
+  const larguraPercentual =
+    Math.max(0.1, Number(campo.largura)) /
+    480 *
+    100;
+
+  const alturaPercentual =
+    Math.max(0.1, Number(campo.altura)) /
+    150 *
+    100;
 
   const caixaImagem =
     document.createElement("span");
@@ -1617,10 +1627,10 @@ function criarBotaoRemoverAssinatura(
     position: "absolute",
     zIndex: "2",
     display: "block",
-    left: `${esquerdaMm}mm`,
-    top: `${topoMm}mm`,
-    width: `${larguraMm}mm`,
-    height: `${alturaMm}mm`,
+    left: `${esquerdaPercentual}%`,
+    top: `${topoPercentual}%`,
+    width: `${larguraPercentual}%`,
+    height: `${alturaPercentual}%`,
     minHeight: "0",
     margin: "0",
     overflow: "hidden",
@@ -1680,9 +1690,9 @@ function criarBotaoRemoverAssinatura(
 
   aplicarEstilos(linha, {
     position: "absolute",
-    top: "15mm",
-    left: "3mm",
-    width: "72mm",
+    top: "61.333333%",
+    left: "8.333333%",
+    width: "83.333333%",
     height: "0",
     margin: "0",
     borderTop:

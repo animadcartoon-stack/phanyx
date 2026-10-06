@@ -417,49 +417,28 @@ function criarImagemAssinatura({
     campo
   ) {
     /*
-     * PARIDADE EXATA COM O EDITOR DE TEMPLATE.
-     *
-     * O EditorTemplatePHANYX usa a linha-guia da área 480 x 150 px
-     * como referência:
-     * - linha em x=40..440;
-     * - linha em y=92.
-     *
-     * O PDF deve usar exatamente a MESMA transformação do editor,
-     * sem uma segunda interpretação das coordenadas salvas.
+     * PARIDADE REAL COM O EDITOR:
+     * x/y/largura/altura são percentuais da mesma área 480 x 150.
      */
-    const escalaX =
-      72 / 400;
+    const esquerdaPercentual =
+      Math.max(0, campo.x) /
+      LARGURA_AREA_ASSINATURA_PX *
+      100;
 
-    const esquerdaMm =
-      3 +
-      (
-        campo.x - 40
-      ) *
-      escalaX;
+    const topoPercentual =
+      Math.max(0, campo.y) /
+      ALTURA_AREA_ASSINATURA_PX *
+      100;
 
-    const larguraMm =
-      Math.max(
-        0.2,
-        campo.largura *
-          escalaX
-      );
+    const larguraPercentual =
+      Math.max(0.1, campo.largura) /
+      LARGURA_AREA_ASSINATURA_PX *
+      100;
 
-    const escalaY =
-      15 / 92;
-
-    const topoMm =
-      Math.max(
-        0,
-        campo.y
-      ) *
-      escalaY;
-
-    const alturaMm =
-      Math.max(
-        0.2,
-        campo.altura *
-          escalaY
-      );
+    const alturaPercentual =
+      Math.max(0.1, campo.altura) /
+      ALTURA_AREA_ASSINATURA_PX *
+      100;
 
     return `
       <span
@@ -468,10 +447,10 @@ function criarImagemAssinatura({
           phanyx-assinatura-imagem-posicionada
         "
         style="
-          left: ${esquerdaMm}mm;
-          top: ${topoMm}mm;
-          width: ${larguraMm}mm;
-          height: ${alturaMm}mm;
+          left: ${esquerdaPercentual}%;
+          top: ${topoPercentual}%;
+          width: ${larguraPercentual}%;
+          height: ${alturaPercentual}%;
         "
       >
         <img
@@ -1716,12 +1695,12 @@ function cssCompartilhado(
   .phanyx-linha-assinatura {
   position: absolute;
 
-  top: 15mm;
+  top: 61.333333%;
 
-  left: 3mm;
+  left: 8.333333%;
   right: auto;
 
-  width: 72mm;
+  width: 83.333333%;
 
   margin: 0;
 
