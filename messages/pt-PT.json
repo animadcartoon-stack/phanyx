@@ -147,6 +147,9 @@
     "reservations": "Reservas",
     "fines": "Multas",
     "receipts": "Recebimentos",
+
+
+    "boletos": "Boletos",
     "cashRegister": "Caixa",
     "reports": "Relatórios",
     "overdueAccounts": "Pagamentos em atraso",
@@ -22255,6 +22258,114 @@
       "received": "Recebido",
       "noEnrollment": "Sem matrícula",
       "notProvided": "Não indicado"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Voltar às Finanças",
+      "title": "Boletos",
+      "subtitle": "Emita boletos para mensalidades, acompanhe pagamento e vencimento, envie ao aluno e identifique os que aguardam baixa na caixa.",
+      "cleared": "Boletos compensados a aguardar baixa"
+    },
+    "common": {
+      "loading": "A carregar..."
+    },
+    "summary": {
+      "generated": "Boletos localizados",
+      "awaitingPayment": "A aguardar pagamento",
+      "awaitingSettlement": "A aguardar baixa",
+      "settled": "Baixados",
+      "divergence": "Divergências"
+    },
+    "generate": {
+      "title": "Emitir boleto para aluno",
+      "subtitle": "Localize uma mensalidade em aberto. O boleto será emitido pela conta financeira da própria instituição.",
+      "search": "Pesquisar aluno, e-mail ou descrição da mensalidade...",
+      "empty": "Nenhuma mensalidade em aberto encontrada.",
+      "monthlyFee": "Mensalidade"
+    },
+    "issued": {
+      "title": "Boletos emitidos",
+      "subtitle": "Acompanhe o ciclo completo do boleto, do envio ao aluno até à baixa na caixa.",
+      "search": "Pesquisar aluno, e-mail, descrição ou referência...",
+      "empty": "Nenhum boleto encontrado."
+    },
+    "table": {
+      "student": "Aluno",
+      "charge": "Cobrança",
+      "dueDate": "Vencimento",
+      "balance": "Saldo",
+      "value": "Valor",
+      "status": "Situação",
+      "delivery": "Envio",
+      "action": "Ação",
+      "actions": "Ações"
+    },
+    "filters": {
+      "all": "Todos",
+      "pending": "Pendentes",
+      "overdue": "Vencidos",
+      "paid": "Pagos / compensados",
+      "awaitingSettlement": "A aguardar baixa",
+      "settled": "Baixados",
+      "failed": "Falhas"
+    },
+    "status": {
+      "pending": "Pendente",
+      "dueToday": "Vence hoje",
+      "overdueDays": "Em atraso há {count} dia(s)",
+      "processing": "Em processamento",
+      "paid": "Pago / compensado",
+      "awaitingSettlement": "A aguardar baixa",
+      "settled": "Baixado",
+      "divergence": "Divergência",
+      "cancelled": "Cancelado",
+      "refunded": "Estornado",
+      "failed": "Falha",
+      "bankConfirmed": "Pagamento confirmado pelo banco; falta a baixa do operador.",
+      "settledBy": "Baixado por {name}"
+    },
+    "delivery": {
+      "generated": "Gerado",
+      "sent": "Enviado",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Emitir boleto",
+      "generating": "A emitir...",
+      "open": "Abrir boleto",
+      "openPrint": "Abrir / imprimir",
+      "copyLine": "Copiar linha",
+      "email": "Enviar e-mail",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirmar envio",
+      "sending": "A enviar..."
+    },
+    "messages": {
+      "loadAvailableError": "Não foi possível carregar as mensalidades disponíveis.",
+      "loadBoletosError": "Não foi possível carregar os boletos.",
+      "generateError": "Não foi possível emitir o boleto.",
+      "generated": "Boleto emitido com sucesso.",
+      "reused": "Este boleto já existia e foi recuperado.",
+      "noBoletoUrl": "O documento do boleto ainda não está disponível.",
+      "noDigitableLine": "A linha digitável ainda não está disponível.",
+      "copied": "Linha digitável copiada.",
+      "copyError": "Não foi possível copiar a linha digitável.",
+      "sendError": "Não foi possível registar o envio do boleto.",
+      "emailSent": "Boleto enviado por e-mail e envio registado.",
+      "whatsappOpened": "WhatsApp aberto. Depois de enviar a mensagem, confirme o envio no PHANYX.",
+      "whatsappRegistered": "Envio por WhatsApp registado."
+    },
+    "whatsapp": {
+      "greeting": "Olá, {name}.",
+      "message": "Segue o boleto para pagamento.",
+      "link": "Boleto: {link}",
+      "line": "Linha digitável: {line}"
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Seguinte"
     }
   }
 }

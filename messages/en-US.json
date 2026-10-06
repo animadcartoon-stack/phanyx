@@ -147,6 +147,9 @@
     "reservations": "Reservations",
     "fines": "Fines",
     "receipts": "Receipts",
+
+
+    "boletos": "Bank slips",
     "cashRegister": "Cash Register",
     "reports": "Reports",
     "overdueAccounts": "Overdue Accounts",
@@ -22469,6 +22472,114 @@
       "received": "Received",
       "noEnrollment": "No enrollment",
       "notProvided": "Not provided"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Back to Finance",
+      "title": "Bank slips",
+      "subtitle": "Generate bank slips for tuition charges, track payment and due dates, send them to students, and identify items awaiting cash-register posting.",
+      "cleared": "Cleared bank slips awaiting posting"
+    },
+    "common": {
+      "loading": "Loading..."
+    },
+    "summary": {
+      "generated": "Bank slips found",
+      "awaitingPayment": "Awaiting payment",
+      "awaitingSettlement": "Awaiting posting",
+      "settled": "Posted",
+      "divergence": "Discrepancies"
+    },
+    "generate": {
+      "title": "Generate a bank slip for a student",
+      "subtitle": "Find an open tuition charge. The bank slip is issued through the institution's own financial account.",
+      "search": "Search student, email, or tuition description...",
+      "empty": "No open tuition charges found.",
+      "monthlyFee": "Tuition"
+    },
+    "issued": {
+      "title": "Issued bank slips",
+      "subtitle": "Track the full bank-slip lifecycle, from delivery to the student through cash-register posting.",
+      "search": "Search student, email, description, or reference...",
+      "empty": "No bank slips found."
+    },
+    "table": {
+      "student": "Student",
+      "charge": "Charge",
+      "dueDate": "Due date",
+      "balance": "Balance",
+      "value": "Amount",
+      "status": "Status",
+      "delivery": "Delivery",
+      "action": "Action",
+      "actions": "Actions"
+    },
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "paid": "Paid / cleared",
+      "awaitingSettlement": "Awaiting posting",
+      "settled": "Posted",
+      "failed": "Failed"
+    },
+    "status": {
+      "pending": "Pending",
+      "dueToday": "Due today",
+      "overdueDays": "{count} day(s) overdue",
+      "processing": "Processing",
+      "paid": "Paid / cleared",
+      "awaitingSettlement": "Awaiting posting",
+      "settled": "Posted",
+      "divergence": "Discrepancy",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "failed": "Failed",
+      "bankConfirmed": "Payment confirmed by the bank; operator posting is still pending.",
+      "settledBy": "Posted by {name}"
+    },
+    "delivery": {
+      "generated": "Generated",
+      "sent": "Sent",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Generate bank slip",
+      "generating": "Generating...",
+      "open": "Open bank slip",
+      "openPrint": "Open / print",
+      "copyLine": "Copy payment line",
+      "email": "Send email",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirm sent",
+      "sending": "Sending..."
+    },
+    "messages": {
+      "loadAvailableError": "Could not load available tuition charges.",
+      "loadBoletosError": "Could not load bank slips.",
+      "generateError": "Could not generate the bank slip.",
+      "generated": "Bank slip generated successfully.",
+      "reused": "This bank slip already existed and was retrieved.",
+      "noBoletoUrl": "The bank-slip document is not available yet.",
+      "noDigitableLine": "The payment line is not available yet.",
+      "copied": "Payment line copied.",
+      "copyError": "Could not copy the payment line.",
+      "sendError": "Could not record bank-slip delivery.",
+      "emailSent": "Bank slip sent by email and delivery recorded.",
+      "whatsappOpened": "WhatsApp opened. After sending the message, confirm delivery in PHANYX.",
+      "whatsappRegistered": "WhatsApp delivery recorded."
+    },
+    "whatsapp": {
+      "greeting": "Hello, {name}.",
+      "message": "Here is your bank slip for payment.",
+      "link": "Bank slip: {link}",
+      "line": "Payment line: {line}"
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
     }
   }
 }

@@ -147,6 +147,9 @@
     "reservations": "Réservations",
     "fines": "Amendes",
     "receipts": "Encaissements",
+
+
+    "boletos": "Bordereaux bancaires",
     "cashRegister": "Caisse",
     "reports": "Rapports",
     "overdueAccounts": "Impayés",
@@ -22469,6 +22472,114 @@
       "received": "Reçu",
       "noEnrollment": "Sans inscription",
       "notProvided": "Non renseigné"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Retour aux Finances",
+      "title": "Bordereaux bancaires",
+      "subtitle": "Générez les bordereaux pour les mensualités, suivez le paiement et l'échéance, envoyez-les à l'étudiant et identifiez ceux en attente d'enregistrement en caisse.",
+      "cleared": "Bordereaux compensés en attente d'enregistrement"
+    },
+    "common": {
+      "loading": "Chargement..."
+    },
+    "summary": {
+      "generated": "Bordereaux trouvés",
+      "awaitingPayment": "En attente de paiement",
+      "awaitingSettlement": "En attente d'enregistrement",
+      "settled": "Enregistrés",
+      "divergence": "Écarts"
+    },
+    "generate": {
+      "title": "Générer un bordereau pour un étudiant",
+      "subtitle": "Recherchez une mensualité ouverte. Le bordereau sera émis via le compte financier propre de l'établissement.",
+      "search": "Rechercher un étudiant, un e-mail ou une description...",
+      "empty": "Aucune mensualité ouverte trouvée.",
+      "monthlyFee": "Mensualité"
+    },
+    "issued": {
+      "title": "Bordereaux émis",
+      "subtitle": "Suivez tout le cycle, de l'envoi à l'étudiant jusqu'à l'enregistrement en caisse.",
+      "search": "Rechercher étudiant, e-mail, description ou référence...",
+      "empty": "Aucun bordereau trouvé."
+    },
+    "table": {
+      "student": "Étudiant",
+      "charge": "Créance",
+      "dueDate": "Échéance",
+      "balance": "Solde",
+      "value": "Montant",
+      "status": "Statut",
+      "delivery": "Envoi",
+      "action": "Action",
+      "actions": "Actions"
+    },
+    "filters": {
+      "all": "Tous",
+      "pending": "En attente",
+      "overdue": "Échus",
+      "paid": "Payés / compensés",
+      "awaitingSettlement": "En attente d'enregistrement",
+      "settled": "Enregistrés",
+      "failed": "Échecs"
+    },
+    "status": {
+      "pending": "En attente",
+      "dueToday": "Échéance aujourd'hui",
+      "overdueDays": "En retard de {count} jour(s)",
+      "processing": "Traitement en cours",
+      "paid": "Payé / compensé",
+      "awaitingSettlement": "En attente d'enregistrement",
+      "settled": "Enregistré",
+      "divergence": "Écart",
+      "cancelled": "Annulé",
+      "refunded": "Remboursé",
+      "failed": "Échec",
+      "bankConfirmed": "Paiement confirmé par la banque ; l'enregistrement par l'opérateur reste à faire.",
+      "settledBy": "Enregistré par {name}"
+    },
+    "delivery": {
+      "generated": "Généré",
+      "sent": "Envoyé",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Générer",
+      "generating": "Génération...",
+      "open": "Ouvrir",
+      "openPrint": "Ouvrir / imprimer",
+      "copyLine": "Copier la ligne",
+      "email": "Envoyer par e-mail",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirmer l'envoi",
+      "sending": "Envoi..."
+    },
+    "messages": {
+      "loadAvailableError": "Impossible de charger les mensualités disponibles.",
+      "loadBoletosError": "Impossible de charger les bordereaux.",
+      "generateError": "Impossible de générer le bordereau.",
+      "generated": "Bordereau généré avec succès.",
+      "reused": "Ce bordereau existait déjà et a été récupéré.",
+      "noBoletoUrl": "Le document du bordereau n'est pas encore disponible.",
+      "noDigitableLine": "La ligne de paiement n'est pas encore disponible.",
+      "copied": "Ligne de paiement copiée.",
+      "copyError": "Impossible de copier la ligne de paiement.",
+      "sendError": "Impossible d'enregistrer l'envoi du bordereau.",
+      "emailSent": "Bordereau envoyé par e-mail et envoi enregistré.",
+      "whatsappOpened": "WhatsApp ouvert. Après l'envoi du message, confirmez l'envoi dans PHANYX.",
+      "whatsappRegistered": "Envoi WhatsApp enregistré."
+    },
+    "whatsapp": {
+      "greeting": "Bonjour, {name}.",
+      "message": "Voici le bordereau pour le paiement.",
+      "link": "Bordereau : {link}",
+      "line": "Ligne de paiement : {line}"
+    },
+    "pagination": {
+      "page": "Page {page} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
     }
   }
 }

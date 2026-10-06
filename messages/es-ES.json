@@ -147,6 +147,9 @@
     "reservations": "Reservas",
     "fines": "Multas",
     "receipts": "Cobros",
+
+
+    "boletos": "Boletos",
     "cashRegister": "Caja",
     "reports": "Informes",
     "overdueAccounts": "Morosos",
@@ -22469,6 +22472,114 @@
       "received": "Recibido",
       "noEnrollment": "Sin matrícula",
       "notProvided": "No informado"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Volver a Finanzas",
+      "title": "Boletos",
+      "subtitle": "Genera boletos para mensualidades, controla pago y vencimiento, envíalos al alumno e identifica los que esperan registro en caja.",
+      "cleared": "Boletos compensados pendientes de registro"
+    },
+    "common": {
+      "loading": "Cargando..."
+    },
+    "summary": {
+      "generated": "Boletos encontrados",
+      "awaitingPayment": "Pendientes de pago",
+      "awaitingSettlement": "Pendientes de registro",
+      "settled": "Registrados",
+      "divergence": "Divergencias"
+    },
+    "generate": {
+      "title": "Generar boleto para alumno",
+      "subtitle": "Localiza una mensualidad abierta. El boleto se emitirá por la cuenta financiera de la propia institución.",
+      "search": "Buscar alumno, correo o descripción de la mensualidad...",
+      "empty": "No se encontraron mensualidades abiertas.",
+      "monthlyFee": "Mensualidad"
+    },
+    "issued": {
+      "title": "Boletos emitidos",
+      "subtitle": "Controla todo el ciclo del boleto, desde el envío al alumno hasta el registro en caja.",
+      "search": "Buscar alumno, correo, descripción o referencia...",
+      "empty": "No se encontraron boletos."
+    },
+    "table": {
+      "student": "Alumno",
+      "charge": "Cobro",
+      "dueDate": "Vencimiento",
+      "balance": "Saldo",
+      "value": "Importe",
+      "status": "Estado",
+      "delivery": "Envío",
+      "action": "Acción",
+      "actions": "Acciones"
+    },
+    "filters": {
+      "all": "Todos",
+      "pending": "Pendientes",
+      "overdue": "Vencidos",
+      "paid": "Pagados / compensados",
+      "awaitingSettlement": "Pendientes de registro",
+      "settled": "Registrados",
+      "failed": "Fallos"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "dueToday": "Vence hoy",
+      "overdueDays": "{count} día(s) de retraso",
+      "processing": "Procesando",
+      "paid": "Pagado / compensado",
+      "awaitingSettlement": "Pendiente de registro",
+      "settled": "Registrado",
+      "divergence": "Divergencia",
+      "cancelled": "Cancelado",
+      "refunded": "Reembolsado",
+      "failed": "Fallo",
+      "bankConfirmed": "Pago confirmado por el banco; falta el registro del operador.",
+      "settledBy": "Registrado por {name}"
+    },
+    "delivery": {
+      "generated": "Generado",
+      "sent": "Enviado",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Generar boleto",
+      "generating": "Generando...",
+      "open": "Abrir boleto",
+      "openPrint": "Abrir / imprimir",
+      "copyLine": "Copiar línea",
+      "email": "Enviar correo",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirmar envío",
+      "sending": "Enviando..."
+    },
+    "messages": {
+      "loadAvailableError": "No se pudieron cargar las mensualidades disponibles.",
+      "loadBoletosError": "No se pudieron cargar los boletos.",
+      "generateError": "No se pudo generar el boleto.",
+      "generated": "Boleto generado correctamente.",
+      "reused": "Este boleto ya existía y fue recuperado.",
+      "noBoletoUrl": "El documento del boleto todavía no está disponible.",
+      "noDigitableLine": "La línea de pago todavía no está disponible.",
+      "copied": "Línea de pago copiada.",
+      "copyError": "No se pudo copiar la línea de pago.",
+      "sendError": "No se pudo registrar el envío del boleto.",
+      "emailSent": "Boleto enviado por correo y envío registrado.",
+      "whatsappOpened": "WhatsApp abierto. Después de enviar el mensaje, confirma el envío en PHANYX.",
+      "whatsappRegistered": "Envío por WhatsApp registrado."
+    },
+    "whatsapp": {
+      "greeting": "Hola, {name}.",
+      "message": "Adjunto el boleto para el pago.",
+      "link": "Boleto: {link}",
+      "line": "Línea de pago: {line}"
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Siguiente"
     }
   }
 }

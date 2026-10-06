@@ -304,6 +304,12 @@ export async function GET(
           compensadoEm: true,
           baixadoEm: true,
 
+          ultimoEnvioEm: true,
+          ultimoEnvioCanal: true,
+          ultimoEnvioPorUsuarioId: true,
+          ultimoEnvioPorNomeSnapshot: true,
+          quantidadeEnvios: true,
+
           linhaDigitavel: true,
           codigoBarras: true,
           boletoUrl: true,
