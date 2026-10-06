@@ -8,9 +8,47 @@ import type { LocalePhanyx } from "@/i18n/config";
 export default function EnrollmentPage({ locale }: { locale: LocalePhanyx }) {
   const copy = enrollmentCopy[locale];
   const contactUrl = `https://wa.me/5548988101240?text=${encodeURIComponent(`PHANYX — ${copy.eyebrow} (${locale})`)}`;
+  const pageUrl = `https://phanyx.com.br${marketingPath(locale, "enrollment")}`;
+  const homeUrl = `https://phanyx.com.br${marketingPath(locale, "home")}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: copy.title,
+        description: copy.description,
+        inLanguage: locale,
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "PHANYX", item: homeUrl },
+          { "@type": "ListItem", position: 2, name: copy.eyebrow, item: pageUrl },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${pageUrl}#faq`,
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: copy.question,
+            acceptedAnswer: { "@type": "Answer", text: copy.answer },
+          },
+        ],
+      },
+    ],
+  };
 
   return (
     <div lang={locale} className="min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <LocalizedHeader locale={locale} section="enrollment" />
       <main>
         <section className="relative isolate overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
