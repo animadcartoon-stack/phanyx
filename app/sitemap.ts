@@ -6,6 +6,11 @@ import {
   type MarketingSection,
 } from "@/lib/public-marketing";
 import {
+  digitalSchoolArticleAlternates,
+  digitalSchoolArticleLocales,
+  digitalSchoolArticlePath,
+} from "@/lib/digital-school-management-article";
+import {
   onlineSchoolArticleAlternates,
   onlineSchoolArticleLocales,
   onlineSchoolArticlePath,
@@ -34,7 +39,6 @@ const sections: MarketingSection[] = [
   "registrar",
 ];
 
-// Keep these established Brazilian pages in the sitemap alongside the localized marketing routes.
 const brazilianPages = [
   "/gestao-escolar",
   "/sistema-escolar",
@@ -82,33 +86,35 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ),
   );
 
+  const digitalArticleAlternates = Object.fromEntries(
+    Object.entries(digitalSchoolArticleAlternates().languages).map(
+      ([locale, path]) => [locale, `${baseUrl}${path}`],
+    ),
+  );
+
   const removerAlternates = Object.fromEntries(
     Object.entries(backgroundRemoverAlternates().languages).map(
       ([locale, path]) => [locale, `${baseUrl}${path}`],
     ),
   );
 
-  const localizedPages: MetadataRoute.Sitemap = sections.flatMap(
-    (section) =>
-      marketingLocales
-        .filter(
-          (locale) =>
-            !["school", "lms", "success"].includes(section) ||
-            locale !== "pt-BR",
-        )
-        .map((locale) => ({
-          url: `${baseUrl}${marketingPath(locale, section)}`,
-          alternates: {
-            languages: Object.fromEntries(
-              Object.entries(
-                marketingAlternates(section).languages,
-              ).map(([language, path]) => [
-                language,
-                `${baseUrl}${path}`,
-              ]),
+  const localizedPages: MetadataRoute.Sitemap = sections.flatMap((section) =>
+    marketingLocales
+      .filter(
+        (locale) =>
+          !["school", "lms", "success"].includes(section) ||
+          locale !== "pt-BR",
+      )
+      .map((locale) => ({
+        url: `${baseUrl}${marketingPath(locale, section)}`,
+        alternates: {
+          languages: Object.fromEntries(
+            Object.entries(marketingAlternates(section).languages).map(
+              ([language, path]) => [language, `${baseUrl}${path}`],
             ),
-          },
-        })),
+          ),
+        },
+      })),
   );
 
   const removerPages: MetadataRoute.Sitemap =
@@ -117,18 +123,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       alternates: { languages: removerAlternates },
     }));
 
-  // An unknown modification date is more accurate than marking legacy pages as changed today.
   return [
     ...localizedPages,
     ...removerPages,
-    ...brazilianPages.map((path) => ({
-      url: `${baseUrl}${path}`,
-    })),
+    ...brazilianPages.map((path) => ({ url: `${baseUrl}${path}` })),
     ...blogPages
       .filter(
         (path) =>
           path !== schoolGuidePath("pt-BR") &&
-          path !== onlineSchoolArticlePath("pt-BR"),
+          path !== onlineSchoolArticlePath("pt-BR") &&
+          path !== digitalSchoolArticlePath("pt-BR"),
       )
       .map((path) => ({ url: `${baseUrl}${path}` })),
     ...schoolGuideLocales.map((locale) => ({
@@ -138,6 +142,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...onlineSchoolArticleLocales.map((locale) => ({
       url: `${baseUrl}${onlineSchoolArticlePath(locale)}`,
       alternates: { languages: onlineArticleAlternates },
+    })),
+    ...digitalSchoolArticleLocales.map((locale) => ({
+      url: `${baseUrl}${digitalSchoolArticlePath(locale)}`,
+      alternates: { languages: digitalArticleAlternates },
     })),
   ];
 }

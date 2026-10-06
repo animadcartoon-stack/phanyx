@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import DigitalSchoolManagementArticle from "@/components/marketing/DigitalSchoolManagementArticle";
 import OnlineSchoolManagementArticle from "@/components/marketing/OnlineSchoolManagementArticle";
 import SchoolGuidePage from "@/components/marketing/SchoolGuidePage";
 import type { LocalePhanyx } from "@/i18n/config";
+import {
+  digitalSchoolArticleAlternates,
+  digitalSchoolArticleCopy,
+  digitalSchoolArticleImages,
+  digitalSchoolArticlePath,
+  digitalSchoolArticleSlugs,
+} from "@/lib/digital-school-management-article";
 import {
   onlineSchoolArticleAlternates,
   onlineSchoolArticleCopy,
@@ -24,29 +32,24 @@ type Params = {
   params: Promise<{ market: string; slug: string }>;
 };
 
-function schoolGuideLocale(
-  market: string,
-  slug: string,
-): BlogLocale | null {
-  return (
-    locales.find(
-      (locale) =>
-        locale === market && schoolGuideSlugs[locale] === slug,
-    ) ?? null
-  );
+function schoolGuideLocale(market: string, slug: string): BlogLocale | null {
+  return locales.find(
+    (locale) => locale === market && schoolGuideSlugs[locale] === slug,
+  ) ?? null;
 }
 
-function onlineArticleLocale(
-  market: string,
-  slug: string,
-): BlogLocale | null {
-  return (
-    locales.find(
-      (locale) =>
-        locale === market &&
-        onlineSchoolArticleSlugs[locale] === slug,
-    ) ?? null
-  );
+function onlineArticleLocale(market: string, slug: string): BlogLocale | null {
+  return locales.find(
+    (locale) =>
+      locale === market && onlineSchoolArticleSlugs[locale] === slug,
+  ) ?? null;
+}
+
+function digitalArticleLocale(market: string, slug: string): BlogLocale | null {
+  return locales.find(
+    (locale) =>
+      locale === market && digitalSchoolArticleSlugs[locale] === slug,
+  ) ?? null;
 }
 
 export const dynamicParams = false;
@@ -61,12 +64,14 @@ export function generateStaticParams() {
       market,
       slug: onlineSchoolArticleSlugs[market],
     })),
+    ...locales.map((market) => ({
+      market,
+      slug: digitalSchoolArticleSlugs[market],
+    })),
   ];
 }
 
-export async function generateMetadata({
-  params,
-}: Params): Promise<Metadata> {
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { market, slug } = await params;
 
   const guideLocale = schoolGuideLocale(market, slug);
@@ -92,10 +97,10 @@ export async function generateMetadata({
     };
   }
 
-  const articleLocale = onlineArticleLocale(market, slug);
-  if (articleLocale) {
-    const copy = onlineSchoolArticleCopy[articleLocale];
-    const path = onlineSchoolArticlePath(articleLocale);
+  const onlineLocale = onlineArticleLocale(market, slug);
+  if (onlineLocale) {
+    const copy = onlineSchoolArticleCopy[onlineLocale];
+    const path = onlineSchoolArticlePath(onlineLocale);
 
     return {
       title: { absolute: copy.title },
@@ -108,9 +113,32 @@ export async function generateMetadata({
         title: copy.title,
         description: copy.description,
         type: "article",
-        locale: articleLocale.replace("-", "_"),
+        locale: onlineLocale.replace("-", "_"),
         url: path,
         images: [onlineSchoolArticleImage],
+      },
+    };
+  }
+
+  const digitalLocale = digitalArticleLocale(market, slug);
+  if (digitalLocale) {
+    const copy = digitalSchoolArticleCopy[digitalLocale];
+    const path = digitalSchoolArticlePath(digitalLocale);
+
+    return {
+      title: { absolute: copy.title },
+      description: copy.description,
+      alternates: {
+        canonical: path,
+        ...digitalSchoolArticleAlternates(),
+      },
+      openGraph: {
+        title: copy.title,
+        description: copy.description,
+        type: "article",
+        locale: digitalLocale.replace("-", "_"),
+        url: path,
+        images: [digitalSchoolArticleImages[digitalLocale]],
       },
     };
   }
@@ -126,9 +154,14 @@ export default async function Page({ params }: Params) {
     return <SchoolGuidePage locale={guideLocale} />;
   }
 
-  const articleLocale = onlineArticleLocale(market, slug);
-  if (articleLocale) {
-    return <OnlineSchoolManagementArticle locale={articleLocale} />;
+  const onlineLocale = onlineArticleLocale(market, slug);
+  if (onlineLocale) {
+    return <OnlineSchoolManagementArticle locale={onlineLocale} />;
+  }
+
+  const digitalLocale = digitalArticleLocale(market, slug);
+  if (digitalLocale) {
+    return <DigitalSchoolManagementArticle locale={digitalLocale} />;
   }
 
   notFound();
