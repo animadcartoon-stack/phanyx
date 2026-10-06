@@ -218,7 +218,10 @@ export async function POST(
     const atualizada =
       await prisma.cobrancaFinanceira.update({
         where: {
-          id: cobranca.id,
+          id_instituicaoId: {
+            id: cobranca.id,
+            instituicaoId,
+          },
         },
 
         data: {
@@ -259,9 +262,9 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Erro ao enviar boleto.",
+          "Não foi possível enviar o boleto. Verifique a configuração de e-mail da instituição e tente novamente.",
+        codigo:
+          "ERRO_ENVIO_BOLETO",
       },
       { status: 500 }
     );

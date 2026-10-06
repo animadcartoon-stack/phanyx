@@ -1566,7 +1566,11 @@ export default function AdminShell({
                         </Link>
                       )}
 
-                      {temPermissao("financeiro.recebimentos") && (
+                      {podeAcessar(
+                        "financeiro.ver",
+                        "financeiro.recebimentos",
+                        "caixa.receber",
+                      ) && (
                         <Link
                           href="/admin/financeiro/boletos"
                           className={getLinkClass(
@@ -2449,12 +2453,18 @@ export default function AdminShell({
                     >
                       💵 {tNav("receipts")}
                     </Link>
-                    <Link
-                      href="/admin/financeiro/boletos"
-                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-                    >
-                      🧾 {tNav("boletos")}
-                    </Link>
+                    {podeAcessar(
+                      "financeiro.ver",
+                      "financeiro.recebimentos",
+                      "caixa.receber",
+                    ) && (
+                      <Link
+                        href="/admin/financeiro/boletos"
+                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                      >
+                        🧾 {tNav("boletos")}
+                      </Link>
+                    )}
 
                     <Link
                       href="/admin/financeiro/taxas"

@@ -1335,10 +1335,9 @@ export async function POST(
     return NextResponse.json(
       {
         error:
-          error instanceof
-          Error
-            ? error.message
-            : "Erro ao gerar boleto.",
+          "Não foi possível gerar o boleto no provedor financeiro. Verifique a integração da conta e tente novamente.",
+        codigo:
+          "ERRO_PROVEDOR_FINANCEIRO",
       },
       {
         status: 502,
