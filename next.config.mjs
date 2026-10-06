@@ -12,6 +12,24 @@ const nextConfig = {
   async redirects() {
 
     return [
+      {
+        source: "/blog/software-para-escolas-completo",
+        destination: "/sistema-escolar",
+        statusCode: 301,
+      },
+
+      {
+        source: "/blog/software-educacional-completo",
+        destination: "/sistema-escolar",
+        statusCode: 301,
+      },
+
+      {
+        source: "/blog/software-para-gestao-escolar",
+        destination: "/sistema-escolar",
+        statusCode: 301,
+      },
+
 
       {
 
