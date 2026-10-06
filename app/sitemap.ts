@@ -15,6 +15,11 @@ import {
   schoolGuideLocales,
   schoolGuidePath,
 } from "@/lib/school-guide";
+import {
+  backgroundRemoverAlternates,
+  backgroundRemoverLocales,
+  backgroundRemoverPath,
+} from "@/lib/background-remover-i18n";
 
 const baseUrl = "https://phanyx.com.br";
 
@@ -77,6 +82,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ),
   );
 
+  const removerAlternates = Object.fromEntries(
+    Object.entries(backgroundRemoverAlternates().languages).map(
+      ([locale, path]) => [locale, `${baseUrl}${path}`],
+    ),
+  );
+
   const localizedPages: MetadataRoute.Sitemap = sections.flatMap(
     (section) =>
       marketingLocales
@@ -100,9 +111,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
         })),
   );
 
+  const removerPages: MetadataRoute.Sitemap =
+    backgroundRemoverLocales.map((locale) => ({
+      url: `${baseUrl}${backgroundRemoverPath(locale)}`,
+      alternates: { languages: removerAlternates },
+    }));
+
   // An unknown modification date is more accurate than marking legacy pages as changed today.
   return [
     ...localizedPages,
+    ...removerPages,
     ...brazilianPages.map((path) => ({
       url: `${baseUrl}${path}`,
     })),
