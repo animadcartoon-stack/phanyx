@@ -1,11 +1,13 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   FormEvent,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -252,6 +254,12 @@ const PROCESSAR_INICIAL: FormProcessar = {
 
 export default function AdminMobilityApplicationsPage() {
   const locale = useLocale();
+
+  const searchParams =
+    useSearchParams();
+
+  const atalhoMatriculaProcessadoRef =
+    useRef(false);
 
   const t = useTranslations(
     "AdminMobilityApplications"
@@ -643,6 +651,186 @@ export default function AdminMobilityApplicationsPage() {
         timer
       );
   }, [carregar]);
+
+  useEffect(() => {
+    if (
+      carregando ||
+      atalhoMatriculaProcessadoRef.current ||
+      searchParams.get("nova") !== "1"
+    ) {
+      return;
+    }
+
+    const alunoId =
+      Number(
+        searchParams.get("alunoId")
+      );
+
+    const matriculaId =
+      Number(
+        searchParams.get("matriculaId")
+      );
+
+    if (
+      !Number.isInteger(alunoId) ||
+      alunoId <= 0 ||
+      !Number.isInteger(matriculaId) ||
+      matriculaId <= 0
+    ) {
+      return;
+    }
+
+    atalhoMatriculaProcessadoRef.current =
+      true;
+
+    const existente =
+      candidaturas.find(
+        (item) =>
+          item.matriculaId ===
+            matriculaId &&
+          ![
+            "REPROVADA",
+            "DESISTENTE",
+            "CANCELADA",
+          ].includes(
+            item.status
+          )
+      );
+
+    if (existente) {
+      void abrirProcessar(
+        existente
+      );
+      return;
+    }
+
+    const ofertaId =
+      ofertas[0]?.id.toString() ??
+      "";
+
+    setFormNova({
+      ...NOVA_INICIAL,
+      ofertaId,
+      vinculoCandidato:
+        "ALUNO_PHANYX",
+      alunoId,
+      matriculaId,
+    });
+
+    setBuscaAluno("");
+    setAlunosEncontrados([]);
+    setAlunoSelecionado(null);
+    setModalNova(true);
+    setBuscandoAluno(true);
+
+    const params =
+      new URLSearchParams({
+        alunoId:
+          String(alunoId),
+
+        matriculaId:
+          String(matriculaId),
+      });
+
+    if (ofertaId) {
+      params.set(
+        "ofertaId",
+        ofertaId
+      );
+    }
+
+    void fetch(
+      `/api/admin/mobilidade/candidaturas/alunos?${params.toString()}`,
+      {
+        credentials:
+          "include",
+        cache:
+          "no-store",
+      }
+    )
+      .then(
+        async (resposta) => {
+          const corpo =
+            (await resposta.json()) as {
+              ok?: boolean;
+              alunos?: AlunoBusca[];
+              codigo?: string;
+            };
+
+          if (!resposta.ok) {
+            throw new Error(
+              traduzirErro(
+                corpo.codigo
+              )
+            );
+          }
+
+          const aluno =
+            corpo.alunos?.[0] ??
+            null;
+
+          if (!aluno) {
+            throw new Error(
+              t(
+                "errors.invalidStudent"
+              )
+            );
+          }
+
+          const matricula =
+            aluno.matriculas.find(
+              (item) =>
+                item.id ===
+                matriculaId
+            );
+
+          if (!matricula) {
+            throw new Error(
+              t(
+                "errors.invalidEnrollment"
+              )
+            );
+          }
+
+          setAlunoSelecionado(
+            aluno
+          );
+
+          setFormNova(
+            (atual) => ({
+              ...atual,
+              alunoId:
+                aluno.id,
+              matriculaId:
+                matricula.id,
+            })
+          );
+        }
+      )
+      .catch(
+        (erro: unknown) => {
+          mostrarToast(
+            "erro",
+            erro instanceof Error
+              ? erro.message
+              : t(
+                  "errors.studentSearch"
+                )
+          );
+        }
+      )
+      .finally(() => {
+        setBuscandoAluno(false);
+      });
+  }, [
+    carregando,
+    candidaturas,
+    ofertas,
+    searchParams,
+    mostrarToast,
+    t,
+  ]);
+
 
   useEffect(() => {
     if (

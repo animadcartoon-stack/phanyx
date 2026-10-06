@@ -15714,6 +15714,8 @@
       "trancar": "Bloquear",
       "transferir": "Transferir",
       "intercambio": "Intercambio",
+
+      "cadastrarIntercambio": "Registrar en intercambio",
       "moverQuarentena": "Mover a cuarentena",
       "movendo": "Moviendo...",
       "restaurar": "Restaurar matrícula",

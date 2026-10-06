@@ -15714,6 +15714,8 @@
       "trancar": "Put on hold",
       "transferir": "Transfer",
       "intercambio": "Exchange",
+
+      "cadastrarIntercambio": "Create exchange application",
       "moverQuarentena": "Move to quarantine",
       "movendo": "Moving...",
       "restaurar": "Restore enrollment",
