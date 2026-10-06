@@ -75,6 +75,15 @@ type Cobranca = {
       email?: string | null;
     } | null;
   };
+  matricula?: {
+    id: number;
+    numeroMatricula?: string | null;
+    numeroMatriculaLegado?: string | null;
+    curso?: {
+      id: number;
+      nome: string;
+    } | null;
+  } | null;
   lancamentoFinanceiro: {
     id: number;
     descricao?: string | null;
@@ -277,11 +286,33 @@ export default function BoletosPage() {
       }
 
       if (
-        ["PENDENTE", "VENCIDO", "COMPENSADO", "FALHA"].includes(
+        ["PENDENTE", "COMPENSADO", "FALHA"].includes(
           filtro
         )
       ) {
         params.set("statusBancario", filtro);
+      }
+
+      if (filtro === "VENCIDO") {
+        const hoje = new Date();
+
+        const ano =
+          hoje.getFullYear();
+
+        const mes =
+          String(
+            hoje.getMonth() + 1
+          ).padStart(2, "0");
+
+        const dia =
+          String(
+            hoje.getDate()
+          ).padStart(2, "0");
+
+        params.set(
+          "vencidoEm",
+          `${ano}-${mes}-${dia}`
+        );
       }
 
       if (
@@ -860,6 +891,11 @@ export default function BoletosPage() {
                       <p className="mt-1 text-xs text-slate-500">
                         {item.aluno.user?.email || "-"}
                       </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {item.matricula?.numeroMatricula ||
+                          item.matricula?.numeroMatriculaLegado ||
+                          "-"}
+                      </p>
                     </td>
                     <td className="px-3 py-4">
                       <p className="font-medium">
@@ -1005,11 +1041,19 @@ export default function BoletosPage() {
                         <p className="mt-1 text-xs text-slate-500">
                           {cobranca.aluno.user?.email || "-"}
                         </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {cobranca.matricula?.numeroMatricula ||
+                            cobranca.matricula?.numeroMatriculaLegado ||
+                            "-"}
+                        </p>
                       </td>
                       <td className="px-3 py-4">
                         <p>
                           {cobranca.lancamentoFinanceiro.descricao ||
                             t("generate.monthlyFee")}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {cobranca.matricula?.curso?.nome || "-"}
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
                           {cobranca.contaFinanceira.nome}

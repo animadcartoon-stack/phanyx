@@ -22494,14 +22494,14 @@
     "generate": {
       "title": "Generar boleto para alumno",
       "subtitle": "Localiza una mensualidad abierta. El boleto se emitirá por la cuenta financiera de la propia institución.",
-      "search": "Buscar alumno, correo o descripción de la mensualidad...",
+      "search": "Buscar alumno, matrícula, curso, correo o mensualidad...",
       "empty": "No se encontraron mensualidades abiertas.",
       "monthlyFee": "Mensualidad"
     },
     "issued": {
       "title": "Boletos emitidos",
       "subtitle": "Controla todo el ciclo del boleto, desde el envío al alumno hasta el registro en caja.",
-      "search": "Buscar alumno, correo, descripción o referencia...",
+      "search": "Buscar alumno, matrícula, curso, correo o referencia...",
       "empty": "No se encontraron boletos."
     },
     "table": {

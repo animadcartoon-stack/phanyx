@@ -125,6 +125,12 @@ export async function GET(
           ""
       ).trim();
 
+    const vencidoEmTexto =
+      String(
+        searchParams.get("vencidoEm") ||
+          ""
+      ).trim();
+
     const contaFinanceiraIdTexto =
       String(
         searchParams.get(
@@ -146,6 +152,59 @@ export async function GET(
         ),
         100
       );
+
+    let vencidoAntesDe:
+      Date | null = null;
+
+    if (vencidoEmTexto) {
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(
+          vencidoEmTexto
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Data de referência para vencimento inválida.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const [
+        ano,
+        mes,
+        dia,
+      ] = vencidoEmTexto
+        .split("-")
+        .map(Number);
+
+      const dataReferencia =
+        new Date(
+          Date.UTC(
+            ano,
+            mes - 1,
+            dia
+          )
+        );
+
+      if (
+        dataReferencia.getUTCFullYear() !== ano ||
+        dataReferencia.getUTCMonth() !== mes - 1 ||
+        dataReferencia.getUTCDate() !== dia
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Data de referência para vencimento inválida.",
+          },
+          { status: 400 }
+        );
+      }
+
+      vencidoAntesDe =
+        dataReferencia;
+    }
 
     if (
       statusOperacionalTexto &&
@@ -229,6 +288,36 @@ export async function GET(
           }
         : {}),
 
+      ...(vencidoAntesDe
+        ? {
+            AND: [
+              {
+                statusOperacional:
+                  StatusOperacionalCobranca.AGUARDANDO_PAGAMENTO,
+              },
+              {
+                OR: [
+                  {
+                    statusBancario:
+                      StatusBancarioCobranca.VENCIDO,
+                  },
+                  {
+                    statusBancario: {
+                      in: [
+                        StatusBancarioCobranca.PENDENTE,
+                        StatusBancarioCobranca.EM_PROCESSAMENTO,
+                      ],
+                    },
+                    vencimento: {
+                      lt: vencidoAntesDe,
+                    },
+                  },
+                ],
+              },
+            ],
+          }
+        : {}),
+
       ...(busca
         ? {
             OR: [
@@ -255,6 +344,32 @@ export async function GET(
                   descricao: {
                     contains: busca,
                     mode: "insensitive" as const,
+                  },
+                },
+              },
+              {
+                matricula: {
+                  numeroMatricula: {
+                    contains: busca,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+              {
+                matricula: {
+                  numeroMatriculaLegado: {
+                    contains: busca,
+                    mode: "insensitive" as const,
+                  },
+                },
+              },
+              {
+                matricula: {
+                  curso: {
+                    nome: {
+                      contains: busca,
+                      mode: "insensitive" as const,
+                    },
                   },
                 },
               },

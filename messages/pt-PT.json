@@ -22280,14 +22280,14 @@
     "generate": {
       "title": "Emitir boleto para aluno",
       "subtitle": "Localize uma mensalidade em aberto. O boleto será emitido pela conta financeira da própria instituição.",
-      "search": "Pesquisar aluno, e-mail ou descrição da mensalidade...",
+      "search": "Pesquisar aluno, matrícula, curso, e-mail ou mensalidade...",
       "empty": "Nenhuma mensalidade em aberto encontrada.",
       "monthlyFee": "Mensalidade"
     },
     "issued": {
       "title": "Boletos emitidos",
       "subtitle": "Acompanhe o ciclo completo do boleto, do envio ao aluno até à baixa na caixa.",
-      "search": "Pesquisar aluno, e-mail, descrição ou referência...",
+      "search": "Pesquisar aluno, matrícula, curso, e-mail ou referência...",
       "empty": "Nenhum boleto encontrado."
     },
     "table": {

@@ -22494,14 +22494,14 @@
     "generate": {
       "title": "Générer un bordereau pour un étudiant",
       "subtitle": "Recherchez une mensualité ouverte. Le bordereau sera émis via le compte financier propre de l'établissement.",
-      "search": "Rechercher un étudiant, un e-mail ou une description...",
+      "search": "Rechercher étudiant, inscription, cursus, e-mail ou mensualité...",
       "empty": "Aucune mensualité ouverte trouvée.",
       "monthlyFee": "Mensualité"
     },
     "issued": {
       "title": "Bordereaux émis",
       "subtitle": "Suivez tout le cycle, de l'envoi à l'étudiant jusqu'à l'enregistrement en caisse.",
-      "search": "Rechercher étudiant, e-mail, description ou référence...",
+      "search": "Rechercher étudiant, inscription, cursus, e-mail ou référence...",
       "empty": "Aucun bordereau trouvé."
     },
     "table": {

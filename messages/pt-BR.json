@@ -22264,14 +22264,14 @@
     "generate": {
       "title": "Gerar boleto para aluno",
       "subtitle": "Localize uma mensalidade em aberto. O boleto será emitido pela conta financeira da própria instituição.",
-      "search": "Buscar aluno, e-mail ou descrição da mensalidade...",
+      "search": "Buscar aluno, matrícula, curso, e-mail ou mensalidade...",
       "empty": "Nenhuma mensalidade em aberto encontrada.",
       "monthlyFee": "Mensalidade"
     },
     "issued": {
       "title": "Boletos emitidos",
       "subtitle": "Acompanhe o ciclo completo do boleto, do envio ao aluno até a baixa no caixa.",
-      "search": "Buscar aluno, e-mail, descrição ou referência...",
+      "search": "Buscar aluno, matrícula, curso, e-mail ou referência...",
       "empty": "Nenhum boleto encontrado."
     },
     "table": {

@@ -22494,14 +22494,14 @@
     "generate": {
       "title": "Generate a bank slip for a student",
       "subtitle": "Find an open tuition charge. The bank slip is issued through the institution's own financial account.",
-      "search": "Search student, email, or tuition description...",
+      "search": "Search student, enrollment, course, email, or tuition...",
       "empty": "No open tuition charges found.",
       "monthlyFee": "Tuition"
     },
     "issued": {
       "title": "Issued bank slips",
       "subtitle": "Track the full bank-slip lifecycle, from delivery to the student through cash-register posting.",
-      "search": "Search student, email, description, or reference...",
+      "search": "Search student, enrollment, course, email, or reference...",
       "empty": "No bank slips found."
     },
     "table": {

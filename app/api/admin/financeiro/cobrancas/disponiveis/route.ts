@@ -95,6 +95,24 @@ export async function GET(req: NextRequest) {
         status: {
           in: ["PENDENTE", "PARCIAL", "ATRASADO"],
         },
+
+        AND: [
+          {
+            OR: [
+              {
+                matriculaId: null,
+              },
+              {
+                matricula: {
+                  is: {
+                    realizadaPeloAluno: false,
+                  },
+                },
+              },
+            ],
+          },
+        ],
+
         ...(busca
           ? {
               OR: [
@@ -120,6 +138,32 @@ export async function GET(req: NextRequest) {
                   descricao: {
                     contains: busca,
                     mode: "insensitive",
+                  },
+                },
+                {
+                  matricula: {
+                    numeroMatricula: {
+                      contains: busca,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+                {
+                  matricula: {
+                    numeroMatriculaLegado: {
+                      contains: busca,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+                {
+                  matricula: {
+                    curso: {
+                      nome: {
+                        contains: busca,
+                        mode: "insensitive",
+                      },
+                    },
                   },
                 },
               ],
