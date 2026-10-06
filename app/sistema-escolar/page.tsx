@@ -1,11 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Sistema de Gestão Escolar Completo | PHANYX",
   description:
     "Sistema de gestão escolar completo para escolas, faculdades e EAD. Controle acadêmico, financeiro, alunos, professores, provas e certificados em uma única plataforma.",
+  alternates: { canonical: "/sistema-escolar" },
   keywords: [
     "sistema de gestão escolar",
     "software escolar",
@@ -89,7 +91,7 @@ export default function SistemaEscolarPage() {
               </p>
 
 <a href="/blog/sistema-gestao-escolar">
-  Saiba mais sobre sistema de gestão escolar
+  Guia: como escolher o melhor sistema de gestão escolar
 </a>
 
 <a href="/blog/sistema-escolar-vs-moodle">

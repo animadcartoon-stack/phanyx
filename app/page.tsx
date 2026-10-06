@@ -8,12 +8,12 @@ import { marketingPath } from "@/lib/public-marketing";
 
 export const metadata = {
   alternates: marketingAlternates("home"),
-  title: { absolute: "PHANYX | Sistema de Gestão Escolar, Acadêmica e Plataforma EAD" },
+  title: { absolute: "PHANYX | Plataforma de Gestão Educacional e Acadêmica" },
   description:
-    "PHANYX é uma plataforma completa para gestão acadêmica, EAD, financeiro, documentos, certificados e portais para aluno e professor.",
+    "PHANYX é uma plataforma de gestão educacional que integra gestão acadêmica, matrículas, financeiro, documentos, EAD e portais para alunos e professores.",
 
   keywords: [
-    "sistema de gestão escolar",
+    "plataforma de gestão educacional",
     "gestão acadêmica",
     "plataforma ead",
     "software para cursos",
@@ -23,7 +23,7 @@ export const metadata = {
   ],
 
   openGraph: {
-    title: "PHANYX | Gestão Acadêmica, EAD e Plataforma Escolar",
+    title: "PHANYX | Plataforma de Gestão Educacional e Acadêmica",
     description:
       "Sistema completo para escolas, faculdades, seminários e cursos livres.",
     url: "https://phanyx.com.br",
@@ -42,7 +42,7 @@ export const metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "PHANYX | Gestão Acadêmica, EAD e Plataforma Escolar",
+    title: "PHANYX | Plataforma de Gestão Educacional e Acadêmica",
     description:
       "Sistema completo para escolas, faculdades, seminários e cursos livres.",
     images: ["https://www.phanyx.com.br/og-phanyx-v3.png"],

@@ -8,6 +8,35 @@ const withNextIntl = createNextIntlPlugin(
 const nextConfig = {
   reactStrictMode: true,
 
+
+  async redirects() {
+
+    return [
+
+      {
+
+        source: "/blog/melhor-sistema-gestao-escolar",
+
+        destination: "/blog/sistema-gestao-escolar",
+
+        statusCode: 301,
+
+      },
+
+      {
+
+        source: "/blog/como-escolher-sistema-escolar",
+
+        destination: "/blog/sistema-gestao-escolar",
+
+        statusCode: 301,
+
+      },
+
+    ];
+
+  },
+
   eslint: {
     ignoreDuringBuilds: true,
   },

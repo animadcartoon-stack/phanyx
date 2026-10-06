@@ -90,8 +90,8 @@ export default function SistemaVsMoodlePage() {
     </li>
 
     <li>
-      <a href="/blog/como-escolher-sistema-escolar" className="text-blue-600 underline">
-        Como escolher um sistema de gestão escolar
+      <a href="/blog/sistema-gestao-escolar" className="text-blue-600 underline">
+        Guia para escolher um sistema de gestão escolar
       </a>
     </li>
 

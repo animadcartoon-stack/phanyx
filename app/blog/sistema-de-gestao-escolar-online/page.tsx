@@ -5,6 +5,7 @@ export const metadata = {
   title: "Sistema de gestão escolar online | PHANYX",
   description:
     "Conheça um sistema de gestão escolar online completo e veja como organizar sua instituição com tecnologia.",
+  alternates: { canonical: "/blog/sistema-de-gestao-escolar-online" },
 };
 
 export default function SistemaOnlinePage() {
