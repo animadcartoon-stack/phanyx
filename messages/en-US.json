@@ -11791,7 +11791,8 @@
       "occupationalHealthReturn": "HR - Return-to-work health certificate",
       "occupationalHealthRoleChange": "HR - Role-change health certificate",
       "occupationalHealthDismissal": "HR - Exit health certificate",
-      "other": "Other"
+      "other": "Other",
+      "enrollmentCancellation": "Enrollment cancellation"
     },
     "statuses": {
       "draft": "Draft",
@@ -14005,7 +14006,8 @@
       "warning": "DISCIPLINARY WARNING\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nReason for warning:\n{{motivoAdvertencia}}\n\nDetailed description:\n{{descricaoAdvertencia}}\n\nIncident date: {{dataAdvertencia}}\n\nThis warning is educational and preventive in nature and is intended to guide the employee regarding compliance with internal policies, institutional procedures, professional ethics, and responsibilities inherent to their position.\n\nThe employee acknowledges the content of this warning and the consequences that may apply in the event of recurrence.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nACKNOWLEDGED:\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYER:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "suspension": "DISCIPLINARY SUSPENSION\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nReason for suspension:\n{{motivoSuspensao}}\n\nDetailed description:\n{{descricaoSuspensao}}\n\nSuspension period:\n- Start: {{dataInicioSuspensao}}\n- End: {{dataFimSuspensao}}\n- Number of days: {{diasSuspensao}}\n\nDuring the period stated above, the employee will be suspended from their work activities, without prejudice to any other obligations provided by applicable law and internal regulations.\n\nThe employee acknowledges this disciplinary suspension.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nACKNOWLEDGED:\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYER:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "occupationalHealth": "OCCUPATIONAL HEALTH CERTIFICATE - ASO\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nASO type: {{tipoAso}}\nASO number: {{numeroAso}}\nExamination date: {{dataAso}}\nResult: {{resultadoAso}}\n\nResponsible physician: {{medicoResponsavel}}\nCRM: {{crmMedico}}\n\nNotes:\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM: {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
-      "leaveReturn": "EMPLOYEE LEAVE / RETURN-TO-WORK DOCUMENT\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nLeave type: {{tipoAfastamento}}\nReason: {{motivoAfastamento}}\nICD: {{cidAfastamento}}\nStart date: {{dataInicioAfastamento}}\nExpected end date: {{dataFimAfastamento}}\nNumber of days: {{diasAfastamento}}\nMedical assessment date: {{dataPericia}}\nMedical assessment result: {{resultadoPericia}}\n\nThis document records information concerning the employee's leave or return to work.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+      "leaveReturn": "EMPLOYEE LEAVE / RETURN-TO-WORK DOCUMENT\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nLeave type: {{tipoAfastamento}}\nReason: {{motivoAfastamento}}\nICD: {{cidAfastamento}}\nStart date: {{dataInicioAfastamento}}\nExpected end date: {{dataFimAfastamento}}\nNumber of days: {{diasAfastamento}}\nMedical assessment date: {{dataPericia}}\nMedical assessment result: {{resultadoPericia}}\n\nThis document records information concerning the employee's leave or return to work.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "enrollmentCancellation": "ENROLLMENT CANCELLATION AGREEMENT\n\nThe institution {{nomeInstituicao}}, registered under CNPJ {{cnpjInstituicao}}, represented herein by {{responsavelLegal}}, and the contracting party {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, regarding the enrollment of {{nomeAluno}}, CPF {{cpfAluno}}, enrollment number {{matriculaAluno}}, in the course {{curso}}, formalize this enrollment cancellation.\n\nPROTOCOL: {{numeroProtocoloCancelamentoMatricula}}\nREQUEST DATE: {{dataSolicitacaoCancelamentoMatricula}}\nEFFECTIVE CANCELLATION DATE: {{dataEfetivaCancelamentoMatricula}}\n\nCANCELLATION REASON:\n{{motivoCancelamentoMatricula}}\n\nFINANCIAL SETTLEMENT\n- Overdue installments/amounts: {{valorParcelasVencidasCancelamento}}\n- Contractual penalty: {{valorMultaCancelamento}}\n- Interest and charges: {{valorJurosCancelamento}}\n- Credits/discounts: {{valorCreditoCancelamento}}\n- Refund amount: {{valorDevolucaoCancelamento}}\n- Total amount for closure: {{valorTotalCancelamento}}\n\nAPPLIED CONTRACTUAL RULE:\n{{regraContratualCancelamento}}\n\nPenalty calculation base: {{baseCalculoMultaCancelamento}}\nPenalty percentage: {{percentualMultaCancelamento}}\nFinancial status: {{situacaoFinanceiraCancelamento}}\n\nNOTES:\n{{observacoesCancelamentoMatricula}}\n\nThe parties acknowledge the academic and financial consequences of the cancellation and the amounts determined in this process, without prejudice to the other terms of the agreement and applicable law.\n\nProcess owner: {{responsavelCancelamentoMatricula}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCONTRACTING PARTY / RESPONSIBLE PARTY:\n{{nomeTitularContrato}}\nCPF: {{cpfTitularContrato}}\n\nSTUDENT:\n{{nomeAluno}}\nCPF: {{cpfAluno}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
     }
   },
   "PublicDocumentValidation": {
@@ -14065,7 +14067,8 @@
       "COMPROVANTE": "Proof / certificate",
       "TRANCAMENTO": "Enrollment suspension",
       "COMPARECIMENTO": "Attendance statement",
-      "HISTORICO": "Academic transcript"
+      "HISTORICO": "Academic transcript",
+      "CANCELAMENTO_MATRICULA": "Enrollment cancellation"
     }
   },
   "AdminFinance": {
@@ -14287,7 +14290,8 @@
       "credentialsRequired": "Configure credentials before enabling the integration.",
       "webhookSecretRequired": "Configure the secret token before enabling the webhook."
     }
-  },  "AdminFinanceCash": {
+  },
+  "AdminFinanceCash": {
     "page": {
       "title": "Cash register",
       "subtitle": "Open, manage, and close the cash register."
@@ -15714,7 +15718,6 @@
       "trancar": "Put on hold",
       "transferir": "Transfer",
       "intercambio": "Exchange",
-
       "cadastrarIntercambio": "Create exchange application",
       "moverQuarentena": "Move to quarantine",
       "movendo": "Moving...",
@@ -19120,7 +19123,8 @@
     "validationsStatusPending": "Pending",
     "validationsStatusSuspended": "Suspended",
     "validationsStatusActive": "Active",
-    "validationsStatusCompleted": "Completed"
+    "validationsStatusCompleted": "Completed",
+    "validationsEnrollmentCancellation": "Enrollment cancellation"
   },
   "AdminLibraryLicenses": {
     "title": "Library Licenses",

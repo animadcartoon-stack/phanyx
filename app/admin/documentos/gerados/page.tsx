@@ -41,6 +41,7 @@ const CHAVES_TIPO_DOCUMENTO: Record<string, string> = {
   RECIBO: "types.receipt",
   COMPROVANTE: "types.proof",
   TRANCAMENTO: "types.withdrawal",
+  CANCELAMENTO_MATRICULA: "types.enrollmentCancellation",
   COMPARECIMENTO: "types.attendance",
   HISTORICO: "types.transcript",
   HOLERITE: "types.payslip",
@@ -741,6 +742,7 @@ function AdminDocumentosGeradosPage() {
                     <option value="RECIBO">{labelTipo("RECIBO")}</option>
                     <option value="COMPROVANTE">{labelTipo("COMPROVANTE")}</option>
                     <option value="TRANCAMENTO">{labelTipo("TRANCAMENTO")}</option>
+                    <option value="CANCELAMENTO_MATRICULA">{labelTipo("CANCELAMENTO_MATRICULA")}</option>
                     <option value="COMPARECIMENTO">{labelTipo("COMPARECIMENTO")}</option>
                     <option value="HISTORICO">{labelTipo("HISTORICO")}</option>
                     <option value="OUTRO">{labelTipo("OUTRO")}</option>

@@ -37,6 +37,22 @@ export function montarValoresPreviewDocumento(
       "pt-BR"
     );
 
+  const moedaDocumento =
+    localeDocumento === "pt-BR"
+      ? "BRL"
+      : localeDocumento === "en-US"
+      ? "USD"
+      : "EUR";
+
+  const moedaPreview = (valor: number) =>
+    new Intl.NumberFormat(
+      localeDocumento,
+      {
+        style: "currency",
+        currency: moedaDocumento,
+      }
+    ).format(valor);
+
   const dadosBolsaPreview =
     montarDadosBolsaDocumento(
       {
@@ -216,6 +232,54 @@ export function montarValoresPreviewDocumento(
 
     situacaoAnteriorMatricula:
       "ATIVA",
+
+    motivoCancelamentoMatricula:
+      "Solicitação formal de cancelamento da matrícula.",
+
+    dataSolicitacaoCancelamentoMatricula:
+      agora.toLocaleDateString(localeDocumento),
+
+    dataEfetivaCancelamentoMatricula:
+      agora.toLocaleDateString(localeDocumento),
+
+    responsavelCancelamentoMatricula:
+      responsavelLegal,
+
+    numeroProtocoloCancelamentoMatricula:
+      "CAN-1-2026-00000001",
+
+    regraContratualCancelamento:
+      "Cláusula contratual de cancelamento conforme o contrato vigente.",
+
+    baseCalculoMultaCancelamento:
+      moedaPreview(3000),
+
+    percentualMultaCancelamento:
+      "10%",
+
+    valorParcelasVencidasCancelamento:
+      moedaPreview(450),
+
+    valorMultaCancelamento:
+      moedaPreview(300),
+
+    valorJurosCancelamento:
+      moedaPreview(27.5),
+
+    valorCreditoCancelamento:
+      moedaPreview(100),
+
+    valorDevolucaoCancelamento:
+      moedaPreview(0),
+
+    valorTotalCancelamento:
+      moedaPreview(677.5),
+
+    situacaoFinanceiraCancelamento:
+      "PENDENTE",
+
+    observacoesCancelamentoMatricula:
+      "Valores sujeitos à conferência e baixa financeira antes da finalização.",
 
     nomeAluno:
       "Aluno Exemplo",

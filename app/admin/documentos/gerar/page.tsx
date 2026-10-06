@@ -97,6 +97,7 @@ const CHAVES_TIPO_DOCUMENTO: Record<string, string> = {
   RECIBO: "types.receipt",
   COMPROVANTE: "types.proof",
   TRANCAMENTO: "types.withdrawal",
+  CANCELAMENTO_MATRICULA: "types.enrollmentCancellation",
   COMPARECIMENTO: "types.attendance",
   HISTORICO: "types.transcript",
   HOLERITE: "types.payslip",
