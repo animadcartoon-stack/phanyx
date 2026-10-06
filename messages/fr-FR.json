@@ -14191,7 +14191,7 @@
     }
   },
   "AdminFinanceAccounts": {
-    "back": "Retour aux finances",
+    "back": "Retour aux paramètres",
     "title": "Comptes financiers",
     "subtitle": "Enregistrez les comptes et prestataires qui reçoivent les paiements de l'établissement. Les identifiants et jetons sont chiffrés sur le serveur et ne sont jamais réaffichés.",
     "newAccount": "Nouveau compte",

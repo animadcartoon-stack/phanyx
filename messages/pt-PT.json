@@ -13978,7 +13978,7 @@
     }
   },
   "AdminFinanceAccounts": {
-    "back": "Voltar a Financeiro",
+    "back": "Voltar às Configurações",
     "title": "Contas financeiras",
     "subtitle": "Registe as contas e provedores que recebem os pagamentos da instituição. Credenciais e tokens ficam encriptados no servidor e nunca são exibidos novamente.",
     "newAccount": "Nova conta",

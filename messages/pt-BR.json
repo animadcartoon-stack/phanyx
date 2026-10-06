@@ -13962,7 +13962,7 @@
     }
   },
   "AdminFinanceAccounts": {
-    "back": "Voltar ao Financeiro",
+    "back": "Voltar às Configurações",
     "title": "Contas financeiras",
     "subtitle": "Cadastre as contas e provedores que recebem os pagamentos da instituição. Credenciais e tokens ficam criptografados no servidor e nunca são exibidos novamente.",
     "newAccount": "Nova conta",
@@ -22178,7 +22178,7 @@
   "AdminFinanceiroBoletosCompensados": {
     "title": "Boletos compensados",
     "subtitle": "Confira os boletos recebidos pelo provedor, dê baixa nos valores conferidos e acompanhe divergências.",
-    "back": "Voltar ao Financeiro",
+    "back": "Voltar às Configurações",
     "refresh": "Atualizar",
     "searchPlaceholder": "Buscar por aluno, matrícula, lançamento ou referência...",
     "tabs": {

@@ -14192,7 +14192,7 @@
     }
   },
   "AdminFinanceAccounts": {
-    "back": "Back to Finance",
+    "back": "Back to Settings",
     "title": "Financial accounts",
     "subtitle": "Register the institution's own financial accounts and payment providers. Credentials and tokens are encrypted on the server and never displayed again.",
     "newAccount": "New account",
@@ -22408,7 +22408,7 @@
   "AdminFinanceiroBoletosCompensados": {
     "title": "Cleared bank slips",
     "subtitle": "Review payments received by the provider, post verified amounts and monitor discrepancies.",
-    "back": "Back to Finance",
+    "back": "Back to Settings",
     "refresh": "Refresh",
     "searchPlaceholder": "Search by student, enrollment, entry or reference...",
     "tabs": {

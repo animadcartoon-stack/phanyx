@@ -14191,7 +14191,7 @@
     }
   },
   "AdminFinanceAccounts": {
-    "back": "Volver a Finanzas",
+    "back": "Volver a Configuración",
     "title": "Cuentas financieras",
     "subtitle": "Registre las cuentas y proveedores que reciben los pagos de la institución. Las credenciales y los tokens se cifran en el servidor y nunca vuelven a mostrarse.",
     "newAccount": "Nueva cuenta",
@@ -22408,7 +22408,7 @@
   "AdminFinanceiroBoletosCompensados": {
     "title": "Boletos compensados",
     "subtitle": "Revise los boletos recibidos por el proveedor, registre los importes verificados y controle las discrepancias.",
-    "back": "Volver a Finanzas",
+    "back": "Volver a Configuración",
     "refresh": "Actualizar",
     "searchPlaceholder": "Buscar por alumno, matrícula, asiento o referencia...",
     "tabs": {
