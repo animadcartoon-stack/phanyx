@@ -1770,8 +1770,27 @@ function AdminDocumentosTemplatesPage() {
         campo.id === id
           ? {
             ...campo,
-            x: Math.max(0, x),
-            y: Math.max(0, y),
+
+            /*
+             * O editor e o PDF compartilham a mesma matriz lógica:
+             * 480 x 150. Não permitimos que a caixa seja arrastada
+             * para fora dessa matriz.
+             */
+            x: Math.min(
+              Math.max(0, x),
+              Math.max(
+                0,
+                480 - campo.largura
+              )
+            ),
+
+            y: Math.min(
+              Math.max(0, y),
+              Math.max(
+                0,
+                150 - campo.altura
+              )
+            ),
           }
           : campo
       )
@@ -4822,14 +4841,14 @@ function AdminDocumentosTemplatesPage() {
                   </div>
 
                   <div className="pdoc-card rounded-2xl border p-5">
-                    <div className="pdoc-soft mx-auto w-full max-w-[520px] rounded-2xl border p-5">
+                    <div className="pdoc-soft mx-auto w-full max-w-[522px] rounded-2xl border p-5">
                       <div className="pdoc-label mb-3 text-sm font-semibold">
                         {tVisual(
                           "visualFields.signatureAreaTitle"
                         )}
                       </div>
 
-                      <div className="relative h-[150px] rounded-xl border bg-white">
+                      <div className="relative h-[150px] rounded-xl bg-white ring-1 ring-inset ring-slate-300">
                         <div className="absolute left-10 right-10 top-[92px] border-t border-slate-700" />
 
                         <div className="absolute left-10 top-[100px] text-xs text-slate-600">
@@ -4933,16 +4952,28 @@ function AdminDocumentosTemplatesPage() {
                                 const alturaInicial = campo.altura;
 
                                 function aoMover(ev: MouseEvent) {
-                                  const novaLargura = Math.max(
-                                    60,
-                                    larguraInicial +
-                                      (ev.clientX - inicioX)
+                                  const novaLargura = Math.min(
+                                    Math.max(
+                                      60,
+                                      larguraInicial +
+                                        (ev.clientX - inicioX)
+                                    ),
+                                    Math.max(
+                                      1,
+                                      480 - campo.x
+                                    )
                                   );
 
-                                  const novaAltura = Math.max(
-                                    20,
-                                    alturaInicial +
-                                      (ev.clientY - inicioY)
+                                  const novaAltura = Math.min(
+                                    Math.max(
+                                      20,
+                                      alturaInicial +
+                                        (ev.clientY - inicioY)
+                                    ),
+                                    Math.max(
+                                      1,
+                                      150 - campo.y
+                                    )
                                   );
 
                                   setCamposVisuais((atuais) =>
