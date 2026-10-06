@@ -14217,14 +14217,16 @@
       "integration": "Integración",
       "credentials": "Credenciales",
       "webhook": "Webhook",
-      "boleto": "Boleto",
+      "boleto": "Admite boleto",
       "webhookEndpoint": "Endpoint del webhook"
     },
     "status": {
       "enabled": "Activa",
       "disabled": "Desactivada",
       "configured": "Configurada",
-      "notConfigured": "No configurada"
+      "notConfigured": "No configurada",
+      "yes": "Sí",
+      "no": "No"
     },
     "modal": {
       "newTitle": "Nueva cuenta financiera",

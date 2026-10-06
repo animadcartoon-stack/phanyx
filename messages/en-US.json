@@ -14218,14 +14218,16 @@
       "integration": "Integration",
       "credentials": "Credentials",
       "webhook": "Webhook",
-      "boleto": "Bank slip",
+      "boleto": "Supports bank slips",
       "webhookEndpoint": "Webhook endpoint"
     },
     "status": {
       "enabled": "Enabled",
       "disabled": "Disabled",
       "configured": "Configured",
-      "notConfigured": "Not configured"
+      "notConfigured": "Not configured",
+      "yes": "Yes",
+      "no": "No"
     },
     "modal": {
       "newTitle": "New financial account",

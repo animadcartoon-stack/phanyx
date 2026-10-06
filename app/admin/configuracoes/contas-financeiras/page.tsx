@@ -465,8 +465,8 @@ export default function ContasFinanceirasPage() {
                       </p>
                       <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {conta.suportaBoleto
-                          ? t("status.enabled")
-                          : t("status.disabled")}
+                          ? t("status.yes")
+                          : t("status.no")}
                       </p>
                     </div>
                   </div>

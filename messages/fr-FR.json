@@ -14217,14 +14217,16 @@
       "integration": "Intégration",
       "credentials": "Identifiants",
       "webhook": "Webhook",
-      "boleto": "Bordereau",
+      "boleto": "Prend en charge le boleto",
       "webhookEndpoint": "Endpoint du webhook"
     },
     "status": {
       "enabled": "Active",
       "disabled": "Désactivée",
       "configured": "Configurée",
-      "notConfigured": "Non configurée"
+      "notConfigured": "Non configurée",
+      "yes": "Oui",
+      "no": "Non"
     },
     "modal": {
       "newTitle": "Nouveau compte financier",
