@@ -11790,7 +11790,8 @@
       "occupationalHealthReturn": "RH - ASO retorno ao trabalho",
       "occupationalHealthRoleChange": "RH - ASO mudança de função",
       "occupationalHealthDismissal": "RH - ASO demissional",
-      "other": "Outro"
+      "other": "Outro",
+      "enrollmentCancellation": "Cancelamento de matrícula"
     },
     "statuses": {
       "draft": "Rascunho",
@@ -13775,7 +13776,8 @@
       "warning": "ADVERTÊNCIA DISCIPLINAR\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nMotivo da advertência:\n{{motivoAdvertencia}}\n\nDescrição detalhada:\n{{descricaoAdvertencia}}\n\nData da ocorrência: {{dataAdvertencia}}\n\nEsta advertência tem caráter educativo e preventivo, visando orientar o colaborador quanto ao cumprimento das normas internas, procedimentos institucionais, ética profissional e responsabilidades inerentes à sua função.\n\nO colaborador declara estar ciente do conteúdo desta advertência e das consequências previstas em caso de reincidência.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCIENTE:\n____________________________________\n{{nomeFuncionario}}\n\nEMPREGADOR:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "suspension": "SUSPENSÃO DISCIPLINAR\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nMotivo da suspensão:\n{{motivoSuspensao}}\n\nDescrição detalhada:\n{{descricaoSuspensao}}\n\nPeríodo de suspensão:\n- Início: {{dataInicioSuspensao}}\n- Fim: {{dataFimSuspensao}}\n- Quantidade de dias: {{diasSuspensao}}\n\nDurante o período acima informado, o colaborador ficará afastado de suas atividades laborais, sem prejuízo das demais obrigações previstas na legislação e nos regulamentos internos aplicáveis.\n\nO colaborador declara estar ciente da presente suspensão disciplinar.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCIENTE:\n____________________________________\n{{nomeFuncionario}}\n\nEMPREGADOR:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "occupationalHealth": "ATESTADO DE SAÚDE OCUPACIONAL - ASO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de ASO: {{tipoAso}}\nNúmero do ASO: {{numeroAso}}\nData do exame: {{dataAso}}\nResultado: {{resultadoAso}}\n\nMédico responsável: {{medicoResponsavel}}\nCRM: {{crmMedico}}\n\nObservações:\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM: {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
-      "leaveReturn": "DOCUMENTO DE AFASTAMENTO / RETORNO AO TRABALHO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de afastamento: {{tipoAfastamento}}\nMotivo: {{motivoAfastamento}}\nCID: {{cidAfastamento}}\nData de início: {{dataInicioAfastamento}}\nData final prevista: {{dataFimAfastamento}}\nQuantidade de dias: {{diasAfastamento}}\nData da perícia: {{dataPericia}}\nResultado da perícia: {{resultadoPericia}}\n\nO presente documento registra as informações relacionadas ao afastamento ou retorno ao trabalho do colaborador.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+      "leaveReturn": "DOCUMENTO DE AFASTAMENTO / RETORNO AO TRABALHO\n\nFuncionário: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de afastamento: {{tipoAfastamento}}\nMotivo: {{motivoAfastamento}}\nCID: {{cidAfastamento}}\nData de início: {{dataInicioAfastamento}}\nData final prevista: {{dataFimAfastamento}}\nQuantidade de dias: {{diasAfastamento}}\nData da perícia: {{dataPericia}}\nResultado da perícia: {{resultadoPericia}}\n\nO presente documento registra as informações relacionadas ao afastamento ou retorno ao trabalho do colaborador.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "enrollmentCancellation": "TERMO DE CANCELAMENTO DE MATRÍCULA\n\nA instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, e o(a) contratante {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, referente à matrícula de {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, no curso {{curso}}, formalizam o presente cancelamento de matrícula.\n\nPROTOCOLO: {{numeroProtocoloCancelamentoMatricula}}\nDATA DA SOLICITAÇÃO: {{dataSolicitacaoCancelamentoMatricula}}\nDATA EFETIVA DO CANCELAMENTO: {{dataEfetivaCancelamentoMatricula}}\n\nMOTIVO DO CANCELAMENTO:\n{{motivoCancelamentoMatricula}}\n\nAPURAÇÃO FINANCEIRA\n- Parcelas/valores vencidos: {{valorParcelasVencidasCancelamento}}\n- Multa contratual: {{valorMultaCancelamento}}\n- Juros e encargos: {{valorJurosCancelamento}}\n- Créditos/descontos: {{valorCreditoCancelamento}}\n- Valor a devolver: {{valorDevolucaoCancelamento}}\n- Total para encerramento: {{valorTotalCancelamento}}\n\nREGRA CONTRATUAL APLICADA:\n{{regraContratualCancelamento}}\n\nBase de cálculo da multa: {{baseCalculoMultaCancelamento}}\nPercentual da multa: {{percentualMultaCancelamento}}\nSituação financeira: {{situacaoFinanceiraCancelamento}}\n\nOBSERVAÇÕES:\n{{observacoesCancelamentoMatricula}}\n\nAs partes declaram ciência das consequências acadêmicas e financeiras do cancelamento e dos valores apurados neste processo, sem prejuízo das demais condições previstas no contrato e na legislação aplicável.\n\nResponsável pelo processo: {{responsavelCancelamentoMatricula}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCONTRATANTE / RESPONSÁVEL:\n{{nomeTitularContrato}}\nCPF: {{cpfTitularContrato}}\n\nALUNO(A):\n{{nomeAluno}}\nCPF: {{cpfAluno}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
     }
   },
   "PublicDocumentValidation": {
@@ -13835,7 +13837,8 @@
       "COMPROVANTE": "Comprovante",
       "TRANCAMENTO": "Trancamento",
       "COMPARECIMENTO": "Comparecimento",
-      "HISTORICO": "Hist?rico"
+      "HISTORICO": "Hist?rico",
+      "CANCELAMENTO_MATRICULA": "Cancelamento de matrícula"
     }
   },
   "AdminFinance": {
@@ -14057,7 +14060,8 @@
       "credentialsRequired": "Configure a credencial antes de ativar a integração.",
       "webhookSecretRequired": "Configure o token secreto antes de ativar o webhook."
     }
-  },  "AdminFinanceCash": {
+  },
+  "AdminFinanceCash": {
     "page": {
       "title": "Caixa",
       "subtitle": "Abertura, movimentação e fechamento de caixa."
@@ -15484,7 +15488,6 @@
       "trancar": "Trancar",
       "transferir": "Transferir",
       "intercambio": "Intercâmbio",
-
       "cadastrarIntercambio": "Cadastrar em intercâmbio",
       "moverQuarentena": "Mover para quarentena",
       "movendo": "Movendo...",
@@ -18890,7 +18893,8 @@
     "validationsStatusPending": "Pendente",
     "validationsStatusSuspended": "Trancada",
     "validationsStatusActive": "Ativo",
-    "validationsStatusCompleted": "Concluído"
+    "validationsStatusCompleted": "Concluído",
+    "validationsEnrollmentCancellation": "Cancelamento de matrícula"
   },
   "AdminLibraryLicenses": {
     "title": "Licenças da Biblioteca",

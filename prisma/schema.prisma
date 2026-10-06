@@ -295,11 +295,11 @@ model Instituicao {
 
   bibliotecaModelosEtiqueta BibliotecaModeloEtiqueta[]
 
-
-  contasFinanceiras    ContaFinanceiraInstituicao[]
-  cobrancasFinanceiras CobrancaFinanceira[]
+  contasFinanceiras           ContaFinanceiraInstituicao[]
+  cobrancasFinanceiras        CobrancaFinanceira[]
   clientesFinanceirosExternos ClienteFinanceiroExterno[]
-  eventosWebhookFinanceiro EventoWebhookFinanceiro[]
+  eventosWebhookFinanceiro    EventoWebhookFinanceiro[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -584,6 +584,7 @@ model User {
   bibliotecaModelosEtiquetaAtualizados BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaAtualizadoPor")
 
   cobrancasFinanceirasBaixadas CobrancaFinanceira[] @relation("CobrancaFinanceiraBaixadoPor")
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([role])
@@ -733,8 +734,9 @@ model Aluno {
   participacoesAtividadesExternas AtividadeExternaParticipante[]
   candidaturasMobilidade          MobilidadeCandidatura[]
 
-  cobrancasFinanceiras            CobrancaFinanceira[]
+  cobrancasFinanceiras        CobrancaFinanceira[]
   clientesFinanceirosExternos ClienteFinanceiroExterno[]
+
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -958,6 +960,7 @@ model LancamentoFinanceiro {
   bibliotecaEmprestimoMulta BibliotecaEmprestimo? @relation("BibliotecaEmprestimoMultaLancamento")
 
   cobrancasFinanceiras CobrancaFinanceira[]
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([alunoId])
@@ -1232,7 +1235,8 @@ model Matricula {
   transferencias                 TransferenciaMatricula[] @relation("TransferenciaMatriculaOrigem")
   transferenciasComoDestino      TransferenciaMatricula[] @relation("TransferenciaMatriculaDestino")
 
-  cobrancasFinanceiras           CobrancaFinanceira[]
+  cobrancasFinanceiras CobrancaFinanceira[]
+
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -2170,8 +2174,8 @@ model MovimentoCaixa {
   instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   lancamento        LancamentoFinanceiro? @relation(fields: [lancamentoId], references: [id])
 
-
   cobrancaFinanceira CobrancaFinanceira? @relation("CobrancaFinanceiraMovimentoCaixa")
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([caixaId])
@@ -2214,15 +2218,15 @@ model ContaFinanceiraInstituicao {
 
   moeda String @default("BRL")
 
-  contaExternaId   String?
-  integracaoAtiva  Boolean @default(false)
-  statusIntegracao String  @default("NAO_CONFIGURADA")
+  contaExternaId             String?
+  integracaoAtiva            Boolean @default(false)
+  statusIntegracao           String  @default("NAO_CONFIGURADA")
   ambienteIntegracao         String  @default("PRODUCAO")
   credenciaisCriptografadas  String? @db.Text
   webhookSecretCriptografado String? @db.Text
   webhookUrl                 String?
   webhookAtivo               Boolean @default(false)
-  suportaBoleto    Boolean @default(false)
+  suportaBoleto              Boolean @default(false)
 
   padraoRecebimentos Boolean @default(false)
   ativa              Boolean @default(true)
@@ -2236,7 +2240,8 @@ model ContaFinanceiraInstituicao {
   cobrancas   CobrancaFinanceira[]
 
   clientesExternos ClienteFinanceiroExterno[]
-  eventosWebhook EventoWebhookFinanceiro[]
+  eventosWebhook   EventoWebhookFinanceiro[]
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([provedor])
@@ -2244,22 +2249,22 @@ model ContaFinanceiraInstituicao {
 }
 
 model ClienteFinanceiroExterno {
-  id                Int      @id @default(autoincrement())
+  id                Int @id @default(autoincrement())
   instituicaoId     Int
   contaFinanceiraId Int
   alunoId           Int
 
-  provedor          String
-  clienteExternoId  String
+  provedor         String
+  clienteExternoId String
 
-  metadata          Json?
+  metadata Json?
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  instituicao    Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  instituicao     Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   contaFinanceira ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
-  aluno          Aluno                      @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  aluno           Aluno                      @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
 
   @@unique([contaFinanceiraId, alunoId])
   @@unique([contaFinanceiraId, clienteExternoId])
@@ -2269,25 +2274,25 @@ model ClienteFinanceiroExterno {
 }
 
 model EventoWebhookFinanceiro {
-  id                   Int      @id @default(autoincrement())
+  id                   Int  @id @default(autoincrement())
   instituicaoId        Int
   contaFinanceiraId    Int
   cobrancaFinanceiraId Int?
 
-  provedor             String
-  eventoExternoId      String
-  tipoEvento           String
-  resultado            String   @default("RECEBIDO")
-  tentativas           Int      @default(1)
+  provedor        String
+  eventoExternoId String
+  tipoEvento      String
+  resultado       String @default("RECEBIDO")
+  tentativas      Int    @default(1)
 
-  payload              Json
-  recebidoEm           DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  processadoEm         DateTime?
-  erro                 String?  @db.Text
+  payload      Json
+  recebidoEm   DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  processadoEm DateTime?
+  erro         String?   @db.Text
 
-  instituicao       Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  contaFinanceira   ContaFinanceiraInstituicao  @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  instituicao        Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  contaFinanceira    ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
   cobrancaFinanceira CobrancaFinanceira?        @relation(fields: [cobrancaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
 
   @@unique([contaFinanceiraId, eventoExternoId])
@@ -2311,7 +2316,7 @@ model CobrancaFinanceira {
 
   referenciaInterna String  @unique @default(cuid())
   cobrancaExternaId String?
-  clienteExternoId         String?
+  clienteExternoId  String?
   referenciaExterna String?
 
   statusBancario    StatusBancarioCobranca    @default(PENDENTE)
@@ -2335,7 +2340,7 @@ model CobrancaFinanceira {
   baixadoEm              DateTime?
   baixadoPorUsuarioId    Int?
   baixadoPorNomeSnapshot String?
-  movimentoCaixaId Int?
+  movimentoCaixaId       Int?
   observacao             String?   @db.Text
   metadata               Json?
 
@@ -2343,16 +2348,18 @@ model CobrancaFinanceira {
   updatedAt DateTime @updatedAt
 
   instituicao          Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  contaFinanceira ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
-  lancamentoFinanceiro LancamentoFinanceiro @relation(fields: [lancamentoFinanceiroId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
-  aluno Aluno @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
-  matricula Matricula? @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
-  baixadoPorUsuario User? @relation("CobrancaFinanceiraBaixadoPor", fields: [baixadoPorUsuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
-  movimentoCaixa MovimentoCaixa? @relation("CobrancaFinanceiraMovimentoCaixa", fields: [movimentoCaixaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  contaFinanceira      ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  lancamentoFinanceiro LancamentoFinanceiro       @relation(fields: [lancamentoFinanceiroId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  aluno                Aluno                      @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  matricula            Matricula?                 @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  baixadoPorUsuario    User?                      @relation("CobrancaFinanceiraBaixadoPor", fields: [baixadoPorUsuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  movimentoCaixa       MovimentoCaixa?            @relation("CobrancaFinanceiraMovimentoCaixa", fields: [movimentoCaixaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
 
   eventosWebhook EventoWebhookFinanceiro[]
+
   @@unique([contaFinanceiraId, cobrancaExternaId])
   @@unique([movimentoCaixaId, instituicaoId])
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([contaFinanceiraId])
   @@index([lancamentoFinanceiroId])
@@ -2364,7 +2371,6 @@ model CobrancaFinanceira {
   @@index([instituicaoId, statusOperacional])
   @@index([vencimento])
   @@index([baixadoPorUsuarioId])
-  @@unique([id, instituicaoId])
 }
 
 model ConfiguracaoFinanceiraInstituicao {
@@ -6665,12 +6671,12 @@ model BibliotecaAutor {
 
   notaAutoridade String? @db.Text
 
-  ativo           Boolean   @default(true)
+  ativo Boolean @default(true)
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  instituicao Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  instituicao Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   itens       BibliotecaItemAutor[]
   variantes   BibliotecaAutorVariante[]
 
@@ -6761,8 +6767,8 @@ model BibliotecaAutorVariante {
   nomeNormalizado String
   tipo            TipoVarianteAutorBiblioteca @default(VARIANTE)
   idioma          String?
-  observacao      String? @db.Text
-  ativo           Boolean @default(true)
+  observacao      String?                     @db.Text
+  ativo           Boolean                     @default(true)
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -9177,6 +9183,7 @@ enum TipoDocumentoTemplate {
   RECIBO
   COMPROVANTE
   TRANCAMENTO
+  CANCELAMENTO_MATRICULA
   COMPARECIMENTO
   HISTORICO
 
