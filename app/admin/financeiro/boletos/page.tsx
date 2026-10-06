@@ -70,6 +70,7 @@ type Cobranca = {
   aluno: {
     id: number;
     nome: string;
+    telefone?: string | null;
     user?: {
       email?: string | null;
     } | null;
@@ -163,6 +164,9 @@ export default function BoletosPage() {
   const [loadingGerar, setLoadingGerar] = useState(true);
   const [loadingBoletos, setLoadingBoletos] = useState(true);
   const [gerandoId, setGerandoId] = useState<number | null>(null);
+  const [enviandoId, setEnviandoId] = useState<number | null>(null);
+  const [whatsappPendenteId, setWhatsappPendenteId] =
+    useState<number | null>(null);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
@@ -429,6 +433,135 @@ export default function BoletosPage() {
     } catch {
       setErro(t("messages.copyError"));
     }
+  }
+
+  async function registrarEnvio(
+    cobranca: Cobranca,
+    canal: "EMAIL" | "WHATSAPP"
+  ) {
+    try {
+      setEnviandoId(cobranca.id);
+      setErro("");
+      setSucesso("");
+
+      const resposta = await fetch(
+        `/api/admin/financeiro/cobrancas/${cobranca.id}/enviar`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            canal,
+            locale,
+          }),
+        }
+      );
+
+      const dados =
+        await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error || t("messages.sendError")
+        );
+      }
+
+      setWhatsappPendenteId(null);
+
+      setSucesso(
+        canal === "EMAIL"
+          ? t("messages.emailSent")
+          : t("messages.whatsappRegistered")
+      );
+
+      await carregarBoletos();
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : t("messages.sendError")
+      );
+    } finally {
+      setEnviandoId(null);
+    }
+  }
+
+  function telefoneWhatsapp(
+    valor?: string | null
+  ) {
+    if (!valor) return "";
+
+    const somenteNumeros =
+      valor.replace(/\D/g, "");
+
+    if (
+      somenteNumeros.length === 10 ||
+      somenteNumeros.length === 11
+    ) {
+      return "55" + somenteNumeros;
+    }
+
+    return somenteNumeros;
+  }
+
+  function abrirWhatsapp(
+    cobranca: Cobranca
+  ) {
+    const url =
+      cobranca.boletoUrl ||
+      cobranca.invoiceUrl;
+
+    const mensagem = [
+      t("whatsapp.greeting", {
+        name: cobranca.aluno.nome,
+      }),
+      t("whatsapp.message"),
+      cobranca.lancamentoFinanceiro
+        .descricao || "",
+      url
+        ? t("whatsapp.link", {
+            link: url,
+          })
+        : "",
+      cobranca.linhaDigitavel
+        ? t("whatsapp.line", {
+            line:
+              cobranca.linhaDigitavel,
+          })
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const telefone =
+      telefoneWhatsapp(
+        cobranca.aluno.telefone
+      );
+
+    const destino =
+      telefone
+        ? `https://wa.me/${telefone}?text=`
+        : "https://wa.me/?text=";
+
+    window.open(
+      destino +
+        encodeURIComponent(
+          mensagem
+        ),
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    setWhatsappPendenteId(
+      cobranca.id
+    );
+
+    setErro("");
+    setSucesso(
+      t("messages.whatsappOpened")
+    );
   }
 
   function statusVisual(cobranca: Cobranca) {
@@ -855,6 +988,14 @@ export default function BoletosPage() {
                                 ),
                               })}
                             </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {cobranca.ultimoEnvioPorNomeSnapshot || "-"}
+                              {" · "}
+                              {Number(
+                                cobranca.quantidadeEnvios || 0
+                              )}
+                              ×
+                            </p>
                           </>
                         ) : (
                           <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800 dark:bg-sky-950 dark:text-sky-200">
@@ -878,6 +1019,57 @@ export default function BoletosPage() {
                           >
                             {t("actions.copyLine")}
                           </button>
+
+                          <button
+                            type="button"
+                            disabled={
+                              enviandoId === cobranca.id ||
+                              !cobranca.aluno.user?.email
+                            }
+                            onClick={() =>
+                              void registrarEnvio(
+                                cobranca,
+                                "EMAIL"
+                              )
+                            }
+                            className="rounded-lg bg-blue-600 px-2.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {enviandoId === cobranca.id
+                              ? t("actions.sending")
+                              : t("actions.email")}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              abrirWhatsapp(cobranca)
+                            }
+                            className="rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
+                          >
+                            {t("actions.whatsapp")}
+                          </button>
+
+                          {whatsappPendenteId ===
+                            cobranca.id && (
+                            <button
+                              type="button"
+                              disabled={
+                                enviandoId ===
+                                cobranca.id
+                              }
+                              onClick={() =>
+                                void registrarEnvio(
+                                  cobranca,
+                                  "WHATSAPP"
+                                )
+                              }
+                              className="rounded-lg bg-emerald-600 px-2.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {t(
+                                "actions.confirmWhatsapp"
+                              )}
+                            </button>
+                          )}
                         </div>
 
                         {cobranca.erroIntegracao && (
