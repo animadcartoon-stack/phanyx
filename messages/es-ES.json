@@ -14137,8 +14137,8 @@
       "closingDescription": "Consolidación de cajas cerradas por fecha.",
       "reportsTitle": "Informes",
       "reportsDescription": "Consulta cobros, caja y rendimiento financiero.",
-      "clearedSlipsTitle": "Boletos compensados",
-      "clearedSlipsDescription": "Revise los boletos compensados por el proveedor, registre los importes verificados y gestione divergencias.",
+      "clearedSlipsTitle": "Boletos",
+      "clearedSlipsDescription": "Genere, envíe y controle boletos, vencimientos, compensaciones y registros en caja.",
       "financialAccountsTitle": "Cuentas financieras",
       "financialAccountsDescription": "Configure los bancos y proveedores de cobro propios de la institución."
     },
@@ -14165,6 +14165,12 @@
           "description": "Aquí puedes acompañar cargos, registrar pagos y controlar conciliaciones financieras.",
           "alt": "Mascota financiera",
           "highlight": "Empecemos por los cobros."
+        },
+        "boletos": {
+          "title": "Boletos",
+          "description": "Genere y envíe boletos a los alumnos, controle vencimientos y pagos e identifique los que esperan registro en caja.",
+          "alt": "Finanzas",
+          "highlight": "Controle todo el ciclo del boleto."
         },
         "caixa": {
           "title": "Caja",

@@ -13924,8 +13924,8 @@
       "closingDescription": "Consolidação dos caixas fechados por data.",
       "reportsTitle": "Relatórios",
       "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro.",
-      "clearedSlipsTitle": "Boletos compensados",
-      "clearedSlipsDescription": "Consulte boletos compensados pelo prestador, efetue a baixa dos valores conferidos e trate divergências.",
+      "clearedSlipsTitle": "Boletos",
+      "clearedSlipsDescription": "Emita, envie e acompanhe boletos, vencimentos, compensações e baixas na caixa.",
       "financialAccountsTitle": "Contas financeiras",
       "financialAccountsDescription": "Configure bancos e prestadores de recebimentos da própria instituição."
     },
@@ -13952,6 +13952,12 @@
           "description": "Aqui acompanha cobranças, regista pagamentos e controla baixas financeiras.",
           "alt": "Mascote financeiro",
           "highlight": "Vamos começar pelos recebimentos."
+        },
+        "boletos": {
+          "title": "Boletos",
+          "description": "Emita e envie boletos aos alunos, acompanhe vencimentos e pagamentos e identifique os que aguardam baixa na caixa.",
+          "alt": "Financeiro",
+          "highlight": "Acompanhe todo o ciclo do boleto."
         },
         "caixa": {
           "title": "Caixa",

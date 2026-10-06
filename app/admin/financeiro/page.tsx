@@ -15,6 +15,7 @@ type ResumoFinanceiro = {
 
 type FinanceiroTourStepId =
   | "recebimentos"
+  | "boletos"
   | "caixa"
   | "inadimplentes"
   | "fechamento"
@@ -30,6 +31,11 @@ const financeiroTourSteps: FinanceiroTourStep[] = [
   {
     id: "recebimentos",
     selector: '[data-tour="financeiro-recebimentos"]',
+    mascoteSrc: "/images/financeiro.png",
+  },
+  {
+    id: "boletos",
+    selector: '[data-tour="financeiro-boletos"]',
     mascoteSrc: "/images/financeiro.png",
   },
   {
@@ -101,6 +107,12 @@ function FinanceiroTour({
       description: t("tour.steps.recebimentos.description"),
       alt: t("tour.steps.recebimentos.alt"),
       highlight: t("tour.steps.recebimentos.highlight"),
+    },
+    boletos: {
+      title: t("tour.steps.boletos.title"),
+      description: t("tour.steps.boletos.description"),
+      alt: t("tour.steps.boletos.alt"),
+      highlight: t("tour.steps.boletos.highlight"),
     },
     caixa: {
       title: t("tour.steps.caixa.title"),
@@ -1017,16 +1029,17 @@ setErro("");
               </p>
             </button>
 
-                        <button
+            <button
+              data-tour="financeiro-boletos"
               onClick={() =>
                 router.push(
-                  "/admin/financeiro/boletos-compensados"
+                  "/admin/financeiro/boletos"
                 )
               }
               className="rounded-2xl border border-slate-200 bg-white p-5 text-left transition hover:border-blue-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-500 dark:hover:bg-slate-900"
             >
               <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                ✅ {t("cards.clearedSlipsTitle")}
+                🧾 {t("cards.clearedSlipsTitle")}
               </p>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 {t("cards.clearedSlipsDescription")}

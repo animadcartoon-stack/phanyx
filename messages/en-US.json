@@ -14138,8 +14138,8 @@
       "closingDescription": "Consolidate cash registers closed by date.",
       "reportsTitle": "Reports",
       "reportsDescription": "Track receipts, cash flow, and financial performance.",
-      "clearedSlipsTitle": "Cleared bank slips",
-      "clearedSlipsDescription": "Review provider-cleared payments, post verified amounts and handle discrepancies.",
+      "clearedSlipsTitle": "Bank slips",
+      "clearedSlipsDescription": "Generate, send, and track bank slips, due dates, clearing, and cash-register posting.",
       "financialAccountsTitle": "Financial accounts",
       "financialAccountsDescription": "Configure the institution's own banks and payment providers."
     },
@@ -14166,6 +14166,12 @@
           "description": "Track charges, record payments, and manage financial settlements here.",
           "alt": "Finance mascot",
           "highlight": "Let's start with receipts."
+        },
+        "boletos": {
+          "title": "Bank slips",
+          "description": "Generate and send bank slips to students, track due dates and payments, and identify items awaiting cash-register posting.",
+          "alt": "Finance",
+          "highlight": "Track the full bank-slip lifecycle."
         },
         "caixa": {
           "title": "Cash register",

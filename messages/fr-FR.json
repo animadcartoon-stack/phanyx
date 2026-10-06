@@ -14137,8 +14137,8 @@
       "closingDescription": "Consolidation des caisses clôturées par date.",
       "reportsTitle": "Rapports",
       "reportsDescription": "Suivez les encaissements, la caisse et la performance financière.",
-      "clearedSlipsTitle": "Bordereaux compensés",
-      "clearedSlipsDescription": "Vérifiez les paiements compensés par le prestataire, validez les montants contrôlés et traitez les écarts.",
+      "clearedSlipsTitle": "Bordereaux bancaires",
+      "clearedSlipsDescription": "Générez, envoyez et suivez les bordereaux, échéances, compensations et enregistrements en caisse.",
       "financialAccountsTitle": "Comptes financiers",
       "financialAccountsDescription": "Configurez les banques et prestataires de paiement propres à l'établissement."
     },
@@ -14165,6 +14165,12 @@
           "description": "Suivez ici les créances, enregistrez les paiements et gérez les règlements financiers.",
           "alt": "Mascotte financière",
           "highlight": "Commençons par les encaissements."
+        },
+        "boletos": {
+          "title": "Bordereaux bancaires",
+          "description": "Générez et envoyez les bordereaux aux étudiants, suivez les échéances et paiements et identifiez ceux en attente d'enregistrement en caisse.",
+          "alt": "Finances",
+          "highlight": "Suivez tout le cycle du bordereau."
         },
         "caixa": {
           "title": "Caisse",
