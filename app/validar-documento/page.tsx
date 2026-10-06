@@ -197,6 +197,11 @@ export default async function ValidarDocumentoPage({
         "documentTypes.TRANCAMENTO"
       ),
 
+    CANCELAMENTO_MATRICULA:
+      t(
+        "documentTypes.CANCELAMENTO_MATRICULA"
+      ),
+
     COMPARECIMENTO:
       t(
         "documentTypes.COMPARECIMENTO"

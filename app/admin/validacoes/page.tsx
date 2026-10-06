@@ -56,7 +56,7 @@ function formatarData(data: string | undefined, locale: string) {
 export default function AdminValidacoesPage() {
   const t = useTranslations("AdminOperations");
   const locale = useLocale();
-  const tipos: Record<string, string> = { CONTRATO: t("validationsContract"), DECLARACAO: t("validationsDeclaration"), RECIBO: t("validationsReceipt"), COMPROVANTE: t("validationsProof"), TRANCAMENTO: t("validationsSuspension"), COMPARECIMENTO: t("validationsAttendance"), HISTORICO: t("validationsTranscript") };
+  const tipos: Record<string, string> = { CONTRATO: t("validationsContract"), DECLARACAO: t("validationsDeclaration"), RECIBO: t("validationsReceipt"), COMPROVANTE: t("validationsProof"), TRANCAMENTO: t("validationsSuspension"), CANCELAMENTO_MATRICULA: t("validationsEnrollmentCancellation"), COMPARECIMENTO: t("validationsAttendance"), HISTORICO: t("validationsTranscript") };
   const statusLabels: Record<string, string> = { CANCELADO: t("validationsStatusCancelled"), CANCELADA: t("validationsStatusCancelled"), INVALIDADO: t("validationsStatusInvalidated"), INVALIDADA: t("validationsStatusInvalidated"), EMITIDO: t("validationsStatusIssued"), ASSINADO: t("validationsStatusSigned"), PENDENTE: t("validationsStatusPending"), TRANCADA: t("validationsStatusSuspended"), TRANCADO: t("validationsStatusSuspended"), ATIVO: t("validationsStatusActive"), ATIVA: t("validationsStatusActive"), CONCLUIDO: t("validationsStatusCompleted"), CONCLUIDA: t("validationsStatusCompleted") };
   const [codigo, setCodigo] = useState("");
   const [loading, setLoading] = useState(false);

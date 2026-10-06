@@ -11793,7 +11793,8 @@
       "occupationalHealthReturn": "RH - Visite de reprise",
       "occupationalHealthRoleChange": "RH - Visite de changement de poste",
       "occupationalHealthDismissal": "RH - Visite médicale de départ",
-      "other": "Autre"
+      "other": "Autre",
+      "enrollmentCancellation": "Annulation d’inscription"
     },
     "statuses": {
       "draft": "Brouillon",
@@ -14007,7 +14008,8 @@
       "warning": "AVERTISSEMENT DISCIPLINAIRE\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nMotif de l'avertissement :\n{{motivoAdvertencia}}\n\nDescription détaillée :\n{{descricaoAdvertencia}}\n\nDate de l'incident : {{dataAdvertencia}}\n\nLe présent avertissement a un caractère éducatif et préventif et vise à rappeler au/à la salarié(e) le respect des règles internes, des procédures institutionnelles, de l'éthique professionnelle et des responsabilités liées à ses fonctions.\n\nLe/la salarié(e) reconnaît avoir pris connaissance du contenu du présent avertissement et des conséquences susceptibles de s'appliquer en cas de récidive.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nPRIS CONNAISSANCE :\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYEUR :\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "suspension": "SUSPENSION DISCIPLINAIRE\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nMotif de la suspension :\n{{motivoSuspensao}}\n\nDescription détaillée :\n{{descricaoSuspensao}}\n\nPériode de suspension :\n- Début : {{dataInicioSuspensao}}\n- Fin : {{dataFimSuspensao}}\n- Nombre de jours : {{diasSuspensao}}\n\nPendant la période indiquée ci-dessus, le/la salarié(e) sera suspendu(e) de ses fonctions, sans préjudice des autres obligations prévues par la législation et les règlements internes applicables.\n\nLe/la salarié(e) reconnaît avoir pris connaissance de la présente suspension disciplinaire.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nPRIS CONNAISSANCE :\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYEUR :\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "occupationalHealth": "CERTIFICAT DE SANTÉ AU TRAVAIL - ASO\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nType d'ASO : {{tipoAso}}\nNuméro d'ASO : {{numeroAso}}\nDate de l'examen : {{dataAso}}\nRésultat : {{resultadoAso}}\n\nMédecin responsable : {{medicoResponsavel}}\nCRM : {{crmMedico}}\n\nObservations :\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM : {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
-      "leaveReturn": "DOCUMENT D'ABSENCE / RETOUR AU TRAVAIL\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nType d'absence : {{tipoAfastamento}}\nMotif : {{motivoAfastamento}}\nCIM : {{cidAfastamento}}\nDate de début : {{dataInicioAfastamento}}\nDate de fin prévue : {{dataFimAfastamento}}\nNombre de jours : {{diasAfastamento}}\nDate de l'expertise médicale : {{dataPericia}}\nRésultat de l'expertise : {{resultadoPericia}}\n\nLe présent document consigne les informations relatives à l'absence ou au retour au travail du/de la salarié(e).\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+      "leaveReturn": "DOCUMENT D'ABSENCE / RETOUR AU TRAVAIL\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nType d'absence : {{tipoAfastamento}}\nMotif : {{motivoAfastamento}}\nCIM : {{cidAfastamento}}\nDate de début : {{dataInicioAfastamento}}\nDate de fin prévue : {{dataFimAfastamento}}\nNombre de jours : {{diasAfastamento}}\nDate de l'expertise médicale : {{dataPericia}}\nRésultat de l'expertise : {{resultadoPericia}}\n\nLe présent document consigne les informations relatives à l'absence ou au retour au travail du/de la salarié(e).\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "enrollmentCancellation": "ACCORD D'ANNULATION D'INSCRIPTION\n\nL'établissement {{nomeInstituicao}}, enregistré sous le CNPJ {{cnpjInstituicao}}, représenté aux présentes par {{responsavelLegal}}, et le cocontractant {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, concernant l'inscription de {{nomeAluno}}, CPF {{cpfAluno}}, numéro d'inscription {{matriculaAluno}}, au cours {{curso}}, formalisent la présente annulation d'inscription.\n\nPROTOCOLE : {{numeroProtocoloCancelamentoMatricula}}\nDATE DE LA DEMANDE : {{dataSolicitacaoCancelamentoMatricula}}\nDATE EFFECTIVE D'ANNULATION : {{dataEfetivaCancelamentoMatricula}}\n\nMOTIF DE L'ANNULATION :\n{{motivoCancelamentoMatricula}}\n\nRÈGLEMENT FINANCIER\n- Échéances/montants impayés : {{valorParcelasVencidasCancelamento}}\n- Pénalité contractuelle : {{valorMultaCancelamento}}\n- Intérêts et frais : {{valorJurosCancelamento}}\n- Crédits/remises : {{valorCreditoCancelamento}}\n- Montant à rembourser : {{valorDevolucaoCancelamento}}\n- Total à régler pour clôture : {{valorTotalCancelamento}}\n\nRÈGLE CONTRACTUELLE APPLIQUÉE :\n{{regraContratualCancelamento}}\n\nBase de calcul de la pénalité : {{baseCalculoMultaCancelamento}}\nPourcentage de la pénalité : {{percentualMultaCancelamento}}\nSituation financière : {{situacaoFinanceiraCancelamento}}\n\nOBSERVATIONS :\n{{observacoesCancelamentoMatricula}}\n\nLes parties reconnaissent les conséquences académiques et financières de l'annulation ainsi que les montants établis dans le cadre de cette procédure, sans préjudice des autres conditions prévues au contrat et par la législation applicable.\n\nResponsable de la procédure : {{responsavelCancelamentoMatricula}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCOCONTRACTANT / RESPONSABLE :\n{{nomeTitularContrato}}\nCPF : {{cpfTitularContrato}}\n\nÉTUDIANT(E) :\n{{nomeAluno}}\nCPF : {{cpfAluno}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
     }
   },
   "PublicDocumentValidation": {
@@ -14067,7 +14069,8 @@
       "COMPROVANTE": "Justificatif",
       "TRANCAMENTO": "Suspension d'inscription",
       "COMPARECIMENTO": "Attestation de pr?sence",
-      "HISTORICO": "Relev? acad?mique"
+      "HISTORICO": "Relev? acad?mique",
+      "CANCELAMENTO_MATRICULA": "Annulation d’inscription"
     }
   },
   "AdminFinance": {
@@ -15723,7 +15726,6 @@
       "trancar": "Mettre en pause",
       "transferir": "Transférer",
       "intercambio": "Échange",
-
       "cadastrarIntercambio": "Inscrire à un échange",
       "moverQuarentena": "Mettre en quarantaine",
       "movendo": "Déplacement...",
@@ -19129,7 +19131,8 @@
     "validationsStatusPending": "En attente",
     "validationsStatusSuspended": "Suspendue",
     "validationsStatusActive": "Actif",
-    "validationsStatusCompleted": "Terminé"
+    "validationsStatusCompleted": "Terminé",
+    "validationsEnrollmentCancellation": "Annulation d’inscription"
   },
   "AdminLibraryLicenses": {
     "title": "Licences de la Bibliothèque",
