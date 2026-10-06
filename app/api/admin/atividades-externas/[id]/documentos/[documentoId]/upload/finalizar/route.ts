@@ -18,7 +18,6 @@ import {
   limparNomeDocumentoAtividadeExterna,
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
-  obterStoreIdDocumentoAtividadeExternaBlob,
   prefixoDocumentoAtividadeExterna,
 } from "@/lib/atividade-externa-documentos-storage";
 
@@ -324,15 +323,11 @@ async function obterAtividade(
 }
 
 async function removerBlobSilenciosamente(
-  pathname: string,
-  storeId: string
+  pathname: string
 ) {
   try {
     await del(
-      pathname,
-      {
-        storeId,
-      }
+      pathname
     );
   } catch (
     erro
@@ -630,28 +625,6 @@ export async function POST(
       );
     }
 
-    let storeId:
-      string;
-
-    try {
-      storeId =
-        obterStoreIdDocumentoAtividadeExternaBlob();
-    } catch {
-      return NextResponse.json(
-        {
-          ok:
-            false,
-
-          error:
-            "STORAGE_PRIVADO_NAO_CONFIGURADO",
-        },
-        {
-          status:
-            503,
-        }
-      );
-    }
-
     let detalhes:
       Awaited<
         ReturnType<
@@ -662,10 +635,7 @@ export async function POST(
     try {
       detalhes =
         await head(
-          pathname,
-          {
-            storeId,
-          }
+          pathname
         );
     } catch {
       return NextResponse.json(
@@ -697,8 +667,7 @@ export async function POST(
         LIMITE_DOCUMENTO_ATIVIDADE_EXTERNA_BYTES
     ) {
       await removerBlobSilenciosamente(
-        pathname,
-        storeId
+        pathname
       );
 
       return NextResponse.json(
@@ -733,8 +702,7 @@ export async function POST(
       )
     ) {
       await removerBlobSilenciosamente(
-        pathname,
-        storeId
+        pathname
       );
 
       return NextResponse.json(
@@ -843,8 +811,7 @@ export async function POST(
        * arquivo orfao.
        */
       await removerBlobSilenciosamente(
-        pathname,
-        storeId
+        pathname
       );
 
       throw erroAtualizacao;

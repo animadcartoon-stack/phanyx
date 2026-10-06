@@ -23,7 +23,6 @@ import {
   limparNomeDocumentoAtividadeExterna,
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
-  obterStoreIdDocumentoAtividadeExternaBlob,
   prefixoDocumentoAtividadeExterna,
 } from "@/lib/atividade-externa-documentos-storage";
 
@@ -577,36 +576,12 @@ export async function POST(
     const pathname =
       `${prefixo}/${randomUUID()}-${nomeSeguro}`;
 
-    let storeId:
-      string;
-
-    try {
-      storeId =
-        obterStoreIdDocumentoAtividadeExternaBlob();
-    } catch {
-      return NextResponse.json(
-        {
-          ok:
-            false,
-
-          error:
-            "STORAGE_PRIVADO_NAO_CONFIGURADO",
-        },
-        {
-          status:
-            503,
-        }
-      );
-    }
-
     const validUntil =
       Date.now() +
       DEZ_MINUTOS_MS;
 
     const token =
       await issueSignedToken({
-        storeId,
-
         pathname,
 
         operations: [

@@ -33,6 +33,34 @@ export async function GET(
         .get("q")
         ?.trim() ?? "";
 
+    const alunoIdParam =
+      Number(
+        req.nextUrl.searchParams
+          .get("alunoId") ?? ""
+      );
+
+    const alunoId =
+      Number.isInteger(
+        alunoIdParam
+      ) &&
+      alunoIdParam > 0
+        ? alunoIdParam
+        : null;
+
+    const matriculaIdParam =
+      Number(
+        req.nextUrl.searchParams
+          .get("matriculaId") ?? ""
+      );
+
+    const matriculaId =
+      Number.isInteger(
+        matriculaIdParam
+      ) &&
+      matriculaIdParam > 0
+        ? matriculaIdParam
+        : null;
+
     const ofertaIdParam =
       Number(
         req.nextUrl.searchParams
@@ -47,7 +75,10 @@ export async function GET(
         ? ofertaIdParam
         : null;
 
-    if (q.length < 2) {
+    if (
+      alunoId === null &&
+      q.length < 2
+    ) {
       return NextResponse.json(
         {
           ok: true,
@@ -100,6 +131,11 @@ export async function GET(
       await prisma.aluno.findMany({
         where: {
           instituicaoId,
+
+          id:
+            alunoId ??
+            undefined,
+
           ativo: true,
 
           user: {
@@ -180,6 +216,14 @@ export async function GET(
           },
 
           matriculas: {
+            where:
+              matriculaId !== null
+                ? {
+                    id:
+                      matriculaId,
+                  }
+                : undefined,
+
             select: {
               id: true,
               numeroMatricula: true,

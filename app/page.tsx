@@ -122,8 +122,8 @@ const faqs = [
 
 const paginasSeo = [
   {
-    titulo: "Gestão de matrículas escolares",
-    descricao: "Organize alunos, cursos e turmas com os registros acadêmicos na mesma plataforma.",
+    titulo: "Sistema de matrícula escolar",
+    descricao: "Gerencie matrículas, rematrículas, cursos e turmas com registros acadêmicos, documentos e financeiro conectados.",
     href: marketingPath("pt-BR", "enrollment"),
   },
   {

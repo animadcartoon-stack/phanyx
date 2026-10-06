@@ -85,17 +85,36 @@ export function obterStoreIdDocumentoAtividadeExternaBlob() {
       ?.trim() ||
     process.env
       .MOBILIDADE_STORE_ID
+      ?.trim() ||
+    process.env
+      .BLOB_STORE_ID
       ?.trim();
 
-  if (!storeId) {
-    throw new Error(
-      "Storage privado de documentos de atividades externas nao configurado."
-    );
+  if (storeId) {
+    return storeId;
   }
 
-  return storeId;
-}
+  const token =
+    process.env
+      .BLOB_READ_WRITE_TOKEN
+      ?.trim();
 
+  if (token) {
+    const partes =
+      token.split("_");
+
+    const storeIdDoToken =
+      partes[3]?.trim();
+
+    if (storeIdDoToken) {
+      return storeIdDoToken;
+    }
+  }
+
+  throw new Error(
+    "Nenhuma credencial de Blob configurada."
+  );
+}
 export function obterExtensaoDocumentoAtividadeExterna(
   nomeArquivo: string
 ) {

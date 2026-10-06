@@ -15493,6 +15493,8 @@
       "trancar": "Trancar",
       "transferir": "Transferir",
       "intercambio": "Intercâmbio",
+
+      "cadastrarIntercambio": "Cadastrar em intercâmbio",
       "moverQuarentena": "Mover para quarentena",
       "movendo": "Movendo...",
       "restaurar": "Restaurar matrícula",
