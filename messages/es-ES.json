@@ -22511,6 +22511,8 @@
       "balance": "Saldo",
       "value": "Importe",
       "status": "Estado",
+      "bankStatus": "Banco",
+      "flowStatus": "Flujo",
       "delivery": "Envío",
       "action": "Acción",
       "actions": "Acciones"
@@ -22526,6 +22528,9 @@
     },
     "status": {
       "pending": "Pendiente",
+      "awaitingPayment": "Pendiente de pago",
+      "overdue": "Vencido",
+      "dueFuture": "Por vencer",
       "dueToday": "Vence hoy",
       "overdueDays": "{count} día(s) de retraso",
       "processing": "Procesando",

@@ -22511,6 +22511,8 @@
       "balance": "Balance",
       "value": "Amount",
       "status": "Status",
+      "bankStatus": "Bank",
+      "flowStatus": "Workflow",
       "delivery": "Delivery",
       "action": "Action",
       "actions": "Actions"
@@ -22526,6 +22528,9 @@
     },
     "status": {
       "pending": "Pending",
+      "awaitingPayment": "Awaiting payment",
+      "overdue": "Overdue",
+      "dueFuture": "Upcoming",
       "dueToday": "Due today",
       "overdueDays": "{count} day(s) overdue",
       "processing": "Processing",

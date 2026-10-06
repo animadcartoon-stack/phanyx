@@ -22511,6 +22511,8 @@
       "balance": "Solde",
       "value": "Montant",
       "status": "Statut",
+      "bankStatus": "Banque",
+      "flowStatus": "Flux",
       "delivery": "Envoi",
       "action": "Action",
       "actions": "Actions"
@@ -22526,6 +22528,9 @@
     },
     "status": {
       "pending": "En attente",
+      "awaitingPayment": "En attente de paiement",
+      "overdue": "Échu",
+      "dueFuture": "À échoir",
       "dueToday": "Échéance aujourd'hui",
       "overdueDays": "En retard de {count} jour(s)",
       "processing": "Traitement en cours",

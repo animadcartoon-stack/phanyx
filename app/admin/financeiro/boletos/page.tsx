@@ -564,69 +564,134 @@ export default function BoletosPage() {
     );
   }
 
-  function statusVisual(cobranca: Cobranca) {
-    if (cobranca.statusOperacional === "BAIXADO") {
-      return {
-        label: t("status.settled"),
+  function statusBanco(cobranca: Cobranca) {
+    const mapa: Record<
+      string,
+      {
+        chave: string;
+        classe: string;
+      }
+    > = {
+      PENDENTE: {
+        chave: "pending",
         classe:
-          "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
-      };
-    }
-
-    if (cobranca.statusOperacional === "AGUARDANDO_BAIXA") {
-      return {
-        label: t("status.awaitingSettlement"),
+          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+      },
+      VENCIDO: {
+        chave: "overdue",
         classe:
-          "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200",
-      };
-    }
-
-    if (cobranca.statusOperacional === "DIVERGENCIA") {
-      return {
-        label: t("status.divergence"),
+          "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200",
+      },
+      EM_PROCESSAMENTO: {
+        chave: "processing",
         classe:
           "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
-      };
-    }
-
-    const mapa: Record<string, string> = {
-      EM_PROCESSAMENTO: "processing",
-      COMPENSADO: "paid",
-      CANCELADO: "cancelled",
-      ESTORNADO: "refunded",
-      FALHA: "failed",
+      },
+      COMPENSADO: {
+        chave: "paid",
+        classe:
+          "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
+      },
+      CANCELADO: {
+        chave: "cancelled",
+        classe:
+          "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+      },
+      ESTORNADO: {
+        chave: "refunded",
+        classe:
+          "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-200",
+      },
+      FALHA: {
+        chave: "failed",
+        classe:
+          "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200",
+      },
     };
 
-    if (mapa[cobranca.statusBancario]) {
-      return {
-        label: t(
-          "status." + mapa[cobranca.statusBancario]
-        ),
-        classe:
-          cobranca.statusBancario === "FALHA"
-            ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200"
-            : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
-      };
-    }
+    const item =
+      mapa[cobranca.statusBancario] ||
+      mapa.PENDENTE;
 
-    const atraso = diasAtraso(cobranca.vencimento);
+    return {
+      label: t("status." + item.chave),
+      classe: item.classe,
+    };
+  }
+
+  function statusFluxo(cobranca: Cobranca) {
+    const mapa: Record<
+      string,
+      {
+        chave: string;
+        classe: string;
+      }
+    > = {
+      AGUARDANDO_PAGAMENTO: {
+        chave: "awaitingPayment",
+        classe:
+          "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200",
+      },
+      AGUARDANDO_BAIXA: {
+        chave: "awaitingSettlement",
+        classe:
+          "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200",
+      },
+      BAIXADO: {
+        chave: "settled",
+        classe:
+          "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
+      },
+      DIVERGENCIA: {
+        chave: "divergence",
+        classe:
+          "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
+      },
+      CANCELADO: {
+        chave: "cancelled",
+        classe:
+          "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
+      },
+    };
+
+    const item =
+      mapa[cobranca.statusOperacional] ||
+      mapa.AGUARDANDO_PAGAMENTO;
+
+    return {
+      label: t("status." + item.chave),
+      classe: item.classe,
+    };
+  }
+
+  function statusVencimento(cobranca: Cobranca) {
+    const atraso = diasAtraso(
+      cobranca.vencimento
+    );
 
     if (atraso > 0) {
       return {
-        label: t("status.overdueDays", { count: atraso }),
+        label: t("status.overdueDays", {
+          count: atraso,
+        }),
         classe:
           "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200",
       };
     }
 
-    const vencimento = dataLocal(cobranca.vencimento);
+    const vencimento =
+      dataLocal(cobranca.vencimento);
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
     if (vencimento) {
       vencimento.setHours(0, 0, 0, 0);
 
-      if (vencimento.getTime() === hoje.getTime()) {
+      if (
+        vencimento.getTime() ===
+        hoje.getTime()
+      ) {
         return {
           label: t("status.dueToday"),
           classe:
@@ -636,7 +701,7 @@ export default function BoletosPage() {
     }
 
     return {
-      label: t("status.pending"),
+      label: t("status.dueFuture"),
       classe:
         "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
     };
@@ -886,14 +951,15 @@ export default function BoletosPage() {
         </div>
 
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[1100px] text-left text-sm">
+          <table className="w-full min-w-[1260px] text-left text-sm">
             <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800">
               <tr>
                 <th className="px-3 py-3">{t("table.student")}</th>
                 <th className="px-3 py-3">{t("table.charge")}</th>
                 <th className="px-3 py-3">{t("table.value")}</th>
                 <th className="px-3 py-3">{t("table.dueDate")}</th>
-                <th className="px-3 py-3">{t("table.status")}</th>
+                <th className="px-3 py-3">{t("table.bankStatus")}</th>
+                <th className="px-3 py-3">{t("table.flowStatus")}</th>
                 <th className="px-3 py-3">{t("table.delivery")}</th>
                 <th className="px-3 py-3">{t("table.actions")}</th>
               </tr>
@@ -903,7 +969,7 @@ export default function BoletosPage() {
               {loadingBoletos ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-3 py-8 text-center text-slate-500"
                   >
                     {t("common.loading")}
@@ -912,7 +978,7 @@ export default function BoletosPage() {
               ) : cobrancas.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-3 py-8 text-center text-slate-500"
                   >
                     {t("issued.empty")}
@@ -920,7 +986,12 @@ export default function BoletosPage() {
                 </tr>
               ) : (
                 cobrancas.map((cobranca) => {
-                  const visual = statusVisual(cobranca);
+                  const banco =
+                    statusBanco(cobranca);
+                  const fluxo =
+                    statusFluxo(cobranca);
+                  const vencimentoVisual =
+                    statusVencimento(cobranca);
 
                   return (
                     <tr
@@ -952,16 +1023,38 @@ export default function BoletosPage() {
                         )}
                       </td>
                       <td className="px-3 py-4">
-                        {data(cobranca.vencimento)}
+                        <p>
+                          {data(cobranca.vencimento)}
+                        </p>
+                        <span
+                          className={
+                            "mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold " +
+                            vencimentoVisual.classe
+                          }
+                        >
+                          {vencimentoVisual.label}
+                        </span>
                       </td>
+
                       <td className="px-3 py-4">
                         <span
                           className={
                             "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold " +
-                            visual.classe
+                            banco.classe
                           }
                         >
-                          {visual.label}
+                          {banco.label}
+                        </span>
+                      </td>
+
+                      <td className="px-3 py-4">
+                        <span
+                          className={
+                            "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold " +
+                            fluxo.classe
+                          }
+                        >
+                          {fluxo.label}
                         </span>
 
                         {cobranca.baixadoPorNomeSnapshot && (
