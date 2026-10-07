@@ -4972,7 +4972,18 @@ function AdminMatriculasPage() {
                                   {t("actions.transferir")}
                                 </a>
 
-                                {m.aluno?.id && (
+                                {m.aluno?.id &&
+                                  [
+                                    "ATIVA",
+                                    "A_INICIAR",
+                                    "AGUARDANDO",
+                                    "INTERCAMBIO",
+                                  ].includes(
+                                    String(
+                                      m.status ??
+                                      ""
+                                    )
+                                  ) && (
                                   <Link
                                     href={`/admin/mobilidade/candidaturas?nova=1&alunoId=${m.aluno.id}&matriculaId=${m.id}`}
                                     onClick={(event) => {

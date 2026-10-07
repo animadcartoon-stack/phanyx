@@ -14,6 +14,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const STATUS_MATRICULA_ELEGIVEIS_INTERCAMBIO =
+  new Set([
+    "ATIVA",
+    "A_INICIAR",
+    "AGUARDANDO",
+    "INTERCAMBIO",
+  ]);
+
 export async function GET(
   req: NextRequest
 ) {
@@ -306,6 +314,11 @@ export async function GET(
                     cursosElegiveis.has(
                       matricula.cursoId
                     )
+                  ),
+
+                elegivelPeloStatus:
+                  STATUS_MATRICULA_ELEGIVEIS_INTERCAMBIO.has(
+                    matricula.status
                   ),
               })
             ),
