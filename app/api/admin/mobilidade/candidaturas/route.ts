@@ -26,6 +26,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const STATUS_MATRICULA_ELEGIVEIS_INTERCAMBIO =
+  new Set([
+    "ATIVA",
+    "A_INICIAR",
+    "AGUARDANDO",
+    "INTERCAMBIO",
+  ]);
+
 const STATUS_VALIDOS =
   new Set(
     Object.values(
@@ -954,6 +962,7 @@ export async function POST(
             select: {
               id: true,
               cursoId: true,
+              status: true,
             },
           });
 
@@ -962,6 +971,18 @@ export async function POST(
             400,
             "MATRICULA_INVALIDA",
             "Matrícula inválida."
+          );
+        }
+
+        if (
+          !STATUS_MATRICULA_ELEGIVEIS_INTERCAMBIO.has(
+            matricula.status
+          )
+        ) {
+          throw new ErroMobilidade(
+            409,
+            "MATRICULA_STATUS_NAO_ELEGIVEL",
+            "A situação atual da matrícula não permite candidatura de intercâmbio."
           );
         }
 
