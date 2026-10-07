@@ -38,7 +38,7 @@ function IntlFooter({ locale }: { locale: LocalePhanyx }) {
         </div>
       </div>
       <div className="mx-auto max-w-6xl border-t border-white/10 px-6 py-5 text-xs text-slate-500">
-        © 2026 PHANYX. {copy.rights}
+        Â© 2026 PHANYX. {copy.rights}
       </div>
     </footer>
   );
@@ -49,8 +49,8 @@ export default function BlogHubPage({ locale }: { locale: LocalePhanyx }) {
   const tools = blogToolLinks(locale);
   const languagePaths = phanyxBlogLanguagePaths();
   const heroSrc = blogHeroImage[locale];
-  const heroWidth = 1536;
-  const heroHeight = 1024;
+  const heroWidth = 2172;
+  const heroHeight = 724;
 
   return (
     <div lang={locale}>
@@ -66,7 +66,7 @@ export default function BlogHubPage({ locale }: { locale: LocalePhanyx }) {
           <h1 className="text-4xl font-bold md:text-5xl">{copy.heading}</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600">{copy.intro}</p>
 
-          <figure className="mx-auto mt-8 max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm">
+          <figure className="mx-auto mt-6 w-full max-w-6xl overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm">
             <Image
               src={heroSrc}
               alt={copy.heroAlt}
@@ -74,7 +74,7 @@ export default function BlogHubPage({ locale }: { locale: LocalePhanyx }) {
               height={heroHeight}
               priority
               className="h-auto w-full"
-              sizes="(max-width: 768px) 94vw, 768px"
+              sizes="(max-width: 1280px) 94vw, 1152px"
             />
           </figure>
         </section>
