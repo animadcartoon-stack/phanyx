@@ -22,6 +22,11 @@ import {
   onlineSchoolArticlePath,
 } from "@/lib/online-school-management-article";
 import {
+  openCoursesArticleAlternates,
+  openCoursesArticleLocales,
+  openCoursesArticlePath,
+} from "@/lib/open-courses-article";
+import {
   schoolGuideAlternates,
   schoolGuideLocales,
   schoolGuidePath,
@@ -98,6 +103,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const guideAlternates = absoluteAlternates(schoolGuideAlternates().languages as Record<string, string>);
   const onlineArticleAlternates = absoluteAlternates(onlineSchoolArticleAlternates().languages as Record<string, string>);
   const digitalArticleAlternates = absoluteAlternates(digitalSchoolArticleAlternates().languages as Record<string, string>);
+  const openCoursesAlternates = absoluteAlternates(openCoursesArticleAlternates().languages as Record<string, string>);
   const removerAlternates = absoluteAlternates(backgroundRemoverAlternates().languages as Record<string, string>);
   const blogAlternates = absoluteAlternates({ ...phanyxBlogLanguagePaths(), "x-default": "/blog" });
 
@@ -147,7 +153,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         (path) =>
           path !== schoolGuidePath("pt-BR") &&
           path !== onlineSchoolArticlePath("pt-BR") &&
-          path !== digitalSchoolArticlePath("pt-BR"),
+          path !== digitalSchoolArticlePath("pt-BR") &&
+          path !== openCoursesArticlePath("pt-BR"),
       )
       .map((path) => ({ url: `${baseUrl}${path}` })),
     ...resourcePages,
@@ -162,6 +169,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...digitalSchoolArticleLocales.map((locale) => ({
       url: `${baseUrl}${digitalSchoolArticlePath(locale)}`,
       alternates: { languages: digitalArticleAlternates },
+    })),
+    ...openCoursesArticleLocales.map((locale) => ({
+      url: `${baseUrl}${openCoursesArticlePath(locale)}`,
+      alternates: { languages: openCoursesAlternates },
     })),
     ...imageArticlePages,
   ];
