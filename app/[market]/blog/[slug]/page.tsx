@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import DigitalSchoolManagementArticle from "@/components/marketing/DigitalSchoolManagementArticle";
 import ImageToolsBlogArticle from "@/components/marketing/ImageToolsBlogArticle";
 import OnlineSchoolManagementArticle from "@/components/marketing/OnlineSchoolManagementArticle";
+import OpenCoursesArticle from "@/components/marketing/OpenCoursesArticle";
 import SchoolGuidePage from "@/components/marketing/SchoolGuidePage";
 import type { LocalePhanyx } from "@/i18n/config";
 import {
@@ -27,6 +28,13 @@ import {
   onlineSchoolArticlePath,
   onlineSchoolArticleSlugs,
 } from "@/lib/online-school-management-article";
+import {
+  openCoursesArticleAlternates,
+  openCoursesArticleCopy,
+  openCoursesArticleImages,
+  openCoursesArticlePath,
+  openCoursesArticleSlugs,
+} from "@/lib/open-courses-article";
 import {
   schoolGuideAlternates,
   schoolGuideCopy,
@@ -71,6 +79,15 @@ function digitalArticleLocale(market: string, slug: string): BlogLocale | null {
   );
 }
 
+function openCoursesLocale(market: string, slug: string): BlogLocale | null {
+  return (
+    locales.find(
+      (locale) =>
+        locale === market && openCoursesArticleSlugs[locale] === slug,
+    ) ?? null
+  );
+}
+
 function imageToolsArticleMatch(
   market: string,
   slug: string,
@@ -103,6 +120,10 @@ export function generateStaticParams() {
     ...locales.map((market) => ({
       market,
       slug: digitalSchoolArticleSlugs[market],
+    })),
+    ...locales.map((market) => ({
+      market,
+      slug: openCoursesArticleSlugs[market],
     })),
     ...imageKinds.flatMap((kind) =>
       locales.map((market) => ({
@@ -185,6 +206,36 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     };
   }
 
+  const openLocale = openCoursesLocale(market, slug);
+  if (openLocale) {
+    const copy = openCoursesArticleCopy[openLocale];
+    const path = openCoursesArticlePath(openLocale);
+    const image = openCoursesArticleImages[openLocale];
+
+    return {
+      title: { absolute: copy.title },
+      description: copy.description,
+      alternates: {
+        canonical: path,
+        ...openCoursesArticleAlternates(),
+      },
+      openGraph: {
+        title: copy.title,
+        description: copy.description,
+        type: "article",
+        locale: openLocale.replace("-", "_"),
+        url: path,
+        images: [image],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: copy.title,
+        description: copy.description,
+        images: [image],
+      },
+    };
+  }
+
   const imageMatch = imageToolsArticleMatch(market, slug);
   if (imageMatch) {
     const { locale, kind } = imageMatch;
@@ -236,6 +287,11 @@ export default async function Page({ params }: Params) {
   const digitalLocale = digitalArticleLocale(market, slug);
   if (digitalLocale) {
     return <DigitalSchoolManagementArticle locale={digitalLocale} />;
+  }
+
+  const openLocale = openCoursesLocale(market, slug);
+  if (openLocale) {
+    return <OpenCoursesArticle locale={openLocale} />;
   }
 
   const imageMatch = imageToolsArticleMatch(market, slug);
