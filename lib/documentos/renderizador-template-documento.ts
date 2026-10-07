@@ -618,16 +618,6 @@ function criarBlocoAssinatura({
   modoPrevia: boolean;
   campoVisual?: CampoVisualDocumento | null;
 }) {
-  /*
-   * O bloco institucional continua tendo a geometria fixa do
-   * EditorTemplatePHANYX (78mm x 36mm), mas a IMAGEM da assinatura
-   * usa exatamente x/y/largura/altura salvos em camposVisuais.
-   *
-   * A área de edição da assinatura mede 480px x 150px. Ela é
-   * projetada proporcionalmente sobre 78mm x 24,375mm no bloco.
-   * Assim o que for montado em "Área real da assinatura do diretor"
-   * é o que aparece sobre a linha no PDF.
-   */
   const campoNormalizado = campoVisual
     ? obterCampoVisualAssinatura([campoVisual])
     : null;
@@ -644,71 +634,30 @@ function criarBlocoAssinatura({
     };
 
   const blocoOffsetXPx =
-    Number(
-      campoDoBloco
-        .blocoOffsetX ??
-      0
-    );
+    Number(campoDoBloco.blocoOffsetX ?? 0);
 
   const blocoOffsetYPx =
-    Number(
-      campoDoBloco
-        .blocoOffsetY ??
-      0
-    );
+    Number(campoDoBloco.blocoOffsetY ?? 0);
 
   const deslocamentoBlocoXMm =
-    (
-      Number.isFinite(
-        blocoOffsetXPx
-      )
-        ? blocoOffsetXPx
-        : 0
-    ) *
+    (Number.isFinite(blocoOffsetXPx) ? blocoOffsetXPx : 0) *
     25.4 /
     96;
 
   const deslocamentoBlocoYMm =
-    (
-      Number.isFinite(
-        blocoOffsetYPx
-      )
-        ? blocoOffsetYPx
-        : 0
-    ) *
+    (Number.isFinite(blocoOffsetYPx) ? blocoOffsetYPx : 0) *
     25.4 /
     96;
 
-  /*
-   * WYSIWYG REAL DA ASSINATURA.
-   *
-   * A imagem e a linha usam exatamente o mesmo viewBox 480 x 150
-   * utilizado no editor. x/y/largura/altura são aplicados diretamente
-   * no SVG, sem uma segunda interpretação geométrica.
-   */
   const assinaturaSvg =
     assinaturaUrl
       ? `
         <image
-          x="${Math.max(
-            0,
-            campoDoBloco.x
-          )}"
-          y="${Math.max(
-            0,
-            campoDoBloco.y
-          )}"
-          width="${Math.max(
-            0.1,
-            campoDoBloco.largura
-          )}"
-          height="${Math.max(
-            0.1,
-            campoDoBloco.altura
-          )}"
-          href="${escaparHtml(
-            assinaturaUrl
-          )}"
+          x="${Math.max(0, campoDoBloco.x)}"
+          y="${Math.max(0, campoDoBloco.y)}"
+          width="${Math.max(0.1, campoDoBloco.largura)}"
+          height="${Math.max(0.1, campoDoBloco.altura)}"
+          href="${escaparHtml(assinaturaUrl)}"
           preserveAspectRatio="xMidYMid meet"
         />
       `
@@ -721,74 +670,123 @@ function criarBlocoAssinatura({
               text-anchor="middle"
               font-size="14"
               fill="#64748b"
-            >
-              Assinatura do diretor
-            </text>
+            >Assinatura do diretor</text>
           `
           : ""
       );
 
+  const nome =
+    escaparHtml(
+      instituicao.responsavelNome ||
+      "Responsável legal"
+    );
+
+  const cargo =
+    escaparHtml(
+      instituicao.responsavelCargo ||
+      "Representante legal"
+    );
+
+  const nomeInstituicao =
+    escaparHtml(instituicao.nome);
+
+  const cnpj = instituicao.cnpj
+    ? escaparHtml(instituicao.cnpj)
+    : "";
+
+  /*
+   * UM ÚNICO SISTEMA DE COORDENADAS PARA TODO O BLOCO.
+   *
+   * Editor e PDF usam viewBox 480 x 221.538462.
+   * A linha, assinatura, nome, cargo, instituição e CNPJ são filhos
+   * do MESMO SVG. Portanto nenhuma parte pode subir/descer sozinha.
+   * O blocoOffset move o conjunto inteiro exatamente como no editor.
+   */
   return `
     <span
       class="phanyx-bloco-assinatura phanyx-bloco-assinatura-visual"
       style="
         position: relative;
+        display: inline-block;
+        width: 78mm;
+        height: 36mm;
+        min-height: 36mm;
         left: ${deslocamentoBlocoXMm}mm;
         top: ${deslocamentoBlocoYMm}mm;
       "
     >
-      <span class="phanyx-area-assinatura-visual">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 480 150"
-          preserveAspectRatio="none"
-          style="
-            display:block;
-            width:100%;
-            height:100%;
-            overflow:visible;
-          "
-        >
-          ${assinaturaSvg}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 480 221.538462"
+        preserveAspectRatio="none"
+        style="
+          display:block;
+          width:78mm;
+          height:36mm;
+          overflow:visible;
+        "
+      >
+        ${assinaturaSvg}
 
-          <line
-            x1="40"
-            y1="92"
-            x2="440"
-            y2="92"
-            stroke="#111827"
-            stroke-width="1"
-            vector-effect="non-scaling-stroke"
-          />
-        </svg>
-      </span>
+        <line
+          x1="40"
+          y1="92"
+          x2="440"
+          y2="92"
+          stroke="#111827"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
 
-      <span class="phanyx-identificacao-assinatura">
-        <strong class="phanyx-assinatura-texto phanyx-assinatura-nome">
-          ${escaparHtml(
-    instituicao.responsavelNome || "Responsável legal"
-  )}
-        </strong>
+        <text
+          x="240"
+          y="98.461538"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="19.102564"
+          font-weight="700"
+          fill="#111827"
+        >${nome}</text>
 
-        <span class="phanyx-assinatura-texto phanyx-assinatura-cargo">
-          ${escaparHtml(
-    instituicao.responsavelCargo || "Representante legal"
-  )}
-        </span>
+        <text
+          x="240"
+          y="118.153846"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="18.461538"
+          font-weight="400"
+          fill="#111827"
+        >${cargo}</text>
 
-        <span class="phanyx-assinatura-texto phanyx-assinatura-instituicao">
-          ${escaparHtml(instituicao.nome)}
-        </span>
+        <text
+          x="240"
+          y="137.846154"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="18.461538"
+          font-weight="400"
+          fill="#111827"
+        >${nomeInstituicao}</text>
 
-        ${instituicao.cnpj
-      ? `
-              <span class="phanyx-assinatura-texto phanyx-assinatura-cnpj">
-                CNPJ: ${escaparHtml(instituicao.cnpj)}
-              </span>
-            `
-      : ""
-    }
-      </span>
+        ${cnpj
+          ? `
+            <text
+              x="240"
+              y="157.538462"
+              text-anchor="middle"
+              dominant-baseline="hanging"
+              font-family="Arial, Helvetica, sans-serif"
+              font-size="18.461538"
+              font-weight="400"
+              fill="#111827"
+            >CNPJ: ${cnpj}</text>
+          `
+          : ""
+        }
+      </svg>
     </span>
   `;
 }
