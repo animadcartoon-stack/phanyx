@@ -48,9 +48,96 @@ function somenteNumeros(
     .replace(/\D/g, "");
 }
 
+
+/*
+ * PHANYX_ASAAS_VENCIMENTO_NAO_RETROATIVO
+ *
+ * O Asaas não aceita boleto novo com data de vencimento
+ * anterior à data atual. Quando a mensalidade já venceu,
+ * preservamos o vencimento original no PHANYX e enviamos
+ * ao Asaas a data de hoje como vencimento bancário.
+ *
+ * O Asaas opera no Brasil; usamos America/Sao_Paulo para
+ * evitar mudança de data causada pelo fuso UTC da Vercel.
+ */
+function hojeAsaas() {
+  const partes = new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }
+  ).formatToParts(new Date());
+
+  const mapa = Object.fromEntries(
+    partes.map((parte) => [
+      parte.type,
+      parte.value,
+    ])
+  );
+
+  return `${mapa.year}-${mapa.month}-${mapa.day}`;
+}
+
+function vencimentoPermitidoAsaas(
+  vencimentoOriginal: string
+) {
+  const vencimento = String(
+    vencimentoOriginal || ""
+  ).trim();
+
+  const hoje = hojeAsaas();
+
+  if (
+    /^\d{4}-\d{2}-\d{2}$/.test(vencimento) &&
+    vencimento >= hoje
+  ) {
+    return vencimento;
+  }
+
+  return hoje;
+}
+
 function obterCredenciais(
   configuracao: ConfiguracaoProvedorFinanceiro
 ): CredenciaisAsaas {
+  /*
+   * PHANYX_LEGACY_IBE_ASAAS_ENV
+   *
+   * A IBE já possui integração Asaas de produção
+   * baseada em variáveis de ambiente da Vercel.
+   *
+   * Para preservar compatibilidade com esse fluxo
+   * legado sem compartilhar a credencial entre
+   * outras instituições, somente a instituição
+   * identificada por IBE_INSTITUICAO_ID pode usar
+   * ASAAS_API_KEY como credencial do provedor.
+   *
+   * Demais instituições continuam usando apenas
+   * suas próprias credenciais criptografadas em
+   * ContaFinanceiraInstituicao.
+   */
+  const ibeInstituicaoId = Number(
+    process.env.IBE_INSTITUICAO_ID || 0
+  );
+
+  const apiKeyLegadaIbe = String(
+    process.env.ASAAS_API_KEY || ""
+  ).trim();
+
+  if (
+    ibeInstituicaoId > 0 &&
+    configuracao.instituicaoId ===
+      ibeInstituicaoId &&
+    apiKeyLegadaIbe
+  ) {
+    return {
+      apiKey: apiKeyLegadaIbe,
+    };
+  }
+
   if (!configuracao.credenciaisCriptografadas) {
     throw new Error(
       "Credenciais do Asaas não configuradas."
@@ -446,7 +533,9 @@ export function criarProvedorAsaas(
                 input.valor,
 
               dueDate:
-                input.vencimento,
+                vencimentoPermitidoAsaas(
+                  input.vencimento
+                ),
 
               description:
                 input.descricao,
@@ -542,6 +631,14 @@ export function criarProvedorAsaas(
 
           externalReference:
             pagamento.externalReference,
+
+          vencimentoOriginal:
+            input.vencimento,
+
+          vencimentoEnviado:
+            vencimentoPermitidoAsaas(
+              input.vencimento
+            ),
         },
       };
     },

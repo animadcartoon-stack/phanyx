@@ -156,6 +156,7 @@ type MatriculaBusca = {
   periodoLetivo: string | null;
   cursoId: number | null;
   elegivelPeloCurso: boolean;
+  elegivelPeloStatus: boolean;
 
   curso: {
     id: number;
@@ -464,6 +465,9 @@ export default function AdminMobilityApplicationsPage() {
 
       CURSO_NAO_ELEGIVEL:
         "errors.ineligibleCourse",
+
+      MATRICULA_STATUS_NAO_ELEGIVEL:
+        "errors.ineligibleEnrollmentStatus",
 
       NOME_OBRIGATORIO:
         "errors.nameRequired",
@@ -795,6 +799,27 @@ export default function AdminMobilityApplicationsPage() {
           setAlunoSelecionado(
             aluno
           );
+
+          // ATALHO_STATUS_MATRICULA_INELEGIVEL
+          if (
+            !matricula.elegivelPeloStatus
+          ) {
+            setFormNova(
+              (atual) => ({
+                ...atual,
+                alunoId:
+                  aluno.id,
+                matriculaId:
+                  null,
+              })
+            );
+
+            throw new Error(
+              t(
+                "errors.ineligibleEnrollmentStatus"
+              )
+            );
+          }
 
           setFormNova(
             (atual) => ({
@@ -1180,6 +1205,19 @@ export default function AdminMobilityApplicationsPage() {
           "erro",
           t(
             "errors.ineligibleCourse"
+          )
+        );
+        return;
+      }
+
+      if (
+        matriculaSelecionada &&
+        !matriculaSelecionada.elegivelPeloStatus
+      ) {
+        mostrarToast(
+          "erro",
+          t(
+            "errors.ineligibleEnrollmentStatus"
           )
         );
         return;
@@ -2888,14 +2926,19 @@ export default function AdminMobilityApplicationsPage() {
                                     matricula.id
                                   }
                                   className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${
-                                    matricula.elegivelPeloCurso
+                                    matricula.elegivelPeloCurso &&
+                                    matricula.elegivelPeloStatus
                                       ? "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-                                      : "border-rose-200 bg-rose-50/60 dark:border-rose-900 dark:bg-rose-950/20"
+                                      : "cursor-not-allowed border-rose-200 bg-rose-50/60 opacity-80 dark:border-rose-900 dark:bg-rose-950/20"
                                   }`}
                                 >
                                   <input
                                     type="radio"
                                     name="matricula"
+                                    disabled={
+                                      !matricula.elegivelPeloCurso ||
+                                      !matricula.elegivelPeloStatus
+                                    }
                                     checked={
                                       formNova.matriculaId ===
                                       matricula.id
@@ -2935,6 +2978,14 @@ export default function AdminMobilityApplicationsPage() {
                                       <div className="mt-1 text-xs font-semibold text-rose-700 dark:text-rose-300">
                                         {t(
                                           "fields.courseNotEligible"
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {!matricula.elegivelPeloStatus && (
+                                      <div className="mt-1 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                                        {t(
+                                          "fields.enrollmentStatusNotEligible"
                                         )}
                                       </div>
                                     )}

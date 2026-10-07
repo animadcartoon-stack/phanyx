@@ -1300,6 +1300,115 @@ const LineHeight = Extension.create({
   },
 });
 
+/*
+ * Linhas digitadas com sublinhados, por exemplo:
+ * ___________________________
+ *
+ * Antes eram renderizadas como caracteres de fonte. O Chrome do
+ * usuário e o Chromium do PDF podem usar métricas diferentes e,
+ * por isso, a linha mudava de comprimento.
+ *
+ * Agora a quantidade de "_" define uma largura geométrica em "em".
+ * O texto continua existindo e pode ser editado normalmente, mas
+ * visualmente editor e PDF usam exatamente a mesma regra.
+ */
+const LinhaDigitadaPHANYX =
+  Extension.create({
+    name: "linhaDigitadaPHANYX",
+
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          key: new PluginKey(
+            "linhaDigitadaPHANYX"
+          ),
+
+          props: {
+            decorations(state) {
+              const decoracoes:
+                Decoration[] = [];
+
+              state.doc.descendants(
+                (node, posicao) => {
+                  if (
+                    !node.isText ||
+                    !node.text
+                  ) {
+                    return;
+                  }
+
+                  const regex =
+                    /_{5,}/g;
+
+                  let resultado:
+                    RegExpExecArray |
+                    null = null;
+
+                  while (
+                    (
+                      resultado =
+                        regex.exec(
+                          node.text
+                        )
+                    ) !== null
+                  ) {
+                    const quantidade =
+                      resultado[0].length;
+
+                    const larguraEm =
+                      (
+                        quantidade *
+                        0.56
+                      ).toFixed(3);
+
+                    decoracoes.push(
+                      Decoration.inline(
+                        posicao +
+                          resultado.index,
+
+                        posicao +
+                          resultado.index +
+                          quantidade,
+
+                        {
+                          class:
+                            "phanyx-linha-digitada",
+
+                          style: [
+                            "display:inline-block",
+                            `width:${larguraEm}em`,
+                            "max-width:100%",
+                            "height:0.78em",
+                            "line-height:0",
+                            "vertical-align:-0.12em",
+                            "border-bottom:1px solid #111827",
+                            "color:transparent!important",
+                            "-webkit-text-fill-color:transparent!important",
+                            "text-decoration:none!important",
+                            "text-shadow:none!important",
+                            "caret-color:#111827",
+                            "overflow:hidden",
+                            "white-space:nowrap",
+                            "box-sizing:border-box",
+                          ].join(";"),
+                        }
+                      )
+                    );
+                  }
+                }
+              );
+
+              return DecorationSet.create(
+                state.doc,
+                decoracoes
+              );
+            },
+          },
+        }),
+      ];
+    },
+  });
+
 type CampoVisualAssinaturaPreview = {
   id: string;
   tipo: "ASSINATURA_DIRETOR";
@@ -1582,7 +1691,7 @@ function criarBotaoRemoverAssinatura(
     top: "0",
     left: "0",
     width: "78mm",
-    height: "24.375mm",
+    height: "36mm",
   });
 
   const campo =
@@ -1597,191 +1706,161 @@ function criarBotaoRemoverAssinatura(
     };
 
   /*
-   * A área 480 x 150 é a fonte de verdade.
-   * A imagem usa percentuais dessa MESMA área.
+   * BLOCO WYSIWYG ÚNICO.
+   *
+   * A assinatura, a linha e TODOS os textos institucionais vivem no
+   * mesmo SVG. Assim o bloco inteiro mantém exatamente as mesmas
+   * relações internas no editor e no PDF. blocoOffsetX/blocoOffsetY
+   * continua movendo o conjunto inteiro.
+   *
+   * 78 mm de largura = 480 unidades.
+   * 36 mm de altura   = 221.538462 unidades.
+   * A área original da assinatura continua ocupando 0..150 unidades.
    */
-  const esquerdaPercentual =
-    Math.max(0, Number(campo.x)) /
-    480 *
-    100;
+  const svgNs =
+    "http://www.w3.org/2000/svg";
 
-  const topoPercentual =
-    Math.max(0, Number(campo.y)) /
-    150 *
-    100;
+  const svg =
+    document.createElementNS(
+      svgNs,
+      "svg"
+    );
 
-  const larguraPercentual =
-    Math.max(0.1, Number(campo.largura)) /
-    480 *
-    100;
+  svg.setAttribute(
+    "viewBox",
+    "0 0 480 221.538462"
+  );
 
-  const alturaPercentual =
-    Math.max(0.1, Number(campo.altura)) /
-    150 *
-    100;
+  svg.setAttribute(
+    "preserveAspectRatio",
+    "none"
+  );
 
-  const caixaImagem =
-    document.createElement("span");
-
-  aplicarEstilos(caixaImagem, {
-    position: "absolute",
-    zIndex: "2",
-    display: "block",
-    left: `${esquerdaPercentual}%`,
-    top: `${topoPercentual}%`,
-    width: `${larguraPercentual}%`,
-    height: `${alturaPercentual}%`,
-    minHeight: "0",
-    margin: "0",
-    overflow: "hidden",
-  });
-
-  const placeholder =
-    document.createElement("span");
-  placeholder.textContent =
-    "Assinatura do diretor";
-
-  aplicarEstilos(placeholder, {
-    display: dados.assinaturaUrl
-      ? "none"
-      : "flex",
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "1px dashed #64748b",
-    color: "#475569",
-    fontSize: "7pt",
-    lineHeight: "1.1",
-    textAlign: "center",
-    backgroundColor: "#f8fafc",
-  });
-
-  caixaImagem.appendChild(placeholder);
+  svg.style.display = "block";
+  svg.style.width = "100%";
+  svg.style.height = "100%";
+  svg.style.overflow = "visible";
 
   if (dados.assinaturaUrl) {
     const imagem =
-      document.createElement("img");
+      document.createElementNS(
+        svgNs,
+        "image"
+      );
 
-    imagem.src = dados.assinaturaUrl;
-    imagem.alt = "Assinatura do diretor";
-
-    aplicarEstilos(imagem, {
-      display: "block",
-      width: "100%",
-      height: "100%",
-      objectFit: "contain",
-      objectPosition: "center",
-    });
-
-    imagem.addEventListener(
-      "error",
-      () => {
-        imagem.style.display = "none";
-        placeholder.style.display = "flex";
-      }
+    imagem.setAttribute(
+      "x",
+      String(Math.max(0, Number(campo.x)))
+    );
+    imagem.setAttribute(
+      "y",
+      String(Math.max(0, Number(campo.y)))
+    );
+    imagem.setAttribute(
+      "width",
+      String(Math.max(0.1, Number(campo.largura)))
+    );
+    imagem.setAttribute(
+      "height",
+      String(Math.max(0.1, Number(campo.altura)))
+    );
+    imagem.setAttribute(
+      "preserveAspectRatio",
+      "xMidYMid meet"
+    );
+    imagem.setAttribute(
+      "href",
+      dados.assinaturaUrl
     );
 
-    caixaImagem.appendChild(imagem);
+    svg.appendChild(imagem);
+  } else {
+    const placeholder =
+      document.createElementNS(
+        svgNs,
+        "text"
+      );
+
+    placeholder.setAttribute("x", "240");
+    placeholder.setAttribute("y", "60");
+    placeholder.setAttribute("text-anchor", "middle");
+    placeholder.setAttribute("font-size", "14");
+    placeholder.setAttribute("fill", "#64748b");
+    placeholder.textContent = "Assinatura do diretor";
+    svg.appendChild(placeholder);
   }
 
   const linha =
-    document.createElement("span");
+    document.createElementNS(
+      svgNs,
+      "line"
+    );
 
-  aplicarEstilos(linha, {
-    position: "absolute",
-    top: "61.333333%",
-    left: "8.333333%",
-    width: "83.333333%",
-    height: "0",
-    margin: "0",
-    borderTop:
-      "1px solid #111827",
-  });
+  linha.setAttribute("x1", "40");
+  linha.setAttribute("y1", "92");
+  linha.setAttribute("x2", "440");
+  linha.setAttribute("y2", "92");
+  linha.setAttribute("stroke", "#111827");
+  linha.setAttribute("stroke-width", "1");
+  linha.setAttribute("vector-effect", "non-scaling-stroke");
+  svg.appendChild(linha);
 
-  areaVisual.appendChild(caixaImagem);
-  areaVisual.appendChild(linha);
-  container.appendChild(areaVisual);
-
-  const identificacao =
-    document.createElement("span");
-
-  aplicarEstilos(identificacao, {
-    position: "absolute",
-    zIndex: "3",
-    top: "0",
-    left: "0",
-    width: "78mm",
-    height: "31mm",
-    display: "block",
-    margin: "0",
-    padding: "0",
-    color: "#111827",
-    textAlign: "center",
-    overflow: "visible",
-    pointerEvents: "none",
-  });
-
-  const nome =
-    document.createElement("strong");
-  nome.textContent =
-    dados.responsavelNome ||
-    "Responsável legal";
-
-  const cargo =
-    document.createElement("span");
-  cargo.textContent =
-    dados.responsavelCargo ||
-    "Representante legal";
-
-  const instituicao =
-    document.createElement("span");
-  instituicao.textContent =
-    dados.nomeInstituicao ||
-    "Instituição";
-
-  const estilizarLinhaIdentificacao = (
-    elemento: HTMLElement,
-    top: string,
+  const adicionarTexto = (
+    texto: string,
+    y: number,
+    tamanho: number,
     negrito = false
   ) => {
-    aplicarEstilos(elemento, {
-      position: "absolute",
-      zIndex: "3",
-      top,
-      left: "3mm",
-      width: "72mm",
-      height: "3.2mm",
-      margin: "0",
-      padding: "0",
-      whiteSpace: "nowrap",
-      overflow: "visible",
-      color: "#111827",
-      fontSize: negrito ? "8.8pt" : "8.5pt",
-      fontWeight: negrito ? "700" : "400",
-      lineHeight: "3.2mm",
-      textAlign: "center",
-    });
+    const elemento =
+      document.createElementNS(
+        svgNs,
+        "text"
+      );
+
+    elemento.setAttribute("x", "240");
+    elemento.setAttribute("y", String(y));
+    elemento.setAttribute("text-anchor", "middle");
+    elemento.setAttribute("dominant-baseline", "hanging");
+    elemento.setAttribute(
+      "font-family",
+      "Arial, Helvetica, sans-serif"
+    );
+    elemento.setAttribute("font-size", String(tamanho));
+    elemento.setAttribute("font-weight", negrito ? "700" : "400");
+    elemento.setAttribute("fill", "#111827");
+    elemento.textContent = texto;
+    svg.appendChild(elemento);
   };
 
-  estilizarLinhaIdentificacao(nome, "16.0mm", true);
-  estilizarLinhaIdentificacao(cargo, "19.2mm");
-  estilizarLinhaIdentificacao(instituicao, "22.4mm");
+  adicionarTexto(
+    dados.responsavelNome || "Responsável legal",
+    98.461538,
+    19.102564,
+    true
+  );
 
-  identificacao.appendChild(nome);
-  identificacao.appendChild(cargo);
-  identificacao.appendChild(instituicao);
+  adicionarTexto(
+    dados.responsavelCargo || "Representante legal",
+    118.153846,
+    18.461538
+  );
+
+  adicionarTexto(
+    dados.nomeInstituicao || "Instituição",
+    137.846154,
+    18.461538
+  );
 
   if (dados.cnpjInstituicao) {
-    const cnpj =
-      document.createElement("span");
-    cnpj.textContent =
-      `CNPJ: ${dados.cnpjInstituicao}`;
-    estilizarLinhaIdentificacao(cnpj, "25.6mm");
-    identificacao.appendChild(cnpj);
+    adicionarTexto(
+      `CNPJ: ${dados.cnpjInstituicao}`,
+      157.538462,
+      18.461538
+    );
   }
 
-  container.appendChild(identificacao);
+  areaVisual.appendChild(svg);
+  container.appendChild(areaVisual);
   container.appendChild(
     criarBotaoRemoverAssinatura(
       tipo,
@@ -3167,6 +3246,8 @@ export default function EditorTemplatePHANYX({
             valoresPreviewVariaveis
           ),
       }),
+
+      LinhaDigitadaPHANYX,
 
       AssinaturaPreviewPHANYX.configure({
         assinaturaUrl:

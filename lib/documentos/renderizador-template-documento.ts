@@ -293,6 +293,67 @@ export function sanitizarHtmlDocumento(
     );
 }
 
+/*
+ * Converte apenas sequências de 5 ou mais "_" que estejam em
+ * conteúdo textual do HTML. Tags e atributos não são alterados.
+ *
+ * A largura é calculada pela mesma fórmula usada pelo editor:
+ * quantidade de "_" x 0,56em.
+ *
+ * "em" depende do tamanho da fonte, não da largura do glifo "_".
+ * Assim a linha tem a mesma medida no navegador e no Chromium
+ * usado para gerar o PDF.
+ */
+function normalizarLinhasDigitadas(
+  valor: string
+) {
+  return String(valor || "")
+    .split(/(<[^>]+>)/g)
+    .map((parte) => {
+      if (
+        parte.startsWith("<") &&
+        parte.endsWith(">")
+      ) {
+        return parte;
+      }
+
+      return parte.replace(
+        /_{5,}/g,
+        (linha) => {
+          const larguraEm =
+            (
+              linha.length *
+              0.56
+            ).toFixed(3);
+
+          return (
+            `<span ` +
+            `data-phanyx-linha-digitada="true" ` +
+            `style="` +
+            `display:inline-block;` +
+            `width:${larguraEm}em;` +
+            `max-width:100%;` +
+            `height:0.78em;` +
+            `line-height:0;` +
+            `vertical-align:-0.12em;` +
+            `border-bottom:1px solid #111827;` +
+            `color:transparent!important;` +
+            `-webkit-text-fill-color:transparent!important;` +
+            `text-decoration:none!important;` +
+            `text-shadow:none!important;` +
+            `overflow:hidden;` +
+            `white-space:nowrap;` +
+            `box-sizing:border-box;` +
+            `">` +
+            `&nbsp;` +
+            `</span>`
+          );
+        }
+      );
+    })
+    .join("");
+}
+
 function normalizarParagrafosVazios(
   valor: string
 ) {
@@ -557,16 +618,6 @@ function criarBlocoAssinatura({
   modoPrevia: boolean;
   campoVisual?: CampoVisualDocumento | null;
 }) {
-  /*
-   * O bloco institucional continua tendo a geometria fixa do
-   * EditorTemplatePHANYX (78mm x 36mm), mas a IMAGEM da assinatura
-   * usa exatamente x/y/largura/altura salvos em camposVisuais.
-   *
-   * A área de edição da assinatura mede 480px x 150px. Ela é
-   * projetada proporcionalmente sobre 78mm x 24,375mm no bloco.
-   * Assim o que for montado em "Área real da assinatura do diretor"
-   * é o que aparece sobre a linha no PDF.
-   */
   const campoNormalizado = campoVisual
     ? obterCampoVisualAssinatura([campoVisual])
     : null;
@@ -583,88 +634,159 @@ function criarBlocoAssinatura({
     };
 
   const blocoOffsetXPx =
-    Number(
-      campoDoBloco
-        .blocoOffsetX ??
-      0
-    );
+    Number(campoDoBloco.blocoOffsetX ?? 0);
 
   const blocoOffsetYPx =
-    Number(
-      campoDoBloco
-        .blocoOffsetY ??
-      0
-    );
+    Number(campoDoBloco.blocoOffsetY ?? 0);
 
   const deslocamentoBlocoXMm =
-    (
-      Number.isFinite(
-        blocoOffsetXPx
-      )
-        ? blocoOffsetXPx
-        : 0
-    ) *
+    (Number.isFinite(blocoOffsetXPx) ? blocoOffsetXPx : 0) *
     25.4 /
     96;
 
   const deslocamentoBlocoYMm =
-    (
-      Number.isFinite(
-        blocoOffsetYPx
-      )
-        ? blocoOffsetYPx
-        : 0
-    ) *
+    (Number.isFinite(blocoOffsetYPx) ? blocoOffsetYPx : 0) *
     25.4 /
     96;
 
-  const imagem = criarImagemAssinatura({
-    assinaturaUrl,
-    modoPrevia,
-    campoVisual: campoDoBloco,
-    dentroDoBloco: true,
-  });
+  const assinaturaSvg =
+    assinaturaUrl
+      ? `
+        <image
+          x="${Math.max(0, campoDoBloco.x)}"
+          y="${Math.max(0, campoDoBloco.y)}"
+          width="${Math.max(0.1, campoDoBloco.largura)}"
+          height="${Math.max(0.1, campoDoBloco.altura)}"
+          href="${escaparHtml(assinaturaUrl)}"
+          preserveAspectRatio="xMidYMid meet"
+        />
+      `
+      : (
+        modoPrevia
+          ? `
+            <text
+              x="240"
+              y="60"
+              text-anchor="middle"
+              font-size="14"
+              fill="#64748b"
+            >Assinatura do diretor</text>
+          `
+          : ""
+      );
 
+  const nome =
+    escaparHtml(
+      instituicao.responsavelNome ||
+      "Responsável legal"
+    );
+
+  const cargo =
+    escaparHtml(
+      instituicao.responsavelCargo ||
+      "Representante legal"
+    );
+
+  const nomeInstituicao =
+    escaparHtml(instituicao.nome);
+
+  const cnpj = instituicao.cnpj
+    ? escaparHtml(instituicao.cnpj)
+    : "";
+
+  /*
+   * UM ÚNICO SISTEMA DE COORDENADAS PARA TODO O BLOCO.
+   *
+   * Editor e PDF usam viewBox 480 x 221.538462.
+   * A linha, assinatura, nome, cargo, instituição e CNPJ são filhos
+   * do MESMO SVG. Portanto nenhuma parte pode subir/descer sozinha.
+   * O blocoOffset move o conjunto inteiro exatamente como no editor.
+   */
   return `
     <span
       class="phanyx-bloco-assinatura phanyx-bloco-assinatura-visual"
       style="
         position: relative;
+        display: inline-block;
+        width: 78mm;
+        height: 36mm;
+        min-height: 36mm;
         left: ${deslocamentoBlocoXMm}mm;
         top: ${deslocamentoBlocoYMm}mm;
       "
     >
-      <span class="phanyx-area-assinatura-visual">
-        ${imagem}
-        <span class="phanyx-linha-assinatura"></span>
-      </span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 480 221.538462"
+        preserveAspectRatio="none"
+        style="
+          display:block;
+          width:78mm;
+          height:36mm;
+          overflow:visible;
+        "
+      >
+        ${assinaturaSvg}
 
-      <span class="phanyx-identificacao-assinatura">
-        <strong class="phanyx-assinatura-texto phanyx-assinatura-nome">
-          ${escaparHtml(
-    instituicao.responsavelNome || "Responsável legal"
-  )}
-        </strong>
+        <line
+          x1="40"
+          y1="92"
+          x2="440"
+          y2="92"
+          stroke="#111827"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
 
-        <span class="phanyx-assinatura-texto phanyx-assinatura-cargo">
-          ${escaparHtml(
-    instituicao.responsavelCargo || "Representante legal"
-  )}
-        </span>
+        <text
+          x="240"
+          y="98.461538"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="19.102564"
+          font-weight="700"
+          fill="#111827"
+        >${nome}</text>
 
-        <span class="phanyx-assinatura-texto phanyx-assinatura-instituicao">
-          ${escaparHtml(instituicao.nome)}
-        </span>
+        <text
+          x="240"
+          y="118.153846"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="18.461538"
+          font-weight="400"
+          fill="#111827"
+        >${cargo}</text>
 
-        ${instituicao.cnpj
-      ? `
-              <span class="phanyx-assinatura-texto phanyx-assinatura-cnpj">
-                CNPJ: ${escaparHtml(instituicao.cnpj)}
-              </span>
-            `
-      : ""
-    }
-      </span>
+        <text
+          x="240"
+          y="137.846154"
+          text-anchor="middle"
+          dominant-baseline="hanging"
+          font-family="Arial, Helvetica, sans-serif"
+          font-size="18.461538"
+          font-weight="400"
+          fill="#111827"
+        >${nomeInstituicao}</text>
+
+        ${cnpj
+          ? `
+            <text
+              x="240"
+              y="157.538462"
+              text-anchor="middle"
+              dominant-baseline="hanging"
+              font-family="Arial, Helvetica, sans-serif"
+              font-size="18.461538"
+              font-weight="400"
+              fill="#111827"
+            >CNPJ: ${cnpj}</text>
+          `
+          : ""
+        }
+      </svg>
     </span>
   `;
 }
@@ -2413,6 +2535,11 @@ export function montarRenderizacaoDocumento(
 
   conteudo =
     normalizarParagrafosVazios(
+      conteudo
+    );
+
+  conteudo =
+    normalizarLinhasDigitadas(
       conteudo
     );
 
