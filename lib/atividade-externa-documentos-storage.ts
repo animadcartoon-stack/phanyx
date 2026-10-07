@@ -78,6 +78,8 @@ const MIME_POR_EXTENSAO: Record<
   ],
 };
 
+export const ATIVIDADE_EXTERNA_DOCUMENTOS_BLOB_READ_WRITE_TOKEN_ENV =
+  "ATIVIDADE_EXTERNA_DOCUMENTOS_READ_WRITE_TOKEN";
 export function obterStoreIdDocumentoAtividadeExternaBlob() {
   const storeId =
     process.env
@@ -114,6 +116,20 @@ export function obterStoreIdDocumentoAtividadeExternaBlob() {
   throw new Error(
     "Nenhuma credencial de Blob configurada."
   );
+}
+export function obterTokenDocumentoAtividadeExternaBlob() {
+  const token =
+    process.env[
+      ATIVIDADE_EXTERNA_DOCUMENTOS_BLOB_READ_WRITE_TOKEN_ENV
+    ]?.trim();
+
+  if (!token) {
+    throw new Error(
+      "Credencial do Blob privado de documentos externos nao configurada."
+    );
+  }
+
+  return token;
 }
 export function obterExtensaoDocumentoAtividadeExterna(
   nomeArquivo: string
@@ -228,7 +244,7 @@ export function limparNomeDocumentoAtividadeExterna(
         "NFD"
       )
       .replace(
-        /[̀-ͯ]/g,
+        /[\u0300-\u036f]/g,
         ""
       )
       .replace(

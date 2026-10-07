@@ -12,6 +12,7 @@ import {
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
   prefixoDocumentoAtividadeExterna,
+  obterTokenDocumentoAtividadeExternaBlob,
 } from "@/lib/atividade-externa-documentos-storage";
 
 import { prisma } from "@/lib/prisma";
@@ -662,6 +663,7 @@ export async function GET(
 
     const tokenLeitura =
       await issueSignedToken({
+        token: obterTokenDocumentoAtividadeExternaBlob(),
         pathname,
 
         operations: [
