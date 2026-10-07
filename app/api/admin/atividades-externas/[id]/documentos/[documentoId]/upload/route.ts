@@ -23,8 +23,8 @@ import {
   limparNomeDocumentoAtividadeExterna,
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
-  obterStoreIdDocumentoAtividadeExternaBlob,
   prefixoDocumentoAtividadeExterna,
+  obterTokenDocumentoAtividadeExternaBlob,
 } from "@/lib/atividade-externa-documentos-storage";
 
 import { prisma } from "@/lib/prisma";
@@ -577,35 +577,13 @@ export async function POST(
     const pathname =
       `${prefixo}/${randomUUID()}-${nomeSeguro}`;
 
-    let storeId:
-      string;
-
-    try {
-      storeId =
-        obterStoreIdDocumentoAtividadeExternaBlob();
-    } catch {
-      return NextResponse.json(
-        {
-          ok:
-            false,
-
-          error:
-            "STORAGE_PRIVADO_NAO_CONFIGURADO",
-        },
-        {
-          status:
-            503,
-        }
-      );
-    }
-
     const validUntil =
       Date.now() +
       DEZ_MINUTOS_MS;
 
     const token =
       await issueSignedToken({
-        storeId,
+        token: obterTokenDocumentoAtividadeExternaBlob(),
 
         pathname,
 

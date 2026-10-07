@@ -3,8 +3,8 @@ import "server-only";
 export const ATIVIDADE_EXTERNA_DOCUMENTOS_BLOB_ACCESS =
   "private" as const;
 
-export const ATIVIDADE_EXTERNA_DOCUMENTOS_BLOB_STORE_ID_ENV =
-  "ATIVIDADE_EXTERNA_DOCUMENTOS_STORE_ID";
+export const ATIVIDADE_EXTERNA_DOCUMENTOS_BLOB_READ_WRITE_TOKEN_ENV =
+  "ATIVIDADE_EXTERNA_DOCUMENTOS_READ_WRITE_TOKEN";
 
 export const LIMITE_DOCUMENTO_ATIVIDADE_EXTERNA_BYTES =
   25 * 1024 * 1024;
@@ -78,24 +78,20 @@ const MIME_POR_EXTENSAO: Record<
   ],
 };
 
-export function obterStoreIdDocumentoAtividadeExternaBlob() {
-  const storeId =
-    process.env
-      .ATIVIDADE_EXTERNA_DOCUMENTOS_STORE_ID
-      ?.trim() ||
-    process.env
-      .MOBILIDADE_STORE_ID
-      ?.trim();
+export function obterTokenDocumentoAtividadeExternaBlob() {
+  const token =
+    process.env[
+      ATIVIDADE_EXTERNA_DOCUMENTOS_BLOB_READ_WRITE_TOKEN_ENV
+    ]?.trim();
 
-  if (!storeId) {
+  if (!token) {
     throw new Error(
-      "Storage privado de documentos de atividades externas nao configurado."
+      "Credencial do Blob privado de documentos externos nao configurada."
     );
   }
 
-  return storeId;
+  return token;
 }
-
 export function obterExtensaoDocumentoAtividadeExterna(
   nomeArquivo: string
 ) {
@@ -209,7 +205,7 @@ export function limparNomeDocumentoAtividadeExterna(
         "NFD"
       )
       .replace(
-        /[̀-ͯ]/g,
+        /[\u0300-\u036f]/g,
         ""
       )
       .replace(

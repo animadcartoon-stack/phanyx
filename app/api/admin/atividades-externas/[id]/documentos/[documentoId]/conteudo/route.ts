@@ -11,8 +11,8 @@ import {
 import {
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
-  obterStoreIdDocumentoAtividadeExternaBlob,
   prefixoDocumentoAtividadeExterna,
+  obterTokenDocumentoAtividadeExternaBlob,
 } from "@/lib/atividade-externa-documentos-storage";
 
 import { prisma } from "@/lib/prisma";
@@ -649,33 +649,6 @@ export async function GET(
       );
     }
 
-    let storeId:
-      string;
-
-    try {
-      storeId =
-        obterStoreIdDocumentoAtividadeExternaBlob();
-    } catch {
-      return NextResponse.json(
-        {
-          ok:
-            false,
-
-          error:
-            "STORAGE_PRIVADO_NAO_CONFIGURADO",
-        },
-        {
-          status:
-            503,
-
-          headers: {
-            "Cache-Control":
-              "no-store",
-          },
-        }
-      );
-    }
-
     /*
      * A leitura usa uma URL GET assinada
      * de curta duracao.
@@ -690,7 +663,7 @@ export async function GET(
 
     const tokenLeitura =
       await issueSignedToken({
-        storeId,
+        token: obterTokenDocumentoAtividadeExternaBlob(),
 
         pathname,
 
