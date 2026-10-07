@@ -293,6 +293,64 @@ export function sanitizarHtmlDocumento(
     );
 }
 
+/*
+ * Converte apenas sequências de 5 ou mais "_" que estejam em
+ * conteúdo textual do HTML. Tags e atributos não são alterados.
+ *
+ * A largura é calculada pela mesma fórmula usada pelo editor:
+ * quantidade de "_" x 0,56em.
+ *
+ * "em" depende do tamanho da fonte, não da largura do glifo "_".
+ * Assim a linha tem a mesma medida no navegador e no Chromium
+ * usado para gerar o PDF.
+ */
+function normalizarLinhasDigitadas(
+  valor: string
+) {
+  return String(valor || "")
+    .split(/(<[^>]+>)/g)
+    .map((parte) => {
+      if (
+        parte.startsWith("<") &&
+        parte.endsWith(">")
+      ) {
+        return parte;
+      }
+
+      return parte.replace(
+        /_{5,}/g,
+        (linha) => {
+          const larguraEm =
+            (
+              linha.length *
+              0.56
+            ).toFixed(3);
+
+          return (
+            `<span ` +
+            `data-phanyx-linha-digitada="true" ` +
+            `style="` +
+            `display:inline-block;` +
+            `width:${larguraEm}em;` +
+            `max-width:100%;` +
+            `height:0.78em;` +
+            `line-height:0;` +
+            `vertical-align:-0.12em;` +
+            `border-bottom:1px solid #111827;` +
+            `color:transparent;` +
+            `overflow:hidden;` +
+            `white-space:nowrap;` +
+            `box-sizing:border-box;` +
+            `">` +
+            linha +
+            `</span>`
+          );
+        }
+      );
+    })
+    .join("");
+}
+
 function normalizarParagrafosVazios(
   valor: string
 ) {
@@ -2413,6 +2471,11 @@ export function montarRenderizacaoDocumento(
 
   conteudo =
     normalizarParagrafosVazios(
+      conteudo
+    );
+
+  conteudo =
+    normalizarLinhasDigitadas(
       conteudo
     );
 
