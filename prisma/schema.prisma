@@ -583,7 +583,8 @@ model User {
   bibliotecaModelosEtiquetaCriados     BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaCriadoPor")
   bibliotecaModelosEtiquetaAtualizados BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaAtualizadoPor")
 
-  cobrancasFinanceirasBaixadas CobrancaFinanceira[] @relation("CobrancaFinanceiraBaixadoPor")
+  cobrancasFinanceirasBaixadas  CobrancaFinanceira[] @relation("CobrancaFinanceiraBaixadoPor")
+  cobrancasFinanceirasEnviadas  CobrancaFinanceira[] @relation("CobrancaFinanceiraUltimoEnvioPor")
 
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
@@ -2330,6 +2331,12 @@ model CobrancaFinanceira {
   pagoEm       DateTime?
   compensadoEm DateTime?
 
+  ultimoEnvioEm                  DateTime?
+  ultimoEnvioCanal               String?
+  ultimoEnvioPorUsuarioId        Int?
+  ultimoEnvioPorNomeSnapshot     String?
+  quantidadeEnvios               Int       @default(0)
+
   linhaDigitavel String?
   codigoBarras   String?
   boletoUrl      String?
@@ -2352,7 +2359,8 @@ model CobrancaFinanceira {
   lancamentoFinanceiro LancamentoFinanceiro       @relation(fields: [lancamentoFinanceiroId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
   aluno                Aluno                      @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
   matricula            Matricula?                 @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
-  baixadoPorUsuario    User?                      @relation("CobrancaFinanceiraBaixadoPor", fields: [baixadoPorUsuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  baixadoPorUsuario     User?                      @relation("CobrancaFinanceiraBaixadoPor", fields: [baixadoPorUsuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  ultimoEnvioPorUsuario User?                      @relation("CobrancaFinanceiraUltimoEnvioPor", fields: [ultimoEnvioPorUsuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
   movimentoCaixa       MovimentoCaixa?            @relation("CobrancaFinanceiraMovimentoCaixa", fields: [movimentoCaixaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
 
   eventosWebhook EventoWebhookFinanceiro[]
@@ -2371,6 +2379,8 @@ model CobrancaFinanceira {
   @@index([instituicaoId, statusOperacional])
   @@index([vencimento])
   @@index([baixadoPorUsuarioId])
+  @@index([ultimoEnvioEm])
+  @@index([ultimoEnvioPorUsuarioId])
 }
 
 model ConfiguracaoFinanceiraInstituicao {
