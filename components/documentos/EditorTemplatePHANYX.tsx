@@ -1382,7 +1382,10 @@ const LinhaDigitadaPHANYX =
                             "line-height:0",
                             "vertical-align:-0.12em",
                             "border-bottom:1px solid #111827",
-                            "color:transparent",
+                            "color:transparent!important",
+                            "-webkit-text-fill-color:transparent!important",
+                            "text-decoration:none!important",
+                            "text-shadow:none!important",
                             "caret-color:#111827",
                             "overflow:hidden",
                             "white-space:nowrap",
@@ -1703,110 +1706,157 @@ function criarBotaoRemoverAssinatura(
     };
 
   /*
-   * A área 480 x 150 é a fonte de verdade.
-   * A imagem usa percentuais dessa MESMA área.
+   * WYSIWYG REAL DA ASSINATURA.
+   *
+   * Imagem e linha usam o MESMO sistema de coordenadas
+   * 480 x 150, dentro de um único SVG. Assim o editor e
+   * o PDF deixam de depender de caixas HTML independentes.
    */
-  const esquerdaPercentual =
-    Math.max(0, Number(campo.x)) /
-    480 *
-    100;
+  const svgNs =
+    "http://www.w3.org/2000/svg";
 
-  const topoPercentual =
-    Math.max(0, Number(campo.y)) /
-    150 *
-    100;
+  const svg =
+    document.createElementNS(
+      svgNs,
+      "svg"
+    );
 
-  const larguraPercentual =
-    Math.max(0.1, Number(campo.largura)) /
-    480 *
-    100;
+  svg.setAttribute(
+    "viewBox",
+    "0 0 480 150"
+  );
 
-  const alturaPercentual =
-    Math.max(0.1, Number(campo.altura)) /
-    150 *
-    100;
+  svg.setAttribute(
+    "preserveAspectRatio",
+    "none"
+  );
 
-  const caixaImagem =
-    document.createElement("span");
-
-  aplicarEstilos(caixaImagem, {
-    position: "absolute",
-    zIndex: "2",
-    display: "block",
-    left: `${esquerdaPercentual}%`,
-    top: `${topoPercentual}%`,
-    width: `${larguraPercentual}%`,
-    height: `${alturaPercentual}%`,
-    minHeight: "0",
-    margin: "0",
-    overflow: "hidden",
-  });
-
-  const placeholder =
-    document.createElement("span");
-  placeholder.textContent =
-    "Assinatura do diretor";
-
-  aplicarEstilos(placeholder, {
-    display: dados.assinaturaUrl
-      ? "none"
-      : "flex",
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    border: "1px dashed #64748b",
-    color: "#475569",
-    fontSize: "7pt",
-    lineHeight: "1.1",
-    textAlign: "center",
-    backgroundColor: "#f8fafc",
-  });
-
-  caixaImagem.appendChild(placeholder);
+  svg.style.display = "block";
+  svg.style.width = "100%";
+  svg.style.height = "100%";
+  svg.style.overflow = "visible";
 
   if (dados.assinaturaUrl) {
     const imagem =
-      document.createElement("img");
+      document.createElementNS(
+        svgNs,
+        "image"
+      );
 
-    imagem.src = dados.assinaturaUrl;
-    imagem.alt = "Assinatura do diretor";
-
-    aplicarEstilos(imagem, {
-      display: "block",
-      width: "100%",
-      height: "100%",
-      objectFit: "contain",
-      objectPosition: "center",
-    });
-
-    imagem.addEventListener(
-      "error",
-      () => {
-        imagem.style.display = "none";
-        placeholder.style.display = "flex";
-      }
+    imagem.setAttribute(
+      "x",
+      String(
+        Math.max(
+          0,
+          Number(campo.x)
+        )
+      )
     );
 
-    caixaImagem.appendChild(imagem);
+    imagem.setAttribute(
+      "y",
+      String(
+        Math.max(
+          0,
+          Number(campo.y)
+        )
+      )
+    );
+
+    imagem.setAttribute(
+      "width",
+      String(
+        Math.max(
+          0.1,
+          Number(campo.largura)
+        )
+      )
+    );
+
+    imagem.setAttribute(
+      "height",
+      String(
+        Math.max(
+          0.1,
+          Number(campo.altura)
+        )
+      )
+    );
+
+    imagem.setAttribute(
+      "preserveAspectRatio",
+      "xMidYMid meet"
+    );
+
+    imagem.setAttribute(
+      "href",
+      dados.assinaturaUrl
+    );
+
+    svg.appendChild(imagem);
+  } else {
+    const placeholder =
+      document.createElementNS(
+        svgNs,
+        "text"
+      );
+
+    placeholder.setAttribute(
+      "x",
+      "240"
+    );
+
+    placeholder.setAttribute(
+      "y",
+      "60"
+    );
+
+    placeholder.setAttribute(
+      "text-anchor",
+      "middle"
+    );
+
+    placeholder.setAttribute(
+      "font-size",
+      "14"
+    );
+
+    placeholder.setAttribute(
+      "fill",
+      "#64748b"
+    );
+
+    placeholder.textContent =
+      "Assinatura do diretor";
+
+    svg.appendChild(placeholder);
   }
 
   const linha =
-    document.createElement("span");
+    document.createElementNS(
+      svgNs,
+      "line"
+    );
 
-  aplicarEstilos(linha, {
-    position: "absolute",
-    top: "61.333333%",
-    left: "8.333333%",
-    width: "83.333333%",
-    height: "0",
-    margin: "0",
-    borderTop:
-      "1px solid #111827",
-  });
+  linha.setAttribute("x1", "40");
+  linha.setAttribute("y1", "92");
+  linha.setAttribute("x2", "440");
+  linha.setAttribute("y2", "92");
+  linha.setAttribute(
+    "stroke",
+    "#111827"
+  );
+  linha.setAttribute(
+    "stroke-width",
+    "1"
+  );
+  linha.setAttribute(
+    "vector-effect",
+    "non-scaling-stroke"
+  );
 
-  areaVisual.appendChild(caixaImagem);
-  areaVisual.appendChild(linha);
+  svg.appendChild(linha);
+  areaVisual.appendChild(svg);
   container.appendChild(areaVisual);
 
   const identificacao =
