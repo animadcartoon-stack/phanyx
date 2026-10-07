@@ -1420,6 +1420,16 @@ type CampoVisualAssinaturaPreview = {
 
   blocoOffsetX?: number;
   blocoOffsetY?: number;
+
+  /*
+   * Posição absoluta final do bloco dentro
+   * da folha A4 exibida pelo editor.
+   *
+   * Esses valores deixam de depender da
+   * posição da tag no fluxo do texto.
+   */
+  blocoPaginaX?: number;
+  blocoPaginaY?: number;
 };
 
 type DadosAssinaturaPreview = {
@@ -1875,50 +1885,206 @@ function criarBotaoRemoverAssinatura(
    * blocoOffsetX/blocoOffsetY n?o alteram
    * x/y da imagem interna da assinatura.
    */
-  const offsetSalvoX =
+  /*
+   * POSIÇÃO ABSOLUTA DO BLOCO NA FOLHA.
+   *
+   * blocoPaginaX/blocoPaginaY representam a posição final
+   * do canto superior esquerdo do bloco em relação à folha
+   * A4 mostrada pelo editor.
+   *
+   * Com isso, a posição não depende mais do parágrafo onde
+   * {{blocoAssinaturaDiretor}} está inserido.
+   */
+  const paginaXSalva =
     Number(
       dados.campoVisual
-        ?.blocoOffsetX ??
-      0
+        ?.blocoPaginaX
     );
 
-  const offsetSalvoY =
+  const paginaYSalva =
     Number(
       dados.campoVisual
-        ?.blocoOffsetY ??
-      0
+        ?.blocoPaginaY
     );
 
-  const offsetInicialX =
+  const possuiPosicaoAbsoluta =
     Number.isFinite(
-      offsetSalvoX
-    )
-      ? offsetSalvoX
-      : 0;
-
-  const offsetInicialY =
+      paginaXSalva
+    ) &&
     Number.isFinite(
-      offsetSalvoY
-    )
-      ? offsetSalvoY
-      : 0;
+      paginaYSalva
+    );
 
-  aplicarEstilos(
-    container,
-    {
-      left:
-        `${offsetInicialX}px`,
+  const obterReferenciasPagina =
+    () => {
+      const editorRaiz =
+        container.closest(
+          ".editor-template-phanyx"
+        );
 
-      top:
-        `${offsetInicialY}px`,
+      const papel =
+        container.closest(
+          ".phanyx-document-paper"
+        );
 
-      cursor:
-        "move",
+      const pagina =
+        papel?.parentElement;
 
-      touchAction:
-        "none",
-    }
-  );
+      if (
+        !(
+          editorRaiz instanceof
+          HTMLElement
+        ) ||
+        !(
+          pagina instanceof
+          HTMLElement
+        )
+      ) {
+        return null;
+      }
+
+      return {
+        editorRaiz,
+        pagina,
+      };
+    };
+
+  const aplicarPosicaoAbsoluta =
+    (
+      paginaX: number,
+      paginaY: number
+    ) => {
+      const referencias =
+        obterReferenciasPagina();
+
+      if (!referencias) {
+        return false;
+      }
+
+      const paginaRect =
+        referencias.pagina
+          .getBoundingClientRect();
+
+      const editorRect =
+        referencias.editorRaiz
+          .getBoundingClientRect();
+
+      /*
+       * O elemento absoluto é contido pelo
+       * .editor-template-phanyx (position: relative).
+       *
+       * Convertemos a coordenada da folha para a
+       * coordenada local desse editor sem alterar
+       * visualmente o local em que o usuário soltou.
+       */
+      const xNoEditor =
+        paginaX -
+        (
+          editorRect.left -
+          paginaRect.left
+        );
+
+      const yNoEditor =
+        paginaY -
+        (
+          editorRect.top -
+          paginaRect.top
+        );
+
+      aplicarEstilos(
+        container,
+        {
+          position:
+            "absolute",
+
+          left:
+            `${xNoEditor}px`,
+
+          top:
+            `${yNoEditor}px`,
+
+          marginTop:
+            "0",
+
+          cursor:
+            "move",
+
+          touchAction:
+            "none",
+        }
+      );
+
+      return true;
+    };
+
+  if (possuiPosicaoAbsoluta) {
+    /*
+     * A Decoration é criada antes de entrar no DOM.
+     * No frame seguinte já conseguimos medir a folha
+     * e aplicar a coordenada absoluta salva.
+     */
+    window.requestAnimationFrame(
+      () => {
+        aplicarPosicaoAbsoluta(
+          paginaXSalva,
+          paginaYSalva
+        );
+      }
+    );
+  } else {
+    /*
+     * Compatibilidade com templates antigos.
+     * Eles continuam aparecendo exatamente como antes
+     * até o usuário mover o bloco uma vez.
+     */
+    const offsetSalvoX =
+      Number(
+        dados.campoVisual
+          ?.blocoOffsetX ??
+        0
+      );
+
+    const offsetSalvoY =
+      Number(
+        dados.campoVisual
+          ?.blocoOffsetY ??
+        0
+      );
+
+    const offsetInicialX =
+      Number.isFinite(
+        offsetSalvoX
+      )
+        ? offsetSalvoX
+        : 0;
+
+    const offsetInicialY =
+      Number.isFinite(
+        offsetSalvoY
+      )
+        ? offsetSalvoY
+        : 0;
+
+    aplicarEstilos(
+      container,
+      {
+        position:
+          "relative",
+
+        left:
+          `${offsetInicialX}px`,
+
+        top:
+          `${offsetInicialY}px`,
+
+        cursor:
+          "move",
+
+        touchAction:
+          "none",
+      }
+    );
+  }
 
   container.setAttribute(
     "data-phanyx-assinatura-arrastavel",
@@ -1944,8 +2110,23 @@ function criarBotaoRemoverAssinatura(
         return;
       }
 
+      const referencias =
+        obterReferenciasPagina();
+
+      if (!referencias) {
+        return;
+      }
+
       evento.preventDefault();
       evento.stopPropagation();
+
+      const paginaRect =
+        referencias.pagina
+          .getBoundingClientRect();
+
+      const blocoRect =
+        container
+          .getBoundingClientRect();
 
       const inicioMouseX =
         evento.clientX;
@@ -1953,47 +2134,53 @@ function criarBotaoRemoverAssinatura(
       const inicioMouseY =
         evento.clientY;
 
-      const inicioOffsetX =
-        Number.parseFloat(
-          container.style.left ||
-          "0"
-        ) || 0;
+      /*
+       * Captura a posição VISUAL atual antes de
+       * trocar o modo legado relativo pelo modo
+       * absoluto. Assim não há salto ao começar
+       * a arrastar um template antigo.
+       */
+      const inicioPaginaX =
+        blocoRect.left -
+        paginaRect.left;
 
-      const inicioOffsetY =
-        Number.parseFloat(
-          container.style.top ||
-          "0"
-        ) || 0;
+      const inicioPaginaY =
+        blocoRect.top -
+        paginaRect.top;
 
-      let xFinal =
-        inicioOffsetX;
+      let paginaXFinal =
+        inicioPaginaX;
 
-      let yFinal =
-        inicioOffsetY;
+      let paginaYFinal =
+        inicioPaginaY;
+
+      aplicarPosicaoAbsoluta(
+        paginaXFinal,
+        paginaYFinal
+      );
 
       const aoMover =
         (
           ev: PointerEvent
         ) => {
-          xFinal =
-            inicioOffsetX +
+          paginaXFinal =
+            inicioPaginaX +
             (
               ev.clientX -
               inicioMouseX
             );
 
-          yFinal =
-            inicioOffsetY +
+          paginaYFinal =
+            inicioPaginaY +
             (
               ev.clientY -
               inicioMouseY
             );
 
-          container.style.left =
-            `${xFinal}px`;
-
-          container.style.top =
-            `${yFinal}px`;
+          aplicarPosicaoAbsoluta(
+            paginaXFinal,
+            paginaYFinal
+          );
         };
 
       const aoSoltar =
@@ -2013,13 +2200,18 @@ function criarBotaoRemoverAssinatura(
             aoSoltar
           );
 
+          /*
+           * Salva a posição absoluta final do conjunto
+           * na folha, e não mais um deslocamento em
+           * relação à tag no texto.
+           */
           dados.aoMoverBloco?.(
             Math.round(
-              xFinal
+              paginaXFinal
             ),
 
             Math.round(
-              yFinal
+              paginaYFinal
             )
           );
         };
@@ -3118,6 +3310,10 @@ export default function EditorTemplatePHANYX({
           0,
         campoVisualAssinatura.blocoOffsetY ??
           0,
+        campoVisualAssinatura.blocoPaginaX ??
+          "sem-x-absoluto",
+        campoVisualAssinatura.blocoPaginaY ??
+          "sem-y-absoluto",
       ].join("|")
       : "sem-campo-visual";
 
