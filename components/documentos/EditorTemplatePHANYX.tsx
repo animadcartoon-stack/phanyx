@@ -1300,6 +1300,112 @@ const LineHeight = Extension.create({
   },
 });
 
+/*
+ * Linhas digitadas com sublinhados, por exemplo:
+ * ___________________________
+ *
+ * Antes eram renderizadas como caracteres de fonte. O Chrome do
+ * usuário e o Chromium do PDF podem usar métricas diferentes e,
+ * por isso, a linha mudava de comprimento.
+ *
+ * Agora a quantidade de "_" define uma largura geométrica em "em".
+ * O texto continua existindo e pode ser editado normalmente, mas
+ * visualmente editor e PDF usam exatamente a mesma regra.
+ */
+const LinhaDigitadaPHANYX =
+  Extension.create({
+    name: "linhaDigitadaPHANYX",
+
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          key: new PluginKey(
+            "linhaDigitadaPHANYX"
+          ),
+
+          props: {
+            decorations(state) {
+              const decoracoes:
+                Decoration[] = [];
+
+              state.doc.descendants(
+                (node, posicao) => {
+                  if (
+                    !node.isText ||
+                    !node.text
+                  ) {
+                    return;
+                  }
+
+                  const regex =
+                    /_{5,}/g;
+
+                  let resultado:
+                    RegExpExecArray |
+                    null = null;
+
+                  while (
+                    (
+                      resultado =
+                        regex.exec(
+                          node.text
+                        )
+                    ) !== null
+                  ) {
+                    const quantidade =
+                      resultado[0].length;
+
+                    const larguraEm =
+                      (
+                        quantidade *
+                        0.56
+                      ).toFixed(3);
+
+                    decoracoes.push(
+                      Decoration.inline(
+                        posicao +
+                          resultado.index,
+
+                        posicao +
+                          resultado.index +
+                          quantidade,
+
+                        {
+                          class:
+                            "phanyx-linha-digitada",
+
+                          style: [
+                            "display:inline-block",
+                            `width:${larguraEm}em`,
+                            "max-width:100%",
+                            "height:0.78em",
+                            "line-height:0",
+                            "vertical-align:-0.12em",
+                            "border-bottom:1px solid #111827",
+                            "color:transparent",
+                            "caret-color:#111827",
+                            "overflow:hidden",
+                            "white-space:nowrap",
+                            "box-sizing:border-box",
+                          ].join(";"),
+                        }
+                      )
+                    );
+                  }
+                }
+              );
+
+              return DecorationSet.create(
+                state.doc,
+                decoracoes
+              );
+            },
+          },
+        }),
+      ];
+    },
+  });
+
 type CampoVisualAssinaturaPreview = {
   id: string;
   tipo: "ASSINATURA_DIRETOR";
@@ -3167,6 +3273,8 @@ export default function EditorTemplatePHANYX({
             valoresPreviewVariaveis
           ),
       }),
+
+      LinhaDigitadaPHANYX,
 
       AssinaturaPreviewPHANYX.configure({
         assinaturaUrl:
