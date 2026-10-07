@@ -31,6 +31,16 @@ import {
   backgroundRemoverLocales,
   backgroundRemoverPath,
 } from "@/lib/background-remover-i18n";
+import {
+  phanyxBlogLanguagePaths,
+  phanyxBlogLocales,
+  phanyxBlogPath,
+} from "@/lib/phanyx-blog-hub";
+import {
+  phanyxResourceKeys,
+  phanyxResourceLanguagePaths,
+  phanyxResourcePath,
+} from "@/lib/phanyx-resource-pages";
 
 const baseUrl = "https://phanyx.com.br";
 
@@ -45,10 +55,7 @@ const sections: MarketingSection[] = [
   "registrar",
 ];
 
-const imageArticleKinds: ImageToolsArticleKind[] = [
-  "background-removers",
-  "image-editor",
-];
+const imageArticleKinds: ImageToolsArticleKind[] = ["background-removers", "image-editor"];
 
 const brazilianPages = [
   "/gestao-escolar",
@@ -60,7 +67,6 @@ const brazilianPages = [
 ];
 
 const blogPages = [
-  "/blog",
   "/blog/melhor-sistema-academico",
   "/blog/sistema-escolar-para-pequenas-escolas",
   "/blog/plataforma-para-ensino-online",
@@ -84,73 +90,58 @@ const blogPages = [
   "/blog/sistema-escolar-vs-moodle",
 ];
 
-function absoluteAlternates(
-  languages: Record<string, string>,
-): Record<string, string> {
-  return Object.fromEntries(
-    Object.entries(languages).map(([locale, path]) => [
-      locale,
-      `${baseUrl}${path}`,
-    ]),
-  );
+function absoluteAlternates(languages: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(languages).map(([locale, path]) => [locale, `${baseUrl}${path}`]));
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const guideAlternates = absoluteAlternates(
-    schoolGuideAlternates().languages as Record<string, string>,
-  );
-
-  const onlineArticleAlternates = absoluteAlternates(
-    onlineSchoolArticleAlternates().languages as Record<string, string>,
-  );
-
-  const digitalArticleAlternates = absoluteAlternates(
-    digitalSchoolArticleAlternates().languages as Record<string, string>,
-  );
-
-  const removerAlternates = absoluteAlternates(
-    backgroundRemoverAlternates().languages as Record<string, string>,
-  );
+  const guideAlternates = absoluteAlternates(schoolGuideAlternates().languages as Record<string, string>);
+  const onlineArticleAlternates = absoluteAlternates(onlineSchoolArticleAlternates().languages as Record<string, string>);
+  const digitalArticleAlternates = absoluteAlternates(digitalSchoolArticleAlternates().languages as Record<string, string>);
+  const removerAlternates = absoluteAlternates(backgroundRemoverAlternates().languages as Record<string, string>);
+  const blogAlternates = absoluteAlternates({ ...phanyxBlogLanguagePaths(), "x-default": "/blog" });
 
   const localizedPages: MetadataRoute.Sitemap = sections.flatMap((section) =>
     marketingLocales
-      .filter(
-        (locale) =>
-          !["school", "lms", "success"].includes(section) ||
-          locale !== "pt-BR",
-      )
+      .filter((locale) => !["school", "lms", "success"].includes(section) || locale !== "pt-BR")
       .map((locale) => ({
         url: `${baseUrl}${marketingPath(locale, section)}`,
-        alternates: {
-          languages: absoluteAlternates(
-            marketingAlternates(section).languages as Record<string, string>,
-          ),
-        },
+        alternates: { languages: absoluteAlternates(marketingAlternates(section).languages as Record<string, string>) },
       })),
   );
 
-  const removerPages: MetadataRoute.Sitemap =
-    backgroundRemoverLocales.map((locale) => ({
-      url: `${baseUrl}${backgroundRemoverPath(locale)}`,
-      alternates: { languages: removerAlternates },
+  const removerPages: MetadataRoute.Sitemap = backgroundRemoverLocales.map((locale) => ({
+    url: `${baseUrl}${backgroundRemoverPath(locale)}`,
+    alternates: { languages: removerAlternates },
+  }));
+
+  const imageArticlePages: MetadataRoute.Sitemap = imageArticleKinds.flatMap((kind) => {
+    const alternates = absoluteAlternates(imageToolsArticleAlternates(kind).languages as Record<string, string>);
+    return imageToolsArticleLocales.map((locale) => ({
+      url: `${baseUrl}${imageToolsArticlePath(kind, locale)}`,
+      alternates: { languages: alternates },
     }));
+  });
 
-  const imageArticlePages: MetadataRoute.Sitemap =
-    imageArticleKinds.flatMap((kind) => {
-      const alternates = absoluteAlternates(
-        imageToolsArticleAlternates(kind).languages as Record<string, string>,
-      );
+  const blogHubPages: MetadataRoute.Sitemap = phanyxBlogLocales.map((locale) => ({
+    url: `${baseUrl}${phanyxBlogPath(locale)}`,
+    alternates: { languages: blogAlternates },
+  }));
 
-      return imageToolsArticleLocales.map((locale) => ({
-        url: `${baseUrl}${imageToolsArticlePath(kind, locale)}`,
-        alternates: { languages: alternates },
-      }));
-    });
+  const resourcePages: MetadataRoute.Sitemap = phanyxResourceKeys.flatMap((key) => {
+    const languagePaths = phanyxResourceLanguagePaths(key);
+    const alternates = absoluteAlternates({ ...languagePaths, "x-default": languagePaths["pt-BR"] });
+    return phanyxBlogLocales.map((locale) => ({
+      url: `${baseUrl}${phanyxResourcePath(locale, key)}`,
+      alternates: { languages: alternates },
+    }));
+  });
 
   return [
     ...localizedPages,
     ...removerPages,
     ...brazilianPages.map((path) => ({ url: `${baseUrl}${path}` })),
+    ...blogHubPages,
     ...blogPages
       .filter(
         (path) =>
@@ -159,6 +150,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
           path !== digitalSchoolArticlePath("pt-BR"),
       )
       .map((path) => ({ url: `${baseUrl}${path}` })),
+    ...resourcePages,
     ...schoolGuideLocales.map((locale) => ({
       url: `${baseUrl}${schoolGuidePath(locale)}`,
       alternates: { languages: guideAlternates },
