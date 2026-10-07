@@ -24,6 +24,7 @@ import {
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
   prefixoDocumentoAtividadeExterna,
+  obterTokenDocumentoAtividadeExternaBlob,
 } from "@/lib/atividade-externa-documentos-storage";
 
 import { prisma } from "@/lib/prisma";
@@ -582,6 +583,7 @@ export async function POST(
 
     const token =
       await issueSignedToken({
+        token: obterTokenDocumentoAtividadeExternaBlob(),
         pathname,
 
         operations: [
