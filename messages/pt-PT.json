@@ -107,6 +107,7 @@
   "AdminNavigation": {
     "oneOffFees": "Taxas Avulsas",
     "generateInvoiceForInterestedParty": "Gerar cobrança para interessado",
+    "financialAccounts": "Contas financeiras",
     "adminPanel": "Painel de Administração",
     "openGuidedTutorial": "Abrir tutorial guiado",
     "administrative": "Administrativo",
@@ -146,6 +147,9 @@
     "reservations": "Reservas",
     "fines": "Multas",
     "receipts": "Recebimentos",
+
+
+    "boletos": "Boletos",
     "cashRegister": "Caixa",
     "reports": "Relatórios",
     "overdueAccounts": "Pagamentos em atraso",
@@ -11817,7 +11821,8 @@
       "occupationalHealthReturn": "RH - ASO de regresso ao trabalho",
       "occupationalHealthRoleChange": "RH - ASO de mudança de função",
       "occupationalHealthDismissal": "RH - ASO de cessação",
-      "other": "Outro"
+      "other": "Outro",
+      "enrollmentCancellation": "Cancelamento de matrícula"
     },
     "statuses": {
       "draft": "Rascunho",
@@ -13817,7 +13822,8 @@
       "warning": "ADVERTÊNCIA DISCIPLINAR\n\nTrabalhador: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nMotivo da advertência:\n{{motivoAdvertencia}}\n\nDescrição detalhada:\n{{descricaoAdvertencia}}\n\nData da ocorrência: {{dataAdvertencia}}\n\nA presente advertência tem caráter educativo e preventivo, destinando-se a orientar o trabalhador quanto ao cumprimento das normas internas, procedimentos institucionais, ética profissional e responsabilidades inerentes às suas funções.\n\nO trabalhador declara ter conhecimento do conteúdo desta advertência e das consequências previstas em caso de reincidência.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nTOMEI CONHECIMENTO:\n____________________________________\n{{nomeFuncionario}}\n\nENTIDADE EMPREGADORA:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "suspension": "SUSPENSÃO DISCIPLINAR\n\nTrabalhador: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nMotivo da suspensão:\n{{motivoSuspensao}}\n\nDescrição detalhada:\n{{descricaoSuspensao}}\n\nPeríodo de suspensão:\n- Início: {{dataInicioSuspensao}}\n- Fim: {{dataFimSuspensao}}\n- Número de dias: {{diasSuspensao}}\n\nDurante o período acima indicado, o trabalhador ficará afastado das suas funções, sem prejuízo das demais obrigações previstas na legislação e nos regulamentos internos aplicáveis.\n\nO trabalhador declara ter conhecimento da presente suspensão disciplinar.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nTOMEI CONHECIMENTO:\n____________________________________\n{{nomeFuncionario}}\n\nENTIDADE EMPREGADORA:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "occupationalHealth": "ATESTADO DE SAÚDE OCUPACIONAL - ASO\n\nTrabalhador: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de ASO: {{tipoAso}}\nNúmero do ASO: {{numeroAso}}\nData do exame: {{dataAso}}\nResultado: {{resultadoAso}}\n\nMédico responsável: {{medicoResponsavel}}\nCRM: {{crmMedico}}\n\nObservações:\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM: {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
-      "leaveReturn": "DOCUMENTO DE AUSÊNCIA / REGRESSO AO TRABALHO\n\nTrabalhador: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de ausência: {{tipoAfastamento}}\nMotivo: {{motivoAfastamento}}\nCID: {{cidAfastamento}}\nData de início: {{dataInicioAfastamento}}\nData final prevista: {{dataFimAfastamento}}\nNúmero de dias: {{diasAfastamento}}\nData da perícia: {{dataPericia}}\nResultado da perícia: {{resultadoPericia}}\n\nO presente documento regista as informações relacionadas com a ausência ou o regresso ao trabalho do trabalhador.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+      "leaveReturn": "DOCUMENTO DE AUSÊNCIA / REGRESSO AO TRABALHO\n\nTrabalhador: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nCargo: {{cargoFuncionario}}\nDepartamento: {{departamentoFuncionario}}\n\nTipo de ausência: {{tipoAfastamento}}\nMotivo: {{motivoAfastamento}}\nCID: {{cidAfastamento}}\nData de início: {{dataInicioAfastamento}}\nData final prevista: {{dataFimAfastamento}}\nNúmero de dias: {{diasAfastamento}}\nData da perícia: {{dataPericia}}\nResultado da perícia: {{resultadoPericia}}\n\nO presente documento regista as informações relacionadas com a ausência ou o regresso ao trabalho do trabalhador.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "enrollmentCancellation": "TERMO DE CANCELAMENTO DE MATRÍCULA\n\nA instituição {{nomeInstituicao}}, registada sob o CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, e o(a) contratante {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, relativamente à matrícula de {{nomeAluno}}, CPF {{cpfAluno}}, número de matrícula {{matriculaAluno}}, no curso {{curso}}, formalizam o presente cancelamento de matrícula.\n\nPROTOCOLO: {{numeroProtocoloCancelamentoMatricula}}\nDATA DO PEDIDO: {{dataSolicitacaoCancelamentoMatricula}}\nDATA EFETIVA DO CANCELAMENTO: {{dataEfetivaCancelamentoMatricula}}\n\nMOTIVO DO CANCELAMENTO:\n{{motivoCancelamentoMatricula}}\n\nAPURAMENTO FINANCEIRO\n- Prestações/valores vencidos: {{valorParcelasVencidasCancelamento}}\n- Penalização contratual: {{valorMultaCancelamento}}\n- Juros e encargos: {{valorJurosCancelamento}}\n- Créditos/descontos: {{valorCreditoCancelamento}}\n- Valor a reembolsar: {{valorDevolucaoCancelamento}}\n- Total para encerramento: {{valorTotalCancelamento}}\n\nREGRA CONTRATUAL APLICADA:\n{{regraContratualCancelamento}}\n\nBase de cálculo da penalização: {{baseCalculoMultaCancelamento}}\nPercentagem da penalização: {{percentualMultaCancelamento}}\nSituação financeira: {{situacaoFinanceiraCancelamento}}\n\nOBSERVAÇÕES:\n{{observacoesCancelamentoMatricula}}\n\nAs partes declaram ter conhecimento das consequências académicas e financeiras do cancelamento e dos valores apurados neste processo, sem prejuízo das restantes condições previstas no contrato e na legislação aplicável.\n\nResponsável pelo processo: {{responsavelCancelamentoMatricula}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCONTRATANTE / RESPONSÁVEL:\n{{nomeTitularContrato}}\nCPF: {{cpfTitularContrato}}\n\nALUNO(A):\n{{nomeAluno}}\nCPF: {{cpfAluno}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
     }
   },
   "PublicDocumentValidation": {
@@ -13877,7 +13883,8 @@
       "COMPROVANTE": "Comprovativo",
       "TRANCAMENTO": "Suspens?o",
       "COMPARECIMENTO": "Compar?ncia",
-      "HISTORICO": "Hist?rico"
+      "HISTORICO": "Hist?rico",
+      "CANCELAMENTO_MATRICULA": "Cancelamento de matrícula"
     }
   },
   "AdminFinance": {
@@ -13946,7 +13953,11 @@
       "closingTitle": "Fecho Geral",
       "closingDescription": "Consolidação dos caixas fechados por data.",
       "reportsTitle": "Relatórios",
-      "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro."
+      "reportsDescription": "Acompanhe recebimentos, caixa e desempenho financeiro.",
+      "clearedSlipsTitle": "Boletos",
+      "clearedSlipsDescription": "Emita, envie e acompanhe boletos, vencimentos, compensações e baixas na caixa.",
+      "financialAccountsTitle": "Contas financeiras",
+      "financialAccountsDescription": "Configure bancos e prestadores de recebimentos da própria instituição."
     },
     "automatic": {
       "generateTitle": "Gerar mensalidades",
@@ -13971,6 +13982,12 @@
           "description": "Aqui acompanha cobranças, regista pagamentos e controla baixas financeiras.",
           "alt": "Mascote financeiro",
           "highlight": "Vamos começar pelos recebimentos."
+        },
+        "boletos": {
+          "title": "Boletos",
+          "description": "Emita e envie boletos aos alunos, acompanhe vencimentos e pagamentos e identifique os que aguardam baixa na caixa.",
+          "alt": "Financeiro",
+          "highlight": "Acompanhe todo o ciclo do boleto."
         },
         "caixa": {
           "title": "Caixa",
@@ -13997,6 +14014,103 @@
           "highlight": "Gestão estratégica."
         }
       }
+    }
+  },
+  "AdminFinanceAccounts": {
+    "back": "Voltar às Configurações",
+    "title": "Contas financeiras",
+    "subtitle": "Registe as contas e provedores que recebem os pagamentos da instituição. Credenciais e tokens ficam encriptados no servidor e nunca são exibidos novamente.",
+    "newAccount": "Nova conta",
+    "edit": "Editar",
+    "loading": "A carregar contas financeiras...",
+    "emptyTitle": "Nenhuma conta financeira registada",
+    "emptyDescription": "Registe a primeira conta para integrar boletos e recebimentos da instituição.",
+    "notConfigured": "Não configurada",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "A guardar...",
+    "summary": {
+      "total": "Contas registadas",
+      "integrated": "Integrações ativas",
+      "default": "Conta padrão"
+    },
+    "badges": {
+      "default": "Padrão",
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "labels": {
+      "integration": "Integração",
+      "credentials": "Credenciais",
+      "webhook": "Webhook",
+      "boleto": "Suporta boleto",
+      "webhookEndpoint": "Endpoint do webhook"
+    },
+    "status": {
+      "enabled": "Ativa",
+      "disabled": "Desativada",
+      "configured": "Configurada",
+      "notConfigured": "Não configurada",
+      "yes": "Sim",
+      "no": "Não"
+    },
+    "modal": {
+      "newTitle": "Nova conta financeira",
+      "editTitle": "Editar conta financeira",
+      "description": "Credenciais já salvas não são carregadas no navegador. Deixe os campos de segurança em branco para manter os valores atuais."
+    },
+    "fields": {
+      "name": "Nome da conta",
+      "provider": "Provedor",
+      "type": "Tipo",
+      "currency": "Moeda",
+      "environment": "Ambiente",
+      "externalAccount": "ID externo da conta",
+      "bankCode": "Código do banco",
+      "agency": "Agência",
+      "account": "Conta",
+      "digit": "Dígito",
+      "holderName": "Nome do titular",
+      "holderDocument": "Documento do titular",
+      "credentials": "API Key / token",
+      "webhookSecret": "Token secreto do webhook"
+    },
+    "environments": {
+      "production": "Produção",
+      "staging": "Homologação",
+      "sandbox": "Sandbox"
+    },
+    "sections": {
+      "bankData": "Dados bancários opcionais",
+      "security": "Segurança da integração",
+      "options": "Opções"
+    },
+    "placeholders": {
+      "credential": "Informe a credencial do provedor",
+      "keepCredential": "Credencial já configurada — deixe em branco para manter",
+      "webhookSecret": "Informe o token secreto do webhook",
+      "keepWebhookSecret": "Token já configurado — deixe em branco para manter"
+    },
+    "security": {
+      "credentialConfigured": "Credencial configurada.",
+      "webhookConfigured": "Token do webhook configurado.",
+      "explanation": "Por segurança, a PHANYX nunca devolve API Keys ou tokens já salvos para o navegador."
+    },
+    "options": {
+      "integrationActive": "Integração ativa",
+      "webhookActive": "Webhook ativo",
+      "supportsBoleto": "Suporta boleto",
+      "defaultReceipts": "Conta padrão para recebimentos",
+      "accountActive": "Conta ativa"
+    },
+    "messages": {
+      "loadError": "Erro ao carregar contas financeiras.",
+      "saveError": "Erro ao salvar a conta financeira.",
+      "createSuccess": "Conta financeira registada com sucesso.",
+      "updateSuccess": "Conta financeira atualizada com sucesso.",
+      "nameRequired": "Informe o nome da conta.",
+      "credentialsRequired": "Configure a credencial antes de ativar a integração.",
+      "webhookSecretRequired": "Configure o token secreto antes de ativar o webhook."
     }
   },
   "AdminFinanceCash": {
@@ -15426,6 +15540,7 @@
       "trancar": "Trancar",
       "transferir": "Transferir",
       "intercambio": "Intercâmbio",
+      "cadastrarIntercambio": "Registar em intercâmbio",
       "moverQuarentena": "Mover para quarentena",
       "movendo": "A mover...",
       "restaurar": "Restaurar matrícula",
@@ -18830,7 +18945,8 @@
     "validationsStatusPending": "Pendente",
     "validationsStatusSuspended": "Suspensa",
     "validationsStatusActive": "Ativo",
-    "validationsStatusCompleted": "Concluído"
+    "validationsStatusCompleted": "Concluído",
+    "validationsEnrollmentCancellation": "Cancelamento de matrícula"
   },
   "AdminLibraryLicenses": {
     "title": "Licenças da Biblioteca",
@@ -22117,6 +22233,183 @@
       "cancel": "Cancelar",
       "export": "Exportar acervo",
       "pendingFormat": "Este formato já está previsto no modal, mas será ligado ao motor de exportação na próxima etapa. Utilize XLSX por enquanto."
+    }
+  },
+  "AdminFinanceiroBoletosCompensados": {
+    "title": "Boletos compensados",
+    "subtitle": "Consulte os boletos recebidos pelo prestador, efetue a baixa dos valores conferidos e acompanhe divergências.",
+    "back": "Voltar ao Financeiro",
+    "refresh": "Atualizar",
+    "searchPlaceholder": "Pesquisar por aluno, matrícula, lançamento ou referência...",
+    "tabs": {
+      "awaiting": "A aguardar baixa",
+      "settled": "Baixados",
+      "divergences": "Divergências"
+    },
+    "summary": {
+      "awaiting": "A aguardar baixa",
+      "settled": "Baixados",
+      "divergences": "Divergências"
+    },
+    "table": {
+      "student": "Aluno",
+      "enrollment": "Matrícula / Curso",
+      "charge": "Cobrança",
+      "dueDate": "Vencimento",
+      "value": "Valor",
+      "account": "Conta financeira",
+      "status": "Situação",
+      "action": "Ação"
+    },
+    "buttons": {
+      "settle": "Dar baixa",
+      "settling": "A dar baixa...",
+      "viewBoleto": "Abrir boleto",
+      "previous": "Anterior",
+      "next": "Seguinte",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar baixa"
+    },
+    "modal": {
+      "title": "Confirmar baixa do boleto",
+      "description": "Confirme apenas depois de verificar o valor compensado. A baixa criará o pagamento e o movimento financeiro no PHANYX.",
+      "compensatedValue": "Valor compensado",
+      "student": "Aluno",
+      "dueDate": "Vencimento"
+    },
+    "messages": {
+      "loading": "A carregar cobranças...",
+      "empty": "Nenhuma cobrança encontrada nesta situação.",
+      "loadError": "Não foi possível carregar os boletos.",
+      "settlementError": "Não foi possível dar baixa no boleto.",
+      "settlementSuccess": "Boleto baixado com sucesso.",
+      "divergence": "Foi encontrada uma divergência. A cobrança foi enviada para análise.",
+      "page": "Página {current} de {total}"
+    },
+    "labels": {
+      "compensated": "Compensado",
+      "settled": "Baixado",
+      "divergence": "Divergência",
+      "compensatedAt": "Compensado em",
+      "settledAt": "Baixado em",
+      "settledBy": "Baixado por",
+      "charged": "Cobrado",
+      "received": "Recebido",
+      "noEnrollment": "Sem matrícula",
+      "notProvided": "Não indicado"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Voltar às Finanças",
+      "title": "Boletos",
+      "subtitle": "Emita boletos para mensalidades, acompanhe pagamento e vencimento, envie ao aluno e identifique os que aguardam baixa na caixa.",
+      "cleared": "Boletos compensados a aguardar baixa"
+    },
+    "common": {
+      "loading": "A carregar..."
+    },
+    "summary": {
+      "generated": "Boletos localizados",
+      "awaitingPayment": "A aguardar pagamento",
+      "awaitingSettlement": "A aguardar baixa",
+      "settled": "Baixados",
+      "divergence": "Divergências"
+    },
+    "generate": {
+      "title": "Emitir boleto para aluno",
+      "subtitle": "Localize uma mensalidade em aberto. O boleto será emitido pela conta financeira da própria instituição.",
+      "search": "Pesquisar aluno, matrícula, curso, e-mail ou mensalidade...",
+      "empty": "Nenhuma mensalidade em aberto encontrada.",
+      "monthlyFee": "Mensalidade"
+    },
+    "issued": {
+      "title": "Boletos emitidos",
+      "subtitle": "Acompanhe o ciclo completo do boleto, do envio ao aluno até à baixa na caixa.",
+      "search": "Pesquisar aluno, matrícula, curso, e-mail ou referência...",
+      "empty": "Nenhum boleto encontrado."
+    },
+    "table": {
+      "student": "Aluno",
+      "charge": "Cobrança",
+      "dueDate": "Vencimento",
+      "balance": "Saldo",
+      "value": "Valor",
+      "status": "Situação",
+      "bankStatus": "Banco",
+      "flowStatus": "Fluxo",
+      "delivery": "Envio",
+      "action": "Ação",
+      "actions": "Ações"
+    },
+    "filters": {
+      "all": "Todos",
+      "pending": "Pendentes",
+      "overdue": "Vencidos",
+      "paid": "Pagos / compensados",
+      "awaitingSettlement": "A aguardar baixa",
+      "settled": "Baixados",
+      "failed": "Falhas"
+    },
+    "status": {
+      "pending": "Pendente",
+      "awaitingPayment": "A aguardar pagamento",
+      "overdue": "Vencido",
+      "dueFuture": "Por vencer",
+      "dueToday": "Vence hoje",
+      "overdueDays": "Em atraso há {count} dia(s)",
+      "processing": "Em processamento",
+      "paid": "Pago / compensado",
+      "awaitingSettlement": "A aguardar baixa",
+      "settled": "Baixado",
+      "divergence": "Divergência",
+      "cancelled": "Cancelado",
+      "refunded": "Estornado",
+      "failed": "Falha",
+      "bankConfirmed": "Pagamento confirmado pelo banco; falta a baixa do operador.",
+      "settledBy": "Baixado por {name}"
+    },
+    "delivery": {
+      "generated": "Gerado",
+      "sent": "Enviado",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Emitir boleto",
+      "generating": "A emitir...",
+      "open": "Abrir boleto",
+      "openPrint": "Abrir / imprimir",
+      "copyLine": "Copiar linha",
+      "email": "Enviar e-mail",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirmar envio",
+      "sending": "A enviar..."
+    },
+    "messages": {
+      "loadAvailableError": "Não foi possível carregar as mensalidades disponíveis.",
+      "loadBoletosError": "Não foi possível carregar os boletos.",
+      "generateError": "Não foi possível emitir o boleto.",
+      "generated": "Boleto emitido com sucesso.",
+      "reused": "Este boleto já existia e foi recuperado.",
+      "noBoletoUrl": "O documento do boleto ainda não está disponível.",
+      "noDigitableLine": "A linha digitável ainda não está disponível.",
+      "copied": "Linha digitável copiada.",
+      "copyError": "Não foi possível copiar a linha digitável.",
+      "sendError": "Não foi possível registar o envio do boleto.",
+      "emailSent": "Boleto enviado por e-mail e envio registado.",
+      "whatsappOpened": "WhatsApp aberto. Depois de enviar a mensagem, confirme o envio no PHANYX.",
+      "whatsappRegistered": "Envio por WhatsApp registado."
+    },
+    "whatsapp": {
+      "greeting": "Olá, {name}.",
+      "message": "Segue o boleto para pagamento.",
+      "link": "Boleto: {link}",
+      "line": "Linha digitável: {line}"
+    },
+    "pagination": {
+      "page": "Página {page} de {total}",
+      "previous": "Anterior",
+      "next": "Seguinte"
     }
   }
 }

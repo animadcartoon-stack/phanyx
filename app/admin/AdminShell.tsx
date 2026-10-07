@@ -1566,6 +1566,21 @@ export default function AdminShell({
                         </Link>
                       )}
 
+                      {podeAcessar(
+                        "financeiro.ver",
+                        "financeiro.recebimentos",
+                        "caixa.receber",
+                      ) && (
+                        <Link
+                          href="/admin/financeiro/boletos"
+                          className={getLinkClass(
+                            "/admin/financeiro/boletos",
+                          )}
+                        >
+                          🧾 {tNav("boletos")}
+                        </Link>
+                      )}
+
                       {temPermissao("financeiro.ver") && (
                         <Link
                           href="/admin/financeiro/taxas"
@@ -1950,6 +1965,16 @@ export default function AdminShell({
                       >
                         ⚙️ {tNav("institution")}
                       </Link>
+                      {temPermissao("financeiro.configuracoes") && (
+                        <Link
+                          href="/admin/configuracoes/contas-financeiras"
+                          className={getLinkClass(
+                            "/admin/configuracoes/contas-financeiras",
+                          )}
+                        >
+                          🏦 {tNav("financialAccounts")}
+                        </Link>
+                      )}
 
                       <Link
                         href="/admin/configuracoes/logos"
@@ -2428,6 +2453,18 @@ export default function AdminShell({
                     >
                       💵 {tNav("receipts")}
                     </Link>
+                    {podeAcessar(
+                      "financeiro.ver",
+                      "financeiro.recebimentos",
+                      "caixa.receber",
+                    ) && (
+                      <Link
+                        href="/admin/financeiro/boletos"
+                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                      >
+                        🧾 {tNav("boletos")}
+                      </Link>
+                    )}
 
                     <Link
                       href="/admin/financeiro/taxas"
@@ -2641,6 +2678,14 @@ export default function AdminShell({
                     >
                       ⚙️ {tNav("institution")}
                     </Link>
+                    {temPermissao("financeiro.configuracoes") && (
+                      <Link
+                        href="/admin/configuracoes/contas-financeiras"
+                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                      >
+                        🏦 {tNav("financialAccounts")}
+                      </Link>
+                    )}
                     <Link
                       href="/admin/configuracoes/logos"
                       className="rounded-2xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"

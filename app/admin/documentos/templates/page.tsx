@@ -18,6 +18,7 @@ type TipoDocumentoTemplate =
   | "RECIBO"
   | "COMPROVANTE"
   | "TRANCAMENTO"
+  | "CANCELAMENTO_MATRICULA"
   | "COMPARECIMENTO"
   | "HISTORICO"
 
@@ -107,6 +108,7 @@ const TIPOS_DOCUMENTO: TipoDocumentoTemplate[] = [
   "RECIBO",
   "COMPROVANTE",
   "TRANCAMENTO",
+  "CANCELAMENTO_MATRICULA",
   "COMPARECIMENTO",
   "HISTORICO",
 
@@ -153,6 +155,7 @@ const CHAVES_TIPO_DOCUMENTO: Record<
   RECIBO: "types.receipt",
   COMPROVANTE: "types.proof",
   TRANCAMENTO: "types.withdrawal",
+  CANCELAMENTO_MATRICULA: "types.enrollmentCancellation",
   COMPARECIMENTO: "types.attendance",
   HISTORICO: "types.transcript",
   HOLERITE: "types.payslip",
@@ -204,6 +207,9 @@ const CHAVES_MODELO_BASE_I18N: Partial<
 
   TRANCAMENTO:
     "withdrawal",
+
+  CANCELAMENTO_MATRICULA:
+    "enrollmentCancellation",
 
   COMPARECIMENTO:
     "attendance",
@@ -396,6 +402,57 @@ Este documento é emitido para fins comprobatórios.
 Emitido em {{dataAtual}}.
 
 {{cidadeAssinatura}}
+
+
+
+{{blocoAssinaturaDiretor}}
+`;
+
+
+
+    case "CANCELAMENTO_MATRICULA":
+      return `TERMO DE CANCELAMENTO DE MATRÍCULA
+
+A instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, e o(a) contratante {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, referente à matrícula de {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, no curso {{curso}}, formalizam o presente cancelamento de matrícula.
+
+PROTOCOLO: {{numeroProtocoloCancelamentoMatricula}}
+DATA DA SOLICITAÇÃO: {{dataSolicitacaoCancelamentoMatricula}}
+DATA EFETIVA DO CANCELAMENTO: {{dataEfetivaCancelamentoMatricula}}
+
+MOTIVO DO CANCELAMENTO:
+{{motivoCancelamentoMatricula}}
+
+APURAÇÃO FINANCEIRA
+- Parcelas/valores vencidos: {{valorParcelasVencidasCancelamento}}
+- Multa contratual: {{valorMultaCancelamento}}
+- Juros e encargos: {{valorJurosCancelamento}}
+- Créditos/descontos: {{valorCreditoCancelamento}}
+- Valor a devolver: {{valorDevolucaoCancelamento}}
+- Total para encerramento: {{valorTotalCancelamento}}
+
+REGRA CONTRATUAL APLICADA:
+{{regraContratualCancelamento}}
+
+Base de cálculo da multa: {{baseCalculoMultaCancelamento}}
+Percentual da multa: {{percentualMultaCancelamento}}
+Situação financeira: {{situacaoFinanceiraCancelamento}}
+
+OBSERVAÇÕES:
+{{observacoesCancelamentoMatricula}}
+
+As partes declaram ciência das consequências acadêmicas e financeiras do cancelamento e dos valores apurados neste processo, sem prejuízo das demais condições previstas no contrato e na legislação aplicável.
+
+Responsável pelo processo: {{responsavelCancelamentoMatricula}}
+
+{{cidadeAssinatura}}, {{dataAtual}}.
+
+CONTRATANTE / RESPONSÁVEL:
+{{nomeTitularContrato}}
+CPF: {{cpfTitularContrato}}
+
+ALUNO(A):
+{{nomeAluno}}
+CPF: {{cpfAluno}}
 
 
 
@@ -1658,6 +1715,8 @@ function AdminDocumentosTemplatesPage() {
 
     if (ehTipoRh(novoTipo)) {
       setContexto("FUNCIONARIO");
+    } else if (novoTipo === "CANCELAMENTO_MATRICULA") {
+      setContexto("CANCELAMENTO_MATRICULA");
     } else {
       setContexto("MATRICULA");
     }
@@ -1711,8 +1770,27 @@ function AdminDocumentosTemplatesPage() {
         campo.id === id
           ? {
             ...campo,
-            x: Math.max(0, x),
-            y: Math.max(0, y),
+
+            /*
+             * O editor e o PDF compartilham a mesma matriz lógica:
+             * 480 x 150. Não permitimos que a caixa seja arrastada
+             * para fora dessa matriz.
+             */
+            x: Math.min(
+              Math.max(0, x),
+              Math.max(
+                0,
+                480 - campo.largura
+              )
+            ),
+
+            y: Math.min(
+              Math.max(0, y),
+              Math.max(
+                0,
+                150 - campo.altura
+              )
+            ),
           }
           : campo
       )
@@ -1825,6 +1903,25 @@ function AdminDocumentosTemplatesPage() {
     "{{observacoesTrancamento}}",
     "{{numeroProtocoloTrancamento}}",
     "{{situacaoAnteriorMatricula}}",
+
+
+    // Processo de cancelamento de matrícula
+    "{{motivoCancelamentoMatricula}}",
+    "{{dataSolicitacaoCancelamentoMatricula}}",
+    "{{dataEfetivaCancelamentoMatricula}}",
+    "{{responsavelCancelamentoMatricula}}",
+    "{{numeroProtocoloCancelamentoMatricula}}",
+    "{{regraContratualCancelamento}}",
+    "{{baseCalculoMultaCancelamento}}",
+    "{{percentualMultaCancelamento}}",
+    "{{valorParcelasVencidasCancelamento}}",
+    "{{valorMultaCancelamento}}",
+    "{{valorJurosCancelamento}}",
+    "{{valorCreditoCancelamento}}",
+    "{{valorDevolucaoCancelamento}}",
+    "{{valorTotalCancelamento}}",
+    "{{situacaoFinanceiraCancelamento}}",
+    "{{observacoesCancelamentoMatricula}}",
 
     "{{dataMatricula}}",
     "{{dataConclusao}}",
@@ -2281,6 +2378,119 @@ function AdminDocumentosTemplatesPage() {
       ondeUsar: "Documentos e registros administrativos de trancamento.",
       categoria: "Trancamento",
       palavras: ["situa\u00e7\u00e3o anterior", "status anterior", "matr\u00edcula"],
+    },
+
+    "{{motivoCancelamentoMatricula}}": {
+      titulo: "Motivo do cancelamento",
+      descricao: "Mostra o motivo formal registrado para o cancelamento da matrícula.",
+      ondeUsar: "Termos e documentos de cancelamento de matrícula.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["cancelamento", "motivo", "razão", "justificativa"],
+    },
+    "{{dataSolicitacaoCancelamentoMatricula}}": {
+      titulo: "Data da solicitação do cancelamento",
+      descricao: "Mostra a data em que o cancelamento foi solicitado.",
+      ondeUsar: "Termos e protocolos de cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["cancelamento", "solicitação", "data do pedido"],
+    },
+    "{{dataEfetivaCancelamentoMatricula}}": {
+      titulo: "Data efetiva do cancelamento",
+      descricao: "Mostra a data a partir da qual o cancelamento produz efeitos acadêmicos.",
+      ondeUsar: "Termos formais de cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["cancelamento", "data efetiva", "encerramento"],
+    },
+    "{{responsavelCancelamentoMatricula}}": {
+      titulo: "Responsável pelo processo de cancelamento",
+      descricao: "Mostra o responsável interno pelo processamento do cancelamento.",
+      ondeUsar: "Termos, protocolos e auditoria.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["responsável", "secretaria", "cancelamento"],
+    },
+    "{{numeroProtocoloCancelamentoMatricula}}": {
+      titulo: "Protocolo do cancelamento",
+      descricao: "Mostra o número único do processo de cancelamento.",
+      ondeUsar: "Termos, comprovantes e auditoria.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["protocolo", "número", "cancelamento"],
+    },
+    "{{regraContratualCancelamento}}": {
+      titulo: "Regra contratual aplicada",
+      descricao: "Mostra a regra ou cláusula contratual usada na apuração do cancelamento.",
+      ondeUsar: "Termos de cancelamento com efeitos financeiros.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["contrato", "cláusula", "regra", "multa"],
+    },
+    "{{baseCalculoMultaCancelamento}}": {
+      titulo: "Base de cálculo da multa",
+      descricao: "Mostra o valor-base utilizado para calcular a multa contratual.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["multa", "base de cálculo", "financeiro"],
+    },
+    "{{percentualMultaCancelamento}}": {
+      titulo: "Percentual da multa",
+      descricao: "Mostra o percentual de multa aplicado conforme a regra contratual.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["multa", "percentual", "porcentagem"],
+    },
+    "{{valorParcelasVencidasCancelamento}}": {
+      titulo: "Parcelas vencidas no cancelamento",
+      descricao: "Mostra o total de parcelas ou valores vencidos apurados no processo.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["parcelas", "vencidas", "dívida", "financeiro"],
+    },
+    "{{valorMultaCancelamento}}": {
+      titulo: "Multa contratual do cancelamento",
+      descricao: "Mostra o valor da multa contratual apurada.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["multa", "valor", "cancelamento"],
+    },
+    "{{valorJurosCancelamento}}": {
+      titulo: "Juros e encargos do cancelamento",
+      descricao: "Mostra juros e encargos incluídos na apuração financeira.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["juros", "encargos", "financeiro"],
+    },
+    "{{valorCreditoCancelamento}}": {
+      titulo: "Créditos do cancelamento",
+      descricao: "Mostra créditos ou descontos considerados na apuração.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["crédito", "desconto", "financeiro"],
+    },
+    "{{valorDevolucaoCancelamento}}": {
+      titulo: "Valor a devolver",
+      descricao: "Mostra eventual valor a ser devolvido ao contratante.",
+      ondeUsar: "Demonstrativo financeiro do cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["devolução", "reembolso", "crédito"],
+    },
+    "{{valorTotalCancelamento}}": {
+      titulo: "Total para encerramento",
+      descricao: "Mostra o saldo final apurado para concluir o cancelamento.",
+      ondeUsar: "Termos e demonstrativos financeiros de cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["total", "encerramento", "saldo", "financeiro"],
+    },
+    "{{situacaoFinanceiraCancelamento}}": {
+      titulo: "Situação financeira do cancelamento",
+      descricao: "Mostra a situação financeira do processo, como pendente, quitado, isento ou com valor a devolver.",
+      ondeUsar: "Termos e protocolos de cancelamento.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["situação financeira", "quitado", "pendente", "isento"],
+    },
+    "{{observacoesCancelamentoMatricula}}": {
+      titulo: "Observações do cancelamento",
+      descricao: "Mostra observações registradas no processo de cancelamento.",
+      ondeUsar: "Termos de cancelamento quando a instituição desejar exibi-las.",
+      categoria: "Cancelamento de matrícula",
+      palavras: ["observações", "notas", "cancelamento"],
     },
     "{{dataMatricula}}": {
       titulo: "Data da matrícula",
@@ -4631,14 +4841,14 @@ function AdminDocumentosTemplatesPage() {
                   </div>
 
                   <div className="pdoc-card rounded-2xl border p-5">
-                    <div className="pdoc-soft mx-auto w-full max-w-[520px] rounded-2xl border p-5">
+                    <div className="pdoc-soft mx-auto w-full max-w-[522px] rounded-2xl border p-5">
                       <div className="pdoc-label mb-3 text-sm font-semibold">
                         {tVisual(
                           "visualFields.signatureAreaTitle"
                         )}
                       </div>
 
-                      <div className="relative h-[150px] rounded-xl border bg-white">
+                      <div className="relative h-[150px] rounded-xl bg-white ring-1 ring-inset ring-slate-300">
                         <div className="absolute left-10 right-10 top-[92px] border-t border-slate-700" />
 
                         <div className="absolute left-10 top-[100px] text-xs text-slate-600">
@@ -4742,16 +4952,28 @@ function AdminDocumentosTemplatesPage() {
                                 const alturaInicial = campo.altura;
 
                                 function aoMover(ev: MouseEvent) {
-                                  const novaLargura = Math.max(
-                                    60,
-                                    larguraInicial +
-                                      (ev.clientX - inicioX)
+                                  const novaLargura = Math.min(
+                                    Math.max(
+                                      60,
+                                      larguraInicial +
+                                        (ev.clientX - inicioX)
+                                    ),
+                                    Math.max(
+                                      1,
+                                      480 - campo.x
+                                    )
                                   );
 
-                                  const novaAltura = Math.max(
-                                    20,
-                                    alturaInicial +
-                                      (ev.clientY - inicioY)
+                                  const novaAltura = Math.min(
+                                    Math.max(
+                                      20,
+                                      alturaInicial +
+                                        (ev.clientY - inicioY)
+                                    ),
+                                    Math.max(
+                                      1,
+                                      150 - campo.y
+                                    )
                                   );
 
                                   setCamposVisuais((atuais) =>

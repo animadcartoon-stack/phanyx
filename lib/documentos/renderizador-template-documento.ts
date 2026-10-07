@@ -417,26 +417,28 @@ function criarImagemAssinatura({
     campo
   ) {
     /*
-     * O editor de posicionamento usa uma área de 480 x 150 px,
-     * mas a linha-guia ocupa x=40..440 (400 px) e y=92 px.
-     * O bloco final usa uma linha real de 72 mm centralizada
-     * dentro de 78 mm (x=3..75 mm).
-     *
-     * Portanto projetamos o campo sobre A LINHA, e não sobre
-     * toda a largura do bloco. Isso faz a assinatura configurada
-     * no quadro azul cair exatamente sobre a mesma linha no PDF.
+     * PARIDADE REAL COM O EDITOR:
+     * x/y/largura/altura são percentuais da mesma área 480 x 150.
      */
-    const escalaX = 72 / 400;
-    const esquerdaMm =
-      3 + (campo.x - 40) * escalaX;
-    const larguraMm =
-      Math.max(0.2, campo.largura * escalaX);
+    const esquerdaPercentual =
+      Math.max(0, campo.x) /
+      LARGURA_AREA_ASSINATURA_PX *
+      100;
 
-    const escalaY = 15 / 92;
-    const topoMm =
-      Math.max(0, campo.y) * escalaY;
-    const alturaMm =
-      Math.max(0.2, campo.altura * escalaY);
+    const topoPercentual =
+      Math.max(0, campo.y) /
+      ALTURA_AREA_ASSINATURA_PX *
+      100;
+
+    const larguraPercentual =
+      Math.max(0.1, campo.largura) /
+      LARGURA_AREA_ASSINATURA_PX *
+      100;
+
+    const alturaPercentual =
+      Math.max(0.1, campo.altura) /
+      ALTURA_AREA_ASSINATURA_PX *
+      100;
 
     return `
       <span
@@ -445,10 +447,10 @@ function criarImagemAssinatura({
           phanyx-assinatura-imagem-posicionada
         "
         style="
-          left: ${esquerdaMm}mm;
-          top: ${topoMm}mm;
-          width: ${larguraMm}mm;
-          height: ${alturaMm}mm;
+          left: ${esquerdaPercentual}%;
+          top: ${topoPercentual}%;
+          width: ${larguraPercentual}%;
+          height: ${alturaPercentual}%;
         "
       >
         <img
@@ -1693,12 +1695,12 @@ function cssCompartilhado(
   .phanyx-linha-assinatura {
   position: absolute;
 
-  top: 15mm;
+  top: 61.333333%;
 
-  left: 3mm;
+  left: 8.333333%;
   right: auto;
 
-  width: 72mm;
+  width: 83.333333%;
 
   margin: 0;
 
@@ -1805,16 +1807,13 @@ function cssCompartilhado(
 }
 
 /*
- * A imagem configurada já recebe left/top/width/height calculados a
- * partir do campo visual. No PDF de duas vias ela estava alguns
- * milímetros mais baixa que no editor e cruzava a linha. Este ajuste
- * desloca somente a imagem para cima, preservando linha e identificação.
+ * A posição salva no editor é definitiva também em documentos
+ * de duas vias. Nenhum deslocamento extra é aplicado à imagem.
  */
 .phanyx-conteudo-compacto
   .phanyx-bloco-assinatura-visual
   .phanyx-assinatura-imagem-posicionada {
-  transform: translateY(-7mm);
-  transform-origin: top center;
+  transform: none;
 }
 
 

@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "@tensorflow/tfjs";
-import CropImageModal from "./components/CropImageModal";
+import CropImageModal, { type CropAplicado } from "./components/CropImageModal";
+import type { LocalePhanyx } from "@/i18n/config";
+import { backgroundRemoverT } from "@/lib/background-remover-i18n";
 
 type DownloadTipo = "png" | "jpg" | "webp";
 type ModoRemocao = "assinatura" | "objeto" | "pessoa";
@@ -12,7 +14,9 @@ type MotorPessoa = "mediapipe" | "bodypix";
 type FerramentaPincel = "apagar" | "restaurar";
 type TexturaPincel = "duro" | "medio" | "suave";
 
-export default function RemovedorDeFundoClient() {
+export default function RemovedorDeFundoClient({ locale = "pt-BR" }: { locale?: LocalePhanyx }) {
+  const tr = (source: string, vars?: Record<string, string | number>) =>
+    backgroundRemoverT(locale, source, vars);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalRef = useRef<HTMLImageElement | null>(null);
   const imagemResultadoRef = useRef<HTMLImageElement | null>(null);
@@ -27,8 +31,22 @@ export default function RemovedorDeFundoClient() {
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const estadoEntradaRefinamentoRef = useRef<{
+    imagemFinal: string;
+    imagemOriginal: string | null;
+    imagemBaseEdicao: string | null;
+    baseCanvas: string | null;
+    originalCanvas: string | null;
+  } | null>(null);
 
   const [pixelsSelecionados, setPixelsSelecionados] = useState<Set<number> | null>(null);
+  const pixelsSelecionadosRef = useRef<Set<number> | null>(null);
+  const varinhaPressionadaRef = useRef(false);
+  const varinhaArrastouRef = useRef(false);
+  const modoVarinhaOperacaoRef = useRef<"substituir" | "adicionar" | "remover">("substituir");
+  const inicioVarinhaRef = useRef<{ x: number; y: number } | null>(null);
+  const ultimoPontoPincelSelecaoRef = useRef<{ x: number; y: number } | null>(null);
+  const ultimoOverlayVarinhaRef = useRef(0);
 
   const [overlayVarinha, setOverlayVarinha] = useState<string | null>(null);
 
@@ -142,6 +160,9 @@ const pinchOriginalRef = useRef<{
   const [texturaPincel, setTexturaPincel] = useState<TexturaPincel>("medio");
   const [featherPincel, setFeatherPincel] = useState(0.45);
 
+  const [intensidadeHalo, setIntensidadeHalo] = useState(88);
+  const [larguraHalo, setLarguraHalo] = useState(5);
+
   const [historicoMascaras, setHistoricoMascaras] = useState<ImageData[]>([]);
 
   const [mostrarLupa, setMostrarLupa] = useState(false);
@@ -172,7 +193,7 @@ const pinchOriginalRef = useRef<{
     setPanOriginal({ x: 0, y: 0 });
 
     if (!file.type.startsWith("image/")) {
-      setErro("Envie apenas arquivos de imagem.");
+      setErro(tr("Envie apenas arquivos de imagem."));
       return;
     }
 
@@ -194,12 +215,12 @@ reader.onload = () => {
   };
 
   img.onerror = () => {
-    setErro("Não foi possível carregar essa imagem.");
+    setErro(tr("Não foi possível carregar essa imagem."));
   };
 };
 
 reader.onerror = () => {
-  setErro("Não foi possível ler essa imagem.");
+  setErro(tr("Não foi possível ler essa imagem."));
 };
 
 reader.readAsDataURL(file);
@@ -391,58 +412,123 @@ function selecionarRegiaoConectada(
 ) {
   const { width, height, data } = imageData;
 
-  const visitados = new Set<number>();
-  const fila: [number, number][] = [[startX, startY]];
+  if (
+    startX < 0 ||
+    startY < 0 ||
+    startX >= width ||
+    startY >= height
+  ) {
+    return new Set<number>();
+  }
 
   const indiceInicial = (startY * width + startX) * 4;
 
   const rBase = data[indiceInicial];
   const gBase = data[indiceInicial + 1];
   const bBase = data[indiceInicial + 2];
+  const aBase = data[indiceInicial + 3];
 
-  while (fila.length > 0) {
-    const [x, y] = fila.shift()!;
+  // A varinha normal deve obedecer exatamente ao ponto clicado.
+  // Não procuramos outra "semente" ao redor do clique.
+  const alphaMinimoVisivel = 8;
 
-    if (
-      x < 0 ||
-      y < 0 ||
-      x >= width ||
-      y >= height
-    ) {
-      continue;
-    }
-
-    const pixel = y * width + x;
-
-    if (visitados.has(pixel)) {
-      continue;
-    }
-
-    const i = pixel * 4;
-
-    if (
-      !corParecida(
-        rBase,
-        gBase,
-        bBase,
-        data[i],
-        data[i + 1],
-        data[i + 2],
-        tolerancia
-      )
-    ) {
-      continue;
-    }
-
-    visitados.add(pixel);
-
-    fila.push([x + 1, y]);
-    fila.push([x - 1, y]);
-    fila.push([x, y + 1]);
-    fila.push([x, y - 1]);
+  if (aBase <= alphaMinimoVisivel) {
+    return new Set<number>();
   }
 
-  return visitados;
+  const selecionados = new Set<number>();
+  const visitados = new Uint8Array(width * height);
+
+  // Fila com tamanho máximo de width*height.
+  // Cada pixel é marcado ao entrar na fila, evitando duplicações.
+  const fila = new Int32Array(width * height);
+  let inicioFila = 0;
+  let fimFila = 0;
+
+  const pixelInicial = startY * width + startX;
+  fila[fimFila++] = pixelInicial;
+  visitados[pixelInicial] = 1;
+
+  const limiteRgb = Math.max(18, tolerancia * 2.15);
+  const limiteCanal = Math.max(14, tolerancia * 1.55);
+  const limiteAlpha = Math.max(30, tolerancia * 2.0);
+
+  function pixelCompativel(pixel: number) {
+    const i = pixel * 4;
+
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const a = data[i + 3];
+
+    if (a <= alphaMinimoVisivel) {
+      return false;
+    }
+
+    const dr = r - rBase;
+    const dg = g - gBase;
+    const db = b - bBase;
+
+    const distanciaRgb = Math.sqrt(
+      dr * dr +
+      dg * dg +
+      db * db
+    );
+
+    const maiorDiferencaCanal = Math.max(
+      Math.abs(dr),
+      Math.abs(dg),
+      Math.abs(db)
+    );
+
+    const diferencaAlpha = Math.abs(a - aBase);
+
+    return (
+      distanciaRgb <= limiteRgb &&
+      maiorDiferencaCanal <= limiteCanal &&
+      diferencaAlpha <= limiteAlpha
+    );
+  }
+
+  while (inicioFila < fimFila) {
+    const pixel = fila[inicioFila++];
+
+    if (!pixelCompativel(pixel)) {
+      continue;
+    }
+
+    selecionados.add(pixel);
+
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+
+    function adicionar(nx: number, ny: number) {
+      if (
+        nx < 0 ||
+        ny < 0 ||
+        nx >= width ||
+        ny >= height
+      ) {
+        return;
+      }
+
+      const np = ny * width + nx;
+
+      if (visitados[np]) {
+        return;
+      }
+
+      visitados[np] = 1;
+      fila[fimFila++] = np;
+    }
+
+    adicionar(x + 1, y);
+    adicionar(x - 1, y);
+    adicionar(x, y + 1);
+    adicionar(x, y - 1);
+  }
+
+  return selecionados;
 }
   
   function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
@@ -494,7 +580,7 @@ function selecionarRegiaoConectada(
       setRemoverBrancoInterno(true);
       setPontoVarinha({ x, y });
       setVarinhaAtiva(false);
-      setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa cor.");
+      setAviso(tr("Cor capturada. A varinha mágica vai remover tons parecidos com essa cor."));
 
       const jaExisteParecida = cores.some(
         (cor) =>
@@ -545,6 +631,229 @@ if (originalCtx) {
   ];
 }
 
+function carregarImagemDataUrl(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(tr("Não foi possível carregar a imagem.")));
+    img.src = src;
+  });
+}
+
+async function criarCanvasDeImagem(
+  src: string,
+  largura?: number,
+  altura?: number
+) {
+  const img = await carregarImagemDataUrl(src);
+  const canvas = document.createElement("canvas");
+  canvas.width = largura ?? img.naturalWidth;
+  canvas.height = altura ?? img.naturalHeight;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error(tr("Não foi possível preparar o canvas."));
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  return canvas;
+}
+
+async function sincronizarCanvasPrincipal(src: string) {
+  if (!canvasRef.current) return;
+
+  const img = await carregarImagemDataUrl(src);
+  const canvas = canvasRef.current;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
+}
+
+function abrirRefinamento() {
+  if (!imagemFinal) return;
+
+  estadoEntradaRefinamentoRef.current = {
+    imagemFinal,
+    imagemOriginal,
+    imagemBaseEdicao,
+    baseCanvas: baseEdicaoCanvasRef.current?.toDataURL("image/png") ?? null,
+    originalCanvas: imagemOriginalCanvasRef.current?.toDataURL("image/png") ?? null,
+  };
+
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+  setModalRefinamentoAberto(true);
+}
+
+function salvarEdicaoRefinamento() {
+  if (!canvasRef.current) return;
+
+  const atual = canvasRef.current.toDataURL("image/png");
+  setImagemFinal(atual);
+  setTemResultadoReal(true);
+
+  estadoEntradaRefinamentoRef.current = {
+    imagemFinal: atual,
+    imagemOriginal,
+    imagemBaseEdicao,
+    baseCanvas: baseEdicaoCanvasRef.current?.toDataURL("image/png") ?? null,
+    originalCanvas: imagemOriginalCanvasRef.current?.toDataURL("image/png") ?? null,
+  };
+
+  setAviso(tr("Edição salva. Você pode continuar refinando ou concluir."));
+}
+
+function concluirRefinamento() {
+  if (canvasRef.current) {
+    setImagemFinal(canvasRef.current.toDataURL("image/png"));
+    setTemResultadoReal(true);
+  }
+
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+  estadoEntradaRefinamentoRef.current = null;
+  setModalRefinamentoAberto(false);
+}
+
+async function cancelarAlteracoesRefinamento() {
+  const estado = estadoEntradaRefinamentoRef.current;
+
+  if (estado) {
+    setImagemFinal(estado.imagemFinal);
+    setImagemOriginal(estado.imagemOriginal);
+    setImagemBaseEdicao(estado.imagemBaseEdicao);
+    setTemResultadoReal(true);
+
+    await sincronizarCanvasPrincipal(estado.imagemFinal);
+
+    baseEdicaoCanvasRef.current = estado.baseCanvas
+      ? await criarCanvasDeImagem(estado.baseCanvas)
+      : null;
+
+    imagemOriginalCanvasRef.current = estado.originalCanvas
+      ? await criarCanvasDeImagem(estado.originalCanvas)
+      : null;
+  }
+
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+  setZoomResultado(1);
+  setPanResultado({ x: 0, y: 0 });
+  estadoEntradaRefinamentoRef.current = null;
+  setModalRefinamentoAberto(false);
+  setAviso(tr("Alterações não salvas do refinamento foram descartadas."));
+}
+
+async function cortarImagemPeloMesmoRecorte(
+  src: string,
+  recorte: CropAplicado
+) {
+  const img = await carregarImagemDataUrl(src);
+
+  const escalaX = img.naturalWidth / recorte.naturalWidth;
+  const escalaY = img.naturalHeight / recorte.naturalHeight;
+
+  const sx = Math.max(0, recorte.x * escalaX);
+  const sy = Math.max(0, recorte.y * escalaY);
+  const sw = Math.min(img.naturalWidth - sx, recorte.largura * escalaX);
+  const sh = Math.min(img.naturalHeight - sy, recorte.altura * escalaY);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(sw));
+  canvas.height = Math.max(1, Math.round(sh));
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error(tr("Não foi possível aplicar o corte."));
+
+  ctx.drawImage(
+    img,
+    sx,
+    sy,
+    sw,
+    sh,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  return canvas.toDataURL("image/png");
+}
+
+async function aplicarCorteSemPerderEdicao(
+  novaImagem: string,
+  recorte: CropAplicado
+) {
+  try {
+    if (!imagemFinal) {
+      setImagemOriginal(novaImagem);
+      setTemResultadoReal(false);
+      setImagemBaseEdicao(null);
+      baseEdicaoCanvasRef.current = null;
+      imagemOriginalCanvasRef.current = null;
+      historicoEdicaoRef.current = [];
+      setPixelsSelecionados(null);
+      setOverlayVarinha(null);
+      setZoomResultado(1);
+      setPanResultado({ x: 0, y: 0 });
+      setModalCorteAberto(false);
+
+      const img = await carregarImagemDataUrl(novaImagem);
+      setDimensoesImagem({
+        largura: img.naturalWidth,
+        altura: img.naturalHeight,
+      });
+
+      setAviso(tr("Corte aplicado à imagem original."));
+      return;
+    }
+
+    const originalCortada = imagemOriginal
+      ? await cortarImagemPeloMesmoRecorte(imagemOriginal, recorte)
+      : novaImagem;
+
+    const imgFinalCortada = await carregarImagemDataUrl(novaImagem);
+
+    setImagemOriginal(originalCortada);
+    setImagemFinal(novaImagem);
+    setImagemBaseEdicao(novaImagem);
+    setTemResultadoReal(true);
+
+    await sincronizarCanvasPrincipal(novaImagem);
+
+    baseEdicaoCanvasRef.current = await criarCanvasDeImagem(
+      novaImagem,
+      imgFinalCortada.naturalWidth,
+      imgFinalCortada.naturalHeight
+    );
+
+    imagemOriginalCanvasRef.current = await criarCanvasDeImagem(
+      originalCortada,
+      imgFinalCortada.naturalWidth,
+      imgFinalCortada.naturalHeight
+    );
+
+    historicoEdicaoRef.current = [];
+    setPixelsSelecionados(null);
+    setOverlayVarinha(null);
+    setZoomResultado(1);
+    setPanResultado({ x: 0, y: 0 });
+    setDimensoesImagem({
+      largura: imgFinalCortada.naturalWidth,
+      altura: imgFinalCortada.naturalHeight,
+    });
+    setModalCorteAberto(false);
+    setAviso(tr("Corte aplicado sem perder o refinamento. Você pode continuar editando."));
+  } catch (error) {
+    console.error(error);
+    setAviso(tr("Não foi possível aplicar o corte sem perder a edição."));
+  }
+}
+
   function iniciarPincelResultado(e: React.PointerEvent<HTMLImageElement>) {
     if (!pincelAtivo || !imagemFinal || espacoPressionadoRef.current) return;
 
@@ -558,7 +867,7 @@ if (originalCtx) {
     const anterior = historicoEdicaoRef.current.pop();
 
     if (!anterior) {
-      setAviso("Ainda não há edição manual para desfazer.");
+      setAviso(tr("Ainda não há edição manual para desfazer."));
       return;
     }
 
@@ -699,91 +1008,642 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
   setTemResultadoReal(true);
 }
 
-function selecionarComVarinhaRefinamento(e: React.PointerEvent<HTMLImageElement>) {
-  if (!canvasRef.current || !imagemFinal) return;
 
-  const img = e.currentTarget;
-  const rect = img.getBoundingClientRect();
+function removerHaloReconstruindoBorda() {
+  const canvas = canvasRef.current;
+  if (!canvas || !imagemFinal) return;
 
-  const x = Math.floor(((e.clientX - rect.left) / rect.width) * canvasRef.current.width);
-  const y = Math.floor(((e.clientY - rect.top) / rect.height) * canvasRef.current.height);
-
-  const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return;
 
-  const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
-  const selecionados = selecionarRegiaoConectada(imageData, x, y, toleranciaVarinha);
+  salvarHistoricoEdicao();
 
-  setPixelsSelecionados(selecionados);
-  const overlayCanvas = document.createElement("canvas");
-overlayCanvas.width = canvasRef.current.width;
-overlayCanvas.height = canvasRef.current.height;
+  const width = canvas.width;
+  const height = canvas.height;
+  const total = width * height;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const origem = new Uint8ClampedArray(imageData.data);
+  const destino = imageData.data;
 
-const overlayCtx = overlayCanvas.getContext("2d");
-if (overlayCtx) {
-  const overlayData = overlayCtx.createImageData(
-    overlayCanvas.width,
-    overlayCanvas.height
+  const transparenciaLimite = 18;
+  const largura = Math.max(1, Math.min(12, Math.round(larguraHalo)));
+
+  let banda = new Uint8Array(total);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const p = y * width + x;
+      const di = p * 4;
+
+      if (origem[di + 3] <= transparenciaLimite) continue;
+
+      let encostaTransparencia = false;
+
+      for (let oy = -1; oy <= 1 && !encostaTransparencia; oy++) {
+        for (let ox = -1; ox <= 1; ox++) {
+          if (ox === 0 && oy === 0) continue;
+
+          const nx = x + ox;
+          const ny = y + oy;
+
+          if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
+            encostaTransparencia = true;
+            break;
+          }
+
+          const ndi = (ny * width + nx) * 4;
+
+          if (origem[ndi + 3] <= transparenciaLimite) {
+            encostaTransparencia = true;
+            break;
+          }
+        }
+      }
+
+      if (encostaTransparencia) banda[p] = 1;
+    }
+  }
+
+  for (let passo = 1; passo < largura; passo++) {
+    const expandida = new Uint8Array(banda);
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const p = y * width + x;
+        const di = p * 4;
+
+        if (origem[di + 3] <= transparenciaLimite || banda[p]) continue;
+
+        let vizinhoDaBanda = false;
+
+        for (let oy = -1; oy <= 1 && !vizinhoDaBanda; oy++) {
+          for (let ox = -1; ox <= 1; ox++) {
+            if (ox === 0 && oy === 0) continue;
+
+            const nx = x + ox;
+            const ny = y + oy;
+
+            if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+
+            if (banda[ny * width + nx]) {
+              vizinhoDaBanda = true;
+              break;
+            }
+          }
+        }
+
+        if (vizinhoDaBanda) expandida[p] = 1;
+      }
+    }
+
+    banda = expandida;
+  }
+
+  const ehVerdeContaminado = (
+    r: number,
+    g: number,
+    b: number
+  ) => {
+    const dominancia = g - Math.max(r, b);
+    const excesso = g - (r + b) / 2;
+
+    return g >= 42 && (dominancia >= 7 || excesso >= 12);
+  };
+
+  const raioBusca = Math.max(4, Math.min(20, largura * 3 + 2));
+  const intensidadeBase = Math.max(
+    0,
+    Math.min(1, intensidadeHalo / 100)
   );
 
-  selecionados.forEach((pixel) => {
-  const x = pixel % overlayCanvas.width;
-  const y = Math.floor(pixel / overlayCanvas.width);
+  let alterados = 0;
 
-  const vizinhos = [
-    pixel - 1,
-    pixel + 1,
-    pixel - overlayCanvas.width,
-    pixel + overlayCanvas.width,
-  ];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const p = y * width + x;
+      if (!banda[p]) continue;
 
-  const ehBorda =
-    x === 0 ||
-    y === 0 ||
-    x === overlayCanvas.width - 1 ||
-    y === overlayCanvas.height - 1 ||
-    vizinhos.some((v) => !selecionados.has(v));
-
-  if (!ehBorda) return;
-
-  const branco = Math.floor((x + y) / 6) % 2 === 0;
-
-  for (let yy = -1; yy <= 1; yy++) {
-    for (let xx = -1; xx <= 1; xx++) {
-      const nx = x + xx;
-      const ny = y + yy;
+      const di = p * 4;
+      const r = origem[di];
+      const g = origem[di + 1];
+      const b = origem[di + 2];
+      const a = origem[di + 3];
 
       if (
-        nx < 0 ||
-        ny < 0 ||
-        nx >= overlayCanvas.width ||
-        ny >= overlayCanvas.height
+        a <= transparenciaLimite ||
+        !ehVerdeContaminado(r, g, b)
       ) {
         continue;
       }
 
-      const i = (ny * overlayCanvas.width + nx) * 4;
+      let somaR = 0;
+      let somaG = 0;
+      let somaB = 0;
+      let somaPeso = 0;
+      let encontrados = 0;
 
-      overlayData.data[i] = branco ? 255 : 0;
-      overlayData.data[i + 1] = branco ? 255 : 0;
-      overlayData.data[i + 2] = branco ? 255 : 0;
-      overlayData.data[i + 3] = 255;
+      for (
+        let raio = 1;
+        raio <= raioBusca && encontrados < 18;
+        raio++
+      ) {
+        const minX = Math.max(0, x - raio);
+        const maxX = Math.min(width - 1, x + raio);
+        const minY = Math.max(0, y - raio);
+        const maxY = Math.min(height - 1, y + raio);
+
+        for (
+          let sy = minY;
+          sy <= maxY && encontrados < 18;
+          sy++
+        ) {
+          for (
+            let sx = minX;
+            sx <= maxX && encontrados < 18;
+            sx++
+          ) {
+            if (
+              sx !== minX &&
+              sx !== maxX &&
+              sy !== minY &&
+              sy !== maxY
+            ) {
+              continue;
+            }
+
+            const sp = sy * width + sx;
+            const sdi = sp * 4;
+            const sa = origem[sdi + 3];
+
+            if (sa < 96) continue;
+
+            const sr = origem[sdi];
+            const sg = origem[sdi + 1];
+            const sb = origem[sdi + 2];
+
+            if (ehVerdeContaminado(sr, sg, sb)) continue;
+
+            const distancia = Math.hypot(sx - x, sy - y);
+            const peso =
+              (banda[sp] ? 0.55 : 1) /
+              Math.max(1, distancia);
+
+            somaR += sr * peso;
+            somaG += sg * peso;
+            somaB += sb * peso;
+            somaPeso += peso;
+            encontrados++;
+          }
+        }
+      }
+
+      if (somaPeso <= 0) continue;
+
+      const alvoR = somaR / somaPeso;
+      const alvoG = somaG / somaPeso;
+      const alvoB = somaB / somaPeso;
+
+      const dominancia = Math.max(
+        0,
+        g - Math.max(r, b),
+        g - (r + b) / 2
+      );
+
+      const forcaContaminacao = Math.max(
+        0.3,
+        Math.min(1, dominancia / 48)
+      );
+
+      const forca = intensidadeBase * forcaContaminacao;
+
+      destino[di] = Math.round(r + (alvoR - r) * forca);
+      destino[di + 1] = Math.round(g + (alvoG - g) * forca);
+      destino[di + 2] = Math.round(b + (alvoB - b) * forca);
+      destino[di + 3] = a;
+
+      alterados++;
     }
   }
-});
+
+  if (alterados === 0) {
+    historicoEdicaoRef.current.pop();
+    setAviso(
+      tr("Não encontrei halo verde suficiente nessa borda. Tente aumentar a largura.")
+    );
+    return;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  const atualizada = canvas.toDataURL("image/png");
+  setImagemFinal(atualizada);
+  setTemResultadoReal(true);
+
+  pixelsSelecionadosRef.current = null;
+  setPixelsSelecionados(null);
+  setOverlayVarinha(null);
+
+  setAviso(tr("Halo reconstruído em {count} pixels, usando as cores do próprio desenho.", { count: alterados.toLocaleString(locale) }));
+}
+
+function atualizarOverlayVarinha(selecionados: Set<number> | null) {
+  if (!canvasRef.current || !selecionados || selecionados.size === 0) {
+    setOverlayVarinha(null);
+    return;
+  }
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const overlayCanvas = document.createElement("canvas");
+  overlayCanvas.width = width;
+  overlayCanvas.height = height;
+
+  const overlayCtx = overlayCanvas.getContext("2d");
+  if (!overlayCtx) return;
+
+  const overlayData = overlayCtx.createImageData(width, height);
+  const direcoes = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ];
+
+  selecionados.forEach((pixel) => {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+
+    const ehBorda = direcoes.some(([dx, dy]) => {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) return true;
+      return !selecionados.has(ny * width + nx);
+    });
+
+    if (!ehBorda) return;
+
+    const branco = Math.floor((x + y) / 6) % 2 === 0;
+
+    for (let yy = -1; yy <= 1; yy++) {
+      for (let xx = -1; xx <= 1; xx++) {
+        const nx = x + xx;
+        const ny = y + yy;
+
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+
+        const i = (ny * width + nx) * 4;
+        overlayData.data[i] = branco ? 255 : 0;
+        overlayData.data[i + 1] = branco ? 255 : 0;
+        overlayData.data[i + 2] = branco ? 255 : 0;
+        overlayData.data[i + 3] = 255;
+      }
+    }
+  });
 
   overlayCtx.putImageData(overlayData, 0, 0);
   setOverlayVarinha(overlayCanvas.toDataURL("image/png"));
 }
-setAviso(null);}
+
+function atualizarSelecaoVarinha(
+  proximaSelecao: Set<number> | null,
+  atualizarOverlay = true
+) {
+  pixelsSelecionadosRef.current = proximaSelecao;
+  setPixelsSelecionados(proximaSelecao);
+
+  if (atualizarOverlay) {
+    atualizarOverlayVarinha(proximaSelecao);
+  }
+}
+
+function coordenadasVarinha(
+  clientX: number,
+  clientY: number,
+  img: HTMLImageElement
+) {
+  if (!canvasRef.current) return null;
+
+  const rect = img.getBoundingClientRect();
+
+  if (rect.width <= 0 || rect.height <= 0) {
+    return null;
+  }
+
+  // Não converte pontos que já estejam fora da imagem.
+  if (
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  ) {
+    return null;
+  }
+
+  const proporcaoX = (clientX - rect.left) / rect.width;
+  const proporcaoY = (clientY - rect.top) / rect.height;
+
+  const x = Math.floor(proporcaoX * canvasRef.current.width);
+  const y = Math.floor(proporcaoY * canvasRef.current.height);
+
+  if (
+    x < 0 ||
+    y < 0 ||
+    x >= canvasRef.current.width ||
+    y >= canvasRef.current.height
+  ) {
+    return null;
+  }
+
+  return { x, y };
+}
+
+function aplicarCliqueVarinha(
+  e: React.PointerEvent<HTMLElement>,
+  modo: "substituir" | "adicionar" | "remover"
+) {
+  if (!canvasRef.current || !imagemFinal) return;
+
+  const imagem = imagemResultadoRef.current;
+  if (!imagem) return;
+
+  const ponto = coordenadasVarinha(
+    e.clientX,
+    e.clientY,
+    imagem
+  );
+  if (!ponto) return;
+
+  const ctx = canvasRef.current.getContext("2d", {
+    willReadFrequently: true,
+  });
+  if (!ctx) return;
+
+  const imageData = ctx.getImageData(
+    0,
+    0,
+    canvasRef.current.width,
+    canvasRef.current.height
+  );
+
+  const regiao = selecionarRegiaoConectada(
+    imageData,
+    ponto.x,
+    ponto.y,
+    toleranciaVarinha
+  );
+
+  const atual = pixelsSelecionadosRef.current;
+  let selecionados: Set<number>;
+
+  if (modo === "remover") {
+    selecionados = new Set(atual ?? []);
+    regiao.forEach((pixel) => selecionados.delete(pixel));
+  } else if (modo === "adicionar") {
+    selecionados = new Set(atual ?? []);
+    regiao.forEach((pixel) => selecionados.add(pixel));
+  } else {
+    selecionados = new Set(regiao);
+  }
+
+  atualizarSelecaoVarinha(
+    selecionados.size > 0 ? selecionados : null
+  );
+
+  setAviso(null);
+}
+
+function pintarDiscoSelecao(
+  selecao: Set<number>,
+  cx: number,
+  cy: number,
+  raio: number,
+  remover: boolean
+) {
+  if (!canvasRef.current) return;
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const raio2 = raio * raio;
+
+  const minX = Math.max(0, Math.floor(cx - raio));
+  const maxX = Math.min(width - 1, Math.ceil(cx + raio));
+  const minY = Math.max(0, Math.floor(cy - raio));
+  const maxY = Math.min(height - 1, Math.ceil(cy + raio));
+
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      if (dx * dx + dy * dy > raio2) continue;
+
+      const pixel = y * width + x;
+      if (remover) selecao.delete(pixel);
+      else selecao.add(pixel);
+    }
+  }
+}
+
+function pintarTrechoSelecao(
+  de: { x: number; y: number },
+  ate: { x: number; y: number },
+  modo: "adicionar" | "remover"
+) {
+  if (!canvasRef.current) return;
+
+  const raio = Math.max(2, tamanhoPincel / 2);
+  const distancia = Math.hypot(ate.x - de.x, ate.y - de.y);
+  const passoMaximo = Math.max(1, Math.min(4, raio / 4));
+  const passos = Math.max(1, Math.ceil(distancia / passoMaximo));
+
+  // Durante o arrasto, trabalha no mesmo Set.
+  // Assim não copiamos milhares de pixels a cada movimento do mouse.
+  const selecao =
+    pixelsSelecionadosRef.current ?? new Set<number>();
+
+  pixelsSelecionadosRef.current = selecao;
+
+  for (let passo = 0; passo <= passos; passo++) {
+    const t = passo / passos;
+    const x = de.x + (ate.x - de.x) * t;
+    const y = de.y + (ate.y - de.y) * t;
+    pintarDiscoSelecao(selecao, x, y, raio, modo === "remover");
+  }
+
+  const proxima = selecao.size > 0 ? selecao : null;
+  pixelsSelecionadosRef.current = proxima;
+
+  const agora = performance.now();
+  if (agora - ultimoOverlayVarinhaRef.current >= 32) {
+    setPixelsSelecionados(
+      proxima ? new Set(proxima) : null
+    );
+    atualizarOverlayVarinha(proxima);
+    ultimoOverlayVarinhaRef.current = agora;
+  }
+}
+
+function iniciarArrastoVarinha(e: React.PointerEvent<HTMLImageElement>) {
+  if (!canvasRef.current || !imagemFinal) return;
+
+  e.preventDefault();
+  e.currentTarget.setPointerCapture(e.pointerId);
+
+  const ponto = coordenadasVarinha(
+    e.clientX,
+    e.clientY,
+    e.currentTarget
+  );
+  if (!ponto) return;
+
+  modoVarinhaOperacaoRef.current = e.ctrlKey
+    ? "remover"
+    : e.shiftKey || e.altKey
+      ? "adicionar"
+      : "substituir";
+
+  varinhaPressionadaRef.current = true;
+  varinhaArrastouRef.current = false;
+  inicioVarinhaRef.current = ponto;
+  ultimoPontoPincelSelecaoRef.current = ponto;
+  ultimoOverlayVarinhaRef.current = performance.now();
+}
+
+function continuarArrastoVarinha(e: React.PointerEvent<HTMLElement>) {
+  if (!varinhaPressionadaRef.current) return false;
+
+  e.preventDefault();
+
+  const imagem = imagemResultadoRef.current;
+  if (!imagem) return true;
+
+  const ponto = coordenadasVarinha(
+    e.clientX,
+    e.clientY,
+    imagem
+  );
+  const inicio = inicioVarinhaRef.current;
+  const anterior = ultimoPontoPincelSelecaoRef.current;
+  if (!ponto || !inicio || !anterior) return true;
+
+  if (!varinhaArrastouRef.current) {
+    const distanciaInicio = Math.hypot(ponto.x - inicio.x, ponto.y - inicio.y);
+    if (distanciaInicio < 3) return true;
+
+    varinhaArrastouRef.current = true;
+
+    // Arrasto normal começa uma seleção nova. Com Shift/Alt soma; Ctrl apaga.
+    if (modoVarinhaOperacaoRef.current === "substituir") {
+      pixelsSelecionadosRef.current = null;
+      setPixelsSelecionados(null);
+    }
+  }
+
+  const modoPincel =
+    modoVarinhaOperacaoRef.current === "remover" ? "remover" : "adicionar";
+
+  pintarTrechoSelecao(anterior, ponto, modoPincel);
+  ultimoPontoPincelSelecaoRef.current = ponto;
+  return true;
+}
+
+function finalizarArrastoVarinha(e?: React.PointerEvent<HTMLElement>) {
+  if (!varinhaPressionadaRef.current) return;
+
+  if (!varinhaArrastouRef.current && e) {
+    // Sem arrasto: comportamento clássico da varinha por cor/região.
+    aplicarCliqueVarinha(e, modoVarinhaOperacaoRef.current);
+  } else {
+    const final = pixelsSelecionadosRef.current;
+    setPixelsSelecionados(final ? new Set(final) : null);
+    atualizarOverlayVarinha(final);
+  }
+
+  varinhaPressionadaRef.current = false;
+  varinhaArrastouRef.current = false;
+  inicioVarinhaRef.current = null;
+  ultimoPontoPincelSelecaoRef.current = null;
+  ultimoOverlayVarinhaRef.current = 0;
+}
+
+function expandirSelecaoVarinha() {
+  if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
+    setAviso(tr("Faça uma seleção com a varinha primeiro."));
+    return;
+  }
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const expandida = new Set(pixelsSelecionados);
+
+  pixelsSelecionados.forEach((pixel) => {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        expandida.add(ny * width + nx);
+      }
+    }
+  });
+
+  atualizarSelecaoVarinha(expandida);
+}
+
+function contrairSelecaoVarinha() {
+  if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
+    setAviso(tr("Faça uma seleção com a varinha primeiro."));
+    return;
+  }
+
+  const width = canvasRef.current.width;
+  const height = canvasRef.current.height;
+  const contraida = new Set<number>();
+
+  pixelsSelecionados.forEach((pixel) => {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+    let manter = true;
+
+    for (let dy = -1; dy <= 1 && manter; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+
+        const nx = x + dx;
+        const ny = y + dy;
+
+        if (
+          nx < 0 ||
+          ny < 0 ||
+          nx >= width ||
+          ny >= height ||
+          !pixelsSelecionados.has(ny * width + nx)
+        ) {
+          manter = false;
+          break;
+        }
+      }
+    }
+
+    if (manter) contraida.add(pixel);
+  });
+
+  const proximaSelecao = contraida.size > 0 ? contraida : null;
+  atualizarSelecaoVarinha(proximaSelecao);
+}
 
 function limparSelecaoVarinha() {
-  setOverlayVarinha(null);
+  atualizarSelecaoVarinha(null);
+  setAviso(null);
 }
 
 function apagarSelecaoVarinha() {
   if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
-    setAviso("Nenhuma área selecionada pela varinha.");
+    setAviso(tr("Nenhuma área selecionada pela varinha."));
     return;
   }
 
@@ -804,9 +1664,8 @@ function apagarSelecaoVarinha() {
 
   setImagemFinal(canvasRef.current.toDataURL("image/png"));
   setTemResultadoReal(true);
-  setPixelsSelecionados(null);
-  setOverlayVarinha(null);
-  setAviso("Área selecionada apagada.");
+  atualizarSelecaoVarinha(null);
+  setAviso(tr("Área selecionada apagada."));
 }
 
 function corParecida(
@@ -841,7 +1700,7 @@ function corParecida(
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
         if (!ctx) {
-          setErro("Não foi possível processar a imagem.");
+          setErro(tr("Não foi possível processar a imagem."));
           setProcessando(false);
           return;
         }
@@ -869,7 +1728,7 @@ function corParecida(
         const pessoas = await segmenter.segmentPeople(canvas);
 
         if (!pessoas || pessoas.length === 0) {
-          setErro("Não consegui detectar uma pessoa principal nessa imagem.");
+          setErro(tr("Não consegui detectar uma pessoa principal nessa imagem."));
           setProcessando(false);
           return;
         }
@@ -923,7 +1782,7 @@ function corParecida(
       };
     } catch (error) {
       console.error(error);
-      setErro("Não foi possível usar o modo Pessoa Rápido nessa imagem.");
+      setErro(tr("Não foi possível usar o modo Pessoa Rápido nessa imagem."));
       setProcessando(false);
     }
   }
@@ -943,7 +1802,7 @@ function corParecida(
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
         if (!ctx) {
-          setErro("Não foi possível processar a imagem.");
+          setErro(tr("Não foi possível processar a imagem."));
           setProcessando(false);
           return;
         }
@@ -974,7 +1833,7 @@ function corParecida(
         });
 
         if (!segmentation || segmentation.length === 0) {
-          setErro("Não consegui detectar pessoas nessa imagem.");
+          setErro(tr("Não consegui detectar pessoas nessa imagem."));
           setProcessando(false);
           return;
         }
@@ -1038,7 +1897,7 @@ function corParecida(
       };
     } catch (error) {
       console.error(error);
-      setErro("Não foi possível usar o modo Pessoa Alternativo nessa imagem.");
+      setErro(tr("Não foi possível usar o modo Pessoa Alternativo nessa imagem."));
       setProcessando(false);
     }
   }
@@ -1075,7 +1934,7 @@ function corParecida(
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
       if (!ctx) {
-        setErro("Não foi possível processar a imagem.");
+        setErro(tr("Não foi possível processar a imagem."));
         setProcessando(false);
         return;
       }
@@ -1111,7 +1970,7 @@ function corParecida(
 
       if (percentualTransparente > 5) {
         setAviso(
-          "Essa imagem já está sem fundo. Envie outra imagem com fundo para remover."
+          tr("Essa imagem já está sem fundo. Envie outra imagem com fundo para remover.")
         );
         setImagemFinal(null);
         setTemResultadoReal(false);
@@ -1563,7 +2422,7 @@ async function melhorarComIA() {
   if (!podeUsarIAAgora()) return;
 
   if (!imagemOriginal) {
-    setAviso("Envie uma imagem antes de usar a IA.");
+    setAviso(tr("Envie uma imagem antes de usar a IA."));
     return;
   }
 
@@ -1586,13 +2445,13 @@ async function melhorarComIA() {
         return;
       }
 
-      setAviso(data.mensagem || "Não foi possível melhorar a imagem com IA.");
+      setAviso(data.mensagem || tr("Não foi possível melhorar a imagem com IA."));
       return;
     }
 
     setImagemFinal(data.imagemUrl);
     setTemResultadoReal(true);
-    setAviso(`Imagem melhorada com IA. Saldo restante: ${data.saldo}`);
+    setAviso(tr("Imagem melhorada com IA. Saldo restante: {saldo}", { saldo: data.saldo }));
   } catch (error) {
     console.error(error);
     setAviso("Erro ao conectar com a IA.");
@@ -1628,7 +2487,7 @@ async function prepararImagemMinimaParaIA(imageUrl: string) {
       resolve(canvas.toDataURL("image/jpeg", 0.95));
     };
 
-    img.onerror = () => reject(new Error("Não foi possível carregar a imagem."));
+    img.onerror = () => reject(new Error(tr("Não foi possível carregar a imagem.")));
     img.src = imageUrl;
   });
 }
@@ -1637,7 +2496,7 @@ async function corrigirIluminacaoComIA() {
   if (!podeUsarIAAgora()) return;
 
   if (!imagemOriginal) {
-    setAviso("Envie uma imagem antes de corrigir a iluminação.");
+    setAviso(tr("Envie uma imagem antes de corrigir a iluminação."));
     return;
   }
 
@@ -1652,7 +2511,7 @@ await new Promise((resolve, reject) => {
 });
 
 if (img.width < 256 || img.height < 256) {
-  setAviso("📈 Ajustando tamanho da imagem para IA...");
+  setAviso(tr("📈 Ajustando tamanho da imagem para IA..."));
 
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(256, img.width * 2);
@@ -1675,10 +2534,10 @@ if (img.width < 256 || img.height < 256) {
   setAviso("💡 Analisando luz e sombras...");
 
   const etapas = [
-    { texto: "🔎 Detectando áreas escuras e estouradas...", progresso: 20 },
-    { texto: "💡 Reequilibrando iluminação da foto...", progresso: 45 },
-    { texto: "🎨 Ajustando contraste e tons naturais...", progresso: 70 },
-    { texto: "✨ Finalizando correção de luz...", progresso: 92 },
+    { texto: tr("🔎 Detectando áreas escuras e estouradas..."), progresso: 20 },
+    { texto: tr("💡 Reequilibrando iluminação da foto..."), progresso: 45 },
+    { texto: tr("🎨 Ajustando contraste e tons naturais..."), progresso: 70 },
+    { texto: tr("✨ Finalizando correção de luz..."), progresso: 92 },
   ];
 
   let etapaAtual = 0;
@@ -1712,10 +2571,10 @@ if (img.width < 256 || img.height < 256) {
     setImagemFinal(data.imagemUrl);
     setTemResultadoReal(true);
     setProgressoFakeIA(100);
-    setAviso("✅ Iluminação corrigida com sucesso!");
+    setAviso(tr("✅ Iluminação corrigida com sucesso!"));
   } catch (error) {
     console.error(error);
-    setAviso("Erro ao conectar com a IA de iluminação.");
+    setAviso(tr("Erro ao conectar com a IA de iluminação."));
   } finally {
     window.clearInterval(intervalo);
     setProcessando(false);
@@ -1727,7 +2586,7 @@ async function restaurarFotoAntigaComIA() {
   if (!podeUsarIAAgora()) return;
 
   if (!imagemOriginal) {
-    setAviso("Envie uma imagem antes de restaurar foto antiga.");
+    setAviso(tr("Envie uma imagem antes de restaurar foto antiga."));
     return;
   }
 
@@ -1741,7 +2600,7 @@ async function restaurarFotoAntigaComIA() {
 
   const etapas = [
     {
-      texto: "🔎 Detectando riscos, manchas e degradação...",
+      texto: tr("🔎 Detectando riscos, manchas e degradação..."),
       progresso: 20,
     },
     {
@@ -1749,11 +2608,11 @@ async function restaurarFotoAntigaComIA() {
       progresso: 45,
     },
     {
-      texto: "🖼️ Restaurando nitidez e textura...",
+      texto: tr("🖼️ Restaurando nitidez e textura..."),
       progresso: 70,
     },
     {
-      texto: "✨ Finalizando restauração...",
+      texto: tr("✨ Finalizando restauração..."),
       progresso: 92,
     },
   ];
@@ -1785,7 +2644,7 @@ async function restaurarFotoAntigaComIA() {
       setAviso(
         typeof data.mensagem === "string"
           ? data.mensagem
-          : "Não foi possível restaurar a foto antiga."
+          : tr("Não foi possível restaurar a foto antiga.")
       );
       return;
     }
@@ -1796,7 +2655,7 @@ async function restaurarFotoAntigaComIA() {
     setAviso("✅ Foto antiga restaurada com sucesso!");
   } catch (error) {
     console.error(error);
-    setAviso("Erro ao conectar com a IA de restauração.");
+    setAviso(tr("Erro ao conectar com a IA de restauração."));
   } finally {
     window.clearInterval(intervalo);
     setProcessando(false);
@@ -1808,7 +2667,7 @@ async function restaurarFotoComIA() {
   if (!podeUsarIAAgora()) return;
 
   if (!imagemOriginal) {
-    setAviso("Envie uma imagem antes de restaurar a foto.");
+    setAviso(tr("Envie uma imagem antes de restaurar a foto."));
     return;
   }
 
@@ -1825,16 +2684,16 @@ async function restaurarFotoComIA() {
     const data = await resposta.json();
 
     if (!resposta.ok) {
-      setAviso(data.mensagem || "Não foi possível restaurar a foto com IA.");
+      setAviso(data.mensagem || tr("Não foi possível restaurar a foto com IA."));
       return;
     }
 
     setImagemFinal(data.imagemUrl);
     setTemResultadoReal(true);
-    setAviso(`Foto restaurada com IA. Saldo restante: ${data.saldo}`);
+    setAviso(tr("Foto restaurada com IA. Saldo restante: {saldo}", { saldo: data.saldo }));
   } catch (error) {
     console.error(error);
-    setAviso("Erro ao conectar com a IA de restauração.");
+    setAviso(tr("Erro ao conectar com a IA de restauração."));
   } finally {
     setProcessando(false);
   }
@@ -1844,7 +2703,7 @@ async function removerFundoComIA() {
   if (!podeUsarIAAgora()) return;
 
   if (!imagemOriginal) {
-    setAviso("Envie uma imagem antes de remover o fundo com IA.");
+    setAviso(tr("Envie uma imagem antes de remover o fundo com IA."));
     return;
   }
 
@@ -1862,11 +2721,11 @@ async function removerFundoComIA() {
 
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
-  setAviso("Você não possui créditos PHANYX. A IA FAL está ativa, mas o controle interno de créditos do PHANYX bloqueou o uso.");
+  setAviso(tr("Você não possui créditos PHANYX. A IA FAL está ativa, mas o controle interno de créditos do PHANYX bloqueou o uso."));
   return;
 }
 
-      setAviso(data.mensagem || data.error || "Não foi possível remover o fundo com IA.");
+      setAviso(data.mensagem || data.error || tr("Não foi possível remover o fundo com IA."));
       return;
     }
 
@@ -1874,10 +2733,10 @@ async function removerFundoComIA() {
     setTemResultadoReal(true);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
-    setAviso(`Fundo removido com IA. Saldo restante: ${data.saldo}`);
+    setAviso(tr("Fundo removido com IA. Saldo restante: {saldo}", { saldo: data.saldo }));
   } catch (error) {
     console.error(error);
-    setAviso("Erro ao conectar com a IA de remoção de fundo.");
+    setAviso(tr("Erro ao conectar com a IA de remoção de fundo."));
   } finally {
     setProcessando(false);
   }
@@ -1886,7 +2745,7 @@ async function removerFundoComIA() {
 async function recorteAvancadoComIA() {
   if (!imagemOriginal) {
     if (!podeUsarIAAgora()) return;
-    setAviso("Envie uma imagem antes de usar o recorte avançado.");
+    setAviso(tr("Envie uma imagem antes de usar o recorte avançado."));
     return;
   }
 
@@ -1905,11 +2764,11 @@ async function recorteAvancadoComIA() {
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
         removerFundo();
-        setAviso("Modo teste ativo — usando recorte local.");
+        setAviso(tr("Modo teste ativo — usando recorte local."));
         return;
       }
 
-      setAviso(data.mensagem || "Não foi possível fazer o recorte avançado.");
+      setAviso(data.mensagem || tr("Não foi possível fazer o recorte avançado."));
       return;
     }
 
@@ -1918,10 +2777,10 @@ async function recorteAvancadoComIA() {
     setImagemBaseEdicao(data.imagemUrl);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
-    setAviso(`Recorte avançado concluído. Saldo restante: ${data.saldo}`);
+    setAviso(tr("Recorte avançado concluído. Saldo restante: {saldo}", { saldo: data.saldo }));
   } catch (error) {
     console.error(error);
-    setAviso("Erro ao conectar com a IA de recorte avançado.");
+    setAviso(tr("Erro ao conectar com a IA de recorte avançado."));
   } finally {
     setProcessando(false);
   }
@@ -1930,7 +2789,7 @@ async function recorteAvancadoComIA() {
 async function recorteProfissionalComIA() {
   if (!imagemOriginal) {
     if (!podeUsarIAAgora()) return;
-    setAviso("Envie uma imagem antes de usar o recorte profissional.");
+    setAviso(tr("Envie uma imagem antes de usar o recorte profissional."));
     return;
   }
 
@@ -1949,11 +2808,11 @@ async function recorteProfissionalComIA() {
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
         removerFundo();
-        setAviso("Modo teste ativo — usando recorte local.");
+        setAviso(tr("Modo teste ativo — usando recorte local."));
         return;
       }
 
-      setAviso(data.mensagem || "Não foi possível fazer o recorte profissional.");
+      setAviso(data.mensagem || tr("Não foi possível fazer o recorte profissional."));
       return;
     }
 
@@ -1962,10 +2821,10 @@ async function recorteProfissionalComIA() {
     setImagemBaseEdicao(data.imagemUrl);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
-    setAviso(`Recorte profissional concluído. Saldo restante: ${data.saldo}`);
+    setAviso(tr("Recorte profissional concluído. Saldo restante: {saldo}", { saldo: data.saldo }));
   } catch (error) {
     console.error(error);
-    setAviso("Erro ao conectar com a IA de recorte profissional.");
+    setAviso(tr("Erro ao conectar com a IA de recorte profissional."));
   } finally {
     setProcessando(false);
   }
@@ -2010,29 +2869,29 @@ function pintarMascaraObjeto(e: React.PointerEvent<HTMLCanvasElement>) {
 function iniciarAvisoProcessamentoIA() {
   const etapas = [
     {
-      texto: "🔎 Analisando a área pintada...",
+      texto: tr("🔎 Analisando a área pintada..."),
       progresso: 15,
     },
     {
-      texto: "🧠 Reconstruindo o fundo com IA...",
+      texto: tr("🧠 Reconstruindo o fundo com IA..."),
       progresso: 35,
     },
     {
-      texto: "🎨 Ajustando luz, sombras e detalhes...",
+      texto: tr("🎨 Ajustando luz, sombras e detalhes..."),
       progresso: 55,
     },
     {
-      texto: "✨ Refinando acabamento...",
+      texto: tr("✨ Refinando acabamento..."),
       progresso: 75,
     },
     {
-      texto: "🌟 Últimos retoques...",
+      texto: tr("🌟 Últimos retoques..."),
       progresso: 92,
     },
   ];
 
   setPopupProcessandoIA(true);
-  setAviso("⏳ Preparando remoção...");
+  setAviso(tr("⏳ Preparando remoção..."));
   setProgressoFakeIA(5);
 
   let etapaAtual = 0;
@@ -2051,7 +2910,7 @@ function iniciarAvisoProcessamentoIA() {
 
 async function removerObjetoComIA() {
   if (!imagemOriginal || !canvasRemoverObjetoRef.current) {
-  setAviso("Envie uma imagem e pinte o objeto que deseja remover.");
+  setAviso(tr("Envie uma imagem e pinte o objeto que deseja remover."));
   return;
 }
 
@@ -2064,7 +2923,7 @@ if (!podeUsarIAAgora()) return;
   });
 
   if (!ctxPintura) {
-    setAviso("Não foi possível ler a área pintada.");
+    setAviso(tr("Não foi possível ler a área pintada."));
     return;
   }
 
@@ -2114,7 +2973,7 @@ if (!podeUsarIAAgora()) return;
   }
 
   if (!temPintura) {
-    setAviso("Pinte primeiro o objeto que deseja remover.");
+    setAviso(tr("Pinte primeiro o objeto que deseja remover."));
     return;
   }
 
@@ -2159,7 +3018,7 @@ maskExpandida.height = maskCanvas.height;
 const expandCtx = maskExpandida.getContext("2d");
 
 if (!expandCtx) {
-  throw new Error("Erro ao preparar máscara");
+  throw new Error(tr("Erro ao preparar máscara"));
 }
 
 expandCtx.filter = "blur(10px)";
@@ -2184,13 +3043,13 @@ body: JSON.stringify({
     if (!resposta.ok) {
       setPopupProcessandoIA(false);
       if (dataResposta.error === "SEM_CREDITOS" || dataResposta.erro === "SEM_CREDITOS") {
-  setAviso("Modo teste ativo — sem créditos PHANYX. Use o botão grande Remover fundo para testar o antes/depois sem gastar IA.");
+  setAviso(tr("Modo teste ativo — sem créditos PHANYX. Use o botão grande Remover fundo para testar o antes/depois sem gastar IA."));
   return;
 }
 
       setAviso(
     dataResposta.mensagem ||
-    "Não foi possível remover agora. Ajuste a área pintada ou tente pintar um pouco maior."
+    tr("Não foi possível remover agora. Ajuste a área pintada ou tente pintar um pouco maior.")
 );
       return;
     }
@@ -2220,12 +3079,12 @@ setPincelAtivo(true);
 setHistoricoMascaras([]);
 
     setAviso(
-  "✅ Objeto removido com sucesso!\n\nVocê pode selecionar outro objeto e continuar editando."
+  tr("✅ Objeto removido com sucesso!\n\nVocê pode selecionar outro objeto e continuar editando.")
 );
   } catch (error) {
     setPopupProcessandoIA(false);
     console.error(error);
-    setAviso("Não foi possível conectar com a IA agora. Tente novamente em alguns segundos.");
+    setAviso(tr("Não foi possível conectar com a IA agora. Tente novamente em alguns segundos."));
   } finally {
     window.clearInterval(intervaloAviso);
 setProcessando(false);
@@ -2277,7 +3136,7 @@ setProcessando(false);
   };
 
   img.onerror = () => {
-    setAviso("Não foi possível preparar a imagem para download.");
+    setAviso(tr("Não foi possível preparar a imagem para download."));
   };
 }
 
@@ -2317,12 +3176,12 @@ function resetarMascara() {
 
 async function comprarPacoteCreditos(quantidade: number) {
   if (!compradorCreditos.nome.trim()) {
-    setAviso("Informe seu nome para comprar créditos IA.");
+    setAviso(tr("Informe seu nome para comprar créditos IA."));
     return;
   }
 
   if (!compradorCreditos.email.trim()) {
-    setAviso("Informe seu e-mail para receber seus créditos IA.");
+    setAviso(tr("Informe seu e-mail para receber seus créditos IA."));
     return;
   }
 
@@ -2352,7 +3211,7 @@ async function comprarPacoteCreditos(quantidade: number) {
       data?.detalhes?.message ||
       data?.erro ||
       data?.error ||
-      "Erro ao iniciar pagamento."
+      tr("Erro ao iniciar pagamento.")
   );
 
   return;
@@ -2365,7 +3224,7 @@ async function comprarPacoteCreditos(quantidade: number) {
       data.pagamento?.bankSlipUrl;
 
     if (!urlPagamento) {
-      setAviso("Pagamento criado, mas o link do Asaas não foi encontrado.");
+      setAviso(tr("Pagamento criado, mas o link do Asaas não foi encontrado."));
       return;
     }
 
@@ -2374,11 +3233,11 @@ async function comprarPacoteCreditos(quantidade: number) {
 if (novaAba) {
   novaAba.location.href = urlPagamento;
 } else {
-  setAviso("Seu navegador bloqueou a nova aba de pagamento. Permita popups para continuar.");
+  setAviso(tr("Seu navegador bloqueou a nova aba de pagamento. Permita popups para continuar."));
 }
 setPopupComprarCreditosAberto(false);
   } catch {
-    setAviso("Erro ao iniciar pagamento.");
+    setAviso(tr("Erro ao iniciar pagamento."));
   } finally {
     setComprandoPacote(null);
   }
@@ -2392,12 +3251,8 @@ setPopupComprarCreditosAberto(false);
     <div className="w-full max-w-3xl rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-white shadow-2xl shadow-cyan-500/20">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-cyan-200">
-            Comprar créditos IA PHANYX
-          </h2>
-          <p className="mt-2 text-sm text-slate-300">
-            Escolha um pacote para continuar usando as ferramentas de IA.
-          </p>
+          <h2 className="text-2xl font-black text-cyan-200">{tr("Comprar créditos IA PHANYX")}</h2>
+          <p className="mt-2 text-sm text-slate-300">{tr("Escolha um pacote para continuar usando as ferramentas de IA.")}</p>
         </div>
 
         <button
@@ -2414,20 +3269,20 @@ setPopupComprarCreditosAberto(false);
   {
     quantidade: 5,
     preco: "R$ 19,90",
-    destaque: "Para testar",
-    imagens: "Até 5 imagens",
+    destaque: tr("Para testar"),
+    imagens: tr("Até 5 imagens"),
   },
   {
     quantidade: 15,
     preco: "R$ 49,90",
-    destaque: "Mais escolhido",
-    imagens: "Até 15 imagens",
+    destaque: tr("Mais escolhido"),
+    imagens: tr("Até 15 imagens"),
   },
   {
     quantidade: 50,
     preco: "R$ 129,90",
-    destaque: "Melhor custo",
-    imagens: "Até 50 imagens",
+    destaque: tr("Melhor custo"),
+    imagens: tr("Até 50 imagens"),
   },
 ].map((pacote) => (
           <div
@@ -2442,18 +3297,16 @@ setPopupComprarCreditosAberto(false);
               {pacote.quantidade}
             </h3>
 
-            <p className="text-sm text-slate-300">
-  créditos IA
-</p>
+            <p className="text-sm text-slate-300">{tr("créditos IA")}</p>
 
 <div className="mt-3 space-y-1 text-xs text-slate-300">
   <p className="font-semibold text-cyan-300">
     Até {pacote.quantidade} imagens com IA
   </p>
-  <p>✨ Remover fundo com IA</p>
-  <p>✨ Remover objetos com IA</p>
-  <p>✨ Melhorar qualidade</p>
-  <p>✨ Recorte profissional</p>
+  <p>{tr("✨ Remover fundo com IA")}</p>
+  <p>{tr("✨ Remover objetos com IA")}</p>
+  <p>{tr("✨ Melhorar qualidade")}</p>
+  <p>{tr("✨ Recorte profissional")}</p>
 </div>
 
 
@@ -2546,9 +3399,7 @@ setPopupComprarCreditosAberto(false);
       {aviso && (
   <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
     <div className="w-full max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl shadow-cyan-500/20">
-      <h2 className="text-2xl font-black text-cyan-200">
-        Aviso PHANYX
-      </h2>
+      <h2 className="text-2xl font-black text-cyan-200">{tr("Aviso PHANYX")}</h2>
 
       {popupProcessandoIA && (
         <div className="mx-auto mt-5 h-12 w-12 animate-spin rounded-full border-4 border-cyan-400/20 border-t-cyan-300" />
@@ -2578,9 +3429,7 @@ setPopupComprarCreditosAberto(false);
           type="button"
           onClick={() => setAviso(null)}
           className="mt-6 rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/30 hover:bg-cyan-300"
-        >
-          Entendi
-        </button>
+        >{tr("Entendi")}</button>
       )}
     </div>
   </div>
@@ -2590,9 +3439,7 @@ setPopupComprarCreditosAberto(false);
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
           <div className="max-w-lg rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-black text-cyan-200">
-                Como remover fundos coloridos
-              </h2>
+              <h2 className="text-2xl font-black text-cyan-200">{tr("Como remover fundos coloridos")}</h2>
 
               <button
                 type="button"
@@ -2605,39 +3452,24 @@ setPopupComprarCreditosAberto(false);
 
             <div className="mt-5 space-y-4 text-sm leading-relaxed text-slate-200">
               <div>
-                <strong className="text-cyan-300">Fundos simples:</strong>
-                <br />
-                Clique em qualquer área do fundo que deseja remover.
-              </div>
+                <strong className="text-cyan-300">{tr("Fundos simples:")}</strong>
+                <br />{tr("Clique em qualquer área do fundo que deseja remover.")}</div>
 
               <div>
-                <strong className="text-cyan-300">
-                  Fundos com vários tons:
-                </strong>
-                <br />
-                Clique em uma área média da cor dominante (nem muito clara nem
-                muito escura).
-              </div>
+                <strong className="text-cyan-300">{tr("Fundos com vários tons:")}</strong>
+                <br />{tr("Clique em uma área média da cor dominante (nem muito clara nem muito escura).")}</div>
 
               <div>
-                <strong className="text-cyan-300">Se sobrar halo:</strong>
-                <br />
-                Aumente a sensibilidade entre 50 e 80.
-              </div>
+                <strong className="text-cyan-300">{tr("Se sobrar halo:")}</strong>
+                <br />{tr("Aumente a sensibilidade entre 50 e 80.")}</div>
 
               <div>
-                <strong className="text-cyan-300">
-                  Se apagar partes do objeto:
-                </strong>
-                <br />
-                Reduza a sensibilidade.
-              </div>
+                <strong className="text-cyan-300">{tr("Se apagar partes do objeto:")}</strong>
+                <br />{tr("Reduza a sensibilidade.")}</div>
 
               <div>
-                <strong className="text-cyan-300">Objetos complexos:</strong>
-                <br />
-                Ative &quot;Manter apenas objeto principal&quot;.
-              </div>
+                <strong className="text-cyan-300">{tr("Objetos complexos:")}</strong>
+                <br />{tr('Ative "Manter apenas objeto principal".')}</div>
             </div>
           </div>
         </div>
@@ -2694,12 +3526,8 @@ setPopupComprarCreditosAberto(false);
 )}
             <div className="sticky top-0 z-40 mb-1 rounded-xl border border-cyan-400/20 bg-slate-900/95 px-2 py-1 backdrop-blur">
               <div>
-                <h2 className="text-sm sm:text-base font-black text-cyan-200">
-                  Refinamento manual em tela grande
-                </h2>
-                <p className="text-[10px] sm:text-xs text-slate-300">
-                  No celular: ligue o pincel e arraste sobre a imagem. No computador: use scroll para zoom e Espaço para mover.
-                </p>
+                <h2 className="text-sm sm:text-base font-black text-cyan-200">{tr("Refinamento manual em tela grande")}</h2>
+                <p className="text-[10px] sm:text-xs text-slate-300">{tr("Varinha: clique seleciona por cor. Arraste pinta a seleção seguindo o mouse; Shift ou Alt somam e Ctrl apaga da seleção. Ajuste o tamanho abaixo para mais precisão.")}</p>
               </div>
 
               <div className="flex w-full gap-1 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
@@ -2716,9 +3544,21 @@ setPopupComprarCreditosAberto(false);
       ? "bg-yellow-500 text-black"
       : "bg-slate-800 text-white"
   }`}
->
-  🪄 Varinha
-</button>
+>{tr("🪄 Varinha")}</button>
+
+<button
+  type="button"
+  disabled={!pixelsSelecionados}
+  onClick={expandirSelecaoVarinha}
+  className="rounded-lg border border-yellow-400/40 px-2 py-1 text-[10px] whitespace-nowrap font-black text-yellow-100 disabled:opacity-40"
+>{tr("+ Expandir")}</button>
+
+<button
+  type="button"
+  disabled={!pixelsSelecionados}
+  onClick={contrairSelecaoVarinha}
+  className="rounded-lg border border-yellow-400/40 px-2 py-1 text-[10px] whitespace-nowrap font-black text-yellow-100 disabled:opacity-40"
+>{tr("− Contrair")}</button>
 
 <button
   type="button"
@@ -2729,7 +3569,7 @@ setPopupComprarCreditosAberto(false);
       : "bg-slate-800 text-white"
   }`}
 >
-  {pincelAtivo ? "🖌️ Pincel ligado" : "🖌️ Ligar pincel"}
+  {pincelAtivo ? tr("🖌️ Pincel ligado") : tr("🖌️ Ligar pincel")}
 </button>
 
                 <button
@@ -2749,15 +3589,14 @@ setPopupComprarCreditosAberto(false);
                       : "bg-slate-800 text-white"
                   }`}
                 >
-                  Apagar sobra
+                  {varinhaAtiva && pixelsSelecionados ? tr("Apagar seleção") : tr("Apagar sobra")}
                 </button>
 <button
   type="button"
+  disabled={!pixelsSelecionados}
   onClick={limparSelecaoVarinha}
-  className="rounded-xl border px-3 py-2 text-sm"
->
-  Limpar seleção
-</button>
+  className="rounded-lg border border-white/20 px-2 py-1 text-[10px] whitespace-nowrap font-black text-white disabled:opacity-40"
+>{tr("Limpar seleção")}</button>
                 <button
                   type="button"
                   onClick={() => {
@@ -2769,17 +3608,26 @@ setPopupComprarCreditosAberto(false);
                       ? "bg-cyan-400 text-slate-950"
                       : "bg-slate-800 text-white"
                   }`}
-                >
-                  Restaurar parte
-                </button>
+                >{tr("Restaurar parte")}</button>
+
+                                <button
+                  type="button"
+                  onClick={removerHaloReconstruindoBorda}
+                  className="shrink-0 rounded-lg bg-lime-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-lime-300"
+                  title={tr("Reconstrói o contorno contaminado pelo verde usando as cores vizinhas do próprio desenho")}
+                >{tr("✨ Remover halo")}</button>
+
+<button
+                  type="button"
+                  onClick={() => setModalCorteAberto(true)}
+                  className="shrink-0 rounded-lg bg-amber-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-amber-300"
+                >{tr("✂️ Cortar")}</button>
 
                 <button
                   type="button"
                   onClick={desfazerUltimoPincel}
                   className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-white/10"
-                >
-                  Desfazer
-                </button>
+                >{tr("Desfazer")}</button>
 
                 <button
                   type="button"
@@ -2788,23 +3636,13 @@ setPopupComprarCreditosAberto(false);
                     setPanResultado({ x: 0, y: 0 });
                   }}
                   className="rounded-xl border border-white/20 px-3 py-2 text-xs font-black text-white hover:bg-white/10"
-                >
-                  Reset zoom
-                </button>
+                >{tr("Reset zoom")}</button>
 
                 <button
   type="button"
-  onClick={() => {
-    if (canvasRef.current) {
-      setImagemFinal(canvasRef.current.toDataURL("image/png"));
-      setTemResultadoReal(true);
-      setAviso("Edição salva. Você já pode baixar ou continuar editando.");
-    }
-  }}
-  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-emerald-300"
->
-  Salvar
-</button>
+  onClick={salvarEdicaoRefinamento}
+  className="shrink-0 rounded-lg bg-emerald-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-emerald-300"
+>{tr("Salvar edição")}</button>
 
 <div className="flex items-center gap-1">
   <button
@@ -2842,33 +3680,28 @@ setPopupComprarCreditosAberto(false);
 
     setModalRefinamentoAberto(false);
     setMenuIAAberto(true);
-    setAviso("Escolha uma opção de IA PHANYX para continuar editando.");
+    setAviso(tr("Escolha uma opção de IA PHANYX para continuar editando."));
   }}
   className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-purple-400"
->
-  Editar com IA
-</button>
+>{tr("Editar com IA")}</button>
 
 <button
   type="button"
-  onClick={() => {
-    if (canvasRef.current) {
-      setImagemFinal(canvasRef.current.toDataURL("image/png"));
-      setTemResultadoReal(true);
-    }
+  onClick={concluirRefinamento}
+  className="shrink-0 rounded-lg bg-cyan-400 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-cyan-300"
+>{tr("Concluir")}</button>
 
-    setModalRefinamentoAberto(false);
-  }}
-  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-red-400"
->
-  Fechar
-</button>
+<button
+  type="button"
+  onClick={cancelarAlteracoesRefinamento}
+  className="shrink-0 rounded-lg border border-red-400/50 px-2 py-1 text-[10px] font-black text-red-100 hover:bg-red-500/20"
+>{tr("Cancelar alterações")}</button>
               </div>
             </div>
 
             <div className="order-3 mt-1 max-h-[90px] overflow-y-auto rounded-lg border border-cyan-400/20 bg-slate-900 px-2 py-1 sm:order-2 sm:max-h-none">
               <Controle
-  label="Tamanho do pincel"
+  label={varinhaAtiva ? "Tamanho da seleção" : "Tamanho do pincel"}
   valor={tamanhoPincel}
   min={4}
   max={120}
@@ -2876,11 +3709,43 @@ setPopupComprarCreditosAberto(false);
   onChange={setTamanhoPincel}
 />
 
+<div className="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2">
+  <label className="rounded-lg border border-lime-400/20 bg-slate-950/60 px-2 py-1">
+    <span className="flex items-center justify-between text-[10px] font-black text-lime-100">
+      <span>{tr("Intensidade halo")}</span>
+      <span>{intensidadeHalo}%</span>
+    </span>
+    <input
+      type="range"
+      min={20}
+      max={100}
+      step={1}
+      value={intensidadeHalo}
+      onChange={(e) => setIntensidadeHalo(Number(e.target.value))}
+      className="w-full accent-lime-400"
+    />
+  </label>
+
+  <label className="rounded-lg border border-lime-400/20 bg-slate-950/60 px-2 py-1">
+    <span className="flex items-center justify-between text-[10px] font-black text-lime-100">
+      <span>{tr("Largura halo")}</span>
+      <span>{larguraHalo}px</span>
+    </span>
+    <input
+      type="range"
+      min={1}
+      max={12}
+      step={1}
+      value={larguraHalo}
+      onChange={(e) => setLarguraHalo(Number(e.target.value))}
+      className="w-full accent-lime-400"
+    />
+  </label>
+</div>
+
 <div className="mt-1 space-y-1">
   <div className="flex items-center justify-between">
-    <p className="text-[11px] font-black text-cyan-100">
-      Textura do pincel
-    </p>
+    <p className="text-[11px] font-black text-cyan-100">{tr("Textura do pincel")}</p>
 
     <span className="text-[10px] text-white">
       {Math.round(featherPincel * 100)}%
@@ -2912,10 +3777,10 @@ setPopupComprarCreditosAberto(false);
         }`}
       >
         {tipo === "duro"
-          ? "Duro"
+          ? tr("Duro")
           : tipo === "medio"
-            ? "Médio"
-            : "Suave"}
+            ? tr("Médio")
+            : tr("Suave")}
       </button>
     ))}
   </div>
@@ -2988,6 +3853,10 @@ onTouchEnd={() => {
 
   onPointerMove={(e) => {
 
+    if (varinhaAtiva && continuarArrastoVarinha(e)) {
+      return;
+    }
+
     if (
   !pincelAtivo &&
 (e.shiftKey || maoAtiva || e.pointerType === "mouse") &&
@@ -3008,7 +3877,14 @@ arrastandoImagemRef.current
   } as React.PointerEvent<HTMLImageElement>);
 }
   }}
-  onPointerUp={() => {
+  onPointerUp={(e) => {
+    finalizarArrastoVarinha(e);
+    arrastandoImagemRef.current = false;
+    editandoPincelRef.current = false;
+    ultimoPontoPincelRef.current = null;
+  }}
+  onPointerCancel={() => {
+    finalizarArrastoVarinha();
     arrastandoImagemRef.current = false;
     editandoPincelRef.current = false;
     ultimoPontoPincelRef.current = null;
@@ -3016,7 +3892,7 @@ arrastandoImagemRef.current
 >
   <button
   type="button"
-  title="Mover imagem. Atalho no PC: Shift + botão esquerdo do mouse"
+  title={tr("Mover imagem. Atalho no PC: Shift + botão esquerdo do mouse")}
   onClick={() => {
     setMaoAtiva((v) => !v);
     setPincelAtivo(false);
@@ -3033,15 +3909,14 @@ arrastandoImagemRef.current
   <img
     ref={imagemResultadoRef}
     src={imagemFinal}
-    alt="Resultado refinado"
+    alt={tr("Resultado refinado")}
     draggable={false}
     onPointerDown={(e) => {
 
       if (varinhaAtiva) {
-  e.currentTarget.setPointerCapture(e.pointerId);
-  selecionarComVarinhaRefinamento(e);
-  return;
-}
+        iniciarArrastoVarinha(e);
+        return;
+      }
 
       if (pincelAtivo) {
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -3070,10 +3945,10 @@ arrastandoImagemRef.current
       width: "auto",
       height: "auto",
       maxHeight: "none",
-      touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
+      touchAction: pincelAtivo || varinhaAtiva ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
       cursor: varinhaAtiva
-  ? "url('/wand-cursor-32.png') 2 30, crosshair"
+  ? "url('/wand-cursor-32.png') 23 6, crosshair"
   : maoAtiva
     ? "grab"
     : pincelAtivo
@@ -3085,7 +3960,7 @@ arrastandoImagemRef.current
 {overlayVarinha && (
   <img
     src={overlayVarinha}
-    alt="Seleção da varinha"
+    alt={tr("Seleção da varinha")}
     draggable={false}
     className="pointer-events-none absolute left-1/2 top-1/2 z-20 max-h-none max-w-none object-contain"
     style={{
@@ -3108,36 +3983,27 @@ arrastandoImagemRef.current
 
       <div className="flex items-center justify-between border-b border-cyan-500/20 p-6">
         <div>
-          <h2 className="text-3xl font-black text-cyan-200">
-            🧽 Remover objeto com IA
-          </h2>
-          <p className="mt-2 text-slate-300">
-            Pinte exatamente o objeto que deseja apagar.
-            A IA reconstruirá o fundo automaticamente.
-          </p>
+          <h2 className="text-3xl font-black text-cyan-200">{tr("🧽 Remover objeto com IA")}</h2>
+          <p className="mt-2 text-slate-300">{tr("Pinte exatamente o objeto que deseja apagar. A IA reconstruirá o fundo automaticamente.")}</p>
         </div>
 
         <button
           onClick={() => setModalRemoverObjetoAberto(false)}
           className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white"
-        >
-          Fechar
-        </button>
+        >{tr("Fechar")}</button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
           <div className="rounded-3xl border border-slate-700 bg-slate-900 p-4">
-            <h3 className="mb-4 text-xl font-black text-white">
-              Imagem original
-            </h3>
+            <h3 className="mb-4 text-xl font-black text-white">{tr("Imagem original")}</h3>
 
             <div className="flex max-h-[70vh] min-h-[360px] items-start justify-center overflow-auto rounded-2xl bg-slate-950 p-4">
               {imagemOriginal && (
                 <img
                   src={imagemOriginal}
-                  alt="Original"
+                  alt={tr("Original")}
                   className="h-auto max-w-full rounded-2xl object-contain"
                 />
               )}
@@ -3145,9 +4011,7 @@ arrastandoImagemRef.current
           </div>
 
           <div className="rounded-3xl border border-slate-700 bg-slate-900 p-4">
-            <h3 className="mb-4 text-xl font-black text-white">
-              Área de pintura
-            </h3>
+            <h3 className="mb-4 text-xl font-black text-white">{tr("Área de pintura")}</h3>
 
             <div className="flex h-full items-center justify-center rounded-2xl bg-slate-950">
               <canvas
@@ -3182,9 +4046,7 @@ arrastandoImagemRef.current
 
 <div className="mb-4 rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-4">
   <div className="mb-2 flex items-center justify-between">
-    <span className="text-sm font-black text-cyan-100">
-      Tamanho do pincel
-    </span>
+    <span className="text-sm font-black text-cyan-100">{tr("Tamanho do pincel")}</span>
     <span className="rounded-xl bg-slate-800 px-3 py-1 text-xs font-black text-cyan-200">
       {tamanhoPincel}px
     </span>
@@ -3206,29 +4068,25 @@ arrastandoImagemRef.current
     onClick={() => setPincelAtivo(!pincelAtivo)}
     className="rounded-2xl bg-cyan-500 px-6 py-3 font-black text-black"
   >
-    {pincelAtivo ? "Desligar pincel" : "Ligar pincel"}
+    {pincelAtivo ? tr("Desligar pincel") : tr("Ligar pincel")}
   </button>
 
   <button
     onClick={desfazerMascara}
     className="rounded-2xl bg-slate-700 px-6 py-3 font-black text-white"
-  >
-    Desfazer
-  </button>
+  >{tr("Desfazer")}</button>
 
   <button
     onClick={resetarMascara}
     className="rounded-2xl bg-orange-500 px-6 py-3 font-black text-black"
-  >
-    Resetar
-  </button>
+  >{tr("Resetar")}</button>
 
   <button
     onClick={removerObjetoComIA}
     disabled={processando}
     className="rounded-2xl bg-pink-500 px-6 py-3 font-black text-white disabled:opacity-50"
   >
-    {processando ? "Removendo..." : "✨ Remover objeto com IA"}
+    {processando ? tr("Removendo...") : "✨ Remover objeto com IA"}
   </button>
 </div>
       </div>
@@ -3237,28 +4095,19 @@ arrastandoImagemRef.current
 )}
 
 <CropImageModal
-  imagem={imagemOriginal || ""}
+  locale={locale}
+  imagem={imagemFinal || imagemOriginal || ""}
   aberto={modalCorteAberto}
   onClose={() => setModalCorteAberto(false)}
-  onAplicar={(novaImagem) => {
-    setImagemOriginal(novaImagem);
-    setImagemFinal(null);
-    setTemResultadoReal(false);
-    setModalCorteAberto(false);
-  }}
+  onAplicar={aplicarCorteSemPerderEdicao}
 />
 
       <section className="min-h-screen bg-[#020b2d] px-3 py-8 text-white sm:px-6 sm:py-16">
         <div
         className="mx-auto max-w-7xl">
           <div className="mb-10">
-            <h1 className="text-3xl font-black leading-tight sm:text-5xl">
-  Removedor de Fundo PHANYX
-</h1>
-            <p className="mt-4 max-w-3xl text-lg text-cyan-100">
-              Ferramenta profissional PHANYX para remover fundo de assinaturas,
-              logos, fotos e imagens com exportação transparente.
-            </p>
+            <h1 className="text-3xl font-black leading-tight sm:text-5xl">{tr("Removedor de Fundo PHANYX")}</h1>
+            <p className="mt-4 max-w-3xl text-lg text-cyan-100">{tr("Ferramenta profissional PHANYX para remover fundo de assinaturas, logos, fotos e imagens com exportação transparente.")}</p>
           </div>
 </div>
           {erro && (
@@ -3270,12 +4119,8 @@ arrastandoImagemRef.current
           <div className="grid items-start gap-4 lg:grid-cols-[240px_1fr]">
             <aside className="space-y-5">
               <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-4 text-center">
-                <div className="text-base font-bold text-cyan-300">
-                  Clique para enviar sua imagem
-                </div>
-                <div className="mt-3 text-sm text-slate-300">
-                  PNG, JPG, JPEG ou WebP até 10MB
-                </div>
+                <div className="text-base font-bold text-cyan-300">{tr("Clique para enviar sua imagem")}</div>
+                <div className="mt-3 text-sm text-slate-300">{tr("PNG, JPG, JPEG ou WebP até 10MB")}</div>
 
                 <input
                   type="file"
@@ -3298,18 +4143,14 @@ arrastandoImagemRef.current
   disabled={!imagemOriginal}
   onClick={() => setModalCorteAberto(true)}
   className="w-full rounded-2xl bg-slate-800 px-4 py-3 text-sm font-black text-white disabled:opacity-40"
->
-  Cortar imagem
-</button>
+>{tr("Cortar imagem")}</button>
 
 <div className="rounded-2xl border border-cyan-400/20 bg-slate-900/80 p-3">
   <button
     type="button"
     onClick={() => setMenuIAAberto((aberto) => !aberto)}
     className="w-full rounded-xl bg-cyan-400 px-3 py-3 text-sm font-black text-slate-950 hover:bg-cyan-300"
-  >
-    ✨ Usar IA PHANYX
-  </button>
+  >{tr("✨ Usar IA PHANYX")}</button>
 
   {menuIAAberto && (
     <div className="mt-3 space-y-2">
@@ -3319,35 +4160,27 @@ arrastandoImagemRef.current
   disabled={!imagemOriginal || processando}
   onClick={melhorarComIA}
   className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
->
-  🩹 Restaurar foto
-</button>
+>{tr("🩹 Restaurar foto")}</button>
 
 <button
   type="button"
   disabled={!imagemOriginal || processando}
   onClick={restaurarFotoAntigaComIA}
   className="w-full rounded-xl bg-amber-500 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
->
-  🧬 Restaurar foto antiga/danificada
-</button>
+>{tr("🧬 Restaurar foto antiga/danificada")}</button>
 
       <button
         type="button"
         disabled={!imagemOriginal || processando}
         onClick={removerFundoComIA}
         className="w-full rounded-xl bg-cyan-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
-      >
-        🧠 Remover fundo com IA
-      </button>
+      >{tr("🧠 Remover fundo com IA")}</button>
 
       <button
   type="button"
   disabled={!imagemOriginal || processando}
     onClick={corrigirIluminacaoComIA}  className="w-full rounded-xl bg-yellow-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
->
-  💡 Corrigir iluminação
-</button>
+>{tr("💡 Corrigir iluminação")}</button>
 
       <button
         type="button"
@@ -3357,13 +4190,9 @@ arrastandoImagemRef.current
           setModalRemoverObjetoAberto(true);
         }}
         className="w-full rounded-xl bg-rose-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
-      >
-        🧽 Remover objeto
-      </button>
+      >{tr("🧽 Remover objeto")}</button>
 
-      <p className="text-center text-[10px] leading-relaxed text-slate-400">
-        Usa créditos IA. Ideal para remover objetos, textos e pessoas ao fundo. Evite pintar olhos, boca, nariz ou rosto inteiro.
-      </p>
+      <p className="text-center text-[10px] leading-relaxed text-slate-400">{tr("Usa créditos IA. Ideal para remover objetos, textos e pessoas ao fundo. Evite pintar olhos, boca, nariz ou rosto inteiro.")}</p>
     </div>
   )}
 </div>
@@ -3375,31 +4204,25 @@ arrastandoImagemRef.current
     setModo("objeto");
     setRemoverBrancoInterno(true);
     setVarinhaAtiva(true);
-    setAviso("Varinha mágica ativada. Agora clique na cor do fundo da imagem original.");
+    setAviso(tr("Varinha mágica ativada. Agora clique na cor do fundo da imagem original."));
   }}
   className={`w-full rounded-2xl px-4 py-3 text-sm font-black disabled:opacity-40 ${
     varinhaAtiva
       ? "bg-cyan-400 text-slate-950"
       : "bg-slate-800 text-white"
   }`}
->
-  🪄 Varinha mágica
-</button>
+>{tr("🪄 Varinha mágica")}</button>
 
 <button
   type="button"
   disabled={!pixelsSelecionados}
   onClick={apagarSelecaoVarinha}
   className="rounded-lg bg-red-500 px-2 py-1 text-[10px] font-black text-white disabled:opacity-40"
->
-  🗑️ Apagar seleção
-</button>
+>{tr("🗑️ Apagar seleção")}</button>
 
 {varinhaAtiva && (
   <div className="rounded-2xl bg-slate-900 p-3">
-    <p className="mb-2 text-xs font-black text-cyan-100">
-      Sensibilidade da varinha
-    </p>
+    <p className="mb-2 text-xs font-black text-cyan-100">{tr("Sensibilidade da varinha")}</p>
 
     <input
       type="range"
@@ -3419,7 +4242,7 @@ arrastandoImagemRef.current
 )}
 
               <div className="rounded-2xl bg-slate-900 p-3">
-                <h3 className="mb-2 text-sm font-bold">Modo</h3>
+                <h3 className="mb-2 text-sm font-bold">{tr("Modo")}</h3>
 
                 <div className="grid grid-cols-3 gap-2">
                   <button
@@ -3429,9 +4252,7 @@ arrastandoImagemRef.current
                         ? "bg-cyan-500 text-black"
                         : "bg-slate-800 text-white"
                     }`}
-                  >
-                    Assinatura
-                  </button>
+                  >{tr("Assinatura")}</button>
 
                   <button
                     onClick={() => setModo("objeto")}
@@ -3440,9 +4261,7 @@ arrastandoImagemRef.current
                         ? "bg-cyan-500 text-black"
                         : "bg-slate-800 text-white"
                     }`}
-                  >
-                    Objeto
-                  </button>
+                  >{tr("Objeto")}</button>
 
                   <button
                     onClick={() => setModo("pessoa")}
@@ -3451,19 +4270,13 @@ arrastandoImagemRef.current
                         ? "bg-cyan-500 text-black"
                         : "bg-slate-800 text-white"
                     }`}
-                  >
-                    Pessoa
-                    <br />
-                    Foto
-                  </button>
+                  >{tr("Pessoa")}<br />{tr("Foto")}</button>
                 </div>
               </div>
 
               {modo === "pessoa" && (
                 <div className="rounded-2xl bg-slate-900 p-3">
-                  <p className="mb-2 text-xs font-bold text-white">
-                    Motor de recorte
-                  </p>
+                  <p className="mb-2 text-xs font-bold text-white">{tr("Motor de recorte")}</p>
 
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -3474,9 +4287,7 @@ arrastandoImagemRef.current
                           ? "bg-cyan-400 text-slate-950"
                           : "bg-slate-800 text-white"
                       }`}
-                    >
-                      Rápido
-                    </button>
+                    >{tr("Rápido")}</button>
 
                     <button
                       type="button"
@@ -3486,23 +4297,16 @@ arrastandoImagemRef.current
                           ? "bg-cyan-400 text-slate-950"
                           : "bg-slate-800 text-white"
                       }`}
-                    >
-                      Alternativo
-                    </button>
+                    >{tr("Alternativo")}</button>
                   </div>
 
-                  <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">
-                    Se o recorte não ficar bom em um modo, teste o outro. Cada
-                    foto pode responder melhor a um motor diferente.
-                  </p>
+                  <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">{tr("Se o recorte não ficar bom em um modo, teste o outro. Cada foto pode responder melhor a um motor diferente.")}</p>
                 </div>
               )}
 
               {modo === "assinatura" && (
                 <div className="rounded-xl bg-slate-900 p-3">
-                  <p className="mb-2 text-xs font-bold text-white">
-                    Fundo de visualização
-                  </p>
+                  <p className="mb-2 text-xs font-bold text-white">{tr("Fundo de visualização")}</p>
 
                   <div className="grid grid-cols-2 gap-2">
                     {(["verde", "azul", "preto", "branco", "xadrez"] as const).map(
@@ -3517,16 +4321,12 @@ arrastandoImagemRef.current
                               : "bg-slate-800 text-white"
                           }`}
                         >
-                          {cor}
-                        </button>
+                          {tr(cor)}</button>
                       )
                     )}
                   </div>
 
-                  <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">
-                    Esse fundo aparece somente na visualização. A imagem será
-                    salva com fundo transparente.
-                  </p>
+                  <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">{tr("Esse fundo aparece somente na visualização. A imagem será salva com fundo transparente.")}</p>
                 </div>
               )}
 
@@ -3538,9 +4338,7 @@ arrastandoImagemRef.current
                     onChange={(e) =>
                       setManterObjetoPrincipal(e.target.checked)
                     }
-                  />
-                  Manter apenas objeto principal
-                </label>
+                  />{tr("Manter apenas objeto principal")}</label>
               )}
 
               {modo !== "pessoa" && (
@@ -3549,19 +4347,13 @@ arrastandoImagemRef.current
                     type="checkbox"
                     checked={removerBrancoInterno}
                     onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
-                  />
-                  Remover branco interno
-                </label>
+                  />{tr("Remover branco interno")}</label>
               )}
 
               {modo === "objeto" && removerBrancoInterno && (
                 <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
                   <div className="flex items-start justify-between gap-2">
-                    <div>
-                      Clique na imagem original sobre a cor do fundo que você
-                      quer remover. Pode ser branco, verde, azul, bege ou
-                      qualquer cor.
-                    </div>
+                    <div>{tr("Clique na imagem original sobre a cor do fundo que você quer remover. Pode ser branco, verde, azul, bege ou qualquer cor.")}</div>
 
                     <button
                       type="button"
@@ -3575,15 +4367,13 @@ arrastandoImagemRef.current
                   {coresAlvoManuais.length > 0 && (
                     <div className="mt-3">
                       <div className="mb-2 flex items-center justify-between gap-2">
-                        <span>Cores escolhidas:</span>
+                        <span>{tr("Cores escolhidas:")}</span>
 
                         <button
                           type="button"
                           onClick={() => setCoresAlvoManuais([])}
                           className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-                        >
-                          Limpar
-                        </button>
+                        >{tr("Limpar")}</button>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
@@ -3591,7 +4381,7 @@ arrastandoImagemRef.current
                           <span
                             key={`${cor.r}-${cor.g}-${cor.b}-${index}`}
                             className="h-5 w-5 rounded border border-white/30"
-                            title={`Cor ${index + 1}`}
+                            title={tr("Cor {n}", { n: index + 1 })}
                             style={{
                               backgroundColor: `rgb(${cor.r}, ${cor.g}, ${cor.b})`,
                             }}
@@ -3605,9 +4395,7 @@ arrastandoImagemRef.current
             </aside>
 
             <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/80 p-4">
-  <h2 className="mb-4 text-center text-2xl font-black text-cyan-200">
-    Antes e depois
-  </h2>
+  <h2 className="mb-4 text-center text-2xl font-black text-cyan-200">{tr("Antes e depois")}</h2>
 
   <div
     className={`relative flex w-full select-none items-center justify-center overflow-hidden rounded-2xl p-2 sm:p-4 ${
@@ -3624,11 +4412,11 @@ arrastandoImagemRef.current
     style={{ minHeight: "auto" }}
   >
     {!imagemOriginal ? (
-      <p className="text-cyan-100">Envie uma imagem para começar.</p>
+      <p className="text-cyan-100">{tr("Envie uma imagem para começar.")}</p>
     ) : (
 <div className={`relative h-[220px] w-full max-w-4xl overflow-hidden rounded-2xl sm:h-[560px] ${modo === "assinatura" ? "bg-transparent" : "bg-black"}`}>  <img
     src={imagemFinal || imagemOriginal}
-    alt="Depois"
+    alt={tr("Depois")}
     draggable={false}
     className="absolute inset-0 h-full w-full select-none object-contain"
   />
@@ -3641,7 +4429,7 @@ arrastandoImagemRef.current
   >
     <img
       src={imagemOriginal}
-      alt="Antes"
+      alt={tr("Antes")}
       draggable={false}
       className="absolute inset-0 h-full w-full select-none object-contain sm:object-contain"
     />
@@ -3663,16 +4451,12 @@ arrastandoImagemRef.current
     value={comparadorAntesDepois}
     onChange={(e) => setComparadorAntesDepois(Number(e.target.value))}
     className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
-    aria-label="Comparar antes e depois"
+    aria-label={tr("Comparar antes e depois")}
   />
 
-  <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
-    Antes
-  </div>
+  <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">{tr("Antes")}</div>
 
-  <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
-    Depois
-  </div>
+  <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">{tr("Depois")}</div>
 </div>
     )}
   </div>
@@ -3681,30 +4465,24 @@ arrastandoImagemRef.current
     <div className="mt-3 rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-xs font-black text-cyan-200">Refinamento manual</p>
-          <p className="text-[10px] text-slate-300">
-            Use depois do recorte para apagar ou restaurar detalhes.
-          </p>
+          <p className="text-xs font-black text-cyan-200">{tr("Refinamento manual")}</p>
+          <p className="text-[10px] text-slate-300">{tr("Use depois do recorte para apagar ou restaurar detalhes.")}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             disabled={!imagemFinal}
-            onClick={() => setModalRefinamentoAberto(true)}
+            onClick={abrirRefinamento}
             className="rounded-lg bg-cyan-400 px-3 py-2 text-[10px] font-black text-slate-950 disabled:opacity-40"
-          >
-            Abrir grande
-          </button>
+          >{tr("Abrir grande")}</button>
 
           <button
             type="button"
             disabled={!imagemFinal}
             onClick={desfazerUltimoPincel}
             className="rounded-lg border border-white/20 px-3 py-2 text-[10px] font-black text-white disabled:opacity-40"
-          >
-            Desfazer
-          </button>
+          >{tr("Desfazer")}</button>
 
           <button
             type="button"
@@ -3712,13 +4490,13 @@ arrastandoImagemRef.current
             onClick={() => setPincelAtivo((ativo) => !ativo)}
             className="rounded-lg bg-slate-800 px-3 py-2 text-[10px] font-black text-white disabled:opacity-40"
           >
-            {pincelAtivo ? "Desligar pincel" : "Ligar pincel"}
+            {pincelAtivo ? tr("Desligar pincel") : tr("Ligar pincel")}
           </button>
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-xl bg-slate-950 p-2">
-        <span className="text-xs font-bold text-slate-300">Baixar:</span>
+        <span className="text-xs font-bold text-slate-300">{tr("Baixar:")}</span>
 
         <button
           type="button"
@@ -3752,13 +4530,11 @@ arrastandoImagemRef.current
 </section>
 
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-3 lg:col-span-3">
-              <h3 className="mb-2 text-base font-black text-white">
-                Ajustes da imagem
-              </h3>
+              <h3 className="mb-2 text-base font-black text-white">{tr("Ajustes da imagem")}</h3>
 
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <Controle
-                  label="Sensibilidade"
+                  label={tr("Sensibilidade")}
                   valor={sensibilidade}
                   min={5}
                   max={80}
@@ -3766,7 +4542,7 @@ arrastandoImagemRef.current
                 />
 
                 <Controle
-                  label="Suavizar borda"
+                  label={tr("Suavizar borda")}
                   valor={suavizacao}
                   min={0}
                   max={6}
@@ -3774,7 +4550,7 @@ arrastandoImagemRef.current
                 />
 
                 <Controle
-                  label="Brilho"
+                  label={tr("Brilho")}
                   valor={brilho}
                   min={40}
                   max={180}
@@ -3782,7 +4558,7 @@ arrastandoImagemRef.current
                 />
 
                 <Controle
-                  label="Contraste"
+                  label={tr("Contraste")}
                   valor={contraste}
                   min={40}
                   max={220}
@@ -3790,7 +4566,7 @@ arrastandoImagemRef.current
                 />
 
                 <Controle
-                  label="Saturação"
+                  label={tr("Saturação")}
                   valor={saturacao}
                   min={0}
                   max={220}
@@ -3798,7 +4574,7 @@ arrastandoImagemRef.current
                 />
 
                 <Controle
-                  label="Opacidade"
+                  label={tr("Opacidade")}
                   valor={opacidade}
                   min={0}
                   max={100}
@@ -3807,7 +4583,7 @@ arrastandoImagemRef.current
 
                 {modo === "assinatura" && (
                   <Controle
-                    label="Intensidade do traço"
+                    label={tr("Intensidade do traço")}
                     valor={intensidadeTraco}
                     min={0}
                     max={100}
@@ -3824,7 +4600,7 @@ arrastandoImagemRef.current
             disabled={!imagemOriginal || processando}
             className="sticky bottom-3 z-30 mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-base font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50 sm:text-lg"
           >
-            {processando ? "Processando..." : "Remover fundo"}
+            {processando ? tr("Processando...") : tr("Remover fundo")}
           </button>
 
           <canvas ref={canvasRef} className="hidden" />

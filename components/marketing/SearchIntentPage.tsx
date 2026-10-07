@@ -6,6 +6,7 @@ import { localizedHome } from "@/lib/localized-home";
 import { marketingCopy, marketingPath } from "@/lib/public-marketing";
 import { searchIntentCopy, type SearchIntent } from "@/lib/search-intents";
 import { enrollmentCopy } from "@/lib/enrollment-marketing";
+import { schoolGuideCopy, schoolGuidePath } from "@/lib/school-guide";
 
 export default function SearchIntentPage({ locale, section }: { locale: ForeignLocale; section: SearchIntent }) {
   const copy = searchIntentCopy[locale][section];
@@ -96,6 +97,7 @@ export default function SearchIntentPage({ locale, section }: { locale: ForeignL
           <nav aria-label={marketing.navAcademic} className="mt-10 grid gap-4 md:grid-cols-3">
             {["academic", ...related].map((item) => <Link key={item} href={marketingPath(locale, item as "academic" | SearchIntent)} className="rounded-xl border border-white/15 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{item === "academic" ? marketing.navAcademic : searchIntentCopy[locale][item as SearchIntent].heading} →</Link>)}
             <Link href={marketingPath(locale, "enrollment")} className="rounded-xl border border-white/15 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{enrollmentCopy[locale].title.replace(" | PHANYX", "")} →</Link>
+            <Link href={schoolGuidePath(locale)} className="rounded-xl border border-white/15 bg-white/5 p-5 font-semibold text-blue-100 hover:bg-white/10">{schoolGuideCopy[locale].heading} →</Link>
           </nav>
         </div></section>
       </main>

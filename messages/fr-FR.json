@@ -107,6 +107,7 @@
   "AdminNavigation": {
     "oneOffFees": "Frais ponctuels",
     "generateInvoiceForInterestedParty": "Générer un bordereau de paiement pour un prospect",
+    "financialAccounts": "Comptes financiers",
     "adminPanel": "Tableau de bord administratif",
     "openGuidedTutorial": "Ouvrir le tutoriel guidé",
     "administrative": "Administration",
@@ -146,6 +147,9 @@
     "reservations": "Réservations",
     "fines": "Amendes",
     "receipts": "Encaissements",
+
+
+    "boletos": "Bordereaux bancaires",
     "cashRegister": "Caisse",
     "reports": "Rapports",
     "overdueAccounts": "Impayés",
@@ -11816,7 +11820,8 @@
       "occupationalHealthReturn": "RH - Visite de reprise",
       "occupationalHealthRoleChange": "RH - Visite de changement de poste",
       "occupationalHealthDismissal": "RH - Visite médicale de départ",
-      "other": "Autre"
+      "other": "Autre",
+      "enrollmentCancellation": "Annulation d’inscription"
     },
     "statuses": {
       "draft": "Brouillon",
@@ -14030,7 +14035,8 @@
       "warning": "AVERTISSEMENT DISCIPLINAIRE\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nMotif de l'avertissement :\n{{motivoAdvertencia}}\n\nDescription détaillée :\n{{descricaoAdvertencia}}\n\nDate de l'incident : {{dataAdvertencia}}\n\nLe présent avertissement a un caractère éducatif et préventif et vise à rappeler au/à la salarié(e) le respect des règles internes, des procédures institutionnelles, de l'éthique professionnelle et des responsabilités liées à ses fonctions.\n\nLe/la salarié(e) reconnaît avoir pris connaissance du contenu du présent avertissement et des conséquences susceptibles de s'appliquer en cas de récidive.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nPRIS CONNAISSANCE :\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYEUR :\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "suspension": "SUSPENSION DISCIPLINAIRE\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nMotif de la suspension :\n{{motivoSuspensao}}\n\nDescription détaillée :\n{{descricaoSuspensao}}\n\nPériode de suspension :\n- Début : {{dataInicioSuspensao}}\n- Fin : {{dataFimSuspensao}}\n- Nombre de jours : {{diasSuspensao}}\n\nPendant la période indiquée ci-dessus, le/la salarié(e) sera suspendu(e) de ses fonctions, sans préjudice des autres obligations prévues par la législation et les règlements internes applicables.\n\nLe/la salarié(e) reconnaît avoir pris connaissance de la présente suspension disciplinaire.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nPRIS CONNAISSANCE :\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYEUR :\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "occupationalHealth": "CERTIFICAT DE SANTÉ AU TRAVAIL - ASO\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nType d'ASO : {{tipoAso}}\nNuméro d'ASO : {{numeroAso}}\nDate de l'examen : {{dataAso}}\nRésultat : {{resultadoAso}}\n\nMédecin responsable : {{medicoResponsavel}}\nCRM : {{crmMedico}}\n\nObservations :\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM : {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
-      "leaveReturn": "DOCUMENT D'ABSENCE / RETOUR AU TRAVAIL\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nType d'absence : {{tipoAfastamento}}\nMotif : {{motivoAfastamento}}\nCIM : {{cidAfastamento}}\nDate de début : {{dataInicioAfastamento}}\nDate de fin prévue : {{dataFimAfastamento}}\nNombre de jours : {{diasAfastamento}}\nDate de l'expertise médicale : {{dataPericia}}\nRésultat de l'expertise : {{resultadoPericia}}\n\nLe présent document consigne les informations relatives à l'absence ou au retour au travail du/de la salarié(e).\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+      "leaveReturn": "DOCUMENT D'ABSENCE / RETOUR AU TRAVAIL\n\nSalarié(e) : {{nomeFuncionario}}\nCPF : {{cpfFuncionario}}\nPoste : {{cargoFuncionario}}\nDépartement : {{departamentoFuncionario}}\n\nType d'absence : {{tipoAfastamento}}\nMotif : {{motivoAfastamento}}\nCIM : {{cidAfastamento}}\nDate de début : {{dataInicioAfastamento}}\nDate de fin prévue : {{dataFimAfastamento}}\nNombre de jours : {{diasAfastamento}}\nDate de l'expertise médicale : {{dataPericia}}\nRésultat de l'expertise : {{resultadoPericia}}\n\nLe présent document consigne les informations relatives à l'absence ou au retour au travail du/de la salarié(e).\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "enrollmentCancellation": "ACCORD D'ANNULATION D'INSCRIPTION\n\nL'établissement {{nomeInstituicao}}, enregistré sous le CNPJ {{cnpjInstituicao}}, représenté aux présentes par {{responsavelLegal}}, et le cocontractant {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, concernant l'inscription de {{nomeAluno}}, CPF {{cpfAluno}}, numéro d'inscription {{matriculaAluno}}, au cours {{curso}}, formalisent la présente annulation d'inscription.\n\nPROTOCOLE : {{numeroProtocoloCancelamentoMatricula}}\nDATE DE LA DEMANDE : {{dataSolicitacaoCancelamentoMatricula}}\nDATE EFFECTIVE D'ANNULATION : {{dataEfetivaCancelamentoMatricula}}\n\nMOTIF DE L'ANNULATION :\n{{motivoCancelamentoMatricula}}\n\nRÈGLEMENT FINANCIER\n- Échéances/montants impayés : {{valorParcelasVencidasCancelamento}}\n- Pénalité contractuelle : {{valorMultaCancelamento}}\n- Intérêts et frais : {{valorJurosCancelamento}}\n- Crédits/remises : {{valorCreditoCancelamento}}\n- Montant à rembourser : {{valorDevolucaoCancelamento}}\n- Total à régler pour clôture : {{valorTotalCancelamento}}\n\nRÈGLE CONTRACTUELLE APPLIQUÉE :\n{{regraContratualCancelamento}}\n\nBase de calcul de la pénalité : {{baseCalculoMultaCancelamento}}\nPourcentage de la pénalité : {{percentualMultaCancelamento}}\nSituation financière : {{situacaoFinanceiraCancelamento}}\n\nOBSERVATIONS :\n{{observacoesCancelamentoMatricula}}\n\nLes parties reconnaissent les conséquences académiques et financières de l'annulation ainsi que les montants établis dans le cadre de cette procédure, sans préjudice des autres conditions prévues au contrat et par la législation applicable.\n\nResponsable de la procédure : {{responsavelCancelamentoMatricula}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCOCONTRACTANT / RESPONSABLE :\n{{nomeTitularContrato}}\nCPF : {{cpfTitularContrato}}\n\nÉTUDIANT(E) :\n{{nomeAluno}}\nCPF : {{cpfAluno}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
     }
   },
   "PublicDocumentValidation": {
@@ -14090,7 +14096,8 @@
       "COMPROVANTE": "Justificatif",
       "TRANCAMENTO": "Suspension d'inscription",
       "COMPARECIMENTO": "Attestation de pr?sence",
-      "HISTORICO": "Relev? acad?mique"
+      "HISTORICO": "Relev? acad?mique",
+      "CANCELAMENTO_MATRICULA": "Annulation d’inscription"
     }
   },
   "AdminFinance": {
@@ -14159,7 +14166,11 @@
       "closingTitle": "Clôture générale",
       "closingDescription": "Consolidation des caisses clôturées par date.",
       "reportsTitle": "Rapports",
-      "reportsDescription": "Suivez les encaissements, la caisse et la performance financière."
+      "reportsDescription": "Suivez les encaissements, la caisse et la performance financière.",
+      "clearedSlipsTitle": "Bordereaux bancaires",
+      "clearedSlipsDescription": "Générez, envoyez et suivez les bordereaux, échéances, compensations et enregistrements en caisse.",
+      "financialAccountsTitle": "Comptes financiers",
+      "financialAccountsDescription": "Configurez les banques et prestataires de paiement propres à l'établissement."
     },
     "automatic": {
       "generateTitle": "Générer les échéances mensuelles",
@@ -14184,6 +14195,12 @@
           "description": "Suivez ici les créances, enregistrez les paiements et gérez les règlements financiers.",
           "alt": "Mascotte financière",
           "highlight": "Commençons par les encaissements."
+        },
+        "boletos": {
+          "title": "Bordereaux bancaires",
+          "description": "Générez et envoyez les bordereaux aux étudiants, suivez les échéances et paiements et identifiez ceux en attente d'enregistrement en caisse.",
+          "alt": "Finances",
+          "highlight": "Suivez tout le cycle du bordereau."
         },
         "caixa": {
           "title": "Caisse",
@@ -14210,6 +14227,103 @@
           "highlight": "Gestion stratégique."
         }
       }
+    }
+  },
+  "AdminFinanceAccounts": {
+    "back": "Retour aux paramètres",
+    "title": "Comptes financiers",
+    "subtitle": "Enregistrez les comptes et prestataires qui reçoivent les paiements de l'établissement. Les identifiants et jetons sont chiffrés sur le serveur et ne sont jamais réaffichés.",
+    "newAccount": "Nouveau compte",
+    "edit": "Modifier",
+    "loading": "Chargement des comptes financiers...",
+    "emptyTitle": "Aucun compte financier enregistré",
+    "emptyDescription": "Enregistrez le premier compte pour intégrer les bordereaux et encaissements de l'établissement.",
+    "notConfigured": "Non configuré",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "summary": {
+      "total": "Comptes enregistrés",
+      "integrated": "Intégrations actives",
+      "default": "Compte par défaut"
+    },
+    "badges": {
+      "default": "Par défaut",
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "labels": {
+      "integration": "Intégration",
+      "credentials": "Identifiants",
+      "webhook": "Webhook",
+      "boleto": "Prend en charge le boleto",
+      "webhookEndpoint": "Endpoint du webhook"
+    },
+    "status": {
+      "enabled": "Active",
+      "disabled": "Désactivée",
+      "configured": "Configurée",
+      "notConfigured": "Non configurée",
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "modal": {
+      "newTitle": "Nouveau compte financier",
+      "editTitle": "Modifier le compte financier",
+      "description": "Les identifiants enregistrés ne sont pas chargés dans le navigateur. Laissez les champs de sécurité vides pour conserver les valeurs actuelles."
+    },
+    "fields": {
+      "name": "Nom du compte",
+      "provider": "Prestataire",
+      "type": "Type",
+      "currency": "Devise",
+      "environment": "Environnement",
+      "externalAccount": "ID externe du compte",
+      "bankCode": "Code banque",
+      "agency": "Agence",
+      "account": "Compte",
+      "digit": "Clé",
+      "holderName": "Nom du titulaire",
+      "holderDocument": "Document du titulaire",
+      "credentials": "Clé API / jeton",
+      "webhookSecret": "Jeton secret du webhook"
+    },
+    "environments": {
+      "production": "Production",
+      "staging": "Homologation",
+      "sandbox": "Sandbox"
+    },
+    "sections": {
+      "bankData": "Coordonnées bancaires facultatives",
+      "security": "Sécurité de l'intégration",
+      "options": "Options"
+    },
+    "placeholders": {
+      "credential": "Saisissez l'identifiant du prestataire",
+      "keepCredential": "Identifiant déjà configuré — laissez vide pour le conserver",
+      "webhookSecret": "Saisissez le jeton secret du webhook",
+      "keepWebhookSecret": "Jeton déjà configuré — laissez vide pour le conserver"
+    },
+    "security": {
+      "credentialConfigured": "Identifiant configuré.",
+      "webhookConfigured": "Jeton du webhook configuré.",
+      "explanation": "Pour des raisons de sécurité, PHANYX ne renvoie jamais au navigateur les clés API ou jetons déjà enregistrés."
+    },
+    "options": {
+      "integrationActive": "Intégration active",
+      "webhookActive": "Webhook actif",
+      "supportsBoleto": "Prend en charge les bordereaux",
+      "defaultReceipts": "Compte par défaut pour les encaissements",
+      "accountActive": "Compte actif"
+    },
+    "messages": {
+      "loadError": "Erreur lors du chargement des comptes financiers.",
+      "saveError": "Erreur lors de l'enregistrement du compte financier.",
+      "createSuccess": "Compte financier créé avec succès.",
+      "updateSuccess": "Compte financier mis à jour avec succès.",
+      "nameRequired": "Indiquez le nom du compte.",
+      "credentialsRequired": "Configurez les identifiants avant d'activer l'intégration.",
+      "webhookSecretRequired": "Configurez le jeton secret avant d'activer le webhook."
     }
   },
   "AdminFinanceCash": {
@@ -15639,6 +15753,7 @@
       "trancar": "Mettre en pause",
       "transferir": "Transférer",
       "intercambio": "Échange",
+      "cadastrarIntercambio": "Inscrire à un échange",
       "moverQuarentena": "Mettre en quarantaine",
       "movendo": "Déplacement...",
       "restaurar": "Restaurer l’inscription",
@@ -19043,7 +19158,8 @@
     "validationsStatusPending": "En attente",
     "validationsStatusSuspended": "Suspendue",
     "validationsStatusActive": "Actif",
-    "validationsStatusCompleted": "Terminé"
+    "validationsStatusCompleted": "Terminé",
+    "validationsEnrollmentCancellation": "Annulation d’inscription"
   },
   "AdminLibraryLicenses": {
     "title": "Licences de la Bibliothèque",
@@ -22330,6 +22446,183 @@
       "cancel": "Annuler",
       "export": "Exporter le fonds",
       "pendingFormat": "Ce format est déjà prévu dans l’interface mais sera relié au moteur d’exportation à l’étape suivante. Utilisez XLSX pour le moment."
+    }
+  },
+  "AdminFinanceiroBoletosCompensados": {
+    "title": "Bordereaux compensés",
+    "subtitle": "Vérifiez les paiements reçus par le prestataire, comptabilisez les montants contrôlés et suivez les écarts.",
+    "back": "Retour aux Finances",
+    "refresh": "Actualiser",
+    "searchPlaceholder": "Rechercher par étudiant, inscription, écriture ou référence...",
+    "tabs": {
+      "awaiting": "En attente de validation",
+      "settled": "Validés",
+      "divergences": "Écarts"
+    },
+    "summary": {
+      "awaiting": "En attente de validation",
+      "settled": "Validés",
+      "divergences": "Écarts"
+    },
+    "table": {
+      "student": "Étudiant",
+      "enrollment": "Inscription / Formation",
+      "charge": "Créance",
+      "dueDate": "Échéance",
+      "value": "Montant",
+      "account": "Compte financier",
+      "status": "Statut",
+      "action": "Action"
+    },
+    "buttons": {
+      "settle": "Valider",
+      "settling": "Validation...",
+      "viewBoleto": "Ouvrir le bordereau",
+      "previous": "Précédente",
+      "next": "Suivante",
+      "cancel": "Annuler",
+      "confirm": "Confirmer la validation"
+    },
+    "modal": {
+      "title": "Confirmer la validation du paiement",
+      "description": "Confirmez uniquement après avoir vérifié le montant compensé. La validation créera le paiement et le mouvement financier dans PHANYX.",
+      "compensatedValue": "Montant compensé",
+      "student": "Étudiant",
+      "dueDate": "Échéance"
+    },
+    "messages": {
+      "loading": "Chargement des créances...",
+      "empty": "Aucune créance trouvée avec ce statut.",
+      "loadError": "Impossible de charger les bordereaux.",
+      "settlementError": "Impossible de valider ce paiement.",
+      "settlementSuccess": "Paiement validé avec succès.",
+      "divergence": "Un écart a été détecté. La créance a été envoyée pour vérification.",
+      "page": "Page {current} sur {total}"
+    },
+    "labels": {
+      "compensated": "Compensé",
+      "settled": "Validé",
+      "divergence": "Écart",
+      "compensatedAt": "Compensé le",
+      "settledAt": "Validé le",
+      "settledBy": "Validé par",
+      "charged": "Facturé",
+      "received": "Reçu",
+      "noEnrollment": "Sans inscription",
+      "notProvided": "Non renseigné"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Retour aux Finances",
+      "title": "Bordereaux bancaires",
+      "subtitle": "Générez les bordereaux pour les mensualités, suivez le paiement et l'échéance, envoyez-les à l'étudiant et identifiez ceux en attente d'enregistrement en caisse.",
+      "cleared": "Bordereaux compensés en attente d'enregistrement"
+    },
+    "common": {
+      "loading": "Chargement..."
+    },
+    "summary": {
+      "generated": "Bordereaux trouvés",
+      "awaitingPayment": "En attente de paiement",
+      "awaitingSettlement": "En attente d'enregistrement",
+      "settled": "Enregistrés",
+      "divergence": "Écarts"
+    },
+    "generate": {
+      "title": "Générer un bordereau pour un étudiant",
+      "subtitle": "Recherchez une mensualité ouverte. Le bordereau sera émis via le compte financier propre de l'établissement.",
+      "search": "Rechercher étudiant, inscription, cursus, e-mail ou mensualité...",
+      "empty": "Aucune mensualité ouverte trouvée.",
+      "monthlyFee": "Mensualité"
+    },
+    "issued": {
+      "title": "Bordereaux émis",
+      "subtitle": "Suivez tout le cycle, de l'envoi à l'étudiant jusqu'à l'enregistrement en caisse.",
+      "search": "Rechercher étudiant, inscription, cursus, e-mail ou référence...",
+      "empty": "Aucun bordereau trouvé."
+    },
+    "table": {
+      "student": "Étudiant",
+      "charge": "Créance",
+      "dueDate": "Échéance",
+      "balance": "Solde",
+      "value": "Montant",
+      "status": "Statut",
+      "bankStatus": "Banque",
+      "flowStatus": "Flux",
+      "delivery": "Envoi",
+      "action": "Action",
+      "actions": "Actions"
+    },
+    "filters": {
+      "all": "Tous",
+      "pending": "En attente",
+      "overdue": "Échus",
+      "paid": "Payés / compensés",
+      "awaitingSettlement": "En attente d'enregistrement",
+      "settled": "Enregistrés",
+      "failed": "Échecs"
+    },
+    "status": {
+      "pending": "En attente",
+      "awaitingPayment": "En attente de paiement",
+      "overdue": "Échu",
+      "dueFuture": "À échoir",
+      "dueToday": "Échéance aujourd'hui",
+      "overdueDays": "En retard de {count} jour(s)",
+      "processing": "Traitement en cours",
+      "paid": "Payé / compensé",
+      "awaitingSettlement": "En attente d'enregistrement",
+      "settled": "Enregistré",
+      "divergence": "Écart",
+      "cancelled": "Annulé",
+      "refunded": "Remboursé",
+      "failed": "Échec",
+      "bankConfirmed": "Paiement confirmé par la banque ; l'enregistrement par l'opérateur reste à faire.",
+      "settledBy": "Enregistré par {name}"
+    },
+    "delivery": {
+      "generated": "Généré",
+      "sent": "Envoyé",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Générer",
+      "generating": "Génération...",
+      "open": "Ouvrir",
+      "openPrint": "Ouvrir / imprimer",
+      "copyLine": "Copier la ligne",
+      "email": "Envoyer par e-mail",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirmer l'envoi",
+      "sending": "Envoi..."
+    },
+    "messages": {
+      "loadAvailableError": "Impossible de charger les mensualités disponibles.",
+      "loadBoletosError": "Impossible de charger les bordereaux.",
+      "generateError": "Impossible de générer le bordereau.",
+      "generated": "Bordereau généré avec succès.",
+      "reused": "Ce bordereau existait déjà et a été récupéré.",
+      "noBoletoUrl": "Le document du bordereau n'est pas encore disponible.",
+      "noDigitableLine": "La ligne de paiement n'est pas encore disponible.",
+      "copied": "Ligne de paiement copiée.",
+      "copyError": "Impossible de copier la ligne de paiement.",
+      "sendError": "Impossible d'enregistrer l'envoi du bordereau.",
+      "emailSent": "Bordereau envoyé par e-mail et envoi enregistré.",
+      "whatsappOpened": "WhatsApp ouvert. Après l'envoi du message, confirmez l'envoi dans PHANYX.",
+      "whatsappRegistered": "Envoi WhatsApp enregistré."
+    },
+    "whatsapp": {
+      "greeting": "Bonjour, {name}.",
+      "message": "Voici le bordereau pour le paiement.",
+      "link": "Bordereau : {link}",
+      "line": "Ligne de paiement : {line}"
+    },
+    "pagination": {
+      "page": "Page {page} sur {total}",
+      "previous": "Précédente",
+      "next": "Suivante"
     }
   }
 }

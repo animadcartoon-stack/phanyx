@@ -1077,3 +1077,212 @@ export async function enviarEmailAssinaturaContrato({
     `,
   });
 }
+
+type EnviarEmailBoletoInstitucionalParams = {
+  instituicaoId: number;
+  email: string;
+  nome: string;
+  descricao: string;
+  valor: number;
+  moeda: string;
+  vencimento: Date;
+  boletoUrl?: string | null;
+  linhaDigitavel?: string | null;
+  locale?: string | null;
+};
+
+function escaparHtmlBoleto(valor: unknown) {
+  return String(valor ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function textosEmailBoleto(locale?: string | null) {
+  const chave = String(locale || "pt-BR");
+
+  const textos: Record<string, {
+    subject: string;
+    title: string;
+    hello: string;
+    intro: string;
+    value: string;
+    due: string;
+    open: string;
+    line: string;
+    footer: string;
+  }> = {
+    "pt-BR": {
+      subject: "Boleto",
+      title: "Boleto para pagamento",
+      hello: "Olá",
+      intro: "Seguem os dados do boleto referente a",
+      value: "Valor",
+      due: "Vencimento",
+      open: "Abrir boleto",
+      line: "Linha digitável",
+      footer: "Esta mensagem foi enviada pela instituição através do PHANYX.",
+    },
+    "pt-PT": {
+      subject: "Boleto",
+      title: "Boleto para pagamento",
+      hello: "Olá",
+      intro: "Seguem os dados do boleto referente a",
+      value: "Valor",
+      due: "Vencimento",
+      open: "Abrir boleto",
+      line: "Linha de pagamento",
+      footer: "Esta mensagem foi enviada pela instituição através do PHANYX.",
+    },
+    "en-US": {
+      subject: "Bank slip",
+      title: "Bank slip for payment",
+      hello: "Hello",
+      intro: "Here are the bank-slip details for",
+      value: "Amount",
+      due: "Due date",
+      open: "Open bank slip",
+      line: "Payment line",
+      footer: "This message was sent by the institution through PHANYX.",
+    },
+    "es-ES": {
+      subject: "Boleto",
+      title: "Boleto para pago",
+      hello: "Hola",
+      intro: "Estos son los datos del boleto correspondiente a",
+      value: "Importe",
+      due: "Vencimiento",
+      open: "Abrir boleto",
+      line: "Línea de pago",
+      footer: "Este mensaje fue enviado por la institución a través de PHANYX.",
+    },
+    "fr-FR": {
+      subject: "Bordereau bancaire",
+      title: "Bordereau pour paiement",
+      hello: "Bonjour",
+      intro: "Voici les informations du bordereau concernant",
+      value: "Montant",
+      due: "Échéance",
+      open: "Ouvrir le bordereau",
+      line: "Ligne de paiement",
+      footer: "Ce message a été envoyé par l'établissement via PHANYX.",
+    },
+  };
+
+  return textos[chave] || textos["pt-BR"];
+}
+
+export async function enviarEmailBoletoInstitucional({
+  instituicaoId,
+  email,
+  nome,
+  descricao,
+  valor,
+  moeda,
+  vencimento,
+  boletoUrl,
+  linhaDigitavel,
+  locale,
+}: EnviarEmailBoletoInstitucionalParams) {
+  const textos = textosEmailBoleto(locale);
+
+  const localeSeguro =
+    ["pt-BR", "pt-PT", "en-US", "es-ES", "fr-FR"].includes(
+      String(locale || "")
+    )
+      ? String(locale)
+      : "pt-BR";
+
+  const moedaSegura =
+    String(moeda || "BRL").trim().toUpperCase() || "BRL";
+
+  let valorFormatado: string;
+
+  try {
+    valorFormatado =
+      new Intl.NumberFormat(localeSeguro, {
+        style: "currency",
+        currency: moedaSegura,
+      }).format(Number(valor || 0));
+  } catch {
+    valorFormatado =
+      new Intl.NumberFormat(localeSeguro, {
+        style: "currency",
+        currency: "BRL",
+      }).format(Number(valor || 0));
+  }
+
+  const vencimentoFormatado =
+    new Intl.DateTimeFormat(localeSeguro).format(vencimento);
+
+  const linkHtml = boletoUrl
+    ? `
+      <div style="margin:26px 0;">
+        <a href="${escaparHtmlBoleto(boletoUrl)}"
+          style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 22px;border-radius:12px;">
+          ${escaparHtmlBoleto(textos.open)}
+        </a>
+      </div>
+    `
+    : "";
+
+  const linhaHtml = linhaDigitavel
+    ? `
+      <div style="margin-top:22px;padding:16px;border:1px solid #cbd5e1;border-radius:12px;background:#f8fafc;">
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;">
+          ${escaparHtmlBoleto(textos.line)}
+        </div>
+        <div style="font-family:monospace;font-size:14px;color:#0f172a;word-break:break-all;">
+          ${escaparHtmlBoleto(linhaDigitavel)}
+        </div>
+      </div>
+    `
+    : "";
+
+  await enviarEmailInstitucionalComFallback(
+    instituicaoId,
+    {
+      to: email,
+      subject: `${textos.subject} - ${descricao}`,
+      html: `
+        <div style="margin:0;padding:24px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;">
+          <div style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;padding:28px;">
+            <h1 style="margin:0;color:#0f172a;font-size:24px;">
+              ${escaparHtmlBoleto(textos.title)}
+            </h1>
+
+            <p style="margin:18px 0 0;color:#334155;line-height:1.7;">
+              ${escaparHtmlBoleto(textos.hello)},
+              <strong>${escaparHtmlBoleto(nome)}</strong>.
+            </p>
+
+            <p style="margin:10px 0 0;color:#475569;line-height:1.7;">
+              ${escaparHtmlBoleto(textos.intro)}
+              <strong>${escaparHtmlBoleto(descricao)}</strong>.
+            </p>
+
+            <div style="margin-top:22px;padding:18px;background:#f8fafc;border-radius:14px;">
+              <div style="margin-bottom:8px;color:#475569;">
+                <strong>${escaparHtmlBoleto(textos.value)}:</strong>
+                ${escaparHtmlBoleto(valorFormatado)}
+              </div>
+              <div style="color:#475569;">
+                <strong>${escaparHtmlBoleto(textos.due)}:</strong>
+                ${escaparHtmlBoleto(vencimentoFormatado)}
+              </div>
+            </div>
+
+            ${linkHtml}
+            ${linhaHtml}
+
+            <p style="margin:24px 0 0;color:#64748b;font-size:12px;line-height:1.6;">
+              ${escaparHtmlBoleto(textos.footer)}
+            </p>
+          </div>
+        </div>
+      `,
+    }
+  );
+}

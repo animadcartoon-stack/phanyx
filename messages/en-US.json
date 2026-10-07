@@ -107,6 +107,7 @@
   "AdminNavigation": {
     "oneOffFees": "One-off Fees",
     "generateInvoiceForInterestedParty": "Generate payment slip for prospective student",
+    "financialAccounts": "Financial accounts",
     "adminPanel": "Administrative Dashboard",
     "openGuidedTutorial": "Open guided tutorial",
     "administrative": "Administrative",
@@ -146,6 +147,9 @@
     "reservations": "Reservations",
     "fines": "Fines",
     "receipts": "Receipts",
+
+
+    "boletos": "Bank slips",
     "cashRegister": "Cash Register",
     "reports": "Reports",
     "overdueAccounts": "Overdue Accounts",
@@ -11817,7 +11821,8 @@
       "occupationalHealthReturn": "HR - Return-to-work health certificate",
       "occupationalHealthRoleChange": "HR - Role-change health certificate",
       "occupationalHealthDismissal": "HR - Exit health certificate",
-      "other": "Other"
+      "other": "Other",
+      "enrollmentCancellation": "Enrollment cancellation"
     },
     "statuses": {
       "draft": "Draft",
@@ -14031,7 +14036,8 @@
       "warning": "DISCIPLINARY WARNING\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nReason for warning:\n{{motivoAdvertencia}}\n\nDetailed description:\n{{descricaoAdvertencia}}\n\nIncident date: {{dataAdvertencia}}\n\nThis warning is educational and preventive in nature and is intended to guide the employee regarding compliance with internal policies, institutional procedures, professional ethics, and responsibilities inherent to their position.\n\nThe employee acknowledges the content of this warning and the consequences that may apply in the event of recurrence.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nACKNOWLEDGED:\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYER:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "suspension": "DISCIPLINARY SUSPENSION\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nReason for suspension:\n{{motivoSuspensao}}\n\nDetailed description:\n{{descricaoSuspensao}}\n\nSuspension period:\n- Start: {{dataInicioSuspensao}}\n- End: {{dataFimSuspensao}}\n- Number of days: {{diasSuspensao}}\n\nDuring the period stated above, the employee will be suspended from their work activities, without prejudice to any other obligations provided by applicable law and internal regulations.\n\nThe employee acknowledges this disciplinary suspension.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nACKNOWLEDGED:\n____________________________________\n{{nomeFuncionario}}\n\nEMPLOYER:\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
       "occupationalHealth": "OCCUPATIONAL HEALTH CERTIFICATE - ASO\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nASO type: {{tipoAso}}\nASO number: {{numeroAso}}\nExamination date: {{dataAso}}\nResult: {{resultadoAso}}\n\nResponsible physician: {{medicoResponsavel}}\nCRM: {{crmMedico}}\n\nNotes:\n{{observacoesAso}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{medicoResponsavel}}\nCRM: {{crmMedico}}\n\n____________________________________\n{{nomeFuncionario}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
-      "leaveReturn": "EMPLOYEE LEAVE / RETURN-TO-WORK DOCUMENT\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nLeave type: {{tipoAfastamento}}\nReason: {{motivoAfastamento}}\nICD: {{cidAfastamento}}\nStart date: {{dataInicioAfastamento}}\nExpected end date: {{dataFimAfastamento}}\nNumber of days: {{diasAfastamento}}\nMedical assessment date: {{dataPericia}}\nMedical assessment result: {{resultadoPericia}}\n\nThis document records information concerning the employee's leave or return to work.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
+      "leaveReturn": "EMPLOYEE LEAVE / RETURN-TO-WORK DOCUMENT\n\nEmployee: {{nomeFuncionario}}\nCPF: {{cpfFuncionario}}\nPosition: {{cargoFuncionario}}\nDepartment: {{departamentoFuncionario}}\n\nLeave type: {{tipoAfastamento}}\nReason: {{motivoAfastamento}}\nICD: {{cidAfastamento}}\nStart date: {{dataInicioAfastamento}}\nExpected end date: {{dataFimAfastamento}}\nNumber of days: {{diasAfastamento}}\nMedical assessment date: {{dataPericia}}\nMedical assessment result: {{resultadoPericia}}\n\nThis document records information concerning the employee's leave or return to work.\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\n____________________________________\n{{nomeFuncionario}}\n\n____________________________________\n{{responsavelLegal}}\n\n\n\n{{blocoAssinaturaDiretor}}\n",
+      "enrollmentCancellation": "ENROLLMENT CANCELLATION AGREEMENT\n\nThe institution {{nomeInstituicao}}, registered under CNPJ {{cnpjInstituicao}}, represented herein by {{responsavelLegal}}, and the contracting party {{nomeTitularContrato}}, CPF {{cpfTitularContrato}}, regarding the enrollment of {{nomeAluno}}, CPF {{cpfAluno}}, enrollment number {{matriculaAluno}}, in the course {{curso}}, formalize this enrollment cancellation.\n\nPROTOCOL: {{numeroProtocoloCancelamentoMatricula}}\nREQUEST DATE: {{dataSolicitacaoCancelamentoMatricula}}\nEFFECTIVE CANCELLATION DATE: {{dataEfetivaCancelamentoMatricula}}\n\nCANCELLATION REASON:\n{{motivoCancelamentoMatricula}}\n\nFINANCIAL SETTLEMENT\n- Overdue installments/amounts: {{valorParcelasVencidasCancelamento}}\n- Contractual penalty: {{valorMultaCancelamento}}\n- Interest and charges: {{valorJurosCancelamento}}\n- Credits/discounts: {{valorCreditoCancelamento}}\n- Refund amount: {{valorDevolucaoCancelamento}}\n- Total amount for closure: {{valorTotalCancelamento}}\n\nAPPLIED CONTRACTUAL RULE:\n{{regraContratualCancelamento}}\n\nPenalty calculation base: {{baseCalculoMultaCancelamento}}\nPenalty percentage: {{percentualMultaCancelamento}}\nFinancial status: {{situacaoFinanceiraCancelamento}}\n\nNOTES:\n{{observacoesCancelamentoMatricula}}\n\nThe parties acknowledge the academic and financial consequences of the cancellation and the amounts determined in this process, without prejudice to the other terms of the agreement and applicable law.\n\nProcess owner: {{responsavelCancelamentoMatricula}}\n\n{{cidadeAssinatura}}, {{dataAtual}}.\n\nCONTRACTING PARTY / RESPONSIBLE PARTY:\n{{nomeTitularContrato}}\nCPF: {{cpfTitularContrato}}\n\nSTUDENT:\n{{nomeAluno}}\nCPF: {{cpfAluno}}\n\n\n\n{{blocoAssinaturaDiretor}}\n"
     }
   },
   "PublicDocumentValidation": {
@@ -14091,7 +14097,8 @@
       "COMPROVANTE": "Proof / certificate",
       "TRANCAMENTO": "Enrollment suspension",
       "COMPARECIMENTO": "Attendance statement",
-      "HISTORICO": "Academic transcript"
+      "HISTORICO": "Academic transcript",
+      "CANCELAMENTO_MATRICULA": "Enrollment cancellation"
     }
   },
   "AdminFinance": {
@@ -14160,7 +14167,11 @@
       "closingTitle": "General Closing",
       "closingDescription": "Consolidate cash registers closed by date.",
       "reportsTitle": "Reports",
-      "reportsDescription": "Track receipts, cash flow, and financial performance."
+      "reportsDescription": "Track receipts, cash flow, and financial performance.",
+      "clearedSlipsTitle": "Bank slips",
+      "clearedSlipsDescription": "Generate, send, and track bank slips, due dates, clearing, and cash-register posting.",
+      "financialAccountsTitle": "Financial accounts",
+      "financialAccountsDescription": "Configure the institution's own banks and payment providers."
     },
     "automatic": {
       "generateTitle": "Generate monthly charges",
@@ -14185,6 +14196,12 @@
           "description": "Track charges, record payments, and manage financial settlements here.",
           "alt": "Finance mascot",
           "highlight": "Let's start with receipts."
+        },
+        "boletos": {
+          "title": "Bank slips",
+          "description": "Generate and send bank slips to students, track due dates and payments, and identify items awaiting cash-register posting.",
+          "alt": "Finance",
+          "highlight": "Track the full bank-slip lifecycle."
         },
         "caixa": {
           "title": "Cash register",
@@ -14211,6 +14228,103 @@
           "highlight": "Strategic management."
         }
       }
+    }
+  },
+  "AdminFinanceAccounts": {
+    "back": "Back to Settings",
+    "title": "Financial accounts",
+    "subtitle": "Register the institution's own financial accounts and payment providers. Credentials and tokens are encrypted on the server and never displayed again.",
+    "newAccount": "New account",
+    "edit": "Edit",
+    "loading": "Loading financial accounts...",
+    "emptyTitle": "No financial accounts registered",
+    "emptyDescription": "Register the first account to integrate bank slips and institutional receipts.",
+    "notConfigured": "Not configured",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "summary": {
+      "total": "Registered accounts",
+      "integrated": "Active integrations",
+      "default": "Default account"
+    },
+    "badges": {
+      "default": "Default",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "labels": {
+      "integration": "Integration",
+      "credentials": "Credentials",
+      "webhook": "Webhook",
+      "boleto": "Supports bank slips",
+      "webhookEndpoint": "Webhook endpoint"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "configured": "Configured",
+      "notConfigured": "Not configured",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "modal": {
+      "newTitle": "New financial account",
+      "editTitle": "Edit financial account",
+      "description": "Stored credentials are never loaded into the browser. Leave security fields blank to keep their current values."
+    },
+    "fields": {
+      "name": "Account name",
+      "provider": "Provider",
+      "type": "Type",
+      "currency": "Currency",
+      "environment": "Environment",
+      "externalAccount": "External account ID",
+      "bankCode": "Bank code",
+      "agency": "Branch",
+      "account": "Account",
+      "digit": "Check digit",
+      "holderName": "Account holder",
+      "holderDocument": "Holder document",
+      "credentials": "API Key / token",
+      "webhookSecret": "Webhook secret token"
+    },
+    "environments": {
+      "production": "Production",
+      "staging": "Staging",
+      "sandbox": "Sandbox"
+    },
+    "sections": {
+      "bankData": "Optional bank details",
+      "security": "Integration security",
+      "options": "Options"
+    },
+    "placeholders": {
+      "credential": "Enter the provider credential",
+      "keepCredential": "Credential already configured — leave blank to keep it",
+      "webhookSecret": "Enter the webhook secret token",
+      "keepWebhookSecret": "Token already configured — leave blank to keep it"
+    },
+    "security": {
+      "credentialConfigured": "Credential configured.",
+      "webhookConfigured": "Webhook token configured.",
+      "explanation": "For security, PHANYX never returns stored API Keys or tokens to the browser."
+    },
+    "options": {
+      "integrationActive": "Integration active",
+      "webhookActive": "Webhook active",
+      "supportsBoleto": "Supports bank slips",
+      "defaultReceipts": "Default account for receipts",
+      "accountActive": "Account active"
+    },
+    "messages": {
+      "loadError": "Unable to load financial accounts.",
+      "saveError": "Unable to save the financial account.",
+      "createSuccess": "Financial account created successfully.",
+      "updateSuccess": "Financial account updated successfully.",
+      "nameRequired": "Enter the account name.",
+      "credentialsRequired": "Configure credentials before enabling the integration.",
+      "webhookSecretRequired": "Configure the secret token before enabling the webhook."
     }
   },
   "AdminFinanceCash": {
@@ -15640,6 +15754,7 @@
       "trancar": "Put on hold",
       "transferir": "Transfer",
       "intercambio": "Exchange",
+      "cadastrarIntercambio": "Create exchange application",
       "moverQuarentena": "Move to quarantine",
       "movendo": "Moving...",
       "restaurar": "Restore enrollment",
@@ -19044,7 +19159,8 @@
     "validationsStatusPending": "Pending",
     "validationsStatusSuspended": "Suspended",
     "validationsStatusActive": "Active",
-    "validationsStatusCompleted": "Completed"
+    "validationsStatusCompleted": "Completed",
+    "validationsEnrollmentCancellation": "Enrollment cancellation"
   },
   "AdminLibraryLicenses": {
     "title": "Library Licenses",
@@ -22331,6 +22447,183 @@
       "cancel": "Cancel",
       "export": "Export collection",
       "pendingFormat": "This format is already available in the interface but will be connected to the export engine in the next step. Use XLSX for now."
+    }
+  },
+  "AdminFinanceiroBoletosCompensados": {
+    "title": "Cleared bank slips",
+    "subtitle": "Review payments received by the provider, post verified amounts and monitor discrepancies.",
+    "back": "Back to Settings",
+    "refresh": "Refresh",
+    "searchPlaceholder": "Search by student, enrollment, entry or reference...",
+    "tabs": {
+      "awaiting": "Awaiting posting",
+      "settled": "Posted",
+      "divergences": "Discrepancies"
+    },
+    "summary": {
+      "awaiting": "Awaiting posting",
+      "settled": "Posted",
+      "divergences": "Discrepancies"
+    },
+    "table": {
+      "student": "Student",
+      "enrollment": "Enrollment / Course",
+      "charge": "Charge",
+      "dueDate": "Due date",
+      "value": "Amount",
+      "account": "Financial account",
+      "status": "Status",
+      "action": "Action"
+    },
+    "buttons": {
+      "settle": "Post payment",
+      "settling": "Posting...",
+      "viewBoleto": "Open bank slip",
+      "previous": "Previous",
+      "next": "Next",
+      "cancel": "Cancel",
+      "confirm": "Confirm posting"
+    },
+    "modal": {
+      "title": "Confirm payment posting",
+      "description": "Confirm only after verifying the cleared amount. Posting will create the payment and financial movement in PHANYX.",
+      "compensatedValue": "Cleared amount",
+      "student": "Student",
+      "dueDate": "Due date"
+    },
+    "messages": {
+      "loading": "Loading charges...",
+      "empty": "No charges found with this status.",
+      "loadError": "Unable to load bank slips.",
+      "settlementError": "Unable to post this payment.",
+      "settlementSuccess": "Payment posted successfully.",
+      "divergence": "A discrepancy was detected. The charge was sent for review.",
+      "page": "Page {current} of {total}"
+    },
+    "labels": {
+      "compensated": "Cleared",
+      "settled": "Posted",
+      "divergence": "Discrepancy",
+      "compensatedAt": "Cleared on",
+      "settledAt": "Posted on",
+      "settledBy": "Posted by",
+      "charged": "Charged",
+      "received": "Received",
+      "noEnrollment": "No enrollment",
+      "notProvided": "Not provided"
+    }
+  },
+  "AdminFinanceBoletos": {
+    "page": {
+      "back": "Back to Finance",
+      "title": "Bank slips",
+      "subtitle": "Generate bank slips for tuition charges, track payment and due dates, send them to students, and identify items awaiting cash-register posting.",
+      "cleared": "Cleared bank slips awaiting posting"
+    },
+    "common": {
+      "loading": "Loading..."
+    },
+    "summary": {
+      "generated": "Bank slips found",
+      "awaitingPayment": "Awaiting payment",
+      "awaitingSettlement": "Awaiting posting",
+      "settled": "Posted",
+      "divergence": "Discrepancies"
+    },
+    "generate": {
+      "title": "Generate a bank slip for a student",
+      "subtitle": "Find an open tuition charge. The bank slip is issued through the institution's own financial account.",
+      "search": "Search student, enrollment, course, email, or tuition...",
+      "empty": "No open tuition charges found.",
+      "monthlyFee": "Tuition"
+    },
+    "issued": {
+      "title": "Issued bank slips",
+      "subtitle": "Track the full bank-slip lifecycle, from delivery to the student through cash-register posting.",
+      "search": "Search student, enrollment, course, email, or reference...",
+      "empty": "No bank slips found."
+    },
+    "table": {
+      "student": "Student",
+      "charge": "Charge",
+      "dueDate": "Due date",
+      "balance": "Balance",
+      "value": "Amount",
+      "status": "Status",
+      "bankStatus": "Bank",
+      "flowStatus": "Workflow",
+      "delivery": "Delivery",
+      "action": "Action",
+      "actions": "Actions"
+    },
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "overdue": "Overdue",
+      "paid": "Paid / cleared",
+      "awaitingSettlement": "Awaiting posting",
+      "settled": "Posted",
+      "failed": "Failed"
+    },
+    "status": {
+      "pending": "Pending",
+      "awaitingPayment": "Awaiting payment",
+      "overdue": "Overdue",
+      "dueFuture": "Upcoming",
+      "dueToday": "Due today",
+      "overdueDays": "{count} day(s) overdue",
+      "processing": "Processing",
+      "paid": "Paid / cleared",
+      "awaitingSettlement": "Awaiting posting",
+      "settled": "Posted",
+      "divergence": "Discrepancy",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "failed": "Failed",
+      "bankConfirmed": "Payment confirmed by the bank; operator posting is still pending.",
+      "settledBy": "Posted by {name}"
+    },
+    "delivery": {
+      "generated": "Generated",
+      "sent": "Sent",
+      "sentDetails": "{channel} · {date}"
+    },
+    "actions": {
+      "generate": "Generate bank slip",
+      "generating": "Generating...",
+      "open": "Open bank slip",
+      "openPrint": "Open / print",
+      "copyLine": "Copy payment line",
+      "email": "Send email",
+      "whatsapp": "WhatsApp",
+      "confirmWhatsapp": "Confirm sent",
+      "sending": "Sending..."
+    },
+    "messages": {
+      "loadAvailableError": "Could not load available tuition charges.",
+      "loadBoletosError": "Could not load bank slips.",
+      "generateError": "Could not generate the bank slip.",
+      "generated": "Bank slip generated successfully.",
+      "reused": "This bank slip already existed and was retrieved.",
+      "noBoletoUrl": "The bank-slip document is not available yet.",
+      "noDigitableLine": "The payment line is not available yet.",
+      "copied": "Payment line copied.",
+      "copyError": "Could not copy the payment line.",
+      "sendError": "Could not record bank-slip delivery.",
+      "emailSent": "Bank slip sent by email and delivery recorded.",
+      "whatsappOpened": "WhatsApp opened. After sending the message, confirm delivery in PHANYX.",
+      "whatsappRegistered": "WhatsApp delivery recorded."
+    },
+    "whatsapp": {
+      "greeting": "Hello, {name}.",
+      "message": "Here is your bank slip for payment.",
+      "link": "Bank slip: {link}",
+      "line": "Payment line: {line}"
+    },
+    "pagination": {
+      "page": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
     }
   }
 }

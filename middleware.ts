@@ -7,9 +7,11 @@ export function middleware(request: NextRequest) {
     ? request.nextUrl.searchParams.get("lang")
     : path.split("/")[1];
   const portal = path === "/login" || /^\/(admin|professor|aluno)(\/|$)/.test(path);
-  if (!portal && !localeEhSuportado(market)) return NextResponse.next();
+  const removedorPtBr = path === "/removedor-de-fundo";
+  if (!portal && !removedorPtBr && !localeEhSuportado(market)) return NextResponse.next();
   const headers = new Headers(request.headers);
-  if (localeEhSuportado(market)) headers.set("x-phanyx-public-locale", market);
+  if (removedorPtBr) headers.set("x-phanyx-public-locale", "pt-BR");
+  else if (localeEhSuportado(market)) headers.set("x-phanyx-public-locale", market);
   if (portal) headers.set("x-phanyx-portal-default-en", "1");
   const response = NextResponse.next({ request: { headers } });
   if (path === "/login" && localeEhSuportado(market)) {
@@ -18,4 +20,4 @@ export function middleware(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/(pt-PT|en-US|es-ES|fr-FR)/:path*", "/login", "/admin/:path*", "/professor/:path*", "/aluno/:path*"] };
+export const config = { matcher: ["/removedor-de-fundo", "/(pt-PT|en-US|es-ES|fr-FR)/:path*", "/login", "/admin/:path*", "/professor/:path*", "/aluno/:path*"] };

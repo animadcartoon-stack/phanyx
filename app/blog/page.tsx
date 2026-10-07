@@ -34,14 +34,6 @@ export default function BlogPage() {
                 Descubra como escolher o melhor sistema escolar para sua instituição.
               </p>
             </Link>
-<Link href="/blog/como-escolher-sistema-escolar" className="block border p-6 rounded-lg hover:shadow">
-  <h2 className="text-2xl font-semibold">
-    Como escolher um sistema de gestão escolar
-  </h2>
-  <p className="text-slate-600 mt-2">
-    Entenda os critérios mais importantes antes de contratar uma plataforma para sua instituição.
-  </p>
-</Link>
 <Link href="/blog/sistema-escolar-gratis-vs-pago" className="block border p-6 rounded-lg hover:shadow">
   <h2 className="text-2xl font-semibold">
     Sistema escolar grátis vs pago: qual escolher?
@@ -64,14 +56,6 @@ export default function BlogPage() {
   </h2>
   <p className="text-slate-600 mt-2">
     Veja como estruturar cursos online com uma plataforma profissional.
-  </p>
-</Link>
-<Link href="/blog/software-para-escolas-completo" className="block border p-6 rounded-lg hover:shadow">
-  <h2 className="text-2xl font-semibold">
-    Software para escolas completo
-  </h2>
-  <p className="text-slate-600 mt-2">
-    Veja como um sistema pode transformar a gestão educacional.
   </p>
 </Link>
 <Link href="/blog/gestao-academica-na-pratica" className="block border p-6 rounded-lg hover:shadow">
@@ -130,14 +114,6 @@ export default function BlogPage() {
     Veja como pequenas escolas podem se organizar com tecnologia.
   </p>
 </Link>
-<Link href="/blog/software-educacional-completo" className="block border p-6 rounded-lg hover:shadow">
-  <h2 className="text-2xl font-semibold">
-    Software educacional completo
-  </h2>
-  <p className="text-slate-600 mt-2">
-    Veja como um sistema pode transformar a gestão educacional.
-  </p>
-</Link>
 <Link href="/blog/plataforma-para-ensino-online" className="block border p-6 rounded-lg hover:shadow">
   <h2 className="text-2xl font-semibold">
     Plataforma para ensino online
@@ -192,14 +168,6 @@ export default function BlogPage() {
   </h2>
   <p className="text-slate-600 mt-2">
     Veja como modernizar a gestão da sua instituição.
-  </p>
-</Link>
-<Link href="/blog/software-para-gestao-escolar" className="block border p-6 rounded-lg hover:shadow">
-  <h2 className="text-2xl font-semibold">
-    Software para gestão escolar
-  </h2>
-  <p className="text-slate-600 mt-2">
-    Veja como um software pode transformar sua instituição.
   </p>
 </Link>
 <Link href="/blog/sistema-academico-completo" className="block border p-6 rounded-lg hover:shadow">

@@ -3,12 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { marketingCopy } from "@/lib/public-marketing";
+import { schoolGuideAlternates, schoolGuideLocales, schoolGuidePath } from "@/lib/school-guide";
 
 export const metadata: Metadata = {
   title: "Melhor sistema de gestão escolar: como escolher em 2026",
   description:
     "Compare critérios para escolher um sistema de gestão escolar: matrículas, frequência, financeiro, documentos, ensino digital, segurança e implantação.",
-  alternates: { canonical: "/blog/sistema-gestao-escolar" },
+  alternates: { canonical: "/blog/sistema-gestao-escolar", ...schoolGuideAlternates() },
   openGraph: {
     title: "Como escolher o melhor sistema de gestão escolar em 2026 | PHANYX",
     description:
@@ -129,9 +131,17 @@ export default function ArticlePage() {
           <nav aria-label="Leituras relacionadas" className="mt-14 border-t border-slate-200 pt-8">
             <h2 className="text-xl font-bold">Leia também</h2>
             <ul className="mt-4 space-y-3 text-blue-700">
-              <li><Link className="underline" href="/blog/como-escolher-sistema-escolar">Como escolher um sistema de gestão escolar</Link></li>
+              <li><Link className="underline" href="/blog/sistema-de-gestao-escolar-online">O que é um sistema de gestão escolar online</Link></li>
               <li><Link className="underline" href="/blog/sistema-escolar-vs-moodle">Sistema escolar e Moodle: diferenças</Link></li>
               <li><Link className="underline" href="/blog/sistema-escolar-gratis-vs-pago">Sistema escolar grátis ou pago?</Link></li>
+            </ul>
+          </nav>
+          <nav aria-label="Outros idiomas" className="mt-10 border-t border-slate-200 pt-8">
+            <h2 className="text-xl font-bold">Leia este guia em outro idioma</h2>
+            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-3 text-blue-700">
+              {schoolGuideLocales.filter((locale) => locale !== "pt-BR").map((locale) => (
+                <li key={locale}><Link href={schoolGuidePath(locale)} hrefLang={locale} className="underline">{marketingCopy[locale].name}</Link></li>
+              ))}
             </ul>
           </nav>
         </article>

@@ -295,6 +295,11 @@ model Instituicao {
 
   bibliotecaModelosEtiqueta BibliotecaModeloEtiqueta[]
 
+  contasFinanceiras           ContaFinanceiraInstituicao[]
+  cobrancasFinanceiras        CobrancaFinanceira[]
+  clientesFinanceirosExternos ClienteFinanceiroExterno[]
+  eventosWebhookFinanceiro    EventoWebhookFinanceiro[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -578,6 +583,8 @@ model User {
   bibliotecaModelosEtiquetaCriados     BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaCriadoPor")
   bibliotecaModelosEtiquetaAtualizados BibliotecaModeloEtiqueta[] @relation("BibliotecaModeloEtiquetaAtualizadoPor")
 
+  cobrancasFinanceirasBaixadas CobrancaFinanceira[] @relation("CobrancaFinanceiraBaixadoPor")
+
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([role])
@@ -726,6 +733,9 @@ model Aluno {
 
   participacoesAtividadesExternas AtividadeExternaParticipante[]
   candidaturasMobilidade          MobilidadeCandidatura[]
+
+  cobrancasFinanceiras        CobrancaFinanceira[]
+  clientesFinanceirosExternos ClienteFinanceiroExterno[]
 
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, matricula])
@@ -949,6 +959,9 @@ model LancamentoFinanceiro {
 
   bibliotecaEmprestimoMulta BibliotecaEmprestimo? @relation("BibliotecaEmprestimoMultaLancamento")
 
+  cobrancasFinanceiras CobrancaFinanceira[]
+
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([matriculaId])
@@ -1222,6 +1235,9 @@ model Matricula {
   transferencias                 TransferenciaMatricula[] @relation("TransferenciaMatriculaOrigem")
   transferenciasComoDestino      TransferenciaMatricula[] @relation("TransferenciaMatriculaDestino")
 
+  cobrancasFinanceiras CobrancaFinanceira[]
+
+  @@unique([id, instituicaoId])
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
   @@index([alunoId])
@@ -2158,11 +2174,203 @@ model MovimentoCaixa {
   instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   lancamento        LancamentoFinanceiro? @relation(fields: [lancamentoId], references: [id])
 
+  cobrancaFinanceira CobrancaFinanceira? @relation("CobrancaFinanceiraMovimentoCaixa")
+
+  @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([caixaId])
   @@index([alunoId])
   @@index([lancamentoId])
   @@index([tipo])
+}
+
+enum StatusBancarioCobranca {
+  PENDENTE
+  VENCIDO
+  EM_PROCESSAMENTO
+  COMPENSADO
+  CANCELADO
+  ESTORNADO
+  FALHA
+}
+
+enum StatusOperacionalCobranca {
+  AGUARDANDO_PAGAMENTO
+  AGUARDANDO_BAIXA
+  BAIXADO
+  DIVERGENCIA
+  CANCELADO
+}
+
+model ContaFinanceiraInstituicao {
+  id            Int    @id @default(autoincrement())
+  instituicaoId Int
+  nome          String
+  provedor      String
+  tipo          String @default("BANCO")
+
+  bancoCodigo      String?
+  agencia          String?
+  conta            String?
+  contaDigito      String?
+  titularNome      String?
+  titularDocumento String?
+
+  moeda String @default("BRL")
+
+  contaExternaId             String?
+  integracaoAtiva            Boolean @default(false)
+  statusIntegracao           String  @default("NAO_CONFIGURADA")
+  ambienteIntegracao         String  @default("PRODUCAO")
+  credenciaisCriptografadas  String? @db.Text
+  webhookSecretCriptografado String? @db.Text
+  webhookUrl                 String?
+  webhookAtivo               Boolean @default(false)
+  suportaBoleto              Boolean @default(false)
+
+  padraoRecebimentos Boolean @default(false)
+  ativa              Boolean @default(true)
+
+  ultimaSincronizacaoEm DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  cobrancas   CobrancaFinanceira[]
+
+  clientesExternos ClienteFinanceiroExterno[]
+  eventosWebhook   EventoWebhookFinanceiro[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([provedor])
+  @@index([ativa])
+}
+
+model ClienteFinanceiroExterno {
+  id                Int @id @default(autoincrement())
+  instituicaoId     Int
+  contaFinanceiraId Int
+  alunoId           Int
+
+  provedor         String
+  clienteExternoId String
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao     Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  contaFinanceira ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  aluno           Aluno                      @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([contaFinanceiraId, alunoId])
+  @@unique([contaFinanceiraId, clienteExternoId])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([provedor])
+}
+
+model EventoWebhookFinanceiro {
+  id                   Int  @id @default(autoincrement())
+  instituicaoId        Int
+  contaFinanceiraId    Int
+  cobrancaFinanceiraId Int?
+
+  provedor        String
+  eventoExternoId String
+  tipoEvento      String
+  resultado       String @default("RECEBIDO")
+  tentativas      Int    @default(1)
+
+  payload      Json
+  recebidoEm   DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  processadoEm DateTime?
+  erro         String?   @db.Text
+
+  instituicao        Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  contaFinanceira    ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  cobrancaFinanceira CobrancaFinanceira?        @relation(fields: [cobrancaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  @@unique([contaFinanceiraId, eventoExternoId])
+  @@index([instituicaoId])
+  @@index([cobrancaFinanceiraId])
+  @@index([tipoEvento])
+  @@index([recebidoEm])
+}
+
+model CobrancaFinanceira {
+  id Int @id @default(autoincrement())
+
+  instituicaoId          Int
+  contaFinanceiraId      Int
+  lancamentoFinanceiroId Int
+  alunoId                Int
+  matriculaId            Int?
+
+  provedor String
+  tipo     String @default("BOLETO")
+
+  referenciaInterna String  @unique @default(cuid())
+  cobrancaExternaId String?
+  clienteExternoId  String?
+  referenciaExterna String?
+
+  statusBancario    StatusBancarioCobranca    @default(PENDENTE)
+  statusOperacional StatusOperacionalCobranca @default(AGUARDANDO_PAGAMENTO)
+
+  valorCobrado    Decimal  @db.Decimal(12, 2)
+  valorCompensado Decimal? @db.Decimal(12, 2)
+
+  vencimento   DateTime
+  emitidoEm    DateTime  @default(now())
+  pagoEm       DateTime?
+  compensadoEm DateTime?
+
+  linhaDigitavel String?
+  codigoBarras   String?
+  boletoUrl      String?
+  invoiceUrl     String?
+
+  erroIntegracao String? @db.Text
+
+  baixadoEm              DateTime?
+  baixadoPorUsuarioId    Int?
+  baixadoPorNomeSnapshot String?
+  movimentoCaixaId       Int?
+  observacao             String?   @db.Text
+  metadata               Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  instituicao          Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  contaFinanceira      ContaFinanceiraInstituicao @relation(fields: [contaFinanceiraId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  lancamentoFinanceiro LancamentoFinanceiro       @relation(fields: [lancamentoFinanceiroId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  aluno                Aluno                      @relation(fields: [alunoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  matricula            Matricula?                 @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  baixadoPorUsuario    User?                      @relation("CobrancaFinanceiraBaixadoPor", fields: [baixadoPorUsuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  movimentoCaixa       MovimentoCaixa?            @relation("CobrancaFinanceiraMovimentoCaixa", fields: [movimentoCaixaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  eventosWebhook EventoWebhookFinanceiro[]
+
+  @@unique([contaFinanceiraId, cobrancaExternaId])
+  @@unique([movimentoCaixaId, instituicaoId])
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId])
+  @@index([contaFinanceiraId])
+  @@index([lancamentoFinanceiroId])
+  @@index([alunoId])
+  @@index([matriculaId])
+  @@index([statusBancario])
+  @@index([statusOperacional])
+  @@index([instituicaoId, statusBancario])
+  @@index([instituicaoId, statusOperacional])
+  @@index([vencimento])
+  @@index([baixadoPorUsuarioId])
 }
 
 model ConfiguracaoFinanceiraInstituicao {
@@ -3096,7 +3304,7 @@ model Ouvidoria {
 
   usuarioId Int?
   origem    String // ALUNO, PROFESSOR, ADMIN
-  tipo      String // SugestÃ£o, ReclamaÃ§Ã£o, Elogio, Relato
+  tipo      String // SugestÃƒÂ£o, ReclamaÃƒÂ§ÃƒÂ£o, Elogio, Relato
   titulo    String?
   mensagem  String
 
@@ -4176,17 +4384,17 @@ model HistoricoRemuneracaoRH {
   tipoAnterior TipoRemuneracaoRH?
   tipoNovo     TipoRemuneracaoRH
 
-  // Snapshot completo da remuneraÃ§Ã£o antes e depois da alteraÃ§Ã£o.
+  // Snapshot completo da remuneraÃƒÂ§ÃƒÂ£o antes e depois da alteraÃƒÂ§ÃƒÂ£o.
   dadosAnteriores Json
   dadosNovos      Json
 
-  // Data e hora em que a nova remuneraÃ§Ã£o comeÃ§a a valer.
+  // Data e hora em que a nova remuneraÃƒÂ§ÃƒÂ£o comeÃƒÂ§a a valer.
   vigenciaInicio DateTime
 
-  // Justificativa obrigatÃ³ria informada pelo RH.
+  // Justificativa obrigatÃƒÂ³ria informada pelo RH.
   motivo String @db.Text
 
-  // Data e hora em que a alteraÃ§Ã£o foi registrada no PHANYX.
+  // Data e hora em que a alteraÃƒÂ§ÃƒÂ£o foi registrada no PHANYX.
   alteradoEm DateTime @default(now())
 
   instituicao Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -4702,7 +4910,7 @@ model MarcacaoPontoMobileRH {
   tipo      String
 
   // VALIDA ou INVALIDADA.
-  // A marcaÃ§Ã£o original nÃ£o serÃ¡ apagada pelo RH.
+  // A marcaÃƒÂ§ÃƒÂ£o original nÃƒÂ£o serÃƒÂ¡ apagada pelo RH.
   status String @default("VALIDA")
 
   fotoUrl      String?
@@ -4769,7 +4977,7 @@ model AjusteMarcacaoPontoRH {
 
   motivo String @db.Text
 
-  // Preserva os dados anteriores e posteriores Ã  correÃ§Ã£o.
+  // Preserva os dados anteriores e posteriores ÃƒÂ  correÃƒÂ§ÃƒÂ£o.
   dadosAntes  Json?
   dadosDepois Json?
 
@@ -5902,14 +6110,14 @@ model WhatsAppMensagem {
 
   parametros Json?
 
-  // Identifica de forma Ãºnica uma comunicaÃ§Ã£o originada
+  // Identifica de forma ÃƒÂºnica uma comunicaÃƒÂ§ÃƒÂ£o originada
   // de um evento do PHANYX.
   //
   // Exemplo:
   // reuniao:35:lembrete:amanha:usuario:18
   //
-  // Evita que cron, retry ou execuÃ§Ãµes concorrentes
-  // disparem a mesma comunicaÃ§Ã£o duas vezes.
+  // Evita que cron, retry ou execuÃƒÂ§ÃƒÂµes concorrentes
+  // disparem a mesma comunicaÃƒÂ§ÃƒÂ£o duas vezes.
   chaveIdempotencia String? @unique
 
   metaMessageId String? @unique
@@ -6049,8 +6257,8 @@ model ModuloAdicionalContratacao {
   valorMensal                  Decimal @db.Decimal(10, 2)
   armazenamentoContratadoBytes BigInt
 
-  // Impede dois contratos vigentes para o mesmo mÃ³dulo/instituiÃ§Ã£o.
-  // SerÃ¡ preenchida, por exemplo, com:
+  // Impede dois contratos vigentes para o mesmo mÃƒÂ³dulo/instituiÃƒÂ§ÃƒÂ£o.
+  // SerÃƒÂ¡ preenchida, por exemplo, com:
   // BIBLIOTECA_VIRTUAL:1
   chaveVigente String? @unique
 
@@ -7998,12 +8206,12 @@ model StudentSuccessIntervencao {
   retornoEm DateTime?
   resultado String?   @db.Text
 
-  // Fotografia da anÃ¡lise no momento
-  // em que a intervenÃ§Ã£o foi registrada.
+  // Fotografia da anÃƒÂ¡lise no momento
+  // em que a intervenÃƒÂ§ÃƒÂ£o foi registrada.
   //
-  // Isso permitirÃ¡ medir posteriormente
-  // se houve evoluÃ§Ã£o acadÃªmica.
-  // Fotografia acadÃªmica no momento do registro
+  // Isso permitirÃƒÂ¡ medir posteriormente
+  // se houve evoluÃƒÂ§ÃƒÂ£o acadÃƒÂªmica.
+  // Fotografia acadÃƒÂªmica no momento do registro
   nivelRiscoNoRegistro     String
   pontuacaoNoRegistro      Int?
   coberturaNoRegistro      Int
@@ -8011,7 +8219,7 @@ model StudentSuccessIntervencao {
   fatoresNoRegistro        Json?
   indicadoresNoRegistro    Json?
 
-  // Fotografia acadÃªmica no momento do encerramento
+  // Fotografia acadÃƒÂªmica no momento do encerramento
   nivelRiscoNoEncerramento     String?
   pontuacaoNoEncerramento      Int?
   coberturaNoEncerramento      Int?
@@ -8049,11 +8257,11 @@ model StudentSuccessAnaliseHistorico {
 
   executadoPorId Int?
 
-  // VersÃ£o das regras que produziram
-  // esta fotografia acadÃªmica.
+  // VersÃƒÂ£o das regras que produziram
+  // esta fotografia acadÃƒÂªmica.
   versaoMotor String @default("v1")
 
-  // Resultado da anÃ¡lise.
+  // Resultado da anÃƒÂ¡lise.
   nivelRisco String
 
   pontuacaoRisco Int?
@@ -8066,18 +8274,18 @@ model StudentSuccessAnaliseHistorico {
 
   confiabilidade String
 
-  // Explicabilidade completa do cÃ¡lculo.
+  // Explicabilidade completa do cÃƒÂ¡lculo.
   componentes       Json?
   fatoresPrincipais Json?
 
-  // Fotografia dos dados acadÃªmicos
-  // utilizados no cÃ¡lculo.
+  // Fotografia dos dados acadÃƒÂªmicos
+  // utilizados no cÃƒÂ¡lculo.
   indicadores Json?
 
-  // RepresentaÃ§Ã£o estÃ¡vel do estado acadÃªmico.
+  // RepresentaÃƒÂ§ÃƒÂ£o estÃƒÂ¡vel do estado acadÃƒÂªmico.
   //
-  // SerÃ¡ usada para evitar gravar vÃ¡rias
-  // fotografias idÃªnticas consecutivas.
+  // SerÃƒÂ¡ usada para evitar gravar vÃƒÂ¡rias
+  // fotografias idÃƒÂªnticas consecutivas.
   assinaturaEstado String
 
   analisadoEm DateTime @default(now())
@@ -9007,6 +9215,7 @@ enum TipoDocumentoTemplate {
   RECIBO
   COMPROVANTE
   TRANCAMENTO
+  CANCELAMENTO_MATRICULA
   COMPARECIMENTO
   HISTORICO
 
@@ -9923,7 +10132,7 @@ enum StatusIntervencaoStudentSuccess {
 
 // ============================================================
 // ATIVIDADES EXTERNAS / TRIPS & OFF-SITE ACTIVITIES
-// NÃºcleo internacional e multi-tenant.
+// NÃƒÂºcleo internacional e multi-tenant.
 // ============================================================
 
 model AtividadeExterna {
@@ -10529,7 +10738,7 @@ enum TipoConducaoVeiculo {
 }
 
 // ============================================================================
-// MOBILIDADE ACADÃŠMICA E INTERCÃ‚MBIO INTERNACIONAL
+// MOBILIDADE ACADÃƒÅ MICA E INTERCÃƒâ€šMBIO INTERNACIONAL
 // ============================================================================
 
 enum MobilidadeDirecao {

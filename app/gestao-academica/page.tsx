@@ -279,6 +279,10 @@ export default function GestaoAcademicaPage() {
       Gestão acadêmica
     </Link>
 
+    <Link href="/gestao-de-matriculas-escolares" className="text-blue-700 hover:text-blue-600">
+      Sistema de matrícula escolar
+    </Link>
+
     <Link href="/plataforma-ead" className="text-blue-700 hover:text-blue-600">
       Plataforma EAD
     </Link>

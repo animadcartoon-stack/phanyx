@@ -10,6 +10,7 @@ import {
   useTranslations,
 } from "next-intl";
 import BandeiraPais from "@/components/internacionalizacao/BandeiraPais";
+import { backgroundRemoverPath } from "@/lib/background-remover-i18n";
 import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
 import {
   normalizarTelefoneE164,
@@ -2030,7 +2031,7 @@ export default function ConfigInstituicaoPage() {
                 <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-100">
                   {t("logo.backgroundRemoval.before")}
                   <a
-                    href="https://phanyx.com.br/removedor-de-fundo"
+                    href={backgroundRemoverPath(locale)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 font-bold underline"
@@ -2147,7 +2148,7 @@ export default function ConfigInstituicaoPage() {
                 <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-100">
                   {t("signature.backgroundRemoval.before")}
                   <a
-                    href="https://phanyx.com.br/removedor-de-fundo"
+                    href={backgroundRemoverPath(locale)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-1 font-bold underline"

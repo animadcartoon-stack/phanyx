@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+
+export const metadata: Metadata = {
+  title: "Gestão Escolar: Organize Processos e Resultados | PHANYX",
+  description:
+    "Gestão escolar integrada para organizar processos acadêmicos, administrativos e financeiros, com dados conectados e visão institucional.",
+  alternates: { canonical: "/gestao-escolar" },
+};
 
 const beneficios = [
   {
@@ -66,14 +74,14 @@ export default function GestaoEscolarPage() {
               </p>
 
               <h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
-                Sistema de gestão escolar com operação acadêmica, experiência moderna e visão institucional
+                Gestão escolar integrada para organizar processos, pessoas e resultados
               </h1>
 
               <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-                O PHANYX é uma plataforma desenvolvida para instituições que
-                precisam de mais controle, organização e escalabilidade. Com ele,
-                sua gestão escolar pode operar cursos, turmas, matrículas,
-                professores, alunos, documentos e ensino digital em um único lugar.
+                Gestão escolar envolve processos acadêmicos, administrativos e
+                financeiros conectados. O PHANYX ajuda a instituição a organizar
+                cursos, turmas, matrículas, professores, alunos, documentos e
+                ensino digital com informação centralizada e visão para a gestão.
               </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
@@ -101,7 +109,7 @@ export default function GestaoEscolarPage() {
               Por que usar o PHANYX
             </p>
             <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-              Mais do que um sistema escolar: uma base sólida para crescer com organização
+              Gestão escolar mais clara, integrada e preparada para crescer
             </h2>
           </div>
 
@@ -126,7 +134,7 @@ export default function GestaoEscolarPage() {
                   Recursos estratégicos
                 </p>
                 <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                  Um software para gestão escolar preparado para a rotina real da instituição
+                  Processos acadêmicos, administrativos e financeiros conectados
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   O PHANYX foi desenhado para unir gestão acadêmica, experiência

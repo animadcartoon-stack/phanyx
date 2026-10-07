@@ -1,12 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { LocalePhanyx } from "@/i18n/config";
+import { backgroundRemoverT } from "@/lib/background-remover-i18n";
+
+export type CropAplicado = {
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  naturalWidth: number;
+  naturalHeight: number;
+};
 
 type Props = {
   imagem: string;
   aberto: boolean;
   onClose: () => void;
-  onAplicar: (novaImagem: string) => void;
+  onAplicar: (novaImagem: string, recorte: CropAplicado) => void | Promise<void>;
+  locale?: LocalePhanyx;
 };
 
 type Crop = {
@@ -23,7 +35,10 @@ export default function CropImageModal({
   aberto,
   onClose,
   onAplicar,
+  locale = "pt-BR",
 }: Props) {
+  const tr = (source: string, vars?: Record<string, string | number>) =>
+    backgroundRemoverT(locale, source, vars);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const toquePinchRef = useRef<{ distancia: number; zoom: number } | null>(null);
 
@@ -102,7 +117,14 @@ export default function CropImageModal({
     canvas.height
   );
 
-  onAplicar(canvas.toDataURL("image/png"));
+  onAplicar(canvas.toDataURL("image/png"), {
+    x: sx,
+    y: sy,
+    largura: sw,
+    altura: sh,
+    naturalWidth: img.naturalWidth,
+    naturalHeight: img.naturalHeight,
+  });
 }
 
   return (
@@ -110,21 +132,15 @@ export default function CropImageModal({
       <div className="flex h-full w-full max-w-6xl flex-col rounded-3xl border border-cyan-400/30 bg-slate-950 p-3 sm:h-auto sm:p-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-black text-cyan-200 sm:text-2xl">
-              Cortar imagem
-            </h2>
-            <p className="text-xs text-slate-300">
-              Arraste a moldura. Use dois dedos para aproximar no celular.
-            </p>
+            <h2 className="text-xl font-black text-cyan-200 sm:text-2xl">{tr("Cortar imagem")}</h2>
+            <p className="text-xs text-slate-300">{tr("Arraste a moldura. Use dois dedos para aproximar no celular.")}</p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
             className="rounded-xl bg-red-500 px-4 py-2 text-sm font-black text-white"
-          >
-            Fechar
-          </button>
+          >{tr("Fechar")}</button>
         </div>
 
         <div
@@ -199,7 +215,7 @@ export default function CropImageModal({
             <img
               ref={imgRef}
               src={imagem}
-              alt="Imagem para cortar"
+              alt={tr("Imagem para cortar")}
               className="max-h-[65vh] max-w-full object-contain sm:max-h-[540px]"
               draggable={false}
             />
@@ -238,7 +254,7 @@ export default function CropImageModal({
                   setCropInicial(crop);
                 }}
                 className="absolute -bottom-4 -right-4 h-9 w-9 rounded-full border-2 border-white bg-cyan-400 shadow-lg"
-                title="Redimensionar"
+                title={tr("Redimensionar")}
               />
 
               <div className="pointer-events-none absolute -left-2 -top-2 h-4 w-4 rounded-full border-2 border-white bg-cyan-400" />
@@ -253,25 +269,19 @@ export default function CropImageModal({
             type="button"
             onClick={() => setZoom(1)}
             className="rounded-xl border border-white/20 px-5 py-3 font-bold text-white"
-          >
-            Reset zoom
-          </button>
+          >{tr("Reset zoom")}</button>
 
           <button
             type="button"
             onClick={onClose}
             className="rounded-xl border border-white/20 px-5 py-3 font-bold text-white"
-          >
-            Cancelar
-          </button>
+          >{tr("Cancelar")}</button>
 
           <button
             type="button"
             onClick={aplicarCorte}
             className="rounded-xl bg-cyan-400 px-5 py-3 font-black text-slate-950"
-          >
-            Aplicar corte
-          </button>
+          >{tr("Aplicar corte")}</button>
         </div>
       </div>
     </div>

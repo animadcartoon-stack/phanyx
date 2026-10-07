@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
@@ -4970,30 +4972,17 @@ function AdminMatriculasPage() {
                                   {t("actions.transferir")}
                                 </a>
 
-                                <button
-                                  type="button"
-                                  disabled={statusAtualizando !== null}
-                                  aria-busy={statusAcaoCarregando(
-                                    m.id,
-                                    "INTERCAMBIO"
-                                  )}
-                                  onClick={() =>
-                                    alterarStatusMatricula(
-                                      m.id,
-                                      "INTERCAMBIO"
-                                    )
-                                  }
-                                  className={classeBotaoAcaoStatus(
-                                    m.id,
-                                    "INTERCAMBIO",
-                                    m.status,
-                                    "rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm text-indigo-800 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-slate-950 dark:text-indigo-300 dark:hover:bg-indigo-950/30"
-                                  )}
-                                >
-                                  {statusAcaoCarregando(m.id, "INTERCAMBIO")
-                                    ? t("actions.atualizando")
-                                    : t("actions.intercambio")}
-                                </button>
+                                {m.aluno?.id && (
+                                  <Link
+                                    href={`/admin/mobilidade/candidaturas?nova=1&alunoId=${m.aluno.id}&matriculaId=${m.id}`}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                    }}
+                                    className="inline-flex items-center rounded-xl border border-indigo-300 bg-white px-3 py-2 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-50 dark:border-indigo-800 dark:bg-slate-950 dark:text-indigo-300 dark:hover:bg-indigo-950/30"
+                                  >
+                                    🌍 {t("actions.cadastrarIntercambio")}
+                                  </Link>
+                                )}
 
                                 <button
                                   type="button"

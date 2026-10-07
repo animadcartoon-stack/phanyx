@@ -208,6 +208,74 @@ const DEFINICOES_CAMPOS_MANUAIS: Record<
     opcoes?: string[];
   }
 > = {
+  motivoCancelamentoMatricula: {
+    label: "Motivo do cancelamento",
+    tipo: "textarea",
+    placeholder: "Informe o motivo formal do cancelamento.",
+  },
+  dataSolicitacaoCancelamentoMatricula: {
+    label: "Data da solicitação",
+    tipo: "data",
+  },
+  dataEfetivaCancelamentoMatricula: {
+    label: "Data efetiva do cancelamento",
+    tipo: "data",
+  },
+  responsavelCancelamentoMatricula: {
+    label: "Responsável pelo processo",
+    tipo: "texto",
+  },
+  numeroProtocoloCancelamentoMatricula: {
+    label: "Protocolo do cancelamento",
+    tipo: "texto",
+  },
+  regraContratualCancelamento: {
+    label: "Regra contratual aplicada",
+    tipo: "textarea",
+  },
+  baseCalculoMultaCancelamento: {
+    label: "Base de cálculo da multa",
+    tipo: "moeda",
+  },
+  percentualMultaCancelamento: {
+    label: "Percentual da multa",
+    tipo: "texto",
+    placeholder: "Ex.: 10%",
+  },
+  valorParcelasVencidasCancelamento: {
+    label: "Parcelas/valores vencidos",
+    tipo: "moeda",
+  },
+  valorMultaCancelamento: {
+    label: "Multa contratual",
+    tipo: "moeda",
+  },
+  valorJurosCancelamento: {
+    label: "Juros e encargos",
+    tipo: "moeda",
+  },
+  valorCreditoCancelamento: {
+    label: "Créditos/descontos",
+    tipo: "moeda",
+  },
+  valorDevolucaoCancelamento: {
+    label: "Valor a devolver",
+    tipo: "moeda",
+  },
+  valorTotalCancelamento: {
+    label: "Total para encerramento",
+    tipo: "moeda",
+  },
+  situacaoFinanceiraCancelamento: {
+    label: "Situação financeira",
+    tipo: "select",
+    opcoes: ["PENDENTE", "QUITADO", "ISENTO", "VALOR_A_DEVOLVER"],
+  },
+  observacoesCancelamentoMatricula: {
+    label: "Observações do cancelamento",
+    tipo: "textarea",
+  },
+
   descricaoDocumento: {
     label: "Descrição ou corpo do documento",
     tipo: "textarea",

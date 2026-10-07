@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "TipoDocumentoTemplate" ADD VALUE IF NOT EXISTS 'CANCELAMENTO_MATRICULA';
