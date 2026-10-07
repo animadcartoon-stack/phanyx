@@ -51,6 +51,41 @@ function somenteNumeros(
 function obterCredenciais(
   configuracao: ConfiguracaoProvedorFinanceiro
 ): CredenciaisAsaas {
+  /*
+   * PHANYX_LEGACY_IBE_ASAAS_ENV
+   *
+   * A IBE já possui integração Asaas de produção
+   * baseada em variáveis de ambiente da Vercel.
+   *
+   * Para preservar compatibilidade com esse fluxo
+   * legado sem compartilhar a credencial entre
+   * outras instituições, somente a instituição
+   * identificada por IBE_INSTITUICAO_ID pode usar
+   * ASAAS_API_KEY como credencial do provedor.
+   *
+   * Demais instituições continuam usando apenas
+   * suas próprias credenciais criptografadas em
+   * ContaFinanceiraInstituicao.
+   */
+  const ibeInstituicaoId = Number(
+    process.env.IBE_INSTITUICAO_ID || 0
+  );
+
+  const apiKeyLegadaIbe = String(
+    process.env.ASAAS_API_KEY || ""
+  ).trim();
+
+  if (
+    ibeInstituicaoId > 0 &&
+    configuracao.instituicaoId ===
+      ibeInstituicaoId &&
+    apiKeyLegadaIbe
+  ) {
+    return {
+      apiKey: apiKeyLegadaIbe,
+    };
+  }
+
   if (!configuracao.credenciaisCriptografadas) {
     throw new Error(
       "Credenciais do Asaas não configuradas."
