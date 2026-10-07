@@ -83,6 +83,9 @@ type CampoVisualContrato = {
 
   blocoOffsetX?: number;
   blocoOffsetY?: number;
+
+  blocoPaginaX?: number;
+  blocoPaginaY?: number;
 };
 
 type ConfiguracaoInstituicao = {
@@ -1798,8 +1801,8 @@ function AdminDocumentosTemplatesPage() {
   }
 
   function moverBlocoAssinatura(
-    blocoOffsetX: number,
-    blocoOffsetY: number
+    blocoPaginaX: number,
+    blocoPaginaY: number
   ) {
     setCamposVisuais(
       (atuais) => {
@@ -1822,8 +1825,13 @@ function AdminDocumentosTemplatesPage() {
               "ASSINATURA_DIRETOR"
                 ? {
                     ...campo,
-                    blocoOffsetX,
-                    blocoOffsetY,
+
+                    /*
+                     * Fonte de verdade da posição final.
+                     * Não depende do local da tag no HTML.
+                     */
+                    blocoPaginaX,
+                    blocoPaginaY,
                   }
                 : campo
           );
@@ -1844,8 +1852,8 @@ function AdminDocumentosTemplatesPage() {
             altura: 55,
             pagina: 1,
 
-            blocoOffsetX,
-            blocoOffsetY,
+            blocoPaginaX,
+            blocoPaginaY,
           },
         ];
       }

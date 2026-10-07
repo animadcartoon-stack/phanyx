@@ -13,6 +13,13 @@ export type CampoVisualDocumento = {
 
   blocoOffsetX?: number;
   blocoOffsetY?: number;
+
+  /*
+   * Posição absoluta do bloco dentro da folha
+   * exibida no editor, em px CSS (96 dpi).
+   */
+  blocoPaginaX?: number;
+  blocoPaginaY?: number;
 };
 
 export type DadosInstituicaoDocumento = {
@@ -612,11 +619,13 @@ function criarBlocoAssinatura({
   instituicao,
   modoPrevia,
   campoVisual,
+  formatoImpressao,
 }: {
   assinaturaUrl: string;
   instituicao: DadosInstituicaoDocumento;
   modoPrevia: boolean;
   campoVisual?: CampoVisualDocumento | null;
+  formatoImpressao: FormatoImpressaoDocumento;
 }) {
   const campoNormalizado = campoVisual
     ? obterCampoVisualAssinatura([campoVisual])
@@ -648,6 +657,67 @@ function criarBlocoAssinatura({
     (Number.isFinite(blocoOffsetYPx) ? blocoOffsetYPx : 0) *
     25.4 /
     96;
+
+  const blocoPaginaXPx =
+    Number(
+      campoDoBloco.blocoPaginaX
+    );
+
+  const blocoPaginaYPx =
+    Number(
+      campoDoBloco.blocoPaginaY
+    );
+
+  const possuiPosicaoAbsoluta =
+    Number.isFinite(
+      blocoPaginaXPx
+    ) &&
+    Number.isFinite(
+      blocoPaginaYPx
+    );
+
+  const blocoPaginaXMm =
+    blocoPaginaXPx *
+    25.4 /
+    96;
+
+  const blocoPaginaYMm =
+    blocoPaginaYPx *
+    25.4 /
+    96;
+
+  /*
+   * No editor, blocoPaginaX/blocoPaginaY são medidos
+   * em relação à folha visual completa.
+   *
+   * No PDF, o elemento vive dentro da área de conteúdo,
+   * que começa depois das margens do Chromium.
+   * Por isso convertemos a coordenada da folha para a
+   * coordenada local da área imprimível.
+   */
+  const margemEsquerdaConteudoMm =
+    MARGEM_LATERAL_MM;
+
+  const topoConteudoMm =
+    formatoImpressao ===
+      "DUAS_VIAS_A4"
+      ? 17
+      : ALTURA_CABECALHO_MM;
+
+  const estiloPosicaoBloco =
+    possuiPosicaoAbsoluta
+      ? [
+        "position:absolute",
+        "z-index:4",
+        `left:${blocoPaginaXMm - margemEsquerdaConteudoMm}mm`,
+        `top:${blocoPaginaYMm - topoConteudoMm}mm`,
+        "margin:0",
+      ].join(";")
+      : [
+        "position:relative",
+        `left:${deslocamentoBlocoXMm}mm`,
+        `top:${deslocamentoBlocoYMm}mm`,
+      ].join(";");
 
   const assinaturaSvg =
     assinaturaUrl
@@ -694,25 +764,16 @@ function criarBlocoAssinatura({
     ? escaparHtml(instituicao.cnpj)
     : "";
 
-  /*
-   * UM ÚNICO SISTEMA DE COORDENADAS PARA TODO O BLOCO.
-   *
-   * Editor e PDF usam viewBox 480 x 221.538462.
-   * A linha, assinatura, nome, cargo, instituição e CNPJ são filhos
-   * do MESMO SVG. Portanto nenhuma parte pode subir/descer sozinha.
-   * O blocoOffset move o conjunto inteiro exatamente como no editor.
-   */
   return `
     <span
       class="phanyx-bloco-assinatura phanyx-bloco-assinatura-visual"
+      data-phanyx-posicao-absoluta="${possuiPosicaoAbsoluta ? "true" : "false"}"
       style="
-        position: relative;
+        ${estiloPosicaoBloco};
         display: inline-block;
         width: 78mm;
         height: 36mm;
         min-height: 36mm;
-        left: ${deslocamentoBlocoXMm}mm;
-        top: ${deslocamentoBlocoYMm}mm;
       "
     >
       <svg
@@ -869,6 +930,7 @@ export function aplicarAssinaturasDocumento({
   instituicao,
   modoPrevia = false,
   camposVisuais,
+  formatoImpressao,
 }: {
   conteudo: string;
 
@@ -879,6 +941,9 @@ export function aplicarAssinaturasDocumento({
 
   camposVisuais?:
   CampoVisualDocumento[] | null;
+
+  formatoImpressao:
+  FormatoImpressaoDocumento;
 }) {
   const assinaturaUrl =
     String(
@@ -910,6 +975,8 @@ export function aplicarAssinaturasDocumento({
       modoPrevia,
 
       campoVisual,
+
+      formatoImpressao,
     });
 
   return String(conteudo || "")
@@ -2570,6 +2637,8 @@ export function montarRenderizacaoDocumento(
 
       camposVisuais:
         opcoes.camposVisuais,
+
+      formatoImpressao,
     });
 
   const possuiQuebrasDePagina =
