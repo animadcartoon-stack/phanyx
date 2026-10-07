@@ -19,6 +19,7 @@ import {
   mimeDocumentoAtividadeExternaPermitido,
   obterExtensaoDocumentoAtividadeExterna,
   prefixoDocumentoAtividadeExterna,
+  obterTokenDocumentoAtividadeExternaBlob,
 } from "@/lib/atividade-externa-documentos-storage";
 
 import { prisma } from "@/lib/prisma";
@@ -327,7 +328,10 @@ async function removerBlobSilenciosamente(
 ) {
   try {
     await del(
-      pathname
+      pathname,
+      {
+        token: obterTokenDocumentoAtividadeExternaBlob(),
+      }
     );
   } catch (
     erro
@@ -635,8 +639,11 @@ export async function POST(
     try {
       detalhes =
         await head(
-          pathname
-        );
+      pathname,
+      {
+        token: obterTokenDocumentoAtividadeExternaBlob(),
+      }
+    );
     } catch {
       return NextResponse.json(
         {
