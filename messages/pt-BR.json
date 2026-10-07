@@ -22269,7 +22269,7 @@
       "loading": "Carregando..."
     },
     "summary": {
-      "generated": "Boletos localizados",
+      "generated": "Boletos emitidos",
       "awaitingPayment": "Aguardando pagamento",
       "awaitingSettlement": "Aguardando baixa",
       "settled": "Baixados",
@@ -22330,6 +22330,7 @@
     },
     "delivery": {
       "generated": "Gerado",
+      "toSend": "A enviar",
       "sent": "Enviado",
       "sentDetails": "{channel} · {date}"
     },

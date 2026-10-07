@@ -179,6 +179,17 @@ export default function BoletosPage() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
+  /*
+   * PHANYX_BOLETOS_FLUXO_VISUAL_20261007
+   *
+   * Mantém o boleto recém-gerado em destaque e faz a tela
+   * levá-lo automaticamente para a área de boletos emitidos.
+   */
+  const [
+    cobrancaRecenteId,
+    setCobrancaRecenteId,
+  ] = useState<number | null>(null);
+
   const moeda = useCallback(
     (valor: number, currency = "BRL") => {
       try {
@@ -378,6 +389,39 @@ export default function BoletosPage() {
     void carregarBoletos();
   }, [carregarBoletos]);
 
+  useEffect(() => {
+    if (!cobrancaRecenteId) {
+      return;
+    }
+
+    const linha =
+      document.getElementById(
+        `cobranca-${cobrancaRecenteId}`
+      );
+
+    if (!linha) {
+      return;
+    }
+
+    const timerRolagem =
+      window.setTimeout(() => {
+        linha.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 150);
+
+    const timerDestaque =
+      window.setTimeout(() => {
+        setCobrancaRecenteId(null);
+      }, 5000);
+
+    return () => {
+      window.clearTimeout(timerRolagem);
+      window.clearTimeout(timerDestaque);
+    };
+  }, [cobrancaRecenteId, cobrancas]);
+
   async function gerarBoleto(lancamento: LancamentoDisponivel) {
     try {
       setGerandoId(lancamento.id);
@@ -411,6 +455,22 @@ export default function BoletosPage() {
           ? t("messages.reused")
           : t("messages.generated")
       );
+
+      const cobrancaGeradaId =
+        Number(
+          dados?.cobranca?.id || 0
+        );
+
+      if (cobrancaGeradaId > 0) {
+        setCobrancaRecenteId(
+          cobrancaGeradaId
+        );
+
+        setFiltro("TODOS");
+        setPagina(1);
+        setBuscaBoletos("");
+        setBuscaBoletosAplicada("");
+      }
 
       await Promise.all([
         carregarDisponiveis(),
@@ -831,120 +891,6 @@ export default function BoletosPage() {
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <h2 className="text-xl font-bold">
-          {t("generate.title")}
-        </h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          {t("generate.subtitle")}
-        </p>
-
-        <input
-          value={buscaGerar}
-          onChange={(event) =>
-            setBuscaGerar(event.target.value)
-          }
-          placeholder={t("generate.search")}
-          className="mt-4 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900"
-        />
-
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800">
-              <tr>
-                <th className="px-3 py-3">{t("table.student")}</th>
-                <th className="px-3 py-3">{t("table.charge")}</th>
-                <th className="px-3 py-3">{t("table.dueDate")}</th>
-                <th className="px-3 py-3">{t("table.balance")}</th>
-                <th className="px-3 py-3">{t("table.action")}</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loadingGerar ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-3 py-8 text-center text-slate-500"
-                  >
-                    {t("common.loading")}
-                  </td>
-                </tr>
-              ) : disponiveis.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-3 py-8 text-center text-slate-500"
-                  >
-                    {t("generate.empty")}
-                  </td>
-                </tr>
-              ) : (
-                disponiveis.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-slate-100 align-top dark:border-slate-900"
-                  >
-                    <td className="px-3 py-4">
-                      <p className="font-semibold">
-                        {item.aluno.nome}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {item.aluno.user?.email || "-"}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {item.matricula?.numeroMatricula ||
-                          item.matricula?.numeroMatriculaLegado ||
-                          "-"}
-                      </p>
-                    </td>
-                    <td className="px-3 py-4">
-                      <p className="font-medium">
-                        {item.descricao || t("generate.monthlyFee")}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {item.matricula?.curso?.nome || "-"}
-                      </p>
-                    </td>
-                    <td className="px-3 py-4">
-                      {data(item.vencimento)}
-                    </td>
-                    <td className="px-3 py-4 font-semibold">
-                      {moeda(item.saldoPendente)}
-                    </td>
-                    <td className="px-3 py-4">
-                      {item.cobranca?.boletoUrl ||
-                      item.cobranca?.invoiceUrl ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            abrirBoleto(item.cobranca || {})
-                          }
-                          className="rounded-lg border border-slate-300 px-3 py-2 font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900"
-                        >
-                          {t("actions.open")}
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          disabled={gerandoId === item.id}
-                          onClick={() => void gerarBoleto(item)}
-                          className="rounded-lg bg-blue-600 px-3 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-                        >
-                          {gerandoId === item.id
-                            ? t("actions.generating")
-                            : t("actions.generate")}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-xl font-bold">
@@ -1032,7 +978,14 @@ export default function BoletosPage() {
                   return (
                     <tr
                       key={cobranca.id}
-                      className="border-b border-slate-100 align-top dark:border-slate-900"
+                      id={`cobranca-${cobranca.id}`}
+                      className={
+                        "border-b border-slate-100 align-top transition dark:border-slate-900 " +
+                        (cobrancaRecenteId ===
+                        cobranca.id
+                          ? "bg-blue-50 ring-1 ring-inset ring-blue-200 dark:bg-blue-950/30 dark:ring-blue-900"
+                          : "")
+                      }
                     >
                       <td className="px-3 py-4">
                         <p className="font-semibold">
@@ -1135,9 +1088,14 @@ export default function BoletosPage() {
                             </p>
                           </>
                         ) : (
-                          <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800 dark:bg-sky-950 dark:text-sky-200">
-                            {t("delivery.generated")}
-                          </span>
+                          <div className="flex flex-col items-start gap-2">
+                            <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-xs font-semibold text-sky-800 dark:bg-sky-950 dark:text-sky-200">
+                              {t("delivery.generated")}
+                            </span>
+                            <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                              {t("delivery.toSend")}
+                            </span>
+                          </div>
                         )}
                       </td>
                       <td className="px-3 py-4">
@@ -1255,6 +1213,120 @@ export default function BoletosPage() {
               {t("pagination.next")}
             </button>
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <h2 className="text-xl font-bold">
+          {t("generate.title")}
+        </h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          {t("generate.subtitle")}
+        </p>
+
+        <input
+          value={buscaGerar}
+          onChange={(event) =>
+            setBuscaGerar(event.target.value)
+          }
+          placeholder={t("generate.search")}
+          className="mt-4 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900"
+        />
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800">
+              <tr>
+                <th className="px-3 py-3">{t("table.student")}</th>
+                <th className="px-3 py-3">{t("table.charge")}</th>
+                <th className="px-3 py-3">{t("table.dueDate")}</th>
+                <th className="px-3 py-3">{t("table.balance")}</th>
+                <th className="px-3 py-3">{t("table.action")}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {loadingGerar ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-3 py-8 text-center text-slate-500"
+                  >
+                    {t("common.loading")}
+                  </td>
+                </tr>
+              ) : disponiveis.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-3 py-8 text-center text-slate-500"
+                  >
+                    {t("generate.empty")}
+                  </td>
+                </tr>
+              ) : (
+                disponiveis.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="border-b border-slate-100 align-top dark:border-slate-900"
+                  >
+                    <td className="px-3 py-4">
+                      <p className="font-semibold">
+                        {item.aluno.nome}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {item.aluno.user?.email || "-"}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {item.matricula?.numeroMatricula ||
+                          item.matricula?.numeroMatriculaLegado ||
+                          "-"}
+                      </p>
+                    </td>
+                    <td className="px-3 py-4">
+                      <p className="font-medium">
+                        {item.descricao || t("generate.monthlyFee")}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {item.matricula?.curso?.nome || "-"}
+                      </p>
+                    </td>
+                    <td className="px-3 py-4">
+                      {data(item.vencimento)}
+                    </td>
+                    <td className="px-3 py-4 font-semibold">
+                      {moeda(item.saldoPendente)}
+                    </td>
+                    <td className="px-3 py-4">
+                      {item.cobranca?.boletoUrl ||
+                      item.cobranca?.invoiceUrl ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            abrirBoleto(item.cobranca || {})
+                          }
+                          className="rounded-lg border border-slate-300 px-3 py-2 font-semibold hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900"
+                        >
+                          {t("actions.open")}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={gerandoId === item.id}
+                          onClick={() => void gerarBoleto(item)}
+                          className="rounded-lg bg-blue-600 px-3 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {gerandoId === item.id
+                            ? t("actions.generating")
+                            : t("actions.generate")}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
     </div>

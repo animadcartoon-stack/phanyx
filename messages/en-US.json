@@ -22499,7 +22499,7 @@
       "loading": "Loading..."
     },
     "summary": {
-      "generated": "Bank slips found",
+      "generated": "Issued bank slips",
       "awaitingPayment": "Awaiting payment",
       "awaitingSettlement": "Awaiting posting",
       "settled": "Posted",
@@ -22560,6 +22560,7 @@
     },
     "delivery": {
       "generated": "Generated",
+      "toSend": "To send",
       "sent": "Sent",
       "sentDetails": "{channel} · {date}"
     },

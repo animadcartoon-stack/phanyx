@@ -22498,7 +22498,7 @@
       "loading": "Chargement..."
     },
     "summary": {
-      "generated": "Bordereaux trouvés",
+      "generated": "Bordereaux émis",
       "awaitingPayment": "En attente de paiement",
       "awaitingSettlement": "En attente d'enregistrement",
       "settled": "Enregistrés",
@@ -22559,6 +22559,7 @@
     },
     "delivery": {
       "generated": "Généré",
+      "toSend": "À envoyer",
       "sent": "Envoyé",
       "sentDetails": "{channel} · {date}"
     },

@@ -22498,7 +22498,7 @@
       "loading": "Cargando..."
     },
     "summary": {
-      "generated": "Boletos encontrados",
+      "generated": "Boletos emitidos",
       "awaitingPayment": "Pendientes de pago",
       "awaitingSettlement": "Pendientes de registro",
       "settled": "Registrados",
@@ -22559,6 +22559,7 @@
     },
     "delivery": {
       "generated": "Generado",
+      "toSend": "Por enviar",
       "sent": "Enviado",
       "sentDetails": "{channel} · {date}"
     },
