@@ -1691,7 +1691,7 @@ function criarBotaoRemoverAssinatura(
     top: "0",
     left: "0",
     width: "78mm",
-    height: "24.375mm",
+    height: "36mm",
   });
 
   const campo =
@@ -1706,11 +1706,16 @@ function criarBotaoRemoverAssinatura(
     };
 
   /*
-   * WYSIWYG REAL DA ASSINATURA.
+   * BLOCO WYSIWYG ÚNICO.
    *
-   * Imagem e linha usam o MESMO sistema de coordenadas
-   * 480 x 150, dentro de um único SVG. Assim o editor e
-   * o PDF deixam de depender de caixas HTML independentes.
+   * A assinatura, a linha e TODOS os textos institucionais vivem no
+   * mesmo SVG. Assim o bloco inteiro mantém exatamente as mesmas
+   * relações internas no editor e no PDF. blocoOffsetX/blocoOffsetY
+   * continua movendo o conjunto inteiro.
+   *
+   * 78 mm de largura = 480 unidades.
+   * 36 mm de altura   = 221.538462 unidades.
+   * A área original da assinatura continua ocupando 0..150 unidades.
    */
   const svgNs =
     "http://www.w3.org/2000/svg";
@@ -1723,7 +1728,7 @@ function criarBotaoRemoverAssinatura(
 
   svg.setAttribute(
     "viewBox",
-    "0 0 480 150"
+    "0 0 480 221.538462"
   );
 
   svg.setAttribute(
@@ -1745,49 +1750,24 @@ function criarBotaoRemoverAssinatura(
 
     imagem.setAttribute(
       "x",
-      String(
-        Math.max(
-          0,
-          Number(campo.x)
-        )
-      )
+      String(Math.max(0, Number(campo.x)))
     );
-
     imagem.setAttribute(
       "y",
-      String(
-        Math.max(
-          0,
-          Number(campo.y)
-        )
-      )
+      String(Math.max(0, Number(campo.y)))
     );
-
     imagem.setAttribute(
       "width",
-      String(
-        Math.max(
-          0.1,
-          Number(campo.largura)
-        )
-      )
+      String(Math.max(0.1, Number(campo.largura)))
     );
-
     imagem.setAttribute(
       "height",
-      String(
-        Math.max(
-          0.1,
-          Number(campo.altura)
-        )
-      )
+      String(Math.max(0.1, Number(campo.altura)))
     );
-
     imagem.setAttribute(
       "preserveAspectRatio",
       "xMidYMid meet"
     );
-
     imagem.setAttribute(
       "href",
       dados.assinaturaUrl
@@ -1801,34 +1781,12 @@ function criarBotaoRemoverAssinatura(
         "text"
       );
 
-    placeholder.setAttribute(
-      "x",
-      "240"
-    );
-
-    placeholder.setAttribute(
-      "y",
-      "60"
-    );
-
-    placeholder.setAttribute(
-      "text-anchor",
-      "middle"
-    );
-
-    placeholder.setAttribute(
-      "font-size",
-      "14"
-    );
-
-    placeholder.setAttribute(
-      "fill",
-      "#64748b"
-    );
-
-    placeholder.textContent =
-      "Assinatura do diretor";
-
+    placeholder.setAttribute("x", "240");
+    placeholder.setAttribute("y", "60");
+    placeholder.setAttribute("text-anchor", "middle");
+    placeholder.setAttribute("font-size", "14");
+    placeholder.setAttribute("fill", "#64748b");
+    placeholder.textContent = "Assinatura do diretor";
     svg.appendChild(placeholder);
   }
 
@@ -1842,102 +1800,67 @@ function criarBotaoRemoverAssinatura(
   linha.setAttribute("y1", "92");
   linha.setAttribute("x2", "440");
   linha.setAttribute("y2", "92");
-  linha.setAttribute(
-    "stroke",
-    "#111827"
-  );
-  linha.setAttribute(
-    "stroke-width",
-    "1"
-  );
-  linha.setAttribute(
-    "vector-effect",
-    "non-scaling-stroke"
-  );
-
+  linha.setAttribute("stroke", "#111827");
+  linha.setAttribute("stroke-width", "1");
+  linha.setAttribute("vector-effect", "non-scaling-stroke");
   svg.appendChild(linha);
-  areaVisual.appendChild(svg);
-  container.appendChild(areaVisual);
 
-  const identificacao =
-    document.createElement("span");
-
-  aplicarEstilos(identificacao, {
-    position: "absolute",
-    zIndex: "3",
-    top: "0",
-    left: "0",
-    width: "78mm",
-    height: "31mm",
-    display: "block",
-    margin: "0",
-    padding: "0",
-    color: "#111827",
-    textAlign: "center",
-    overflow: "visible",
-    pointerEvents: "none",
-  });
-
-  const nome =
-    document.createElement("strong");
-  nome.textContent =
-    dados.responsavelNome ||
-    "Responsável legal";
-
-  const cargo =
-    document.createElement("span");
-  cargo.textContent =
-    dados.responsavelCargo ||
-    "Representante legal";
-
-  const instituicao =
-    document.createElement("span");
-  instituicao.textContent =
-    dados.nomeInstituicao ||
-    "Instituição";
-
-  const estilizarLinhaIdentificacao = (
-    elemento: HTMLElement,
-    top: string,
+  const adicionarTexto = (
+    texto: string,
+    y: number,
+    tamanho: number,
     negrito = false
   ) => {
-    aplicarEstilos(elemento, {
-      position: "absolute",
-      zIndex: "3",
-      top,
-      left: "3mm",
-      width: "72mm",
-      height: "3.2mm",
-      margin: "0",
-      padding: "0",
-      whiteSpace: "nowrap",
-      overflow: "visible",
-      color: "#111827",
-      fontSize: negrito ? "8.8pt" : "8.5pt",
-      fontWeight: negrito ? "700" : "400",
-      lineHeight: "3.2mm",
-      textAlign: "center",
-    });
+    const elemento =
+      document.createElementNS(
+        svgNs,
+        "text"
+      );
+
+    elemento.setAttribute("x", "240");
+    elemento.setAttribute("y", String(y));
+    elemento.setAttribute("text-anchor", "middle");
+    elemento.setAttribute("dominant-baseline", "hanging");
+    elemento.setAttribute(
+      "font-family",
+      "Arial, Helvetica, sans-serif"
+    );
+    elemento.setAttribute("font-size", String(tamanho));
+    elemento.setAttribute("font-weight", negrito ? "700" : "400");
+    elemento.setAttribute("fill", "#111827");
+    elemento.textContent = texto;
+    svg.appendChild(elemento);
   };
 
-  estilizarLinhaIdentificacao(nome, "16.0mm", true);
-  estilizarLinhaIdentificacao(cargo, "19.2mm");
-  estilizarLinhaIdentificacao(instituicao, "22.4mm");
+  adicionarTexto(
+    dados.responsavelNome || "Responsável legal",
+    98.461538,
+    19.102564,
+    true
+  );
 
-  identificacao.appendChild(nome);
-  identificacao.appendChild(cargo);
-  identificacao.appendChild(instituicao);
+  adicionarTexto(
+    dados.responsavelCargo || "Representante legal",
+    118.153846,
+    18.461538
+  );
+
+  adicionarTexto(
+    dados.nomeInstituicao || "Instituição",
+    137.846154,
+    18.461538
+  );
 
   if (dados.cnpjInstituicao) {
-    const cnpj =
-      document.createElement("span");
-    cnpj.textContent =
-      `CNPJ: ${dados.cnpjInstituicao}`;
-    estilizarLinhaIdentificacao(cnpj, "25.6mm");
-    identificacao.appendChild(cnpj);
+    adicionarTexto(
+      `CNPJ: ${dados.cnpjInstituicao}`,
+      157.538462,
+      18.461538
+    );
   }
 
-  container.appendChild(identificacao);
+  areaVisual.appendChild(svg);
+  container.appendChild(areaVisual);
   container.appendChild(
     criarBotaoRemoverAssinatura(
       tipo,
