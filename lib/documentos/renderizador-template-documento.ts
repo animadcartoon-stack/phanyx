@@ -337,12 +337,15 @@ function normalizarLinhasDigitadas(
             `line-height:0;` +
             `vertical-align:-0.12em;` +
             `border-bottom:1px solid #111827;` +
-            `color:transparent;` +
+            `color:transparent!important;` +
+            `-webkit-text-fill-color:transparent!important;` +
+            `text-decoration:none!important;` +
+            `text-shadow:none!important;` +
             `overflow:hidden;` +
             `white-space:nowrap;` +
             `box-sizing:border-box;` +
             `">` +
-            linha +
+            `&nbsp;` +
             `</span>`
           );
         }
@@ -676,12 +679,54 @@ function criarBlocoAssinatura({
     25.4 /
     96;
 
-  const imagem = criarImagemAssinatura({
-    assinaturaUrl,
-    modoPrevia,
-    campoVisual: campoDoBloco,
-    dentroDoBloco: true,
-  });
+  /*
+   * WYSIWYG REAL DA ASSINATURA.
+   *
+   * A imagem e a linha usam exatamente o mesmo viewBox 480 x 150
+   * utilizado no editor. x/y/largura/altura são aplicados diretamente
+   * no SVG, sem uma segunda interpretação geométrica.
+   */
+  const assinaturaSvg =
+    assinaturaUrl
+      ? `
+        <image
+          x="${Math.max(
+            0,
+            campoDoBloco.x
+          )}"
+          y="${Math.max(
+            0,
+            campoDoBloco.y
+          )}"
+          width="${Math.max(
+            0.1,
+            campoDoBloco.largura
+          )}"
+          height="${Math.max(
+            0.1,
+            campoDoBloco.altura
+          )}"
+          href="${escaparHtml(
+            assinaturaUrl
+          )}"
+          preserveAspectRatio="xMidYMid meet"
+        />
+      `
+      : (
+        modoPrevia
+          ? `
+            <text
+              x="240"
+              y="60"
+              text-anchor="middle"
+              font-size="14"
+              fill="#64748b"
+            >
+              Assinatura do diretor
+            </text>
+          `
+          : ""
+      );
 
   return `
     <span
@@ -693,8 +738,29 @@ function criarBlocoAssinatura({
       "
     >
       <span class="phanyx-area-assinatura-visual">
-        ${imagem}
-        <span class="phanyx-linha-assinatura"></span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 480 150"
+          preserveAspectRatio="none"
+          style="
+            display:block;
+            width:100%;
+            height:100%;
+            overflow:visible;
+          "
+        >
+          ${assinaturaSvg}
+
+          <line
+            x1="40"
+            y1="92"
+            x2="440"
+            y2="92"
+            stroke="#111827"
+            stroke-width="1"
+            vector-effect="non-scaling-stroke"
+          />
+        </svg>
       </span>
 
       <span class="phanyx-identificacao-assinatura">
