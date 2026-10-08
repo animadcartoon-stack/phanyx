@@ -377,6 +377,63 @@
       }
     }
   },
+  "StudentMobilityOpportunities": {
+    "eyebrow": "International Mobility",
+    "title": "Exchange opportunities",
+    "subtitle": "Explore programs currently accepting applications and find opportunities that match your academic goals.",
+    "tabs": {
+      "opportunities": "Opportunities",
+      "applications": "My applications"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Program, call or keyword",
+      "country": "Country",
+      "countryPlaceholder": "E.g. PT, US, ES",
+      "type": "Program type",
+      "allTypes": "All types",
+      "period": "Period",
+      "periodPlaceholder": "E.g. 2027/1",
+      "apply": "Apply filters",
+      "clear": "Clear"
+    },
+    "loading": "Loading opportunities...",
+    "errorTitle": "We could not load the opportunities.",
+    "tryAgain": "Try again",
+    "resultsTitle": "Available opportunities",
+    "resultsCount": "{count, plural, =0 {No opportunities} one {# opportunity} other {# opportunities}}",
+    "emptyTitle": "No open opportunities right now",
+    "emptyDescription": "When your institution publishes an opportunity with open applications, it will appear here.",
+    "alreadyApplied": "You have already applied",
+    "deadline": "Application deadline",
+    "vacancies": "Places",
+    "mobilityPeriod": "Mobility period",
+    "language": "Language",
+    "period": "Academic period",
+    "documents": "Documents",
+    "documentsCount": "{count, plural, =0 {No requirements} one {# requirement} other {# requirements}}",
+    "notInformed": "Not provided",
+    "viewApplication": "View my application",
+    "applicationNextPhase": "Applications available in the next stage",
+    "directions": {
+      "SAIDA": "Outgoing",
+      "BIDIRECIONAL": "Bidirectional"
+    },
+    "programTypes": {
+      "SEMESTRE_ACADEMICO": "Academic semester",
+      "ANO_ACADEMICO": "Academic year",
+      "CURTA_DURACAO": "Short-term",
+      "PROGRAMA_IDIOMAS": "Language program",
+      "ESTAGIO": "Internship",
+      "PESQUISA": "Research",
+      "SUMMER_SCHOOL": "Summer School",
+      "WINTER_SCHOOL": "Winter School",
+      "DUPLA_TITULACAO": "Double degree",
+      "HIBRIDA": "Hybrid",
+      "VIRTUAL": "Virtual",
+      "OUTRO": "Other"
+    }
+  },
   "StudentDashboard": {
     "errors": {
       "imageUpload": "Unable to upload the image.",

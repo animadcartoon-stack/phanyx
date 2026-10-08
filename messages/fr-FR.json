@@ -377,6 +377,63 @@
       }
     }
   },
+  "StudentMobilityOpportunities": {
+    "eyebrow": "Mobilité internationale",
+    "title": "Opportunités d'échange",
+    "subtitle": "Découvrez les programmes dont les candidatures sont ouvertes et trouvez des opportunités adaptées à vos objectifs académiques.",
+    "tabs": {
+      "opportunities": "Opportunités",
+      "applications": "Mes candidatures"
+    },
+    "filters": {
+      "search": "Rechercher",
+      "searchPlaceholder": "Programme, appel ou mot-clé",
+      "country": "Pays",
+      "countryPlaceholder": "Ex. : PT, US, ES",
+      "type": "Type de programme",
+      "allTypes": "Tous les types",
+      "period": "Période",
+      "periodPlaceholder": "Ex. : 2027/1",
+      "apply": "Appliquer les filtres",
+      "clear": "Effacer"
+    },
+    "loading": "Chargement des opportunités...",
+    "errorTitle": "Impossible de charger les opportunités.",
+    "tryAgain": "Réessayer",
+    "resultsTitle": "Opportunités disponibles",
+    "resultsCount": "{count, plural, =0 {Aucune opportunité} one {# opportunité} other {# opportunités}}",
+    "emptyTitle": "Aucune opportunité ouverte pour le moment",
+    "emptyDescription": "Lorsqu'une opportunité avec candidatures ouvertes sera publiée par l'établissement, elle apparaîtra ici.",
+    "alreadyApplied": "Vous avez déjà candidaté",
+    "deadline": "Date limite de candidature",
+    "vacancies": "Places",
+    "mobilityPeriod": "Période de mobilité",
+    "language": "Langue",
+    "period": "Période académique",
+    "documents": "Documents",
+    "documentsCount": "{count, plural, =0 {Aucune exigence} one {# exigence} other {# exigences}}",
+    "notInformed": "Non renseigné",
+    "viewApplication": "Voir ma candidature",
+    "applicationNextPhase": "Candidature disponible à l'étape suivante",
+    "directions": {
+      "SAIDA": "Sortante",
+      "BIDIRECIONAL": "Bidirectionnelle"
+    },
+    "programTypes": {
+      "SEMESTRE_ACADEMICO": "Semestre académique",
+      "ANO_ACADEMICO": "Année académique",
+      "CURTA_DURACAO": "Courte durée",
+      "PROGRAMA_IDIOMAS": "Programme de langues",
+      "ESTAGIO": "Stage",
+      "PESQUISA": "Recherche",
+      "SUMMER_SCHOOL": "Summer School",
+      "WINTER_SCHOOL": "Winter School",
+      "DUPLA_TITULACAO": "Double diplôme",
+      "HIBRIDA": "Hybride",
+      "VIRTUAL": "Virtuelle",
+      "OUTRO": "Autre"
+    }
+  },
   "StudentDashboard": {
     "errors": {
       "imageUpload": "Impossible d'envoyer l'image.",

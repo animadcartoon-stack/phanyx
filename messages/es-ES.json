@@ -377,6 +377,63 @@
       }
     }
   },
+  "StudentMobilityOpportunities": {
+    "eyebrow": "Movilidad Internacional",
+    "title": "Oportunidades de intercambio",
+    "subtitle": "Explora programas con convocatorias abiertas y encuentra oportunidades acordes con tus objetivos académicos.",
+    "tabs": {
+      "opportunities": "Oportunidades",
+      "applications": "Mis candidaturas"
+    },
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Programa, convocatoria o palabra clave",
+      "country": "País",
+      "countryPlaceholder": "Ej.: PT, US, ES",
+      "type": "Tipo de programa",
+      "allTypes": "Todos los tipos",
+      "period": "Período",
+      "periodPlaceholder": "Ej.: 2027/1",
+      "apply": "Aplicar filtros",
+      "clear": "Limpiar"
+    },
+    "loading": "Cargando oportunidades...",
+    "errorTitle": "No se pudieron cargar las oportunidades.",
+    "tryAgain": "Intentar de nuevo",
+    "resultsTitle": "Oportunidades disponibles",
+    "resultsCount": "{count, plural, =0 {Ninguna oportunidad} one {# oportunidad} other {# oportunidades}}",
+    "emptyTitle": "No hay oportunidades abiertas en este momento",
+    "emptyDescription": "Cuando la institución publique una convocatoria con inscripciones abiertas, aparecerá aquí.",
+    "alreadyApplied": "Ya te has postulado",
+    "deadline": "Fecha límite",
+    "vacancies": "Plazas",
+    "mobilityPeriod": "Período de movilidad",
+    "language": "Idioma",
+    "period": "Período académico",
+    "documents": "Documentos",
+    "documentsCount": "{count, plural, =0 {Ningún requisito} one {# requisito} other {# requisitos}}",
+    "notInformed": "No informado",
+    "viewApplication": "Ver mi candidatura",
+    "applicationNextPhase": "Candidatura disponible en la próxima etapa",
+    "directions": {
+      "SAIDA": "Saliente",
+      "BIDIRECIONAL": "Bidireccional"
+    },
+    "programTypes": {
+      "SEMESTRE_ACADEMICO": "Semestre académico",
+      "ANO_ACADEMICO": "Año académico",
+      "CURTA_DURACAO": "Corta duración",
+      "PROGRAMA_IDIOMAS": "Programa de idiomas",
+      "ESTAGIO": "Prácticas",
+      "PESQUISA": "Investigación",
+      "SUMMER_SCHOOL": "Summer School",
+      "WINTER_SCHOOL": "Winter School",
+      "DUPLA_TITULACAO": "Doble titulación",
+      "HIBRIDA": "Híbrida",
+      "VIRTUAL": "Virtual",
+      "OUTRO": "Otro"
+    }
+  },
   "StudentDashboard": {
     "errors": {
       "imageUpload": "No se pudo enviar la imagen.",
