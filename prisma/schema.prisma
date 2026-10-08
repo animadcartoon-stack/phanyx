@@ -6624,6 +6624,7 @@ model BibliotecaItem {
   sistemaClassificacao       BibliotecaSistemaClassificacao?
   edicaoClassificacao        String?
   codigoCutter               String?
+  codigoCutterAutomatico      Boolean @default(false)
   codigoChamada              String?
   cdd                        String?
   cdu                        String?
@@ -6703,6 +6704,7 @@ model BibliotecaAutor {
   fotoUrl         String?
   siteUrl         String?
   orcid           String?
+  codigoCutterBase String?
 
   // Identificadores de autoridade bibliografica.
   // Todos opcionais para preservar autores ja existentes.
@@ -6727,6 +6729,7 @@ model BibliotecaAutor {
   @@index([instituicaoId, ativo])
   @@index([nome])
   @@index([orcid])
+  @@index([instituicaoId, codigoCutterBase])
   @@index([viaf])
   @@index([isni])
   @@index([wikidataId])

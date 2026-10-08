@@ -27,6 +27,7 @@ type PessoaApi = {
   id: number;
   nome: string;
   nomeOrdenacao: string | null;
+  codigoCutterBase: string | null;
   biografia: string | null;
   nacionalidade: string | null;
   dataNascimento: string | null;
@@ -54,6 +55,7 @@ type VarianteFormulario = {
 type Formulario = {
   nome: string;
   nomeOrdenacao: string;
+  codigoCutterBase: string;
   nacionalidade: string;
   dataNascimento: string;
   dataFalecimento: string;
@@ -80,6 +82,7 @@ type Props = {
 const formularioInicial: Formulario = {
   nome: "",
   nomeOrdenacao: "",
+  codigoCutterBase: "",
   nacionalidade: "",
   dataNascimento: "",
   dataFalecimento: "",
@@ -237,6 +240,10 @@ export default function AutoridadeModal({
 
           nomeOrdenacao:
             pessoa.nomeOrdenacao ??
+            "",
+
+          codigoCutterBase:
+            pessoa.codigoCutterBase ??
             "",
 
           nacionalidade:
@@ -509,6 +516,11 @@ export default function AutoridadeModal({
         nomeOrdenacao:
           opcional(
             formulario.nomeOrdenacao
+          ),
+
+        codigoCutterBase:
+          opcional(
+            formulario.codigoCutterBase
           ),
 
         nacionalidade:
@@ -1076,6 +1088,10 @@ export default function AutoridadeModal({
                   <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {(
                       [
+                        [
+                          "codigoCutterBase",
+                          "cutterBase",
+                        ],
                         [
                           "orcid",
                           "orcid",
