@@ -542,16 +542,27 @@ export async function POST(
     const page =
       await browser.newPage();
 
+    /*
+     * IMPORTANTE: o HTML do documento executa medições de layout
+     * para posicionar validação, QR e elementos visuais.
+     *
+     * O Chromium precisa estar em mídia PRINT antes de carregar
+     * o HTML; caso contrário as medições são feitas em layout de
+     * tela e podem empurrar a validação para uma página extra.
+     *
+     * Esta regra é compartilhada por qualquer documento que use
+     * o renderizador PHANYX, não apenas cancelamento de matrícula.
+     */
+    await page.emulateMediaType(
+      "print"
+    );
+
     await page.setContent(
       renderizacao.html,
       {
         waitUntil:
           "domcontentloaded",
       }
-    );
-
-    await page.emulateMediaType(
-      "print"
     );
 
     await page.evaluate(
