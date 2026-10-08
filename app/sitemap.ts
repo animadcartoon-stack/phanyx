@@ -1,10 +1,29 @@
 import { MetadataRoute } from "next";
 import { marketingAlternates, marketingLocales, marketingPath } from "@/lib/public-marketing";
+import {
+  phanyxPrintAlternates,
+  phanyxPrintLocales,
+  phanyxPrintPath,
+} from "@/lib/phanyx-print-i18n";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://phanyx.com.br";
 
+  const printAlternates = Object.fromEntries(
+    Object.entries(phanyxPrintAlternates().languages).map(([key, route]) => [
+      key,
+      `${baseUrl}${route}`,
+    ]),
+  );
+
   return [
+    ...phanyxPrintLocales.map((locale) => ({
+      url: `${baseUrl}${phanyxPrintPath(locale)}`,
+      lastModified: new Date(),
+      priority: 0.8,
+      changeFrequency: "monthly" as const,
+      alternates: { languages: printAlternates },
+    })),
     ...marketingLocales.filter((locale) => locale !== "pt-BR").flatMap((locale) =>
       (["home", "academic", "plans", "school", "lms", "success"] as const).map((section) => ({
         url: `${baseUrl}${marketingPath(locale, section)}`,
@@ -26,60 +45,60 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
     },
     {
-  url: "https://www.phanyx.com.br/blog/melhor-sistema-academico",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/sistema-escolar-para-pequenas-escolas",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/software-educacional-completo",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/plataforma-para-ensino-online",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/melhor-plataforma-para-cursos-online",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/como-montar-um-curso-online",
-  lastModified: new Date(),
-},
-{
-  url: "https://phanyx.com.br/blog/melhor-plataforma-ead-para-escolas",
-},
-{
-  url: "https://www.phanyx.com.br/blog/sistema-academico-completo",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/quanto-custa-criar-um-curso-online",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/plataforma-para-escolas-online",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/gestao-escolar-digital",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/software-para-gestao-escolar",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/como-vender-cursos-online",
-  lastModified: new Date(),
-},
+      url: "https://www.phanyx.com.br/blog/melhor-sistema-academico",
+      lastModified: new Date(),
+    },
     {
-  url: "https://www.phanyx.com.br/blog/sistema-de-gestao-escolar-online",
-  lastModified: new Date(),
-},
+      url: "https://www.phanyx.com.br/blog/sistema-escolar-para-pequenas-escolas",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/software-educacional-completo",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/plataforma-para-ensino-online",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/melhor-plataforma-para-cursos-online",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/como-montar-um-curso-online",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://phanyx.com.br/blog/melhor-plataforma-ead-para-escolas",
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/sistema-academico-completo",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/quanto-custa-criar-um-curso-online",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/plataforma-para-escolas-online",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/gestao-escolar-digital",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/software-para-gestao-escolar",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/como-vender-cursos-online",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/sistema-de-gestao-escolar-online",
+      lastModified: new Date(),
+    },
     {
       url: `${baseUrl}/gestao-academica`,
       lastModified: new Date(),
@@ -107,59 +126,59 @@ export default function sitemap(): MetadataRoute.Sitemap {
       alternates: { languages: Object.fromEntries(Object.entries(marketingAlternates("plans").languages).map(([key, path]) => [key, `${baseUrl}${path}`])) },
     },
     {
-  url: `${baseUrl}/gestao-escolar`,
-  lastModified: new Date(),
-  priority: 1,
-  changeFrequency: "weekly",
-},
-{
-  url: "https://www.phanyx.com.br/blog",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/como-escolher-sistema-escolar",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/sistema-escolar-gratis-vs-pago",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/como-aumentar-matriculas-com-sistema-escolar-moderno",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/plataforma-ead-para-cursos-livres",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/software-para-escolas-completo",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/gestao-academica-na-pratica",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/como-reduzir-inadimplencia-escolar-com-tecnologia",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/controle-financeiro-para-escolas",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/sistema-para-cursos-profissionalizantes",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/blog/sistema-gestao-escolar",
-  lastModified: new Date(),
-},
-{
-  url: "https://www.phanyx.com.br/phanyx",
-  lastModified: new Date(),
-},
+      url: `${baseUrl}/gestao-escolar`,
+      lastModified: new Date(),
+      priority: 1,
+      changeFrequency: "weekly",
+    },
+    {
+      url: "https://www.phanyx.com.br/blog",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/como-escolher-sistema-escolar",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/sistema-escolar-gratis-vs-pago",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/como-aumentar-matriculas-com-sistema-escolar-moderno",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/plataforma-ead-para-cursos-livres",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/software-para-escolas-completo",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/gestao-academica-na-pratica",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/como-reduzir-inadimplencia-escolar-com-tecnologia",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/controle-financeiro-para-escolas",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/sistema-para-cursos-profissionalizantes",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/blog/sistema-gestao-escolar",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.phanyx.com.br/phanyx",
+      lastModified: new Date(),
+    },
     {
       url: `${baseUrl}/contato`,
       lastModified: new Date(),

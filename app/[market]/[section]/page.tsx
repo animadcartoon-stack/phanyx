@@ -3,39 +3,144 @@ import { notFound } from "next/navigation";
 import LocalizedMarketingPage from "@/components/marketing/LocalizedMarketingPage";
 import LocalizedPlansPage from "@/components/marketing/LocalizedPlansPage";
 import SearchIntentPage from "@/components/marketing/SearchIntentPage";
+import PhanyxPrintPage from "@/components/marketing/PhanyxPrintPage";
 import { searchIntentCopy } from "@/lib/search-intents";
 import type { ForeignLocale } from "@/lib/localized-plans";
-import { localeEhSuportado, type LocalePhanyx } from "@/i18n/config";
+import { localeEhSuportado } from "@/i18n/config";
 import { marketingAlternates, marketingCopy, marketingLocales, marketingPath, marketingSection } from "@/lib/public-marketing";
+import {
+  phanyxPrintAlternates,
+  phanyxPrintCopy,
+  phanyxPrintLocaleFromSlug,
+  phanyxPrintLocales,
+  phanyxPrintPath,
+  phanyxPrintSlugs,
+} from "@/lib/phanyx-print-i18n";
 
 export const dynamicParams = false;
+
 export function generateStaticParams() {
-  return marketingLocales.filter((market) => market !== "pt-BR").flatMap((market) =>
-    (["academic", "plans", "school", "lms", "success"] as const).map((section) => ({ market, section: marketingPath(market, section).split("/").at(-1)! })));
+  return [
+    ...marketingLocales
+      .filter((market) => market !== "pt-BR")
+      .flatMap((market) =>
+        (["academic", "plans", "school", "lms", "success"] as const).map((section) => ({
+          market,
+          section: marketingPath(market, section).split("/").at(-1)!,
+        })),
+      ),
+    ...phanyxPrintLocales
+      .filter((market) => market !== "pt-BR")
+      .map((market) => ({
+        market,
+        section: phanyxPrintSlugs[market],
+      })),
+  ];
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ market: string; section: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ market: string; section: string }>;
+}): Promise<Metadata> {
   const { market, section: slug } = await params;
+
   if (!localeEhSuportado(market) || market === "pt-BR") return {};
+
+  const printLocale = phanyxPrintLocaleFromSlug(market, slug);
+
+  if (printLocale) {
+    const copy = phanyxPrintCopy[printLocale];
+
+    return {
+      title: { absolute: copy.seoTitle },
+      description: copy.seoDescription,
+      keywords: [...copy.keywords],
+      alternates: {
+        ...phanyxPrintAlternates(),
+        canonical: phanyxPrintPath(printLocale),
+      },
+      openGraph: {
+        title: copy.seoTitle,
+        description: copy.seoDescription,
+        locale: printLocale.replace("-", "_"),
+        url: phanyxPrintPath(printLocale),
+        images: ["/images/phanyx-print-icon.png"],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: copy.seoTitle,
+        description: copy.seoDescription,
+        images: ["/images/phanyx-print-icon.png"],
+      },
+    };
+  }
+
   const section = marketingSection(market, slug);
   if (!section || section === "home") return {};
+
   const copy = marketingCopy[market];
-  const intent = section === "school" || section === "lms" || section === "success" ? searchIntentCopy[market as ForeignLocale][section] : null;
-  const title = intent?.title ?? (section === "plans" ? copy.plansTitle : copy.seoTitle);
-  const description = intent?.description ?? (section === "plans" ? copy.plansDescription : copy.seoDescription);
+  const intent =
+    section === "school" || section === "lms" || section === "success"
+      ? searchIntentCopy[market as ForeignLocale][section]
+      : null;
+
+  const title =
+    intent?.title ?? (section === "plans" ? copy.plansTitle : copy.seoTitle);
+  const description =
+    intent?.description ??
+    (section === "plans" ? copy.plansDescription : copy.seoDescription);
+
   return {
-    title: { absolute: title }, description,
-    alternates: { ...marketingAlternates(section), canonical: marketingPath(market, section) },
-    openGraph: { title, description, locale: market.replace("-", "_"), url: marketingPath(market, section) },
+    title: { absolute: title },
+    description,
+    alternates: {
+      ...marketingAlternates(section),
+      canonical: marketingPath(market, section),
+    },
+    openGraph: {
+      title,
+      description,
+      locale: market.replace("-", "_"),
+      url: marketingPath(market, section),
+    },
   };
 }
 
-export default async function MarketSectionPage({ params }: { params: Promise<{ market: string; section: string }> }) {
+export default async function MarketSectionPage({
+  params,
+}: {
+  params: Promise<{ market: string; section: string }>;
+}) {
   const { market, section: slug } = await params;
+
   if (!localeEhSuportado(market) || market === "pt-BR") notFound();
+
+  const printLocale = phanyxPrintLocaleFromSlug(market, slug);
+  if (printLocale) {
+    return <PhanyxPrintPage locale={printLocale} />;
+  }
+
   const section = marketingSection(market, slug);
   if (!section || section === "home") notFound();
-  if (section === "plans") return <LocalizedPlansPage locale={market as ForeignLocale} />;
-  if (section === "school" || section === "lms" || section === "success") return <SearchIntentPage locale={market as ForeignLocale} section={section} />;
-  return <LocalizedMarketingPage locale={market as ForeignLocale} section="academic" />;
+
+  if (section === "plans") {
+    return <LocalizedPlansPage locale={market as ForeignLocale} />;
+  }
+
+  if (section === "school" || section === "lms" || section === "success") {
+    return (
+      <SearchIntentPage
+        locale={market as ForeignLocale}
+        section={section}
+      />
+    );
+  }
+
+  return (
+    <LocalizedMarketingPage
+      locale={market as ForeignLocale}
+      section="academic"
+    />
+  );
 }
