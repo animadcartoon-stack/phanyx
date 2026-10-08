@@ -1622,13 +1622,96 @@ function AdminDocumentosTemplatesPage() {
     });
   }, [templates, filtroBusca, filtroTipo]);
 
+  function obterCamposVisuaisParaPreviewTempoReal() {
+    const normalizados =
+      normalizarCamposVisuaisAssinatura(
+        camposVisuais
+      );
+
+    /*
+     * O Visualizar PDF é WYSIWYG e NÃO depende de salvar
+     * o template.
+     *
+     * Antes de gerar o PDF, medimos diretamente a posição
+     * que o usuário está vendo no editor e enviamos essa
+     * geometria no próprio payload da prévia.
+     */
+    const bloco =
+      document.querySelector<HTMLElement>(
+        '#editor-template-phanyx [data-phanyx-assinatura-preview="BLOCO"]'
+      );
+
+    const papel =
+      bloco?.closest(
+        ".phanyx-document-paper"
+      );
+
+    if (
+      !bloco ||
+      !(papel instanceof HTMLElement)
+    ) {
+      return normalizados;
+    }
+
+    const blocoRect =
+      bloco.getBoundingClientRect();
+
+    const papelRect =
+      papel.getBoundingClientRect();
+
+    const blocoPapelX =
+      Math.round(
+        blocoRect.left -
+        papelRect.left
+      );
+
+    const blocoPapelY =
+      Math.round(
+        blocoRect.top -
+        papelRect.top
+      );
+
+    return normalizados.map(
+      (campo) =>
+        campo.tipo ===
+        "ASSINATURA_DIRETOR"
+          ? {
+              ...campo,
+              blocoPapelX,
+              blocoPapelY,
+            }
+          : campo
+    );
+  }
+
   async function visualizarPdfTemplate() {
     try {
       setVisualizandoPdf(true);
       setErro("");
       setMensagem(t("messages.generatingPreview"));
 
-      const conteudoAtual = conteudo;
+      const conteudoAtual =
+        conteudo;
+
+      /*
+       * Fonte de verdade da prévia:
+       * a posição VISUAL atual do editor.
+       *
+       * Assim o usuário pode mover a assinatura e visualizar
+       * imediatamente, sem precisar salvar o template.
+       */
+      const camposVisuaisPreview =
+        obterCamposVisuaisParaPreviewTempoReal();
+
+      /*
+       * Mantém o estado da edição sincronizado também.
+       * Se o usuário decidir salvar depois, a posição já estará
+       * pronta para persistência, mas salvar NÃO é requisito
+       * para visualizar o PDF.
+       */
+      setCamposVisuais(
+        camposVisuaisPreview
+      );
 
       const res = await fetch("/api/admin/documentos/templates/preview-pdf-fiel", {
         method: "POST",
@@ -1637,7 +1720,7 @@ function AdminDocumentosTemplatesPage() {
         },
         credentials: "include",
         body: JSON.stringify({
-            locale,
+          locale,
           tipo,
 
           conteudo:
@@ -1646,9 +1729,7 @@ function AdminDocumentosTemplatesPage() {
           formatoImpressao,
 
           camposVisuais:
-            normalizarCamposVisuaisAssinatura(
-              camposVisuais
-            ),
+            camposVisuaisPreview,
         }),
       });
 
