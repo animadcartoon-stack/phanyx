@@ -6113,6 +6113,8 @@
     "referenceSubject": "Subject / category",
     "authorSortName": "Sort name",
     "authorSortNamePlaceholder": "E.g. Willmington, Harold L.",
+    "authorCutterBase": "Base Cutter code",
+    "authorCutterBasePlaceholder": "E.g. W734",
     "creatingBibliographicReference": "Creating...",
     "createBibliographicReferenceAction": "Create and link",
     "bibliographicReferenceCreated": "Bibliographic record created and linked.",

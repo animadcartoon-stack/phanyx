@@ -250,6 +250,11 @@ export default function CatalogacaoRelacionamentos({
   ] = useState("");
 
   const [
+    codigoCutterBase,
+    setCodigoCutterBase,
+  ] = useState("");
+
+  const [
     criando,
     setCriando,
   ] = useState(false);
@@ -800,6 +805,12 @@ export default function CatalogacaoRelacionamentos({
                   "AUTOR"
                     ? orcid
                     : undefined,
+
+                codigoCutterBase:
+                  tipoReferencia ===
+                  "AUTOR"
+                    ? codigoCutterBase
+                    : undefined,
               }),
           },
         );
@@ -911,6 +922,7 @@ export default function CatalogacaoRelacionamentos({
       setNomeReferencia("");
       setNomeOrdenacao("");
       setOrcid("");
+      setCodigoCutterBase("");
       setMostrarCriacao(false);
     } catch (erro) {
       setMensagem({
@@ -1612,6 +1624,37 @@ export default function CatalogacaoRelacionamentos({
                           evento,
                         ) =>
                           setNomeOrdenacao(
+                            evento
+                              .target
+                              .value,
+                          )
+                        }
+                      />
+                    </label>
+
+                    <label className="bib-field">
+                      <span>
+                        {t(
+                          "authorCutterBase",
+                        )}
+                      </span>
+
+                      <input
+                        className="bib-input"
+                        value={
+                          codigoCutterBase
+                        }
+                        disabled={
+                          criando
+                        }
+                        maxLength={20}
+                        placeholder={t(
+                          "authorCutterBasePlaceholder",
+                        )}
+                        onChange={(
+                          evento,
+                        ) =>
+                          setCodigoCutterBase(
                             evento
                               .target
                               .value,

@@ -6112,6 +6112,8 @@
     "referenceSubject": "Assunto / categoria",
     "authorSortName": "Nome para ordenação",
     "authorSortNamePlaceholder": "Ex.: Willmington, Harold L.",
+    "authorCutterBase": "Cutter-base",
+    "authorCutterBasePlaceholder": "Ex.: W734",
     "creatingBibliographicReference": "A criar...",
     "createBibliographicReferenceAction": "Criar e vincular",
     "bibliographicReferenceCreated": "Registo bibliográfico criado e vinculado.",

@@ -139,6 +139,39 @@ function textoOpcional(
   return texto;
 }
 
+function normalizarCodigoCutterBase(
+  valor: unknown
+) {
+  const texto =
+    textoOpcional(
+      valor,
+      20
+    );
+
+  if (!texto) {
+    return null;
+  }
+
+  const normalizado =
+    texto
+      .replace(/\s+/g, "")
+      .toUpperCase();
+
+  if (
+    !/^[A-Z]\d{1,6}$/.test(
+      normalizado
+    )
+  ) {
+    falhar(
+      400,
+      "O c\u00f3digo Cutter-base deve conter uma letra seguida de n\u00fameros, por exemplo W734.",
+      "CUTTER_BASE_INVALIDO"
+    );
+  }
+
+  return normalizado;
+}
+
 function criarSlug(
   valor: string
 ) {
@@ -394,6 +427,11 @@ export async function POST(
               textoOpcional(
                 corpo?.orcid,
                 40
+              ),
+
+            codigoCutterBase:
+              normalizarCodigoCutterBase(
+                corpo?.codigoCutterBase
               ),
           },
 
