@@ -602,6 +602,41 @@ function normalizarLccn(
   return normalizado;
 }
 
+
+function normalizarCodigoCutterBase(
+  valor: unknown
+) {
+  const texto =
+    textoOpcional(
+      valor,
+      "codigoCutterBase",
+      20
+    );
+
+  if (!texto) {
+    return null;
+  }
+
+  const normalizado =
+    texto
+      .replace(/\s+/g, "")
+      .toUpperCase();
+
+  if (
+    !/^[A-Z]\d{1,6}$/.test(
+      normalizado
+    )
+  ) {
+    falhar(
+      400,
+      "O código Cutter-base deve conter uma letra seguida de números, por exemplo W734.",
+      "CUTTER_BASE_INVALIDO"
+    );
+  }
+
+  return normalizado;
+}
+
 type VarianteNormalizada = {
   nome: string;
   nomeNormalizado: string;
@@ -796,6 +831,7 @@ const PESSOA_SELECT = {
   id: true,
   nome: true,
   nomeOrdenacao: true,
+  codigoCutterBase: true,
   biografia: true,
   nacionalidade: true,
   dataNascimento: true,
@@ -951,6 +987,12 @@ export async function GET(
                 },
                 {
                   nomeOrdenacao: {
+                    contains: busca,
+                    mode: "insensitive",
+                  },
+                },
+                {
+                  codigoCutterBase: {
                     contains: busca,
                     mode: "insensitive",
                   },
@@ -1152,6 +1194,11 @@ export async function POST(
         corpo.nomeOrdenacao,
         "nomeOrdenacao",
         240
+      );
+
+    const codigoCutterBase =
+      normalizarCodigoCutterBase(
+        corpo.codigoCutterBase
       );
 
     const biografia =
@@ -1392,6 +1439,7 @@ export async function POST(
 
                 nome,
                 nomeOrdenacao,
+                codigoCutterBase,
                 biografia,
                 nacionalidade,
                 dataNascimento,
@@ -1496,6 +1544,9 @@ export async function POST(
 
                 nomeOrdenacao:
                   registro.nomeOrdenacao,
+
+                codigoCutterBase:
+                  registro.codigoCutterBase,
 
                 nacionalidade:
                   registro.nacionalidade,

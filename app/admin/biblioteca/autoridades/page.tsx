@@ -30,6 +30,7 @@ type Pessoa = {
   id: number;
   nome: string;
   nomeOrdenacao: string | null;
+  codigoCutterBase: string | null;
   biografia: string | null;
   nacionalidade: string | null;
   dataNascimento: string | null;
@@ -92,6 +93,10 @@ function identificadores(
   pessoa: Pessoa
 ) {
   return [
+    pessoa.codigoCutterBase
+      ? ["Cutter", pessoa.codigoCutterBase]
+      : null,
+
     pessoa.orcid
       ? ["ORCID", pessoa.orcid]
       : null,

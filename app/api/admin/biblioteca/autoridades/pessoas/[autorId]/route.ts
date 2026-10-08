@@ -559,6 +559,41 @@ function normalizarLccn(
   return normalizado;
 }
 
+
+function normalizarCodigoCutterBase(
+  valor: unknown
+) {
+  const texto =
+    textoOpcional(
+      valor,
+      "codigoCutterBase",
+      20
+    );
+
+  if (!texto) {
+    return null;
+  }
+
+  const normalizado =
+    texto
+      .replace(/\s+/g, "")
+      .toUpperCase();
+
+  if (
+    !/^[A-Z]\d{1,6}$/.test(
+      normalizado
+    )
+  ) {
+    falhar(
+      400,
+      "O código Cutter-base deve conter uma letra seguida de números, por exemplo W734.",
+      "CUTTER_BASE_INVALIDO"
+    );
+  }
+
+  return normalizado;
+}
+
 type VarianteNormalizada = {
   nome: string;
   nomeNormalizado: string;
@@ -745,6 +780,7 @@ const PESSOA_SELECT = {
   id: true,
   nome: true,
   nomeOrdenacao: true,
+  codigoCutterBase: true,
   biografia: true,
   nacionalidade: true,
   dataNascimento: true,
@@ -806,6 +842,7 @@ function snapshot(
     id: number;
     nome: string;
     nomeOrdenacao: string | null;
+    codigoCutterBase: string | null;
     biografia: string | null;
     nacionalidade: string | null;
     dataNascimento: Date | null;
@@ -839,6 +876,9 @@ function snapshot(
 
     nomeOrdenacao:
       pessoa.nomeOrdenacao,
+
+    codigoCutterBase:
+      pessoa.codigoCutterBase,
 
     biografia:
       pessoa.biografia,
@@ -1085,6 +1125,16 @@ export async function PATCH(
             240
           )
         : atual.nomeOrdenacao;
+
+    const codigoCutterBase =
+      campoPresente(
+        corpo,
+        "codigoCutterBase"
+      )
+        ? normalizarCodigoCutterBase(
+            corpo.codigoCutterBase
+          )
+        : atual.codigoCutterBase;
 
     const biografia =
       campoPresente(
@@ -1482,6 +1532,7 @@ export async function PATCH(
             data: {
               nome,
               nomeOrdenacao,
+              codigoCutterBase,
               biografia,
               nacionalidade,
               dataNascimento,
