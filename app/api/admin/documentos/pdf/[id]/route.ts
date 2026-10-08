@@ -445,19 +445,33 @@ export async function GET(
         )
         : {};
 
+    /*
+     * O PDF é renderizado dinamicamente sempre que é aberto.
+     *
+     * A geometria deve acompanhar o template ATUAL, inclusive
+     * para documentos que já foram gerados anteriormente.
+     * Isso permite corrigir o modelo uma única vez e ver a
+     * correção imediatamente nos PDFs existentes, sem gerar
+     * outro documento para a mesma matrícula.
+     *
+     * O snapshot antigo fica apenas como fallback caso o
+     * template não possua campos visuais.
+     */
     const camposVisuaisDocumento =
       Array.isArray(
-        dadosPreenchimentoDocumento
-          .__phanyxCamposVisuais
-      )
-        ? dadosPreenchimentoDocumento
-          .__phanyxCamposVisuais
+        doc.template
+          ?.camposVisuais
+      ) &&
+      doc.template
+        .camposVisuais.length > 0
+        ? doc.template
+          .camposVisuais
         : Array.isArray(
-          doc.template
-            ?.camposVisuais
+          dadosPreenchimentoDocumento
+            .__phanyxCamposVisuais
         )
-          ? doc.template
-            ?.camposVisuais
+          ? dadosPreenchimentoDocumento
+            .__phanyxCamposVisuais
           : [];
 
     const renderizacao =

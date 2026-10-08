@@ -2904,17 +2904,24 @@ export function montarRenderizacaoDocumento(
         ALTURA_RODAPE_MM
       );
 
+  /*
+   * A validação deve participar do fluxo normal do documento.
+   *
+   * O script antigo tentava empurrá-la artificialmente para o
+   * rodapé da "última página". Em documentos que cabiam em uma
+   * única folha, pequenas diferenças de medição do Chromium
+   * podiam calcular páginaFinal = 2 e criar uma segunda folha
+   * quase vazia apenas para o QR/validação.
+   *
+   * No fluxo normal o navegador faz o comportamento correto:
+   * - se conteúdo + validação couberem, ficam na mesma página;
+   * - se realmente não couberem, a validação passa inteira para
+   *   a página seguinte por causa de break-inside: avoid.
+   *
+   * Regra genérica para qualquer documento PHANYX.
+   */
   const scriptValidacaoFinalPagina =
-    formatoImpressao ===
-      "A4_INTEIRA" &&
-    mostrarValidacao &&
-    Boolean(
-      opcoes.validacao
-    )
-      ? montarScriptValidacaoFinalPaginaPHANYX(
-        alturaUtilPaginaMm
-      )
-      : "";
+    "";
 
   const html = `
     <!doctype html>
