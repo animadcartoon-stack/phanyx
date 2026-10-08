@@ -1491,6 +1491,24 @@ function AdminDocumentosTemplatesPage() {
         return;
       }
 
+      /*
+       * Fonte de verdade do salvamento:
+       * a geometria que está VISÍVEL no editor.
+       *
+       * A prévia já mede o bloco diretamente na folha branca.
+       * O salvamento precisa usar exatamente a mesma medição,
+       * senão o template persiste coordenadas antigas e o PDF
+       * final fica diferente do que o usuário viu na edição.
+       *
+       * Esta regra é genérica para qualquer template editável.
+       */
+      const camposVisuaisAtuais =
+        obterCamposVisuaisParaPreviewTempoReal();
+
+      setCamposVisuais(
+        camposVisuaisAtuais
+      );
+
       const payload = {
         nome: nome.trim(),
         descricao: descricao.trim() || null,
@@ -1501,9 +1519,7 @@ function AdminDocumentosTemplatesPage() {
         exigeAssinatura,
         formatoImpressao,
         camposVisuais:
-            normalizarCamposVisuaisAssinatura(
-              camposVisuais
-            ),
+          camposVisuaisAtuais,
       };
 
       const url = editingId
@@ -1527,8 +1543,41 @@ function AdminDocumentosTemplatesPage() {
         throw new Error(data?.error || t("messages.saveError"));
       }
 
+      /*
+       * Salvar não deve expulsar o usuário da edição.
+       *
+       * Antes, o formulário era limpo e voltava ao modelo padrão,
+       * obrigando o usuário a localizar o template novamente.
+       * Agora permanecemos no mesmo documento, com o ID salvo e
+       * a geometria retornada pela API.
+       */
+      const idSalvo =
+        Number(
+          data?.id ||
+          editingId
+        );
+
+      if (
+        Number.isInteger(idSalvo) &&
+        idSalvo > 0
+      ) {
+        setEditingId(
+          idSalvo
+        );
+      }
+
+      setCamposVisuais(
+        normalizarCamposVisuaisAssinatura(
+          Array.isArray(
+            data?.camposVisuais
+          )
+            ? data.camposVisuais
+            : camposVisuaisAtuais
+        )
+      );
+
       await carregarTemplates();
-      limparFormulario();
+
       setMensagem(
         editingId
           ? t("messages.updated")
