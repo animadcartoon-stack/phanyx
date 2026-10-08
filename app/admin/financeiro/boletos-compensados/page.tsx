@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   useCallback,
@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import ResolverDivergenciaModal from "@/components/financeiro/ResolverDivergenciaModal";
 import {
   useLocale,
   useTranslations,
@@ -19,6 +20,7 @@ type Aba =
 
 type Cobranca = {
   id: number;
+  resolucaoDivergencia?: { tipo: string; saldoAposBaixa: number } | null;
   referenciaInterna: string;
   cobrancaExternaId?: string | null;
   provedor: string;
@@ -183,6 +185,8 @@ function dataSegura(
 }
 
 export default function BoletosCompensadosPage() {
+  const td = useTranslations("AdminFinanceiroDivergencias");
+  const [divergenciaId, setDivergenciaId] = useState<number | null>(null);
   const router =
     useRouter();
 
@@ -1077,6 +1081,11 @@ export default function BoletosCompensadosPage() {
 
                           <td className="px-4 py-4">
                             <div className="flex min-w-[130px] flex-col gap-2">
+                              {cobranca.statusOperacional === "DIVERGENCIA" && (
+                                <button type="button" onClick={() => setDivergenciaId(cobranca.id)} className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                                  {td("resolve")}
+                                </button>
+                              )}
                               {cobranca.statusBancario ===
                                 "COMPENSADO" &&
                                 cobranca.statusOperacional ===
@@ -1210,6 +1219,13 @@ export default function BoletosCompensadosPage() {
         </div>
       </div>
 
+      {divergenciaId !== null && <ResolverDivergenciaModal cobrancaId={divergenciaId} onFechar={() => setDivergenciaId(null)} onResolvida={async () => {
+        setDivergenciaId(null);
+        setSucesso(td("success"));
+        setAba("AGUARDANDO_BAIXA");
+        setPagina(1);
+      }} />}
+
       {selecionada && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4"
@@ -1230,6 +1246,7 @@ export default function BoletosCompensadosPage() {
             aria-labelledby="modal-baixa-boleto-titulo"
             className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
           >
+            {selecionada.resolucaoDivergencia?.tipo === "PARCIAL" && <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">{td("partialSettlementNotice", { balance: moedaSegura(locale, selecionada.resolucaoDivergencia.saldoAposBaixa, selecionada.contaFinanceira.moeda) })}</p>}
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-300">
                 PHANYX Financeiro

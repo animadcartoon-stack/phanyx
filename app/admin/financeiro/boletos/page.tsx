@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import ResolverDivergenciaModal from "@/components/financeiro/ResolverDivergenciaModal";
 import {
   useLocale,
   useTranslations,
@@ -106,6 +107,7 @@ type Filtro =
   | "COMPENSADO"
   | "AGUARDANDO_BAIXA"
   | "BAIXADO"
+  | "DIVERGENCIA"
   | "FALHA";
 
 const resumoInicial: Resumo = {
@@ -155,6 +157,8 @@ function diasAtraso(valor?: string | null) {
 }
 
 export default function BoletosPage() {
+  const td = useTranslations("AdminFinanceiroDivergencias");
+  const [divergenciaId, setDivergenciaId] = useState<number | null>(null);
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("AdminFinanceBoletos");
@@ -327,7 +331,7 @@ export default function BoletosPage() {
       }
 
       if (
-        ["AGUARDANDO_BAIXA", "BAIXADO"].includes(filtro)
+        ["AGUARDANDO_BAIXA", "BAIXADO", "DIVERGENCIA"].includes(filtro)
       ) {
         params.set("statusOperacional", filtro);
       }
@@ -810,6 +814,7 @@ export default function BoletosPage() {
           t("filters.awaitingSettlement"),
         ],
         ["BAIXADO", t("filters.settled")],
+        ["DIVERGENCIA", t("summary.divergence")],
         ["FALHA", t("filters.failed")],
       ] as Array<[Filtro, string]>,
     [t]
@@ -1100,6 +1105,11 @@ export default function BoletosPage() {
                       </td>
                       <td className="px-3 py-4">
                         <div className="flex flex-wrap gap-2">
+                          {cobranca.statusOperacional === "DIVERGENCIA" && (
+                            <button type="button" onClick={() => setDivergenciaId(cobranca.id)} className="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+                              {td("resolve")}
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => abrirBoleto(cobranca)}
@@ -1329,6 +1339,11 @@ export default function BoletosPage() {
           </table>
         </div>
       </section>
+      {divergenciaId !== null && <ResolverDivergenciaModal cobrancaId={divergenciaId} onFechar={() => setDivergenciaId(null)} onResolvida={async () => {
+        setDivergenciaId(null);
+        setSucesso(td("success"));
+        await Promise.all([carregarBoletos(), carregarDisponiveis()]);
+      }} />}
     </div>
   );
 }
