@@ -127,6 +127,8 @@ export default function HistoricoCobrancaPage() {
     return labels[chave] || canal;
   }
 
+  const td = useTranslations("AdminFinanceiroDivergencias");
+
   function labelAcao(acao: string) {
     const chave = String(acao || "").toUpperCase();
 
@@ -138,6 +140,7 @@ export default function HistoricoCobrancaPage() {
       OBSERVACAO: t("actions.note"),
       COBRANCA_COPIADA: t("actions.chargeCopied"),
       BAIXA_MANUAL: t("actions.manualSettlement"),
+      RESOLVER_DIVERGENCIA_BOLETO_COMPENSADO: td("auditAction"),
     };
 
     return labels[chave] || acao;

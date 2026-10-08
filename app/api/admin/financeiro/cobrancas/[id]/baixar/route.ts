@@ -1,5 +1,6 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { GatilhoComissaoRH } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import { GatilhoComissaoRH, Prisma } from "@prisma/client";
+import { analisarDivergencia, resolucaoAindaValida, objetoJson, centavos } from "@/lib/financeiro/divergencias";
 
 import { prisma } from "@/lib/prisma";
 import {
@@ -33,71 +34,6 @@ function podeDarBaixa(
     "financeiro.recebimentos",
     "caixa.receber",
   ]);
-}
-
-function calcularValorFinal(lancamento: {
-  valorOriginal: number;
-  valorFinal: number | null;
-  descontoValor: number | null;
-  jurosValor: number | null;
-  multaValor: number | null;
-}) {
-  const registrado = Number(
-    lancamento.valorFinal || 0
-  );
-
-  if (registrado > 0) {
-    return Number(registrado.toFixed(2));
-  }
-
-  return Number(
-    (
-      Number(lancamento.valorOriginal || 0) -
-      Number(lancamento.descontoValor || 0) +
-      Number(lancamento.jurosValor || 0) +
-      Number(lancamento.multaValor || 0)
-    ).toFixed(2)
-  );
-}
-
-function calcularTotalPago(
-  pagamentos: Array<{ valorPago: number }>,
-  valorPagoRegistrado: number | null
-) {
-  const porPagamentos = Number(
-    pagamentos
-      .reduce(
-        (total, pagamento) =>
-          total + Number(pagamento.valorPago || 0),
-        0
-      )
-      .toFixed(2)
-  );
-
-  return Math.max(
-    porPagamentos,
-    Number(valorPagoRegistrado || 0)
-  );
-}
-
-function centavos(valor: number) {
-  return Math.round(
-    Number(valor) * 100
-  );
-}
-
-function objetoJson(
-  valor: unknown
-): Record<string, unknown> {
-  if (
-    valor &&
-    typeof valor === "object" &&
-    !Array.isArray(valor)
-  ) {
-    return valor as Record<string, unknown>;
-  }
-
-  return {};
 }
 
 export async function POST(
@@ -255,7 +191,7 @@ export async function POST(
 
     const resultado =
       await prisma.$transaction(
-        async (tx) => {
+        async (tx: Prisma.TransactionClient) => {
           const agora =
             new Date();
 
@@ -274,6 +210,7 @@ export async function POST(
                 statusOperacional:
                   "AGUARDANDO_BAIXA",
                 baixadoEm: null,
+                movimentoCaixaId: null,
               },
               data: {
                 statusOperacional:
@@ -345,6 +282,9 @@ export async function POST(
                   include: {
                     pagamentos:
                       true,
+                    matricula: {
+                      select: { realizadaPeloAluno: true, status: true },
+                    },
 
                     aluno: {
                       select: {
@@ -366,100 +306,27 @@ export async function POST(
           const lancamento =
             atual.lancamentoFinanceiro;
 
-          const valorFinal =
-            calcularValorFinal(
-              lancamento
-            );
-
-          const totalPagoAnterior =
-            calcularTotalPago(
-              lancamento.pagamentos,
-              lancamento.valorPago
-            );
-
-          const saldoAtual =
-            Number(
-              Math.max(
-                0,
-                valorFinal -
-                  totalPagoAnterior
-              ).toFixed(2)
-            );
-
-          const valorCobrado =
-            Number(
-              atual.valorCobrado
-            );
-
-          const valorCompensado =
-            atual.valorCompensado ===
-            null
-              ? NaN
-              : Number(
-                  atual.valorCompensado
-                );
-
-          const motivos:
-            string[] = [];
-
-          if (
-            !Number.isFinite(
-              valorCompensado
-            ) ||
-            valorCompensado <= 0
-          ) {
-            motivos.push(
-              "VALOR_COMPENSADO_INVALIDO"
-            );
-          }
-
-          if (
-            Number.isFinite(
-              valorCompensado
-            ) &&
-            centavos(
-              valorCompensado
-            ) !==
-              centavos(
-                valorCobrado
-              )
-          ) {
-            motivos.push(
-              "VALOR_COMPENSADO_DIFERE_DO_BOLETO"
-            );
-          }
-
-          if (
-            Number.isFinite(
-              valorCompensado
-            ) &&
-            centavos(
-              valorCompensado
-            ) !==
-              centavos(
-                saldoAtual
-              )
-          ) {
-            motivos.push(
-              "VALOR_COMPENSADO_DIFERE_DO_SALDO"
-            );
-          }
-
-          if (
-            saldoAtual <= 0
-          ) {
-            motivos.push(
-              "LANCAMENTO_SEM_SALDO"
-            );
-          }
-
-          if (
-            lancamento.status ===
-            "CANCELADO"
-          ) {
-            motivos.push(
-              "LANCAMENTO_CANCELADO"
-            );
+          const configuracao = await tx.configuracaoFinanceiraInstituicao.findUnique({
+            where: { instituicaoId }, select: { permitirPagamentoParcial: true },
+          });
+          // A cobrança já está reservada como BAIXADO nesta transação.
+          // Para conferir os valores, usamos seu estado anterior à reserva.
+          const paraConferencia = {
+            ...atual, statusOperacional: "AGUARDANDO_BAIXA",
+            baixadoEm: null, movimentoCaixaId: null,
+          };
+          const analise = analisarDivergencia(
+            paraConferencia, lancamento, configuracao?.permitirPagamentoParcial ?? true
+          );
+          const { valorFinal, totalPagoAnterior, saldoAtual, valorCobrado } = analise;
+          const valorCompensado = analise.valorCompensado ?? NaN;
+          const resolucaoValida = resolucaoAindaValida(paraConferencia, lancamento);
+          const motivos = [
+            ...analise.bloqueios,
+            ...(resolucaoValida ? [] : analise.divergenciasValores),
+          ];
+          if (objetoJson(atual.metadata).resolucaoDivergencia && !resolucaoValida) {
+            motivos.push("RESOLUCAO_DESATUALIZADA");
           }
 
           if (
@@ -600,10 +467,12 @@ export async function POST(
               ).toFixed(2)
             );
 
-          await tx.lancamentoFinanceiro.update({
+          const quitado = centavos(novoTotalPago) >= centavos(valorFinal);
+
+          const parcelaAtualizada = await tx.lancamentoFinanceiro.updateMany({
             where: {
-              id:
-                lancamento.id,
+              id: lancamento.id, instituicaoId, alunoId: atual.alunoId,
+              updatedAt: lancamento.updatedAt,
             },
 
             data: {
@@ -616,9 +485,13 @@ export async function POST(
                 dataPagamento,
 
               status:
-                "PAGO",
+                quitado ? "PAGO" : "PARCIAL",
             },
           });
+
+          if (parcelaAtualizada.count !== 1) {
+            throw new Error("COBRANCA_ESTADO_ALTERADO");
+          }
 
           /*
            * Mantém os mesmos gatilhos
@@ -626,7 +499,7 @@ export async function POST(
            * recebimento financeiro atual.
            */
           if (
-            lancamento.matriculaId
+            lancamento.matriculaId && quitado
           ) {
             const dadosComissao = {
               tx,
@@ -704,10 +577,10 @@ export async function POST(
               },
             });
 
-          await tx.caixa.update({
+          const caixaAtualizado = await tx.caixa.updateMany({
             where: {
-              id:
-                caixaAberto.id,
+              id: caixaAberto.id, instituicaoId, status: "ABERTO",
+              origem: "MANUAL", abertoPorId: usuario.id,
             },
 
             data: {
@@ -717,6 +590,10 @@ export async function POST(
               },
             },
           });
+
+          if (caixaAtualizado.count !== 1) {
+            throw new Error("CAIXA_MANUAL_NAO_ABERTO");
+          }
 
           await tx.historicoCobranca.create({
             data: {
@@ -765,6 +642,9 @@ export async function POST(
                   atual.cobrancaExternaId,
 
                 valorCompensado,
+                parcial: !quitado,
+                saldoRestante: Number(Math.max(0, valorFinal - novoTotalPago).toFixed(2)),
+                resolucaoDivergencia: objetoJson(objetoJson(atual.metadata).resolucaoDivergencia) as Prisma.InputJsonObject,
               },
             },
           });
@@ -815,6 +695,7 @@ export async function POST(
 
         },
         {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
           maxWait: 10_000,
           timeout: 30_000,
         }
@@ -890,6 +771,16 @@ export async function POST(
         resultado.cobranca,
     });
   } catch (error) {
+    if ((error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034")
+      || (error instanceof Error && ["CAIXA_MANUAL_NAO_ABERTO", "COBRANCA_ESTADO_ALTERADO"].includes(error.message))) {
+      return NextResponse.json({
+        error: error instanceof Error && error.message === "CAIXA_MANUAL_NAO_ABERTO"
+          ? "Seu caixa foi fechado. Abra seu caixa antes de dar baixa."
+          : "Os dados mudaram durante a baixa. Atualize a tela e confira novamente.",
+        codigo: error instanceof Error && error.message === "CAIXA_MANUAL_NAO_ABERTO"
+          ? "CAIXA_MANUAL_NAO_ABERTO" : "COBRANCA_ESTADO_ALTERADO",
+      }, { status: 409 });
+    }
     console.error(
       "Erro ao dar baixa em boleto compensado:",
       error

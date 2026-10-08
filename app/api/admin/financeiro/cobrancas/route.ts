@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   StatusBancarioCobranca,
   StatusOperacionalCobranca,
@@ -9,6 +9,7 @@ import {
   getUserFromToken,
   temAlgumaPermissao,
 } from "@/lib/server-auth";
+import { objetoJson } from "@/lib/financeiro/divergencias";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 
 export const dynamic = "force-dynamic";
@@ -431,6 +432,7 @@ export async function GET(
           invoiceUrl: true,
 
           erroIntegracao: true,
+          metadata: true,
 
           baixadoPorUsuarioId: true,
           baixadoPorNomeSnapshot: true,
@@ -549,6 +551,12 @@ export async function GET(
         cobrancas.map(
           (item) => ({
             ...item,
+            metadata: undefined,
+            resolucaoDivergencia: objetoJson(item.metadata).resolucaoDivergencia
+              ? {
+                tipo: objetoJson(objetoJson(item.metadata).resolucaoDivergencia).tipo,
+                saldoAposBaixa: objetoJson(objetoJson(item.metadata).resolucaoDivergencia).saldoAposBaixa,
+              } : null,
 
             valorCobrado:
               Number(
