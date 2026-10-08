@@ -1028,18 +1028,85 @@ export function aplicarAssinaturasDocumento({
       formatoImpressao,
     });
 
-  return String(conteudo || "")
-    .replaceAll(
-      "__PHANYX_ASSINATURA_DIRETOR__",
-      imagem
-    )
+  const possuiCoordenadaPapel =
+    campoVisual?.blocoPapelX != null &&
+    campoVisual?.blocoPapelY != null &&
+    Number.isFinite(
+      Number(
+        campoVisual.blocoPapelX
+      )
+    ) &&
+    Number.isFinite(
+      Number(
+        campoVisual.blocoPapelY
+      )
+    );
+
+  const possuiCoordenadaPaginaAntiga =
+    campoVisual?.blocoPaginaX != null &&
+    campoVisual?.blocoPaginaY != null &&
+    Number.isFinite(
+      Number(
+        campoVisual.blocoPaginaX
+      )
+    ) &&
+    Number.isFinite(
+      Number(
+        campoVisual.blocoPaginaY
+      )
+    );
+
+  const blocoTemPosicaoAbsoluta =
+    possuiCoordenadaPapel ||
+    possuiCoordenadaPaginaAntiga;
+
+  let resultado =
+    String(conteudo || "")
+      .replaceAll(
+        "__PHANYX_ASSINATURA_DIRETOR__",
+        imagem
+      )
+      .replace(
+        /{{\s*(?:assinaturaDiretor|directorSignature)\s*}}/gi,
+        imagem
+      );
+
+  if (
+    blocoTemPosicaoAbsoluta
+  ) {
+    /*
+     * Quando o bloco possui coordenadas absolutas, ele NÃO pode
+     * continuar ancorado dentro do <p> onde a tag estava.
+     *
+     * O Chromium pode fragmentar esse parágrafo durante a impressão
+     * e deslocar o elemento absoluto para a posição do fluxo.
+     *
+     * Removemos a tag do fluxo e colocamos o bloco como filho direto
+     * de .phanyx-conteudo. Assim left/top passam a usar somente a
+     * origem da área imprimível, exatamente como no editor.
+     */
+    resultado =
+      resultado
+        .replaceAll(
+          "__PHANYX_BLOCO_ASSINATURA_DIRETOR__",
+          ""
+        )
+        .replace(
+          /{{\s*(?:blocoAssinaturaDiretor|directorSignatureBlock)\s*}}/gi,
+          ""
+        );
+
+    return `${bloco}${resultado}`;
+  }
+
+  /*
+   * Templates antigos, que ainda usam apenas blocoOffsetX/Y,
+   * continuam no comportamento legado relativo à posição da tag.
+   */
+  return resultado
     .replaceAll(
       "__PHANYX_BLOCO_ASSINATURA_DIRETOR__",
       bloco
-    )
-    .replace(
-      /{{\s*(?:assinaturaDiretor|directorSignature)\s*}}/gi,
-      imagem
     )
     .replace(
       /{{\s*(?:blocoAssinaturaDiretor|directorSignatureBlock)\s*}}/gi,
