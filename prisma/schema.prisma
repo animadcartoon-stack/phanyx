@@ -6569,18 +6569,31 @@ model BibliotecaItem {
   titulo            String
   subtitulo         String?
   tituloAlternativo String?
-  slug              String
-  sinopse           String?             @db.Text
-  descricao         String?             @db.Text
-  palavrasChave     String[]            @default([])
-  reservas          BibliotecaReserva[]
+
+  // Catalogacao bibliografica avancada.
+  tituloUniforme              String?
+  mencaoResponsabilidade      String? @db.Text
+  numeroControleBibliografico String?
+
+  slug          String
+  sinopse       String?             @db.Text
+  descricao     String?             @db.Text
+  palavrasChave String[]            @default([])
+  reservas      BibliotecaReserva[]
 
   isbn10 String?
   isbn13 String?
   issn   String?
   doi    String?
 
+  // Dados do registro catalografico.
+  regraCatalogacao  String?
+  fonteCatalogacao  String?
+  idiomaCatalogacao String?
+
   idioma          String    @default("pt-BR")
+  idiomaOriginal  String?
+  localPublicacao String?
   paisPublicacao  String?
   anoPublicacao   Int?
   dataPublicacao  DateTime?
@@ -6589,6 +6602,23 @@ model BibliotecaItem {
   numero          String?
   numeroPaginas   Int?
   duracaoSegundos Int?
+
+  // Serie e descricao fisica.
+  serie                String?
+  numeroSerie          String?
+  detalhesFisicos      String?
+  dimensoes            String?
+  materialAcompanhante String?
+
+  // RDA / MARC 336, 337 e 338.
+  tiposConteudoRda String[] @default([])
+  tiposMidiaRda    String[] @default([])
+  tiposSuporteRda  String[] @default([])
+
+  // Notas bibliograficas.
+  notaGeral        String? @db.Text
+  notaBibliografia String? @db.Text
+  notaConteudo     String? @db.Text
 
   classificacaoBibliografica String?
   sistemaClassificacao       BibliotecaSistemaClassificacao?
@@ -6646,6 +6676,7 @@ model BibliotecaItem {
 
   @@unique([instituicaoId, slug])
   @@unique([id, instituicaoId])
+  @@unique([instituicaoId, numeroControleBibliografico])
   @@index([instituicaoId])
   @@index([instituicaoId, status])
   @@index([instituicaoId, tipo])
@@ -6656,6 +6687,7 @@ model BibliotecaItem {
   @@index([issn])
   @@index([doi])
   @@index([titulo])
+  @@index([tituloUniforme])
 }
 
 model BibliotecaAutor {

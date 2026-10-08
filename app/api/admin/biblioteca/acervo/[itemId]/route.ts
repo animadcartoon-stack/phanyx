@@ -53,6 +53,25 @@ const ITEM_DETALHE_SELECT = {
   titulo: true,
   subtitulo: true,
   tituloAlternativo: true,
+  tituloUniforme: true,
+  mencaoResponsabilidade: true,
+  numeroControleBibliografico: true,
+  regraCatalogacao: true,
+  fonteCatalogacao: true,
+  idiomaCatalogacao: true,
+  idiomaOriginal: true,
+  localPublicacao: true,
+  serie: true,
+  numeroSerie: true,
+  detalhesFisicos: true,
+  dimensoes: true,
+  materialAcompanhante: true,
+  tiposConteudoRda: true,
+  tiposMidiaRda: true,
+  tiposSuporteRda: true,
+  notaGeral: true,
+  notaBibliografia: true,
+  notaConteudo: true,
   slug: true,
   sinopse: true,
   descricao: true,
@@ -598,6 +617,78 @@ function normalizarPalavrasChave(valor: unknown) {
   return normalizadas;
 }
 
+
+function normalizarListaCatalografica(
+  valor,
+  campo,
+  limiteItens = 20,
+  limiteTexto = 160
+) {
+  if (
+    valor === undefined ||
+    valor === null ||
+    valor === ""
+  ) {
+    return [];
+  }
+
+  const valores = Array.isArray(valor)
+    ? valor
+    : typeof valor === "string"
+      ? valor.split(",")
+      : null;
+
+  if (!valores) {
+    falhar(
+      400,
+      `O campo ${campo} deve ser uma lista de textos.`,
+      "CAMPO_INVALIDO",
+      { campo }
+    );
+  }
+
+  const normalizadas = Array.from(
+    new Set(
+      valores
+        .map((item) =>
+          String(item || "").trim()
+        )
+        .filter(Boolean)
+    )
+  );
+
+  if (normalizadas.length > limiteItens) {
+    falhar(
+      400,
+      `O campo ${campo} ultrapassa a quantidade permitida.`,
+      "LIMITE_LISTA",
+      {
+        campo,
+        limite: limiteItens,
+      }
+    );
+  }
+
+  const itemLongo = normalizadas.find(
+    (item) =>
+      item.length > limiteTexto
+  );
+
+  if (itemLongo) {
+    falhar(
+      400,
+      `Um valor de ${campo} ultrapassa o limite permitido.`,
+      "CAMPO_MUITO_LONGO",
+      {
+        campo,
+        limite: limiteTexto,
+      }
+    );
+  }
+
+  return normalizadas;
+}
+
 async function lerCorpo(
   request: NextRequest
 ): Promise<CorpoEdicao> {
@@ -677,6 +768,28 @@ function serializarItemParaAuditoria(
     titulo: item.titulo,
     subtitulo: item.subtitulo,
     tituloAlternativo: item.tituloAlternativo,
+    tituloUniforme: item.tituloUniforme,
+    mencaoResponsabilidade:
+      item.mencaoResponsabilidade,
+    numeroControleBibliografico:
+      item.numeroControleBibliografico,
+    regraCatalogacao: item.regraCatalogacao,
+    fonteCatalogacao: item.fonteCatalogacao,
+    idiomaCatalogacao: item.idiomaCatalogacao,
+    idiomaOriginal: item.idiomaOriginal,
+    localPublicacao: item.localPublicacao,
+    serie: item.serie,
+    numeroSerie: item.numeroSerie,
+    detalhesFisicos: item.detalhesFisicos,
+    dimensoes: item.dimensoes,
+    materialAcompanhante:
+      item.materialAcompanhante,
+    tiposConteudoRda: item.tiposConteudoRda,
+    tiposMidiaRda: item.tiposMidiaRda,
+    tiposSuporteRda: item.tiposSuporteRda,
+    notaGeral: item.notaGeral,
+    notaBibliografia: item.notaBibliografia,
+    notaConteudo: item.notaConteudo,
     slug: item.slug,
     sinopse: item.sinopse,
     descricao: item.descricao,
@@ -1063,6 +1176,160 @@ export async function PATCH(
       255
     );
 
+    const numeroControleBibliografico =
+      corpo.numeroControleBibliografico === undefined
+        ? anterior.numeroControleBibliografico
+        : textoOpcional(
+            corpo.numeroControleBibliografico,
+            "numeroControleBibliografico",
+            120
+          );
+
+    const dadosCatalogacaoCompleta = {
+      tituloUniforme:
+        corpo.tituloUniforme === undefined
+          ? anterior.tituloUniforme
+          : textoOpcional(
+              corpo.tituloUniforme,
+              "tituloUniforme",
+              240
+            ),
+      mencaoResponsabilidade:
+        corpo.mencaoResponsabilidade === undefined
+          ? anterior.mencaoResponsabilidade
+          : textoOpcional(
+              corpo.mencaoResponsabilidade,
+              "mencaoResponsabilidade",
+              2_000
+            ),
+      numeroControleBibliografico,
+      regraCatalogacao:
+        corpo.regraCatalogacao === undefined
+          ? anterior.regraCatalogacao
+          : textoOpcional(
+              corpo.regraCatalogacao,
+              "regraCatalogacao",
+              80
+            ),
+      fonteCatalogacao:
+        corpo.fonteCatalogacao === undefined
+          ? anterior.fonteCatalogacao
+          : textoOpcional(
+              corpo.fonteCatalogacao,
+              "fonteCatalogacao",
+              160
+            ),
+      idiomaCatalogacao:
+        corpo.idiomaCatalogacao === undefined
+          ? anterior.idiomaCatalogacao
+          : textoOpcional(
+              corpo.idiomaCatalogacao,
+              "idiomaCatalogacao",
+              30
+            ),
+      idiomaOriginal:
+        corpo.idiomaOriginal === undefined
+          ? anterior.idiomaOriginal
+          : textoOpcional(
+              corpo.idiomaOriginal,
+              "idiomaOriginal",
+              30
+            ),
+      localPublicacao:
+        corpo.localPublicacao === undefined
+          ? anterior.localPublicacao
+          : textoOpcional(
+              corpo.localPublicacao,
+              "localPublicacao",
+              160
+            ),
+      serie:
+        corpo.serie === undefined
+          ? anterior.serie
+          : textoOpcional(
+              corpo.serie,
+              "serie",
+              240
+            ),
+      numeroSerie:
+        corpo.numeroSerie === undefined
+          ? anterior.numeroSerie
+          : textoOpcional(
+              corpo.numeroSerie,
+              "numeroSerie",
+              80
+            ),
+      detalhesFisicos:
+        corpo.detalhesFisicos === undefined
+          ? anterior.detalhesFisicos
+          : textoOpcional(
+              corpo.detalhesFisicos,
+              "detalhesFisicos",
+              500
+            ),
+      dimensoes:
+        corpo.dimensoes === undefined
+          ? anterior.dimensoes
+          : textoOpcional(
+              corpo.dimensoes,
+              "dimensoes",
+              120
+            ),
+      materialAcompanhante:
+        corpo.materialAcompanhante === undefined
+          ? anterior.materialAcompanhante
+          : textoOpcional(
+              corpo.materialAcompanhante,
+              "materialAcompanhante",
+              500
+            ),
+      tiposConteudoRda:
+        corpo.tiposConteudoRda === undefined
+          ? anterior.tiposConteudoRda
+          : normalizarListaCatalografica(
+              corpo.tiposConteudoRda,
+              "tiposConteudoRda"
+            ),
+      tiposMidiaRda:
+        corpo.tiposMidiaRda === undefined
+          ? anterior.tiposMidiaRda
+          : normalizarListaCatalografica(
+              corpo.tiposMidiaRda,
+              "tiposMidiaRda"
+            ),
+      tiposSuporteRda:
+        corpo.tiposSuporteRda === undefined
+          ? anterior.tiposSuporteRda
+          : normalizarListaCatalografica(
+              corpo.tiposSuporteRda,
+              "tiposSuporteRda"
+            ),
+      notaGeral:
+        corpo.notaGeral === undefined
+          ? anterior.notaGeral
+          : textoOpcional(
+              corpo.notaGeral,
+              "notaGeral",
+              20_000
+            ),
+      notaBibliografia:
+        corpo.notaBibliografia === undefined
+          ? anterior.notaBibliografia
+          : textoOpcional(
+              corpo.notaBibliografia,
+              "notaBibliografia",
+              20_000
+            ),
+      notaConteudo:
+        corpo.notaConteudo === undefined
+          ? anterior.notaConteudo
+          : textoOpcional(
+              corpo.notaConteudo,
+              "notaConteudo",
+              20_000
+            ),
+    };
+
     const filtrosDuplicidade:
       Prisma.BibliotecaItemWhereInput[] = [];
 
@@ -1072,6 +1339,16 @@ export async function PATCH(
       filtrosDuplicidade.push({
         doi: {
           equals: doi,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    if (numeroControleBibliografico) {
+      filtrosDuplicidade.push({
+        numeroControleBibliografico: {
+          equals:
+            numeroControleBibliografico,
           mode: "insensitive",
         },
       });
@@ -1096,7 +1373,7 @@ export async function PATCH(
       if (duplicado) {
         falhar(
           409,
-          "Já existe outro item com o mesmo ISBN ou DOI nesta biblioteca.",
+          "Já existe outro item com o mesmo ISBN, DOI ou número de controle bibliográfico nesta biblioteca.",
           "ITEM_POSSIVELMENTE_DUPLICADO",
           {
             itemId: duplicado.id,
@@ -1166,6 +1443,7 @@ export async function PATCH(
                 "tituloAlternativo",
                 240
               ),
+              ...dadosCatalogacaoCompleta,
               sinopse: textoOpcional(
                 corpo.sinopse,
                 "sinopse",
