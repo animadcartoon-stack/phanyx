@@ -18,6 +18,7 @@ import {
   obterContextoBiblioteca,
   respostaErroBiblioteca,
 } from "@/lib/biblioteca-acesso";
+import { gerarCodigoCutterObra } from "@/lib/biblioteca-cutter";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -83,6 +84,7 @@ const ITEM_ACERVO_SELECT = {
   sistemaClassificacao: true,
   edicaoClassificacao: true,
   codigoCutter: true,
+  codigoCutterAutomatico: true,
   codigoChamada: true,
   cdd: true,
   cdu: true,
@@ -1421,7 +1423,10 @@ export async function POST(request: NextRequest) {
               id: { in: idsAutores },
               ativo: true,
             },
-            select: { id: true },
+            select: {
+              id: true,
+              codigoCutterBase: true,
+            },
           })
         : Promise.resolve([]),
       idsCategorias.length
@@ -1528,11 +1533,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const catalogacao =
+    const catalogacaoInicial =
       resolverCatalogacao(
         corpo,
         contexto.configuracao
       );
+
+    const autorPrincipalVinculo =
+      [...autores]
+        .filter(
+          (vinculo) =>
+            vinculo.funcao ===
+            BibliotecariaFuncaoAutor.AUTOR
+        )
+        .sort(
+          (a, b) =>
+            a.ordem - b.ordem
+        )[0] ||
+      null;
+
+    const autorPrincipal =
+      autorPrincipalVinculo
+        ? autoresExistentes.find(
+            (autor) =>
+              autor.id ===
+              autorPrincipalVinculo.autorId
+          ) || null
+        : null;
+
+    const codigoCutterGerado =
+      !catalogacaoInicial.codigoCutter
+        ? gerarCodigoCutterObra(
+            autorPrincipal
+              ?.codigoCutterBase,
+            titulo
+          )
+        : null;
+
+    const codigoCutterAutomatico =
+      Boolean(
+        !catalogacaoInicial.codigoCutter &&
+        codigoCutterGerado
+      );
+
+    const catalogacao =
+      codigoCutterGerado
+        ? resolverCatalogacao(
+            {
+              ...corpo,
+              codigoCutter:
+                codigoCutterGerado,
+            },
+            contexto.configuracao
+          )
+        : catalogacaoInicial;
 
     const agora = new Date();
     const anoMaximo = agora.getFullYear() + 2;
@@ -1642,6 +1696,7 @@ export async function POST(request: NextRequest) {
                 catalogacao.edicaoClassificacao,
               codigoCutter:
                 catalogacao.codigoCutter,
+              codigoCutterAutomatico,
               codigoChamada:
                 catalogacao.codigoChamada,
               cdd:

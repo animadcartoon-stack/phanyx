@@ -15,6 +15,7 @@ import {
   obterContextoBiblioteca,
   respostaErroBiblioteca,
 } from "@/lib/biblioteca-acesso";
+import { gerarCodigoCutterObra } from "@/lib/biblioteca-cutter";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -93,6 +94,7 @@ const ITEM_DETALHE_SELECT = {
   sistemaClassificacao: true,
   edicaoClassificacao: true,
   codigoCutter: true,
+  codigoCutterAutomatico: true,
   codigoChamada: true,
   cdd: true,
   cdu: true,
@@ -817,6 +819,8 @@ function serializarItemParaAuditoria(
       item.edicaoClassificacao,
     codigoCutter:
       item.codigoCutter,
+    codigoCutterAutomatico:
+      item.codigoCutterAutomatico,
     codigoChamada: item.codigoChamada,
     cdd: item.cdd,
     cdu: item.cdu,
@@ -1407,9 +1411,134 @@ export async function PATCH(
       contexto.configuracao?.permitirDownload &&
       permitirDownloadSolicitado
     );
+    const codigoCutterInformado =
+      textoOpcional(
+        corpo.codigoCutter,
+        "codigoCutter",
+        80
+      );
+
+    const codigoCutterAnterior =
+      anterior.codigoCutter
+        ?.trim() ||
+      null;
+
+    const cutterFoiAlteradoManualmente =
+      codigoCutterInformado !==
+      codigoCutterAnterior;
+
+    const autorPrincipal =
+      [...anterior.autores]
+        .filter(
+          (vinculo) =>
+            vinculo.funcao ===
+            "AUTOR"
+        )
+        .sort(
+          (a, b) =>
+            a.ordem - b.ordem
+        )[0]
+        ?.autor ||
+      null;
+
+    const deveGerarCutter =
+      !codigoCutterInformado ||
+      (
+        anterior
+          .codigoCutterAutomatico &&
+        !cutterFoiAlteradoManualmente
+      );
+
+    const codigoCutterGerado =
+      deveGerarCutter
+        ? gerarCodigoCutterObra(
+            autorPrincipal
+              ?.codigoCutterBase,
+            titulo
+          )
+        : null;
+
+    const codigoCutterFinal =
+      deveGerarCutter
+        ? codigoCutterGerado
+        : codigoCutterInformado;
+
+    const codigoCutterAutomatico =
+      Boolean(
+        deveGerarCutter &&
+        codigoCutterGerado
+      );
+
+    const sistemaAnterior =
+      anterior
+        .sistemaClassificacao ??
+      contexto.configuracao
+        ?.sistemaClassificacaoPadrao ??
+      BibliotecaSistemaClassificacao.CDD;
+
+    const classificacaoAnterior =
+      sistemaAnterior ===
+        BibliotecaSistemaClassificacao.CDD
+        ? anterior.cdd
+        : sistemaAnterior ===
+            BibliotecaSistemaClassificacao.CDU
+          ? anterior.cdu
+          : anterior
+              .classificacaoBibliografica;
+
+    const partesChamadaAnterior = [
+      classificacaoAnterior,
+      contexto.configuracao
+        ?.usarCutter !== false
+        ? anterior.codigoCutter
+        : null,
+    ].filter(
+      (valor): valor is string =>
+        Boolean(valor)
+    );
+
+    const codigoChamadaAutomaticoAnterior =
+      partesChamadaAnterior.length
+        ? partesChamadaAnterior.join(" ")
+        : null;
+
+    const codigoChamadaInformado =
+      textoOpcional(
+        corpo.codigoChamada,
+        "codigoChamada",
+        120
+      );
+
+    const codigoChamadaNaoFoiAlterado =
+      codigoChamadaInformado ===
+      anterior.codigoChamada;
+
+    const codigoChamadaEraAutomatico =
+      anterior.codigoChamada ===
+      codigoChamadaAutomaticoAnterior;
+
+    const deveRegerarCodigoChamada =
+      contexto.configuracao
+        ?.gerarCodigoChamadaAutomaticamente !==
+        false &&
+      codigoChamadaNaoFoiAlterado &&
+      codigoChamadaEraAutomatico;
+
     const catalogacao =
       resolverCatalogacao(
-        corpo,
+        {
+          ...corpo,
+
+          codigoCutter:
+            codigoCutterFinal,
+
+          ...(deveRegerarCodigoChamada
+            ? {
+                codigoChamada:
+                  null,
+              }
+            : {}),
+        },
         contexto.configuracao
       );
 
@@ -1522,6 +1651,7 @@ export async function PATCH(
                 catalogacao.edicaoClassificacao,
               codigoCutter:
                 catalogacao.codigoCutter,
+              codigoCutterAutomatico,
               codigoChamada:
                 catalogacao.codigoChamada,
               cdd:
