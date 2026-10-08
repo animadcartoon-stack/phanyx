@@ -1,14 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
-import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
-import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 import { useTranslations } from "next-intl";
+
+const InstallPromptPHANYX = dynamic(
+  () => import("@/components/pwa/InstallPromptPHANYX"),
+  { ssr: false },
+);
+
+const ChatGlobalWidget = dynamic(
+  () => import("@/components/chat/ChatGlobalWidget"),
+  { ssr: false },
+);
+
+// PERFORMANCE PHANYX - ADMIN FASE 1
 
 type BibliotecaOperadorMenu = {
   id: number;
@@ -185,11 +196,21 @@ export default function AdminShell({
   const [carregandoUsuario, setCarregandoUsuario] = useState(!usuarioInicial);
   const [sessaoExpirada, setSessaoExpirada] = useState(false);
   const [menuMobileAberto, setMenuMobileAberto] = useState<string | null>(null);
+  const [recursosSecundariosAtivos, setRecursosSecundariosAtivos] =
+    useState(false);
 
   useEffect(() => {
     setMenuAberto(descobrirMenuInicial());
     setMenuMobileAberto(null);
   }, [pathname]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setRecursosSecundariosAtivos(true);
+    }, 900);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     function rolarSidebarAteAlvo(seletor: string) {
@@ -322,20 +343,31 @@ export default function AdminShell({
       const promessaFuncionario = carregarFuncionario();
 
       try {
+        /*
+         * O layout do Admin já validou a sessão no servidor e entregou
+         * usuário/permissões. Só repetimos essas duas chamadas no raro
+         * cenário em que o shell for montado sem dados iniciais.
+         */
+        const precisaRevalidarIdentidade = !usuarioInicial;
+
         const [
           resUsuario,
           resPermissoes,
           resBiblioteca,
         ] = await Promise.all([
-          fetch("/api/auth/me", {
-            cache: "no-store",
-            credentials: "include",
-          }),
+          precisaRevalidarIdentidade
+            ? fetch("/api/auth/me", {
+                cache: "no-store",
+                credentials: "include",
+              })
+            : Promise.resolve(null),
 
-          fetch("/api/admin/permissoes/me", {
-            cache: "no-store",
-            credentials: "include",
-          }),
+          precisaRevalidarIdentidade
+            ? fetch("/api/admin/permissoes/me", {
+                cache: "no-store",
+                credentials: "include",
+              })
+            : Promise.resolve(null),
 
           fetch("/api/admin/biblioteca/acesso", {
             cache: "no-store",
@@ -343,17 +375,19 @@ export default function AdminShell({
           }),
         ]);
 
-        if (!resUsuario.ok) {
+        if (resUsuario && !resUsuario.ok) {
           setUsuario(null);
           setPermissoes([]);
           setAcessoBiblioteca(null);
           return;
         }
 
-        const dataUsuario = await resUsuario.json();
-        setUsuario(dataUsuario.user ?? null);
+        if (resUsuario) {
+          const dataUsuario = await resUsuario.json();
+          setUsuario(dataUsuario.user ?? null);
+        }
 
-        if (resPermissoes.ok) {
+        if (resPermissoes?.ok) {
           const permissoesData = await resPermissoes.json();
           setPermissoes(
             Array.isArray(permissoesData.permissoes)
@@ -392,11 +426,36 @@ export default function AdminShell({
     }
 
     revalidarSessao();
-    carregarNotificacoes();
 
-    const intervaloNotificacoes = setInterval(carregarNotificacoes, 30000);
+    /*
+     * Na primeira leitura sincronizamos notificações derivadas.
+     * Depois apenas consultamos a caixa pronta, e somente com a aba visível.
+     */
+    carregarNotificacoes(true);
 
-    return () => clearInterval(intervaloNotificacoes);
+    const atualizarNotificacoesVisiveis = () => {
+      if (document.visibilityState === "visible") {
+        carregarNotificacoes(false);
+      }
+    };
+
+    const intervaloNotificacoes = window.setInterval(
+      atualizarNotificacoesVisiveis,
+      60000,
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      atualizarNotificacoesVisiveis,
+    );
+
+    return () => {
+      window.clearInterval(intervaloNotificacoes);
+      document.removeEventListener(
+        "visibilitychange",
+        atualizarNotificacoesVisiveis,
+      );
+    };
   }, []);
 
   async function handleLogout() {
@@ -407,12 +466,15 @@ export default function AdminShell({
     router.push("/login");
   }
 
-  async function carregarNotificacoes() {
+  async function carregarNotificacoes(gerar = false) {
     try {
-      const res = await fetch("/api/admin/notificacoes", {
-        cache: "no-store",
-        credentials: "include",
-      });
+      const res = await fetch(
+        gerar ? "/api/admin/notificacoes?gerar=1" : "/api/admin/notificacoes",
+        {
+          cache: "no-store",
+          credentials: "include",
+        },
+      );
 
       if (!res.ok) return;
 
@@ -860,7 +922,7 @@ export default function AdminShell({
 
   return (
     <>
-      <InstallPromptPHANYX />
+      {recursosSecundariosAtivos ? <InstallPromptPHANYX /> : null}
 
       <div className="flex min-h-screen bg-gray-100">
         {!esconderSidebar && (
@@ -2976,7 +3038,7 @@ export default function AdminShell({
             children
           )}
 
-          <ChatGlobalWidget />
+          {recursosSecundariosAtivos ? <ChatGlobalWidget /> : null}
         </main>
 
         <PhanyxConfirmModal
