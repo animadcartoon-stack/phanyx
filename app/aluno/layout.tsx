@@ -323,22 +323,6 @@ export default async function AlunoLayout({
         ? true
         : periodoRematriculaAberto !== null;
 
-  const temCandidaturaMobilidade =
-    (
-      await prisma.mobilidadeCandidatura.count({
-        where: {
-          instituicaoId:
-            aluno.instituicaoId,
-
-          alunoId:
-            aluno.id,
-
-          vinculoCandidato:
-            "ALUNO_PHANYX",
-        },
-      })
-    ) > 0;
-
   const visibilidadeAluno = {
     biblioteca: await bibliotecaDisponivel(aluno.instituicaoId),
     painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
@@ -350,13 +334,11 @@ export default async function AlunoLayout({
     boletim: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.boletim"),
     certificados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.certificados"),
 
-    mobilidade:
-      temCandidaturaMobilidade &&
-      await paginaVisivel(
-        aluno.instituicaoId,
-        "ALUNO",
-        "aluno.mobilidade"
-      ),
+    mobilidade: await paginaVisivel(
+      aluno.instituicaoId,
+      "ALUNO",
+      "aluno.mobilidade"
+    ),
     reunioes: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.reunioes"),
     dados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.dados"),
   };
