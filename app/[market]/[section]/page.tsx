@@ -6,6 +6,7 @@ import SearchIntentPage from "@/components/marketing/SearchIntentPage";
 import EnrollmentPage from "@/components/marketing/EnrollmentPage";
 import RegistrarPage from "@/components/marketing/RegistrarPage";
 import BackgroundRemoverPage from "@/components/marketing/BackgroundRemoverPage";
+import PhanyxPrintPage from "@/components/marketing/PhanyxPrintPage";
 import { enrollmentCopy } from "@/lib/enrollment-marketing";
 import { registrarCopy } from "@/lib/registrar-marketing";
 import { searchIntentCopy } from "@/lib/search-intents";
@@ -26,6 +27,14 @@ import {
   backgroundRemoverPath,
   backgroundRemoverSlugs,
 } from "@/lib/background-remover-i18n";
+import {
+  phanyxPrintAlternates,
+  phanyxPrintCopy,
+  phanyxPrintLocaleFromSlug,
+  phanyxPrintLocales,
+  phanyxPrintPath,
+  phanyxPrintSlugs,
+} from "@/lib/phanyx-print-i18n";
 
 export const dynamicParams = false;
 
@@ -55,6 +64,12 @@ export function generateStaticParams() {
         market,
         section: backgroundRemoverSlugs[market],
       })),
+    ...phanyxPrintLocales
+      .filter((market) => market !== "pt-BR")
+      .map((market) => ({
+        market,
+        section: phanyxPrintSlugs[market],
+      })),
   ];
 }
 
@@ -66,6 +81,35 @@ export async function generateMetadata({
   const { market, section: slug } = await params;
 
   if (!localeEhSuportado(market) || market === "pt-BR") return {};
+
+  const printLocale = phanyxPrintLocaleFromSlug(market, slug);
+
+  if (printLocale) {
+    const copy = phanyxPrintCopy[printLocale];
+
+    return {
+      title: { absolute: copy.seoTitle },
+      description: copy.seoDescription,
+      keywords: [...copy.keywords],
+      alternates: {
+        ...phanyxPrintAlternates(),
+        canonical: phanyxPrintPath(printLocale),
+      },
+      openGraph: {
+        title: copy.seoTitle,
+        description: copy.seoDescription,
+        locale: printLocale.replace("-", "_"),
+        url: phanyxPrintPath(printLocale),
+        images: ["/images/phanyx-print-icon.png"],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: copy.seoTitle,
+        description: copy.seoDescription,
+        images: ["/images/phanyx-print-icon.png"],
+      },
+    };
+  }
 
   const removerLocale = backgroundRemoverLocaleFromSlug(market, slug);
 
@@ -138,6 +182,11 @@ export default async function MarketSectionPage({
   const { market, section: slug } = await params;
 
   if (!localeEhSuportado(market) || market === "pt-BR") notFound();
+
+  const printLocale = phanyxPrintLocaleFromSlug(market, slug);
+  if (printLocale) {
+    return <PhanyxPrintPage locale={printLocale} />;
+  }
 
   const removerLocale = backgroundRemoverLocaleFromSlug(market, slug);
   if (removerLocale) {
