@@ -1697,34 +1697,38 @@ function cssCompartilhado(
       padding-left: 1.5em;
     }
 
+    /*
+     * .phanyx-page-break é uma GUIA VISUAL criada automaticamente
+     * pelo EditorTemplatePHANYX para representar a troca de folha.
+     *
+     * Ela nunca deve provocar uma segunda paginação no Chromium.
+     *
+     * Também neutralizamos aqui quebras antigas já persistidas em
+     * templates/documentos, de modo que PDFs existentes sejam
+     * corrigidos imediatamente sem precisar gerar outro documento.
+     */
     .phanyx-conteudo
       .phanyx-page-break {
-      display: block !important;
-      width: 100%;
+      display: none !important;
+      width: 0 !important;
       height: 0 !important;
+      min-height: 0 !important;
       margin: 0 !important;
       padding: 0 !important;
       border: 0 !important;
       overflow: hidden !important;
       font-size: 0 !important;
       line-height: 0 !important;
-      break-before: page;
-      page-break-before: always;
+      break-before: auto !important;
+      break-after: auto !important;
+      page-break-before: auto !important;
+      page-break-after: auto !important;
     }
 
     .phanyx-conteudo
       .phanyx-page-break
       > * {
       display: none !important;
-    }
-
-    .phanyx-conteudo
-      > .phanyx-page-break:first-child,
-    .phanyx-conteudo
-      > .phanyx-page-break:last-child {
-      display: none !important;
-      break-before: auto !important;
-      page-break-before: auto !important;
     }
     .phanyx-logo-instituicao-inline {
       display: inline-block;
