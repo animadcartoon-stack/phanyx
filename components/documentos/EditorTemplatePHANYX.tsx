@@ -1430,6 +1430,16 @@ type CampoVisualAssinaturaPreview = {
    */
   blocoPaginaX?: number;
   blocoPaginaY?: number;
+
+  /*
+   * Coordenada definitiva do bloco dentro da
+   * área branca de conteúdo da folha no editor.
+   *
+   * Diferente de blocoPaginaX/Y, esta coordenada
+   * não inclui a faixa visual de cabeçalho.
+   */
+  blocoPapelX?: number;
+  blocoPapelY?: number;
 };
 
 type DadosAssinaturaPreview = {
@@ -1886,14 +1896,42 @@ function criarBotaoRemoverAssinatura(
    * x/y da imagem interna da assinatura.
    */
   /*
-   * POSIÇÃO ABSOLUTA DO BLOCO NA FOLHA.
+   * POSIÇÃO FIEL DO BLOCO NA ÁREA BRANCA DA FOLHA.
    *
-   * blocoPaginaX/blocoPaginaY representam a posição final
-   * do canto superior esquerdo do bloco em relação à folha
-   * A4 mostrada pelo editor.
+   * A correção anterior gravava a coordenada em relação ao
+   * contêiner A4 completo e depois tentava compensar o cabeçalho
+   * no PDF por uma constante de 42 mm.
    *
-   * Com isso, a posição não depende mais do parágrafo onde
-   * {{blocoAssinaturaDiretor}} está inserido.
+   * Agora a fonte de verdade é a própria .phanyx-document-paper:
+   * blocoPapelX/blocoPapelY são medidos a partir do canto superior
+   * esquerdo da área branca onde o conteúdo é editado.
+   *
+   * O PDF usa exatamente a mesma origem vertical da área de conteúdo,
+   * eliminando qualquer compensação fixa de cabeçalho.
+   */
+  const papelXSalvo =
+    Number(
+      dados.campoVisual
+        ?.blocoPapelX
+    );
+
+  const papelYSalvo =
+    Number(
+      dados.campoVisual
+        ?.blocoPapelY
+    );
+
+  const possuiCoordenadaPapel =
+    Number.isFinite(
+      papelXSalvo
+    ) &&
+    Number.isFinite(
+      papelYSalvo
+    );
+
+  /*
+   * Campos da versão anterior mantidos apenas
+   * para migração visual automática.
    */
   const paginaXSalva =
     Number(
@@ -1907,7 +1945,7 @@ function criarBotaoRemoverAssinatura(
         ?.blocoPaginaY
     );
 
-  const possuiPosicaoAbsoluta =
+  const possuiPosicaoPaginaAntiga =
     Number.isFinite(
       paginaXSalva
     ) &&
@@ -1915,7 +1953,7 @@ function criarBotaoRemoverAssinatura(
       paginaYSalva
     );
 
-  const obterReferenciasPagina =
+  const obterReferenciasPosicao =
     () => {
       const editorRaiz =
         container.closest(
@@ -1936,6 +1974,10 @@ function criarBotaoRemoverAssinatura(
           HTMLElement
         ) ||
         !(
+          papel instanceof
+          HTMLElement
+        ) ||
+        !(
           pagina instanceof
           HTMLElement
         )
@@ -1945,24 +1987,25 @@ function criarBotaoRemoverAssinatura(
 
       return {
         editorRaiz,
+        papel,
         pagina,
       };
     };
 
-  const aplicarPosicaoAbsoluta =
+  const aplicarPosicaoNoPapel =
     (
-      paginaX: number,
-      paginaY: number
+      papelX: number,
+      papelY: number
     ) => {
       const referencias =
-        obterReferenciasPagina();
+        obterReferenciasPosicao();
 
       if (!referencias) {
         return false;
       }
 
-      const paginaRect =
-        referencias.pagina
+      const papelRect =
+        referencias.papel
           .getBoundingClientRect();
 
       const editorRect =
@@ -1970,25 +2013,23 @@ function criarBotaoRemoverAssinatura(
           .getBoundingClientRect();
 
       /*
-       * O elemento absoluto é contido pelo
-       * .editor-template-phanyx (position: relative).
-       *
-       * Convertemos a coordenada da folha para a
-       * coordenada local desse editor sem alterar
-       * visualmente o local em que o usuário soltou.
+       * O elemento é absolute dentro do
+       * .editor-template-phanyx. Convertemos a
+       * coordenada da folha branca para o sistema
+       * local do ProseMirror.
        */
       const xNoEditor =
-        paginaX -
+        papelX -
         (
           editorRect.left -
-          paginaRect.left
+          papelRect.left
         );
 
       const yNoEditor =
-        paginaY -
+        papelY -
         (
           editorRect.top -
-          paginaRect.top
+          papelRect.top
         );
 
       aplicarEstilos(
@@ -2017,25 +2058,62 @@ function criarBotaoRemoverAssinatura(
       return true;
     };
 
-  if (possuiPosicaoAbsoluta) {
+  if (possuiCoordenadaPapel) {
+    window.requestAnimationFrame(
+      () => {
+        aplicarPosicaoNoPapel(
+          papelXSalvo,
+          papelYSalvo
+        );
+      }
+    );
+  } else if (
+    possuiPosicaoPaginaAntiga
+  ) {
     /*
-     * A Decoration é criada antes de entrar no DOM.
-     * No frame seguinte já conseguimos medir a folha
-     * e aplicar a coordenada absoluta salva.
+     * Migração visual sem salto:
+     * converte a coordenada da versão anterior
+     * para a nova origem da área branca.
+     *
+     * Ela só vira persistente quando o usuário
+     * arrastar o bloco e salvar o template.
      */
     window.requestAnimationFrame(
       () => {
-        aplicarPosicaoAbsoluta(
-          paginaXSalva,
-          paginaYSalva
+        const referencias =
+          obterReferenciasPosicao();
+
+        if (!referencias) {
+          return;
+        }
+
+        const paginaRect =
+          referencias.pagina
+            .getBoundingClientRect();
+
+        const papelRect =
+          referencias.papel
+            .getBoundingClientRect();
+
+        aplicarPosicaoNoPapel(
+          paginaXSalva -
+          (
+            papelRect.left -
+            paginaRect.left
+          ),
+
+          paginaYSalva -
+          (
+            papelRect.top -
+            paginaRect.top
+          )
         );
       }
     );
   } else {
     /*
-     * Compatibilidade com templates antigos.
-     * Eles continuam aparecendo exatamente como antes
-     * até o usuário mover o bloco uma vez.
+     * Compatibilidade com templates ainda mais antigos,
+     * que guardavam somente blocoOffsetX/Y.
      */
     const offsetSalvoX =
       Number(
@@ -2051,20 +2129,6 @@ function criarBotaoRemoverAssinatura(
         0
       );
 
-    const offsetInicialX =
-      Number.isFinite(
-        offsetSalvoX
-      )
-        ? offsetSalvoX
-        : 0;
-
-    const offsetInicialY =
-      Number.isFinite(
-        offsetSalvoY
-      )
-        ? offsetSalvoY
-        : 0;
-
     aplicarEstilos(
       container,
       {
@@ -2072,10 +2136,10 @@ function criarBotaoRemoverAssinatura(
           "relative",
 
         left:
-          `${offsetInicialX}px`,
+          `${Number.isFinite(offsetSalvoX) ? offsetSalvoX : 0}px`,
 
         top:
-          `${offsetInicialY}px`,
+          `${Number.isFinite(offsetSalvoY) ? offsetSalvoY : 0}px`,
 
         cursor:
           "move",
@@ -2111,7 +2175,7 @@ function criarBotaoRemoverAssinatura(
       }
 
       const referencias =
-        obterReferenciasPagina();
+        obterReferenciasPosicao();
 
       if (!referencias) {
         return;
@@ -2120,8 +2184,8 @@ function criarBotaoRemoverAssinatura(
       evento.preventDefault();
       evento.stopPropagation();
 
-      const paginaRect =
-        referencias.pagina
+      const papelRect =
+        referencias.papel
           .getBoundingClientRect();
 
       const blocoRect =
@@ -2135,51 +2199,49 @@ function criarBotaoRemoverAssinatura(
         evento.clientY;
 
       /*
-       * Captura a posição VISUAL atual antes de
-       * trocar o modo legado relativo pelo modo
-       * absoluto. Assim não há salto ao começar
-       * a arrastar um template antigo.
+       * Captura diretamente a posição visual do bloco
+       * dentro da área branca do documento.
        */
-      const inicioPaginaX =
+      const inicioPapelX =
         blocoRect.left -
-        paginaRect.left;
+        papelRect.left;
 
-      const inicioPaginaY =
+      const inicioPapelY =
         blocoRect.top -
-        paginaRect.top;
+        papelRect.top;
 
-      let paginaXFinal =
-        inicioPaginaX;
+      let papelXFinal =
+        inicioPapelX;
 
-      let paginaYFinal =
-        inicioPaginaY;
+      let papelYFinal =
+        inicioPapelY;
 
-      aplicarPosicaoAbsoluta(
-        paginaXFinal,
-        paginaYFinal
+      aplicarPosicaoNoPapel(
+        papelXFinal,
+        papelYFinal
       );
 
       const aoMover =
         (
           ev: PointerEvent
         ) => {
-          paginaXFinal =
-            inicioPaginaX +
+          papelXFinal =
+            inicioPapelX +
             (
               ev.clientX -
               inicioMouseX
             );
 
-          paginaYFinal =
-            inicioPaginaY +
+          papelYFinal =
+            inicioPapelY +
             (
               ev.clientY -
               inicioMouseY
             );
 
-          aplicarPosicaoAbsoluta(
-            paginaXFinal,
-            paginaYFinal
+          aplicarPosicaoNoPapel(
+            papelXFinal,
+            papelYFinal
           );
         };
 
@@ -2201,17 +2263,16 @@ function criarBotaoRemoverAssinatura(
           );
 
           /*
-           * Salva a posição absoluta final do conjunto
-           * na folha, e não mais um deslocamento em
-           * relação à tag no texto.
+           * O callback agora persiste a coordenada
+           * relativa à área branca, sem cabeçalho.
            */
           dados.aoMoverBloco?.(
             Math.round(
-              paginaXFinal
+              papelXFinal
             ),
 
             Math.round(
-              paginaYFinal
+              papelYFinal
             )
           );
         };
@@ -3314,6 +3375,10 @@ export default function EditorTemplatePHANYX({
           "sem-x-absoluto",
         campoVisualAssinatura.blocoPaginaY ??
           "sem-y-absoluto",
+        campoVisualAssinatura.blocoPapelX ??
+          "sem-x-papel",
+        campoVisualAssinatura.blocoPapelY ??
+          "sem-y-papel",
       ].join("|")
       : "sem-campo-visual";
 
