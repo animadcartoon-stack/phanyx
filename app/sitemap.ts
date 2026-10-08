@@ -46,6 +46,11 @@ import {
   phanyxResourceLanguagePaths,
   phanyxResourcePath,
 } from "@/lib/phanyx-resource-pages";
+import {
+  phanyxPrintAlternates,
+  phanyxPrintLocales,
+  phanyxPrintPath,
+} from "@/lib/phanyx-print-i18n";
 
 const baseUrl = "https://phanyx.com.br";
 
@@ -106,6 +111,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const openCoursesAlternates = absoluteAlternates(openCoursesArticleAlternates().languages as Record<string, string>);
   const removerAlternates = absoluteAlternates(backgroundRemoverAlternates().languages as Record<string, string>);
   const blogAlternates = absoluteAlternates({ ...phanyxBlogLanguagePaths(), "x-default": "/blog" });
+  const printAlternates = absoluteAlternates(phanyxPrintAlternates().languages as Record<string, string>);
 
   const localizedPages: MetadataRoute.Sitemap = sections.flatMap((section) =>
     marketingLocales
@@ -119,6 +125,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const removerPages: MetadataRoute.Sitemap = backgroundRemoverLocales.map((locale) => ({
     url: `${baseUrl}${backgroundRemoverPath(locale)}`,
     alternates: { languages: removerAlternates },
+  }));
+
+  const phanyxPrintPages: MetadataRoute.Sitemap = phanyxPrintLocales.map((locale) => ({
+    url: `${baseUrl}${phanyxPrintPath(locale)}`,
+    alternates: { languages: printAlternates },
   }));
 
   const imageArticlePages: MetadataRoute.Sitemap = imageArticleKinds.flatMap((kind) => {
@@ -146,6 +157,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...localizedPages,
     ...removerPages,
+    ...phanyxPrintPages,
     ...brazilianPages.map((path) => ({ url: `${baseUrl}${path}` })),
     ...blogHubPages,
     ...blogPages
