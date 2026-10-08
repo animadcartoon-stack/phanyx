@@ -15,6 +15,7 @@ type AutorVinculado = {
     id: number;
     nome: string;
     nomeOrdenacao: string | null;
+    codigoCutterBase: string | null;
   };
 };
 
@@ -38,6 +39,7 @@ type AutorReferencia = {
   id: number;
   nome: string;
   nomeOrdenacao: string | null;
+  codigoCutterBase: string | null;
   orcid: string | null;
 };
 
@@ -1166,6 +1168,9 @@ export default function CatalogacaoRelacionamentos({
                       }
                     >
                       {registro.nome}
+                      {registro.codigoCutterBase
+                        ? ` — ${registro.codigoCutterBase}`
+                        : ""}
                     </option>
                   ),
                 )}

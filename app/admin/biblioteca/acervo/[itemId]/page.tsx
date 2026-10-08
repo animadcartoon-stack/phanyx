@@ -19,6 +19,7 @@ type AutorItem = {
     id: number;
     nome: string;
     nomeOrdenacao: string | null;
+    codigoCutterBase: string | null;
   };
 };
 

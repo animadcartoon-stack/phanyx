@@ -212,6 +212,7 @@ export async function GET() {
             id: true,
             nome: true,
             nomeOrdenacao: true,
+            codigoCutterBase: true,
             orcid: true,
           },
         }),
@@ -360,6 +361,7 @@ export async function POST(
             id: true,
             nome: true,
             nomeOrdenacao: true,
+            codigoCutterBase: true,
             orcid: true,
             ativo: true,
           },
@@ -399,6 +401,7 @@ export async function POST(
             id: true,
             nome: true,
             nomeOrdenacao: true,
+            codigoCutterBase: true,
             orcid: true,
           },
         });

@@ -114,6 +114,7 @@ const ITEM_ACERVO_SELECT = {
           id: true,
           nome: true,
           nomeOrdenacao: true,
+          codigoCutterBase: true,
         },
       },
     },

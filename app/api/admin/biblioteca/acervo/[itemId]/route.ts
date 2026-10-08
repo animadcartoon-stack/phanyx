@@ -125,6 +125,7 @@ const ITEM_DETALHE_SELECT = {
           id: true,
           nome: true,
           nomeOrdenacao: true,
+          codigoCutterBase: true,
         },
       },
     },
