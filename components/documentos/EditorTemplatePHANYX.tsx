@@ -2766,6 +2766,39 @@ type Props = {
     Record<string, unknown> | null;
 };
 
+function removerQuebrasAutomaticasPaginacaoHtml(
+  valor: string
+) {
+  const html =
+    String(valor || "");
+
+  if (
+    typeof document ===
+    "undefined"
+  ) {
+    return html;
+  }
+
+  const template =
+    document.createElement(
+      "template"
+    );
+
+  template.innerHTML =
+    html;
+
+  template.content
+    .querySelectorAll(
+      '[data-phanyx-page-break="true"], .phanyx-page-break'
+    )
+    .forEach(
+      (elemento) =>
+        elemento.remove()
+    );
+
+  return template.innerHTML;
+}
+
 function conteudoParaHtmlSeguro(valor: string) {
   const texto = String(valor || "");
 
@@ -3886,8 +3919,34 @@ export default function EditorTemplatePHANYX({
         },
       },
     },
-    onUpdate({ editor }) {
-      onChange(editor.getHTML());
+    onUpdate({
+      editor,
+      transaction,
+    }) {
+      /*
+       * As quebras de página inseridas por paginarConteudo()
+       * existem somente para desenhar as folhas A4 dentro do editor.
+       *
+       * Elas NÃO fazem parte do documento.
+       *
+       * Antes, editor.getHTML() persistia essas quebras automáticas
+       * no template. Depois o PDF interpretava .phanyx-page-break
+       * como "page-break-before: always", criando uma folha extra
+       * mesmo quando todo o documento cabia em uma página.
+       */
+      if (
+        transaction.getMeta(
+          "phanyxPagination"
+        )
+      ) {
+        return;
+      }
+
+      onChange(
+        removerQuebrasAutomaticasPaginacaoHtml(
+          editor.getHTML()
+        )
+      );
     },
   }, [
     assinaturaDiretorUrl,
