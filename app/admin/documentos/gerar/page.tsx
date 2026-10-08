@@ -1741,13 +1741,29 @@ export default function GerarDocumentoPage() {
             )}
           </p>
 
-          <div className="phanyx-doc-preview whitespace-pre-wrap p-4 text-sm leading-7">
-            {resultado.conteudo ||
-              resultado
-                .documento
-                ?.conteudo ||
-              t("generate.result.noPreview")}
-          </div>
+          {(resultado.id ||
+            resultado.documento
+              ?.id) ? (
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-950">
+                <iframe
+                  src={`/api/admin/documentos/pdf/${
+                    resultado.id ||
+                    resultado.documento
+                      ?.id
+                  }`}
+                  title={t(
+                    "generate.result.title"
+                  )}
+                  className="h-[760px] w-full border-0 bg-white"
+                />
+              </div>
+            ) : (
+              <div className="phanyx-doc-preview p-4 text-sm leading-7">
+                {t(
+                  "generate.result.noPreview"
+                )}
+              </div>
+            )}
 
           {(resultado.id ||
             resultado.documento

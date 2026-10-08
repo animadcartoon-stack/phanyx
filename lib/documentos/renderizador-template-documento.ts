@@ -2465,15 +2465,29 @@ function montarScriptValidacaoFinalPaginaPHANYX(
             validacaoRect.height;
 
           /*
-           * Posi??o do fim do conte?do normal,
-           * antes da margem superior da valida??o.
+           * A fonte de verdade para o fim do conteúdo é a ÂNCORA,
+           * e não o topo atual da validação.
+           *
+           * Quando o Chromium empurra a validação inteira para a
+           * página seguinte por causa de break-inside: avoid,
+           * validacaoRect.top já nasce na página 2. Usar esse valor
+           * fazia o cálculo concluir incorretamente que o conteúdo
+           * também terminava na página 2, mantendo uma folha quase
+           * vazia.
+           *
+           * A âncora fica imediatamente após o conteúdo normal e
+           * antes da validação, portanto representa o ponto real
+           * onde o fluxo terminou.
            */
+          const ancoraRect =
+            ancora
+              .getBoundingClientRect();
+
           const fimFluxoTela =
             Math.max(
               0,
-              validacaoRect.top -
-                conteudoRect.top -
-                margemSuperior
+              ancoraRect.top -
+                conteudoRect.top
             );
 
           /*
