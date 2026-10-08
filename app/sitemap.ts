@@ -52,7 +52,7 @@ import {
   phanyxPrintPath,
 } from "@/lib/phanyx-print-i18n";
 
-const baseUrl = "https://phanyx.com.br";
+const baseUrl = "https://www.phanyx.com.br";
 
 const sections: MarketingSection[] = [
   "home",
