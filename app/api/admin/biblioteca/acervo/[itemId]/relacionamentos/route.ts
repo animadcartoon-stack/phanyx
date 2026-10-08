@@ -15,6 +15,7 @@ import {
   obterContextoBiblioteca,
   respostaErroBiblioteca,
 } from "@/lib/biblioteca-acesso";
+import { gerarCodigoCutterObra } from "@/lib/biblioteca-cutter";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -345,6 +346,15 @@ export async function PATCH(
           titulo: true,
           status: true,
 
+          codigoCutter: true,
+          codigoCutterAutomatico: true,
+
+          codigoChamada: true,
+          classificacaoBibliografica: true,
+          sistemaClassificacao: true,
+          cdd: true,
+          cdu: true,
+
           editora: {
             select: {
               id: true,
@@ -484,6 +494,9 @@ export async function PATCH(
               select: {
                 id:
                   true,
+
+                codigoCutterBase:
+                  true,
               },
             })
           : Promise.resolve(
@@ -546,6 +559,115 @@ export async function PATCH(
       );
     }
 
+    const autorPrincipalVinculo =
+      [...autores]
+        .filter(
+          (autor) =>
+            autor.funcao ===
+            BibliotecariaFuncaoAutor.AUTOR
+        )
+        .sort(
+          (a, b) =>
+            a.ordem -
+            b.ordem
+        )[0] ||
+      null;
+
+    const autorPrincipal =
+      autorPrincipalVinculo
+        ? autoresExistentes.find(
+            (autor) =>
+              autor.id ===
+              autorPrincipalVinculo.autorId
+          ) ||
+          null
+        : null;
+
+    const podeGerarCutter =
+      !itemAnterior.codigoCutter ||
+      itemAnterior
+        .codigoCutterAutomatico;
+
+    const codigoCutterGerado =
+      podeGerarCutter
+        ? gerarCodigoCutterObra(
+            autorPrincipal
+              ?.codigoCutterBase,
+            itemAnterior.titulo
+          )
+        : null;
+
+    const codigoCutterFinal =
+      podeGerarCutter
+        ? codigoCutterGerado
+        : itemAnterior
+            .codigoCutter;
+
+    const codigoCutterAutomatico =
+      Boolean(
+        podeGerarCutter &&
+        codigoCutterGerado
+      );
+
+    const sistema =
+      itemAnterior
+        .sistemaClassificacao ??
+      contexto.configuracao
+        ?.sistemaClassificacaoPadrao;
+
+    const classificacao =
+      sistema === "CDD"
+        ? itemAnterior.cdd
+        : sistema === "CDU"
+          ? itemAnterior.cdu
+          : itemAnterior
+              .classificacaoBibliografica;
+
+    const partesChamadaAnterior = [
+      classificacao,
+      contexto.configuracao
+        ?.usarCutter !== false
+        ? itemAnterior
+            .codigoCutter
+        : null,
+    ].filter(
+      (valor): valor is string =>
+        Boolean(valor)
+    );
+
+    const chamadaAutomaticaAnterior =
+      partesChamadaAnterior.length
+        ? partesChamadaAnterior.join(" ")
+        : null;
+
+    const codigoChamadaEraAutomatico =
+      itemAnterior.codigoChamada ===
+      chamadaAutomaticaAnterior;
+
+    const partesChamadaNova = [
+      classificacao,
+      contexto.configuracao
+        ?.usarCutter !== false
+        ? codigoCutterFinal
+        : null,
+    ].filter(
+      (valor): valor is string =>
+        Boolean(valor)
+    );
+
+    const codigoChamadaNovo =
+      contexto.configuracao
+        ?.gerarCodigoChamadaAutomaticamente !==
+        false &&
+      codigoChamadaEraAutomatico
+        ? (
+            partesChamadaNova.length
+              ? partesChamadaNova.join(" ")
+              : null
+          )
+        : itemAnterior
+            .codigoChamada;
+
     const ip =
       request.headers
         .get("x-forwarded-for")
@@ -578,6 +700,19 @@ export async function PATCH(
 
             data: {
               editoraId,
+
+              ...(podeGerarCutter
+                ? {
+                    codigoCutter:
+                      codigoCutterFinal,
+
+                    codigoCutterAutomatico,
+
+                    codigoChamada:
+                      codigoChamadaNovo,
+                  }
+                : {}),
+
               atualizadoPorId:
                 usuario.id,
             },
@@ -653,6 +788,10 @@ export async function PATCH(
               select: {
                 id: true,
                 titulo: true,
+
+                codigoCutter: true,
+                codigoCutterAutomatico: true,
+                codigoChamada: true,
 
                 editora: {
                   select: {
