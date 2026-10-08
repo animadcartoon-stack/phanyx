@@ -86,6 +86,9 @@ type CampoVisualContrato = {
 
   blocoPaginaX?: number;
   blocoPaginaY?: number;
+
+  blocoPapelX?: number;
+  blocoPapelY?: number;
 };
 
 type ConfiguracaoInstituicao = {
@@ -1801,8 +1804,8 @@ function AdminDocumentosTemplatesPage() {
   }
 
   function moverBlocoAssinatura(
-    blocoPaginaX: number,
-    blocoPaginaY: number
+    blocoPapelX: number,
+    blocoPapelY: number
   ) {
     setCamposVisuais(
       (atuais) => {
@@ -1827,11 +1830,12 @@ function AdminDocumentosTemplatesPage() {
                     ...campo,
 
                     /*
-                     * Fonte de verdade da posição final.
-                     * Não depende do local da tag no HTML.
+                     * Fonte de verdade definitiva:
+                     * posição medida dentro da área
+                     * branca do documento.
                      */
-                    blocoPaginaX,
-                    blocoPaginaY,
+                    blocoPapelX,
+                    blocoPapelY,
                   }
                 : campo
           );
@@ -1852,8 +1856,8 @@ function AdminDocumentosTemplatesPage() {
             altura: 55,
             pagina: 1,
 
-            blocoPaginaX,
-            blocoPaginaY,
+            blocoPapelX,
+            blocoPapelY,
           },
         ];
       }

@@ -20,6 +20,12 @@ export type CampoVisualDocumento = {
    */
   blocoPaginaX?: number;
   blocoPaginaY?: number;
+
+  /*
+   * Coordenada definitiva na área branca do editor.
+   */
+  blocoPapelX?: number;
+  blocoPapelY?: number;
 };
 
 export type DadosInstituicaoDocumento = {
@@ -658,6 +664,37 @@ function criarBlocoAssinatura({
     25.4 /
     96;
 
+  const blocoPapelXPx =
+    Number(
+      campoDoBloco.blocoPapelX
+    );
+
+  const blocoPapelYPx =
+    Number(
+      campoDoBloco.blocoPapelY
+    );
+
+  const possuiCoordenadaPapel =
+    Number.isFinite(
+      blocoPapelXPx
+    ) &&
+    Number.isFinite(
+      blocoPapelYPx
+    );
+
+  const blocoPapelXMm =
+    blocoPapelXPx *
+    25.4 /
+    96;
+
+  const blocoPapelYMm =
+    blocoPapelYPx *
+    25.4 /
+    96;
+
+  /*
+   * Compatibilidade com a coordenada da versão anterior.
+   */
   const blocoPaginaXPx =
     Number(
       campoDoBloco.blocoPaginaX
@@ -668,7 +705,7 @@ function criarBlocoAssinatura({
       campoDoBloco.blocoPaginaY
     );
 
-  const possuiPosicaoAbsoluta =
+  const possuiPosicaoPaginaAntiga =
     Number.isFinite(
       blocoPaginaXPx
     ) &&
@@ -686,38 +723,50 @@ function criarBlocoAssinatura({
     25.4 /
     96;
 
-  /*
-   * No editor, blocoPaginaX/blocoPaginaY são medidos
-   * em relação à folha visual completa.
-   *
-   * No PDF, o elemento vive dentro da área de conteúdo,
-   * que começa depois das margens do Chromium.
-   * Por isso convertemos a coordenada da folha para a
-   * coordenada local da área imprimível.
-   */
-  const margemEsquerdaConteudoMm =
-    MARGEM_LATERAL_MM;
-
   const topoConteudoMm =
     formatoImpressao ===
       "DUAS_VIAS_A4"
       ? 17
       : ALTURA_CABECALHO_MM;
 
+  /*
+   * NOVA REGRA:
+   *
+   * blocoPapelY já é relativo ao topo da área branca de
+   * conteúdo no editor. No PDF, .phanyx-conteudo nasce
+   * exatamente no topo da área imprimível. Portanto Y é
+   * aplicado DIRETAMENTE, sem subtrair 42 mm.
+   *
+   * No eixo X o editor mede a partir da borda esquerda da
+   * folha, enquanto o PDF já começa depois da margem lateral
+   * de 18 mm; por isso apenas X desconta a margem lateral.
+   */
   const estiloPosicaoBloco =
-    possuiPosicaoAbsoluta
+    possuiCoordenadaPapel
       ? [
         "position:absolute",
         "z-index:4",
-        `left:${blocoPaginaXMm - margemEsquerdaConteudoMm}mm`,
-        `top:${blocoPaginaYMm - topoConteudoMm}mm`,
+        `left:${blocoPapelXMm - MARGEM_LATERAL_MM}mm`,
+        `top:${blocoPapelYMm}mm`,
         "margin:0",
       ].join(";")
-      : [
-        "position:relative",
-        `left:${deslocamentoBlocoXMm}mm`,
-        `top:${deslocamentoBlocoYMm}mm`,
-      ].join(";");
+      : possuiPosicaoPaginaAntiga
+        ? [
+          "position:absolute",
+          "z-index:4",
+          `left:${blocoPaginaXMm - MARGEM_LATERAL_MM}mm`,
+          `top:${blocoPaginaYMm - topoConteudoMm}mm`,
+          "margin:0",
+        ].join(";")
+        : [
+          "position:relative",
+          `left:${deslocamentoBlocoXMm}mm`,
+          `top:${deslocamentoBlocoYMm}mm`,
+        ].join(";");
+
+  const possuiPosicaoAbsoluta =
+    possuiCoordenadaPapel ||
+    possuiPosicaoPaginaAntiga;
 
   const assinaturaSvg =
     assinaturaUrl
