@@ -1020,7 +1020,13 @@ export default function BibliotecaAcervoPage() {
   const estilos = (
     <style jsx global>{`
       .phanyx-biblioteca-acervo-page .bib-hero-actions {
+        display: flex;
+        flex: 1 1 560px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
         gap: 8px;
+        min-width: 0;
+        max-width: 100%;
         align-self: flex-start;
         margin-top: 2px;
       }
