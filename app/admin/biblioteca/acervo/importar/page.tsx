@@ -139,6 +139,10 @@ type ResultadoImportacaoFinal = {
   semCapa: number;
   falhasCapas: number;
   capasNoPacote: number;
+  originaisPreservados: number;
+  imagensImportadas: number;
+  falhasImagens: number;
+  itensImportados: number[];
 };
 
 type RespostaImportacaoFinal = {
@@ -1002,7 +1006,7 @@ export default function ImportarAcervoPage() {
             <input
               ref={inputRef}
               type="file"
-              accept=".csv,.xls,.xlsx,.mrc,.marc,.xml"
+              accept=".csv,.xls,.xlsx,.mrc,.marc,.xml,.zip"
               className="hidden"
               onChange={
                 aoSelecionarArquivo
@@ -2051,6 +2055,12 @@ export default function ImportarAcervoPage() {
                   {resultadoImportacao.falhasCapas}
                 </strong>
               </div>
+            </div>
+            <div className="mt-5 space-y-3 text-sm">
+              <p>{t("preservation.notice")}</p>
+              <p>{t("preservation.records")}: {resultadoImportacao.originaisPreservados ?? 0} · {t("preservation.images")}: {resultadoImportacao.imagensImportadas ?? 0} · {t("preservation.imageFailures")}: {resultadoImportacao.falhasImagens ?? 0}</p>
+              <a className="block underline" href={`/api/admin/biblioteca/importacao/lotes/${resultadoImportacao.loteId}/arquivo`} download>{t("preservation.downloadOriginal")}</a>
+              {(resultadoImportacao.itensImportados ?? []).slice(0, 10).map(id => <Link key={id} className="block underline" href={`/admin/biblioteca/acervo/${id}`}>{t("preservation.viewData", { id })}</Link>)}
             </div>
           </section>
         ) : null}

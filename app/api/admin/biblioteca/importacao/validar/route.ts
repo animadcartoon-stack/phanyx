@@ -17,6 +17,7 @@ import {
 } from "@/lib/biblioteca-importacao";
 
 import { prisma } from "@/lib/prisma";
+import { abrirArquivoImportacao } from "@/lib/biblioteca-importacao-pacote";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export const runtime = "nodejs";
@@ -373,12 +374,8 @@ export async function POST(
         await entrada.arrayBuffer(),
       );
 
-    const extraido =
-      extrairRegistrosMapeadosImportacao(
-        buffer,
-        entrada.name,
-        mapeamento,
-      );
+    const pacote = await abrirArquivoImportacao(buffer, entrada.name);
+    const extraido = extrairRegistrosMapeadosImportacao(pacote.buffer, pacote.nomeArquivo, mapeamento);
 
     const registros =
       extraido.registros;

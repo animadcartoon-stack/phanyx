@@ -1,4 +1,6 @@
 import * as XLSX from "xlsx";
+import { CAMPOS_AVANCADOS_IMPORTACAO, dadosMarcAvancados, exemplaresRegistroMarc, associarExemplaresMarc, imagensRegistroMarc } from "./biblioteca-importacao-marc-completa";
+import type { OriginalImportacao, ReferenciaImagemImportacao } from "./biblioteca-importacao-marc-completa";
 
 export class ErroArquivoImportacao extends Error {
   codigo: string;
@@ -515,6 +517,10 @@ export const CAMPOS_IMPORTACAO: CampoImportacao[] = [
   },
 ];
 
+for (const [chave, grupo] of CAMPOS_AVANCADOS_IMPORTACAO) {
+  if (!CAMPOS_IMPORTACAO.some(c => c.chave === chave)) CAMPOS_IMPORTACAO.push({ chave, grupo, aliases: [chave, chave.replace(/([a-z])([A-Z])/g, "$1 $2")] });
+}
+
 function textoCelula(valor: unknown) {
   if (
     valor === null ||
@@ -634,16 +640,18 @@ type SubcampoMarcImportacao = {
   valor: string;
 };
 
-type CampoMarcImportacao = {
+export type CampoMarcImportacao = {
   tag: string;
   indicadores: string;
   valorControle?: string;
   subcampos: SubcampoMarcImportacao[];
 };
 
-type RegistroMarcImportacao = {
+export type RegistroMarcImportacao = {
   leader: string;
   campos: CampoMarcImportacao[];
+  conteudoBase64?: string;
+  exemplaresVinculados?: RegistroMarcImportacao[];
 };
 
 const COLUNAS_MARC_IMPORTACAO: Array<{
@@ -763,6 +771,13 @@ const COLUNAS_MARC_IMPORTACAO: Array<{
   },
 ];
 
+// Append columns to keep the existing MARC column indices compatible.
+for (const campo of CAMPOS_IMPORTACAO) {
+  if (!COLUNAS_MARC_IMPORTACAO.some(c => c.chave === campo.chave)) {
+    COLUNAS_MARC_IMPORTACAO.push({ chave: campo.chave, nome: `MARC · ${campo.chave}`, grupo: campo.grupo });
+  }
+}
+
 function extensaoImportacaoMarc(
   nomeArquivo: string,
 ) {
@@ -817,8 +832,7 @@ function decodificarXml(
     .replace(/&apos;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
-    .trim();
+    .replace(/&amp;/g, "&");
 }
 
 function lerAtributoXml(
@@ -838,13 +852,12 @@ function lerAtributoXml(
   );
 }
 
-function interpretarMarcXml(
-  buffer: Buffer,
-) {
-  const xml =
-    buffer
-      .toString("utf8")
-      .replace(/^\uFEFF/, "");
+function interpretarMarcXml(buffer: Buffer) {
+  const bomUtf16 = buffer[0] === 0xff && buffer[1] === 0xfe ? "utf-16le" : buffer[0] === 0xfe && buffer[1] === 0xff ? "utf-16be" : null;
+  const declaracao = buffer.subarray(0, 200).toString("latin1").match(/encoding\s*=\s*["']([^"']+)["']/i)?.[1];
+  let xml: string;
+  try { xml = new TextDecoder(bomUtf16 ?? declaracao ?? "utf-8", { fatal: true }).decode(buffer).replace(/^\uFEFF/, ""); }
+  catch { throw new ErroArquivoImportacao("MARCXML_CODIFICACAO_INVALIDA", "A codificação declarada no MARCXML não pôde ser lida."); }
 
   const registros:
     RegistroMarcImportacao[] = [];
@@ -993,10 +1006,7 @@ function interpretarMarcXml(
       });
     }
 
-    registros.push({
-      leader,
-      campos,
-    });
+    registros.push({ leader, campos, conteudoBase64: Buffer.from(resultadoRegistro[0], "utf8").toString("base64") });
   }
 
   if (
@@ -1023,8 +1033,7 @@ function decodificarCampoMarc(
     );
 
   return texto
-    .replace(/\u0000/g, "")
-    .trim();
+    .replace(/\u0000/g, "");
 }
 
 function interpretarMarcIso2709(
@@ -1126,8 +1135,10 @@ function interpretarMarcIso2709(
           "ascii",
         );
 
-    const utf8 =
-      leader[9] === "a";
+    let utf8 = leader[9] === "a";
+    if (!utf8) {
+      try { new TextDecoder("utf-8", { fatal: true }).decode(registroBuffer); utf8 = true; } catch { /* Legacy Latin-1. */ }
+    }
 
     const enderecoBase =
       Number.parseInt(
@@ -1149,7 +1160,7 @@ function interpretarMarcIso2709(
         enderecoBase,
       ) ||
       enderecoBase <= 24 ||
-      fimDiretorio < 24
+      fimDiretorio < 24 || enderecoBase !== fimDiretorio + 1 || registroBuffer[registroBuffer.length - 1] !== 0x1d
     ) {
       throw new ErroArquivoImportacao(
         "MARC21_DIRETORIO_INVALIDO",
@@ -1217,7 +1228,7 @@ function interpretarMarcIso2709(
         );
 
       if (
-        !tag ||
+        !/^\d{3}$/.test(tag) || !/^\d{4}$/.test(entrada.slice(3, 7)) || !/^\d{5}$/.test(entrada.slice(7, 12)) ||
         !Number.isInteger(
           tamanhoCampo,
         ) ||
@@ -1227,26 +1238,21 @@ function interpretarMarcIso2709(
         ) ||
         inicioRelativo < 0
       ) {
-        continue;
+        throw new ErroArquivoImportacao("MARC21_CAMPO_INVALIDO", "O registro MARC contém uma entrada de campo inválida.");
       }
 
       const inicio =
         enderecoBase +
         inicioRelativo;
 
-      const fim =
-        Math.min(
-          registroBuffer.length,
-          inicio +
-            Math.max(
-              0,
-              tamanhoCampo - 1,
-            ),
-        );
+      const fim = inicio + tamanhoCampo - 1;
+      if (inicio < enderecoBase || fim >= registroBuffer.length - 1 || registroBuffer[fim] !== 0x1e) {
+        throw new ErroArquivoImportacao("MARC21_CAMPO_TRUNCADO", "O registro MARC contém um campo truncado.");
+      }
 
       if (
         inicio < 0 ||
-        inicio >= fim
+        inicio > fim
       ) {
         continue;
       }
@@ -1344,12 +1350,7 @@ function interpretarMarcIso2709(
             utf8,
           );
 
-        if (valor) {
-          subcampos.push({
-            codigo,
-            valor,
-          });
-        }
+        subcampos.push({ codigo, valor });
 
         cursor =
           fimValor;
@@ -1362,10 +1363,7 @@ function interpretarMarcIso2709(
       });
     }
 
-    registros.push({
-      leader,
-      campos,
-    });
+    registros.push({ leader, campos, conteudoBase64: registroBuffer.toString("base64") });
 
     deslocamento +=
       tamanhoRegistro;
@@ -2157,50 +2155,28 @@ function dadosRegistroMarc(
   };
 }
 
-function extrairMatrizMarc(
-  buffer: Buffer,
-  nomeArquivo: string,
-) {
-  const registros =
-    lerRegistrosMarc(
-      buffer,
-      nomeArquivo,
-    );
-
-  if (
-    registros.length >
-    50_000
-  ) {
-    throw new ErroArquivoImportacao(
-      "MUITOS_REGISTROS",
-      "Esta etapa aceita no máximo 50.000 registros MARC por arquivo.",
-      413,
-    );
-  }
-
-  const linhas =
-    registros.map(
-      (registro) => {
-        const dados =
-          dadosRegistroMarc(
-            registro,
-          );
-
-        return COLUNAS_MARC_IMPORTACAO.map(
-          (coluna) =>
-            textoCelula(
-              dados[
-                coluna.chave as keyof typeof dados
-              ],
-            ),
-        );
-      },
-    );
-
-  return {
-    registros,
-    linhas,
-  };
+function extrairMatrizMarc(buffer: Buffer, nomeArquivo: string) {
+  const lidos = lerRegistrosMarc(buffer, nomeArquivo);
+  let obras: RegistroMarcImportacao[];
+  try { obras = associarExemplaresMarc(lidos); }
+  catch (erro) { throw new ErroArquivoImportacao("MARC_EXEMPLAR_SEM_OBRA", erro instanceof Error ? erro.message : "Registro MARC sem obra."); }
+  const registros: RegistroMarcImportacao[] = [];
+  const originais: OriginalImportacao[] = [];
+  const linhas: string[][] = [];
+  const imagens: ReferenciaImagemImportacao[][] = [];
+  obras.forEach((registro, indice) => {
+    const dados: Record<string, string> = { ...dadosRegistroMarc(registro), ...dadosMarcAvancados(registro) };
+    const exemplares = [...exemplaresRegistroMarc(registro), ...(registro.exemplaresVinculados ?? []).flatMap(exemplaresRegistroMarc)];
+    for (const exemplar of exemplares.length ? exemplares : [{}]) {
+      const valores = { ...dados, ...exemplar };
+      registros.push(registro);
+      originais.push({ formato: /\.xml$/i.test(nomeArquivo) ? "MARCXML" : "MARC21", arquivo: nomeArquivo, registro: indice + 1, conteudoBase64: registro.conteudoBase64, marc: registro });
+      imagens.push(imagensRegistroMarc(registro));
+      linhas.push(COLUNAS_MARC_IMPORTACAO.map(coluna => textoCelula(valores[coluna.chave])));
+      if (linhas.length > 50_000) throw new ErroArquivoImportacao("MUITOS_REGISTROS", "Esta etapa aceita no máximo 50.000 registros por arquivo.", 413);
+    }
+  });
+  return { registros, linhas, originais, imagens };
 }
 
 function analisarArquivoMarc(
@@ -2362,7 +2338,7 @@ function extrairRegistrosMarcMapeados(
     Record<number, string>,
 ) {
   const {
-    linhas,
+    linhas, originais, imagens,
   } =
     extrairMatrizMarc(
       buffer,
@@ -2482,7 +2458,7 @@ function extrairRegistrosMarcMapeados(
             linha:
               indiceLinha +
               1,
-            dados,
+            dados, original: originais[indiceLinha], imagens: imagens[indiceLinha],
           };
         },
       );
@@ -2858,6 +2834,8 @@ export function analisarArquivoImportacao(
 export type RegistroMapeadoImportacao = {
   linha: number;
   dados: Record<string, string>;
+  original?: OriginalImportacao;
+  imagens?: ReferenciaImagemImportacao[];
 };
 
 function normalizarIsbnImportacao(
@@ -3058,6 +3036,9 @@ export function extrairRegistrosMapeadosImportacao(
               indiceLinha +
               2,
             dados,
+            original: { formato: "PLANILHA", arquivo: nomeArquivo,
+              registro: indiceCabecalho + indiceLinha + 2,
+              colunas: matriz[indiceCabecalho].map(textoCelula), valores: linha.map(textoCelula) },
           };
         },
       );

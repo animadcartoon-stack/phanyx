@@ -15,6 +15,7 @@ import {
   ErroArquivoImportacao,
 } from "@/lib/biblioteca-importacao";
 
+import { abrirArquivoImportacao } from "@/lib/biblioteca-importacao-pacote";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export const runtime = "nodejs";
@@ -26,6 +27,7 @@ const LIMITE_ARQUIVO_BYTES =
 
 const EXTENSOES_PERMITIDAS =
   new Set([
+    "zip",
     "csv",
     "xls",
     "xlsx",
@@ -192,7 +194,7 @@ export async function POST(
     ) {
       throw new ErroBiblioteca(
         400,
-        "Use um arquivo CSV, XLS, XLSX, MARC21/ISO2709 (.mrc/.marc) ou MARCXML (.xml).",
+        "Use um arquivo CSV, XLS, XLSX, MARC21/ISO2709 (.mrc/.marc) MARCXML (.xml) ou ZIP com catálogo e imagens.",
         "FORMATO_NAO_SUPORTADO",
         {
           extensao:
@@ -206,11 +208,8 @@ export async function POST(
         await arquivo.arrayBuffer(),
       );
 
-    const analise =
-      analisarArquivoImportacao(
-        buffer,
-        arquivo.name,
-      );
+    const pacote = await abrirArquivoImportacao(buffer, arquivo.name);
+    const analise = analisarArquivoImportacao(pacote.buffer, pacote.nomeArquivo);
 
     return responder({
       ok: true,

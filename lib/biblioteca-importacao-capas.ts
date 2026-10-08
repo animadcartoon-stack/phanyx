@@ -30,6 +30,7 @@ const EXTENSOES_IMAGEM =
     "jpeg",
     "png",
     "webp",
+    "gif",
   ]);
 
 type OrigemCapa =
@@ -60,6 +61,7 @@ export type RegistroParaCapa = {
   codigoBarras?: string | null;
   numeroTombo?: string | null;
   patrimonio?: string | null;
+  imagens?: Array<{ referencia: string; descricao: string; capa: boolean }>;
 };
 
 export type IndiceCapasZip = {
@@ -132,6 +134,8 @@ function isbnLimpo(
 function detectarImagem(
   bytes: Uint8Array,
 ) {
+  const assinaturaGif = Buffer.from(bytes.slice(0, 6)).toString("ascii");
+  if (assinaturaGif === "GIF87a" || assinaturaGif === "GIF89a") return { mimeType: "image/gif", extensao: "gif" };
   if (
     bytes.length >= 8 &&
     [
@@ -624,6 +628,8 @@ export async function criarIndiceCapasZip(
       }
     >();
 
+  const ambiguas = new Set<string>();
+  let quantidadeImagens = 0;
   let total =
     0;
 
@@ -654,6 +660,8 @@ export async function criarIndiceCapasZip(
       continue;
     }
 
+    const tamanhoDeclarado = (entrada as unknown as { _data?: { uncompressedSize?: number } })._data?.uncompressedSize;
+    if (typeof tamanhoDeclarado === "number" && tamanhoDeclarado > LIMITE_CAPA_BYTES) continue;
     const bytes =
       await entrada.async(
         "uint8array",
@@ -687,34 +695,19 @@ export async function criarIndiceCapasZip(
       continue;
     }
 
-    const chave =
-      normalizarReferencia(
-        nomeBase,
-      );
-
-    if (
-      chave &&
-      !arquivos.has(
-        chave,
-      )
-    ) {
-      arquivos.set(
-        chave,
-        {
-          nome:
-            nomeBase,
-          bytes,
-          mimeType:
-            imagem.mimeType,
-        },
-      );
+    const chave = normalizarReferencia(nomeBase);
+    const imagemIndexada = { nome: entrada.name, bytes, mimeType: imagem.mimeType };
+    quantidadeImagens += 1;
+    arquivos.set(`arquivo:${entrada.name.replace(/\\/g, "/").replace(/^\.\//, "").toLowerCase()}`, imagemIndexada);
+    if (chave && !ambiguas.has(chave)) {
+      if (arquivos.has(chave)) { arquivos.delete(chave); ambiguas.add(chave); }
+      else arquivos.set(chave, imagemIndexada);
     }
   }
 
   return {
     arquivos,
-    quantidade:
-      arquivos.size,
+    quantidade: quantidadeImagens,
   };
 }
 
@@ -725,7 +718,7 @@ function referenciasPossiveis(
   return Array.from(
     new Set(
       [
-        registro.arquivoCapa,
+        registro.arquivoCapa?.replace(/\\/g, "/").split("/").pop(),
         registro.isbn13,
         registro.isbn10,
         registro.isbn,
@@ -754,12 +747,8 @@ async function tentarZip(
     return null;
   }
 
-  for (
-    const referencia of
-    referenciasPossiveis(
-      registro,
-    )
-  ) {
+  const exata = registro.arquivoCapa ? `arquivo:${registro.arquivoCapa.replace(/\\/g, "/").replace(/^\.\//, "").toLowerCase()}` : "";
+  for (const referencia of [exata, ...referenciasPossiveis(registro)].filter(Boolean)) {
     const imagem =
       indice.arquivos.get(
         referencia,
@@ -811,6 +800,11 @@ async function tentarUrl(
 
   if (!url) {
     return null;
+  }
+
+  if (/^data:image\//i.test(url)) {
+    const imagem = await importarImagemReferencia(url, registro.itemId, instituicaoId, null);
+    return { url: imagem.url, origem: "URL" as const, referencia: "imagem incorporada" };
   }
 
   const imagem =
@@ -913,6 +907,7 @@ export async function importarCapa(
     return zip;
   }
 
+  let falhaUrl: unknown;
   if (
     opcoes?.copiarUrl !==
       false &&
@@ -931,7 +926,8 @@ export async function importarCapa(
       if (externa) {
         return externa;
       }
-    } catch {
+    } catch (erro) {
+      falhaUrl = erro;
       // A URL externa falhou.
       // Tentamos ISBN na sequência.
     }
@@ -941,11 +937,43 @@ export async function importarCapa(
     opcoes?.buscarPorIsbn !==
     false
   ) {
-    return tentarIsbn(
+    const capaIsbn = await tentarIsbn(
       registro,
       instituicaoId,
     );
+    if (capaIsbn) return capaIsbn;
   }
 
+  if (falhaUrl) throw falhaUrl;
   return null;
+}
+
+export async function importarImagemReferencia(
+  referencia: string, itemId: number, instituicaoId: number,
+  indice: IndiceCapasZip | null, copiarUrl = true,
+) {
+  const chave = referencia.replace(/\\/g, "/").split("/").pop()?.split(/[?#]/)[0] ?? referencia;
+  const exata = `arquivo:${referencia.replace(/\\/g, "/").replace(/^\.\//, "").split(/[?#]/)[0].toLowerCase()}`;
+  const local = indice?.arquivos.get(exata) ?? indice?.arquivos.get(normalizarReferencia(chave));
+  if (local) {
+    const tipo = detectarImagem(local.bytes);
+    if (!tipo) throw new Error("O arquivo referenciado não é uma imagem reconhecida.");
+    const url = await enviarParaStorage(local.bytes, local.mimeType, tipo.extensao, instituicaoId, itemId, "imagem-importada");
+    return { url, referencia };
+  }
+  if (/^data:image\//i.test(referencia)) {
+    const data = referencia.match(/^data:image\/[\w.+-]+;base64,([a-z\d+/=\s]+)$/i);
+    if (!data) throw new Error("A imagem incorporada possui codificação inválida.");
+    if (data[1].length > Math.ceil(LIMITE_CAPA_BYTES * 4 / 3) + 100) throw new Error("A imagem incorporada ultrapassa 4 MB.");
+    const bytes = Buffer.from(data[1], "base64");
+    const tipo = detectarImagem(bytes);
+    if (!tipo) throw new Error("A imagem incorporada não possui um formato de imagem reconhecido.");
+    const url = await enviarParaStorage(bytes, tipo.mimeType, tipo.extensao, instituicaoId, itemId, "imagem-incorporada");
+    return { url, referencia: "data:image" };
+  }
+  if (!copiarUrl) throw new Error("A cópia de imagens por URL foi desativada; a referência foi preservada.");
+  if (!/^https?:\/\//i.test(referencia)) throw new Error("A imagem não foi encontrada no ZIP. Inclua o arquivo indicado na exportação.");
+  const imagem = await baixarImagem(referencia);
+  const url = await enviarParaStorage(imagem.bytes, imagem.mimeType, imagem.extensao, instituicaoId, itemId, "imagem-url");
+  return { url, referencia: imagem.urlFinal };
 }

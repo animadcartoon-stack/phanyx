@@ -36,6 +36,10 @@ import {
   type RegistroParaCapa,
 } from "@/lib/biblioteca-importacao-capas";
 
+import { abrirArquivoImportacao } from "@/lib/biblioteca-importacao-pacote";
+import { camposCatalograficosImportados, preservarOriginalImportacao, preservarImagensImportacao } from "@/lib/biblioteca-importacao-preservacao";
+import { importarImagemReferencia } from "@/lib/biblioteca-importacao-capas";
+
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -423,8 +427,7 @@ function palavrasChave(
           (item) =>
             item.trim(),
         )
-        .filter(Boolean)
-        .slice(0, 30),
+        .filter(Boolean),
     ),
   );
 }
@@ -608,6 +611,7 @@ function funcaoAutores(
       funcao:
         BibliotecariaFuncaoAutor.ORGANIZADOR,
     },
+    { campo: "editor", funcao: BibliotecariaFuncaoAutor.EDITOR },
     {
       campo: "tradutor",
       funcao:
@@ -892,12 +896,8 @@ export async function POST(
         await entrada.arrayBuffer(),
       );
 
-    const extraido =
-      extrairRegistrosMapeadosImportacao(
-        buffer,
-        entrada.name,
-        mapeamento,
-      );
+    const pacote = await abrirArquivoImportacao(buffer, entrada.name);
+    const extraido = extrairRegistrosMapeadosImportacao(pacote.buffer, pacote.nomeArquivo, mapeamento);
 
     if (
       extraido.registros.length >
@@ -937,7 +937,7 @@ export async function POST(
 
     const indiceCapasZip =
       await criarIndiceCapasZip(
-        arquivoCapas,
+        arquivoCapas ?? pacote.pacoteCapas,
       );
 
     loteId =
@@ -986,6 +986,7 @@ export async function POST(
             `Importação de acervo iniciada: ${entrada.name}.`,
           metadados: {
             loteId,
+            conteudoOriginalBase64: buffer.toString("base64"),
             status:
               "PROCESSANDO",
             arquivoNome:
@@ -1035,6 +1036,7 @@ export async function POST(
                 RegistroParaCapa
               >();
 
+            const originaisPreservados = new Set<string>();
             let obrasVinculadas =
               0;
 
@@ -1405,6 +1407,11 @@ export async function POST(
                       titulo,
                     );
 
+                  const controleImportado = texto(dados.numeroControleBibliografico);
+                  const controleOcupado = controleImportado ? await transacao.bibliotecaItem.findFirst({
+                    where: { instituicaoId: contexto.instituicaoId, numeroControleBibliografico: controleImportado }, select: { id: true },
+                  }) : null;
+
                   const criado =
                     await transacao
                       .bibliotecaItem
@@ -1430,6 +1437,9 @@ export async function POST(
                               dados.subtitulo,
                             ),
                           slug,
+                          ...camposCatalograficosImportados(dados),
+                          numeroControleBibliografico: controleOcupado ? null : controleImportado,
+                          dataPublicacao: dataOpcional(dados.dataPublicacao),
                           palavrasChave:
                             palavrasChave(
                               dados.palavrasChave,
@@ -1470,6 +1480,7 @@ export async function POST(
                             texto(
                               dados.numero,
                             ),
+                          duracaoSegundos: inteiroOpcional(dados.duracaoSegundos, 0, 100_000_000),
                           numeroPaginas:
                             inteiroOpcional(
                               dados.numeroPaginas,
@@ -1480,7 +1491,7 @@ export async function POST(
                           sistemaClassificacao:
                             sistema,
                           edicaoClassificacao:
-                            sistema ===
+                            texto(dados.edicaoClassificacao) ?? (sistema ===
                             BibliotecaSistemaClassificacao.CDD
                               ? contexto
                                   .configuracao
@@ -1492,7 +1503,7 @@ export async function POST(
                                     .configuracao
                                     ?.edicaoCDUPadrao ??
                                   null
-                                : null,
+                                : null),
                           codigoCutter:
                             cutter,
                           codigoChamada,
@@ -1678,6 +1689,14 @@ export async function POST(
                 );
               }
 
+              if (registro.original) {
+                const identidade = `${itemId}:${registro.original.registro}`;
+                if (!originaisPreservados.has(identidade)) {
+                  await preservarOriginalImportacao(transacao, contexto.instituicaoId, itemId, registro.original, loteId!);
+                  originaisPreservados.add(identidade);
+                }
+              }
+
               if (
                 !capasPorItem.has(
                   itemId,
@@ -1726,13 +1745,15 @@ export async function POST(
                       texto(
                         dados.numeroTombo,
                       ),
-                    patrimonio:
-                      texto(
-                        dados.patrimonio,
-                      ),
+                    patrimonio: texto(dados.patrimonio),
+                    imagens: registro.imagens ?? [],
                   },
                 );
               }
+
+              const capaRegistro = capasPorItem.get(itemId)!;
+              capaRegistro.imagens = [...(capaRegistro.imagens ?? []), ...(registro.imagens ?? [])]
+                .filter((im, i, all) => all.findIndex(x => x.referencia === im.referencia) === i);
 
               if (
                 possuiExemplar(
@@ -1830,8 +1851,8 @@ export async function POST(
                         itemId,
                         tipo:
                           TipoExemplarBiblioteca.FISICO,
-                        status:
-                          StatusExemplarBiblioteca.DISPONIVEL,
+                        status: Object.values(StatusExemplarBiblioteca).includes(dados.statusExemplar as StatusExemplarBiblioteca)
+                          ? dados.statusExemplar as StatusExemplarBiblioteca : StatusExemplarBiblioteca.DISPONIVEL,
                         codigoInterno,
                         codigoBarras,
                         numeroTombo,
@@ -1839,6 +1860,7 @@ export async function POST(
                           texto(
                             dados.patrimonio,
                           ),
+                        unidadeSnapshot: texto(dados.unidadeSnapshot),
                         setor:
                           texto(
                             dados.setor,
@@ -1879,8 +1901,7 @@ export async function POST(
                           decimalOpcional(
                             dados.valorAquisicao,
                           ),
-                        permiteEmprestimo:
-                          true,
+                        permiteEmprestimo: !/^(false|0|nao|não|no)$/i.test(dados.permiteEmprestimo ?? ""),
                         observacoes:
                           texto(
                             dados.observacoes,
@@ -1957,6 +1978,8 @@ export async function POST(
 
             const resumo = {
               loteId,
+              originaisPreservados: originaisPreservados.size,
+              itensImportados: Array.from(capasPorItem.keys()),
               arquivoNome:
                 entrada.name,
               registros:
@@ -2217,8 +2240,27 @@ export async function POST(
       }
     }
 
+    let imagensImportadas = 0;
+    const falhasImagensDetalhes: Array<{ itemId: number; referencia: string; mensagem: string }> = [];
+    for (const registro of resultado.registrosCapas) {
+      const imagens = [];
+      for (const referencia of registro.imagens ?? []) {
+        try {
+          const imagem = await importarImagemReferencia(referencia.referencia, registro.itemId, contexto.instituicaoId, indiceCapasZip, copiarCapasUrl);
+          imagens.push({ referencia: referencia.referencia, descricao: referencia.descricao, url: imagem.url });
+          imagensImportadas += 1;
+        } catch (erro) {
+          const mensagem = erro instanceof Error ? erro.message : "Falha ao importar imagem.";
+          imagens.push({ referencia: referencia.referencia, descricao: referencia.descricao, url: null, erro: mensagem });
+          falhasImagensDetalhes.push({ itemId: registro.itemId, referencia: referencia.referencia, mensagem });
+        }
+      }
+      if (imagens.length) await prisma.$transaction(tx => preservarImagensImportacao(tx, contexto.instituicaoId, registro.itemId, imagens));
+    }
+
     const resultadoFinal = {
       ...resultado.resumo,
+      imagensImportadas, falhasImagens: falhasImagensDetalhes.length,
 
       capasZip:
         capasImportadasZip,
@@ -2268,6 +2310,7 @@ export async function POST(
                 "IMPORTACAO_ARQUIVO",
               falhasCapas:
                 falhasCapasDetalhes,
+              falhasImagens: falhasImagensDetalhes,
             },
             ip,
             userAgent,
@@ -2287,6 +2330,7 @@ export async function POST(
         ok: true,
         resultado:
           resultadoFinal,
+        falhasImagens: falhasImagensDetalhes,
       },
       201,
     );

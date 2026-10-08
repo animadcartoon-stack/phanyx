@@ -6570,6 +6570,10 @@ model BibliotecaItem {
   subtitulo         String?
   tituloAlternativo String?
 
+  // Original records and migrated illustrations, including local MARC fields.
+  registrosImportados Json?
+  imagensImportadas   Json?
+
   // Catalogacao bibliografica avancada.
   tituloUniforme              String?
   mencaoResponsabilidade      String? @db.Text

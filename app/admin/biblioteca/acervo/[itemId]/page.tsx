@@ -2,6 +2,7 @@
 
 import { upload } from "@vercel/blob/client";
 import Link from "next/link";
+import CatalogacaoDadosImportados from "@/components/admin/biblioteca/CatalogacaoDadosImportados";
 import CatalogacaoRelacionamentos from "@/components/admin/biblioteca/CatalogacaoRelacionamentos";
 import EtiquetaExemplar from "@/components/admin/biblioteca/EtiquetaExemplar";
 import EtiquetasLote from "@/components/admin/biblioteca/EtiquetasLote";
@@ -4939,6 +4940,8 @@ export default function BibliotecaItemPage() {
               <small>{ui("internalNotesHelp")}</small>
             </label>
           </section>
+
+          <CatalogacaoDadosImportados key={item.id} itemId={item.id} />
 
                     <CatalogacaoRelacionamentos
             itemId={item.id}
