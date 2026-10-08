@@ -6624,6 +6624,7 @@ model BibliotecaItem {
   sistemaClassificacao       BibliotecaSistemaClassificacao?
   edicaoClassificacao        String?
   codigoCutter               String?
+  codigoCutterAutomatico      Boolean @default(false)
   codigoChamada              String?
   cdd                        String?
   cdu                        String?
