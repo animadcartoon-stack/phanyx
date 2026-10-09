@@ -2697,6 +2697,27 @@ export async function POST(req: Request) {
                 conteudoFinal,
 
               codigoValidacao,
+
+              /*
+               * Separa DADOS de LAYOUT.
+               *
+               * O snapshot completo permite que o PDF use sempre
+               * o template visual atual sem perder os valores reais
+               * que pertencem a esta emissão.
+               */
+              dadosPreenchimento: {
+                ...dadosPreenchimento,
+
+                __phanyxCamposVisuais:
+                  Array.isArray(
+                    template.camposVisuais
+                  )
+                    ? template.camposVisuais
+                    : [],
+
+                __phanyxValoresResolvidos:
+                  valoresTemplate,
+              } as any,
             },
           });
         }
