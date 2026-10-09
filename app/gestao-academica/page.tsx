@@ -3,19 +3,37 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { marketingAlternates } from "@/lib/public-marketing";
 
+const pageUrl = "https://www.phanyx.com.br/gestao-academica";
+const seoTitle = "Sistema de Gestão Acadêmica para Instituições | PHANYX";
+const seoDescription =
+  "Sistema e software de gestão acadêmica para escolas, faculdades e instituições de ensino. Centralize cursos, matrículas, turmas, notas, histórico e acompanhamento dos alunos.";
+
 export const metadata = {
   alternates: marketingAlternates("academic"),
-  title: { absolute: "Sistema de Gestão Acadêmica | PHANYX" },
-  description:
-    "Sistema de gestão acadêmica para escolas, faculdades e instituições de ensino. Controle cursos, disciplinas, matrículas, notas, histórico escolar e desempenho dos alunos.",
+  title: { absolute: seoTitle },
+  description: seoDescription,
   keywords: [
     "gestão acadêmica",
     "sistema de gestão acadêmica",
+    "software de gestão acadêmica",
+    "plataforma de gestão acadêmica",
     "software acadêmico",
     "controle acadêmico",
     "sistema para faculdade",
     "sistema para instituição de ensino",
   ],
+  openGraph: {
+    title: seoTitle,
+    description: seoDescription,
+    type: "website",
+    locale: "pt_BR",
+    url: pageUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seoTitle,
+    description: seoDescription,
+  },
 };
 
 const beneficios = [
@@ -68,9 +86,72 @@ const faqs = [
   },
 ];
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: seoTitle,
+      description: seoDescription,
+      inLanguage: "pt-BR",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${pageUrl}#software`,
+      name: "PHANYX",
+      url: pageUrl,
+      applicationCategory: "EducationalApplication",
+      applicationSubCategory: "Academic Management Software",
+      operatingSystem: "Web",
+      description: seoDescription,
+      featureList: destaques,
+      inLanguage: "pt-BR",
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "PHANYX",
+          item: "https://www.phanyx.com.br/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Gestão acadêmica",
+          item: pageUrl,
+        },
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${pageUrl}#faq`,
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.pergunta,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.resposta,
+        },
+      })),
+    },
+  ],
+};
+
 export default function GestaoAcademicaPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <Header />
 
       <main className="bg-white text-slate-900">
@@ -121,6 +202,11 @@ export default function GestaoAcademicaPage() {
             <h2 className="mt-3 text-3xl font-bold md:text-4xl">
               Mais controle acadêmico e menos complexidade na operação
             </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Um software de gestão acadêmica ajuda a reunir dados e processos
+              que, sem uma plataforma central, costumam ficar divididos entre
+              planilhas, documentos, mensagens e sistemas diferentes.
+            </p>
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
@@ -147,7 +233,7 @@ export default function GestaoAcademicaPage() {
                   Recursos
                 </p>
                 <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                  Um software acadêmico completo para sua instituição
+                  Uma plataforma de gestão acadêmica para organizar a rotina institucional
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   O PHANYX foi desenvolvido para atender a rotina acadêmica com
@@ -169,6 +255,158 @@ export default function GestaoAcademicaPage() {
           </div>
         </section>
 
+
+        <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+              Para quem é
+            </p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+              Gestão acadêmica para diferentes modelos de instituição
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              O PHANYX pode apoiar escolas, faculdades, cursos livres e outras
+              instituições que precisam organizar sua operação acadêmica sem
+              depender de controles dispersos.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            <article className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold">Escolas e colégios</h3>
+              <p className="mt-3 leading-7 text-slate-600">
+                Organize turmas, matrículas, professores, avaliações, frequência
+                e documentos acadêmicos em um fluxo centralizado.
+              </p>
+            </article>
+            <article className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold">Faculdades e instituições de ensino superior</h3>
+              <p className="mt-3 leading-7 text-slate-600">
+                Centralize cursos, disciplinas, períodos, vínculos acadêmicos,
+                notas, histórico e acompanhamento dos estudantes.
+              </p>
+            </article>
+            <article className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold">Cursos livres e profissionalizantes</h3>
+              <p className="mt-3 leading-7 text-slate-600">
+                Estruture cursos, turmas, alunos, avaliações, documentos e ensino
+                digital em uma mesma plataforma.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="border-y border-slate-200 bg-slate-50">
+          <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:px-10 lg:grid-cols-2 lg:px-12">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+                Jornada acadêmica
+              </p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+                Da matrícula ao histórico escolar
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-slate-600">
+                A gestão acadêmica funciona melhor quando cada etapa faz parte do
+                mesmo fluxo de informação, reduzindo duplicidade de dados e
+                facilitando o acompanhamento da instituição.
+              </p>
+            </div>
+
+            <ol className="grid gap-4">
+              {[
+                "Cadastro e organização de cursos, disciplinas e turmas",
+                "Matrícula e vínculo do aluno com a estrutura acadêmica",
+                "Registro de frequência, avaliações, notas e médias",
+                "Acompanhamento do desempenho e do progresso estudantil",
+                "Emissão e organização de documentos e histórico acadêmico",
+              ].map((etapa, index) => (
+                <li
+                  key={etapa}
+                  className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-800">
+                    {index + 1}
+                  </span>
+                  <span className="pt-1 font-medium text-slate-800">{etapa}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+              Para quem é
+            </p>
+            <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+              Gestão acadêmica para diferentes modelos de instituição
+            </h2>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            <article className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold">Escolas e colégios</h3>
+              <p className="mt-3 leading-7 text-slate-600">
+                Organize turmas, matrículas, professores, avaliações, frequência
+                e documentos acadêmicos sem depender de controles espalhados.
+              </p>
+            </article>
+            <article className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold">Faculdades e instituições de ensino superior</h3>
+              <p className="mt-3 leading-7 text-slate-600">
+                Centralize cursos, disciplinas, períodos, vínculos acadêmicos,
+                notas, histórico e acompanhamento dos estudantes.
+              </p>
+            </article>
+            <article className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold">Cursos livres e profissionalizantes</h3>
+              <p className="mt-3 leading-7 text-slate-600">
+                Estruture ofertas de cursos, turmas, alunos, avaliações,
+                documentos e ensino digital em uma plataforma integrada.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="border-y border-slate-200 bg-slate-50">
+          <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:px-10 lg:grid-cols-2 lg:px-12">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+                Jornada acadêmica
+              </p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+                Da matrícula ao histórico escolar
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-slate-600">
+                A gestão acadêmica funciona melhor quando cada etapa faz parte
+                do mesmo fluxo de informação, reduzindo duplicidade de dados e
+                facilitando o acompanhamento da instituição.
+              </p>
+            </div>
+
+            <ol className="grid gap-4">
+              {[
+                "Cadastro e organização de cursos, disciplinas e turmas",
+                "Matrícula e vínculo do aluno com a estrutura acadêmica",
+                "Registro de frequência, avaliações, notas e médias",
+                "Acompanhamento do desempenho e do progresso estudantil",
+                "Emissão e organização de documentos e histórico acadêmico",
+              ].map((etapa, index) => (
+                <li
+                  key={etapa}
+                  className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-800">
+                    {index + 1}
+                  </span>
+                  <span className="pt-1 font-medium text-slate-800">{etapa}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
           <div className="text-center">
@@ -176,7 +414,7 @@ export default function GestaoAcademicaPage() {
               Perguntas frequentes
             </p>
             <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-              Dúvidas sobre gestão acadêmica
+              Dúvidas sobre sistema de gestão acadêmica
             </h2>
           </div>
 
@@ -245,7 +483,7 @@ export default function GestaoAcademicaPage() {
   </p>
 
   <h2 className="mt-10 text-3xl font-bold text-slate-900">
-    Software acadêmico para organizar a operação institucional
+    Software de gestão acadêmica para organizar a operação institucional
   </h2>
   <p className="mt-4 text-lg text-slate-600">
     Com o PHANYX, a instituição consegue centralizar o controle acadêmico,
@@ -275,9 +513,6 @@ export default function GestaoAcademicaPage() {
       Gestão escolar
     </Link>
 
-    <Link href="/gestao-academica" className="text-blue-700 hover:text-blue-600">
-      Gestão acadêmica
-    </Link>
 
     <Link href="/gestao-de-matriculas-escolares" className="text-blue-700 hover:text-blue-600">
       Sistema de matrícula escolar
@@ -292,6 +527,37 @@ export default function GestaoAcademicaPage() {
     </Link>
   </div>
 </div>
+
+  <div className="mt-12">
+    <h2 className="text-3xl font-bold text-slate-900">
+      Conteúdo relacionado sobre gestão acadêmica
+    </h2>
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      Aprofunde os critérios de escolha e a organização da operação acadêmica
+      com conteúdos que apoiam esta página principal.
+    </p>
+
+    <div className="mt-6 grid gap-4">
+      <Link
+        href="/blog/gestao-academica-na-pratica"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+      >
+        Gestão acadêmica na prática →
+      </Link>
+      <Link
+        href="/blog/sistema-academico-completo"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+      >
+        O que é um sistema acadêmico completo →
+      </Link>
+      <Link
+        href="/blog/melhor-sistema-academico"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+      >
+        Como escolher o melhor sistema acadêmico →
+      </Link>
+    </div>
+  </div>
 </section>
 
       </main>
