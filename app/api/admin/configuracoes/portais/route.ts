@@ -9,7 +9,14 @@ type ModoVisibilidadePortal =
 
 const CHAVE_REMATRICULA = "aluno.rematricula";
 
-const PAGINAS_PADRAO = [
+type PaginaPadraoPortal = {
+  portal: "ALUNO" | "PROFESSOR";
+  chavePagina: string;
+  nome: string;
+  visivelPadrao?: boolean;
+};
+
+const PAGINAS_PADRAO: PaginaPadraoPortal[] = [
   {
     portal: "ALUNO",
     chavePagina: "aluno.painel",
@@ -24,6 +31,11 @@ const PAGINAS_PADRAO = [
     portal: "ALUNO",
     chavePagina: "aluno.disciplinas",
     nome: "Disciplinas",
+  },
+  {
+    portal: "ALUNO",
+    chavePagina: "aluno.biblioteca",
+    nome: "Biblioteca",
   },
   {
     portal: "ALUNO",
@@ -62,6 +74,11 @@ const PAGINAS_PADRAO = [
   },
   {
     portal: "ALUNO",
+    chavePagina: "aluno.mobilidade",
+    nome: "Oportunidades de intercâmbio",
+  },
+  {
+    portal: "ALUNO",
     chavePagina: "aluno.ouvidoria",
     nome: "Ouvidoria",
   },
@@ -75,6 +92,11 @@ const PAGINAS_PADRAO = [
     portal: "PROFESSOR",
     chavePagina: "professor.painel",
     nome: "Painel",
+  },
+  {
+    portal: "PROFESSOR",
+    chavePagina: "professor.biblioteca",
+    nome: "Biblioteca",
   },
   {
     portal: "PROFESSOR",
@@ -105,6 +127,12 @@ const PAGINAS_PADRAO = [
     portal: "PROFESSOR",
     chavePagina: "professor.reunioes",
     nome: "Reuniões",
+  },
+  {
+    portal: "PROFESSOR",
+    chavePagina: "professor.mobilidade",
+    nome: "Oportunidades de intercâmbio",
+    visivelPadrao: false,
   },
   {
     portal: "PROFESSOR",
@@ -247,7 +275,9 @@ const mapa = new Map<string, ConfiguracaoPortalMap>(
           visivel: ehRematricula
             ? modoVisibilidade ===
               "SEMPRE_VISIVEL"
-            : existente?.visivel ?? true,
+            : existente?.visivel ??
+              pagina.visivelPadrao ??
+              true,
 
           modoVisibilidade,
           controleAutomatico: ehRematricula,

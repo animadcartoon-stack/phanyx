@@ -13639,7 +13639,9 @@
         "academicHistory": "Historial académico",
         "meetings": "Reuniones",
         "ombudsman": "Defensoría",
-        "data": "Actualizar mis datos"
+        "data": "Actualizar mis datos",
+        "library": "Biblioteca",
+        "mobility": "Oportunidades de intercambio"
       },
       "professor": {
         "dashboard": "Panel",
@@ -13650,7 +13652,9 @@
         "assignments": "Trabajos",
         "meetings": "Reuniones",
         "ombudsman": "Defensoría",
-        "materials": "Materiales/Clases"
+        "materials": "Materiales/Clases",
+        "library": "Biblioteca",
+        "mobility": "Oportunidades de intercambio"
       }
     }
   },

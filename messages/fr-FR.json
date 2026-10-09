@@ -13639,7 +13639,9 @@
         "academicHistory": "Relevé académique",
         "meetings": "Réunions",
         "ombudsman": "Médiation",
-        "data": "Mettre à jour mes informations"
+        "data": "Mettre à jour mes informations",
+        "library": "Bibliothèque",
+        "mobility": "Opportunités d'échange"
       },
       "professor": {
         "dashboard": "Tableau de bord",
@@ -13650,7 +13652,9 @@
         "assignments": "Travaux",
         "meetings": "Réunions",
         "ombudsman": "Médiation",
-        "materials": "Supports/Cours"
+        "materials": "Supports/Cours",
+        "library": "Bibliothèque",
+        "mobility": "Opportunités d'échange"
       }
     }
   },

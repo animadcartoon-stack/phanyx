@@ -324,7 +324,15 @@ export default async function AlunoLayout({
         : periodoRematriculaAberto !== null;
 
   const visibilidadeAluno = {
-    biblioteca: await bibliotecaDisponivel(aluno.instituicaoId),
+    biblioteca:
+      await bibliotecaDisponivel(
+        aluno.instituicaoId
+      ) &&
+      await paginaVisivel(
+        aluno.instituicaoId,
+        "ALUNO",
+        "aluno.biblioteca"
+      ),
     painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
     rematricula: mostrarRematricula,
     disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
