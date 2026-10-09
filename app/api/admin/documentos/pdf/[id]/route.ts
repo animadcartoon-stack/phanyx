@@ -784,6 +784,40 @@ export async function GET(
             .__phanyxCamposVisuais
           : [];
 
+    const campoAssinaturaDocumento =
+      Array.isArray(
+        camposVisuaisDocumento
+      )
+        ? (
+          camposVisuaisDocumento as
+            Array<
+              Record<
+                string,
+                unknown
+              >
+            >
+        )
+          .slice()
+          .reverse()
+          .find(
+            (campo) =>
+              campo?.tipo ===
+              "ASSINATURA_DIRETOR"
+          ) ||
+          null
+        : null;
+
+    const deltaLinhaReferenciaDocumento =
+      Number(
+        campoAssinaturaDocumento
+          ?.blocoLinhaReferenciaDeltaY
+      );
+
+    const possuiDeltaLinhaReferencia =
+      Number.isFinite(
+        deltaLinhaReferenciaDocumento
+      );
+
     const renderizacao =
       montarRenderizacaoDocumento({
         conteudo:
@@ -906,6 +940,116 @@ export async function GET(
     await aguardarRecursosDaPagina(
       page
     );
+
+    if (
+      possuiDeltaLinhaReferencia
+    ) {
+      await page.evaluate(
+        (
+          deltaLinhaReferencia
+        ) => {
+          const bloco =
+            document.querySelector<HTMLElement>(
+              ".phanyx-bloco-assinatura-visual"
+            );
+
+          if (!bloco) {
+            return;
+          }
+
+          const ancora =
+            bloco.closest(
+              ".phanyx-bloco-assinatura-ancora-fluxo"
+            );
+
+          const linhas =
+            Array.from(
+              document.querySelectorAll<HTMLElement>(
+                '[data-phanyx-linha-digitada="true"]'
+              )
+            );
+
+          const linhasAntesDaAncora =
+            ancora
+              ? linhas.filter(
+                  (linha) =>
+                    Boolean(
+                      linha.compareDocumentPosition(
+                        ancora
+                      ) &
+                      Node.DOCUMENT_POSITION_FOLLOWING
+                    )
+                )
+              : linhas;
+
+          const linhaReferencia =
+            linhasAntesDaAncora.length > 0
+              ? linhasAntesDaAncora[
+                  linhasAntesDaAncora.length - 1
+                ]
+              : null;
+
+          if (!linhaReferencia) {
+            return;
+          }
+
+          const blocoRect =
+            bloco.getBoundingClientRect();
+
+          const linhaReferenciaRect =
+            linhaReferencia
+              .getBoundingClientRect();
+
+          const linhaDiretorY =
+            blocoRect.top +
+            (
+              blocoRect.height *
+              92 /
+              221.538462
+            );
+
+          const alvoLinhaDiretorY =
+            linhaReferenciaRect.bottom +
+            Number(
+              deltaLinhaReferencia
+            );
+
+          const ajusteY =
+            alvoLinhaDiretorY -
+            linhaDiretorY;
+
+          if (
+            !Number.isFinite(
+              ajusteY
+            ) ||
+            Math.abs(
+              ajusteY
+            ) < 0.01
+          ) {
+            return;
+          }
+
+          const topAtual =
+            Number.parseFloat(
+              window
+                .getComputedStyle(
+                  bloco
+                )
+                .top
+            );
+
+          if (
+            Number.isFinite(
+              topAtual
+            )
+          ) {
+            bloco.style.top =
+              `${topAtual + ajusteY}px`;
+          }
+        },
+        deltaLinhaReferenciaDocumento
+      );
+    }
 
     const pdfBytes =
       await page.pdf(
