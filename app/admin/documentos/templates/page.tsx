@@ -89,6 +89,15 @@ type CampoVisualContrato = {
 
   blocoPapelX?: number;
   blocoPapelY?: number;
+
+  /*
+   * Diferença vertical, em px CSS, entre a linha do diretor
+   * e a última linha digitada imediatamente anterior ao bloco.
+   *
+   * Essa referência preserva no PDF final exatamente a relação
+   * visual escolhida no editor, sem depender da altura dos dados.
+   */
+  blocoLinhaReferenciaDeltaY?: number;
 };
 
 type ConfiguracaoInstituicao = {
@@ -1746,6 +1755,64 @@ function AdminDocumentosTemplatesPage() {
           )
         : null;
 
+    /*
+     * REFERÊNCIA VISUAL REAL:
+     *
+     * O usuário não alinha a assinatura com a tag invisível.
+     * Ele alinha visualmente a linha do diretor com a linha do
+     * contratante. Por isso guardamos exatamente essa diferença.
+     *
+     * A linha do diretor fica em y=92 dentro de um SVG cuja
+     * viewBox tem altura 221.538462.
+     */
+    const linhasDigitadas =
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '#editor-template-phanyx [data-phanyx-linha-digitada]'
+        )
+      );
+
+    const linhasAntesDaAncora =
+      ancoraFluxo
+        ? linhasDigitadas.filter(
+            (linha) =>
+              Boolean(
+                linha.compareDocumentPosition(
+                  ancoraFluxo
+                ) &
+                Node.DOCUMENT_POSITION_FOLLOWING
+              )
+          )
+        : linhasDigitadas;
+
+    const linhaReferencia =
+      linhasAntesDaAncora.length > 0
+        ? linhasAntesDaAncora[
+            linhasAntesDaAncora.length - 1
+          ]
+        : null;
+
+    const linhaReferenciaRect =
+      linhaReferencia
+        ?.getBoundingClientRect() ||
+      null;
+
+    const linhaDiretorY =
+      blocoRect.top +
+      (
+        blocoRect.height *
+        92 /
+        221.538462
+      );
+
+    const blocoLinhaReferenciaDeltaY =
+      linhaReferenciaRect
+        ? Math.round(
+            linhaDiretorY -
+            linhaReferenciaRect.bottom
+          )
+        : null;
+
     return normalizados.map(
       (campo) =>
         campo.tipo ===
@@ -1761,9 +1828,7 @@ function AdminDocumentosTemplatesPage() {
               blocoPapelY,
 
               /*
-               * Relação do bloco com a posição natural da tag:
-               * mantém o PDF final exatamente igual ao arranjo
-               * visual escolhido mesmo com dados reais diferentes.
+               * Relação do bloco com a posição natural da tag.
                */
               ...(blocoOffsetX !== null
                 ? {
@@ -1774,6 +1839,16 @@ function AdminDocumentosTemplatesPage() {
               ...(blocoOffsetY !== null
                 ? {
                     blocoOffsetY,
+                  }
+                : {}),
+
+              /*
+               * Relação VISUAL entre as duas linhas que o usuário
+               * enxerga e posiciona no editor.
+               */
+              ...(blocoLinhaReferenciaDeltaY !== null
+                ? {
+                    blocoLinhaReferenciaDeltaY,
                   }
                 : {}),
             }
