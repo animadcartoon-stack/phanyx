@@ -296,6 +296,8 @@ function BlocoPortal({
         return t("pages.student.rematriculation");
       case "aluno.disciplinas":
         return t("pages.student.subjects");
+      case "aluno.biblioteca":
+        return t("pages.student.library");
       case "aluno.progresso":
         return t("pages.student.progress");
       case "aluno.trabalhos":
@@ -310,12 +312,16 @@ function BlocoPortal({
         return t("pages.student.academicHistory");
       case "aluno.reunioes":
         return t("pages.student.meetings");
+      case "aluno.mobilidade":
+        return t("pages.student.mobility");
       case "aluno.ouvidoria":
         return t("pages.student.ombudsman");
       case "aluno.dados":
         return t("pages.student.data");
       case "professor.painel":
         return t("pages.professor.dashboard");
+      case "professor.biblioteca":
+        return t("pages.professor.library");
       case "professor.substituicoes":
         return t("pages.professor.substitutions");
       case "professor.alunos":
@@ -328,6 +334,8 @@ function BlocoPortal({
         return t("pages.professor.assignments");
       case "professor.reunioes":
         return t("pages.professor.meetings");
+      case "professor.mobilidade":
+        return t("pages.professor.mobility");
       case "professor.ouvidoria":
         return t("pages.professor.ombudsman");
       case "professor.materiais":

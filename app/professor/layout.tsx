@@ -103,7 +103,15 @@ export default async function ProfessorLayout({
 
   const visibilidadeProfessor =
     {
-      biblioteca: await bibliotecaDisponivel(professor.instituicaoId),
+      biblioteca:
+        await bibliotecaDisponivel(
+          professor.instituicaoId
+        ) &&
+        await paginaVisivel(
+          professor.instituicaoId,
+          "PROFESSOR",
+          "professor.biblioteca"
+        ),
       painel:
         await paginaVisivel(
           professor.instituicaoId,

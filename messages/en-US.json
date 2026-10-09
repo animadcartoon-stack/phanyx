@@ -13640,7 +13640,9 @@
         "academicHistory": "Academic transcript",
         "meetings": "Meetings",
         "ombudsman": "Ombudsman",
-        "data": "Update my information"
+        "data": "Update my information",
+        "library": "Library",
+        "mobility": "Exchange opportunities"
       },
       "professor": {
         "dashboard": "Dashboard",
@@ -13651,7 +13653,9 @@
         "assignments": "Assignments",
         "meetings": "Meetings",
         "ombudsman": "Ombudsman",
-        "materials": "Materials/Classes"
+        "materials": "Materials/Classes",
+        "library": "Library",
+        "mobility": "Exchange opportunities"
       }
     }
   },

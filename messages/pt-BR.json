@@ -13639,7 +13639,9 @@
         "academicHistory": "Histórico Acadêmico",
         "meetings": "Reuniões",
         "ombudsman": "Ouvidoria",
-        "data": "Atualizar meus dados"
+        "data": "Atualizar meus dados",
+        "library": "Biblioteca",
+        "mobility": "Oportunidades de intercâmbio"
       },
       "professor": {
         "dashboard": "Painel",
@@ -13650,7 +13652,9 @@
         "assignments": "Trabalhos",
         "meetings": "Reuniões",
         "ombudsman": "Ouvidoria",
-        "materials": "Materiais/Aulas"
+        "materials": "Materiais/Aulas",
+        "library": "Biblioteca",
+        "mobility": "Oportunidades de intercâmbio"
       }
     }
   },
