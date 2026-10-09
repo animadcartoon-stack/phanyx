@@ -501,32 +501,6 @@ function AdminTour({
   );
 }
 
-function extrairNomeMatricula(item: any, tipoTraduzido: string) {
-  return (
-    item?.aluno?.nome ||
-    item?.nomeAluno ||
-    item?.matricula ||
-    `${tipoTraduzido} #${String(item?.id ?? "")}`
-  );
-}
-
-function extrairNomeTurma(item: any, tipoTraduzido: string) {
-  return (
-    item?.nome ||
-    item?.titulo ||
-    item?.codigo ||
-    `${tipoTraduzido} #${String(item?.id ?? "")}`
-  );
-}
-
-function extrairNomeDisciplina(item: any, tipoTraduzido: string) {
-  return (
-    item?.nome ||
-    item?.titulo ||
-    `${tipoTraduzido} #${String(item?.id ?? "")}`
-  );
-}
-
 export default function AdminDashboardPage() {
   const t = useTranslations("AdminDashboard");
   const tCommon = useTranslations("Common");
@@ -553,12 +527,8 @@ export default function AdminDashboardPage() {
   const [enviandoFoto, setEnviandoFoto] = useState(false);
   const [perfilAberto, setPerfilAberto] = useState(false);
   const [busca, setBusca] = useState("");
-  const [alunosLista, setAlunosLista] = useState<ItemBusca[]>([]);
-  const [professoresLista, setProfessoresLista] = useState<ItemBusca[]>([]);
-  const [cursosLista, setCursosLista] = useState<ItemBusca[]>([]);
-  const [disciplinasLista, setDisciplinasLista] = useState<ItemBusca[]>([]);
-  const [turmasLista, setTurmasLista] = useState<ItemBusca[]>([]);
-  const [matriculasLista, setMatriculasLista] = useState<ItemBusca[]>([]);
+  const [resultadosBusca, setResultadosBusca] = useState<ItemBusca[]>([]);
+  const [buscaCarregando, setBuscaCarregando] = useState(false);
 
   async function carregarPerfilAdmin() {
     try {
@@ -634,162 +604,24 @@ export default function AdminDashboardPage() {
 
   async function carregarStats() {
     try {
-      const [
-        alunosRes,
-        professoresRes,
-        cursosRes,
-        disciplinasRes,
-        certificadosRes,
-        turmasRes,
-        matriculasRes,
-      ] = await Promise.all([
-        fetch("/api/aluno?page=1&limit=1", {
-          credentials: "include",
-          cache: "no-store",
-        }),
-        fetch("/api/professor", { credentials: "include" }),
-        fetch("/api/admin/cursos", { credentials: "include" }),
-        fetch("/api/disciplina", { credentials: "include" }),
-        fetch("/api/certificado", { credentials: "include" }),
-        fetch("/api/turma", { credentials: "include" }),
-        fetch("/api/matricula", { credentials: "include" }),
-      ]);
+      const res = await fetch("/api/admin/dashboard/resumo", {
+        credentials: "include",
+      });
 
-      if (
-        !alunosRes.ok ||
-        !professoresRes.ok ||
-        !cursosRes.ok ||
-        !disciplinasRes.ok ||
-        !certificadosRes.ok ||
-        !turmasRes.ok ||
-        !matriculasRes.ok
-      ) {
-        throw new Error("Erro de autenticação ou permissão");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || "Erro ao carregar resumo do painel",
+        );
       }
 
-      const [
-        alunos,
-        professores,
-        cursos,
-        disciplinas,
-        certificados,
-        turmas,
-        matriculas,
-      ] = await Promise.all([
-        alunosRes.json(),
-        professoresRes.json(),
-        cursosRes.json(),
-        disciplinasRes.json(),
-        certificadosRes.json(),
-        turmasRes.json(),
-        matriculasRes.json(),
-      ]);
-
-      const alunosArray = Array.isArray(alunos)
-        ? alunos
-        : Array.isArray(alunos?.data)
-          ? alunos.data
-          : [];
-
-      const totalAlunos = Number(
-        alunos?.meta?.total ?? alunos?.total ?? alunosArray.length
-      );
-
-      setAlunosLista(
-        alunosArray.map((item: any) => ({
-          id: Number(item.id),
-          nome: String(item.nome ?? t("unnamed")),
-          tipo: "Aluno" as const,
-          href: `/admin/alunos?busca=${encodeURIComponent(
-            String(item.nome ?? "")
-          )}`,
-        }))
-
-      );
-
-      setProfessoresLista(
-        Array.isArray(professores)
-          ? professores.map((item: any) => ({
-            id: Number(item.id),
-            nome: String(item.nome ?? t("unnamed")),
-            tipo: "Professor" as const,
-            href: `/admin/professores?busca=${encodeURIComponent(
-              String(item.nome ?? "")
-            )}`,
-          }))
-          : []
-      );
-
-      setCursosLista(
-        Array.isArray(cursos)
-          ? cursos.map((item: any) => ({
-            id: Number(item.id),
-            nome: String(item.nome ?? t("unnamed")),
-            tipo: "Curso" as const,
-            href: `/admin/cursos?busca=${encodeURIComponent(
-              String(item.nome ?? "")
-            )}`,
-          }))
-          : []
-      );
-
-      setDisciplinasLista(
-        Array.isArray(disciplinas)
-          ? disciplinas.map((item: any) => {
-            const nome = String(
-              extrairNomeDisciplina(item, t("subjectResult"))
-            );
-
-            return {
-              id: Number(item.id),
-              nome,
-              tipo: "Disciplina" as const,
-              href: `/admin/disciplinas?busca=${encodeURIComponent(nome)}`,
-            };
-          })
-          : []
-      );
-
-      setTurmasLista(
-        Array.isArray(turmas)
-          ? turmas.map((item: any) => {
-            const nome = String(
-              extrairNomeTurma(item, t("classResult"))
-            );
-
-            return {
-              id: Number(item.id),
-              nome,
-              tipo: "Turma" as const,
-              href: `/admin/turmas?busca=${encodeURIComponent(nome)}`,
-            };
-          })
-          : []
-      );
-
-      setMatriculasLista(
-        Array.isArray(matriculas)
-          ? matriculas.map((item: any) => {
-            const nome = String(
-              extrairNomeMatricula(item, t("enrollmentResult"))
-            );
-
-            return {
-              id: Number(item.id),
-              nome,
-              tipo: "Matrícula" as const,
-              href: `/admin/matriculas?busca=${encodeURIComponent(nome)}`,
-            };
-          })
-          : []
-      );
-
       setStats({
-        alunos: totalAlunos,
-        professores: Array.isArray(professores) ? professores.length : 0,
-        cursos: Array.isArray(cursos) ? cursos.length : 0,
-        disciplinas: Array.isArray(disciplinas) ? disciplinas.length : 0,
-        certificados: Array.isArray(certificados) ? certificados.length : 0,
+        alunos: Number(data?.alunos || 0),
+        professores: Number(data?.professores || 0),
+        cursos: Number(data?.cursos || 0),
+        disciplinas: Number(data?.disciplinas || 0),
+        certificados: Number(data?.certificados || 0),
       });
     } catch (error) {
       console.error("Erro ao carregar stats", error);
@@ -802,6 +634,66 @@ export default function AdminDashboardPage() {
     carregarStats();
     carregarPerfilAdmin();
   }, []);
+
+  useEffect(() => {
+    const termo = busca.trim();
+
+    if (termo.length < 2) {
+      setResultadosBusca([]);
+      setBuscaCarregando(false);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const timer = window.setTimeout(async () => {
+      try {
+        setBuscaCarregando(true);
+
+        const res = await fetch(
+          `/api/admin/dashboard/busca?q=${encodeURIComponent(termo)}`,
+          {
+            credentials: "include",
+            cache: "no-store",
+            signal: controller.signal,
+          },
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(
+            data?.error || "Erro ao buscar no painel",
+          );
+        }
+
+        setResultadosBusca(
+          Array.isArray(data?.resultados)
+            ? data.resultados
+            : [],
+        );
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error("Erro na busca rápida do painel", error);
+        setResultadosBusca([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setBuscaCarregando(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [busca]);
 
   useEffect(() => {
     try {
@@ -838,31 +730,7 @@ export default function AdminDashboardPage() {
     setTourAberto(false);
   }
 
-  const termoBusca = busca.trim().toLowerCase();
-
-  const resultadosBusca = useMemo(() => {
-    if (!termoBusca) return [];
-
-    return [
-      ...alunosLista,
-      ...professoresLista,
-      ...cursosLista,
-      ...disciplinasLista,
-      ...turmasLista,
-      ...matriculasLista,
-    ]
-      .filter((item) => item.nome.toLowerCase().includes(termoBusca))
-      .slice(0, 12);
-  }, [
-    termoBusca,
-    alunosLista,
-    professoresLista,
-    cursosLista,
-    disciplinasLista,
-    turmasLista,
-    matriculasLista,
-  ]);
-
+  const termoBusca = busca.trim();
   const totalResultadosBusca = resultadosBusca.length;
 
   const cards = [
@@ -1086,7 +954,7 @@ export default function AdminDashboardPage() {
                     />
                   </div>
 
-                  {termoBusca && (
+                  {termoBusca.length >= 2 && (
                     <div className="absolute left-0 right-0 top-[calc(100%+12px)] z-50 rounded-2xl border border-slate-200 bg-white shadow-xl">
                       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                         <div>
@@ -1108,7 +976,13 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div className="max-h-80 overflow-y-auto p-3">
-                        {totalResultadosBusca > 0 ? (
+                        {buscaCarregando ? (
+                          <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
+                            <p className="text-sm font-medium text-slate-700">
+                              {tCommon("loading")}
+                            </p>
+                          </div>
+                        ) : totalResultadosBusca > 0 ? (
                           <div className="space-y-2">
                             {resultadosBusca.map((item, index) => (
                               <Link

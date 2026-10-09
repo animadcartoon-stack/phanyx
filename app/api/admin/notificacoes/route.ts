@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { gerarNotificacoesSistema } from "@/lib/notificacoes/gerarNotificacoesSistema";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getUserFromToken();
 
@@ -35,7 +35,11 @@ export async function GET() {
       );
     }
 
-    await gerarNotificacoesSistema(usuarioBanco.instituicaoId);
+    const { searchParams } = new URL(request.url);
+
+    if (searchParams.get("gerar") === "1") {
+      await gerarNotificacoesSistema(usuarioBanco.instituicaoId);
+    }
 
     const notificacoes = await prisma.notificacao.findMany({
       where: {
