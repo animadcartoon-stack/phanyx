@@ -48,3 +48,6 @@ next-env.d.ts
 # backups e arquivos temporarios locais
 *.bak
 tmp-*.sql
+
+# PDF.js assets are reproduced by postinstall/build.
+/public/biblioteca/pdfjs/

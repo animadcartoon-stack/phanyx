@@ -1,0 +1,4 @@
+@media print {
+  body[data-biblioteca-sem-impressao="true"] { display: none !important; }
+  body[data-biblioteca-sem-impressao="false"] * { visibility: hidden; }
+}

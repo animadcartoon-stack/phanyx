@@ -1,5 +1,7 @@
 "use client";
 
+import stylesLeitor from "@/components/biblioteca/BibliotecaLeitor.module.css";
+
 import Link from "next/link";
 import {
   useMemo,
@@ -1925,7 +1927,7 @@ export default function ImportarAcervoPage() {
                           onClick={() =>
                             setConfirmacaoAberta(true)
                           }
-                          className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
+                          className={stylesLeitor.importButton}
                         >
                           {t("validation.importButton")}
                         </button>

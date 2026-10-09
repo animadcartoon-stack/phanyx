@@ -3,8 +3,9 @@ import "server-only";
 import { Prisma, StatusModuloAdicional, TipoModuloAdicional } from "@prisma/client";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
-import { ErroBiblioteca, obterContextoBiblioteca } from "@/lib/biblioteca-acesso";
+import { obterLeitorBiblioteca, licencasVigentes } from "@/lib/biblioteca-leitor";
+import { direitosLeituraBiblioteca } from "@/lib/biblioteca-direitos-leitura";
+import { ErroBiblioteca } from "@/lib/biblioteca-acesso";
 import { podeBaixarPdfBiblioteca } from "@/lib/biblioteca-direitos-download";
 
 export type PortalLeitor = "aluno" | "professor";
@@ -22,23 +23,15 @@ export async function bibliotecaDisponivel(instituicaoId: number) {
 }
 
 export async function contextoLeitor(portal: PortalLeitor) {
-  const usuario = await getUserFromToken();
-  if (!usuario || usuario.role.toUpperCase() !== portal.toUpperCase() || !usuario.instituicaoId) {
-    redirect(`/login?portal=${portal}`);
-  }
-
-  const vinculo = portal === "aluno"
-    ? await prisma.aluno.findFirst({ where: { userId: usuario.id, instituicaoId: usuario.instituicaoId }, select: { id: true } })
-    : await prisma.professor.findFirst({ where: { userId: usuario.id, instituicaoId: usuario.instituicaoId }, select: { id: true } });
-  if (!vinculo) redirect(`/login?portal=${portal}`);
-
   try {
-    await obterContextoBiblioteca(usuario);
+    const leitor = await obterLeitorBiblioteca();
+    if (leitor.portal !== portal) redirect(`/login?portal=${portal}`);
+    return leitor;
   } catch (erro) {
+    if (erro instanceof ErroBiblioteca && erro.status === 401) redirect(`/login?portal=${portal}`);
     if (erro instanceof ErroBiblioteca && erro.status === 403) return null;
     throw erro;
   }
-  return { instituicaoId: usuario.instituicaoId, usuarioId: usuario.id, portal };
 }
 
 type Leitor = NonNullable<Awaited<ReturnType<typeof contextoLeitor>>>;
@@ -68,7 +61,7 @@ const resumoItem = {
   autores: { orderBy: { ordem: "asc" }, take: 3, select: { autor: { select: { nome: true } } } },
 } satisfies Prisma.BibliotecaItemSelect;
 
-export async function listarCatalogo(leitor: Leitor, entrada: { q?: string; prateleira?: string; pagina?: string }) {
+export async function listarCatalogo(leitor: Leitor, entrada: { q?: string; prateleira?: string; pagina?: string; filtro?: string }) {
   const busca = (typeof entrada.q === "string" ? entrada.q : "").trim().slice(0, 100);
   const numero = Number(typeof entrada.pagina === "string" ? entrada.pagina : 1);
   const pagina = Number.isSafeInteger(numero) && numero > 0 ? Math.min(numero, 10000) : 1;
@@ -83,9 +76,13 @@ export async function listarCatalogo(leitor: Leitor, entrada: { q?: string; prat
   ]);
   if (slugPrateleira && !selecionada) notFound();
   if (selecionada && !prateleiras.some((p) => p.id === selecionada.id)) prateleiras.push(selecionada);
+  const filtro = entrada.filtro === "favoritos" && leitor.configuracao?.permitirFavoritos ? "favoritos" : entrada.filtro === "andamento" ? "andamento" : "todos";
+  const pessoal = { instituicaoId: leitor.instituicaoId, usuarioId: leitor.usuarioId };
   const where: Prisma.BibliotecaItemWhereInput = {
     instituicaoId: leitor.instituicaoId,
     status: "PUBLICADO",
+    ...(filtro === "favoritos" ? { favoritos: { some: pessoal } } : {}),
+    ...(filtro === "andamento" ? { progressosLeitura: { some: { ...pessoal, arquivo: { status: "DISPONIVEL", arquivadoEm: null } } } } : {}),
     ...(selecionada ? { prateleiras: { some: { instituicaoId: leitor.instituicaoId, prateleiraId: selecionada.id } } } : {}),
     ...(busca ? {
       OR: [
@@ -99,7 +96,7 @@ export async function listarCatalogo(leitor: Leitor, entrada: { q?: string; prat
     prisma.bibliotecaItem.findMany({ where, select: resumoItem, orderBy: [{ destaque: "desc" }, { titulo: "asc" }], skip: (pagina - 1) * 24, take: 24 }),
     prisma.bibliotecaItem.count({ where }),
   ]);
-  return { prateleiras, selecionada, itens, total, pagina, busca };
+  return { prateleiras, selecionada, itens, total, pagina, busca, filtro };
 }
 
 export async function obterItemCatalogo(leitor: Leitor, slug: string) {
@@ -117,9 +114,12 @@ export async function obterItemCatalogo(leitor: Leitor, slug: string) {
       editora: { select: { nome: true } },
       categorias: { select: { categoria: { select: { nome: true } } } },
       licencas: {
-        where: { instituicaoId: leitor.instituicaoId, ativo: true, OR: [{ inicioVigencia: null }, { inicioVigencia: { lte: new Date() } }], AND: [{ OR: [{ fimVigencia: null }, { fimVigencia: { gte: new Date() } }] }] },
-        select: { id: true, permitirVisualizacao: true, permitirDownload: true },
+        where: licencasVigentes(leitor.instituicaoId),
+        select: { id: true, permitirVisualizacao: true, permitirDownload: true, permitirCopia: true, permitirImpressao: true },
       },
+      favoritos: { where: { instituicaoId: leitor.instituicaoId, usuarioId: leitor.usuarioId }, select: { id: true }, take: 1 },
+      progressosLeitura: { where: { instituicaoId: leitor.instituicaoId, usuarioId: leitor.usuarioId },
+        select: { arquivoId: true, paginaAtual: true, totalPaginas: true, percentual: true }, take: 1 },
       acessoLivre: true,
       permitirDownload: true,
       arquivos: {
@@ -130,10 +130,11 @@ export async function obterItemCatalogo(leitor: Leitor, slug: string) {
     },
   });
   if (!item) notFound();
-  const { licencas, acessoLivre, permitirDownload, arquivos, ...publico } = item;
+  const { licencas, acessoLivre, permitirDownload, arquivos, favoritos, progressosLeitura, ...publico } = item;
   const candidato = arquivos.find((arquivo) => arquivo.tipo === "LINK_EXTERNO")?.urlExterna;
   let linkExterno: string | null = null;
-  const acessoDisponivel = acessoLivre || licencas.some((licenca) => licenca.permitirVisualizacao);
+  const direitos = direitosLeituraBiblioteca(item);
+  const acessoDisponivel = direitos.visualizar;
   if (candidato && acessoDisponivel) {
     try {
       const url = new URL(candidato);
@@ -148,6 +149,11 @@ export async function obterItemCatalogo(leitor: Leitor, slug: string) {
   const podeBaixarPdf = Boolean(pdf && podeBaixarPdfBiblioteca({
     configuracao, item: { permitirDownload, acessoLivre }, licencas,
   }));
+  const pdfLeitura = direitos.lerPdf ? arquivos.find((arquivo) => arquivo.tipo === "PDF" && arquivo.storageKey) : null;
+  const progresso = progressosLeitura.find((p) => p.arquivoId === pdfLeitura?.id);
   return { ...publico, linkExterno, pdfArquivoId: podeBaixarPdf ? pdf!.id : null,
+    pdfLeituraId: pdfLeitura?.id || null, direitos,
+    favorito: favoritos.length > 0,
+    progresso: progresso ? { ...progresso, percentual: Number(progresso.percentual) } : null,
     acessoDisponivel, exemplaresDisponiveis: item._count.exemplares };
 }

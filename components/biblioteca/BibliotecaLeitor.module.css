@@ -1,0 +1,76 @@
+.root {
+  --bib-fundo: #ffffff;
+  --bib-texto: #0f172a;
+  --bib-suave: #f1f5f9;
+  --bib-borda: #cbd5e1;
+  --bib-secundario: #475569;
+  --bib-acao: #1d4ed8;
+  --bib-acao-texto: #ffffff;
+  color: var(--bib-texto);
+  width: 100%; max-width: 1280px; margin: 0 auto;
+}
+:global(html.dark) .root, :global(html[data-theme="system"].dark) .root {
+  --bib-fundo: #18181b; --bib-texto: #f8fafc; --bib-suave: #27272a;
+  --bib-borda: #52525b; --bib-secundario: #d4d4d8;
+  --bib-acao: #bfdbfe; --bib-acao-texto: #172554;
+}
+.root .card { background: var(--bib-fundo); color: var(--bib-texto); border: 1px solid var(--bib-borda); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.root h1, .root h2, .root h3 { color: var(--bib-texto); }
+.root h1 { font-size: 1.8rem; font-weight: 800; }
+.root h2 { font-size: 1.3rem; font-weight: 750; margin-bottom: 12px; }
+.root .muted { color: var(--bib-secundario); }
+.root .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.root .button, .importButton {
+  display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+  min-height: 42px; padding: 9px 16px; border-radius: 10px; font-weight: 700;
+  background: var(--bib-suave, #f1f5f9); color: var(--bib-texto, #0f172a);
+  border: 1px solid var(--bib-borda, #cbd5e1); cursor: pointer;
+}
+.root .primary, .importButton { background: var(--bib-acao, #1d4ed8) !important; color: var(--bib-acao-texto, #ffffff) !important; border-color: transparent; }
+:global(html.dark) .importButton { background: #bfdbfe !important; color: #172554 !important; }
+.root .button:hover, .importButton:hover { filter: brightness(.93); }
+.root .button:disabled, .importButton:disabled { opacity: .5; cursor: not-allowed; }
+.root .button:focus-visible, .root input:focus-visible, .root select:focus-visible, .root textarea:focus-visible, .importButton:focus-visible { outline: 3px solid #3b82f6; outline-offset: 3px; }
+.root input:not([type="checkbox"]), .root select, .root textarea { background: var(--bib-fundo) !important; color: var(--bib-texto) !important; border: 1px solid var(--bib-borda) !important; border-radius: 9px; min-height: 42px; padding: 9px 12px; max-width: 100%; }
+.root textarea { width: 100%; min-height: 110px; }
+.root input::placeholder, .root textarea::placeholder { color: var(--bib-secundario) !important; }
+.root label { display: grid; gap: 6px; font-weight: 600; }
+.root .check { display: flex; align-items: center; gap: 8px; }
+.root .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.root .book { display: flex; min-height: 170px; border: 1px solid var(--bib-borda); background: var(--bib-fundo); border-radius: 12px; overflow: hidden; color: var(--bib-texto); }
+.root .cover { width: 100px; flex-shrink: 0; background: var(--bib-suave); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+.root .cover img { height: 100%; width: 100%; object-fit: cover; }
+.root .bookInfo { padding: 16px; }
+.root .detail { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; }
+.root .detailCover { max-height: 340px; width: 100%; border-radius: 12px; object-fit: contain; background: var(--bib-suave); }
+.root .notice { background: var(--bib-suave); border-left: 4px solid #f59e0b; border-radius: 8px; padding: 14px; margin: 16px 0; }
+.root .readerLayout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 16px; }
+.root .document { overflow: auto; background: #d4d4d8; padding: 16px; border-radius: 12px; max-height: 78vh; }
+.root .page { position: relative; margin: 0 auto; background: #fff; color: #000; box-shadow: 0 3px 15px #0003; }
+.root .page canvas { display: block; }
+.root .textLayer { position: absolute; inset: 0; overflow: clip; opacity: 1; line-height: 1; text-align: initial; transform-origin: 0 0; z-index: 2; user-select: text; text-size-adjust: none; forced-color-adjust: none; --min-font-size: 1; --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size)); --min-font-size-inv: calc(1 / var(--min-font-size)); }
+.root .textLayer :global(span), .root .textLayer :global(br) { color: transparent !important; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
+.root .textLayer > :not(:global(.markedContent)), .root .textLayer :global(.markedContent) span:not(:global(.markedContent)) { --font-height: 0; font-size: calc(var(--text-scale-factor) * var(--font-height)); --scale-x: 1; --rotate: 0deg; transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
+.root .textLayer :global(::selection) { background: #2563eb55; }
+.root .textLayer :global(.markedContent) { display: contents; }
+.root .highlight { position: absolute; pointer-events: none; z-index: 1; opacity: .45; }
+.root .watermark { position: absolute; bottom: 8px; right: 12px; z-index: 3; pointer-events: none; font: 10px sans-serif; color: #475569; background: #ffffffc9; padding: 2px 5px; }
+.root .side { max-height: 78vh; overflow-y: auto; }
+.root .annotation { border-bottom: 1px solid var(--bib-borda); padding: 12px 0; }
+.root .annotation p { overflow-wrap: anywhere; white-space: pre-wrap; }
+.root .results { max-height: 180px; overflow-y: auto; width: 100%; }
+.root .error { color: #b91c1c; font-weight: 600; }
+:global(html.dark) .root .error { color: #fca5a5; }
+.root .hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.root .smallInput { width: 85px; }
+.root .formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.root .full { grid-column: 1 / -1; }
+@media (max-width: 900px) { .root .readerLayout { grid-template-columns: 1fr; } .root .side { max-height: none; } }
+@media (max-width: 600px) { .root .detail { grid-template-columns: 1fr; } .root .detailCover { max-height: 240px; } .root .card { padding: 16px; } .root .formGrid { grid-template-columns: 1fr; } }
+@media print {
+  .root .page, .root .page * { visibility: visible; }
+  .root .page { position: absolute; top: 0; left: 0; box-shadow: none; }
+  .root .toolbar, .root .side, .root .watermark, .root .notice { display: none !important; }
+  .root .document { max-height: none; overflow: visible; background: white; padding: 0; }
+  .root .readerLayout { display: block; }
+}

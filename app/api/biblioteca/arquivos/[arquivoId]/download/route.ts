@@ -5,6 +5,7 @@ import { ErroBiblioteca, obterContextoBiblioteca, respostaErroBiblioteca } from 
 import { obterTokenBibliotecaBlob } from "@/lib/biblioteca-storage";
 import { podeBaixarPdfBiblioteca } from "@/lib/biblioteca-direitos-download";
 import { prisma } from "@/lib/prisma";
+import { obterLeitorBiblioteca } from "@/lib/biblioteca-leitor";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export const runtime = "nodejs";
@@ -13,6 +14,7 @@ export const revalidate = 0;
 
 export async function GET(request: NextRequest, { params }: { params: { arquivoId: string } }) {
   try {
+    await obterLeitorBiblioteca();
     const usuario = await getUserFromToken();
     const contexto = await obterContextoBiblioteca(usuario);
     if (!usuario || usuario.impersonacao || !["ALUNO", "PROFESSOR"].includes(usuario.role.toUpperCase())) {

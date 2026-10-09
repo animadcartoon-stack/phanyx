@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "prisma generate && npm run lint && npm run typecheck && npm run build:next",
+    "dev": "npm run prepare:biblioteca && next dev",
+    "build": "npm run prepare:biblioteca && prisma generate && npm run lint && npm run typecheck && npm run build:next",
     "start": "next start",
     "lint": "node --max-old-space-size=4096 node_modules/next/dist/bin/next lint",
     "typecheck": "node --max-old-space-size=6144 node_modules/typescript/bin/tsc --noEmit",
-    "build:next": "node --max-old-space-size=5120 node_modules/next/dist/bin/next build"
+    "build:next": "node --max-old-space-size=5120 node_modules/next/dist/bin/next build",
+    "prepare:biblioteca": "node scripts/preparar-leitor-biblioteca.cjs",
+    "postinstall": "node scripts/preparar-leitor-biblioteca.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1003.0",
@@ -51,6 +53,7 @@
     "next-intl": "^4.13.4",
     "nodemailer": "^6.10.1",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "5.4.624",
     "prisma": "^5.22.0",
     "puppeteer-core": "^25.2.0",
     "qrcode": "^1.5.4",

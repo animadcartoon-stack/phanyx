@@ -9,6 +9,8 @@ datasource db {
 }
 
 model Instituicao {
+  anotacoesBiblioteca BibliotecaAnotacao[]
+
   id                      Int      @id @default(autoincrement())
   nome                    String
   ativo                   Boolean  @default(true)
@@ -319,6 +321,8 @@ model RedeInstitucional {
 }
 
 model User {
+  anotacoesBiblioteca BibliotecaAnotacao[]
+
   id                 Int          @id @default(autoincrement())
   nome               String
   email              String       @unique
@@ -6559,6 +6563,8 @@ model BibliotecaAuditoria {
 }
 
 model BibliotecaItem {
+  anotacoesBiblioteca BibliotecaAnotacao[]
+
   id            Int @id @default(autoincrement())
   instituicaoId Int
 
@@ -6868,6 +6874,8 @@ model BibliotecaItemCategoria {
 }
 
 model BibliotecaArquivo {
+  anotacoesBiblioteca BibliotecaAnotacao[]
+
   id            Int @id @default(autoincrement())
   instituicaoId Int
   itemId        Int
@@ -11434,4 +11442,29 @@ model TransferenciaMatriculaDocumento {
   @@index([status])
   @@index([enviadoPorId])
   @@index([expiraEm])
+}
+
+
+model BibliotecaAnotacao {
+  id            String @id @default(cuid())
+  instituicaoId Int
+  usuarioId     Int
+  itemId        Int
+  arquivoId     Int
+  tipo          String @db.VarChar(16)
+  pagina        Int
+  trecho        String? @db.Text
+  conteudo      String? @db.Text
+  cor           String @default("AMARELO") @db.VarChar(16)
+  areas         Json @default("[]")
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  usuario User @relation(fields: [usuarioId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  item BibliotecaItem @relation(fields: [itemId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  arquivo BibliotecaArquivo @relation(fields: [arquivoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@index([instituicaoId, usuarioId, arquivoId, pagina])
+  @@index([itemId, instituicaoId])
 }
