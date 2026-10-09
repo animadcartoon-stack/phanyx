@@ -796,6 +796,15 @@ export async function GET(
 
         modoPrevia: false,
 
+        /*
+         * No documento final, campos reais podem ter altura
+         * diferente dos valores demonstrativos do editor.
+         * A assinatura acompanha a seção onde a tag foi inserida,
+         * preservando o deslocamento escolhido pelo usuário.
+         */
+        ancorarBlocoAssinaturaAoFluxo:
+          true,
+
         mostrarValidacao: true,
 
         tituloDocumento:

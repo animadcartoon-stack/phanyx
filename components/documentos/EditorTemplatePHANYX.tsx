@@ -1452,7 +1452,9 @@ type DadosAssinaturaPreview = {
 
   aoMoverBloco?: (
     x: number,
-    y: number
+    y: number,
+    deslocamentoX?: number,
+    deslocamentoY?: number
   ) => void;
 };
 
@@ -2273,6 +2275,16 @@ function criarBotaoRemoverAssinatura(
 
             Math.round(
               papelYFinal
+            ),
+
+            Math.round(
+              papelXFinal -
+              inicioPapelX
+            ),
+
+            Math.round(
+              papelYFinal -
+              inicioPapelY
             )
           );
         };
@@ -2757,7 +2769,9 @@ type Props = {
 
   onMoverBlocoAssinatura?: (
     x: number,
-    y: number
+    y: number,
+    deslocamentoX?: number,
+    deslocamentoY?: number
   ) => void;
 
   
