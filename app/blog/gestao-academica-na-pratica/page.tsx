@@ -69,7 +69,7 @@ export default function GestaoAcademicaPage() {
             href="/gestao-academica"
             className="mt-6 inline-block text-blue-600 underline"
           >
-            Conheça a gestão acadêmica do PHANYX
+            Conheça o sistema de gestão acadêmica do PHANYX
           </a>
         </section>
       </main>
