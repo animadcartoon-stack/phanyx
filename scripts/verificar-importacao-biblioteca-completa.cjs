@@ -100,6 +100,25 @@ async function main() {
   ok(()=>assert.equal(d.capaUrl,data));
   ok(()=>assert.equal(extraido.registros[0].original.marc.campos.find(c=>c.tag==="990").subcampos.length,3));
   ok(()=>assert.match(Buffer.from(extraido.registros[0].original.conteudoBase64,"base64").toString(),/tag="990"/));
+  const nomesMarc = [
+    ["Keen", "C. M. Keen", "C. M. Keen"],
+    ["Brelaz", "Pastor Gabino Brelaz", "Pastor Gabino Brelaz"],
+    ["Falcão", "João Falcão Sobrinho", "João Falcão Sobrinho"],
+    ["Treze", "Parecer da Comissão dos Treze", "Parecer da Comissão dos Treze"],
+    ["Le Conte", "John Le Conte", "John Le Conte"],
+    ["Fowler, T. M.", "(Thaddeus Mortimer)", "Fowler, T. M. (Thaddeus Mortimer)"],
+    ["H. D.", "(Hilda Doolittle)", "H. D. (Hilda Doolittle)"],
+    ["Orr", "Guilherme W. Orrison", "Orr Guilherme W. Orrison"],
+    ["Keen", "(C. M. Keen)", "C. M. Keen"],
+  ];
+  for (const [a,q,esperado] of nomesMarc) {
+    const r=ler(iso([["245","  \x1faTeste de autoria"],["100",`1 \x1fa${a}\x1fq${q}\x1fd1970-`]]),"autores.mrc").registros[0];
+    ok(()=>assert.equal(r.dados.autor,`${esperado} 1970-`));
+    ok(()=>assert.equal(r.original.marc.campos.find(c=>c.tag==="100").subcampos.find(s=>s.codigo==="a").valor,a));
+  }
+  const coautoria=ler(Buffer.from(registro([campo("245",[["a","Coautoria"]]),campo("700",[["a","Keen"],["q","C. M. Keen"],["e","tradutor"]]),campo("110",[["a","Instituto"],["q","Instituto de Estudos"]])]))).registros[0].dados;
+  ok(()=>assert.equal(coautoria.tradutor,"C. M. Keen"));
+  ok(()=>assert.equal(coautoria.autor,"Instituto Instituto de Estudos"));
   const separado=Buffer.from(`<collection>${registro([controle("001","000123"),campo("245",[["a","Livro com exemplar separado"]])])}${registro([controle("001","999"),controle("004","123"),campo("949",[["a","BIB.2026.1"]])])}</collection>`);
   const separadoLido=ler(separado);
   ok(()=>assert.equal(separadoLido.registros.length,1));
@@ -162,6 +181,7 @@ async function main() {
   const tabelas = {};
   const compara = (row, where={}) => Object.entries(where).every(([k,v]) => {
     if(k==="OR") return v.some(f=>compara(row,f));
+    if(v && typeof v==="object" && "notIn" in v) return !v.notIn.includes(row[k]);
     if(v && typeof v==="object" && "equals" in v) return String(row[k]??"").toLowerCase()===String(v.equals).toLowerCase();
     return row[k]===v;
   });
@@ -204,6 +224,64 @@ async function main() {
   tabelas.bibliotecaItem[0].instituicaoId=2;
   const outraInstituicao=await consulta.GET({}, {params:{itemId:"1"}});
   ok(()=>assert.equal(outraInstituicao.status,404));
+  for(const rows of Object.values(tabelas))rows.length=0;
+  const homonimos=Buffer.concat(["Pedro Moura","Herschel H. Hobbs","F. Dattler"].map((autor,i)=>
+    Buffer.concat([iso([["001",`H${i+1}`],["245","  \x1faA Carta aos Hebreus"],["100",`1 \x1fa${autor}`]]),Buffer.from("\r\n")])));
+  const mapaHomonimos=Object.fromEntries(imp.analisarArquivoImportacao(homonimos,"homonimos.mrc").colunas.map(c=>[c.indice,c.destinoSugerido]));
+  const formHomonimos=new Map([["arquivo",new (global.File||require("node:buffer").File)([homonimos],"homonimos.mrc")],
+    ["mapeamento",JSON.stringify(mapaHomonimos)],["confirmacao","IMPORTAR"],["buscarCapasIsbn","false"]]);
+  const reqHomonimos=()=>({formData:async()=>({get:k=>formHomonimos.get(k)||null}),headers:{get:()=>null}});
+  const respHomonimos=await api.POST(reqHomonimos()),bodyHomonimos=await respHomonimos.json();
+  ok(()=>assert.equal(respHomonimos.status,201,JSON.stringify(bodyHomonimos)));
+  ok(()=>assert.equal(bodyHomonimos.resultado.obrasCriadas,3));
+  ok(()=>assert.equal(bodyHomonimos.resultado.exemplaresCriados,0));
+  ok(()=>assert.equal(tabelas.bibliotecaItem.length,3));
+  ok(()=>assert.equal(tabelas.bibliotecaAutor.length,3));
+  const novamenteHomonimos=await api.POST(reqHomonimos()),bodyNovamenteHomonimos=await novamenteHomonimos.json();
+  ok(()=>assert.equal(novamenteHomonimos.status,409));
+  ok(()=>assert.equal(bodyNovamenteHomonimos.codigo,"IMPORTACAO_POSSIVEL_DUPLICIDADE"));
+  ok(()=>assert.equal(tabelas.bibliotecaItem.length,3));
+  const caminhoReal=process.argv[2];
+  if(caminhoReal){
+    const bytes=fs.readFileSync(path.resolve(caminhoReal)),nome=path.basename(caminhoReal);
+    const real=ler(bytes,nome);
+    assert(real.registros.length>0,"O arquivo não contém registros bibliográficos.");
+    // Walk the original ISO2709 bytes independently of the importer.
+    const originais=[];let pos=0;
+    while(pos<bytes.length){
+      while(pos<bytes.length&&[9,10,13,32].includes(bytes[pos]))pos++;
+      if(pos===bytes.length)break;
+      const tamanho=Number(bytes.subarray(pos,pos+5).toString("ascii"));
+      assert(Number.isInteger(tamanho)&&tamanho>=25&&pos+tamanho<=bytes.length);
+      assert.equal(bytes[pos+tamanho-1],0x1d);
+      originais.push(bytes.subarray(pos,pos+tamanho));pos+=tamanho;
+    }
+    ok(()=>assert.equal(real.registros.length,originais.length));
+    for(const [i,r] of real.registros.entries()){
+      ok(()=>assert.equal(Buffer.compare(Buffer.from(r.original.conteudoBase64,"base64"),originais[i]),0));
+    }
+    for(const rows of Object.values(tabelas))rows.length=0;
+    const mapaReal=Object.fromEntries(imp.analisarArquivoImportacao(bytes,nome).colunas.map(c=>[c.indice,c.destinoSugerido]));
+    const formReal=new Map([["arquivo",new (global.File||require("node:buffer").File)([bytes],nome)],
+      ["mapeamento",JSON.stringify(mapaReal)],["confirmacao","IMPORTAR"],["buscarCapasIsbn","false"]]);
+    const requisicao=()=>({formData:async()=>({get:k=>formReal.get(k)||null}),headers:{get:()=>null}});
+    const respReal=await api.POST(requisicao()),bodyReal=await respReal.json();
+    ok(()=>assert.equal(respReal.status,201,JSON.stringify(bodyReal)));
+    ok(()=>assert.equal(bodyReal.resultado.originaisPreservados,real.registros.length));
+    ok(()=>assert.equal(bodyReal.resultado.obrasCriadas,real.registros.length));
+    ok(()=>assert(tabelas.bibliotecaItem.every(r=>r.registrosImportados.length===1)));
+    ok(()=>assert(tabelas.bibliotecaItem.every(r=>r.status==="RASCUNHO")));
+    const loteOriginal=tabelas.bibliotecaAuditoria.find(r=>r.metadados?.conteudoOriginalBase64);
+    ok(()=>assert.equal(Buffer.compare(Buffer.from(loteOriginal.metadados.conteudoOriginalBase64,"base64"),bytes),0));
+    const repetida=await api.POST(requisicao()),bodyRepetida=await repetida.json();
+    ok(()=>assert.equal(repetida.status,409,JSON.stringify(bodyRepetida)));
+    ok(()=>assert.equal(bodyRepetida.codigo,"IMPORTACAO_POSSIVEL_DUPLICIDADE"));
+    ok(()=>assert.equal(tabelas.bibliotecaItem.length,real.registros.length));
+    ok(()=>assert(tabelas.bibliotecaItem.every(r=>r.registrosImportados.length===1)));
+    ok(()=>assert.equal(bodyReal.resultado.exemplaresCriados,0));
+    ok(()=>assert(real.registros.every(r=>!r.imagens.length)));
+    console.log(`SIMULAÇÃO: ${real.registros.length} registros; ${bodyReal.resultado.obrasCriadas} obras; ${bodyReal.resultado.exemplaresCriados} exemplares; originais preservados; reimportação bloqueada para revisão.`);
+  }
   console.log(`OK: ${checks} verificações de importação, originais, exemplares e imagens.`);
 }
 main().catch(erro=>{console.error(erro);process.exitCode=1;});

@@ -1198,6 +1198,9 @@ export async function POST(
                         where: {
                           instituicaoId:
                             contexto.instituicaoId,
+                          // Work keys in this confirmed file already distinguish
+                          // authors and editions. Review pre-existing titles.
+                          id: { notIn: itensCriados },
                           titulo: {
                             equals:
                               titulo,

@@ -47,6 +47,24 @@ const juntar = (r: RegistroMarcImportacao, tags: string[], codes: string, separa
   tags.flatMap(tag => campos(r, tag).map(c => c.subcampos.filter(s => codes.includes(s.codigo))
     .map(s => limpar(s.valor)).filter(Boolean).join(" "))).filter(Boolean).join(separador);
 
+function nomeAutoriaMarc(c: CampoMarcImportacao): string {
+  const principal = c.subcampos.find(s => s.codigo === "a")?.valor ?? "";
+  const completo = c.subcampos.find(s => s.codigo === "q")?.valor ?? "";
+  const comparar = (v: string) => v.normalize("NFD").replace(/\p{M}/gu, "")
+    .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const base = comparar(principal);
+  // Some Biblivre records store just the surname in $a and the whole name
+  // (including that surname) in $q. Standard $q may instead expand initials;
+  // keep that form intact when it does not contain the complete $a value.
+  const usaNomeCompleto = /^(100|700)$/.test(c.tag) && !principal.includes(",") &&
+    Boolean(base) && ` ${comparar(completo)} `.includes(` ${base} `);
+  return c.subcampos.filter(s => "abcdq".includes(s.codigo) &&
+    !(usaNomeCompleto && s.codigo === "q"))
+    .map(s => limpar(usaNomeCompleto && s.codigo === "a"
+      ? completo.trim().replace(/^\((.*)\)$/s, "$1") : s.valor))
+    .filter(Boolean).join(" ");
+}
+
 export function imagensRegistroMarc(r: RegistroMarcImportacao): ReferenciaImagemImportacao[] {
   const imagens: ReferenciaImagemImportacao[] = [];
   for (const c of campos(r, "856")) {
@@ -104,7 +122,7 @@ export function dadosMarcAvancados(r: RegistroMarcImportacao): Record<string, st
   };
   const autorias: Record<string, string[]> = { autor: [], coautor: [], organizador: [], editor: [], tradutor: [], orientador: [], colaborador: [] };
   for (const c of r.campos.filter(c => /^(100|110|111|700|710|711)$/.test(c.tag))) {
-    const nome = c.subcampos.filter(s => "abcdq".includes(s.codigo)).map(s => limpar(s.valor)).filter(Boolean).join(" ");
+    const nome = nomeAutoriaMarc(c);
     if (!nome) continue;
     const papel = c.subcampos.filter(s => "e4".includes(s.codigo)).map(s => s.valor.toLowerCase()).join(" ");
     const chave = c.tag.startsWith("1") ? "autor" : /tradut|tradu[cç]|translat|traduct|\btrl\b/i.test(papel) ? "tradutor" :
