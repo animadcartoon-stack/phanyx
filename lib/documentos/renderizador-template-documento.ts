@@ -777,7 +777,7 @@ function criarBlocoAssinatura({
         "position:absolute",
         "z-index:4",
         `left:${deslocamentoBlocoXMm}mm`,
-        `top:${5 + deslocamentoBlocoYMm}mm`,
+        `top:${deslocamentoBlocoYMm}mm`,
         "margin:0",
       ].join(";")
       : possuiCoordenadaPapel

@@ -797,18 +797,12 @@ export async function GET(
         modoPrevia: false,
 
         /*
-         * WYSIWYG real:
-         *
-         * a posição do bloco de assinatura no PDF final deve ser
-         * exatamente a mesma posição absoluta salva pelo editor
-         * (blocoPapelX / blocoPapelY), independentemente da altura
-         * ocupada pelos valores reais do documento.
-         *
-         * O PDF de prévia já usa essa mesma regra. Portanto o
-         * documento final não deve reancorar o bloco ao fluxo da tag.
+         * O PDF final usa a mesma relação visual definida no editor,
+         * ancorando o bloco na tag e aplicando exatamente o offset
+         * salvo. O renderizador não adiciona margem vertical extra.
          */
         ancorarBlocoAssinaturaAoFluxo:
-          false,
+          true,
 
         mostrarValidacao: true,
 
