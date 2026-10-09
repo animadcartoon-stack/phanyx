@@ -1935,7 +1935,9 @@ function AdminDocumentosTemplatesPage() {
 
   function moverBlocoAssinatura(
     blocoPapelX: number,
-    blocoPapelY: number
+    blocoPapelY: number,
+    deslocamentoX = 0,
+    deslocamentoY = 0
   ) {
     setCamposVisuais(
       (atuais) => {
@@ -1953,21 +1955,57 @@ function AdminDocumentosTemplatesPage() {
 
         if (existe) {
           return normalizados.map(
-            (campo) =>
-              campo.tipo ===
-              "ASSINATURA_DIRETOR"
-                ? {
-                    ...campo,
+            (campo) => {
+              if (
+                campo.tipo !==
+                  "ASSINATURA_DIRETOR"
+              ) {
+                return campo;
+              }
 
-                    /*
-                     * Fonte de verdade definitiva:
-                     * posição medida dentro da área
-                     * branca do documento.
-                     */
-                    blocoPapelX,
-                    blocoPapelY,
-                  }
-                : campo
+              const offsetXAtual =
+                Number(
+                  campo.blocoOffsetX ??
+                  0
+                );
+
+              const offsetYAtual =
+                Number(
+                  campo.blocoOffsetY ??
+                  0
+                );
+
+              return {
+                ...campo,
+
+                blocoPapelX,
+                blocoPapelY,
+
+                /*
+                 * Mantém também o deslocamento do bloco em relação
+                 * à tag. Esse é o que o PDF final usa com dados reais.
+                 */
+                blocoOffsetX:
+                  (
+                    Number.isFinite(
+                      offsetXAtual
+                    )
+                      ? offsetXAtual
+                      : 0
+                  ) +
+                  deslocamentoX,
+
+                blocoOffsetY:
+                  (
+                    Number.isFinite(
+                      offsetYAtual
+                    )
+                      ? offsetYAtual
+                      : 0
+                  ) +
+                  deslocamentoY,
+              };
+            }
           );
         }
 
@@ -1988,6 +2026,12 @@ function AdminDocumentosTemplatesPage() {
 
             blocoPapelX,
             blocoPapelY,
+
+            blocoOffsetX:
+              deslocamentoX,
+
+            blocoOffsetY:
+              deslocamentoY,
           },
         ];
       }

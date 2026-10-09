@@ -74,6 +74,17 @@ export type OpcoesRenderizacaoDocumento = {
   mostrarValidacao?: boolean;
 
   /**
+   * Quando true, o PDF final ancora o bloco completo de
+   * assinatura à posição da tag {{blocoAssinaturaDiretor}}
+   * no fluxo real do documento.
+   *
+   * Isso é importante porque valores reais podem ocupar mais
+   * ou menos linhas do que os valores demonstrativos do editor.
+   * O bloco acompanha o conteúdo sem reservar altura no fluxo.
+   */
+  ancorarBlocoAssinaturaAoFluxo?: boolean;
+
+  /**
    * Quando true, o próprio conteúdo monta seu cabeçalho,
    * rodapé institucional e bloco de validação.
    *
@@ -626,12 +637,14 @@ function criarBlocoAssinatura({
   modoPrevia,
   campoVisual,
   formatoImpressao,
+  ancorarAoFluxo = false,
 }: {
   assinaturaUrl: string;
   instituicao: DadosInstituicaoDocumento;
   modoPrevia: boolean;
   campoVisual?: CampoVisualDocumento | null;
   formatoImpressao: FormatoImpressaoDocumento;
+  ancorarAoFluxo?: boolean;
 }) {
   const campoNormalizado = campoVisual
     ? obterCampoVisualAssinatura([campoVisual])
@@ -653,6 +666,23 @@ function criarBlocoAssinatura({
 
   const blocoOffsetYPx =
     Number(campoDoBloco.blocoOffsetY ?? 0);
+
+  const possuiOffsetAncorado =
+    Boolean(
+      ancorarAoFluxo &&
+      campoDoBloco.blocoOffsetX != null &&
+      campoDoBloco.blocoOffsetY != null &&
+      Number.isFinite(
+        Number(
+          campoDoBloco.blocoOffsetX
+        )
+      ) &&
+      Number.isFinite(
+        Number(
+          campoDoBloco.blocoOffsetY
+        )
+      )
+    );
 
   const deslocamentoBlocoXMm =
     (Number.isFinite(blocoOffsetXPx) ? blocoOffsetXPx : 0) *
@@ -742,31 +772,42 @@ function criarBlocoAssinatura({
    * de 18 mm; por isso apenas X desconta a margem lateral.
    */
   const estiloPosicaoBloco =
-    possuiCoordenadaPapel
+    possuiOffsetAncorado
       ? [
         "position:absolute",
         "z-index:4",
-        `left:${blocoPapelXMm - MARGEM_LATERAL_MM}mm`,
-        `top:${blocoPapelYMm}mm`,
+        `left:${deslocamentoBlocoXMm}mm`,
+        `top:${5 + deslocamentoBlocoYMm}mm`,
         "margin:0",
       ].join(";")
-      : possuiPosicaoPaginaAntiga
+      : possuiCoordenadaPapel
         ? [
           "position:absolute",
           "z-index:4",
-          `left:${blocoPaginaXMm - MARGEM_LATERAL_MM}mm`,
-          `top:${blocoPaginaYMm - topoConteudoMm}mm`,
+          `left:${blocoPapelXMm - MARGEM_LATERAL_MM}mm`,
+          `top:${blocoPapelYMm}mm`,
           "margin:0",
         ].join(";")
-        : [
-          "position:relative",
-          `left:${deslocamentoBlocoXMm}mm`,
-          `top:${deslocamentoBlocoYMm}mm`,
-        ].join(";");
+        : possuiPosicaoPaginaAntiga
+          ? [
+            "position:absolute",
+            "z-index:4",
+            `left:${blocoPaginaXMm - MARGEM_LATERAL_MM}mm`,
+            `top:${blocoPaginaYMm - topoConteudoMm}mm`,
+            "margin:0",
+          ].join(";")
+          : [
+            "position:relative",
+            `left:${deslocamentoBlocoXMm}mm`,
+            `top:${deslocamentoBlocoYMm}mm`,
+          ].join(";");
 
   const possuiPosicaoAbsoluta =
-    possuiCoordenadaPapel ||
-    possuiPosicaoPaginaAntiga;
+    !possuiOffsetAncorado &&
+    (
+      possuiCoordenadaPapel ||
+      possuiPosicaoPaginaAntiga
+    );
 
   const assinaturaSvg =
     assinaturaUrl
@@ -980,6 +1021,7 @@ export function aplicarAssinaturasDocumento({
   modoPrevia = false,
   camposVisuais,
   formatoImpressao,
+  ancorarBlocoAssinaturaAoFluxo = false,
 }: {
   conteudo: string;
 
@@ -993,6 +1035,8 @@ export function aplicarAssinaturasDocumento({
 
   formatoImpressao:
   FormatoImpressaoDocumento;
+
+  ancorarBlocoAssinaturaAoFluxo?: boolean;
 }) {
   const assinaturaUrl =
     String(
@@ -1026,6 +1070,9 @@ export function aplicarAssinaturasDocumento({
       campoVisual,
 
       formatoImpressao,
+
+      ancorarAoFluxo:
+        ancorarBlocoAssinaturaAoFluxo,
     });
 
   const possuiCoordenadaPapel =
@@ -1056,9 +1103,29 @@ export function aplicarAssinaturasDocumento({
       )
     );
 
+  const possuiOffsetAncorado =
+    Boolean(
+      ancorarBlocoAssinaturaAoFluxo &&
+      campoVisual?.blocoOffsetX != null &&
+      campoVisual?.blocoOffsetY != null &&
+      Number.isFinite(
+        Number(
+          campoVisual.blocoOffsetX
+        )
+      ) &&
+      Number.isFinite(
+        Number(
+          campoVisual.blocoOffsetY
+        )
+      )
+    );
+
   const blocoTemPosicaoAbsoluta =
-    possuiCoordenadaPapel ||
-    possuiCoordenadaPaginaAntiga;
+    !possuiOffsetAncorado &&
+    (
+      possuiCoordenadaPapel ||
+      possuiCoordenadaPaginaAntiga
+    );
 
   let resultado =
     String(conteudo || "")
@@ -1070,6 +1137,36 @@ export function aplicarAssinaturasDocumento({
         /{{\s*(?:assinaturaDiretor|directorSignature)\s*}}/gi,
         imagem
       );
+
+  if (
+    possuiOffsetAncorado
+  ) {
+    /*
+     * Documento FINAL com dados reais:
+     *
+     * o bloco é absoluto em relação a uma âncora de altura zero,
+     * posicionada exatamente onde está
+     * {{blocoAssinaturaDiretor}}.
+     *
+     * Assim:
+     * - campos vazios não deixam a assinatura presa mais abaixo;
+     * - campos maiores empurram a assinatura junto com o conteúdo;
+     * - o bloco não ocupa 36 mm no fluxo;
+     * - a validação/QR não é empurrada para outra página.
+     */
+    const blocoAncorado =
+      `<span class="phanyx-bloco-assinatura-ancora-fluxo">${bloco}</span>`;
+
+    return resultado
+      .replaceAll(
+        "__PHANYX_BLOCO_ASSINATURA_DIRETOR__",
+        blocoAncorado
+      )
+      .replace(
+        /{{\s*(?:blocoAssinaturaDiretor|directorSignatureBlock)\s*}}/gi,
+        blocoAncorado
+      );
+  }
 
   if (
     blocoTemPosicaoAbsoluta
@@ -1909,6 +2006,22 @@ function cssCompartilhado(
       margin-top: -1mm;
       margin-bottom: 1.5mm;
     }
+
+.phanyx-bloco-assinatura-ancora-fluxo {
+  position: relative;
+  display: inline-block;
+  width: 0;
+  height: 0;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  vertical-align: top;
+  font-size: 0;
+  line-height: 0;
+}
 
 /* =========================================================
    BLOCO VISUAL DA ASSINATURA
@@ -2773,6 +2886,12 @@ export function montarRenderizacaoDocumento(
         opcoes.camposVisuais,
 
       formatoImpressao,
+
+      ancorarBlocoAssinaturaAoFluxo:
+        Boolean(
+          opcoes
+            .ancorarBlocoAssinaturaAoFluxo
+        ),
     });
 
   const possuiQuebrasDePagina =
