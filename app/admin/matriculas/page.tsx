@@ -320,6 +320,21 @@ function AdminMatriculasPage() {
     setTurmaPorDisciplinaEdicao,
   ] = useState<Record<number, number>>({});
   const [matriculas, setMatriculas] = useState<MatriculaApi[]>([]);
+
+  // PERFORMANCE PHANYX - MATRICULAS FASE 2A
+  const [paginaMatriculas, setPaginaMatriculas] = useState(1);
+
+  const [metaMatriculas, setMetaMatriculas] = useState({
+    total: 0,
+    page: 1,
+    limit: 25,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
+  const [dadosFormularioCarregando, setDadosFormularioCarregando] = useState(true);
+  const primeiraAtualizacaoListaRef = useRef(true);
   const [statusAtualizando, setStatusAtualizando] = useState<{
     matriculaId: number;
     status: string;
@@ -451,75 +466,131 @@ function AdminMatriculasPage() {
     ]
   );
 
-  async function carregarModoMatriculas(
-    quarentena: boolean
+  function limitesPeriodoMatricula(
+    periodo: "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
   ) {
-    setLoading(true);
+    if (periodo === "TODAS") {
+      return { inicio: null as string | null, fim: null as string | null };
+    }
+
+    const agora = new Date();
+    const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    const inicioAmanha = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1);
+
+    if (periodo === "HOJE") {
+      return { inicio: inicioHoje.toISOString(), fim: inicioAmanha.toISOString() };
+    }
+
+    if (periodo === "ONTEM") {
+      const inicioOntem = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 1);
+      return { inicio: inicioOntem.toISOString(), fim: inicioHoje.toISOString() };
+    }
+
+    if (periodo === "7_DIAS") {
+      const inicio7Dias = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 6);
+      return { inicio: inicio7Dias.toISOString(), fim: inicioAmanha.toISOString() };
+    }
+
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    return { inicio: inicioMes.toISOString(), fim: inicioAmanha.toISOString() };
+  }
+
+  async function carregarListaMatriculas(
+    opcoes: {
+      quarentena?: boolean;
+      pagina?: number;
+      busca?: string;
+      periodo?: "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS";
+      status?: string;
+      mostrarLoading?: boolean;
+    } = {}
+  ) {
+    const quarentena = opcoes.quarentena ?? modoQuarentena;
+    const pagina = opcoes.pagina ?? paginaMatriculas;
+    const buscaAtual = opcoes.busca ?? busca;
+    const periodoAtual = opcoes.periodo ?? filtroPeriodoMatricula;
+    const statusAtual = opcoes.status ?? filtroStatusMatricula;
+    const mostrarLoading = opcoes.mostrarLoading ?? true;
+
+    if (mostrarLoading) setLoading(true);
 
     try {
-      const endpoint = quarentena
-        ? "/api/matricula?quarentena=1"
-        : "/api/matricula";
+      const params = new URLSearchParams();
+      params.set("page", String(pagina));
+      params.set("limit", "25");
+      if (quarentena) params.set("quarentena", "1");
+      if (buscaAtual.trim()) params.set("busca", buscaAtual.trim());
+      if (statusAtual !== "TODOS") params.set("status", statusAtual);
 
-      const res = await fetch(endpoint, {
-        credentials: "include",
-        cache: "no-store",
-      });
+      const intervalo = limitesPeriodoMatricula(periodoAtual);
+      if (intervalo.inicio) params.set("inicio", intervalo.inicio);
+      if (intervalo.fim) params.set("fim", intervalo.fim);
 
-      const data = await res
-        .json()
-        .catch(() => null);
+      const res = await fetch(
+        `/api/admin/matriculas/lista?${params.toString()}`,
+        { credentials: "include", cache: "no-store" },
+      );
 
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        throw new Error(
-          data?.error ||
-            t("messages.loadError")
-        );
+        throw new Error(data?.error || t("messages.loadError"));
       }
 
-      setMatriculas(
-        Array.isArray(data) ? data : []
-      );
+      setMatriculas(Array.isArray(data?.data) ? data.data : []);
 
-      setModoQuarentena(quarentena);
-      setFiltroPeriodoMatricula("TODAS");
-      setFiltroStatusMatricula("TODOS");
-      setMatriculaExpandidaId(null);
-    } catch (error) {
-      console.error(
-        "Erro ao alternar listagem de matriculas:",
-        error
-      );
+      const meta = data?.meta && typeof data.meta === "object" ? data.meta : {};
+      const paginaRecebida = Number(meta.page || pagina);
 
-      setToast({
-        tipo: "erro",
-        mensagem: t("messages.loadError"),
+      setMetaMatriculas({
+        total: Number(meta.total || 0),
+        page: paginaRecebida,
+        limit: Number(meta.limit || 25),
+        totalPages: Math.max(1, Number(meta.totalPages || 1)),
+        hasNextPage: Boolean(meta.hasNextPage),
+        hasPreviousPage: Boolean(meta.hasPreviousPage),
       });
+
+      if (paginaRecebida !== paginaMatriculas) {
+        setPaginaMatriculas(paginaRecebida);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar matrículas:", error);
+      setMatriculas([]);
+      setMetaMatriculas({
+        total: 0,
+        page: 1,
+        limit: 25,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      });
+      setToast({ tipo: "erro", mensagem: t("messages.loadError") });
     } finally {
-      setLoading(false);
+      if (mostrarLoading) setLoading(false);
     }
+  }
+
+  function carregarModoMatriculas(quarentena: boolean) {
+    setModoQuarentena(quarentena);
+    setFiltroPeriodoMatricula("TODAS");
+    setFiltroStatusMatricula("TODOS");
+    setPaginaMatriculas(1);
+    setMatriculaExpandidaId(null);
   }
 
   async function carregarTudo() {
     setLoading(true);
+    setDadosFormularioCarregando(true);
 
     try {
-      try {
-        const resMat = await fetch(
-          modoQuarentena
-            ? "/api/matricula?quarentena=1"
-            : "/api/matricula",
-          {
-          credentials: "include",
-          cache: "no-store",
-        });
-
-        const dataMat = await resMat.json();
-        setMatriculas(Array.isArray(dataMat) ? dataMat : []);
-      } catch (error) {
-        console.error("Erro ao carregar matrículas:", error);
-        setMatriculas([]);
-      }
+      await carregarListaMatriculas({
+        quarentena: modoQuarentena,
+        pagina: paginaMatriculas,
+        busca,
+        periodo: filtroPeriodoMatricula,
+        status: filtroStatusMatricula,
+        mostrarLoading: true,
+      });
 
       try {
         const resAlunos = await fetch("/api/admin/alunos/busca-simples", {
@@ -762,7 +833,7 @@ function AdminMatriculasPage() {
         setTurmas([]);
       }
     } finally {
-      setLoading(false);
+      setDadosFormularioCarregando(false);
     }
   }
 
@@ -797,8 +868,35 @@ function AdminMatriculasPage() {
   }, []);
 
   useEffect(() => {
+    if (primeiraAtualizacaoListaRef.current) {
+      primeiraAtualizacaoListaRef.current = false;
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      carregarListaMatriculas({
+        quarentena: modoQuarentena,
+        pagina: paginaMatriculas,
+        busca,
+        periodo: filtroPeriodoMatricula,
+        status: filtroStatusMatricula,
+        mostrarLoading: true,
+      });
+    }, busca.trim() ? 250 : 0);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    busca,
+    filtroPeriodoMatricula,
+    filtroStatusMatricula,
+    paginaMatriculas,
+    modoQuarentena,
+  ]);
+
+  useEffect(() => {
     if (
       loading ||
+      dadosFormularioCarregando ||
       !conversaoDeLeadAtiva
     ) {
       return;
@@ -1624,75 +1722,8 @@ function AdminMatriculasPage() {
     }
   }
 
-  const matriculasFiltradas = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
+  const matriculasFiltradas = matriculas;
 
-    return matriculas.filter((m) => {
-      const id = String(m.id || "").toLowerCase();
-      const aluno = String(m.aluno?.nome || "").toLowerCase();
-      const curso = String(m.curso?.nome || "").toLowerCase();
-      const status = String(m.status || "").toLowerCase();
-      const semestre = String(m.semestre ?? "").toLowerCase();
-
-      const vendedor = String(
-        m.vendedorResponsavel?.nome ||
-        m.vendedorResponsavelNomeSnapshot ||
-        ""
-      ).toLowerCase();
-
-      const itensTexto = Array.isArray(m.itens)
-        ? m.itens
-          .map((item) =>
-            [
-              item?.turma?.nome || "",
-              item?.turma?.disciplina?.nome || "",
-              item?.turma?.professor?.nome || "",
-              item?.status || "",
-            ].join(" ")
-          )
-          .join(" ")
-          .toLowerCase()
-        : "";
-
-      const bateBusca =
-        !termo ||
-        id.includes(termo) ||
-        aluno.includes(termo) ||
-        curso.includes(termo) ||
-        vendedor.includes(termo) ||
-        status.includes(termo) ||
-        semestre.includes(termo) ||
-        itensTexto.includes(termo);
-
-
-      const dataReferencia =
-        modoQuarentena
-          ? m.excluidaEm
-          : m.createdAt;
-
-      const batePeriodo = dataNoPeriodo(
-        dataReferencia,
-        filtroPeriodoMatricula
-      );
-
-      const bateStatus =
-        filtroStatusMatricula === "TODOS" ||
-        String(m.status || "") ===
-          filtroStatusMatricula;
-
-      return (
-        bateBusca &&
-        batePeriodo &&
-        bateStatus
-      );
-    });
-  }, [
-    matriculas,
-    busca,
-    filtroPeriodoMatricula,
-    filtroStatusMatricula,
-    modoQuarentena,
-  ]);
   const cursoSelecionadoObj = useMemo(() => {
     return cursos.find((c) => c.id === Number(cursoId)) ?? null;
   }, [cursos, cursoId]);
@@ -4495,16 +4526,22 @@ function AdminMatriculasPage() {
                 type="text"
                 placeholder="Buscar por aluno, vendedor, curso, turma, disciplina, professor, status ou ID"
                 value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                onChange={(e) => {
+                  setBusca(e.target.value);
+                  setPaginaMatriculas(1);
+                }}
                 className="min-w-[240px] flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
 
               <select
                 value={filtroPeriodoMatricula}
                 onChange={(e) =>
-                  setFiltroPeriodoMatricula(
-                    e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
-                  )
+                  {
+                    setFiltroPeriodoMatricula(
+                      e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
+                    );
+                    setPaginaMatriculas(1);
+                  }
                 }
                 className="w-[145px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               >
@@ -4518,9 +4555,10 @@ function AdminMatriculasPage() {
               <select
                 value={filtroStatusMatricula}
                 onChange={(e) =>
-                  setFiltroStatusMatricula(
-                    e.target.value
-                  )
+                  {
+                    setFiltroStatusMatricula(e.target.value);
+                    setPaginaMatriculas(1);
+                  }
                 }
                 aria-label={t("filterStatus")}
                 className="w-[175px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
@@ -5065,6 +5103,40 @@ function AdminMatriculasPage() {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {!loading && metaMatriculas.total > 0 && (
+          <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Mostrando <span className="font-semibold">{((metaMatriculas.page - 1) * metaMatriculas.limit) + 1}</span>{" "}
+              a <span className="font-semibold">{Math.min(metaMatriculas.page * metaMatriculas.limit, metaMatriculas.total)}</span>{" "}
+              de <span className="font-semibold">{metaMatriculas.total}</span> matrícula(s)
+            </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={!metaMatriculas.hasPreviousPage || loading}
+                onClick={() => setPaginaMatriculas((paginaAtual) => Math.max(1, paginaAtual - 1))}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Anterior
+              </button>
+
+              <span className="px-2 text-sm text-slate-600 dark:text-slate-300">
+                Página <strong>{metaMatriculas.page}</strong>{" "}de <strong>{metaMatriculas.totalPages}</strong>
+              </span>
+
+              <button
+                type="button"
+                disabled={!metaMatriculas.hasNextPage || loading}
+                onClick={() => setPaginaMatriculas((paginaAtual) => Math.min(metaMatriculas.totalPages, paginaAtual + 1))}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Próxima
+              </button>
+            </div>
           </div>
         )}
       </div>

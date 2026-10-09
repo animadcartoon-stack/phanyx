@@ -769,121 +769,139 @@ export default function GerarDocumentoPage() {
   ]);
 
   async function carregarDados() {
-    try {
-      const [
-        tRes,
-        aRes,
-        mRes,
-        fRes,
-        pRes,
-      ] = await Promise.all([
-        fetch(
-          "/api/admin/documentos/templates?somenteAtivos=1",
-          {
-            credentials: "include",
-            cache: "no-store",
+    // PERFORMANCE PHANYX - DOCUMENTOS EMISSAO FASE 2B
+    /*
+     * O seletor de modelos não deve esperar alunos, matrículas,
+     * funcionários e professores. Os templates são prioritários
+     * e aparecem assim que a própria consulta terminar.
+     */
+    const carregarTemplates =
+      async () => {
+        try {
+          const res =
+            await fetch(
+              "/api/admin/documentos/templates?somenteAtivos=1",
+              {
+                credentials:
+                  "include",
+
+                cache:
+                  "no-store",
+              },
+            );
+
+          const data =
+            await res
+              .json()
+              .catch(
+                () => null,
+              );
+
+          if (!res.ok) {
+            throw new Error(
+              data?.error ||
+              "Erro ao carregar templates.",
+            );
           }
-        ),
 
-        fetch("/api/aluno", {
-          credentials: "include",
-          cache: "no-store",
-        }),
+          setTemplates(
+            extrairLista<Template>(
+              data,
+              "templates",
+            ),
+          );
+        } catch (error) {
+          console.error(
+            "Erro ao carregar templates de documentos",
+            error,
+          );
 
-        fetch("/api/matricula", {
-          credentials: "include",
-          cache: "no-store",
-        }),
+          setTemplates([]);
 
-        fetch(
-          "/api/admin/funcionarios",
-          {
-            credentials: "include",
-            cache: "no-store",
+          setErro(
+            t(
+              "generate.errors.loadData",
+            ),
+          );
+        }
+      };
+
+    const carregarOpcoes =
+      async () => {
+        try {
+          const res =
+            await fetch(
+              "/api/admin/documentos/opcoes-emissao",
+              {
+                credentials:
+                  "include",
+
+                cache:
+                  "no-store",
+              },
+            );
+
+          const data =
+            await res
+              .json()
+              .catch(
+                () => null,
+              );
+
+          if (!res.ok) {
+            throw new Error(
+              data?.error ||
+              "Erro ao carregar opções para emissão.",
+            );
           }
-        ),
 
-        fetch("/api/professor", {
-          credentials: "include",
-          cache: "no-store",
-        }),
-      ]);
+          setAlunos(
+            extrairLista<Aluno>(
+              data,
+              "alunos",
+            ),
+          );
 
-      const tData =
-        await tRes
-          .json()
-          .catch(() => null);
+          setMatriculas(
+            extrairLista<Matricula>(
+              data,
+              "matriculas",
+            ),
+          );
 
-      const aData =
-        await aRes
-          .json()
-          .catch(() => null);
+          setFuncionarios(
+            extrairLista<FuncionarioDocumento>(
+              data,
+              "funcionarios",
+            ),
+          );
 
-      const mData =
-        await mRes
-          .json()
-          .catch(() => null);
+          setProfessores(
+            extrairLista<ProfessorDocumento>(
+              data,
+              "professores",
+            ),
+          );
+        } catch (error) {
+          console.error(
+            "Erro ao carregar opções para emissão de documentos",
+            error,
+          );
 
-      const fData =
-        await fRes
-          .json()
-          .catch(() => null);
+          setAlunos([]);
+          setMatriculas([]);
+          setFuncionarios([]);
+          setProfessores([]);
+        }
+      };
 
-      const pData =
-        await pRes
-          .json()
-          .catch(() => null);
-
-      setTemplates(
-        extrairLista<Template>(
-          tData,
-          "templates"
-        )
-      );
-
-      setAlunos(
-        extrairLista<Aluno>(
-          aData,
-          "alunos"
-        )
-      );
-
-      setMatriculas(
-        extrairLista<Matricula>(
-          mData,
-          "matriculas"
-        )
-      );
-
-      setFuncionarios(
-        extrairLista<FuncionarioDocumento>(
-          fData,
-          "funcionarios"
-        )
-      );
-
-      setProfessores(
-        extrairLista<ProfessorDocumento>(
-          pData,
-          "professores"
-        )
-      );
-    } catch (error) {
-      console.error(
-        "Erro ao carregar dados",
-        error
-      );
-
-      setTemplates([]);
-      setAlunos([]);
-      setMatriculas([]);
-      setFuncionarios([]);
-      setProfessores([]);
-
-      setErro(
-        t("generate.errors.loadData")
-      );
-    }
+    /*
+     * As duas tarefas começam juntas, mas nenhuma espera a outra.
+     * O dropdown de modelos pode preencher imediatamente, mesmo
+     * que as opções auxiliares ainda estejam sendo carregadas.
+     */
+    void carregarTemplates();
+    void carregarOpcoes();
   }
   function atualizarCampoManual(
     tag: string,
