@@ -3481,173 +3481,19 @@ export async function PATCH(request: Request) {
       body.acao ===
       "CANCELAR_MATRICULA"
     ) {
-      const id =
-        Number(body.id);
-
-      const motivoCancelamento =
-        String(
-          body.motivoCancelamento ||
-            ""
-        ).trim();
-
-      if (!id) {
-        return NextResponse.json(
-          {
-            error:
-              "ID_INVALIDO",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      if (
-        motivoCancelamento.length <
-        3
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "MOTIVO_CANCELAMENTO_OBRIGATORIO",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      const agora =
-        new Date();
-
-      /*
-       * Operacao atomica:
-       * somente uma matricula que ainda
-       * nao esta CANCELADA pode ser alterada.
-       */
-      const resultado =
-        await prisma.matricula.updateMany({
-          where: {
-            id,
-
-            instituicaoId:
-              user.instituicaoId,
-
-            excluidaEm:
-              null,
-
-            status: {
-              not:
-                "CANCELADA",
-            },
-          },
-
-          data: {
-            status:
-              "CANCELADA",
-
-            canceladaEm:
-              agora,
-
-            canceladaPorId:
-              user.id,
-
-            motivoCancelamento,
-          },
-        });
-
-      if (
-        resultado.count === 0
-      ) {
-        const existente =
-          await prisma.matricula.findFirst({
-            where: {
-              id,
-
-              instituicaoId:
-                user.instituicaoId,
-
-              excluidaEm:
-                null,
-            },
-
-            select: {
-              id: true,
-              status: true,
-            },
-          });
-
-        if (!existente) {
-          return NextResponse.json(
-            {
-              error:
-                "MATRICULA_NAO_ENCONTRADA",
-            },
-            {
-              status: 404,
-            }
-          );
-        }
-
-        if (
-          existente.status ===
-          "CANCELADA"
-        ) {
-          return NextResponse.json(
-            {
-              error:
-                "MATRICULA_JA_CANCELADA",
-            },
-            {
-              status: 409,
-            }
-          );
-        }
-
-        return NextResponse.json(
-          {
-            error:
-              "MATRICULA_NAO_PODE_SER_CANCELADA",
-          },
-          {
-            status: 409,
-          }
-        );
-      }
-
-      const atualizada =
-        await prisma.matricula.findFirst({
-          where: {
-            id,
-
-            instituicaoId:
-              user.instituicaoId,
-
-            excluidaEm:
-              null,
-          },
-
-          include:
-            includeMatricula,
-        });
-
-      if (!atualizada) {
-        return NextResponse.json(
-          {
-            error:
-              "MATRICULA_NAO_ENCONTRADA",
-          },
-          {
-            status: 404,
-          }
-        );
-      }
-
+      const id = Number(body.id);
       return NextResponse.json(
-        atualizada
+        {
+          error: "CANCELAMENTO_REQUER_PROCESSO",
+          codigo: "CANCELAMENTO_REQUER_PROCESSO",
+          rota:
+            Number.isInteger(id) && id > 0
+              ? `/admin/matriculas/${id}/cancelamento`
+              : "/admin/matriculas",
+        },
+        { status: 409 }
       );
     }
-
 
     const id = Number(body.id);
     const status = String(body.status || "").trim();

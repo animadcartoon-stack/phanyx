@@ -22897,5 +22897,114 @@
       "CONFERENCIA_DESATUALIZADA": "Los datos han cambiado. Revise los importes actualizados antes de confirmar de nuevo.",
       "CONFIRMAR_PAGAMENTO_PARCIAL": "Confirme que el saldo restante seguirá pendiente."
     }
+  },
+  "AdminCancelamentoMatricula": {
+    "back": "Volver a matrículas",
+    "title": "Cancelación de matrícula",
+    "subtitle": "Prepare el proceso con protocolo, liquidación financiera, documento y auditoría antes de finalizar la matrícula.",
+    "loading": "Cargando el proceso de cancelación...",
+    "summary": {
+      "title": "Datos de la matrícula",
+      "student": "Estudiante",
+      "enrollment": "Matrícula",
+      "course": "Curso",
+      "status": "Situación actual"
+    },
+    "process": {
+      "title": "Proceso de cancelación",
+      "description": "Guarde el borrador para generar el protocolo. La matrícula solo pasa a Cancelada cuando el proceso se finaliza.",
+      "protocol": "Protocolo",
+      "pendingProtocol": "Se generará al guardar"
+    },
+    "form": {
+      "reason": "Motivo de la cancelación",
+      "requestDate": "Fecha de solicitud",
+      "effectiveDate": "Fecha efectiva de cancelación",
+      "contractRule": "Regla contractual aplicada",
+      "observations": "Observaciones"
+    },
+    "finance": {
+      "title": "Liquidación financiera",
+      "subtitle": "El total a pagar se calcula con vencidos + multa + intereses - créditos.",
+      "overdue": "Cuotas/valores vencidos",
+      "base": "Base de cálculo de la multa",
+      "percentage": "Porcentaje de multa (%)",
+      "fine": "Multa contractual",
+      "interest": "Intereses y cargos",
+      "credit": "Créditos/descuentos",
+      "refund": "Valor a devolver",
+      "total": "Total para el cierre",
+      "status": "Situación financiera",
+      "statuses": {
+        "PENDENTE": "Pendiente",
+        "QUITADO": "Liquidado",
+        "ISENTO": "Exento",
+        "VALOR_A_DEVOLVER": "Valor a devolver"
+      }
+    },
+    "actions": {
+      "saveDraft": "Guardar borrador",
+      "saving": "Guardando...",
+      "finalize": "Finalizar cancelación",
+      "finalizing": "Finalizando..."
+    },
+    "warnings": {
+      "finalizedTitle": "Cancelación finalizada",
+      "finalized": "La matrícula ya fue cancelada. Los datos permanecen disponibles para historial y documentos."
+    },
+    "messages": {
+      "draftSaved": "Borrador guardado correctamente.",
+      "finalized": "Cancelación finalizada correctamente.",
+      "saveFirst": "Guarde el borrador antes de finalizar."
+    },
+    "errors": {
+      "generic": "No se pudo completar la operación.",
+      "load": "No se pudo cargar el proceso.",
+      "reason": "Indique un motivo de al menos 3 caracteres.",
+      "requestDate": "Indique una fecha válida para la solicitud.",
+      "effectiveDate": "Indique una fecha efectiva válida.",
+      "effectiveBeforeRequest": "La fecha efectiva no puede ser anterior a la solicitud."
+    },
+    "confirmModal": {
+      "title": "Finalizar cancelación",
+      "message": "Al confirmar, la matrícula pasará a Cancelada. El historial académico se conservará y el proceso quedará registrado.",
+      "confirm": "Finalizar cancelación",
+      "cancel": "Volver"
+    },
+    "documents": {
+      "title": "Documentos de la cancelación",
+      "subtitle": "Genere el documento del protocolo {protocol}.",
+      "selectTemplate": "Seleccione una plantilla",
+      "noTemplates": "No hay una plantilla activa de Cancelación de matrícula.",
+      "manageTemplates": "Gestionar plantillas",
+      "generate": "Generar documento",
+      "generating": "Generando...",
+      "openPdf": "Abrir PDF",
+      "messages": {
+        "generated": "Documento generado correctamente."
+      },
+      "errors": {
+        "generate": "No se pudo generar el documento.",
+        "invalidResponse": "No fue posible identificar el documento generado."
+      }
+    },
+    "history": {
+      "title": "Historial de cancelaciones",
+      "subtitle": "Todos los procesos registrados para esta matrícula.",
+      "empty": "Todavía no hay cancelaciones registradas.",
+      "protocol": "Protocolo",
+      "status": "Situación",
+      "total": "Total",
+      "documents": "Documentos",
+      "reason": "Motivo",
+      "registeredBy": "Registrado por",
+      "finalizedBy": "Finalizado por",
+      "finalizedAt": "Finalizado el"
+    },
+    "processStatus": {
+      "RASCUNHO": "Borrador",
+      "FINALIZADO": "Finalizado",
+      "CANCELADO": "Cancelado"
+    }
   }
 }

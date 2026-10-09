@@ -695,6 +695,11 @@ export async function POST(req: Request) {
         ? Number(body.trancamentoMatriculaId)
         : null;
 
+    const cancelamentoMatriculaId =
+      body?.cancelamentoMatriculaId
+        ? Number(body.cancelamentoMatriculaId)
+        : null;
+
     const funcionarioId =
       body?.funcionarioId
         ? Number(body.funcionarioId)
@@ -951,6 +956,10 @@ export async function POST(req: Request) {
       tipoTemplateNormalizado ===
       "trancamento";
 
+    const ehCancelamentoAcademico =
+      tipoTemplateNormalizado ===
+      "cancelamento_matricula";
+
     const usaTagsTrancamento =
       Array.from(tagsDoTemplate).some(
         (tag) =>
@@ -1048,6 +1057,7 @@ export async function POST(req: Request) {
     let rescisao = null as any;
     let ocorrencia = null as any;
     let trancamentoDocumento = null as any;
+    let cancelamentoDocumento = null as any;
     let cursoNome = "Curso não informado";
     let disciplinasLista: string[] = [];
     let valorContrato =
@@ -1354,6 +1364,96 @@ export async function POST(req: Request) {
         trancamentoDocumento.matriculaId;
     }
 
+    if (ehCancelamentoAcademico) {
+      if (
+        !cancelamentoMatriculaId ||
+        !Number.isInteger(cancelamentoMatriculaId) ||
+        cancelamentoMatriculaId <= 0
+      ) {
+        return NextResponse.json(
+          {
+            codigo: "CANCELAMENTO_MATRICULA_OBRIGATORIO",
+            error: "Informe o processo de cancelamento correspondente.",
+          },
+          { status: 400 }
+        );
+      }
+
+      cancelamentoDocumento =
+        await prisma.cancelamentoMatricula.findFirst({
+          where: {
+            id: cancelamentoMatriculaId,
+            instituicaoId: user.instituicaoId,
+            status: {
+              in: ["RASCUNHO", "FINALIZADO"],
+            },
+          },
+        });
+
+      if (!cancelamentoDocumento) {
+        return NextResponse.json(
+          {
+            codigo: "CANCELAMENTO_MATRICULA_NAO_ENCONTRADO",
+            error: "Processo de cancelamento não encontrado.",
+          },
+          { status: 404 }
+        );
+      }
+
+      if (
+        matriculaId &&
+        Number.isInteger(matriculaId) &&
+        matriculaId !== cancelamentoDocumento.matriculaId
+      ) {
+        return NextResponse.json(
+          {
+            codigo: "CANCELAMENTO_MATRICULA_DIVERGENTE",
+            error: "A matrícula não corresponde ao processo selecionado.",
+          },
+          { status: 409 }
+        );
+      }
+
+      matriculaId = cancelamentoDocumento.matriculaId;
+
+      const definirCancelamento =
+        (tag: string, valor: string) => {
+          if (tagsDoTemplate.has(tag)) {
+            dadosPreenchimento[tag] = valor;
+          }
+        };
+
+      const moedaCancelamento =
+        (valor: unknown) =>
+          formatarMoeda(Number(valor || 0));
+
+      const dataCancelamento =
+        (valor: unknown) => {
+          if (!valor) return "";
+          const data = new Date(String(valor));
+          return Number.isNaN(data.getTime())
+            ? ""
+            : data.toLocaleDateString(localeDocumento);
+        };
+
+      definirCancelamento("numeroProtocoloCancelamentoMatricula", String(cancelamentoDocumento.numeroProtocolo || ""));
+      definirCancelamento("dataSolicitacaoCancelamentoMatricula", dataCancelamento(cancelamentoDocumento.dataSolicitacao));
+      definirCancelamento("dataEfetivaCancelamentoMatricula", dataCancelamento(cancelamentoDocumento.dataEfetiva));
+      definirCancelamento("motivoCancelamentoMatricula", String(cancelamentoDocumento.motivo || ""));
+      definirCancelamento("responsavelCancelamentoMatricula", String(cancelamentoDocumento.finalizadoPorNomeSnapshot || cancelamentoDocumento.registradoPorNomeSnapshot || ""));
+      definirCancelamento("regraContratualCancelamento", String(cancelamentoDocumento.regraContratual || ""));
+      definirCancelamento("baseCalculoMultaCancelamento", moedaCancelamento(cancelamentoDocumento.baseCalculoMulta));
+      definirCancelamento("percentualMultaCancelamento", `${Number(cancelamentoDocumento.percentualMulta || 0)}%`);
+      definirCancelamento("valorParcelasVencidasCancelamento", moedaCancelamento(cancelamentoDocumento.valorParcelasVencidas));
+      definirCancelamento("valorMultaCancelamento", moedaCancelamento(cancelamentoDocumento.valorMulta));
+      definirCancelamento("valorJurosCancelamento", moedaCancelamento(cancelamentoDocumento.valorJuros));
+      definirCancelamento("valorCreditoCancelamento", moedaCancelamento(cancelamentoDocumento.valorCredito));
+      definirCancelamento("valorDevolucaoCancelamento", moedaCancelamento(cancelamentoDocumento.valorDevolucao));
+      definirCancelamento("valorTotalCancelamento", moedaCancelamento(cancelamentoDocumento.valorTotal));
+      definirCancelamento("situacaoFinanceiraCancelamento", String(cancelamentoDocumento.situacaoFinanceira || ""));
+      definirCancelamento("observacoesCancelamentoMatricula", String(cancelamentoDocumento.observacoes || ""));
+    }
+
     if (matriculaId && Number.isFinite(matriculaId) && matriculaId > 0) {
       matricula = await prisma.matricula.findFirst({
         where: {
@@ -1556,6 +1656,10 @@ export async function POST(req: Request) {
 
                 trancamentoMatriculaId:
                   trancamentoDocumento
+                    ?.id || null,
+
+                cancelamentoMatriculaId:
+                  cancelamentoDocumento
                     ?.id || null,
 
                 templateId:
@@ -2742,6 +2846,9 @@ export async function POST(req: Request) {
 
       trancamentoMatriculaId:
         documento.trancamentoMatriculaId,
+
+      cancelamentoMatriculaId:
+        documento.cancelamentoMatriculaId,
 
       aluno: aluno
         ? {
