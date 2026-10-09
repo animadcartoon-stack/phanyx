@@ -797,13 +797,18 @@ export async function GET(
         modoPrevia: false,
 
         /*
-         * No documento final, campos reais podem ter altura
-         * diferente dos valores demonstrativos do editor.
-         * A assinatura acompanha a seção onde a tag foi inserida,
-         * preservando o deslocamento escolhido pelo usuário.
+         * WYSIWYG real:
+         *
+         * a posição do bloco de assinatura no PDF final deve ser
+         * exatamente a mesma posição absoluta salva pelo editor
+         * (blocoPapelX / blocoPapelY), independentemente da altura
+         * ocupada pelos valores reais do documento.
+         *
+         * O PDF de prévia já usa essa mesma regra. Portanto o
+         * documento final não deve reancorar o bloco ao fluxo da tag.
          */
         ancorarBlocoAssinaturaAoFluxo:
-          true,
+          false,
 
         mostrarValidacao: true,
 
