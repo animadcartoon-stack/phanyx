@@ -22898,5 +22898,114 @@
       "CONFERENCIA_DESATUALIZADA": "The data changed. Review the updated amounts before confirming again.",
       "CONFIRMAR_PAGAMENTO_PARCIAL": "Confirm that the remaining balance will stay outstanding."
     }
+  },
+  "AdminCancelamentoMatricula": {
+    "back": "Back to enrollments",
+    "title": "Enrollment cancellation",
+    "subtitle": "Prepare the process with a protocol, financial settlement, document and audit trail before finalizing the enrollment.",
+    "loading": "Loading cancellation process...",
+    "summary": {
+      "title": "Enrollment details",
+      "student": "Student",
+      "enrollment": "Enrollment",
+      "course": "Course",
+      "status": "Current status"
+    },
+    "process": {
+      "title": "Cancellation process",
+      "description": "Save the draft to generate the protocol. The enrollment becomes Canceled only when the process is finalized.",
+      "protocol": "Protocol",
+      "pendingProtocol": "Generated when saved"
+    },
+    "form": {
+      "reason": "Cancellation reason",
+      "requestDate": "Request date",
+      "effectiveDate": "Effective cancellation date",
+      "contractRule": "Applied contract rule",
+      "observations": "Notes"
+    },
+    "finance": {
+      "title": "Financial settlement",
+      "subtitle": "Amount due is calculated as overdue + fine + interest - credits.",
+      "overdue": "Overdue amounts",
+      "base": "Fine calculation base",
+      "percentage": "Fine percentage (%)",
+      "fine": "Contractual fine",
+      "interest": "Interest and charges",
+      "credit": "Credits/discounts",
+      "refund": "Refund amount",
+      "total": "Total due",
+      "status": "Financial status",
+      "statuses": {
+        "PENDENTE": "Pending",
+        "QUITADO": "Settled",
+        "ISENTO": "Exempt",
+        "VALOR_A_DEVOLVER": "Refund due"
+      }
+    },
+    "actions": {
+      "saveDraft": "Save draft",
+      "saving": "Saving...",
+      "finalize": "Finalize cancellation",
+      "finalizing": "Finalizing..."
+    },
+    "warnings": {
+      "finalizedTitle": "Cancellation finalized",
+      "finalized": "The enrollment has been canceled. The data remains available for history and documents."
+    },
+    "messages": {
+      "draftSaved": "Draft saved successfully.",
+      "finalized": "Cancellation finalized successfully.",
+      "saveFirst": "Save the draft before finalizing."
+    },
+    "errors": {
+      "generic": "The operation could not be completed.",
+      "load": "Unable to load the process.",
+      "reason": "Enter a reason with at least 3 characters.",
+      "requestDate": "Enter a valid request date.",
+      "effectiveDate": "Enter a valid effective date.",
+      "effectiveBeforeRequest": "The effective date cannot be before the request date."
+    },
+    "confirmModal": {
+      "title": "Finalize cancellation",
+      "message": "After confirmation, the enrollment becomes Canceled. Academic history is preserved and the process remains recorded.",
+      "confirm": "Finalize cancellation",
+      "cancel": "Back"
+    },
+    "documents": {
+      "title": "Cancellation documents",
+      "subtitle": "Generate the document for protocol {protocol}.",
+      "selectTemplate": "Select a template",
+      "noTemplates": "No active Enrollment Cancellation template is available.",
+      "manageTemplates": "Manage templates",
+      "generate": "Generate document",
+      "generating": "Generating...",
+      "openPdf": "Open PDF",
+      "messages": {
+        "generated": "Document generated successfully."
+      },
+      "errors": {
+        "generate": "Unable to generate the document.",
+        "invalidResponse": "Unable to identify the generated document."
+      }
+    },
+    "history": {
+      "title": "Cancellation history",
+      "subtitle": "All processes recorded for this enrollment.",
+      "empty": "No cancellations have been recorded yet.",
+      "protocol": "Protocol",
+      "status": "Status",
+      "total": "Total",
+      "documents": "Documents",
+      "reason": "Reason",
+      "registeredBy": "Recorded by",
+      "finalizedBy": "Finalized by",
+      "finalizedAt": "Finalized on"
+    },
+    "processStatus": {
+      "RASCUNHO": "Draft",
+      "FINALIZADO": "Finalized",
+      "CANCELADO": "Canceled"
+    }
   }
 }

@@ -4753,17 +4753,19 @@ function AdminMatriculasPage() {
                           ) : (
                           <div className="flex flex-wrap gap-2">
 
-                            <button
-                              type="button"
-                              onClick={() => abrirModalCancelamento(m)}
-                              disabled={
-                                m.status === "CANCELADA" ||
-                                cancelandoMatriculaId === m.id
-                              }
-                              className="inline-flex items-center gap-1 rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70"
-                            >
-                              {t("actions.cancelarMatricula")}
-                            </button>
+                            {m.status === "CANCELADA" ? (
+                              <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-400 opacity-60 dark:border-red-900 dark:bg-red-950/20 dark:text-red-500">
+                                {t("actions.cancelarMatricula")}
+                              </span>
+                            ) : (
+                              <Link
+                                href={`/admin/matriculas/${m.id}/cancelamento`}
+                                onClick={(event) => event.stopPropagation()}
+                                className="inline-flex items-center gap-1 rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70"
+                              >
+                                {t("actions.cancelarMatricula")}
+                              </Link>
+                            )}
 
                             <button
                               type="button"

@@ -22897,5 +22897,114 @@
       "CONFERENCIA_DESATUALIZADA": "Les données ont changé. Vérifiez les montants actualisés avant de confirmer à nouveau.",
       "CONFIRMAR_PAGAMENTO_PARCIAL": "Confirmez que le solde restant demeurera dû."
     }
+  },
+  "AdminCancelamentoMatricula": {
+    "back": "Retour aux inscriptions",
+    "title": "Annulation d'inscription",
+    "subtitle": "Préparez le processus avec protocole, règlement financier, document et audit avant de finaliser l'inscription.",
+    "loading": "Chargement du processus d'annulation...",
+    "summary": {
+      "title": "Données de l'inscription",
+      "student": "Étudiant",
+      "enrollment": "Inscription",
+      "course": "Cours",
+      "status": "Situation actuelle"
+    },
+    "process": {
+      "title": "Processus d'annulation",
+      "description": "Enregistrez le brouillon pour générer le protocole. L'inscription ne passe à Annulée qu'après finalisation.",
+      "protocol": "Protocole",
+      "pendingProtocol": "Généré lors de l'enregistrement"
+    },
+    "form": {
+      "reason": "Motif de l'annulation",
+      "requestDate": "Date de la demande",
+      "effectiveDate": "Date effective d'annulation",
+      "contractRule": "Règle contractuelle appliquée",
+      "observations": "Observations"
+    },
+    "finance": {
+      "title": "Règlement financier",
+      "subtitle": "Le total dû est calculé comme impayés + pénalité + intérêts - crédits.",
+      "overdue": "Montants impayés",
+      "base": "Base de calcul de la pénalité",
+      "percentage": "Pourcentage de pénalité (%)",
+      "fine": "Pénalité contractuelle",
+      "interest": "Intérêts et frais",
+      "credit": "Crédits/remises",
+      "refund": "Montant à rembourser",
+      "total": "Total à la clôture",
+      "status": "Situation financière",
+      "statuses": {
+        "PENDENTE": "En attente",
+        "QUITADO": "Réglé",
+        "ISENTO": "Exonéré",
+        "VALOR_A_DEVOLVER": "Montant à rembourser"
+      }
+    },
+    "actions": {
+      "saveDraft": "Enregistrer le brouillon",
+      "saving": "Enregistrement...",
+      "finalize": "Finaliser l'annulation",
+      "finalizing": "Finalisation..."
+    },
+    "warnings": {
+      "finalizedTitle": "Annulation finalisée",
+      "finalized": "L'inscription a été annulée. Les données restent disponibles pour l'historique et les documents."
+    },
+    "messages": {
+      "draftSaved": "Brouillon enregistré avec succès.",
+      "finalized": "Annulation finalisée avec succès.",
+      "saveFirst": "Enregistrez le brouillon avant de finaliser."
+    },
+    "errors": {
+      "generic": "L'opération n'a pas pu être terminée.",
+      "load": "Impossible de charger le processus.",
+      "reason": "Indiquez un motif d'au moins 3 caractères.",
+      "requestDate": "Indiquez une date de demande valide.",
+      "effectiveDate": "Indiquez une date effective valide.",
+      "effectiveBeforeRequest": "La date effective ne peut pas être antérieure à la demande."
+    },
+    "confirmModal": {
+      "title": "Finaliser l'annulation",
+      "message": "Après confirmation, l'inscription passera à Annulée. L'historique académique sera préservé et le processus restera enregistré.",
+      "confirm": "Finaliser l'annulation",
+      "cancel": "Retour"
+    },
+    "documents": {
+      "title": "Documents d'annulation",
+      "subtitle": "Générez le document du protocole {protocol}.",
+      "selectTemplate": "Sélectionnez un modèle",
+      "noTemplates": "Aucun modèle actif d'annulation d'inscription n'est disponible.",
+      "manageTemplates": "Gérer les modèles",
+      "generate": "Générer le document",
+      "generating": "Génération...",
+      "openPdf": "Ouvrir le PDF",
+      "messages": {
+        "generated": "Document généré avec succès."
+      },
+      "errors": {
+        "generate": "Impossible de générer le document.",
+        "invalidResponse": "Impossible d'identifier le document généré."
+      }
+    },
+    "history": {
+      "title": "Historique des annulations",
+      "subtitle": "Tous les processus enregistrés pour cette inscription.",
+      "empty": "Aucune annulation n'a encore été enregistrée.",
+      "protocol": "Protocole",
+      "status": "Situation",
+      "total": "Total",
+      "documents": "Documents",
+      "reason": "Motif",
+      "registeredBy": "Enregistré par",
+      "finalizedBy": "Finalisé par",
+      "finalizedAt": "Finalisé le"
+    },
+    "processStatus": {
+      "RASCUNHO": "Brouillon",
+      "FINALIZADO": "Finalisé",
+      "CANCELADO": "Annulé"
+    }
   }
 }
