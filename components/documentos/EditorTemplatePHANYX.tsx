@@ -2265,9 +2265,51 @@ function criarBotaoRemoverAssinatura(
           );
 
           /*
-           * O callback agora persiste a coordenada
-           * relativa à área branca, sem cabeçalho.
+           * Além da posição absoluta na folha, persistimos a
+           * relação EXATA entre o bloco e a âncora natural da tag.
+           *
+           * Essa medida é a que o PDF final usa quando os dados
+           * reais ocupam altura diferente dos placeholders.
            */
+          const ancoraFluxo =
+            container.parentElement
+              ?.querySelector<HTMLElement>(
+                '[data-phanyx-assinatura-ancora-fluxo-editor="true"]'
+              ) ||
+            null;
+
+          const blocoRectFinal =
+            container
+              .getBoundingClientRect();
+
+          const ancoraRectFinal =
+            ancoraFluxo
+              ?.getBoundingClientRect();
+
+          const offsetXFinal =
+            ancoraRectFinal
+              ? Math.round(
+                  blocoRectFinal.left -
+                  ancoraRectFinal.left
+                )
+              : Number(
+                  dados.campoVisual
+                    ?.blocoOffsetX ??
+                  0
+                );
+
+          const offsetYFinal =
+            ancoraRectFinal
+              ? Math.round(
+                  blocoRectFinal.top -
+                  ancoraRectFinal.top
+                )
+              : Number(
+                  dados.campoVisual
+                    ?.blocoOffsetY ??
+                  0
+                );
+
           dados.aoMoverBloco?.(
             Math.round(
               papelXFinal
@@ -2277,15 +2319,17 @@ function criarBotaoRemoverAssinatura(
               papelYFinal
             ),
 
-            Math.round(
-              papelXFinal -
-              inicioPapelX
-            ),
-
-            Math.round(
-              papelYFinal -
-              inicioPapelY
+            Number.isFinite(
+              offsetXFinal
             )
+              ? offsetXFinal
+              : 0,
+
+            Number.isFinite(
+              offsetYFinal
+            )
+              ? offsetYFinal
+              : 0
           );
         };
 
@@ -2312,7 +2356,69 @@ function criarBotaoRemoverAssinatura(
     }
   );
 
-  return container;
+  /*
+   * Host sem caixa própria:
+   * - a âncora permanece no fluxo exatamente onde a tag existe;
+   * - o bloco visual continua absoluto no editor;
+   * - a posição relativa entre ambos pode ser medida sem estimativa.
+   */
+  const host =
+    document.createElement(
+      "span"
+    );
+
+  host.contentEditable =
+    "false";
+
+  aplicarEstilos(
+    host,
+    {
+      display: "contents",
+    }
+  );
+
+  const ancoraFluxo =
+    document.createElement(
+      "span"
+    );
+
+  ancoraFluxo.contentEditable =
+    "false";
+
+  ancoraFluxo.setAttribute(
+    "data-phanyx-assinatura-ancora-fluxo-editor",
+    "true"
+  );
+
+  aplicarEstilos(
+    ancoraFluxo,
+    {
+      position: "relative",
+      display: "inline-block",
+      width: "0",
+      height: "0",
+      minWidth: "0",
+      minHeight: "0",
+      margin: "0",
+      padding: "0",
+      border: "0",
+      overflow: "visible",
+      verticalAlign: "top",
+      fontSize: "0",
+      lineHeight: "0",
+      pointerEvents: "none",
+    }
+  );
+
+  host.appendChild(
+    ancoraFluxo
+  );
+
+  host.appendChild(
+    container
+  );
+
+  return host;
 }
 
 const AssinaturaPreviewPHANYX =
