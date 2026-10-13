@@ -1,10 +1,12 @@
-﻿import {
+import {
   NextRequest,
   NextResponse,
 } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { getTranslations } from "next-intl/server";
+import { buscarFeriadoNacionalBrasil } from "@/lib/phanyx/feriados-brasil";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -300,6 +302,65 @@ export async function GET(
           },
         });
 
+    if (paisCodigo === "BR") {
+      const automatico = buscarFeriadoNacionalBrasil(dataLocal);
+
+      if (automatico) {
+        const registroMaster = await prisma.feriadoGlobal.findFirst({
+          where: {
+            paisCodigo: "BR",
+            tipo: "NACIONAL",
+            dataFeriado: dataPrisma(automatico.dataFeriado),
+          },
+          select: { id: true },
+        });
+
+        const masterEhMesmoFeriado =
+          feriado &&
+          dataBancoISO(feriado.dataFeriado) === automatico.dataFeriado;
+
+        // O cadastro MASTER da mesma data prevalece em qualquer status.
+        if (!registroMaster && !masterEhMesmoFeriado && !feriado) {
+          const t = await getTranslations({
+            locale,
+            namespace: "ProfessorClasses.holidays",
+          });
+
+          const nome = t(
+            automatico.chave as Parameters<typeof t>[0]
+          );
+
+          const inicio = dataPrisma(automatico.dataFeriado);
+          inicio.setUTCDate(inicio.getUTCDate() - 3);
+
+          return NextResponse.json({
+            ok: true,
+            feriado: {
+              id: -Number(automatico.dataFeriado.replace(/-/g, "")),
+              paisCodigo: "BR",
+              dataFeriado: automatico.dataFeriado,
+              diasRestantes: automatico.diasRestantes,
+              inicioExibicao: dataBancoISO(inicio),
+              fimExibicao: automatico.dataFeriado,
+              prioridade: 0,
+              emoji: automatico.emoji,
+              locale,
+              nome,
+              titulo: nome,
+              mensagem: "",
+            },
+            contexto: {
+              instituicaoId,
+              paisCodigo,
+              fusoHorario,
+              dataLocal,
+              locale,
+            },
+          });
+        }
+      }
+    }
+
     if (!feriado) {
       return NextResponse.json({
         ok: true,
@@ -312,7 +373,6 @@ export async function GET(
         },
       });
     }
-
     const traducao =
       feriado.traducoes.find(
         (item) =>
