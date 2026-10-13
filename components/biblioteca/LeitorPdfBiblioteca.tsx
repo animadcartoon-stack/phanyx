@@ -9,12 +9,36 @@ import FolhaFlexivelBiblioteca from "./FolhaFlexivelBiblioteca";
 import { LIMITE_TRECHO_BIBLIOTECA, LIMITE_PAGINAS_BIBLIOTECA } from "@/lib/biblioteca-direitos-leitura";
 import { carregarBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
 import { limitarZoomLeitor, viradaPorGestoLeitor, zoomPorPincaLeitor } from "@/lib/biblioteca-gestos-leitor";
+import { paginasLivro, destinoViradaLivro } from "@/lib/biblioteca-livro-paginas";
 import styles from "./BibliotecaLeitor.module.css";
 import "./leitor-print.css";
 
 type Area = { x: number; y: number; largura: number; altura: number };
 type Anotacao = { id: string; tipo: "MARCADOR" | "DESTAQUE" | "NOTA"; pagina: number; trecho: string | null; conteudo: string | null; cor: string; areas: Area[] };
 const cores: Record<string, string> = { AMARELO: "#fde047", VERDE: "#86efac", AZUL: "#93c5fd", ROSA: "#f9a8d4" };
+function copiarFace(fonte: HTMLCanvasElement | null, numero: number | null, notas: Anotacao[], marca: string) {
+  if (!fonte || !numero || !fonte.width || !fonte.height) return null;
+  const copia = document.createElement("canvas"); const ratio = Math.min(1, Math.sqrt(1800000 / (fonte.width * fonte.height)));
+  copia.width = Math.max(1, Math.ceil(fonte.width * ratio)); copia.height = Math.max(1, Math.ceil(fonte.height * ratio));
+  const ctx = copia.getContext("2d"); if (!ctx) return null;
+  ctx.drawImage(fonte, 0, 0, copia.width, copia.height);
+  const x = Number(fonte.dataset.contentX || 0), y = Number(fonte.dataset.contentY || 0);
+  const w = Number(fonte.dataset.contentWidth || 1), h = Number(fonte.dataset.contentHeight || 1);
+  ctx.save(); ctx.globalAlpha = .45;
+  for (const nota of notas.filter(a => a.tipo === "DESTAQUE" && a.pagina === numero)) {
+    ctx.fillStyle = cores[nota.cor] || cores.AMARELO;
+    for (const area of nota.areas) ctx.fillRect((x + area.x * w) * copia.width, (y + area.y * h) * copia.height, area.largura * w * copia.width, area.altura * h * copia.height);
+  }
+  ctx.restore();
+  const escala = copia.width / Number.parseFloat(fonte.style.width);
+  if (Number.isFinite(escala) && escala > 0) {
+    ctx.save(); ctx.scale(escala, escala); ctx.font = "10px sans-serif";
+    const larguraMarca = ctx.measureText(marca).width; const mx = copia.width / escala - larguraMarca - 17, my = copia.height / escala - 22;
+    ctx.fillStyle = "#ffffffc9"; ctx.fillRect(mx - 5, my, larguraMarca + 10, 14);
+    ctx.fillStyle = "#475569"; ctx.fillText(marca, mx, my + 10); ctx.restore();
+  }
+  return copia;
+}
 function IconeTelaCheia() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" /></svg>; }
 function IconeInformacao() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 10v7M12 6v1" /></svg>; }
 export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direitos, downloadId, usuarioId, bloqueado, paginaInicial }: {
@@ -26,6 +50,11 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const [total, setTotal] = useState(0); const [zoom, setZoom] = useState(1); const [largura, setLargura] = useState(700);
   const [altura, setAltura] = useState(700); const [zoomDesenhado, setZoomDesenhado] = useState(1);
   const [zoomGesto, setZoomGesto] = useState<number | null>(null);
+  const [modo, setModo] = useState<"auto" | "pagina" | "livro">("auto");
+  const dupla = modo === "livro" || (modo === "auto" && largura >= 720);
+  const faces = paginasLivro(pagina, total, dupla);
+  const anterior = destinoViradaLivro(pagina, total, dupla, -1), proxima = destinoViradaLivro(pagina, total, dupla, 1);
+  const [quadros, setQuadros] = useState<Record<number, { x: number; y: number; w: number; h: number }>>({});
   const [imersivo, setImersivo] = useState(false);
   const [nativo, setNativo] = useState(false); const [paginaDigitada, setPaginaDigitada] = useState("1");
   const [painel, setPainel] = useState<"notes" | "search" | "rights" | null>(null);
@@ -49,8 +78,12 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const [restricoes, setRestricoes] = useState({ copiar: true, imprimir: true });
   const [estadoProgresso, setEstadoProgresso] = useState("ready");
   const canvas = useRef<HTMLCanvasElement>(null); const texto = useRef<HTMLDivElement>(null);
+  const canvasEsquerdo = useRef<HTMLCanvasElement>(null), textoEsquerdo = useRef<HTMLDivElement>(null);
+  const folhaEsquerda = useRef<HTMLDivElement>(null), livro = useRef<HTMLDivElement>(null);
   const raiz = useRef<HTMLElement>(null); const botaoFullscreen = useRef<HTMLButtonElement>(null);
-  const copiaVirada = useRef<HTMLCanvasElement | null>(null);
+  const copiaVirada = useRef<{ esquerda: HTMLCanvasElement | null; direita: HTMLCanvasElement | null; verso: HTMLCanvasElement | null; sentido: "next" | "previous" } | null>(null);
+  const dadosFace = useRef({ anotacoes, marca: "" });
+  useEffect(() => { dadosFace.current = { anotacoes, marca: t("watermark", { id: usuarioId }) }; }, [anotacoes, t, usuarioId]);
   const fullscreenAnterior = useRef(false);
   const toques = useRef(new Map<number, { x: number; y: number }>());
   const gesto = useRef<{ x: number; y: number; inicio: number; zoom: number; distancia: number; scrollX: number; scrollY: number; pinca: boolean } | null>(null);
@@ -67,37 +100,33 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const restaurarFoco = useCallback(() => botaoFullscreen.current?.focus({ preventScroll: true }), []);
   const cancelarBusca = useCallback(() => { numeroBusca.current++; }, []);
   const concluirVirada = useCallback(() => { setVirada(null); copiaVirada.current = null; }, []);
+  useEffect(() => { if (falhaDocumento) concluirVirada(); }, [falhaDocumento, concluirVirada]);
+
+  useEffect(() => {
+    try { const m = localStorage.getItem("phanyx.biblioteca.formato"); if (m === "pagina" || m === "livro") setModo(m); } catch {}
+  }, []);
+  function escolherModo(m: "pagina" | "livro") {
+    if (virada) return;
+    setModo(m); setSelecao(null); ancoraZoom.current = null;
+    try { localStorage.setItem("phanyx.biblioteca.formato", m); } catch {}
+  }
 
   const ir = useCallback((p: number) => {
     if (!Number.isInteger(p) || p < 1 || p > total || p === pagina || renderizando || virada) return;
-    if (canvas.current && Math.abs(p - pagina) === 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const copia = document.createElement("canvas");
-      const ratio = Math.min(1, Math.sqrt(1800000 / (canvas.current.width * canvas.current.height)));
-      copia.width = Math.max(1, Math.ceil(canvas.current.width * ratio)); copia.height = Math.max(1, Math.ceil(canvas.current.height * ratio));
-      const ctx = copia.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(canvas.current, 0, 0, copia.width, copia.height);
-        ctx.save(); ctx.globalAlpha = .45;
-        for (const nota of anotacoes.filter((a) => a.tipo === "DESTAQUE" && a.pagina === pagina)) {
-          ctx.fillStyle = cores[nota.cor] || cores.AMARELO;
-          for (const area of nota.areas) ctx.fillRect(area.x * copia.width, area.y * copia.height, area.largura * copia.width, area.altura * copia.height);
-        }
-        ctx.restore();
-        const escala = copia.width / Number.parseFloat(canvas.current.style.width);
-        if (Number.isFinite(escala) && escala > 0) {
-          ctx.save(); ctx.scale(escala, escala); ctx.font = "10px sans-serif";
-          const marca = t("watermark", { id: usuarioId }); const larguraMarca = ctx.measureText(marca).width;
-          const x = copia.width / escala - larguraMarca - 17; const y = copia.height / escala - 22;
-          ctx.fillStyle = "#ffffffc9"; ctx.fillRect(x - 5, y, larguraMarca + 10, 14);
-          ctx.fillStyle = "#475569"; ctx.fillText(marca, x, y + 10); ctx.restore();
-        }
-        copiaVirada.current = copia;
+    const destino = paginasLivro(p, total, dupla), atual = paginasLivro(pagina, total, dupla);
+    const mesmaAbertura = dupla && atual.esquerda === destino.esquerda && atual.direita === destino.direita;
+    if (!mesmaAbertura && (p === destinoViradaLivro(pagina, total, dupla, p > pagina ? 1 : -1)) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const marca = t("watermark", { id: usuarioId });
+      const esquerda = copiarFace(canvasEsquerdo.current, atual.esquerda, anotacoes, marca);
+      const direita = copiarFace(canvas.current, atual.direita, anotacoes, marca);
+      if (p > pagina ? direita : (dupla ? esquerda : direita)) {
+        copiaVirada.current = { esquerda, direita, verso: null, sentido: p > pagina ? "next" : "previous" };
         setVirada({ sentido: p > pagina ? "next" : "previous", fase: "waiting" });
       }
     }
     ancoraZoom.current = null; setSelecao(null); setPagina(p);
     if (documento.current) { documento.current.scrollTop = 0; documento.current.scrollLeft = 0; }
-  }, [total, pagina, renderizando, virada, anotacoes, t, usuarioId]);
+  }, [total, pagina, renderizando, virada, anotacoes, t, usuarioId, dupla]);
 
   function iniciarToque(evento: EventoPonteiro<HTMLDivElement>) {
     if (evento.pointerType !== "touch" || selecionarTexto || virada || renderizando ||
@@ -108,10 +137,10 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     if (toques.current.size === 1) {
       gesto.current = { x: evento.clientX, y: evento.clientY, inicio: performance.now(), zoom,
         distancia: 0, scrollX: doc.scrollLeft, scrollY: doc.scrollTop, pinca: false };
-    } else if (toques.current.size === 2 && gesto.current && folha.current) {
+    } else if (toques.current.size === 2 && gesto.current && livro.current) {
       const [a, b] = Array.from(toques.current.values());
       const centroX = (a.x + b.x) / 2; const centroY = (a.y + b.y) / 2;
-      const bounds = folha.current.getBoundingClientRect();
+      const bounds = livro.current.getBoundingClientRect();
       gesto.current.pinca = true; gesto.current.zoom = zoom;
       gesto.current.distancia = Math.hypot(a.x - b.x, a.y - b.y);
       ancoraZoom.current = { x: Math.max(0, Math.min(1, (centroX - bounds.left) / bounds.width)),
@@ -152,7 +181,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       }
     } else if (!toques.current.size && !cancelado) {
       const sentido = viradaPorGestoLeitor(evento.clientX - atual.x, evento.clientY - atual.y, atual.zoom, performance.now() - atual.inicio);
-      if (sentido) ir(pagina + sentido);
+      if (sentido) ir(destinoViradaLivro(pagina, total, dupla, sentido));
     }
     if (!toques.current.size) gesto.current = null;
     if (evento.currentTarget.hasPointerCapture(evento.pointerId)) evento.currentTarget.releasePointerCapture(evento.pointerId);
@@ -216,17 +245,17 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       const alvo = evento.target as HTMLElement | null;
       if (alvo && !raiz.current?.contains(alvo) && alvo !== document.body) return;
       if (alvo?.closest("input, textarea, select, [contenteditable='true']") || evento.ctrlKey || evento.metaKey || evento.altKey) return;
-      if (evento.key === "ArrowRight") { evento.preventDefault(); ir(pagina + 1); }
-      if (evento.key === "ArrowLeft") { evento.preventDefault(); ir(pagina - 1); }
+      if (evento.key === "ArrowRight") { evento.preventDefault(); ir(proxima); }
+      if (evento.key === "ArrowLeft") { evento.preventDefault(); ir(anterior); }
     }
     document.addEventListener("keydown", teclado);
     return () => document.removeEventListener("keydown", teclado);
-  }, [imersivo, ir, pagina, sairFullscreen]);
+  }, [imersivo, ir, anterior, proxima, sairFullscreen]);
 
   useLayoutEffect(() => {
     const ancora = ancoraZoom.current;
-    if (!ancora || !folha.current || !documento.current) return;
-    const bounds = folha.current.getBoundingClientRect();
+    if (!ancora || !livro.current || !documento.current) return;
+    const bounds = livro.current.getBoundingClientRect();
     documento.current.scrollLeft += bounds.left + ancora.x * bounds.width - ancora.centroX;
     documento.current.scrollTop += bounds.top + ancora.y * bounds.height - ancora.centroY;
   }, [zoomGesto, dimensoes, zoomDesenhado]);
@@ -294,35 +323,65 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   }, [carregando, imersivo, painel]);
 
   useEffect(() => {
-    if (!pdf || !canvas.current || !texto.current) return;
-    let ativo = true; let render: { cancel(): void; promise: Promise<void> } | undefined;
-    let layer: { cancel(): void; render(): Promise<void> } | undefined;
+    if (!pdf) return;
+    let ativo = true;
+    const renders: { cancel(): void; promise: Promise<void> }[] = [];
+    const layers: { cancel(): void; render(): Promise<void> }[] = [];
     setRenderizando(true);
     async function desenhar() {
       try {
-        const [page, lib] = await Promise.all([pdf!.getPage(pagina), carregarBibliotecaPdf()]);
-        if (!ativo || !canvas.current || !texto.current) return;
-        const original = page.getViewport({ scale: 1 });
-        const viewport = page.getViewport({ scale: Math.min(largura / original.width, altura / original.height) * zoom });
-        const ratio = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(16000000 / (viewport.width * viewport.height)));
-        const ctx = canvas.current.getContext("2d"); if (!ctx) throw new Error();
-        canvas.current.width = Math.floor(viewport.width * ratio); canvas.current.height = Math.floor(viewport.height * ratio);
-        canvas.current.style.width = `${viewport.width}px`; canvas.current.style.height = `${viewport.height}px`;
-        setDimensoes({ width: viewport.width, height: viewport.height }); setZoomDesenhado(zoom);
-        render = page.render({ canvasContext: ctx, canvas: canvas.current, viewport, transform: ratio !== 1 ? [ratio, 0, 0, ratio, 0, 0] : undefined });
-        await render.promise; if (!ativo || !texto.current) return;
-        const textContent = await page.getTextContent();
-        if (!ativo || !texto.current) return;
-        texto.current.replaceChildren(); texto.current.style.setProperty("--scale-factor", String(viewport.scale));
-        texto.current.style.setProperty("--total-scale-factor", String(viewport.scale * page.userUnit));
-        layer = new lib.TextLayer({ textContentSource: textContent, container: texto.current, viewport });
-        await layer.render();
+        const [primeira, lib] = await Promise.all([pdf!.getPage(1), carregarBibliotecaPdf()]);
+        if (!ativo) return;
+        const original = primeira.getViewport({ scale: 1 });
+        const scale = Math.min(largura / (dupla ? 2 : 1) / original.width, altura / original.height) * zoom;
+        const width = original.width * scale, height = original.height * scale;
+        const ratio = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(16000000 / (width * height * (dupla ? 2 : 1))));
+        setDimensoes({ width, height }); setZoomDesenhado(zoom);
+        const layouts: Record<number, { x: number; y: number; w: number; h: number }> = {};
+        const lista = [
+          { numero: faces.direita, canvas: canvas.current, texto: texto.current },
+          { numero: faces.esquerda, canvas: canvasEsquerdo.current, texto: textoEsquerdo.current },
+        ];
+        await Promise.all(lista.map(async face => {
+          if (!face.numero || !face.canvas || !face.texto) return;
+          const page = await pdf!.getPage(face.numero); if (!ativo) return;
+          const tamanho = page.getViewport({ scale: 1 });
+          const viewport = page.getViewport({ scale: Math.min(width / tamanho.width, height / tamanho.height) });
+          const x = (width - viewport.width) / 2, y = (height - viewport.height) / 2;
+          const layout = { x: x / width, y: y / height, w: viewport.width / width, h: viewport.height / height };
+          layouts[face.numero] = layout;
+          const ctx = face.canvas.getContext("2d"); if (!ctx) throw new Error();
+          face.canvas.width = Math.floor(width * ratio); face.canvas.height = Math.floor(height * ratio);
+          face.canvas.style.width = `${width}px`; face.canvas.style.height = `${height}px`;
+          face.canvas.dataset.contentX = String(layout.x); face.canvas.dataset.contentY = String(layout.y);
+          face.canvas.dataset.contentWidth = String(layout.w); face.canvas.dataset.contentHeight = String(layout.h);
+          ctx.fillStyle = "white"; ctx.fillRect(0, 0, face.canvas.width, face.canvas.height);
+          const render = page.render({ canvasContext: ctx, canvas: face.canvas, viewport, transform: [ratio, 0, 0, ratio, x * ratio, y * ratio] });
+          renders.push(render); await render.promise; if (!ativo) return;
+          const content = await page.getTextContent(); if (!ativo) return;
+          face.texto.replaceChildren(); face.texto.style.left = `${x}px`; face.texto.style.top = `${y}px`;
+          face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
+          face.texto.style.right = "auto"; face.texto.style.bottom = "auto";
+          face.texto.style.setProperty("--scale-factor", String(viewport.scale));
+          face.texto.style.setProperty("--total-scale-factor", String(viewport.scale * page.userUnit));
+          const layer = new lib.TextLayer({ textContentSource: content, container: face.texto, viewport });
+          layers.push(layer); await layer.render();
+          // PDF.js redefine as dimensões com CSS round(); fixe o tamanho do conteúdo também em navegadores sem essa função.
+          face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
+        }));
+        if (!ativo) return;
+        setQuadros(layouts);
+        if (copiaVirada.current) {
+          const esquerda = dupla && copiaVirada.current.sentido === "next";
+          copiaVirada.current.verso = copiarFace(esquerda ? canvasEsquerdo.current : canvas.current,
+            esquerda ? faces.esquerda : faces.direita, dadosFace.current.anotacoes, dadosFace.current.marca);
+        }
         if (ativo) setVirada((atual) => atual?.fase === "waiting" ? { ...atual, fase: "turning" } : atual);
       } catch (erro) { if (ativo && (erro as Error)?.name !== "RenderingCancelledException") setFalhaDocumento(true); }
       finally { if (ativo) { setRenderizando(false); if (toques.current.size < 2) ancoraZoom.current = null; } }
     }
-    void desenhar(); return () => { ativo = false; render?.cancel(); layer?.cancel(); };
-  }, [pdf, pagina, zoom, largura, altura, imersivo]);
+    void desenhar(); return () => { ativo = false; renders.forEach(r => r.cancel()); layers.forEach(l => l.cancel()); };
+  }, [pdf, faces.esquerda, faces.direita, dupla, zoom, largura, altura, imersivo]);
 
   const gravarProgresso = useCallback((atual: number, totalPaginas: number) => {
     if (bloqueado || !totalPaginas) return;
@@ -349,28 +408,31 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
 
   const capturarSelecao = useCallback(() => {
     const selected = window.getSelection();
-    if (!selected || selected.isCollapsed || !selected.rangeCount || !texto.current || !folha.current) { setSelecao(null); return; }
+    if (!selected || selected.isCollapsed || !selected.rangeCount) { setSelecao(null); return; }
     const range = selected.getRangeAt(0);
-    if (!texto.current.contains(range.commonAncestorContainer)) { setSelecao(null); return; }
+    const esquerda = textoEsquerdo.current?.contains(range.commonAncestorContainer);
+    const camada = esquerda ? textoEsquerdo.current : texto.current;
+    const numero = esquerda ? faces.esquerda : faces.direita;
+    if (!camada?.contains(range.commonAncestorContainer) || !numero) { setSelecao(null); return; }
     const trecho = selected.toString().trim(); if (!trecho || trecho.length > 2000) { setSelecao(null); return; }
-    const bounds = folha.current.getBoundingClientRect();
+    const bounds = camada.getBoundingClientRect();
     const areas = Array.from(range.getClientRects()).filter((r) => r.width > 1 && r.height > 1).slice(0, 100).map((r) => {
       const x = Math.max(0, Math.min(1, (r.left - bounds.left) / bounds.width));
       const y = Math.max(0, Math.min(1, (r.top - bounds.top) / bounds.height));
       return { x, y, largura: Math.min(1 - x, r.width / bounds.width), altura: Math.min(1 - y, r.height / bounds.height) };
     }).filter((r) => r.largura > 0 && r.altura > 0);
-    setSelecao({ trecho, areas, pagina });
-  }, [pagina]);
+    setPagina(numero); setSelecao({ trecho, areas, pagina: numero });
+  }, [faces.esquerda, faces.direita]);
   useEffect(() => {
     if (!selecionarTexto) return;
     function mudouSelecao() { if (!window.getSelection()?.isCollapsed) capturarSelecao(); }
     document.addEventListener("selectionchange", mudouSelecao);
     return () => document.removeEventListener("selectionchange", mudouSelecao);
   }, [selecionarTexto, capturarSelecao]);
-  function citar(trecho: string) { return `${trecho}\n\n${titulo} — ${t("pageCitation", { page: pagina })}`; }
+  function citar(trecho: string, numero = pagina) { return `${trecho}\n\n${titulo} — ${t("pageCitation", { page: numero })}`; }
   async function copiar() {
     if (!podeCopiar || !selecao || selecao.trecho.length > LIMITE_TRECHO_BIBLIOTECA) { avisar("copyRestricted", false); return; }
-    try { await navigator.clipboard.writeText(citar(selecao.trecho)); avisar("excerptCopied", false); } catch { avisar("copyError"); }
+    try { await navigator.clipboard.writeText(citar(selecao.trecho, selecao.pagina)); avisar("excerptCopied", false); } catch { avisar("copyError"); }
   }
   async function anotar(tipo: Anotacao["tipo"]) {
     if (!podeAnotar) return;
@@ -415,6 +477,24 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     finally { if (numero === numeroBusca.current) setBuscando(false); }
   }
 
+  function renderizarFace(numero: number | null, esquerda: boolean) {
+    if (!numero) return <div className={styles.emptyFace} style={{ width: dimensoes.width, height: dimensoes.height }} aria-hidden="true" />;
+    const quadro = quadros[numero] || { x: 0, y: 0, w: 1, h: 1 };
+    return <div className={styles.page} ref={esquerda ? folhaEsquerda : folha} data-reader-page={numero} aria-current={pagina === numero ? "page" : undefined}
+      aria-label={t("documentPage", { page: numero })} tabIndex={0} style={{ width: dimensoes.width || undefined, height: dimensoes.height || undefined }}
+      onPointerDown={e => { if (!(e.target as HTMLElement).closest("button") && !virada && !renderizando) setPagina(numero); }}
+      onContextMenu={e => e.preventDefault()}>
+      <canvas ref={esquerda ? canvasEsquerdo : canvas} aria-label={t("documentPage", { page: numero })} />
+      {anotacoes.filter(a => a.tipo === "DESTAQUE" && a.pagina === numero).flatMap(a => a.areas.map((area, i) => <span key={`${a.id}-${i}`} className={styles.highlight}
+        style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%`, background: cores[a.cor] || cores.AMARELO }} />))}
+      <div ref={esquerda ? textoEsquerdo : texto} className={styles.textLayer} onPointerUp={capturarSelecao} onKeyUp={capturarSelecao} onCopy={e => {
+        e.preventDefault(); const trecho = window.getSelection()?.toString().trim() || "";
+        if (podeCopiar && trecho && trecho.length <= LIMITE_TRECHO_BIBLIOTECA) e.clipboardData.setData("text/plain", citar(trecho, numero));
+        else avisar("copyRestricted", false);
+      }} />
+      <span className={styles.watermark}>{t("watermark", { id: usuarioId })}</span>
+    </div>;
+  }
   const fatorVisual = (zoomGesto ?? zoom) / zoomDesenhado;
   const conteudo = <section ref={raiz} id={imersivo ? "biblioteca-leitor-fullscreen" : undefined}
     className={`${styles.root} ${styles.readerRoot} ${imersivo ? styles.immersive : ""}`} tabIndex={-1}
@@ -431,19 +511,24 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
         </>}
       </header>
       {pdf && !falhaDocumento && <div className={styles.readerControls}>
-        <button className={styles.button} disabled={pagina === 1 || renderizando || !!virada} onClick={() => ir(pagina - 1)} aria-label={t("previousPage")} title={t("previousPage")}>‹</button>
+        <button className={styles.button} disabled={anterior === pagina || renderizando || !!virada} onClick={() => ir(anterior)} aria-label={t("previousPage")} title={t("previousPage")}>‹</button>
         <form className={styles.pageNavigation} onSubmit={(e) => { e.preventDefault(); const p = Number(paginaDigitada); ir(p); if (!Number.isInteger(p) || p < 1 || p > total) setPaginaDigitada(String(pagina)); }}>
           <label className={styles.hidden} htmlFor="pagina-leitor">{t("pageLabel")}</label>
           <input id="pagina-leitor" className={styles.smallInput} type="number" min={1} max={total} value={paginaDigitada} onFocus={(e) => e.currentTarget.select()} onChange={(e) => setPaginaDigitada(e.target.value)} />
           <span>{t("pageTotal", { total })}</span><button className={styles.button} disabled={renderizando || !!virada}>{t("goToPage")}</button>
         </form>
-        <button className={styles.button} disabled={pagina === total || renderizando || !!virada} onClick={() => ir(pagina + 1)} aria-label={t("nextPage")} title={t("nextPage")}>›</button>
+        <button className={styles.button} disabled={proxima === pagina || renderizando || !!virada} onClick={() => ir(proxima)} aria-label={t("nextPage")} title={t("nextPage")}>›</button>
         <div className={styles.zoomControls} aria-label={t("zoom")}>
           <button className={styles.button} onClick={() => ajustarZoom(zoom - .25)} disabled={zoom <= .5 || !!virada} aria-label={t("zoomOut")}>−</button>
           <span data-reader-zoom={Math.round((zoomGesto ?? zoom) * 100)}>{Math.round((zoomGesto ?? zoom) * 100)}%</span>
           <button className={styles.button} onClick={() => ajustarZoom(zoom + .25)} disabled={zoom >= 4 || !!virada} aria-label={t("zoomIn")}>+</button>
-          <button className={styles.button} onClick={() => ajustarZoom(1)}>{t("fitPage")}</button>
+          <button className={styles.button} onClick={() => ajustarZoom(1)} disabled={!!virada}>{t("fitPage")}</button>
         </div>
+        <div className={styles.formatControls}>
+          <button className={styles.button} aria-pressed={!dupla} disabled={!!virada} onClick={() => escolherModo("pagina")}>{t("singlePage")}</button>
+          <button className={styles.button} aria-pressed={dupla} disabled={!!virada} onClick={() => escolherModo("livro")}>{t("bookSpread")}</button>
+        </div>
+        {dupla && faces.esquerda && <span className={styles.muted}>{t("visiblePages", { from: faces.esquerda, to: faces.direita || faces.esquerda })}</span>}
         {downloadId && <a className={styles.button} href={`/api/biblioteca/arquivos/${downloadId}/download`}>{t("downloadPdf")}</a>}
         {podeImprimir && <button className={styles.button} onClick={() => window.print()}>{t("printPage")}</button>}
       </div>}
@@ -458,20 +543,17 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
         <div className={`${styles.document} ${styles.bookViewport} ${selecionarTexto ? styles.selectionMode : ""}`} ref={documento} aria-label={t("documentPage", { page: pagina })}
           onPointerDown={iniciarToque} onPointerMove={moverToque} onPointerUp={(e) => terminarToque(e)} onPointerCancel={(e) => terminarToque(e, true)}>
           {renderizando && <span className={styles.pageLoading} role="status">{t("renderingPage")}</span>}
-          <div className={styles.sheetHolder} style={{ width: dimensoes.width * fatorVisual || undefined, height: dimensoes.height * fatorVisual || undefined }}>
-          <div className={styles.page} ref={folha} style={{ width: dimensoes.width || undefined, height: dimensoes.height || undefined, transform: `scale(${fatorVisual})`, transformOrigin: "top left" }} onContextMenu={(e) => e.preventDefault()}>
-            <canvas ref={canvas} aria-label={t("documentPage", { page: pagina })} />
-            {anotacoes.filter((a) => a.tipo === "DESTAQUE" && a.pagina === pagina).flatMap((a) => a.areas.map((area, i) => <span key={`${a.id}-${i}`} className={styles.highlight} style={{ left: `${area.x * 100}%`, top: `${area.y * 100}%`, width: `${area.largura * 100}%`, height: `${area.altura * 100}%`, background: cores[a.cor] || cores.AMARELO }} />))}
-            <div ref={texto} className={styles.textLayer} onPointerUp={capturarSelecao} onKeyUp={capturarSelecao} onCopy={(e) => {
-              e.preventDefault(); const trecho = window.getSelection()?.toString().trim() || "";
-              if (podeCopiar && trecho && trecho.length <= LIMITE_TRECHO_BIBLIOTECA) e.clipboardData.setData("text/plain", citar(trecho));
-              else avisar("copyRestricted", false);
-            }} />
-            <span className={styles.watermark}>{t("watermark", { id: usuarioId })}</span>
-            {virada && <FolhaFlexivelBiblioteca origem={copiaVirada.current} largura={dimensoes.width} altura={dimensoes.height}
+          <div className={styles.sheetHolder} style={{ width: dimensoes.width * (dupla ? 2 : 1) * fatorVisual || undefined, height: dimensoes.height * fatorVisual || undefined }}>
+          <div ref={livro} className={`${styles.bookSheets} ${dupla ? styles.dualPages : ""}`} style={{ width: dimensoes.width * (dupla ? 2 : 1) || undefined, height: dimensoes.height || undefined, transform: `scale(${fatorVisual})`, transformOrigin: "top left" }}>
+            {dupla && renderizarFace(faces.esquerda, true)}
+            {renderizarFace(faces.direita, false)}
+            {virada && <FolhaFlexivelBiblioteca
+              origem={virada.sentido === "next" || !dupla ? copiaVirada.current?.direita || null : copiaVirada.current?.esquerda || null}
+              apoio={virada.sentido === "next" ? copiaVirada.current?.esquerda || null : copiaVirada.current?.direita || null}
+              verso={copiaVirada.current?.verso || null} dupla={dupla} largura={dimensoes.width} altura={dimensoes.height}
               sentido={virada.sentido} animar={virada.fase === "turning"} onConcluir={concluirVirada} />}
-            {pagina > 1 && <button className={`${styles.pageCorner} ${styles.cornerLeft}`} disabled={renderizando || !!virada} onClick={() => ir(pagina - 1)} aria-label={t("turnPrevious")} title={t("turnPrevious")}>‹</button>}
-            {pagina < total && <button className={`${styles.pageCorner} ${styles.cornerRight}`} disabled={renderizando || !!virada} onClick={() => ir(pagina + 1)} aria-label={t("turnNext")} title={t("turnNext")}>›</button>}
+            {anterior !== pagina && <button className={`${styles.pageCorner} ${styles.cornerLeft}`} disabled={renderizando || !!virada} onClick={() => ir(anterior)} aria-label={t("turnPrevious")} title={t("turnPrevious")}>‹</button>}
+            {proxima !== pagina && <button className={`${styles.pageCorner} ${styles.cornerRight}`} disabled={renderizando || !!virada} onClick={() => ir(proxima)} aria-label={t("turnNext")} title={t("turnNext")}>›</button>}
           </div>
           </div>
         </div>

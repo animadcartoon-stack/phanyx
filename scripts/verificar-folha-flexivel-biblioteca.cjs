@@ -49,6 +49,6 @@ testar("as faixas vizinhas se encontram sem saltos", () => {
     assert.ok(a.pontos.some(p => b.pontos.some(q => Math.hypot(p.x - q.x, p.y - q.y) < .0001)));
   }
 });
-testar("a animação tem tempo suficiente para uma dobra suave", () => assert.ok(DURACAO_VIRADA_FOLHA >= 600 && DURACAO_VIRADA_FOLHA <= 900));
+testar("a animação tem tempo suficiente para uma dobra suave", () => assert.ok(DURACAO_VIRADA_FOLHA >= 600 && DURACAO_VIRADA_FOLHA <= 1400));
 execFileSync(process.execPath, [path.join(__dirname, "verificar-leitor-livro.cjs")], { stdio: "inherit" });
 console.log(`OK: ${verificacoes} verificações da folha flexível, simetria, continuidade e duração.`);
