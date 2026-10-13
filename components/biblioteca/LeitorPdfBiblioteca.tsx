@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import FolhaFlexivelBiblioteca from "./FolhaFlexivelBiblioteca";
 import { LIMITE_TRECHO_BIBLIOTECA, LIMITE_PAGINAS_BIBLIOTECA } from "@/lib/biblioteca-direitos-leitura";
 import { carregarBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
 import { limitarZoomLeitor, viradaPorGestoLeitor, zoomPorPincaLeitor } from "@/lib/biblioteca-gestos-leitor";
@@ -49,7 +50,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const [estadoProgresso, setEstadoProgresso] = useState("ready");
   const canvas = useRef<HTMLCanvasElement>(null); const texto = useRef<HTMLDivElement>(null);
   const raiz = useRef<HTMLElement>(null); const botaoFullscreen = useRef<HTMLButtonElement>(null);
-  const copiaVirada = useRef<HTMLCanvasElement | null>(null); const canvasVirada = useRef<HTMLCanvasElement>(null);
+  const copiaVirada = useRef<HTMLCanvasElement | null>(null);
   const fullscreenAnterior = useRef(false);
   const toques = useRef(new Map<number, { x: number; y: number }>());
   const gesto = useRef<{ x: number; y: number; inicio: number; zoom: number; distancia: number; scrollX: number; scrollY: number; pinca: boolean } | null>(null);
@@ -65,19 +66,38 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   function avisar(chave: string, erro = true) { setTipoMensagem(erro ? "erro" : "info"); setMensagem(t(chave)); }
   const restaurarFoco = useCallback(() => botaoFullscreen.current?.focus({ preventScroll: true }), []);
   const cancelarBusca = useCallback(() => { numeroBusca.current++; }, []);
+  const concluirVirada = useCallback(() => { setVirada(null); copiaVirada.current = null; }, []);
 
   const ir = useCallback((p: number) => {
     if (!Number.isInteger(p) || p < 1 || p > total || p === pagina || renderizando || virada) return;
     if (canvas.current && Math.abs(p - pagina) === 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const copia = document.createElement("canvas");
-      copia.width = canvas.current.width; copia.height = canvas.current.height;
-      copia.getContext("2d")?.drawImage(canvas.current, 0, 0);
-      copiaVirada.current = copia;
-      setVirada({ sentido: p > pagina ? "next" : "previous", fase: "waiting" });
+      const ratio = Math.min(1, Math.sqrt(1800000 / (canvas.current.width * canvas.current.height)));
+      copia.width = Math.max(1, Math.ceil(canvas.current.width * ratio)); copia.height = Math.max(1, Math.ceil(canvas.current.height * ratio));
+      const ctx = copia.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(canvas.current, 0, 0, copia.width, copia.height);
+        ctx.save(); ctx.globalAlpha = .45;
+        for (const nota of anotacoes.filter((a) => a.tipo === "DESTAQUE" && a.pagina === pagina)) {
+          ctx.fillStyle = cores[nota.cor] || cores.AMARELO;
+          for (const area of nota.areas) ctx.fillRect(area.x * copia.width, area.y * copia.height, area.largura * copia.width, area.altura * copia.height);
+        }
+        ctx.restore();
+        const escala = copia.width / Number.parseFloat(canvas.current.style.width);
+        if (Number.isFinite(escala) && escala > 0) {
+          ctx.save(); ctx.scale(escala, escala); ctx.font = "10px sans-serif";
+          const marca = t("watermark", { id: usuarioId }); const larguraMarca = ctx.measureText(marca).width;
+          const x = copia.width / escala - larguraMarca - 17; const y = copia.height / escala - 22;
+          ctx.fillStyle = "#ffffffc9"; ctx.fillRect(x - 5, y, larguraMarca + 10, 14);
+          ctx.fillStyle = "#475569"; ctx.fillText(marca, x, y + 10); ctx.restore();
+        }
+        copiaVirada.current = copia;
+        setVirada({ sentido: p > pagina ? "next" : "previous", fase: "waiting" });
+      }
     }
     ancoraZoom.current = null; setSelecao(null); setPagina(p);
     if (documento.current) { documento.current.scrollTop = 0; documento.current.scrollLeft = 0; }
-  }, [total, pagina, renderizando, virada]);
+  }, [total, pagina, renderizando, virada, anotacoes, t, usuarioId]);
 
   function iniciarToque(evento: EventoPonteiro<HTMLDivElement>) {
     if (evento.pointerType !== "touch" || selecionarTexto || virada || renderizando ||
@@ -202,19 +222,6 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     document.addEventListener("keydown", teclado);
     return () => document.removeEventListener("keydown", teclado);
   }, [imersivo, ir, pagina, sairFullscreen]);
-
-  useLayoutEffect(() => {
-    if (copiaVirada.current && canvasVirada.current && virada) {
-      canvasVirada.current.width = copiaVirada.current.width; canvasVirada.current.height = copiaVirada.current.height;
-      canvasVirada.current.getContext("2d")?.drawImage(copiaVirada.current, 0, 0);
-    }
-  }, [virada, imersivo]);
-
-  useEffect(() => {
-    if (virada?.fase !== "turning") return;
-    const id = window.setTimeout(() => { setVirada(null); copiaVirada.current = null; }, 450);
-    return () => window.clearTimeout(id);
-  }, [virada]);
 
   useLayoutEffect(() => {
     const ancora = ancoraZoom.current;
@@ -461,9 +468,8 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
               else avisar("copyRestricted", false);
             }} />
             <span className={styles.watermark}>{t("watermark", { id: usuarioId })}</span>
-            {virada && <div className={`${styles.turnSheet} ${virada.sentido === "next" ? styles.turnNext : styles.turnPrevious} ${virada.fase === "turning" ? styles.turning : ""}`} aria-hidden="true">
-              <canvas ref={canvasVirada} />
-            </div>}
+            {virada && <FolhaFlexivelBiblioteca origem={copiaVirada.current} largura={dimensoes.width} altura={dimensoes.height}
+              sentido={virada.sentido} animar={virada.fase === "turning"} onConcluir={concluirVirada} />}
             {pagina > 1 && <button className={`${styles.pageCorner} ${styles.cornerLeft}`} disabled={renderizando || !!virada} onClick={() => ir(pagina - 1)} aria-label={t("turnPrevious")} title={t("turnPrevious")}>‹</button>}
             {pagina < total && <button className={`${styles.pageCorner} ${styles.cornerRight}`} disabled={renderizando || !!virada} onClick={() => ir(pagina + 1)} aria-label={t("turnNext")} title={t("turnNext")}>›</button>}
           </div>
