@@ -25,6 +25,12 @@ export const PERMISSOES_PHANYX = [
     descricao:
       "Permite preparar e confirmar processos de trancamento de matrícula, preservando o histórico acadêmico.",
   },
+  {
+    chave: "matriculas.cancelar",
+    nome: "Acadêmico - Cancelar matrículas",
+    descricao:
+      "Permite preparar e finalizar processos de cancelamento de matrícula com protocolo, financeiro, documentos e auditoria.",
+  },
 
     // =====================================================
   // ATIVIDADES EXTERNAS
