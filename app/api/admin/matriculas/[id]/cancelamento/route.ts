@@ -1,4 +1,3 @@
-"use server";
 
 import { randomUUID } from "node:crypto";
 import { Prisma, StatusMatricula } from "@prisma/client";
