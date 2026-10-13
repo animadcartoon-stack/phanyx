@@ -3,20 +3,36 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
+const pageUrl = "https://www.phanyx.com.br/sistema-escolar";
+const seoTitle = "Sistema de Gestão Escolar para Escolas | PHANYX";
+const seoDescription =
+  "Sistema e software de gestão escolar para centralizar alunos, professores, turmas, matrículas, financeiro, documentos e ensino digital em uma única plataforma.";
+
 export const metadata: Metadata = {
-  title: "Sistema de Gestão Escolar Completo | PHANYX",
-  description:
-    "Sistema de gestão escolar completo para escolas, faculdades e EAD. Controle acadêmico, financeiro, alunos, professores, provas e certificados em uma única plataforma.",
+  title: { absolute: seoTitle },
+  description: seoDescription,
   alternates: { canonical: "/sistema-escolar" },
   keywords: [
     "sistema de gestão escolar",
+    "software de gestão escolar",
     "software escolar",
-    "plataforma escolar",
-    "gestão acadêmica",
+    "plataforma de gestão escolar",
     "sistema para escolas",
-    "sistema acadêmico",
     "controle escolar",
+    "gestão escolar",
   ],
+  openGraph: {
+    title: seoTitle,
+    description: seoDescription,
+    type: "website",
+    locale: "pt_BR",
+    url: pageUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seoTitle,
+    description: seoDescription,
+  },
 };
 
 const beneficios = [
@@ -69,9 +85,72 @@ const faqs = [
   },
 ];
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: seoTitle,
+      description: seoDescription,
+      inLanguage: "pt-BR",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${pageUrl}#software`,
+      name: "PHANYX",
+      url: pageUrl,
+      applicationCategory: "EducationalApplication",
+      applicationSubCategory: "School Management Software",
+      operatingSystem: "Web",
+      description: seoDescription,
+      featureList: destaques,
+      inLanguage: "pt-BR",
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${pageUrl}#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "PHANYX",
+          item: "https://www.phanyx.com.br/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Sistema de gestão escolar",
+          item: pageUrl,
+        },
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${pageUrl}#faq`,
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.pergunta,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.resposta,
+        },
+      })),
+    },
+  ],
+};
+
 export default function SistemaEscolarPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <Header />
 
       <main className="bg-white text-slate-900">
@@ -83,20 +162,15 @@ export default function SistemaEscolarPage() {
               </p>
 
               <h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
-  Sistema de gestão escolar completo para escolas, faculdades e instituições de ensino
-</h1>
+                Sistema de gestão escolar para escolas e instituições de ensino
+              </h1>
 
               <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-                O PHANYX é um sistema de gestão escolar completo desenvolvido para escolas, faculdades e instituições de ensino que precisam de mais controle, organização e visão estratégica. Com ele, sua instituição pode gerenciar alunos, professores, cursos, financeiro, documentos e ensino digital em uma única plataforma.
+                O PHANYX é um sistema de gestão escolar que centraliza alunos,
+                professores, turmas, matrículas, financeiro, documentos e ensino
+                digital. A instituição trabalha com mais organização e uma visão
+                integrada da operação em uma plataforma online.
               </p>
-
-<a href="/blog/sistema-gestao-escolar">
-  Guia: como escolher o melhor sistema de gestão escolar
-</a>
-
-<a href="/blog/sistema-escolar-vs-moodle">
-  Comparação entre sistema escolar e Moodle
-</a>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <Link
@@ -123,8 +197,13 @@ export default function SistemaEscolarPage() {
               Benefícios
             </p>
             <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-              Mais do que um sistema escolar: uma plataforma para operar e crescer com mais controle
+              Mais do que controles separados: gestão escolar centralizada
             </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Um software de gestão escolar ajuda a reduzir planilhas e cadastros
+              duplicados ao reunir as informações usadas pela secretaria, gestão,
+              professores e alunos em um mesmo ambiente.
+            </p>
           </div>
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
@@ -150,7 +229,7 @@ export default function SistemaEscolarPage() {
                   Recursos estratégicos
                 </p>
                 <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                  Uma solução para rotina escolar, operação acadêmica e experiência digital
+                  Software de gestão escolar para centralizar a operação
                 </h2>
                 <p className="mt-4 text-lg text-slate-600">
                   O PHANYX ajuda instituições a centralizarem sua operação em um
@@ -197,7 +276,7 @@ export default function SistemaEscolarPage() {
                 Perguntas frequentes
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Dúvidas sobre o sistema escolar PHANYX
+                Dúvidas sobre sistema de gestão escolar
               </h2>
             </div>
 
@@ -256,34 +335,52 @@ export default function SistemaEscolarPage() {
 
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
   <h2 className="text-3xl font-bold text-slate-900">
-    Sistema de gestão escolar online completo
+    Sistema de gestão escolar online para centralizar a rotina
   </h2>
-  <p className="mt-4 text-lg text-slate-600">
-    O PHANYX é um sistema de gestão escolar online completo que permite controlar alunos, professores, cursos, turmas, disciplinas e financeiro escolar em uma única plataforma. Ideal para instituições que buscam modernizar sua operação e ganhar mais eficiência.
+  <p className="mt-4 text-lg leading-8 text-slate-600">
+    O PHANYX funciona pela internet e reúne processos escolares em uma base
+    centralizada. Isso facilita o trabalho entre áreas e unidades sem depender
+    de uma instalação isolada em cada computador.
   </p>
 
   <h2 className="mt-10 text-3xl font-bold text-slate-900">
-    Software para escolas, faculdades e cursos
+    Software de gestão escolar para escolas e instituições de ensino
   </h2>
-  <p className="mt-4 text-lg text-slate-600">
-    Este software para escolas e faculdades oferece recursos completos de gestão acadêmica, controle de notas, emissão de documentos, acompanhamento de alunos e integração com ensino digital (EAD). Tudo com segurança e escalabilidade.
+  <p className="mt-4 text-lg leading-8 text-slate-600">
+    A plataforma organiza alunos, professores, turmas, matrículas, registros,
+    financeiro, documentos e acessos por perfil. Os módulos contratados podem
+    acompanhar a evolução da operação da instituição.
   </p>
 
   <h2 className="mt-10 text-3xl font-bold text-slate-900">
-    Plataforma de gestão acadêmica moderna
+    Gestão escolar, gestão acadêmica e ensino digital têm funções diferentes
   </h2>
-  <p className="mt-4 text-lg text-slate-600">
-    A plataforma de gestão acadêmica PHANYX foi desenvolvida para atender instituições de ensino que precisam de organização, controle e crescimento. Com tecnologia SaaS, permite expansão multi-institucional com alta performance.
+  <p className="mt-4 text-lg leading-8 text-slate-600">
+    Esta página apresenta o sistema de gestão escolar como solução para a
+    operação institucional. Para aprofundar processos acadêmicos, consulte a
+    página de gestão acadêmica; para aulas e aprendizagem online, veja a
+    plataforma EAD.
   </p>
+  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+    <Link
+      href="/gestao-academica"
+      className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-blue-800 hover:bg-slate-50"
+    >
+      Conhecer gestão acadêmica
+    </Link>
+    <Link
+      href="/plataforma-ead"
+      className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-blue-800 hover:bg-slate-50"
+    >
+      Conhecer plataforma EAD
+    </Link>
+  </div>
   <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6">
   <h3 className="text-xl font-bold text-slate-900">
     Veja também outras soluções do PHANYX
   </h3>
 
   <div className="mt-4 flex flex-col gap-3">
-    <Link href="/sistema-escolar" className="text-blue-700 hover:text-blue-600">
-      Sistema de gestão escolar
-    </Link>
 
     <Link href="/gestao-escolar" className="text-blue-700 hover:text-blue-600">
       Gestão escolar
@@ -306,6 +403,37 @@ export default function SistemaEscolarPage() {
     </Link>
   </div>
 </div>
+
+  <div className="mt-12">
+    <h2 className="text-3xl font-bold text-slate-900">
+      Conteúdo relacionado sobre sistema de gestão escolar
+    </h2>
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      Use estes guias para comparar soluções, entender o modelo online e avaliar
+      como um sistema escolar se diferencia de uma plataforma de ensino.
+    </p>
+
+    <div className="mt-6 grid gap-4">
+      <Link
+        href="/blog/sistema-gestao-escolar"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+      >
+        Como escolher o melhor sistema de gestão escolar →
+      </Link>
+      <Link
+        href="/blog/sistema-de-gestao-escolar-online"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+      >
+        Como funciona um sistema de gestão escolar online →
+      </Link>
+      <Link
+        href="/blog/sistema-escolar-vs-moodle"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-blue-800 hover:border-blue-300 hover:bg-blue-50"
+      >
+        Sistema escolar x Moodle: entenda as diferenças →
+      </Link>
+    </div>
+  </div>
 </section>
 
       </main>
