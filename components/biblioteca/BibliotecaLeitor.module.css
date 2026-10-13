@@ -82,6 +82,12 @@
 .root .bookViewport.selectionMode { touch-action: auto; }
 .root .sheetHolder { position: relative; margin: 0 auto; }
 .root .sheetHolder .page { margin: 0; }
+.root .bookSheets { position: relative; display: flex; box-shadow: 0 6px 14px #0003, 0 3px 0 #e4dfd5, 0 5px 0 #d3cbbc; }
+.root .bookSheets .page { flex-shrink: 0; box-shadow: none; }
+.root .emptyFace { background: #f8f5ec; flex-shrink: 0; }
+.root .dualPages::after { content: ""; position: absolute; left: calc(50% - 9px); top: 0; bottom: 0; width: 18px; background: linear-gradient(90deg, transparent, #5b51482c 40%, #433c3948 50%, #fff4 55%, transparent); z-index: 5; pointer-events: none; }
+.root .formatControls { display: flex; gap: 2px; }
+.root .formatControls .button[aria-pressed="true"] { background: var(--bib-acao); color: var(--bib-acao-texto); border-color: transparent; }
 .root .pageLoading { position: sticky; top: 0; left: 0; z-index: 14; display: block; height: 0; color: #172554; font-size: .8rem; text-shadow: 0 0 3px white; pointer-events: none; }
 .root .readerPanel { position: relative; background: var(--bib-fundo); color: var(--bib-texto); overflow-y: auto; padding: 18px; min-height: 0; border-left: 1px solid var(--bib-borda); }
 .root .readerPanel h2 { margin-right: 35px; font-size: 1.1rem; }
@@ -97,8 +103,10 @@
 .root .pageCorner:hover { color: #1d4ed8; filter: brightness(.95); }
 .root .pageCorner:focus-visible { outline: 3px solid #2563eb; outline-offset: -3px; }
 .root .turnSheet { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
-.root .turnSheet canvas { width: 100%; height: 100%; }
-.root .page:has(.turnSheet) .pageCorner { opacity: 0; }
+.root .turnSheet canvas { display: block; }
+.root .paperMesh, .root .paperFallback { position: absolute; top: 0; z-index: 2; }
+.root .foldShadow { position: absolute; top: 0; height: 100%; z-index: 1; opacity: 0; background: linear-gradient(90deg, #0000, #17100bb0 50%, #0000); filter: blur(6px); }
+.root .bookSheets:has(.turnSheet) .pageCorner { opacity: 0; }
 .root.immersive { position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; z-index: 2147482000; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--bib-fundo); gap: 6px; overflow: hidden; }
 .root.immersive .readerToolbar { position: static; flex-shrink: 0; padding: 8px; }
 .root.immersive .readerFrame { flex: 1; height: auto; min-height: 0; }
@@ -114,6 +122,8 @@
   .root.readerRoot, .root .readerFrame { display: block; height: auto; overflow: visible; border: none; }
   .root.immersive { position: static; height: auto; padding: 0; }
   .root .sheetHolder { transform: none; }
+  .root .bookSheets { display: block; transform: none !important; box-shadow: none; }
+  .root .bookSheets::after, .root .emptyFace, .root .bookSheets .page:not([aria-current="page"]) { display: none !important; }
   .root .page, .root .page * { visibility: visible; }
   .root .page { position: absolute; top: 0; left: 0; box-shadow: none; }
   .root .toolbar, .root .side, .root .watermark, .root .notice { display: none !important; }

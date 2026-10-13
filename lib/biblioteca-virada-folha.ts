@@ -1,5 +1,5 @@
 // A folha enrola em torno de uma dobra diagonal. O PDF permanece na camada de leitura.
-export const DURACAO_VIRADA_FOLHA = 760;
+export const DURACAO_VIRADA_FOLHA = 1120;
 export type SentidoViradaFolha = "next" | "previous";
 type Ponto = { x: number; y: number };
 type Matriz = { a: number; b: number; c: number; d: number; e: number; f: number };
