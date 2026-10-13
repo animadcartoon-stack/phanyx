@@ -65,9 +65,61 @@
 .root .smallInput { width: 85px; }
 .root .formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .root .full { grid-column: 1 / -1; }
+.root.readerRoot { display: flex; flex-direction: column; gap: 12px; }
+.root .readerToolbar { position: sticky; top: 78px; z-index: 30; background: var(--bib-fundo); border: 1px solid var(--bib-borda); border-radius: 12px; padding: 12px; }
+.root .readerHeading { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.root .shortControl { display: none; }
+.root .readerHeading h1 { flex: 1; min-width: 120px; margin: 0; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.root .readerControls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.root .readerControls .button, .root .readerHeading .button { min-height: 38px; padding: 7px 12px; font-size: .875rem; }
+.root .pageNavigation, .root .zoomControls { display: flex; align-items: center; gap: 7px; }
+.root .pageNavigation .smallInput { width: 70px; min-height: 38px; padding: 6px; }
+.root .zoomControls span { min-width: 44px; text-align: center; }
+.root .readerProgress { font-size: .8rem; margin: 8px 0 0; }
+.root .readerFrame { display: grid; grid-template-columns: minmax(0, 1fr); position: relative; height: min(70dvh, 880px); min-height: 250px; overflow: hidden; border-radius: 12px; border: 1px solid var(--bib-borda); }
+.root .readerFrame.withPanel { grid-template-columns: minmax(0, 1fr) 340px; }
+.root .document.bookViewport { position: relative; height: 100%; max-height: none; min-height: 0; min-width: 0; overflow: auto; background: #b9bdc6; background-image: radial-gradient(ellipse at center, #e4e4e7, #b9bdc6); touch-action: none; padding: 16px; border-radius: 0; overscroll-behavior: contain; }
+.root .bookViewport.selectionMode { touch-action: auto; }
+.root .sheetHolder { position: relative; margin: 0 auto; perspective: 1800px; }
+.root .sheetHolder .page { margin: 0; }
+.root .pageLoading { position: sticky; top: 0; left: 0; z-index: 14; display: block; height: 0; color: #172554; font-size: .8rem; text-shadow: 0 0 3px white; pointer-events: none; }
+.root .readerPanel { position: relative; background: var(--bib-fundo); color: var(--bib-texto); overflow-y: auto; padding: 18px; min-height: 0; border-left: 1px solid var(--bib-borda); }
+.root .readerPanel h2 { margin-right: 35px; font-size: 1.1rem; }
+.root .readerPanel p { margin: 10px 0; overflow-wrap: anywhere; }
+.root .readerPanel .results { max-height: none; }
+.root .closePanel { position: absolute; top: 10px; right: 10px; min-height: 32px; padding: 2px 10px; font-size: 1.2rem; }
+.root .selectionAction { position: absolute; bottom: 12px; right: 12px; z-index: 25; box-shadow: 0 2px 8px #0003; }
+.root .readerHint { font-size: .8rem; margin: 0; text-align: center; }
+.root .pageCorner { position: absolute; bottom: 0; z-index: 12; width: 54px; height: 54px; border: 0; font: bold 26px sans-serif; cursor: pointer; color: #1e40af; background: linear-gradient(135deg, #ffffff00 48%, #cbd5e1 49%, #eff6ff 66%); padding: 17px 4px 0 21px; touch-action: manipulation; }
+.root .cornerRight { right: 0; }
+.root .cornerLeft { left: 0; background: linear-gradient(225deg, #ffffff00 48%, #cbd5e1 49%, #eff6ff 66%); padding: 17px 21px 0 4px; }
+.root .pageCorner:disabled { cursor: wait; }
+.root .pageCorner:hover { color: #1d4ed8; filter: brightness(.95); }
+.root .pageCorner:focus-visible { outline: 3px solid #2563eb; outline-offset: -3px; }
+.root .turnSheet { position: absolute; inset: 0; z-index: 10; background: white; box-shadow: 0 2px 12px #0003; pointer-events: none; backface-visibility: hidden; transform-style: preserve-3d; }
+.root .turnSheet canvas { width: 100%; height: 100%; }
+.root .turnSheet::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #0001, transparent 15%, transparent 65%, #0003); }
+.root .turnNext { transform-origin: left center; }
+.root .turnPrevious { transform-origin: right center; }
+.root .turnNext.turning { animation: virarDireita .42s ease-in-out forwards; }
+.root .turnPrevious.turning { animation: virarEsquerda .42s ease-in-out forwards; }
+.root.immersive { position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; z-index: 2147482000; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--bib-fundo); gap: 6px; overflow: hidden; }
+.root.immersive .readerToolbar { position: static; flex-shrink: 0; padding: 8px; }
+.root.immersive .readerFrame { flex: 1; height: auto; min-height: 0; }
+.root.immersive .readerHint { flex-shrink: 0; }
+@keyframes virarDireita { 0% { transform: perspective(1800px) rotateY(0); opacity: 1; } 65% { opacity: 1; } 100% { transform: perspective(1800px) rotateY(-150deg); opacity: 0; } }
+@keyframes virarEsquerda { 0% { transform: perspective(1800px) rotateY(0); opacity: 1; } 65% { opacity: 1; } 100% { transform: perspective(1800px) rotateY(150deg); opacity: 0; } }
+@media (pointer: coarse) { .root .bookViewport:not(.selectionMode) .textLayer { user-select: none; } }
+@media (max-width: 900px) { .root .longControl { display: none; } .root .shortControl { display: inline; font-size: 1.15rem; } .root .readerControls { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; } .root .readerControls > * { flex-shrink: 0; } .root .readerFrame.withPanel { grid-template-columns: minmax(0, 1fr); } .root .readerPanel { position: absolute; top: 0; bottom: 0; right: 0; width: min(340px, 92%); z-index: 20; box-shadow: -5px 0 20px #0003; } }
+@media (max-width: 600px) { .root .readerToolbar { top: 72px; padding: 8px; } .root .readerHeading h1 { flex-basis: 100%; order: -1; font-size: .95rem; } .root .readerControls { gap: 5px; margin-top: 6px; } .root .readerHeading .button, .root .readerControls .button { padding: 6px 9px; font-size: .8rem; } .root .readerHint { font-size: .7rem; } }
+@media (prefers-reduced-motion: reduce) { .root .turnSheet { display: none; } }
 @media (max-width: 900px) { .root .readerLayout { grid-template-columns: 1fr; } .root .side { max-height: none; } }
 @media (max-width: 600px) { .root .detail { grid-template-columns: 1fr; } .root .detailCover { max-height: 240px; } .root .card { padding: 16px; } .root .formGrid { grid-template-columns: 1fr; } }
 @media print {
+  .root .readerToolbar, .root .readerPanel, .root .readerHint, .root .pageCorner, .root .turnSheet, .root .pageLoading { display: none !important; }
+  .root.readerRoot, .root .readerFrame { display: block; height: auto; overflow: visible; border: none; }
+  .root.immersive { position: static; height: auto; padding: 0; }
+  .root .sheetHolder { transform: none; }
   .root .page, .root .page * { visibility: visible; }
   .root .page { position: absolute; top: 0; left: 0; box-shadow: none; }
   .root .toolbar, .root .side, .root .watermark, .root .notice { display: none !important; }

@@ -1,4 +1,4 @@
-﻿import createNextIntlPlugin from "next-intl/plugin";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin(
   "./i18n/request.ts"
@@ -7,6 +7,13 @@ const withNextIntl = createNextIntlPlugin(
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  async headers() {
+    return [{
+      source: "/biblioteca/pdfjs/:versao([0-9]+\\.[0-9]+\\.[0-9]+)/:arquivo*",
+      headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+    }];
+  },
 
 
   async redirects() {

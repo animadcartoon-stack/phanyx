@@ -1,3 +1,6 @@
+body[data-biblioteca-tela-cheia="true"] > :not(#biblioteca-leitor-fullscreen) { visibility: hidden !important; }
+body[data-biblioteca-tela-cheia="true"] > #biblioteca-leitor-fullscreen { visibility: visible; }
+
 @media print {
   body[data-biblioteca-sem-impressao="true"] { display: none !important; }
   body[data-biblioteca-sem-impressao="false"] * { visibility: hidden; }

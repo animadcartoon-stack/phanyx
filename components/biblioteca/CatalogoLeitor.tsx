@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { contextoLeitor, listarCatalogo, obterItemCatalogo, type PortalLeitor } from "@/lib/biblioteca-catalogo-leitor";
 import FavoritoBiblioteca from "./FavoritoBiblioteca";
 import RecomendacoesBiblioteca from "./RecomendacoesBiblioteca";
+import LinkLeituraBiblioteca from "./LinkLeituraBiblioteca";
 import styles from "./BibliotecaLeitor.module.css";
 
 function Capa({ url }: { url?: string | null }) {
@@ -85,7 +86,7 @@ export async function DetalheCatalogoLeitor({ portal, slug }: { portal: PortalLe
         <p className={styles.notice}>{item.pdfLeituraId ? t("pdfAvailable") : item.linkExterno ? t("externalAvailable") : item.exemplaresDisponiveis > 0 ? t("physicalAvailable", { count: item.exemplaresDisponiveis }) : t("consultLibrary")}</p>
         {(item.pdfLeituraId || item.pdfArquivoId || item.linkExterno) && <aside className={styles.notice} aria-label={t("rightsTitle")}><h2>{t("rightsTitle")}</h2><p>{t("rightsNotice")}</p></aside>}
         <div className={styles.toolbar}>
-          {item.pdfLeituraId && <Link href={`${base}/${encodeURIComponent(slug)}/ler`} className={`${styles.button} ${styles.primary}`}>{t(item.progresso?.paginaAtual ? "resumeReading" : "readOnline")}</Link>}
+          {item.pdfLeituraId && <LinkLeituraBiblioteca href={`${base}/${encodeURIComponent(slug)}/ler`} className={`${styles.button} ${styles.primary}`}>{t(item.progresso?.paginaAtual ? "resumeReading" : "readOnline")}</LinkLeituraBiblioteca>}
           {item.linkExterno && <a href={item.linkExterno} target="_blank" rel="noopener noreferrer" className={styles.button}>{t("openExternal")}</a>}
           {item.pdfArquivoId && <a href={`/api/biblioteca/arquivos/${item.pdfArquivoId}/download`} className={styles.button}>{t("downloadPdf")}</a>}
         </div>
