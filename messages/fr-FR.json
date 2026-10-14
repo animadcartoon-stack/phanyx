@@ -21105,6 +21105,27 @@
     "whatHappens": "Ce qui va se passer"
   },
   "ReaderLibrary": {
+    "annotationTools": {
+      "pens": "Surligneurs",
+      "penColor": "Surligneur {color}",
+      "annotateExcerpt": "Annoter le passage",
+      "selectionHelp": "Choisissez un surligneur, sélectionnez un passage du livre, puis cliquez sur Surligner la sélection ou Annoter le passage. Désactivez Sélectionner le texte pour retrouver les gestes de lecture.",
+      "selectedExcerpt": "Passage sélectionné",
+      "comment": "Ma note",
+      "detachExcerpt": "Détacher le passage",
+      "pageNoteHint": "Note sur la page {page}. Pour commenter un passage précis, sélectionnez-le puis cliquez sur Annoter le passage.",
+      "searchNotes": "Rechercher dans mes annotations",
+      "searchPlaceholder": "Mot, passage ou page",
+      "resultCount": "Annotations trouvées : {count}",
+      "exporting": "Création du PDF…",
+      "exportPdf": "Télécharger les annotations en PDF",
+      "exportHelp": "Exporte les annotations correspondant à cette recherche. Les passages du livre sont inclus uniquement si la licence autorise leur copie.",
+      "noMatchingNotes": "Aucune annotation ne correspond à votre recherche.",
+      "listLimit": "Affichage des 100 premières annotations. Affinez la recherche pour en trouver d’autres. Le PDF inclut tous les résultats.",
+      "exportError": "Impossible de créer le PDF des annotations. Veuillez réessayer.",
+      "exportWithoutQuotes": "La licence n’autorise pas la copie de passages de cet ouvrage. Ce PDF contient uniquement vos notes et les références de page.",
+      "openInlineNote": "Ouvrir la note du passage à la page {page}"
+    },
     "eyebrow": "Bibliothèque virtuelle",
     "title": "Explorer le catalogue",
     "intro": "Découvrez les livres et documents publiés par votre établissement.",

@@ -21106,6 +21106,27 @@
     "whatHappens": "What will happen"
   },
   "ReaderLibrary": {
+    "annotationTools": {
+      "pens": "Highlighter pens",
+      "penColor": "{color} pen",
+      "annotateExcerpt": "Annotate excerpt",
+      "selectionHelp": "Choose a pen, select a passage in the book, then choose Highlight selection or Annotate excerpt. Turn off Select text to use reading gestures.",
+      "selectedExcerpt": "Selected excerpt",
+      "comment": "My note",
+      "detachExcerpt": "Detach excerpt",
+      "pageNoteHint": "Note about page {page}. To comment on a specific passage, select it and choose Annotate excerpt.",
+      "searchNotes": "Search my annotations",
+      "searchPlaceholder": "Word, excerpt or page",
+      "resultCount": "Annotations found: {count}",
+      "exporting": "Generating PDF…",
+      "exportPdf": "Download annotations as PDF",
+      "exportHelp": "Exports annotations matching this search. Book excerpts are included only when the license allows copying.",
+      "noMatchingNotes": "No annotations match your search.",
+      "listLimit": "Showing the first 100 annotations. Refine your search to find others. The PDF includes all results.",
+      "exportError": "Could not generate the annotations PDF. Please try again.",
+      "exportWithoutQuotes": "The license does not allow copying excerpts from this work. This PDF includes only your notes and page references.",
+      "openInlineNote": "Open excerpt note on page {page}"
+    },
     "eyebrow": "Virtual library",
     "title": "Explore the collection",
     "intro": "Find books and materials published by your institution.",

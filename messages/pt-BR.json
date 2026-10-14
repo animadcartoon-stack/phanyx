@@ -20876,6 +20876,27 @@
     "whatHappens": "O que acontecerá"
   },
   "ReaderLibrary": {
+    "annotationTools": {
+      "pens": "Canetas marca-texto",
+      "penColor": "Caneta {color}",
+      "annotateExcerpt": "Anotar trecho",
+      "selectionHelp": "Escolha uma caneta, selecione um trecho no livro e clique em Destacar seleção ou Anotar trecho. Desative Selecionar texto para voltar aos gestos de leitura.",
+      "selectedExcerpt": "Trecho selecionado",
+      "comment": "Minha anotação",
+      "detachExcerpt": "Desvincular trecho",
+      "pageNoteHint": "Anotação sobre a página {page}. Para comentar um trecho específico, selecione-o e clique em Anotar trecho.",
+      "searchNotes": "Buscar nas minhas anotações",
+      "searchPlaceholder": "Palavra, trecho ou página",
+      "resultCount": "Anotações encontradas: {count}",
+      "exporting": "Gerando PDF…",
+      "exportPdf": "Baixar anotações em PDF",
+      "exportHelp": "Exporta as anotações desta busca. Os trechos do livro só são incluídos quando a licença permite cópia.",
+      "noMatchingNotes": "Nenhuma anotação corresponde à busca.",
+      "listLimit": "Mostrando as primeiras 100 anotações. Refine a busca para encontrar outras. O PDF inclui todos os resultados.",
+      "exportError": "Não foi possível gerar o PDF das anotações. Tente novamente.",
+      "exportWithoutQuotes": "A licença não permite copiar trechos desta obra. Este PDF contém somente suas anotações e referências de página.",
+      "openInlineNote": "Abrir anotação do trecho na página {page}"
+    },
     "eyebrow": "Biblioteca virtual",
     "title": "Explore o acervo",
     "intro": "Encontre livros e materiais publicados pela sua instituição.",
