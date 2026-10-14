@@ -15824,7 +15824,8 @@
       "movendo": "Moviendo...",
       "restaurar": "Restaurar matrícula",
       "restaurando": "Restaurando...",
-      "cancelarMatricula": "Cancelar matrícula"
+      "cancelarMatricula": "Cancelar matrícula",
+      "verCancelamento": "Ver cancelación"
     },
     "modal": {
       "title": "Mover matrícula a cuarentena",

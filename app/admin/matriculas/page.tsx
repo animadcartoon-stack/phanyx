@@ -4754,9 +4754,13 @@ function AdminMatriculasPage() {
                           <div className="flex flex-wrap gap-2">
 
                             {m.status === "CANCELADA" ? (
-                              <span className="inline-flex cursor-not-allowed items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-400 opacity-60 dark:border-red-900 dark:bg-red-950/20 dark:text-red-500">
-                                {t("actions.cancelarMatricula")}
-                              </span>
+                              <Link
+                                href={`/admin/matriculas/${m.id}/cancelamento`}
+                                onClick={(event) => event.stopPropagation()}
+                                className="inline-flex items-center gap-1 rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/70"
+                              >
+                                {t("actions.verCancelamento")}
+                              </Link>
                             ) : (
                               <Link
                                 href={`/admin/matriculas/${m.id}/cancelamento`}

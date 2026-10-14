@@ -15825,7 +15825,8 @@
       "movendo": "Moving...",
       "restaurar": "Restore enrollment",
       "restaurando": "Restoring...",
-      "cancelarMatricula": "Cancel enrollment"
+      "cancelarMatricula": "Cancel enrollment",
+      "verCancelamento": "View cancellation"
     },
     "modal": {
       "title": "Move enrollment to quarantine",

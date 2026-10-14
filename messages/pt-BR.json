@@ -15595,7 +15595,8 @@
       "movendo": "Movendo...",
       "restaurar": "Restaurar matrícula",
       "restaurando": "Restaurando...",
-      "cancelarMatricula": "Cancelar matrícula"
+      "cancelarMatricula": "Cancelar matrícula",
+      "verCancelamento": "Ver cancelamento"
     },
     "modal": {
       "title": "Mover matrícula para quarentena",
