@@ -63,6 +63,8 @@
 .root .textLayer :global(::selection) { background: #2563eb55; }
 .root .textLayer :global(.markedContent) { display: contents; }
 .root .highlight { position: absolute; pointer-events: none; z-index: 1; opacity: .45; }
+.root .searchHighlight { position: absolute; pointer-events: none; z-index: 3; background: #fde047; opacity: .65; mix-blend-mode: multiply; border-radius: 2px; }
+.root .searchSnippet { background: #fde047; color: #0f172a; border-radius: 2px; padding: 0 1px; }
 .root .watermark { position: absolute; bottom: 8px; right: 12px; z-index: 3; pointer-events: none; font: 10px sans-serif; color: #475569; background: #ffffffc9; padding: 2px 5px; }
 .root .side { max-height: 78vh; overflow-y: auto; }
 .root .annotation { border-bottom: 1px solid var(--bib-borda); padding: 12px 0; }
@@ -128,6 +130,7 @@
 @media (max-width: 900px) { .root .readerLayout { grid-template-columns: 1fr; } .root .side { max-height: none; } }
 @media (max-width: 600px) { .root .detail { grid-template-columns: 1fr; } .root .detailCover { max-height: 240px; } .root .card { padding: 16px; } .root .formGrid { grid-template-columns: 1fr; } }
 @media print {
+  .root .searchHighlight { display: none !important; }
   .root .readerToolbar, .root .readerPanel, .root .readerHint, .root .pageCorner, .root .turnSheet, .root .pageLoading { display: none !important; }
   .root.readerRoot, .root .readerFrame { display: block; height: auto; overflow: visible; border: none; }
   .root.immersive { position: static; height: auto; padding: 0; }

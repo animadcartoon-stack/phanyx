@@ -11,6 +11,7 @@ import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca, wor
 import { SessaoPaginasPdf, type FacePdfPreparada } from "@/lib/biblioteca-render-paginas";
 import { limitarZoomLeitor, viradaPorGestoLeitor, zoomPorPincaLeitor } from "@/lib/biblioteca-gestos-leitor";
 import { paginasLivro, destinoViradaLivro } from "@/lib/biblioteca-livro-paginas";
+import { localizarTermoPdf, areasTermoPdf } from "@/lib/biblioteca-busca-pdf";
 import styles from "./BibliotecaLeitor.module.css";
 import "./leitor-print.css";
 
@@ -42,6 +43,17 @@ function copiarFace(fonte: HTMLCanvasElement | null, numero: number | null, nota
 }
 function IconeTelaCheia() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" /></svg>; }
 function IconeInformacao() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 10v7M12 6v1" /></svg>; }
+function TrechoBusca({ texto, termo }: { texto: string; termo: string }) {
+  let inicio = 0;
+  const partes: { texto: string; destaque: boolean }[] = [];
+  for (const match of localizarTermoPdf(texto, termo)) {
+    partes.push({ texto: texto.slice(inicio, match.inicio), destaque: false });
+    partes.push({ texto: texto.slice(match.inicio, match.fim), destaque: true });
+    inicio = match.fim;
+  }
+  partes.push({ texto: texto.slice(inicio), destaque: false });
+  return <>{partes.map((parte, i) => parte.destaque ? <mark key={i} className={styles.searchSnippet}>{parte.texto}</mark> : parte.texto)}</>;
+}
 export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direitos, downloadId, usuarioId, bloqueado, paginaInicial }: {
   arquivoId: number; titulo: string; voltar: string; direitos: { copiarTrecho: boolean; imprimir: boolean };
   downloadId: number | null; usuarioId: number; bloqueado: boolean; paginaInicial: number;
@@ -76,6 +88,9 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const [mensagem, setMensagem] = useState(""); const [tipoMensagem, setTipoMensagem] = useState<"erro" | "info">("erro");
   const [busca, setBusca] = useState(""); const [buscando, setBuscando] = useState(false); const [buscou, setBuscou] = useState(false);
   const [resultados, setResultados] = useState<{ pagina: number; trecho: string }[]>([]);
+  const [termoPesquisado, setTermoPesquisado] = useState("");
+  const [areasBusca, setAreasBusca] = useState<Record<number, Area[]>>({});
+  const [textoPronto, setTextoPronto] = useState(0);
   const [restricoes, setRestricoes] = useState({ copiar: true, imprimir: true });
   const [estadoProgresso, setEstadoProgresso] = useState("ready");
   const canvas = useRef<HTMLCanvasElement>(null); const texto = useRef<HTMLDivElement>(null);
@@ -114,11 +129,12 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     try { localStorage.setItem("phanyx.biblioteca.formato", m); } catch {}
   }
 
-  const ir = useCallback((p: number) => {
-    if (!Number.isInteger(p) || p < 1 || p > total || p === pagina || renderizando || virada) return;
+  const ir = useCallback((p: number, animar = true) => {
+    if (!Number.isInteger(p) || p < 1 || p > total || p === pagina || (animar && (renderizando || virada))) return;
+    if (!animar) concluirVirada();
     const destino = paginasLivro(p, total, dupla), atual = paginasLivro(pagina, total, dupla);
     const mesmaAbertura = dupla && atual.esquerda === destino.esquerda && atual.direita === destino.direita;
-    if (!mesmaAbertura && (p === destinoViradaLivro(pagina, total, dupla, p > pagina ? 1 : -1)) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (animar && !mesmaAbertura && (p === destinoViradaLivro(pagina, total, dupla, p > pagina ? 1 : -1)) && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const marca = t("watermark", { id: usuarioId });
       const esquerda = copiarFace(canvasEsquerdo.current, atual.esquerda, anotacoes, marca);
       const direita = copiarFace(canvas.current, atual.direita, anotacoes, marca);
@@ -133,7 +149,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     }
     ancoraZoom.current = null; setSelecao(null); setPagina(p);
     if (documento.current) { documento.current.scrollTop = 0; documento.current.scrollLeft = 0; }
-  }, [total, pagina, renderizando, virada, anotacoes, t, usuarioId, dupla]);
+  }, [total, pagina, renderizando, virada, anotacoes, t, usuarioId, dupla, concluirVirada]);
 
   function iniciarToque(evento: EventoPonteiro<HTMLDivElement>) {
     if (evento.pointerType !== "touch" || selecionarTexto || virada || renderizando ||
@@ -271,6 +287,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     let ativo = true;
     let loading: ReturnType<BibliotecaPdf["getDocument"]> | null = null;
     setCarregando(true); setFalhaDocumento(false); setPdf(null); setTotal(0); setSelecao(null); textosPaginas.current.clear(); numeroBusca.current++;
+    setBusca(""); setTermoPesquisado(""); setResultados([]); setBuscou(false); setBuscando(false); setAreasBusca({});
     setVirada(null); copiaVirada.current = null;
     async function carregar() {
       try {
@@ -426,12 +443,26 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
           face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
         }
       }));
+      if (ativo) setTextoPronto((versao) => versao + 1);
     }
     void desenharTexto().catch((erro) => {
       if (ativo && process.env.NODE_ENV === "development" && (erro as Error)?.name !== "RenderingCancelledException") console.error("Biblioteca texto:", erro);
     });
     return () => { ativo = false; layers.forEach(layer => layer.cancel()); };
   }, [pdf, faces.esquerda, faces.direita, quadros, dimensoes, virada, renderizando]);
+
+  useEffect(() => {
+    const areas: Record<number, Area[]> = {};
+    if (termoPesquisado && !renderizando && !virada) {
+      for (const face of [
+        { numero: faces.esquerda, camada: textoEsquerdo.current },
+        { numero: faces.direita, camada: texto.current },
+      ]) {
+        if (face.numero && face.camada) areas[face.numero] = areasTermoPdf(face.camada, termoPesquisado);
+      }
+    }
+    setAreasBusca(areas);
+  }, [termoPesquisado, textoPronto, faces.esquerda, faces.direita, quadros, renderizando, virada]);
 
   const gravarProgresso = useCallback((atual: number, totalPaginas: number) => {
     if (bloqueado || !totalPaginas) return;
@@ -508,18 +539,20 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   async function pesquisar() {
     if (!pdf || !busca.trim()) return;
     const numero = ++numeroBusca.current; setBuscando(true); setBuscou(false); setResultados([]);
-    const encontrados: { pagina: number; trecho: string }[] = []; const termo = busca.trim().toLocaleLowerCase();
+    const encontrados: { pagina: number; trecho: string }[] = []; const termo = busca.trim();
+    setTermoPesquisado(termo);
     try {
       for (let p = 1; p <= pdf.numPages && encontrados.length < 100; p++) {
         if (numero !== numeroBusca.current) return;
         let conteudo = textosPaginas.current.get(p);
         if (conteudo === undefined) {
           const page = await pdf.getPage(p); const textoPagina = await page.getTextContent();
+          if (numero !== numeroBusca.current) return;
           conteudo = textoPagina.items.map((item) => "str" in item ? item.str : "").join(" ");
           if (textosPaginas.current.size < 1000) textosPaginas.current.set(p, conteudo);
         }
-        const index = conteudo.toLocaleLowerCase().indexOf(termo);
-        if (index >= 0) encontrados.push({ pagina: p, trecho: conteudo.slice(Math.max(0, index - 45), index + termo.length + 75) });
+        const match = localizarTermoPdf(conteudo, termo, 1)[0];
+        if (match) encontrados.push({ pagina: p, trecho: conteudo.slice(Math.max(0, match.inicio - 45), match.fim + 75) });
         if (p % 10 === 0) await new Promise((resolve) => window.setTimeout(resolve, 0));
       }
       if (numero === numeroBusca.current) { setResultados(encontrados); setBuscou(true); }
@@ -535,6 +568,8 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       onPointerDown={e => { if (!(e.target as HTMLElement).closest("button") && !virada && !renderizando) setPagina(numero); }}
       onContextMenu={e => e.preventDefault()}>
       <canvas ref={esquerda ? canvasEsquerdo : canvas} aria-label={t("documentPage", { page: numero })} />
+      {(areasBusca[numero] || []).map((area, i) => <span key={`busca-${i}`} className={styles.searchHighlight} aria-hidden="true"
+        style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%` }} />)}
       {anotacoes.filter(a => a.tipo === "DESTAQUE" && a.pagina === numero).flatMap(a => a.areas.map((area, i) => <span key={`${a.id}-${i}`} className={styles.highlight}
         style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%`, background: cores[a.cor] || cores.AMARELO }} />))}
       <div ref={esquerda ? textoEsquerdo : texto} className={styles.textLayer} onPointerUp={capturarSelecao} onKeyUp={capturarSelecao} onCopy={e => {
@@ -612,12 +647,12 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
           <button className={`${styles.button} ${styles.closePanel}`} onClick={() => setPainel(null)} aria-label={t("closePanel")}>×</button>
           {painel === "search" && <><h2>{t("documentSearch")}</h2>
             <form className={styles.toolbar} role="search" onSubmit={(e) => { e.preventDefault(); void pesquisar(); }}>
-              <label className={styles.hidden} htmlFor="pesquisa-pdf">{t("documentSearch")}</label><input id="pesquisa-pdf" placeholder={t("documentSearch")} value={busca} maxLength={100} onChange={(e) => { numeroBusca.current++; setBuscando(false); setBuscou(false); setBusca(e.target.value); }} />
+              <label className={styles.hidden} htmlFor="pesquisa-pdf">{t("documentSearch")}</label><input id="pesquisa-pdf" placeholder={t("documentSearch")} value={busca} maxLength={100} onChange={(e) => { numeroBusca.current++; setBuscando(false); setBuscou(false); setResultados([]); setTermoPesquisado(""); setBusca(e.target.value); }} />
               <button className={styles.button} disabled={buscando || !busca.trim()}>{t(buscando ? "searching" : "search")}</button>
               {buscando && <button type="button" className={styles.button} onClick={() => { numeroBusca.current++; setBuscando(false); }}>{t("cancel")}</button>}
             </form>
             {buscou && <p role="status">{t(resultados.length ? "searchResults" : "noTextResults", { count: resultados.length })}</p>}
-            <div className={styles.results}>{resultados.map((r) => <button className={styles.button} style={{ display: "block", textAlign: "left", width: "100%" }} key={r.pagina} onClick={() => ir(r.pagina)}>{t("pageCitation", { page: r.pagina })}: {r.trecho}</button>)}</div>
+            <div className={styles.results}>{resultados.map((r) => <button className={styles.button} style={{ display: "block", textAlign: "left", width: "100%" }} key={r.pagina} aria-current={pagina === r.pagina ? "page" : undefined} onClick={() => ir(r.pagina, false)}>{t("pageCitation", { page: r.pagina })}: <TrechoBusca texto={r.trecho} termo={termoPesquisado} /></button>)}</div>
           </>}
           {painel === "rights" && <><h2>{t("rightsTitle")}</h2><p>{t("rightsNotice")}</p><p className={styles.notice}>{t("readerRights")}</p></>}
           {painel === "notes" && <>
