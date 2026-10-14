@@ -62,9 +62,9 @@
 .root .textLayer > :not(:global(.markedContent)), .root .textLayer :global(.markedContent) span:not(:global(.markedContent)) { --font-height: 0; font-size: calc(var(--text-scale-factor) * var(--font-height)); --scale-x: 1; --rotate: 0deg; transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv)); }
 .root .textLayer :global(::selection) { background: #2563eb55; }
 .root .textLayer :global(.markedContent) { display: contents; }
-.root .highlight { position: absolute; pointer-events: none; z-index: 3; opacity: .5; mix-blend-mode: multiply; border-radius: 2px; }
-.root .searchHighlight { position: absolute; pointer-events: none; z-index: 4; background: #facc15 !important; opacity: .72; mix-blend-mode: multiply; border-radius: 2px; }
-.root .searchSnippet { background: #fde047 !important; color: #0f172a !important; border-radius: 2px; padding: 0 1px; }
+.root .highlight { position: absolute; pointer-events: none; z-index: 3; opacity: 0; background: transparent !important; }
+.root .searchHighlight { position: absolute; pointer-events: none; z-index: 4; opacity: 0; background: transparent !important; }
+.root .searchSnippet { background: #ffff00 !important; color: #000 !important; border-radius: 2px; padding: 0 1px; }
 .root .watermark { position: absolute; bottom: 8px; right: 12px; z-index: 3; pointer-events: none; font: 10px sans-serif; color: #475569; background: #ffffffc9; padding: 2px 5px; }
 .root .side { max-height: 78vh; overflow-y: auto; }
 .root .annotation { border-bottom: 1px solid var(--bib-borda); padding: 12px 0; }

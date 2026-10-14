@@ -8,6 +8,7 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import FolhaFlexivelBiblioteca from "./FolhaFlexivelBiblioteca";
 import PainelAnotacoesBiblioteca, { CanetasBiblioteca } from "./PainelAnotacoesBiblioteca";
 import { anotacaoTemTrecho, type AnotacaoLeitor } from "@/lib/biblioteca-anotacoes-leitor";
+import { pintarMarcacoesPdf } from "@/lib/biblioteca-cores-marcacoes";
 import { LIMITE_TRECHO_BIBLIOTECA, LIMITE_PAGINAS_BIBLIOTECA } from "@/lib/biblioteca-direitos-leitura";
 import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
 import { SessaoPaginasPdf, type FacePdfPreparada } from "@/lib/biblioteca-render-paginas";
@@ -19,21 +20,16 @@ import "./leitor-print.css";
 
 type Area = { x: number; y: number; largura: number; altura: number };
 type Anotacao = AnotacaoLeitor;
-const cores: Record<string, string> = { AMARELO: "#fde047", VERDE: "#86efac", AZUL: "#93c5fd", ROSA: "#f9a8d4" };
+const fontesOriginais = new WeakMap<HTMLCanvasElement, HTMLCanvasElement>();
 function copiarFace(fonte: HTMLCanvasElement | null, numero: number | null, notas: Anotacao[], marca: string) {
   if (!fonte || !numero || !fonte.width || !fonte.height) return null;
   const copia = document.createElement("canvas"); const ratio = Math.min(1, Math.sqrt(1800000 / (fonte.width * fonte.height)));
   copia.width = Math.max(1, Math.ceil(fonte.width * ratio)); copia.height = Math.max(1, Math.ceil(fonte.height * ratio));
   const ctx = copia.getContext("2d"); if (!ctx) return null;
-  ctx.drawImage(fonte, 0, 0, copia.width, copia.height);
+  const original = fontesOriginais.get(fonte) || fonte;
   const x = Number(fonte.dataset.contentX || 0), y = Number(fonte.dataset.contentY || 0);
   const w = Number(fonte.dataset.contentWidth || 1), h = Number(fonte.dataset.contentHeight || 1);
-  ctx.save(); ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = .5;
-  for (const nota of notas.filter(a => anotacaoTemTrecho(a) && a.pagina === numero)) {
-    ctx.fillStyle = cores[nota.cor] || cores.AMARELO;
-    for (const area of nota.areas) ctx.fillRect((x + area.x * w) * copia.width, (y + area.y * h) * copia.height, area.largura * w * copia.width, area.altura * h * copia.height);
-  }
-  ctx.restore();
+  pintarMarcacoesPdf(ctx, original, { x, y, w, h }, notas.filter(a => anotacaoTemTrecho(a) && a.pagina === numero));
   const escala = copia.width / Number.parseFloat(fonte.style.width);
   if (Number.isFinite(escala) && escala > 0) {
     ctx.save(); ctx.scale(escala, escala); ctx.font = "10px sans-serif";
@@ -391,6 +387,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
           face.canvas.width = pronta.canvas.width; face.canvas.height = pronta.canvas.height;
           face.canvas.style.width = `${width}px`; face.canvas.style.height = `${height}px`;
           Object.assign(face.canvas.dataset, pronta.canvas.dataset);
+          fontesOriginais.set(face.canvas, pronta.canvas);
           ctx.drawImage(pronta.canvas, 0, 0); face.texto?.replaceChildren();
           layouts[face.numero] = pronta.quadro;
           facesPreparadas.current.set(face.numero, pronta);
@@ -474,6 +471,33 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     }
     setAreasBusca(areas);
   }, [termoPesquisado, textoPronto, faces.esquerda, faces.direita, quadros, renderizando, virada]);
+
+  useLayoutEffect(() => {
+    if (renderizando) return;
+    function desenharMarcacoes(incluirBusca = true) {
+      for (const face of [
+        { numero: faces.esquerda, canvas: canvasEsquerdo.current },
+        { numero: faces.direita, canvas: canvas.current },
+      ]) {
+        if (!face.numero || !face.canvas) continue;
+        const pronta = facesPreparadas.current.get(face.numero), ctx = face.canvas.getContext("2d");
+        if (!pronta || !ctx || !quadros[face.numero]) continue;
+        const marcacoes = anotacoes.filter(a => anotacaoTemTrecho(a) && a.pagina === face.numero);
+        pintarMarcacoesPdf(ctx, pronta.canvas, pronta.quadro, [
+          ...marcacoes, { cor: "AMARELO", areas: incluirBusca ? areasBusca[face.numero] || [] : [] },
+        ]);
+      }
+    }
+    desenharMarcacoes();
+    const antesDeImprimir = () => desenharMarcacoes(false);
+    const depoisDeImprimir = () => desenharMarcacoes();
+    window.addEventListener("beforeprint", antesDeImprimir);
+    window.addEventListener("afterprint", depoisDeImprimir);
+    return () => {
+      window.removeEventListener("beforeprint", antesDeImprimir);
+      window.removeEventListener("afterprint", depoisDeImprimir);
+    };
+  }, [anotacoes, areasBusca, quadros, dimensoes, renderizando, faces.esquerda, faces.direita]);
 
   const gravarProgresso = useCallback((atual: number, totalPaginas: number) => {
     if (bloqueado || !totalPaginas) return;
@@ -592,7 +616,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       {(areasBusca[numero] || []).map((area, i) => <span key={`busca-${i}`} className={styles.searchHighlight} aria-hidden="true" data-search-highlight="true"
         style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%` }} />)}
       {anotacoes.filter(a => anotacaoTemTrecho(a) && a.pagina === numero).flatMap(a => a.areas.map((area, i) => <span key={`${a.id}-${i}`} className={styles.highlight} data-annotation-highlight={a.id}
-        style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%`, background: cores[a.cor] || cores.AMARELO }} />))}
+        style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%` }} />))}
       <div ref={esquerda ? textoEsquerdo : texto} className={styles.textLayer} onPointerUp={capturarSelecao} onKeyUp={capturarSelecao} onCopy={e => {
         e.preventDefault(); const trecho = window.getSelection()?.toString().trim() || "";
         if (podeCopiar && trecho && trecho.length <= LIMITE_TRECHO_BIBLIOTECA) e.clipboardData.setData("text/plain", citar(trecho, numero));
@@ -618,7 +642,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     </div>;
   }
   const fatorVisual = (zoomGesto ?? zoom) / zoomDesenhado;
-  const conteudo = <section ref={raiz} data-reader-version="anotacoes-trechos-20261014" id={imersivo ? "biblioteca-leitor-fullscreen" : undefined}
+  const conteudo = <section ref={raiz} data-reader-version="cores-vivas-20261014" id={imersivo ? "biblioteca-leitor-fullscreen" : undefined}
     className={`${styles.root} ${styles.readerRoot} ${imersivo ? styles.immersive : ""}`} tabIndex={-1}
     role={imersivo ? "dialog" : undefined} aria-modal={imersivo ? true : undefined} aria-label={titulo}>
     <div className={styles.readerToolbar}>
