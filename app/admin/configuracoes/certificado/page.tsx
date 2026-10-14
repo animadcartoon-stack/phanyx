@@ -1665,6 +1665,12 @@ export default function ConfiguracaoCertificadoPage() {
     null,
   );
 
+  const [formatacaoSelecaoTexto, setFormatacaoSelecaoTexto] = useState({
+    negrito: false,
+    italico: false,
+    sublinhado: false,
+  });
+
   const [editorCorGradiente, setEditorCorGradiente] = useState<{
     campoId: number;
     pontoIndex: number;
@@ -2203,6 +2209,12 @@ export default function ConfiguracaoCertificadoPage() {
       const corHex = cssColorToHex(cor);
 
       setCorTextoSelecionado(corHex || null);
+
+      setFormatacaoSelecaoTexto({
+        negrito: document.queryCommandState("bold"),
+        italico: document.queryCommandState("italic"),
+        sublinhado: document.queryCommandState("underline"),
+      });
     }
 
     document.addEventListener("selectionchange", salvarSelecaoTextoLivre);
@@ -5907,6 +5919,12 @@ export default function ConfiguracaoCertificadoPage() {
 
     document.execCommand(comando, false);
 
+    setFormatacaoSelecaoTexto({
+      negrito: document.queryCommandState("bold"),
+      italico: document.queryCommandState("italic"),
+      sublinhado: document.queryCommandState("underline"),
+    });
+
     const selecaoDepois = window.getSelection();
 
     if (
@@ -5926,6 +5944,16 @@ export default function ConfiguracaoCertificadoPage() {
     window.setTimeout(() => {
       aplicandoEstiloTextoRef.current = false;
     }, 0);
+  }
+
+  function formatoTextoLivreAtivo(
+    chave: "negrito" | "italico" | "sublinhado",
+  ) {
+    if (temSelecaoTextoLivreSalva()) {
+      return formatacaoSelecaoTexto[chave];
+    }
+
+    return Boolean((campoSelecionado as any)?.[chave]);
   }
 
   function nomeDaCamada(campo: CampoCertificado, index: number) {
@@ -13041,13 +13069,14 @@ export default function ConfiguracaoCertificadoPage() {
                       <div className="mt-3 flex gap-2">
                         <button
                           type="button"
+                          aria-pressed={formatoTextoLivreAtivo("negrito")}
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
                             alternarFormatoTextoLivre("bold", "negrito")
                           }
-                          className={`px-3 py-1 rounded border text-sm ${campoSelecionado.negrito
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-700"
+                          className={`px-3 py-1 rounded border text-sm transition ${formatoTextoLivreAtivo("negrito")
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
                             }`}
                         >
                           B
@@ -13055,13 +13084,14 @@ export default function ConfiguracaoCertificadoPage() {
 
                         <button
                           type="button"
+                          aria-pressed={formatoTextoLivreAtivo("italico")}
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
                             alternarFormatoTextoLivre("italic", "italico")
                           }
-                          className={`px-3 py-1 rounded border text-sm italic ${campoSelecionado.italico
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-700"
+                          className={`px-3 py-1 rounded border text-sm italic transition ${formatoTextoLivreAtivo("italico")
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
                             }`}
                         >
                           I
@@ -13069,6 +13099,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                         <button
                           type="button"
+                          aria-pressed={formatoTextoLivreAtivo("sublinhado")}
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
                             alternarFormatoTextoLivre(
@@ -13076,9 +13107,9 @@ export default function ConfiguracaoCertificadoPage() {
                               "sublinhado",
                             )
                           }
-                          className={`px-3 py-1 rounded border text-sm underline ${campoSelecionado.sublinhado
-                            ? "bg-blue-600 text-white"
-                            : "bg-white text-gray-700"
+                          className={`px-3 py-1 rounded border text-sm underline transition ${formatoTextoLivreAtivo("sublinhado")
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
                             }`}
                         >
                           U
