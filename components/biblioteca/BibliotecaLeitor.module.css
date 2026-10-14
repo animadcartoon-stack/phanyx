@@ -28,6 +28,15 @@
 }
 .root .primary, .importButton { background: var(--bib-acao, #1d4ed8) !important; color: var(--bib-acao-texto, #ffffff) !important; border-color: transparent; }
 :global(html.dark) .importButton { background: #bfdbfe !important; color: #172554 !important; }
+/* Feedback visual de favoritos e filtros do catálogo. */
+.root .button[aria-current="page"] {
+  background: var(--bib-acao) !important;
+  color: var(--bib-acao-texto) !important;
+  border-color: var(--bib-acao);
+}
+.root .favoriteIcon { display: block; flex-shrink: 0; }
+.root .favoriteButton[aria-pressed="true"] .favoriteIcon { color: #dc2626; }
+:global(html.dark) .root .favoriteButton[aria-pressed="true"] .favoriteIcon { color: #f87171; }
 .root .button:hover, .importButton:hover { filter: brightness(.93); }
 .root .button:disabled, .importButton:disabled { opacity: .5; cursor: not-allowed; }
 .root .button:focus-visible, .root input:focus-visible, .root select:focus-visible, .root textarea:focus-visible, .importButton:focus-visible { outline: 3px solid #3b82f6; outline-offset: 3px; }
