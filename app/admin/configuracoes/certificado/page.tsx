@@ -5833,6 +5833,8 @@ export default function ConfiguracaoCertificadoPage() {
 
     selecaoTextoRef.current = novoRange.cloneRange();
 
+    atualizarTextoLivreNoEstado(editor);
+
     setTimeout(() => {
       aplicandoEstiloTextoRef.current = false;
     }, 250);
@@ -5857,6 +5859,73 @@ export default function ConfiguracaoCertificadoPage() {
     }
 
     atualizarCampoLocal(chave as any, valor);
+  }
+
+  function alternarFormatoTextoLivre(
+    comando: "bold" | "italic" | "underline",
+    chave: "negrito" | "italico" | "sublinhado",
+  ) {
+    if (
+      campoSelecionado?.tipo !== "TEXTO_LIVRE" ||
+      !temSelecaoTextoLivreAtiva()
+    ) {
+      atualizarCampoLocal(
+        chave,
+        !Boolean((campoSelecionado as any)?.[chave]) as any,
+      );
+      return;
+    }
+
+    const editor = document.querySelector(
+      `[data-texto-livre-id="${campoSelecionadoId}"]`,
+    ) as HTMLElement | null;
+
+    const rangeSalvo = selecaoTextoRef.current;
+
+    if (
+      !editor ||
+      !rangeSalvo ||
+      rangeSalvo.collapsed ||
+      !editor.contains(rangeSalvo.commonAncestorContainer)
+    ) {
+      return;
+    }
+
+    salvarHistoricoTextoLivre(editor);
+    aplicandoEstiloTextoRef.current = true;
+
+    editor.focus({ preventScroll: true });
+
+    const selecao = window.getSelection();
+    if (!selecao) {
+      aplicandoEstiloTextoRef.current = false;
+      return;
+    }
+
+    selecao.removeAllRanges();
+    selecao.addRange(rangeSalvo.cloneRange());
+
+    document.execCommand(comando, false);
+
+    const selecaoDepois = window.getSelection();
+
+    if (
+      selecaoDepois &&
+      selecaoDepois.rangeCount > 0 &&
+      !selecaoDepois.getRangeAt(0).collapsed &&
+      editor.contains(
+        selecaoDepois.getRangeAt(0).commonAncestorContainer,
+      )
+    ) {
+      selecaoTextoRef.current =
+        selecaoDepois.getRangeAt(0).cloneRange();
+    }
+
+    atualizarTextoLivreNoEstado(editor);
+
+    window.setTimeout(() => {
+      aplicandoEstiloTextoRef.current = false;
+    }, 0);
   }
 
   function nomeDaCamada(campo: CampoCertificado, index: number) {
@@ -12948,11 +13017,6 @@ export default function ConfiguracaoCertificadoPage() {
                           onChange={(e) => {
                             const novaFonte = e.target.value;
 
-                            if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-                              atualizarCampoLocal("fonte", novaFonte as any);
-                              return;
-                            }
-
                             aplicarEstiloTextoOuCampoInteiro(
                               "fonte",
                               novaFonte,
@@ -12979,13 +13043,7 @@ export default function ConfiguracaoCertificadoPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
-                            aplicarEstiloTextoOuCampoInteiro(
-                              "negrito",
-                              !campoSelecionado.negrito,
-                              {
-                                fontWeight: "700",
-                              },
-                            )
+                            alternarFormatoTextoLivre("bold", "negrito")
                           }
                           className={`px-3 py-1 rounded border text-sm ${campoSelecionado.negrito
                             ? "bg-blue-600 text-white"
@@ -12999,13 +13057,7 @@ export default function ConfiguracaoCertificadoPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
-                            aplicarEstiloTextoOuCampoInteiro(
-                              "italico",
-                              !campoSelecionado.italico,
-                              {
-                                fontStyle: "italic",
-                              },
-                            )
+                            alternarFormatoTextoLivre("italic", "italico")
                           }
                           className={`px-3 py-1 rounded border text-sm italic ${campoSelecionado.italico
                             ? "bg-blue-600 text-white"
@@ -13019,12 +13071,9 @@ export default function ConfiguracaoCertificadoPage() {
                           type="button"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() =>
-                            aplicarEstiloTextoOuCampoInteiro(
+                            alternarFormatoTextoLivre(
+                              "underline",
                               "sublinhado",
-                              !campoSelecionado.sublinhado,
-                              {
-                                textDecoration: "underline",
-                              },
                             )
                           }
                           className={`px-3 py-1 rounded border text-sm underline ${campoSelecionado.sublinhado
@@ -14356,7 +14405,7 @@ export default function ConfiguracaoCertificadoPage() {
                 type="button"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  aplicarEstiloTextoSelecionado({ fontWeight: "700" });
+                  alternarFormatoTextoLivre("bold", "negrito");
                   setMenuContexto(null);
                 }}
                 className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -14369,7 +14418,7 @@ export default function ConfiguracaoCertificadoPage() {
                 type="button"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  aplicarEstiloTextoSelecionado({ fontStyle: "italic" });
+                  alternarFormatoTextoLivre("italic", "italico");
                   setMenuContexto(null);
                 }}
                 className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -14382,9 +14431,10 @@ export default function ConfiguracaoCertificadoPage() {
                 type="button"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  aplicarEstiloTextoSelecionado({
-                    textDecoration: "underline",
-                  });
+                  alternarFormatoTextoLivre(
+                    "underline",
+                    "sublinhado",
+                  );
                   setMenuContexto(null);
                 }}
                 className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
