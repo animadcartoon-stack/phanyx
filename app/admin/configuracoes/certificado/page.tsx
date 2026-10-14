@@ -705,85 +705,46 @@ type ModoVisualEditorCertificado =
 type SeletorModeloCertificadoProps = {
   modelos: any[];
   modeloAtivoId: number | null;
-  modeloAtivoNome: string;
   desabilitado: boolean;
   labelSelecionar: string;
-  ariaSelecionado: string;
   onSelect: (modeloId: number) => void;
 };
 
 function SeletorModeloCertificado({
   modelos,
   modeloAtivoId,
-  modeloAtivoNome,
   desabilitado,
   labelSelecionar,
-  ariaSelecionado,
   onSelect,
 }: SeletorModeloCertificadoProps) {
-  const [aberto, setAberto] = useState(false);
-
   return (
-    <div className="relative">
-      <button
-        type="button"
-        disabled={desabilitado}
-        onClick={() => setAberto((valor) => !valor)}
-        className="phanyx-cert-modelo-seletor flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <span className="truncate">
-          {modeloAtivoNome || labelSelecionar}
-        </span>
+    <select
+      value={modeloAtivoId ?? ""}
+      disabled={desabilitado}
+      aria-label={labelSelecionar}
+      onChange={(event) => {
+        const modeloId = Number(event.currentTarget.value);
 
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          className={`h-5 w-5 shrink-0 transition ${aberto ? "rotate-180" : ""}`}
-        >
-          <path
-            fillRule="evenodd"
-            d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.51a.75.75 0 0 1-1.08 0l-4.25-4.51a.75.75 0 0 1 .02-1.06Z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </button>
-
-      {aberto && (
-        <div className="phanyx-cert-modelo-menu absolute left-0 right-0 top-full z-[200] mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl">
-          {modelos.map((modelo: any) => {
-            const selecionado =
-              Number(modelo.id) === Number(modeloAtivoId);
-
-            return (
-              <button
-                key={modelo.id}
-                type="button"
-                onClick={() => {
-                  setAberto(false);
-
-                  if (!selecionado) {
-                    onSelect(Number(modelo.id));
-                  }
-                }}
-                className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${selecionado ? "is-active" : ""}`}
-              >
-                <span className="truncate">{modelo.nome}</span>
-
-                {selecionado && (
-                  <span
-                    className="text-base"
-                    aria-label={ariaSelecionado}
-                  >
-                    ✓
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        if (
+          Number.isInteger(modeloId) &&
+          modeloId > 0 &&
+          modeloId !== Number(modeloAtivoId)
+        ) {
+          onSelect(modeloId);
+        }
+      }}
+      className="phanyx-cert-modelo-seletor w-full cursor-pointer rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {!modeloAtivoId && (
+        <option value="">{labelSelecionar}</option>
       )}
-    </div>
+
+      {modelos.map((modelo: any) => (
+        <option key={modelo.id} value={modelo.id}>
+          {modelo.nome}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -3330,12 +3291,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       e.preventDefault();
 
-      idsParaExcluir.forEach((id) => {
-        void excluirCampo(id);
-      });
-
-      setCampoSelecionadoId(null);
-      setCamposSelecionadosIds([]);
+      void excluirCamposEmLote(idsParaExcluir);
     }
 
     function handleKeyUp(e: KeyboardEvent) {
@@ -4006,63 +3962,119 @@ export default function ConfiguracaoCertificadoPage() {
     }
   }
 
-  async function excluirCampo(id: number) {
-    const campo = campos.find((c) => c.id === id);
-
-    if (!campo) return;
-
-    const urlSelecionada =
+  function urlImagemCampo(campo: CampoCertificado) {
+    return String(
       (campo as any).imagemUrl ||
       (campo as any).url ||
       (campo as any).src ||
       (campo as any).arquivoUrl ||
       (campo as any).previewUrl ||
-      "";
+      "",
+    );
+  }
 
-    const camposParaExcluir = campos.filter((c) => {
-      const mesmaId = c.id === id || (c as any).bancoId === id;
+  async function excluirCamposEmLote(idsSolicitados: number[]) {
+    const idsAlvo = new Set(
+      idsSolicitados
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id)),
+    );
 
-      const urlCampo =
-        (c as any).imagemUrl ||
-        (c as any).url ||
-        (c as any).src ||
-        (c as any).arquivoUrl ||
-        (c as any).previewUrl ||
-        "";
+    if (idsAlvo.size === 0) return;
+
+    const camposDiretos = campos.filter(
+      (campo) =>
+        idsAlvo.has(Number(campo.id)) ||
+        idsAlvo.has(Number((campo as any).bancoId)),
+    );
+
+    if (camposDiretos.length === 0) return;
+
+    const urlsImagem = new Set(
+      camposDiretos
+        .filter((campo) => campo.tipo === "IMAGEM")
+        .map(urlImagemCampo)
+        .filter(Boolean),
+    );
+
+    const camposParaExcluir = campos.filter((campo) => {
+      const direto =
+        idsAlvo.has(Number(campo.id)) ||
+        idsAlvo.has(Number((campo as any).bancoId));
 
       const mesmaImagem =
         campo.tipo === "IMAGEM" &&
-        c.tipo === "IMAGEM" &&
-        urlSelecionada &&
-        urlCampo === urlSelecionada;
+        urlsImagem.size > 0 &&
+        urlsImagem.has(urlImagemCampo(campo));
 
-      return mesmaId || mesmaImagem;
+      return direto || mesmaImagem;
     });
 
-    try {
-      for (const item of camposParaExcluir) {
-        const idBanco = Number((item as any).bancoId || item.id);
+    const idsLocais = new Set(
+      camposParaExcluir.map((campo) => campo.id),
+    );
 
-        if (Number.isFinite(idBanco) && idBanco > 0) {
-          await fetch(`/api/admin/certificado-campos?id=${idBanco}`, {
-            method: "DELETE",
-          });
+    const idsPersistidos = Array.from(
+      new Set(
+        camposParaExcluir
+          .map((campo) => Number((campo as any).bancoId))
+          .filter(
+            (id) =>
+              Number.isInteger(id) &&
+              id > 0,
+          ),
+      ),
+    );
+
+    const camposAntes = campos;
+    const campoSelecionadoAntes = campoSelecionadoId;
+    const camposSelecionadosAntes = camposSelecionadosIds;
+
+    setCampos((prev) =>
+      prev.filter((campo) => !idsLocais.has(campo.id)),
+    );
+    setCampoSelecionadoId(null);
+    setCamposSelecionadosIds([]);
+    setPontoFormaSelecionado(null);
+
+    try {
+      if (idsPersistidos.length > 0) {
+        const resposta = await fetch("/api/admin/certificado-campos", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ids: idsPersistidos,
+          }),
+        });
+
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+          throw new Error(
+            dados?.detalhe ||
+            dados?.error ||
+            tr("errors.deleteField"),
+          );
         }
       }
 
-      setCampos((prev) =>
-        prev.filter((c) => !camposParaExcluir.some((item) => item.id === c.id)),
-      );
-
-      if (campoSelecionadoId === id) {
-        setCampoSelecionadoId(null);
-      }
-
       setMensagemSucesso(tr("messages.fieldDeleted"));
-      setTimeout(() => setMensagemSucesso(""), 2500);
-    } catch {
-      setMensagemErro(tr("errors.deleteField"));
+      setTimeout(() => setMensagemSucesso(""), 1800);
+    } catch (error: any) {
+      setCampos(camposAntes);
+      setCampoSelecionadoId(campoSelecionadoAntes);
+      setCamposSelecionadosIds(camposSelecionadosAntes);
+
+      setMensagemErro(
+        error?.message || tr("errors.deleteField"),
+      );
     }
+  }
+
+  async function excluirCampo(id: number) {
+    await excluirCamposEmLote([id]);
   }
 
   function atualizarCampoLocal<K extends keyof CampoCertificado>(
@@ -7364,10 +7376,8 @@ export default function ConfiguracaoCertificadoPage() {
             <SeletorModeloCertificado
               modelos={modelosCertificado}
               modeloAtivoId={modeloAtivoId}
-              modeloAtivoNome={String(modeloAtivo?.nome || "")}
               desabilitado={trocandoModelo || salvando || publicando}
               labelSelecionar={tr("models.selectModel")}
-              ariaSelecionado={tr("models.selectedAria")}
               onSelect={(modeloId) => {
                 void abrirModeloCertificado(modeloId);
               }}
@@ -9915,7 +9925,9 @@ export default function ConfiguracaoCertificadoPage() {
                         );
                         const formaEstaAgrupada = Boolean((c as any).grupoId);
                         const podeEditarFormaIndividual =
-                          selecionado && !formaEstaAgrupada;
+                          selecionado &&
+                          !formaEstaAgrupada &&
+                          camposSelecionadosIds.length <= 1;
                         return (
                           <div
                             key={c.id}
@@ -10107,13 +10119,11 @@ export default function ConfiguracaoCertificadoPage() {
                                   <div data-campo-certificado-id={c.id}>
                                     <FormaVetorial
                                       campo={c as any}
-                                      selecionado={
-                                        selecionado && !formaEstaAgrupada
-                                      }
+                                      selecionado={podeEditarFormaIndividual}
                                       modo="editor"
                                       mostrarHandles={
                                         mostrarHandlesForma &&
-                                        !formaEstaAgrupada
+                                        podeEditarFormaIndividual
                                       }
                                       pontoSelecionadoId={
                                         pontoFormaSelecionado?.campoId === c.id

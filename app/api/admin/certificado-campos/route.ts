@@ -463,6 +463,94 @@ export async function DELETE(req: NextRequest) {
     const user = await obterUsuarioAdmin();
     const { searchParams } = new URL(req.url);
 
+    const contentType = String(
+      req.headers.get("content-type") || "",
+    ).toLowerCase();
+
+    const body = contentType.includes("application/json")
+      ? await req.json().catch(() => null)
+      : null;
+
+    if (Array.isArray(body?.ids)) {
+      const ids = Array.from(
+        new Set(
+          body.ids
+            .map((valor: unknown) => Number(valor))
+            .filter(
+              (valor: number) =>
+                Number.isInteger(valor) &&
+                valor > 0,
+            ),
+        ),
+      ) as number[];
+
+      if (ids.length === 0) {
+        throw new ErroApiCertificado(
+          "Nenhum campo válido informado.",
+          400,
+        );
+      }
+
+      if (ids.length > 2000) {
+        throw new ErroApiCertificado(
+          "A exclusão em lote aceita no máximo 2000 campos por operação.",
+          400,
+        );
+      }
+
+      const camposExistentes =
+        await prisma.certificadoCampo.findMany({
+          where: {
+            id: {
+              in: ids,
+            },
+            instituicaoId: user.instituicaoId,
+          },
+          select: {
+            id: true,
+            certificadoModeloVersao: {
+              select: {
+                tipo: true,
+              },
+            },
+          },
+        });
+
+      const possuiCampoPublicado =
+        camposExistentes.some(
+          (campo) =>
+            campo.certificadoModeloVersao?.tipo ===
+            TipoVersaoCertificado.PUBLICADO,
+        );
+
+      if (possuiCampoPublicado) {
+        throw new ErroApiCertificado(
+          "A versão publicada não pode ser excluída diretamente.",
+          409,
+        );
+      }
+
+      const idsPermitidos =
+        camposExistentes.map((campo) => campo.id);
+
+      const resultado =
+        idsPermitidos.length > 0
+          ? await prisma.certificadoCampo.deleteMany({
+              where: {
+                id: {
+                  in: idsPermitidos,
+                },
+                instituicaoId: user.instituicaoId,
+              },
+            })
+          : { count: 0 };
+
+      return NextResponse.json({
+        ok: true,
+        excluidos: resultado.count,
+      });
+    }
+
     const id = lerIdPositivo(
       searchParams.get("id"),
       "Campo"
