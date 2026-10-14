@@ -99,6 +99,29 @@ export async function listarCatalogo(leitor: Leitor, entrada: { q?: string; prat
   return { prateleiras, selecionada, itens, total, pagina, busca, filtro };
 }
 
+/** A abertura do leitor não precisa consultar capas, autores, exemplares ou favoritos. */
+export async function obterItemLeitura(leitor: Leitor, slug: string) {
+  const item = await prisma.bibliotecaItem.findFirst({
+    where: { instituicaoId: leitor.instituicaoId, slug, status: "PUBLICADO" },
+    select: {
+      titulo: true, modalidade: true, acessoLivre: true, permitirDownload: true,
+      licencas: { where: licencasVigentes(leitor.instituicaoId),
+        select: { permitirVisualizacao: true, permitirDownload: true, permitirCopia: true, permitirImpressao: true } },
+      arquivos: { where: { instituicaoId: leitor.instituicaoId, tipo: "PDF", status: "DISPONIVEL", arquivadoEm: null, storageKey: { not: null } },
+        select: { id: true }, orderBy: [{ principal: "desc" }, { id: "desc" }], take: 1 },
+      progressosLeitura: { where: { instituicaoId: leitor.instituicaoId, usuarioId: leitor.usuarioId },
+        select: { arquivoId: true, paginaAtual: true }, take: 1 },
+    },
+  });
+  if (!item) notFound();
+  const direitos = direitosLeituraBiblioteca(item), arquivo = item.arquivos[0];
+  const podeBaixar = Boolean(arquivo && ["ACESSO_LIVRE", "DOWNLOAD_AUTORIZADO"].includes(item.modalidade) &&
+    podeBaixarPdfBiblioteca({ configuracao: leitor.configuracao, item, licencas: item.licencas }));
+  return { titulo: item.titulo, direitos, pdfLeituraId: direitos.lerPdf ? arquivo?.id || null : null,
+    pdfArquivoId: podeBaixar ? arquivo!.id : null,
+    progresso: item.progressosLeitura.find((p) => p.arquivoId === arquivo?.id) || null };
+}
+
 export async function obterItemCatalogo(leitor: Leitor, slug: string) {
   const item = await prisma.bibliotecaItem.findFirst({
     where: { instituicaoId: leitor.instituicaoId, slug, status: "PUBLICADO" },

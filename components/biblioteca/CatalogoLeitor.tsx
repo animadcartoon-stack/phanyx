@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { contextoLeitor, listarCatalogo, obterItemCatalogo, type PortalLeitor } from "@/lib/biblioteca-catalogo-leitor";
 import FavoritoBiblioteca from "./FavoritoBiblioteca";
 import RecomendacoesBiblioteca from "./RecomendacoesBiblioteca";
-import LinkLeituraBiblioteca from "./LinkLeituraBiblioteca";
+import LinkLeituraBiblioteca, { PrepararLeitorBiblioteca } from "./LinkLeituraBiblioteca";
 import styles from "./BibliotecaLeitor.module.css";
 
 function Capa({ url }: { url?: string | null }) {
@@ -27,6 +27,7 @@ export async function CatalogoLeitor({ portal, searchParams }: { portal: PortalL
     return `${base}?${query}`;
   }
   return <div className={styles.root}>
+    <PrepararLeitorBiblioteca />
     <header className={styles.card}><p className={styles.muted}>{t("eyebrow")}</p><h1>{t("title")}</h1><p>{t("intro")}</p></header>
     <section className={styles.card}>
       <form action={base} method="get" role="search" className={styles.toolbar}>

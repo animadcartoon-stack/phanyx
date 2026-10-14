@@ -7,7 +7,8 @@ import { useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import FolhaFlexivelBiblioteca from "./FolhaFlexivelBiblioteca";
 import { LIMITE_TRECHO_BIBLIOTECA, LIMITE_PAGINAS_BIBLIOTECA } from "@/lib/biblioteca-direitos-leitura";
-import { carregarBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
+import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
+import { SessaoPaginasPdf, type FacePdfPreparada } from "@/lib/biblioteca-render-paginas";
 import { limitarZoomLeitor, viradaPorGestoLeitor, zoomPorPincaLeitor } from "@/lib/biblioteca-gestos-leitor";
 import { paginasLivro, destinoViradaLivro } from "@/lib/biblioteca-livro-paginas";
 import styles from "./BibliotecaLeitor.module.css";
@@ -92,6 +93,8 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const folha = useRef<HTMLDivElement>(null); const documento = useRef<HTMLDivElement>(null);
   const filaProgresso = useRef<Promise<void>>(Promise.resolve()); const numeroBusca = useRef(0);
   const textosPaginas = useRef(new Map<number, string>());
+  const sessaoPaginas = useRef<SessaoPaginasPdf | null>(null);
+  const facesPreparadas = useRef(new Map<number, FacePdfPreparada>());
   const podeCopiar = direitos.copiarTrecho && restricoes.copiar;
   const podeImprimir = direitos.imprimir && restricoes.imprimir;
   const podeAnotar = !bloqueado && !carregandoAnotacoes && !erroAnotacoes;
@@ -120,8 +123,12 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       const esquerda = copiarFace(canvasEsquerdo.current, atual.esquerda, anotacoes, marca);
       const direita = copiarFace(canvas.current, atual.direita, anotacoes, marca);
       if (p > pagina ? direita : (dupla ? esquerda : direita)) {
-        copiaVirada.current = { esquerda, direita, verso: null, sentido: p > pagina ? "next" : "previous" };
-        setVirada({ sentido: p > pagina ? "next" : "previous", fase: "waiting" });
+        const numeroVerso = p > pagina && dupla ? destino.esquerda : destino.direita;
+        const pronta = numeroVerso ? sessaoPaginas.current?.obter(numeroVerso) : undefined;
+        const verso = pronta ? copiarFace(pronta.canvas, numeroVerso, anotacoes, marca) : null;
+        const preparada = [destino.esquerda, destino.direita].every(numero => !numero || sessaoPaginas.current?.obter(numero));
+        copiaVirada.current = { esquerda, direita, verso, sentido: p > pagina ? "next" : "previous" };
+        setVirada({ sentido: p > pagina ? "next" : "previous", fase: preparada && verso ? "turning" : "waiting" });
       }
     }
     ancoraZoom.current = null; setSelecao(null); setPagina(p);
@@ -267,9 +274,9 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     setVirada(null); copiaVirada.current = null;
     async function carregar() {
       try {
-        const lib = await carregarBibliotecaPdf(); if (!ativo) return;
+        const [lib, worker] = await Promise.all([carregarBibliotecaPdf(), obterWorkerBibliotecaPdf()]); if (!ativo) return;
         lib.GlobalWorkerOptions.workerSrc = workerPdfBiblioteca;
-        loading = lib.getDocument({ url: `${base}/conteudo`, withCredentials: true, disableRange: true,
+        loading = lib.getDocument({ url: `${base}/conteudo`, worker, withCredentials: true, disableRange: true,
           isEvalSupported: false, cMapUrl: `${raizPdfBiblioteca}/cmaps/`, cMapPacked: true,
           standardFontDataUrl: `${raizPdfBiblioteca}/standard_fonts/`, wasmUrl: `${raizPdfBiblioteca}/wasm/` });
         const doc = await loading.promise;
@@ -290,7 +297,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       finally { if (ativo) setCarregando(false); }
     }
     void carregar();
-    return () => { ativo = false; cancelarBusca(); void loading?.destroy(); };
+    return () => { ativo = false; cancelarBusca(); sessaoPaginas.current?.destruir(); sessaoPaginas.current = null; facesPreparadas.current.clear(); void loading?.destroy(); };
   }, [base, tentativa, paginaInicial, usuarioId, cancelarBusca]);
 
   useEffect(() => {
@@ -324,64 +331,107 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
 
   useEffect(() => {
     if (!pdf) return;
-    let ativo = true;
-    const renders: { cancel(): void; promise: Promise<void> }[] = [];
-    const layers: { cancel(): void; render(): Promise<void> }[] = [];
+    let ativo = true, aquecimento = 0;
     setRenderizando(true);
     async function desenhar() {
       try {
-        const [primeira, lib] = await Promise.all([pdf!.getPage(1), carregarBibliotecaPdf()]);
+        const primeira = await pdf!.getPage(1);
         if (!ativo) return;
         const original = primeira.getViewport({ scale: 1 });
         const scale = Math.min(largura / (dupla ? 2 : 1) / original.width, altura / original.height) * zoom;
         const width = original.width * scale, height = original.height * scale;
         const ratio = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(16000000 / (width * height * (dupla ? 2 : 1))));
-        setDimensoes({ width, height }); setZoomDesenhado(zoom);
-        const layouts: Record<number, { x: number; y: number; w: number; h: number }> = {};
+        let sessao = sessaoPaginas.current;
+        if (!sessao || sessao.pdf !== pdf || sessao.largura !== width || sessao.altura !== height || sessao.ratio !== ratio) {
+          sessao?.destruir();
+          sessao = new SessaoPaginasPdf(pdf!, width, height, ratio);
+          sessaoPaginas.current = sessao;
+        }
+        const atual = sessao;
         const lista = [
           { numero: faces.direita, canvas: canvas.current, texto: texto.current },
           { numero: faces.esquerda, canvas: canvasEsquerdo.current, texto: textoEsquerdo.current },
         ];
-        await Promise.all(lista.map(async face => {
-          if (!face.numero || !face.canvas || !face.texto) return;
-          const page = await pdf!.getPage(face.numero); if (!ativo) return;
-          const tamanho = page.getViewport({ scale: 1 });
-          const viewport = page.getViewport({ scale: Math.min(width / tamanho.width, height / tamanho.height) });
-          const x = (width - viewport.width) / 2, y = (height - viewport.height) / 2;
-          const layout = { x: x / width, y: y / height, w: viewport.width / width, h: viewport.height / height };
-          layouts[face.numero] = layout;
-          const ctx = face.canvas.getContext("2d"); if (!ctx) throw new Error();
-          face.canvas.width = Math.floor(width * ratio); face.canvas.height = Math.floor(height * ratio);
-          face.canvas.style.width = `${width}px`; face.canvas.style.height = `${height}px`;
-          face.canvas.dataset.contentX = String(layout.x); face.canvas.dataset.contentY = String(layout.y);
-          face.canvas.dataset.contentWidth = String(layout.w); face.canvas.dataset.contentHeight = String(layout.h);
-          ctx.fillStyle = "white"; ctx.fillRect(0, 0, face.canvas.width, face.canvas.height);
-          const render = page.render({ canvasContext: ctx, canvas: face.canvas, viewport, transform: [ratio, 0, 0, ratio, x * ratio, y * ratio] });
-          renders.push(render); await render.promise; if (!ativo) return;
-          const content = await page.getTextContent(); if (!ativo) return;
-          face.texto.replaceChildren(); face.texto.style.left = `${x}px`; face.texto.style.top = `${y}px`;
-          face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
-          face.texto.style.right = "auto"; face.texto.style.bottom = "auto";
-          face.texto.style.setProperty("--scale-factor", String(viewport.scale));
-          face.texto.style.setProperty("--total-scale-factor", String(viewport.scale * page.userUnit));
-          const layer = new lib.TextLayer({ textContentSource: content, container: face.texto, viewport });
-          layers.push(layer); await layer.render();
-          // PDF.js redefine as dimensões com CSS round(); fixe o tamanho do conteúdo também em navegadores sem essa função.
-          face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
-        }));
+        const prontas = await Promise.all(lista.map(face => face.numero ? atual.preparar(face.numero) : null));
         if (!ativo) return;
-        setQuadros(layouts);
-        if (copiaVirada.current) {
+        const layouts: Record<number, { x: number; y: number; w: number; h: number }> = {};
+        facesPreparadas.current.clear();
+        lista.forEach((face, indice) => {
+          const pronta = prontas[indice];
+          if (!face.numero || !face.canvas || !pronta) return;
+          const ctx = face.canvas.getContext("2d"); if (!ctx) throw new Error("CANVAS_INDISPONIVEL");
+          face.canvas.width = pronta.canvas.width; face.canvas.height = pronta.canvas.height;
+          face.canvas.style.width = `${width}px`; face.canvas.style.height = `${height}px`;
+          Object.assign(face.canvas.dataset, pronta.canvas.dataset);
+          ctx.drawImage(pronta.canvas, 0, 0); face.texto?.replaceChildren();
+          layouts[face.numero] = pronta.quadro;
+          facesPreparadas.current.set(face.numero, pronta);
+        });
+        setDimensoes({ width, height }); setZoomDesenhado(zoom); setQuadros(layouts);
+        if (copiaVirada.current && !copiaVirada.current.verso) {
           const esquerda = dupla && copiaVirada.current.sentido === "next";
           copiaVirada.current.verso = copiarFace(esquerda ? canvasEsquerdo.current : canvas.current,
             esquerda ? faces.esquerda : faces.direita, dadosFace.current.anotacoes, dadosFace.current.marca);
         }
-        if (ativo) setVirada((atual) => atual?.fase === "waiting" ? { ...atual, fase: "turning" } : atual);
+        // A camada de seleção de texto nunca atrasa a imagem nem a virada.
+        setVirada((viradaAtual) => viradaAtual?.fase === "waiting" ? { ...viradaAtual, fase: "turning" } : viradaAtual);
+        if (zoom <= 1.5) {
+          const seguintes = paginasLivro(destinoViradaLivro(pagina, total, dupla, 1), total, dupla);
+          const anteriores = paginasLivro(destinoViradaLivro(pagina, total, dupla, -1), total, dupla);
+          const numeros = [...new Set([seguintes.esquerda, seguintes.direita, anteriores.esquerda, anteriores.direita])]
+            .filter((n): n is number => n !== null && n !== faces.esquerda && n !== faces.direita);
+          aquecimento = window.requestAnimationFrame(() => {
+            if (!ativo) return;
+            // Uma página por vez: limita CPU e memória, sem competir com o desenho visível.
+            void (async () => {
+              for (const numero of numeros) {
+                if (!ativo || sessaoPaginas.current !== atual) return;
+                try { await atual.preparar(numero); } catch { return; }
+              }
+            })();
+          });
+        }
       } catch (erro) { if (ativo && (erro as Error)?.name !== "RenderingCancelledException") setFalhaDocumento(true); }
       finally { if (ativo) { setRenderizando(false); if (toques.current.size < 2) ancoraZoom.current = null; } }
     }
-    void desenhar(); return () => { ativo = false; renders.forEach(r => r.cancel()); layers.forEach(l => l.cancel()); };
+    void desenhar();
+    return () => { ativo = false; window.cancelAnimationFrame(aquecimento); };
+    // A página ativa dentro da mesma abertura não exige outro desenho.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdf, faces.esquerda, faces.direita, dupla, zoom, largura, altura, imersivo]);
+
+  useEffect(() => {
+    if (!pdf || virada || renderizando) return;
+    let ativo = true;
+    const layers: { cancel(): void }[] = [];
+    async function desenharTexto() {
+      const lib = await carregarBibliotecaPdf(); if (!ativo) return;
+      await Promise.all([
+        { numero: faces.direita, texto: texto.current },
+        { numero: faces.esquerda, texto: textoEsquerdo.current },
+      ].map(async face => {
+        if (!face.numero || !face.texto || !quadros[face.numero]) return;
+        const pronta = facesPreparadas.current.get(face.numero); if (!pronta) return;
+        const { page, viewport, quadro } = pronta;
+        const content = await page.getTextContent(); if (!ativo) return;
+        const x = quadro.x * dimensoes.width, y = quadro.y * dimensoes.height;
+        face.texto.replaceChildren(); face.texto.style.left = `${x}px`; face.texto.style.top = `${y}px`;
+        face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
+        face.texto.style.right = "auto"; face.texto.style.bottom = "auto";
+        face.texto.style.setProperty("--scale-factor", String(viewport.scale));
+        face.texto.style.setProperty("--total-scale-factor", String(viewport.scale * page.userUnit));
+        const layer = new lib.TextLayer({ textContentSource: content, container: face.texto, viewport });
+        layers.push(layer); await layer.render();
+        if (ativo) {
+          face.texto.style.width = `${viewport.width}px`; face.texto.style.height = `${viewport.height}px`;
+        }
+      }));
+    }
+    void desenharTexto().catch((erro) => {
+      if (ativo && process.env.NODE_ENV === "development" && (erro as Error)?.name !== "RenderingCancelledException") console.error("Biblioteca texto:", erro);
+    });
+    return () => { ativo = false; layers.forEach(layer => layer.cancel()); };
+  }, [pdf, faces.esquerda, faces.direita, quadros, dimensoes, virada, renderizando]);
 
   const gravarProgresso = useCallback((atual: number, totalPaginas: number) => {
     if (bloqueado || !totalPaginas) return;

@@ -14,9 +14,7 @@ function abrir() {
   }
 }
 
-export default function LinkLeituraBiblioteca({ href, className, children }: {
-  href: string; className: string; children: ReactNode;
-}) {
+export function PrepararLeitorBiblioteca() {
   useEffect(() => {
     const idle = window.requestIdleCallback;
     if (typeof idle === "function") {
@@ -26,7 +24,14 @@ export default function LinkLeituraBiblioteca({ href, className, children }: {
     const id = window.setTimeout(preparar, 200);
     return () => window.clearTimeout(id);
   }, []);
+  return null;
+}
+
+export default function LinkLeituraBiblioteca({ href, className, children }: {
+  href: string; className: string; children: ReactNode;
+}) {
   return <Link href={href} className={className} onPointerEnter={preparar} onFocus={preparar} onPointerDown={preparar} onClick={abrir}>
+    <PrepararLeitorBiblioteca />
     {children}
   </Link>;
 }
