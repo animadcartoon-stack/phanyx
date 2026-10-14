@@ -702,6 +702,91 @@ type ModoVisualEditorCertificado =
   | "dark"
   | "system-dark";
 
+type SeletorModeloCertificadoProps = {
+  modelos: any[];
+  modeloAtivoId: number | null;
+  modeloAtivoNome: string;
+  desabilitado: boolean;
+  labelSelecionar: string;
+  ariaSelecionado: string;
+  onSelect: (modeloId: number) => void;
+};
+
+function SeletorModeloCertificado({
+  modelos,
+  modeloAtivoId,
+  modeloAtivoNome,
+  desabilitado,
+  labelSelecionar,
+  ariaSelecionado,
+  onSelect,
+}: SeletorModeloCertificadoProps) {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        disabled={desabilitado}
+        onClick={() => setAberto((valor) => !valor)}
+        className="phanyx-cert-modelo-seletor flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span className="truncate">
+          {modeloAtivoNome || labelSelecionar}
+        </span>
+
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          className={`h-5 w-5 shrink-0 transition ${aberto ? "rotate-180" : ""}`}
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.51a.75.75 0 0 1-1.08 0l-4.25-4.51a.75.75 0 0 1 .02-1.06Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+
+      {aberto && (
+        <div className="phanyx-cert-modelo-menu absolute left-0 right-0 top-full z-[200] mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl">
+          {modelos.map((modelo: any) => {
+            const selecionado =
+              Number(modelo.id) === Number(modeloAtivoId);
+
+            return (
+              <button
+                key={modelo.id}
+                type="button"
+                onClick={() => {
+                  setAberto(false);
+
+                  if (!selecionado) {
+                    onSelect(Number(modelo.id));
+                  }
+                }}
+                className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${selecionado ? "is-active" : ""}`}
+              >
+                <span className="truncate">{modelo.nome}</span>
+
+                {selecionado && (
+                  <span
+                    className="text-base"
+                    aria-label={ariaSelecionado}
+                  >
+                    ✓
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ConfiguracaoCertificadoPage() {
   const locale = useLocale();
   const t = useTranslations("AdminCertificateEditor");
@@ -1517,8 +1602,6 @@ export default function ConfiguracaoCertificadoPage() {
   const [novoModeloPadraoModalidade, setNovoModeloPadraoModalidade] =
     useState(false);
 
-  const [menuModelosAberto, setMenuModelosAberto] = useState(false);
-
   const [modalEditarModeloAberto, setModalEditarModeloAberto] = useState(false);
 
   const [modalArquivarModeloAberto, setModalArquivarModeloAberto] =
@@ -1600,14 +1683,18 @@ export default function ConfiguracaoCertificadoPage() {
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
 
-  const [caixaSelecao, setCaixaSelecao] = useState<{
+  type CaixaSelecaoEditor = {
     inicioX: number;
     inicioY: number;
     x: number;
     y: number;
     largura: number;
     altura: number;
-  } | null>(null);
+  };
+
+  const caixaSelecaoDadosRef = useRef<CaixaSelecaoEditor | null>(null);
+  const caixaSelecaoElementoRef = useRef<HTMLDivElement | null>(null);
+  const [caixaSelecaoAtiva, setCaixaSelecaoAtiva] = useState(false);
 
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({
     x: 0,
@@ -3550,47 +3637,56 @@ export default function ConfiguracaoCertificadoPage() {
     const x = (e.clientX - rect.left) / escala;
     const y = (e.clientY - rect.top) / escala;
 
-    setCaixaSelecao({
+    caixaSelecaoDadosRef.current = {
       inicioX: x,
       inicioY: y,
       x,
       y,
       largura: 0,
       altura: 0,
-    });
+    };
 
+    setCaixaSelecaoAtiva(true);
     setCampoSelecionadoId(null);
     setCamposSelecionadosIds([]);
   }
 
   function moverSelecaoRetangular(e: React.MouseEvent<HTMLDivElement>) {
-    if (!caixaSelecao || !canvasRef.current) return;
+    const caixa = caixaSelecaoDadosRef.current;
+    if (!caixa || !canvasRef.current) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
 
     const atualX = (e.clientX - rect.left) / escala;
     const atualY = (e.clientY - rect.top) / escala;
 
-    setCaixaSelecao((prev) => {
-      if (!prev) return prev;
+    const atualizada: CaixaSelecaoEditor = {
+      ...caixa,
+      x: Math.min(caixa.inicioX, atualX),
+      y: Math.min(caixa.inicioY, atualY),
+      largura: Math.abs(atualX - caixa.inicioX),
+      altura: Math.abs(atualY - caixa.inicioY),
+    };
 
-      return {
-        ...prev,
-        x: Math.min(prev.inicioX, atualX),
-        y: Math.min(prev.inicioY, atualY),
-        largura: Math.abs(atualX - prev.inicioX),
-        altura: Math.abs(atualY - prev.inicioY),
-      };
-    });
+    caixaSelecaoDadosRef.current = atualizada;
+
+    const elemento = caixaSelecaoElementoRef.current;
+    if (elemento) {
+      elemento.style.left = `${atualizada.x}px`;
+      elemento.style.top = `${atualizada.y}px`;
+      elemento.style.width = `${atualizada.largura}px`;
+      elemento.style.height = `${atualizada.altura}px`;
+    }
   }
 
   function finalizarSelecaoRetangular() {
-    if (!caixaSelecao) return;
+    const box = caixaSelecaoDadosRef.current;
+    if (!box) return;
 
-    const box = caixaSelecao;
+    caixaSelecaoDadosRef.current = null;
+    setCaixaSelecaoAtiva(false);
 
     if (box.largura < 8 || box.altura < 8) {
-      setCaixaSelecao(null);
       return;
     }
 
@@ -3613,7 +3709,6 @@ export default function ConfiguracaoCertificadoPage() {
 
     setCamposSelecionadosIds(ids);
     setCampoSelecionadoId(ids.length ? ids[ids.length - 1] : null);
-    setCaixaSelecao(null);
   }
 
   function iniciarArrastoCanvas(e: React.MouseEvent<HTMLDivElement>) {
@@ -5808,8 +5903,13 @@ export default function ConfiguracaoCertificadoPage() {
       : tr("layers.elementNumbered", { number: index + 1 });
   }
 
+  const camadasOrdenadasMemo = useMemo(
+    () => campos.slice().sort((a, b) => (b.ordem || 0) - (a.ordem || 0)),
+    [campos],
+  );
+
   function camadasOrdenadas() {
-    return campos.slice().sort((a, b) => (b.ordem || 0) - (a.ordem || 0));
+    return camadasOrdenadasMemo;
   }
 
   function moverCamadaPara(campoId: number, destino: "cima" | "baixo") {
@@ -7261,68 +7361,17 @@ export default function ConfiguracaoCertificadoPage() {
               {tr("models.selectModel")}
             </label>
 
-            <div className="relative">
-              <button
-                type="button"
-                disabled={trocandoModelo || salvando || publicando}
-                onClick={() => setMenuModelosAberto((aberto) => !aberto)}
-                className="phanyx-cert-modelo-seletor flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <span className="truncate">
-                  {modeloAtivo?.nome || tr("models.selectModel")}
-                </span>
-
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className={`h-5 w-5 shrink-0 transition ${menuModelosAberto ? "rotate-180" : ""
-                    }`}
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.51a.75.75 0 0 1-1.08 0l-4.25-4.51a.75.75 0 0 1 .02-1.06Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-
-              {menuModelosAberto && (
-                <div className="phanyx-cert-modelo-menu absolute left-0 right-0 top-full z-[200] mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl">
-                  {modelosCertificado.map((modelo: any) => {
-                    const selecionado =
-                      Number(modelo.id) === Number(modeloAtivoId);
-
-                    return (
-                      <button
-                        key={modelo.id}
-                        type="button"
-                        onClick={() => {
-                          setMenuModelosAberto(false);
-
-                          if (!selecionado) {
-                            void abrirModeloCertificado(Number(modelo.id));
-                          }
-                        }}
-                        className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${selecionado ? "is-active" : ""
-                          }`}
-                      >
-                        <span className="truncate">{modelo.nome}</span>
-
-                        {selecionado && (
-                          <span
-                            className="text-base"
-                            aria-label={tr("models.selectedAria")}
-                          >
-                            ✓
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <SeletorModeloCertificado
+              modelos={modelosCertificado}
+              modeloAtivoId={modeloAtivoId}
+              modeloAtivoNome={String(modeloAtivo?.nome || "")}
+              desabilitado={trocandoModelo || salvando || publicando}
+              labelSelecionar={tr("models.selectModel")}
+              ariaSelecionado={tr("models.selectedAria")}
+              onSelect={(modeloId) => {
+                void abrirModeloCertificado(modeloId);
+              }}
+            />
 
             {trocandoModelo && (
               <p className="mt-2 text-xs font-semibold text-blue-600">
@@ -9501,20 +9550,6 @@ export default function ConfiguracaoCertificadoPage() {
 
                   {caixaDoGrupoSelecionado && (
                     <div
-                      className="pointer-events-none absolute z-[9998] rounded-xl border-2 border-blue-600"
-                      style={{
-                        left: `${caixaDoGrupoSelecionado.x}px`,
-                        top: `${caixaDoGrupoSelecionado.y}px`,
-                        width: `${caixaDoGrupoSelecionado.largura}px`,
-                        height: `${caixaDoGrupoSelecionado.altura}px`,
-                        backgroundColor: "transparent",
-                        boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)",
-                      }}
-                    />
-                  )}
-
-                  {caixaDoGrupoSelecionado && (
-                    <div
                       className="pointer-events-none absolute z-[999998] border-2 border-emerald-400"
                       style={{
                         left: `${caixaDoGrupoSelecionado.x}px`,
@@ -9544,14 +9579,15 @@ export default function ConfiguracaoCertificadoPage() {
                   )}
 
                   {/* CAIXA DE SELEÇÃO COM MOUSE */}
-                  {caixaSelecao && (
+                  {caixaSelecaoAtiva && (
                     <div
+                      ref={caixaSelecaoElementoRef}
                       className="pointer-events-none absolute border border-blue-500 bg-blue-500/10"
                       style={{
-                        left: `${caixaSelecao.x}px`,
-                        top: `${caixaSelecao.y}px`,
-                        width: `${caixaSelecao.largura}px`,
-                        height: `${caixaSelecao.altura}px`,
+                        left: "0px",
+                        top: "0px",
+                        width: "0px",
+                        height: "0px",
                         zIndex: 999999,
                       }}
                     />
