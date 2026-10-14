@@ -78,7 +78,7 @@
 .root .readerProgress { font-size: .8rem; margin: 8px 0 0; }
 .root .readerFrame { display: grid; grid-template-columns: minmax(0, 1fr); position: relative; height: min(70dvh, 880px); min-height: 250px; overflow: hidden; border-radius: 12px; border: 1px solid var(--bib-borda); }
 .root .readerFrame.withPanel { grid-template-columns: minmax(0, 1fr) 340px; }
-.root .document.bookViewport { position: relative; height: 100%; max-height: none; min-height: 0; min-width: 0; overflow: auto; background: #b9bdc6; background-image: radial-gradient(ellipse at center, #e4e4e7, #b9bdc6); touch-action: none; padding: 16px; border-radius: 0; overscroll-behavior: contain; }
+.root .document.bookViewport { position: relative; height: 100%; max-height: none; min-height: 0; min-width: 0; overflow: auto; background: #b9bdc6; background-image: radial-gradient(ellipse at center, #e4e4e7, #b9bdc6); touch-action: none; padding: 16px; border-radius: 0; overscroll-behavior: auto; }
 .root .bookViewport.selectionMode { touch-action: auto; }
 .root .sheetHolder { position: relative; margin: 0 auto; }
 .root .sheetHolder .page { margin: 0; }
@@ -110,6 +110,7 @@
 .root.immersive { position: fixed; inset: 0; width: 100%; height: 100dvh; max-width: none; z-index: 2147482000; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--bib-fundo); gap: 6px; overflow: hidden; }
 .root.immersive .readerToolbar { position: static; flex-shrink: 0; padding: 8px; }
 .root.immersive .readerFrame { flex: 1; height: auto; min-height: 0; }
+.root.immersive .bookViewport { overscroll-behavior: contain; }
 .root.immersive .readerHint { flex-shrink: 0; }
 @media (pointer: coarse) { .root .bookViewport:not(.selectionMode) .textLayer { user-select: none; } }
 @media (max-width: 900px) { .root .longControl { display: none; } .root .shortControl { display: inline; font-size: 1.15rem; } .root .readerControls { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; } .root .readerControls > * { flex-shrink: 0; } .root .readerFrame.withPanel { grid-template-columns: minmax(0, 1fr); } .root .readerPanel { position: absolute; top: 0; bottom: 0; right: 0; width: min(340px, 92%); z-index: 20; box-shadow: -5px 0 20px #0003; } }

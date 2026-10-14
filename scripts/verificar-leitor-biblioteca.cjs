@@ -62,7 +62,11 @@ const prisma = {
     update: async ({ where, data }) => { const row = state.recomendacoes.find((r) => match(r, { ...where.id_instituicaoId, professorId: where.professorId })); assert.ok(row); Object.assign(row, data); return row; },
   },
   bibliotecaRecomendacaoDestino: { deleteMany: async () => ({ count: 1 }) },
-  $queryRaw: async () => [],
+  $queryRaw: async (partes) => {
+    // Reproduz o erro real de desserialização do retorno void do PostgreSQL.
+    if (/SELECT\s+pg_advisory_xact_lock/i.test(partes.join("?"))) throw new Error("Unsupported type void");
+    return [];
+  },
   $transaction: async (callback) => callback(prisma),
 };
 const cache = new Map();

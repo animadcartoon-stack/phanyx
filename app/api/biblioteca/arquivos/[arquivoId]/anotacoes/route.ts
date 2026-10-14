@@ -36,7 +36,8 @@ export async function POST(request: NextRequest, { params }: { params: { arquivo
     const where = { instituicaoId: leitor.instituicaoId, usuarioId: leitor.usuarioId, arquivoId: arquivo.id };
     const anotacao = await prisma.$transaction(async (tx) => {
       // A trava por leitor evita ultrapassar a cota com gravações simultâneas.
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(${leitor.instituicaoId}::int, ${leitor.usuarioId}::int)`;
+      // Não devolva a coluna void da função: o Prisma não consegue desserializá-la.
+      await tx.$queryRaw`SELECT 1 AS bloqueio FROM pg_advisory_xact_lock(${leitor.instituicaoId}::int, ${leitor.usuarioId}::int)`;
       if (await tx.bibliotecaAnotacao.count({ where }) >= 2000) falhaLeitor(409, "LIMITE_ANOTACOES");
       if (tipo === "MARCADOR") {
         const existente = await tx.bibliotecaAnotacao.findFirst({ where: { ...where, tipo, pagina: Number(pagina) } });

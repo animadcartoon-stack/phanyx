@@ -7,6 +7,20 @@ export const raizPdfBiblioteca = `/biblioteca/pdfjs/${pacotePdf.version}`;
 export const workerPdfBiblioteca = `${raizPdfBiblioteca}/pdf.worker.min.mjs`;
 let biblioteca: Promise<BibliotecaPdf> | null = null;
 let preparo: Promise<void> | null = null;
+let worker: Promise<InstanceType<BibliotecaPdf["PDFWorker"]>> | null = null;
+
+/** Reutiliza só o worker público; cada documento autorizado é destruído ao sair. */
+export function obterWorkerBibliotecaPdf(): Promise<InstanceType<BibliotecaPdf["PDFWorker"]>> {
+  if (!worker) {
+    worker = carregarBibliotecaPdf().then(async (lib) => {
+      lib.GlobalWorkerOptions.workerSrc = workerPdfBiblioteca;
+      const instancia = new lib.PDFWorker();
+      try { await instancia.promise; return instancia; }
+      catch (erro) { instancia.destroy(); throw erro; }
+    }).catch((erro) => { worker = null; throw erro; });
+  }
+  return worker;
+}
 
 export function carregarBibliotecaPdf(): Promise<BibliotecaPdf> {
   if (!biblioteca) {
@@ -24,7 +38,7 @@ export function carregarBibliotecaPdf(): Promise<BibliotecaPdf> {
 export function prepararBibliotecaPdf(): Promise<void> {
   if (!preparo) {
     preparo = Promise.all([
-      carregarBibliotecaPdf(),
+      obterWorkerBibliotecaPdf(),
       fetch(workerPdfBiblioteca, { cache: "force-cache", credentials: "same-origin" }).then(async (resposta) => {
         if (!resposta.ok) throw new Error("PDF_WORKER_INDISPONIVEL");
         await resposta.arrayBuffer();

@@ -12,7 +12,8 @@ export function malhaFolha(largura: number, altura: number, progresso: number, s
       const u = coluna / COLUNAS_FOLHA;
       if (coluna) {
         const meio = (coluna - .5) / COLUNAS_FOLHA;
-        const angulo = Math.PI * p + onda * (.72 * Math.sin(Math.PI * meio) * (1.15 - .3 * v) + .9 * (v - .5) * meio * meio);
+        const angulo = Math.PI * p + onda * (.72 * Math.sin(Math.PI * meio) * (1.15 - .3 * v) + .9 * (v - .5) * meio * meio
+          + .18 * v * v * Math.sin(Math.PI * meio) ** 2);
         x += largura / COLUNAS_FOLHA * Math.cos(angulo); z += largura / COLUNAS_FOLHA * Math.sin(angulo);
       }
       const i = (linha * (COLUNAS_FOLHA + 1) + coluna) * 5;
