@@ -122,6 +122,20 @@ const academico = carregar("lib/biblioteca-recomendacoes.ts");
   await teste("marcador idempotente", async () => { for (let i = 0; i < 2; i++) assert.equal((await notas.POST(request("POST", { tipo: "MARCADOR", pagina: 3 }), params)).status, 201); assert.equal(state.anotacoes.length, 1); });
   await teste("nota privada e exclusão protegida", async () => { const res = await notas.POST(request("POST", { tipo: "NOTA", pagina: 3, conteudo: "Minha nota" }), params); const { anotacao } = await res.json(); state.usuario.id = 20; assert.equal((await (await notas.GET(request("GET"), params)).json()).anotacoes.length, 0); assert.equal((await notas.DELETE(request("DELETE", { id: anotacao.id }), params)).status, 404); state.usuario.id = 10; assert.equal((await notas.DELETE(request("DELETE", { id: anotacao.id }), params)).status, 200); });
   await teste("destaque persiste coordenadas", async () => { const areas = [{ x: .1, y: .2, largura: .3, altura: .04 }]; const res = await notas.POST(request("POST", { tipo: "DESTAQUE", pagina: 3, trecho: "trecho selecionado", areas }), params); assert.equal(res.status, 201); assert.deepEqual((await res.json()).anotacao.areas, areas); });
+  await teste("nota vinculada ao trecho e à página", async () => {
+    const areas = [{ x: .12, y: .24, largura: .35, altura: .04 }];
+    const resposta = await notas.POST(request("POST", { tipo: "NOTA", pagina: 2, trecho: "Trecho específico", conteudo: "Minha explicação", cor: "ROSA", areas }), params);
+    assert.equal(resposta.status, 201);
+    const { anotacao } = await resposta.json();
+    assert.equal(anotacao.pagina, 2); assert.equal(anotacao.trecho, "Trecho específico");
+    assert.equal(anotacao.conteudo, "Minha explicação"); assert.deepEqual(anotacao.areas, areas);
+    state.usuario.id = 99;
+    assert.equal((await (await notas.GET(request("GET"), params)).json()).anotacoes.length, 0);
+  });
+  await teste("nota vinculada rejeita área fora da página", async () => {
+    const resposta = await notas.POST(request("POST", { tipo: "NOTA", pagina: 2, trecho: "Trecho", conteudo: "Nota", areas: [{ x: .9, y: .5, largura: .5, altura: .1 }] }), params);
+    assert.equal(resposta.status, 400); assert.equal(state.anotacoes.length, 0);
+  });
   for (const body of [{ tipo: "OUTRO", pagina: 1 }, { tipo: "NOTA", pagina: 1, conteudo: "" }, { tipo: "DESTAQUE", pagina: 1, trecho: "teste", areas: [{ x: .9, y: .1, largura: .9, altura: .1 }] }, { tipo: "MARCADOR", pagina: 50001 }]) await teste("anotação inválida", async () => assert.equal((await notas.POST(request("POST", body), params)).status, 400));
   await teste("aluno não publica recomendação", async () => assert.equal((await recomenda.POST(request("POST", { itemId: 8 }))).status, 403));
   const body = { itemId: 8, titulo: "Leia esta obra", mensagem: "Capítulo 1", status: "PUBLICADA", obrigatoria: true, destinos: ["TURMA:5"] };

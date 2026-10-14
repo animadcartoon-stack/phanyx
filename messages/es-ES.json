@@ -21105,6 +21105,27 @@
     "whatHappens": "Qué sucederá"
   },
   "ReaderLibrary": {
+    "annotationTools": {
+      "pens": "Rotuladores de resaltado",
+      "penColor": "Rotulador {color}",
+      "annotateExcerpt": "Anotar fragmento",
+      "selectionHelp": "Elige un rotulador, selecciona un fragmento del libro y pulsa Resaltar selección o Anotar fragmento. Desactiva Seleccionar texto para volver a los gestos de lectura.",
+      "selectedExcerpt": "Fragmento seleccionado",
+      "comment": "Mi anotación",
+      "detachExcerpt": "Desvincular fragmento",
+      "pageNoteHint": "Anotación sobre la página {page}. Para comentar un fragmento específico, selecciónalo y pulsa Anotar fragmento.",
+      "searchNotes": "Buscar en mis anotaciones",
+      "searchPlaceholder": "Palabra, fragmento o página",
+      "resultCount": "Anotaciones encontradas: {count}",
+      "exporting": "Generando PDF…",
+      "exportPdf": "Descargar anotaciones en PDF",
+      "exportHelp": "Exporta las anotaciones de esta búsqueda. Los fragmentos del libro solo se incluyen si la licencia permite copiarlos.",
+      "noMatchingNotes": "Ninguna anotación coincide con la búsqueda.",
+      "listLimit": "Se muestran las primeras 100 anotaciones. Refina la búsqueda para encontrar otras. El PDF incluye todos los resultados.",
+      "exportError": "No se pudo generar el PDF de anotaciones. Inténtalo de nuevo.",
+      "exportWithoutQuotes": "La licencia no permite copiar fragmentos de esta obra. Este PDF contiene solo tus anotaciones y referencias de página.",
+      "openInlineNote": "Abrir anotación del fragmento en la página {page}"
+    },
     "eyebrow": "Biblioteca virtual",
     "title": "Explorar el catálogo",
     "intro": "Encuentra libros y materiales publicados por tu institución.",

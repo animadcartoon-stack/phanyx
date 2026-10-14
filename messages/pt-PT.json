@@ -20892,6 +20892,27 @@
     "whatHappens": "O que irá acontecer"
   },
   "ReaderLibrary": {
+    "annotationTools": {
+      "pens": "Canetas de realce",
+      "penColor": "Caneta {color}",
+      "annotateExcerpt": "Anotar excerto",
+      "selectionHelp": "Escolha uma caneta, selecione um excerto no livro e clique em Realçar seleção ou Anotar excerto. Desative Selecionar texto para voltar aos gestos de leitura.",
+      "selectedExcerpt": "Excerto selecionado",
+      "comment": "A minha anotação",
+      "detachExcerpt": "Desassociar excerto",
+      "pageNoteHint": "Anotação sobre a página {page}. Para comentar um excerto específico, selecione-o e clique em Anotar excerto.",
+      "searchNotes": "Pesquisar nas minhas anotações",
+      "searchPlaceholder": "Palavra, excerto ou página",
+      "resultCount": "Anotações encontradas: {count}",
+      "exporting": "A gerar PDF…",
+      "exportPdf": "Descarregar anotações em PDF",
+      "exportHelp": "Exporta as anotações desta pesquisa. Os excertos do livro só são incluídos quando a licença permite cópia.",
+      "noMatchingNotes": "Nenhuma anotação corresponde à pesquisa.",
+      "listLimit": "A mostrar as primeiras 100 anotações. Refine a pesquisa para encontrar outras. O PDF inclui todos os resultados.",
+      "exportError": "Não foi possível gerar o PDF das anotações. Tente novamente.",
+      "exportWithoutQuotes": "A licença não permite copiar excertos desta obra. Este PDF contém apenas as suas anotações e referências de página.",
+      "openInlineNote": "Abrir anotação do excerto na página {page}"
+    },
     "eyebrow": "Biblioteca virtual",
     "title": "Explore o acervo",
     "intro": "Encontre livros e materiais publicados pela sua instituição.",

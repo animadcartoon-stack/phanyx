@@ -6,6 +6,8 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 import { useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import FolhaFlexivelBiblioteca from "./FolhaFlexivelBiblioteca";
+import PainelAnotacoesBiblioteca, { CanetasBiblioteca } from "./PainelAnotacoesBiblioteca";
+import { anotacaoTemTrecho, type AnotacaoLeitor } from "@/lib/biblioteca-anotacoes-leitor";
 import { LIMITE_TRECHO_BIBLIOTECA, LIMITE_PAGINAS_BIBLIOTECA } from "@/lib/biblioteca-direitos-leitura";
 import { carregarBibliotecaPdf, obterWorkerBibliotecaPdf, raizPdfBiblioteca, workerPdfBiblioteca, type BibliotecaPdf } from "@/lib/biblioteca-pdf-client";
 import { SessaoPaginasPdf, type FacePdfPreparada } from "@/lib/biblioteca-render-paginas";
@@ -16,7 +18,7 @@ import styles from "./BibliotecaLeitor.module.css";
 import "./leitor-print.css";
 
 type Area = { x: number; y: number; largura: number; altura: number };
-type Anotacao = { id: string; tipo: "MARCADOR" | "DESTAQUE" | "NOTA"; pagina: number; trecho: string | null; conteudo: string | null; cor: string; areas: Area[] };
+type Anotacao = AnotacaoLeitor;
 const cores: Record<string, string> = { AMARELO: "#fde047", VERDE: "#86efac", AZUL: "#93c5fd", ROSA: "#f9a8d4" };
 function copiarFace(fonte: HTMLCanvasElement | null, numero: number | null, notas: Anotacao[], marca: string) {
   if (!fonte || !numero || !fonte.width || !fonte.height) return null;
@@ -26,8 +28,8 @@ function copiarFace(fonte: HTMLCanvasElement | null, numero: number | null, nota
   ctx.drawImage(fonte, 0, 0, copia.width, copia.height);
   const x = Number(fonte.dataset.contentX || 0), y = Number(fonte.dataset.contentY || 0);
   const w = Number(fonte.dataset.contentWidth || 1), h = Number(fonte.dataset.contentHeight || 1);
-  ctx.save(); ctx.globalAlpha = .45;
-  for (const nota of notas.filter(a => a.tipo === "DESTAQUE" && a.pagina === numero)) {
+  ctx.save(); ctx.globalCompositeOperation = "multiply"; ctx.globalAlpha = .5;
+  for (const nota of notas.filter(a => anotacaoTemTrecho(a) && a.pagina === numero)) {
     ctx.fillStyle = cores[nota.cor] || cores.AMARELO;
     for (const area of nota.areas) ctx.fillRect((x + area.x * w) * copia.width, (y + area.y * h) * copia.height, area.largura * w * copia.width, area.altura * h * copia.height);
   }
@@ -81,8 +83,16 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const [erroAnotacoes, setErroAnotacoes] = useState(false);
   const [tentativaAnotacoes, setTentativaAnotacoes] = useState(0);
   const [rascunhos, setRascunhos] = useState<Record<number, string>>({});
+  const [contextosNotas, setContextosNotas] = useState<Record<number, { trecho: string; areas: Area[]; cor: string }>>({});
+  const [anotacaoAberta, setAnotacaoAberta] = useState<string | null>(null);
+  const contextoNota = contextosNotas[pagina];
   const textoNota = rascunhos[pagina] || "";
   function setTextoNota(valor: string) { setRascunhos((notas) => ({ ...notas, [pagina]: valor })); }
+  function prepararNotaTrecho() {
+    if (!selecao?.areas.length || !podeAnotar) return;
+    setContextosNotas(notas => ({ ...notas, [selecao.pagina]: { trecho: selecao.trecho, areas: selecao.areas, cor } }));
+    setPagina(selecao.pagina); setPainel("notes");
+  }
   const [selecao, setSelecao] = useState<{ trecho: string; areas: Area[]; pagina: number } | null>(null);
   const [cor, setCor] = useState("AMARELO"); const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState(""); const [tipoMensagem, setTipoMensagem] = useState<"erro" | "info">("erro");
@@ -113,6 +123,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   const podeCopiar = direitos.copiarTrecho && restricoes.copiar;
   const podeImprimir = direitos.imprimir && restricoes.imprimir;
   const podeAnotar = !bloqueado && !carregandoAnotacoes && !erroAnotacoes;
+  const temSelecao = Boolean(selecao?.areas.length && selecao.pagina === pagina);
 
   function avisar(chave: string, erro = true) { setTipoMensagem(erro ? "erro" : "info"); setMensagem(t(chave)); }
   const restaurarFoco = useCallback(() => botaoFullscreen.current?.focus({ preventScroll: true }), []);
@@ -517,15 +528,24 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
   }
   async function anotar(tipo: Anotacao["tipo"]) {
     if (!podeAnotar) return;
+    if (tipo === "DESTAQUE" && !temSelecao) return;
+    const paginaAnotacao = tipo === "DESTAQUE" ? selecao!.pagina : pagina;
+    const alvo = tipo === "DESTAQUE" ? selecao : tipo === "NOTA" ? contextoNota : null;
+    const notaEnviada = textoNota;
     setSalvando(true);
     try {
       const res = await fetch(`${base}/anotacoes`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
-        tipo, pagina, cor, trecho: tipo === "DESTAQUE" ? selecao?.trecho : null,
-        areas: tipo === "DESTAQUE" ? selecao?.areas : [], conteudo: tipo === "NOTA" ? textoNota : null,
+        tipo, pagina: paginaAnotacao, cor: tipo === "NOTA" && contextoNota ? contextoNota.cor : cor,
+        trecho: alvo?.trecho || null, areas: alvo?.areas || [], conteudo: tipo === "NOTA" ? notaEnviada : null,
       }) });
       if (!res.ok) throw new Error(); const data = await res.json();
       setAnotacoes((lista) => [...lista.filter((a) => a.id !== data.anotacao.id), data.anotacao].sort((a, b) => a.pagina - b.pagina));
-      if (tipo === "NOTA") setTextoNota(""); setSelecao(null); window.getSelection()?.removeAllRanges();
+      if (tipo === "NOTA") {
+        setRascunhos(notas => notas[paginaAnotacao] === notaEnviada ? { ...notas, [paginaAnotacao]: "" } : notas);
+        setContextosNotas(notas => { const novas = { ...notas }; delete novas[paginaAnotacao]; return novas; });
+        setAnotacaoAberta(data.anotacao.id);
+      }
+      setSelecao(null); window.getSelection()?.removeAllRanges();
     } catch { avisar("annotationError"); } finally { setSalvando(false); }
   }
   async function remover(id: string) {
@@ -534,6 +554,7 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
     try {
       const res = await fetch(`${base}/anotacoes`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
       if (!res.ok) throw new Error(); setAnotacoes((lista) => lista.filter((a) => a.id !== id));
+      setAnotacaoAberta(aberta => aberta === id ? null : aberta);
     } catch { avisar("annotationError"); } finally { setSalvando(false); }
   }
   async function pesquisar() {
@@ -568,9 +589,9 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
       onPointerDown={e => { if (!(e.target as HTMLElement).closest("button") && !virada && !renderizando) setPagina(numero); }}
       onContextMenu={e => e.preventDefault()}>
       <canvas ref={esquerda ? canvasEsquerdo : canvas} aria-label={t("documentPage", { page: numero })} />
-      {(areasBusca[numero] || []).map((area, i) => <span key={`busca-${i}`} className={styles.searchHighlight} aria-hidden="true"
+      {(areasBusca[numero] || []).map((area, i) => <span key={`busca-${i}`} className={styles.searchHighlight} aria-hidden="true" data-search-highlight="true"
         style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%` }} />)}
-      {anotacoes.filter(a => a.tipo === "DESTAQUE" && a.pagina === numero).flatMap(a => a.areas.map((area, i) => <span key={`${a.id}-${i}`} className={styles.highlight}
+      {anotacoes.filter(a => anotacaoTemTrecho(a) && a.pagina === numero).flatMap(a => a.areas.map((area, i) => <span key={`${a.id}-${i}`} className={styles.highlight} data-annotation-highlight={a.id}
         style={{ left: `${(quadro.x + area.x * quadro.w) * 100}%`, top: `${(quadro.y + area.y * quadro.h) * 100}%`, width: `${area.largura * quadro.w * 100}%`, height: `${area.altura * quadro.h * 100}%`, background: cores[a.cor] || cores.AMARELO }} />))}
       <div ref={esquerda ? textoEsquerdo : texto} className={styles.textLayer} onPointerUp={capturarSelecao} onKeyUp={capturarSelecao} onCopy={e => {
         e.preventDefault(); const trecho = window.getSelection()?.toString().trim() || "";
@@ -578,10 +599,26 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
         else avisar("copyRestricted", false);
       }} />
       <span className={styles.watermark}>{t("watermark", { id: usuarioId })}</span>
+      {anotacoes.filter(a => a.tipo === "NOTA" && anotacaoTemTrecho(a) && a.pagina === numero).map(a => {
+        const area = a.areas[0], aberta = anotacaoAberta === a.id;
+        const top = (quadro.y + area.y * quadro.h) * 100;
+        const left = (quadro.x + (area.x + area.largura) * quadro.w) * 100;
+        return <div key={`nota-${a.id}`}>
+          <button type="button" className={styles.notePin} style={{ top: `${top}%`, left: `clamp(0px, calc(${left}% + 5px), calc(100% - 28px))` }}
+            aria-label={t("annotationTools.openInlineNote", { page: numero })} aria-expanded={aberta} aria-controls={`nota-${a.id}`}
+            onClick={() => { setPagina(numero); setAnotacaoAberta(aberta ? null : a.id); }}>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ transform: aberta ? "rotate(90deg)" : undefined }}><path d="m7 4 6 6-6 6" /></svg>
+          </button>
+          {aberta && <aside id={`nota-${a.id}`} className={styles.inlineNote} aria-label={t("annotationTools.comment")} style={{ top: `min(calc(${top}% + 29px), calc(100% - 150px))`, left: `${Math.min(40, Math.max(2, left - 35))}%` }}>
+            <button type="button" className={`${styles.button} ${styles.closeInlineNote}`} onClick={() => setAnotacaoAberta(null)} aria-label={t("closePanel")}>×</button>
+            <strong>{t("annotationTools.comment")}</strong><p>{a.conteudo}</p>
+          </aside>}
+        </div>;
+      })}
     </div>;
   }
   const fatorVisual = (zoomGesto ?? zoom) / zoomDesenhado;
-  const conteudo = <section ref={raiz} id={imersivo ? "biblioteca-leitor-fullscreen" : undefined}
+  const conteudo = <section ref={raiz} data-reader-version="anotacoes-trechos-20261014" id={imersivo ? "biblioteca-leitor-fullscreen" : undefined}
     className={`${styles.root} ${styles.readerRoot} ${imersivo ? styles.immersive : ""}`} tabIndex={-1}
     role={imersivo ? "dialog" : undefined} aria-modal={imersivo ? true : undefined} aria-label={titulo}>
     <div className={styles.readerToolbar}>
@@ -617,6 +654,12 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
         {downloadId && <a className={styles.button} href={`/api/biblioteca/arquivos/${downloadId}/download`}>{t("downloadPdf")}</a>}
         {podeImprimir && <button className={styles.button} onClick={() => window.print()}>{t("printPage")}</button>}
       </div>}
+      {pdf && !falhaDocumento && <div className={styles.annotationToolbar} aria-label={t("annotationTools.pens")}>
+        <CanetasBiblioteca cor={cor} ativo={selecionarTexto} disabled={!podeAnotar || salvando} onEscolher={c => { setCor(c); setSelecionarTexto(true); }} />
+        <button className={`${styles.button} ${selecionarTexto ? styles.primary : ""}`} aria-pressed={selecionarTexto} onClick={() => setSelecionarTexto(!selecionarTexto)}>{t("selectTextMode")}</button>
+        <button className={styles.button} disabled={!podeAnotar || salvando || !temSelecao || renderizando} onClick={() => void anotar("DESTAQUE")}>{t("highlightSelection")}</button>
+        <button className={styles.button} disabled={!podeAnotar || salvando || !temSelecao || renderizando} onClick={prepararNotaTrecho}>{t("annotationTools.annotateExcerpt")}</button>
+      </div>}
       {pdf && !falhaDocumento && <p className={`${styles.muted} ${styles.readerProgress}`} role="status">{t(`progressState.${bloqueado ? "readOnly" : estadoProgresso}`)}
         {estadoProgresso === "failed" && <button className={styles.button} onClick={() => gravarProgresso(pagina, total)}>{t("retrySave")}</button>}
       </p>}
@@ -642,7 +685,10 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
           </div>
           </div>
         </div>
-        {selecao && painel !== "notes" && <button className={`${styles.button} ${styles.primary} ${styles.selectionAction}`} onClick={() => setPainel("notes")}>{t("highlightSelection")}</button>}
+        {temSelecao && painel !== "notes" && <div className={styles.selectionAction}>
+          <button className={`${styles.button} ${styles.primary}`} disabled={!podeAnotar || salvando || renderizando} onClick={() => void anotar("DESTAQUE")}>{t("highlightSelection")}</button>
+          <button className={styles.button} disabled={!podeAnotar || salvando || renderizando} onClick={prepararNotaTrecho}>{t("annotationTools.annotateExcerpt")}</button>
+        </div>}
         {painel && <aside className={styles.readerPanel} aria-label={t(painel === "notes" ? "myAnnotations" : painel === "search" ? "documentSearch" : "rightsTitle")}>
           <button className={`${styles.button} ${styles.closePanel}`} onClick={() => setPainel(null)} aria-label={t("closePanel")}>×</button>
           {painel === "search" && <><h2>{t("documentSearch")}</h2>
@@ -655,30 +701,19 @@ export default function LeitorPdfBiblioteca({ arquivoId, titulo, voltar, direito
             <div className={styles.results}>{resultados.map((r) => <button className={styles.button} style={{ display: "block", textAlign: "left", width: "100%" }} key={r.pagina} aria-current={pagina === r.pagina ? "page" : undefined} onClick={() => ir(r.pagina, false)}>{t("pageCitation", { page: r.pagina })}: <TrechoBusca texto={r.trecho} termo={termoPesquisado} /></button>)}</div>
           </>}
           {painel === "rights" && <><h2>{t("rightsTitle")}</h2><p>{t("rightsNotice")}</p><p className={styles.notice}>{t("readerRights")}</p></>}
-          {painel === "notes" && <>
-          <h2>{t("myAnnotations")}</h2>
-          <button className={`${styles.button} ${selecionarTexto ? styles.primary : ""}`} aria-pressed={selecionarTexto} onClick={() => {
-            setSelecionarTexto(!selecionarTexto);
-            if (!selecionarTexto && (window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900)) setPainel(null);
-          }}>{t("selectTextMode")}</button>
-          <p className={styles.muted}>{t("selectTextHelp")}</p>
-          {carregandoAnotacoes && <p className={styles.muted} role="status">{t("loadingAnnotations")}</p>}
-          {erroAnotacoes && <div><p className={styles.error} role="alert">{t("annotationsLoadError")}</p><button className={styles.button} onClick={() => setTentativaAnotacoes((x) => x + 1)}>{t("retry")}</button></div>}
-          <button className={styles.button} disabled={!podeAnotar || salvando || renderizando} onClick={() => void anotar("MARCADOR")}>{t("bookmarkPage")}</button>
-          <div className={styles.notice}><p>{t("highlightHelp")}</p>{selecao && <p>{t("selectedCharacters", { count: selecao.trecho.length })}</p>}
-            <label>{t("highlightColor")}<select value={cor} onChange={(e) => setCor(e.target.value)}>{Object.keys(cores).map((c) => <option key={c} value={c}>{t(`highlightColors.${c}`)}</option>)}</select></label>
-            <button className={styles.button} disabled={!podeAnotar || salvando || !selecao?.areas.length || selecao.pagina !== pagina || renderizando} onClick={() => void anotar("DESTAQUE")}>{t("highlightSelection")}</button>
-            {podeCopiar && <button className={styles.button} disabled={!selecao || selecao.trecho.length > LIMITE_TRECHO_BIBLIOTECA || renderizando} onClick={() => void copiar()}>{t("copyExcerpt")}</button>}
-            <p className={styles.muted}>{t(podeCopiar ? "excerptLimit" : "copyNotLicensed", { count: LIMITE_TRECHO_BIBLIOTECA })}</p>
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); void anotar("NOTA"); }}><label>{t("pageNote")}<textarea value={textoNota} onChange={(e) => setTextoNota(e.target.value)} maxLength={10000} disabled={!podeAnotar || salvando} /></label><button className={`${styles.button} ${styles.primary}`} disabled={!podeAnotar || salvando || !textoNota.trim()}>{t("saveNote")}</button></form>
-          {!carregandoAnotacoes && !erroAnotacoes && !anotacoes.length && <p className={styles.muted}>{t("noAnnotations")}</p>}
-          {anotacoes.map((a) => <div key={a.id} className={styles.annotation}>
-            <button className={styles.button} onClick={() => ir(a.pagina)}>{t(`annotationTypes.${a.tipo}`)} · {t("pageCitation", { page: a.pagina })}</button>
-            {a.trecho && <p>{a.trecho}</p>}{a.conteudo && <p>{a.conteudo}</p>}
-            <button className={styles.button} disabled={!podeAnotar || salvando} onClick={() => void remover(a.id)}>{t("removeAnnotation")}</button>
-          </div>)}
-          </>}
+          {painel === "notes" && <PainelAnotacoesBiblioteca
+            titulo={titulo} pagina={pagina} anotacoes={anotacoes} selecionando={selecionarTexto}
+            carregando={carregandoAnotacoes} erro={erroAnotacoes} salvando={salvando} podeAnotar={podeAnotar}
+            podeCopiar={podeCopiar} renderizando={renderizando} textoNota={textoNota} trechoNota={contextoNota?.trecho || ""}
+            temSelecao={temSelecao} selecionados={selecao?.trecho.length || 0}
+            onSelecionar={() => { setSelecionarTexto(!selecionarTexto); if (!selecionarTexto && (window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900)) setPainel(null); }}
+            onRecarregar={() => setTentativaAnotacoes(x => x + 1)} onMarcarPagina={() => void anotar("MARCADOR")}
+            onDestacar={() => void anotar("DESTAQUE")} onAnotarTrecho={prepararNotaTrecho} onCopiar={() => void copiar()}
+            onLimparTrecho={() => setContextosNotas(notas => { const novas = { ...notas }; delete novas[pagina]; return novas; })}
+            onTextoNota={setTextoNota} onSalvarNota={() => void anotar("NOTA")}
+            onAbrir={a => { ir(a.pagina, false); setAnotacaoAberta(a.id); if (window.innerWidth <= 900) setPainel(null); }}
+            onRemover={id => void remover(id)} onErroExportacao={() => avisar("annotationTools.exportError")} />}
+
         </aside>}
       </div>
       <p className={`${styles.muted} ${styles.readerHint}`}>{t("readerGesturesHelp")}</p>
