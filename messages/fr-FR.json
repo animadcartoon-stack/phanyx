@@ -15824,7 +15824,8 @@
       "movendo": "Déplacement...",
       "restaurar": "Restaurer l’inscription",
       "restaurando": "Restauration...",
-      "cancelarMatricula": "Annuler l’inscription"
+      "cancelarMatricula": "Annuler l’inscription",
+      "verCancelamento": "Consulter l’annulation"
     },
     "modal": {
       "title": "Mettre l’inscription en quarantaine",
