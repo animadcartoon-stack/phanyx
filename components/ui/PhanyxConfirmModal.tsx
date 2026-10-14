@@ -8,6 +8,7 @@ type PhanyxConfirmModalProps = {
   textoCancelar?: string;
   textoCarregando?: string;
   carregando?: boolean;
+  mostrarCancelar?: boolean;
   tipo?: "perigo" | "normal";
   onConfirmar: () => void;
   onCancelar: () => void;
@@ -21,6 +22,7 @@ export default function PhanyxConfirmModal({
   textoCancelar = "Cancelar",
   textoCarregando = "Processando...",
   carregando = false,
+  mostrarCancelar = true,
   tipo = "normal",
   onConfirmar,
   onCancelar,
@@ -29,7 +31,12 @@ export default function PhanyxConfirmModal({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4">
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-950">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={titulo}
+        className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-950"
+      >
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
           PHANYX
         </p>
@@ -43,18 +50,21 @@ export default function PhanyxConfirmModal({
         </p>
 
         <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onCancelar}
-            disabled={carregando}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
-          >
-            {textoCancelar}
-          </button>
+          {mostrarCancelar && (
+            <button
+              type="button"
+              onClick={onCancelar}
+              disabled={carregando}
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+            >
+              {textoCancelar}
+            </button>
+          )}
 
           <button
             type="button"
             onClick={onConfirmar}
+            autoFocus={!mostrarCancelar}
             disabled={carregando}
             className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 ${
               tipo === "perigo"
