@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -12,7 +13,6 @@ import {
   useTranslations,
 } from "next-intl";
 import withAuth from "@/lib/withAuth";
-import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type Cancelamento = {
@@ -119,6 +119,7 @@ function AdminCancelamentoMatriculaPage() {
     useTranslations(
       "AdminCancelamentoMatricula"
     );
+  const tCommon = useTranslations("Common");
   const tMatricula =
     useTranslations(
       "AdminMatriculasQuarentena"
@@ -646,7 +647,10 @@ function AdminCancelamentoMatriculaPage() {
     }
 
     const dadosCorpo = corpo();
-    if (!dadosCorpo) return;
+    if (!dadosCorpo) {
+      setConfirmar(false);
+      return;
+    }
 
     setProcessando(
       "finalizar"
@@ -860,15 +864,19 @@ function AdminCancelamentoMatriculaPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      {toast && (
-        <PhanyxToast
-          tipo={toast.tipo}
-          mensagem={toast.mensagem}
-          onClose={() =>
-            setToast(null)
-          }
-        />
-      )}
+      {toast &&
+        createPortal(
+          <PhanyxConfirmModal
+            aberto
+            titulo={t("title")}
+            mensagem={toast.mensagem}
+            textoConfirmar={tCommon("close")}
+            mostrarCancelar={false}
+            onConfirmar={() => setToast(null)}
+            onCancelar={() => setToast(null)}
+          />,
+          document.body
+        )}
 
       <div>
         <Link
@@ -1481,28 +1489,34 @@ function AdminCancelamentoMatriculaPage() {
         </div>
       </section>
 
-      <PhanyxConfirmModal
-        aberto={confirmar}
-        titulo={t(
-          "confirmModal.title"
+      {confirmar && !toast &&
+        createPortal(
+          <PhanyxConfirmModal
+            aberto={confirmar}
+            titulo={t(
+              "confirmModal.title"
+            )}
+            mensagem={t(
+              "confirmModal.message"
+            )}
+            textoConfirmar={t(
+              "confirmModal.confirm"
+            )}
+            textoCancelar={t(
+              "confirmModal.cancel"
+            )}
+            textoCarregando={t(
+              "actions.finalizing"
+            )}
+            carregando={processando === "finalizar"}
+            tipo="perigo"
+            onConfirmar={finalizar}
+            onCancelar={() =>
+              setConfirmar(false)
+            }
+          />,
+          document.body
         )}
-        mensagem={t(
-          "confirmModal.message"
-        )}
-        textoConfirmar={t(
-          "confirmModal.confirm"
-        )}
-        textoCancelar={t(
-          "confirmModal.cancel"
-        )}
-        textoCarregando={t(
-          "actions.finalizing"
-        )}
-        onConfirmar={finalizar}
-        onCancelar={() =>
-          setConfirmar(false)
-        }
-      />
     </div>
   );
 }
