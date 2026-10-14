@@ -23,7 +23,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://phanyx.com.br"),
+  metadataBase: new URL("https://www.phanyx.com.br"),
 
   title: {
     default: "PHANYX | Sistema de Gestão Escolar Completo",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     title: "PHANYX | Sistema de Gestão Escolar",
     description:
       "Plataforma completa para gestão escolar, acadêmica e EAD.",
-    url: "https://phanyx.com.br",
+    url: "https://www.phanyx.com.br",
     siteName: "PHANYX",
     locale: "pt_BR",
     type: "website",
