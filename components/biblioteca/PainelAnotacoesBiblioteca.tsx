@@ -2,9 +2,10 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { filtrarAnotacoesLeitor, type AnotacaoLeitor } from "@/lib/biblioteca-anotacoes-leitor";
+import { CORES_MARCACOES } from "@/lib/biblioteca-cores-marcacoes";
 import styles from "./BibliotecaLeitor.module.css";
 
-const cores = { AMARELO: "#fde047", VERDE: "#86efac", AZUL: "#93c5fd", ROSA: "#f9a8d4" };
+const cores = CORES_MARCACOES;
 export function IconeCaneta({ cor }: { cor: string }) {
   return <svg width="26" height="30" viewBox="0 0 28 32" fill="none" aria-hidden="true" focusable="false">
     <path d="M9 3h10v15l-3 5h-4l-3-5V3Z" fill={cor} stroke="currentColor" strokeWidth="1.5" />

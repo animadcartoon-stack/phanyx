@@ -1,4 +1,5 @@
 import type { AnotacaoLeitor } from "./biblioteca-anotacoes-leitor";
+import { rgbMarcacao, textoMarcacaoBranco } from "./biblioteca-cores-marcacoes";
 
 type Rotulos = { titulo: string; pagina: string; trecho: string; nota: string; semTrechos: string;
   tipos: Record<AnotacaoLeitor["tipo"], string> };
@@ -34,15 +35,12 @@ export async function exportarAnotacoesPdf(titulo: string, anotacoes: AnotacaoLe
   linha(rotulos.titulo, 19); y += 2;
   linha(titulo, 12); y += 4;
   if (!incluirTrechos) { linha(rotulos.semTrechos, 9, [71, 85, 105]); y += 4; }
-  const cores: Record<string, [number, number, number]> = {
-    AMARELO: [254, 249, 195], VERDE: [220, 252, 231], AZUL: [219, 234, 254], ROSA: [252, 231, 243],
-  };
   for (const anotacao of anotacoes) {
     if (y + 25 > limite) novaPagina();
     linha(`${rotulos.pagina} ${anotacao.pagina} | ${rotulos.tipos[anotacao.tipo]}`, 11, [29, 78, 216]); y += 1;
     if (incluirTrechos && anotacao.trecho) {
       linha(rotulos.trecho, 8, [71, 85, 105]);
-      linha(anotacao.trecho.slice(0, 1000), 10, [15, 23, 42], cores[anotacao.cor] || cores.AMARELO); y += 2;
+      linha(anotacao.trecho.slice(0, 1000), 10, textoMarcacaoBranco(anotacao.cor) ? [255, 255, 255] : [0, 0, 0], rgbMarcacao(anotacao.cor)); y += 2;
     }
     if (anotacao.conteudo) { linha(rotulos.nota, 8, [71, 85, 105]); linha(anotacao.conteudo); }
     y += 6;
