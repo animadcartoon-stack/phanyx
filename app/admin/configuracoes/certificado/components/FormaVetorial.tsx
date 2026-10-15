@@ -19,6 +19,7 @@ type CampoForma = {
   preenchimentoCor?: string | null;
   contornoCor?: string | null;
   contornoEspessura?: number | null;
+  contornoTipo?: "interno" | "externo" | null;
   mostrarPreenchimento?: boolean | null;
   mostrarContorno?: boolean | null;
   opacity?: number | null;
@@ -323,9 +324,27 @@ export default function FormaVetorial({
   const preenchimentoCor = campo.preenchimentoCor || campo.cor || "#1d4ed8";
   const contornoCor = campo.contornoCor || campo.cor || "#1d4ed8";
   const contornoEspessura = campo.contornoEspessura ?? 2;
+  const contornoTipo = campo.contornoTipo || "externo";
   const mostrarPreenchimento = campo.mostrarPreenchimento !== false;
   const mostrarContorno = campo.mostrarContorno !== false;
   const opacidade = campo.opacity ?? 1;
+
+  const pathForma = gerarPath(campo);
+  const idForma = `forma-contorno-${campo.id}`;
+  const clipInternoId = `${idForma}-interno`;
+  const maskExternoId = `${idForma}-externo`;
+
+  const larguraContornoBase =
+    campo.forma === "LINHA"
+      ? contornoEspessura || 4
+      : campo.forma === "ESTRELA"
+        ? Math.max(4, contornoEspessura)
+        : Math.max(1, contornoEspessura);
+
+  const larguraContornoRender =
+    campo.forma === "LINHA"
+      ? larguraContornoBase
+      : larguraContornoBase * 2;
 
   const larguraCampo = Number((campo as any).largura || 100);
   const alturaCampo = Number((campo as any).altura || 100);
@@ -711,8 +730,34 @@ export default function FormaVetorial({
         preserveAspectRatio="none"
         style={{ overflow: "visible" }}
       >
+        {campo.forma !== "LINHA" && (
+          <defs>
+            <clipPath id={clipInternoId}>
+              <path d={pathForma} />
+            </clipPath>
+
+            <mask
+              id={maskExternoId}
+              maskUnits="userSpaceOnUse"
+              x="-100"
+              y="-100"
+              width="300"
+              height="300"
+            >
+              <rect
+                x="-100"
+                y="-100"
+                width="300"
+                height="300"
+                fill="white"
+              />
+              <path d={pathForma} fill="black" />
+            </mask>
+          </defs>
+        )}
+
         <path
-          d={gerarPath(campo)}
+          d={pathForma}
           onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
           className={
             modo === "editor"
@@ -729,20 +774,24 @@ export default function FormaVetorial({
         />
 
         <path
-          d={gerarPath(campo)}
+          d={pathForma}
           fill="none"
           stroke={mostrarContorno ? contornoCor : "none"}
-          strokeWidth={
-            campo.forma === "LINHA"
-              ? contornoEspessura || 4
-              : campo.forma === "ESTRELA"
-                ? Math.max(4, contornoEspessura)
-                : Math.max(1, contornoEspessura)
-          }
+          strokeWidth={larguraContornoRender}
           strokeOpacity={opacidade}
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
+          clipPath={
+            campo.forma !== "LINHA" && contornoTipo === "interno"
+              ? `url(#${clipInternoId})`
+              : undefined
+          }
+          mask={
+            campo.forma !== "LINHA" && contornoTipo === "externo"
+              ? `url(#${maskExternoId})`
+              : undefined
+          }
           className="pointer-events-none"
         />
 
