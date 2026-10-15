@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import CorComCodigo from "./components/CorComCodigo";
+import useHistoricoCertificado from "./components/useHistoricoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
@@ -966,9 +968,8 @@ export default function ConfiguracaoCertificadoPage() {
   const [painelCampoAberto, setPainelCampoAberto] = useState(true);
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [sombraAberta, setSombraAberta] = useState(true);
-  const [campos, setCampos] = useState<CampoCertificado[]>([]);
-  const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
-  const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
+  // PHANYX: cores HEX e historico por acao v1
+  const { campos, setCampos, desfazer, refazer, limparHistorico, registrarHistoricoAntesDaAcao } = useHistoricoCertificado<CampoCertificado>();
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
   const [barraSelecaoPosicao, setBarraSelecaoPosicao] = useState({
@@ -990,6 +991,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [arrayAngulo, setArrayAngulo] = useState(0);
 
   const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
+  const futuroTextoLivreRef = useRef<Record<number, string[]>>({});
 
   const [tipoContornoTexto, setTipoContornoTexto] = useState<
     "interno" | "externo"
@@ -1007,31 +1009,9 @@ export default function ConfiguracaoCertificadoPage() {
     y: number;
   } | null>(null);
 
-  function desfazer() {
-    setHistorico((prev) => {
-      if (prev.length === 0) return prev;
 
-      const ultimo = prev[prev.length - 1];
 
-      setFuturo((fut) => [campos, ...fut]);
-      setCampos(ultimo);
 
-      return prev.slice(0, -1);
-    });
-  }
-
-  function refazer() {
-    setFuturo((prev) => {
-      if (prev.length === 0) return prev;
-
-      const proximo = prev[0];
-
-      setHistorico((hist) => [...hist, campos]);
-      setCampos(proximo);
-
-      return prev.slice(1);
-    });
-  }
 
   function pontosFormaParaSvg(campo: any) {
     const pontos = Array.isArray(campo?.pontosForma) ? campo.pontosForma : [];
@@ -1059,10 +1039,7 @@ export default function ConfiguracaoCertificadoPage() {
       .join(" ");
   }
 
-  function registrarHistoricoAntesDaAcao() {
-    setHistorico((prev) => [...prev, JSON.parse(JSON.stringify(campos))]);
-    setFuturo([]);
-  }
+
 
   function agruparCamposSelecionados() {
     if (camposSelecionadosIds.length < 2) return;
@@ -1134,19 +1111,9 @@ export default function ConfiguracaoCertificadoPage() {
   }, []);
 
   function atualizarCamposComHistorico(
-    atualizador:
-      CampoCertificado[] | ((prev: CampoCertificado[]) => CampoCertificado[]),
+    atualizador: CampoCertificado[] | ((prev: CampoCertificado[]) => CampoCertificado[]),
   ) {
-    setCampos((prev) => {
-      setHistorico((hist) => [...hist, prev]);
-      setFuturo([]);
-
-      if (typeof atualizador === "function") {
-        return atualizador(prev);
-      }
-
-      return atualizador;
-    });
+    setCampos(atualizador);
   }
 
   function gerarPontosEstrela(pontas = 5, raioInterno = 35, raioExterno = 50) {
@@ -1317,6 +1284,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [pontosFormaLivre, setPontosFormaLivre] = useState<any[]>([]);
 
   const pontosFormaLivreRef = useRef<any[]>([]);
+  const futuroPontosFormaLivreRef = useRef<any[][]>([]);
 
   useEffect(() => {
     pontosFormaLivreRef.current = pontosFormaLivre;
@@ -1324,68 +1292,52 @@ export default function ConfiguracaoCertificadoPage() {
 
   useEffect(() => {
     function handleUndoRedo(e: KeyboardEvent) {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.key.toLowerCase() !== "z") return;
       const alvo = e.target as HTMLElement | null;
       const tag = alvo?.tagName?.toLowerCase();
+      const tipo = (alvo as HTMLInputElement | null)?.type;
+      if ((tag === "input" && tipo !== "range" && tipo !== "color") ||
+          tag === "textarea" || tag === "select" || alvo?.isContentEditable) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (e.repeat) return;
 
-      if (tag === "input" || tag === "textarea" || alvo?.isContentEditable) {
+      if (modoFormaLivre || pontosFormaLivreRef.current.length > 0 || futuroPontosFormaLivreRef.current.length > 0) {
+        const atuais = pontosFormaLivreRef.current;
+        let novos: any[];
+        if (e.shiftKey) {
+          const proximo = futuroPontosFormaLivreRef.current[0];
+          if (!proximo) return;
+          novos = proximo;
+          futuroPontosFormaLivreRef.current = futuroPontosFormaLivreRef.current.slice(1);
+        } else {
+          if (!atuais.length) return;
+          futuroPontosFormaLivreRef.current = [atuais, ...futuroPontosFormaLivreRef.current];
+          novos = atuais.slice(0, -1);
+        }
+        pontosFormaLivreRef.current = novos;
+        setPontosFormaLivre(novos);
+        setModoFormaLivre(novos.length > 0);
+        setCampos((prev) => [
+          ...prev.filter((campo) => campo.id !== -999999),
+          ...(novos.length ? [criarCampoPreviewFormaLivre(novos)] : []),
+        ]);
         return;
       }
-
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-        e.preventDefault();
-
-        if (modoFormaLivre || pontosFormaLivreRef.current.length > 0) {
-          e.preventDefault();
-
-          setPontosFormaLivre((prev) => {
-            const novos = prev.slice(0, -1);
-
-            if (novos.length === 0) {
-              setModoFormaLivre(false);
-              pontosFormaLivreRef.current = [];
-
-              setCampos((camposAtuais) =>
-                camposAtuais.filter((campo) => campo.id !== -999999),
-              );
-
-              setMensagemSucesso(t("freeForm.creationCancelled"));
-              setTimeout(() => setMensagemSucesso(""), 1500);
-
-              return [];
-            }
-
-            pontosFormaLivreRef.current = novos;
-
-            setCampos((camposAtuais) => [
-              ...camposAtuais.filter((campo) => campo.id !== -999999),
-              criarCampoPreviewFormaLivre(novos),
-            ]);
-
-            return novos;
-          });
-
-          return;
-        }
-
-        if (e.shiftKey) {
-          refazer();
-        } else {
-          desfazer();
-        }
-      }
+      if (e.shiftKey) refazer();
+      else desfazer();
+      historicoTextoLivreRef.current = {};
+      futuroTextoLivreRef.current = {};
     }
-
     window.addEventListener("keydown", handleUndoRedo, true);
-
-    return () => {
-      window.removeEventListener("keydown", handleUndoRedo, true);
-    };
-  }, [campos, historico, futuro, modoFormaLivre]);
+    return () => window.removeEventListener("keydown", handleUndoRedo, true);
+  }, [modoFormaLivre, refazer, desfazer, setCampos, locale]);
 
   function cancelarFormaLivreEmCriacao() {
     setModoFormaLivre(false);
     setPontosFormaLivre([]);
     pontosFormaLivreRef.current = [];
+    futuroPontosFormaLivreRef.current = [];
 
     setCampos((prev) => prev.filter((campo) => campo.id !== -999999));
 
@@ -1461,7 +1413,8 @@ export default function ConfiguracaoCertificadoPage() {
       y,
     };
 
-    const proximosPontos = [...pontosFormaLivre, novoPonto];
+    futuroPontosFormaLivreRef.current = [];
+    const proximosPontos = [...pontosFormaLivreRef.current, novoPonto];
 
     const primeiro = pontosFormaLivre[0];
 
@@ -1495,11 +1448,14 @@ export default function ConfiguracaoCertificadoPage() {
       selecionarCampoUnico(novoId);
       setModoFormaLivre(false);
       setPontosFormaLivre([]);
+      pontosFormaLivreRef.current = [];
+      futuroPontosFormaLivreRef.current = [];
       setMensagemSucesso(t("freeForm.created"));
 
       return true;
     }
 
+    pontosFormaLivreRef.current = proximosPontos;
     setPontosFormaLivre(proximosPontos);
 
     setCampos((prev) => [
@@ -2492,8 +2448,9 @@ export default function ConfiguracaoCertificadoPage() {
     setCampoSelecionadoId(null);
     setCamposSelecionadosIds([]);
     setPontoFormaSelecionado(null);
-    setHistorico([]);
-    setFuturo([]);
+    limparHistorico();
+    historicoTextoLivreRef.current = {};
+    futuroTextoLivreRef.current = {};
   }
 
   async function recarregarListaModelosCertificado() {
@@ -5706,38 +5663,35 @@ export default function ConfiguracaoCertificadoPage() {
   function salvarHistoricoTextoLivre(editor: HTMLElement) {
     const campoId = Number(editor.getAttribute("data-texto-livre-id"));
     if (!campoId) return;
-
     const html = editor.innerHTML;
     const pilha = historicoTextoLivreRef.current[campoId] || [];
-
     if (pilha[pilha.length - 1] !== html) {
       historicoTextoLivreRef.current[campoId] = [...pilha, html].slice(-50);
+      futuroTextoLivreRef.current[campoId] = [];
     }
   }
 
   function desfazerTextoLivre(editor: HTMLElement) {
     const campoId = Number(editor.getAttribute("data-texto-livre-id"));
-    const pilha = historicoTextoLivreRef.current[campoId] || [];
-
+    const pilha = [...(historicoTextoLivreRef.current[campoId] || [])];
+    if (pilha[pilha.length - 1] !== editor.innerHTML) pilha.push(editor.innerHTML);
     if (pilha.length <= 1) return false;
-
+    futuroTextoLivreRef.current[campoId] = [editor.innerHTML, ...(futuroTextoLivreRef.current[campoId] || [])].slice(0, 50);
     pilha.pop();
-
-    const htmlAnterior = pilha[pilha.length - 1];
-    if (htmlAnterior === undefined) return false;
-
-    editor.innerHTML = htmlAnterior;
-
+    editor.innerHTML = pilha[pilha.length - 1];
     historicoTextoLivreRef.current[campoId] = pilha;
+    atualizarTextoLivreNoEstado(editor);
+    return true;
+  }
 
-    setCampos((prev) =>
-      prev.map((campo) =>
-        campo.id === campoId
-          ? { ...campo, texto: editor.innerText, textoHtml: editor.innerHTML }
-          : campo,
-      ),
-    );
-
+  function refazerTextoLivre(editor: HTMLElement) {
+    const campoId = Number(editor.getAttribute("data-texto-livre-id"));
+    const fila = futuroTextoLivreRef.current[campoId] || [];
+    if (!fila.length) return false;
+    editor.innerHTML = fila[0];
+    futuroTextoLivreRef.current[campoId] = fila.slice(1);
+    historicoTextoLivreRef.current[campoId] = [...(historicoTextoLivreRef.current[campoId] || []), editor.innerHTML].slice(-50);
+    atualizarTextoLivreNoEstado(editor);
     return true;
   }
 
@@ -6819,8 +6773,9 @@ export default function ConfiguracaoCertificadoPage() {
         setCampoSelecionadoId(null);
         setCamposSelecionadosIds([]);
         setPontoFormaSelecionado(null);
-        setHistorico([]);
-        setFuturo([]);
+        limparHistorico();
+    historicoTextoLivreRef.current = {};
+    futuroTextoLivreRef.current = {};
       }
 
       if (!opcoes?.silencioso) {
@@ -8547,12 +8502,12 @@ export default function ConfiguracaoCertificadoPage() {
                     {tr("library.backgroundColor")}
                   </label>
 
-                  <input
+                  <CorComCodigo
                     type="color"
                     value={corFundoPagina}
-                    onChange={(e) => {
+                    onValueChange={(codigoHex) => {
                       setModoFundo("phanyx");
-                      setCorFundoPagina(e.target.value);
+                      setCorFundoPagina(codigoHex);
                     }}
                     className="h-10 w-full cursor-pointer rounded-xl border border-slate-300 bg-white"
                   />
@@ -9020,6 +8975,7 @@ export default function ConfiguracaoCertificadoPage() {
                           setModoFormaLivre(true);
                           setPontosFormaLivre([]);
                           pontosFormaLivreRef.current = [];
+                          futuroPontosFormaLivreRef.current = [];
                           setCampoSelecionadoId(null);
                           setCamposSelecionadosIds([]);
                           setPontoFormaSelecionado(null);
@@ -11181,10 +11137,11 @@ export default function ConfiguracaoCertificadoPage() {
                                   (e.ctrlKey || e.metaKey) &&
                                   e.key.toLowerCase() === "z"
                                 ) {
-                                  if (desfazerTextoLivre(e.currentTarget)) {
-                                    e.preventDefault();
-                                    return;
-                                  }
+                                  e.preventDefault();
+                                  if (e.repeat) return;
+                                  if (e.shiftKey) refazerTextoLivre(e.currentTarget);
+                                  else desfazerTextoLivre(e.currentTarget);
+                                  return;
                                 }
 
                                 const editor = e.currentTarget;
@@ -12838,7 +12795,7 @@ export default function ConfiguracaoCertificadoPage() {
                                         : tr("shapeAppearance.withFill")}
                                     </button>
 
-                                    <input
+                                    <CorComCodigo
                                       type="color"
                                       value={
                                         (campoSelecionado as any)
@@ -12846,12 +12803,10 @@ export default function ConfiguracaoCertificadoPage() {
                                         campoSelecionado?.cor ||
                                         "#1d4ed8"
                                       }
-                                      onChange={(e) =>
-                                        atualizarCampoLocal(
+                                      onValueChange={(codigoHex) => atualizarCampoLocal(
                                           "preenchimentoCor" as any,
-                                          e.target.value,
-                                        )
-                                      }
+                                          codigoHex,
+                                        )}
                                       className="h-10 w-full cursor-pointer rounded-lg border"
                                     />
                                   </div>
@@ -12918,7 +12873,7 @@ export default function ConfiguracaoCertificadoPage() {
                                         : tr("shapeAppearance.withOutline")}
                                     </button>
 
-                                    <input
+                                    <CorComCodigo
                                       type="color"
                                       value={
                                         (campoSelecionado as any)
@@ -12926,12 +12881,10 @@ export default function ConfiguracaoCertificadoPage() {
                                         campoSelecionado?.cor ||
                                         "#1d4ed8"
                                       }
-                                      onChange={(e) =>
-                                        atualizarCampoLocal(
+                                      onValueChange={(codigoHex) => atualizarCampoLocal(
                                           "contornoCor" as any,
-                                          e.target.value,
-                                        )
-                                      }
+                                          codigoHex,
+                                        )}
                                       className="h-10 w-full cursor-pointer rounded-lg border"
                                     />
                                   </div>
@@ -13079,18 +13032,16 @@ export default function ConfiguracaoCertificadoPage() {
                                     <p className="mb-1 text-xs font-semibold text-slate-500">
                                       {tr("shapeAppearance.secondColor")}
                                     </p>
-                                    <input
+                                    <CorComCodigo
                                       type="color"
                                       value={
                                         (campoSelecionado as any)?.cor2 ||
                                         "#60a5fa"
                                       }
-                                      onChange={(e) =>
-                                        atualizarCampoLocal(
+                                      onValueChange={(codigoHex) => atualizarCampoLocal(
                                           "cor2" as any,
-                                          e.target.value,
-                                        )
-                                      }
+                                          codigoHex,
+                                        )}
                                       className="h-10 w-full cursor-pointer rounded-lg border"
                                     />
                                   </div>
@@ -13376,7 +13327,7 @@ export default function ConfiguracaoCertificadoPage() {
                         <label className="mb-1 block text-xs font-medium text-slate-600">
                           {tr("common.color")}
                         </label>
-                        <input
+                        <CorComCodigo
                           type="color"
                           value={
                             corTextoSelecionado ||
@@ -13386,8 +13337,8 @@ export default function ConfiguracaoCertificadoPage() {
                           onClick={(e) => {
                             e.stopPropagation();
                           }}
-                          onChange={(e) => {
-                            const cor = e.target.value.toLowerCase();
+                          onValueChange={(codigoHex) => {
+                            const cor = codigoHex.toLowerCase();
 
                             setCorTextoSelecionado(cor);
 
@@ -13692,13 +13643,13 @@ export default function ConfiguracaoCertificadoPage() {
                                   <label className="mt-3 block text-xs text-slate-500">
                                     {tr("shadow.color")}
                                   </label>
-                                  <input
+                                  <CorComCodigo
                                     type="color"
                                     value={
                                       campoSelecionado?.sombraCor || "#000000"
                                     }
-                                    onChange={(e) => {
-                                      const valor = e.target.value;
+                                    onValueChange={(codigoHex) => {
+                                      const valor = codigoHex;
                                       atualizarCampoLocal("sombraCor", valor);
 
                                       if (temSelecaoTextoLivreAtiva()) {
@@ -14563,11 +14514,11 @@ export default function ConfiguracaoCertificadoPage() {
                   {tr("contextMenu.selectionColor")}
                 </label>
 
-                <input
+                <CorComCodigo
                   type="color"
                   onMouseDown={(e) => e.preventDefault()}
-                  onChange={(e) => {
-                    aplicarEstiloTextoSelecionado({ color: e.target.value });
+                  onValueChange={(codigoHex) => {
+                    aplicarEstiloTextoSelecionado({ color: codigoHex });
                     setMenuContexto(null);
                   }}
                   className="h-10 w-full rounded-xl border border-slate-300"
@@ -14700,12 +14651,12 @@ export default function ConfiguracaoCertificadoPage() {
                 <label className="mb-1 block text-[11px] font-semibold text-slate-500">
                   {tr("shapeAppearance.outlineColor")}
                 </label>
-                <input
+                <CorComCodigo
                   type="color"
                   value={corContornoTexto}
                   onMouseDown={(e) => e.stopPropagation()}
-                  onChange={(e) => {
-                    const novaCor = e.target.value;
+                  onValueChange={(codigoHex) => {
+                    const novaCor = codigoHex;
                     setCorContornoTexto(novaCor);
                     atualizarContornoTextoCampoSelecionado({
                       contornoTextoCor: novaCor,
