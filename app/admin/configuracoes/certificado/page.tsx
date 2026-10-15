@@ -6380,6 +6380,133 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("mouseup", soltar);
   }
 
+  function iniciarRedimensionamentoImagemRotacionada(
+    e: React.MouseEvent,
+    campo: CampoCertificado,
+    ancora: "nw" | "ne" | "sw" | "se",
+  ) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    registrarHistoricoAntesDaAcao();
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rectCanvas = canvas.getBoundingClientRect();
+
+    const larguraInicial = Number(campo.largura || 150);
+    const alturaInicial = Number(campo.altura || 150);
+    const xInicial = Number(campo.x || 0);
+    const yInicial = Number(campo.y || 0);
+
+    const anguloGraus = Number((campo as any).rotate || 0);
+    const angulo = (anguloGraus * Math.PI) / 180;
+    const cos = Math.cos(angulo);
+    const sin = Math.sin(angulo);
+
+    const sinalX = ancora.includes("e") ? 1 : -1;
+    const sinalY = ancora.includes("s") ? 1 : -1;
+
+    const centroInicialX = xInicial + larguraInicial / 2;
+    const centroInicialY = yInicial + alturaInicial / 2;
+
+    const opostoLocalX = (-sinalX * larguraInicial) / 2;
+    const opostoLocalY = (-sinalY * alturaInicial) / 2;
+
+    const opostoX =
+      centroInicialX + opostoLocalX * cos - opostoLocalY * sin;
+    const opostoY =
+      centroInicialY + opostoLocalX * sin + opostoLocalY * cos;
+
+    const proporcaoInicial =
+      larguraInicial > 0 && alturaInicial > 0
+        ? larguraInicial / alturaInicial
+        : 1;
+
+    const pontoNoCanvas = (ev: globalThis.MouseEvent) => ({
+      x: (ev.clientX - rectCanvas.left) / escala,
+      y: (ev.clientY - rectCanvas.top) / escala,
+    });
+
+    const move = (ev: globalThis.MouseEvent) => {
+      const ponto = pontoNoCanvas(ev);
+
+      const dx = ponto.x - opostoX;
+      const dy = ponto.y - opostoY;
+
+      const deltaLocalX = dx * cos + dy * sin;
+      const deltaLocalY = -dx * sin + dy * cos;
+
+      let novaLargura = Math.max(40, sinalX * deltaLocalX);
+      let novaAltura = Math.max(40, sinalY * deltaLocalY);
+
+      if (ev.shiftKey && proporcaoInicial > 0) {
+        const mudancaLargura =
+          Math.abs(novaLargura - larguraInicial) /
+          Math.max(1, larguraInicial);
+        const mudancaAltura =
+          Math.abs(novaAltura - alturaInicial) /
+          Math.max(1, alturaInicial);
+
+        if (mudancaLargura >= mudancaAltura) {
+          novaAltura = Math.max(40, novaLargura / proporcaoInicial);
+        } else {
+          novaLargura = Math.max(40, novaAltura * proporcaoInicial);
+        }
+      }
+
+      const metadeLocalX = (sinalX * novaLargura) / 2;
+      const metadeLocalY = (sinalY * novaAltura) / 2;
+
+      const novoCentroX =
+        opostoX + metadeLocalX * cos - metadeLocalY * sin;
+      const novoCentroY =
+        opostoY + metadeLocalX * sin + metadeLocalY * cos;
+
+      const novoX = novoCentroX - novaLargura / 2;
+      const novoY = novoCentroY - novaAltura / 2;
+
+      setCampos((prev) =>
+        prev.map((item) => {
+          if (item.id !== campo.id) return item;
+
+          const cropAtual = item.crop || {
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          };
+
+          return {
+            ...item,
+            x: Number(novoX.toFixed(2)),
+            y: Number(novoY.toFixed(2)),
+            largura: Number(novaLargura.toFixed(2)),
+            altura: Number(novaAltura.toFixed(2)),
+            crop: cropAtual,
+            cropBaseW:
+              novaLargura +
+              Number(cropAtual.left || 0) +
+              Number(cropAtual.right || 0),
+            cropBaseH:
+              novaAltura +
+              Number(cropAtual.top || 0) +
+              Number(cropAtual.bottom || 0),
+          };
+        }),
+      );
+    };
+
+    const up = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  }
+
   function onMouseMoveCanvas(event: MouseEvent<HTMLDivElement>) {
     if (!dragRef.current || !canvasRef.current) return;
 
@@ -9888,7 +10015,7 @@ export default function ConfiguracaoCertificadoPage() {
                                 {/* CORTAR 4 LADOS JUNTOS */}
                                 <div
                                   onMouseDown={(e) => iniciarCropTodos(e, c)}
-                                  className="absolute left-[-12px] top-[-12px] z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
+                                  className="absolute left-2 top-2 z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
                                   title={tr("image.cropAllTogether")}
                                 >
                                   ┍
@@ -9942,72 +10069,52 @@ export default function ConfiguracaoCertificadoPage() {
                                   className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
                                 />
 
+                                {/* REDIMENSIONAR PELOS 4 CANTOS */}
                                 <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
+                                  onMouseDown={(e) =>
+                                    iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "nw",
+                                    )
+                                  }
+                                  className="absolute left-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
 
-                                    registrarHistoricoAntesDaAcao();
+                                <div
+                                  onMouseDown={(e) =>
+                                    iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "ne",
+                                    )
+                                  }
+                                  className="absolute right-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
 
-                                    const startX = e.clientX;
-                                    const startY = e.clientY;
-                                    const startW = c.largura || 150;
-                                    const startH = c.altura || 150;
+                                <div
+                                  onMouseDown={(e) =>
+                                    iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "sw",
+                                    )
+                                  }
+                                  className="absolute bottom-[-10px] left-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
 
-                                    const move = (
-                                      ev: globalThis.MouseEvent,
-                                    ) => {
-                                      const novoW = Math.max(
-                                        40,
-                                        startW + ev.clientX - startX,
-                                      );
-                                      const proporcao = startW / startH;
-
-                                      const novoH = ev.shiftKey
-                                        ? Math.max(40, novoW / proporcao)
-                                        : Math.max(
-                                          40,
-                                          startH + ev.clientY - startY,
-                                        );
-
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              largura: novoW,
-                                              altura: novoH,
-                                              crop: item.crop || {
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                              },
-                                              cropBaseW:
-                                                novoW +
-                                                (item.crop?.left || 0) +
-                                                (item.crop?.right || 0),
-                                              cropBaseH:
-                                                novoH +
-                                                (item.crop?.top || 0) +
-                                                (item.crop?.bottom || 0),
-                                            }
-                                            : item,
-                                        ),
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.removeEventListener("mouseup", up);
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                <div
+                                  onMouseDown={(e) =>
+                                    iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "se",
+                                    )
+                                  }
+                                  className="absolute bottom-[-10px] right-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
                                   title={tr("common.resizeTogether")}
                                 />
                               </>
