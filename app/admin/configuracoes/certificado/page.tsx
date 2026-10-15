@@ -7,6 +7,7 @@ import useHistoricoCertificado from "./components/useHistoricoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
+import ImagemCertificado from "@/components/certificados/ImagemCertificado";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
@@ -9727,7 +9728,7 @@ export default function ConfiguracaoCertificadoPage() {
                     finalizarDrag();
                   }}
 
-                  className="absolute left-0 top-0 overflow-visible border border-dashed border-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="absolute left-0 top-0 overflow-visible outline outline-1 outline-dashed outline-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
                     width: `${baseCanvas.largura}px`,
                     height: `${baseCanvas.altura}px`,
@@ -9934,7 +9935,8 @@ export default function ConfiguracaoCertificadoPage() {
                                   : c.ordem || 10,
                               pointerEvents: c.bloqueado ? "none" : "auto",
                               transform: `rotate(${(c as any).rotate || 0}deg)`,
-                              border: selecionadoImagem
+                              border: 0,
+                              outline: selecionadoImagem
                                 ? "2px solid #2563eb"
                                 : "1px dashed #93c5fd",
 
@@ -9967,21 +9969,9 @@ export default function ConfiguracaoCertificadoPage() {
                               })(),
                             }}
                           >
-                            <div
-                              className="relative h-full w-full overflow-hidden rounded-[8px]"
-                              style={{
-                                backgroundImage: `url(${(c as any).imagemUrl})`,
-                                backgroundRepeat: "no-repeat",
-                                backgroundSize: `${(c as any).cropBaseW || c.largura || 150}px ${(c as any).cropBaseH || c.altura || 150
-                                  }px`,
-                                backgroundPosition: `-${c.crop?.left || 0}px -${c.crop?.top || 0}px`,
-                                opacity: c.opacity || 1,
-                                filter: (c as any).filter || "none",
-                                transform: `
-      scaleX(${(c as any).flipX ? -1 : 1})
-      scaleY(${(c as any).flipY ? -1 : 1})
-    `,
-                              }}
+                            <ImagemCertificado
+                              campo={c}
+                              url={(c as any).imagemUrl}
                             />
 
                             {selecionadoImagem && (
@@ -14160,7 +14150,7 @@ export default function ConfiguracaoCertificadoPage() {
               }}
             >
               <div
-                className="rounded-xl border-4 border-white shadow-2xl"
+                className="rounded-xl ring-4 ring-white shadow-2xl"
                 style={{
                   width: `${baseCanvas.largura * previewScale}px`,
                   height: `${baseCanvas.altura * previewScale}px`,

@@ -80,11 +80,41 @@ export default function AdminShell({
   const router = useRouter();
   const pathname = usePathname();
   const sidebarDesktopRef = useRef<HTMLElement | null>(null);
+  const editorCertificadoAberto = pathname === "/admin/configuracoes/certificado" || pathname === "/admin/configuracoes/certificado/";
   const esconderSidebar = pathname?.includes(
     "/admin/configuracoes/certificado",
   );
   useEffect(() => {
     if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial) return;
+    if (editorCertificadoAberto) {
+      let ativo = true;
+      let emAndamento = false;
+      const controle = new AbortController();
+      const manterEditor = async () => {
+        if (!ativo || emAndamento) return;
+        emAndamento = true;
+        try {
+          await fetch("/api/admin/configuracoes/certificado/sessao", {
+            method: "POST", credentials: "include", cache: "no-store",
+            headers: { "x-phanyx-sessao-admin": referenciaSessaoInicial },
+            signal: controle.signal,
+          });
+        } catch { /* Falhas temporarias de rede nao apagam o trabalho aberto. */ }
+        finally { emAndamento = false; }
+      };
+      void manterEditor();
+      const intervalo = window.setInterval(() => { void manterEditor(); }, 45000);
+      const aoRetomar = () => { if (document.visibilityState === "visible") void manterEditor(); };
+      window.addEventListener("focus", aoRetomar);
+      document.addEventListener("visibilitychange", aoRetomar);
+      return () => {
+        ativo = false;
+        controle.abort();
+        window.clearInterval(intervalo);
+        window.removeEventListener("focus", aoRetomar);
+        document.removeEventListener("visibilitychange", aoRetomar);
+      };
+    }
     let timeout: ReturnType<typeof setTimeout>;
     let redirecionamento: ReturnType<typeof setTimeout> | undefined;
     let ativo = true;
@@ -100,7 +130,8 @@ export default function AdminShell({
               "x-phanyx-sessao-admin": referenciaSessaoInicial,
             },
           });
-          if (!ativo || resposta.status === 409) return;
+          if (!ativo) return;
+          if (resposta.status === 409) { resetTimer(); return; }
           if (!resposta.ok) { resetTimer(); return; }
           setSessaoExpirada(true);
           redirecionamento = setTimeout(() => {
@@ -121,7 +152,7 @@ export default function AdminShell({
       window.removeEventListener("click", resetTimer);
       window.removeEventListener("scroll", resetTimer);
     };
-  }, [referenciaSessaoInicial]);
+  }, [referenciaSessaoInicial, editorCertificadoAberto]);
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) {

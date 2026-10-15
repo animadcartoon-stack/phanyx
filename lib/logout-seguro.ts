@@ -4,7 +4,7 @@ import {
 } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
-import { identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
+import { COOKIE_EDITOR_CERTIFICADO, editorCertificadoProtegido, identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
 
 type TokenLogoutPayload = {
   id?: number | string;
@@ -86,6 +86,7 @@ function apagarCookiesDeSessao(
   };
 
   response.cookies.set("token", "", opcoes);
+  response.cookies.set(COOKIE_EDITOR_CERTIFICADO, "", opcoes);
 
   response.cookies.set(
     "phanyx_master_token",
@@ -126,6 +127,12 @@ export async function criarLogoutAdmin(request: NextRequest) {
     return NextResponse.json({ encerrada: false }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
   }
   if (!inatividade) return criarLogoutSeguro(request, "/login?portal=admin");
+  if (sessao && editorCertificadoProtegido(
+    request.cookies.get(COOKIE_EDITOR_CERTIFICADO)?.value,
+    sessao.referencia, process.env.JWT_SECRET,
+  )) {
+    return NextResponse.json({ encerrada: false }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
+  }
   await finalizarImpersonacaoAtiva(request);
   const resposta = NextResponse.json({ encerrada: true }, { headers: { "Cache-Control": "private, no-store" } });
   apagarCookiesDeSessao(resposta);

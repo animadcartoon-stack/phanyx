@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import ImagemCertificado from "./ImagemCertificado";
 import FormaVetorial from "@/app/admin/configuracoes/certificado/components/FormaVetorial";
 
 export type CampoCertificadoRender = {
@@ -54,6 +55,9 @@ export type CampoCertificadoRender = {
   arquivoUrl?: string | null;
   previewUrl?: string | null;
   objectFit?: string | null;
+  cropBaseW?: number | null;
+  cropBaseH?: number | null;
+  crop?: { top?: number; left?: number; right?: number; bottom?: number } | null;
 };
 
 export type DadosCertificadoRender = {
@@ -401,6 +405,8 @@ function renderImagemCampo(
 
   if (!url) return null;
 
+  if (campo.tipo === "IMAGEM") return <ImagemCertificado campo={campo} url={url} />;
+
   return (
     <img
       src={url}
@@ -577,6 +583,24 @@ export default function CertificadoRender({
           border: mostrarBordas ? "1px solid rgba(37, 99, 235, .35)" : "none",
           ...efeitosTextoCss(campo),
         };
+
+        if (campo.tipo === "IMAGEM") {
+          return (
+            <div key={campo.id} style={{
+              ...estiloBase,
+              width: Number(campo.largura || 150),
+              height: Number(campo.altura || 150),
+              display: "block",
+              padding: 0,
+              overflow: "visible",
+              opacity: 1,
+              filter: undefined,
+              transform: `rotate(${Number(campo.rotate || 0)}deg)`,
+            }}>
+              {renderImagemCampo(campo, dados)}
+            </div>
+          );
+        }
 
         if (
           campo.tipo === "ASSINATURA" ||
