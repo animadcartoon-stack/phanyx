@@ -20,7 +20,7 @@ export default function RecomendacoesBiblioteca({ portal, itemId, bloqueado }: {
   const [destinos, setDestinos] = useState<string[]>([]); const [obrigatoria, setObrigatoria] = useState(false);
   const [inicio, setInicio] = useState(""); const [fim, setFim] = useState(""); const [status, setStatus] = useState("PUBLICADA");
   const carregar = useCallback(async () => {
-    setCarregando(true);
+    setCarregando(true); setErro(false);
     try { const res = await fetch("/api/biblioteca/recomendacoes", { cache: "no-store" }); if (!res.ok) throw new Error(); setDados(await res.json()); }
     catch { setErro(true); } finally { setCarregando(false); }
   }, []);
@@ -32,7 +32,7 @@ export default function RecomendacoesBiblioteca({ portal, itemId, bloqueado }: {
     setStatus(r.status === "RASCUNHO" ? "RASCUNHO" : "PUBLICADA"); setAberto(true);
   }
   async function salvar() {
-    setSalvando(true);
+    setSalvando(true); setErro(false);
     try {
       const body = { id: edicao, itemId, titulo, mensagem, destinos, obrigatoria, status,
         disponivelInicioEm: inicio ? new Date(`${inicio}T00:00:00`).toISOString() : null,

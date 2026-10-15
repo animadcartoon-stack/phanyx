@@ -59,10 +59,12 @@ export default function AdminShell({
   children,
   usuarioInicial = null,
   permissoesIniciais = [],
+  referenciaSessaoInicial = null,
 }: {
   children: React.ReactNode;
   usuarioInicial?: UsuarioLogado | null;
   permissoesIniciais?: string[];
+  referenciaSessaoInicial?: string | null;
 }) {
   const tNav = useTranslations("AdminNavigation");
   const tCommon = useTranslations("Common");
@@ -82,51 +84,44 @@ export default function AdminShell({
     "/admin/configuracoes/certificado",
   );
   useEffect(() => {
-    // Durante o desenvolvimento local, n?o encerramos
-    // a sess?o por inatividade. Em produ??o, a pol?tica
-    // de seguran?a permanece inalterada.
-    if (process.env.NODE_ENV === "development") {
-      return;
-    }
-
-    let timeout: NodeJS.Timeout;
-
-    const tempoInatividade = 5 * 60 * 1000; // 5 minutos
-    // se quiser testar com 1 minuto:
-    // const tempoInatividade = 1 * 60 * 1000;
-
+    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial) return;
+    let timeout: ReturnType<typeof setTimeout>;
+    let redirecionamento: ReturnType<typeof setTimeout> | undefined;
+    let ativo = true;
+    const tempoInatividade = 5 * 60 * 1000;
     const resetTimer = () => {
       clearTimeout(timeout);
-
       timeout = setTimeout(async () => {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        });
-
-        setSessaoExpirada(true);
-
-        setTimeout(() => {
-          window.location.href = "/login?portal=admin";
-        }, 2500);
+        try {
+          const resposta = await fetch("/api/auth/logout", {
+            method: "POST", credentials: "include",
+            headers: {
+              "x-phanyx-logout-motivo": "inatividade",
+              "x-phanyx-sessao-admin": referenciaSessaoInicial,
+            },
+          });
+          if (!ativo || resposta.status === 409) return;
+          if (!resposta.ok) { resetTimer(); return; }
+          setSessaoExpirada(true);
+          redirecionamento = setTimeout(() => {
+            if (ativo) window.location.href = "/login?portal=admin";
+          }, 2500);
+        } catch { if (ativo) resetTimer(); }
       }, tempoInatividade);
     };
-
     window.addEventListener("mousemove", resetTimer);
     window.addEventListener("keydown", resetTimer);
     window.addEventListener("click", resetTimer);
     window.addEventListener("scroll", resetTimer);
-
     resetTimer();
-
     return () => {
-      clearTimeout(timeout);
+      ativo = false; clearTimeout(timeout); clearTimeout(redirecionamento);
       window.removeEventListener("mousemove", resetTimer);
       window.removeEventListener("keydown", resetTimer);
       window.removeEventListener("click", resetTimer);
       window.removeEventListener("scroll", resetTimer);
     };
-  }, []);
+  }, [referenciaSessaoInicial]);
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) {
@@ -459,11 +454,11 @@ export default function AdminShell({
   }, []);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", {
+    const resposta = await fetch("/api/auth/logout", {
       method: "POST",
+      headers: referenciaSessaoInicial ? { "x-phanyx-sessao-admin": referenciaSessaoInicial } : {},
     });
-
-    router.push("/login");
+    if (resposta.ok) router.push("/login?portal=admin");
   }
 
   async function carregarNotificacoes(gerar = false) {
