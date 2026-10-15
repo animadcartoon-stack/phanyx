@@ -32,6 +32,7 @@ type CampoForma = {
     baixoDireito?: number;
     baixoEsquerdo?: number;
   } | null;
+  raiosPontos?: Record<string, number> | null;
   forma?: string | null;
   pontosForma?: PontoForma[] | null;
   preenchimentoCor?: string | null;
@@ -277,16 +278,17 @@ export default function FloatingShapeInspector({
 
   const ehEstrela =
     campo.forma === "ESTRELA";
-  const ehRetanguloOuQuadrado =
-    campo.forma === "RETANGULO" ||
-    campo.forma === "QUADRADO";
-  const ehTriangulo =
-    campo.forma === "TRIANGULO";
   const ehCirculo =
     campo.forma === "CIRCULO";
+  const ehLinha =
+    campo.forma === "LINHA";
+  const podeArredondarCantos =
+    !ehEstrela &&
+    !ehCirculo &&
+    !ehLinha &&
+    (campo.pontosForma?.length || 0) >= 3;
 
   void gerarPathComCantosArredondados;
-  void ehCirculo;
 
   function rotuloForma(
     forma?: string | null,
@@ -325,48 +327,107 @@ export default function FloatingShapeInspector({
     } as any);
   }
 
+  function pontoPertenceAoAlvo(
+    ponto: PontoForma,
+    index: number,
+    alvo:
+      | "todos"
+      | "cima"
+      | "baixo"
+      | "esquerda"
+      | "direita"
+      | "topoEsquerdo"
+      | "topoDireito"
+      | "baixoDireito"
+      | "baixoEsquerdo",
+  ) {
+    if (alvo === "todos") return true;
+    if (alvo === "cima") return ponto.y <= 50;
+    if (alvo === "baixo") return ponto.y >= 50;
+    if (alvo === "esquerda") return ponto.x <= 50;
+    if (alvo === "direita") return ponto.x >= 50;
+    if (alvo === "topoEsquerdo") return index === 0;
+    if (alvo === "topoDireito") return index === 1;
+    if (alvo === "baixoDireito") return index === 2;
+    if (alvo === "baixoEsquerdo") return index === 3;
+
+    return false;
+  }
+
+  function limitarRaioCanto(valor: unknown) {
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) return 0;
+
+    return Math.max(0, Math.min(45, numero));
+  }
+
+  function raioEfetivoDoPonto(
+    ponto: PontoForma,
+    index: number,
+  ) {
+    const raios = campo.raiosPontos || {};
+    const raioPorId = raios[ponto.id];
+
+    if (raioPorId !== undefined && raioPorId !== null) {
+      return limitarRaioCanto(raioPorId);
+    }
+
+    const cantos = campo.cantosArredondados || {};
+
+    if (index === 0 && cantos.topoEsquerdo !== undefined) {
+      return limitarRaioCanto(cantos.topoEsquerdo);
+    }
+
+    if (index === 1 && cantos.topoDireito !== undefined) {
+      return limitarRaioCanto(cantos.topoDireito);
+    }
+
+    if (index === 2 && cantos.baixoDireito !== undefined) {
+      return limitarRaioCanto(cantos.baixoDireito);
+    }
+
+    if (index === 3 && cantos.baixoEsquerdo !== undefined) {
+      return limitarRaioCanto(cantos.baixoEsquerdo);
+    }
+
+    return limitarRaioCanto(campo.raioBorda || 0);
+  }
+
   function valorAtualDosCantos() {
-    const cantos =
-      (campo as any).cantosArredondados ||
-      {};
+    const pontos = campo.pontosForma || [];
 
-    if (alvoCantos === "todos") {
-      return campo.raioBorda || 0;
-    }
-
-    if (alvoCantos === "cima") {
-      return (
-        cantos.topoEsquerdo ??
-        cantos.topoDireito ??
-        0
+    const pontosDoAlvo = pontos
+      .map((ponto, index) => ({
+        ponto,
+        index,
+      }))
+      .filter(({ ponto, index }) =>
+        pontoPertenceAoAlvo(
+          ponto,
+          index,
+          alvoCantos,
+        ),
       );
+
+    if (pontosDoAlvo.length === 0) {
+      return limitarRaioCanto(campo.raioBorda || 0);
     }
 
-    if (alvoCantos === "baixo") {
-      return (
-        cantos.baixoEsquerdo ??
-        cantos.baixoDireito ??
-        0
-      );
+    const valores = pontosDoAlvo.map(({ ponto, index }) =>
+      raioEfetivoDoPonto(ponto, index),
+    );
+
+    const primeiro = valores[0];
+
+    if (valores.every((valor) => valor === primeiro)) {
+      return primeiro;
     }
 
-    if (alvoCantos === "esquerda") {
-      return (
-        cantos.topoEsquerdo ??
-        cantos.baixoEsquerdo ??
-        0
-      );
-    }
-
-    if (alvoCantos === "direita") {
-      return (
-        cantos.topoDireito ??
-        cantos.baixoDireito ??
-        0
-      );
-    }
-
-    return 0;
+    return Math.round(
+      valores.reduce((soma, valor) => soma + valor, 0) /
+        valores.length,
+    );
   }
 
   function aplicarArredondamentoCantos(
@@ -382,81 +443,46 @@ export default function FloatingShapeInspector({
       | "baixoEsquerdo",
     valor: number,
   ) {
-    const pontos =
-      campo.pontosForma || [];
+    const pontos = campo.pontosForma || [];
+    const raio = limitarRaioCanto(valor);
 
-    const deveCurvar = (
-      ponto: PontoForma,
-      index: number,
-    ) => {
-      if (alvo === "todos") return true;
+    if (alvo === "todos") {
+      onAtualizarCampo({
+        ...campo,
+        raioBorda: raio,
+        cantosArredondados: null,
+        raiosPontos: null,
+      } as any);
 
-      if (alvo === "cima") {
-        return ponto.y <= 50;
-      }
+      return;
+    }
 
-      if (alvo === "baixo") {
-        return ponto.y >= 50;
-      }
+    const raiosPontos: Record<string, number> = {};
 
-      if (alvo === "esquerda") {
-        return ponto.x <= 50;
-      }
+    pontos.forEach((ponto, index) => {
+      raiosPontos[ponto.id] = raioEfetivoDoPonto(
+        ponto,
+        index,
+      );
+    });
 
-      if (alvo === "direita") {
-        return ponto.x >= 50;
-      }
-
-      if (alvo === "topoEsquerdo") {
-        return index === 0;
-      }
-
-      if (alvo === "topoDireito") {
-        return index === 1;
-      }
-
-      if (alvo === "baixoDireito") {
-        return index === 2;
-      }
-
-      if (alvo === "baixoEsquerdo") {
-        return index === 3;
-      }
-
-      return false;
-    };
-
-    const novosPontos = pontos.map(
-      (ponto, index) => {
-        if (!deveCurvar(ponto, index)) {
-          return ponto;
-        }
-
-        if (valor <= 0) {
-          return {
-            ...ponto,
-            tipo: "reto" as const,
-            handleMode:
-              "quebrado" as const,
-            inX: undefined,
-            inY: undefined,
-            outX: undefined,
-            outY: undefined,
-          };
-        }
-
-        return criarTangenteSimetrica(
+    pontos.forEach((ponto, index) => {
+      if (
+        pontoPertenceAoAlvo(
           ponto,
-          valor,
-        );
-      },
-    );
+          index,
+          alvo,
+        )
+      ) {
+        raiosPontos[ponto.id] = raio;
+      }
+    });
 
     onAtualizarCampo({
       ...campo,
       raioBorda: 0,
       cantosArredondados: null,
-      pontosForma: novosPontos,
+      raiosPontos,
     } as any);
   }
 
@@ -792,8 +818,7 @@ export default function FloatingShapeInspector({
           </div>
         </div>
 
-        {(ehRetanguloOuQuadrado ||
-          ehTriangulo) && (
+        {podeArredondarCantos && (
           <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3 dark:border-slate-400 dark:bg-slate-300/80">
             <p className="mb-2 text-xs font-black uppercase tracking-wide !text-slate-800">
               {t(
@@ -804,7 +829,7 @@ export default function FloatingShapeInspector({
             <input
               type="range"
               min={0}
-              max={50}
+              max={45}
               value={valorAtualDosCantos()}
               onChange={(e) =>
                 aplicarArredondamentoCantos(
