@@ -29,6 +29,7 @@ type CampoCertificado = {
   preenchimentoCor?: string | null;
   contornoCor?: string | null;
   contornoEspessura?: number | null;
+  contornoTipo?: "interno" | "externo" | null;
   mostrarPreenchimento?: boolean | null;
   mostrarContorno?: boolean | null;
   ladosOcultos?: {
@@ -5402,7 +5403,7 @@ export default function ConfiguracaoCertificadoPage() {
           Para grupos, não podemos fazer:
           largura: refLargura
           altura: refAltura
-  
+
           Isso deforma cada pedacinho interno.
           Então usamos fator proporcional no grupo inteiro.
         */
@@ -12604,91 +12605,97 @@ export default function ConfiguracaoCertificadoPage() {
                         </div>
                       )}
 
-                      <div className="mt-4 border-t border-slate-700 pt-3">
-                        <label className="mb-2 block text-xs font-semibold text-slate-300">
-                          {tr("disciplines.columns")}
-                        </label>
+                      {campoSelecionado?.tipo === "DISCIPLINAS_CONCLUIDAS" && (
+                        <>
+                        <div className="mt-4 border-t border-slate-700 pt-3">
+                          <label className="mb-2 block text-xs font-semibold text-slate-300">
+                            {tr("disciplines.columns")}
+                          </label>
 
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              atualizarColunasDisciplinasCampo(
-                                quantidadeColunasDisciplinasDoCampo(
-                                  campoSelecionado,
-                                ) - 1,
-                              )
-                            }
-                            className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
-                          >
-                            −
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                atualizarColunasDisciplinasCampo(
+                                  quantidadeColunasDisciplinasDoCampo(
+                                    campoSelecionado,
+                                  ) - 1,
+                                )
+                              }
+                              className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
+                            >
+                              −
+                            </button>
+
+                            <input
+                              type="number"
+                              min={1}
+                              max={4}
+                              value={quantidadeColunasDisciplinasDoCampo(
+                                campoSelecionado,
+                              )}
+                              onChange={(e) =>
+                                atualizarColunasDisciplinasCampo(
+                                  Number(e.target.value),
+                                )
+                              }
+                              className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
+                            />
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                atualizarColunasDisciplinasCampo(
+                                  quantidadeColunasDisciplinasDoCampo(
+                                    campoSelecionado,
+                                  ) + 1,
+                                )
+                              }
+                              className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <p className="mt-2 text-[11px] leading-5 text-slate-400">
+                            {tr("disciplines.columnsHint")}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 border-t border-slate-700 pt-3">
+                          <label className="mb-2 block text-xs font-semibold text-slate-300">
+                            {tr("disciplines.columnGap")}
+                          </label>
 
                           <input
-                            type="number"
-                            min={1}
-                            max={4}
-                            value={quantidadeColunasDisciplinasDoCampo(
+                            type="range"
+                            min={0}
+                            max={80}
+                            step={1}
+                            value={espacoColunasDisciplinasDoCampo(
                               campoSelecionado,
                             )}
                             onChange={(e) =>
-                              atualizarColunasDisciplinasCampo(
+                              atualizarEspacoColunasDisciplinasCampo(
                                 Number(e.target.value),
                               )
                             }
-                            className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
+                            className="w-full"
                           />
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              atualizarColunasDisciplinasCampo(
-                                quantidadeColunasDisciplinasDoCampo(
-                                  campoSelecionado,
-                                ) + 1,
-                              )
-                            }
-                            className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
-                          >
-                            +
-                          </button>
+                          <div className="mt-1 flex justify-between text-[11px] text-slate-400">
+                            <span>{tr("disciplines.closer")}</span>
+                            <strong>
+                              {espacoColunasDisciplinasDoCampo(campoSelecionado)}
+                              px
+                            </strong>
+                            <span>{tr("disciplines.farther")}</span>
+                          </div>
                         </div>
 
-                        <p className="mt-2 text-[11px] leading-5 text-slate-400">
-                          {tr("disciplines.columnsHint")}
-                        </p>
-                      </div>
 
-                      <div className="mt-4 border-t border-slate-700 pt-3">
-                        <label className="mb-2 block text-xs font-semibold text-slate-300">
-                          {tr("disciplines.columnGap")}
-                        </label>
-
-                        <input
-                          type="range"
-                          min={0}
-                          max={80}
-                          step={1}
-                          value={espacoColunasDisciplinasDoCampo(
-                            campoSelecionado,
-                          )}
-                          onChange={(e) =>
-                            atualizarEspacoColunasDisciplinasCampo(
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-full"
-                        />
-
-                        <div className="mt-1 flex justify-between text-[11px] text-slate-400">
-                          <span>{tr("disciplines.closer")}</span>
-                          <strong>
-                            {espacoColunasDisciplinasDoCampo(campoSelecionado)}
-                            px
-                          </strong>
-                          <span>{tr("disciplines.farther")}</span>
-                        </div>
-                      </div>
+                        </>
+                      )}
 
                       {campoSelecionado && (
                         <div className="phanyx-cert-box-size rounded-2xl border border-slate-200 bg-white p-4">
@@ -12907,47 +12914,48 @@ export default function ConfiguracaoCertificadoPage() {
                                     {tr("shapeAppearance.outlineType")}
                                   </label>
 
-                                  <div className="mb-3 flex gap-2">
-                                    <button
-                                      type="button"
-                                      onMouseDown={(e) => e.preventDefault()}
-                                      onClick={() => {
-                                        setTipoContornoTexto("externo");
-
-                                        aplicarContornoTextoSelecionado(
-                                          corContornoTexto,
-                                          espessuraContornoTexto,
-                                          "externo",
-                                        );
-                                      }}
-                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "externo"
-                                        ? "bg-blue-600 text-white"
-                                        : "border"
+                                  {campoSelecionado?.forma !== "LINHA" && (
+                                    <div className="mb-3 flex gap-2">
+                                      <button
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "contornoTipo" as any,
+                                            "externo" as any,
+                                          )
+                                        }
+                                        className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                                          ((campoSelecionado as any)
+                                            ?.contornoTipo || "externo") ===
+                                          "externo"
+                                            ? "bg-blue-600 text-white"
+                                            : "border"
                                         }`}
-                                    >
-                                      {tr("shapeAppearance.external")}
-                                    </button>
+                                      >
+                                        {tr("shapeAppearance.external")}
+                                      </button>
 
-                                    <button
-                                      type="button"
-                                      onMouseDown={(e) => e.preventDefault()}
-                                      onClick={() => {
-                                        setTipoContornoTexto("interno");
-
-                                        aplicarContornoTextoSelecionado(
-                                          corContornoTexto,
-                                          espessuraContornoTexto,
-                                          "interno",
-                                        );
-                                      }}
-                                      className={`rounded-lg px-3 py-2 text-xs font-bold ${tipoContornoTexto === "interno"
-                                        ? "bg-blue-600 text-white"
-                                        : "border"
+                                      <button
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={() =>
+                                          atualizarCampoLocal(
+                                            "contornoTipo" as any,
+                                            "interno" as any,
+                                          )
+                                        }
+                                        className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                                          (campoSelecionado as any)
+                                            ?.contornoTipo === "interno"
+                                            ? "bg-blue-600 text-white"
+                                            : "border"
                                         }`}
-                                    >
-                                      {tr("shapeAppearance.internal")}
-                                    </button>
-                                  </div>
+                                      >
+                                        {tr("shapeAppearance.internal")}
+                                      </button>
+                                    </div>
+                                  )}
 
                                   <label className="mt-3 block text-xs text-slate-500">
                                     {tr("shapeAppearance.outlineThickness")}
@@ -12975,6 +12983,20 @@ export default function ConfiguracaoCertificadoPage() {
                                 <p className="mb-1 text-xs font-semibold text-slate-500">
                                   {tr("shapeAppearance.transparency")}
                                 </p>
+                                <input
+                                  type="range"
+                                  min={0.1}
+                                  max={1}
+                                  step={0.05}
+                                  value={campoSelecionado?.opacity ?? 1}
+                                  onChange={(e) =>
+                                    atualizarCampoLocal(
+                                      "opacity" as any,
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full"
+                                />
 
                                 <label className="mt-3 block text-xs text-slate-500">
                                   {tr("shapeAppearance.cornerRadius")}
@@ -12989,21 +13011,6 @@ export default function ConfiguracaoCertificadoPage() {
                                   onChange={(e) =>
                                     atualizarCampoLocal(
                                       "raioBorda" as any,
-                                      Number(e.target.value),
-                                    )
-                                  }
-                                  className="w-full"
-                                />
-
-                                <input
-                                  type="range"
-                                  min={0.1}
-                                  max={1}
-                                  step={0.05}
-                                  value={campoSelecionado?.opacity || 1}
-                                  onChange={(e) =>
-                                    atualizarCampoLocal(
-                                      "opacity" as any,
                                       Number(e.target.value),
                                     )
                                   }
