@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { COOKIE_SESSAO_EDITOR_CERTIFICADO } from "@/lib/sessao-editor-certificado";
 import {
   assinaturaPermiteUso,
   mensagemBloqueioAssinatura,
@@ -464,6 +465,11 @@ export async function POST(req: Request) {
         destinoRh || undefined,
     });
 
+    // Um novo login nao pode reutilizar a credencial do editor de outro acesso.
+    response.cookies.set(COOKIE_SESSAO_EDITOR_CERTIFICADO, "", {
+      httpOnly: true, secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", path: "/", maxAge: 0,
+    });
     response.cookies.set("token", token, {
       httpOnly: true,
       secure:

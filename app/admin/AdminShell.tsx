@@ -85,74 +85,123 @@ export default function AdminShell({
     "/admin/configuracoes/certificado",
   );
   useEffect(() => {
+    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial || !editorCertificadoAberto) return;
+    let ativo = true;
+    let emAndamento = false;
+    const controle = new AbortController();
+    const manterEditor = async () => {
+      if (!ativo || emAndamento) return;
+      emAndamento = true;
+      try {
+        await fetch("/api/admin/configuracoes/certificado/sessao", {
+          method: "POST", credentials: "include", cache: "no-store",
+          headers: { "x-phanyx-sessao-admin": referenciaSessaoInicial },
+          signal: controle.signal,
+        });
+      } catch { /* Falhas temporarias nao apagam o trabalho aberto. */ }
+      finally { emAndamento = false; }
+    };
+    void manterEditor();
+    const intervalo = window.setInterval(() => { void manterEditor(); }, 45000);
+    const aoRetomar = () => { if (document.visibilityState === "visible") void manterEditor(); };
+    window.addEventListener("focus", aoRetomar);
+    document.addEventListener("visibilitychange", aoRetomar);
+    return () => {
+      ativo = false; controle.abort(); window.clearInterval(intervalo);
+      window.removeEventListener("focus", aoRetomar);
+      document.removeEventListener("visibilitychange", aoRetomar);
+    };
+  }, [referenciaSessaoInicial, editorCertificadoAberto]);
+
+  useEffect(() => {
     if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial) return;
-    if (editorCertificadoAberto) {
-      let ativo = true;
-      let emAndamento = false;
-      const controle = new AbortController();
-      const manterEditor = async () => {
-        if (!ativo || emAndamento) return;
-        emAndamento = true;
-        try {
-          await fetch("/api/admin/configuracoes/certificado/sessao", {
-            method: "POST", credentials: "include", cache: "no-store",
-            headers: { "x-phanyx-sessao-admin": referenciaSessaoInicial },
-            signal: controle.signal,
-          });
-        } catch { /* Falhas temporarias de rede nao apagam o trabalho aberto. */ }
-        finally { emAndamento = false; }
-      };
-      void manterEditor();
-      const intervalo = window.setInterval(() => { void manterEditor(); }, 45000);
-      const aoRetomar = () => { if (document.visibilityState === "visible") void manterEditor(); };
-      window.addEventListener("focus", aoRetomar);
-      document.addEventListener("visibilitychange", aoRetomar);
-      return () => {
-        ativo = false;
-        controle.abort();
-        window.clearInterval(intervalo);
-        window.removeEventListener("focus", aoRetomar);
-        document.removeEventListener("visibilitychange", aoRetomar);
-      };
-    }
     let timeout: ReturnType<typeof setTimeout>;
     let redirecionamento: ReturnType<typeof setTimeout> | undefined;
     let ativo = true;
+    const controle = new AbortController();
     const tempoInatividade = 5 * 60 * 1000;
+    const chaveAtividade = `phanyx:atividade-admin:${referenciaSessaoInicial}`;
+    let ultimaAtividadeLocal = Date.now();
+    try {
+      const armazenada = Number(localStorage.getItem(chaveAtividade) || 0);
+      if (armazenada > 0 && armazenada <= Date.now()) ultimaAtividadeLocal = armazenada;
+      else localStorage.setItem(chaveAtividade, String(ultimaAtividadeLocal));
+    } catch {}
+    let ultimaGravacao = 0;
+    const lerAtividade = () => {
+      try { return Math.max(ultimaAtividadeLocal, Number(localStorage.getItem(chaveAtividade) || 0)); }
+      catch { return ultimaAtividadeLocal; }
+    };
     const resetTimer = () => {
       clearTimeout(timeout);
+      const restante = Math.max(0, tempoInatividade - (Date.now() - lerAtividade()));
       timeout = setTimeout(async () => {
+        if (!ativo) return;
+        if (Date.now() - lerAtividade() < tempoInatividade) { resetTimer(); return; }
         try {
           const resposta = await fetch("/api/auth/logout", {
-            method: "POST", credentials: "include",
+            method: "POST", credentials: "include", signal: controle.signal,
             headers: {
               "x-phanyx-logout-motivo": "inatividade",
               "x-phanyx-sessao-admin": referenciaSessaoInicial,
             },
           });
           if (!ativo) return;
-          if (resposta.status === 409) { resetTimer(); return; }
-          if (!resposta.ok) { resetTimer(); return; }
+          if (resposta.status === 409) return;
+          if (!resposta.ok) { timeout = setTimeout(resetTimer, 30000); return; }
+          try { localStorage.setItem(`phanyx:admin-encerrado:${referenciaSessaoInicial}`, String(Date.now())); } catch {}
+          // O Admin expirou; a pagina do editor continua usando seu proprio cookie.
+          if (editorCertificadoAberto) return;
           setSessaoExpirada(true);
           redirecionamento = setTimeout(() => {
             if (ativo) window.location.href = "/login?portal=admin";
           }, 2500);
-        } catch { if (ativo) resetTimer(); }
-      }, tempoInatividade);
+        } catch { if (ativo) timeout = setTimeout(resetTimer, 30000); }
+      }, restante);
     };
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keydown", resetTimer);
-    window.addEventListener("click", resetTimer);
-    window.addEventListener("scroll", resetTimer);
-    resetTimer();
+    const registrarAtividade = () => {
+      ultimaAtividadeLocal = Date.now();
+      if (ultimaAtividadeLocal - ultimaGravacao >= 1000) {
+        try { localStorage.setItem(chaveAtividade, String(ultimaAtividadeLocal)); } catch {}
+        ultimaGravacao = ultimaAtividadeLocal;
+      }
+      resetTimer();
+    };
+    const sincronizarAtividade = (evento: StorageEvent) => { if (evento.key === chaveAtividade) resetTimer(); };
+    // Trabalhar no editor nao prolonga o acesso as outras telas do Admin.
+    if (!editorCertificadoAberto) {
+      window.addEventListener("mousemove", registrarAtividade);
+      window.addEventListener("keydown", registrarAtividade);
+      window.addEventListener("click", registrarAtividade);
+      window.addEventListener("scroll", registrarAtividade);
+      registrarAtividade();
+    } else resetTimer();
+    window.addEventListener("storage", sincronizarAtividade);
     return () => {
-      ativo = false; clearTimeout(timeout); clearTimeout(redirecionamento);
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-      window.removeEventListener("click", resetTimer);
-      window.removeEventListener("scroll", resetTimer);
+      ativo = false; controle.abort(); clearTimeout(timeout); clearTimeout(redirecionamento);
+      window.removeEventListener("mousemove", registrarAtividade);
+      window.removeEventListener("keydown", registrarAtividade);
+      window.removeEventListener("click", registrarAtividade);
+      window.removeEventListener("scroll", registrarAtividade);
+      window.removeEventListener("storage", sincronizarAtividade);
     };
   }, [referenciaSessaoInicial, editorCertificadoAberto]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development" || !referenciaSessaoInicial || editorCertificadoAberto) return;
+    const chave = `phanyx:admin-encerrado:${referenciaSessaoInicial}`;
+    const exigirNovoLogin = () => {
+      setSessaoExpirada(true);
+      window.location.replace("/login?portal=admin");
+    };
+    // Cobre tambem navegacao para uma pagina que o Next manteve no cache da aba.
+    try { if (localStorage.getItem(chave)) { exigirNovoLogin(); return; } } catch {}
+    const aoEncerrarOutraAba = (evento: StorageEvent) => {
+      if (evento.key === chave && evento.newValue) exigirNovoLogin();
+    };
+    window.addEventListener("storage", aoEncerrarOutraAba);
+    return () => window.removeEventListener("storage", aoEncerrarOutraAba);
+  }, [referenciaSessaoInicial, editorCertificadoAberto, pathname]);
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) {

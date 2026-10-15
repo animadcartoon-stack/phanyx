@@ -4,7 +4,8 @@ import {
 } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
-import { COOKIE_EDITOR_CERTIFICADO, editorCertificadoProtegido, identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
+import { identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
+import { COOKIE_SESSAO_EDITOR_CERTIFICADO } from "@/lib/sessao-editor-certificado";
 
 type TokenLogoutPayload = {
   id?: number | string;
@@ -17,7 +18,8 @@ async function finalizarImpersonacaoAtiva(
   request: NextRequest
 ) {
   const tokenAtual =
-    request.cookies.get("token")?.value;
+    request.cookies.get("token")?.value ||
+    request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value;
 
   if (!tokenAtual || !process.env.JWT_SECRET) {
     return;
@@ -73,7 +75,8 @@ async function finalizarImpersonacaoAtiva(
 }
 
 function apagarCookiesDeSessao(
-  response: NextResponse
+  response: NextResponse,
+  preservarEditor = false,
 ) {
   const opcoes = {
     httpOnly: true,
@@ -86,7 +89,8 @@ function apagarCookiesDeSessao(
   };
 
   response.cookies.set("token", "", opcoes);
-  response.cookies.set(COOKIE_EDITOR_CERTIFICADO, "", opcoes);
+  response.cookies.set("phanyx_certificado_ativo", "", opcoes);
+  if (!preservarEditor) response.cookies.set(COOKIE_SESSAO_EDITOR_CERTIFICADO, "", opcoes);
 
   response.cookies.set(
     "phanyx_master_token",
@@ -113,28 +117,29 @@ export async function criarLogoutSeguro(
 
 /** Uma aba antiga do Admin não pode apagar a sessão aberta depois em outro portal. */
 export async function criarLogoutAdmin(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
-  const sessao = identificarSessaoAdmin(token, process.env.JWT_SECRET);
   const inatividade = request.headers.get("x-phanyx-logout-motivo") === "inatividade";
+  const token = request.cookies.get("token")?.value ||
+    (!inatividade ? request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value : undefined);
+  const sessao = identificarSessaoAdmin(token, process.env.JWT_SECRET);
   const referencia = request.headers.get("x-phanyx-sessao-admin");
   const origin = request.headers.get("origin");
+  const headers = { "Cache-Control": "private, no-store" };
   if (request.headers.get("sec-fetch-site") === "cross-site" || (origin && origin !== new URL(request.url).origin)) {
-    return NextResponse.json({ encerrada: false }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ encerrada: false }, { status: 403, headers });
   }
+  // Outra aba ja encerrou o Admin: ela pode redirecionar sem apagar o editor.
+  if (inatividade && !token) return NextResponse.json({ encerrada: true }, { headers });
   if ((token && !sessao) || (referencia && referencia !== sessao?.referencia) ||
       (inatividade && (!sessao || !referencia || referencia !== sessao.referencia))) {
-    // Sem Set-Cookie e sem encerrar a auditoria da sessão de outro usuário/portal.
-    return NextResponse.json({ encerrada: false }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ encerrada: false }, { status: 409, headers });
   }
   if (!inatividade) return criarLogoutSeguro(request, "/login?portal=admin");
-  if (sessao && editorCertificadoProtegido(
-    request.cookies.get(COOKIE_EDITOR_CERTIFICADO)?.value,
-    sessao.referencia, process.env.JWT_SECRET,
-  )) {
-    return NextResponse.json({ encerrada: false }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
+  let editorSegueAtivo = false;
+  if (token && request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value === token && process.env.JWT_SECRET) {
+    try { jwt.verify(token, process.env.JWT_SECRET); editorSegueAtivo = true; } catch {}
   }
-  await finalizarImpersonacaoAtiva(request);
-  const resposta = NextResponse.json({ encerrada: true }, { headers: { "Cache-Control": "private, no-store" } });
-  apagarCookiesDeSessao(resposta);
+  if (!editorSegueAtivo) await finalizarImpersonacaoAtiva(request);
+  const resposta = NextResponse.json({ encerrada: true }, { headers });
+  apagarCookiesDeSessao(resposta, true);
   return resposta;
 }
