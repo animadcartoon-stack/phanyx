@@ -78,6 +78,13 @@ type CampoCertificado = {
   | null;
 
   raioBorda?: number | null;
+  cantosArredondados?: {
+    topoEsquerdo?: number;
+    topoDireito?: number;
+    baixoDireito?: number;
+    baixoEsquerdo?: number;
+  } | null;
+  raiosPontos?: Record<string, number> | null;
   pontasEstrela?: number | null;
   profundidadeEstrela?: number | null;
   arredondarEstrela?: number | null;
@@ -9404,7 +9411,7 @@ export default function ConfiguracaoCertificadoPage() {
                   "transition-[width,padding] duration-150",
 
                   barraSelecaoMinimizada
-                    ? "w-[min(360px,calc(100vw-32px))] p-2"
+                    ? "w-auto max-w-[calc(100vw-16px)] p-1.5"
                     : "w-[min(920px,calc(100vw-32px))] p-3",
                 ].join(" ")}
                 style={{
@@ -9433,7 +9440,11 @@ export default function ConfiguracaoCertificadoPage() {
                     onMouseDown={
                       iniciarArrasteBarraSelecao
                     }
-                    className="min-w-0 flex-1 cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
+                    className={
+                      barraSelecaoMinimizada
+                        ? "shrink-0 cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
+                        : "min-w-0 flex-1 cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
+                    }
                     title={tr("selection.dragBarHint")}
                   >
                     <div className="flex items-center gap-2">
@@ -9455,12 +9466,17 @@ export default function ConfiguracaoCertificadoPage() {
                     )}
                   </div>
 
-                  <span className="shrink-0 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold">
-                    {tr("selection.selectedCount", {
-                      count:
-                        camposSelecionadosIds.length ||
-                        (campoSelecionadoId !== null ? 1 : 0),
-                    })}
+                  <span className="shrink-0 rounded-full bg-blue-600 px-2 py-1 text-xs font-bold">
+                    {barraSelecaoMinimizada
+                      ? (
+                          camposSelecionadosIds.length ||
+                          (campoSelecionadoId !== null ? 1 : 0)
+                        )
+                      : tr("selection.selectedCount", {
+                          count:
+                            camposSelecionadosIds.length ||
+                            (campoSelecionadoId !== null ? 1 : 0),
+                        })}
                   </span>
 
                   <button
@@ -9477,7 +9493,11 @@ export default function ConfiguracaoCertificadoPage() {
                         (valor) => !valor
                       );
                     }}
-                    className="flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg !border !border-blue-200 !bg-white px-3 text-sm font-black !text-slate-950 shadow hover:!bg-blue-50"
+                    className={
+                      barraSelecaoMinimizada
+                        ? "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg !border !border-blue-200 !bg-white p-0 text-sm font-black !text-slate-950 shadow hover:!bg-blue-50"
+                        : "flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg !border !border-blue-200 !bg-white px-3 text-sm font-black !text-slate-950 shadow hover:!bg-blue-50"
+                    }
                     title={
                       barraSelecaoMinimizada
                         ? tr("selection.maximizeTools")
@@ -9490,15 +9510,21 @@ export default function ConfiguracaoCertificadoPage() {
                         : "−"}
                     </span>
 
-                    <span>
-                      {barraSelecaoMinimizada
-                        ? tr("common.open")
-                        : tr("selection.minimizeTools")}
-                    </span>
+                    {!barraSelecaoMinimizada && (
+                      <span>
+                        {tr("selection.minimizeTools")}
+                      </span>
+                    )}
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div
+                  className={
+                    barraSelecaoMinimizada
+                      ? "hidden"
+                      : "flex flex-wrap gap-2"
+                  }
+                >
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("ESQUERDA")}
@@ -12998,24 +13024,38 @@ export default function ConfiguracaoCertificadoPage() {
                                   className="w-full"
                                 />
 
-                                <label className="mt-3 block text-xs text-slate-500">
-                                  {tr("shapeAppearance.cornerRadius")}
-                                </label>
-                                <input
-                                  type="range"
-                                  min={0}
-                                  max={80}
-                                  value={
-                                    (campoSelecionado as any)?.raioBorda ?? 8
-                                  }
-                                  onChange={(e) =>
-                                    atualizarCampoLocal(
-                                      "raioBorda" as any,
-                                      Number(e.target.value),
-                                    )
-                                  }
-                                  className="w-full"
-                                />
+                                {!["CIRCULO", "LINHA", "ESTRELA"].includes(
+                                  String(campoSelecionado?.forma || ""),
+                                ) && (
+                                  <>
+                                    <label className="mt-3 block text-xs text-slate-500">
+                                      {tr("shapeAppearance.cornerRadius")}
+                                    </label>
+                                    <input
+                                      type="range"
+                                      min={0}
+                                      max={45}
+                                      value={
+                                        (campoSelecionado as any)?.raioBorda ?? 0
+                                      }
+                                      onChange={(e) => {
+                                        atualizarCampoLocal(
+                                          "raioBorda",
+                                          Number(e.target.value),
+                                        );
+                                        atualizarCampoLocal(
+                                          "cantosArredondados",
+                                          null,
+                                        );
+                                        atualizarCampoLocal(
+                                          "raiosPontos",
+                                          null,
+                                        );
+                                      }}
+                                      className="w-full"
+                                    />
+                                  </>
+                                )}
                               </div>
 
                               <button

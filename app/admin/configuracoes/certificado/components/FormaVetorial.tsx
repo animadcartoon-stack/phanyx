@@ -30,6 +30,7 @@ type CampoForma = {
     baixoDireito?: number;
     baixoEsquerdo?: number;
   } | null;
+  raiosPontos?: Record<string, number> | null;
   pontosForma?: PontoForma[] | null;
 };
 
@@ -124,25 +125,44 @@ function controleEntrada(ponto: PontoForma) {
 function gerarPathComCantosArredondados(campo: CampoForma) {
   const pontos = garantirPontosIniciais(campo);
   const cantos = campo.cantosArredondados || {};
-  const temCantosIndividuais = !!campo.cantosArredondados;
-
-  const raioPadrao = temCantosIndividuais
-    ? 0
-    : Math.max(0, Math.min(45, campo.raioBorda || 0));
+  const raiosPontos = campo.raiosPontos || {};
+  const raioPadrao = Math.max(0, Math.min(45, Number(campo.raioBorda || 0)));
 
   if (pontos.length < 3) return "";
 
+  function limitarRaio(valor: unknown) {
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) return 0;
+
+    return Math.max(0, Math.min(45, numero));
+  }
+
   function raioDoPonto(index: number) {
-    if (campo.forma === "TRIANGULO") {
-      return Math.max(0, Math.min(45, campo.raioBorda || 0));
+    const ponto = pontos[index];
+    const raioPorId = ponto ? raiosPontos[ponto.id] : undefined;
+
+    if (raioPorId !== undefined && raioPorId !== null) {
+      return limitarRaio(raioPorId);
     }
 
-    if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? 0));
-    if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? 0));
-    if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? 0));
-    if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? 0));
+    if (index === 0 && cantos.topoEsquerdo !== undefined) {
+      return limitarRaio(cantos.topoEsquerdo);
+    }
 
-    return 0;
+    if (index === 1 && cantos.topoDireito !== undefined) {
+      return limitarRaio(cantos.topoDireito);
+    }
+
+    if (index === 2 && cantos.baixoDireito !== undefined) {
+      return limitarRaio(cantos.baixoDireito);
+    }
+
+    if (index === 3 && cantos.baixoEsquerdo !== undefined) {
+      return limitarRaio(cantos.baixoEsquerdo);
+    }
+
+    return raioPadrao;
   }
 
   let d = "";
@@ -160,6 +180,7 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
       } else {
         d += ` L ${atual.x} ${atual.y}`;
       }
+
       continue;
     }
 
@@ -193,11 +214,23 @@ function gerarPath(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
   if (!pontos.length) return "";
 
+  const temRaioPorPonto = Object.values(campo.raiosPontos || {}).some(
+    (valor) => Number(valor) > 0,
+  );
+
+  const temCantoLegado = Object.values(campo.cantosArredondados || {}).some(
+    (valor) => Number(valor) > 0,
+  );
+
   if (
     campo.forma !== "ESTRELA" &&
     campo.forma !== "LINHA" &&
     campo.forma !== "CIRCULO" &&
-    (campo.raioBorda || 0) > 0
+    (
+      Number(campo.raioBorda || 0) > 0 ||
+      temRaioPorPonto ||
+      temCantoLegado
+    )
   ) {
     return gerarPathComCantosArredondados(campo);
   }
@@ -358,9 +391,19 @@ export default function FormaVetorial({
   const rxAlca = 2.3 / Math.max(escalaX, 0.1);
   const ryAlca = 2.3 / Math.max(escalaY, 0.1);
 
-  function atualizarPontos(novosPontos: PontoForma[]) {
+  function atualizarPontos(
+    novosPontos: PontoForma[],
+    desativarArredondamentoAutomatico = false,
+  ) {
     onChange({
       ...campo,
+      ...(desativarArredondamentoAutomatico
+        ? {
+            raioBorda: 0,
+            cantosArredondados: null,
+            raiosPontos: null,
+          }
+        : {}),
       pontosForma: novosPontos,
     });
   }
@@ -439,7 +482,8 @@ export default function FormaVetorial({
           inX: base.x - dx,
           inY: base.y - dy,
         };
-      })
+      }),
+      true,
     );
   }
 
@@ -459,7 +503,8 @@ export default function FormaVetorial({
             }
             : criarAlcasPadrao(ponto)
           : ponto
-      )
+      ),
+      true,
     );
   }
 
