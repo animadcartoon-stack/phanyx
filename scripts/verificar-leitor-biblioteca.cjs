@@ -15,6 +15,14 @@ let state;
 function reset() { state = { usuario: { ...usuarioPadrao }, portal: true, vinculo: true, favoritos: [], progressos: [], anotacoes: [], recomendacoes: [], obra: structuredClone(obra), arquivo: { ...arquivo }, permitirFavoritos: true }; }
 reset();
 function match(row, where) { return ["id", "instituicaoId", "usuarioId", "itemId", "arquivoId", "tipo", "pagina", "professorId", "status", "arquivadoEm"].every((k) => where[k] === undefined || row[k] === where[k]); }
+function conferirDestinosAninhados(data) {
+  // Estes campos são herdados pela relação composta; o Prisma os rejeita no create aninhado.
+  for (const destino of data.destinos.create) {
+    assert.equal(Object.hasOwn(destino, "instituicaoId"), false);
+    assert.equal(Object.hasOwn(destino, "recomendacaoId"), false);
+    assert.deepEqual(Object.keys(destino).sort(), ["chaveDestino", "cursoId", "disciplinaId", "tipo", "turmaId"]);
+  }
+}
 const prisma = {
   moduloAdicionalInstituicao: { findUnique: async () => ({ id: 1, plano: "BIBLIOTECA_AVANCADA", status: "ATIVO", testeGratisFimEm: null, armazenamentoContratadoBytes: 100n, armazenamentoExtraBytes: 0n }) },
   bibliotecaConfiguracao: { findUnique: async () => ({ id: 1, permitirDownload: false, permitirFavoritos: state.permitirFavoritos, armazenamentoUtilizadoBytes: 0n }) },
@@ -55,11 +63,11 @@ const prisma = {
   curso: { findMany: async ({ where }) => { assert.equal(where.instituicaoId, 2); assert.deepEqual(where.id.in, [3]); return [{ id: 3, nome: "Curso autorizado" }]; } },
   matricula: { findMany: async ({ where }) => { assert.equal(where.status, "ATIVA"); assert.equal(where.excluidaEm, null); assert.equal(where.canceladaEm, null); assert.equal(where.instituicaoId, 2); return [{ cursoId: 3, turmaPrincipalId: 5, itens: [{ turmaId: 5, disciplinaId: 6 }] }]; } },
   bibliotecaRecomendacao: {
-    create: async ({ data }) => { const row = { ...data, id: 1 }; state.recomendacoes.push(row); return row; },
+    create: async ({ data }) => { conferirDestinosAninhados(data); const row = { ...data, id: 1 }; state.recomendacoes.push(row); return row; },
     findFirst: async ({ where }) => state.recomendacoes.find((r) => match(r, where)) || null,
     findMany: async () => [],
     updateMany: async ({ where, data }) => { const rows = state.recomendacoes.filter((r) => match(r, where)); rows.forEach((r) => Object.assign(r, data)); return { count: rows.length }; },
-    update: async ({ where, data }) => { const row = state.recomendacoes.find((r) => match(r, { ...where.id_instituicaoId, professorId: where.professorId })); assert.ok(row); Object.assign(row, data); return row; },
+    update: async ({ where, data }) => { conferirDestinosAninhados(data); const row = state.recomendacoes.find((r) => match(r, { ...where.id_instituicaoId, professorId: where.professorId })); assert.ok(row); Object.assign(row, data); return row; },
   },
   bibliotecaRecomendacaoDestino: { deleteMany: async () => ({ count: 1 }) },
   $queryRaw: async (partes) => {
@@ -140,6 +148,22 @@ const academico = carregar("lib/biblioteca-recomendacoes.ts");
   await teste("aluno não publica recomendação", async () => assert.equal((await recomenda.POST(request("POST", { itemId: 8 }))).status, 403));
   const body = { itemId: 8, titulo: "Leia esta obra", mensagem: "Capítulo 1", status: "PUBLICADA", obrigatoria: true, destinos: ["TURMA:5"] };
   await teste("professor publica para turma autorizada", async () => { state.usuario.role = "PROFESSOR"; const res = await recomenda.POST(request("POST", body)); assert.equal(res.status, 201); assert.equal(state.recomendacoes[0].instituicaoId, 2); assert.equal(state.recomendacoes[0].professorId, 7); assert.equal(state.recomendacoes[0].destinos.create[0].turmaId, 5); });
+  for (const destino of ["TODOS", "CURSO:3", "TURMA:5", "DISCIPLINA:6"]) await teste(`publicar e editar recomendação para ${destino}`, async () => {
+    state.usuario.role = "PROFESSOR";
+    const dados = { ...body, destinos: [destino], titulo: "Aula 08 - Leitura para debate em sala de aula",
+      disponivelInicioEm: "2026-10-15T03:00:00.000Z", disponivelFimEm: "2026-10-20T03:00:00.000Z" };
+    assert.equal((await recomenda.POST(request("POST", dados))).status, 201);
+    assert.equal(state.recomendacoes[0].instituicaoId, 2);
+    assert.equal(state.recomendacoes[0].destinos.create[0].chaveDestino, destino);
+    assert.equal((await recomenda.PATCH(request("PATCH", { ...dados, id: 1, titulo: "Leitura revisada" }))).status, 200);
+    assert.equal(state.recomendacoes[0].titulo, "Leitura revisada");
+    assert.equal(state.recomendacoes[0].destinos.create[0].chaveDestino, destino);
+  });
+  await teste("outra instituição não altera recomendação", async () => {
+    state.usuario.role = "PROFESSOR";
+    state.recomendacoes.push({ id: 1, instituicaoId: 99, professorId: 7 });
+    assert.equal((await recomenda.PATCH(request("PATCH", { ...body, id: 1 }))).status, 404);
+  });
   await teste("turma fora da atribuição", async () => { state.usuario.role = "PROFESSOR"; assert.equal((await recomenda.POST(request("POST", { ...body, destinos: ["TURMA:999"] }))).status, 403); assert.equal(state.recomendacoes.length, 0); });
   await teste("outro professor não altera recomendação", async () => { state.usuario.role = "PROFESSOR"; state.recomendacoes.push({ id: 1, instituicaoId: 2, professorId: 99 }); assert.equal((await recomenda.PATCH(request("PATCH", { id: 1, status: "ENCERRADA" }))).status, 404); });
   await teste("publicação sem destinatário", async () => { state.usuario.role = "PROFESSOR"; assert.equal((await recomenda.POST(request("POST", { ...body, destinos: [] }))).status, 400); });

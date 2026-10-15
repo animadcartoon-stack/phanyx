@@ -4,6 +4,7 @@ import {
 } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
 
 type TokenLogoutPayload = {
   id?: number | string;
@@ -107,4 +108,26 @@ export async function criarLogoutSeguro(
   apagarCookiesDeSessao(response);
 
   return response;
+}
+
+/** Uma aba antiga do Admin não pode apagar a sessão aberta depois em outro portal. */
+export async function criarLogoutAdmin(request: NextRequest) {
+  const token = request.cookies.get("token")?.value;
+  const sessao = identificarSessaoAdmin(token, process.env.JWT_SECRET);
+  const inatividade = request.headers.get("x-phanyx-logout-motivo") === "inatividade";
+  const referencia = request.headers.get("x-phanyx-sessao-admin");
+  const origin = request.headers.get("origin");
+  if (request.headers.get("sec-fetch-site") === "cross-site" || (origin && origin !== new URL(request.url).origin)) {
+    return NextResponse.json({ encerrada: false }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+  }
+  if ((token && !sessao) || (referencia && referencia !== sessao?.referencia) ||
+      (inatividade && (!sessao || !referencia || referencia !== sessao.referencia))) {
+    // Sem Set-Cookie e sem encerrar a auditoria da sessão de outro usuário/portal.
+    return NextResponse.json({ encerrada: false }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
+  }
+  if (!inatividade) return criarLogoutSeguro(request, "/login?portal=admin");
+  await finalizarImpersonacaoAtiva(request);
+  const resposta = NextResponse.json({ encerrada: true }, { headers: { "Cache-Control": "private, no-store" } });
+  apagarCookiesDeSessao(resposta);
+  return resposta;
 }

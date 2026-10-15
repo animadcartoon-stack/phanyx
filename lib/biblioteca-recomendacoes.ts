@@ -86,10 +86,12 @@ export async function validarDadosRecomendacao(leitor: LeitorBiblioteca, corpo: 
   const destinos = chaves.map((chave) => {
     const destino = permitidos.find((d) => d.chave === chave);
     if (!destino) falhaLeitor(403, "DESTINO_NAO_AUTORIZADO");
-    return { instituicaoId: leitor.instituicaoId, tipo: destino.tipo, chaveDestino: destino.chave,
+    // A relação composta com a recomendação já fornece a instituição ao destino.
+    // Repeti-la no create aninhado é rejeitado pelo Prisma.
+    return { tipo: destino.tipo, chaveDestino: destino.chave,
       cursoId: destino.tipo === "CURSO" ? destino.id : null,
       turmaId: destino.tipo === "TURMA" ? destino.id : null,
-      disciplinaId: destino.tipo === "DISCIPLINA" ? destino.id : null };
+      disciplinaId: destino.tipo === "DISCIPLINA" ? destino.id : null } satisfies Prisma.BibliotecaRecomendacaoDestinoUncheckedCreateWithoutRecomendacaoInput;
   });
   return { titulo: titulo || null, mensagem: mensagem || null, status: status as "RASCUNHO" | "PUBLICADA",
     obrigatoria: corpo.obrigatoria as boolean, disponivelInicioEm: inicio, disponivelFimEm: fim, destinos };

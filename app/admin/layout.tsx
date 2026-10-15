@@ -3,6 +3,8 @@ import AdminShell from "./AdminShell";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 import { getUserFromToken } from "@/lib/server-auth";
 import { obterContextoGestaoPolos } from "@/lib/polos-rede";
+import { cookies } from "next/headers";
+import { referenciaTokenSessao } from "@/lib/sessao-inatividade-admin";
 
 export default async function AdminLayout({
   children,
@@ -59,6 +61,8 @@ export default async function AdminLayout({
     podeGerenciarPolos:
       contextoPolos?.podeGerenciarPolos ?? false,
   };
+  const tokenSessao = (await cookies()).get("token")?.value;
+  const referenciaSessaoInicial = tokenSessao ? referenciaTokenSessao(tokenSessao) : null;
 
   return (
     <>
@@ -67,6 +71,7 @@ export default async function AdminLayout({
       <AdminShell
         usuarioInicial={usuarioInicial}
         permissoesIniciais={usuario.permissoes}
+        referenciaSessaoInicial={referenciaSessaoInicial}
       >
         {children}
       </AdminShell>
