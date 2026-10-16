@@ -10218,7 +10218,10 @@
       "subdivide": "Subdiviser",
       "selectWholeShape": "Sélectionner toute la forme",
       "selectedPointCount": "{count} point(s) sélectionné(s)",
-      "pointSelectionHint": "Cliquez et faites glisser le corps de la forme pour déplacer toute la forme. Maj + clic sur les points les ajoute ou les retire de la sélection. Pour sélectionner des points avec un cadre, commencez dans une zone vide de la page.",
+      "pointSelectionHint": "Cliquez et faites glisser le corps de la forme pour déplacer toute la forme. Maj + clic sur les points les ajoute ou les retire de la sélection. Pour sélectionner des points avec un cadre, commencez dans une zone vide de la page. Alt + faites glisser une poignée verte pour ajuster ensemble les tangentes des points sélectionnés. Courber, Pointe, Aléatoire et Vague agissent sur les points sélectionnés, ou sur toute la forme si aucun point n’est sélectionné.",
+      "randomTangents": "Aléatoire",
+      "waveLeft": "← Vague",
+      "waveRight": "Vague →",
       "selectTwoPoints": "Sélectionnez deux points voisins ou toute la forme pour subdiviser.",
       "selectAdjacentPoints": "Sélectionnez des points voisins du contour pour subdiviser le segment entre eux."
     },

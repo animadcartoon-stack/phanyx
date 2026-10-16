@@ -10218,7 +10218,10 @@
       "subdivide": "Subdividir",
       "selectWholeShape": "Selecionar forma inteira",
       "selectedPointCount": "{count} ponto(s) selecionado(s)",
-      "pointSelectionHint": "Clique e arraste o corpo da forma para mover a forma inteira. Shift + clique nas bolinhas adiciona ou remove pontos da seleção. Para selecionar pontos por área, comece o arraste no espaço vazio do papel.",
+      "pointSelectionHint": "Clique e arraste o corpo da forma para mover a forma inteira. Shift + clique nas bolinhas adiciona ou remove pontos da seleção. Para selecionar pontos por área, comece o arraste no espaço vazio do papel. Alt + arraste uma alça verde para ajustar juntas as tangentes dos pontos selecionados. Curvar, Pontudo, Aleatório e Onda atuam nos pontos selecionados; sem pontos selecionados, atuam na forma inteira.",
+      "randomTangents": "Aleatório",
+      "waveLeft": "← Onda",
+      "waveRight": "Onda →",
       "selectTwoPoints": "Selecione dois pontos vizinhos ou selecione a forma inteira para subdividir.",
       "selectAdjacentPoints": "Selecione pontos vizinhos no contorno da forma para subdividir o trecho entre eles."
     },
