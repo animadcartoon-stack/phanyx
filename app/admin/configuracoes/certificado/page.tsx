@@ -1077,6 +1077,9 @@ export default function ConfiguracaoCertificadoPage() {
   useEffect(() => {
     function fecharMenusAoClicarFora(e: globalThis.MouseEvent) {
       const alvo = e.target as HTMLElement | null;
+      document.querySelectorAll<HTMLDetailsElement>("details[data-menu-pontos-forma][open]").forEach((menu) => {
+        if (!alvo || !menu.contains(alvo)) menu.open = false;
+      });
 
       if (
         alvo?.closest("[data-menu-contexto-certificado]") ||
@@ -1096,6 +1099,7 @@ export default function ConfiguracaoCertificadoPage() {
 
     function fecharMenusComEsc(e: KeyboardEvent) {
       if (e.key !== "Escape") return;
+      document.querySelectorAll<HTMLDetailsElement>("details[data-menu-pontos-forma][open]").forEach((menu) => { menu.open = false; });
 
       setMenuContexto(null);
       setMenuCamada(null);
@@ -1103,11 +1107,11 @@ export default function ConfiguracaoCertificadoPage() {
       setShapeInspectorAberto(false);
     }
 
-    window.addEventListener("mousedown", fecharMenusAoClicarFora);
+    window.addEventListener("mousedown", fecharMenusAoClicarFora, true);
     window.addEventListener("keydown", fecharMenusComEsc);
 
     return () => {
-      window.removeEventListener("mousedown", fecharMenusAoClicarFora);
+      window.removeEventListener("mousedown", fecharMenusAoClicarFora, true);
       window.removeEventListener("keydown", fecharMenusComEsc);
     };
   }, []);
@@ -1399,6 +1403,44 @@ export default function ConfiguracaoCertificadoPage() {
     };
     cancelarCaixaPontosRef.current = limpar;
     window.addEventListener("mousemove", atualizar); window.addEventListener("mouseup", finalizar); window.addEventListener("blur", limpar);
+  }
+
+  function renderizarFerramentasPontosForma(incluirArray = true) {
+    const campo = campos.find((item) => item.id === campoSelecionadoId);
+    if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || camposSelecionadosIds.length !== 1) return null;
+    const classeBotao = "rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-left text-xs font-semibold text-slate-800 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50";
+    return (
+      <div data-acoes-pontos-forma="true" className="text-slate-800" title={tr("shapeTools.pointSelectionHint")}>
+        <p className="mb-2 text-xs font-semibold text-slate-600" aria-live="polite">
+          {tr("shapeTools.selectedPointCount", { count: idsDosPontosSelecionados(campo.id).length })}
+        </p>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button type="button" className={classeBotao} onClick={() => editarPontosDaForma("subdividir")}>
+            {tr("shapeTools.subdivide")}
+          </button>
+          <button type="button" className={classeBotao} disabled={!idsDosPontosSelecionados(campo.id).length} onClick={() => editarPontosDaForma("remover")}>
+            {tr("shapeTools.removePoint")}
+          </button>
+          <button type="button" className={classeBotao} onClick={() => editarPontosDaForma("curvar")}>
+            {tr("shapeTools.curve")}
+          </button>
+          <button type="button" className={classeBotao} onClick={() => editarPontosDaForma("pontudo")}>
+            {tr("shapeTools.sharp")}
+          </button>
+          <button type="button" className={`${classeBotao} col-span-2`} onClick={() => selecionarPontosDaForma(campo.id, [])}>
+            {tr("shapeTools.selectWholeShape")}
+          </button>
+          <button type="button" className={classeBotao} aria-pressed={mostrarHandlesForma} onClick={() => setMostrarHandlesForma((prev) => !prev)}>
+            {mostrarHandlesForma ? "✓ " : ""}{tr("shapeTools.points")}
+          </button>
+          {incluirArray && (
+            <button type="button" className={classeBotao} onClick={() => setModalArrayAberto(true)}>
+              {tr("shapeTools.array")}
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   function editarPontosDaForma(acao: "subdividir" | "remover" | "curvar" | "pontudo") {
@@ -9483,6 +9525,16 @@ export default function ConfiguracaoCertificadoPage() {
                     )}
                   </div>
 
+                  {campoSelecionado?.tipo === "FORMA" && !campoSelecionado.grupoId && !campoSelecionado.bloqueado && camposSelecionadosIds.length === 1 && (
+                    <details key={campoSelecionado.id} data-menu-pontos-forma="true" className="relative shrink-0">
+                      <summary className="cursor-pointer list-none rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-bold text-slate-900 shadow hover:bg-blue-50" title={tr("shapeTools.pointSelectionHint")}>
+                        {tr("shapeTools.points")} ▾
+                      </summary>
+                      <div className="absolute right-0 top-full z-20 mt-2 max-h-[min(360px,60vh)] w-[min(300px,calc(100vw-32px))] overflow-y-auto rounded-xl border border-slate-200 bg-white p-3 text-slate-800 shadow-xl">
+                        {renderizarFerramentasPontosForma()}
+                      </div>
+                    </details>
+                  )}
                   <span className="shrink-0 rounded-full bg-blue-600 px-2 py-1 text-xs font-bold">
                     {barraSelecaoMinimizada
                       ? (
@@ -10185,7 +10237,8 @@ export default function ConfiguracaoCertificadoPage() {
                                 camposSelecionadosIds.includes(c.id);
 
                               setCampoSelecionadoId(c.id);
-                              setPontoFormaSelecionado(null);
+                              // O menu da mesma forma preserva os pontos selecionados.
+                              setPontoFormaSelecionado((anterior) => anterior?.campoId === c.id ? anterior : null);
                               setShapeInspectorAberto(false);
 
                               if (!clicouEmItemJaSelecionado) {
@@ -11791,71 +11844,6 @@ export default function ConfiguracaoCertificadoPage() {
               <span className="phanyx-cert-editor-status-pill">
                 {tr("toolbar.zoom")} {zoom}%
               </span>
-
-              {campoSelecionado?.tipo === "FORMA" &&
-                camposSelecionadosIds.length === 1 &&
-                !(campoSelecionado as any)?.grupoId && (
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs font-semibold text-white shadow-xl">
-                    <button
-                      type="button"
-                      onClick={() => editarPontosDaForma("subdividir")}
-                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                    >
-                      {tr("shapeTools.subdivide")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => editarPontosDaForma("remover")}
-                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                    >
-                      {tr("shapeTools.removePoint")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => editarPontosDaForma("curvar")}
-                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                    >
-                      {tr("shapeTools.curve")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => editarPontosDaForma("pontudo")}
-                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                    >
-                      {tr("shapeTools.sharp")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => selecionarPontosDaForma(campoSelecionado.id, [])}
-                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                    >
-                      {tr("shapeTools.selectWholeShape")}
-                    </button>
-                    <span className="text-xs" aria-live="polite">
-                      {tr("shapeTools.selectedPointCount", { count: idsDosPontosSelecionados(campoSelecionado.id).length })}
-                    </span>
-                    <span className="basis-full text-center text-xs opacity-90">{tr("shapeTools.pointSelectionHint")}</span>
-                    <button
-                      type="button"
-                      onClick={() => setModalArrayAberto(true)}
-                      className="rounded-lg border border-blue-500 px-3 py-2 text-blue-300 hover:bg-blue-950"
-                    >
-                      {tr("shapeTools.array")}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setMostrarHandlesForma((prev) => !prev)}
-                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
-                    >
-                      {tr("shapeTools.points")}
-                    </button>
-                  </div>
-                )}
 
               <span className="phanyx-cert-editor-status-pill">
                 {canvasWidth} × {canvasHeight}
@@ -14309,6 +14297,11 @@ export default function ConfiguracaoCertificadoPage() {
             </button>
           </div>
 
+          {campoSelecionado?.id === menuContexto.campoId && campoSelecionado.tipo === "FORMA" && !campoSelecionado.grupoId && !campoSelecionado.bloqueado && camposSelecionadosIds.length === 1 && (
+            <div className="mb-2 border-b border-slate-200 pb-3">
+              {renderizarFerramentasPontosForma(false)}
+            </div>
+          )}
           <button
             type="button"
             onClick={() => {
