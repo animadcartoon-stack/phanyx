@@ -227,6 +227,22 @@ function gerarPontosEstrela(
   );
 }
 
+/** O tamanho padrao fica no meio, mantendo os limites maximos anteriores. */
+function raioEstrelaParaPercentual(raio: number, padrao: number, maximo: number) {
+  const percentual = raio <= padrao
+    ? raio / padrao * 50
+    : 50 + (raio - padrao) / (maximo - padrao) * 50;
+  return Math.max(0, Math.min(100, percentual));
+}
+
+function percentualParaRaioEstrela(percentual: number, padrao: number, maximo: number) {
+  const valor = Math.max(0, Math.min(100, percentual));
+  const raio = valor <= 50
+    ? valor / 50 * padrao
+    : padrao + (valor - 50) / 50 * (maximo - padrao);
+  return Math.round(raio * 1000) / 1000;
+}
+
 /** Le o arredondamento desenhado, inclusive em estrelas salvas antes destes controles. */
 function arredondamentoDoGrupoEstrela(
   campo: CampoForma,
@@ -296,6 +312,9 @@ export default function FloatingShapeInspector({
   const raioExternoAtual = Number(
     (campo as any).raioExterno ?? 44,
   );
+
+  const percentualRaioInterno = raioEstrelaParaPercentual(raioInternoAtual, 22, 42);
+  const percentualRaioExterno = raioEstrelaParaPercentual(raioExternoAtual, 44, 120);
 
   const arredondamentoInternoAtual = arredondamentoDoGrupoEstrela(campo, "internos");
   const arredondamentoExternoAtual = arredondamentoDoGrupoEstrela(campo, "externos");
@@ -1046,49 +1065,53 @@ export default function FloatingShapeInspector({
         {ehEstrela && (
           <>
             <div className="mt-4">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                {t(
-                  "shapeInspector.outerRadius",
-                )}
+              <p className="mb-2 flex items-start justify-between gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                <span id={`estrela-raio-externo-${campo.id}`}>{t("shapeInspector.outerRadius")}</span>
+                <span className="shrink-0 tabular-nums text-slate-700">{Number(percentualRaioExterno.toFixed(1))}%</span>
               </p>
-
               <input
                 type="range"
-                min={30}
-                max={120}
-                value={raioExternoAtual}
+                min={0}
+                max={100}
+                step={0.1}
+                value={percentualRaioExterno}
+                aria-labelledby={`estrela-raio-externo-${campo.id}`}
+                aria-valuetext={`${Number(percentualRaioExterno.toFixed(1))}%`}
                 onChange={(e) =>
                   atualizarEstrela({
-                    raioExterno: Number(
-                      e.target.value,
-                    ),
+                    raioExterno: percentualParaRaioEstrela(Number(e.target.value), 44, 120),
                   })
                 }
                 className="w-full"
               />
+              <div aria-hidden="true" className="mt-1 flex justify-between text-[10px] tabular-nums text-slate-500">
+                <span>0%</span><span>50%</span><span>100%</span>
+              </div>
             </div>
 
             <div className="mt-4">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-                {t(
-                  "shapeInspector.innerRadius",
-                )}
+              <p className="mb-2 flex items-start justify-between gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                <span id={`estrela-raio-interno-${campo.id}`}>{t("shapeInspector.innerRadius")}</span>
+                <span className="shrink-0 tabular-nums text-slate-700">{Number(percentualRaioInterno.toFixed(1))}%</span>
               </p>
-
               <input
                 type="range"
-                min={8}
-                max={42}
-                value={raioInternoAtual}
+                min={0}
+                max={100}
+                step={0.1}
+                value={percentualRaioInterno}
+                aria-labelledby={`estrela-raio-interno-${campo.id}`}
+                aria-valuetext={`${Number(percentualRaioInterno.toFixed(1))}%`}
                 onChange={(e) =>
                   atualizarEstrela({
-                    raioInterno: Number(
-                      e.target.value,
-                    ),
+                    raioInterno: percentualParaRaioEstrela(Number(e.target.value), 22, 42),
                   })
                 }
                 className="w-full"
               />
+              <div aria-hidden="true" className="mt-1 flex justify-between text-[10px] tabular-nums text-slate-500">
+                <span>0%</span><span>50%</span><span>100%</span>
+              </div>
             </div>
 
             <div className="mt-4">
