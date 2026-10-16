@@ -1369,9 +1369,9 @@ export default function ConfiguracaoCertificadoPage() {
     if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || !campo.pontosForma?.length) return;
     const alvo = event.target as Element;
     if (alvo.closest("[data-controle-ponto-forma]")) return;
-    // Arraste no papel ou no corpo da forma; botoes de rotacao/tamanho continuam independentes.
-    const raiz = alvo.closest("[data-forma-vetorial-root]");
-    if (alvo !== event.currentTarget && (!raiz || raiz.getAttribute("data-forma-vetorial-root") !== String(campo.id))) return;
+    // O corpo da forma continua selecionando e movendo o objeto inteiro.
+    // A caixa de pontos comeca apenas no espaco vazio do papel.
+    if (alvo !== event.currentTarget) return;
     event.preventDefault(); event.stopPropagation();
     cancelarCaixaPontosRef.current?.();
     const inicio = { x: event.clientX, y: event.clientY };
@@ -1398,7 +1398,7 @@ export default function ConfiguracaoCertificadoPage() {
       atualizar(ev); limpar();
       if (!arrastou) {
         selecionarPontosDaForma(campo.id, []);
-        if (!raiz) { setCampoSelecionadoId(null); setCamposSelecionadosIds([]); }
+        setCampoSelecionadoId(null); setCamposSelecionadosIds([]);
       }
     };
     cancelarCaixaPontosRef.current = limpar;

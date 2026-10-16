@@ -10218,7 +10218,7 @@
       "subdivide": "Subdividir",
       "selectWholeShape": "Seleccionar forma completa",
       "selectedPointCount": "{count} punto(s) seleccionado(s)",
-      "pointSelectionHint": "Mayús + clic añade o elimina puntos. Arrastra sobre la forma o el papel para seleccionar puntos. Desactiva Puntos para mover la forma completa.",
+      "pointSelectionHint": "Haz clic y arrastra el cuerpo de la forma para moverla completa. Mayús + clic en los puntos añade o elimina puntos de la selección. Para seleccionar puntos con un recuadro, empieza a arrastrar en una zona vacía de la página.",
       "selectTwoPoints": "Selecciona dos puntos vecinos o la forma completa para subdividir.",
       "selectAdjacentPoints": "Selecciona puntos vecinos del contorno para subdividir el segmento entre ellos."
     },
