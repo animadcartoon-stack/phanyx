@@ -77,3 +77,58 @@ export function pontosDoContornoArredondado(pontos: PontoFormaEditavel[], raios:
   });
   return contorno.length >= 3 ? contorno : pontos;
 }
+
+/** Aplica a mesma escala e rotacao as alcas de cada ponto selecionado. */
+export function ajustarTangentesEmConjunto(
+  pontos: PontoFormaEditavel[], selecionados: string[], referenciaId: string,
+  lado: "in" | "out", novoX: number, novoY: number,
+) {
+  const ids = new Set(selecionados);
+  const referencia = pontos.find((p) => p.id === referenciaId);
+  if (!referencia || !ids.has(referenciaId) || !Number.isFinite(novoX) || !Number.isFinite(novoY)) return pontos;
+  const vetor = (p: PontoFormaEditavel, chave: "in" | "out") => ({
+    x: (chave === "in" ? (p.inX ?? p.x - 18) : (p.outX ?? p.x + 18)) - p.x,
+    y: (chave === "in" ? (p.inY ?? p.y) : (p.outY ?? p.y)) - p.y,
+  });
+  const original = vetor(referencia, lado);
+  const destino = { x: novoX - referencia.x, y: novoY - referencia.y };
+  const denominador = original.x * original.x + original.y * original.y;
+  if (denominador < 1e-12) return pontos;
+  const a = (original.x * destino.x + original.y * destino.y) / denominador;
+  const b = (original.x * destino.y - original.y * destino.x) / denominador;
+  const zerado = Math.hypot(destino.x, destino.y) < 1e-6;
+  return pontos.map((p) => {
+    if (!ids.has(p.id)) return p;
+    if (zerado) return { ...p, tipo: "reto" as const, handleMode: "quebrado" as const, inX: undefined, inY: undefined, outX: undefined, outY: undefined };
+    const entrada = vetor(p, "in"), saida = vetor(p, "out");
+    return { ...p, tipo: "curvo" as const, handleMode: p.handleMode ?? "alinhado",
+      inX: p.x + a * entrada.x - b * entrada.y, inY: p.y + b * entrada.x + a * entrada.y,
+      outX: p.x + a * saida.x - b * saida.y, outY: p.y + b * saida.x + a * saida.y,
+    };
+  });
+}
+
+export type PadraoTangentesForma = "aleatorio" | "onda-direita" | "onda-esquerda";
+
+/** Orienta as tangentes; mantem ancoras, IDs e pontos fora da selecao. */
+export function aplicarPadraoTangentesForma(
+  pontos: PontoFormaEditavel[], selecionados: string[], modo: PadraoTangentesForma,
+  fechada = true, aleatorio: () => number = Math.random,
+) {
+  if (pontos.length < 2) return pontos;
+  const ids = new Set(selecionados);
+  return pontos.map((p, i) => {
+    if (ids.size && !ids.has(p.id)) return p;
+    const anterior = pontos[i ? i - 1 : fechada ? pontos.length - 1 : 0];
+    const proximo = pontos[i < pontos.length - 1 ? i + 1 : fechada ? 0 : i];
+    const distancias = [Math.hypot(p.x - anterior.x, p.y - anterior.y), Math.hypot(proximo.x - p.x, proximo.y - p.y)].filter((d) => d > 1e-9);
+    const tamanho = Math.min(24, (distancias.length ? Math.min(...distancias) : 0) * 0.3);
+    const anguloBase = Math.atan2(proximo.y - anterior.y, proximo.x - anterior.x);
+    const angulo = modo === "aleatorio" ? aleatorio() * Math.PI * 2 : anguloBase + (modo === "onda-direita" ? 1 : -1) * Math.PI / 4;
+    const intensidade = tamanho * (modo === "aleatorio" ? 0.5 + aleatorio() : 1);
+    const dx = Math.cos(angulo) * intensidade, dy = Math.sin(angulo) * intensidade;
+    return { ...p, tipo: "curvo" as const, handleMode: "alinhado" as const,
+      inX: p.x - dx, inY: p.y - dy, outX: p.x + dx, outY: p.y + dy,
+    };
+  });
+}

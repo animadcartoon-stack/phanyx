@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
-import { pontosDentroDaCaixa, subdividirPontosForma } from "./components/edicaoPontosForma";
+import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma } from "./components/edicaoPontosForma";
 import CorComCodigo from "./components/CorComCodigo";
 import useHistoricoCertificado from "./components/useHistoricoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
@@ -1427,6 +1427,15 @@ export default function ConfiguracaoCertificadoPage() {
           <button type="button" className={classeBotao} onClick={() => editarPontosDaForma("pontudo")}>
             {tr("shapeTools.sharp")}
           </button>
+          <button type="button" className={`${classeBotao} col-span-2`} onClick={() => editarPontosDaForma("aleatorio")}>
+            {tr("shapeTools.randomTangents")}
+          </button>
+          <button type="button" className={`${classeBotao}`} onClick={() => editarPontosDaForma("onda-esquerda")}>
+            {tr("shapeTools.waveLeft")}
+          </button>
+          <button type="button" className={`${classeBotao}`} onClick={() => editarPontosDaForma("onda-direita")}>
+            {tr("shapeTools.waveRight")}
+          </button>
           <button type="button" className={`${classeBotao} col-span-2`} onClick={() => selecionarPontosDaForma(campo.id, [])}>
             {tr("shapeTools.selectWholeShape")}
           </button>
@@ -1443,7 +1452,7 @@ export default function ConfiguracaoCertificadoPage() {
     );
   }
 
-  function editarPontosDaForma(acao: "subdividir" | "remover" | "curvar" | "pontudo") {
+  function editarPontosDaForma(acao: "subdividir" | "remover" | "curvar" | "pontudo" | "aleatorio" | "onda-direita" | "onda-esquerda") {
     const campo = campos.find((item) => item.id === campoSelecionadoId);
     if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || camposSelecionadosIds.length !== 1) return;
     const pontos = campo.pontosForma || [];
@@ -1468,6 +1477,8 @@ export default function ConfiguracaoCertificadoPage() {
       const minimo = campo.forma === "LINHA" ? 2 : 3;
       if (pontos.length - ids.length < minimo) { avisar(tr(campo.forma === "LINHA" ? "errors.lineMinPoints" : "errors.shapeMinPoints")); return; }
       novos = pontos.filter((p) => !ids.includes(p.id)); proximosSelecionados = [];
+    } else if (acao === "aleatorio" || acao === "onda-direita" || acao === "onda-esquerda") {
+      novos = aplicarPadraoTangentesForma(pontos, ids, acao, campo.forma !== "LINHA");
     } else {
       novos = pontos.map((p) => {
         if (ids.length && !ids.includes(p.id)) return p;
@@ -1479,9 +1490,9 @@ export default function ConfiguracaoCertificadoPage() {
     registrarHistoricoAntesDaAcao();
     setCampos((prev) => prev.map((item) => item.id === campo.id ? {
       ...item, pontosForma: novos, raiosPontos: raios,
-      ...((acao === "curvar" || acao === "pontudo") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
+      ...((acao !== "subdividir" && acao !== "remover") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
       dadosJson: { ...(item.dadosJson || {}), pontosForma: novos, raiosPontos: raios,
-        ...((acao === "curvar" || acao === "pontudo") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
+        ...((acao !== "subdividir" && acao !== "remover") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
       },
     } : item));
     selecionarPontosDaForma(campo.id, proximosSelecionados);

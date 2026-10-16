@@ -10219,7 +10219,10 @@
       "subdivide": "Subdivide",
       "selectWholeShape": "Select whole shape",
       "selectedPointCount": "{count} point(s) selected",
-      "pointSelectionHint": "Click and drag the shape body to move the whole shape. Shift + click the dots to add or remove selected points. To select points with a box, start dragging on an empty area of the paper.",
+      "pointSelectionHint": "Click and drag the shape body to move the whole shape. Shift + click the dots to add or remove selected points. To select points with a box, start dragging on an empty area of the paper. Alt + drag a green handle to adjust the selected points’ tangents together. Curve, Sharp, Random and Wave affect selected points, or the whole shape when no points are selected.",
+      "randomTangents": "Random",
+      "waveLeft": "← Wave",
+      "waveRight": "Wave →",
       "selectTwoPoints": "Select two neighboring points or select the whole shape to subdivide.",
       "selectAdjacentPoints": "Select neighboring points along the outline to subdivide the segment between them."
     },

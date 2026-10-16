@@ -1,6 +1,6 @@
 "use client";
 
-import { selecionarPontoForma, pontosDoContornoArredondado } from "./edicaoPontosForma";
+import { selecionarPontoForma, pontosDoContornoArredondado, ajustarTangentesEmConjunto } from "./edicaoPontosForma";
 
 type PontoForma = {
   id: string;
@@ -441,8 +441,13 @@ export default function FormaVetorial({
     lado: "in" | "out",
     novoX: number,
     novoY: number,
-    quebrarTangente = false
+    quebrarTangente = false,
+    replicarSelecionados = false,
   ) {
+    if (replicarSelecionados && idsSelecionados.length > 1 && idsSelecionados.includes(pontoId)) {
+      atualizarPontos(ajustarTangentesEmConjunto(pontos, idsSelecionados, pontoId, lado, novoX, novoY), true);
+      return;
+    }
     atualizarPontos(
       pontos.map((ponto) => {
         if (ponto.id !== pontoId) return ponto;
@@ -873,7 +878,7 @@ export default function FormaVetorial({
                       className="pointer-events-auto cursor-grab"
                       onMouseDown={(e) =>
                         iniciarArrastePercentual(e, (x, y, ev) =>
-                          moverAlca(ponto.id, "in", p.inX! + x, p.inY! + y, ev.altKey)
+                          moverAlca(ponto.id, "in", p.inX! + x, p.inY! + y, ev.altKey, e.altKey)
                         )
                       }
                     />
@@ -890,7 +895,7 @@ export default function FormaVetorial({
                       className="pointer-events-auto cursor-grab"
                       onMouseDown={(e) =>
                         iniciarArrastePercentual(e, (x, y, ev) =>
-                          moverAlca(ponto.id, "out", p.outX! + x, p.outY! + y, ev.altKey)
+                          moverAlca(ponto.id, "out", p.outX! + x, p.outY! + y, ev.altKey, e.altKey)
                         )
                       }
                     />

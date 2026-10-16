@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
   type MouseEvent as ReactMouseEvent,
 } from "react";
@@ -227,7 +228,48 @@ function gerarPontosEstrela(
   );
 }
 
-/** O tamanho padrao fica no meio, mantendo os limites maximos anteriores. */
+function CampoPercentualRaio({ valor, rotulo, onChange }: {
+  valor: number;
+  rotulo: string;
+  onChange: (percentual: number) => void;
+}) {
+  const textoAtual = String(Number(valor.toFixed(1)));
+  const [texto, setTexto] = useState(textoAtual);
+  useEffect(() => { setTexto(textoAtual); }, [textoAtual]);
+  const confirmar = () => {
+    const digitado = texto.trim() === "" ? valor : Number(texto);
+    const percentual = Number.isFinite(digitado) ? Math.max(0, Math.min(100, Math.round(digitado * 10) / 10)) : valor;
+    setTexto(String(Number(percentual.toFixed(1))));
+    if (Math.abs(percentual - valor) > 0.00001) onChange(percentual);
+  };
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 font-normal text-slate-700">
+      <input
+        type="number"
+        min={0}
+        max={100}
+        step={0.1}
+        inputMode="decimal"
+        aria-label={rotulo}
+        value={texto}
+        onFocus={(e) => e.currentTarget.select()}
+        onChange={(e) => {
+          const novoTexto = e.target.value;
+          setTexto(novoTexto);
+          if (novoTexto.trim() === "") return;
+          const percentual = Number(novoTexto);
+          if (Number.isFinite(percentual) && percentual >= 0 && percentual <= 100) onChange(percentual);
+        }}
+        onBlur={confirmar}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } }}
+        className="w-[72px] rounded-lg border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold tabular-nums text-slate-800"
+      />
+      <span aria-hidden="true">%</span>
+    </span>
+  );
+}
+
+/** O tamanho padrao fica no meio, com ajuste independente dos dois raios. */
 function raioEstrelaParaPercentual(raio: number, padrao: number, maximo: number) {
   const percentual = raio <= padrao
     ? raio / padrao * 50
@@ -313,7 +355,7 @@ export default function FloatingShapeInspector({
     (campo as any).raioExterno ?? 44,
   );
 
-  const percentualRaioInterno = raioEstrelaParaPercentual(raioInternoAtual, 22, 42);
+  const percentualRaioInterno = raioEstrelaParaPercentual(raioInternoAtual, 22, 120);
   const percentualRaioExterno = raioEstrelaParaPercentual(raioExternoAtual, 44, 120);
 
   const arredondamentoInternoAtual = arredondamentoDoGrupoEstrela(campo, "internos");
@@ -1067,7 +1109,12 @@ export default function FloatingShapeInspector({
             <div className="mt-4">
               <p className="mb-2 flex items-start justify-between gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
                 <span id={`estrela-raio-externo-${campo.id}`}>{t("shapeInspector.outerRadius")}</span>
-                <span className="shrink-0 tabular-nums text-slate-700">{Number(percentualRaioExterno.toFixed(1))}%</span>
+                <CampoPercentualRaio
+                  key={`${campo.id}-raio-externo`}
+                  valor={percentualRaioExterno}
+                  rotulo={t("shapeInspector.outerRadius")}
+                  onChange={(percentual) => atualizarEstrela({ raioExterno: percentualParaRaioEstrela(percentual, 44, 120) })}
+                />
               </p>
               <input
                 type="range"
@@ -1092,7 +1139,12 @@ export default function FloatingShapeInspector({
             <div className="mt-4">
               <p className="mb-2 flex items-start justify-between gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
                 <span id={`estrela-raio-interno-${campo.id}`}>{t("shapeInspector.innerRadius")}</span>
-                <span className="shrink-0 tabular-nums text-slate-700">{Number(percentualRaioInterno.toFixed(1))}%</span>
+                <CampoPercentualRaio
+                  key={`${campo.id}-raio-interno`}
+                  valor={percentualRaioInterno}
+                  rotulo={t("shapeInspector.innerRadius")}
+                  onChange={(percentual) => atualizarEstrela({ raioInterno: percentualParaRaioEstrela(percentual, 22, 120) })}
+                />
               </p>
               <input
                 type="range"
@@ -1104,7 +1156,7 @@ export default function FloatingShapeInspector({
                 aria-valuetext={`${Number(percentualRaioInterno.toFixed(1))}%`}
                 onChange={(e) =>
                   atualizarEstrela({
-                    raioInterno: percentualParaRaioEstrela(Number(e.target.value), 22, 42),
+                    raioInterno: percentualParaRaioEstrela(Number(e.target.value), 22, 120),
                   })
                 }
                 className="w-full"
