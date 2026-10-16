@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import { pontosDentroDaCaixa, subdividirPontosForma } from "./components/edicaoPontosForma";
 import CorComCodigo from "./components/CorComCodigo";
 import useHistoricoCertificado from "./components/useHistoricoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
@@ -1148,6 +1149,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [pontoFormaSelecionado, setPontoFormaSelecionado] = useState<{
     campoId: number;
     pontoId: string;
+    pontoIds: string[];
   } | null>(null);
 
   function selecionarCampoUnico(id: number) {
@@ -1333,6 +1335,116 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("keydown", handleUndoRedo, true);
     return () => window.removeEventListener("keydown", handleUndoRedo, true);
   }, [modoFormaLivre, refazer, desfazer, setCampos, locale]);
+
+  function idsDosPontosSelecionados(campoId: number) {
+    return pontoFormaSelecionado?.campoId === campoId ? pontoFormaSelecionado.pontoIds : [];
+  }
+
+  function selecionarPontosDaForma(campoId: number, ids: string[]) {
+    setPontoFormaSelecionado(ids.length ? { campoId, pontoId: ids[ids.length - 1], pontoIds: ids } : null);
+  }
+
+  const [caixaPontos, setCaixaPontos] = useState<{ x: number; y: number; largura: number; altura: number } | null>(null);
+  const cancelarCaixaPontosRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => { cancelarCaixaPontosRef.current?.(); }, []);
+
+  useEffect(() => {
+    setPontoFormaSelecionado((anterior) => {
+      if (!anterior) return anterior;
+      const campo = campos.find((item) => item.id === anterior.campoId);
+      if (campoSelecionadoId !== anterior.campoId || camposSelecionadosIds.length !== 1 || !mostrarHandlesForma || campo?.grupoId) return null;
+      const ids = anterior.pontoIds.filter((id) => campo?.pontosForma?.some((p) => p.id === id));
+      if (ids.length === anterior.pontoIds.length) return anterior;
+      return ids.length ? { campoId: anterior.campoId, pontoId: ids[ids.length - 1], pontoIds: ids } : null;
+    });
+  }, [campos, campoSelecionadoId, camposSelecionadosIds, mostrarHandlesForma]);
+
+  function iniciarSelecaoPontos(event: React.MouseEvent<HTMLDivElement>) {
+    if (event.button !== 0 || modoMao || espacoPressionado || modoFormaLivre || !mostrarHandlesForma || camposSelecionadosIds.length !== 1) return;
+    const campo = campos.find((item) => item.id === campoSelecionadoId);
+    if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || !campo.pontosForma?.length) return;
+    const alvo = event.target as Element;
+    if (alvo.closest("[data-controle-ponto-forma]")) return;
+    // Arraste no papel ou no corpo da forma; botoes de rotacao/tamanho continuam independentes.
+    const raiz = alvo.closest("[data-forma-vetorial-root]");
+    if (alvo !== event.currentTarget && (!raiz || raiz.getAttribute("data-forma-vetorial-root") !== String(campo.id))) return;
+    event.preventDefault(); event.stopPropagation();
+    cancelarCaixaPontosRef.current?.();
+    const inicio = { x: event.clientX, y: event.clientY };
+    const adicionar = event.shiftKey || event.ctrlKey || event.metaKey;
+    const anteriores = idsDosPontosSelecionados(campo.id);
+    const pontos = Array.from(event.currentTarget.querySelectorAll<SVGElement>(`[data-ponto-forma-campo="${campo.id}"]`)).map((elemento) => {
+      const rect = elemento.getBoundingClientRect();
+      return { id: elemento.getAttribute("data-ponto-forma-id")!, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    });
+    let arrastou = false;
+    const atualizar = (ev: globalThis.MouseEvent) => {
+      const fim = { x: ev.clientX, y: ev.clientY };
+      if (!arrastou && Math.hypot(fim.x - inicio.x, fim.y - inicio.y) < 4) return;
+      arrastou = true;
+      setCaixaPontos({ x: Math.min(inicio.x, fim.x), y: Math.min(inicio.y, fim.y), largura: Math.abs(fim.x - inicio.x), altura: Math.abs(fim.y - inicio.y) });
+      const dentro = pontosDentroDaCaixa(pontos, inicio, fim);
+      selecionarPontosDaForma(campo.id, adicionar ? Array.from(new Set([...anteriores, ...dentro])) : dentro);
+    };
+    const limpar = () => {
+      window.removeEventListener("mousemove", atualizar); window.removeEventListener("mouseup", finalizar); window.removeEventListener("blur", limpar);
+      cancelarCaixaPontosRef.current = null; setCaixaPontos(null);
+    };
+    const finalizar = (ev: globalThis.MouseEvent) => {
+      atualizar(ev); limpar();
+      if (!arrastou) {
+        selecionarPontosDaForma(campo.id, []);
+        if (!raiz) { setCampoSelecionadoId(null); setCamposSelecionadosIds([]); }
+      }
+    };
+    cancelarCaixaPontosRef.current = limpar;
+    window.addEventListener("mousemove", atualizar); window.addEventListener("mouseup", finalizar); window.addEventListener("blur", limpar);
+  }
+
+  function editarPontosDaForma(acao: "subdividir" | "remover" | "curvar" | "pontudo") {
+    const campo = campos.find((item) => item.id === campoSelecionadoId);
+    if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || camposSelecionadosIds.length !== 1) return;
+    const pontos = campo.pontosForma || [];
+    const ids = idsDosPontosSelecionados(campo.id).filter((id) => pontos.some((p) => p.id === id));
+    let novos = pontos;
+    let proximosSelecionados = ids;
+    let raios = campo.raiosPontos;
+    const avisar = (mensagem: string) => { setMensagemErro(mensagem); setTimeout(() => setMensagemErro(""), 2500); };
+    if (acao === "subdividir") {
+      if (ids.length === 1) { avisar(tr("shapeTools.selectTwoPoints")); return; }
+      const resultado = subdividirPontosForma(pontos, campo.forma !== "LINHA", ids);
+      if (!resultado.novosIds.length) { avisar(tr("shapeTools.selectAdjacentPoints")); return; }
+      novos = resultado.pontos; proximosSelecionados = resultado.selecionados;
+      // Novos pontos sobre uma aresta nao herdam arredondamento de cantos.
+      raios = { ...campo.raiosPontos };
+      const cantos = campo.cantosArredondados;
+      const legados = [cantos?.topoEsquerdo, cantos?.topoDireito, cantos?.baixoDireito, cantos?.baixoEsquerdo];
+      pontos.forEach((p, i) => { raios![p.id] = raios![p.id] ?? legados[i] ?? campo.raioBorda ?? 0; });
+      resultado.novosIds.forEach((id) => { raios![id] = 0; });
+    } else if (acao === "remover") {
+      if (!ids.length) return;
+      const minimo = campo.forma === "LINHA" ? 2 : 3;
+      if (pontos.length - ids.length < minimo) { avisar(tr(campo.forma === "LINHA" ? "errors.lineMinPoints" : "errors.shapeMinPoints")); return; }
+      novos = pontos.filter((p) => !ids.includes(p.id)); proximosSelecionados = [];
+    } else {
+      novos = pontos.map((p) => {
+        if (ids.length && !ids.includes(p.id)) return p;
+        return acao === "curvar"
+          ? { ...p, tipo: "curvo" as const, inX: p.inX ?? p.x - 18, inY: p.inY ?? p.y, outX: p.outX ?? p.x + 18, outY: p.outY ?? p.y }
+          : { ...p, tipo: "reto" as const, inX: undefined, inY: undefined, outX: undefined, outY: undefined };
+      });
+    }
+    registrarHistoricoAntesDaAcao();
+    setCampos((prev) => prev.map((item) => item.id === campo.id ? {
+      ...item, pontosForma: novos, raiosPontos: raios,
+      ...((acao === "curvar" || acao === "pontudo") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
+      dadosJson: { ...(item.dadosJson || {}), pontosForma: novos, raiosPontos: raios,
+        ...((acao === "curvar" || acao === "pontudo") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
+      },
+    } : item));
+    selecionarPontosDaForma(campo.id, proximosSelecionados);
+    setMostrarHandlesForma(true);
+  }
 
   function cancelarFormaLivreEmCriacao() {
     setModoFormaLivre(false);
@@ -3200,62 +3312,10 @@ export default function ConfiguracaoCertificadoPage() {
         return;
       }
 
-      if (
-        pontoFormaSelecionado &&
-        campoSelecionadoId === pontoFormaSelecionado.campoId
-      ) {
-        const campoForma = campos.find(
-          (campo) => campo.id === pontoFormaSelecionado.campoId,
-        );
-
-        const pontos = Array.isArray((campoForma as any)?.pontosForma)
-          ? ((campoForma as any).pontosForma as any[])
-          : [];
-
-        const pontoExiste = pontos.some(
-          (ponto) => ponto.id === pontoFormaSelecionado.pontoId,
-        );
-
-        if (campoForma?.tipo === "FORMA" && pontoExiste) {
-          e.preventDefault();
-
-          const minimo = campoForma.forma === "LINHA" ? 2 : 3;
-
-          if (pontos.length <= minimo) {
-            setMensagemErro(
-              campoForma.forma === "LINHA"
-                ? tr("errors.lineMinPoints")
-                : tr("errors.shapeMinPoints"),
-            );
-
-            setTimeout(() => setMensagemErro(""), 2500);
-            return;
-          }
-
-          const novosPontos = pontos.filter(
-            (ponto) => ponto.id !== pontoFormaSelecionado.pontoId,
-          );
-
-          setCampos((prev) =>
-            prev.map((campo) =>
-              campo.id === pontoFormaSelecionado.campoId
-                ? {
-                  ...campo,
-                  pontosForma: novosPontos,
-                  dadosJson: {
-                    ...((campo as any).dadosJson || {}),
-                    pontosForma: novosPontos,
-                  },
-                }
-                : campo,
-            ),
-          );
-
-          setPontoFormaSelecionado(null);
-          setMensagemSucesso(tr("messages.pointRemoved"));
-          setTimeout(() => setMensagemSucesso(""), 1800);
-          return;
-        }
+      if (pontoFormaSelecionado && campoSelecionadoId === pontoFormaSelecionado.campoId) {
+        e.preventDefault();
+        editarPontosDaForma("remover");
+        return;
       }
 
       const idsParaExcluir =
@@ -9663,6 +9723,9 @@ export default function ConfiguracaoCertificadoPage() {
               </div>
             )}
 
+          {caixaPontos && (
+            <div data-caixa-pontos-forma="true" className="pointer-events-none fixed z-[2147483647] border border-blue-600 bg-blue-500/15" style={{ left: caixaPontos.x, top: caixaPontos.y, width: caixaPontos.largura, height: caixaPontos.altura }} />
+          )}
           <main className="flex h-full min-h-0 flex-col bg-white">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
               {tr("canvas.editingArea")}
@@ -9705,6 +9768,7 @@ export default function ConfiguracaoCertificadoPage() {
                   ref={canvasRef}
                   data-certificado-papel="true"
                   data-cert-canvas="true"
+                  onMouseDownCapture={iniciarSelecaoPontos}
 
                   onMouseDown={(e) => {
                     if (modoFormaLivre) {
@@ -10307,25 +10371,11 @@ export default function ConfiguracaoCertificadoPage() {
                                           ? pontoFormaSelecionado.pontoId
                                           : null
                                       }
-                                      onSelecionarPonto={(pontoId) => {
+                                      pontosSelecionadosIds={idsDosPontosSelecionados(c.id)}
+                                      onSelecionarPontos={(ids) => {
                                         setCampoSelecionadoId(c.id);
-                                        setCamposSelecionadosIds(
-                                          idsDoCampoOuGrupo(c),
-                                        );
-
-                                        if (formaEstaAgrupada) {
-                                          setPontoFormaSelecionado(null);
-                                          return;
-                                        }
-
-                                        setPontoFormaSelecionado(
-                                          pontoId
-                                            ? {
-                                              campoId: c.id,
-                                              pontoId,
-                                            }
-                                            : null,
-                                        );
+                                        setCamposSelecionadosIds(idsDoCampoOuGrupo(c));
+                                        selecionarPontosDaForma(c.id, formaEstaAgrupada ? [] : ids);
                                       }}
                                       onChange={(campoAtualizado) => {
                                         if (formaEstaAgrupada) return;
@@ -11743,17 +11793,20 @@ export default function ConfiguracaoCertificadoPage() {
               </span>
 
               {campoSelecionado?.tipo === "FORMA" &&
+                camposSelecionadosIds.length === 1 &&
                 !(campoSelecionado as any)?.grupoId && (
                   <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs font-semibold text-white shadow-xl">
                     <button
                       type="button"
+                      onClick={() => editarPontosDaForma("subdividir")}
                       className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
                     >
-                      {tr("shapeTools.addPoint")}
+                      {tr("shapeTools.subdivide")}
                     </button>
 
                     <button
                       type="button"
+                      onClick={() => editarPontosDaForma("remover")}
                       className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
                     >
                       {tr("shapeTools.removePoint")}
@@ -11761,6 +11814,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                     <button
                       type="button"
+                      onClick={() => editarPontosDaForma("curvar")}
                       className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
                     >
                       {tr("shapeTools.curve")}
@@ -11768,11 +11822,23 @@ export default function ConfiguracaoCertificadoPage() {
 
                     <button
                       type="button"
+                      onClick={() => editarPontosDaForma("pontudo")}
                       className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
                     >
                       {tr("shapeTools.sharp")}
                     </button>
 
+                    <button
+                      type="button"
+                      onClick={() => selecionarPontosDaForma(campoSelecionado.id, [])}
+                      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+                    >
+                      {tr("shapeTools.selectWholeShape")}
+                    </button>
+                    <span className="text-xs" aria-live="polite">
+                      {tr("shapeTools.selectedPointCount", { count: idsDosPontosSelecionados(campoSelecionado.id).length })}
+                    </span>
+                    <span className="basis-full text-center text-xs opacity-90">{tr("shapeTools.pointSelectionHint")}</span>
                     <button
                       type="button"
                       onClick={() => setModalArrayAberto(true)}

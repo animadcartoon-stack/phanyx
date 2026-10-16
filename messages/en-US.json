@@ -10215,7 +10215,13 @@
       "array": "🔁 Array",
       "points": "Points",
       "pointNumber": "Point {number}",
-      "resizeWholeShape": "Resize entire shape"
+      "resizeWholeShape": "Resize entire shape",
+      "subdivide": "Subdivide",
+      "selectWholeShape": "Select whole shape",
+      "selectedPointCount": "{count} point(s) selected",
+      "pointSelectionHint": "Shift + click adds or removes points. Drag over the shape or paper to select points. Turn off Points to move the whole shape.",
+      "selectTwoPoints": "Select two neighboring points or select the whole shape to subdivide.",
+      "selectAdjacentPoints": "Select neighboring points along the outline to subdivide the segment between them."
     },
     "text": {
       "placeholderTitle": "Enter your title",

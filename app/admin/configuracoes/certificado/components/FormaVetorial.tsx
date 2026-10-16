@@ -1,5 +1,7 @@
 "use client";
 
+import { selecionarPontoForma, pontosDoContornoArredondado } from "./edicaoPontosForma";
+
 type PontoForma = {
   id: string;
   x: number;
@@ -40,6 +42,8 @@ type Props = {
   modo?: "editor" | "preview";
   mostrarHandles?: boolean;
   pontoSelecionadoId?: string | null;
+  pontosSelecionadosIds?: string[];
+  onSelecionarPontos?: (ids: string[]) => void;
   onSelecionarPonto?: (pontoId: string | null) => void;
   onChange: (campoAtualizado: CampoForma) => void;
 };
@@ -123,7 +127,7 @@ function controleEntrada(ponto: PontoForma) {
 }
 
 function gerarPathComCantosArredondados(campo: CampoForma) {
-  const pontos = garantirPontosIniciais(campo);
+  const pontos = pontosDoContornoArredondado(garantirPontosIniciais(campo), campo.raiosPontos || {});
   const cantos = campo.cantosArredondados || {};
   const raiosPontos = campo.raiosPontos || {};
   const raioPadrao = Math.max(0, Math.min(45, Number(campo.raioBorda || 0)));
@@ -349,10 +353,14 @@ export default function FormaVetorial({
   modo = "editor",
   mostrarHandles = true,
   pontoSelecionadoId = null,
+  pontosSelecionadosIds,
+  onSelecionarPontos,
   onSelecionarPonto,
   onChange,
 }: Props) {
   const pontos = campo.pontosForma || [];
+  const idsSelecionados = pontosSelecionadosIds ?? (pontoSelecionadoId ? [pontoSelecionadoId] : []);
+  const selecionar = (ids: string[]) => { onSelecionarPontos?.(ids); onSelecionarPonto?.(ids[ids.length - 1] ?? null); };
 
   const preenchimentoCor = campo.preenchimentoCor || campo.cor || "#1d4ed8";
   const contornoCor = campo.contornoCor || campo.cor || "#1d4ed8";
@@ -385,8 +393,8 @@ export default function FormaVetorial({
   const escalaX = larguraCampo / 100;
   const escalaY = alturaCampo / 100;
 
-  const rxPonto = 3 / Math.max(escalaX, 0.1);
-  const ryPonto = 3 / Math.max(escalaY, 0.1);
+  const rxPonto = 5 / Math.max(escalaX, 0.1);
+  const ryPonto = 5 / Math.max(escalaY, 0.1);
 
   const rxAlca = 2.3 / Math.max(escalaX, 0.1);
   const ryAlca = 2.3 / Math.max(escalaY, 0.1);
@@ -408,15 +416,12 @@ export default function FormaVetorial({
     });
   }
 
-  function moverPonto(pontoId: string, novoX: number, novoY: number) {
+  function moverPontos(ids: string[], dx: number, dy: number) {
     atualizarPontos(
       pontos.map((ponto) => {
-        if (ponto.id !== pontoId) return ponto;
-
-        const x = limitar(novoX);
-        const y = limitar(novoY);
-        const dx = x - ponto.x;
-        const dy = y - ponto.y;
+        if (!ids.includes(ponto.id)) return ponto;
+        const x = ponto.x + dx;
+        const y = ponto.y + dy;
 
         return {
           ...ponto,
@@ -654,30 +659,6 @@ export default function FormaVetorial({
     );
   }
 
-  function subdividirForma() {
-    if (pontos.length < 2) return;
-
-    const novosPontos: PontoForma[] = [];
-
-    for (let i = 0; i < pontos.length; i++) {
-      const atual = pontos[i];
-      const proximo = pontos[(i + 1) % pontos.length];
-
-      novosPontos.push(atual);
-
-      if (campo.forma === "LINHA" && i === pontos.length - 1) continue;
-
-      novosPontos.push({
-        id: `p-${Date.now()}-${i}`,
-        x: Number(((atual.x + proximo.x) / 2).toFixed(2)),
-        y: Number(((atual.y + proximo.y) / 2).toFixed(2)),
-        tipo: "reto",
-      });
-    }
-
-    atualizarPontos(novosPontos);
-  }
-
   function adicionarPonto(e: React.MouseEvent<SVGPathElement>) {
     if (!selecionado || modo !== "editor") return;
 
@@ -742,13 +723,20 @@ export default function FormaVetorial({
 
     if (!raiz) return;
 
+    const svg = raiz.querySelector("svg");
+    const matriz = svg?.getScreenCTM?.()?.inverse();
     const rect = raiz.getBoundingClientRect();
-
+    const local = (clientX: number, clientY: number) => {
+      if (svg && matriz) {
+        const ponto = svg.createSVGPoint(); ponto.x = clientX; ponto.y = clientY;
+        return ponto.matrixTransform(matriz);
+      }
+      return { x: ((clientX - rect.left) / Math.max(1, rect.width)) * 100, y: ((clientY - rect.top) / Math.max(1, rect.height)) * 100 };
+    };
+    const inicio = local(e.clientX, e.clientY);
     const move = (ev: globalThis.MouseEvent) => {
-      const x = ((ev.clientX - rect.left) / rect.width) * 100;
-      const y = ((ev.clientY - rect.top) / rect.height) * 100;
-
-      callback(x, y, ev);
+      const ponto = local(ev.clientX, ev.clientY);
+      callback(ponto.x - inicio.x, ponto.y - inicio.y, ev);
     };
 
     const up = () => {
@@ -762,7 +750,7 @@ export default function FormaVetorial({
 
   return (
     <div
-      data-forma-vetorial-root
+      data-forma-vetorial-root={campo.id}
       className={
         modo === "preview"
           ? "pointer-events-none absolute inset-0 overflow-visible"
@@ -845,7 +833,7 @@ export default function FormaVetorial({
           mostrarHandles &&
           pontos.map((ponto) => {
             const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
-            const pontoEstaSelecionado = pontoSelecionadoId === ponto.id;
+            const pontoEstaSelecionado = idsSelecionados.includes(ponto.id);
 
             return (
               <g key={`controle-${ponto.id}`}>
@@ -874,6 +862,7 @@ export default function FormaVetorial({
                     />
 
                     <ellipse
+                      data-controle-ponto-forma="alca"
                       cx={50 + (p.inX! - 50) * 0.94}
                       cy={50 + (p.inY! - 50) * 0.94}
                       rx={rxAlca}
@@ -884,12 +873,13 @@ export default function FormaVetorial({
                       className="pointer-events-auto cursor-grab"
                       onMouseDown={(e) =>
                         iniciarArrastePercentual(e, (x, y, ev) =>
-                          moverAlca(ponto.id, "in", x, y, ev.altKey)
+                          moverAlca(ponto.id, "in", p.inX! + x, p.inY! + y, ev.altKey)
                         )
                       }
                     />
 
                     <ellipse
+                      data-controle-ponto-forma="alca"
                       cx={50 + (p.outX! - 50) * 0.94}
                       cy={50 + (p.outY! - 50) * 0.94}
                       rx={rxAlca}
@@ -900,7 +890,7 @@ export default function FormaVetorial({
                       className="pointer-events-auto cursor-grab"
                       onMouseDown={(e) =>
                         iniciarArrastePercentual(e, (x, y, ev) =>
-                          moverAlca(ponto.id, "out", x, y, ev.altKey)
+                          moverAlca(ponto.id, "out", p.outX! + x, p.outY! + y, ev.altKey)
                         )
                       }
                     />
@@ -912,16 +902,21 @@ export default function FormaVetorial({
                   cy={50 + (ponto.y - 50) * 0.94}
                   rx={rxPonto}
                   ry={ryPonto}
-                  fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
-                  stroke={pontoEstaSelecionado ? "#facc15" : "#ffffff"}
+                  data-controle-ponto-forma="ancora"
+                  data-ponto-forma-campo={campo.id}
+                  data-ponto-forma-id={ponto.id}
+                  fill={pontoEstaSelecionado ? "#2563eb" : "#ffffff"}
+                  stroke={pontoEstaSelecionado ? "#ffffff" : "#2563eb"}
                   strokeWidth={pontoEstaSelecionado ? 2.4 : 1.4}
                   className="pointer-events-auto cursor-grab"
                   onMouseDown={(e) => {
-                    onSelecionarPonto?.(ponto.id);
-
-                    iniciarArrastePercentual(e, (x, y) =>
-                      moverPonto(ponto.id, x, y)
-                    );
+                    e.stopPropagation(); e.preventDefault();
+                    if (e.button !== 0) return;
+                    const adicionar = e.shiftKey || e.ctrlKey || e.metaKey;
+                    const ids = selecionarPontoForma(idsSelecionados, ponto.id, adicionar);
+                    selecionar(ids);
+                    if (adicionar) return;
+                    iniciarArrastePercentual(e, (dx, dy) => moverPontos(ids, dx, dy));
                   }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
@@ -931,7 +926,7 @@ export default function FormaVetorial({
                     e.preventDefault();
                     e.stopPropagation();
                     deletarPonto(ponto.id);
-                    onSelecionarPonto?.(null);
+                    selecionar(idsSelecionados.filter((id) => id !== ponto.id));
                   }}
                 />
               </g>

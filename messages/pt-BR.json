@@ -10214,7 +10214,13 @@
       "array": "🔁 Array",
       "points": "Pontos",
       "pointNumber": "Ponto {number}",
-      "resizeWholeShape": "Redimensionar forma inteira"
+      "resizeWholeShape": "Redimensionar forma inteira",
+      "subdivide": "Subdividir",
+      "selectWholeShape": "Selecionar forma inteira",
+      "selectedPointCount": "{count} ponto(s) selecionado(s)",
+      "pointSelectionHint": "Shift + clique adiciona ou remove pontos. Arraste sobre a forma ou o papel para selecionar pontos. Desative Pontos para mover a forma inteira.",
+      "selectTwoPoints": "Selecione dois pontos vizinhos ou selecione a forma inteira para subdividir.",
+      "selectAdjacentPoints": "Selecione pontos vizinhos no contorno da forma para subdividir o trecho entre eles."
     },
     "text": {
       "placeholderTitle": "Digite seu título",

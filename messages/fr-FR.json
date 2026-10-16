@@ -10214,7 +10214,13 @@
       "array": "🔁 Répétition",
       "points": "Points",
       "pointNumber": "Point {number}",
-      "resizeWholeShape": "Redimensionner toute la forme"
+      "resizeWholeShape": "Redimensionner toute la forme",
+      "subdivide": "Subdiviser",
+      "selectWholeShape": "Sélectionner toute la forme",
+      "selectedPointCount": "{count} point(s) sélectionné(s)",
+      "pointSelectionHint": "Maj + clic ajoute ou retire des points. Faites glisser sur la forme ou la page pour sélectionner des points. Désactivez Points pour déplacer toute la forme.",
+      "selectTwoPoints": "Sélectionnez deux points voisins ou toute la forme pour subdiviser.",
+      "selectAdjacentPoints": "Sélectionnez des points voisins du contour pour subdiviser le segment entre eux."
     },
     "text": {
       "placeholderTitle": "Saisissez votre titre",
