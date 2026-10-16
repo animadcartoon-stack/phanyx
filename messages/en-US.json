@@ -10230,6 +10230,13 @@
       "selectWholeShape": "Select whole shape",
       "selectedPointCount": "{count} point(s) selected",
       "pointSelectionHint": "Click and drag the shape body to move the whole shape. Shift + click the dots to add or remove selected points. To select points with a box, start dragging on an empty area of the paper. Alt + drag a green handle to adjust the selected points’ tangents together. Curve, Sharp, Random and Wave affect selected points, or the whole shape when no points are selected.",
+      "localOutline": "Local outline",
+      "localOutlineHint": "Select points with Shift + click or drag on empty paper. In this mode, drag a point right to thicken or left to thin the outline without moving points.",
+      "pointOutlineWidth": "Point outline width (px)",
+      "resetPointOutline": "Reset point widths",
+      "hideSegment": "Hide segment",
+      "showSegment": "Show segment",
+      "showAllSegments": "Show whole outline",
       "randomTangents": "Random",
       "waveLeft": "← Wave",
       "waveRight": "Wave →",
@@ -10277,6 +10284,8 @@
       "farther": "Farther apart"
     },
     "shapeAppearance": {
+      "fillOpacity": "Fill opacity",
+      "outlineOpacity": "Outline opacity",
       "title": "Shape appearance",
       "fill": "Fill",
       "removeFill": "Remove fill",

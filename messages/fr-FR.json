@@ -10229,6 +10229,13 @@
       "selectWholeShape": "Sélectionner toute la forme",
       "selectedPointCount": "{count} point(s) sélectionné(s)",
       "pointSelectionHint": "Cliquez et faites glisser le corps de la forme pour déplacer toute la forme. Maj + clic sur les points les ajoute ou les retire de la sélection. Pour sélectionner des points avec un cadre, commencez dans une zone vide de la page. Alt + faites glisser une poignée verte pour ajuster ensemble les tangentes des points sélectionnés. Courber, Pointe, Aléatoire et Vague agissent sur les points sélectionnés, ou sur toute la forme si aucun point n’est sélectionné.",
+      "localOutline": "Contour local",
+      "localOutlineHint": "Sélectionnez des points avec Maj + clic ou faites glisser sur le papier vide. Dans ce mode, faites glisser un point à droite pour épaissir ou à gauche pour affiner, sans déplacer les points.",
+      "pointOutlineWidth": "Épaisseur aux points (px)",
+      "resetPointOutline": "Rétablir les épaisseurs",
+      "hideSegment": "Masquer le segment",
+      "showSegment": "Afficher le segment",
+      "showAllSegments": "Afficher tout le contour",
       "randomTangents": "Aléatoire",
       "waveLeft": "← Vague",
       "waveRight": "Vague →",
@@ -10276,6 +10283,8 @@
       "farther": "Plus espacées"
     },
     "shapeAppearance": {
+      "fillOpacity": "Opacité du remplissage",
+      "outlineOpacity": "Opacité du contour",
       "title": "Apparence de la forme",
       "fill": "Remplissage",
       "removeFill": "Supprimer le remplissage",

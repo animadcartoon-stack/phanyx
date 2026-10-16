@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import { opacidadeDaForma, espessuraNoPonto, trechosSelecionados } from "./components/contornoForma";
 import { calcularRedimensionamentoForma } from "./components/redimensionamentoForma";
 import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma } from "./components/edicaoPontosForma";
 import CorComCodigo from "./components/CorComCodigo";
@@ -64,6 +65,11 @@ type CampoCertificado = {
   dadosJson?: any;
   imagemUrl?: string | null;
   opacity?: number | null;
+  preenchimentoOpacidade?: number | null;
+  contornoOpacidade?: number | null;
+  espessurasContornoPontos?: Record<string, number> | null;
+  trechosContornoOcultos?: { de: string; para: string }[] | null;
+
   objectFit?: string | null;
   rotate?: number | null;
   flipX?: boolean | null;
@@ -1406,6 +1412,43 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("mousemove", atualizar); window.addEventListener("mouseup", finalizar); window.addEventListener("blur", limpar);
   }
 
+  const [modoEspessuraContorno, setModoEspessuraContorno] = useState(false);
+  useEffect(() => { setModoEspessuraContorno(false); }, [campoSelecionadoId]);
+  useEffect(() => {
+    if (!mostrarHandlesForma || camposSelecionadosIds.length !== 1) setModoEspessuraContorno(false);
+  }, [mostrarHandlesForma, camposSelecionadosIds.length]);
+
+  function editarContornoSelecionado(acao: "espessura" | "restaurar" | "ocultar" | "mostrar" | "mostrar-todos", valor = 0) {
+    const campo = campos.find((item) => item.id === campoSelecionadoId);
+    if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || camposSelecionadosIds.length !== 1) return;
+    const ids = idsDosPontosSelecionados(campo.id);
+    if (!ids.length && acao !== "mostrar-todos") return;
+    const espessuras = { ...campo.espessurasContornoPontos };
+    let trechos = [...(campo.trechosContornoOcultos || [])];
+    if (acao === "espessura" || acao === "restaurar") {
+      ids.forEach((id) => {
+        if (acao === "restaurar") delete espessuras[id];
+        else espessuras[id] = Math.max(0, Math.min(40, valor));
+      });
+    } else if (acao === "mostrar-todos") trechos = [];
+    else {
+      const selecionados = trechosSelecionados(campo.pontosForma || [], ids, campo.forma !== "LINHA");
+      if (!selecionados.length) {
+        setMensagemErro(tr("shapeTools.selectAdjacentPoints")); setTimeout(() => setMensagemErro(""), 2500); return;
+      }
+      for (const trecho of selecionados) {
+        const igual = (atual: { de: string; para: string }) => atual.de === trecho.de && atual.para === trecho.para;
+        if (acao === "ocultar" && !trechos.some(igual)) trechos.push(trecho);
+        if (acao === "mostrar") trechos = trechos.filter((atual) => !igual(atual));
+      }
+    }
+    registrarHistoricoAntesDaAcao();
+    setCampos((prev) => prev.map((item) => item.id === campo.id ? {
+      ...item, espessurasContornoPontos: espessuras, trechosContornoOcultos: trechos,
+      dadosJson: { ...(item.dadosJson || {}), espessurasContornoPontos: espessuras, trechosContornoOcultos: trechos },
+    } : item));
+  }
+
   function renderizarFerramentasPontosForma(incluirArray = true) {
     const campo = campos.find((item) => item.id === campoSelecionadoId);
     if (!campo || campo.tipo !== "FORMA" || campo.grupoId || campo.bloqueado || camposSelecionadosIds.length !== 1) return null;
@@ -1449,6 +1492,32 @@ export default function ConfiguracaoCertificadoPage() {
             </button>
           )}
         </div>
+        <div className="mt-3 space-y-2 border-t border-slate-200 pt-3" data-ferramentas-contorno="true">
+          <button type="button" className={`${classeBotao} w-full`} aria-pressed={modoEspessuraContorno} onClick={() => {
+            setModoEspessuraContorno((atual) => !atual); setMostrarHandlesForma(true);
+          }}>
+            {modoEspessuraContorno ? "✓ " : ""}{tr("shapeTools.localOutline")}
+          </button>
+          <p className="text-xs leading-4 text-slate-600">{tr("shapeTools.localOutlineHint")}</p>
+          <fieldset disabled={!idsDosPontosSelecionados(campo.id).length} className="space-y-2 disabled:opacity-60">
+            <label className="flex items-center justify-between gap-2 text-xs font-semibold">
+              <span>{tr("shapeTools.pointOutlineWidth")}</span>
+              <input type="number" min={0} max={40} step={0.25} aria-label={tr("shapeTools.pointOutlineWidth")}
+                value={Number(espessuraNoPonto(campo, idsDosPontosSelecionados(campo.id).slice(-1)[0] || "").toFixed(2))}
+                onChange={(e) => editarContornoSelecionado("espessura", Number(e.target.value))}
+                className="w-20 rounded-lg border border-slate-300 !bg-white px-2 py-1 !text-slate-950" />
+            </label>
+            <input type="range" min={0} max={40} step={0.25} aria-label={tr("shapeTools.pointOutlineWidth")}
+              value={espessuraNoPonto(campo, idsDosPontosSelecionados(campo.id).slice(-1)[0] || "")}
+              onChange={(e) => editarContornoSelecionado("espessura", Number(e.target.value))} className="w-full" />
+            <button type="button" className={`${classeBotao} w-full`} onClick={() => editarContornoSelecionado("restaurar")}>{tr("shapeTools.resetPointOutline")}</button>
+          </fieldset>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button type="button" className={classeBotao} disabled={idsDosPontosSelecionados(campo.id).length < 2} onClick={() => editarContornoSelecionado("ocultar")}>{tr("shapeTools.hideSegment")}</button>
+            <button type="button" className={classeBotao} disabled={idsDosPontosSelecionados(campo.id).length < 2} onClick={() => editarContornoSelecionado("mostrar")}>{tr("shapeTools.showSegment")}</button>
+            <button type="button" className={`${classeBotao} col-span-2`} disabled={!campo.trechosContornoOcultos?.length} onClick={() => editarContornoSelecionado("mostrar-todos")}>{tr("shapeTools.showAllSegments")}</button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1461,12 +1530,25 @@ export default function ConfiguracaoCertificadoPage() {
     let novos = pontos;
     let proximosSelecionados = ids;
     let raios = campo.raiosPontos;
+    const espessuras = { ...campo.espessurasContornoPontos };
+    let trechosOcultos = [...(campo.trechosContornoOcultos || [])];
     const avisar = (mensagem: string) => { setMensagemErro(mensagem); setTimeout(() => setMensagemErro(""), 2500); };
     if (acao === "subdividir") {
       if (ids.length === 1) { avisar(tr("shapeTools.selectTwoPoints")); return; }
       const resultado = subdividirPontosForma(pontos, campo.forma !== "LINHA", ids);
       if (!resultado.novosIds.length) { avisar(tr("shapeTools.selectAdjacentPoints")); return; }
       novos = resultado.pontos; proximosSelecionados = resultado.selecionados;
+      const idsNovos = new Set(resultado.novosIds);
+      resultado.pontos.forEach((p, index) => {
+        if (!idsNovos.has(p.id)) return;
+        const anterior = resultado.pontos[index - 1];
+        const proximo = resultado.pontos[(index + 1) % resultado.pontos.length];
+        if (Object.keys(espessuras).length) espessuras[p.id] = (espessuraNoPonto(campo, anterior.id) + espessuraNoPonto(campo, proximo.id)) / 2;
+        if (trechosOcultos.some((t) => t.de === anterior.id && t.para === proximo.id)) {
+          trechosOcultos = trechosOcultos.filter((t) => t.de !== anterior.id || t.para !== proximo.id);
+          trechosOcultos.push({ de: anterior.id, para: p.id }, { de: p.id, para: proximo.id });
+        }
+      });
       // Novos pontos sobre uma aresta nao herdam arredondamento de cantos.
       raios = { ...campo.raiosPontos };
       const cantos = campo.cantosArredondados;
@@ -1490,9 +1572,9 @@ export default function ConfiguracaoCertificadoPage() {
     }
     registrarHistoricoAntesDaAcao();
     setCampos((prev) => prev.map((item) => item.id === campo.id ? {
-      ...item, pontosForma: novos, raiosPontos: raios,
+      ...item, pontosForma: novos, raiosPontos: raios, espessurasContornoPontos: espessuras, trechosContornoOcultos: trechosOcultos,
       ...((acao !== "subdividir" && acao !== "remover") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
-      dadosJson: { ...(item.dadosJson || {}), pontosForma: novos, raiosPontos: raios,
+      dadosJson: { ...(item.dadosJson || {}), pontosForma: novos, raiosPontos: raios, espessurasContornoPontos: espessuras, trechosContornoOcultos: trechosOcultos,
         ...((acao !== "subdividir" && acao !== "remover") ? { raioBorda: 0, cantosArredondados: null, raiosPontos: null } : {}),
       },
     } : item));
@@ -4167,6 +4249,19 @@ export default function ConfiguracaoCertificadoPage() {
 
   async function excluirCampo(id: number) {
     await excluirCamposEmLote([id]);
+  }
+
+  function atualizarOpacidadeForma(canal: "preenchimento" | "contorno", valor: number) {
+    if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
+    setCampos((prev) => prev.map((campo) => {
+      if (campo.id !== campoSelecionado.id) return campo;
+      const novos = {
+        opacity: 1,
+        preenchimentoOpacidade: canal === "preenchimento" ? valor : opacidadeDaForma(campo, "preenchimento"),
+        contornoOpacidade: canal === "contorno" ? valor : opacidadeDaForma(campo, "contorno"),
+      };
+      return { ...campo, ...novos, dadosJson: { ...(campo.dadosJson || {}), ...novos } };
+    }));
   }
 
   function atualizarCampoLocal<K extends keyof CampoCertificado>(
@@ -10489,12 +10584,12 @@ export default function ConfiguracaoCertificadoPage() {
                                           )
                                             .map(
                                               (stop: any) =>
-                                                `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`,
+                                                `${hexToRgba(stop.cor, opacidadeDaForma(c, "preenchimento"))} ${stop.posicao}%`,
                                             )
                                             .join(", ")})`
                                         : hexToRgba(
                                           c.cor || "#1d4ed8",
-                                          c.opacity || 1,
+                                          opacidadeDaForma(c, "preenchimento"),
                                         ),
 
                                 border:
@@ -10541,6 +10636,8 @@ export default function ConfiguracaoCertificadoPage() {
                                           ? pontoFormaSelecionado.pontoId
                                           : null
                                       }
+                                      modoEspessuraContorno={modoEspessuraContorno && podeEditarFormaIndividual}
+                                      instrucaoContorno={tr("shapeTools.localOutlineHint")}
                                       pontosSelecionadosIds={idsDosPontosSelecionados(c.id)}
                                       onSelecionarPontos={(ids) => {
                                         setCampoSelecionadoId(c.id);
@@ -12901,23 +12998,25 @@ export default function ConfiguracaoCertificadoPage() {
                               </div>
 
                               <div>
-                                <p className="mb-1 text-xs font-semibold text-slate-500">
-                                  {tr("shapeAppearance.transparency")}
-                                </p>
-                                <input
-                                  type="range"
-                                  min={0.1}
-                                  max={1}
-                                  step={0.05}
-                                  value={campoSelecionado?.opacity ?? 1}
-                                  onChange={(e) =>
-                                    atualizarCampoLocal(
-                                      "opacity" as any,
-                                      Number(e.target.value),
-                                    )
-                                  }
-                                  className="w-full"
-                                />
+                                {(["preenchimento", "contorno"] as const).map((canal) => (
+                                  <fieldset key={canal} disabled={canal === "preenchimento" && campoSelecionado.forma === "LINHA"} className="mb-3 disabled:opacity-50">
+                                    <label className="mb-1 flex items-center justify-between gap-2 text-xs font-semibold text-slate-600">
+                                      <span>{tr(canal === "preenchimento" ? "shapeAppearance.fillOpacity" : "shapeAppearance.outlineOpacity")}</span>
+                                      <span className="flex items-center gap-1">
+                                        <input type="number" min={0} max={100} step={1}
+                                          aria-label={tr(canal === "preenchimento" ? "shapeAppearance.fillOpacity" : "shapeAppearance.outlineOpacity")}
+                                          value={Math.round(opacidadeDaForma(campoSelecionado, canal) * 100)}
+                                          onChange={(e) => atualizarOpacidadeForma(canal, Math.max(0, Math.min(100, Number(e.target.value))) / 100)}
+                                          className="w-16 rounded-lg border border-slate-300 !bg-white px-2 py-1 text-right !text-slate-950" />%
+                                      </span>
+                                    </label>
+                                    <input type="range" min={0} max={100} step={1}
+                                      aria-label={tr(canal === "preenchimento" ? "shapeAppearance.fillOpacity" : "shapeAppearance.outlineOpacity")}
+                                      value={Math.round(opacidadeDaForma(campoSelecionado, canal) * 100)}
+                                      onChange={(e) => atualizarOpacidadeForma(canal, Number(e.target.value) / 100)}
+                                      className="w-full" />
+                                  </fieldset>
+                                ))}
 
                                 {!["CIRCULO", "LINHA", "ESTRELA"].includes(
                                   String(campoSelecionado?.forma || ""),

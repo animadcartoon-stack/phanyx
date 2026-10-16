@@ -29,6 +29,11 @@ export type CampoCertificadoRender = {
 
   rotate?: number | null;
   opacity?: number | null;
+  preenchimentoOpacidade?: number | null;
+  contornoOpacidade?: number | null;
+  espessurasContornoPontos?: Record<string, number> | null;
+  trechosContornoOcultos?: { de: string; para: string }[] | null;
+
   flipX?: boolean | null;
   flipY?: boolean | null;
   filter?: string | null;
@@ -617,6 +622,7 @@ export default function CertificadoRender({
        if (campo.tipo === "FORMA") {
   const estiloForma: React.CSSProperties = {
     ...estiloBase,
+    opacity: 1,
     display: "block",
     alignItems: "initial",
     justifyContent: "initial",
