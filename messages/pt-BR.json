@@ -10229,6 +10229,13 @@
       "selectWholeShape": "Selecionar forma inteira",
       "selectedPointCount": "{count} ponto(s) selecionado(s)",
       "pointSelectionHint": "Clique e arraste o corpo da forma para mover a forma inteira. Shift + clique nas bolinhas adiciona ou remove pontos da seleção. Para selecionar pontos por área, comece o arraste no espaço vazio do papel. Alt + arraste uma alça verde para ajustar juntas as tangentes dos pontos selecionados. Curvar, Pontudo, Aleatório e Onda atuam nos pontos selecionados; sem pontos selecionados, atuam na forma inteira.",
+      "localOutline": "Contorno local",
+      "localOutlineHint": "Selecione pontos com Shift + clique ou arraste no papel. Com este modo ativo, arraste uma bolinha para a direita para engrossar ou para a esquerda para afinar, sem mover os pontos.",
+      "pointOutlineWidth": "Espessura nos pontos (px)",
+      "resetPointOutline": "Restaurar espessura dos pontos",
+      "hideSegment": "Ocultar trecho",
+      "showSegment": "Mostrar trecho",
+      "showAllSegments": "Mostrar todo o contorno",
       "randomTangents": "Aleatório",
       "waveLeft": "← Onda",
       "waveRight": "Onda →",
@@ -10276,6 +10283,8 @@
       "farther": "Mais afastadas"
     },
     "shapeAppearance": {
+      "fillOpacity": "Opacidade do preenchimento",
+      "outlineOpacity": "Opacidade do contorno",
       "title": "Aparência da forma",
       "fill": "Preenchimento",
       "removeFill": "Remover preenchimento",

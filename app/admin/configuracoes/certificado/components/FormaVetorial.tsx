@@ -1,5 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
+import { opacidadeDaForma, espessuraNoPonto, gerarTrechosContorno } from "./contornoForma";
+
 import { selecionarPontoForma, pontosDoContornoArredondado, ajustarTangentesEmConjunto } from "./edicaoPontosForma";
 
 type PontoForma = {
@@ -25,6 +28,11 @@ type CampoForma = {
   mostrarPreenchimento?: boolean | null;
   mostrarContorno?: boolean | null;
   opacity?: number | null;
+  preenchimentoOpacidade?: number | null;
+  contornoOpacidade?: number | null;
+  espessurasContornoPontos?: Record<string, number> | null;
+  trechosContornoOcultos?: { de: string; para: string }[] | null;
+  dadosJson?: any;
   raioBorda?: number | null;
   cantosArredondados?: {
     topoEsquerdo?: number;
@@ -41,6 +49,8 @@ type Props = {
   selecionado: boolean;
   modo?: "editor" | "preview";
   mostrarHandles?: boolean;
+  modoEspessuraContorno?: boolean;
+  instrucaoContorno?: string;
   pontoSelecionadoId?: string | null;
   pontosSelecionadosIds?: string[];
   onSelecionarPontos?: (ids: string[]) => void;
@@ -352,13 +362,15 @@ export default function FormaVetorial({
   selecionado,
   modo = "editor",
   mostrarHandles = true,
+  modoEspessuraContorno = false,
+  instrucaoContorno,
   pontoSelecionadoId = null,
   pontosSelecionadosIds,
   onSelecionarPontos,
   onSelecionarPonto,
   onChange,
 }: Props) {
-  const pontos = campo.pontosForma || [];
+  const pontos = useMemo(() => campo.pontosForma || [], [campo.pontosForma]);
   const idsSelecionados = pontosSelecionadosIds ?? (pontoSelecionadoId ? [pontoSelecionadoId] : []);
   const selecionar = (ids: string[]) => { onSelecionarPontos?.(ids); onSelecionarPonto?.(ids[ids.length - 1] ?? null); };
 
@@ -368,7 +380,8 @@ export default function FormaVetorial({
   const contornoTipo = campo.contornoTipo || "externo";
   const mostrarPreenchimento = campo.mostrarPreenchimento !== false;
   const mostrarContorno = campo.mostrarContorno !== false;
-  const opacidade = campo.opacity ?? 1;
+  const opacidadePreenchimento = opacidadeDaForma(campo, "preenchimento");
+  const opacidadeContorno = opacidadeDaForma(campo, "contorno");
 
   const pathForma = gerarPath(campo);
   const idForma = `forma-contorno-${campo.id}`;
@@ -398,6 +411,16 @@ export default function FormaVetorial({
 
   const rxAlca = 2.3 / Math.max(escalaX, 0.1);
   const ryAlca = 2.3 / Math.max(escalaY, 0.1);
+
+  const trechosContorno = useMemo(() => gerarTrechosContorno(pathForma, pontos, campo, larguraCampo, alturaCampo),
+    [pathForma, pontos, campo, larguraCampo, alturaCampo]);
+
+  function moverEspessuraPontos(ids: string[], delta: number) {
+    const espessuras = { ...campo.espessurasContornoPontos };
+    ids.forEach((id) => { espessuras[id] = Math.max(0, Math.min(40, Number((espessuraNoPonto(campo, id) + delta).toFixed(2)))); });
+    onChange({ ...campo, espessurasContornoPontos: espessuras,
+      dadosJson: { ...(campo.dadosJson || {}), espessurasContornoPontos: espessuras } });
+  }
 
   function atualizarPontos(
     novosPontos: PontoForma[],
@@ -756,6 +779,8 @@ export default function FormaVetorial({
   return (
     <div
       data-forma-vetorial-root={campo.id}
+      data-edicao-contorno={modoEspessuraContorno || undefined}
+      title={modoEspessuraContorno ? instrucaoContorno : undefined}
       className={
         modo === "preview"
           ? "pointer-events-none absolute inset-0 overflow-visible"
@@ -807,16 +832,16 @@ export default function FormaVetorial({
               ? "none"
               : preenchimentoCor
           }
-          fillOpacity={campo.forma === "LINHA" ? 1 : opacidade}
+          fillOpacity={campo.forma === "LINHA" ? 1 : opacidadePreenchimento}
           stroke="none"
         />
 
-        <path
+        {trechosContorno === null ? (<path
           d={pathForma}
           fill="none"
           stroke={mostrarContorno ? contornoCor : "none"}
           strokeWidth={larguraContornoRender}
-          strokeOpacity={opacidade}
+          strokeOpacity={opacidadeContorno}
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
@@ -831,7 +856,14 @@ export default function FormaVetorial({
               : undefined
           }
           className="pointer-events-none"
-        />
+        />) : (
+          <g data-contorno-segmentado="true" fill="none" stroke={mostrarContorno ? contornoCor : "none"}
+            opacity={opacidadeContorno} strokeLinejoin="round" strokeLinecap="round" className="pointer-events-none"
+            clipPath={campo.forma !== "LINHA" && contornoTipo === "interno" ? `url(#${clipInternoId})` : undefined}
+            mask={campo.forma !== "LINHA" && contornoTipo === "externo" ? `url(#${maskExternoId})` : undefined}>
+            {trechosContorno.map((trecho, index) => <path key={index} d={trecho.d} strokeWidth={trecho.largura} vectorEffect="non-scaling-stroke" />)}
+          </g>
+        )}
 
         {selecionado &&
           modo === "editor" &&
@@ -842,7 +874,7 @@ export default function FormaVetorial({
 
             return (
               <g key={`controle-${ponto.id}`}>
-                {ponto.tipo === "curvo" && (
+                {ponto.tipo === "curvo" && !modoEspessuraContorno && (
                   <>
                     <line
                       x1={ponto.x}
@@ -910,10 +942,10 @@ export default function FormaVetorial({
                   data-controle-ponto-forma="ancora"
                   data-ponto-forma-campo={campo.id}
                   data-ponto-forma-id={ponto.id}
-                  fill={pontoEstaSelecionado ? "#2563eb" : "#ffffff"}
+                  fill={pontoEstaSelecionado ? (modoEspessuraContorno ? "#f97316" : "#2563eb") : "#ffffff"}
                   stroke={pontoEstaSelecionado ? "#ffffff" : "#2563eb"}
                   strokeWidth={pontoEstaSelecionado ? 2.4 : 1.4}
-                  className="pointer-events-auto cursor-grab"
+                  className={modoEspessuraContorno ? "pointer-events-auto cursor-ew-resize" : "pointer-events-auto cursor-grab"}
                   onMouseDown={(e) => {
                     e.stopPropagation(); e.preventDefault();
                     if (e.button !== 0) return;
@@ -921,15 +953,20 @@ export default function FormaVetorial({
                     const ids = selecionarPontoForma(idsSelecionados, ponto.id, adicionar);
                     selecionar(ids);
                     if (adicionar) return;
-                    iniciarArrastePercentual(e, (dx, dy) => moverPontos(ids, dx, dy));
+                    const inicioX = e.clientX;
+                    iniciarArrastePercentual(e, (dx, dy, evento) => {
+                      if (modoEspessuraContorno) moverEspessuraPontos(ids, (evento.clientX - inicioX) / 10);
+                      else moverPontos(ids, dx, dy);
+                    });
                   }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
-                    alternarTipoPonto(ponto.id);
+                    if (!modoEspessuraContorno) alternarTipoPonto(ponto.id);
                   }}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    if (modoEspessuraContorno) return;
                     deletarPonto(ponto.id);
                     selecionar(idsSelecionados.filter((id) => id !== ponto.id));
                   }}
