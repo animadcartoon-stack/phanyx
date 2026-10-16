@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import { calcularRedimensionamentoForma } from "./components/redimensionamentoForma";
 import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma } from "./components/edicaoPontosForma";
 import CorComCodigo from "./components/CorComCodigo";
 import useHistoricoCertificado from "./components/useHistoricoCertificado";
@@ -6456,6 +6457,47 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("mouseup", soltar);
   }
 
+  const cancelarRedimensionamentoFormaRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => { cancelarRedimensionamentoFormaRef.current?.(); }, []);
+
+  function iniciarRedimensionamentoForma(
+    e: React.MouseEvent,
+    campo: CampoCertificado,
+    eixo: "ambos" | "largura" | "altura" = "ambos",
+  ) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (e.button !== 0 || campo.bloqueado || campo.grupoId) return;
+    cancelarRedimensionamentoFormaRef.current?.();
+    registrarHistoricoAntesDaAcao();
+    const inicio = { x: e.clientX, y: e.clientY };
+    const inicial = {
+      x: Number(campo.x || 0), y: Number(campo.y || 0),
+      largura: Number(campo.largura || 100), altura: Number(campo.altura || 80),
+      rotate: Number(campo.rotate || 0), flipX: Boolean(campo.flipX), flipY: Boolean(campo.flipY),
+    };
+    const escalaInicial = Math.max(0.001, escala);
+    const mover = (ev: globalThis.MouseEvent) => {
+      const caixa = calcularRedimensionamentoForma(inicial, {
+        x: (ev.clientX - inicio.x) / escalaInicial,
+        y: (ev.clientY - inicio.y) / escalaInicial,
+      }, eixo, ev.altKey, ev.shiftKey, campo.forma === "LINHA" ? 4 : 20);
+      setCampos((prev) => prev.map((item) => item.id === campo.id ? {
+        ...item, ...caixa, dadosJson: { ...(item.dadosJson || {}), ...caixa },
+      } : item));
+    };
+    const finalizar = () => {
+      window.removeEventListener("mousemove", mover);
+      window.removeEventListener("mouseup", finalizar);
+      window.removeEventListener("blur", finalizar);
+      cancelarRedimensionamentoFormaRef.current = null;
+    };
+    cancelarRedimensionamentoFormaRef.current = finalizar;
+    window.addEventListener("mousemove", mover);
+    window.addEventListener("mouseup", finalizar);
+    window.addEventListener("blur", finalizar);
+  }
+
   function iniciarRedimensionamentoImagemRotacionada(
     e: React.MouseEvent,
     campo: CampoCertificado,
@@ -10630,176 +10672,22 @@ export default function ConfiguracaoCertificadoPage() {
                                   </div>
 
                                   {/* canto inferior direito */}
-                                  <div
-                                    onMouseDown={(e) => {
-                                      e.stopPropagation();
 
-                                      const startX = e.clientX;
-                                      const startY = e.clientY;
-                                      const startW = c.largura || 100;
-                                      const startH = c.altura || 80;
-
-                                      const proporcao = startW / startH;
-
-                                      const move = (
-                                        ev: globalThis.MouseEvent,
-                                      ) => {
-                                        setCampos((prev) =>
-                                          prev.map((item) =>
-                                            item.id === c.id
-                                              ? {
-                                                ...item,
-                                                largura: ev.shiftKey
-                                                  ? Math.max(
-                                                    20,
-                                                    startW +
-                                                    ev.clientX -
-                                                    startX,
-                                                  )
-                                                  : Math.max(
-                                                    20,
-                                                    startW +
-                                                    ev.clientX -
-                                                    startX,
-                                                  ),
-
-                                                altura: ev.shiftKey
-                                                  ? Math.max(
-                                                    4,
-                                                    (startW +
-                                                      ev.clientX -
-                                                      startX) /
-                                                    proporcao,
-                                                  )
-                                                  : Math.max(
-                                                    4,
-                                                    startH +
-                                                    ev.clientY -
-                                                    startY,
-                                                  ),
-                                              }
-                                              : item,
-                                          ),
-                                        );
-                                      };
-
-                                      const up = () => {
-                                        window.removeEventListener(
-                                          "mousemove",
-                                          move,
-                                        );
-                                        window.removeEventListener(
-                                          "mouseup",
-                                          up,
-                                        );
-                                      };
-
-                                      window.addEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.addEventListener("mouseup", up);
-                                    }}
-                                    className="absolute bottom-[-10px] right-[-10px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                    title={tr("common.resize")}
-                                  />
 
                                   {/* direita */}
                                   <div
-                                    onMouseDown={(e) => {
-                                      e.stopPropagation();
-
-                                      const startX = e.clientX;
-                                      const startW = c.largura || 100;
-
-                                      const move = (
-                                        ev: globalThis.MouseEvent,
-                                      ) => {
-                                        setCampos((prev) =>
-                                          prev.map((item) =>
-                                            item.id === c.id
-                                              ? {
-                                                ...item,
-                                                largura: Math.max(
-                                                  20,
-                                                  startW +
-                                                  ev.clientX -
-                                                  startX,
-                                                ),
-                                              }
-                                              : item,
-                                          ),
-                                        );
-                                      };
-
-                                      const up = () => {
-                                        window.removeEventListener(
-                                          "mousemove",
-                                          move,
-                                        );
-                                        window.removeEventListener(
-                                          "mouseup",
-                                          up,
-                                        );
-                                      };
-
-                                      window.addEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.addEventListener("mouseup", up);
-                                    }}
+                                    data-redimensionar-forma="largura"
+                                    onMouseDown={(e) => iniciarRedimensionamentoForma(e, c, "largura")}
                                     className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                    title={tr("common.adjustWidth")}
+                                    title={tr("shapeTools.resizeWidthHint")}
                                   />
 
                                   {/* baixo */}
                                   <div
-                                    onMouseDown={(e) => {
-                                      e.stopPropagation();
-
-                                      const startY = e.clientY;
-                                      const startH = c.altura || 80;
-
-                                      const move = (
-                                        ev: globalThis.MouseEvent,
-                                      ) => {
-                                        setCampos((prev) =>
-                                          prev.map((item) =>
-                                            item.id === c.id
-                                              ? {
-                                                ...item,
-                                                altura: Math.max(
-                                                  4,
-                                                  startH +
-                                                  ev.clientY -
-                                                  startY,
-                                                ),
-                                              }
-                                              : item,
-                                          ),
-                                        );
-                                      };
-
-                                      const up = () => {
-                                        window.removeEventListener(
-                                          "mousemove",
-                                          move,
-                                        );
-                                        window.removeEventListener(
-                                          "mouseup",
-                                          up,
-                                        );
-                                      };
-
-                                      window.addEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.addEventListener("mouseup", up);
-                                    }}
+                                    data-redimensionar-forma="altura"
+                                    onMouseDown={(e) => iniciarRedimensionamentoForma(e, c, "altura")}
                                     className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                    title={tr("common.adjustHeight")}
+                                    title={tr("shapeTools.resizeHeightHint")}
                                   />
                                   <div
                                     onMouseDown={(e) => iniciarCropTodos(e, c)}
@@ -10826,75 +10714,10 @@ export default function ConfiguracaoCertificadoPage() {
                                     !formaEstaAgrupada && (
                                       <button
                                         type="button"
-                                        onMouseDown={(e) => {
-                                          e.stopPropagation();
-                                          e.preventDefault();
-
-                                          const startX = e.clientX;
-                                          const startY = e.clientY;
-                                          const startW = c.largura || 120;
-                                          const startH = c.altura || 120;
-                                          const proporcao = startW / startH;
-
-                                          const move = (
-                                            ev: globalThis.MouseEvent,
-                                          ) => {
-                                            const deltaX = ev.clientX - startX;
-                                            const deltaY = ev.clientY - startY;
-
-                                            let novaLargura = Math.max(
-                                              20,
-                                              startW + deltaX,
-                                            );
-                                            let novaAltura = Math.max(
-                                              20,
-                                              startH + deltaY,
-                                            );
-
-                                            if (ev.shiftKey) {
-                                              novaAltura = Math.max(
-                                                20,
-                                                novaLargura / proporcao,
-                                              );
-                                            }
-
-                                            setCampos((prev) =>
-                                              prev.map((item) =>
-                                                item.id === c.id
-                                                  ? {
-                                                    ...item,
-                                                    largura:
-                                                      Math.round(novaLargura),
-                                                    altura:
-                                                      Math.round(novaAltura),
-                                                  }
-                                                  : item,
-                                              ),
-                                            );
-                                          };
-
-                                          const up = () => {
-                                            window.removeEventListener(
-                                              "mousemove",
-                                              move,
-                                            );
-                                            window.removeEventListener(
-                                              "mouseup",
-                                              up,
-                                            );
-                                          };
-
-                                          window.addEventListener(
-                                            "mousemove",
-                                            move,
-                                          );
-                                          window.addEventListener(
-                                            "mouseup",
-                                            up,
-                                          );
-                                        }}
+                                        data-redimensionar-forma="ambos"
+                                    onMouseDown={(e) => iniciarRedimensionamentoForma(e, c, "ambos")}
                                         className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                        title={tr("shapeTools.resizeWholeShape")}
+                                        title={tr("shapeTools.resizeCenterHint")}
                                       />
                                     )}
 
