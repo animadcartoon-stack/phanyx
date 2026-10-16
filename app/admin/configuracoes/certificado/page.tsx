@@ -5376,10 +5376,22 @@ export default function ConfiguracaoCertificadoPage() {
     setTimeout(() => setMensagemSucesso(""), 1600);
   }
 
+  function unidadeReferenciaDaSelecao(unidades = unidadesSelecionadasParaAlinhamento()) {
+    return unidades.find((unidade) => campoSelecionadoId !== null && unidade.ids.includes(campoSelecionadoId))
+      || unidades[unidades.length - 1] || null;
+  }
+
+  function rotuloReferenciaAlinhamento(unidade: UnidadeAlinhamento, index: number) {
+    const campo = campos.find((item) => unidade.ids.includes(item.id));
+    const nome = campo ? nomeDaCamada(campo, campos.indexOf(campo)) : tr("layers.element");
+    return tr(unidade.ids.length > 1 ? "selection.referenceGroup" : "selection.referenceItem", { name: nome, number: index + 1 });
+  }
+
   function alinharSelecionados(
     tipo:
       | "ESQUERDA"
       | "CENTRO_HORIZONTAL"
+      | "CENTRO_REFERENCIA"
       | "DIREITA"
       | "TOPO"
       | "CENTRO_VERTICAL"
@@ -5398,12 +5410,8 @@ export default function ConfiguracaoCertificadoPage() {
       return;
     }
 
-    const referencia =
-      unidades.find(
-        (unidade) =>
-          campoSelecionadoId !== null &&
-          unidade.ids.includes(campoSelecionadoId),
-      ) || unidades[unidades.length - 1];
+    const referencia = unidadeReferenciaDaSelecao(unidades);
+    if (!referencia) return;
 
     const unidadesAlvo = unidades.filter(
       (unidade) => unidade.chave !== referencia.chave,
@@ -5437,11 +5445,18 @@ export default function ConfiguracaoCertificadoPage() {
           } as any);
         }
 
+        if (tipo === "CENTRO_REFERENCIA") {
+          return atualizarGeometriaCampo(campo, {
+            x: Number((xAtual + referencia.centroX - unidade.centroX).toFixed(3)),
+            y: Number((yAtual + referencia.centroY - unidade.centroY).toFixed(3)),
+          });
+        }
+
         if (tipo === "CENTRO_HORIZONTAL") {
           const dx = referencia.centroX - unidade.centroX;
 
           return atualizarGeometriaCampo(campo, {
-            x: Math.round(xAtual + dx),
+            x: Number((xAtual + dx).toFixed(3)),
           } as any);
         }
 
@@ -5465,7 +5480,7 @@ export default function ConfiguracaoCertificadoPage() {
           const dy = referencia.centroY - unidade.centroY;
 
           return atualizarGeometriaCampo(campo, {
-            y: Math.round(yAtual + dy),
+            y: Number((yAtual + dy).toFixed(3)),
           } as any);
         }
 
@@ -9647,10 +9662,40 @@ export default function ConfiguracaoCertificadoPage() {
                       : "flex flex-wrap gap-2"
                   }
                 >
-                  <button
+                                    <div data-alinhamento-referencia="true" className="flex w-full flex-wrap items-center gap-2 rounded-xl border border-blue-300/50 bg-blue-950/70 p-2">
+                    <span className="text-xs font-bold !text-white">{tr("selection.betweenShapes")}</span>
+                    <label className="flex min-w-0 flex-wrap items-center gap-2 text-xs !text-white">
+                      <span>{tr("selection.fixedReference")}</span>
+                      <select
+                        aria-label={tr("selection.fixedReference")}
+                        value={unidadeReferenciaDaSelecao()?.chave || ""}
+                        onChange={(event) => {
+                          const unidade = unidadesSelecionadasParaAlinhamento().find((item) => item.chave === event.target.value);
+                          if (unidade) setCampoSelecionadoId(unidade.ids[unidade.ids.length - 1]);
+                        }}
+                        className="max-w-[240px] rounded-lg !border !border-blue-200 !bg-white px-2 py-1 text-xs !text-slate-950"
+                      >
+                        {unidadesSelecionadasParaAlinhamento().map((unidade, index) => (
+                          <option key={unidade.chave} value={unidade.chave}>{rotuloReferenciaAlinhamento(unidade, index)}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => alinharSelecionados("CENTRO_REFERENCIA")}
+                      disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                      title={tr("selection.referenceStaysFixed")}
+                      className="rounded-xl !border !border-blue-200 !bg-blue-600 px-3 py-2 text-xs font-bold !text-white hover:!bg-blue-500 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
+                    >
+                      {tr("selection.centerOnReference")}
+                    </button>
+                  </div>
+<button
                     type="button"
                     onClick={() => alinharSelecionados("ESQUERDA")}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("common.left")}
                   </button>
@@ -9658,7 +9703,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("CENTRO_HORIZONTAL")}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.centerX")}
                   </button>
@@ -9666,7 +9713,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("DIREITA")}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("common.right")}
                   </button>
@@ -9674,7 +9723,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("TOPO")}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.sameTop")}
                   </button>
@@ -9682,7 +9733,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("CENTRO_VERTICAL")}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.centerY")}
                   </button>
@@ -9690,11 +9743,15 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("BAIXO")}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.sameBottom")}
                   </button>
 
+                  <div data-alinhamento-papel="true" className="flex flex-wrap items-center gap-2 rounded-xl border border-purple-400/40 px-2 py-1">
+                    <span className="text-xs font-bold !text-white">{tr("selection.onPaper")}</span>
                   <button
                     type="button"
                     onClick={() => centralizarSelecaoNaCena("X")}
@@ -9718,6 +9775,7 @@ export default function ConfiguracaoCertificadoPage() {
                   >
                     {tr("selection.pageCenter")}
                   </button>
+                  </div>
 
                   <button
                     type="button"
@@ -9746,7 +9804,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("MESMA_LARGURA")}
-                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.sameWidth")}
                   </button>
@@ -9754,7 +9814,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("MESMA_ALTURA")}
-                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.sameHeight")}
                   </button>
@@ -9762,7 +9824,9 @@ export default function ConfiguracaoCertificadoPage() {
                   <button
                     type="button"
                     onClick={() => alinharSelecionados("MESMO_TAMANHO")}
-                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+                    disabled={unidadesSelecionadasParaAlinhamento().length < 2}
+                    title={tr("selection.referenceStaysFixed")}
+                    className="rounded-xl !border !border-blue-200 !bg-white px-3 py-2 text-xs font-bold !text-slate-950 hover:!bg-blue-50 disabled:cursor-not-allowed disabled:!bg-slate-700 disabled:!text-slate-300"
                   >
                     {tr("selection.sameSize")}
                   </button>
