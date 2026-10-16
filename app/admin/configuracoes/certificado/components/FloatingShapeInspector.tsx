@@ -34,6 +34,12 @@ type CampoForma = {
   } | null;
   raiosPontos?: Record<string, number> | null;
   forma?: string | null;
+  pontas?: number;
+  pontasEstrela?: number;
+  raioInterno?: number;
+  raioExterno?: number;
+  arredondamentoInternoEstrela?: number;
+  arredondamentoExternoEstrela?: number;
   pontosForma?: PontoForma[] | null;
   preenchimentoCor?: string | null;
   contornoCor?: string | null;
@@ -221,6 +227,24 @@ function gerarPontosEstrela(
   );
 }
 
+/** Le o arredondamento desenhado, inclusive em estrelas salvas antes destes controles. */
+function arredondamentoDoGrupoEstrela(
+  campo: CampoForma,
+  grupo: "internos" | "externos",
+) {
+  const pontos = (campo.pontosForma || []).filter((_, i) => grupo === "externos" ? i % 2 === 0 : i % 2 !== 0);
+  if (!pontos.length) {
+    const salvo = grupo === "internos" ? campo.arredondamentoInternoEstrela : campo.arredondamentoExternoEstrela;
+    return Math.max(0, Math.min(40, Number(salvo) || 0));
+  }
+  const total = pontos.reduce((soma, p) => {
+    const entrada = Math.hypot((p.inX ?? p.x) - p.x, (p.inY ?? p.y) - p.y);
+    const saida = Math.hypot((p.outX ?? p.x) - p.x, (p.outY ?? p.y) - p.y);
+    return soma + (entrada + saida) / 2;
+  }, 0);
+  return Math.max(0, Math.min(40, Math.round(total / pontos.length * 1000) / 1000));
+}
+
 export default function FloatingShapeInspector({
   aberto,
   campo,
@@ -262,10 +286,7 @@ export default function FloatingShapeInspector({
     campo.forma === "ESTRELA"
       ? Math.max(
           3,
-          Math.floor(
-            (campo.pontosForma?.length || 10) /
-              2,
-          ),
+          Math.floor(campo.pontasEstrela ?? campo.pontas ?? ((campo.pontosForma?.length || 10) / 2)),
         )
       : 0;
 
@@ -275,6 +296,9 @@ export default function FloatingShapeInspector({
   const raioExternoAtual = Number(
     (campo as any).raioExterno ?? 44,
   );
+
+  const arredondamentoInternoAtual = arredondamentoDoGrupoEstrela(campo, "internos");
+  const arredondamentoExternoAtual = arredondamentoDoGrupoEstrela(campo, "externos");
 
   const ehEstrela =
     campo.forma === "ESTRELA";
@@ -554,11 +578,19 @@ export default function FloatingShapeInspector({
       pontasEstrela: novasPontas,
       raioInterno: novoRaioInterno,
       raioExterno: novoRaioExterno,
+      arredondamentoInternoEstrela: arredondamentoInternoAtual,
+      arredondamentoExternoEstrela: arredondamentoExternoAtual,
       pontosForma: gerarPontosEstrela(
         novasPontas,
         novoRaioInterno,
         novoRaioExterno,
-      ),
+      ).map((ponto, index) => {
+        const base = campo.pontosForma?.length === novasPontas * 2
+          ? { ...ponto, id: campo.pontosForma[index].id }
+          : ponto;
+        const arredondamento = index % 2 === 0 ? arredondamentoExternoAtual : arredondamentoInternoAtual;
+        return arredondamento > 0 ? criarTangenteSimetrica(base, arredondamento) : base;
+      }),
     } as any);
   }
 
@@ -608,6 +640,8 @@ export default function FloatingShapeInspector({
 
     onAtualizarCampo({
       ...campo,
+      arredondamentoInternoEstrela: grupo === "internos" ? intensidade : arredondamentoInternoAtual,
+      arredondamentoExternoEstrela: grupo === "externos" ? intensidade : arredondamentoExternoAtual,
       pontosForma: pontos.map(
         (ponto, index) => {
           const externo =
@@ -1068,7 +1102,7 @@ export default function FloatingShapeInspector({
                 type="range"
                 min={0}
                 max={40}
-                defaultValue={0}
+                value={arredondamentoInternoAtual}
                 onChange={(e) =>
                   arredondarGrupoEstrela(
                     "internos",
@@ -1090,7 +1124,7 @@ export default function FloatingShapeInspector({
                 type="range"
                 min={0}
                 max={40}
-                defaultValue={0}
+                value={arredondamentoExternoAtual}
                 onChange={(e) =>
                   arredondarGrupoEstrela(
                     "externos",
