@@ -9875,7 +9875,19 @@
       "display": "Decorative, blackletter and monospace",
       "arcCurvature": "Arc curvature",
       "arcInvert": "Invert arc / crescent",
-      "formattedContent": "Edit text content"
+      "formattedContent": "Edit text content",
+      "ink": "Quill, ink and flourishes",
+      "festive": "Christmas and festive",
+      "greek": "Greek and classical inspiration",
+      "arabic": "Arabic and Middle Eastern inspiration",
+      "retro": "Retro and vintage",
+      "category": "Font style",
+      "allCategories": "All styles",
+      "chooseFont": "Choose font",
+      "sampleLabel": "Selected font sample",
+      "sampleText": "Art and celebration",
+      "noResults": "No fonts match these filters.",
+      "scriptHint": "Fonts change the lettering without translating the text. Type in the desired alphabet. Caesar Dressing and Aladin are decorative options for Latin letters."
     },
     "modalities": {
       "GERAL": "General",

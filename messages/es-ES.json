@@ -9874,7 +9874,19 @@
       "display": "Decorativas, góticas y monoespaciadas",
       "arcCurvature": "Curvatura del arco",
       "arcInvert": "Invertir arco / media luna",
-      "formattedContent": "Editar contenido del texto"
+      "formattedContent": "Editar contenido del texto",
+      "ink": "Pluma, tinta y florituras",
+      "festive": "Navideñas y festivas",
+      "greek": "Griegas e inspiración clásica",
+      "arabic": "Árabes e inspiración oriental",
+      "retro": "Retro y vintage",
+      "category": "Estilo de fuente",
+      "allCategories": "Todos los estilos",
+      "chooseFont": "Elegir fuente",
+      "sampleLabel": "Muestra de la fuente seleccionada",
+      "sampleText": "Arte y celebración",
+      "noResults": "Ninguna fuente coincide con estos filtros.",
+      "scriptHint": "La fuente cambia el diseño de las letras sin traducir el texto. Escribe en el alfabeto deseado. Caesar Dressing y Aladin son opciones decorativas para letras latinas."
     },
     "modalities": {
       "GERAL": "General",

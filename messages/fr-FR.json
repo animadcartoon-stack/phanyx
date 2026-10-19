@@ -9874,7 +9874,19 @@
       "display": "Décoratives, gothiques et à chasse fixe",
       "arcCurvature": "Courbure de l’arc",
       "arcInvert": "Inverser l’arc / le croissant",
-      "formattedContent": "Modifier le contenu du texte"
+      "formattedContent": "Modifier le contenu du texte",
+      "ink": "Plume, encre et arabesques",
+      "festive": "Noël et fêtes",
+      "greek": "Grecques et inspiration classique",
+      "arabic": "Arabes et inspiration orientale",
+      "retro": "Rétro et vintage",
+      "category": "Style de police",
+      "allCategories": "Tous les styles",
+      "chooseFont": "Choisir une police",
+      "sampleLabel": "Aperçu de la police sélectionnée",
+      "sampleText": "Art et célébration",
+      "noResults": "Aucune police ne correspond à ces filtres.",
+      "scriptHint": "La police change le dessin des lettres sans traduire le texte. Saisissez le texte dans l’alphabet souhaité. Caesar Dressing et Aladin sont des options décoratives pour les lettres latines."
     },
     "modalities": {
       "GERAL": "Général",
