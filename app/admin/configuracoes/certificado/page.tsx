@@ -13,6 +13,11 @@ import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
 import ImagemCertificado from "@/components/certificados/ImagemCertificado";
+import TextoFormatadoCertificado from "@/components/certificados/TextoFormatadoCertificado";
+import FontesCertificado from "@/components/certificados/FontesCertificado";
+import { medidasArcoTexto, modoTextoCertificado } from "@/lib/certificados/textoCertificado";
+import SeletorFonteCertificado from "./components/SeletorFonteCertificado";
+import BancoSvgFormas from "./components/BancoSvgFormas";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
@@ -215,40 +220,7 @@ const MODALIDADES_CERTIFICADO: {
     { valor: "OUTRO", label: "Outro" },
   ];
 
-const FONTES = [
-  // Padrão
-  "Arial",
-  "Calibri",
-  "Times New Roman",
-  "Verdana",
-  "Tahoma",
-  "Georgia",
-
-  // Modernas
-  "Poppins",
-  "Montserrat",
-  "Roboto",
-  "Open Sans",
-  "Lato",
-
-  // Elegantes
-  "Playfair Display",
-  "Merriweather",
-  "Libre Baskerville",
-
-  // Cursivas / caligrafia
-  "Dancing Script",
-  "Great Vibes",
-  "Pacifico",
-  "Satisfy",
-  "Allura",
-  "Alex Brush",
-  "Sacramento",
-
-  // Manuscritas
-  "Indie Flower",
-  "Caveat",
-];
+// As fontes sao agrupadas e filtradas pelo SeletorFonteCertificado.
 
 const TAMANHOS_PAPEL = {
   A5: {
@@ -4291,6 +4263,20 @@ export default function ConfiguracaoCertificadoPage() {
     }));
   }
 
+  function atualizarFormatoTexto(alteracoes: Partial<CampoCertificado>) {
+    if (!campoSelecionado) return;
+    selecaoTextoRef.current = null;
+    selecaoTextoInfoRef.current = null;
+    setTamanhoSelecaoTexto(null);
+    setCampos(prev => prev.map(campo => {
+      if (campo.id !== campoSelecionado.id) return campo;
+      const novo = { ...campo, ...alteracoes };
+      return modoTextoCertificado(novo) === "ARCO"
+        ? { ...novo, altura: Math.max(Number(novo.altura || 0), medidasArcoTexto(novo).alturaMinima) }
+        : novo;
+    }));
+  }
+
   function atualizarCampoLocal<K extends keyof CampoCertificado>(
     chave: K,
     valor: CampoCertificado[K],
@@ -4305,6 +4291,14 @@ export default function ConfiguracaoCertificadoPage() {
           ...c,
           [chave]: valor,
         };
+        if (chave === "tamanho" && campoAtualizado.tipo === "TEXTO_LIVRE" && campoAtualizado.textoHtml) {
+          const documento = new DOMParser().parseFromString(campoAtualizado.textoHtml, "text/html");
+          documento.body.querySelectorAll<HTMLElement>("*").forEach(elemento => elemento.style.removeProperty("font-size"));
+          campoAtualizado.textoHtml = documento.body.innerHTML;
+        }
+        if (modoTextoCertificado(campoAtualizado) === "ARCO") {
+          campoAtualizado.altura = Math.max(Number(campoAtualizado.altura || 0), medidasArcoTexto(campoAtualizado).alturaMinima);
+        }
 
         const ehTagDeTexto =
           campoAtualizado.tipo !== "FORMA" &&
@@ -6026,8 +6020,11 @@ export default function ConfiguracaoCertificadoPage() {
 
     salvarHistoricoTextoLivre(editor);
 
+    const container = range.startContainer;
+    const reutilizar = container === range.endContainer && container instanceof HTMLSpanElement &&
+      range.startOffset === 0 && range.endOffset === container.childNodes.length;
     const fragmento = range.extractContents();
-    const span = document.createElement("span");
+    const span = reutilizar ? container as HTMLSpanElement : document.createElement("span");
 
     Object.assign(span.style, estilo);
 
@@ -6048,8 +6045,14 @@ export default function ConfiguracaoCertificadoPage() {
       setCorTextoSelecionado(cor);
     }
 
+    const propriedadesAlteradas = Object.keys(estilo).map(nome => nome.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase()));
+    fragmento.querySelectorAll<HTMLElement>("*").forEach(elemento => {
+      propriedadesAlteradas.forEach(nome => elemento.style.removeProperty(nome));
+      if (elemento.getAttribute("style") === "") elemento.removeAttribute("style");
+      if (elemento.tagName === "SPAN" && elemento.attributes.length === 0) elemento.replaceWith(...Array.from(elemento.childNodes));
+    });
     span.appendChild(fragmento);
-    range.insertNode(span);
+    if (!reutilizar) range.insertNode(span);
 
     const novoRange = document.createRange();
     novoRange.selectNodeContents(span);
@@ -6079,11 +6082,19 @@ export default function ConfiguracaoCertificadoPage() {
     valor: any,
     estilo: React.CSSProperties,
   ) {
-    if (temSelecaoTextoLivreAtiva()) {
+    if (modoTextoCertificado(campoSelecionado || {}) === "NORMAL" && temSelecaoTextoLivreAtiva()) {
       aplicarEstiloTextoSelecionado(estilo);
       return;
     }
 
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && campoSelecionado.textoHtml) {
+      const documento = new DOMParser().parseFromString(campoSelecionado.textoHtml, "text/html");
+      const nomes = Object.keys(estilo).map(nome => nome.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase()));
+      documento.body.querySelectorAll<HTMLElement>("*").forEach(elemento => nomes.forEach(nome => elemento.style.removeProperty(nome)));
+      const textoHtml = documento.body.innerHTML;
+      setCampos(prev => prev.map(campo => campo.id === campoSelecionado.id ? { ...campo, [chave]: valor, textoHtml } : campo));
+      return;
+    }
     atualizarCampoLocal(chave as any, valor);
   }
 
@@ -6797,11 +6808,10 @@ export default function ConfiguracaoCertificadoPage() {
       const deltaX = Math.round(novoX - dragRef.current.inicioX);
       const deltaY = Math.round(novoY - dragRef.current.inicioY);
 
+      const posicoes = new Map(dragRef.current.posicoesIniciais.map(pos => [pos.id, pos]));
       setCampos((prev) =>
         prev.map((item) => {
-          const posInicial = dragRef.current?.posicoesIniciais.find(
-            (pos) => pos.id === item.id,
-          );
+          const posInicial = posicoes.get(item.id);
 
           if (!posInicial) return item;
 
@@ -8348,7 +8358,7 @@ export default function ConfiguracaoCertificadoPage() {
                               pointerEvents: c.bloqueado ? "none" : "auto",
                             }}
                           >
-                            <div
+                            {modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.texto || tr("text.placeholderText")} /> : (<div
                               contentEditable
                               suppressContentEditableWarning
                               data-texto-livre-id={c.id}
@@ -8672,7 +8682,7 @@ export default function ConfiguracaoCertificadoPage() {
                                 writingMode: "horizontal-tb",
                                 caretColor: c.cor || "#1e3a8a",
                               }}
-                            ></div>
+                            ></div>)}
 
                             {selecionadoTexto && (
                               <button
@@ -8863,7 +8873,7 @@ export default function ConfiguracaoCertificadoPage() {
                             boxSizing: "border-box",
                           }}
                         >
-                          {c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                          {modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
                             <div
                               style={{
                                 width: "100%",
@@ -8929,7 +8939,73 @@ export default function ConfiguracaoCertificadoPage() {
                             )
                           ) : (
                             c.tipo
-                          )}
+                          )} /> : (c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                            <div
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${quantidadeColunasDisciplinasDoCampo(
+                                  c,
+                                )}, minmax(0, 1fr))`,
+                                columnGap: `${espacoColunasDisciplinasDoCampo(c)}px`,
+                                rowGap: "2px",
+                                alignContent: "center",
+                                justifyItems:
+                                  c.alinhamento === "center"
+                                    ? "center"
+                                    : c.alinhamento === "right"
+                                      ? "end"
+                                      : "start",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                              }}
+                            >
+                              {listaDisciplinasExemplo(c, tr("preview.discipline")).map(
+                                (disciplina, index) => (
+                                  <div
+                                    key={`${c.id}-disciplina-${index}`}
+                                    style={{
+                                      minWidth: 0,
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {disciplina}
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          ) : c.tipo === "APROVEITAMENTO" ? (
+                            "100%"
+                          ) : c.tipo === "FREQUENCIA_TOTAL" ? (
+                            tr("preview.totalAttendance")
+                          ) : c.tipo === "NOME_ALUNO" ? (
+                            tr("preview.studentNameLabel")
+                          ) : c.tipo === "NOME_CURSO" ? (
+                            tr("preview.courseNameLabel")
+                          ) : c.tipo === "DATA_EMISSAO" ? (
+                            "00/00/0000"
+                          ) : c.tipo === "ASSINATURA" ? (
+                            certificadoAssinaturaUrl ? (
+                              <img
+                                src={certificadoAssinaturaUrl}
+                                alt={tr("fieldTypes.ASSINATURA")}
+                                draggable={false}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "contain",
+                                  display: "block",
+                                  pointerEvents: "none",
+                                }}
+                              />
+                            ) : (
+                              tr("preview.signature")
+                            )
+                          ) : (
+                            c.tipo
+                          ))}
 
                           {camposSelecionadosIds.includes(c.id) &&
                             c.tipo === "ASSINATURA" && (
@@ -9236,6 +9312,7 @@ export default function ConfiguracaoCertificadoPage() {
       className="phanyx-config-certificado-page mx-auto max-w-[1600px] p-6"
     >
 
+      <FontesCertificado campos={campos} />
       {mensagemErro && (
         <div className="mb-4">
           <PhanyxToast
@@ -11901,6 +11978,7 @@ export default function ConfiguracaoCertificadoPage() {
                     />
                   )}
 
+                  <BancoSvgFormas escala={escala}>
                   {camposDaCena.map((c) => (
                     <ElementoCenaCertificado key={c.id} elemento={c} renderizar={renderizarElementoCena}
                       dependencias={[
@@ -11914,6 +11992,7 @@ export default function ConfiguracaoCertificadoPage() {
                         locale,
                       ]} />
                   ))}
+                  </BancoSvgFormas>
                   {modoFormaLivre && pontosFormaLivre.length > 0 && (
                     <svg data-forma-livre-preview="true" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
                       style={{ zIndex: 1000000 }}>
@@ -13261,31 +13340,9 @@ export default function ConfiguracaoCertificadoPage() {
                         <label className="mb-1 block text-xs font-medium text-slate-600">
                           {tr("text.font")}
                         </label>
-                        <select
-                          value={campoSelecionado?.fonte || "Helvetica"}
-                          onChange={(e) => {
-                            const novaFonte = e.target.value;
-
-                            aplicarEstiloTextoOuCampoInteiro(
-                              "fonte",
-                              novaFonte,
-                              {
-                                fontFamily: novaFonte,
-                              },
-                            );
-                          }}
-                          className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                        >
-                          {FONTES.map((fonte) => (
-                            <option
-                              key={fonte}
-                              value={fonte}
-                              style={{ fontFamily: fonte }}
-                            >
-                              {fonte}
-                            </option>
-                          ))}
-                        </select>
+                        <SeletorFonteCertificado value={campoSelecionado?.fonte || "Helvetica"}
+                          onChange={novaFonte => aplicarEstiloTextoOuCampoInteiro("fonte", novaFonte, { fontFamily: novaFonte })}
+                          labels={{ search: tr("fonts.search"), hint: tr("fonts.hint"), system: tr("fonts.system"), calligraphy: tr("fonts.calligraphy"), handwriting: tr("fonts.handwriting"), serif: tr("fonts.serif"), sans: tr("fonts.sans"), display: tr("fonts.display") }} />
                       </div>
                       <div className="mt-3 flex gap-2">
                         <button
@@ -13346,10 +13403,7 @@ export default function ConfiguracaoCertificadoPage() {
                             (campoSelecionado as any)?.textoModo || "NORMAL"
                           }
                           onChange={(e) =>
-                            atualizarCampoLocal(
-                              "textoModo" as any,
-                              e.target.value as any,
-                            )
+                            atualizarFormatoTexto({ textoModo: e.target.value as any })
                           }
                           className="w-full rounded-xl border border-slate-300 px-3 py-2"
                         >
@@ -13359,6 +13413,27 @@ export default function ConfiguracaoCertificadoPage() {
                           <option value="VERTICAL">{tr("text.modeVertical")}</option>
                           <option value="ARCO">{tr("text.modeArc")}</option>
                         </select>
+                        {modoTextoCertificado(campoSelecionado) === "ARCO" && <div className="mt-3 space-y-2">
+                          <label className="block text-xs font-semibold text-slate-500">{tr("fonts.arcCurvature")}</label>
+                          <div className="flex items-center gap-2">
+                            <input type="range" min={5} max={180} value={campoSelecionado.arcoAngulo ?? 120}
+                              aria-label={tr("fonts.arcCurvature")} className="min-w-0 flex-1"
+                              onChange={e => atualizarFormatoTexto({ arcoAngulo: Number(e.target.value), arcoRaio: null })} />
+                            <CampoNumeroEditavel key={campoSelecionado.id + "-arco-angulo"} min={5} max={180} value={campoSelecionado.arcoAngulo ?? 120}
+                              onValueChange={valor => atualizarFormatoTexto({ arcoAngulo: valor, arcoRaio: null })}
+                              className="w-20 rounded-xl border border-slate-300 px-2 py-1" />
+                            <span>°</span>
+                          </div>
+                          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={Boolean(campoSelecionado.arcoInvertido)}
+                            onChange={e => atualizarFormatoTexto({ arcoInvertido: e.target.checked })} />{tr("fonts.arcInvert")}</label>
+                        </div>}
+                        {campoSelecionado.tipo === "TEXTO_LIVRE" && modoTextoCertificado(campoSelecionado) !== "NORMAL" && <div className="my-3 space-y-2">
+                          <label className="block text-xs font-semibold text-slate-500" htmlFor="conteudo-texto-formatado">{tr("fonts.formattedContent")}</label>
+                          <textarea id="conteudo-texto-formatado" rows={3} value={campoSelecionado.texto || ""}
+                            onChange={e => { const texto = e.target.value; setCampos(prev => prev.map(campo => campo.id === campoSelecionado.id ? { ...campo, texto, textoHtml: texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") } : campo)); }}
+                            className="w-full rounded-xl border border-slate-300 px-3 py-2" />
+                        </div>}
+
 
                         <label className="mb-1 block text-xs font-medium text-slate-600">
                           {tr("common.size")}

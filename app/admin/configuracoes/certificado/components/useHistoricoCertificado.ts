@@ -11,6 +11,15 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
   const campoRef = useRef<EventTarget | null>(null);
   const loteRef = useRef<object | null>(null);
   const ponteiroRef = useRef(false);
+  const pendenteRef = useRef<{ campos: T[]; grupo: object } | null>(null);
+  const quadroRef = useRef<number | null>(null);
+  const publicarPendentes = useCallback(() => {
+    if (quadroRef.current !== null) cancelAnimationFrame(quadroRef.current);
+    quadroRef.current = null;
+    const pendente = pendenteRef.current;
+    pendenteRef.current = null;
+    if (pendente) estado.alterar(pendente.campos, pendente.grupo);
+  }, [estado]);
 
   const registrarHistoricoAntesDaAcao = useCallback(() => {
     // O registro e feito na primeira alteracao real, sem etapas vazias.
@@ -23,15 +32,25 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
 
   const setCampos = useCallback((atualizador: T[] | ((prev: T[]) => T[])) => {
     registrarHistoricoAntesDaAcao();
-    estado.alterar(atualizador, gestoRef.current || loteRef.current || {});
-  }, [estado, registrarHistoricoAntesDaAcao]);
+    const grupo = gestoRef.current || loteRef.current || {};
+    if (ponteiroRef.current && typeof requestAnimationFrame === "function") {
+      const anteriores = pendenteRef.current?.campos ?? estado.getSnapshot();
+      const proximos = typeof atualizador === "function" ? atualizador(anteriores) : atualizador;
+      pendenteRef.current = { campos: proximos, grupo: pendenteRef.current?.grupo ?? grupo };
+      if (quadroRef.current === null) quadroRef.current = requestAnimationFrame(publicarPendentes);
+      return;
+    }
+    publicarPendentes();
+    estado.alterar(atualizador, grupo);
+  }, [estado, registrarHistoricoAntesDaAcao, publicarPendentes]);
 
   const encerrarAcao = useCallback(() => {
+    publicarPendentes();
     gestoRef.current = null;
     loteRef.current = null;
     campoRef.current = null;
     ponteiroRef.current = false;
-  }, []);
+  }, [publicarPendentes]);
   const desfazer = useCallback(() => { encerrarAcao(); estado.desfazer(); }, [estado, encerrarAcao]);
   const refazer = useCallback(() => { encerrarAcao(); estado.refazer(); }, [estado, encerrarAcao]);
   const limparHistorico = useCallback(() => { encerrarAcao(); estado.limpar(); }, [estado, encerrarAcao]);
@@ -41,6 +60,7 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
       (alvo.matches("input, textarea, select") || alvo.isContentEditable);
     function iniciar(evento: Event) {
       if (evento.type === "mousedown" && ponteiroRef.current) return;
+      if (pendenteRef.current) flushSync(publicarPendentes);
       // Confirma o numero antes de iniciar outro gesto e antes de trocar a forma.
       const ativo = document.activeElement;
       if (ativo instanceof HTMLElement && ativo.matches("input[data-numero-editavel]") && ativo !== evento.target) {
@@ -66,6 +86,7 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
       campoRef.current = evento.target;
     }
     function finalizar() {
+      if (pendenteRef.current) flushSync(publicarPendentes);
       ponteiroRef.current = false;
       const gesto = gestoRef.current;
       // O click ocorre depois de mouseup/pointerup e pertence ao mesmo gesto.
@@ -98,6 +119,8 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
     window.addEventListener("click", clicar, true);
     window.addEventListener("keydown", teclado, true);
     return () => {
+      if (quadroRef.current !== null) cancelAnimationFrame(quadroRef.current);
+      pendenteRef.current = null;
       window.removeEventListener("pointerdown", iniciar, true);
       window.removeEventListener("mousedown", iniciar, true);
       window.removeEventListener("focusin", focar, true);
@@ -111,7 +134,7 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
       window.removeEventListener("click", clicar, true);
       window.removeEventListener("keydown", teclado, true);
     };
-  }, [encerrarAcao]);
+  }, [encerrarAcao, publicarPendentes]);
 
   return { campos, setCampos, registrarHistoricoAntesDaAcao, limparHistorico, desfazer, refazer };
 }

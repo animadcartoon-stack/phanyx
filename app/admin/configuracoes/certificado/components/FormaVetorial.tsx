@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useMemo, useRef } from "react";
+import { useBancoSvgFormas } from "./BancoSvgFormas";
 import { opacidadeDaForma, espessuraNoPonto, gerarTrechosContorno, agruparTrechosContorno } from "./contornoForma";
 
 import { selecionarPontoForma, pontosDoContornoArredondado, ajustarTangentesEmConjunto, criarAlcasDoContorno } from "./edicaoPontosForma";
@@ -361,6 +362,7 @@ function FormaVetorial({
   // O gesto que seleciona uma forma ainda nao selecionada nao insere pontos.
   // So um novo duplo clique, iniciado com a forma selecionada, permite inserir.
   const permitirInsercaoNoDuploCliqueRef = useRef(false);
+  const bancoSvg = useBancoSvgFormas();
   const pontos = useMemo(() => campo.pontosForma || [], [campo.pontosForma]);
   function criarAlcasPadrao(ponto: PontoForma): PontoForma {
     return criarAlcasDoContorno(ponto, pontos, campo.forma !== "LINHA",
@@ -775,28 +777,7 @@ function FormaVetorial({
     window.addEventListener("mouseup", up);
   }
 
-  return (
-    <div
-      data-forma-vetorial-root={campo.id}
-      onMouseDownCapture={modo === "editor" ? (e) => {
-        // Registra antes de o evento subir e selecionar a forma no canvas.
-        if (e.detail === 1) permitirInsercaoNoDuploCliqueRef.current = selecionado && e.button === 0 &&
-          !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey;
-      } : undefined}
-      data-edicao-contorno={modoEspessuraContorno || undefined}
-      title={modoEspessuraContorno ? instrucaoContorno : undefined}
-      className={
-        modo === "preview"
-          ? "pointer-events-none absolute inset-0 overflow-visible"
-          : "pointer-events-none absolute inset-0 overflow-visible"
-      }
-    >
-      <svg
-        className="absolute inset-0 z-10 h-full w-full overflow-visible"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        style={{ overflow: "visible" }}
-      >
+  const corpoForma = (clipInternoId: string, maskExternoId: string) => <>
         {campo.forma !== "LINHA" && (
           <defs>
             <clipPath id={clipInternoId}>
@@ -868,6 +849,53 @@ function FormaVetorial({
             {trechosAgrupados!.map((trecho, index) => <path key={index} d={trecho.d} strokeWidth={trecho.largura} vectorEffect="non-scaling-stroke" />)}
           </g>
         )}
+
+</>;
+  const simboloEstatico = useMemo(() => {
+    if (!bancoSvg || modo !== "editor" || selecionado) return null;
+    const chave = JSON.stringify([pathForma, campo.forma, preenchimentoCor, contornoCor,
+      mostrarPreenchimento, mostrarContorno, opacidadePreenchimento, opacidadeContorno,
+      contornoTipo, larguraContornoRender, trechosAgrupados, larguraCampo, alturaCampo, bancoSvg.escala]);
+    const espessura = Math.max(larguraContornoRender, ...(trechosAgrupados || []).map(trecho => trecho.largura));
+    return bancoSvg.obter(chave, { largura: larguraCampo * bancoSvg.escala, altura: alturaCampo * bancoSvg.escala, path: pathForma, espessura }, id => corpoForma(id + "-interno", id + "-externo"));
+  }, [bancoSvg, modo, selecionado, pathForma, campo.forma, preenchimentoCor, contornoCor,
+    mostrarPreenchimento, mostrarContorno, opacidadePreenchimento, opacidadeContorno,
+    contornoTipo, larguraContornoRender, trechosAgrupados, larguraCampo, alturaCampo]);
+
+  if (simboloEstatico) return (
+    <div data-forma-vetorial-root={campo.id} className="pointer-events-none absolute inset-0 overflow-visible"
+      onMouseDownCapture={e => { if (e.detail === 1) permitirInsercaoNoDuploCliqueRef.current = false; }}>
+      <svg className="absolute inset-0 z-10 h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ overflow: "visible" }}>
+        <image data-forma-cache="true" href={simboloEstatico.href} x={simboloEstatico.x} y={simboloEstatico.y}
+          width={simboloEstatico.largura} height={simboloEstatico.altura} preserveAspectRatio="none" className="pointer-events-none" />
+        <path d={pathForma} fill="#000000" fillOpacity={0} stroke="none" className="pointer-events-auto cursor-crosshair" />
+      </svg>
+    </div>
+  );
+
+  return (
+    <div
+      data-forma-vetorial-root={campo.id}
+      onMouseDownCapture={modo === "editor" ? (e) => {
+        // Registra antes de o evento subir e selecionar a forma no canvas.
+        if (e.detail === 1) permitirInsercaoNoDuploCliqueRef.current = selecionado && e.button === 0 &&
+          !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey;
+      } : undefined}
+      data-edicao-contorno={modoEspessuraContorno || undefined}
+      title={modoEspessuraContorno ? instrucaoContorno : undefined}
+      className={
+        modo === "preview"
+          ? "pointer-events-none absolute inset-0 overflow-visible"
+          : "pointer-events-none absolute inset-0 overflow-visible"
+      }
+    >
+      <svg
+        className="absolute inset-0 z-10 h-full w-full overflow-visible"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ overflow: "visible" }}
+      >
+        {corpoForma(clipInternoId, maskExternoId)}
 
         {selecionado &&
           modo === "editor" &&

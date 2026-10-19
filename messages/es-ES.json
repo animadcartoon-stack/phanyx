@@ -9863,6 +9863,19 @@
     }
   },
   "AdminCertificateEditor": {
+    "fonts": {
+      "search": "Buscar fuente por nombre",
+      "hint": "Las fuentes de la biblioteca se cargan según se necesitan. Las fuentes de Windows deben estar instaladas en el dispositivo y pueden cambiar en el PDF.",
+      "system": "Windows y fuentes del dispositivo",
+      "calligraphy": "Cursivas y caligrafía",
+      "handwriting": "Manuscritas e informales",
+      "serif": "Clásicas y con serifa",
+      "sans": "Modernas y sin serifa",
+      "display": "Decorativas, góticas y monoespaciadas",
+      "arcCurvature": "Curvatura del arco",
+      "arcInvert": "Invertir arco / media luna",
+      "formattedContent": "Editar contenido del texto"
+    },
     "modalities": {
       "GERAL": "General",
       "BACHARELADO": "Grado universitario",
