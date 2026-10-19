@@ -3,7 +3,7 @@
 import { useMemo, useRef } from "react";
 import { opacidadeDaForma, espessuraNoPonto, gerarTrechosContorno } from "./contornoForma";
 
-import { selecionarPontoForma, pontosDoContornoArredondado, ajustarTangentesEmConjunto } from "./edicaoPontosForma";
+import { selecionarPontoForma, pontosDoContornoArredondado, ajustarTangentesEmConjunto, criarAlcasDoContorno } from "./edicaoPontosForma";
 
 type PontoForma = {
   id: string;
@@ -60,18 +60,6 @@ type Props = {
 
 function limitar(v: number) {
   return v;
-}
-
-function criarAlcasPadrao(ponto: PontoForma): PontoForma {
-  return {
-    ...ponto,
-    tipo: "curvo",
-    inX: ponto.inX ?? ponto.x - 18,
-    inY: ponto.inY ?? ponto.y,
-    outX: ponto.outX ?? ponto.x + 18,
-    outY: ponto.outY ?? ponto.y,
-    handleMode: ponto.handleMode ?? "alinhado",
-  };
 }
 
 function criarAlcasEstrelaSimetrica(
@@ -374,6 +362,10 @@ export default function FormaVetorial({
   // So um novo duplo clique, iniciado com a forma selecionada, permite inserir.
   const permitirInsercaoNoDuploCliqueRef = useRef(false);
   const pontos = useMemo(() => campo.pontosForma || [], [campo.pontosForma]);
+  function criarAlcasPadrao(ponto: PontoForma): PontoForma {
+    return criarAlcasDoContorno(ponto, pontos, campo.forma !== "LINHA",
+      Number((campo as any).largura || 100), Number((campo as any).altura || 100));
+  }
   const idsSelecionados = pontosSelecionadosIds ?? (pontoSelecionadoId ? [pontoSelecionadoId] : []);
   const selecionar = (ids: string[]) => { onSelecionarPontos?.(ids); onSelecionarPonto?.(ids[ids.length - 1] ?? null); };
 

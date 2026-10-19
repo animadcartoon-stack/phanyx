@@ -10,6 +10,53 @@ export type PontoFormaEditavel = {
   outY?: number;
 };
 
+/** Alcas seguem a ordem do contorno e respeitam a proporcao real da forma. */
+export function criarAlcasDoContorno(
+  ponto: PontoFormaEditavel, pontos: PontoFormaEditavel[], fechada = true,
+  largura = 100, altura = 100,
+): PontoFormaEditavel {
+  const sx = Math.max(0.001, Math.abs(largura) || 100) / 100;
+  const sy = Math.max(0.001, Math.abs(altura) || 100) / 100;
+  const entrada = Number.isFinite(ponto.inX) && Number.isFinite(ponto.inY);
+  const saida = Number.isFinite(ponto.outX) && Number.isFinite(ponto.outY);
+  if (entrada && saida) return { ...ponto, tipo: "curvo", handleMode: ponto.handleMode ?? "alinhado" };
+  // Uma alca ja ajustada define a outra, sem inverter a tangente manual.
+  if (entrada || saida) {
+    const dx = saida ? ponto.outX! - ponto.x : ponto.x - ponto.inX!;
+    const dy = saida ? ponto.outY! - ponto.y : ponto.y - ponto.inY!;
+    return { ...ponto, tipo: "curvo", handleMode: ponto.handleMode ?? "alinhado",
+      inX: entrada ? ponto.inX : ponto.x - dx, inY: entrada ? ponto.inY : ponto.y - dy,
+      outX: saida ? ponto.outX : ponto.x + dx, outY: saida ? ponto.outY : ponto.y + dy };
+  }
+  const index = pontos.findIndex((p) => p.id === ponto.id);
+  function vizinho(direcao: number) {
+    if (index < 0) return null;
+    for (let passo = 1; passo < pontos.length; passo++) {
+      const posicao = index + direcao * passo;
+      if (!fechada && (posicao < 0 || posicao >= pontos.length)) break;
+      const p = pontos[(posicao + pontos.length) % pontos.length];
+      const x = (p.x - ponto.x) * sx, y = (p.y - ponto.y) * sy;
+      const distancia = Math.hypot(x, y);
+      if (distancia > 1e-8) return { x, y, distancia };
+    }
+    return null;
+  }
+  const anterior = vizinho(-1), proximo = vizinho(1);
+  let dx = (anterior ? -anterior.x / anterior.distancia : 0) + (proximo ? proximo.x / proximo.distancia : 0);
+  let dy = (anterior ? -anterior.y / anterior.distancia : 0) + (proximo ? proximo.y / proximo.distancia : 0);
+  let norma = Math.hypot(dx, dy);
+  if (norma < 1e-8) {
+    dx = proximo?.x ?? -(anterior?.x ?? -1);
+    dy = proximo?.y ?? -(anterior?.y ?? 0);
+    norma = Math.hypot(dx, dy) || 1;
+  }
+  const distancias = [anterior?.distancia, proximo?.distancia].filter((d): d is number => d !== undefined);
+  const tamanho = distancias.length ? Math.min(Math.min(sx, sy) * 18, ...distancias.map((d) => d / 3)) : 0;
+  const tx = dx / norma * tamanho / sx, ty = dy / norma * tamanho / sy;
+  return { ...ponto, tipo: "curvo", handleMode: "alinhado",
+    inX: ponto.x - tx, inY: ponto.y - ty, outX: ponto.x + tx, outY: ponto.y + ty };
+}
+
 export function selecionarPontoForma(ids: string[], id: string, adicionar: boolean) {
   if (!adicionar) return ids.includes(id) ? ids : [id];
   return ids.includes(id) ? ids.filter((atual) => atual !== id) : [...ids, id];
