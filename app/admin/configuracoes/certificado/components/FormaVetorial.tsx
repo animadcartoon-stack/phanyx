@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { opacidadeDaForma, espessuraNoPonto, gerarTrechosContorno } from "./contornoForma";
 
 import { selecionarPontoForma, pontosDoContornoArredondado, ajustarTangentesEmConjunto } from "./edicaoPontosForma";
@@ -370,6 +370,9 @@ export default function FormaVetorial({
   onSelecionarPonto,
   onChange,
 }: Props) {
+  // O gesto que seleciona uma forma ainda nao selecionada nao insere pontos.
+  // So um novo duplo clique, iniciado com a forma selecionada, permite inserir.
+  const permitirInsercaoNoDuploCliqueRef = useRef(false);
   const pontos = useMemo(() => campo.pontosForma || [], [campo.pontosForma]);
   const idsSelecionados = pontosSelecionadosIds ?? (pontoSelecionadoId ? [pontoSelecionadoId] : []);
   const selecionar = (ids: string[]) => { onSelecionarPontos?.(ids); onSelecionarPonto?.(ids[ids.length - 1] ?? null); };
@@ -688,10 +691,11 @@ export default function FormaVetorial({
   }
 
   function adicionarPonto(e: React.MouseEvent<SVGPathElement>) {
-    if (!selecionado || modo !== "editor") return;
-
     e.stopPropagation();
     e.preventDefault();
+    if (!selecionado || modo !== "editor" || e.button !== 0 || e.detail !== 2 ||
+      !permitirInsercaoNoDuploCliqueRef.current) return;
+    permitirInsercaoNoDuploCliqueRef.current = false;
 
     const svg = e.currentTarget.ownerSVGElement;
     if (!svg) return;
@@ -779,6 +783,11 @@ export default function FormaVetorial({
   return (
     <div
       data-forma-vetorial-root={campo.id}
+      onMouseDownCapture={modo === "editor" ? (e) => {
+        // Registra antes de o evento subir e selecionar a forma no canvas.
+        if (e.detail === 1) permitirInsercaoNoDuploCliqueRef.current = selecionado && e.button === 0 &&
+          !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey;
+      } : undefined}
       data-edicao-contorno={modoEspessuraContorno || undefined}
       title={modoEspessuraContorno ? instrucaoContorno : undefined}
       className={
@@ -961,7 +970,7 @@ export default function FormaVetorial({
                   }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
-                    if (!modoEspessuraContorno) alternarTipoPonto(ponto.id);
+                    if (!modoEspessuraContorno && permitirInsercaoNoDuploCliqueRef.current) alternarTipoPonto(ponto.id);
                   }}
                   onContextMenu={(e) => {
                     e.preventDefault();
