@@ -9886,7 +9886,12 @@
       "sampleLabel": "Aperçu de la police sélectionnée",
       "sampleText": "Art et célébration",
       "noResults": "Aucune police ne correspond à ces filtres.",
-      "scriptHint": "La police change le dessin des lettres sans traduire le texte. Saisissez le texte dans l’alphabet souhaité. Caesar Dressing et Aladin sont des options décoratives pour les lettres latines."
+      "scriptHint": "La police change le dessin des lettres sans traduire le texte. Saisissez le texte dans l’alphabet souhaité. Caesar Dressing et Aladin sont des options décoratives pour les lettres latines.",
+      "mixedFonts": "Plusieurs polices dans la sélection",
+      "visualListHint": "Chaque aperçu utilise sa propre police. Faites défiler pour voir les autres.",
+      "loadingSamples": "Chargement de l’aperçu…",
+      "fontLoadError": "Impossible de charger la police.",
+      "retrySamples": "Réessayer de charger les aperçus"
     },
     "modalities": {
       "GERAL": "Général",
