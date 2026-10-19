@@ -6,7 +6,19 @@ export function criarHistoricoCertificado<T extends { id: number }>(inicial: T[]
   let ultimoGrupo: object | null = null;
   const ouvintes = new Set<() => void>();
   const permanentes = (itens: T[]) => itens.filter((item) => item.id !== -999999);
-  const copiar = (itens: T[]): T[] => JSON.parse(JSON.stringify(permanentes(itens)));
+  // Os atualizadores do editor preservam a referencia dos elementos inalterados.
+  // So os elementos substituidos precisam ter seus dados comparados.
+  const iguais = (a: T[], b: T[]) => a === b || (a.length === b.length &&
+    a.every((item, index) => item === b[index] || JSON.stringify(item) === JSON.stringify(b[index])));
+  const copias = new WeakMap<T, T>();
+  const copiar = (itens: T[]): T[] => permanentes(itens).map((item) => {
+    const existente = copias.get(item);
+    if (existente) return existente;
+    const copia: T = JSON.parse(JSON.stringify(item));
+    copias.set(item, copia);
+    copias.set(copia, copia);
+    return copia;
+  });
   const publicar = () => ouvintes.forEach((ouvinte) => ouvinte());
 
   return {
@@ -16,10 +28,9 @@ export function criarHistoricoCertificado<T extends { id: number }>(inicial: T[]
       return () => { ouvintes.delete(ouvinte); };
     },
     alterar(atualizador: T[] | ((anteriores: T[]) => T[]), grupo: object) {
-      // Executado uma vez, fora de qualquer atualizador do React.
       const proximos = typeof atualizador === "function" ? atualizador(campos) : atualizador;
-      if (JSON.stringify(proximos) === JSON.stringify(campos)) return;
-      if (JSON.stringify(permanentes(proximos)) !== JSON.stringify(permanentes(campos))) {
+      if (iguais(proximos, campos)) return;
+      if (!iguais(permanentes(proximos), permanentes(campos))) {
         if (grupo !== ultimoGrupo) passado = [...passado, copiar(campos)].slice(-100);
         futuro = [];
         ultimoGrupo = grupo;
