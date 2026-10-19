@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  useEffect,
   useState,
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import { useTranslations } from "next-intl";
+import CampoNumeroEditavel from "./CampoNumeroEditavel";
 
 type PontoForma = {
   id: string;
@@ -233,37 +233,13 @@ function CampoPercentualRaio({ valor, rotulo, onChange }: {
   rotulo: string;
   onChange: (percentual: number) => void;
 }) {
-  const textoAtual = String(Number(valor.toFixed(1)));
-  const [texto, setTexto] = useState(textoAtual);
-  useEffect(() => { setTexto(textoAtual); }, [textoAtual]);
-  const confirmar = () => {
-    const digitado = texto.trim() === "" ? valor : Number(texto);
-    const percentual = Number.isFinite(digitado) ? Math.max(0, Math.min(100, Math.round(digitado * 10) / 10)) : valor;
-    setTexto(String(Number(percentual.toFixed(1))));
-    if (Math.abs(percentual - valor) > 0.00001) onChange(percentual);
-  };
   return (
     <span className="inline-flex shrink-0 items-center gap-1 font-normal text-slate-700">
-      <input
-        type="number"
-        min={0}
-        max={100}
-        step={0.1}
-        inputMode="decimal"
-        aria-label={rotulo}
-        value={texto}
+      <CampoNumeroEditavel min={0} max={100} step={0.1} inputMode="decimal"
+        aria-label={rotulo} value={Number(valor.toFixed(1))}
         onFocus={(e) => e.currentTarget.select()}
-        onChange={(e) => {
-          const novoTexto = e.target.value;
-          setTexto(novoTexto);
-          if (novoTexto.trim() === "") return;
-          const percentual = Number(novoTexto);
-          if (Number.isFinite(percentual) && percentual >= 0 && percentual <= 100) onChange(percentual);
-        }}
-        onBlur={confirmar}
-        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } }}
-        className="w-[72px] rounded-lg border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold tabular-nums text-slate-800"
-      />
+        onValueChange={(percentual) => onChange(Math.round(percentual * 10) / 10)}
+        className="w-[72px] rounded-lg border border-slate-300 bg-white px-2 py-1 text-right text-xs font-semibold tabular-nums text-slate-800" />
       <span aria-hidden="true">%</span>
     </span>
   );
@@ -825,15 +801,12 @@ export default function FloatingShapeInspector({
               {t("common.width")}
             </p>
 
-            <input
-              type="number"
+            <CampoNumeroEditavel key={`${campo.id}-numero-0`}
               value={campo.largura || 160}
-              onChange={(e) =>
-                atualizarCampoBasico(
+              onValueChange={(numeroDigitado) => atualizarCampoBasico(
                   "largura",
-                  Number(e.target.value),
-                )
-              }
+                  numeroDigitado,
+                )}
               className="w-full rounded-xl border px-3 py-2"
             />
           </div>
@@ -843,15 +816,12 @@ export default function FloatingShapeInspector({
               {t("common.height")}
             </p>
 
-            <input
-              type="number"
+            <CampoNumeroEditavel key={`${campo.id}-numero-1`}
               value={campo.altura || 160}
-              onChange={(e) =>
-                atualizarCampoBasico(
+              onValueChange={(numeroDigitado) => atualizarCampoBasico(
                   "altura",
-                  Number(e.target.value),
-                )
-              }
+                  numeroDigitado,
+                )}
               className="w-full rounded-xl border px-3 py-2"
             />
           </div>
