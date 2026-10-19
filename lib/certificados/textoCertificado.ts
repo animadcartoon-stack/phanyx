@@ -81,7 +81,7 @@ export function trechosTextoCertificado(html: string): TrechoTexto[] {
     if (tag === "i" || tag === "em") estilo.fontStyle = "italic";
     if (tag === "u") estilo.textDecoration = "underline";
     const css = token.match(/\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
-    for (const declaracao of (css?.[1] ?? css?.[2] ?? "").split(";")) {
+    for (const declaracao of decodificar(css?.[1] ?? css?.[2] ?? "").split(";")) {
       const separador = declaracao.indexOf(":");
       const nome = permitidos[declaracao.slice(0, separador).trim().toLowerCase()];
       const valor = decodificar(declaracao.slice(separador + 1).replace(/\s*!important\s*$/i, "").trim());

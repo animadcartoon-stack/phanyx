@@ -19,6 +19,8 @@ import { medidasArcoTexto, modoTextoCertificado } from "@/lib/certificados/texto
 import SeletorFonteCertificado from "./components/SeletorFonteCertificado";
 import { fonteDaSelecaoCertificado, fonteUnicaTextoCertificado } from "@/lib/certificados/fonteTextoCertificado";
 import BancoSvgFormas from "./components/BancoSvgFormas";
+import ControleTipografiaFluido from "./components/ControleTipografiaFluido";
+import useEdicaoTextoFluida from "./components/useEdicaoTextoFluida";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
@@ -955,6 +957,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [sombraAberta, setSombraAberta] = useState(true);
   // PHANYX: cores HEX e historico por acao v1
+  const edicaoTextoFluida = useEdicaoTextoFluida();
   const { campos, setCampos, desfazer, refazer, limparHistorico, registrarHistoricoAntesDaAcao } = useHistoricoCertificado<CampoCertificado>();
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
@@ -2336,11 +2339,21 @@ export default function ConfiguracaoCertificadoPage() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const selecaoTextoRef = useRef<Range | null>(null);
   const [fonteSelecaoTexto, setFonteSelecaoTexto] = useState<{ campoId: number; fonte: string | null; html: string; texto: string } | null>(null);
-  const registrarFonteSelecaoTexto = useCallback((editor: HTMLElement, range: Range) => {
-    const novo = { campoId: Number(editor.getAttribute("data-texto-livre-id")), fonte: fonteDaSelecaoCertificado(editor, range, editor.style.fontFamily), html: editor.innerHTML, texto: range.toString() };
+  const registrarFonteSelecaoTexto = useCallback((editor: HTMLElement, range: Range, fonteConhecida?: string | null) => {
+    if (fonteConhecida === undefined) {
+      const el = range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentElement : range.startContainer as HTMLElement;
+      const estilo = el ? window.getComputedStyle(el) : null;
+      const tamanho = Number.parseFloat(estilo?.fontSize || editor.style.fontSize);
+      if (Number.isFinite(tamanho)) setTamanhoSelecaoTexto(tamanho);
+      setEspacamentoLetrasTexto(Number.parseFloat(estilo?.letterSpacing || "0") || 0);
+      setEspacamentoPalavrasTexto(Number.parseFloat(estilo?.wordSpacing || "0") || 0);
+    }
+    const novo = { campoId: Number(editor.getAttribute("data-texto-livre-id")), fonte: fonteConhecida === undefined ? fonteDaSelecaoCertificado(editor, range, editor.style.fontFamily) : fonteConhecida, html: editor.innerHTML, texto: range.toString() };
     setFonteSelecaoTexto(anterior => anterior?.campoId === novo.campoId && anterior.fonte === novo.fonte && anterior.html === novo.html && anterior.texto === novo.texto ? anterior : novo);
   }, []);
   const aplicandoEstiloTextoRef = useRef(false);
+  const fimEstiloTextoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (fimEstiloTextoTimerRef.current !== null) clearTimeout(fimEstiloTextoTimerRef.current); }, []);
 
   const selecaoTextoInfoRef = useRef<{
     campoId: number;
@@ -3561,6 +3574,30 @@ export default function ConfiguracaoCertificadoPage() {
     fonteSelecaoTexto.html === (campoSelecionado.textoHtml || "") && selecaoTextoRef.current?.startContainer.isConnected;
   const fonteAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.fonte : fonteDoCampo;
   const amostraAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.texto : campoSelecionado?.texto || "";
+  useEffect(() => {
+    if (!campoSelecionado) return;
+    const editor = document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionado.id}"]`);
+    const range = selecaoTextoRef.current;
+    let el = editor && range && editor.contains(range.commonAncestorContainer)
+      ? (range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentElement : range.startContainer as HTMLElement)
+      : editor?.firstElementChild as HTMLElement | null;
+    if (!el) el = editor;
+    function valorCss(nome: "fontSize" | "letterSpacing" | "wordSpacing", padrao: number) {
+      let atual = el;
+      while (atual) {
+        const css = atual.style[nome];
+        const numero = Number.parseFloat(css);
+        if (Number.isFinite(numero) && (!/[a-z%]/i.test(css) || /px$/i.test(css))) return numero;
+        if (Number.isFinite(numero) && /pt$/i.test(css)) return numero * 4 / 3;
+        if (atual === editor) break;
+        atual = atual.parentElement;
+      }
+      return padrao;
+    }
+    setTamanhoSelecaoTexto(valorCss("fontSize", campoSelecionado.tamanho || 18));
+    setEspacamentoLetrasTexto(valorCss("letterSpacing", Number((campoSelecionado as any).letterSpacing || 0)));
+    setEspacamentoPalavrasTexto(valorCss("wordSpacing", Number((campoSelecionado as any).wordSpacing || 0)));
+  }, [campoSelecionado?.id, campoSelecionado?.tamanho, campoSelecionado?.textoHtml, (campoSelecionado as any)?.letterSpacing, (campoSelecionado as any)?.wordSpacing]);
 
   function atualizarColunasDisciplinasCampo(valor: number) {
     if (
@@ -5996,7 +6033,9 @@ export default function ConfiguracaoCertificadoPage() {
     } as React.CSSProperties);
   }
 
-  function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
+  function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties, apenasPrevia = false) {
+    if (!apenasPrevia) edicaoTextoFluida.confirmar();
+    if (fimEstiloTextoTimerRef.current !== null) clearTimeout(fimEstiloTextoTimerRef.current);
     aplicandoEstiloTextoRef.current = true;
 
     const editor = document.querySelector(
@@ -6007,7 +6046,7 @@ export default function ConfiguracaoCertificadoPage() {
       aplicandoEstiloTextoRef.current = false;
       return;
     }
-    salvarHistoricoTextoLivre(editor);
+    if (!apenasPrevia || !edicaoTextoFluida.temPendente()) salvarHistoricoTextoLivre(editor);
     const selecao = window.getSelection();
 
     let range: Range | null = null;
@@ -6032,8 +6071,7 @@ export default function ConfiguracaoCertificadoPage() {
       return;
     }
 
-    salvarHistoricoTextoLivre(editor);
-
+    // A copia inicial do gesto ja foi registrada antes de alterar o texto.
     const textoInteiro = range.toString() === editor.textContent;
     const container = range.startContainer;
     const reutilizar = container === range.endContainer && container instanceof HTMLSpanElement &&
@@ -6076,13 +6114,44 @@ export default function ConfiguracaoCertificadoPage() {
     selecao?.addRange(novoRange);
 
     selecaoTextoRef.current = novoRange.cloneRange();
-    registrarFonteSelecaoTexto(editor, novoRange);
+    const confirmar = () => {
+      registrarFonteSelecaoTexto(editor, novoRange, estilo.fontFamily ? String(estilo.fontFamily) : fonteAtualDoTexto);
+      atualizarTextoLivreNoEstado(editor, textoInteiro && estilo.fontFamily ? String(estilo.fontFamily) : undefined);
+      salvarHistoricoTextoLivre(editor);
+    };
+    if (apenasPrevia) edicaoTextoFluida.agendar(campoSelecionadoId!, confirmar);
+    else confirmar();
 
-    atualizarTextoLivreNoEstado(editor, textoInteiro && estilo.fontFamily ? String(estilo.fontFamily) : undefined);
-
-    setTimeout(() => {
+    fimEstiloTextoTimerRef.current = setTimeout(() => {
       aplicandoEstiloTextoRef.current = false;
+      fimEstiloTextoTimerRef.current = null;
     }, 250);
+  }
+
+  function preverTipografiaTexto(chave: "tamanho" | "letterSpacing" | "wordSpacing", valor: number) {
+    if (!campoSelecionado) return;
+    const propriedade = chave === "tamanho" ? "fontSize" : chave;
+    if (modoTextoCertificado(campoSelecionado) === "NORMAL" && temSelecaoTextoLivreAtiva()) {
+      aplicarEstiloTextoSelecionado({ [propriedade]: valor + "px" }, true);
+      return;
+    }
+    const editor = campoSelecionado.tipo === "TEXTO_LIVRE" && modoTextoCertificado(campoSelecionado) === "NORMAL"
+      ? document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionado.id}"]`) : null;
+    if (!editor) { atualizarCampoLocal(chave as any, valor);return; }
+    const css = propriedade.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase());
+    if (!edicaoTextoFluida.temPendente()) salvarHistoricoTextoLivre(editor);
+    editor.style.setProperty(css, valor + "px");
+    editor.querySelectorAll<HTMLElement>("*").forEach(el=>el.style.removeProperty(css));
+    const id = campoSelecionado.id;
+    edicaoTextoFluida.agendar(id, () => {
+      const textoHtml = editor.innerHTML, texto = editor.textContent || "";
+      const valores = { tamanho: Number.parseFloat(editor.style.fontSize) || campoSelecionado.tamanho || 18, letterSpacing: Number.parseFloat(editor.style.letterSpacing) || 0, wordSpacing: Number.parseFloat(editor.style.wordSpacing) || 0 };
+      setCampos(prev=>prev.map(c=>c.id===id?{...c,...valores,textoHtml,texto}:c));
+      setTamanhoSelecaoTexto(valores.tamanho);
+      setEspacamentoLetrasTexto(valores.letterSpacing);
+      setEspacamentoPalavrasTexto(valores.wordSpacing);
+      salvarHistoricoTextoLivre(editor);
+    });
   }
 
   function temSelecaoTextoLivreAtiva() {
@@ -13453,78 +13522,9 @@ export default function ConfiguracaoCertificadoPage() {
                           {tr("common.size")}
                         </label>
 
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-
-                              if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-                                alterarTamanhoTextoSelecionado(-2);
-                                return;
-                              }
-
-                              const novoTamanho = Math.max(
-                                6,
-                                (campoSelecionado?.tamanho || 18) - 2,
-                              );
-                              atualizarCampoLocal("tamanho", novoTamanho);
-                            }}
-                            className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
-                          >
-                            A−
-                          </button>
-
-                          <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-11`}
-                            min={6}
-                            max={120}
-                            value={
-                              tamanhoSelecaoTexto ??
-                              campoSelecionado?.tamanho ??
-                              18
-                            }
-                            onValueChange={(numeroDigitado) => {
-                              const tamanho = numeroDigitado;
-                              setTamanhoSelecaoTexto(tamanho);
-
-                              if (
-                                campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-                                temSelecaoTextoLivreSalva()
-                              ) {
-                                aplicarEstiloTextoSelecionado({
-                                  fontSize: `${tamanho}px`,
-                                });
-                                return;
-                              }
-
-                              atualizarCampoLocal("tamanho", tamanho);
-                            }}
-                            className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                          />
-
-                          <button
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-
-                              if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-                                alterarTamanhoTextoSelecionado(2);
-                                return;
-                              }
-
-                              const novoTamanho = Math.min(
-                                120,
-                                (campoSelecionado?.tamanho || 18) + 2,
-                              );
-                              atualizarCampoLocal("tamanho", novoTamanho);
-                            }}
-                            className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
-                          >
-                            A+
-                          </button>
-                        </div>
+                        <ControleTipografiaFluido key={campoSelecionado.id + "-tamanho-fluido"} tamanho min={6} max={120} label={tr("common.size")}
+                            value={tamanhoSelecaoTexto ?? campoSelecionado.tamanho ?? 18}
+                            onPreview={valor=>preverTipografiaTexto("tamanho",valor)} onCommit={edicaoTextoFluida.confirmar} />
                       </div>
 
                       <div>
@@ -13567,59 +13567,17 @@ export default function ConfiguracaoCertificadoPage() {
                           {tr("text.letterSpacing")}
                         </label>
 
-                        <input
-                          type="range"
-                          min={-5}
-                          max={30}
-                          step={1}
-                          value={espacamentoLetrasTexto}
-                          onChange={(e) => {
-                            const valor = Number(e.target.value);
-                            setEspacamentoLetrasTexto(valor);
-
-                            if (
-                              campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-                              temSelecaoTextoLivreSalva()
-                            ) {
-                              aplicarEstiloTextoSelecionado({
-                                letterSpacing: `${valor}px`,
-                              });
-                              return;
-                            }
-
-                            atualizarCampoLocal("letterSpacing" as any, valor);
-                          }}
-                          className="w-full"
-                        />
+                        <ControleTipografiaFluido key={campoSelecionado.id + "-letterSpacing-fluido"} min={-5} max={30} label={tr("text.letterSpacing")}
+                            value={espacamentoLetrasTexto}
+                            onPreview={valor=>preverTipografiaTexto("letterSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
 
                         <label className="mt-3 block text-xs font-semibold text-slate-500">
                           {tr("text.wordSpacing")}
                         </label>
 
-                        <input
-                          type="range"
-                          min={0}
-                          max={60}
-                          step={1}
-                          value={espacamentoPalavrasTexto}
-                          onChange={(e) => {
-                            const valor = Number(e.target.value);
-                            setEspacamentoPalavrasTexto(valor);
-
-                            if (
-                              campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-                              temSelecaoTextoLivreSalva()
-                            ) {
-                              aplicarEstiloTextoSelecionado({
-                                wordSpacing: `${valor}px`,
-                              });
-                              return;
-                            }
-
-                            atualizarCampoLocal("wordSpacing" as any, valor);
-                          }}
-                          className="w-full"
-                        />
+                        <ControleTipografiaFluido key={campoSelecionado.id + "-wordSpacing-fluido"} min={0} max={60} label={tr("text.wordSpacing")}
+                            value={espacamentoPalavrasTexto}
+                            onPreview={valor=>preverTipografiaTexto("wordSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
                         <select
                           value={campoSelecionado?.alinhamento || "left"}
                           onChange={(e) =>
