@@ -2,6 +2,9 @@
 
 import React from "react";
 import ImagemCertificado from "./ImagemCertificado";
+import TextoFormatadoCertificado from "./TextoFormatadoCertificado";
+import FontesCertificado from "./FontesCertificado";
+import { modoTextoCertificado } from "@/lib/certificados/textoCertificado";
 import FormaVetorial from "@/app/admin/configuracoes/certificado/components/FormaVetorial";
 
 export type CampoCertificadoRender = {
@@ -20,6 +23,10 @@ export type CampoCertificadoRender = {
   texto?: string | null;
   textoHtml?: string | null;
   textoTipo?: string | null;
+  textoModo?: string | null;
+  arcoAngulo?: number | null;
+  arcoRaio?: number | null;
+  arcoInvertido?: boolean | null;
   negrito?: boolean | null;
   italico?: boolean | null;
   sublinhado?: boolean | null;
@@ -511,6 +518,7 @@ export default function CertificadoRender({
   : "#ffffff",
       }}
     >
+      <FontesCertificado campos={campos} />
       {templateUrl && modoFundo === "modelo" && !fundoTransparente && (
   templateUrl.toLowerCase().includes(".pdf") ? (
     <iframe
@@ -678,7 +686,9 @@ export default function CertificadoRender({
 
         return (
           <div key={campo.id} style={estiloBase}>
-            {resolverTextoCampo(campo, dados)}
+            {modoTextoCertificado(campo) !== "NORMAL"
+              ? <TextoFormatadoCertificado campo={campo} texto={resolverTextoCampo(campo, dados)} />
+              : campo.tipo === "TEXTO_LIVRE" ? <TextoFormatadoCertificado campo={campo} texto={resolverTextoCampo(campo, dados)} /> : resolverTextoCampo(campo, dados)}
           </div>
         );
       })}

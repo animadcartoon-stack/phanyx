@@ -9864,6 +9864,19 @@
     }
   },
   "AdminCertificateEditor": {
+    "fonts": {
+      "search": "Search fonts by name",
+      "hint": "Library fonts load as needed. Windows fonts must be installed on the device and may change in the PDF.",
+      "system": "Windows and device fonts",
+      "calligraphy": "Cursive and calligraphy",
+      "handwriting": "Handwritten and casual",
+      "serif": "Classic and serif",
+      "sans": "Modern and sans serif",
+      "display": "Decorative, blackletter and monospace",
+      "arcCurvature": "Arc curvature",
+      "arcInvert": "Invert arc / crescent",
+      "formattedContent": "Edit text content"
+    },
     "modalities": {
       "GERAL": "General",
       "BACHARELADO": "Bachelor’s degree",

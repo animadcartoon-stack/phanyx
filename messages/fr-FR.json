@@ -9863,6 +9863,19 @@
     }
   },
   "AdminCertificateEditor": {
+    "fonts": {
+      "search": "Rechercher une police par nom",
+      "hint": "Les polices de la bibliothèque sont chargées selon les besoins. Les polices Windows doivent être installées sur l’appareil et peuvent changer dans le PDF.",
+      "system": "Polices Windows et de l’appareil",
+      "calligraphy": "Cursives et calligraphie",
+      "handwriting": "Manuscrites et informelles",
+      "serif": "Classiques et avec empattement",
+      "sans": "Modernes et sans empattement",
+      "display": "Décoratives, gothiques et à chasse fixe",
+      "arcCurvature": "Courbure de l’arc",
+      "arcInvert": "Inverser l’arc / le croissant",
+      "formattedContent": "Modifier le contenu du texte"
+    },
     "modalities": {
       "GERAL": "Général",
       "BACHARELADO": "Licence / Bachelor",
