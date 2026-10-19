@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import { criarHistoricoCertificado } from "./historicoCertificado";
 
 export default function useHistoricoCertificado<T extends { id: number }>() {
@@ -40,6 +41,11 @@ export default function useHistoricoCertificado<T extends { id: number }>() {
       (alvo.matches("input, textarea, select") || alvo.isContentEditable);
     function iniciar(evento: Event) {
       if (evento.type === "mousedown" && ponteiroRef.current) return;
+      // Confirma o numero antes de iniciar outro gesto e antes de trocar a forma.
+      const ativo = document.activeElement;
+      if (ativo instanceof HTMLElement && ativo.matches("input[data-numero-editavel]") && ativo !== evento.target) {
+        flushSync(() => ativo.blur());
+      }
       // Focar novamente o mesmo controle mantem a edicao em uma etapa.
       if (campoRef.current !== evento.target || !gestoRef.current) gestoRef.current = {};
       campoRef.current = ehCampo(evento.target) ? evento.target : null;

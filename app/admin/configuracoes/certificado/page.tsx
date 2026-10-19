@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import CampoNumeroEditavel from "./components/CampoNumeroEditavel";
 import { opacidadeDaForma, espessuraNoPonto, trechosSelecionados } from "./components/contornoForma";
 import { calcularRedimensionamentoForma } from "./components/redimensionamentoForma";
 import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma } from "./components/edicaoPontosForma";
@@ -1502,9 +1503,9 @@ export default function ConfiguracaoCertificadoPage() {
           <fieldset disabled={!idsDosPontosSelecionados(campo.id).length} className="space-y-2 disabled:opacity-60">
             <label className="flex items-center justify-between gap-2 text-xs font-semibold">
               <span>{tr("shapeTools.pointOutlineWidth")}</span>
-              <input type="number" min={0} max={40} step={0.25} aria-label={tr("shapeTools.pointOutlineWidth")}
+              <CampoNumeroEditavel key={`${campo.id}-${idsDosPontosSelecionados(campo.id).join(",")}-numero-0`} min={0} max={40} step={0.25} aria-label={tr("shapeTools.pointOutlineWidth")}
                 value={Number(espessuraNoPonto(campo, idsDosPontosSelecionados(campo.id).slice(-1)[0] || "").toFixed(2))}
-                onChange={(e) => editarContornoSelecionado("espessura", Number(e.target.value))}
+                onValueChange={(numeroDigitado) => editarContornoSelecionado("espessura", numeroDigitado)}
                 className="w-20 rounded-lg border border-slate-300 !bg-white px-2 py-1 !text-slate-950" />
             </label>
             <input type="range" min={0} max={40} step={0.25} aria-label={tr("shapeTools.pointOutlineWidth")}
@@ -11923,13 +11924,12 @@ export default function ConfiguracaoCertificadoPage() {
                           <label className="mb-1 block text-xs font-semibold uppercase text-slate-500">
                             {canal}
                           </label>
-                          <input
-                            type="number"
+                          <CampoNumeroEditavel
                             min={0}
                             max={255}
                             value={rgb[canal]}
-                            onChange={(e) => {
-                              const valor = Number(e.target.value);
+                            onValueChange={(numeroDigitado) => {
+                              const valor = numeroDigitado;
                               const novoRgb = {
                                 ...rgb,
                                 [canal]: valor,
@@ -12581,18 +12581,15 @@ export default function ConfiguracaoCertificadoPage() {
                                   −
                                 </button>
 
-                                <input
-                                  type="number"
+                                <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-2`}
                                   min={1}
                                   max={80}
                                   value={quantidadeDisciplinasDoCampo(
                                     campoSelecionado,
                                   )}
-                                  onChange={(e) =>
-                                    atualizarQuantidadeDisciplinasCampo(
-                                      Number(e.target.value),
-                                    )
-                                  }
+                                  onValueChange={(numeroDigitado) => atualizarQuantidadeDisciplinasCampo(
+                                      numeroDigitado,
+                                    )}
                                   className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
                                 />
 
@@ -12649,18 +12646,15 @@ export default function ConfiguracaoCertificadoPage() {
                               −
                             </button>
 
-                            <input
-                              type="number"
+                            <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-3`}
                               min={1}
                               max={4}
                               value={quantidadeColunasDisciplinasDoCampo(
                                 campoSelecionado,
                               )}
-                              onChange={(e) =>
-                                atualizarColunasDisciplinasCampo(
-                                  Number(e.target.value),
-                                )
-                              }
+                              onValueChange={(numeroDigitado) => atualizarColunasDisciplinasCampo(
+                                  numeroDigitado,
+                                )}
                               className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
                             />
 
@@ -12731,22 +12725,17 @@ export default function ConfiguracaoCertificadoPage() {
                                 {tr("common.width")}
                               </span>
 
-                              <input
-                                type="number"
+                              <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-4`}
                                 min={20}
                                 max={2000}
-                                value={Math.round(
-                                  Number(campoSelecionado.largura || 220),
-                                )}
-                                onChange={(e) =>
-                                  atualizarCampoLocal(
+                                value={Number(campoSelecionado.largura ?? 220)}
+                                onValueChange={(numeroDigitado) => atualizarCampoLocal(
                                     "largura" as any,
                                     Math.max(
                                       20,
-                                      Number(e.target.value || 20),
+                                      numeroDigitado,
                                     ) as any,
-                                  )
-                                }
+                                  )}
                                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                               />
                             </label>
@@ -12756,22 +12745,17 @@ export default function ConfiguracaoCertificadoPage() {
                                 {tr("common.height")}
                               </span>
 
-                              <input
-                                type="number"
+                              <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-5`}
                                 min={12}
                                 max={2000}
-                                value={Math.round(
-                                  Number(campoSelecionado.altura || 40),
-                                )}
-                                onChange={(e) =>
-                                  atualizarCampoLocal(
+                                value={Number(campoSelecionado.altura ?? 40)}
+                                onValueChange={(numeroDigitado) => atualizarCampoLocal(
                                     "altura" as any,
                                     Math.max(
                                       12,
-                                      Number(e.target.value || 12),
+                                      numeroDigitado,
                                     ) as any,
-                                  )
-                                }
+                                  )}
                                 className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                               />
                             </label>
@@ -13003,10 +12987,10 @@ export default function ConfiguracaoCertificadoPage() {
                                     <label className="mb-1 flex items-center justify-between gap-2 text-xs font-semibold text-slate-600">
                                       <span>{tr(canal === "preenchimento" ? "shapeAppearance.fillOpacity" : "shapeAppearance.outlineOpacity")}</span>
                                       <span className="flex items-center gap-1">
-                                        <input type="number" min={0} max={100} step={1}
+                                        <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-6`} min={0} max={100} step={1}
                                           aria-label={tr(canal === "preenchimento" ? "shapeAppearance.fillOpacity" : "shapeAppearance.outlineOpacity")}
                                           value={Math.round(opacidadeDaForma(campoSelecionado, canal) * 100)}
-                                          onChange={(e) => atualizarOpacidadeForma(canal, Math.max(0, Math.min(100, Number(e.target.value))) / 100)}
+                                          onValueChange={(numeroDigitado) => atualizarOpacidadeForma(canal, Math.max(0, Math.min(100, numeroDigitado)) / 100)}
                                           className="w-16 rounded-lg border border-slate-300 !bg-white px-2 py-1 text-right !text-slate-950" />%
                                       </span>
                                     </label>
@@ -13121,12 +13105,9 @@ export default function ConfiguracaoCertificadoPage() {
                           <label className="mb-1 block text-xs font-medium text-slate-600">
                             X
                           </label>
-                          <input
-                            type="number"
+                          <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-7`}
                             value={campoSelecionado.x}
-                            onChange={(e) =>
-                              atualizarCampoLocal("x", Number(e.target.value))
-                            }
+                            onValueChange={(numeroDigitado) => atualizarCampoLocal("x", numeroDigitado)}
                             className="w-full rounded-xl border border-slate-300 px-3 py-2"
                           />
                         </div>
@@ -13135,12 +13116,9 @@ export default function ConfiguracaoCertificadoPage() {
                           <label className="mb-1 block text-xs font-medium text-slate-600">
                             Y
                           </label>
-                          <input
-                            type="number"
+                          <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-8`}
                             value={campoSelecionado.y}
-                            onChange={(e) =>
-                              atualizarCampoLocal("y", Number(e.target.value))
-                            }
+                            onValueChange={(numeroDigitado) => atualizarCampoLocal("y", numeroDigitado)}
                             className="w-full rounded-xl border border-slate-300 px-3 py-2"
                           />
                         </div>
@@ -13151,15 +13129,12 @@ export default function ConfiguracaoCertificadoPage() {
                           <label className="mb-1 block text-xs font-medium text-slate-600">
                             {tr("common.width")}
                           </label>
-                          <input
-                            type="number"
+                          <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-9`}
                             value={campoSelecionado.largura || 220}
-                            onChange={(e) =>
-                              atualizarCampoLocal(
+                            onValueChange={(numeroDigitado) => atualizarCampoLocal(
                                 "largura",
-                                Number(e.target.value),
-                              )
-                            }
+                                numeroDigitado,
+                              )}
                             className="w-full rounded-xl border border-slate-300 px-3 py-2"
                           />
                         </div>
@@ -13168,15 +13143,12 @@ export default function ConfiguracaoCertificadoPage() {
                           <label className="mb-1 block text-xs font-medium text-slate-600">
                             {tr("common.height")}
                           </label>
-                          <input
-                            type="number"
+                          <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-10`}
                             value={campoSelecionado.altura || 40}
-                            onChange={(e) =>
-                              atualizarCampoLocal(
+                            onValueChange={(numeroDigitado) => atualizarCampoLocal(
                                 "altura",
-                                Number(e.target.value),
-                              )
-                            }
+                                numeroDigitado,
+                              )}
                             className="w-full rounded-xl border border-slate-300 px-3 py-2"
                           />
                         </div>
@@ -13312,8 +13284,7 @@ export default function ConfiguracaoCertificadoPage() {
                             A−
                           </button>
 
-                          <input
-                            type="number"
+                          <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-11`}
                             min={6}
                             max={120}
                             value={
@@ -13321,8 +13292,8 @@ export default function ConfiguracaoCertificadoPage() {
                               campoSelecionado?.tamanho ??
                               18
                             }
-                            onChange={(e) => {
-                              const tamanho = Number(e.target.value);
+                            onValueChange={(numeroDigitado) => {
+                              const tamanho = numeroDigitado;
                               setTamanhoSelecaoTexto(tamanho);
 
                               if (
@@ -14090,70 +14061,63 @@ export default function ConfiguracaoCertificadoPage() {
               <label className="block text-xs font-semibold text-slate-500">
                 {tr("array.quantity")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 min={1}
                 max={100}
                 value={arrayQuantidade}
-                onChange={(e) => setArrayQuantidade(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayQuantidade(numeroDigitado)}
                 className="w-full rounded-xl border px-3 py-2"
               />
 
               <label className="block text-xs font-semibold text-slate-500">
                 {tr("array.distanceX")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 value={arrayX}
-                onChange={(e) => setArrayX(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayX(numeroDigitado)}
                 className="w-full rounded-xl border px-3 py-2"
               />
 
               <label className="block text-xs font-semibold text-slate-500">
                 {tr("array.distanceY")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 value={arrayY}
-                onChange={(e) => setArrayY(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayY(numeroDigitado)}
                 className="w-full rounded-xl border px-3 py-2"
               />
               <label className="block text-xs font-semibold text-slate-400">
                 {tr("array.angle")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 value={arrayAngulo}
-                onChange={(e) => setArrayAngulo(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayAngulo(numeroDigitado)}
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-white"
               />
               <label className="block text-xs font-semibold text-slate-500">
                 {tr("array.rotationPerCopy")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 value={arrayRotacao}
-                onChange={(e) => setArrayRotacao(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayRotacao(numeroDigitado)}
                 className="w-full rounded-xl border px-3 py-2"
               />
 
               <label className="block text-xs font-semibold text-slate-500">
                 {tr("array.scalePerCopy")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 value={arrayEscala}
-                onChange={(e) => setArrayEscala(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayEscala(numeroDigitado)}
                 className="w-full rounded-xl border px-3 py-2"
               />
 
               <label className="block text-xs font-semibold text-slate-500">
                 {tr("array.opacityPerCopy")}
               </label>
-              <input
-                type="number"
+              <CampoNumeroEditavel
                 value={arrayOpacidade}
-                onChange={(e) => setArrayOpacidade(Number(e.target.value))}
+                onValueChange={(numeroDigitado) => setArrayOpacidade(numeroDigitado)}
                 className="w-full rounded-xl border px-3 py-2"
               />
             </div>
