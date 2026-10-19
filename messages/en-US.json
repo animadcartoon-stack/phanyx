@@ -9887,7 +9887,12 @@
       "sampleLabel": "Selected font sample",
       "sampleText": "Art and celebration",
       "noResults": "No fonts match these filters.",
-      "scriptHint": "Fonts change the lettering without translating the text. Type in the desired alphabet. Caesar Dressing and Aladin are decorative options for Latin letters."
+      "scriptHint": "Fonts change the lettering without translating the text. Type in the desired alphabet. Caesar Dressing and Aladin are decorative options for Latin letters.",
+      "mixedFonts": "Mixed fonts in selection",
+      "visualListHint": "Each sample uses its own font. Scroll to see more options.",
+      "loadingSamples": "Loading sample…",
+      "fontLoadError": "The font could not be loaded.",
+      "retrySamples": "Retry loading samples"
     },
     "modalities": {
       "GERAL": "General",

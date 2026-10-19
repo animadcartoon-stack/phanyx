@@ -17,6 +17,7 @@ import TextoFormatadoCertificado from "@/components/certificados/TextoFormatadoC
 import FontesCertificado from "@/components/certificados/FontesCertificado";
 import { medidasArcoTexto, modoTextoCertificado } from "@/lib/certificados/textoCertificado";
 import SeletorFonteCertificado from "./components/SeletorFonteCertificado";
+import { fonteDaSelecaoCertificado, fonteUnicaTextoCertificado } from "@/lib/certificados/fonteTextoCertificado";
 import BancoSvgFormas from "./components/BancoSvgFormas";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -2334,6 +2335,11 @@ export default function ConfiguracaoCertificadoPage() {
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const selecaoTextoRef = useRef<Range | null>(null);
+  const [fonteSelecaoTexto, setFonteSelecaoTexto] = useState<{ campoId: number; fonte: string | null; html: string; texto: string } | null>(null);
+  const registrarFonteSelecaoTexto = useCallback((editor: HTMLElement, range: Range) => {
+    const novo = { campoId: Number(editor.getAttribute("data-texto-livre-id")), fonte: fonteDaSelecaoCertificado(editor, range, editor.style.fontFamily), html: editor.innerHTML, texto: range.toString() };
+    setFonteSelecaoTexto(anterior => anterior?.campoId === novo.campoId && anterior.fonte === novo.fonte && anterior.html === novo.html && anterior.texto === novo.texto ? anterior : novo);
+  }, []);
   const aplicandoEstiloTextoRef = useRef(false);
 
   const selecaoTextoInfoRef = useRef<{
@@ -2401,6 +2407,7 @@ export default function ConfiguracaoCertificadoPage() {
       );
 
       selecaoTextoRef.current = range.cloneRange();
+      registrarFonteSelecaoTexto(editor, range);
       selecaoTextoInfoRef.current = {
         campoId,
         inicio: Math.min(inicio, fim),
@@ -2434,7 +2441,7 @@ export default function ConfiguracaoCertificadoPage() {
     return () => {
       document.removeEventListener("selectionchange", salvarSelecaoTextoLivre);
     };
-  }, []);
+  }, [registrarFonteSelecaoTexto]);
 
   useEffect(() => {
     if (!stageRef.current) return;
@@ -3549,6 +3556,11 @@ export default function ConfiguracaoCertificadoPage() {
     () => campos.find((campo) => campo.id === campoSelecionadoId) || null,
     [campos, campoSelecionadoId],
   );
+  const fonteDoCampo = useMemo(() => fonteUnicaTextoCertificado(campoSelecionado || {}), [campoSelecionado]);
+  const fonteDeTrechoAtual = campoSelecionado?.tipo === "TEXTO_LIVRE" && fonteSelecaoTexto?.campoId === campoSelecionado.id &&
+    fonteSelecaoTexto.html === (campoSelecionado.textoHtml || "") && selecaoTextoRef.current?.startContainer.isConnected;
+  const fonteAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.fonte : fonteDoCampo;
+  const amostraAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.texto : campoSelecionado?.texto || "";
 
   function atualizarColunasDisciplinasCampo(valor: number) {
     if (
@@ -4267,6 +4279,7 @@ export default function ConfiguracaoCertificadoPage() {
     if (!campoSelecionado) return;
     selecaoTextoRef.current = null;
     selecaoTextoInfoRef.current = null;
+    setFonteSelecaoTexto(null);
     setTamanhoSelecaoTexto(null);
     setCampos(prev => prev.map(campo => {
       if (campo.id !== campoSelecionado.id) return campo;
@@ -5872,7 +5885,7 @@ export default function ConfiguracaoCertificadoPage() {
     return antes.toString();
   }
 
-  function atualizarTextoLivreNoEstado(editor: HTMLElement) {
+  function atualizarTextoLivreNoEstado(editor: HTMLElement, fonteCompleta?: string) {
     const campoId = Number(editor.getAttribute("data-texto-livre-id"));
 
     setCampos((prev) =>
@@ -5882,6 +5895,7 @@ export default function ConfiguracaoCertificadoPage() {
             ...campo,
             texto: editor.innerText,
             textoHtml: editor.innerHTML,
+            ...(fonteCompleta ? { fonte: fonteCompleta } : {}),
           }
           : campo,
       ),
@@ -6020,6 +6034,7 @@ export default function ConfiguracaoCertificadoPage() {
 
     salvarHistoricoTextoLivre(editor);
 
+    const textoInteiro = range.toString() === editor.textContent;
     const container = range.startContainer;
     const reutilizar = container === range.endContainer && container instanceof HTMLSpanElement &&
       range.startOffset === 0 && range.endOffset === container.childNodes.length;
@@ -6061,8 +6076,9 @@ export default function ConfiguracaoCertificadoPage() {
     selecao?.addRange(novoRange);
 
     selecaoTextoRef.current = novoRange.cloneRange();
+    registrarFonteSelecaoTexto(editor, novoRange);
 
-    atualizarTextoLivreNoEstado(editor);
+    atualizarTextoLivreNoEstado(editor, textoInteiro && estilo.fontFamily ? String(estilo.fontFamily) : undefined);
 
     setTimeout(() => {
       aplicandoEstiloTextoRef.current = false;
@@ -6070,11 +6086,9 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function temSelecaoTextoLivreAtiva() {
-    return (
-      campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-      selecaoTextoRef.current &&
-      !selecaoTextoRef.current.collapsed
-    );
+    const range = selecaoTextoRef.current;
+    const editor = campoSelecionado?.tipo === "TEXTO_LIVRE" ? document.querySelector(`[data-texto-livre-id="${campoSelecionado.id}"]`) : null;
+    return Boolean(editor && range && !range.collapsed && editor.contains(range.commonAncestorContainer));
   }
 
   function aplicarEstiloTextoOuCampoInteiro(
@@ -13340,7 +13354,7 @@ export default function ConfiguracaoCertificadoPage() {
                         <label className="mb-1 block text-xs font-medium text-slate-600">
                           {tr("text.font")}
                         </label>
-                        <SeletorFonteCertificado value={campoSelecionado?.fonte || "Helvetica"}
+                        <SeletorFonteCertificado value={fonteAtualDoTexto} textoAmostra={amostraAtualDoTexto}
                           onChange={novaFonte => aplicarEstiloTextoOuCampoInteiro("fonte", novaFonte, { fontFamily: novaFonte })}
                           labels={{ search: tr("fonts.search"), hint: tr("fonts.hint"), system: tr("fonts.system"), calligraphy: tr("fonts.calligraphy"), handwriting: tr("fonts.handwriting"), serif: tr("fonts.serif"), sans: tr("fonts.sans"), display: tr("fonts.display") }} />
                       </div>

@@ -9886,7 +9886,12 @@
       "sampleLabel": "Amostra da fonte selecionada",
       "sampleText": "Arte e celebração",
       "noResults": "Nenhuma fonte encontrada neste filtro.",
-      "scriptHint": "A fonte muda o desenho das letras, sem traduzir o texto. Digite no alfabeto desejado. Caesar Dressing e Aladin são opções decorativas para letras latinas."
+      "scriptHint": "A fonte muda o desenho das letras, sem traduzir o texto. Digite no alfabeto desejado. Caesar Dressing e Aladin são opções decorativas para letras latinas.",
+      "mixedFonts": "Fontes diferentes na seleção",
+      "visualListHint": "Cada amostra usa a própria fonte. Role para ver outras opções.",
+      "loadingSamples": "Carregando amostra…",
+      "fontLoadError": "Não foi possível carregar a fonte.",
+      "retrySamples": "Tentar carregar as amostras novamente"
     },
     "modalities": {
       "GERAL": "Geral",
