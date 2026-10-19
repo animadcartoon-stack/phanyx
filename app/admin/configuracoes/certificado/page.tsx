@@ -3,6 +3,7 @@
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
 import CampoNumeroEditavel from "./components/CampoNumeroEditavel";
+import { ElementoCenaCertificado, ListaCamadasCertificado } from "./components/CenaCertificado";
 import { opacidadeDaForma, espessuraNoPonto, trechosSelecionados } from "./components/contornoForma";
 import { calcularRedimensionamentoForma } from "./components/redimensionamentoForma";
 import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma, criarAlcasDoContorno } from "./components/edicaoPontosForma";
@@ -7284,6 +7285,61 @@ export default function ConfiguracaoCertificadoPage() {
   ].sort((a: any, b: any) => Number(a.ordem || 0) - Number(b.ordem || 0)) : [],
   [previewAberto, campos, copiasPreviewArray]);
 
+  const contextoEventosCenaRef = useRef({} as {
+    atualizarCampo: typeof atualizarCampo;
+    atualizarCampoLocal: typeof atualizarCampoLocal;
+    atualizarFormaNoCanvas: typeof atualizarFormaNoCanvas;
+    atualizarTextoLivreNoEstado: typeof atualizarTextoLivreNoEstado;
+    camadaArrastandoId: typeof camadaArrastandoId;
+    camadasOrdenadas: typeof camadasOrdenadas;
+    campoSelecionadoId: typeof campoSelecionadoId;
+    camposSelecionadosIds: typeof camposSelecionadosIds;
+    cssColorToHex: typeof cssColorToHex;
+    desfazerTextoLivre: typeof desfazerTextoLivre;
+    ehTextoPlaceholderPadrao: typeof ehTextoPlaceholderPadrao;
+    escala: typeof escala;
+    excluirCampo: typeof excluirCampo;
+    hexToRgb: typeof hexToRgb;
+    idsDoCampoOuGrupo: typeof idsDoCampoOuGrupo;
+    iniciarCrop: typeof iniciarCrop;
+    iniciarCropPro: typeof iniciarCropPro;
+    iniciarCropTodos: typeof iniciarCropTodos;
+    iniciarDrag: typeof iniciarDrag;
+    iniciarRedimensionamentoForma: typeof iniciarRedimensionamentoForma;
+    iniciarRedimensionamentoImagemRotacionada: typeof iniciarRedimensionamentoImagemRotacionada;
+    iniciarRotacao: typeof iniciarRotacao;
+    inserirTextoNoCursor: typeof inserirTextoNoCursor;
+    nomeCamadaEditando: typeof nomeCamadaEditando;
+    nomeDaCamada: typeof nomeDaCamada;
+    obterTextoAntesDoCursor: typeof obterTextoAntesDoCursor;
+    refazerTextoLivre: typeof refazerTextoLivre;
+    reordenarCamada: typeof reordenarCamada;
+    salvarHistoricoTextoLivre: typeof salvarHistoricoTextoLivre;
+    selecaoTextoRef: typeof selecaoTextoRef;
+    selecionarCampoNoCanvas: typeof selecionarCampoNoCanvas;
+    selecionarPontosNoCanvas: typeof selecionarPontosNoCanvas;
+    setCamadaArrastandoId: typeof setCamadaArrastandoId;
+    setCamadaRenomeandoId: typeof setCamadaRenomeandoId;
+    setCampoSelecionadoId: typeof setCampoSelecionadoId;
+    setCampos: typeof setCampos;
+    setCamposSelecionadosIds: typeof setCamposSelecionadosIds;
+    setCorAtual: typeof setCorAtual;
+    setCorTextoSelecionado: typeof setCorTextoSelecionado;
+    setEditorCorGradiente: typeof setEditorCorGradiente;
+    setMenuCamada: typeof setMenuCamada;
+    setMenuContexto: typeof setMenuContexto;
+    setMenuPontoGradiente: typeof setMenuPontoGradiente;
+    setNomeCamadaEditando: typeof setNomeCamadaEditando;
+    setPontoFormaSelecionado: typeof setPontoFormaSelecionado;
+    setShapeInspectorAberto: typeof setShapeInspectorAberto;
+    tr: typeof tr;
+  });
+  const renderizarElementoCenaRef = useRef<(campo: CampoCertificado, indice: number) => React.ReactNode>(() => null);
+  const renderizarCamadaCenaRef = useRef<(campo: CampoCertificado, indice: number) => React.ReactNode>(() => null);
+  const renderizarElementoCena = useCallback((campo: CampoCertificado, indice: number) => renderizarElementoCenaRef.current(campo, indice), []);
+  const renderizarCamadaCena = useCallback((campo: CampoCertificado, indice: number) => renderizarCamadaCenaRef.current(campo, indice), []);
+  const selecaoCena = useMemo(() => new Set(camposSelecionadosIds), [camposSelecionadosIds]);
+
   if (carregando) {
     return (
       <div className="p-6 text-sm text-slate-500">
@@ -7448,6 +7504,1729 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("mousemove", mover);
     window.addEventListener("mouseup", soltar);
   }
+
+  // Elementos inalterados conservam a arvore; eventos consultam o contexto atual.
+  contextoEventosCenaRef.current = { atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
+  renderizarElementoCenaRef.current = (c) => {
+                      if (c.tipo === "IMAGEM") {
+                        const selecionadoImagem =
+                          camposSelecionadosIds.includes(c.id);
+
+                        return (
+                          <div
+                            key={c.id}
+                            onMouseDown={(event) => {
+                              event.stopPropagation();
+
+                              if (event.button === 2) return;
+
+                              if (
+                                event.shiftKey ||
+                                event.ctrlKey ||
+                                event.metaKey
+                              ) {
+                                contextoEventosCenaRef.current.setCamposSelecionadosIds((prev) =>
+                                  prev.includes(c.id)
+                                    ? prev.filter((id) => id !== c.id)
+                                    : [...prev, c.id],
+                                );
+
+                                contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                                return;
+                              }
+
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                              contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                              contextoEventosCenaRef.current.iniciarDrag(event as any, c);
+                            }}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+
+                              if (!contextoEventosCenaRef.current.camposSelecionadosIds.includes(c.id)) {
+                                contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                              }
+                              contextoEventosCenaRef.current.setMenuContexto({
+                                x: e.clientX,
+                                y: e.clientY,
+                                campoId: c.id,
+                              });
+                            }}
+                            className="absolute z-20 select-none"
+                            style={{
+                              left: `${c.x}px`,
+                              top: `${c.y}px`,
+                              width: `${c.largura || 150}px`,
+                              height: `${c.altura || 150}px`,
+                              cursor: "move",
+                              zIndex:
+                                campoSelecionadoId === c.id
+                                  ? 99999
+                                  : c.ordem || 10,
+                              pointerEvents: c.bloqueado ? "none" : "auto",
+                              transform: `rotate(${(c as any).rotate || 0}deg)`,
+                              border: 0,
+                              outline: selecionadoImagem
+                                ? "2px solid #2563eb"
+                                : "1px dashed #93c5fd",
+
+                              borderRadius: "10px",
+                              background: "transparent",
+                              boxShadow: (() => {
+                                const sombraBase = (() => {
+                                  if (!c.sombraAtiva) return "";
+
+                                  const { x, y } = calcularSombra(
+                                    (c as any).sombraAngulo ?? 45,
+                                    (c as any).sombraDistancia ?? 20,
+                                  );
+
+                                  return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
+                                    c.sombraCor || "#000000",
+                                    (c.sombraOpacidade ?? 40) / 100,
+                                  )}`;
+                                })();
+
+                                const glowSelecao = selecionadoImagem
+                                  ? "0 0 0 3px rgba(37, 99, 235, 0.25)"
+                                  : "";
+
+                                return (
+                                  [glowSelecao, sombraBase]
+                                    .filter(Boolean)
+                                    .join(", ") || "none"
+                                );
+                              })(),
+                            }}
+                          >
+                            <ImagemCertificado
+                              campo={c}
+                              url={(c as any).imagemUrl}
+                            />
+
+                            {selecionadoImagem && (
+                              <>
+                                <button
+                                  type="button"
+                                  onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRotacao(e, c)}
+                                  className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
+                                  title={tr("common.rotateFreely")}
+                                >
+                                  ↻
+                                </button>
+
+                                {/* CORTAR 4 LADOS JUNTOS */}
+                                <div
+                                  onMouseDown={(e) => contextoEventosCenaRef.current.iniciarCropTodos(e, c)}
+                                  className="absolute left-2 top-2 z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
+                                  title={tr("image.cropAllTogether")}
+                                >
+                                  ┍
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    contextoEventosCenaRef.current.excluirCampo((c as any).bancoId || c.id);
+                                  }}
+                                  className="absolute right-1 top-1 z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
+                                  title={tr("image.deleteImage")}
+                                >
+                                  ✕
+                                </button>
+
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    contextoEventosCenaRef.current.iniciarCrop(e, c, "top");
+                                  }}
+                                  className="absolute left-1/2 top-[-6px] z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
+                                />
+
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    contextoEventosCenaRef.current.iniciarCrop(e, c, "bottom");
+                                  }}
+                                  className="absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
+                                />
+
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    contextoEventosCenaRef.current.iniciarCrop(e, c, "left");
+                                  }}
+                                  className="absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
+                                />
+
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    contextoEventosCenaRef.current.iniciarCrop(e, c, "right");
+                                  }}
+                                  className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
+                                />
+
+                                {/* REDIMENSIONAR PELOS 4 CANTOS */}
+                                <div
+                                  onMouseDown={(e) =>
+                                    contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "nw",
+                                    )
+                                  }
+                                  className="absolute left-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
+
+                                <div
+                                  onMouseDown={(e) =>
+                                    contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "ne",
+                                    )
+                                  }
+                                  className="absolute right-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
+
+                                <div
+                                  onMouseDown={(e) =>
+                                    contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "sw",
+                                    )
+                                  }
+                                  className="absolute bottom-[-10px] left-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
+
+                                <div
+                                  onMouseDown={(e) =>
+                                    contextoEventosCenaRef.current.iniciarRedimensionamentoImagemRotacionada(
+                                      e,
+                                      c,
+                                      "se",
+                                    )
+                                  }
+                                  className="absolute bottom-[-10px] right-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("common.resizeTogether")}
+                                />
+                              </>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      if (c.tipo === "FORMA") {
+                        const selecionado = camposSelecionadosIds.includes(
+                          c.id,
+                        );
+                        const formaEstaAgrupada = Boolean((c as any).grupoId);
+                        const podeEditarFormaIndividual =
+                          selecionado &&
+                          !formaEstaAgrupada &&
+                          camposSelecionadosIds.length <= 1;
+                        return (
+                          <div
+                            key={c.id}
+                            data-campo-certificado-id={c.id}
+                            onMouseDown={(event) =>
+                              contextoEventosCenaRef.current.selecionarCampoNoCanvas(event, c)
+                            }
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+
+                              const idsDoAlvo = contextoEventosCenaRef.current.idsDoCampoOuGrupo(c);
+                              const clicouEmItemJaSelecionado =
+                                contextoEventosCenaRef.current.camposSelecionadosIds.includes(c.id);
+
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                              // O menu da mesma forma preserva os pontos selecionados.
+                              contextoEventosCenaRef.current.setPontoFormaSelecionado((anterior) => anterior?.campoId === c.id ? anterior : null);
+                              contextoEventosCenaRef.current.setShapeInspectorAberto(false);
+
+                              if (!clicouEmItemJaSelecionado) {
+                                contextoEventosCenaRef.current.setCamposSelecionadosIds(idsDoAlvo);
+                              }
+
+                              contextoEventosCenaRef.current.setMenuContexto({
+                                x: e.clientX,
+                                y: e.clientY,
+                                campoId: c.id,
+                              });
+                            }}
+                            className={`absolute z-20 select-none overflow-visible ${(c as any).arrayPreview
+                              ? "pointer-events-none opacity-60"
+                              : ""
+                              }`}
+                            style={{
+                              left: `${c.x}px`,
+                              top: `${c.y}px`,
+                              width: `${c.largura || 100}px`,
+                              height: `${c.altura || 80}px`,
+                              cursor: "move",
+                              overflow: "visible",
+                              zIndex: (c as any).arrayPreview
+                                ? 1
+                                : c.ordem || 5,
+                              pointerEvents: c.bloqueado ? "none" : "auto",
+                              transform: `
+  rotate(${(c as any).rotate || 0}deg)
+  scaleX(${(c as any).flipX ? -1 : 1})
+  scaleY(${(c as any).flipY ? -1 : 1})
+`,
+
+                              boxShadow: (() => {
+                                if (!c.sombraAtiva) return "none";
+
+                                const { x, y } = calcularSombra(
+                                  (c as any).sombraAngulo ?? 45,
+                                  (c as any).sombraDistancia ?? 20,
+                                );
+
+                                return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
+                                  c.sombraCor || "#000000",
+                                  (c.sombraOpacidade ?? 40) / 100,
+                                )}`;
+                              })(),
+                            }}
+                          >
+                            <div
+                              className="relative h-full w-full overflow-visible"
+                              onDoubleClick={(e) => {
+                                if (!(c as any).usarGradiente) return;
+
+                                e.stopPropagation();
+                                e.preventDefault();
+
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect();
+                                const posicao = Math.round(
+                                  Math.max(
+                                    0,
+                                    Math.min(
+                                      100,
+                                      ((e.clientX - rect.left) / rect.width) *
+                                      100,
+                                    ),
+                                  ),
+                                );
+
+                                const stops = [
+                                  ...(((c as any).degradeStops || [
+                                    { cor: c.cor || "#1d4ed8", posicao: 0 },
+                                    {
+                                      cor: (c as any).cor2 || "#60a5fa",
+                                      posicao: 100,
+                                    },
+                                  ]) as any[]),
+                                  { cor: "#ffffff", posicao },
+                                ].sort((a, b) => a.posicao - b.posicao);
+
+                                contextoEventosCenaRef.current.atualizarCampoLocal(
+                                  "degradeStops" as any,
+                                  stops,
+                                );
+                              }}
+                              title={
+                                (c as any).usarGradiente
+                                  ? tr("gradient.doubleClickAddStop")
+                                  : undefined
+                              }
+                              style={{
+                                background:
+                                  c.pontosForma && c.pontosForma.length > 0
+                                    ? "transparent"
+                                    : c.forma === "LINHA"
+                                      ? "transparent"
+                                      : (c as any).usarGradiente
+                                        ? (c as any).degradeTipo === "radial"
+                                          ? `radial-gradient(circle, ${(
+                                            (c as any).degradeStops || [
+                                              {
+                                                cor: c.cor || "#1d4ed8",
+                                                posicao: 0,
+                                              },
+                                              {
+                                                cor:
+                                                  (c as any).cor2 ||
+                                                  "#60a5fa",
+                                                posicao: 100,
+                                              },
+                                            ]
+                                          )
+                                            .map(
+                                              (stop: any) =>
+                                                `${stop.cor} ${stop.posicao}%`,
+                                            )
+                                            .join(", ")})`
+                                          : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${(
+                                            (c as any).degradeStops || [
+                                              {
+                                                cor: c.cor || "#1d4ed8",
+                                                posicao: 0,
+                                              },
+                                              {
+                                                cor:
+                                                  (c as any).cor2 ||
+                                                  "#60a5fa",
+                                                posicao: 100,
+                                              },
+                                            ]
+                                          )
+                                            .map(
+                                              (stop: any) =>
+                                                `${hexToRgba(stop.cor, opacidadeDaForma(c, "preenchimento"))} ${stop.posicao}%`,
+                                            )
+                                            .join(", ")})`
+                                        : hexToRgba(
+                                          c.cor || "#1d4ed8",
+                                          opacidadeDaForma(c, "preenchimento"),
+                                        ),
+
+                                border:
+                                  c.pontosForma && c.pontosForma.length > 0
+                                    ? "none"
+                                    : c.forma === "LINHA"
+                                      ? `3px solid ${c.cor || "#1d4ed8"}`
+                                      : selecionado
+                                        ? "2px solid #2563eb"
+                                        : "1px dashed #93c5fd",
+
+                                borderRadius:
+                                  c.forma === "CIRCULO"
+                                    ? "9999px"
+                                    : `${(c as any).raioBorda ?? 8}px`,
+                                clipPath:
+                                  c.pontosForma && c.pontosForma.length > 0
+                                    ? "none"
+                                    : c.forma === "ESTRELA"
+                                      ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
+                                      : c.forma === "TRIANGULO"
+                                        ? "polygon(50% 0%, 100% 100%, 0% 100%)"
+                                        : "none",
+                                overflow:
+                                  c.pontosForma && c.pontosForma.length > 0
+                                    ? "visible"
+                                    : "hidden",
+                              }}
+                            >
+                              {c.tipo === "FORMA" &&
+                                c.pontosForma &&
+                                c.pontosForma.length > 0 && (
+                                  <div data-campo-certificado-id={c.id}>
+                                    <FormaVetorial
+                                      campo={c as any}
+                                      selecionado={podeEditarFormaIndividual}
+                                      modo="editor"
+                                      mostrarHandles={
+                                        mostrarHandlesForma &&
+                                        podeEditarFormaIndividual
+                                      }
+                                      pontoSelecionadoId={
+                                        pontoFormaSelecionado?.campoId === c.id
+                                          ? pontoFormaSelecionado.pontoId
+                                          : null
+                                      }
+                                      modoEspessuraContorno={modoEspessuraContorno && podeEditarFormaIndividual}
+                                      instrucaoContorno={tr("shapeTools.localOutlineHint")}
+                                      pontosSelecionadosIds={idsDosPontosSelecionados(c.id)}
+                                      onSelecionarPontos={contextoEventosCenaRef.current.selecionarPontosNoCanvas}
+                                      onChange={contextoEventosCenaRef.current.atualizarFormaNoCanvas}
+                                    />
+                                  </div>
+                                )}
+
+                              {selecionado && (c as any).usarGradiente && (
+                                <div className="pointer-events-none absolute inset-0 z-[9998]">
+                                  {(
+                                    ((c as any).degradeStops || [
+                                      { cor: c.cor || "#1d4ed8", posicao: 0 },
+                                      {
+                                        cor: (c as any).cor2 || "#60a5fa",
+                                        posicao: 100,
+                                      },
+                                    ]) as any[]
+                                  ).map((stop, index) => (
+                                    <button
+                                      key={index}
+                                      type="button"
+
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+
+                                        const cor = stop.cor || "#ffffff";
+                                        const { r, g, b } = contextoEventosCenaRef.current.hexToRgb(cor);
+
+                                        contextoEventosCenaRef.current.setCorAtual({
+                                          hex: cor,
+                                          r,
+                                          g,
+                                          b,
+                                        });
+
+                                        contextoEventosCenaRef.current.setEditorCorGradiente({
+                                          campoId: c.id,
+                                          pontoIndex: index,
+                                          cor,
+                                        });
+
+                                        contextoEventosCenaRef.current.setMenuPontoGradiente({
+                                          campoId: c.id,
+                                          pontoIndex: index,
+                                          x: e.clientX,
+                                          y: e.clientY,
+                                        });
+                                      }}
+
+                                      className="pointer-events-auto absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-blue-700 shadow-[0_0_0_3px_white] cursor-pointer"
+                                      style={{
+                                        left: `${stop.posicao}%`,
+                                        background: stop.cor,
+                                      }}
+                                      title={tr("shapeTools.pointNumber", { number: index + 1 })}
+                                      onMouseDown={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+
+                                        const rect =
+                                          e.currentTarget.parentElement?.getBoundingClientRect();
+                                        if (!rect) return;
+
+                                        const move = (
+                                          ev: globalThis.MouseEvent,
+                                        ) => {
+                                          const posicao = Math.max(
+                                            0,
+                                            Math.min(
+                                              100,
+                                              ((ev.clientX - rect.left) /
+                                                rect.width) *
+                                              100,
+                                            ),
+                                          );
+
+                                          contextoEventosCenaRef.current.setCampos((prev) =>
+                                            prev.map((item) => {
+                                              if (item.id !== c.id) return item;
+
+                                              const stops = [
+                                                ...(((item as any)
+                                                  .degradeStops || [
+                                                    {
+                                                      cor: item.cor || "#1d4ed8",
+                                                      posicao: 0,
+                                                    },
+                                                    {
+                                                      cor:
+                                                        (item as any).cor2 ||
+                                                        "#60a5fa",
+                                                      posicao: 100,
+                                                    },
+                                                  ]) as any[]),
+                                              ];
+
+                                              stops[index] = {
+                                                ...stops[index],
+                                                posicao: Math.round(posicao),
+                                              };
+
+                                              return {
+                                                ...item,
+                                                degradeStops: stops.sort(
+                                                  (a, b) =>
+                                                    a.posicao - b.posicao,
+                                                ),
+                                              } as any;
+                                            }),
+                                          );
+                                        };
+
+                                        const up = () => {
+                                          window.removeEventListener(
+                                            "mousemove",
+                                            move,
+                                          );
+                                          window.removeEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
+                                        };
+
+                                        window.addEventListener(
+                                          "mousemove",
+                                          move,
+                                        );
+                                        window.addEventListener("mouseup", up);
+                                      }}
+                                      onDoubleClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+
+                                        const cor = stop.cor || "#ffffff";
+                                        const { r, g, b } = contextoEventosCenaRef.current.hexToRgb(cor);
+
+                                        contextoEventosCenaRef.current.setCorAtual({
+                                          hex: cor,
+                                          r,
+                                          g,
+                                          b,
+                                        });
+
+                                        contextoEventosCenaRef.current.setEditorCorGradiente({
+                                          campoId: c.id,
+                                          pontoIndex: index,
+                                          cor,
+                                        });
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            {selecionado &&
+                              !caixaDoGrupoSelecionado &&
+                              !formaEstaAgrupada && (
+                                <>
+                                  {/* girar */}
+                                  <button
+                                    type="button"
+                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRotacao(e, c)}
+                                    className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
+                                    title={tr("common.dragToRotate")}
+                                  >
+                                    ↻
+                                  </button>
+
+                                  {/* CENTRAL (CROP PRO) */}
+                                  <div
+                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarCropPro(e, c)}
+                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                  >
+                                    <div className="w-6 h-6 bg-purple-500 rounded-full cursor-move pointer-events-auto shadow-lg" />
+                                  </div>
+
+                                  {/* canto inferior direito */}
+
+
+                                  {/* direita */}
+                                  <div
+                                    data-redimensionar-forma="largura"
+                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "largura")}
+                                    className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                    title={tr("shapeTools.resizeWidthHint")}
+                                  />
+
+                                  {/* baixo */}
+                                  <div
+                                    data-redimensionar-forma="altura"
+                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "altura")}
+                                    className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                    title={tr("shapeTools.resizeHeightHint")}
+                                  />
+                                  <div
+                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarCropTodos(e, c)}
+                                    className="absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
+                                    title={tr("image.cropAllSides")}
+                                  >
+                                    ┍
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      contextoEventosCenaRef.current.excluirCampo((c as any).bancoId || c.id);
+                                    }}
+                                    className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
+                                    title={tr("common.delete")}
+                                  >
+                                    ✕
+                                  </button>
+
+                                  {selecionado &&
+                                    !caixaDoGrupoSelecionado &&
+                                    !formaEstaAgrupada && (
+                                      <button
+                                        type="button"
+                                        data-redimensionar-forma="ambos"
+                                    onMouseDown={(e) => contextoEventosCenaRef.current.iniciarRedimensionamentoForma(e, c, "ambos")}
+                                        className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                        title={tr("shapeTools.resizeCenterHint")}
+                                      />
+                                    )}
+
+                                  {c.forma === "LINHA" && (
+                                    <>
+                                      {/* PONTO INÍCIO */}
+                                      <div
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+
+                                          const startX = e.clientX;
+                                          const startY = e.clientY;
+                                          const startLeft = c.x;
+                                          const startTop = c.y;
+                                          const startW = c.largura || 100;
+                                          const startH = c.altura || 2;
+
+                                          const move = (
+                                            ev: globalThis.MouseEvent,
+                                          ) => {
+                                            contextoEventosCenaRef.current.setCampos((prev) =>
+                                              prev.map((item) =>
+                                                item.id === c.id
+                                                  ? {
+                                                    ...item,
+                                                    x:
+                                                      startLeft +
+                                                      (ev.clientX - startX),
+                                                    y:
+                                                      startTop +
+                                                      (ev.clientY - startY),
+                                                    largura:
+                                                      startW -
+                                                      (ev.clientX - startX),
+                                                    altura:
+                                                      startH -
+                                                      (ev.clientY - startY),
+                                                  }
+                                                  : item,
+                                              ),
+                                            );
+                                          };
+
+                                          const up = () => {
+                                            window.removeEventListener(
+                                              "mousemove",
+                                              move,
+                                            );
+                                            window.removeEventListener(
+                                              "mouseup",
+                                              up,
+                                            );
+                                          };
+
+                                          window.addEventListener(
+                                            "mousemove",
+                                            move,
+                                          );
+                                          window.addEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
+                                        }}
+                                        className="absolute left-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
+                                      />
+
+                                      {/* PONTO FINAL */}
+                                      <div
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+
+                                          const startX = e.clientX;
+                                          const startY = e.clientY;
+                                          const startW = c.largura || 100;
+                                          const startH = c.altura || 2;
+
+                                          const move = (
+                                            ev: globalThis.MouseEvent,
+                                          ) => {
+                                            contextoEventosCenaRef.current.setCampos((prev) =>
+                                              prev.map((item) =>
+                                                item.id === c.id
+                                                  ? {
+                                                    ...item,
+                                                    largura: Math.max(
+                                                      2,
+                                                      startW +
+                                                      (ev.clientX - startX),
+                                                    ),
+                                                    altura: Math.max(
+                                                      2,
+                                                      startH +
+                                                      (ev.clientY - startY),
+                                                    ),
+                                                  }
+                                                  : item,
+                                              ),
+                                            );
+                                          };
+
+                                          const up = () => {
+                                            window.removeEventListener(
+                                              "mousemove",
+                                              move,
+                                            );
+                                            window.removeEventListener(
+                                              "mouseup",
+                                              up,
+                                            );
+                                          };
+
+                                          window.addEventListener(
+                                            "mousemove",
+                                            move,
+                                          );
+                                          window.addEventListener(
+                                            "mouseup",
+                                            up,
+                                          );
+                                        }}
+                                        className="absolute right-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
+                                      />
+                                    </>
+                                  )}
+                                </>
+                              )}
+                          </div>
+                        );
+                      }
+
+                      if (c.tipo === "TEXTO_LIVRE") {
+                        const selecionadoTexto = camposSelecionadosIds.includes(
+                          c.id,
+                        );
+
+                        return (
+                          <div
+                            key={c.id}
+                            onMouseDown={(event) => {
+                              event.stopPropagation();
+
+                              if (event.button === 2) return;
+
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                              contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+
+                              const alvo = event.target as HTMLElement;
+
+                              if (
+                                alvo.isContentEditable ||
+                                alvo.closest("[data-texto-livre-id]")
+                              ) {
+                                return;
+                              }
+
+                              contextoEventosCenaRef.current.iniciarDrag(event as any, c);
+                            }}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+
+                              if (!contextoEventosCenaRef.current.camposSelecionadosIds.includes(c.id)) {
+                                contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                              }
+
+                              contextoEventosCenaRef.current.setMenuContexto({
+                                x: e.clientX,
+                                y: e.clientY,
+                                campoId: c.id,
+                              });
+                            }}
+                            className="absolute z-20"
+                            style={{
+                              left: `${c.x}px`,
+                              top: `${c.y}px`,
+                              width: `${c.largura || 320}px`,
+                              height: `${c.altura || 120}px`,
+                              zIndex:
+                                campoSelecionadoId === c.id
+                                  ? 99999
+                                  : c.ordem || 20,
+                              pointerEvents: c.bloqueado ? "none" : "auto",
+                            }}
+                          >
+                            <div
+                              contentEditable
+                              suppressContentEditableWarning
+                              data-texto-livre-id={c.id}
+                              data-texto-conteudo="true"
+                              dir="ltr"
+                              ref={(el) => {
+                                if (!el) return;
+
+                                const valor =
+                                  (c as any).textoHtml ||
+                                  (c as any).texto ||
+                                  contextoEventosCenaRef.current.tr("text.placeholderText");
+
+                                if (document.activeElement === el) return;
+
+                                if (el.innerHTML !== valor) {
+                                  el.innerHTML = valor;
+                                }
+                              }}
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+
+                                contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                                contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+
+                                const alvo = e.target as HTMLElement;
+
+                                if (!alvo.closest("[data-texto-conteudo]")) {
+                                  e.preventDefault();
+                                  contextoEventosCenaRef.current.iniciarDrag(e as any, c);
+                                }
+                              }}
+
+                              onPaste={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                const editor = e.currentTarget;
+                                const texto =
+                                  e.clipboardData.getData("text/plain");
+
+                                if (!texto.trim()) return;
+                                const textoAtual = editor.innerText.trim();
+
+                                const ehTextoPadrao =
+                                  contextoEventosCenaRef.current.ehTextoPlaceholderPadrao(textoAtual);
+
+                                contextoEventosCenaRef.current.salvarHistoricoTextoLivre(editor);
+
+                                if (ehTextoPadrao) {
+                                  editor.textContent = texto;
+                                } else {
+                                  const selecao = window.getSelection();
+
+                                  if (
+                                    selecao &&
+                                    selecao.rangeCount > 0 &&
+                                    editor.contains(
+                                      selecao.getRangeAt(0)
+                                        .commonAncestorContainer,
+                                    )
+                                  ) {
+                                    const range = selecao.getRangeAt(0);
+
+                                    range.deleteContents();
+
+                                    const node = document.createTextNode(texto);
+                                    range.insertNode(node);
+
+                                    range.setStartAfter(node);
+                                    range.setEndAfter(node);
+
+                                    selecao.removeAllRanges();
+                                    selecao.addRange(range);
+                                  } else {
+                                    editor.textContent = texto;
+                                  }
+                                }
+
+                                contextoEventosCenaRef.current.atualizarTextoLivreNoEstado(editor);
+
+                                setTimeout(() => {
+                                  contextoEventosCenaRef.current.salvarHistoricoTextoLivre(editor);
+                                }, 0);
+                              }}
+
+                              onKeyDown={(e) => {
+                                /*
+                                 * TEXTO_LIVRE usa contentEditable.
+                                 *
+                                 * Se Delete for pressionado sem um trecho de
+                                 * texto selecionado, deixamos o evento subir
+                                 * at? o manipulador global do editor, que
+                                 * excluir? a caixa inteira.
+                                 *
+                                 * Se houver texto selecionado, mantemos o
+                                 * evento dentro do contentEditable para que
+                                 * somente aquele trecho seja apagado.
+                                 *
+                                 * Backspace continua sendo usado normalmente
+                                 * para edi??o do conte?do.
+                                 */
+                                if (e.key === "Delete") {
+                                  const editor = e.currentTarget;
+                                  const selecao = window.getSelection();
+
+                                  const temSelecaoDentroDoTexto =
+                                    Boolean(
+                                      selecao &&
+                                      selecao.rangeCount > 0 &&
+                                      !selecao.isCollapsed &&
+                                      editor.contains(
+                                        selecao.getRangeAt(0)
+                                          .commonAncestorContainer,
+                                      ),
+                                    );
+
+                                  if (!temSelecaoDentroDoTexto) {
+                                    return;
+                                  }
+                                }
+
+                                e.stopPropagation();
+
+                                if (
+                                  (e.ctrlKey || e.metaKey) &&
+                                  e.key.toLowerCase() === "v"
+                                ) {
+                                  const editor = e.currentTarget;
+                                  const textoAtual = editor.innerText.trim();
+
+                                  const ehTextoPadrao =
+                                    textoAtual === contextoEventosCenaRef.current.tr("text.placeholderText") ||
+                                    textoAtual === contextoEventosCenaRef.current.tr("text.placeholderTitle");
+
+                                  if (ehTextoPadrao) {
+                                    e.preventDefault();
+
+                                    navigator.clipboard
+                                      .readText()
+                                      .then((texto) => {
+                                        if (!texto.trim()) return;
+
+                                        contextoEventosCenaRef.current.salvarHistoricoTextoLivre(editor);
+
+                                        editor.textContent = texto;
+                                        contextoEventosCenaRef.current.atualizarTextoLivreNoEstado(editor);
+
+                                        setTimeout(() => {
+                                          contextoEventosCenaRef.current.salvarHistoricoTextoLivre(editor);
+                                        }, 0);
+                                      });
+
+                                    return;
+                                  }
+                                }
+
+                                if (
+                                  (e.ctrlKey || e.metaKey) &&
+                                  e.key.toLowerCase() === "z"
+                                ) {
+                                  e.preventDefault();
+                                  if (e.repeat) return;
+                                  if (e.shiftKey) contextoEventosCenaRef.current.refazerTextoLivre(e.currentTarget);
+                                  else contextoEventosCenaRef.current.desfazerTextoLivre(e.currentTarget);
+                                  return;
+                                }
+
+                                const editor = e.currentTarget;
+                                const marcador = editor.getAttribute(
+                                  "data-marcador-ativo",
+                                );
+
+                                if (!marcador) return;
+
+                                const textoAntes =
+                                  contextoEventosCenaRef.current.obterTextoAntesDoCursor(editor);
+                                const linhaAtual =
+                                  textoAntes.split("\n").pop() || "";
+
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+
+                                  if (linhaAtual.trim() === marcador) {
+                                    editor.removeAttribute(
+                                      "data-marcador-ativo",
+                                    );
+                                    contextoEventosCenaRef.current.inserirTextoNoCursor(editor, "\n");
+                                  } else {
+                                    contextoEventosCenaRef.current.inserirTextoNoCursor(
+                                      editor,
+                                      `\n${marcador} `,
+                                    );
+                                  }
+
+                                  contextoEventosCenaRef.current.atualizarTextoLivreNoEstado(editor);
+                                  return;
+                                }
+
+                                if (
+                                  e.key === "Backspace" &&
+                                  linhaAtual === `${marcador} `
+                                ) {
+                                  editor.removeAttribute("data-marcador-ativo");
+                                  return;
+                                }
+
+                                if (
+                                  e.key === " " &&
+                                  linhaAtual === `${marcador} `
+                                ) {
+                                  e.preventDefault();
+                                  editor.removeAttribute("data-marcador-ativo");
+                                  contextoEventosCenaRef.current.inserirTextoNoCursor(editor, "\n");
+                                  contextoEventosCenaRef.current.atualizarTextoLivreNoEstado(editor);
+                                }
+                              }}
+
+                              onInput={(e) => {
+                                const editor = e.currentTarget;
+
+                                contextoEventosCenaRef.current.salvarHistoricoTextoLivre(editor);
+
+                                const texto = editor.innerText;
+                                const textoHtml = editor.innerHTML;
+
+                                contextoEventosCenaRef.current.setCampos((prev) =>
+                                  prev.map((item) =>
+                                    item.id === c.id
+                                      ? {
+                                        ...item,
+                                        texto,
+                                        textoHtml,
+                                      }
+                                      : item,
+                                  ),
+                                );
+                              }}
+                              onBlur={(e) => {
+                                const texto = e.currentTarget.innerText;
+                                const textoHtml = e.currentTarget.innerHTML;
+
+                                contextoEventosCenaRef.current.setCampos((prev) =>
+                                  prev.map((item) =>
+                                    item.id === c.id
+                                      ? { ...item, texto, textoHtml }
+                                      : item,
+                                  ),
+                                );
+                              }}
+                              onBeforeInput={(e) => {
+                                if (
+                                  (e.nativeEvent as InputEvent).inputType ===
+                                  "insertFromPaste"
+                                ) {
+                                  return;
+                                }
+
+                                contextoEventosCenaRef.current.salvarHistoricoTextoLivre(e.currentTarget);
+                              }}
+                              onMouseUp={() => {
+                                const selecao = window.getSelection();
+
+                                if (
+                                  selecao &&
+                                  selecao.rangeCount > 0 &&
+                                  selecao.toString().trim()
+                                ) {
+                                  const range = selecao
+                                    .getRangeAt(0)
+                                    .cloneRange();
+                                  contextoEventosCenaRef.current.selecaoTextoRef.current = range;
+
+                                  const elemento =
+                                    selecao.anchorNode?.parentElement;
+                                  const cor = elemento
+                                    ? window.getComputedStyle(elemento).color
+                                    : "";
+                                  const corHex = contextoEventosCenaRef.current.cssColorToHex(cor);
+
+                                  contextoEventosCenaRef.current.setCorTextoSelecionado(corHex || null);
+                                }
+                              }}
+                              onKeyUp={() => {
+                                const selecao = window.getSelection();
+
+                                if (
+                                  selecao &&
+                                  selecao.rangeCount > 0 &&
+                                  selecao.toString().trim()
+                                ) {
+                                  contextoEventosCenaRef.current.selecaoTextoRef.current = selecao
+                                    .getRangeAt(0)
+                                    .cloneRange();
+                                }
+                              }}
+                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${selecionadoTexto
+                                ? "border-2 border-blue-600 bg-blue-50/10"
+                                : "border border-blue-400/60 bg-transparent"
+                                }`}
+                              style={{
+                                fontFamily: c.fonte || "Arial",
+                                fontSize: `${c.tamanho || 18}px`,
+                                color: c.cor || "#1e3a8a",
+                                fontWeight: c.negrito ? "bold" : "normal",
+                                fontStyle: c.italico ? "italic" : "normal",
+                                textDecoration: c.sublinhado
+                                  ? "underline"
+                                  : "none",
+                                textAlign:
+                                  (c.alinhamento as
+                                    "left" | "center" | "right") || "left",
+                                lineHeight: c.lineHeight || 1.3,
+                                letterSpacing: (c as any).letterSpacing ?? 0,
+                                wordSpacing: (c as any).wordSpacing ?? 0,
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                                cursor: "text",
+                                direction: "ltr",
+                                unicodeBidi: "isolate",
+                                writingMode: "horizontal-tb",
+                                caretColor: c.cor || "#1e3a8a",
+                              }}
+                            ></div>
+
+                            {selecionadoTexto && (
+                              <button
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  contextoEventosCenaRef.current.excluirCampo(c.id);
+                                }}
+                                className="absolute -top-3 -right-3 z-[999999] flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs font-black text-white shadow-lg hover:bg-red-700"
+                                title={tr("text.deleteTextField")}
+                              >
+                                ×
+                              </button>
+                            )}
+
+                            {selecionadoTexto && (
+                              <div
+                                onMouseDown={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  contextoEventosCenaRef.current.iniciarDrag(e as any, c);
+                                }}
+                                className="absolute -top-3 left-1/2 z-[999999] -translate-x-1/2 cursor-move rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black text-white shadow-lg"
+                                title={tr("text.dragTextBox")}
+                              >
+                                {tr("common.move")}
+                              </div>
+                            )}
+
+                            {selecionadoTexto && (
+                              <div
+                                onMouseDown={(e) => {
+                                  e.stopPropagation();
+                                  e.preventDefault();
+
+                                  const startX = e.clientX;
+                                  const startY = e.clientY;
+                                  const larguraInicial = c.largura || 320;
+                                  const alturaInicial = c.altura || 120;
+
+                                  const move = (ev: globalThis.MouseEvent) => {
+                                    contextoEventosCenaRef.current.setCampos((prev) =>
+                                      prev.map((item) =>
+                                        item.id === c.id
+                                          ? {
+                                            ...item,
+                                            largura: Math.max(
+                                              80,
+                                              Math.round(
+                                                larguraInicial +
+                                                (ev.clientX - startX) /
+                                                contextoEventosCenaRef.current.escala,
+                                              ),
+                                            ),
+                                            altura: Math.max(
+                                              40,
+                                              Math.round(
+                                                alturaInicial +
+                                                (ev.clientY - startY) /
+                                                contextoEventosCenaRef.current.escala,
+                                              ),
+                                            ),
+                                          }
+                                          : item,
+                                      ),
+                                    );
+                                  };
+
+                                  const up = () => {
+                                    window.removeEventListener(
+                                      "mousemove",
+                                      move,
+                                    );
+                                    window.removeEventListener("mouseup", up);
+                                  };
+
+                                  window.addEventListener("mousemove", move);
+                                  window.addEventListener("mouseup", up);
+                                }}
+                                className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                title={tr("text.resizeTextBox")}
+                              />
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={c.id}
+                          onMouseDown={(event) => {
+                            event.stopPropagation();
+
+                            if (event.button === 2) return;
+
+                            if (
+                              event.shiftKey ||
+                              event.ctrlKey ||
+                              event.metaKey
+                            ) {
+                              contextoEventosCenaRef.current.setCamposSelecionadosIds((prev) =>
+                                prev.includes(c.id)
+                                  ? prev.filter((id) => id !== c.id)
+                                  : [...prev, c.id],
+                              );
+
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                              return;
+                            }
+
+                            contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                            contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                            contextoEventosCenaRef.current.iniciarDrag(event as any, c);
+                          }}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+
+                            if (!contextoEventosCenaRef.current.camposSelecionadosIds.includes(c.id)) {
+                              contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                            }
+
+                            contextoEventosCenaRef.current.setMenuContexto({
+                              x: e.clientX,
+                              y: e.clientY,
+                              campoId: c.id,
+                            });
+                          }}
+                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${camposSelecionadosIds.includes(c.id)
+                            ? c.tipo === "ASSINATURA" ||
+                              c.tipo === "LOGO_INSTITUICAO"
+                              ? "border-blue-600 bg-transparent text-blue-900"
+                              : "border-blue-600 bg-blue-600/90 text-white"
+                            : "border-blue-300 bg-transparent text-blue-900"
+                            }`}
+                          style={{
+                            left: `${c.x}px`,
+                            top: `${c.y}px`,
+                            width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 120)}px`,
+                            height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
+                            zIndex:
+                              campoSelecionadoId === c.id
+                                ? 99999
+                                : c.ordem || 1,
+                            pointerEvents: c.bloqueado ? "none" : "auto",
+                            textAlign:
+                              (c.alinhamento as "left" | "center" | "right") ||
+                              "left",
+                            fontSize: `${c.tamanho || 12}px`,
+                            color: c.cor || "#1e3a8a",
+                            cursor: "default",
+                            fontFamily: c.fonte || "Helvetica",
+                            fontWeight: c.negrito ? "bold" : "normal",
+                            fontStyle: c.italico ? "italic" : "normal",
+                            textDecoration: c.sublinhado ? "underline" : "none",
+                            lineHeight: c.lineHeight || 1.3,
+                            textShadow: sombraProjetadaCss(c),
+                            ...efeitosTextoCampoCss(c),
+                            filter: (c as any).filter || "none",
+                            opacity: (c as any).opacity ?? 1,
+                            transform: transformacaoCampoCss(c),
+                            transformOrigin: "center center",
+                            letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
+                            wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
+                            whiteSpace:
+                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                                ? "pre-wrap"
+                                : "nowrap",
+                            display:
+                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                                ? "block"
+                                : "flex",
+                            alignItems:
+                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                                ? undefined
+                                : "center",
+                            justifyContent:
+                              c.alinhamento === "center"
+                                ? "center"
+                                : c.alinhamento === "right"
+                                  ? "flex-end"
+                                  : "flex-start",
+                            overflow: "visible",
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          {c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                            <div
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${quantidadeColunasDisciplinasDoCampo(
+                                  c,
+                                )}, minmax(0, 1fr))`,
+                                columnGap: `${espacoColunasDisciplinasDoCampo(c)}px`,
+                                rowGap: "2px",
+                                alignContent: "center",
+                                justifyItems:
+                                  c.alinhamento === "center"
+                                    ? "center"
+                                    : c.alinhamento === "right"
+                                      ? "end"
+                                      : "start",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                              }}
+                            >
+                              {listaDisciplinasExemplo(c, tr("preview.discipline")).map(
+                                (disciplina, index) => (
+                                  <div
+                                    key={`${c.id}-disciplina-${index}`}
+                                    style={{
+                                      minWidth: 0,
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
+                                    {disciplina}
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          ) : c.tipo === "APROVEITAMENTO" ? (
+                            "100%"
+                          ) : c.tipo === "FREQUENCIA_TOTAL" ? (
+                            tr("preview.totalAttendance")
+                          ) : c.tipo === "NOME_ALUNO" ? (
+                            tr("preview.studentNameLabel")
+                          ) : c.tipo === "NOME_CURSO" ? (
+                            tr("preview.courseNameLabel")
+                          ) : c.tipo === "DATA_EMISSAO" ? (
+                            "00/00/0000"
+                          ) : c.tipo === "ASSINATURA" ? (
+                            certificadoAssinaturaUrl ? (
+                              <img
+                                src={certificadoAssinaturaUrl}
+                                alt={tr("fieldTypes.ASSINATURA")}
+                                draggable={false}
+                                style={{
+                                  width: "100%",
+                                  height: "100%",
+                                  objectFit: "contain",
+                                  display: "block",
+                                  pointerEvents: "none",
+                                }}
+                              />
+                            ) : (
+                              tr("preview.signature")
+                            )
+                          ) : (
+                            c.tipo
+                          )}
+
+                          {camposSelecionadosIds.includes(c.id) &&
+                            c.tipo === "ASSINATURA" && (
+                              <>
+                                {/* Redimensionar largura e altura */}
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+
+                                    const startX = e.clientX;
+                                    const startY = e.clientY;
+                                    const startW = Number(c.largura || 260);
+                                    const startH = Number(c.altura || 90);
+
+                                    let novaLargura = startW;
+                                    let novaAltura = startH;
+
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      novaLargura = Math.max(
+                                        40,
+                                        Math.round(
+                                          startW +
+                                          (ev.clientX - startX) / contextoEventosCenaRef.current.escala,
+                                        ),
+                                      );
+
+                                      novaAltura = Math.max(
+                                        18,
+                                        Math.round(
+                                          startH +
+                                          (ev.clientY - startY) / contextoEventosCenaRef.current.escala,
+                                        ),
+                                      );
+
+                                      contextoEventosCenaRef.current.setCampos((prev) =>
+                                        prev.map((item) =>
+                                          item.id === c.id
+                                            ? {
+                                              ...item,
+                                              largura: novaLargura,
+                                              altura: novaAltura,
+                                            }
+                                            : item,
+                                        ),
+                                      );
+                                    };
+
+                                    const up = () => {
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.removeEventListener("mouseup", up);
+
+                                      void contextoEventosCenaRef.current.atualizarCampo(c.id, {
+                                        largura: novaLargura,
+                                        altura: novaAltura,
+                                      });
+                                    };
+
+                                    window.addEventListener("mousemove", move);
+                                    window.addEventListener("mouseup", up);
+                                  }}
+                                  className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+                                  title={tr("preview.resizeSignature")}
+                                />
+
+                                {/* Ajustar só largura */}
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+
+                                    const startX = e.clientX;
+                                    const startW = Number(c.largura || 260);
+
+                                    let novaLargura = startW;
+
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      novaLargura = Math.max(
+                                        40,
+                                        Math.round(
+                                          startW +
+                                          (ev.clientX - startX) / contextoEventosCenaRef.current.escala,
+                                        ),
+                                      );
+
+                                      contextoEventosCenaRef.current.setCampos((prev) =>
+                                        prev.map((item) =>
+                                          item.id === c.id
+                                            ? {
+                                              ...item,
+                                              largura: novaLargura,
+                                            }
+                                            : item,
+                                        ),
+                                      );
+                                    };
+
+                                    const up = () => {
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.removeEventListener("mouseup", up);
+
+                                      void contextoEventosCenaRef.current.atualizarCampo(c.id, {
+                                        largura: novaLargura,
+                                      });
+                                    };
+
+                                    window.addEventListener("mousemove", move);
+                                    window.addEventListener("mouseup", up);
+                                  }}
+                                  className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                  title={tr("common.adjustWidth")}
+                                />
+
+                                {/* Ajustar só altura */}
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+
+                                    const startY = e.clientY;
+                                    const startH = Number(c.altura || 90);
+
+                                    let novaAltura = startH;
+
+                                    const move = (
+                                      ev: globalThis.MouseEvent,
+                                    ) => {
+                                      novaAltura = Math.max(
+                                        18,
+                                        Math.round(
+                                          startH +
+                                          (ev.clientY - startY) / contextoEventosCenaRef.current.escala,
+                                        ),
+                                      );
+
+                                      contextoEventosCenaRef.current.setCampos((prev) =>
+                                        prev.map((item) =>
+                                          item.id === c.id
+                                            ? {
+                                              ...item,
+                                              altura: novaAltura,
+                                            }
+                                            : item,
+                                        ),
+                                      );
+                                    };
+
+                                    const up = () => {
+                                      window.removeEventListener(
+                                        "mousemove",
+                                        move,
+                                      );
+                                      window.removeEventListener("mouseup", up);
+
+                                      void contextoEventosCenaRef.current.atualizarCampo(c.id, {
+                                        altura: novaAltura,
+                                      });
+                                    };
+
+                                    window.addEventListener("mousemove", move);
+                                    window.addEventListener("mouseup", up);
+                                  }}
+                                  className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+                                  title={tr("common.adjustHeight")}
+                                />
+                              </>
+                            )}
+                        </div>
+                      );
+                    };
+  renderizarCamadaCenaRef.current = (campo, index) => (
+                      <div
+                        key={campo.id}
+                        draggable
+                        onDragStart={() => contextoEventosCenaRef.current.setCamadaArrastandoId(campo.id)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => {
+                          if (contextoEventosCenaRef.current.camadaArrastandoId) {
+                            contextoEventosCenaRef.current.reordenarCamada(contextoEventosCenaRef.current.camadaArrastandoId, campo.id);
+                          }
+                          contextoEventosCenaRef.current.setCamadaArrastandoId(null);
+                        }}
+                        onClick={(e) => {
+                          const lista = contextoEventosCenaRef.current.camadasOrdenadas();
+
+                          if (e.shiftKey && contextoEventosCenaRef.current.campoSelecionadoId) {
+                            const inicio = lista.findIndex(
+                              (item) => item.id === contextoEventosCenaRef.current.campoSelecionadoId,
+                            );
+                            const fim = lista.findIndex(
+                              (item) => item.id === campo.id,
+                            );
+
+                            if (inicio >= 0 && fim >= 0) {
+                              const [min, max] = [
+                                Math.min(inicio, fim),
+                                Math.max(inicio, fim),
+                              ];
+                              const ids = lista
+                                .slice(min, max + 1)
+                                .map((item) => item.id);
+
+                              contextoEventosCenaRef.current.setCamposSelecionadosIds(ids);
+                              contextoEventosCenaRef.current.setCampoSelecionadoId(campo.id);
+                              return;
+                            }
+                          }
+
+                          if (e.ctrlKey || e.metaKey) {
+                            contextoEventosCenaRef.current.setCamposSelecionadosIds((prev) =>
+                              prev.includes(campo.id)
+                                ? prev.filter((id) => id !== campo.id)
+                                : [...prev, campo.id],
+                            );
+
+                            contextoEventosCenaRef.current.setCampoSelecionadoId(campo.id);
+                            return;
+                          }
+
+                          contextoEventosCenaRef.current.setCampoSelecionadoId(campo.id);
+                          contextoEventosCenaRef.current.setCamposSelecionadosIds([campo.id]);
+                        }}
+
+                        onDoubleClick={() => {
+                          contextoEventosCenaRef.current.setCamadaRenomeandoId(campo.id);
+                          contextoEventosCenaRef.current.setNomeCamadaEditando(contextoEventosCenaRef.current.nomeDaCamada(campo, index));
+                        }}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          contextoEventosCenaRef.current.setCampoSelecionadoId(campo.id);
+                          contextoEventosCenaRef.current.setCamposSelecionadosIds([campo.id]);
+                          contextoEventosCenaRef.current.setMenuCamada({
+                            x: e.clientX,
+                            y: e.clientY,
+                            campoId: campo.id,
+                          });
+                        }}
+                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${camposSelecionadosIds.includes(campo.id)
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-white text-slate-700 hover:bg-slate-100"
+                          }`}
+                      >
+                        <span className="cursor-grab text-[10px] text-slate-400">
+                          ☰
+                        </span>
+
+                        {camadaRenomeandoId === campo.id ? (
+                          <input
+                            autoFocus
+                            value={nomeCamadaEditando}
+                            onChange={(e) =>
+                              contextoEventosCenaRef.current.setNomeCamadaEditando(e.target.value)
+                            }
+                            onBlur={() => {
+                              contextoEventosCenaRef.current.atualizarCampoLocal(
+                                "nomeCamada" as any,
+                                contextoEventosCenaRef.current.nomeCamadaEditando as any,
+                              );
+                              contextoEventosCenaRef.current.setCamadaRenomeandoId(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                contextoEventosCenaRef.current.atualizarCampoLocal(
+                                  "nomeCamada" as any,
+                                  contextoEventosCenaRef.current.nomeCamadaEditando as any,
+                                );
+                                contextoEventosCenaRef.current.setCamadaRenomeandoId(null);
+                              }
+                            }}
+                            className="w-full border-none bg-transparent text-xs outline-none"
+                          />
+                        ) : (
+                          <span className="flex-1 truncate">
+                            {nomeDaCamada(campo, index)}
+                          </span>
+                        )}
+
+                        {campo.bloqueado && (
+                          <span
+                            className="text-[10px]"
+                            title={tr("layers.lockedElement")}
+                          >
+                            🔒
+                          </span>
+                        )}
+                      </div>
+                    );
 
   return (
     <div
@@ -8708,125 +10487,9 @@ export default function ConfiguracaoCertificadoPage() {
                     <span className="text-[10px]">{campos.length}</span>
                   </div>
 
-                  <div className="max-h-[190px] overflow-y-auto overflow-x-hidden">
-                    {camadasOrdenadas().map((campo, index) => (
-                      <div
-                        key={campo.id}
-                        draggable
-                        onDragStart={() => setCamadaArrastandoId(campo.id)}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={() => {
-                          if (camadaArrastandoId) {
-                            reordenarCamada(camadaArrastandoId, campo.id);
-                          }
-                          setCamadaArrastandoId(null);
-                        }}
-                        onClick={(e) => {
-                          const lista = camadasOrdenadas();
-
-                          if (e.shiftKey && campoSelecionadoId) {
-                            const inicio = lista.findIndex(
-                              (item) => item.id === campoSelecionadoId,
-                            );
-                            const fim = lista.findIndex(
-                              (item) => item.id === campo.id,
-                            );
-
-                            if (inicio >= 0 && fim >= 0) {
-                              const [min, max] = [
-                                Math.min(inicio, fim),
-                                Math.max(inicio, fim),
-                              ];
-                              const ids = lista
-                                .slice(min, max + 1)
-                                .map((item) => item.id);
-
-                              setCamposSelecionadosIds(ids);
-                              setCampoSelecionadoId(campo.id);
-                              return;
-                            }
-                          }
-
-                          if (e.ctrlKey || e.metaKey) {
-                            setCamposSelecionadosIds((prev) =>
-                              prev.includes(campo.id)
-                                ? prev.filter((id) => id !== campo.id)
-                                : [...prev, campo.id],
-                            );
-
-                            setCampoSelecionadoId(campo.id);
-                            return;
-                          }
-
-                          setCampoSelecionadoId(campo.id);
-                          setCamposSelecionadosIds([campo.id]);
-                        }}
-
-                        onDoubleClick={() => {
-                          setCamadaRenomeandoId(campo.id);
-                          setNomeCamadaEditando(nomeDaCamada(campo, index));
-                        }}
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          setCampoSelecionadoId(campo.id);
-                          setCamposSelecionadosIds([campo.id]);
-                          setMenuCamada({
-                            x: e.clientX,
-                            y: e.clientY,
-                            campoId: campo.id,
-                          });
-                        }}
-                        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${camposSelecionadosIds.includes(campo.id)
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-white text-slate-700 hover:bg-slate-100"
-                          }`}
-                      >
-                        <span className="cursor-grab text-[10px] text-slate-400">
-                          ☰
-                        </span>
-
-                        {camadaRenomeandoId === campo.id ? (
-                          <input
-                            autoFocus
-                            value={nomeCamadaEditando}
-                            onChange={(e) =>
-                              setNomeCamadaEditando(e.target.value)
-                            }
-                            onBlur={() => {
-                              atualizarCampoLocal(
-                                "nomeCamada" as any,
-                                nomeCamadaEditando as any,
-                              );
-                              setCamadaRenomeandoId(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                atualizarCampoLocal(
-                                  "nomeCamada" as any,
-                                  nomeCamadaEditando as any,
-                                );
-                                setCamadaRenomeandoId(null);
-                              }
-                            }}
-                            className="w-full border-none bg-transparent text-xs outline-none"
-                          />
-                        ) : (
-                          <span className="flex-1 truncate">
-                            {nomeDaCamada(campo, index)}
-                          </span>
-                        )}
-
-                        {campo.bloqueado && (
-                          <span
-                            className="text-[10px]"
-                            title={tr("layers.lockedElement")}
-                          >
-                            🔒
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <ListaCamadasCertificado elementos={camadasOrdenadasMemo} renderizar={renderizarCamadaCena}
+                    dependencias={(campo) => [selecaoCena.has(campo.id), camadaRenomeandoId === campo.id,
+                      camadaRenomeandoId === campo.id ? nomeCamadaEditando : null, locale]} />
                 </div>
               </div>
 
@@ -10238,1610 +11901,19 @@ export default function ConfiguracaoCertificadoPage() {
                     />
                   )}
 
-                  {camposDaCena
-                    .map((c) => {
-                      if (c.tipo === "IMAGEM") {
-                        const selecionadoImagem =
-                          camposSelecionadosIds.includes(c.id);
-
-                        return (
-                          <div
-                            key={c.id}
-                            onMouseDown={(event) => {
-                              event.stopPropagation();
-
-                              if (event.button === 2) return;
-
-                              if (
-                                event.shiftKey ||
-                                event.ctrlKey ||
-                                event.metaKey
-                              ) {
-                                setCamposSelecionadosIds((prev) =>
-                                  prev.includes(c.id)
-                                    ? prev.filter((id) => id !== c.id)
-                                    : [...prev, c.id],
-                                );
-
-                                setCampoSelecionadoId(c.id);
-                                return;
-                              }
-
-                              setCampoSelecionadoId(c.id);
-                              setCamposSelecionadosIds([c.id]);
-                              iniciarDrag(event as any, c);
-                            }}
-                            onContextMenu={(e) => {
-                              e.preventDefault();
-                              setCampoSelecionadoId(c.id);
-
-                              if (!camposSelecionadosIds.includes(c.id)) {
-                                setCamposSelecionadosIds([c.id]);
-                              }
-                              setMenuContexto({
-                                x: e.clientX,
-                                y: e.clientY,
-                                campoId: c.id,
-                              });
-                            }}
-                            className="absolute z-20 select-none"
-                            style={{
-                              left: `${c.x}px`,
-                              top: `${c.y}px`,
-                              width: `${c.largura || 150}px`,
-                              height: `${c.altura || 150}px`,
-                              cursor: "move",
-                              zIndex:
-                                campoSelecionadoId === c.id
-                                  ? 99999
-                                  : c.ordem || 10,
-                              pointerEvents: c.bloqueado ? "none" : "auto",
-                              transform: `rotate(${(c as any).rotate || 0}deg)`,
-                              border: 0,
-                              outline: selecionadoImagem
-                                ? "2px solid #2563eb"
-                                : "1px dashed #93c5fd",
-
-                              borderRadius: "10px",
-                              background: "transparent",
-                              boxShadow: (() => {
-                                const sombraBase = (() => {
-                                  if (!c.sombraAtiva) return "";
-
-                                  const { x, y } = calcularSombra(
-                                    (c as any).sombraAngulo ?? 45,
-                                    (c as any).sombraDistancia ?? 20,
-                                  );
-
-                                  return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
-                                    c.sombraCor || "#000000",
-                                    (c.sombraOpacidade ?? 40) / 100,
-                                  )}`;
-                                })();
-
-                                const glowSelecao = selecionadoImagem
-                                  ? "0 0 0 3px rgba(37, 99, 235, 0.25)"
-                                  : "";
-
-                                return (
-                                  [glowSelecao, sombraBase]
-                                    .filter(Boolean)
-                                    .join(", ") || "none"
-                                );
-                              })(),
-                            }}
-                          >
-                            <ImagemCertificado
-                              campo={c}
-                              url={(c as any).imagemUrl}
-                            />
-
-                            {selecionadoImagem && (
-                              <>
-                                <button
-                                  type="button"
-                                  onMouseDown={(e) => iniciarRotacao(e, c)}
-                                  className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
-                                  title={tr("common.rotateFreely")}
-                                >
-                                  ↻
-                                </button>
-
-                                {/* CORTAR 4 LADOS JUNTOS */}
-                                <div
-                                  onMouseDown={(e) => iniciarCropTodos(e, c)}
-                                  className="absolute left-2 top-2 z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
-                                  title={tr("image.cropAllTogether")}
-                                >
-                                  ┍
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    excluirCampo((c as any).bancoId || c.id);
-                                  }}
-                                  className="absolute right-1 top-1 z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
-                                  title={tr("image.deleteImage")}
-                                >
-                                  ✕
-                                </button>
-
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    iniciarCrop(e, c, "top");
-                                  }}
-                                  className="absolute left-1/2 top-[-6px] z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
-                                />
-
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    iniciarCrop(e, c, "bottom");
-                                  }}
-                                  className="absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
-                                />
-
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    iniciarCrop(e, c, "left");
-                                  }}
-                                  className="absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
-                                />
-
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    iniciarCrop(e, c, "right");
-                                  }}
-                                  className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
-                                />
-
-                                {/* REDIMENSIONAR PELOS 4 CANTOS */}
-                                <div
-                                  onMouseDown={(e) =>
-                                    iniciarRedimensionamentoImagemRotacionada(
-                                      e,
-                                      c,
-                                      "nw",
-                                    )
-                                  }
-                                  className="absolute left-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                  title={tr("common.resizeTogether")}
-                                />
-
-                                <div
-                                  onMouseDown={(e) =>
-                                    iniciarRedimensionamentoImagemRotacionada(
-                                      e,
-                                      c,
-                                      "ne",
-                                    )
-                                  }
-                                  className="absolute right-[-10px] top-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                  title={tr("common.resizeTogether")}
-                                />
-
-                                <div
-                                  onMouseDown={(e) =>
-                                    iniciarRedimensionamentoImagemRotacionada(
-                                      e,
-                                      c,
-                                      "sw",
-                                    )
-                                  }
-                                  className="absolute bottom-[-10px] left-[-10px] z-[999999] h-5 w-5 cursor-nesw-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                  title={tr("common.resizeTogether")}
-                                />
-
-                                <div
-                                  onMouseDown={(e) =>
-                                    iniciarRedimensionamentoImagemRotacionada(
-                                      e,
-                                      c,
-                                      "se",
-                                    )
-                                  }
-                                  className="absolute bottom-[-10px] right-[-10px] z-[999999] h-5 w-5 cursor-nwse-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                  title={tr("common.resizeTogether")}
-                                />
-                              </>
-                            )}
-                          </div>
-                        );
-                      }
-
-                      if (c.tipo === "FORMA") {
-                        const selecionado = camposSelecionadosIds.includes(
-                          c.id,
-                        );
-                        const formaEstaAgrupada = Boolean((c as any).grupoId);
-                        const podeEditarFormaIndividual =
-                          selecionado &&
-                          !formaEstaAgrupada &&
-                          camposSelecionadosIds.length <= 1;
-                        return (
-                          <div
-                            key={c.id}
-                            data-campo-certificado-id={c.id}
-                            onMouseDown={(event) =>
-                              selecionarCampoNoCanvas(event, c)
-                            }
-                            onContextMenu={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-
-                              const idsDoAlvo = idsDoCampoOuGrupo(c);
-                              const clicouEmItemJaSelecionado =
-                                camposSelecionadosIds.includes(c.id);
-
-                              setCampoSelecionadoId(c.id);
-                              // O menu da mesma forma preserva os pontos selecionados.
-                              setPontoFormaSelecionado((anterior) => anterior?.campoId === c.id ? anterior : null);
-                              setShapeInspectorAberto(false);
-
-                              if (!clicouEmItemJaSelecionado) {
-                                setCamposSelecionadosIds(idsDoAlvo);
-                              }
-
-                              setMenuContexto({
-                                x: e.clientX,
-                                y: e.clientY,
-                                campoId: c.id,
-                              });
-                            }}
-                            className={`absolute z-20 select-none overflow-visible ${(c as any).arrayPreview
-                              ? "pointer-events-none opacity-60"
-                              : ""
-                              }`}
-                            style={{
-                              left: `${c.x}px`,
-                              top: `${c.y}px`,
-                              width: `${c.largura || 100}px`,
-                              height: `${c.altura || 80}px`,
-                              cursor: "move",
-                              overflow: "visible",
-                              zIndex: (c as any).arrayPreview
-                                ? 1
-                                : c.ordem || 5,
-                              pointerEvents: c.bloqueado ? "none" : "auto",
-                              transform: `
-  rotate(${(c as any).rotate || 0}deg)
-  scaleX(${(c as any).flipX ? -1 : 1})
-  scaleY(${(c as any).flipY ? -1 : 1})
-`,
-
-                              boxShadow: (() => {
-                                if (!c.sombraAtiva) return "none";
-
-                                const { x, y } = calcularSombra(
-                                  (c as any).sombraAngulo ?? 45,
-                                  (c as any).sombraDistancia ?? 20,
-                                );
-
-                                return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
-                                  c.sombraCor || "#000000",
-                                  (c.sombraOpacidade ?? 40) / 100,
-                                )}`;
-                              })(),
-                            }}
-                          >
-                            <div
-                              className="relative h-full w-full overflow-visible"
-                              onDoubleClick={(e) => {
-                                if (!(c as any).usarGradiente) return;
-
-                                e.stopPropagation();
-                                e.preventDefault();
-
-                                const rect =
-                                  e.currentTarget.getBoundingClientRect();
-                                const posicao = Math.round(
-                                  Math.max(
-                                    0,
-                                    Math.min(
-                                      100,
-                                      ((e.clientX - rect.left) / rect.width) *
-                                      100,
-                                    ),
-                                  ),
-                                );
-
-                                const stops = [
-                                  ...(((c as any).degradeStops || [
-                                    { cor: c.cor || "#1d4ed8", posicao: 0 },
-                                    {
-                                      cor: (c as any).cor2 || "#60a5fa",
-                                      posicao: 100,
-                                    },
-                                  ]) as any[]),
-                                  { cor: "#ffffff", posicao },
-                                ].sort((a, b) => a.posicao - b.posicao);
-
-                                atualizarCampoLocal(
-                                  "degradeStops" as any,
-                                  stops,
-                                );
-                              }}
-                              title={
-                                (c as any).usarGradiente
-                                  ? tr("gradient.doubleClickAddStop")
-                                  : undefined
-                              }
-                              style={{
-                                background:
-                                  c.pontosForma && c.pontosForma.length > 0
-                                    ? "transparent"
-                                    : c.forma === "LINHA"
-                                      ? "transparent"
-                                      : (c as any).usarGradiente
-                                        ? (c as any).degradeTipo === "radial"
-                                          ? `radial-gradient(circle, ${(
-                                            (c as any).degradeStops || [
-                                              {
-                                                cor: c.cor || "#1d4ed8",
-                                                posicao: 0,
-                                              },
-                                              {
-                                                cor:
-                                                  (c as any).cor2 ||
-                                                  "#60a5fa",
-                                                posicao: 100,
-                                              },
-                                            ]
-                                          )
-                                            .map(
-                                              (stop: any) =>
-                                                `${stop.cor} ${stop.posicao}%`,
-                                            )
-                                            .join(", ")})`
-                                          : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${(
-                                            (c as any).degradeStops || [
-                                              {
-                                                cor: c.cor || "#1d4ed8",
-                                                posicao: 0,
-                                              },
-                                              {
-                                                cor:
-                                                  (c as any).cor2 ||
-                                                  "#60a5fa",
-                                                posicao: 100,
-                                              },
-                                            ]
-                                          )
-                                            .map(
-                                              (stop: any) =>
-                                                `${hexToRgba(stop.cor, opacidadeDaForma(c, "preenchimento"))} ${stop.posicao}%`,
-                                            )
-                                            .join(", ")})`
-                                        : hexToRgba(
-                                          c.cor || "#1d4ed8",
-                                          opacidadeDaForma(c, "preenchimento"),
-                                        ),
-
-                                border:
-                                  c.pontosForma && c.pontosForma.length > 0
-                                    ? "none"
-                                    : c.forma === "LINHA"
-                                      ? `3px solid ${c.cor || "#1d4ed8"}`
-                                      : selecionado
-                                        ? "2px solid #2563eb"
-                                        : "1px dashed #93c5fd",
-
-                                borderRadius:
-                                  c.forma === "CIRCULO"
-                                    ? "9999px"
-                                    : `${(c as any).raioBorda ?? 8}px`,
-                                clipPath:
-                                  c.pontosForma && c.pontosForma.length > 0
-                                    ? "none"
-                                    : c.forma === "ESTRELA"
-                                      ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
-                                      : c.forma === "TRIANGULO"
-                                        ? "polygon(50% 0%, 100% 100%, 0% 100%)"
-                                        : "none",
-                                overflow:
-                                  c.pontosForma && c.pontosForma.length > 0
-                                    ? "visible"
-                                    : "hidden",
-                              }}
-                            >
-                              {c.tipo === "FORMA" &&
-                                c.pontosForma &&
-                                c.pontosForma.length > 0 && (
-                                  <div data-campo-certificado-id={c.id}>
-                                    <FormaVetorial
-                                      campo={c as any}
-                                      selecionado={podeEditarFormaIndividual}
-                                      modo="editor"
-                                      mostrarHandles={
-                                        mostrarHandlesForma &&
-                                        podeEditarFormaIndividual
-                                      }
-                                      pontoSelecionadoId={
-                                        pontoFormaSelecionado?.campoId === c.id
-                                          ? pontoFormaSelecionado.pontoId
-                                          : null
-                                      }
-                                      modoEspessuraContorno={modoEspessuraContorno && podeEditarFormaIndividual}
-                                      instrucaoContorno={tr("shapeTools.localOutlineHint")}
-                                      pontosSelecionadosIds={idsDosPontosSelecionados(c.id)}
-                                      onSelecionarPontos={selecionarPontosNoCanvas}
-                                      onChange={atualizarFormaNoCanvas}
-                                    />
-                                  </div>
-                                )}
-
-                              {selecionado && (c as any).usarGradiente && (
-                                <div className="pointer-events-none absolute inset-0 z-[9998]">
-                                  {(
-                                    ((c as any).degradeStops || [
-                                      { cor: c.cor || "#1d4ed8", posicao: 0 },
-                                      {
-                                        cor: (c as any).cor2 || "#60a5fa",
-                                        posicao: 100,
-                                      },
-                                    ]) as any[]
-                                  ).map((stop, index) => (
-                                    <button
-                                      key={index}
-                                      type="button"
-
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-
-                                        const cor = stop.cor || "#ffffff";
-                                        const { r, g, b } = hexToRgb(cor);
-
-                                        setCorAtual({
-                                          hex: cor,
-                                          r,
-                                          g,
-                                          b,
-                                        });
-
-                                        setEditorCorGradiente({
-                                          campoId: c.id,
-                                          pontoIndex: index,
-                                          cor,
-                                        });
-
-                                        setMenuPontoGradiente({
-                                          campoId: c.id,
-                                          pontoIndex: index,
-                                          x: e.clientX,
-                                          y: e.clientY,
-                                        });
-                                      }}
-
-                                      className="pointer-events-auto absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-blue-700 shadow-[0_0_0_3px_white] cursor-pointer"
-                                      style={{
-                                        left: `${stop.posicao}%`,
-                                        background: stop.cor,
-                                      }}
-                                      title={tr("shapeTools.pointNumber", { number: index + 1 })}
-                                      onMouseDown={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-
-                                        const rect =
-                                          e.currentTarget.parentElement?.getBoundingClientRect();
-                                        if (!rect) return;
-
-                                        const move = (
-                                          ev: globalThis.MouseEvent,
-                                        ) => {
-                                          const posicao = Math.max(
-                                            0,
-                                            Math.min(
-                                              100,
-                                              ((ev.clientX - rect.left) /
-                                                rect.width) *
-                                              100,
-                                            ),
-                                          );
-
-                                          setCampos((prev) =>
-                                            prev.map((item) => {
-                                              if (item.id !== c.id) return item;
-
-                                              const stops = [
-                                                ...(((item as any)
-                                                  .degradeStops || [
-                                                    {
-                                                      cor: item.cor || "#1d4ed8",
-                                                      posicao: 0,
-                                                    },
-                                                    {
-                                                      cor:
-                                                        (item as any).cor2 ||
-                                                        "#60a5fa",
-                                                      posicao: 100,
-                                                    },
-                                                  ]) as any[]),
-                                              ];
-
-                                              stops[index] = {
-                                                ...stops[index],
-                                                posicao: Math.round(posicao),
-                                              };
-
-                                              return {
-                                                ...item,
-                                                degradeStops: stops.sort(
-                                                  (a, b) =>
-                                                    a.posicao - b.posicao,
-                                                ),
-                                              } as any;
-                                            }),
-                                          );
-                                        };
-
-                                        const up = () => {
-                                          window.removeEventListener(
-                                            "mousemove",
-                                            move,
-                                          );
-                                          window.removeEventListener(
-                                            "mouseup",
-                                            up,
-                                          );
-                                        };
-
-                                        window.addEventListener(
-                                          "mousemove",
-                                          move,
-                                        );
-                                        window.addEventListener("mouseup", up);
-                                      }}
-                                      onDoubleClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-
-                                        const cor = stop.cor || "#ffffff";
-                                        const { r, g, b } = hexToRgb(cor);
-
-                                        setCorAtual({
-                                          hex: cor,
-                                          r,
-                                          g,
-                                          b,
-                                        });
-
-                                        setEditorCorGradiente({
-                                          campoId: c.id,
-                                          pontoIndex: index,
-                                          cor,
-                                        });
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-
-                            {selecionado &&
-                              !caixaDoGrupoSelecionado &&
-                              !formaEstaAgrupada && (
-                                <>
-                                  {/* girar */}
-                                  <button
-                                    type="button"
-                                    onMouseDown={(e) => iniciarRotacao(e, c)}
-                                    className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
-                                    title={tr("common.dragToRotate")}
-                                  >
-                                    ↻
-                                  </button>
-
-                                  {/* CENTRAL (CROP PRO) */}
-                                  <div
-                                    onMouseDown={(e) => iniciarCropPro(e, c)}
-                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                                  >
-                                    <div className="w-6 h-6 bg-purple-500 rounded-full cursor-move pointer-events-auto shadow-lg" />
-                                  </div>
-
-                                  {/* canto inferior direito */}
-
-
-                                  {/* direita */}
-                                  <div
-                                    data-redimensionar-forma="largura"
-                                    onMouseDown={(e) => iniciarRedimensionamentoForma(e, c, "largura")}
-                                    className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                    title={tr("shapeTools.resizeWidthHint")}
-                                  />
-
-                                  {/* baixo */}
-                                  <div
-                                    data-redimensionar-forma="altura"
-                                    onMouseDown={(e) => iniciarRedimensionamentoForma(e, c, "altura")}
-                                    className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                    title={tr("shapeTools.resizeHeightHint")}
-                                  />
-                                  <div
-                                    onMouseDown={(e) => iniciarCropTodos(e, c)}
-                                    className="absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
-                                    title={tr("image.cropAllSides")}
-                                  >
-                                    ┍
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      excluirCampo((c as any).bancoId || c.id);
-                                    }}
-                                    className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
-                                    title={tr("common.delete")}
-                                  >
-                                    ✕
-                                  </button>
-
-                                  {selecionado &&
-                                    !caixaDoGrupoSelecionado &&
-                                    !formaEstaAgrupada && (
-                                      <button
-                                        type="button"
-                                        data-redimensionar-forma="ambos"
-                                    onMouseDown={(e) => iniciarRedimensionamentoForma(e, c, "ambos")}
-                                        className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                        title={tr("shapeTools.resizeCenterHint")}
-                                      />
-                                    )}
-
-                                  {c.forma === "LINHA" && (
-                                    <>
-                                      {/* PONTO INÍCIO */}
-                                      <div
-                                        onMouseDown={(e) => {
-                                          e.stopPropagation();
-
-                                          const startX = e.clientX;
-                                          const startY = e.clientY;
-                                          const startLeft = c.x;
-                                          const startTop = c.y;
-                                          const startW = c.largura || 100;
-                                          const startH = c.altura || 2;
-
-                                          const move = (
-                                            ev: globalThis.MouseEvent,
-                                          ) => {
-                                            setCampos((prev) =>
-                                              prev.map((item) =>
-                                                item.id === c.id
-                                                  ? {
-                                                    ...item,
-                                                    x:
-                                                      startLeft +
-                                                      (ev.clientX - startX),
-                                                    y:
-                                                      startTop +
-                                                      (ev.clientY - startY),
-                                                    largura:
-                                                      startW -
-                                                      (ev.clientX - startX),
-                                                    altura:
-                                                      startH -
-                                                      (ev.clientY - startY),
-                                                  }
-                                                  : item,
-                                              ),
-                                            );
-                                          };
-
-                                          const up = () => {
-                                            window.removeEventListener(
-                                              "mousemove",
-                                              move,
-                                            );
-                                            window.removeEventListener(
-                                              "mouseup",
-                                              up,
-                                            );
-                                          };
-
-                                          window.addEventListener(
-                                            "mousemove",
-                                            move,
-                                          );
-                                          window.addEventListener(
-                                            "mouseup",
-                                            up,
-                                          );
-                                        }}
-                                        className="absolute left-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
-                                      />
-
-                                      {/* PONTO FINAL */}
-                                      <div
-                                        onMouseDown={(e) => {
-                                          e.stopPropagation();
-
-                                          const startX = e.clientX;
-                                          const startY = e.clientY;
-                                          const startW = c.largura || 100;
-                                          const startH = c.altura || 2;
-
-                                          const move = (
-                                            ev: globalThis.MouseEvent,
-                                          ) => {
-                                            setCampos((prev) =>
-                                              prev.map((item) =>
-                                                item.id === c.id
-                                                  ? {
-                                                    ...item,
-                                                    largura: Math.max(
-                                                      2,
-                                                      startW +
-                                                      (ev.clientX - startX),
-                                                    ),
-                                                    altura: Math.max(
-                                                      2,
-                                                      startH +
-                                                      (ev.clientY - startY),
-                                                    ),
-                                                  }
-                                                  : item,
-                                              ),
-                                            );
-                                          };
-
-                                          const up = () => {
-                                            window.removeEventListener(
-                                              "mousemove",
-                                              move,
-                                            );
-                                            window.removeEventListener(
-                                              "mouseup",
-                                              up,
-                                            );
-                                          };
-
-                                          window.addEventListener(
-                                            "mousemove",
-                                            move,
-                                          );
-                                          window.addEventListener(
-                                            "mouseup",
-                                            up,
-                                          );
-                                        }}
-                                        className="absolute right-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
-                                      />
-                                    </>
-                                  )}
-                                </>
-                              )}
-                          </div>
-                        );
-                      }
-
-                      if (c.tipo === "TEXTO_LIVRE") {
-                        const selecionadoTexto = camposSelecionadosIds.includes(
-                          c.id,
-                        );
-
-                        return (
-                          <div
-                            key={c.id}
-                            onMouseDown={(event) => {
-                              event.stopPropagation();
-
-                              if (event.button === 2) return;
-
-                              setCampoSelecionadoId(c.id);
-                              setCamposSelecionadosIds([c.id]);
-
-                              const alvo = event.target as HTMLElement;
-
-                              if (
-                                alvo.isContentEditable ||
-                                alvo.closest("[data-texto-livre-id]")
-                              ) {
-                                return;
-                              }
-
-                              iniciarDrag(event as any, c);
-                            }}
-                            onContextMenu={(e) => {
-                              e.preventDefault();
-                              setCampoSelecionadoId(c.id);
-
-                              if (!camposSelecionadosIds.includes(c.id)) {
-                                setCamposSelecionadosIds([c.id]);
-                              }
-
-                              setMenuContexto({
-                                x: e.clientX,
-                                y: e.clientY,
-                                campoId: c.id,
-                              });
-                            }}
-                            className="absolute z-20"
-                            style={{
-                              left: `${c.x}px`,
-                              top: `${c.y}px`,
-                              width: `${c.largura || 320}px`,
-                              height: `${c.altura || 120}px`,
-                              zIndex:
-                                campoSelecionadoId === c.id
-                                  ? 99999
-                                  : c.ordem || 20,
-                              pointerEvents: c.bloqueado ? "none" : "auto",
-                            }}
-                          >
-                            <div
-                              contentEditable
-                              suppressContentEditableWarning
-                              data-texto-livre-id={c.id}
-                              data-texto-conteudo="true"
-                              dir="ltr"
-                              ref={(el) => {
-                                if (!el) return;
-
-                                const valor =
-                                  (c as any).textoHtml ||
-                                  (c as any).texto ||
-                                  tr("text.placeholderText");
-
-                                if (document.activeElement === el) return;
-
-                                if (el.innerHTML !== valor) {
-                                  el.innerHTML = valor;
-                                }
-                              }}
-                              onMouseDown={(e) => {
-                                e.stopPropagation();
-
-                                setCampoSelecionadoId(c.id);
-                                setCamposSelecionadosIds([c.id]);
-
-                                const alvo = e.target as HTMLElement;
-
-                                if (!alvo.closest("[data-texto-conteudo]")) {
-                                  e.preventDefault();
-                                  iniciarDrag(e as any, c);
-                                }
-                              }}
-
-                              onPaste={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-
-                                const editor = e.currentTarget;
-                                const texto =
-                                  e.clipboardData.getData("text/plain");
-
-                                if (!texto.trim()) return;
-                                const textoAtual = editor.innerText.trim();
-
-                                const ehTextoPadrao =
-                                  ehTextoPlaceholderPadrao(textoAtual);
-
-                                salvarHistoricoTextoLivre(editor);
-
-                                if (ehTextoPadrao) {
-                                  editor.textContent = texto;
-                                } else {
-                                  const selecao = window.getSelection();
-
-                                  if (
-                                    selecao &&
-                                    selecao.rangeCount > 0 &&
-                                    editor.contains(
-                                      selecao.getRangeAt(0)
-                                        .commonAncestorContainer,
-                                    )
-                                  ) {
-                                    const range = selecao.getRangeAt(0);
-
-                                    range.deleteContents();
-
-                                    const node = document.createTextNode(texto);
-                                    range.insertNode(node);
-
-                                    range.setStartAfter(node);
-                                    range.setEndAfter(node);
-
-                                    selecao.removeAllRanges();
-                                    selecao.addRange(range);
-                                  } else {
-                                    editor.textContent = texto;
-                                  }
-                                }
-
-                                atualizarTextoLivreNoEstado(editor);
-
-                                setTimeout(() => {
-                                  salvarHistoricoTextoLivre(editor);
-                                }, 0);
-                              }}
-
-                              onKeyDown={(e) => {
-                                /*
-                                 * TEXTO_LIVRE usa contentEditable.
-                                 *
-                                 * Se Delete for pressionado sem um trecho de
-                                 * texto selecionado, deixamos o evento subir
-                                 * at? o manipulador global do editor, que
-                                 * excluir? a caixa inteira.
-                                 *
-                                 * Se houver texto selecionado, mantemos o
-                                 * evento dentro do contentEditable para que
-                                 * somente aquele trecho seja apagado.
-                                 *
-                                 * Backspace continua sendo usado normalmente
-                                 * para edi??o do conte?do.
-                                 */
-                                if (e.key === "Delete") {
-                                  const editor = e.currentTarget;
-                                  const selecao = window.getSelection();
-
-                                  const temSelecaoDentroDoTexto =
-                                    Boolean(
-                                      selecao &&
-                                      selecao.rangeCount > 0 &&
-                                      !selecao.isCollapsed &&
-                                      editor.contains(
-                                        selecao.getRangeAt(0)
-                                          .commonAncestorContainer,
-                                      ),
-                                    );
-
-                                  if (!temSelecaoDentroDoTexto) {
-                                    return;
-                                  }
-                                }
-
-                                e.stopPropagation();
-
-                                if (
-                                  (e.ctrlKey || e.metaKey) &&
-                                  e.key.toLowerCase() === "v"
-                                ) {
-                                  const editor = e.currentTarget;
-                                  const textoAtual = editor.innerText.trim();
-
-                                  const ehTextoPadrao =
-                                    textoAtual === tr("text.placeholderText") ||
-                                    textoAtual === tr("text.placeholderTitle");
-
-                                  if (ehTextoPadrao) {
-                                    e.preventDefault();
-
-                                    navigator.clipboard
-                                      .readText()
-                                      .then((texto) => {
-                                        if (!texto.trim()) return;
-
-                                        salvarHistoricoTextoLivre(editor);
-
-                                        editor.textContent = texto;
-                                        atualizarTextoLivreNoEstado(editor);
-
-                                        setTimeout(() => {
-                                          salvarHistoricoTextoLivre(editor);
-                                        }, 0);
-                                      });
-
-                                    return;
-                                  }
-                                }
-
-                                if (
-                                  (e.ctrlKey || e.metaKey) &&
-                                  e.key.toLowerCase() === "z"
-                                ) {
-                                  e.preventDefault();
-                                  if (e.repeat) return;
-                                  if (e.shiftKey) refazerTextoLivre(e.currentTarget);
-                                  else desfazerTextoLivre(e.currentTarget);
-                                  return;
-                                }
-
-                                const editor = e.currentTarget;
-                                const marcador = editor.getAttribute(
-                                  "data-marcador-ativo",
-                                );
-
-                                if (!marcador) return;
-
-                                const textoAntes =
-                                  obterTextoAntesDoCursor(editor);
-                                const linhaAtual =
-                                  textoAntes.split("\n").pop() || "";
-
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-
-                                  if (linhaAtual.trim() === marcador) {
-                                    editor.removeAttribute(
-                                      "data-marcador-ativo",
-                                    );
-                                    inserirTextoNoCursor(editor, "\n");
-                                  } else {
-                                    inserirTextoNoCursor(
-                                      editor,
-                                      `\n${marcador} `,
-                                    );
-                                  }
-
-                                  atualizarTextoLivreNoEstado(editor);
-                                  return;
-                                }
-
-                                if (
-                                  e.key === "Backspace" &&
-                                  linhaAtual === `${marcador} `
-                                ) {
-                                  editor.removeAttribute("data-marcador-ativo");
-                                  return;
-                                }
-
-                                if (
-                                  e.key === " " &&
-                                  linhaAtual === `${marcador} `
-                                ) {
-                                  e.preventDefault();
-                                  editor.removeAttribute("data-marcador-ativo");
-                                  inserirTextoNoCursor(editor, "\n");
-                                  atualizarTextoLivreNoEstado(editor);
-                                }
-                              }}
-
-                              onInput={(e) => {
-                                const editor = e.currentTarget;
-
-                                salvarHistoricoTextoLivre(editor);
-
-                                const texto = editor.innerText;
-                                const textoHtml = editor.innerHTML;
-
-                                setCampos((prev) =>
-                                  prev.map((item) =>
-                                    item.id === c.id
-                                      ? {
-                                        ...item,
-                                        texto,
-                                        textoHtml,
-                                      }
-                                      : item,
-                                  ),
-                                );
-                              }}
-                              onBlur={(e) => {
-                                const texto = e.currentTarget.innerText;
-                                const textoHtml = e.currentTarget.innerHTML;
-
-                                setCampos((prev) =>
-                                  prev.map((item) =>
-                                    item.id === c.id
-                                      ? { ...item, texto, textoHtml }
-                                      : item,
-                                  ),
-                                );
-                              }}
-                              onBeforeInput={(e) => {
-                                if (
-                                  (e.nativeEvent as InputEvent).inputType ===
-                                  "insertFromPaste"
-                                ) {
-                                  return;
-                                }
-
-                                salvarHistoricoTextoLivre(e.currentTarget);
-                              }}
-                              onMouseUp={() => {
-                                const selecao = window.getSelection();
-
-                                if (
-                                  selecao &&
-                                  selecao.rangeCount > 0 &&
-                                  selecao.toString().trim()
-                                ) {
-                                  const range = selecao
-                                    .getRangeAt(0)
-                                    .cloneRange();
-                                  selecaoTextoRef.current = range;
-
-                                  const elemento =
-                                    selecao.anchorNode?.parentElement;
-                                  const cor = elemento
-                                    ? window.getComputedStyle(elemento).color
-                                    : "";
-                                  const corHex = cssColorToHex(cor);
-
-                                  setCorTextoSelecionado(corHex || null);
-                                }
-                              }}
-                              onKeyUp={() => {
-                                const selecao = window.getSelection();
-
-                                if (
-                                  selecao &&
-                                  selecao.rangeCount > 0 &&
-                                  selecao.toString().trim()
-                                ) {
-                                  selecaoTextoRef.current = selecao
-                                    .getRangeAt(0)
-                                    .cloneRange();
-                                }
-                              }}
-                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${selecionadoTexto
-                                ? "border-2 border-blue-600 bg-blue-50/10"
-                                : "border border-blue-400/60 bg-transparent"
-                                }`}
-                              style={{
-                                fontFamily: c.fonte || "Arial",
-                                fontSize: `${c.tamanho || 18}px`,
-                                color: c.cor || "#1e3a8a",
-                                fontWeight: c.negrito ? "bold" : "normal",
-                                fontStyle: c.italico ? "italic" : "normal",
-                                textDecoration: c.sublinhado
-                                  ? "underline"
-                                  : "none",
-                                textAlign:
-                                  (c.alinhamento as
-                                    "left" | "center" | "right") || "left",
-                                lineHeight: c.lineHeight || 1.3,
-                                letterSpacing: (c as any).letterSpacing ?? 0,
-                                wordSpacing: (c as any).wordSpacing ?? 0,
-                                whiteSpace: "pre-wrap",
-                                wordBreak: "break-word",
-                                cursor: "text",
-                                direction: "ltr",
-                                unicodeBidi: "isolate",
-                                writingMode: "horizontal-tb",
-                                caretColor: c.cor || "#1e3a8a",
-                              }}
-                            ></div>
-
-                            {selecionadoTexto && (
-                              <button
-                                type="button"
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  excluirCampo(c.id);
-                                }}
-                                className="absolute -top-3 -right-3 z-[999999] flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs font-black text-white shadow-lg hover:bg-red-700"
-                                title={tr("text.deleteTextField")}
-                              >
-                                ×
-                              </button>
-                            )}
-
-                            {selecionadoTexto && (
-                              <div
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-                                  iniciarDrag(e as any, c);
-                                }}
-                                className="absolute -top-3 left-1/2 z-[999999] -translate-x-1/2 cursor-move rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black text-white shadow-lg"
-                                title={tr("text.dragTextBox")}
-                              >
-                                {tr("common.move")}
-                              </div>
-                            )}
-
-                            {selecionadoTexto && (
-                              <div
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  e.preventDefault();
-
-                                  const startX = e.clientX;
-                                  const startY = e.clientY;
-                                  const larguraInicial = c.largura || 320;
-                                  const alturaInicial = c.altura || 120;
-
-                                  const move = (ev: globalThis.MouseEvent) => {
-                                    setCampos((prev) =>
-                                      prev.map((item) =>
-                                        item.id === c.id
-                                          ? {
-                                            ...item,
-                                            largura: Math.max(
-                                              80,
-                                              Math.round(
-                                                larguraInicial +
-                                                (ev.clientX - startX) /
-                                                escala,
-                                              ),
-                                            ),
-                                            altura: Math.max(
-                                              40,
-                                              Math.round(
-                                                alturaInicial +
-                                                (ev.clientY - startY) /
-                                                escala,
-                                              ),
-                                            ),
-                                          }
-                                          : item,
-                                      ),
-                                    );
-                                  };
-
-                                  const up = () => {
-                                    window.removeEventListener(
-                                      "mousemove",
-                                      move,
-                                    );
-                                    window.removeEventListener("mouseup", up);
-                                  };
-
-                                  window.addEventListener("mousemove", move);
-                                  window.addEventListener("mouseup", up);
-                                }}
-                                className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                title={tr("text.resizeTextBox")}
-                              />
-                            )}
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div
-                          key={c.id}
-                          onMouseDown={(event) => {
-                            event.stopPropagation();
-
-                            if (event.button === 2) return;
-
-                            if (
-                              event.shiftKey ||
-                              event.ctrlKey ||
-                              event.metaKey
-                            ) {
-                              setCamposSelecionadosIds((prev) =>
-                                prev.includes(c.id)
-                                  ? prev.filter((id) => id !== c.id)
-                                  : [...prev, c.id],
-                              );
-
-                              setCampoSelecionadoId(c.id);
-                              return;
-                            }
-
-                            setCampoSelecionadoId(c.id);
-                            setCamposSelecionadosIds([c.id]);
-                            iniciarDrag(event as any, c);
-                          }}
-                          onContextMenu={(e) => {
-                            e.preventDefault();
-                            setCampoSelecionadoId(c.id);
-
-                            if (!camposSelecionadosIds.includes(c.id)) {
-                              setCamposSelecionadosIds([c.id]);
-                            }
-
-                            setMenuContexto({
-                              x: e.clientX,
-                              y: e.clientY,
-                              campoId: c.id,
-                            });
-                          }}
-                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${camposSelecionadosIds.includes(c.id)
-                            ? c.tipo === "ASSINATURA" ||
-                              c.tipo === "LOGO_INSTITUICAO"
-                              ? "border-blue-600 bg-transparent text-blue-900"
-                              : "border-blue-600 bg-blue-600/90 text-white"
-                            : "border-blue-300 bg-transparent text-blue-900"
-                            }`}
-                          style={{
-                            left: `${c.x}px`,
-                            top: `${c.y}px`,
-                            width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 120)}px`,
-                            height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
-                            zIndex:
-                              campoSelecionadoId === c.id
-                                ? 99999
-                                : c.ordem || 1,
-                            pointerEvents: c.bloqueado ? "none" : "auto",
-                            textAlign:
-                              (c.alinhamento as "left" | "center" | "right") ||
-                              "left",
-                            fontSize: `${c.tamanho || 12}px`,
-                            color: c.cor || "#1e3a8a",
-                            cursor: "default",
-                            fontFamily: c.fonte || "Helvetica",
-                            fontWeight: c.negrito ? "bold" : "normal",
-                            fontStyle: c.italico ? "italic" : "normal",
-                            textDecoration: c.sublinhado ? "underline" : "none",
-                            lineHeight: c.lineHeight || 1.3,
-                            textShadow: sombraProjetadaCss(c),
-                            ...efeitosTextoCampoCss(c),
-                            filter: (c as any).filter || "none",
-                            opacity: (c as any).opacity ?? 1,
-                            transform: transformacaoCampoCss(c),
-                            transformOrigin: "center center",
-                            letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
-                            wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
-                            whiteSpace:
-                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
-                                ? "pre-wrap"
-                                : "nowrap",
-                            display:
-                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
-                                ? "block"
-                                : "flex",
-                            alignItems:
-                              c.tipo === "DISCIPLINAS_CONCLUIDAS"
-                                ? undefined
-                                : "center",
-                            justifyContent:
-                              c.alinhamento === "center"
-                                ? "center"
-                                : c.alinhamento === "right"
-                                  ? "flex-end"
-                                  : "flex-start",
-                            overflow: "visible",
-                            boxSizing: "border-box",
-                          }}
-                        >
-                          {c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
-                            <div
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                display: "grid",
-                                gridTemplateColumns: `repeat(${quantidadeColunasDisciplinasDoCampo(
-                                  c,
-                                )}, minmax(0, 1fr))`,
-                                columnGap: `${espacoColunasDisciplinasDoCampo(c)}px`,
-                                rowGap: "2px",
-                                alignContent: "center",
-                                justifyItems:
-                                  c.alinhamento === "center"
-                                    ? "center"
-                                    : c.alinhamento === "right"
-                                      ? "end"
-                                      : "start",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                              }}
-                            >
-                              {listaDisciplinasExemplo(c, tr("preview.discipline")).map(
-                                (disciplina, index) => (
-                                  <div
-                                    key={`${c.id}-disciplina-${index}`}
-                                    style={{
-                                      minWidth: 0,
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                    }}
-                                  >
-                                    {disciplina}
-                                  </div>
-                                ),
-                              )}
-                            </div>
-                          ) : c.tipo === "APROVEITAMENTO" ? (
-                            "100%"
-                          ) : c.tipo === "FREQUENCIA_TOTAL" ? (
-                            tr("preview.totalAttendance")
-                          ) : c.tipo === "NOME_ALUNO" ? (
-                            tr("preview.studentNameLabel")
-                          ) : c.tipo === "NOME_CURSO" ? (
-                            tr("preview.courseNameLabel")
-                          ) : c.tipo === "DATA_EMISSAO" ? (
-                            "00/00/0000"
-                          ) : c.tipo === "ASSINATURA" ? (
-                            certificadoAssinaturaUrl ? (
-                              <img
-                                src={certificadoAssinaturaUrl}
-                                alt={tr("fieldTypes.ASSINATURA")}
-                                draggable={false}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "contain",
-                                  display: "block",
-                                  pointerEvents: "none",
-                                }}
-                              />
-                            ) : (
-                              tr("preview.signature")
-                            )
-                          ) : (
-                            c.tipo
-                          )}
-
-                          {camposSelecionadosIds.includes(c.id) &&
-                            c.tipo === "ASSINATURA" && (
-                              <>
-                                {/* Redimensionar largura e altura */}
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-
-                                    const startX = e.clientX;
-                                    const startY = e.clientY;
-                                    const startW = Number(c.largura || 260);
-                                    const startH = Number(c.altura || 90);
-
-                                    let novaLargura = startW;
-                                    let novaAltura = startH;
-
-                                    const move = (
-                                      ev: globalThis.MouseEvent,
-                                    ) => {
-                                      novaLargura = Math.max(
-                                        40,
-                                        Math.round(
-                                          startW +
-                                          (ev.clientX - startX) / escala,
-                                        ),
-                                      );
-
-                                      novaAltura = Math.max(
-                                        18,
-                                        Math.round(
-                                          startH +
-                                          (ev.clientY - startY) / escala,
-                                        ),
-                                      );
-
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              largura: novaLargura,
-                                              altura: novaAltura,
-                                            }
-                                            : item,
-                                        ),
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.removeEventListener("mouseup", up);
-
-                                      void atualizarCampo(c.id, {
-                                        largura: novaLargura,
-                                        altura: novaAltura,
-                                      });
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-                                  title={tr("preview.resizeSignature")}
-                                />
-
-                                {/* Ajustar só largura */}
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-
-                                    const startX = e.clientX;
-                                    const startW = Number(c.largura || 260);
-
-                                    let novaLargura = startW;
-
-                                    const move = (
-                                      ev: globalThis.MouseEvent,
-                                    ) => {
-                                      novaLargura = Math.max(
-                                        40,
-                                        Math.round(
-                                          startW +
-                                          (ev.clientX - startX) / escala,
-                                        ),
-                                      );
-
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              largura: novaLargura,
-                                            }
-                                            : item,
-                                        ),
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.removeEventListener("mouseup", up);
-
-                                      void atualizarCampo(c.id, {
-                                        largura: novaLargura,
-                                      });
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                  title={tr("common.adjustWidth")}
-                                />
-
-                                {/* Ajustar só altura */}
-                                <div
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-
-                                    const startY = e.clientY;
-                                    const startH = Number(c.altura || 90);
-
-                                    let novaAltura = startH;
-
-                                    const move = (
-                                      ev: globalThis.MouseEvent,
-                                    ) => {
-                                      novaAltura = Math.max(
-                                        18,
-                                        Math.round(
-                                          startH +
-                                          (ev.clientY - startY) / escala,
-                                        ),
-                                      );
-
-                                      setCampos((prev) =>
-                                        prev.map((item) =>
-                                          item.id === c.id
-                                            ? {
-                                              ...item,
-                                              altura: novaAltura,
-                                            }
-                                            : item,
-                                        ),
-                                      );
-                                    };
-
-                                    const up = () => {
-                                      window.removeEventListener(
-                                        "mousemove",
-                                        move,
-                                      );
-                                      window.removeEventListener("mouseup", up);
-
-                                      void atualizarCampo(c.id, {
-                                        altura: novaAltura,
-                                      });
-                                    };
-
-                                    window.addEventListener("mousemove", move);
-                                    window.addEventListener("mouseup", up);
-                                  }}
-                                  className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                                  title={tr("common.adjustHeight")}
-                                />
-                              </>
-                            )}
-                        </div>
-                      );
-                    })}
+                  {camposDaCena.map((c) => (
+                    <ElementoCenaCertificado key={c.id} elemento={c} renderizar={renderizarElementoCena}
+                      dependencias={[
+                        selecaoCena.has(c.id), campoSelecionadoId === c.id,
+                        selecaoCena.has(c.id) && camposSelecionadosIds.length <= 1,
+                        selecaoCena.has(c.id) && Boolean(caixaDoGrupoSelecionado),
+                        c.tipo === "FORMA" && selecaoCena.has(c.id) && mostrarHandlesForma,
+                        c.tipo === "FORMA" && selecaoCena.has(c.id) && modoEspessuraContorno,
+                        pontoFormaSelecionado?.campoId === c.id ? pontoFormaSelecionado : null,
+                        c.tipo === "ASSINATURA" ? certificadoAssinaturaUrl : null,
+                        locale,
+                      ]} />
+                  ))}
                   {modoFormaLivre && pontosFormaLivre.length > 0 && (
                     <svg data-forma-livre-preview="true" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
                       style={{ zIndex: 1000000 }}>
