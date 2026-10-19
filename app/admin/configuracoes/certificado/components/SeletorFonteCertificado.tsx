@@ -42,7 +42,7 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
   const visiveis = aberto ? opcoes.slice(inicio, inicio + Math.ceil(ALTURA_LISTA / ALTURA_LINHA) + 4) : [];
   const amostra = textoAmostra.replace(/\s+/g, " ").trim().slice(0, 48) || tr("sampleText");
   const amostraDe = (nome: string) => ESCRITAS_FONTES_CERTIFICADO[nome] === "arabic" ? "الخط العربي" : ESCRITAS_FONTES_CERTIFICADO[nome] === "greek" ? "Ελληνική γραφή" : amostra;
-  const estadoFonte = useAmostrasFontes(visiveis.map(item => item.fonte), amostra + " Ελληνική γραφή الخط العربي", tentativa);
+  const estadoFonte = useAmostrasFontes(visiveis.map(item => item.fonte), amostra, tentativa);
   const temErro = visiveis.some(item => estadoFonte(item.fonte) === "erro");
 
   useEffect(() => {
@@ -104,7 +104,7 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
       <p className="text-xs text-slate-500 dark:text-slate-400">{tr("visualListHint")}</p>
       <div ref={listaRef} id={id} role="listbox" tabIndex={0} aria-label={tr("chooseFont")}
         aria-activedescendant={ativo >= inicio && ativo < inicio + visiveis.length ? `${id}-${ativo}` : undefined}
-        className="overflow-y-auto rounded-xl border border-slate-300 bg-white text-slate-900" style={{ height: ALTURA_LISTA }}
+        className="overflow-y-auto rounded-xl border border-slate-300 bg-white text-slate-900" style={{ height: ALTURA_LISTA, overflowAnchor: "none" }}
         onScroll={evento => setRolagem(evento.currentTarget.scrollTop)}
         onKeyDown={evento => {
           if (["ArrowDown", "ArrowUp", "Home", "End", "Enter", " "].includes(evento.key)) {
