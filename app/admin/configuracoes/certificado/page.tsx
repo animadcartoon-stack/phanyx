@@ -5,7 +5,7 @@ import FormaVetorial from "./components/FormaVetorial";
 import CampoNumeroEditavel from "./components/CampoNumeroEditavel";
 import { opacidadeDaForma, espessuraNoPonto, trechosSelecionados } from "./components/contornoForma";
 import { calcularRedimensionamentoForma } from "./components/redimensionamentoForma";
-import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma } from "./components/edicaoPontosForma";
+import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma, criarAlcasDoContorno } from "./components/edicaoPontosForma";
 import CorComCodigo from "./components/CorComCodigo";
 import useHistoricoCertificado from "./components/useHistoricoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
@@ -1567,7 +1567,7 @@ export default function ConfiguracaoCertificadoPage() {
       novos = pontos.map((p) => {
         if (ids.length && !ids.includes(p.id)) return p;
         return acao === "curvar"
-          ? { ...p, tipo: "curvo" as const, inX: p.inX ?? p.x - 18, inY: p.inY ?? p.y, outX: p.outX ?? p.x + 18, outY: p.outY ?? p.y }
+          ? criarAlcasDoContorno(p, pontos, campo.forma !== "LINHA", Number(campo.largura || 100), Number(campo.altura || 100))
           : { ...p, tipo: "reto" as const, inX: undefined, inY: undefined, outX: undefined, outY: undefined };
       });
     }
@@ -1595,6 +1595,20 @@ export default function ConfiguracaoCertificadoPage() {
     setCamposSelecionadosIds([]);
     setPontoFormaSelecionado(null);
   }
+
+  useEffect(() => {
+    if (!modoFormaLivre) return;
+    function cancelarComEscape(evento: KeyboardEvent) {
+      if (evento.key !== "Escape") return;
+      const alvo = evento.target as HTMLElement | null;
+      if (alvo?.matches("input, textarea, select") || alvo?.isContentEditable) return;
+      evento.preventDefault();
+      cancelarFormaLivreEmCriacao();
+      setMensagemSucesso(tr("freeForm.creationCancelled"));
+    }
+    window.addEventListener("keydown", cancelarComEscape);
+    return () => window.removeEventListener("keydown", cancelarComEscape);
+  }, [modoFormaLivre, setCampos, locale]);
 
   const [copiasPreviewArray, setCopiasPreviewArray] = useState<any[]>([]);
 
@@ -1643,12 +1657,9 @@ export default function ConfiguracaoCertificadoPage() {
     if (!modoFormaLivre || !canvasRef.current) return false;
     if (e.button !== 0) return false;
 
-    const alvo = e.target as HTMLElement;
-
-    if (alvo.closest("[data-campo-certificado-id]")) {
-      return false;
-    }
-
+    const alvo = e.target as Element;
+    // Durante o desenho, os cliques no papel continuam criando pontos,
+    // inclusive quando ha outra forma por baixo da previa.
     e.preventDefault();
     e.stopPropagation();
 
@@ -1658,23 +1669,19 @@ export default function ConfiguracaoCertificadoPage() {
     const y = (e.clientY - rect.top) / escala;
 
     const novoPonto = {
-      id: `livre-${Date.now()}`,
+      id: `livre-${crypto.randomUUID()}`,
       x,
       y,
     };
 
     futuroPontosFormaLivreRef.current = [];
-    const proximosPontos = [...pontosFormaLivreRef.current, novoPonto];
-
-    const primeiro = pontosFormaLivre[0];
-
-    const clicouNoPrimeiro =
-      pontosFormaLivre.length >= 3 &&
-      primeiro &&
-      Math.hypot(x - primeiro.x, y - primeiro.y) <= 18;
+    const atuais = pontosFormaLivreRef.current;
+    const proximosPontos = [...atuais, novoPonto];
+    const clicouNoPrimeiro = Boolean(alvo.closest("[data-fechar-forma-livre]"));
+    if (clicouNoPrimeiro && atuais.length < 3) return true;
 
     if (clicouNoPrimeiro) {
-      const campoFinal = criarCampoPreviewFormaLivre(pontosFormaLivre);
+      const campoFinal = criarCampoPreviewFormaLivre(atuais);
 
       const novoId = Date.now();
 
@@ -10033,14 +10040,13 @@ export default function ConfiguracaoCertificadoPage() {
                   ref={canvasRef}
                   data-certificado-papel="true"
                   data-cert-canvas="true"
-                  onMouseDownCapture={iniciarSelecaoPontos}
+                  onMouseDownCapture={(e) => {
+                    if (modoFormaLivre) { clicarFormaLivreNoCanvas(e); return; }
+                    iniciarSelecaoPontos(e);
+                  }}
 
                   onMouseDown={(e) => {
-                    if (modoFormaLivre) {
-                      if (e.target !== e.currentTarget) return;
-                      clicarFormaLivreNoCanvas(e);
-                      return;
-                    }
+                    if (modoFormaLivre) return;
 
                     iniciarSelecaoRetangular(e);
                   }}
@@ -10202,6 +10208,7 @@ export default function ConfiguracaoCertificadoPage() {
                     }),
                     ...copiasPreviewArray,
                   ]
+                    .filter((campo) => campo.id !== -999999)
                     .sort(
                       (a: any, b: any) =>
                         Number(a.ordem || 0) - Number(b.ordem || 0),
@@ -11826,6 +11833,21 @@ export default function ConfiguracaoCertificadoPage() {
                         </div>
                       );
                     })}
+                  {modoFormaLivre && pontosFormaLivre.length > 0 && (
+                    <svg data-forma-livre-preview="true" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+                      style={{ zIndex: 1000000 }}>
+                      <polyline points={pontosFormaLivre.map((p) => `${p.x},${p.y}`).join(" ")}
+                        fill="none" stroke="#00ff88" strokeWidth={2 / escala} strokeLinejoin="round" strokeLinecap="round" />
+                      {pontosFormaLivre.map((p, index) => (
+                        <circle key={p.id} cx={p.x} cy={p.y} r={(index === 0 ? 7 : 3) / escala}
+                          fill={index === 0 ? "#ffffff" : "#00ff88"} stroke="#00ff88" strokeWidth={2 / escala}
+                          data-fechar-forma-livre={index === 0 ? "true" : undefined}
+                          className={index === 0 ? "pointer-events-auto cursor-crosshair" : "pointer-events-none"}>
+                          {index === 0 && <title>{tr("freeForm.activated")}</title>}
+                        </circle>
+                      ))}
+                    </svg>
+                  )}
                 </div>
               </div>
             </div>
