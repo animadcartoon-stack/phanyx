@@ -69,6 +69,19 @@ function amostrarPath(path: string, largura: number, altura: number) {
   return amostras;
 }
 
+/** Une comandos da mesma espessura sem alterar coordenadas, recorte ou opacidade. */
+export function agruparTrechosContorno(trechos: Segmento[] | null, cor: string): Segmento[] | null {
+  // Cores com alpha no proprio stroke mantem a composicao original nas sobreposicoes.
+  if (!trechos || trechos.length < 2 || !/^#[\da-f]{6}$/i.test(cor)) return trechos;
+  const porLargura = new Map<number, string[]>();
+  trechos.forEach((trecho) => {
+    const comandos = porLargura.get(trecho.largura);
+    if (comandos) comandos.push(trecho.d);
+    else porLargura.set(trecho.largura, [trecho.d]);
+  });
+  return Array.from(porLargura, ([largura, comandos]) => ({ largura, d: comandos.join(" ") }));
+}
+
 /** Contorno vetorial por trechos; a opacidade e aplicada uma unica vez ao grupo. */
 export function gerarTrechosContorno(
   path: string, pontos: Ponto[], campo: Aparencia,

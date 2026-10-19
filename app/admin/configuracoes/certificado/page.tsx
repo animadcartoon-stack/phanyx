@@ -14,8 +14,10 @@ import CertificadoRender from "@/components/certificados/CertificadoRender";
 import ImagemCertificado from "@/components/certificados/ImagemCertificado";
 import { useLocale, useTranslations } from "next-intl";
 
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 
+
+const PONTOS_SEM_SELECAO: string[] = [];
 
 type CampoCertificado = {
   id: number;
@@ -1348,8 +1350,24 @@ export default function ConfiguracaoCertificadoPage() {
     return () => window.removeEventListener("keydown", handleUndoRedo, true);
   }, [modoFormaLivre, refazer, desfazer, setCampos, locale]);
 
+  const camposParaInteracaoRef = useRef(campos);
+  camposParaInteracaoRef.current = campos;
+  const atualizarFormaNoCanvas = useCallback((campoAtualizado: { id: number; [key: string]: any }) => {
+    setCampos((prev) => prev.map((item) => item.id === campoAtualizado.id && !item.grupoId
+      ? ({ ...item, ...campoAtualizado } as CampoCertificado) : item));
+  }, [setCampos]);
+  const selecionarPontosNoCanvas = useCallback((ids: string[], campoId?: number) => {
+    const atuais = camposParaInteracaoRef.current;
+    const campo = atuais.find((item) => item.id === campoId);
+    if (!campo) return;
+    setCampoSelecionadoId(campo.id);
+    setCamposSelecionadosIds(campo.grupoId ? atuais.filter((item) => item.grupoId === campo.grupoId).map((item) => item.id) : [campo.id]);
+    setPontoFormaSelecionado(!campo.grupoId && ids.length
+      ? { campoId: campo.id, pontoId: ids[ids.length - 1], pontoIds: ids } : null);
+  }, []);
+
   function idsDosPontosSelecionados(campoId: number) {
-    return pontoFormaSelecionado?.campoId === campoId ? pontoFormaSelecionado.pontoIds : [];
+    return pontoFormaSelecionado?.campoId === campoId ? pontoFormaSelecionado.pontoIds : PONTOS_SEM_SELECAO;
   }
 
   function selecionarPontosDaForma(campoId: number, ids: string[]) {
@@ -7189,6 +7207,83 @@ export default function ConfiguracaoCertificadoPage() {
     return resultado;
   }
 
+  const cacheArrayCenaRef = useRef(new WeakMap<object, any[]>());
+  const camposDaCena = useMemo(() => ([
+                    ...campos.flatMap((campo) => {
+                      if (
+                        campo.tipo !== "FORMA" ||
+                        !(campo as any).arrayAtivo
+                      ) {
+                        return [campo];
+                      }
+
+                      const emCache = cacheArrayCenaRef.current.get(campo);
+                      if (emCache) return emCache;
+                      const config = (campo as any).arrayConfig;
+                      if (!config?.ativo) return [campo];
+
+                      const quantidade = Number(config.quantidade || 1);
+                      const anguloRad =
+                        (Number(config.angulo || 0) * Math.PI) / 180;
+
+                      const escala = Number(config.escala || 100) / 100;
+                      const opacidade = Number(config.opacidade || 100) / 100;
+
+                      const copias = Array.from({ length: quantidade }).map(
+                        (_, index) => {
+                          const passo = index + 1;
+
+                          const baseX = Number(config.distanciaX || 0) * passo;
+                          const baseY = Number(config.distanciaY || 0) * passo;
+
+                          const deslocamentoX =
+                            baseX * Math.cos(anguloRad) -
+                            baseY * Math.sin(anguloRad);
+
+                          const deslocamentoY =
+                            baseX * Math.sin(anguloRad) +
+                            baseY * Math.cos(anguloRad);
+
+                          return {
+                            ...campo,
+                            id: Number(`${campo.id}${passo}`),
+                            arrayPreview: true,
+                            x: Number(campo.x || 0) + deslocamentoX,
+                            y: Number(campo.y || 0) + deslocamentoY,
+                            largura:
+                              Number(campo.largura || 100) *
+                              Math.pow(escala, passo),
+                            altura:
+                              Number(campo.altura || 100) *
+                              Math.pow(escala, passo),
+                            rotate:
+                              Number((campo as any).rotate || 0) +
+                              Number(config.rotacaoPorCopia || 0) * passo,
+                            opacity: Math.max(
+                              0.05,
+                              Number(campo.opacity || 1) *
+                              Math.pow(opacidade, passo),
+                            ),
+                          };
+                        },
+                      );
+
+                      const resultado = [campo, ...copias];
+                      cacheArrayCenaRef.current.set(campo, resultado);
+                      return resultado;
+                    }),
+                    ...copiasPreviewArray,
+                  ]
+                    .filter((campo) => campo.id !== -999999)
+                    .sort(
+                      (a: any, b: any) =>
+                        Number(a.ordem || 0) - Number(b.ordem || 0),
+                    )), [campos, copiasPreviewArray]);
+  const camposPreviewCertificado = useMemo(() => previewAberto ? [
+    ...camposComArrayVirtual(), ...copiasPreviewArray,
+  ].sort((a: any, b: any) => Number(a.ordem || 0) - Number(b.ordem || 0)) : [],
+  [previewAberto, campos, copiasPreviewArray]);
+
   if (carregando) {
     return (
       <div className="p-6 text-sm text-slate-500">
@@ -7240,10 +7335,7 @@ export default function ConfiguracaoCertificadoPage() {
     );
   }
 
-  const camposPreviewCertificado = [
-    ...camposComArrayVirtual(),
-    ...copiasPreviewArray,
-  ].sort((a: any, b: any) => Number(a.ordem || 0) - Number(b.ordem || 0));
+  // A previa e calculada sob demanda antes do retorno de carregamento.
 
   const dadosPreviewCertificado = {
     nomeAluno: tr("preview.studentName"),
@@ -10146,73 +10238,7 @@ export default function ConfiguracaoCertificadoPage() {
                     />
                   )}
 
-                  {[
-                    ...campos.flatMap((campo) => {
-                      if (
-                        campo.tipo !== "FORMA" ||
-                        !(campo as any).arrayAtivo
-                      ) {
-                        return [campo];
-                      }
-
-                      const config = (campo as any).arrayConfig;
-                      if (!config?.ativo) return [campo];
-
-                      const quantidade = Number(config.quantidade || 1);
-                      const anguloRad =
-                        (Number(config.angulo || 0) * Math.PI) / 180;
-
-                      const escala = Number(config.escala || 100) / 100;
-                      const opacidade = Number(config.opacidade || 100) / 100;
-
-                      const copias = Array.from({ length: quantidade }).map(
-                        (_, index) => {
-                          const passo = index + 1;
-
-                          const baseX = Number(config.distanciaX || 0) * passo;
-                          const baseY = Number(config.distanciaY || 0) * passo;
-
-                          const deslocamentoX =
-                            baseX * Math.cos(anguloRad) -
-                            baseY * Math.sin(anguloRad);
-
-                          const deslocamentoY =
-                            baseX * Math.sin(anguloRad) +
-                            baseY * Math.cos(anguloRad);
-
-                          return {
-                            ...campo,
-                            id: Number(`${campo.id}${passo}`),
-                            arrayPreview: true,
-                            x: Number(campo.x || 0) + deslocamentoX,
-                            y: Number(campo.y || 0) + deslocamentoY,
-                            largura:
-                              Number(campo.largura || 100) *
-                              Math.pow(escala, passo),
-                            altura:
-                              Number(campo.altura || 100) *
-                              Math.pow(escala, passo),
-                            rotate:
-                              Number((campo as any).rotate || 0) +
-                              Number(config.rotacaoPorCopia || 0) * passo,
-                            opacity: Math.max(
-                              0.05,
-                              Number(campo.opacity || 1) *
-                              Math.pow(opacidade, passo),
-                            ),
-                          };
-                        },
-                      );
-
-                      return [campo, ...copias];
-                    }),
-                    ...copiasPreviewArray,
-                  ]
-                    .filter((campo) => campo.id !== -999999)
-                    .sort(
-                      (a: any, b: any) =>
-                        Number(a.ordem || 0) - Number(b.ordem || 0),
-                    )
+                  {camposDaCena
                     .map((c) => {
                       if (c.tipo === "IMAGEM") {
                         const selecionadoImagem =
@@ -10647,25 +10673,8 @@ export default function ConfiguracaoCertificadoPage() {
                                       modoEspessuraContorno={modoEspessuraContorno && podeEditarFormaIndividual}
                                       instrucaoContorno={tr("shapeTools.localOutlineHint")}
                                       pontosSelecionadosIds={idsDosPontosSelecionados(c.id)}
-                                      onSelecionarPontos={(ids) => {
-                                        setCampoSelecionadoId(c.id);
-                                        setCamposSelecionadosIds(idsDoCampoOuGrupo(c));
-                                        selecionarPontosDaForma(c.id, formaEstaAgrupada ? [] : ids);
-                                      }}
-                                      onChange={(campoAtualizado) => {
-                                        if (formaEstaAgrupada) return;
-
-                                        setCampos((prev) =>
-                                          prev.map((item) =>
-                                            item.id === c.id
-                                              ? ({
-                                                ...item,
-                                                ...campoAtualizado,
-                                              } as any)
-                                              : item,
-                                          ),
-                                        );
-                                      }}
+                                      onSelecionarPontos={selecionarPontosNoCanvas}
+                                      onChange={atualizarFormaNoCanvas}
                                     />
                                   </div>
                                 )}
