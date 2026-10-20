@@ -570,7 +570,7 @@ export default function AdminShell({
   }
 
   function temPermissao(chave: string) {
-    return permissoes.includes("*") || permissoes.includes(chave);
+    return podeAcessar(chave);
   }
 
   const ibePolosInstituicaoId = Number(
