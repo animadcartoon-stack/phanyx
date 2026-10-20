@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { GRUPOS_FONTES_CERTIFICADO, ESCRITAS_FONTES_CERTIFICADO } from "@/lib/certificados/fontesCertificado";
 import useAmostrasFontes from "./useAmostrasFontes";
 
-const normalizarBusca = (texto: string) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+const normalizarBusca = (texto: string) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").toLowerCase().trim();
 const familiaCss = (nome: string) => `"${nome.replace(/["\\]/g, "")}"`;
 const ALTURA_LINHA = 86;
 const ALTURA_LISTA = 300;
@@ -87,12 +87,22 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
   return <div ref={rootRef} className="space-y-2" onKeyDown={evento => {
     if (evento.key === "Escape" && aberto) { evento.preventDefault();evento.stopPropagation();setAberto(false);botaoRef.current?.focus({ preventScroll: true }); }
   }}>
-    <select value={categoria} onChange={evento => { setCategoria(evento.target.value as GrupoFonte | "");reiniciarFiltro(); }} aria-label={tr("category")}
+    <select value={categoria} onChange={evento => { setCategoria(evento.target.value as GrupoFonte | "");setBusca("");reiniciarFiltro();setAberto(true); }} aria-label={tr("category")}
       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800">
       <option value="">{tr("allCategories")}</option>
       {categorias.map(chave => <option key={chave} value={chave}>{nomesGrupos[chave]}</option>)}
     </select>
-    <input type="search" value={busca} onChange={evento => { setBusca(evento.target.value);reiniciarFiltro(); }} placeholder={labels.search} aria-label={labels.search}
+    <input type="search" value={busca}
+      onFocus={() => { reiniciarFiltro();setAberto(true); }}
+      onChange={evento => { const valor = evento.target.value;setBusca(valor);if (normalizarBusca(valor)) setCategoria("");reiniciarFiltro();setAberto(true); }}
+      onKeyDown={evento => {
+        if (evento.key === "ArrowDown" || evento.key === "ArrowUp") { evento.preventDefault();evento.stopPropagation();abrir(); }
+        else if (evento.key === "Enter") {
+          evento.preventDefault();evento.stopPropagation();
+          if (aberto && opcoes[ativo]) escolher(opcoes[ativo].fonte);
+          else { reiniciarFiltro();setAberto(true); }
+        }
+      }} placeholder={labels.search} aria-label={labels.search} role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls={aberto ? id : undefined} aria-expanded={aberto}
       className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800" />
     <button ref={botaoRef} type="button" aria-label={tr("chooseFont")} aria-haspopup="listbox" aria-expanded={aberto} aria-controls={aberto ? id : undefined}
       onMouseDown={evento => evento.preventDefault()} onClick={() => aberto ? setAberto(false) : abrir()}
