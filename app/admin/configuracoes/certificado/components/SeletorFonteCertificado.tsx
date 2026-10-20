@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { createPortal } from "react-dom";
 import { GRUPOS_FONTES_CERTIFICADO, ESCRITAS_FONTES_CERTIFICADO } from "@/lib/certificados/fontesCertificado";
 import useAmostrasFontes from "./useAmostrasFontes";
 
@@ -18,6 +19,7 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
   textoAmostra?: string;
 }) {
   const tr = useTranslations("AdminCertificateEditor.fonts");
+  const comum = useTranslations("AdminCertificateEditor.common");
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState<GrupoFonte | "">("");
   const [aberto, setAberto] = useState(false);
@@ -25,6 +27,9 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
   const [ativo, setAtivo] = useState(0);
   const [tentativa, setTentativa] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const buscaRef = useRef<HTMLInputElement>(null);
+  const [posicao, setPosicao] = useState({ left: 12, top: 12, width: 360, height: 460 });
   const listaRef = useRef<HTMLDivElement>(null);
   const botaoRef = useRef<HTMLButtonElement>(null);
   const id = useId();
@@ -48,10 +53,31 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
   useEffect(() => {
     if (!aberto) return;
     function fecharFora(evento: PointerEvent) {
-      if (!rootRef.current?.contains(evento.target as Node)) setAberto(false);
+      if (!rootRef.current?.contains(evento.target as Node) && !popupRef.current?.contains(evento.target as Node)) setAberto(false);
     }
     document.addEventListener("pointerdown", fecharFora, true);
     return () => document.removeEventListener("pointerdown", fecharFora, true);
+  }, [aberto]);
+
+  useEffect(() => {
+    if (!aberto) return;
+    let quadro: number | null = null;
+    const posicionar = () => {
+      quadro = null;
+      const rect = botaoRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const width = Math.min(360, window.innerWidth - 24), height = Math.min(480, window.innerHeight - 24);
+      setPosicao({ left: Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12)),
+        top: Math.max(12, Math.min(rect.bottom + 8, window.innerHeight - height - 12)), width, height });
+    };
+    const agendar = (evento?: Event) => {
+      if (evento?.target instanceof Node && popupRef.current?.contains(evento.target)) return;
+      if (quadro === null) quadro = requestAnimationFrame(posicionar);
+    };
+    posicionar();
+    window.addEventListener("resize", agendar);
+    window.addEventListener("scroll", agendar, true);
+    return () => { if (quadro !== null) cancelAnimationFrame(quadro); window.removeEventListener("resize", agendar); window.removeEventListener("scroll", agendar, true); };
   }, [aberto]);
 
   function rolarPara(indice: number) {
@@ -71,7 +97,7 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
     const topo = Math.max(0, indice * ALTURA_LINHA - ALTURA_LINHA);
     setRolagem(topo);
     setAberto(true);
-    window.requestAnimationFrame(() => { if (listaRef.current) { listaRef.current.scrollTop = topo; listaRef.current.focus({ preventScroll: true }); } });
+    window.requestAnimationFrame(() => { if (listaRef.current) listaRef.current.scrollTop = topo; buscaRef.current?.focus({ preventScroll: true }); });
   }
   function escolher(nome: string) {
     if (estadoFonte(nome) !== "pronto") return;
@@ -87,23 +113,6 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
   return <div ref={rootRef} className="space-y-2" onKeyDown={evento => {
     if (evento.key === "Escape" && aberto) { evento.preventDefault();evento.stopPropagation();setAberto(false);botaoRef.current?.focus({ preventScroll: true }); }
   }}>
-    <select value={categoria} onChange={evento => { setCategoria(evento.target.value as GrupoFonte | "");setBusca("");reiniciarFiltro();setAberto(true); }} aria-label={tr("category")}
-      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800">
-      <option value="">{tr("allCategories")}</option>
-      {categorias.map(chave => <option key={chave} value={chave}>{nomesGrupos[chave]}</option>)}
-    </select>
-    <input type="search" value={busca}
-      onFocus={() => { reiniciarFiltro();setAberto(true); }}
-      onChange={evento => { const valor = evento.target.value;setBusca(valor);if (normalizarBusca(valor)) setCategoria("");reiniciarFiltro();setAberto(true); }}
-      onKeyDown={evento => {
-        if (evento.key === "ArrowDown" || evento.key === "ArrowUp") { evento.preventDefault();evento.stopPropagation();abrir(); }
-        else if (evento.key === "Enter") {
-          evento.preventDefault();evento.stopPropagation();
-          if (aberto && opcoes[ativo]) escolher(opcoes[ativo].fonte);
-          else { reiniciarFiltro();setAberto(true); }
-        }
-      }} placeholder={labels.search} aria-label={labels.search} role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls={aberto ? id : undefined} aria-expanded={aberto}
-      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800" />
     <button ref={botaoRef} type="button" aria-label={tr("chooseFont")} aria-haspopup="listbox" aria-expanded={aberto} aria-controls={aberto ? id : undefined}
       onMouseDown={evento => evento.preventDefault()} onClick={() => aberto ? setAberto(false) : abrir()}
       onKeyDown={evento => { if (evento.key === "ArrowDown" || evento.key === "ArrowUp") { evento.preventDefault();abrir(); } }}
@@ -111,11 +120,40 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
       <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" style={{ fontFamily: value ? familiaCss(value) : undefined, fontSize: value ? 24 : 14, lineHeight: "1.8" }}>{value || tr("mixedFonts")}</span>
       <span aria-hidden="true" className="ml-2 text-xs">▾</span>
     </button>
-    {aberto && <>
-      <p className="text-xs text-slate-500 dark:text-slate-400">{tr("visualListHint")}</p>
+    {aberto && createPortal(<div ref={popupRef} data-fontes-popup="true"
+      role="dialog" aria-label={tr("chooseFont")}
+      className="phanyx-config-certificado-page fixed z-[2147483646] flex flex-col gap-2 rounded-2xl border border-slate-300 bg-white p-3 text-slate-900 shadow-2xl"
+      data-cert-theme={rootRef.current?.closest("[data-cert-theme]")?.getAttribute("data-cert-theme") || "light"}
+      style={{ ...posicao, boxSizing: "border-box" }}
+      onKeyDown={evento => {
+        if (evento.key === "Escape") { evento.preventDefault(); evento.stopPropagation(); setAberto(false); botaoRef.current?.focus({ preventScroll: true }); }
+      }}
+      onBlur={evento => { const alvo = evento.relatedTarget as Node | null; if (alvo && !popupRef.current?.contains(alvo) && !rootRef.current?.contains(alvo)) setAberto(false); }}>
+      <div className="flex shrink-0 items-center justify-between gap-2">
+        <span className="text-sm font-semibold">{tr("chooseFont")}</span>
+        <button type="button" onMouseDown={e => e.preventDefault()} aria-label={comum("close")} onClick={() => { setAberto(false); botaoRef.current?.focus({ preventScroll: true }); }} className="h-8 w-8 rounded-lg border border-slate-300 text-lg">×</button>
+      </div>
+    <select value={categoria} onChange={evento => { setCategoria(evento.target.value as GrupoFonte | "");setBusca("");reiniciarFiltro();setAberto(true); }} aria-label={tr("category")}
+      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800">
+      <option value="">{tr("allCategories")}</option>
+      {categorias.map(chave => <option key={chave} value={chave}>{nomesGrupos[chave]}</option>)}
+    </select>
+    <input ref={buscaRef} type="search" value={busca}
+      onFocus={() => { reiniciarFiltro();setAberto(true); }}
+      onChange={evento => { const valor = evento.target.value;setBusca(valor);if (normalizarBusca(valor)) setCategoria("");reiniciarFiltro();setAberto(true); }}
+      onKeyDown={evento => {
+        if (evento.key === "ArrowDown" || evento.key === "ArrowUp") { evento.preventDefault();evento.stopPropagation();listaRef.current?.focus({ preventScroll: true });rolarPara(ativo + (evento.key === "ArrowDown" ? 1 : -1)); }
+        else if (evento.key === "Enter") {
+          evento.preventDefault();evento.stopPropagation();
+          if (aberto && opcoes[ativo]) escolher(opcoes[ativo].fonte);
+          else { reiniciarFiltro();setAberto(true); }
+        }
+      }} placeholder={labels.search} aria-label={labels.search} role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls={aberto ? id : undefined} aria-expanded={aberto}
+      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800" />
+
       <div ref={listaRef} id={id} role="listbox" tabIndex={0} aria-label={tr("chooseFont")}
         aria-activedescendant={ativo >= inicio && ativo < inicio + visiveis.length ? `${id}-${ativo}` : undefined}
-        className="overflow-y-auto rounded-xl border border-slate-300 bg-white text-slate-900" style={{ height: ALTURA_LISTA, maxHeight: "40vh", overflowAnchor: "none", overscrollBehaviorY: "contain", contain: "layout paint", scrollbarGutter: "stable" }}
+        className="overflow-y-auto rounded-xl border border-slate-300 bg-white text-slate-900" style={{ flex: "1 1 auto", minHeight: 0, overflowAnchor: "none", overscrollBehaviorY: "contain", contain: "layout paint", scrollbarGutter: "stable" }}
         onScroll={evento => setRolagem(evento.currentTarget.scrollTop)}
         onKeyDown={evento => {
           if (["ArrowDown", "ArrowUp", "Home", "End", "Enter", " "].includes(evento.key)) {
@@ -145,8 +183,8 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
         </div> : <p className="p-4 text-sm text-slate-600" role="status">{tr("noResults")}</p>}
       </div>
       {temErro && <button type="button" onMouseDown={evento => evento.preventDefault()} onClick={() => setTentativa(valor => valor + 1)} className="text-xs text-blue-700 underline dark:text-blue-300">{tr("retrySamples")}</button>}
-    </>}
     {(categoria === "greek" || categoria === "arabic") && <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">{tr("scriptHint")}</p>}
-    <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">{labels.hint}</p>
+      <p className="shrink-0 text-[11px] leading-4 text-slate-500 dark:text-slate-400">{tr("visualListHint")}</p>
+    </div>, document.body)}
   </div>;
 }

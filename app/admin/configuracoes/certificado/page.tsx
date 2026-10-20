@@ -24,6 +24,8 @@ import { fonteDaSelecaoCertificado, fonteUnicaTextoCertificado } from "@/lib/cer
 import BancoSvgFormas from "./components/BancoSvgFormas";
 import ControleTipografiaFluido from "./components/ControleTipografiaFluido";
 import useEdicaoTextoFluida from "./components/useEdicaoTextoFluida";
+import useEspacoEditor from "./components/useEspacoEditor";
+import { campoTemTextoCertificado, atualizarEstiloIntegralTexto, corInicialTextoCertificado } from "@/lib/certificados/estiloTextoCertificado";
 import { useLocale, useTranslations } from "next-intl";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
@@ -73,6 +75,8 @@ type CampoCertificado = {
   ordem?: number | null;
   grupoId?: string | null;
   lineHeight?: number | null;
+  letterSpacing?: number | null;
+  wordSpacing?: number | null;
   marcador?: string | null;
   quantidadeDisciplinas?: number | null;
   colunasDisciplinas?: number | null;
@@ -963,6 +967,7 @@ export default function ConfiguracaoCertificadoPage() {
   // PHANYX: cores HEX e historico por acao v1
   const gestoCenaFluido = useGestoCenaFluido();
   const edicaoTextoFluida = useEdicaoTextoFluida();
+  const painelPropriedadesRef = useRef<HTMLElement>(null);
   const { campos, setCampos, desfazer, refazer, limparHistorico, registrarHistoricoAntesDaAcao } = useHistoricoCertificado<CampoCertificado>();
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
@@ -974,7 +979,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [
     barraSelecaoMinimizada,
     setBarraSelecaoMinimizada,
-  ] = useState(false);
+  ] = useState(true);
 
   const [arrayJanelaPos, setArrayJanelaPos] = useState({
     x: 180,
@@ -1734,6 +1739,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   const [carregando, setCarregando] = useState(true);
+  const areaEditorRef = useEspacoEditor(!carregando);
   const [salvando, setSalvando] = useState(false);
   const [publicando, setPublicando] = useState(false);
   const [modalPublicacaoAberto, setModalPublicacaoAberto] = useState(false);
@@ -3578,11 +3584,21 @@ export default function ConfiguracaoCertificadoPage() {
     () => campos.find((campo) => campo.id === campoSelecionadoId) || null,
     [campos, campoSelecionadoId],
   );
+  useEffect(() => {
+    setCorTextoSelecionado(null);
+    selecaoTextoRef.current = null;
+    selecaoTextoInfoRef.current = null;
+    setFonteSelecaoTexto(null);
+    if (painelPropriedadesRef.current) painelPropriedadesRef.current.scrollTop = 0;
+    const barra = document.querySelector<HTMLElement>("[data-barra-selecao-certificado]");
+    const topoMinimo = (document.querySelector(".phanyx-certificado-toolbar")?.getBoundingClientRect().bottom || 0) + 8;
+    if (barra && barra.getBoundingClientRect().top < topoMinimo) setBarraSelecaoPosicao(posicao => ({ ...posicao, y: topoMinimo }));
+  }, [campoSelecionadoId]);
   const fonteDoCampo = useMemo(() => fonteUnicaTextoCertificado(campoSelecionado || {}), [campoSelecionado]);
   const fonteDeTrechoAtual = campoSelecionado?.tipo === "TEXTO_LIVRE" && fonteSelecaoTexto?.campoId === campoSelecionado.id &&
     fonteSelecaoTexto.html === (campoSelecionado.textoHtml || "") && selecaoTextoRef.current?.startContainer.isConnected;
   const fonteAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.fonte : fonteDoCampo;
-  const amostraAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.texto : campoSelecionado?.texto || "";
+  const amostraAtualDoTexto = fonteDeTrechoAtual ? fonteSelecaoTexto.texto : campoSelecionado?.texto || (campoTemTextoCertificado(campoSelecionado) ? traduzirTipoCampoCertificado(campoSelecionado!.tipo) : "");
   useEffect(() => {
     if (!campoSelecionado) return;
     const editor = document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionado.id}"]`);
@@ -4026,7 +4042,7 @@ export default function ConfiguracaoCertificadoPage() {
             ? 34
             : 18,
 
-      cor: "#1e3a8a",
+      cor: campoTemTextoCertificado({ tipo }) && modoFundo === "phanyx" ? corInicialTextoCertificado(corFundoPagina) : "#1e3a8a",
       alinhamento: "left",
 
       pagina: 1,
@@ -6111,28 +6127,41 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function preverTipografiaTexto(chave: "tamanho" | "letterSpacing" | "wordSpacing", valor: number) {
-    if (!campoSelecionado) return;
+    if (!campoSelecionado || !campoTemTextoCertificado(campoSelecionado)) return;
     const propriedade = chave === "tamanho" ? "fontSize" : chave;
     if (modoTextoCertificado(campoSelecionado) === "NORMAL" && temSelecaoTextoLivreAtiva()) {
       aplicarEstiloTextoSelecionado({ [propriedade]: valor + "px" }, true);
       return;
     }
-    const editor = campoSelecionado.tipo === "TEXTO_LIVRE" && modoTextoCertificado(campoSelecionado) === "NORMAL"
-      ? document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionado.id}"]`) : null;
-    if (!editor) { atualizarCampoLocal(chave as any, valor);return; }
-    const css = propriedade.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase());
-    if (!edicaoTextoFluida.temPendente()) salvarHistoricoTextoLivre(editor);
-    editor.style.setProperty(css, valor + "px");
-    editor.querySelectorAll<HTMLElement>("*").forEach(el=>el.style.removeProperty(css));
+    if (modoTextoCertificado(campoSelecionado) !== "NORMAL") {
+      aplicarEstiloTextoOuCampoInteiro(chave, valor, { [propriedade]: valor + "px" });
+      return;
+    }
     const id = campoSelecionado.id;
+    const editor = campoSelecionado.tipo === "TEXTO_LIVRE"
+      ? canvasRef.current?.querySelector<HTMLElement>(`[data-texto-livre-id="${id}"]`)
+      : canvasRef.current?.querySelector<HTMLElement>(`[data-campo-certificado-id="${id}"]`);
+    if (!editor) { aplicarEstiloTextoOuCampoInteiro(chave, valor, { [propriedade]: valor + "px" }); return; }
+    const css = propriedade.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase());
+    const livre = campoSelecionado.tipo === "TEXTO_LIVRE";
+    if (livre && !edicaoTextoFluida.temPendente()) salvarHistoricoTextoLivre(editor);
+    editor.style.setProperty(css, valor + "px");
+    if (chave === "tamanho" && !livre) editor.style.height = Math.max(Number(campoSelecionado.altura || 0), Math.ceil(valor * 1.65)) + "px";
+    if (livre) editor.querySelectorAll<HTMLElement>("*").forEach(el => {
+      el.style.removeProperty(css);
+      if (chave === "tamanho" && el.tagName === "FONT") el.removeAttribute("size");
+    });
     edicaoTextoFluida.agendar(id, () => {
-      const textoHtml = editor.innerHTML, texto = editor.textContent || "";
-      const valores = { tamanho: Number.parseFloat(editor.style.fontSize) || campoSelecionado.tamanho || 18, letterSpacing: Number.parseFloat(editor.style.letterSpacing) || 0, wordSpacing: Number.parseFloat(editor.style.wordSpacing) || 0 };
-      setCampos(prev=>prev.map(c=>c.id===id?{...c,...valores,textoHtml,texto}:c));
-      setTamanhoSelecaoTexto(valores.tamanho);
-      setEspacamentoLetrasTexto(valores.letterSpacing);
-      setEspacamentoPalavrasTexto(valores.wordSpacing);
-      salvarHistoricoTextoLivre(editor);
+      setCampos(prev => prev.map(campo => {
+        if (campo.id !== id) return campo;
+        const novo = atualizarEstiloIntegralTexto(campo, { [chave]: valor }, { [propriedade]: valor + "px" });
+        if (chave === "tamanho" && !livre) novo.altura = Math.max(Number(campo.altura || 0), Math.ceil(valor * 1.65));
+        return novo;
+      }));
+      if (chave === "tamanho") setTamanhoSelecaoTexto(valor);
+      else if (chave === "letterSpacing") setEspacamentoLetrasTexto(valor);
+      else setEspacamentoPalavrasTexto(valor);
+      if (livre) salvarHistoricoTextoLivre(editor);
     });
   }
 
@@ -6152,15 +6181,11 @@ export default function ConfiguracaoCertificadoPage() {
       return;
     }
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && campoSelecionado.textoHtml) {
-      const documento = new DOMParser().parseFromString(campoSelecionado.textoHtml, "text/html");
-      const nomes = Object.keys(estilo).map(nome => nome.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase()));
-      documento.body.querySelectorAll<HTMLElement>("*").forEach(elemento => nomes.forEach(nome => elemento.style.removeProperty(nome)));
-      const textoHtml = documento.body.innerHTML;
-      setCampos(prev => prev.map(campo => campo.id === campoSelecionado.id ? { ...campo, [chave]: valor, textoHtml } : campo));
-      return;
-    }
-    atualizarCampoLocal(chave as any, valor);
+    if (!campoSelecionado) return;
+    const id = campoSelecionado.id;
+    setCampos(prev => prev.map(campo => campo.id === id
+      ? atualizarEstiloIntegralTexto(campo, { [chave]: valor }, estilo)
+      : campo));
   }
 
   function alternarFormatoTextoLivre(
@@ -7527,7 +7552,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       setBarraSelecaoPosicao({
         x: Math.max(8, Math.min(window.innerWidth - 120, novoX)),
-        y: Math.max(8, Math.min(window.innerHeight - 80, novoY)),
+        y: Math.max((document.querySelector(".phanyx-certificado-toolbar")?.getBoundingClientRect().bottom || 0) + 8, Math.min(window.innerHeight - 80, novoY)),
       });
     };
 
@@ -8767,13 +8792,7 @@ export default function ConfiguracaoCertificadoPage() {
                               campoId: c.id,
                             });
                           }}
-                          className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${camposSelecionadosIds.includes(c.id)
-                            ? c.tipo === "ASSINATURA" ||
-                              c.tipo === "LOGO_INSTITUICAO"
-                              ? "border-blue-600 bg-transparent text-blue-900"
-                              : "border-blue-600 bg-blue-600/90 text-white"
-                            : "border-blue-300 bg-transparent text-blue-900"
-                            }`}
+                          className={`absolute z-20 select-none rounded-md border border-transparent bg-transparent px-1 py-0 ${camposSelecionadosIds.includes(c.id) ? "outline outline-1 outline-blue-600" : "hover:outline hover:outline-1 hover:outline-blue-300"}`}
                           style={{
                             left: `${c.x}px`,
                             top: `${c.y}px`,
@@ -10483,13 +10502,14 @@ export default function ConfiguracaoCertificadoPage() {
         </div>
 
         <div
-          className={`grid h-[620px] min-h-[620px] grid-cols-1 ${mostrarPainelCampos
+          ref={areaEditorRef}
+          className={`phanyx-cert-workspace grid min-h-0 grid-cols-1 lg:h-[var(--cert-editor-height,620px)] ${mostrarPainelCampos
             ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
             : "lg:grid-cols-[minmax(0,1fr)_300px]"
             }`}
         >
           {mostrarPainelCampos && !modoAmplo && (
-            <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+            <aside className="min-h-0 max-h-[50vh] overflow-y-auto overscroll-contain border-b border-slate-200 bg-slate-50 p-3 lg:h-full lg:max-h-none lg:border-b-0 lg:border-r">
               <div className="mb-4 flex flex-col gap-3 pr-20">
                 <div className="w-full">
                   <button
@@ -11417,7 +11437,7 @@ export default function ConfiguracaoCertificadoPage() {
             </aside>
           )}
 
-          {(camposSelecionadosIds.length >= 1 ||
+          {!previewAberto && (camposSelecionadosIds.length >= 1 ||
             campoSelecionadoId !== null) && (
               <div
                 data-barra-selecao-certificado="true"
@@ -11797,7 +11817,7 @@ export default function ConfiguracaoCertificadoPage() {
           {caixaPontos && (
             <div data-caixa-pontos-forma="true" className="pointer-events-none fixed z-[2147483647] border border-blue-600 bg-blue-500/15" style={{ left: caixaPontos.x, top: caixaPontos.y, width: caixaPontos.largura, height: caixaPontos.altura }} />
           )}
-          <main className="flex h-full min-h-0 flex-col bg-white">
+          <main className="flex min-h-[420px] flex-col bg-white lg:h-full lg:min-h-0">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
               {tr("canvas.editingArea")}
             </div>
@@ -12283,7 +12303,7 @@ export default function ConfiguracaoCertificadoPage() {
 
             <div data-shape-inspector-certificado="true">
               <FloatingShapeInspector
-                aberto={shapeInspectorAberto}
+                aberto={shapeInspectorAberto && !previewAberto}
                 campo={campoSelecionado || null}
                 posicao={shapeInspectorPosicao}
                 zIndex={zIndexFlutuante.opcoesForma}
@@ -12311,7 +12331,7 @@ export default function ConfiguracaoCertificadoPage() {
           </main>
 
           {!modoAmplo && (
-            <aside className="relative max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+            <aside ref={painelPropriedadesRef} data-cert-propriedades="true" className="relative min-h-0 max-h-[65vh] overflow-y-auto overscroll-contain border-b border-slate-200 bg-slate-50 p-3 lg:h-full lg:max-h-none lg:border-b-0 lg:border-r">
               {" "}
               <button
                 type="button"
@@ -12684,6 +12704,181 @@ export default function ConfiguracaoCertificadoPage() {
                         <span className="font-semibold">{tr("fieldOptions.typeColon")}</span>{" "}
                         {traduzirTipoCampoCertificado(campoSelecionado.tipo)}
                       </div>
+                      {campoTemTextoCertificado(campoSelecionado) && (
+                        <section data-cert-tipografia="true" className="space-y-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                          {tr("text.font")}
+                        </label>
+                        <SeletorFonteCertificado key={campoSelecionado.id} value={fonteAtualDoTexto} textoAmostra={amostraAtualDoTexto}
+                          onChange={novaFonte => aplicarEstiloTextoOuCampoInteiro("fonte", novaFonte, { fontFamily: novaFonte })}
+                          labels={{ search: tr("fonts.search"), hint: tr("fonts.hint"), system: tr("fonts.system"), calligraphy: tr("fonts.calligraphy"), handwriting: tr("fonts.handwriting"), serif: tr("fonts.serif"), sans: tr("fonts.sans"), display: tr("fonts.display") }} />
+                      </div>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          aria-pressed={formatoTextoLivreAtivo("negrito")}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() =>
+                            alternarFormatoTextoLivre("bold", "negrito")
+                          }
+                          className={`px-3 py-1 rounded border text-sm transition ${formatoTextoLivreAtivo("negrito")
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
+                            }`}
+                        >
+                          B
+                        </button>
+
+                        <button
+                          type="button"
+                          aria-pressed={formatoTextoLivreAtivo("italico")}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() =>
+                            alternarFormatoTextoLivre("italic", "italico")
+                          }
+                          className={`px-3 py-1 rounded border text-sm italic transition ${formatoTextoLivreAtivo("italico")
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
+                            }`}
+                        >
+                          I
+                        </button>
+
+                        <button
+                          type="button"
+                          aria-pressed={formatoTextoLivreAtivo("sublinhado")}
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() =>
+                            alternarFormatoTextoLivre(
+                              "underline",
+                              "sublinhado",
+                            )
+                          }
+                          className={`px-3 py-1 rounded border text-sm underline transition ${formatoTextoLivreAtivo("sublinhado")
+                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
+                            }`}
+                        >
+                          U
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500">
+                          {tr("text.format")}
+                        </label>
+
+                        <select
+                          value={
+                            (campoSelecionado as any)?.textoModo || "NORMAL"
+                          }
+                          onChange={(e) =>
+                            atualizarFormatoTexto({ textoModo: e.target.value as any })
+                          }
+                          className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                        >
+                          <option value="NORMAL">
+                            {tr("image.filterNormal")}
+                          </option>
+                          <option value="VERTICAL">{tr("text.modeVertical")}</option>
+                          <option value="ARCO">{tr("text.modeArc")}</option>
+                        </select>
+                        {modoTextoCertificado(campoSelecionado) === "ARCO" && <div className="mt-3 space-y-2">
+                          <label className="block text-xs font-semibold text-slate-500">{tr("fonts.arcCurvature")}</label>
+                          <div className="flex items-center gap-2">
+                            <input type="range" min={5} max={180} value={campoSelecionado.arcoAngulo ?? 120}
+                              aria-label={tr("fonts.arcCurvature")} className="min-w-0 flex-1"
+                              onChange={e => atualizarFormatoTexto({ arcoAngulo: Number(e.target.value), arcoRaio: null })} />
+                            <CampoNumeroEditavel key={campoSelecionado.id + "-arco-angulo"} min={5} max={180} value={campoSelecionado.arcoAngulo ?? 120}
+                              onValueChange={valor => atualizarFormatoTexto({ arcoAngulo: valor, arcoRaio: null })}
+                              className="w-20 rounded-xl border border-slate-300 px-2 py-1" />
+                            <span>°</span>
+                          </div>
+                          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={Boolean(campoSelecionado.arcoInvertido)}
+                            onChange={e => atualizarFormatoTexto({ arcoInvertido: e.target.checked })} />{tr("fonts.arcInvert")}</label>
+                        </div>}
+                        {campoSelecionado.tipo === "TEXTO_LIVRE" && modoTextoCertificado(campoSelecionado) !== "NORMAL" && <div className="my-3 space-y-2">
+                          <label className="block text-xs font-semibold text-slate-500" htmlFor="conteudo-texto-formatado">{tr("fonts.formattedContent")}</label>
+                          <textarea id="conteudo-texto-formatado" rows={3} value={campoSelecionado.texto || ""}
+                            onChange={e => { const texto = e.target.value; setCampos(prev => prev.map(campo => campo.id === campoSelecionado.id ? { ...campo, texto, textoHtml: texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") } : campo)); }}
+                            className="w-full rounded-xl border border-slate-300 px-3 py-2" />
+                        </div>}
+
+
+                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                          {tr("common.size")}
+                        </label>
+
+                        <ControleTipografiaFluido key={campoSelecionado.id + "-tamanho-fluido"} tamanho min={1} max={512} label={tr("common.size")}
+                            value={tamanhoSelecaoTexto ?? campoSelecionado.tamanho ?? 18}
+                            onPreview={valor=>preverTipografiaTexto("tamanho",valor)} onCommit={edicaoTextoFluida.confirmar} />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                          {tr("common.color")}
+                        </label>
+                        <CorComCodigo
+                          type="color"
+                          value={
+                            corTextoSelecionado ||
+                            campoSelecionado?.cor ||
+                            "#1e3a8a"
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onValueChange={(codigoHex) => {
+                            const cor = codigoHex.toLowerCase();
+
+                            setCorTextoSelecionado(cor);
+
+                            aplicarEstiloTextoOuCampoInteiro("cor", cor, { color: cor });
+                          }}
+                          className="h-11 w-full cursor-pointer rounded-xl border border-slate-300 px-2 py-2"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-slate-600">
+                          {tr("text.alignment")}
+                        </label>
+                        <label className="mt-3 block text-xs font-semibold text-slate-500">
+                          {tr("text.letterSpacing")}
+                        </label>
+
+                        <ControleTipografiaFluido key={campoSelecionado.id + "-letterSpacing-fluido"} min={-5} max={30} label={tr("text.letterSpacing")}
+                            value={espacamentoLetrasTexto}
+                            onPreview={valor=>preverTipografiaTexto("letterSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
+
+                        <label className="mt-3 block text-xs font-semibold text-slate-500">
+                          {tr("text.wordSpacing")}
+                        </label>
+
+                        <ControleTipografiaFluido key={campoSelecionado.id + "-wordSpacing-fluido"} min={0} max={60} label={tr("text.wordSpacing")}
+                            value={espacamentoPalavrasTexto}
+                            onPreview={valor=>preverTipografiaTexto("wordSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
+                        <select
+                          value={campoSelecionado?.alinhamento || "left"}
+                          onChange={(e) =>
+                            atualizarCampoLocal("alinhamento", e.target.value)
+                          }
+                          className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                        >
+                          <option value="left">
+                            {tr("common.left")}
+                          </option>
+                          <option value="center">
+                            {tr("common.center")}
+                          </option>
+                          <option value="right">
+                            {tr("common.right")}
+                          </option>
+                        </select>
+                      </div>
+
+                        </section>
+                      )}
 
                       {campoSelecionado?.tipo === "DISCIPLINAS_CONCLUIDAS" && (
                         <div className="relative rounded-2xl border border-slate-700/60 bg-slate-950/60 p-4">
@@ -12860,60 +13055,6 @@ export default function ConfiguracaoCertificadoPage() {
 
 
                         </>
-                      )}
-
-                      {campoSelecionado && (
-                        <div className="phanyx-cert-box-size rounded-2xl border border-slate-200 bg-white p-4">
-                          <p className="phanyx-cert-box-size-title mb-3 text-sm font-bold">
-                            {tr("fieldOptions.boxSize")}
-                          </p>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <label className="block">
-                              <span className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                {tr("common.width")}
-                              </span>
-
-                              <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-4`}
-                                min={20}
-                                max={2000}
-                                value={Number(campoSelecionado.largura ?? 220)}
-                                onValueChange={(numeroDigitado) => atualizarCampoLocal(
-                                    "largura" as any,
-                                    Math.max(
-                                      20,
-                                      numeroDigitado,
-                                    ) as any,
-                                  )}
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                              />
-                            </label>
-
-                            <label className="block">
-                              <span className="phanyx-cert-box-size-label mb-1 block text-xs font-semibold">
-                                {tr("common.height")}
-                              </span>
-
-                              <CampoNumeroEditavel key={`${campoSelecionado.id}-numero-5`}
-                                min={12}
-                                max={2000}
-                                value={Number(campoSelecionado.altura ?? 40)}
-                                onValueChange={(numeroDigitado) => atualizarCampoLocal(
-                                    "altura" as any,
-                                    Math.max(
-                                      12,
-                                      numeroDigitado,
-                                    ) as any,
-                                  )}
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                              />
-                            </label>
-                          </div>
-
-                          <p className="phanyx-cert-box-size-hint mt-2 text-xs leading-5">
-                            {tr("fieldOptions.widthHint")}
-                          </p>
-                        </div>
                       )}
 
                       {campoSelecionado?.tipo === "FORMA" &&
@@ -13249,6 +13390,9 @@ export default function ConfiguracaoCertificadoPage() {
                             </div>
                           </div>
                         )}
+                      <details key={campoSelecionado.id + "-geometria"} open={!campoTemTextoCertificado(campoSelecionado)} className="rounded-xl border border-slate-200 bg-white p-3">
+                        <summary className="cursor-pointer text-sm font-semibold">{tr("fieldOptions.boxSize")} · X / Y</summary>
+                        <div className="mt-3 space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -13303,184 +13447,8 @@ export default function ConfiguracaoCertificadoPage() {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">
-                          {tr("text.font")}
-                        </label>
-                        <SeletorFonteCertificado value={fonteAtualDoTexto} textoAmostra={amostraAtualDoTexto}
-                          onChange={novaFonte => aplicarEstiloTextoOuCampoInteiro("fonte", novaFonte, { fontFamily: novaFonte })}
-                          labels={{ search: tr("fonts.search"), hint: tr("fonts.hint"), system: tr("fonts.system"), calligraphy: tr("fonts.calligraphy"), handwriting: tr("fonts.handwriting"), serif: tr("fonts.serif"), sans: tr("fonts.sans"), display: tr("fonts.display") }} />
-                      </div>
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          type="button"
-                          aria-pressed={formatoTextoLivreAtivo("negrito")}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() =>
-                            alternarFormatoTextoLivre("bold", "negrito")
-                          }
-                          className={`px-3 py-1 rounded border text-sm transition ${formatoTextoLivreAtivo("negrito")
-                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
-                            }`}
-                        >
-                          B
-                        </button>
-
-                        <button
-                          type="button"
-                          aria-pressed={formatoTextoLivreAtivo("italico")}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() =>
-                            alternarFormatoTextoLivre("italic", "italico")
-                          }
-                          className={`px-3 py-1 rounded border text-sm italic transition ${formatoTextoLivreAtivo("italico")
-                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
-                            }`}
-                        >
-                          I
-                        </button>
-
-                        <button
-                          type="button"
-                          aria-pressed={formatoTextoLivreAtivo("sublinhado")}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() =>
-                            alternarFormatoTextoLivre(
-                              "underline",
-                              "sublinhado",
-                            )
-                          }
-                          className={`px-3 py-1 rounded border text-sm underline transition ${formatoTextoLivreAtivo("sublinhado")
-                            ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                            : "border-slate-300 bg-white text-gray-700 hover:bg-slate-50"
-                            }`}
-                        >
-                          U
-                        </button>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-500">
-                          {tr("text.format")}
-                        </label>
-
-                        <select
-                          value={
-                            (campoSelecionado as any)?.textoModo || "NORMAL"
-                          }
-                          onChange={(e) =>
-                            atualizarFormatoTexto({ textoModo: e.target.value as any })
-                          }
-                          className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                        >
-                          <option value="NORMAL">
-                            {tr("image.filterNormal")}
-                          </option>
-                          <option value="VERTICAL">{tr("text.modeVertical")}</option>
-                          <option value="ARCO">{tr("text.modeArc")}</option>
-                        </select>
-                        {modoTextoCertificado(campoSelecionado) === "ARCO" && <div className="mt-3 space-y-2">
-                          <label className="block text-xs font-semibold text-slate-500">{tr("fonts.arcCurvature")}</label>
-                          <div className="flex items-center gap-2">
-                            <input type="range" min={5} max={180} value={campoSelecionado.arcoAngulo ?? 120}
-                              aria-label={tr("fonts.arcCurvature")} className="min-w-0 flex-1"
-                              onChange={e => atualizarFormatoTexto({ arcoAngulo: Number(e.target.value), arcoRaio: null })} />
-                            <CampoNumeroEditavel key={campoSelecionado.id + "-arco-angulo"} min={5} max={180} value={campoSelecionado.arcoAngulo ?? 120}
-                              onValueChange={valor => atualizarFormatoTexto({ arcoAngulo: valor, arcoRaio: null })}
-                              className="w-20 rounded-xl border border-slate-300 px-2 py-1" />
-                            <span>°</span>
-                          </div>
-                          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={Boolean(campoSelecionado.arcoInvertido)}
-                            onChange={e => atualizarFormatoTexto({ arcoInvertido: e.target.checked })} />{tr("fonts.arcInvert")}</label>
-                        </div>}
-                        {campoSelecionado.tipo === "TEXTO_LIVRE" && modoTextoCertificado(campoSelecionado) !== "NORMAL" && <div className="my-3 space-y-2">
-                          <label className="block text-xs font-semibold text-slate-500" htmlFor="conteudo-texto-formatado">{tr("fonts.formattedContent")}</label>
-                          <textarea id="conteudo-texto-formatado" rows={3} value={campoSelecionado.texto || ""}
-                            onChange={e => { const texto = e.target.value; setCampos(prev => prev.map(campo => campo.id === campoSelecionado.id ? { ...campo, texto, textoHtml: texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") } : campo)); }}
-                            className="w-full rounded-xl border border-slate-300 px-3 py-2" />
-                        </div>}
-
-
-                        <label className="mb-1 block text-xs font-medium text-slate-600">
-                          {tr("common.size")}
-                        </label>
-
-                        <ControleTipografiaFluido key={campoSelecionado.id + "-tamanho-fluido"} tamanho min={6} max={120} label={tr("common.size")}
-                            value={tamanhoSelecaoTexto ?? campoSelecionado.tamanho ?? 18}
-                            onPreview={valor=>preverTipografiaTexto("tamanho",valor)} onCommit={edicaoTextoFluida.confirmar} />
-                      </div>
-
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">
-                          {tr("common.color")}
-                        </label>
-                        <CorComCodigo
-                          type="color"
-                          value={
-                            corTextoSelecionado ||
-                            campoSelecionado?.cor ||
-                            "#1e3a8a"
-                          }
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          onValueChange={(codigoHex) => {
-                            const cor = codigoHex.toLowerCase();
-
-                            setCorTextoSelecionado(cor);
-
-                            if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-                              aplicarEstiloTextoSelecionado({
-                                color: cor,
-                              });
-                              return;
-                            }
-
-                            atualizarCampoLocal("cor", cor);
-                          }}
-                          className="h-11 w-full cursor-pointer rounded-xl border border-slate-300 px-2 py-2"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-slate-600">
-                          {tr("text.alignment")}
-                        </label>
-                        <label className="mt-3 block text-xs font-semibold text-slate-500">
-                          {tr("text.letterSpacing")}
-                        </label>
-
-                        <ControleTipografiaFluido key={campoSelecionado.id + "-letterSpacing-fluido"} min={-5} max={30} label={tr("text.letterSpacing")}
-                            value={espacamentoLetrasTexto}
-                            onPreview={valor=>preverTipografiaTexto("letterSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
-
-                        <label className="mt-3 block text-xs font-semibold text-slate-500">
-                          {tr("text.wordSpacing")}
-                        </label>
-
-                        <ControleTipografiaFluido key={campoSelecionado.id + "-wordSpacing-fluido"} min={0} max={60} label={tr("text.wordSpacing")}
-                            value={espacamentoPalavrasTexto}
-                            onPreview={valor=>preverTipografiaTexto("wordSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
-                        <select
-                          value={campoSelecionado?.alinhamento || "left"}
-                          onChange={(e) =>
-                            atualizarCampoLocal("alinhamento", e.target.value)
-                          }
-                          className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                        >
-                          <option value="left">
-                            {tr("common.left")}
-                          </option>
-                          <option value="center">
-                            {tr("common.center")}
-                          </option>
-                          <option value="right">
-                            {tr("common.right")}
-                          </option>
-                        </select>
-                      </div>
-
+                        </div>
+                      </details>
                       <div className="rounded-2xl border border-slate-200 bg-white">
                         <button
                           type="button"

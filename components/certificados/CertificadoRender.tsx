@@ -33,6 +33,8 @@ export type CampoCertificadoRender = {
   italico?: boolean | null;
   sublinhado?: boolean | null;
   lineHeight?: number | null;
+  letterSpacing?: number | null;
+  wordSpacing?: number | null;
   marcador?: string | null;
   ordem?: number | null;
 
@@ -573,6 +575,8 @@ export default function CertificadoRender({
           fontStyle: campo.italico ? "italic" : "normal",
           textDecoration: campo.sublinhado ? "underline" : "none",
           lineHeight: campo.lineHeight || 1.2,
+          letterSpacing: Number(campo.letterSpacing ?? campo.dadosJson?.letterSpacing ?? 0),
+          wordSpacing: Number(campo.wordSpacing ?? campo.dadosJson?.wordSpacing ?? 0),
           textAlign:
             campo.alinhamento === "center"
               ? "center"
