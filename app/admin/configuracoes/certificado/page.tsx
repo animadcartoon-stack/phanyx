@@ -17,6 +17,7 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
 import ImagemCertificado from "@/components/certificados/ImagemCertificado";
 import TextoFormatadoCertificado from "@/components/certificados/TextoFormatadoCertificado";
+import { caixaTextoLivreCertificado, conteudoTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import FontesCertificado from "@/components/certificados/FontesCertificado";
 import { medidasArcoTexto, modoTextoCertificado } from "@/lib/certificados/textoCertificado";
 import SeletorFonteCertificado from "./components/SeletorFonteCertificado";
@@ -3590,9 +3591,6 @@ export default function ConfiguracaoCertificadoPage() {
     selecaoTextoInfoRef.current = null;
     setFonteSelecaoTexto(null);
     if (painelPropriedadesRef.current) painelPropriedadesRef.current.scrollTop = 0;
-    const barra = document.querySelector<HTMLElement>("[data-barra-selecao-certificado]");
-    const topoMinimo = (document.querySelector(".phanyx-certificado-toolbar")?.getBoundingClientRect().bottom || 0) + 8;
-    if (barra && barra.getBoundingClientRect().top < topoMinimo) setBarraSelecaoPosicao(posicao => ({ ...posicao, y: topoMinimo }));
   }, [campoSelecionadoId]);
   const fonteDoCampo = useMemo(() => fonteUnicaTextoCertificado(campoSelecionado || {}), [campoSelecionado]);
   const fonteDeTrechoAtual = campoSelecionado?.tipo === "TEXTO_LIVRE" && fonteSelecaoTexto?.campoId === campoSelecionado.id &&
@@ -7552,7 +7550,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       setBarraSelecaoPosicao({
         x: Math.max(8, Math.min(window.innerWidth - 120, novoX)),
-        y: Math.max((document.querySelector(".phanyx-certificado-toolbar")?.getBoundingClientRect().bottom || 0) + 8, Math.min(window.innerHeight - 80, novoY)),
+        y: Math.max(8, Math.min(window.innerHeight - 80, novoY)),
       });
     };
 
@@ -8323,14 +8321,8 @@ export default function ConfiguracaoCertificadoPage() {
                             }}
                             className="absolute z-20"
                             style={{
-                              left: `${c.x}px`,
-                              top: `${c.y}px`,
-                              width: `${c.largura || 320}px`,
-                              height: `${c.altura || 120}px`,
-                              zIndex:
-                                campoSelecionadoId === c.id
-                                  ? 99999
-                                  : c.ordem || 20,
+                              ...caixaTextoLivreCertificado(c),
+                              zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
                               pointerEvents: c.bloqueado ? "none" : "auto",
                             }}
                           >
@@ -8631,32 +8623,11 @@ export default function ConfiguracaoCertificadoPage() {
                                     .cloneRange();
                                 }
                               }}
-                              className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${selecionadoTexto
-                                ? "border-2 border-blue-600 bg-blue-50/10"
-                                : "border border-blue-400/60 bg-transparent"
-                                }`}
+                              className="h-full w-full rounded-md"
                               style={{
-                                fontFamily: c.fonte || "Arial",
-                                fontSize: `${c.tamanho || 18}px`,
-                                color: c.cor || "#1e3a8a",
-                                fontWeight: c.negrito ? "bold" : "normal",
-                                fontStyle: c.italico ? "italic" : "normal",
-                                textDecoration: c.sublinhado
-                                  ? "underline"
-                                  : "none",
-                                textAlign:
-                                  (c.alinhamento as
-                                    "left" | "center" | "right") || "left",
-                                lineHeight: c.lineHeight || 1.3,
-                                letterSpacing: (c as any).letterSpacing ?? 0,
-                                wordSpacing: (c as any).wordSpacing ?? 0,
-                                whiteSpace: "pre-wrap",
-                                wordBreak: "break-word",
-                                cursor: "text",
-                                direction: "ltr",
-                                unicodeBidi: "isolate",
-                                writingMode: "horizontal-tb",
-                                caretColor: c.cor || "#1e3a8a",
+                                ...conteudoTextoLivreCertificado(c),
+                                outline: selecionadoTexto ? "1px solid #2563eb" : "1px solid rgba(96, 165, 250, .6)",
+                                cursor: "text", caretColor: c.cor || "#1e3a8a",
                               }}
                             ></div>)}
 

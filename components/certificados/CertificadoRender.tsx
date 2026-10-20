@@ -5,6 +5,7 @@ import { elementoOculto } from "@/lib/certificados/visibilidadeCertificado";
 import { normalizarLinhaCertificado } from "@/app/admin/configuracoes/certificado/components/linhaEditavel";
 import ImagemCertificado from "./ImagemCertificado";
 import TextoFormatadoCertificado from "./TextoFormatadoCertificado";
+import { caixaTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import FontesCertificado from "./FontesCertificado";
 import { modoTextoCertificado } from "@/lib/certificados/textoCertificado";
 import FormaVetorial from "@/app/admin/configuracoes/certificado/components/FormaVetorial";
@@ -688,6 +689,13 @@ export default function CertificadoRender({
               )}
             </div>
           );
+        }
+
+        if (campo.tipo === "TEXTO_LIVRE") {
+          return <div key={campo.id} style={{ ...estiloBase, ...caixaTextoLivreCertificado(campo),
+            outline: mostrarBordas ? "1px solid rgba(37, 99, 235, .35)" : undefined }}>
+            <TextoFormatadoCertificado campo={campo} texto={resolverTextoCampo(campo, dados)} />
+          </div>;
         }
 
         return (
