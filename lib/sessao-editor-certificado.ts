@@ -1,5 +1,16 @@
 // Modulo compativel com Edge: nenhuma dependencia de Node ou de banco.
 export const COOKIE_SESSAO_EDITOR_CERTIFICADO = "phanyx_editor_certificado";
+export const HEADER_CAMINHO_EDITOR = "x-phanyx-editor-caminho";
+export const HEADER_METODO_EDITOR = "x-phanyx-editor-metodo";
+
+/** Seleciona o cookie a encaminhar; a assinatura e validada pelo servidor. */
+export function tokenEditorDentroDaValidade(token: string) {
+  try {
+    const parte = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const dados = JSON.parse(atob(parte));
+    return typeof dados.exp === "number" && Number.isFinite(dados.exp) && dados.exp > Date.now() / 1000;
+  } catch { return false; }
+}
 
 /** O cookie do editor nunca autentica outras paginas ou operacoes do Admin. */
 export function requisicaoPermitidaAoEditorCertificado(caminho: string, metodo: string) {

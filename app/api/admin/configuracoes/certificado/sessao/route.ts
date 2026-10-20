@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { renovarCredencialEditor, DURACAO_SESSAO_EDITOR_SEGUNDOS } from "@/lib/credencial-editor-certificado";
 import { getUserFromToken } from "@/lib/server-auth";
 import { identificarSessaoAdmin, perfilPodeManterEditorCertificado } from "@/lib/sessao-inatividade-admin";
 import { COOKIE_SESSAO_EDITOR_CERTIFICADO } from "@/lib/sessao-editor-certificado";
@@ -24,14 +25,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ativa: false }, { status: 401, headers });
   }
   // A autenticacao acima verifica assinatura, expiracao, usuario e impersonacao.
-  const dados = jwt.decode(token) as { exp?: number } | null;
+  const dados = jwt.decode(token) as jwt.JwtPayload;
+  const credencial = renovarCredencialEditor({ ...dados, role: usuario.role, instituicaoId: usuario.instituicaoId }, process.env.JWT_SECRET!, sessao.referencia);
   const resposta = NextResponse.json({ ativa: true }, { headers });
-  resposta.cookies.set(COOKIE_SESSAO_EDITOR_CERTIFICADO, token, {
+  resposta.cookies.set(COOKIE_SESSAO_EDITOR_CERTIFICADO, credencial, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    ...(dados?.exp ? { expires: new Date(dados.exp * 1000) } : {}),
+    maxAge: DURACAO_SESSAO_EDITOR_SEGUNDOS,
   });
   resposta.cookies.set("phanyx_certificado_ativo", "", {
     httpOnly: true, secure: process.env.NODE_ENV === "production",

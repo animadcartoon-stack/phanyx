@@ -4,7 +4,7 @@ import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 import { getUserFromToken } from "@/lib/server-auth";
 import { obterContextoGestaoPolos } from "@/lib/polos-rede";
 import { cookies } from "next/headers";
-import { referenciaTokenSessao } from "@/lib/sessao-inatividade-admin";
+import { identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
 
 export default async function AdminLayout({
   children,
@@ -62,7 +62,7 @@ export default async function AdminLayout({
       contextoPolos?.podeGerenciarPolos ?? false,
   };
   const tokenSessao = (await cookies()).get("token")?.value;
-  const referenciaSessaoInicial = tokenSessao ? referenciaTokenSessao(tokenSessao) : null;
+  const referenciaSessaoInicial = identificarSessaoAdmin(tokenSessao, process.env.JWT_SECRET)?.referencia ?? null;
 
   return (
     <>

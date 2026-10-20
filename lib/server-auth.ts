@@ -1,4 +1,6 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { HEADER_CAMINHO_EDITOR, HEADER_METODO_EDITOR, requisicaoPermitidaAoEditorCertificado } from "@/lib/sessao-editor-certificado";
+import { verificarCredencialEditor } from "@/lib/credencial-editor-certificado";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
@@ -63,7 +65,15 @@ export async function getUserFromToken(): Promise<UsuarioLogado | null> {
 
     if (!token) return null;
 
-    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    let decoded: TokenPayload;
+    try { decoded = jwt.verify(token, JWT_SECRET) as TokenPayload; }
+    catch {
+      const contexto = await headers();
+      const caminho = contexto.get(HEADER_CAMINHO_EDITOR);
+      const metodo = contexto.get(HEADER_METODO_EDITOR);
+      if (!caminho || !metodo || !requisicaoPermitidaAoEditorCertificado(caminho, metodo)) return null;
+      decoded = verificarCredencialEditor(token, JWT_SECRET) as TokenPayload;
+    }
 
     const usuario = await prisma.user.findUnique({
       where: { id: Number(decoded.id) },

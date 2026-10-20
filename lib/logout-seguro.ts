@@ -3,6 +3,7 @@ import {
   NextResponse,
 } from "next/server";
 import jwt from "jsonwebtoken";
+import { verificarCredencialEditor } from "@/lib/credencial-editor-certificado";
 import { prisma } from "@/lib/prisma";
 import { identificarSessaoAdmin } from "@/lib/sessao-inatividade-admin";
 import { COOKIE_SESSAO_EDITOR_CERTIFICADO } from "@/lib/sessao-editor-certificado";
@@ -26,13 +27,9 @@ async function finalizarImpersonacaoAtiva(
   }
 
   try {
-    const payload = jwt.verify(
-      tokenAtual,
-      process.env.JWT_SECRET,
-      {
-        ignoreExpiration: true,
-      }
-    ) as TokenLogoutPayload;
+    let payload: TokenLogoutPayload;
+    try { payload = jwt.verify(tokenAtual, process.env.JWT_SECRET, { ignoreExpiration: true }) as TokenLogoutPayload; }
+    catch { payload = verificarCredencialEditor(tokenAtual, process.env.JWT_SECRET, true) as TokenLogoutPayload; }
 
     if (payload.impersonacao !== true) {
       return;
@@ -135,8 +132,14 @@ export async function criarLogoutAdmin(request: NextRequest) {
   }
   if (!inatividade) return criarLogoutSeguro(request, "/login?portal=admin");
   let editorSegueAtivo = false;
-  if (token && request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value === token && process.env.JWT_SECRET) {
-    try { jwt.verify(token, process.env.JWT_SECRET); editorSegueAtivo = true; } catch {}
+  const tokenEditor = request.cookies.get(COOKIE_SESSAO_EDITOR_CERTIFICADO)?.value;
+  if (tokenEditor && process.env.JWT_SECRET && sessao) {
+    try {
+      const sessaoEditor = identificarSessaoAdmin(tokenEditor, process.env.JWT_SECRET);
+      try { jwt.verify(tokenEditor, process.env.JWT_SECRET); }
+      catch { verificarCredencialEditor(tokenEditor, process.env.JWT_SECRET); }
+      editorSegueAtivo = sessaoEditor?.referencia === sessao.referencia;
+    } catch {}
   }
   if (!editorSegueAtivo) await finalizarImpersonacaoAtiva(request);
   const resposta = NextResponse.json({ encerrada: true }, { headers });
