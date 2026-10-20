@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import useGestoCenaFluido from "./components/useGestoCenaFluido";
+import { normalizarLinhaCertificado } from "./components/linhaEditavel";
+import { elementoOculto, alterarVisibilidadeCertificado, expandirSelecaoCertificado } from "@/lib/certificados/visibilidadeCertificado";
 import CampoNumeroEditavel from "./components/CampoNumeroEditavel";
 import { ElementoCenaCertificado, ListaCamadasCertificado } from "./components/CenaCertificado";
 import { opacidadeDaForma, espessuraNoPonto, trechosSelecionados } from "./components/contornoForma";
@@ -118,6 +121,7 @@ type CampoCertificado = {
   textoHtml?: string | null;
   textoTipo?: "TITULO" | "TEXTO" | null;
   bloqueado?: boolean | null;
+  oculto?: boolean | null;
   nomeCamada?: string | null;
 
   crop?: {
@@ -957,6 +961,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [sombraAberta, setSombraAberta] = useState(true);
   // PHANYX: cores HEX e historico por acao v1
+  const gestoCenaFluido = useGestoCenaFluido();
   const edicaoTextoFluida = useEdicaoTextoFluida();
   const { campos, setCampos, desfazer, refazer, limparHistorico, registrarHistoricoAntesDaAcao } = useHistoricoCertificado<CampoCertificado>();
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
@@ -1326,6 +1331,10 @@ export default function ConfiguracaoCertificadoPage() {
     window.addEventListener("keydown", handleUndoRedo, true);
     return () => window.removeEventListener("keydown", handleUndoRedo, true);
   }, [modoFormaLivre, refazer, desfazer, setCampos, locale]);
+
+  function preverCamposDaCena(atualizador: Parameters<typeof setCampos>[0]) {
+    gestoCenaFluido.prever(camposParaInteracaoRef.current, atualizador, setCampos, canvasRef.current, camposSelecionadosIds);
+  }
 
   const camposParaInteracaoRef = useRef(campos);
   camposParaInteracaoRef.current = campos;
@@ -2703,12 +2712,12 @@ export default function ConfiguracaoCertificadoPage() {
         ? dataCampos.campos.map((campo: any) => {
           const dados = campo.dadosJson || {};
 
-          return {
+          return normalizarLinhaCertificado({
             ...dados,
             ...campo,
             bancoId: campo.id,
             id: campo.id,
-          };
+          });
         })
         : [],
     );
@@ -3716,29 +3725,11 @@ export default function ConfiguracaoCertificadoPage() {
           ? [campoSelecionadoId]
           : [];
 
-    const idsExpandidos = idsBase.flatMap((id) => {
-      const campo = campos.find((item) => item.id === id);
-
-      if (!campo) return [];
-      if ((campo as any).arrayPreview) return [];
-
-      if (campo.grupoId) {
-        return campos
-          .filter(
-            (item) =>
-              item.grupoId === campo.grupoId && !(item as any).arrayPreview,
-          )
-          .map((item) => item.id);
-      }
-
-      return [campo.id];
-    });
-
-    const ids = Array.from(new Set(idsExpandidos));
+    const ids = expandirSelecaoCertificado(campos, idsBase);
 
     if (ids.length < 2) return null;
 
-    const itens = campos.filter((campo) => ids.includes(campo.id));
+    const itens = campos.filter((campo) => ids.includes(campo.id) && !elementoOculto(campo));
     if (itens.length < 2) return null;
 
     const minX = Math.min(...itens.map((campo) => Number(campo.x || 0)));
@@ -4629,33 +4620,24 @@ export default function ConfiguracaoCertificadoPage() {
     setTimeout(() => setMensagemSucesso(""), 1800);
   }
 
+  function selecaoTodaOculta() { const ids = new Set(idsAlvoDaAcao());return ids.size > 0 && campos.filter(c => ids.has(c.id)).every(elementoOculto); }
+
+  function definirVisibilidadeDaCena(ids: number[], oculto: boolean, incluirGrupos = true) {
+    edicaoTextoFluida.confirmar();gestoCenaFluido.confirmar();
+    const proximos = alterarVisibilidadeCertificado(campos, ids, oculto, incluirGrupos);
+    registrarHistoricoAntesDaAcao();
+    setCampos(prev => alterarVisibilidadeCertificado(prev, ids, oculto, incluirGrupos));
+    if (oculto) {
+      const ocultos = new Set(proximos.filter(elementoOculto).map(c => c.id));
+      const restantes = camposSelecionadosIds.filter(id => !ocultos.has(id));
+      setCamposSelecionadosIds(restantes);
+      if (campoSelecionadoId !== null && ocultos.has(campoSelecionadoId)) setCampoSelecionadoId(restantes[restantes.length - 1] ?? null);
+      setPontoFormaSelecionado(null);
+    }
+  }
+
   function idsAlvoDaAcao() {
-    const idsBase =
-      camposSelecionadosIds.length > 0
-        ? camposSelecionadosIds
-        : campoSelecionadoId
-          ? [campoSelecionadoId]
-          : [];
-
-    const idsExpandidos = idsBase.flatMap((id) => {
-      const campo = campos.find((item) => item.id === id);
-
-      if (!campo) return [];
-      if ((campo as any).arrayPreview) return [];
-
-      if (campo.grupoId) {
-        return campos
-          .filter(
-            (item) =>
-              item.grupoId === campo.grupoId && !(item as any).arrayPreview,
-          )
-          .map((item) => item.id);
-      }
-
-      return [campo.id];
-    });
-
-    return Array.from(new Set(idsExpandidos));
+    return expandirSelecaoCertificado(campos, camposSelecionadosIds.length ? camposSelecionadosIds : campoSelecionadoId !== null ? [campoSelecionadoId] : []);
   }
 
   useEffect(() => {
@@ -4985,7 +4967,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       const fator = Math.max(0.02, novaLarguraGrupo / caixaInicial.largura);
 
-      setCampos((prev) =>
+      preverCamposDaCena((prev) =>
         prev.map((campo) => {
           const itemInicial = itensIniciais.find(
             (item) => item.id === campo.id,
@@ -5139,7 +5121,7 @@ export default function ConfiguracaoCertificadoPage() {
       const cos = Math.cos(deltaRad);
       const sin = Math.sin(deltaRad);
 
-      setCampos((prev) =>
+      preverCamposDaCena((prev) =>
         prev.map((campo) => {
           const inicial = itensIniciais.find((item) => item.id === campo.id);
 
@@ -6667,7 +6649,7 @@ export default function ConfiguracaoCertificadoPage() {
         Math.atan2(ev.clientY - centroY, ev.clientX - centroX) *
         (180 / Math.PI);
 
-      setCampos((prev) =>
+      preverCamposDaCena((prev) =>
         prev.map((item) =>
           item.id === campo.id
             ? {
@@ -6713,7 +6695,7 @@ export default function ConfiguracaoCertificadoPage() {
         x: (ev.clientX - inicio.x) / escalaInicial,
         y: (ev.clientY - inicio.y) / escalaInicial,
       }, eixo, ev.altKey, ev.shiftKey, campo.forma === "LINHA" ? 4 : 20);
-      setCampos((prev) => prev.map((item) => item.id === campo.id ? {
+      preverCamposDaCena((prev) => prev.map((item) => item.id === campo.id ? {
         ...item, ...caixa, dadosJson: { ...(item.dadosJson || {}), ...caixa },
       } : item));
     };
@@ -6892,7 +6874,7 @@ export default function ConfiguracaoCertificadoPage() {
       const deltaY = Math.round(novoY - dragRef.current.inicioY);
 
       const posicoes = new Map(dragRef.current.posicoesIniciais.map(pos => [pos.id, pos]));
-      setCampos((prev) =>
+      preverCamposDaCena((prev) =>
         prev.map((item) => {
           const posInicial = posicoes.get(item.id);
 
@@ -6909,7 +6891,7 @@ export default function ConfiguracaoCertificadoPage() {
       return;
     }
 
-    setCampos((prev) =>
+    preverCamposDaCena((prev) =>
       prev.map((item) =>
         item.id === dragRef.current?.campoId
           ? { ...item, x: Math.round(novoX), y: Math.round(novoY) }
@@ -7153,7 +7135,7 @@ export default function ConfiguracaoCertificadoPage() {
             id: campo.id,
             bancoId: campo.id,
           };
-        });
+        }).map(normalizarLinhaCertificado);
 
         setCampos(camposSalvos);
         setCampoSelecionadoId(null);
@@ -7256,6 +7238,7 @@ export default function ConfiguracaoCertificadoPage() {
     const resultado: any[] = [];
 
     campos.forEach((campo: any) => {
+      if (elementoOculto(campo)) return;
       resultado.push(campo);
 
       if (campo.tipo !== "FORMA" || !campo.arrayConfig?.ativo) return;
@@ -7304,6 +7287,7 @@ export default function ConfiguracaoCertificadoPage() {
   const cacheArrayCenaRef = useRef(new WeakMap<object, any[]>());
   const camposDaCena = useMemo(() => ([
                     ...campos.flatMap((campo) => {
+                      if (elementoOculto(campo)) return [];
                       if (
                         campo.tipo !== "FORMA" ||
                         !(campo as any).arrayAtivo
@@ -7379,6 +7363,7 @@ export default function ConfiguracaoCertificadoPage() {
   [previewAberto, campos, copiasPreviewArray]);
 
   const contextoEventosCenaRef = useRef({} as {
+    definirVisibilidadeDaCena: typeof definirVisibilidadeDaCena;
     atualizarCampo: typeof atualizarCampo;
     atualizarCampoLocal: typeof atualizarCampoLocal;
     atualizarFormaNoCanvas: typeof atualizarFormaNoCanvas;
@@ -7599,8 +7584,9 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   // Elementos inalterados conservam a arvore; eventos consultam o contexto atual.
-  contextoEventosCenaRef.current = { atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
+  contextoEventosCenaRef.current = { definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
   renderizarElementoCenaRef.current = (c) => {
+                      if (elementoOculto(c)) return null;
                       if (c.tipo === "IMAGEM") {
                         const selecionadoImagem =
                           camposSelecionadosIds.includes(c.id);
@@ -7608,6 +7594,7 @@ export default function ConfiguracaoCertificadoPage() {
                         return (
                           <div
                             key={c.id}
+                            data-campo-certificado-id={c.id}
                             onMouseDown={(event) => {
                               event.stopPropagation();
 
@@ -8260,127 +8247,7 @@ export default function ConfiguracaoCertificadoPage() {
                                       />
                                     )}
 
-                                  {c.forma === "LINHA" && (
-                                    <>
-                                      {/* PONTO INÍCIO */}
-                                      <div
-                                        onMouseDown={(e) => {
-                                          e.stopPropagation();
 
-                                          const startX = e.clientX;
-                                          const startY = e.clientY;
-                                          const startLeft = c.x;
-                                          const startTop = c.y;
-                                          const startW = c.largura || 100;
-                                          const startH = c.altura || 2;
-
-                                          const move = (
-                                            ev: globalThis.MouseEvent,
-                                          ) => {
-                                            contextoEventosCenaRef.current.setCampos((prev) =>
-                                              prev.map((item) =>
-                                                item.id === c.id
-                                                  ? {
-                                                    ...item,
-                                                    x:
-                                                      startLeft +
-                                                      (ev.clientX - startX),
-                                                    y:
-                                                      startTop +
-                                                      (ev.clientY - startY),
-                                                    largura:
-                                                      startW -
-                                                      (ev.clientX - startX),
-                                                    altura:
-                                                      startH -
-                                                      (ev.clientY - startY),
-                                                  }
-                                                  : item,
-                                              ),
-                                            );
-                                          };
-
-                                          const up = () => {
-                                            window.removeEventListener(
-                                              "mousemove",
-                                              move,
-                                            );
-                                            window.removeEventListener(
-                                              "mouseup",
-                                              up,
-                                            );
-                                          };
-
-                                          window.addEventListener(
-                                            "mousemove",
-                                            move,
-                                          );
-                                          window.addEventListener(
-                                            "mouseup",
-                                            up,
-                                          );
-                                        }}
-                                        className="absolute left-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
-                                      />
-
-                                      {/* PONTO FINAL */}
-                                      <div
-                                        onMouseDown={(e) => {
-                                          e.stopPropagation();
-
-                                          const startX = e.clientX;
-                                          const startY = e.clientY;
-                                          const startW = c.largura || 100;
-                                          const startH = c.altura || 2;
-
-                                          const move = (
-                                            ev: globalThis.MouseEvent,
-                                          ) => {
-                                            contextoEventosCenaRef.current.setCampos((prev) =>
-                                              prev.map((item) =>
-                                                item.id === c.id
-                                                  ? {
-                                                    ...item,
-                                                    largura: Math.max(
-                                                      2,
-                                                      startW +
-                                                      (ev.clientX - startX),
-                                                    ),
-                                                    altura: Math.max(
-                                                      2,
-                                                      startH +
-                                                      (ev.clientY - startY),
-                                                    ),
-                                                  }
-                                                  : item,
-                                              ),
-                                            );
-                                          };
-
-                                          const up = () => {
-                                            window.removeEventListener(
-                                              "mousemove",
-                                              move,
-                                            );
-                                            window.removeEventListener(
-                                              "mouseup",
-                                              up,
-                                            );
-                                          };
-
-                                          window.addEventListener(
-                                            "mousemove",
-                                            move,
-                                          );
-                                          window.addEventListener(
-                                            "mouseup",
-                                            up,
-                                          );
-                                        }}
-                                        className="absolute right-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
-                                      />
-                                    </>
-                                  )}
                                 </>
                               )}
                           </div>
@@ -8395,6 +8262,7 @@ export default function ConfiguracaoCertificadoPage() {
                         return (
                           <div
                             key={c.id}
+                            data-campo-certificado-id={c.id}
                             onMouseDown={(event) => {
                               event.stopPropagation();
 
@@ -8860,6 +8728,7 @@ export default function ConfiguracaoCertificadoPage() {
                       return (
                         <div
                           key={c.id}
+                          data-campo-certificado-id={c.id}
                           onMouseDown={(event) => {
                             event.stopPropagation();
 
@@ -9371,11 +9240,20 @@ export default function ConfiguracaoCertificadoPage() {
                             className="w-full border-none bg-transparent text-xs outline-none"
                           />
                         ) : (
-                          <span className="flex-1 truncate">
+                          <span className={`flex-1 truncate ${elementoOculto(campo) ? "opacity-50 line-through" : ""}`}>
                             {nomeDaCamada(campo, index)}
                           </span>
                         )}
 
+                        <button type="button" data-visibilidade-camada={campo.id}
+                          aria-label={tr(elementoOculto(campo) ? "layers.showElement" : "layers.hideElement")}
+                          title={tr(elementoOculto(campo) ? "layers.showElement" : "layers.hideElement")}
+                          aria-pressed={!elementoOculto(campo)}
+                          onMouseDown={e => e.stopPropagation()} onDoubleClick={e => e.stopPropagation()}
+                          onClick={e => { e.stopPropagation();contextoEventosCenaRef.current.definirVisibilidadeDaCena([campo.id], !elementoOculto(campo), false); }}
+                          className="shrink-0 rounded p-1 text-slate-700 hover:bg-slate-200">
+                          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{elementoOculto(campo) && <path d="m3 3 18 18"/>}</svg>
+                        </button>
                         {campo.bloqueado && (
                           <span
                             className="text-[10px]"
@@ -9395,7 +9273,7 @@ export default function ConfiguracaoCertificadoPage() {
       className="phanyx-config-certificado-page mx-auto max-w-[1600px] p-6"
     >
 
-      <FontesCertificado campos={campos} />
+      <FontesCertificado campos={camposDaCena} />
       {mensagemErro && (
         <div className="mb-4">
           <PhanyxToast
@@ -11611,6 +11489,12 @@ export default function ConfiguracaoCertificadoPage() {
                     )}
                   </div>
 
+                  <button type="button" data-visibilidade-selecao="true" disabled={camposSelecionadosIds.length === 0 && campoSelecionadoId === null}
+                    onMouseDown={e => e.preventDefault()}
+                    onClick={() => { const ids = idsAlvoDaAcao();definirVisibilidadeDaCena(ids, !campos.filter(c => ids.includes(c.id)).every(elementoOculto)); }}
+                    className="shrink-0 rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-blue-50">
+                    {tr(selecaoTodaOculta() ? "layers.showElement" : "layers.hideElement")}
+                  </button>
                   {campoSelecionado?.tipo === "FORMA" && !campoSelecionado.grupoId && !campoSelecionado.bloqueado && camposSelecionadosIds.length === 1 && (
                     <details key={campoSelecionado.id} data-menu-pontos-forma="true" className="relative shrink-0">
                       <summary className="cursor-pointer list-none rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-bold text-slate-900 shadow hover:bg-blue-50" title={tr("shapeTools.pointSelectionHint")}>
@@ -12004,7 +11888,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                   {caixaDoGrupoSelecionado && (
                     <div
-                      className="pointer-events-none absolute z-[9998] rounded-xl border-2 border-blue-600"
+                      data-cert-grupo-caixa="true" className="pointer-events-none absolute z-[9998] rounded-xl border-2 border-blue-600"
                       style={{
                         left: `${caixaDoGrupoSelecionado.x}px`,
                         top: `${caixaDoGrupoSelecionado.y}px`,
@@ -12018,7 +11902,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                   {caixaDoGrupoSelecionado && (
                     <div
-                      className="pointer-events-none absolute z-[999998] border-2 border-emerald-400"
+                      data-cert-grupo-caixa="true" className="pointer-events-none absolute z-[999998] border-2 border-emerald-400"
                       style={{
                         left: `${caixaDoGrupoSelecionado.x}px`,
                         top: `${caixaDoGrupoSelecionado.y}px`,
@@ -14050,6 +13934,10 @@ export default function ConfiguracaoCertificadoPage() {
               >
                 {tr("layers.rename")}
               </button>
+              <button type="button" onClick={() => { const c = campos.find(c => c.id === menuCamada.campoId);if (c) definirVisibilidadeDaCena([c.id], !elementoOculto(c), false);setMenuCamada(null); }}
+                className="block w-full rounded-lg px-3 py-2 text-left text-slate-800 hover:bg-slate-100">
+                {tr(elementoOculto(campos.find(c => c.id === menuCamada.campoId) || {}) ? "layers.showElement" : "layers.hideElement")}
+              </button>
 
               <button
                 type="button"
@@ -14408,6 +14296,10 @@ export default function ConfiguracaoCertificadoPage() {
             </button>
           </div>
 
+          <button type="button" onClick={() => { const ids = idsAlvoDaAcao();definirVisibilidadeDaCena(ids, !campos.filter(c => ids.includes(c.id)).every(elementoOculto));setMenuContexto(null); }}
+            className="mb-2 block w-full rounded-lg px-3 py-2 text-left font-semibold text-slate-800 hover:bg-slate-100">
+            {tr(selecaoTodaOculta() ? "layers.showElement" : "layers.hideElement")}
+          </button>
           {campoSelecionado?.id === menuContexto.campoId && campoSelecionado.tipo === "FORMA" && !campoSelecionado.grupoId && !campoSelecionado.bloqueado && camposSelecionadosIds.length === 1 && (
             <div className="mb-2 border-b border-slate-200 pb-3">
               {renderizarFerramentasPontosForma(false)}

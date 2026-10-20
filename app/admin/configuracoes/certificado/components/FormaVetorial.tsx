@@ -1,6 +1,8 @@
 "use client";
 
 import { memo, useMemo, useRef } from "react";
+import useFormaFluida from "./useFormaFluida";
+import { pontosDaLinha, inserirPontoNaLinha } from "./linhaEditavel";
 import { useBancoSvgFormas } from "./BancoSvgFormas";
 import { opacidadeDaForma, espessuraNoPonto, gerarTrechosContorno, agruparTrechosContorno } from "./contornoForma";
 
@@ -347,7 +349,7 @@ function gerarPontosCirculo(total: number): PontoForma[] {
 }
 
 function FormaVetorial({
-  campo,
+  campo: campoSalvo,
   selecionado,
   modo = "editor",
   mostrarHandles = true,
@@ -359,11 +361,12 @@ function FormaVetorial({
   onSelecionarPonto,
   onChange,
 }: Props) {
+  const { campo, atualizar: publicarForma } = useFormaFluida(campoSalvo, onChange, selecionado && modo === "editor");
   // O gesto que seleciona uma forma ainda nao selecionada nao insere pontos.
   // So um novo duplo clique, iniciado com a forma selecionada, permite inserir.
   const permitirInsercaoNoDuploCliqueRef = useRef(false);
   const bancoSvg = useBancoSvgFormas();
-  const pontos = useMemo(() => campo.pontosForma || [], [campo.pontosForma]);
+  const pontos = useMemo(() => pontosDaLinha(campo), [campo.pontosForma, campo.forma]);
   function criarAlcasPadrao(ponto: PontoForma): PontoForma {
     return criarAlcasDoContorno(ponto, pontos, campo.forma !== "LINHA",
       Number((campo as any).largura || 100), Number((campo as any).altura || 100));
@@ -380,8 +383,8 @@ function FormaVetorial({
   const opacidadePreenchimento = opacidadeDaForma(campo, "preenchimento");
   const opacidadeContorno = opacidadeDaForma(campo, "contorno");
 
-  const pathForma = useMemo(() => gerarPath(campo),
-    [campo.pontosForma, campo.forma, campo.raioBorda, campo.raiosPontos, campo.cantosArredondados]);
+  const pathForma = useMemo(() => gerarPath({ ...campo, pontosForma: pontos }),
+    [pontos, campo.forma, campo.raioBorda, campo.raiosPontos, campo.cantosArredondados]);
   const idForma = `forma-contorno-${campo.id}`;
   const clipInternoId = `${idForma}-interno`;
   const maskExternoId = `${idForma}-externo`;
@@ -404,11 +407,11 @@ function FormaVetorial({
   const escalaX = larguraCampo / 100;
   const escalaY = alturaCampo / 100;
 
-  const rxPonto = 5 / Math.max(escalaX, 0.1);
-  const ryPonto = 5 / Math.max(escalaY, 0.1);
+  const rxPonto = 5 / Math.max(Math.abs(escalaX), 0.001);
+  const ryPonto = 5 / Math.max(Math.abs(escalaY), 0.001);
 
-  const rxAlca = 2.3 / Math.max(escalaX, 0.1);
-  const ryAlca = 2.3 / Math.max(escalaY, 0.1);
+  const rxAlca = 2.3 / Math.max(Math.abs(escalaX), 0.001);
+  const ryAlca = 2.3 / Math.max(Math.abs(escalaY), 0.001);
 
   const trechosContorno = useMemo(() => gerarTrechosContorno(pathForma, pontos, campo, larguraCampo, alturaCampo),
     [pathForma, pontos, campo.forma, campo.contornoEspessura, campo.espessurasContornoPontos,
@@ -418,7 +421,7 @@ function FormaVetorial({
   function moverEspessuraPontos(ids: string[], delta: number) {
     const espessuras = { ...campo.espessurasContornoPontos };
     ids.forEach((id) => { espessuras[id] = Math.max(0, Math.min(40, Number((espessuraNoPonto(campo, id) + delta).toFixed(2)))); });
-    onChange({ ...campo, espessurasContornoPontos: espessuras,
+    publicarForma({ ...campo, espessurasContornoPontos: espessuras,
       dadosJson: { ...(campo.dadosJson || {}), espessurasContornoPontos: espessuras } });
   }
 
@@ -426,7 +429,7 @@ function FormaVetorial({
     novosPontos: PontoForma[],
     desativarArredondamentoAutomatico = false,
   ) {
-    onChange({
+    publicarForma({
       ...campo,
       ...(desativarArredondamentoAutomatico
         ? {
@@ -436,6 +439,7 @@ function FormaVetorial({
           }
         : {}),
       pontosForma: novosPontos,
+      dadosJson: { ...(campo.dadosJson || {}), pontosForma: novosPontos },
     });
   }
 
@@ -697,6 +701,16 @@ function FormaVetorial({
     const svg = e.currentTarget.ownerSVGElement;
     if (!svg) return;
 
+    if (campo.forma === "LINHA") {
+      const rect = svg.getBoundingClientRect();
+      let local = { x: (e.clientX - rect.left) / Math.max(1, rect.width) * 100, y: (e.clientY - rect.top) / Math.max(1, rect.height) * 100 };
+      const inversa = svg.getScreenCTM?.()?.inverse();
+      if (inversa) { const p = svg.createSVGPoint();p.x = e.clientX;p.y = e.clientY;local = p.matrixTransform(inversa); }
+      const id = crypto.randomUUID();
+      const novos = inserirPontoNaLinha(pontos, local.x, local.y, larguraCampo, alturaCampo, id);
+      if (novos !== pontos) { atualizarPontos(novos);selecionar([id]); }
+      return;
+    }
     const rect = svg.getBoundingClientRect();
 
     const x = Math.max(
@@ -818,7 +832,9 @@ function FormaVetorial({
               : preenchimentoCor
           }
           fillOpacity={campo.forma === "LINHA" ? 1 : opacidadePreenchimento}
-          stroke="none"
+          stroke={campo.forma === "LINHA" && modo === "editor" ? "transparent" : "none"}
+          strokeWidth={12}
+          vectorEffect="non-scaling-stroke"
         />
 
         {trechosContorno === null ? (<path
@@ -868,7 +884,7 @@ function FormaVetorial({
       <svg className="absolute inset-0 z-10 h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ overflow: "visible" }}>
         <image data-forma-cache="true" href={simboloEstatico.href} x={simboloEstatico.x} y={simboloEstatico.y}
           width={simboloEstatico.largura} height={simboloEstatico.altura} preserveAspectRatio="none" className="pointer-events-none" />
-        <path d={pathForma} fill="#000000" fillOpacity={0} stroke="none" className="pointer-events-auto cursor-crosshair" />
+        <path d={pathForma} fill={campo.forma === "LINHA" ? "none" : "#000000"} fillOpacity={0} stroke={campo.forma === "LINHA" ? "transparent" : "none"} strokeWidth={12} vectorEffect="non-scaling-stroke" className="pointer-events-auto cursor-crosshair" />
       </svg>
     </div>
   );
@@ -900,7 +916,7 @@ function FormaVetorial({
         {selecionado &&
           modo === "editor" &&
           mostrarHandles &&
-          pontos.map((ponto) => {
+          pontos.map((ponto, indice) => {
             const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
             const pontoEstaSelecionado = idsSelecionados.includes(ponto.id);
 
@@ -911,6 +927,7 @@ function FormaVetorial({
                     <line
                       x1={ponto.x}
                       y1={ponto.y}
+                      visibility={campo.forma === "LINHA" && indice === 0 ? "hidden" : undefined}
                       x2={p.inX}
                       y2={p.inY}
                       stroke="#22c55e"
@@ -922,6 +939,7 @@ function FormaVetorial({
                     <line
                       x1={ponto.x}
                       y1={ponto.y}
+                      visibility={campo.forma === "LINHA" && indice === pontos.length - 1 ? "hidden" : undefined}
                       x2={p.outX}
                       y2={p.outY}
                       stroke="#22c55e"
@@ -932,8 +950,9 @@ function FormaVetorial({
 
                     <ellipse
                       data-controle-ponto-forma="alca"
-                      cx={50 + (p.inX! - 50) * 0.94}
-                      cy={50 + (p.inY! - 50) * 0.94}
+                      visibility={campo.forma === "LINHA" && indice === 0 ? "hidden" : undefined}
+                      cx={50 + (p.inX! - 50) * (campo.forma === "LINHA" ? 1 : 0.94)}
+                      cy={50 + (p.inY! - 50) * (campo.forma === "LINHA" ? 1 : 0.94)}
                       rx={rxAlca}
                       ry={ryAlca}
                       fill="#22c55e"
@@ -949,8 +968,9 @@ function FormaVetorial({
 
                     <ellipse
                       data-controle-ponto-forma="alca"
-                      cx={50 + (p.outX! - 50) * 0.94}
-                      cy={50 + (p.outY! - 50) * 0.94}
+                      visibility={campo.forma === "LINHA" && indice === pontos.length - 1 ? "hidden" : undefined}
+                      cx={50 + (p.outX! - 50) * (campo.forma === "LINHA" ? 1 : 0.94)}
+                      cy={50 + (p.outY! - 50) * (campo.forma === "LINHA" ? 1 : 0.94)}
                       rx={rxAlca}
                       ry={ryAlca}
                       fill="#22c55e"
@@ -967,8 +987,8 @@ function FormaVetorial({
                 )}
 
                 <ellipse
-                  cx={50 + (ponto.x - 50) * 0.94}
-                  cy={50 + (ponto.y - 50) * 0.94}
+                  cx={50 + (ponto.x - 50) * (campo.forma === "LINHA" ? 1 : 0.94)}
+                  cy={50 + (ponto.y - 50) * (campo.forma === "LINHA" ? 1 : 0.94)}
                   rx={rxPonto}
                   ry={ryPonto}
                   data-controle-ponto-forma="ancora"

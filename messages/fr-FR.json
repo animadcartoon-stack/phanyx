@@ -10138,6 +10138,8 @@
       "imageUploaded": "Image importée"
     },
     "layers": {
+      "hideElement": "Masquer",
+      "showElement": "Afficher",
       "title": "Calques",
       "lockedElement": "Élément verrouillé",
       "rename": "Renommer",

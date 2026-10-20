@@ -10138,6 +10138,8 @@
       "imageUploaded": "Imagen subida"
     },
     "layers": {
+      "hideElement": "Ocultar",
+      "showElement": "Mostrar",
       "title": "Capas",
       "lockedElement": "Elemento bloqueado",
       "rename": "Renombrar",
