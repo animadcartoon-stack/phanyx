@@ -10139,6 +10139,8 @@
       "imageUploaded": "Image uploaded"
     },
     "layers": {
+      "hideElement": "Hide",
+      "showElement": "Show",
       "title": "Layers",
       "lockedElement": "Locked element",
       "rename": "Rename",

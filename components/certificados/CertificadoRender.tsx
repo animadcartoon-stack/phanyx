@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { elementoOculto } from "@/lib/certificados/visibilidadeCertificado";
+import { normalizarLinhaCertificado } from "@/app/admin/configuracoes/certificado/components/linhaEditavel";
 import ImagemCertificado from "./ImagemCertificado";
 import TextoFormatadoCertificado from "./TextoFormatadoCertificado";
 import FontesCertificado from "./FontesCertificado";
@@ -497,7 +499,7 @@ export default function CertificadoRender({
   fundoTransparente = false,
 }: Props) {
 
-  const camposOrdenados = [...(campos || [])].sort(
+  const camposOrdenados = (campos || []).filter(campo => !elementoOculto(campo)).map(campo => normalizarLinhaCertificado(campo as any)).sort(
     (a, b) => Number(a.ordem || 0) - Number(b.ordem || 0)
   );
 
@@ -518,7 +520,7 @@ export default function CertificadoRender({
   : "#ffffff",
       }}
     >
-      <FontesCertificado campos={campos} />
+      <FontesCertificado campos={camposOrdenados} />
       {templateUrl && modoFundo === "modelo" && !fundoTransparente && (
   templateUrl.toLowerCase().includes(".pdf") ? (
     <iframe

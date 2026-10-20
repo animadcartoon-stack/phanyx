@@ -51,7 +51,7 @@ export function criarAlcasDoContorno(
     norma = Math.hypot(dx, dy) || 1;
   }
   const distancias = [anterior?.distancia, proximo?.distancia].filter((d): d is number => d !== undefined);
-  const tamanho = distancias.length ? Math.min(Math.min(sx, sy) * 18, ...distancias.map((d) => d / 3)) : 0;
+  const tamanho = distancias.length ? Math.min((fechada ? Math.min(sx, sy) : Math.max(sx, sy)) * 18, ...distancias.map((d) => d / 3)) : 0;
   const tx = dx / norma * tamanho / sx, ty = dy / norma * tamanho / sy;
   return { ...ponto, tipo: "curvo", handleMode: "alinhado",
     inX: ponto.x - tx, inY: ponto.y - ty, outX: ponto.x + tx, outY: ponto.y + ty };

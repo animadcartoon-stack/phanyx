@@ -10138,6 +10138,8 @@
       "imageUploaded": "Imagem enviada"
     },
     "layers": {
+      "hideElement": "Ocultar",
+      "showElement": "Revelar",
       "title": "Camadas",
       "lockedElement": "Elemento travado",
       "rename": "Renomear",
