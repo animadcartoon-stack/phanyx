@@ -9863,6 +9863,13 @@
     }
   },
   "AdminCertificateEditor": {
+    "nameLayout": {
+      "format": "Nom sur le certificat",
+      "full": "Nom complet",
+      "abbreviated": "Abréger les noms intermédiaires",
+      "testName": "Nom à tester dans l’éditeur et l’aperçu",
+      "hint": "Le nom revient à la ligne et reste centré. Augmentez la hauteur pour garder une police plus grande. Le nom de test n’est pas enregistré ; l’abréviation modifie uniquement l’affichage."
+    },
     "fonts": {
       "search": "Rechercher une police par nom",
       "hint": "Les polices de la bibliothèque sont chargées selon les besoins. Les polices Windows doivent être installées sur l’appareil et peuvent changer dans le PDF.",

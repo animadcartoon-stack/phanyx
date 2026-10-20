@@ -9864,6 +9864,13 @@
     }
   },
   "AdminCertificateEditor": {
+    "nameLayout": {
+      "format": "Name on certificate",
+      "full": "Full name",
+      "abbreviated": "Abbreviate middle names",
+      "testName": "Name to test in the editor and preview",
+      "hint": "The name wraps onto centered lines. Increase the box height to keep a larger font. The test name is not saved; abbreviation changes display only."
+    },
     "fonts": {
       "search": "Search fonts by name",
       "hint": "Library fonts load as needed. Windows fonts must be installed on the device and may change in the PDF.",

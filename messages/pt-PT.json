@@ -9863,6 +9863,13 @@
     }
   },
   "AdminCertificateEditor": {
+    "nameLayout": {
+      "format": "Nome no certificado",
+      "full": "Nome completo",
+      "abbreviated": "Abreviar nomes intermédios",
+      "testName": "Nome para testar na edição e na pré-visualização",
+      "hint": "O nome é dividido em linhas centradas. Aumente a altura para manter a letra maior. O nome de teste não é guardado; a abreviatura altera apenas a apresentação."
+    },
     "fonts": {
       "search": "Procurar fonte pelo nome",
       "hint": "As fontes da biblioteca são carregadas conforme a utilização. As fontes do Windows dependem da instalação no dispositivo e podem mudar no PDF.",

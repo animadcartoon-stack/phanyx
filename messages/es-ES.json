@@ -9863,6 +9863,13 @@
     }
   },
   "AdminCertificateEditor": {
+    "nameLayout": {
+      "format": "Nombre en el certificado",
+      "full": "Nombre completo",
+      "abbreviated": "Abreviar nombres intermedios",
+      "testName": "Nombre de prueba en la edición y vista previa",
+      "hint": "El nombre se divide en líneas centradas. Aumente la altura para mantener una fuente mayor. El nombre de prueba no se guarda; la abreviación solo cambia la presentación."
+    },
     "fonts": {
       "search": "Buscar fuente por nombre",
       "hint": "Las fuentes de la biblioteca se cargan según se necesitan. Las fuentes de Windows deben estar instaladas en el dispositivo y pueden cambiar en el PDF.",
