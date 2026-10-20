@@ -59,8 +59,9 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
     setAtivo(proximo);
     const lista = listaRef.current;
     const topo = proximo * ALTURA_LINHA;
-    if (lista && (topo < lista.scrollTop || topo + ALTURA_LINHA > lista.scrollTop + ALTURA_LISTA)) {
-      lista.scrollTop = Math.max(0, topo - ALTURA_LINHA);
+    const altura = lista?.clientHeight || ALTURA_LISTA;
+    if (lista && (topo < lista.scrollTop || topo + ALTURA_LINHA > lista.scrollTop + altura)) {
+      lista.scrollTop = Math.max(0, topo - Math.max(0, altura - ALTURA_LINHA));
       setRolagem(lista.scrollTop);
     }
   }
@@ -104,7 +105,7 @@ export default function SeletorFonteCertificado({ value, onChange, labels, texto
       <p className="text-xs text-slate-500 dark:text-slate-400">{tr("visualListHint")}</p>
       <div ref={listaRef} id={id} role="listbox" tabIndex={0} aria-label={tr("chooseFont")}
         aria-activedescendant={ativo >= inicio && ativo < inicio + visiveis.length ? `${id}-${ativo}` : undefined}
-        className="overflow-y-auto rounded-xl border border-slate-300 bg-white text-slate-900" style={{ height: ALTURA_LISTA, overflowAnchor: "none" }}
+        className="overflow-y-auto rounded-xl border border-slate-300 bg-white text-slate-900" style={{ height: ALTURA_LISTA, maxHeight: "40vh", overflowAnchor: "none", overscrollBehaviorY: "contain", contain: "layout paint", scrollbarGutter: "stable" }}
         onScroll={evento => setRolagem(evento.currentTarget.scrollTop)}
         onKeyDown={evento => {
           if (["ArrowDown", "ArrowUp", "Home", "End", "Enter", " "].includes(evento.key)) {
