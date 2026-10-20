@@ -1,6 +1,7 @@
 "use client";
 
 import { isValidElement, memo, useId, useMemo, type CSSProperties, type ReactNode } from "react";
+import { conteudoTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import { medidasArcoTexto, modoTextoCertificado, trechosTextoCertificado, type TextoCertificado } from "@/lib/certificados/textoCertificado";
 
 function textoSimples(no: ReactNode): string {
@@ -19,7 +20,7 @@ function TextoFormatadoCertificado({ campo, texto }: { campo: TextoCertificado; 
     fontWeight: campo.negrito ? "bold" : "normal", fontStyle: campo.italico ? "italic" : "normal",
     textDecoration: campo.sublinhado ? "underline" : "none", letterSpacing: campo.letterSpacing ?? 0,
   };
-  if (modo === "NORMAL") return <div data-texto-formatado="NORMAL" style={{ ...estilo, width: "100%", whiteSpace: "pre-wrap", wordBreak: "break-word", color: campo.cor || "#1e3a8a", lineHeight: campo.lineHeight || 1.3, wordSpacing: campo.wordSpacing ?? 0, textAlign: (campo.alinhamento as "left" | "center" | "right") || "left" }}>
+  if (modo === "NORMAL") return <div data-texto-formatado="NORMAL" style={campo.tipo === "TEXTO_LIVRE" ? conteudoTextoLivreCertificado(campo) : { ...estilo, width: "100%", whiteSpace: "pre-wrap", wordBreak: "break-word", color: campo.cor || "#1e3a8a", lineHeight: campo.lineHeight || 1.3, wordSpacing: campo.wordSpacing ?? 0, textAlign: (campo.alinhamento as "left" | "center" | "right") || "left" }}>
     {trechos.map((t, i) => <span key={i} style={{ ...t.estilo, color: t.estilo.fill } as CSSProperties}>{t.texto}</span>)}
   </div>;
   if (modo === "VERTICAL") return <div data-texto-formatado="VERTICAL" style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }}>
