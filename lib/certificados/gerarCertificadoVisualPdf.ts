@@ -34,6 +34,7 @@ async function baixarArquivoComoBuffer(url: string) {
 }
 
 async function esperarFontesEImagens(page: any) {
+  await page.waitForSelector(".phanyx-certificado-render");
   await page.waitForFunction(() => Array.from(document.querySelectorAll("[data-fontes-certificado]")).every(el => el.getAttribute("data-fontes-certificado") === "pronto"), { timeout: 30000 });
   await page.evaluate(async () => {
     // @ts-ignore
@@ -53,6 +54,7 @@ async function esperarFontesEImagens(page: any) {
       })
     );
   });
+  await page.waitForFunction(() => Array.from(document.querySelectorAll("[data-ajuste-nome-certificado]")).every(el => el.getAttribute("data-ajuste-nome-certificado") === "pronto"), { timeout: 30000 });
 }
 
 async function gerarOverlayPngTransparente({

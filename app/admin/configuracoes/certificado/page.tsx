@@ -17,6 +17,8 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
 import ImagemCertificado from "@/components/certificados/ImagemCertificado";
 import TextoFormatadoCertificado from "@/components/certificados/TextoFormatadoCertificado";
+import NomeAlunoCertificado from "@/components/certificados/NomeAlunoCertificado";
+import { caixaNomeAlunoCertificado } from "@/lib/certificados/nomeAlunoCertificado";
 import { caixaTextoLivreCertificado, conteudoTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import FontesCertificado from "@/components/certificados/FontesCertificado";
 import { medidasArcoTexto, modoTextoCertificado } from "@/lib/certificados/textoCertificado";
@@ -951,6 +953,7 @@ export default function ConfiguracaoCertificadoPage() {
   });
 
   const [previewAberto, setPreviewAberto] = useState(false);
+  const [nomeAlunoTeste, setNomeAlunoTeste] = useState("");
 
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoPreviewUrl, setCertificadoPreviewUrl] = useState("");
@@ -6989,6 +6992,7 @@ export default function ConfiguracaoCertificadoPage() {
       sublinhado: campoSelecionado.sublinhado || false,
       lineHeight: campoSelecionado.lineHeight || 1.3,
       marcador: campoSelecionado.marcador || null,
+      dadosJson: campoSelecionado.dadosJson,
     });
     setMensagemSucesso(tr("messages.fieldSaved"));
     setTimeout(() => setMensagemSucesso(""), 2500);
@@ -7495,7 +7499,7 @@ export default function ConfiguracaoCertificadoPage() {
   // A previa e calculada sob demanda antes do retorno de carregamento.
 
   const dadosPreviewCertificado = {
-    nomeAluno: tr("preview.studentName"),
+    nomeAluno: nomeAlunoTeste.trim() || tr("preview.studentName"),
     numeroMatricula: tr("preview.registrationNumber"),
     cpfAluno: "000.000.000-00",
     rgAluno: "00.000.000-0",
@@ -8813,6 +8817,7 @@ export default function ConfiguracaoCertificadoPage() {
                                   : "flex-start",
                             overflow: "visible",
                             boxSizing: "border-box",
+                            ...(c.tipo === "NOME_ALUNO" && modoTextoCertificado(c) === "NORMAL" ? caixaNomeAlunoCertificado(c) : {}),
                           }}
                         >
                           {modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
@@ -8881,7 +8886,7 @@ export default function ConfiguracaoCertificadoPage() {
                             )
                           ) : (
                             c.tipo
-                          )} /> : (c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                          )} /> : c.tipo === "NOME_ALUNO" ? <NomeAlunoCertificado nome={nomeAlunoTeste.trim() || tr("preview.studentName")} abreviar={c.dadosJson?.nomeAlunoAbreviado === true} /> : (c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
                             <div
                               style={{
                                 width: "100%",
@@ -11947,6 +11952,7 @@ export default function ConfiguracaoCertificadoPage() {
                         c.tipo === "FORMA" && selecaoCena.has(c.id) && modoEspessuraContorno,
                         pontoFormaSelecionado?.campoId === c.id ? pontoFormaSelecionado : null,
                         c.tipo === "ASSINATURA" ? certificadoAssinaturaUrl : null,
+                        c.tipo === "NOME_ALUNO" ? nomeAlunoTeste : null,
                         locale,
                       ]} />
                   ))}
@@ -12675,6 +12681,35 @@ export default function ConfiguracaoCertificadoPage() {
                         <span className="font-semibold">{tr("fieldOptions.typeColon")}</span>{" "}
                         {traduzirTipoCampoCertificado(campoSelecionado.tipo)}
                       </div>
+                      {campoSelecionado.tipo === "NOME_ALUNO" && modoTextoCertificado(campoSelecionado) === "NORMAL" && (
+                        <section className="space-y-3 rounded-xl border border-slate-200 p-3" data-opcoes-nome-aluno="true">
+                          <label className="block text-xs font-medium text-slate-600">
+                            {tr("nameLayout.format")}
+                            <select value={campoSelecionado.dadosJson?.nomeAlunoAbreviado === true ? "abreviado" : "completo"}
+                              onChange={e => atualizarCampoLocal("dadosJson", { ...(campoSelecionado.dadosJson || {}), nomeAlunoAbreviado: e.target.value === "abreviado" })}
+                              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900">
+                              <option value="completo">{tr("nameLayout.full")}</option>
+                              <option value="abreviado">{tr("nameLayout.abbreviated")}</option>
+                            </select>
+                          </label>
+                          <label className="block text-xs font-medium text-slate-600">
+                            {tr("nameLayout.testName")}
+                            <input type="text" value={nomeAlunoTeste} onChange={e => setNomeAlunoTeste(e.target.value)}
+                              placeholder={tr("preview.studentName")} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <label className="block text-xs text-slate-600">{tr("common.width")}
+                              <CampoNumeroEditavel value={campoSelecionado.largura || 220} min={1} onValueChange={v => atualizarCampoLocal("largura", v)}
+                                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
+                            </label>
+                            <label className="block text-xs text-slate-600">{tr("common.height")}
+                              <CampoNumeroEditavel value={campoSelecionado.altura || 40} min={1} onValueChange={v => atualizarCampoLocal("altura", v)}
+                                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
+                            </label>
+                          </div>
+                          <p className="text-xs text-slate-500">{tr("nameLayout.hint")}</p>
+                        </section>
+                      )}
                       {campoTemTextoCertificado(campoSelecionado) && (
                         <section data-cert-tipografia="true" className="space-y-3">
                       <div>

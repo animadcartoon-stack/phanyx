@@ -5,6 +5,8 @@ import { elementoOculto } from "@/lib/certificados/visibilidadeCertificado";
 import { normalizarLinhaCertificado } from "@/app/admin/configuracoes/certificado/components/linhaEditavel";
 import ImagemCertificado from "./ImagemCertificado";
 import TextoFormatadoCertificado from "./TextoFormatadoCertificado";
+import NomeAlunoCertificado from "@/components/certificados/NomeAlunoCertificado";
+import { caixaNomeAlunoCertificado } from "@/lib/certificados/nomeAlunoCertificado";
 import { caixaTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import FontesCertificado from "./FontesCertificado";
 import { modoTextoCertificado } from "@/lib/certificados/textoCertificado";
@@ -695,6 +697,12 @@ export default function CertificadoRender({
           return <div key={campo.id} style={{ ...estiloBase, ...caixaTextoLivreCertificado(campo),
             outline: mostrarBordas ? "1px solid rgba(37, 99, 235, .35)" : undefined }}>
             <TextoFormatadoCertificado campo={campo} texto={resolverTextoCampo(campo, dados)} />
+          </div>;
+        }
+
+        if (campo.tipo === "NOME_ALUNO" && modoTextoCertificado(campo) === "NORMAL") {
+          return <div key={campo.id} style={{ ...estiloBase, ...caixaNomeAlunoCertificado(campo) }}>
+            <NomeAlunoCertificado nome={String(resolverTextoCampo(campo, dados))} abreviar={campo.dadosJson?.nomeAlunoAbreviado === true} />
           </div>;
         }
 
