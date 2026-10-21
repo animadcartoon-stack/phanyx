@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
 import { validarTokenRenderCertificado } from "@/lib/certificados/certificado-render-token";
 
@@ -269,6 +270,12 @@ const alturaBase =
         matriculaRelacionada?.dataFim ||
         certificado?.emitidoEm
     ),
+    dataInicioCurso:
+      matriculaRelacionada?.instituicaoId === certificado.instituicaoId &&
+      matriculaRelacionada?.alunoId === certificado.alunoId &&
+      matriculaRelacionada?.itens?.some((item: any) => item.disciplinaId === certificado.disciplinaId)
+        ? formatarDataInicioCurso(matriculaRelacionada.dataInicioCurso)
+        : "",
     aproveitamento: "100%",
     frequenciaTotal: "100%",
       modalidade: matriculaRelacionada?.modalidade || "",

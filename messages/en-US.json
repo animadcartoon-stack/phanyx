@@ -10071,6 +10071,7 @@
       "DISCIPLINAS_CONCLUIDAS": "Completed subjects",
       "CARGA_HORARIA": "Workload",
       "ANO_CONCLUSAO": "Completion year",
+      "DATA_INICIO_CURSO": "Course start date",
       "DATA_CONCLUSAO": "Completion date",
       "APROVEITAMENTO": "Achievement",
       "FREQUENCIA_TOTAL": "Total attendance",
@@ -15862,6 +15863,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
+    "courseStart": {
+      "label": "Course start date (optional)",
+      "help": "Enter the date of the student’s first lesson in this course. You can leave it blank and fill it in later, including for recorded courses. Without a date, the certificate variable stays blank.",
+      "invalid": "Enter a valid course start date."
+    },
     "bolsaEstudos": "Scholarship (%)",
     "bolsaAjuda": "Enter a percentage from 0 to 100.",
     "valorAposBolsa": "Monthly amount after scholarship",

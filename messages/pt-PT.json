@@ -10070,6 +10070,7 @@
       "DISCIPLINAS_CONCLUIDAS": "Disciplinas concluídas",
       "CARGA_HORARIA": "Carga horária",
       "ANO_CONCLUSAO": "Ano de conclusão",
+      "DATA_INICIO_CURSO": "Data de início do curso",
       "DATA_CONCLUSAO": "Data de conclusão",
       "APROVEITAMENTO": "Aproveitamento",
       "FREQUENCIA_TOTAL": "Frequência total",
@@ -15648,6 +15649,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
+    "courseStart": {
+      "label": "Data de início do curso (opcional)",
+      "help": "Indique a data da primeira aula do aluno neste curso. Pode deixar em branco e preencher mais tarde, incluindo nos cursos gravados. Sem esta data, a variável fica vazia no certificado.",
+      "invalid": "Indique uma data válida para o início do curso."
+    },
     "bolsaEstudos": "Bolsa de estudo (%)",
     "bolsaAjuda": "Indique uma percentagem de 0 a 100.",
     "valorAposBolsa": "Valor mensal após bolsa",

@@ -928,7 +928,7 @@ export default function ConfiguracaoCertificadoPage() {
     const tiposConhecidos = [
       "TEXTO_LIVRE", "IMAGEM", "FORMA", "NOME_ALUNO", "NUMERO_MATRICULA",
       "CPF_ALUNO", "RG_ALUNO", "NOME_CURSO", "DISCIPLINAS_CONCLUIDAS",
-      "CARGA_HORARIA", "ANO_CONCLUSAO", "DATA_CONCLUSAO", "APROVEITAMENTO",
+      "CARGA_HORARIA", "DATA_INICIO_CURSO", "ANO_CONCLUSAO", "DATA_CONCLUSAO", "APROVEITAMENTO",
       "FREQUENCIA_TOTAL", "MODALIDADE", "TURMA", "POLO", "NOME_INSTITUICAO",
       "CNPJ_INSTITUICAO", "CIDADE", "DATA_EMISSAO", "NOME_DIRETOR",
       "ASSINATURA", "LOGO_INSTITUICAO", "NUMERO_CERTIFICADO", "QR_CODE",
@@ -7579,6 +7579,7 @@ export default function ConfiguracaoCertificadoPage() {
       tr("preview.disciplineNumber", { number: 6 }),
     ],
     cargaHoraria: tr("preview.workload"),
+    dataInicioCurso: new Intl.DateTimeFormat(locale).format(new Date(2026, 1, 2)),
     anoConclusao: "2026",
     dataConclusao: new Intl.DateTimeFormat(locale).format(new Date(2026, 3, 30)),
     aproveitamento: "100%",
@@ -11275,6 +11276,10 @@ export default function ConfiguracaoCertificadoPage() {
                       {
                         tipo: "ANO_CONCLUSAO",
                         label: tr("fieldTypes.ANO_CONCLUSAO"),
+                      },
+                      {
+                        tipo: "DATA_INICIO_CURSO",
+                        label: tr("fieldTypes.DATA_INICIO_CURSO"),
                       },
                       {
                         tipo: "DATA_CONCLUSAO",

@@ -1166,6 +1166,7 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  dataInicioCurso                         DateTime?                 @db.Date
   id                                      Int                       @id @default(autoincrement())
   numeroMatriculaLegado                   String?
   sistemaOrigem                           String?

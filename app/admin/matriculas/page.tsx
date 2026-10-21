@@ -105,6 +105,7 @@ type MatriculaApi = {
   motivoExclusao?: string | null;
   periodoLetivo?: string | null;
   modalidade?: string | null;
+  dataInicioCurso?: string | null;
   semestre?: number | null;
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
@@ -184,6 +185,7 @@ type MatriculaEdicao = {
   alunoId: string;
   periodoLetivo: string;
   modalidade: string;
+  dataInicioCurso: string;
   cursoId: string;
   cursoSemestreId: string;
   semestre: number | "";
@@ -394,6 +396,7 @@ function AdminMatriculasPage() {
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
   const [periodoLetivo, setPeriodoLetivo] = useState<string>("");
   const [modalidade, setModalidade] = useState<string>("");
+  const [dataInicioCurso, setDataInicioCurso] = useState("");
 
   const [statusInicialMatricula, setStatusInicialMatricula] =
     useState<string>("ATIVA");
@@ -1911,6 +1914,7 @@ function AdminMatriculasPage() {
           itensMatricula,
           periodoLetivo,
           modalidade,
+          dataInicioCurso: dataInicioCurso || null,
           status: statusInicialMatricula,
 
           valorPagoMatricula:
@@ -1945,7 +1949,7 @@ function AdminMatriculasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error || "Erro ao criar matrícula.");
+        throw new Error(data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula.");
       }
 
       setSucesso("Matrícula criada com sucesso.");
@@ -1964,6 +1968,7 @@ function AdminMatriculasPage() {
       setBolsaPercentual("0");
       setQuantidadeParcelas("");
       setDataPrimeiroVencimento("");
+      setDataInicioCurso("");
       setSemestresCurso([]);
       setStatusInicialMatricula("ATIVA");
       setPeriodoLetivo("");
@@ -2334,6 +2339,7 @@ function AdminMatriculasPage() {
       alunoId: matricula.aluno?.id ? String(matricula.aluno.id) : "",
       periodoLetivo: String(matricula.periodoLetivo ?? ""),
       modalidade: String(matricula.modalidade ?? ""),
+      dataInicioCurso: String(matricula.dataInicioCurso ?? "").slice(0, 10),
       cursoId: cursoIdAtual,
       cursoSemestreId: semestreEncontrado ? String(semestreEncontrado.id) : "",
       semestre: semestreAtual,
@@ -2619,6 +2625,7 @@ function AdminMatriculasPage() {
             modalidade:
               matriculaEditando
                 .modalidade,
+            dataInicioCurso: matriculaEditando.dataInicioCurso || null,
           }),
         }
       );
@@ -2628,7 +2635,7 @@ function AdminMatriculasPage() {
 
       if (!res.ok) {
         throw new Error(
-          data?.error ||
+          (data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error) ||
           "Erro ao atualizar matrícula"
         );
       }
@@ -3816,6 +3823,14 @@ function AdminMatriculasPage() {
             <label className="text-sm font-medium text-gray-700">
               Turma do aluno
             </label>
+
+              <div>
+                <label htmlFor="inicio-curso-novo" className="text-sm font-medium text-gray-700 dark:text-slate-200">{t("courseStart.label")}</label>
+                <input id="inicio-curso-novo" type="date" value={dataInicioCurso}
+                  onChange={(e) => setDataInicioCurso(e.target.value)}
+                  aria-describedby="inicio-curso-novo-ajuda" className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+                <p id="inicio-curso-novo-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">{t("courseStart.help")}</p>
+              </div>
 
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
@@ -5369,6 +5384,14 @@ function AdminMatriculasPage() {
                   <option value="OUTRO">Outro</option>
                   <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
                 </select>
+              </div>
+
+              <div>
+                <label htmlFor="inicio-curso-edicao" className="text-sm font-medium text-gray-700 dark:text-slate-200">{t("courseStart.label")}</label>
+                <input id="inicio-curso-edicao" type="date" value={matriculaEditando.dataInicioCurso}
+                  onChange={(e) => setMatriculaEditando((prev) => prev ? { ...prev, dataInicioCurso: e.target.value } : prev)}
+                  aria-describedby="inicio-curso-edicao-ajuda" className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+                <p id="inicio-curso-edicao-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">{t("courseStart.help")}</p>
               </div>
 
               <div>
