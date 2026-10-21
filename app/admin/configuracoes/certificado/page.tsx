@@ -12,6 +12,7 @@ import { calcularRedimensionamentoForma } from "./components/redimensionamentoFo
 import { pontosDentroDaCaixa, subdividirPontosForma, aplicarPadraoTangentesForma, criarAlcasDoContorno } from "./components/edicaoPontosForma";
 import CorComCodigo from "./components/CorComCodigo";
 import useHistoricoCertificado from "./components/useHistoricoCertificado";
+import { criarIdElementoCertificado, ativarInsercaoBibliotecaCertificado } from "./components/identidadeElementoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender, { resolverTextoCampo } from "@/components/certificados/CertificadoRender";
@@ -1050,7 +1051,7 @@ export default function ConfiguracaoCertificadoPage() {
 
     registrarHistoricoAntesDaAcao();
 
-    const novoGrupoId = `grupo-${Date.now()}`;
+    const novoGrupoId = `grupo-${criarIdElementoCertificado()}`;
 
     setCampos((prev) =>
       prev.map((campo) =>
@@ -1176,7 +1177,7 @@ export default function ConfiguracaoCertificadoPage() {
     | "LIVRE";
 
   function adicionarFormaGeometrica(forma: TipoFormaGeometrica) {
-    const novoId = Date.now();
+    const novoId = criarIdElementoCertificado();
 
     const configPorForma: Partial<Record<TipoFormaGeometrica, any>> = {
       RETANGULO: {
@@ -1697,7 +1698,7 @@ export default function ConfiguracaoCertificadoPage() {
     if (clicouNoPrimeiro) {
       const campoFinal = criarCampoPreviewFormaLivre(atuais);
 
-      const novoId = Date.now();
+      const novoId = criarIdElementoCertificado();
 
       setCampos((prev) => [
         ...prev.filter((campo) => campo.id !== -999999),
@@ -1928,7 +1929,7 @@ export default function ConfiguracaoCertificadoPage() {
     largura = 180,
     altura = 180,
   ) {
-    const novoId = Date.now();
+    const novoId = criarIdElementoCertificado();
 
     setCampos((prev) => [
       ...prev,
@@ -2084,13 +2085,7 @@ export default function ConfiguracaoCertificadoPage() {
           dimensoes.altura,
         );
 
-      novoId =
-        -(
-          Date.now() * 1000 +
-          Math.floor(
-            Math.random() * 1000,
-          )
-        );
+      novoId = criarIdElementoCertificado();
 
       const novoCampo = {
         id: novoId,
@@ -4008,8 +4003,7 @@ export default function ConfiguracaoCertificadoPage() {
      * Ele ser? persistido na vers?o RASCUNHO correta
      * quando o usu?rio clicar em Salvar rascunho.
      */
-    const novoId =
-      -(Date.now() * 1000 + Math.floor(Math.random() * 1000));
+    const novoId = criarIdElementoCertificado();
 
     const maiorOrdem = campos.reduce(
       (maior, campo) =>
@@ -4398,7 +4392,7 @@ export default function ConfiguracaoCertificadoPage() {
 
     return Array.from({ length: quantidade }).map((_, index) => {
       const passo = index + 1;
-      const novoId = preview ? -(Date.now() + passo) : Date.now() + passo;
+      const novoId = criarIdElementoCertificado();
 
       const escala = Number(arrayEscala || 100) / 100;
       const opacidade = Number(arrayOpacidade || 100) / 100;
@@ -4469,13 +4463,11 @@ export default function ConfiguracaoCertificadoPage() {
         bases.length > 1
           ? preview
             ? `preview-grupo-array-${passo}`
-            : `grupo-array-${Date.now()}-${passo}`
+            : `grupo-array-${criarIdElementoCertificado()}-${passo}`
           : null;
 
       bases.forEach((base, indexBase) => {
-        const novoId = preview
-          ? -1 * (passo * 100000 + indexBase + 1)
-          : Date.now() + passo * 1000 + indexBase;
+        const novoId = criarIdElementoCertificado();
 
         const novaLargura =
           Number(base.largura || 120) * Math.pow(escalaPorCopia, passo);
@@ -4674,13 +4666,11 @@ export default function ConfiguracaoCertificadoPage() {
         : [campoCopiado];
 
       const novoGrupoId =
-        itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
-
-      const agora = Date.now();
+        itensOriginais.length > 1 ? `grupo-${criarIdElementoCertificado()}` : null;
 
       const novosCampos = itensOriginais.map(
         (item: CampoCertificado, index: number) => {
-          const novoId = agora + index + 1;
+          const novoId = criarIdElementoCertificado();
           const novoX = Number(item.x || 0) + deslocamento;
           const novoY = Number(item.y || 0) + deslocamento;
 
@@ -5493,12 +5483,10 @@ export default function ConfiguracaoCertificadoPage() {
     const deslocamentoY = novoMinY - minY;
 
     const novoGrupoId =
-      itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
-
-    const agora = Date.now();
+      itensOriginais.length > 1 ? `grupo-${criarIdElementoCertificado()}` : null;
 
     const novosCampos = itensOriginais.map((campo: any, index: number) => {
-      const novoId = agora + index + 1;
+      const novoId = criarIdElementoCertificado();
 
       const novoX = Number(campo.x || 0) + deslocamentoX;
       const novoY = Number(campo.y || 0) + deslocamentoY;
@@ -7354,7 +7342,7 @@ export default function ConfiguracaoCertificadoPage() {
 
         resultado.push({
           ...campo,
-          id: Number(`${campo.id}${passo}`),
+          id: criarIdElementoCertificado(),
           idOriginalArray: campo.id,
           arrayPreview: true,
           x: Number(campo.x || 0) + deslocamentoX,
@@ -7415,7 +7403,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                           return {
                             ...campo,
-                            id: Number(`${campo.id}${passo}`),
+                            id: criarIdElementoCertificado(),
                             arrayPreview: true,
                             x: Number(campo.x || 0) + deslocamentoX,
                             y: Number(campo.y || 0) + deslocamentoY,
@@ -10692,7 +10680,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={src}
                         type="button"
-                        onClick={() => adicionarImagemBiblioteca(src, 520, 360)}
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarImagemBiblioteca(src, 520, 360))}
                         className="rounded-lg border bg-white p-1 hover:border-blue-500 hover:bg-blue-50"
                         title={`Moldura paisagem ${index + 1}`}
                       >
@@ -10716,7 +10704,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={src}
                         type="button"
-                        onClick={() => adicionarImagemBiblioteca(src, 360, 520)}
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarImagemBiblioteca(src, 360, 520))}
                         className="rounded-lg border bg-white p-1 hover:border-blue-500 hover:bg-blue-50"
                         title={`Moldura retrato ${index + 1}`}
                       >
@@ -10740,7 +10728,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={src}
                         type="button"
-                        onClick={() => adicionarImagemBiblioteca(src, 150, 150)}
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarImagemBiblioteca(src, 150, 150))}
                         className="rounded-lg border bg-white p-1 hover:border-blue-500 hover:bg-blue-50"
                         title={`Figura ${index + 1}`}
                       >
@@ -10763,7 +10751,7 @@ export default function ConfiguracaoCertificadoPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")}
+                    onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo("TEXTO_LIVRE", "TITULO"))}
                     className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                   >
                     <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 text-3xl font-black text-blue-700">
@@ -10776,7 +10764,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                   <button
                     type="button"
-                    onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")}
+                    onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo("TEXTO_LIVRE", "TEXTO"))}
                     className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                   >
                     <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 text-xl font-black text-blue-700">
@@ -10813,31 +10801,7 @@ export default function ConfiguracaoCertificadoPage() {
                     <div className="grid grid-cols-4 gap-2">
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              tempId: Date.now(),
-                              id: Date.now(),
-                              tipo: "FORMA",
-                              forma: "RETANGULO",
-                              pontosForma:
-                                criarPontosIniciaisForma("RETANGULO"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 120,
-                              y: 120,
-                              largura: 180,
-                              altura: 90,
-                              cor: "#1d4ed8",
-                              opacity: 0.35,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("RETANGULO"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -10850,30 +10814,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              tempId: Date.now(),
-                              id: Date.now() + 4,
-                              tipo: "FORMA",
-                              forma: "QUADRADO",
-                              pontosForma: criarPontosIniciaisForma("QUADRADO"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 130,
-                              y: 130,
-                              largura: 120,
-                              altura: 120,
-                              cor: "#1d4ed8",
-                              opacity: 0.35,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("QUADRADO"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -10886,30 +10827,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              tempId: Date.now(),
-                              id: Date.now() + 1,
-                              tipo: "FORMA",
-                              forma: "CIRCULO",
-                              pontosForma: criarPontosIniciaisForma("CIRCULO"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 140,
-                              y: 140,
-                              largura: 110,
-                              altura: 110,
-                              cor: "#1d4ed8",
-                              opacity: 0.35,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("CIRCULO"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -10922,29 +10840,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              id: Date.now() + 2,
-                              tipo: "FORMA",
-                              forma: "LINHA",
-                              pontosForma: criarPontosIniciaisForma("LINHA"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 160,
-                              y: 160,
-                              largura: 180,
-                              altura: 1,
-                              cor: "#1d4ed8",
-                              opacity: 1,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("LINHA"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -10957,35 +10853,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              id: Date.now() + 3,
-                              tipo: "FORMA",
-                              forma: "ESTRELA",
-                              pontosForma: criarPontosIniciaisForma("ESTRELA"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 3,
-                              x: 180,
-                              y: 180,
-                              largura: 160,
-                              altura: 160,
-                              cor: "#1d4ed8",
-                              opacity: 1,
-                              ordem: 5,
-                              pontasEstrela: 5,
-                              raioInterno: 22,
-                              raioExterno: 44,
-                              profundidadeEstrela: 45,
-                              arredondarEstrela: 0,
-                              pontas: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("ESTRELA"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -10998,30 +10866,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              id: Date.now() + 5,
-                              tipo: "FORMA",
-                              forma: "TRIANGULO",
-                              pontosForma:
-                                criarPontosIniciaisForma("TRIANGULO"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 200,
-                              y: 200,
-                              largura: 140,
-                              altura: 140,
-                              cor: "#1d4ed8",
-                              opacity: 0.55,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("TRIANGULO"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -11034,29 +10879,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              id: Date.now() + 6,
-                              tipo: "FORMA",
-                              forma: "SETA",
-                              pontosForma: criarPontosIniciaisForma("SETA"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 200,
-                              y: 200,
-                              largura: 180,
-                              altura: 100,
-                              cor: "#1d4ed8",
-                              opacity: 0.55,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("SETA"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -11071,29 +10894,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          setCampos((prev) => [
-                            ...prev,
-                            {
-                              id: Date.now() + 7,
-                              tipo: "FORMA",
-                              forma: "LOSANGO",
-                              pontosForma: criarPontosIniciaisForma("LOSANGO"),
-                              mostrarPreenchimento: true,
-                              mostrarContorno: true,
-                              preenchimentoCor: "#1d4ed8",
-                              contornoCor: "#1d4ed8",
-                              contornoEspessura: 2,
-                              x: 200,
-                              y: 200,
-                              largura: 140,
-                              altura: 140,
-                              cor: "#1d4ed8",
-                              opacity: 0.55,
-                              ordem: 5,
-                            } as any,
-                          ])
-                        }
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarFormaGeometrica("LOSANGO"))}
                         className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                       >
                         <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -11230,8 +11031,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={item.tipo}
                         type="button"
-                        onClick={() =>
-                          adicionarCampo(item.tipo)
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo(item.tipo))
                         }
                         className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
                       >
@@ -11309,8 +11109,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={item.tipo}
                         type="button"
-                        onClick={() =>
-                          adicionarCampo(item.tipo)
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo(item.tipo))
                         }
                         className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
                       >
@@ -11372,8 +11171,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={item.tipo}
                         type="button"
-                        onClick={() =>
-                          adicionarCampo(item.tipo)
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo(item.tipo))
                         }
                         className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
                       >
@@ -11404,11 +11202,10 @@ export default function ConfiguracaoCertificadoPage() {
                   <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
                     <button
                       type="button"
-                      onClick={() =>
-                        adicionarCampo(
+                      onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo(
                           "TEXTO_LIVRE",
                           "TITULO",
-                        )
+                        ))
                       }
                       className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                     >
@@ -11423,11 +11220,10 @@ export default function ConfiguracaoCertificadoPage() {
 
                     <button
                       type="button"
-                      onClick={() =>
-                        adicionarCampo(
+                      onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo(
                           "TEXTO_LIVRE",
                           "TEXTO",
-                        )
+                        ))
                       }
                       className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
                     >
@@ -11478,8 +11274,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <button
                         key={item.tipo}
                         type="button"
-                        onClick={() =>
-                          adicionarCampo(item.tipo)
+                        onClick={(evento) => ativarInsercaoBibliotecaCertificado(evento, () => adicionarCampo(item.tipo))
                         }
                         className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
                       >

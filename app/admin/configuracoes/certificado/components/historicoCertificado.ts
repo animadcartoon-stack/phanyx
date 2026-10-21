@@ -1,6 +1,8 @@
+import { normalizarIdentidadesCertificado } from "./identidadeElementoCertificado";
+
 // Um registro por gesto; a previa da forma livre pertence ao historico de pontos.
 export function criarHistoricoCertificado<T extends { id: number }>(inicial: T[]) {
-  let campos = inicial;
+  let campos = normalizarIdentidadesCertificado(inicial);
   let passado: T[][] = [];
   let futuro: T[][] = [];
   let ultimoGrupo: object | null = null;
@@ -28,7 +30,9 @@ export function criarHistoricoCertificado<T extends { id: number }>(inicial: T[]
       return () => { ouvintes.delete(ouvinte); };
     },
     alterar(atualizador: T[] | ((anteriores: T[]) => T[]), grupo: object) {
-      const proximos = typeof atualizador === "function" ? atualizador(campos) : atualizador;
+      const proximos = normalizarIdentidadesCertificado(
+        typeof atualizador === "function" ? atualizador(campos) : atualizador,
+      );
       if (iguais(proximos, campos)) return;
       if (!iguais(permanentes(proximos), permanentes(campos))) {
         if (grupo !== ultimoGrupo) passado = [...passado, copiar(campos)].slice(-100);
