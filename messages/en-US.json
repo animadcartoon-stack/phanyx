@@ -23033,6 +23033,8 @@
       "status": "Current status"
     },
     "process": {
+      "notRecorded": "Not recorded",
+      "legacyDescription": "Cancellation recorded in the previous workflow. Review the preserved data and original document.",
       "title": "Cancellation process",
       "description": "Save the draft to generate the protocol. The enrollment becomes Canceled only when the process is finalized.",
       "protocol": "Protocol",
@@ -23065,12 +23067,14 @@
       }
     },
     "actions": {
+      "originalDocument": "Open original cancellation document",
       "saveDraft": "Save draft",
       "saving": "Saving...",
       "finalize": "Finalize cancellation",
       "finalizing": "Finalizing..."
     },
     "warnings": {
+      "legacy": "Missing dates remain blank. Consult the original document for financial details; empty fields do not indicate an outstanding charge or an exemption.",
       "finalizedTitle": "Cancellation finalized",
       "finalized": "The enrollment has been canceled. The data remains available for history and documents."
     },

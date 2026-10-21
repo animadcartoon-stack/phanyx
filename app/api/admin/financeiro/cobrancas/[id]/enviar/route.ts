@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { matriculaCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
 import {
   getUserFromToken,
@@ -127,6 +128,8 @@ export async function POST(
           lancamentoFinanceiro: {
             select: {
               descricao: true,
+              status: true,
+              matricula: { select: { status: true, canceladaEm: true } },
             },
           },
 
@@ -142,6 +145,14 @@ export async function POST(
       return NextResponse.json(
         { error: "Cobrança não encontrada." },
         { status: 404 }
+      );
+    }
+
+    if (matriculaCancelada(cobranca.lancamentoFinanceiro.matricula) ||
+        cobranca.lancamentoFinanceiro.status === "CANCELADO") {
+      return NextResponse.json(
+        { error: "Cobrança de matrícula cancelada não pode ser enviada.", codigo: "MATRICULA_CANCELADA" },
+        { status: 409 }
       );
     }
 

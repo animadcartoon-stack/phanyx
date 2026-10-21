@@ -1,4 +1,5 @@
 
+import { recuperarCancelamentoLegado } from "@/lib/cancelamento-historico";
 import { randomUUID } from "node:crypto";
 import { Prisma, StatusMatricula } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -350,6 +351,7 @@ async function buscarMatricula(
       status: true,
       excluidaEm: true,
       canceladaEm: true,
+      motivoCancelamento: true,
       alunoId: true,
       periodoLetivo: true,
       semestre: true,
@@ -568,9 +570,20 @@ export async function GET(
         },
       });
 
+    const legado = matricula.status === "CANCELADA" &&
+      !cancelamentos.some((item) => item.status === STATUS.FINALIZADO)
+      ? recuperarCancelamentoLegado(matricula, await prisma.documentoGerado.findFirst({
+          where: { instituicaoId: user.instituicaoId, matriculaId,
+            contexto: "CANCELAMENTO_MATRICULA", status: { in: ["GERADO", "ASSINADO"] } },
+          orderBy: [{ criadoEm: "asc" }, { id: "asc" }],
+          select: { id: true, criadoEm: true, dadosPreenchimento: true },
+        }))
+      : null;
+
     return NextResponse.json({
       success: true,
       matricula,
+      legado,
       rascunho:
         cancelamentos.find(
           (item) =>
@@ -929,6 +942,19 @@ export async function PATCH(
               "MATRICULA_ALTERADA_DURANTE_CANCELAMENTO"
             );
           }
+
+          await tx.lancamentoFinanceiro.updateMany({
+            where: {
+              instituicaoId: user.instituicaoId, matriculaId,
+              tipo: { in: ["MATRICULA", "MENSALIDADE"] },
+              status: { in: ["PENDENTE", "ATRASADO", "PARCIAL"] },
+              // Encerramento sem saldo cancela todas as obrigações remanescentes.
+              // Com saldo apurado, preserva parcelas anteriores à data efetiva.
+              ...((dados.situacaoFinanceira === "ISENTO" || dados.valorTotal === 0)
+                ? {} : { vencimento: { gte: new Date(`${dados.dataEfetiva.toISOString().slice(0, 10)}T00:00:00.000Z`) } }),
+            },
+            data: { status: "CANCELADO" },
+          });
 
           await tx.trancamentoMatricula.updateMany({
             where: {

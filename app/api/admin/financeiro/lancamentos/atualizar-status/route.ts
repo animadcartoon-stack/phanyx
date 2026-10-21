@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { matriculaCancelada, filtroMatriculaNaoCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -69,11 +70,13 @@ export async function POST() {
     const lancamentos = await prisma.lancamentoFinanceiro.findMany({
       where: {
         instituicaoId: user.instituicaoId,
+        status: { not: "CANCELADO" },
+        ...filtroMatriculaNaoCancelada(),
       },
       include: {
         pagamentos: true,
         matricula: {
-          select: { realizadaPeloAluno: true },
+          select: { realizadaPeloAluno: true, status: true, canceladaEm: true },
         },
       },
       orderBy: {
@@ -90,6 +93,7 @@ export async function POST() {
     const contadorMensalidadesAtrasadas: Record<number, number> = {};
 
     for (const lancamento of lancamentos) {
+      if (lancamento.status === "CANCELADO" || matriculaCancelada(lancamento.matricula)) continue;
       // O Asaas confirma e quita a matrícula online no webhook. Ela não
       // possui Pagamento manual e não pode ser recalculada por esta rotina.
       if (
@@ -153,17 +157,12 @@ export async function POST() {
         novoStatus = diasEmAtraso > 0 ? "ATRASADO" : "PENDENTE";
       }
 
-      if (novoStatus === "ATRASADO" && lancamento.tipo === "MENSALIDADE") {
-        if (!contadorMensalidadesAtrasadas[lancamento.alunoId]) {
-          contadorMensalidadesAtrasadas[lancamento.alunoId] = 0;
-        }
-
-        contadorMensalidadesAtrasadas[lancamento.alunoId] += 1;
-      }
-
-      await prisma.lancamentoFinanceiro.update({
+      const atualizacao = await prisma.lancamentoFinanceiro.updateMany({
         where: {
           id: lancamento.id,
+          instituicaoId: user.instituicaoId,
+          status: { not: "CANCELADO" },
+          ...filtroMatriculaNaoCancelada(),
         },
         data: {
           valorFinal: valorFinalCalculado,
@@ -171,6 +170,16 @@ export async function POST() {
           status: novoStatus,
         },
       });
+
+      if (atualizacao.count !== 1) continue;
+
+      if (novoStatus === "ATRASADO" && lancamento.tipo === "MENSALIDADE") {
+        if (!contadorMensalidadesAtrasadas[lancamento.alunoId]) {
+          contadorMensalidadesAtrasadas[lancamento.alunoId] = 0;
+        }
+
+        contadorMensalidadesAtrasadas[lancamento.alunoId] += 1;
+      }
 
       totalAtualizados += 1;
 

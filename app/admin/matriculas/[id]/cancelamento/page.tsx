@@ -74,6 +74,13 @@ type Dados = {
       nome: string;
     } | null;
   };
+  legado?: {
+    dataSolicitacao: string | null;
+    dataEfetiva: string | null;
+    motivo: string;
+    documentoId: number | null;
+    documentoCriadoEm: string | null;
+  } | null;
   rascunho: Cancelamento | null;
   cancelamentos: Cancelamento[];
 };
@@ -164,11 +171,11 @@ function AdminCancelamentoMatriculaPage() {
   const [
     dataSolicitacao,
     setDataSolicitacao,
-  ] = useState(hoje());
+  ] = useState("");
   const [
     dataEfetiva,
     setDataEfetiva,
-  ] = useState(hoje());
+  ] = useState("");
   const [
     regraContratual,
     setRegraContratual,
@@ -271,12 +278,14 @@ function AdminCancelamentoMatriculaPage() {
     ]);
 
   function preencher(
-    item: Cancelamento | null
+    item: Cancelamento | null,
+    resposta: Dados
   ) {
     if (!item) {
-      setMotivo("");
-      setDataSolicitacao(hoje());
-      setDataEfetiva(hoje());
+      const cancelada = resposta.matricula.status === "CANCELADA";
+      setMotivo(resposta.legado?.motivo || "");
+      setDataSolicitacao(cancelada ? resposta.legado?.dataSolicitacao || "" : hoje());
+      setDataEfetiva(cancelada ? resposta.legado?.dataEfetiva || "" : hoje());
       setRegraContratual("");
       setBaseCalculoMulta("");
       setPercentualMulta("");
@@ -286,7 +295,7 @@ function AdminCancelamentoMatriculaPage() {
       setValorCredito("");
       setValorDevolucao("");
       setSituacaoFinanceira(
-        "PENDENTE"
+        cancelada ? "" : "PENDENTE"
       );
       setObservacoes("");
       return;
@@ -387,7 +396,8 @@ function AdminCancelamentoMatriculaPage() {
               item.status ===
               "FINALIZADO"
           ) ||
-          null
+          null,
+        final
       );
     } catch (e) {
       console.error(e);
@@ -940,7 +950,7 @@ function AdminCancelamentoMatriculaPage() {
               {t("process.title")}
             </h2>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              {t("process.description")}
+              {t(dados?.legado ? "process.legacyDescription" : "process.description")}
             </p>
           </div>
 
@@ -948,9 +958,7 @@ function AdminCancelamentoMatriculaPage() {
             label={t("process.protocol")}
             value={
               processo?.numeroProtocolo ||
-              t(
-                "process.pendingProtocol"
-              )
+              t(dados?.legado ? "process.notRecorded" : "process.pendingProtocol")
             }
           />
         </div>
@@ -965,6 +973,17 @@ function AdminCancelamentoMatriculaPage() {
             <p className="mt-1 text-sm">
               {t("warnings.finalized")}
             </p>
+          </div>
+        )}
+
+        {dados?.legado && (
+          <div className="mt-4 rounded-xl border border-blue-300 bg-blue-50 p-4 text-blue-950 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100">
+            <p>{t("warnings.legacy")}</p>
+            {dados.legado.documentoId && (
+              <Link className="mt-2 inline-block font-semibold underline" href={`/api/admin/documentos/pdf/${dados.legado.documentoId}`} target="_blank">
+                {t("actions.originalDocument")}
+              </Link>
+            )}
           </div>
         )}
 
@@ -1194,6 +1213,7 @@ function AdminCancelamentoMatriculaPage() {
                   }
                   className="w-full rounded-xl border px-3 py-2 dark:border-slate-700 dark:bg-slate-900"
                 >
+                  {dados?.legado && <option value="">{t("process.notRecorded")}</option>}
                   {[
                     "PENDENTE",
                     "QUITADO",
@@ -1216,7 +1236,7 @@ function AdminCancelamentoMatriculaPage() {
 
               <Info
                 label={t("finance.total")}
-                value={moeda(total)}
+                value={dados?.legado ? t("process.notRecorded") : moeda(total)}
               />
             </div>
           </div>

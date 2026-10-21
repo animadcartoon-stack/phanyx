@@ -23032,6 +23032,8 @@
       "status": "Situation actuelle"
     },
     "process": {
+      "notRecorded": "Non enregistré",
+      "legacyDescription": "Annulation enregistrée dans le processus précédent. Consultez les données conservées et le document original.",
       "title": "Processus d'annulation",
       "description": "Enregistrez le brouillon pour générer le protocole. L'inscription ne passe à Annulée qu'après finalisation.",
       "protocol": "Protocole",
@@ -23064,12 +23066,14 @@
       }
     },
     "actions": {
+      "originalDocument": "Ouvrir le document original",
       "saveDraft": "Enregistrer le brouillon",
       "saving": "Enregistrement...",
       "finalize": "Finaliser l'annulation",
       "finalizing": "Finalisation..."
     },
     "warnings": {
+      "legacy": "Les dates manquantes restent vides. Consultez le document original pour les montants ; les champs vides ne signifient ni dette ni exonération.",
       "finalizedTitle": "Annulation finalisée",
       "finalized": "L'inscription a été annulée. Les données restent disponibles pour l'historique et les documents."
     },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { matriculaCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { podeUsarFinanceiroCompleto } from "@/lib/permissoesPlano";
@@ -80,6 +81,8 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
         matricula: {
           is: {
             realizadaPeloAluno: false,
+            status: { not: "CANCELADA" },
+            canceladaEm: null,
           },
         },
       },
@@ -109,6 +112,8 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
         matricula: {
           is: {
             realizadaPeloAluno: false,
+            status: { not: "CANCELADA" },
+            canceladaEm: null,
           },
         },
       },
@@ -409,6 +414,8 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
   matricula: {
     select: {
       id: true,
+      status: true,
+      canceladaEm: true,
       realizadaPeloAluno: true,
     },
   },
@@ -435,6 +442,14 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     { status: 409 }
   );
 }
+
+    if (matriculaCancelada(lancamento.matricula) &&
+        ["MATRICULA", "MENSALIDADE"].includes(lancamento.tipo)) {
+      return NextResponse.json(
+        { error: "Matrícula cancelada não pode receber cobranças de matrícula ou mensalidade.", codigo: "MATRICULA_CANCELADA" },
+        { status: 409 }
+      );
+    }
 
     if (lancamento.status === "CANCELADO") {
       return NextResponse.json(

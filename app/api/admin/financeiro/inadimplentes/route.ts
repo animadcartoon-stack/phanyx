@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { filtroMatriculaNaoCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -30,6 +31,7 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
   await prisma.lancamentoFinanceiro.updateMany({
     where: {
       instituicaoId,
+      ...filtroMatriculaNaoCancelada(),
       status: {
         in: ["PENDENTE", "PARCIAL"] as any,
       },
@@ -51,6 +53,7 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
   const lancamentosAtrasados = await prisma.lancamentoFinanceiro.findMany({
     where: {
       instituicaoId,
+      ...filtroMatriculaNaoCancelada(),
       status: "ATRASADO",
       tipo: "MENSALIDADE",
     },
@@ -111,6 +114,7 @@ export async function GET(_req: NextRequest) {
     const lancamentos = await prisma.lancamentoFinanceiro.findMany({
       where: {
         instituicaoId: user.instituicaoId,
+        ...filtroMatriculaNaoCancelada(),
         status: "ATRASADO",
         NOT: {
           tipo: "MATRICULA",
