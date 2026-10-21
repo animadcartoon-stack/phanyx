@@ -9864,6 +9864,13 @@
     }
   },
   "AdminCertificateEditor": {
+    "variableLayout": {
+      "format": "Text display",
+      "full": "Full text",
+      "abbreviated": "Abbreviate middle words",
+      "testText": "Text to test in the editor and preview",
+      "hint": "Text wraps inside the box. Increase its height to keep a larger font. Test text is not saved; abbreviation changes display only."
+    },
     "nameLayout": {
       "format": "Name on certificate",
       "full": "Full name",

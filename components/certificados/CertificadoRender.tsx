@@ -5,8 +5,8 @@ import { elementoOculto } from "@/lib/certificados/visibilidadeCertificado";
 import { normalizarLinhaCertificado } from "@/app/admin/configuracoes/certificado/components/linhaEditavel";
 import ImagemCertificado from "./ImagemCertificado";
 import TextoFormatadoCertificado from "./TextoFormatadoCertificado";
-import NomeAlunoCertificado from "@/components/certificados/NomeAlunoCertificado";
-import { caixaNomeAlunoCertificado } from "@/lib/certificados/nomeAlunoCertificado";
+import TextoVariavelCertificado from "@/components/certificados/TextoVariavelCertificado";
+import { ehVariavelSimplesCertificado, caixaVariavelCertificado, type AmostrasVariaveisCertificado } from "@/lib/certificados/variaveisTextoCertificado";
 import { caixaTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import FontesCertificado from "./FontesCertificado";
 import { modoTextoCertificado } from "@/lib/certificados/textoCertificado";
@@ -120,6 +120,7 @@ type Props = {
   escala?: number;
   mostrarBordas?: boolean;
   fundoTransparente?: boolean;
+  amostrasVariaveis?: AmostrasVariaveisCertificado;
 };
 
 function normalizarOpacidade(valor: any, padrao = 1) {
@@ -244,7 +245,7 @@ function espacoColunasDisciplinasDoCampo(campo: CampoCertificadoRender) {
   return Math.max(0, Math.min(80, Math.round(espaco)));
 }
 
-function resolverTextoCampo(
+export function resolverTextoCampo(
   campo: CampoCertificadoRender,
   dados: DadosCertificadoRender
 ) {
@@ -502,6 +503,7 @@ export default function CertificadoRender({
   escala = 1,
   mostrarBordas = false,
   fundoTransparente = false,
+  amostrasVariaveis,
 }: Props) {
 
   const camposOrdenados = (campos || []).filter(campo => !elementoOculto(campo)).map(campo => normalizarLinhaCertificado(campo as any)).sort(
@@ -700,9 +702,9 @@ export default function CertificadoRender({
           </div>;
         }
 
-        if (campo.tipo === "NOME_ALUNO" && modoTextoCertificado(campo) === "NORMAL") {
-          return <div key={campo.id} style={{ ...estiloBase, ...caixaNomeAlunoCertificado(campo) }}>
-            <NomeAlunoCertificado nome={String(resolverTextoCampo(campo, dados))} abreviar={campo.dadosJson?.nomeAlunoAbreviado === true} />
+        if (ehVariavelSimplesCertificado(campo)) {
+          return <div key={campo.id} style={{ ...estiloBase, ...(modoTextoCertificado(campo) === "NORMAL" ? caixaVariavelCertificado(campo) : {}) }}>
+            <TextoVariavelCertificado campo={campo} texto={String(resolverTextoCampo(campo, dados))} amostras={amostrasVariaveis} />
           </div>;
         }
 

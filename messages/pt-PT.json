@@ -9863,6 +9863,13 @@
     }
   },
   "AdminCertificateEditor": {
+    "variableLayout": {
+      "format": "Apresentação do texto",
+      "full": "Texto completo",
+      "abbreviated": "Abreviar termos intermédios",
+      "testText": "Texto para testar na edição e na pré-visualização",
+      "hint": "O texto é dividido em linhas dentro da caixa. Aumente a altura para manter a letra maior. O texto de teste não é guardado; a abreviatura altera apenas a apresentação."
+    },
     "nameLayout": {
       "format": "Nome no certificado",
       "full": "Nome completo",
