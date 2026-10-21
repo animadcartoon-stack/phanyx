@@ -14,11 +14,12 @@ import CorComCodigo from "./components/CorComCodigo";
 import useHistoricoCertificado from "./components/useHistoricoCertificado";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
-import CertificadoRender from "@/components/certificados/CertificadoRender";
+import CertificadoRender, { resolverTextoCampo } from "@/components/certificados/CertificadoRender";
+import ControlesVariavelCertificado from "./components/ControlesVariavelCertificado";
 import ImagemCertificado from "@/components/certificados/ImagemCertificado";
 import TextoFormatadoCertificado from "@/components/certificados/TextoFormatadoCertificado";
-import NomeAlunoCertificado from "@/components/certificados/NomeAlunoCertificado";
-import { caixaNomeAlunoCertificado } from "@/lib/certificados/nomeAlunoCertificado";
+import TextoVariavelCertificado from "@/components/certificados/TextoVariavelCertificado";
+import { ehVariavelTextoCertificado, ehVariavelSimplesCertificado, caixaVariavelCertificado, alinhamentoVariavelCertificado, criarAmostrasVariaveisCertificado } from "@/lib/certificados/variaveisTextoCertificado";
 import { caixaTextoLivreCertificado, conteudoTextoLivreCertificado } from "@/lib/certificados/layoutTextoLivreCertificado";
 import FontesCertificado from "@/components/certificados/FontesCertificado";
 import { medidasArcoTexto, modoTextoCertificado } from "@/lib/certificados/textoCertificado";
@@ -953,7 +954,7 @@ export default function ConfiguracaoCertificadoPage() {
   });
 
   const [previewAberto, setPreviewAberto] = useState(false);
-  const [nomeAlunoTeste, setNomeAlunoTeste] = useState("");
+  const [amostrasVariaveis] = useState(criarAmostrasVariaveisCertificado);
 
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoPreviewUrl, setCertificadoPreviewUrl] = useState("");
@@ -4348,6 +4349,7 @@ export default function ConfiguracaoCertificadoPage() {
         const campoAtualizado: CampoCertificado = {
           ...c,
           [chave]: valor,
+          ...(chave === "alinhamento" && ehVariavelTextoCertificado(c) ? { dadosJson: { ...(c.dadosJson || {}), alinhamentoVariavel: valor } } : {}),
         };
         if (chave === "tamanho" && campoAtualizado.tipo === "TEXTO_LIVRE" && campoAtualizado.textoHtml) {
           const documento = new DOMParser().parseFromString(campoAtualizado.textoHtml, "text/html");
@@ -6127,24 +6129,40 @@ export default function ConfiguracaoCertificadoPage() {
     }, 250);
   }
 
+    const previaPropriedadeRef = useRef<{ id: number; chave: string; elemento: HTMLElement; css: string; html?: string } | null>(null);
+  function prepararPreviaPropriedade(id: number, chave: string, elemento: HTMLElement, textoLivre = false) {
+    const anterior = previaPropriedadeRef.current;
+    if (anterior && (anterior.id !== id || anterior.chave !== chave)) edicaoTextoFluida.confirmar();
+    if (!previaPropriedadeRef.current) previaPropriedadeRef.current = {
+      id, chave, elemento, css: elemento.style.cssText, ...(textoLivre ? { html: elemento.innerHTML } : {}),
+    };
+  }
+  function agendarPreviaPropriedade(id: number, publicar: () => void) {
+    const original = previaPropriedadeRef.current;
+    edicaoTextoFluida.agendar(id, () => { previaPropriedadeRef.current = null; publicar(); }, {
+      aguardarFim: true,
+      cancelar: () => {
+        previaPropriedadeRef.current = null;
+        if (!original) return;
+        original.elemento.style.cssText = original.css;
+        if (original.html !== undefined) original.elemento.innerHTML = original.html;
+      },
+    });
+  }
   function preverTipografiaTexto(chave: "tamanho" | "letterSpacing" | "wordSpacing", valor: number) {
     if (!campoSelecionado || !campoTemTextoCertificado(campoSelecionado)) return;
     const propriedade = chave === "tamanho" ? "fontSize" : chave;
     if (modoTextoCertificado(campoSelecionado) === "NORMAL" && temSelecaoTextoLivreAtiva()) {
-      aplicarEstiloTextoSelecionado({ [propriedade]: valor + "px" }, true);
-      return;
+      aplicarEstiloTextoSelecionado({ [propriedade]: valor + "px" }, true); return;
     }
     if (modoTextoCertificado(campoSelecionado) !== "NORMAL") {
-      aplicarEstiloTextoOuCampoInteiro(chave, valor, { [propriedade]: valor + "px" });
-      return;
+      aplicarEstiloTextoOuCampoInteiro(chave, valor, { [propriedade]: valor + "px" }); return;
     }
-    const id = campoSelecionado.id;
-    const editor = campoSelecionado.tipo === "TEXTO_LIVRE"
-      ? canvasRef.current?.querySelector<HTMLElement>(`[data-texto-livre-id="${id}"]`)
-      : canvasRef.current?.querySelector<HTMLElement>(`[data-campo-certificado-id="${id}"]`);
+    const id = campoSelecionado.id, livre = campoSelecionado.tipo === "TEXTO_LIVRE";
+    const editor = canvasRef.current?.querySelector<HTMLElement>(livre ? `[data-texto-livre-id="${id}"]` : `[data-campo-certificado-id="${id}"]`);
     if (!editor) { aplicarEstiloTextoOuCampoInteiro(chave, valor, { [propriedade]: valor + "px" }); return; }
+    prepararPreviaPropriedade(id, chave, editor, livre);
     const css = propriedade.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase());
-    const livre = campoSelecionado.tipo === "TEXTO_LIVRE";
     if (livre && !edicaoTextoFluida.temPendente()) salvarHistoricoTextoLivre(editor);
     editor.style.setProperty(css, valor + "px");
     if (chave === "tamanho" && !livre) editor.style.height = Math.max(Number(campoSelecionado.altura || 0), Math.ceil(valor * 1.65)) + "px";
@@ -6152,7 +6170,7 @@ export default function ConfiguracaoCertificadoPage() {
       el.style.removeProperty(css);
       if (chave === "tamanho" && el.tagName === "FONT") el.removeAttribute("size");
     });
-    edicaoTextoFluida.agendar(id, () => {
+    agendarPreviaPropriedade(id, () => {
       setCampos(prev => prev.map(campo => {
         if (campo.id !== id) return campo;
         const novo = atualizarEstiloIntegralTexto(campo, { [chave]: valor }, { [propriedade]: valor + "px" });
@@ -6164,6 +6182,52 @@ export default function ConfiguracaoCertificadoPage() {
       else setEspacamentoPalavrasTexto(valor);
       if (livre) salvarHistoricoTextoLivre(editor);
     });
+  }
+  function preverDimensaoVariavel(chave: "largura" | "altura", valor: number) {
+    if (!campoSelecionado || !ehVariavelTextoCertificado(campoSelecionado)) return;
+    const id = campoSelecionado.id;
+    const elemento = canvasRef.current?.querySelector<HTMLElement>(`[data-campo-certificado-id="${id}"]`);
+    if (!elemento) { atualizarCampoLocal(chave, valor); return; }
+    prepararPreviaPropriedade(id, chave, elemento);
+    elemento.style.setProperty(chave === "largura" ? "width" : "height", Math.max(1, valor) + "px");
+    agendarPreviaPropriedade(id, () => setCampos(prev => prev.map(c => c.id === id
+      ? { ...c, [chave]: Math.max(1, valor), dadosJson: { ...(c.dadosJson || {}), [chave]: Math.max(1, valor) } } : c)));
+  }
+  const cancelarRedimVariavelRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => { cancelarRedimVariavelRef.current?.(); }, []);
+  function iniciarRedimensionamentoVariavel(evento: React.MouseEvent, campo: CampoCertificado, eixo: "largura" | "altura" | "ambos") {
+    evento.preventDefault(); evento.stopPropagation();
+    if (campo.bloqueado || !ehVariavelTextoCertificado(campo)) return;
+    edicaoTextoFluida.confirmar(); gestoCenaFluido.confirmar(); cancelarRedimVariavelRef.current?.();
+    const elemento = canvasRef.current?.querySelector<HTMLElement>(`[data-campo-certificado-id="${campo.id}"]`);
+    if (!elemento) return;
+    registrarHistoricoAntesDaAcao();
+    const original = elemento.style.cssText, x = evento.clientX, y = evento.clientY;
+    const w = Number(campo.largura || 220), h = Number(campo.altura || 40), escalaAtual = escala;
+    const angulo = Number(campo.rotate || 0) * Math.PI / 180;
+    let largura = w, altura = h, frame: number | null = null;
+    const desenhar = () => { frame = null; elemento.style.width = largura + "px"; elemento.style.height = altura + "px"; };
+    const limpar = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      window.removeEventListener("mousemove", mover); window.removeEventListener("mouseup", terminar);
+      window.removeEventListener("keydown", teclado, true); window.removeEventListener("blur", terminar);
+      cancelarRedimVariavelRef.current = null;
+    };
+    const cancelar = () => { limpar(); elemento.style.cssText = original; };
+    const mover = (ev: globalThis.MouseEvent) => {
+      const dx = (ev.clientX - x) / escalaAtual, dy = (ev.clientY - y) / escalaAtual;
+      if (eixo !== "altura") largura = Math.max(1, Math.round(w + dx * Math.cos(angulo) + dy * Math.sin(angulo)));
+      if (eixo !== "largura") altura = Math.max(1, Math.round(h - dx * Math.sin(angulo) + dy * Math.cos(angulo)));
+      if (frame === null) frame = requestAnimationFrame(desenhar);
+    };
+    const terminar = () => {
+      limpar(); elemento.style.cssText = original;
+      setCampos(prev => prev.map(c => c.id === campo.id ? { ...c, largura, altura, dadosJson: { ...(c.dadosJson || {}), largura, altura } } : c));
+    };
+    const teclado = (ev: KeyboardEvent) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); cancelar(); } };
+    cancelarRedimVariavelRef.current = cancelar;
+    window.addEventListener("mousemove", mover); window.addEventListener("mouseup", terminar);
+    window.addEventListener("keydown", teclado, true); window.addEventListener("blur", terminar);
   }
 
   function temSelecaoTextoLivreAtiva() {
@@ -7390,6 +7454,7 @@ export default function ConfiguracaoCertificadoPage() {
   [previewAberto, campos, copiasPreviewArray]);
 
   const contextoEventosCenaRef = useRef({} as {
+    iniciarRedimensionamentoVariavel: typeof iniciarRedimensionamentoVariavel;
     definirVisibilidadeDaCena: typeof definirVisibilidadeDaCena;
     atualizarCampo: typeof atualizarCampo;
     atualizarCampoLocal: typeof atualizarCampoLocal;
@@ -7499,7 +7564,7 @@ export default function ConfiguracaoCertificadoPage() {
   // A previa e calculada sob demanda antes do retorno de carregamento.
 
   const dadosPreviewCertificado = {
-    nomeAluno: nomeAlunoTeste.trim() || tr("preview.studentName"),
+    nomeAluno: tr("preview.studentName"),
     numeroMatricula: tr("preview.registrationNumber"),
     cpfAluno: "000.000.000-00",
     rgAluno: "00.000.000-0",
@@ -7611,7 +7676,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   // Elementos inalterados conservam a arvore; eventos consultam o contexto atual.
-  contextoEventosCenaRef.current = { definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
+  contextoEventosCenaRef.current = { iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
   renderizarElementoCenaRef.current = (c) => {
                       if (elementoOculto(c)) return null;
                       if (c.tipo === "IMAGEM") {
@@ -8817,10 +8882,10 @@ export default function ConfiguracaoCertificadoPage() {
                                   : "flex-start",
                             overflow: "visible",
                             boxSizing: "border-box",
-                            ...(c.tipo === "NOME_ALUNO" && modoTextoCertificado(c) === "NORMAL" ? caixaNomeAlunoCertificado(c) : {}),
+                            ...(ehVariavelSimplesCertificado(c) && modoTextoCertificado(c) === "NORMAL" ? caixaVariavelCertificado(c) : {}),
                           }}
                         >
-                          {modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                          {ehVariavelSimplesCertificado(c) ? <TextoVariavelCertificado campo={c} texto={String(resolverTextoCampo(c, dadosPreviewCertificado))} amostras={amostrasVariaveis} /> : modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
                             <div
                               style={{
                                 width: "100%",
@@ -8886,7 +8951,7 @@ export default function ConfiguracaoCertificadoPage() {
                             )
                           ) : (
                             c.tipo
-                          )} /> : c.tipo === "NOME_ALUNO" ? <NomeAlunoCertificado nome={nomeAlunoTeste.trim() || tr("preview.studentName")} abreviar={c.dadosJson?.nomeAlunoAbreviado === true} /> : (c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                          )} /> : (c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
                             <div
                               style={{
                                 width: "100%",
@@ -8953,6 +9018,15 @@ export default function ConfiguracaoCertificadoPage() {
                           ) : (
                             c.tipo
                           ))}
+
+                          {ehVariavelTextoCertificado(c) && camposSelecionadosIds.includes(c.id) && camposSelecionadosIds.length === 1 && !c.bloqueado && <>
+                            <div data-alca-variavel="largura" onMouseDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "largura")}
+                              className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("common.adjustWidth")} />
+                            <div data-alca-variavel="altura" onMouseDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "altura")}
+                              className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("common.adjustHeight")} />
+                            <div data-alca-variavel="ambos" onMouseDown={e => contextoEventosCenaRef.current.iniciarRedimensionamentoVariavel(e, c, "ambos")}
+                              className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow" title={tr("text.resizeTextBox")} />
+                          </>}
 
                           {camposSelecionadosIds.includes(c.id) &&
                             c.tipo === "ASSINATURA" && (
@@ -11952,7 +12026,6 @@ export default function ConfiguracaoCertificadoPage() {
                         c.tipo === "FORMA" && selecaoCena.has(c.id) && modoEspessuraContorno,
                         pontoFormaSelecionado?.campoId === c.id ? pontoFormaSelecionado : null,
                         c.tipo === "ASSINATURA" ? certificadoAssinaturaUrl : null,
-                        c.tipo === "NOME_ALUNO" ? nomeAlunoTeste : null,
                         locale,
                       ]} />
                   ))}
@@ -12681,35 +12754,11 @@ export default function ConfiguracaoCertificadoPage() {
                         <span className="font-semibold">{tr("fieldOptions.typeColon")}</span>{" "}
                         {traduzirTipoCampoCertificado(campoSelecionado.tipo)}
                       </div>
-                      {campoSelecionado.tipo === "NOME_ALUNO" && modoTextoCertificado(campoSelecionado) === "NORMAL" && (
-                        <section className="space-y-3 rounded-xl border border-slate-200 p-3" data-opcoes-nome-aluno="true">
-                          <label className="block text-xs font-medium text-slate-600">
-                            {tr("nameLayout.format")}
-                            <select value={campoSelecionado.dadosJson?.nomeAlunoAbreviado === true ? "abreviado" : "completo"}
-                              onChange={e => atualizarCampoLocal("dadosJson", { ...(campoSelecionado.dadosJson || {}), nomeAlunoAbreviado: e.target.value === "abreviado" })}
-                              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900">
-                              <option value="completo">{tr("nameLayout.full")}</option>
-                              <option value="abreviado">{tr("nameLayout.abbreviated")}</option>
-                            </select>
-                          </label>
-                          <label className="block text-xs font-medium text-slate-600">
-                            {tr("nameLayout.testName")}
-                            <input type="text" value={nomeAlunoTeste} onChange={e => setNomeAlunoTeste(e.target.value)}
-                              placeholder={tr("preview.studentName")} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
-                          </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <label className="block text-xs text-slate-600">{tr("common.width")}
-                              <CampoNumeroEditavel value={campoSelecionado.largura || 220} min={1} onValueChange={v => atualizarCampoLocal("largura", v)}
-                                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
-                            </label>
-                            <label className="block text-xs text-slate-600">{tr("common.height")}
-                              <CampoNumeroEditavel value={campoSelecionado.altura || 40} min={1} onValueChange={v => atualizarCampoLocal("altura", v)}
-                                className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
-                            </label>
-                          </div>
-                          <p className="text-xs text-slate-500">{tr("nameLayout.hint")}</p>
-                        </section>
-                      )}
+                      {ehVariavelTextoCertificado(campoSelecionado) && <ControlesVariavelCertificado key={campoSelecionado.id}
+                        campo={campoSelecionado} amostras={amostrasVariaveis}
+                        labels={{ width: tr("common.width"), height: tr("common.height"), format: tr("variableLayout.format"), full: tr("variableLayout.full"), abbreviated: tr("variableLayout.abbreviated"), testText: tr("variableLayout.testText"), hint: tr("variableLayout.hint") }}
+                        onPreview={preverDimensaoVariavel} onCommit={edicaoTextoFluida.confirmar} onCancel={edicaoTextoFluida.cancelar}
+                        onAbreviar={valor => atualizarCampoLocal("dadosJson", { ...(campoSelecionado.dadosJson || {}), abreviarVariavel: valor })} />}
                       {campoTemTextoCertificado(campoSelecionado) && (
                         <section data-cert-tipografia="true" className="space-y-3">
                       <div>
@@ -12817,7 +12866,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                         <ControleTipografiaFluido key={campoSelecionado.id + "-tamanho-fluido"} tamanho min={1} max={512} label={tr("common.size")}
                             value={tamanhoSelecaoTexto ?? campoSelecionado.tamanho ?? 18}
-                            onPreview={valor=>preverTipografiaTexto("tamanho",valor)} onCommit={edicaoTextoFluida.confirmar} />
+                            onPreview={valor=>preverTipografiaTexto("tamanho",valor)} onCommit={edicaoTextoFluida.confirmar} onCancel={edicaoTextoFluida.cancelar} />
                       </div>
 
                       <div>
@@ -12855,7 +12904,7 @@ export default function ConfiguracaoCertificadoPage() {
 
                         <ControleTipografiaFluido key={campoSelecionado.id + "-letterSpacing-fluido"} min={-5} max={30} label={tr("text.letterSpacing")}
                             value={espacamentoLetrasTexto}
-                            onPreview={valor=>preverTipografiaTexto("letterSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
+                            onPreview={valor=>preverTipografiaTexto("letterSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} onCancel={edicaoTextoFluida.cancelar} />
 
                         <label className="mt-3 block text-xs font-semibold text-slate-500">
                           {tr("text.wordSpacing")}
@@ -12863,9 +12912,9 @@ export default function ConfiguracaoCertificadoPage() {
 
                         <ControleTipografiaFluido key={campoSelecionado.id + "-wordSpacing-fluido"} min={0} max={60} label={tr("text.wordSpacing")}
                             value={espacamentoPalavrasTexto}
-                            onPreview={valor=>preverTipografiaTexto("wordSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} />
+                            onPreview={valor=>preverTipografiaTexto("wordSpacing",valor)} onCommit={edicaoTextoFluida.confirmar} onCancel={edicaoTextoFluida.cancelar} />
                         <select
-                          value={campoSelecionado?.alinhamento || "left"}
+                          value={ehVariavelSimplesCertificado(campoSelecionado) ? alinhamentoVariavelCertificado(campoSelecionado) : campoSelecionado?.alinhamento || "left"}
                           onChange={(e) =>
                             atualizarCampoLocal("alinhamento", e.target.value)
                           }
@@ -13423,6 +13472,7 @@ export default function ConfiguracaoCertificadoPage() {
                         </div>
                       </div>
 
+                      {!ehVariavelTextoCertificado(campoSelecionado) && <>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -13452,6 +13502,7 @@ export default function ConfiguracaoCertificadoPage() {
                           />
                         </div>
                       </div>
+                      </>}
 
                         </div>
                       </details>
@@ -14187,6 +14238,7 @@ export default function ConfiguracaoCertificadoPage() {
                 <CertificadoRender
                   campos={camposPreviewCertificado as any}
                   dados={dadosPreviewCertificado}
+                  amostrasVariaveis={amostrasVariaveis}
                   templateUrl={
                     modoFundo === "modelo" && certificadoTemplateUrl
                       ? `${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`

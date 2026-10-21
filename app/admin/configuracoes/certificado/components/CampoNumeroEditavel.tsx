@@ -6,18 +6,20 @@ import { flushSync } from "react-dom";
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "value" | "onChange" | "defaultValue"> & {
   value: number | string | null | undefined;
   onValueChange: (value: number) => void;
+  onPreview?: (value: number) => void;
+  onCancel?: () => void;
 };
 
 /** Mantem o texto livre ate confirmar, sem aplicar limites a cada tecla. */
-export default function CampoNumeroEditavel({ value, onValueChange, min, max, step = "any",
+export default function CampoNumeroEditavel({ value, onValueChange, onPreview, onCancel, min, max, step = "any",
   onBlur, onKeyDown, ...props }: Props) {
   const valorAtual = value == null ? "" : String(value);
   const [texto, setTexto] = useState(valorAtual);
   const inputRef = useRef<HTMLInputElement>(null);
   const rascunhoRef = useRef(valorAtual);
   const alteradoRef = useRef(false);
-  const atualRef = useRef({ valorAtual, onValueChange, min, max });
-  atualRef.current = { valorAtual, onValueChange, min, max };
+  const atualRef = useRef({ valorAtual, onValueChange, onPreview, onCancel, min, max });
+  atualRef.current = { valorAtual, onValueChange, onPreview, onCancel, min, max };
 
   useLayoutEffect(() => {
     rascunhoRef.current = valorAtual;
@@ -38,7 +40,9 @@ export default function CampoNumeroEditavel({ value, onValueChange, min, max, st
     const novoTexto = Number.isFinite(numero) ? String(numero) : atual.valorAtual;
     rascunhoRef.current = novoTexto;
     setTexto(novoTexto);
-    if (Number.isFinite(numero) && (atual.valorAtual === "" || numero !== Number(atual.valorAtual))) atual.onValueChange(numero);
+    if (Number.isFinite(numero) && (atual.valorAtual === "" || numero !== Number(atual.valorAtual))) {
+      atual.onPreview?.(numero); atual.onValueChange(numero);
+    } else if (atual.onPreview) atual.onCancel?.();
   }
   const confirmarRef = useRef(confirmar);
   confirmarRef.current = confirmar;
@@ -68,6 +72,9 @@ export default function CampoNumeroEditavel({ value, onValueChange, min, max, st
       rascunhoRef.current = evento.target.value;
       alteradoRef.current = true;
       setTexto(evento.target.value);
+      const numero = Number(evento.target.value);
+      if (evento.target.value.trim() && Number.isFinite(numero) &&
+          (min == null || numero >= Number(min)) && (max == null || numero <= Number(max))) onPreview?.(numero);
     }}
     onBlur={(evento) => { confirmar(); onBlur?.(evento); }}
     onKeyDown={(evento) => {
@@ -81,6 +88,7 @@ export default function CampoNumeroEditavel({ value, onValueChange, min, max, st
       } else if (evento.key === "Escape") {
         evento.preventDefault();
         evento.stopPropagation();
+        atualRef.current.onCancel?.();
         alteradoRef.current = false;
         rascunhoRef.current = atualRef.current.valorAtual;
         setTexto(atualRef.current.valorAtual);
