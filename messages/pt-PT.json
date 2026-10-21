@@ -22819,6 +22819,8 @@
       "status": "Situação atual"
     },
     "process": {
+      "notRecorded": "Não registado",
+      "legacyDescription": "Cancelamento registado no fluxo anterior. Consulte os dados preservados e o documento original.",
       "title": "Processo de cancelamento",
       "description": "Guarde o rascunho para gerar o protocolo. A matrícula só passa para Cancelada quando o processo for finalizado.",
       "protocol": "Protocolo",
@@ -22851,12 +22853,14 @@
       }
     },
     "actions": {
+      "originalDocument": "Abrir termo original",
       "saveDraft": "Guardar rascunho",
       "saving": "A guardar...",
       "finalize": "Finalizar cancelamento",
       "finalizing": "A finalizar..."
     },
     "warnings": {
+      "legacy": "As datas em falta permanecem em branco. Consulte os valores financeiros no documento original; campos vazios não significam cobrança pendente nem isenção.",
       "finalizedTitle": "Cancelamento finalizado",
       "finalized": "A matrícula já foi cancelada. Os dados permanecem disponíveis para histórico e documentos."
     },

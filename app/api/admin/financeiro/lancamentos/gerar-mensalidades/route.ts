@@ -62,6 +62,8 @@ export async function POST(req: NextRequest) {
   where: {
     instituicaoId: user.instituicaoId,
     status: "ATIVA",
+    canceladaEm: null,
+    excluidaEm: null,
 
     realizadaPeloAluno: false,
 
@@ -158,43 +160,57 @@ export async function POST(req: NextRequest) {
           ).toFixed(2)
         );
 
-      const existente = await prisma.lancamentoFinanceiro.findFirst({
-        where: {
-          instituicaoId: user.instituicaoId,
-          tipo: "MENSALIDADE",
-          alunoId: matricula.alunoId,
-          matriculaId: matricula.id,
-          vencimento: {
-            gte: inicioMes,
-            lte: fimMes,
+      const cursoNome = matricula.curso.nome;
+      const resultado = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT "id" FROM "Matricula"
+          WHERE "id" = ${matricula.id} AND "instituicaoId" = ${user.instituicaoId} FOR UPDATE`;
+        const atual = await tx.matricula.findFirst({
+          where: { id: matricula.id, instituicaoId: user.instituicaoId,
+            status: "ATIVA", canceladaEm: null, excluidaEm: null },
+          select: { id: true },
+        });
+        if (!atual) return "IGNORADA";
+
+        const existente = await tx.lancamentoFinanceiro.findFirst({
+          where: {
+            instituicaoId: user.instituicaoId,
+            tipo: "MENSALIDADE",
+            alunoId: matricula.alunoId,
+            matriculaId: matricula.id,
+            vencimento: {
+              gte: inicioMes,
+              lte: fimMes,
+            },
           },
-        },
+        });
+
+        if (existente) {
+          return "EXISTENTE";
+        }
+
+        const descricao = `Mensalidade ${String(mes).padStart(2, "0")}/${ano} - ${
+          cursoNome
+        }`;
+
+        await tx.lancamentoFinanceiro.create({
+          data: {
+            instituicaoId: user.instituicaoId,
+            alunoId: matricula.alunoId,
+            matriculaId: matricula.id,
+            tipo: "MENSALIDADE",
+            descricao,
+            valorOriginal: valorMensalidade,
+            valorFinal: valorMensalidadeFinal,
+            valorPago: 0,
+            status: "PENDENTE",
+            vencimento,
+          },
+        });
+
+        return "CRIADA";
       });
-
-      if (existente) {
-        totalJaExistente += 1;
-        continue;
-      }
-
-      const descricao = `Mensalidade ${String(mes).padStart(2, "0")}/${ano} - ${
-        matricula.curso.nome
-      }`;
-
-      await prisma.lancamentoFinanceiro.create({
-        data: {
-          instituicaoId: user.instituicaoId,
-          alunoId: matricula.alunoId,
-          matriculaId: matricula.id,
-          tipo: "MENSALIDADE",
-          descricao,
-          valorOriginal: valorMensalidade,
-          valorFinal: valorMensalidadeFinal,
-          valorPago: 0,
-          status: "PENDENTE",
-          vencimento,
-        },
-      });
-
+      if (resultado === "EXISTENTE") totalJaExistente += 1;
+      if (resultado !== "CRIADA") continue;
       totalCriado += 1;
 
       criados.push({

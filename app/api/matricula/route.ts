@@ -88,6 +88,16 @@ async function sincronizarMensalidadesDaMatricula(params: {
     primeiroVencimento,
   } = params;
 
+  await tx.$queryRaw`SELECT "id" FROM "Matricula"
+    WHERE "id" = ${matriculaId} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+  const atual = await tx.matricula.findFirst({
+    where: { id: matriculaId, instituicaoId },
+    select: { status: true, canceladaEm: true },
+  });
+  if (!atual || atual.status === "CANCELADA" || atual.canceladaEm) {
+    throw new Error("MATRICULA_CANCELADA_NAO_GERA_MENSALIDADES");
+  }
+
   const existentes =
     await tx.lancamentoFinanceiro.findMany({
       where: {

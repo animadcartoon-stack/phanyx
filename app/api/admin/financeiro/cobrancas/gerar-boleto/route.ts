@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 
+import { matriculaCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
 import {
   getUserFromToken,
@@ -409,6 +410,7 @@ export async function POST(
 
           include: {
             pagamentos: true,
+            matricula: { select: { status: true, canceladaEm: true } },
 
             aluno: {
               include: {
@@ -431,6 +433,13 @@ export async function POST(
         {
           status: 404,
         }
+      );
+    }
+
+    if (matriculaCancelada(lancamento.matricula)) {
+      return NextResponse.json(
+        { error: "Matrícula cancelada não pode gerar novos boletos.", codigo: "MATRICULA_CANCELADA" },
+        { status: 409 }
       );
     }
 

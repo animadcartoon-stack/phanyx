@@ -106,6 +106,7 @@ export async function GET(req: NextRequest) {
                 matricula: {
                   is: {
                     realizadaPeloAluno: false,
+                    canceladaEm: null,
                     status: {
                       not: "CANCELADA",
                     },
