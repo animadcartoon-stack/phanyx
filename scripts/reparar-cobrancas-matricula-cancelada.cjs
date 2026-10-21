@@ -32,6 +32,9 @@ async function reparar(prisma, { matriculaId, alunoNome, aplicar = false, semCus
         statusBancario: { notIn: ["CANCELADO", "ESTORNADO"] } },
       select: { id: true, cobrancaExternaId: true, statusBancario: true, statusOperacional: true },
     });
+    if (aplicar && boletos.some(b => b.cobrancaExternaId && !["CANCELADO", "ESTORNADO"].includes(b.statusBancario))) {
+      throw new Error("CANCELAMENTO_BANCARIO_NECESSARIO: cancele/confira os boletos no Asaas antes de reconciliar os saldos locais.");
+    }
     if (aplicar) {
       for (const parcela of parcelas) {
         await tx.lancamentoFinanceiro.updateMany({

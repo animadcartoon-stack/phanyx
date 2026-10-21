@@ -1,3 +1,4 @@
+import { processarCancelamentosBancarios } from "@/lib/financeiro/cancelar-cobranca";
 import { prisma } from "@/lib/prisma";
 import { validarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
 import { NextResponse } from "next/server";
@@ -4943,7 +4944,12 @@ export async function PUT(request: Request) {
       include: includeMatriculaAdmin,
     });
 
-    return NextResponse.json(retorno);
+    let cancelamentosBancarios: { confirmados: number; pendentes: number } | null = null;
+    if (dadosMensalidadeMudaram) {
+      try { cancelamentosBancarios = await processarCancelamentosBancarios(user.instituicaoId, id); }
+      catch { cancelamentosBancarios = { confirmados: 0, pendentes: 1 }; }
+    }
+    return NextResponse.json({ ...retorno, cancelamentosBancarios });
   } catch (error: any) {
     console.error("ERRO AO ATUALIZAR MATRÍCULA:", error);
     return NextResponse.json(

@@ -9,6 +9,7 @@ import {
   getUserFromToken,
   temAlgumaPermissao,
 } from "@/lib/server-auth";
+import { cancelamentoBancarioPendente } from "@/lib/financeiro/cancelamento-bancario-estado";
 import { objetoJson } from "@/lib/financeiro/divergencias";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 
@@ -547,11 +548,13 @@ export async function GET(
     }
 
     return NextResponse.json({
+      podeCancelar: !usuario.impersonacao && (usuario.isMasterAdmin || ["ADMIN", "FINANCEIRO", "GERENCIA", "SUPER_ADMIN"].includes(usuario.role)),
       cobrancas:
         cobrancas.map(
           (item) => ({
             ...item,
             metadata: undefined,
+            cancelamentoBancarioPendente: cancelamentoBancarioPendente(item.metadata),
             resolucaoDivergencia: objetoJson(item.metadata).resolucaoDivergencia
               ? {
                 tipo: objetoJson(objetoJson(item.metadata).resolucaoDivergencia).tipo,

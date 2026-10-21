@@ -1,5 +1,6 @@
 
 import { recuperarCancelamentoLegado } from "@/lib/cancelamento-historico";
+import { processarCancelamentosBancarios } from "@/lib/financeiro/cancelar-cobranca";
 import { randomUUID } from "node:crypto";
 import { Prisma, StatusMatricula } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -992,8 +993,14 @@ export async function PATCH(
         }
       );
 
+    let cancelamentosBancarios: { confirmados: number; pendentes: number } | null = null;
+    if (acao === "FINALIZAR") {
+      try { cancelamentosBancarios = await processarCancelamentosBancarios(user.instituicaoId, matriculaId); }
+      catch { cancelamentosBancarios = { confirmados: 0, pendentes: 1 }; }
+    }
     return NextResponse.json({
       success: true,
+      cancelamentosBancarios,
       acao,
       cancelamento,
       matriculaStatus:

@@ -700,10 +700,10 @@ function AdminCancelamentoMatriculaPage() {
         );
       }
 
+      const bancoPendente = Number(payload?.cancelamentosBancarios?.pendentes || 0) > 0;
       setToast({
-        tipo: "sucesso",
-        mensagem:
-          t("messages.finalized"),
+        tipo: bancoPendente ? "aviso" : "sucesso",
+        mensagem: t(bancoPendente ? "messages.bankCancellationPending" : "messages.finalized"),
       });
 
       await carregar(false);

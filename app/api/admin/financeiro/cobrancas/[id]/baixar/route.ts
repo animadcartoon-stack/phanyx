@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GatilhoComissaoRH, Prisma } from "@prisma/client";
 import { analisarDivergencia, resolucaoAindaValida, objetoJson, centavos } from "@/lib/financeiro/divergencias";
 
+import { cancelamentoBancarioPendente } from "@/lib/financeiro/cancelamento-bancario-estado";
 import { prisma } from "@/lib/prisma";
 import {
   getUserFromToken,
@@ -112,6 +113,10 @@ export async function POST(
         },
         { status: 404 }
       );
+    }
+
+    if (cancelamentoBancarioPendente(cobranca.metadata) && cobranca.statusBancario !== "COMPENSADO") {
+      return NextResponse.json({ codigo: "CANCELAMENTO_BANCARIO_PENDENTE" }, { status: 409 });
     }
 
     if (
@@ -306,6 +311,7 @@ export async function POST(
           const lancamento =
             atual.lancamentoFinanceiro;
 
+          if (cancelamentoBancarioPendente(atual.metadata) && atual.statusBancario !== "COMPENSADO") throw new Error("CANCELAMENTO_BANCARIO_PENDENTE");
           const configuracao = await tx.configuracaoFinanceiraInstituicao.findUnique({
             where: { instituicaoId }, select: { permitirPagamentoParcial: true },
           });

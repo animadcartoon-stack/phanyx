@@ -22842,6 +22842,20 @@
     }
   },
   "AdminFinanceBoletos": {
+    "cancellation": {
+      "action": "Annuler le boleto",
+      "retry": "Réessayer l’annulation",
+      "title": "Confirmer l’annulation",
+      "message": "Annuler le boleto et l’échéance de {name}, pour {value} ? L’annulation sera terminée après confirmation d’Asaas.",
+      "back": "Retour",
+      "processing": "Confirmation auprès d’Asaas…",
+      "success": "Boleto annulé dans Asaas et PHANYX.",
+      "pending": "Annulation bancaire en attente. La demande est enregistrée ; réessayez depuis la liste des boletos.",
+      "pendingLabel": "Annulation bancaire en attente",
+      "error": "Impossible de terminer l’annulation. Vérifiez la créance et réessayez.",
+      "paid": "Un paiement est confirmé pour cette créance. Utilisez le processus de rapprochement/remboursement.",
+      "defaultReason": "Annulation du boleto et de l’échéance demandée dans Admin."
+},
     "page": {
       "back": "Retour aux Finances",
       "title": "Bordereaux bancaires",
@@ -23078,6 +23092,7 @@
       "finalized": "L'inscription a été annulée. Les données restent disponibles pour l'historique et les documents."
     },
     "messages": {
+      "bankCancellationPending": "Inscription annulée. Des annulations bancaires restent en attente ; consultez Finances → Boletos.",
       "draftSaved": "Brouillon enregistré avec succès.",
       "finalized": "Annulation finalisée avec succès.",
       "saveFirst": "Enregistrez le brouillon avant de finaliser."

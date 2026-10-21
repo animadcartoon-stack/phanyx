@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { matriculaCancelada } from "@/lib/financeiro/matricula-cancelada";
+import { cancelamentoBancarioPendente } from "@/lib/financeiro/cancelamento-bancario-estado";
 import { prisma } from "@/lib/prisma";
 import {
   getUserFromToken,
@@ -146,6 +147,10 @@ export async function POST(
         { error: "Cobrança não encontrada." },
         { status: 404 }
       );
+    }
+
+    if (cancelamentoBancarioPendente(cobranca.metadata)) {
+      return NextResponse.json({ codigo: "CANCELAMENTO_BANCARIO_PENDENTE" }, { status: 409 });
     }
 
     if (matriculaCancelada(cobranca.lancamentoFinanceiro.matricula) ||

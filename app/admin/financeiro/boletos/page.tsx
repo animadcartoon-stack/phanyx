@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import ResolverDivergenciaModal from "@/components/financeiro/ResolverDivergenciaModal";
 import {
   useLocale,
@@ -47,6 +48,7 @@ type LancamentoDisponivel = {
 type Cobranca = {
   id: number;
   referenciaInterna: string;
+  cancelamentoBancarioPendente?: boolean;
   cobrancaExternaId?: string | null;
   statusBancario: string;
   statusOperacional: string;
@@ -159,6 +161,9 @@ function diasAtraso(valor?: string | null) {
 export default function BoletosPage() {
   const td = useTranslations("AdminFinanceiroDivergencias");
   const [divergenciaId, setDivergenciaId] = useState<number | null>(null);
+  const [podeCancelar, setPodeCancelar] = useState(false);
+  const [cancelarSelecionada, setCancelarSelecionada] = useState<Cobranca | null>(null);
+  const [cancelando, setCancelando] = useState(false);
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("AdminFinanceBoletos");
@@ -352,6 +357,7 @@ export default function BoletosPage() {
         );
       }
 
+      setPodeCancelar(Boolean(dados?.podeCancelar));
       setCobrancas(
         Array.isArray(dados?.cobrancas)
           ? dados.cobrancas
@@ -759,6 +765,26 @@ export default function BoletosPage() {
     };
   }
 
+  async function confirmarCancelamento() {
+    if (!cancelarSelecionada || cancelando) return;
+    setCancelando(true); setErro(""); setSucesso("");
+    try {
+      const resposta = await fetch(`/api/admin/financeiro/cobrancas/${cancelarSelecionada.id}/cancelar`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ motivo: t("cancellation.defaultReason") }),
+      });
+      const resultado = await resposta.json().catch(() => null);
+      if (!resposta.ok) {
+        throw new Error(t(resultado?.codigo === "PAGAMENTO_NAO_CANCELAVEL" ? "cancellation.paid" : "cancellation.error"));
+      }
+      if (resultado?.cancelado === true) setSucesso(t("cancellation.success"));
+      else setErro(t("cancellation.pending"));
+      setCancelarSelecionada(null);
+      await Promise.all([carregarBoletos(), carregarDisponiveis()]);
+    } catch (e) { setErro(e instanceof Error ? e.message : t("cancellation.error")); }
+    finally { setCancelando(false); }
+  }
+
   function statusVencimento(cobranca: Cobranca) {
     const atraso = diasAtraso(
       cobranca.vencimento
@@ -1059,6 +1085,9 @@ export default function BoletosPage() {
                           {fluxo.label}
                         </span>
 
+                        {cobranca.cancelamentoBancarioPendente && (
+                          <p className="mt-2 rounded-lg bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-950 dark:bg-amber-950 dark:text-amber-100">{t("cancellation.pendingLabel")}</p>
+                        )}
                         {cobranca.baixadoPorNomeSnapshot && (
                           <p className="mt-2 text-xs text-slate-500">
                             {t("status.settledBy", {
@@ -1105,7 +1134,13 @@ export default function BoletosPage() {
                       </td>
                       <td className="px-3 py-4">
                         <div className="flex flex-wrap gap-2">
-                          {cobranca.statusOperacional === "DIVERGENCIA" && (
+                          {podeCancelar && !["COMPENSADO", "ESTORNADO", "CANCELADO"].includes(cobranca.statusBancario) && cobranca.statusOperacional !== "BAIXADO" && (
+                            <button type="button" onClick={() => setCancelarSelecionada(cobranca)} disabled={cancelando}
+                              className="rounded-lg border border-red-300 bg-red-50 px-2.5 py-2 text-xs font-semibold text-red-800 disabled:opacity-50 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
+                              {t(cobranca.cancelamentoBancarioPendente ? "cancellation.retry" : "cancellation.action")}
+                            </button>
+                          )}
+                          {cobranca.statusOperacional === "DIVERGENCIA" && (!cobranca.cancelamentoBancarioPendente || cobranca.statusBancario === "COMPENSADO") && (
                             <button type="button" onClick={() => setDivergenciaId(cobranca.id)} className="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs font-semibold text-amber-900 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
                               {td("resolve")}
                             </button>
@@ -1128,7 +1163,7 @@ export default function BoletosPage() {
                           <button
                             type="button"
                             disabled={
-                              enviandoId === cobranca.id ||
+                              enviandoId === cobranca.id || cobranca.cancelamentoBancarioPendente || cobranca.statusBancario === "CANCELADO" ||
                               !cobranca.aluno.user?.email
                             }
                             onClick={() =>
@@ -1146,6 +1181,7 @@ export default function BoletosPage() {
 
                           <button
                             type="button"
+                            disabled={cobranca.cancelamentoBancarioPendente || cobranca.statusBancario === "CANCELADO"}
                             onClick={() =>
                               abrirWhatsapp(cobranca)
                             }
@@ -1339,6 +1375,12 @@ export default function BoletosPage() {
           </table>
         </div>
       </section>
+      {cancelarSelecionada && <PhanyxConfirmModal aberto={true} tipo="perigo"
+        titulo={t("cancellation.title")}
+        mensagem={t("cancellation.message", { name: cancelarSelecionada.aluno.nome, value: moeda(cancelarSelecionada.valorCobrado, cancelarSelecionada.contaFinanceira.moeda) })}
+        textoConfirmar={t("cancellation.action")} textoCancelar={t("cancellation.back")}
+        textoCarregando={t("cancellation.processing")} carregando={cancelando}
+        onConfirmar={confirmarCancelamento} onCancelar={() => { if (!cancelando) setCancelarSelecionada(null); }} />}
       {divergenciaId !== null && <ResolverDivergenciaModal cobrancaId={divergenciaId} onFechar={() => setDivergenciaId(null)} onResolvida={async () => {
         setDivergenciaId(null);
         setSucesso(td("success"));

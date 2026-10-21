@@ -6,6 +6,7 @@ import {
 
 import type {
   ConfiguracaoProvedorFinanceiro,
+  CancelarBoletoFinanceiroInput,
   CriarBoletoFinanceiroInput,
   CriarBoletoFinanceiroResult,
   CriarClienteFinanceiroInput,
@@ -33,6 +34,9 @@ type AsaasPaymentResponse = {
   invoiceUrl?: string;
   bankSlipUrl?: string;
   externalReference?: string;
+  deleted?: boolean;
+  subscription?: string | null;
+  installment?: string | null;
 };
 
 type AsaasIdentificationFieldResponse = {
@@ -258,6 +262,7 @@ async function requisicaoAsaas<T>(
     `${baseUrl}${path}`,
     {
       ...init,
+      signal: init?.signal ?? AbortSignal.timeout(15000),
 
       headers: {
         "Content-Type":
@@ -307,11 +312,45 @@ async function requisicaoAsaas<T>(
   return dados as T;
 }
 
+async function consultarParaCancelamento(configuracao: ConfiguracaoProvedorFinanceiro, input: CancelarBoletoFinanceiroInput) {
+      if (!input.cobrancaExternaId || !input.clienteExternoId || !input.referenciaExterna) {
+        throw new Error("IDENTIDADE_COBRANCA_INCOMPLETA");
+      }
+      const path = `/payments/${encodeURIComponent(input.cobrancaExternaId)}`;
+      const atual = await requisicaoAsaas<AsaasPaymentResponse>(configuracao, path, { method: "GET" });
+      // Verificar a identidade ANTES de interpretar deleted ou solicitar a exclusão.
+      if (atual?.id !== input.cobrancaExternaId || atual.customer !== input.clienteExternoId ||
+          atual.externalReference !== input.referenciaExterna ||
+          Math.round(Number(atual.value) * 100) !== Math.round(input.valorCobrado * 100)) {
+        throw new Error("IDENTIDADE_COBRANCA_DIVERGENTE");
+      }
+      return atual;
+}
+
 export function criarProvedorAsaas(
   configuracao: ConfiguracaoProvedorFinanceiro
 ): ProvedorFinanceiro {
   return {
     nome: "ASAAS",
+
+    async consultarBoletoParaCancelamento(input: CancelarBoletoFinanceiroInput) {
+      const atual = await consultarParaCancelamento(configuracao, input);
+      return { id: atual.id, status: String(atual.status || ""), cancelado: atual.deleted === true,
+        cancelavel: !atual.subscription && !atual.installment && ["PENDING", "OVERDUE"].includes(String(atual.status)) };
+    },
+
+    async cancelarBoleto(input: CancelarBoletoFinanceiroInput) {
+      const atual = await consultarParaCancelamento(configuracao, input);
+      const path = `/payments/${encodeURIComponent(input.cobrancaExternaId)}`;
+      if (atual.deleted === true) return { cancelado: true as const, id: atual.id };
+      if (atual.subscription || atual.installment) throw new Error("ORIGEM_RECORRENTE_REQUER_CANCELAMENTO_PROPRIO");
+      if (!["PENDING", "OVERDUE"].includes(String(atual.status))) {
+        throw new Error("PAGAMENTO_NAO_CANCELAVEL");
+      }
+      const resposta = await requisicaoAsaas<{ id?: string; deleted?: boolean }>(configuracao, path, { method: "DELETE" });
+      if (resposta?.deleted !== true || resposta.id !== atual.id) throw new Error("CANCELAMENTO_BANCARIO_NAO_CONFIRMADO");
+      return { cancelado: true as const, id: atual.id };
+    },
 
     async buscarClientePorReferencia(
       referenciaExterna: string

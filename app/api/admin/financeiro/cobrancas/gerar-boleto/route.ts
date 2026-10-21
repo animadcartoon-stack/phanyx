@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 
 import { matriculaCancelada } from "@/lib/financeiro/matricula-cancelada";
+import { cancelamentoBancarioPendente } from "@/lib/financeiro/cancelamento-bancario-estado";
 import { prisma } from "@/lib/prisma";
 import {
   getUserFromToken,
@@ -747,6 +748,10 @@ export async function POST(
       );
     }
 
+    if (cancelamentoBancarioPendente(cobranca.metadata)) {
+      return NextResponse.json({ codigo: "CANCELAMENTO_BANCARIO_PENDENTE" }, { status: 409 });
+    }
+
     /*
      * Se já existe boleto válido,
      * apenas devolve o registro.
@@ -834,28 +839,19 @@ export async function POST(
       );
     }
 
-    cobranca =
-      await prisma
-        .cobrancaFinanceira
-        .update({
-          where: {
-            id: cobranca.id,
-          },
-
-          data: {
-            statusBancario:
-              "EM_PROCESSAMENTO",
-
-            erroIntegracao:
-              null,
-
-            valorCobrado:
-              saldo,
-
-            vencimento:
-              lancamento.vencimento,
-          },
-        });
+    const reservaEmissao = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.$queryRaw`SELECT "id" FROM "CobrancaFinanceira" WHERE "id" = ${cobranca!.id} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+      const atual = await tx.cobrancaFinanceira.findFirst({ where: { id: cobranca!.id, instituicaoId },
+        include: { lancamentoFinanceiro: { include: { matricula: { select: { status: true, canceladaEm: true } } } } } });
+      if (!atual || cancelamentoBancarioPendente(atual.metadata) || atual.statusBancario === "CANCELADO" ||
+          atual.statusBancario === "EM_PROCESSAMENTO" || atual.statusOperacional === "CANCELADO" ||
+          atual.lancamentoFinanceiro.status === "CANCELADO" || matriculaCancelada(atual.lancamentoFinanceiro.matricula)) return null;
+      return tx.cobrancaFinanceira.update({ where: { id: atual.id }, data: {
+        statusBancario: "EM_PROCESSAMENTO", erroIntegracao: null, valorCobrado: saldo, vencimento: lancamento.vencimento,
+      } });
+    });
+    if (!reservaEmissao) return NextResponse.json({ codigo: "COBRANCA_CANCELADA_OU_EM_PROCESSAMENTO" }, { status: 409 });
+    cobranca = reservaEmissao;
 
     /*
      * Cliente externo.
@@ -1192,10 +1188,11 @@ export async function POST(
     const agora =
       new Date();
 
-    const atualizada =
-      await prisma
-        .cobrancaFinanceira
-        .update({
+    const atualizada = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.$queryRaw`SELECT "id" FROM "CobrancaFinanceira" WHERE "id" = ${cobranca!.id} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+      const atual = await tx.cobrancaFinanceira.findFirst({ where: { id: cobranca!.id, instituicaoId }, select: { metadata: true } });
+      const metadataAtual = atual?.metadata && typeof atual.metadata === "object" && !Array.isArray(atual.metadata) ? atual.metadata : {};
+      return tx.cobrancaFinanceira.update({
           where: {
             id:
               cobranca.id,
@@ -1260,6 +1257,7 @@ export async function POST(
               null,
 
             metadata: {
+              ...metadataAtual,
               statusExterno:
                 boleto
                   .statusExterno,
@@ -1270,9 +1268,10 @@ export async function POST(
               provedor:
                 boleto.metadata ||
                 {},
-            },
+            } as Prisma.InputJsonValue,
           },
         });
+    });
 
     return NextResponse.json(
       {
