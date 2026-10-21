@@ -22843,6 +22843,20 @@
     }
   },
   "AdminFinanceBoletos": {
+    "cancellation": {
+      "action": "Cancel payment slip",
+      "retry": "Retry cancellation",
+      "title": "Confirm cancellation",
+      "message": "Cancel the payment slip and installment for {name}, amount {value}? Cancellation is completed only after Asaas confirms it.",
+      "back": "Back",
+      "processing": "Confirming with Asaas…",
+      "success": "Payment slip canceled in Asaas and PHANYX.",
+      "pending": "Bank cancellation pending. The request was saved; retry from the payment slips list.",
+      "pendingLabel": "Bank cancellation pending",
+      "error": "Cancellation could not be completed. Check the charge and try again.",
+      "paid": "This charge has a confirmed payment. Use the reconciliation/refund workflow.",
+      "defaultReason": "Payment slip and installment cancellation requested in Admin."
+},
     "page": {
       "back": "Back to Finance",
       "title": "Bank slips",
@@ -23079,6 +23093,7 @@
       "finalized": "The enrollment has been canceled. The data remains available for history and documents."
     },
     "messages": {
+      "bankCancellationPending": "Enrollment canceled. Some bank cancellations remain pending; check Finance → Payment slips before closing the collection process.",
       "draftSaved": "Draft saved successfully.",
       "finalized": "Cancellation finalized successfully.",
       "saveFirst": "Save the draft before finalizing."

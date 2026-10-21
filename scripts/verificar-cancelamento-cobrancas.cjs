@@ -23,6 +23,8 @@ function carregar(arquivo, prisma = {}, extras = {}) {
   };
   const req = (id) => {
     if (id in mocks) return mocks[id];
+    if (id === "@/lib/financeiro/cancelar-cobranca") return { processarCancelamentosBancarios: async () => ({ confirmados: 0, pendentes: 0 }) };
+    if (id === "@/lib/financeiro/cancelamento-bancario-estado") return carregar("lib/financeiro/cancelamento-bancario-estado.ts");
     if (id.startsWith("@/lib/financeiro/matricula-cancelada")) return carregar("lib/financeiro/matricula-cancelada.ts");
     if (id.startsWith("@/lib/cancelamento-historico")) return carregar("lib/cancelamento-historico.ts");
     if (id.startsWith("@/")) return {}; // Unused integrations must never be called in blocked requests.
@@ -53,7 +55,14 @@ async function teste(nome, fn) { await fn(); total++; console.log(`OK ${nome}`);
     const api = carregar(cancelarRota, {
       matricula: { findFirst: async q => { assert.equal(q.where.instituicaoId, 7); return { status: "CANCELADA", canceladaEm: null, motivoCancelamento: null }; } },
       cancelamentoMatricula: { findMany: async () => [] },
-      documentoGerado: { findFirst: async q => { filtro = q.where; return { id: 252, criadoEm: new Date(), dadosPreenchimento: { dataEfetivaCancelamentoMatricula: "2026-10-08" } }; } },
+      documentoGerado: { findFirst: async q => {
+        filtro = q.where;
+        // Há uma versão de 06/10 e outra de 08/10: a consulta deve priorizar a revisão mais recente.
+        assert.equal(q.orderBy[0].criadoEm, "desc");
+        assert.equal(q.orderBy[1].id, "desc");
+        return { id: 252, criadoEm: new Date("2026-10-08T20:03:52Z"),
+          dadosPreenchimento: { dataSolicitacaoCancelamentoMatricula: "2026-10-06", dataEfetivaCancelamentoMatricula: "2026-10-08" } };
+      } },
     });
     const r = await api.GET(request({}), { params: { id: "37" } });
     assert.equal(r.status, 200); assert.equal(r.body.legado.dataEfetiva, "2026-10-08");
@@ -121,18 +130,21 @@ async function teste(nome, fn) { await fn(); total++; console.log(`OK ${nome}`);
     const { reparar } = require("./reparar-cobrancas-matricula-cancelada.cjs");
     const parcela = { id: 99, status: "PARCIAL", valorPago: 20, observacao: "Histórico original" };
     const banco = { id: 3, cobrancaExternaId: "pay_example", statusBancario: "PENDENTE" };
-    let mutacoes = 0;
+    let mutacoes = 0, bancoAtivo = true;
     const tx = { $queryRaw: async () => [], matricula: { findUnique: async () => ({ id: 37, instituicaoId: 7, status: "CANCELADA", aluno: { nome: "Claudio de Jesus" } }) },
       lancamentoFinanceiro: { findMany: async () => parcela.status === "CANCELADO" ? [] : [parcela], updateMany: async q => {
         assert(q.data.observacao.startsWith("Histórico original")); assert.equal("valorPago" in q.data, false);
         parcela.status = q.data.status; mutacoes++; } },
-      cobrancaFinanceira: { findMany: async () => [banco] } };
+      cobrancaFinanceira: { findMany: async () => bancoAtivo ? [banco] : [] } };
     const prisma = { $transaction: async cb => cb(tx) }, opts = { matriculaId: 37, alunoNome: "Claudio de Jesus" };
     await reparar(prisma, opts); assert.equal(mutacoes, 0);
     await assert.rejects(reparar(prisma, { ...opts, aplicar: true }), /sem-custo/);
     await assert.rejects(reparar(prisma, { ...opts, alunoNome: "Outro aluno" }), /não conferem/);
+    await assert.rejects(reparar(prisma, { ...opts, aplicar: true, semCusto: true }), /CANCELAMENTO_BANCARIO_NECESSARIO/);
+    assert.equal(mutacoes, 0);
+    bancoAtivo = false;
     const r = await reparar(prisma, { ...opts, aplicar: true, semCusto: true });
-    assert.equal(mutacoes, 1); assert.equal(r.boletosParaConferenciaBancaria[0], banco); assert.equal(parcela.valorPago, 20);
+    assert.equal(mutacoes, 1); assert.equal(r.boletosParaConferenciaBancaria.length, 0); assert.equal(parcela.valorPago, 20);
     await reparar(prisma, { ...opts, aplicar: true, semCusto: true }); assert.equal(mutacoes, 1);
   });
   await teste("atualização financeira nunca reabre cancelados e impede atualização concorrente", async () => {

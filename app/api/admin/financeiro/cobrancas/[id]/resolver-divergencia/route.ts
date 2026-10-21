@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { cancelamentoBancarioPendente } from "@/lib/financeiro/cancelamento-bancario-estado";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, temAlgumaPermissao } from "@/lib/server-auth";
 import { planoTemRecurso } from "@/lib/plano-acesso";
@@ -46,6 +47,7 @@ async function conferir(tx: Prisma.TransactionClient, cobrancaId: number, instit
     },
   });
   if (!cobranca) throw new ErroConferencia("COBRANCA_NAO_ENCONTRADA", 404);
+  if (cancelamentoBancarioPendente(cobranca.metadata) && cobranca.statusBancario !== "COMPENSADO") throw new ErroConferencia("CANCELAMENTO_BANCARIO_PENDENTE");
   const destino = destinoId && destinoId !== cobranca.lancamentoFinanceiroId
     ? await tx.lancamentoFinanceiro.findFirst({
       where: { id: destinoId, instituicaoId, alunoId: cobranca.alunoId },

@@ -42,8 +42,19 @@ export type CriarBoletoFinanceiroResult = {
   metadata?: Record<string, unknown>;
 };
 
+export type CancelarBoletoFinanceiroInput = {
+  cobrancaExternaId: string;
+  clienteExternoId: string;
+  referenciaExterna: string;
+  valorCobrado: number;
+};
+
 export interface ProvedorFinanceiro {
   readonly nome: string;
+
+  consultarBoletoParaCancelamento(input: CancelarBoletoFinanceiroInput): Promise<{ id: string; status: string; cancelado: boolean; cancelavel: boolean }>;
+  cancelarBoleto(input: CancelarBoletoFinanceiroInput): Promise<{ cancelado: true; id: string }>;
+
 
   buscarClientePorReferencia(
     referenciaExterna: string

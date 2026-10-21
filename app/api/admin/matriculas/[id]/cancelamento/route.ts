@@ -1,5 +1,6 @@
 
 import { recuperarCancelamentoLegado } from "@/lib/cancelamento-historico";
+import { processarCancelamentosBancarios } from "@/lib/financeiro/cancelar-cobranca";
 import { randomUUID } from "node:crypto";
 import { Prisma, StatusMatricula } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -575,7 +576,7 @@ export async function GET(
       ? recuperarCancelamentoLegado(matricula, await prisma.documentoGerado.findFirst({
           where: { instituicaoId: user.instituicaoId, matriculaId,
             contexto: "CANCELAMENTO_MATRICULA", status: { in: ["GERADO", "ASSINADO"] } },
-          orderBy: [{ criadoEm: "asc" }, { id: "asc" }],
+          orderBy: [{ criadoEm: "desc" }, { id: "desc" }],
           select: { id: true, criadoEm: true, dadosPreenchimento: true },
         }))
       : null;
@@ -992,8 +993,14 @@ export async function PATCH(
         }
       );
 
+    let cancelamentosBancarios: { confirmados: number; pendentes: number } | null = null;
+    if (acao === "FINALIZAR") {
+      try { cancelamentosBancarios = await processarCancelamentosBancarios(user.instituicaoId, matriculaId); }
+      catch { cancelamentosBancarios = { confirmados: 0, pendentes: 1 }; }
+    }
     return NextResponse.json({
       success: true,
+      cancelamentosBancarios,
       acao,
       cancelamento,
       matriculaStatus:

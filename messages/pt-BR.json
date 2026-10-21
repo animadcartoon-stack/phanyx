@@ -22613,6 +22613,20 @@
     }
   },
   "AdminFinanceBoletos": {
+    "cancellation": {
+      "action": "Cancelar boleto",
+      "retry": "Tentar cancelamento novamente",
+      "title": "Confirmar cancelamento",
+      "message": "Cancelar o boleto e a parcela de {name}, no valor de {value}? A cobrança só será concluída como cancelada após confirmação do Asaas.",
+      "back": "Voltar",
+      "processing": "Confirmando no Asaas…",
+      "success": "Boleto cancelado no Asaas e no PHANYX.",
+      "pending": "Cancelamento bancário pendente. A solicitação foi registrada; tente novamente na lista de boletos.",
+      "pendingLabel": "Cancelamento bancário pendente",
+      "error": "Não foi possível concluir o cancelamento. Confira a cobrança e tente novamente.",
+      "paid": "Esta cobrança possui pagamento confirmado. Utilize o fluxo de conferência/estorno.",
+      "defaultReason": "Cancelamento de boleto e parcela solicitado no Admin."
+},
     "page": {
       "back": "Voltar ao Financeiro",
       "title": "Boletos",
@@ -22849,6 +22863,7 @@
       "finalized": "A matrícula já foi cancelada. Os dados permanecem disponíveis para histórico e documentos."
     },
     "messages": {
+      "bankCancellationPending": "Matrícula cancelada. Há boletos com cancelamento bancário pendente; confira Financeiro → Boletos antes de considerar a cobrança encerrada.",
       "draftSaved": "Rascunho salvo com sucesso.",
       "finalized": "Cancelamento finalizado com sucesso.",
       "saveFirst": "Salve o rascunho antes de finalizar."
