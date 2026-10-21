@@ -29,6 +29,7 @@ import { fonteDaSelecaoCertificado, fonteUnicaTextoCertificado } from "@/lib/cer
 import BancoSvgFormas from "./components/BancoSvgFormas";
 import ControleTipografiaFluido from "./components/ControleTipografiaFluido";
 import useEdicaoTextoFluida from "./components/useEdicaoTextoFluida";
+import { marcarSelecaoTextoCertificado, recuperarSelecaoTextoCertificado, exibirSelecaoTextoCertificado } from "./components/selecaoTextoCertificado";
 import useEspacoEditor from "./components/useEspacoEditor";
 import { campoTemTextoCertificado, atualizarEstiloIntegralTexto, corInicialTextoCertificado } from "@/lib/certificados/estiloTextoCertificado";
 import { useLocale, useTranslations } from "next-intl";
@@ -2374,6 +2375,7 @@ export default function ConfiguracaoCertificadoPage() {
     campoId: number;
     inicio: number;
     fim: number;
+    texto?: string;
   } | null>(null);
 
   useEffect(() => {
@@ -2382,21 +2384,10 @@ export default function ConfiguracaoCertificadoPage() {
       node: Node,
       offset: number,
     ) {
-      let total = 0;
-
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-
-      while (walker.nextNode()) {
-        const atual = walker.currentNode;
-
-        if (atual === node) {
-          return total + offset;
-        }
-
-        total += atual.textContent?.length || 0;
-      }
-
-      return total;
+      const antes = root.ownerDocument.createRange();
+      antes.selectNodeContents(root);
+      antes.setEnd(node, offset);
+      return antes.toString().length;
     }
 
     function salvarSelecaoTextoLivre() {
@@ -2405,7 +2396,6 @@ export default function ConfiguracaoCertificadoPage() {
       if (aplicandoEstiloTextoRef.current) return;
 
       if (!selecao || selecao.rangeCount === 0) return;
-      if (!selecao.toString().trim()) return;
 
       const range = selecao.getRangeAt(0);
 
@@ -2418,7 +2408,16 @@ export default function ConfiguracaoCertificadoPage() {
         "[data-texto-livre-id]",
       ) as HTMLElement | null;
 
-      if (!editor) return;
+      if (!editor || !editor.contains(range.endContainer)) return;
+      // A selecao de um numero no painel nao substitui o trecho salvo do texto.
+      if (document.activeElement !== editor && !editor.contains(document.activeElement)) return;
+      if (range.collapsed || !range.toString()) {
+        selecaoTextoRef.current = null;
+        selecaoTextoInfoRef.current = null;
+        setFonteSelecaoTexto(null);
+        setCorTextoSelecionado(null);
+        return;
+      }
 
       const campoId = Number(editor.getAttribute("data-texto-livre-id"));
 
@@ -2440,6 +2439,7 @@ export default function ConfiguracaoCertificadoPage() {
         campoId,
         inicio: Math.min(inicio, fim),
         fim: Math.max(inicio, fim),
+        texto: range.toString(),
       };
 
       const elementoCor =
@@ -3599,7 +3599,7 @@ export default function ConfiguracaoCertificadoPage() {
   useEffect(() => {
     if (!campoSelecionado) return;
     const editor = document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionado.id}"]`);
-    const range = selecaoTextoRef.current;
+    const range = obterSelecaoTextoLivre();
     let el = editor && range && editor.contains(range.commonAncestorContainer)
       ? (range.startContainer.nodeType === Node.TEXT_NODE ? range.startContainer.parentElement : range.startContainer as HTMLElement)
       : editor?.firstElementChild as HTMLElement | null;
@@ -5779,11 +5779,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function temSelecaoTextoLivreSalva() {
-    return (
-      campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-      selecaoTextoInfoRef.current?.campoId === campoSelecionado.id &&
-      selecaoTextoInfoRef.current.fim > selecaoTextoInfoRef.current.inicio
-    );
+    return Boolean(obterSelecaoTextoLivre());
   }
 
   function ehTextoPlaceholderPadrao(texto: string) {
@@ -6022,100 +6018,138 @@ export default function ConfiguracaoCertificadoPage() {
     } as React.CSSProperties);
   }
 
+  function obterSelecaoTextoLivre() {
+    if (campoSelecionado?.tipo !== "TEXTO_LIVRE") return null;
+    const editor = document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionado.id}"]`);
+    if (!editor) return null;
+    const info = selecaoTextoInfoRef.current;
+    if (info?.campoId === campoSelecionado.id) {
+      const range = recuperarSelecaoTextoCertificado(editor, info);
+      if (range) { selecaoTextoRef.current = range.cloneRange(); return range; }
+      return null;
+    }
+    const range = selecaoTextoRef.current;
+    return range && !range.collapsed && editor.contains(range.startContainer) && editor.contains(range.endContainer)
+      ? range.cloneRange() : null;
+  }
+
+  function limparSelecaoTextoLivre() {
+    selecaoTextoRef.current = null;
+    selecaoTextoInfoRef.current = null;
+    setFonteSelecaoTexto(null);
+    setCorTextoSelecionado(null);
+  }
+
+  function registrarSelecaoTextoLivre(editor: HTMLElement) {
+    const selecao = window.getSelection();
+    if (!selecao?.rangeCount) return;
+    const range = selecao.getRangeAt(0);
+    if (!editor.contains(range.startContainer) || !editor.contains(range.endContainer)) return;
+    const info = marcarSelecaoTextoCertificado(editor, range);
+    if (!info) { limparSelecaoTextoLivre(); return; }
+    selecaoTextoRef.current = range.cloneRange();
+    selecaoTextoInfoRef.current = { campoId: Number(editor.dataset.textoLivreId), ...info };
+    registrarFonteSelecaoTexto(editor, range);
+  }
+
+  const previaEstiloTextoRef = useRef<{
+    id: number; chave: string; editor: HTMLElement; html: string;
+    marcacao: NonNullable<typeof selecaoTextoInfoRef.current>;
+  } | null>(null);
+
   function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties, apenasPrevia = false) {
-    if (!apenasPrevia) edicaoTextoFluida.confirmar();
+    const chave = Object.keys(estilo).sort().join(",");
+    if (!apenasPrevia || (previaEstiloTextoRef.current && previaEstiloTextoRef.current.chave !== chave)) edicaoTextoFluida.confirmar();
+    const editor = document.querySelector<HTMLElement>(`[data-texto-livre-id="${campoSelecionadoId}"]`);
+    let range = obterSelecaoTextoLivre();
+    if (!editor || !range) return;
     if (fimEstiloTextoTimerRef.current !== null) clearTimeout(fimEstiloTextoTimerRef.current);
     aplicandoEstiloTextoRef.current = true;
 
-    const editor = document.querySelector(
-      `[data-texto-livre-id="${campoSelecionadoId}"]`,
-    ) as HTMLElement | null;
-
-    if (!editor) {
-      aplicandoEstiloTextoRef.current = false;
-      return;
+    let previa = previaEstiloTextoRef.current;
+    if (!apenasPrevia) {
+      const marcacao = marcarSelecaoTextoCertificado(editor, range)!;
+      previa = { id: campoSelecionadoId!, chave, editor, html: editor.innerHTML, marcacao: { campoId: campoSelecionadoId!, ...marcacao } };
+      previaEstiloTextoRef.current = previa;
     }
-    if (!apenasPrevia || !edicaoTextoFluida.temPendente()) salvarHistoricoTextoLivre(editor);
-    const selecao = window.getSelection();
+    if (apenasPrevia && !previa) {
+      edicaoTextoFluida.confirmar();
+      range = obterSelecaoTextoLivre();
+      const marcacao = range && marcarSelecaoTextoCertificado(editor, range);
+      if (!range || !marcacao) { aplicandoEstiloTextoRef.current = false; return; }
+      salvarHistoricoTextoLivre(editor);
+      previa = { id: campoSelecionadoId!, chave, editor, html: editor.innerHTML, marcacao: { campoId: campoSelecionadoId!, ...marcacao } };
+      previaEstiloTextoRef.current = previa;
+    } else if (!apenasPrevia) salvarHistoricoTextoLivre(editor);
 
-    let range: Range | null = null;
-
-    if (
-      selecao &&
-      selecao.rangeCount > 0 &&
-      !selecao.getRangeAt(0).collapsed &&
-      editor.contains(selecao.getRangeAt(0).commonAncestorContainer)
-    ) {
-      range = selecao.getRangeAt(0).cloneRange();
-    } else if (
-      selecaoTextoRef.current &&
-      !selecaoTextoRef.current.collapsed &&
-      editor.contains(selecaoTextoRef.current.commonAncestorContainer)
-    ) {
-      range = selecaoTextoRef.current.cloneRange();
+    if (previa) {
+      // Cada valor parte do mesmo HTML: nao acumula spans nem desloca a selecao.
+      editor.innerHTML = previa.html;
+      range = recuperarSelecaoTextoCertificado(editor, previa.marcacao);
+      if (!range) { aplicandoEstiloTextoRef.current = false; return; }
     }
-
-    if (!range || !range.toString()) {
-      aplicandoEstiloTextoRef.current = false;
-      return;
-    }
-
-    // A copia inicial do gesto ja foi registrada antes de alterar o texto.
     const textoInteiro = range.toString() === editor.textContent;
+    const marcacao = marcarSelecaoTextoCertificado(editor, range)!;
     const container = range.startContainer;
     const reutilizar = container === range.endContainer && container instanceof HTMLSpanElement &&
       range.startOffset === 0 && range.endOffset === container.childNodes.length;
     const fragmento = range.extractContents();
     const span = reutilizar ? container as HTMLSpanElement : document.createElement("span");
-
     Object.assign(span.style, estilo);
-
     if (estilo.color) {
       const cor = String(estilo.color).toLowerCase();
-
       span.style.setProperty("color", cor, "important");
       span.style.setProperty("-webkit-text-fill-color", cor, "important");
       span.style.setProperty("opacity", "1", "important");
       span.style.setProperty("filter", "none", "important");
       span.style.setProperty("mix-blend-mode", "normal", "important");
-
-      fragmento.querySelectorAll?.("span").forEach((el) => {
-        (el as HTMLElement).style.removeProperty("color");
-        (el as HTMLElement).style.removeProperty("-webkit-text-fill-color");
-      });
-
       setCorTextoSelecionado(cor);
     }
-
-    const propriedadesAlteradas = Object.keys(estilo).map(nome => nome.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase()));
+    const propriedades = Object.keys(estilo).map(nome => nome.replace(/[A-Z]/g, letra => "-" + letra.toLowerCase()));
+    if (estilo.color) propriedades.push("-webkit-text-fill-color");
     fragmento.querySelectorAll<HTMLElement>("*").forEach(elemento => {
-      propriedadesAlteradas.forEach(nome => elemento.style.removeProperty(nome));
+      propriedades.forEach(nome => elemento.style.removeProperty(nome));
+      if (elemento.tagName === "FONT") {
+        if (estilo.fontSize) elemento.removeAttribute("size");
+        if (estilo.fontFamily) elemento.removeAttribute("face");
+        if (estilo.color) elemento.removeAttribute("color");
+      }
       if (elemento.getAttribute("style") === "") elemento.removeAttribute("style");
       if (elemento.tagName === "SPAN" && elemento.attributes.length === 0) elemento.replaceWith(...Array.from(elemento.childNodes));
     });
     span.appendChild(fragmento);
     if (!reutilizar) range.insertNode(span);
-
-    const novoRange = document.createRange();
-    novoRange.selectNodeContents(span);
-
-    selecao?.removeAllRanges();
-    selecao?.addRange(novoRange);
-
+    const novoRange = recuperarSelecaoTextoCertificado(editor, marcacao)!;
     selecaoTextoRef.current = novoRange.cloneRange();
+    selecaoTextoInfoRef.current = { campoId: campoSelecionadoId!, ...marcacao };
+    exibirSelecaoTextoCertificado(editor, novoRange);
+
     const confirmar = () => {
-      registrarFonteSelecaoTexto(editor, novoRange, estilo.fontFamily ? String(estilo.fontFamily) : fonteAtualDoTexto);
+      const salvo = recuperarSelecaoTextoCertificado(editor, marcacao);
+      if (salvo) registrarFonteSelecaoTexto(editor, salvo, estilo.fontFamily ? String(estilo.fontFamily) : fonteAtualDoTexto);
       atualizarTextoLivreNoEstado(editor, textoInteiro && estilo.fontFamily ? String(estilo.fontFamily) : undefined);
       salvarHistoricoTextoLivre(editor);
+      previaEstiloTextoRef.current = null;
     };
-    if (apenasPrevia) edicaoTextoFluida.agendar(campoSelecionadoId!, confirmar);
+    if (apenasPrevia) edicaoTextoFluida.agendar(campoSelecionadoId!, confirmar, {
+      aguardarFim: true,
+      cancelar: () => {
+        if (!previa) return;
+        editor.innerHTML = previa.html;
+        selecaoTextoInfoRef.current = previa.marcacao;
+        const restaurado = recuperarSelecaoTextoCertificado(editor, previa.marcacao);
+        selecaoTextoRef.current = restaurado;
+        if (restaurado) registrarFonteSelecaoTexto(editor, restaurado);
+        previaEstiloTextoRef.current = null;
+      },
+    });
     else confirmar();
-
     fimEstiloTextoTimerRef.current = setTimeout(() => {
       aplicandoEstiloTextoRef.current = false;
       fimEstiloTextoTimerRef.current = null;
-    }, 250);
+    }, 0);
   }
+
 
     const previaPropriedadeRef = useRef<{ id: number; chave: string; elemento: HTMLElement; css: string; html?: string } | null>(null);
   function prepararPreviaPropriedade(id: number, chave: string, elemento: HTMLElement, textoLivre = false) {
@@ -6219,9 +6253,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function temSelecaoTextoLivreAtiva() {
-    const range = selecaoTextoRef.current;
-    const editor = campoSelecionado?.tipo === "TEXTO_LIVRE" ? document.querySelector(`[data-texto-livre-id="${campoSelecionado.id}"]`) : null;
-    return Boolean(editor && range && !range.collapsed && editor.contains(range.commonAncestorContainer));
+    return Boolean(obterSelecaoTextoLivre());
   }
 
   function aplicarEstiloTextoOuCampoInteiro(
@@ -6260,7 +6292,7 @@ export default function ConfiguracaoCertificadoPage() {
       `[data-texto-livre-id="${campoSelecionadoId}"]`,
     ) as HTMLElement | null;
 
-    const rangeSalvo = selecaoTextoRef.current;
+    const rangeSalvo = obterSelecaoTextoLivre();
 
     if (
       !editor ||
@@ -7474,6 +7506,12 @@ export default function ConfiguracaoCertificadoPage() {
     reordenarCamada: typeof reordenarCamada;
     salvarHistoricoTextoLivre: typeof salvarHistoricoTextoLivre;
     selecaoTextoRef: typeof selecaoTextoRef;
+    previaEstiloTextoRef: typeof previaEstiloTextoRef;
+    previaPropriedadeRef: typeof previaPropriedadeRef;
+    aplicandoEstiloTextoRef: typeof aplicandoEstiloTextoRef;
+    edicaoTextoFluida: typeof edicaoTextoFluida;
+    registrarSelecaoTextoLivre: typeof registrarSelecaoTextoLivre;
+    limparSelecaoTextoLivre: typeof limparSelecaoTextoLivre;
     selecionarCampoNoCanvas: typeof selecionarCampoNoCanvas;
     selecionarPontosNoCanvas: typeof selecionarPontosNoCanvas;
     setCamadaArrastandoId: typeof setCamadaArrastandoId;
@@ -7665,7 +7703,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   // Elementos inalterados conservam a arvore; eventos consultam o contexto atual.
-  contextoEventosCenaRef.current = { iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
+  contextoEventosCenaRef.current = { previaEstiloTextoRef, previaPropriedadeRef, aplicandoEstiloTextoRef, edicaoTextoFluida, registrarSelecaoTextoLivre, limparSelecaoTextoLivre, iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
   renderizarElementoCenaRef.current = (c) => {
                       if (elementoOculto(c)) return null;
                       if (c.tipo === "IMAGEM") {
@@ -8398,7 +8436,9 @@ export default function ConfiguracaoCertificadoPage() {
                                   (c as any).texto ||
                                   contextoEventosCenaRef.current.tr("text.placeholderText");
 
-                                if (document.activeElement === el) return;
+                                if (document.activeElement === el ||
+                                  contextoEventosCenaRef.current.previaEstiloTextoRef.current?.editor === el ||
+                                  contextoEventosCenaRef.current.previaPropriedadeRef.current?.elemento === el) return;
 
                                 if (el.innerHTML !== valor) {
                                   el.innerHTML = valor;
@@ -8406,6 +8446,8 @@ export default function ConfiguracaoCertificadoPage() {
                               }}
                               onMouseDown={(e) => {
                                 e.stopPropagation();
+                                contextoEventosCenaRef.current.edicaoTextoFluida.confirmar();
+                                contextoEventosCenaRef.current.aplicandoEstiloTextoRef.current = false;
 
                                 contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
                                 contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
@@ -8636,6 +8678,7 @@ export default function ConfiguracaoCertificadoPage() {
                                 );
                               }}
                               onBeforeInput={(e) => {
+                                if (!contextoEventosCenaRef.current.aplicandoEstiloTextoRef.current) contextoEventosCenaRef.current.limparSelecaoTextoLivre();
                                 if (
                                   (e.nativeEvent as InputEvent).inputType ===
                                   "insertFromPaste"
@@ -8645,42 +8688,8 @@ export default function ConfiguracaoCertificadoPage() {
 
                                 contextoEventosCenaRef.current.salvarHistoricoTextoLivre(e.currentTarget);
                               }}
-                              onMouseUp={() => {
-                                const selecao = window.getSelection();
-
-                                if (
-                                  selecao &&
-                                  selecao.rangeCount > 0 &&
-                                  selecao.toString().trim()
-                                ) {
-                                  const range = selecao
-                                    .getRangeAt(0)
-                                    .cloneRange();
-                                  contextoEventosCenaRef.current.selecaoTextoRef.current = range;
-
-                                  const elemento =
-                                    selecao.anchorNode?.parentElement;
-                                  const cor = elemento
-                                    ? window.getComputedStyle(elemento).color
-                                    : "";
-                                  const corHex = contextoEventosCenaRef.current.cssColorToHex(cor);
-
-                                  contextoEventosCenaRef.current.setCorTextoSelecionado(corHex || null);
-                                }
-                              }}
-                              onKeyUp={() => {
-                                const selecao = window.getSelection();
-
-                                if (
-                                  selecao &&
-                                  selecao.rangeCount > 0 &&
-                                  selecao.toString().trim()
-                                ) {
-                                  contextoEventosCenaRef.current.selecaoTextoRef.current = selecao
-                                    .getRangeAt(0)
-                                    .cloneRange();
-                                }
-                              }}
+                              onMouseUp={(e) => contextoEventosCenaRef.current.registrarSelecaoTextoLivre(e.currentTarget)}
+                              onKeyUp={(e) => contextoEventosCenaRef.current.registrarSelecaoTextoLivre(e.currentTarget)}
                               className="h-full w-full rounded-md"
                               style={{
                                 ...conteudoTextoLivreCertificado(c),
