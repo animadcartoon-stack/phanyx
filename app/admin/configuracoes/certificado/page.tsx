@@ -29,6 +29,7 @@ import { fonteDaSelecaoCertificado, fonteUnicaTextoCertificado } from "@/lib/cer
 import BancoSvgFormas from "./components/BancoSvgFormas";
 import ControleTipografiaFluido from "./components/ControleTipografiaFluido";
 import useEdicaoTextoFluida from "./components/useEdicaoTextoFluida";
+import useSelecaoArrasteCertificado from "./components/useSelecaoArrasteCertificado";
 import { marcarSelecaoTextoCertificado, recuperarSelecaoTextoCertificado, exibirSelecaoTextoCertificado } from "./components/selecaoTextoCertificado";
 import useEspacoEditor from "./components/useEspacoEditor";
 import { campoTemTextoCertificado, atualizarEstiloIntegralTexto, corInicialTextoCertificado } from "@/lib/certificados/estiloTextoCertificado";
@@ -1882,16 +1883,6 @@ export default function ConfiguracaoCertificadoPage() {
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
 
-  type CaixaSelecaoEditor = {
-    inicioX: number;
-    inicioY: number;
-    x: number;
-    y: number;
-    largura: number;
-    altura: number;
-  };
-
-  const caixaSelecaoDadosRef = useRef<CaixaSelecaoEditor | null>(null);
   const caixaSelecaoElementoRef = useRef<HTMLDivElement | null>(null);
   const [caixaSelecaoAtiva, setCaixaSelecaoAtiva] = useState(false);
 
@@ -2353,6 +2344,23 @@ export default function ConfiguracaoCertificadoPage() {
   });
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const atualizarPainelSelecaoTextoRef = useRef<(() => void) | null>(null);
+  const selecaoArraste = useSelecaoArrasteCertificado({
+    canvasRef,
+    caixaRef: caixaSelecaoElementoRef,
+    obterCampos: () => camposParaInteracaoRef.current,
+    podeIniciar: () => !modoMao && !espacoPressionado && !modoFormaLivre,
+    aoAtivar: setCaixaSelecaoAtiva,
+    aoSelecionar: (ids) => {
+      setCamposSelecionadosIds(ids);
+      setCampoSelecionadoId(ids.length ? ids[ids.length - 1] : null);
+      setPontoFormaSelecionado(null);
+    },
+    aoSelecionarTexto: (editor) => {
+      registrarSelecaoTextoLivre(editor);
+      atualizarPainelSelecaoTextoRef.current?.();
+    },
+  });
   const selecaoTextoRef = useRef<Range | null>(null);
   const [fonteSelecaoTexto, setFonteSelecaoTexto] = useState<{ campoId: number; fonte: string | null; html: string; texto: string } | null>(null);
   const registrarFonteSelecaoTexto = useCallback((editor: HTMLElement, range: Range, fonteConhecida?: string | null) => {
@@ -2393,7 +2401,7 @@ export default function ConfiguracaoCertificadoPage() {
     function salvarSelecaoTextoLivre() {
       const selecao = window.getSelection();
 
-      if (aplicandoEstiloTextoRef.current) return;
+      if (aplicandoEstiloTextoRef.current || selecaoArraste.textoEmSelecaoRef.current) return;
 
       if (!selecao || selecao.rangeCount === 0) return;
 
@@ -2464,9 +2472,11 @@ export default function ConfiguracaoCertificadoPage() {
       });
     }
 
+    atualizarPainelSelecaoTextoRef.current = salvarSelecaoTextoLivre;
     document.addEventListener("selectionchange", salvarSelecaoTextoLivre);
 
     return () => {
+      atualizarPainelSelecaoTextoRef.current = null;
       document.removeEventListener("selectionchange", salvarSelecaoTextoLivre);
     };
   }, [registrarFonteSelecaoTexto]);
@@ -3808,91 +3818,6 @@ export default function ConfiguracaoCertificadoPage() {
     }
   }
 
-  function iniciarSelecaoRetangular(e: React.MouseEvent<HTMLDivElement>) {
-    if (!canvasRef.current) return;
-    if (modoMao || espacoPressionado) return;
-
-    if (e.target !== e.currentTarget) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-
-    const x = (e.clientX - rect.left) / escala;
-    const y = (e.clientY - rect.top) / escala;
-
-    caixaSelecaoDadosRef.current = {
-      inicioX: x,
-      inicioY: y,
-      x,
-      y,
-      largura: 0,
-      altura: 0,
-    };
-
-    setCaixaSelecaoAtiva(true);
-    setCampoSelecionadoId(null);
-    setCamposSelecionadosIds([]);
-  }
-
-  function moverSelecaoRetangular(e: React.MouseEvent<HTMLDivElement>) {
-    const caixa = caixaSelecaoDadosRef.current;
-    if (!caixa || !canvasRef.current) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-
-    const atualX = (e.clientX - rect.left) / escala;
-    const atualY = (e.clientY - rect.top) / escala;
-
-    const atualizada: CaixaSelecaoEditor = {
-      ...caixa,
-      x: Math.min(caixa.inicioX, atualX),
-      y: Math.min(caixa.inicioY, atualY),
-      largura: Math.abs(atualX - caixa.inicioX),
-      altura: Math.abs(atualY - caixa.inicioY),
-    };
-
-    caixaSelecaoDadosRef.current = atualizada;
-
-    const elemento = caixaSelecaoElementoRef.current;
-    if (elemento) {
-      elemento.style.left = `${atualizada.x}px`;
-      elemento.style.top = `${atualizada.y}px`;
-      elemento.style.width = `${atualizada.largura}px`;
-      elemento.style.height = `${atualizada.altura}px`;
-    }
-  }
-
-  function finalizarSelecaoRetangular() {
-    const box = caixaSelecaoDadosRef.current;
-    if (!box) return;
-
-    caixaSelecaoDadosRef.current = null;
-    setCaixaSelecaoAtiva(false);
-
-    if (box.largura < 8 || box.altura < 8) {
-      return;
-    }
-
-    const ids = campos
-      .filter((campo) => {
-        const campoX = campo.x;
-        const campoY = campo.y;
-        const campoLargura = campo.largura || 120;
-        const campoAltura = campo.altura || 40;
-
-        const encostaHorizontal =
-          campoX < box.x + box.largura && campoX + campoLargura > box.x;
-
-        const encostaVertical =
-          campoY < box.y + box.altura && campoY + campoAltura > box.y;
-
-        return encostaHorizontal && encostaVertical;
-      })
-      .map((campo) => campo.id);
-
-    setCamposSelecionadosIds(ids);
-    setCampoSelecionadoId(ids.length ? ids[ids.length - 1] : null);
-  }
-
   function iniciarArrastoCanvas(e: React.MouseEvent<HTMLDivElement>) {
     const maoAtiva = modoMao || espacoPressionado;
     if (!maoAtiva || !stageRef.current) return;
@@ -4864,6 +4789,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   function idsDoCampoOuGrupo(campo: CampoCertificado) {
+    if ((campo as any).idOriginalArray) campo = campos.find(item => item.id === (campo as any).idOriginalArray) || campo;
     if (campo?.grupoId) {
       return campos
         .filter((item) => item.grupoId === campo.grupoId)
@@ -4881,6 +4807,11 @@ export default function ConfiguracaoCertificadoPage() {
 
     if (event.button === 2) return;
 
+    if ((campo as any).idOriginalArray) {
+      const original = campos.find(item => item.id === (campo as any).idOriginalArray);
+      if (!original) return;
+      campo = original;
+    }
     const idsDoCampo = idsDoCampoOuGrupo(campo);
 
     setCampoSelecionadoId(campo.id);
@@ -7436,6 +7367,8 @@ export default function ConfiguracaoCertificadoPage() {
                           return {
                             ...campo,
                             id: criarIdElementoCertificado(),
+                            idOriginalArray: campo.id,
+                            arrayVirtual: true,
                             arrayPreview: true,
                             x: Number(campo.x || 0) + deslocamentoX,
                             y: Number(campo.y || 0) + deslocamentoY,
@@ -7507,6 +7440,7 @@ export default function ConfiguracaoCertificadoPage() {
     salvarHistoricoTextoLivre: typeof salvarHistoricoTextoLivre;
     selecaoTextoRef: typeof selecaoTextoRef;
     previaEstiloTextoRef: typeof previaEstiloTextoRef;
+    selecaoArraste: typeof selecaoArraste;
     previaPropriedadeRef: typeof previaPropriedadeRef;
     aplicandoEstiloTextoRef: typeof aplicandoEstiloTextoRef;
     edicaoTextoFluida: typeof edicaoTextoFluida;
@@ -7703,7 +7637,7 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   // Elementos inalterados conservam a arvore; eventos consultam o contexto atual.
-  contextoEventosCenaRef.current = { previaEstiloTextoRef, previaPropriedadeRef, aplicandoEstiloTextoRef, edicaoTextoFluida, registrarSelecaoTextoLivre, limparSelecaoTextoLivre, iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
+  contextoEventosCenaRef.current = { selecaoArraste, previaEstiloTextoRef, previaPropriedadeRef, aplicandoEstiloTextoRef, edicaoTextoFluida, registrarSelecaoTextoLivre, limparSelecaoTextoLivre, iniciarRedimensionamentoVariavel, definirVisibilidadeDaCena, atualizarCampo, atualizarCampoLocal, atualizarFormaNoCanvas, atualizarTextoLivreNoEstado, camadaArrastandoId, camadasOrdenadas, campoSelecionadoId, camposSelecionadosIds, cssColorToHex, desfazerTextoLivre, ehTextoPlaceholderPadrao, escala, excluirCampo, hexToRgb, idsDoCampoOuGrupo, iniciarCrop, iniciarCropPro, iniciarCropTodos, iniciarDrag, iniciarRedimensionamentoForma, iniciarRedimensionamentoImagemRotacionada, iniciarRotacao, inserirTextoNoCursor, nomeCamadaEditando, nomeDaCamada, obterTextoAntesDoCursor, refazerTextoLivre, reordenarCamada, salvarHistoricoTextoLivre, selecaoTextoRef, selecionarCampoNoCanvas, selecionarPontosNoCanvas, setCamadaArrastandoId, setCamadaRenomeandoId, setCampoSelecionadoId, setCampos, setCamposSelecionadosIds, setCorAtual, setCorTextoSelecionado, setEditorCorGradiente, setMenuCamada, setMenuContexto, setMenuPontoGradiente, setNomeCamadaEditando, setPontoFormaSelecionado, setShapeInspectorAberto, tr };
   renderizarElementoCenaRef.current = (c) => {
                       if (elementoOculto(c)) return null;
                       if (c.tipo === "IMAGEM") {
@@ -7938,6 +7872,7 @@ export default function ConfiguracaoCertificadoPage() {
                           <div
                             key={c.id}
                             data-campo-certificado-id={c.id}
+                            data-campo-selecao-id={(c as any).idOriginalArray || c.id}
                             onMouseDown={(event) =>
                               contextoEventosCenaRef.current.selecionarCampoNoCanvas(event, c)
                             }
@@ -7949,7 +7884,7 @@ export default function ConfiguracaoCertificadoPage() {
                               const clicouEmItemJaSelecionado =
                                 contextoEventosCenaRef.current.camposSelecionadosIds.includes(c.id);
 
-                              contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                              contextoEventosCenaRef.current.setCampoSelecionadoId((c as any).idOriginalArray || c.id);
                               // O menu da mesma forma preserva os pontos selecionados.
                               contextoEventosCenaRef.current.setPontoFormaSelecionado((anterior) => anterior?.campoId === c.id ? anterior : null);
                               contextoEventosCenaRef.current.setShapeInspectorAberto(false);
@@ -7961,11 +7896,11 @@ export default function ConfiguracaoCertificadoPage() {
                               contextoEventosCenaRef.current.setMenuContexto({
                                 x: e.clientX,
                                 y: e.clientY,
-                                campoId: c.id,
+                                campoId: (c as any).idOriginalArray || c.id,
                               });
                             }}
-                            className={`absolute z-20 select-none overflow-visible ${(c as any).arrayPreview
-                              ? "pointer-events-none opacity-60"
+                            className={`absolute z-20 select-none overflow-visible ${(c as any).arrayPreview && !(c as any).arrayVirtual
+                              ? "pointer-events-none [&_*]:!pointer-events-none opacity-60"
                               : ""
                               }`}
                             style={{
@@ -7978,7 +7913,7 @@ export default function ConfiguracaoCertificadoPage() {
                               zIndex: (c as any).arrayPreview
                                 ? 1
                                 : c.ordem || 5,
-                              pointerEvents: c.bloqueado ? "none" : "auto",
+                              pointerEvents: c.bloqueado || ((c as any).arrayPreview && !(c as any).arrayVirtual) ? "none" : "auto",
                               transform: `
   rotate(${(c as any).rotate || 0}deg)
   scaleX(${(c as any).flipX ? -1 : 1})
@@ -8449,8 +8384,10 @@ export default function ConfiguracaoCertificadoPage() {
                                 contextoEventosCenaRef.current.edicaoTextoFluida.confirmar();
                                 contextoEventosCenaRef.current.aplicandoEstiloTextoRef.current = false;
 
-                                contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
-                                contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                                if (e.button !== 0) return;
+                                if (contextoEventosCenaRef.current.campoSelecionadoId !== c.id) contextoEventosCenaRef.current.setCampoSelecionadoId(c.id);
+                                if (contextoEventosCenaRef.current.camposSelecionadosIds.length !== 1 || contextoEventosCenaRef.current.camposSelecionadosIds[0] !== c.id) contextoEventosCenaRef.current.setCamposSelecionadosIds([c.id]);
+                                contextoEventosCenaRef.current.selecaoArraste.iniciarTexto(e.currentTarget);
 
                                 const alvo = e.target as HTMLElement;
 
@@ -8694,7 +8631,7 @@ export default function ConfiguracaoCertificadoPage() {
                               style={{
                                 ...conteudoTextoLivreCertificado(c),
                                 outline: selecionadoTexto ? "1px solid #2563eb" : "1px solid rgba(96, 165, 250, .6)",
-                                cursor: "text", caretColor: c.cor || "#1e3a8a",
+                                cursor: "text", userSelect: "text", WebkitUserSelect: "text", caretColor: c.cor || "#1e3a8a",
                               }}
                             ></div>)}
 
@@ -11684,6 +11621,10 @@ export default function ConfiguracaoCertificadoPage() {
             <div
               ref={stageRef}
               onMouseDown={(e) => {
+                if (!modoMao && !espacoPressionado && !modoFormaLivre && e.target === e.currentTarget) {
+                  selecaoArraste.iniciar(e);
+                  return;
+                }
                 if (e.target === e.currentTarget) {
                   setCamposSelecionadosIds([]);
                   setCampoSelecionadoId(null);
@@ -11718,6 +11659,7 @@ export default function ConfiguracaoCertificadoPage() {
                   ref={canvasRef}
                   data-certificado-papel="true"
                   data-cert-canvas="true"
+                  tabIndex={-1}
                   onMouseDownCapture={(e) => {
                     if (modoFormaLivre) { clicarFormaLivreNoCanvas(e); return; }
                     iniciarSelecaoPontos(e);
@@ -11726,19 +11668,19 @@ export default function ConfiguracaoCertificadoPage() {
                   onMouseDown={(e) => {
                     if (modoFormaLivre) return;
 
-                    iniciarSelecaoRetangular(e);
+                    selecaoArraste.iniciar(e);
                   }}
                   onMouseMove={(e) => {
-                    moverSelecaoRetangular(e);
-                    onMouseMoveCanvas(e);
+                    if (!selecaoArraste.ativaRef.current) onMouseMoveCanvas(e);
                   }}
                   onMouseUp={() => {
-                    finalizarSelecaoRetangular();
-                    finalizarDrag();
+                    if (!selecaoArraste.ativaRef.current) finalizarDrag();
                   }}
                   onMouseLeave={() => {
-                    finalizarSelecaoRetangular();
-                    finalizarDrag();
+                    if (!selecaoArraste.ativaRef.current) finalizarDrag();
+                  }}
+                  onDragStartCapture={(e) => {
+                    if (!(e.target as Element).closest("[data-texto-livre-id]")) e.preventDefault();
                   }}
 
                   className="absolute left-0 top-0 overflow-visible outline outline-1 outline-dashed outline-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
