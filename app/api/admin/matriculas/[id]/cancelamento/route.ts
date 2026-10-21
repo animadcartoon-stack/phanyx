@@ -575,7 +575,7 @@ export async function GET(
       ? recuperarCancelamentoLegado(matricula, await prisma.documentoGerado.findFirst({
           where: { instituicaoId: user.instituicaoId, matriculaId,
             contexto: "CANCELAMENTO_MATRICULA", status: { in: ["GERADO", "ASSINADO"] } },
-          orderBy: [{ criadoEm: "asc" }, { id: "asc" }],
+          orderBy: [{ criadoEm: "desc" }, { id: "desc" }],
           select: { id: true, criadoEm: true, dadosPreenchimento: true },
         }))
       : null;

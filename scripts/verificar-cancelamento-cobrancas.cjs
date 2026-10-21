@@ -53,7 +53,14 @@ async function teste(nome, fn) { await fn(); total++; console.log(`OK ${nome}`);
     const api = carregar(cancelarRota, {
       matricula: { findFirst: async q => { assert.equal(q.where.instituicaoId, 7); return { status: "CANCELADA", canceladaEm: null, motivoCancelamento: null }; } },
       cancelamentoMatricula: { findMany: async () => [] },
-      documentoGerado: { findFirst: async q => { filtro = q.where; return { id: 252, criadoEm: new Date(), dadosPreenchimento: { dataEfetivaCancelamentoMatricula: "2026-10-08" } }; } },
+      documentoGerado: { findFirst: async q => {
+        filtro = q.where;
+        // Há uma versão de 06/10 e outra de 08/10: a consulta deve priorizar a revisão mais recente.
+        assert.equal(q.orderBy[0].criadoEm, "desc");
+        assert.equal(q.orderBy[1].id, "desc");
+        return { id: 252, criadoEm: new Date("2026-10-08T20:03:52Z"),
+          dadosPreenchimento: { dataSolicitacaoCancelamentoMatricula: "2026-10-06", dataEfetivaCancelamentoMatricula: "2026-10-08" } };
+      } },
     });
     const r = await api.GET(request({}), { params: { id: "37" } });
     assert.equal(r.status, 200); assert.equal(r.body.legado.dataEfetiva, "2026-10-08");
