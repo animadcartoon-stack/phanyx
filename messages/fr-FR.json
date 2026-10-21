@@ -10070,6 +10070,7 @@
       "DISCIPLINAS_CONCLUIDAS": "Matières terminées",
       "CARGA_HORARIA": "Volume horaire",
       "ANO_CONCLUSAO": "Année d’achèvement",
+      "DATA_INICIO_CURSO": "Date de début du cours",
       "DATA_CONCLUSAO": "Date d’achèvement",
       "APROVEITAMENTO": "Résultat",
       "FREQUENCIA_TOTAL": "Assiduité totale",
@@ -15861,6 +15862,11 @@
     }
   },
   "AdminMatriculasQuarentena": {
+    "courseStart": {
+      "label": "Date de début du cours (facultative)",
+      "help": "Indiquez la date de la première leçon de cet élève dans ce cours. Vous pouvez laisser ce champ vide et le renseigner plus tard, y compris pour les cours enregistrés. Sans date, la variable du certificat reste vide.",
+      "invalid": "Indiquez une date de début du cours valide."
+    },
     "bolsaEstudos": "Bourse d'études (%)",
     "bolsaAjuda": "Indiquez un pourcentage de 0 à 100.",
     "valorAposBolsa": "Montant mensuel après bourse",

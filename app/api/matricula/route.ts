@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { validarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
 import { NextResponse } from "next/server";
 import {
   getUserFromToken,
@@ -614,6 +615,7 @@ type MatriculaBody = {
   semestre?: number | string;
   periodoLetivo?: string;
   modalidade?: string;
+  dataInicioCurso?: string | null;
 
   turmaPrincipalId?: number | string | null;
 
@@ -1650,6 +1652,11 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as MatriculaBody;
+    const inicioCurso = validarDataInicioCurso(body.dataInicioCurso);
+    if (!inicioCurso.valida) {
+      return NextResponse.json({ error: "DATA_INICIO_CURSO_INVALIDA" }, { status: 400 });
+    }
+
 
     const leadIdValor =
       body.leadId;
@@ -2797,6 +2804,7 @@ export async function POST(request: Request) {
           const matriculaCriada =
             await tx.matricula.create({
               data: {
+                dataInicioCurso: inicioCurso.data,
                 alunoId,
 
                 turmaPrincipalId:
@@ -3806,6 +3814,11 @@ export async function PUT(request: Request) {
     }
 
     const body = (await request.json()) as MatriculaBody;
+    const inicioCurso = validarDataInicioCurso(body.dataInicioCurso);
+    if (!inicioCurso.valida) {
+      return NextResponse.json({ error: "DATA_INICIO_CURSO_INVALIDA" }, { status: 400 });
+    }
+
 
     const vendedorFoiInformado =
       Object.prototype.hasOwnProperty.call(
@@ -4631,6 +4644,7 @@ export async function PUT(request: Request) {
           data: {
             alunoId: alunoIdFinal,
             cursoId: cursoIdFinal,
+            dataInicioCurso: inicioCurso.data,
 
             tipoContratacao:
               tipoContratacaoFoiInformado &&

@@ -90,6 +90,7 @@ export type DadosCertificadoRender = {
   cargaHoraria?: string | null;
   anoConclusao?: string | number | null;
   dataConclusao?: string | null;
+  dataInicioCurso?: string | null;
   aproveitamento?: string | null;
   frequenciaTotal?: string | null;
   modalidade?: string | null;
@@ -264,6 +265,8 @@ export function resolverTextoCampo(
       return dados.cargaHoraria || "120 horas";
     case "ANO_CONCLUSAO":
       return dados.anoConclusao || "2026";
+    case "DATA_INICIO_CURSO":
+      return dados.dataInicioCurso || "";
     case "DATA_CONCLUSAO":
       return dados.dataConclusao || "30/04/2026";
     case "APROVEITAMENTO":

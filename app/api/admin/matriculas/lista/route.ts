@@ -131,6 +131,7 @@ export async function GET(request: Request) {
           motivoExclusao: true,
           periodoLetivo: true,
           modalidade: true,
+          dataInicioCurso: true,
           semestre: true,
           valorMatricula: true,
           valorMensalidade: true,

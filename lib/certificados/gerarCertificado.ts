@@ -1,3 +1,4 @@
+import { formatarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
 import {
   PDFDocument,
   StandardFonts,
@@ -56,6 +57,7 @@ type DadosCertificado = {
   nomeCurso: string;
   nomeInstituicao: string;
   dataConclusao: Date | string;
+  dataInicioCurso?: Date | string | null;
   codigoValidacao: string;
 
   numeroMatricula?: string | null;
@@ -248,6 +250,9 @@ function resolverTextoCampo(campo: CampoCertificadoPdf, dados: DadosCertificado)
 
     case "ANO_CONCLUSAO":
       return dados.anoConclusao || String(new Date(dados.dataConclusao).getFullYear());
+
+    case "DATA_INICIO_CURSO":
+      return formatarDataInicioCurso(dados.dataInicioCurso);
 
     case "DATA_CONCLUSAO":
     case "DATA_EMISSAO":
