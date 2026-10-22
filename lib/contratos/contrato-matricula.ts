@@ -1,3 +1,5 @@
+import { anexarResumoModalidades } from "./resumo-modalidades";
+import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { prisma } from "@/lib/prisma";
 import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
 import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
@@ -282,7 +284,7 @@ export async function montarContratoMatricula(
     );
 
   const cursoNome =
-    matricula.curso?.nome?.trim() ||
+    nomeContratacaoModalidades(matricula.contratacaoModalidades) || matricula.curso?.nome?.trim() ||
     "Curso não informado";
 
   const disciplinasTexto =
@@ -665,11 +667,13 @@ E por estarem de pleno acordo, firmam o presente contrato.
     blocoAssinaturaDiretor: "",
   };
 
-  const conteudo =
+  const conteudoBase =
     replaceDocumentTags(
       template,
       valores
     );
+
+  const conteudo = await anexarResumoModalidades(conteudoBase, matricula.contratacaoModalidades);
 
   return {
     matricula,

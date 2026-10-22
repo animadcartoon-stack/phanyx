@@ -1,5 +1,7 @@
 "use client";
 
+import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
+
 import Link from "next/link";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -98,6 +100,7 @@ type CursoSemestreOption = {
 };
 
 type MatriculaApi = {
+  contratacaoModalidades?: unknown;
   id: number;
   status?: string;
   excluidaEm?: string | null;
@@ -263,6 +266,7 @@ function AdminMatriculasPage() {
   const searchParams = useSearchParams();
   const t = useTranslations("AdminMatriculasQuarentena");
   const locale = useLocale();
+  const tc = useTranslations("EnrollmentCombos");
   const [busca, setBusca] = useState("");
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
@@ -2181,6 +2185,7 @@ function AdminMatriculasPage() {
   async function abrirEdicao(
     matricula: MatriculaApi
   ) {
+    if (matricula.contratacaoModalidades) { setErro(tc("comboEditHelp")); return; }
     const cursoIdAtual =
       matricula.curso?.id
         ? String(
@@ -3565,6 +3570,7 @@ function AdminMatriculasPage() {
       )}
       <div className="matriculas-form-light-fix bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
+        <Link href="/admin/matriculas/modalidades" className="mt-3 inline-block rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">{tc("enroll")}</Link>
         <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
           Selecione aluno, curso, semestre estruturado e as turmas que ele vai
           cursar.
@@ -4651,7 +4657,7 @@ function AdminMatriculasPage() {
               <tbody>
                 {matriculasFiltradas.map((m) => {
                   const alunoNome = m.aluno?.nome ?? "Aluno";
-                  const cursoNome = m.curso?.nome ?? "Curso";
+                  const cursoNome = nomeContratacaoModalidades(m.contratacaoModalidades) || m.curso?.nome || "Curso";
                   const itens = Array.isArray(m.itens) ? m.itens : [];
                   const expandida = matriculaExpandidaId === m.id;
 
