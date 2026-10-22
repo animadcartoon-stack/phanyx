@@ -1,8 +1,9 @@
+import { incluirGradeOferta } from "@/lib/academico/integridade-ofertas";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
-export async function GET() {
+export async function GET(request?: Request) {
   const user = await getUserFromToken();
 
   if (!user) {
@@ -13,6 +14,8 @@ export async function GET() {
     where: {
       instituicaoId: user.instituicaoId,
     },
+    include: request && new URL(request.url).searchParams.get("gradeOferta") === "1"
+      ? incluirGradeOferta(user.instituicaoId) : undefined,
     orderBy: {
       nome: "asc",
     },

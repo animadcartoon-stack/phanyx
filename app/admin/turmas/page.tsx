@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { disciplinaPermitidaNaOferta, mesmaEtapaOferta, numeroSemestreOferta, type CursoGradeOferta } from "@/lib/academico/grade-oferta";
 import withAuth from "@/components/auth/withAuth";
 
 interface Curso {
+  semestres?: CursoGradeOferta["semestres"];
   id: number;
   nome: string;
   codigo?: string | null;
@@ -88,6 +90,7 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 function AdminTurmasPage() {
   const t = useTranslations("AdminOperations");
   const locale = useLocale();
+  const tIntegridade = useTranslations("AcademicIntegrity");
   const searchParams = useSearchParams();
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -225,7 +228,7 @@ function AdminTurmasPage() {
   }
 
   async function carregarCursos() {
-    const res = await fetch("/api/curso", {
+    const res = await fetch("/api/curso?gradeOferta=1", {
       credentials: "include",
     });
 
@@ -273,7 +276,7 @@ function AdminTurmasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error((locale.startsWith("pt") ? (data.detalhe || data.error || t("classesCreateError")) : t("classesCreateError")));
+        throw new Error(data.codigo && tIntegridade.has(data.codigo) ? tIntegridade(data.codigo) : (locale.startsWith("pt") ? (data.detalhe || data.error || t("classesCreateError")) : t("classesCreateError")));
       }
 
       setNome("");
@@ -472,7 +475,7 @@ function AdminTurmasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error((locale.startsWith("pt") ? (data.error || t("classesUpdateError")) : t("classesUpdateError")));
+        throw new Error(data.codigo && tIntegridade.has(data.codigo) ? tIntegridade(data.codigo) : (locale.startsWith("pt") ? (data.error || t("classesUpdateError")) : t("classesUpdateError")));
       }
 
       setEditandoId(null);
@@ -579,17 +582,6 @@ function AdminTurmasPage() {
       : [];
 
     return habilitados.length > 0 ? habilitados : professores;
-  }
-
-  function numeroSemestre(valor: string) {
-    const texto = String(valor || "").trim();
-
-    if (!texto) return null;
-
-    const primeiroNumero = texto.match(/\d+/)?.[0];
-    const numero = primeiroNumero ? Number(primeiroNumero) : null;
-
-    return Number.isFinite(numero) ? numero : null;
   }
 
   const SINONIMOS_DISCIPLINAS: Record<
@@ -904,39 +896,12 @@ function AdminTurmasPage() {
 
   const disciplinasBaseCriacao =
     useMemo(() => {
-      const cursoSelecionado =
-        cursoId
-          ? Number(cursoId)
-          : null;
-
-      const semestreSelecionado =
-        numeroSemestre(semestre);
-
-      return disciplinas.filter(
-        (disciplina) => {
-          const mesmoCurso =
-            !cursoSelecionado ||
-            Number(
-              disciplina.cursoId,
-            ) === cursoSelecionado;
-
-          const mesmoSemestre =
-            !semestreSelecionado ||
-            Number(
-              disciplina.semestre,
-            ) === semestreSelecionado;
-
-          return (
-            mesmoCurso &&
-            mesmoSemestre
-          );
-        },
-      );
-    }, [
-      disciplinas,
-      cursoId,
-      semestre,
-    ]);
+      const curso = cursos.find(c => c.id === Number(cursoId));
+      if (!curso) return [];
+      return disciplinas.filter(disciplina => disciplinaPermitidaNaOferta(
+        disciplina, { id: curso.id, semestres: curso.semestres || [] }, numeroSemestreOferta(semestre),
+      ));
+    }, [disciplinas, cursos, cursoId, semestre]);
 
   const disciplinasFiltradas =
     useMemo(
@@ -965,50 +930,15 @@ function AdminTurmasPage() {
 
   const disciplinasBaseEdicao =
     useMemo(() => {
-      const cursoSelecionado =
-        turmaEmEdicao?.cursoId
-          ? Number(
-            turmaEmEdicao.cursoId,
-          )
-          : null;
-
-      const semestreSelecionado =
-        numeroSemestre(
-          editSemestre,
-        );
-
-      return disciplinas.filter(
-        (disciplina) => {
-          const jaSelecionada =
-            editDisciplinasSelecionadas.includes(
-              disciplina.id,
-            );
-
-          const mesmoCurso =
-            !cursoSelecionado ||
-            Number(
-              disciplina.cursoId,
-            ) === cursoSelecionado;
-
-          const mesmoSemestre =
-            !semestreSelecionado ||
-            Number(
-              disciplina.semestre,
-            ) === semestreSelecionado;
-
-          return (
-            jaSelecionada ||
-            (mesmoCurso &&
-              mesmoSemestre)
-          );
-        },
+      const curso = cursos.find(c => c.id === turmaEmEdicao?.cursoId);
+      const mesmaEtapa = mesmaEtapaOferta(editSemestre, turmaEmEdicao?.semestre);
+      const idsHistoricos = new Set((turmaEmEdicao?.disciplinas || []).map(d => d.id));
+      return disciplinas.filter(disciplina =>
+        (mesmaEtapa && idsHistoricos.has(disciplina.id)) ||
+        disciplinaPermitidaNaOferta(disciplina, curso ? { id: curso.id, semestres: curso.semestres || [] } : null,
+          numeroSemestreOferta(editSemestre)),
       );
-    }, [
-      disciplinas,
-      turmaEmEdicao,
-      editSemestre,
-      editDisciplinasSelecionadas,
-    ]);
+    }, [disciplinas, cursos, turmaEmEdicao, editSemestre]);
 
   const editDisciplinasFiltradas =
     useMemo(

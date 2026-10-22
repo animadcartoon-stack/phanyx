@@ -25,6 +25,7 @@ const prisma={
 };
 const loader=Module._load;
 Module._load=function(req,parent,isMain){
+ if(req.startsWith("@/lib/academico/"))return {};
  if(req==='@/lib/prisma')return {prisma};
  if(req==='@/lib/server-auth')return {getUserFromToken:async()=>usuario,isAdminLike:role=>role==='ADMIN'};
  if(req==='next/headers')return {cookies:async()=>({get:()=>usuario?{value:'token-ficticio'}:undefined})};

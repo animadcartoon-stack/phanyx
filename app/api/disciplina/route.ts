@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { getUserFromToken } from "@/lib/server-auth";
+import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import { sincronizarPublicacoesAtivasDoCurso } from "@/lib/publicacao-cursos-rede";
 
 
@@ -16,7 +16,7 @@ export async function GET() {
       );
     }
 
-    if (user.role !== "ADMIN" && user.role !== "PROFESSOR") {
+    if (!isAdminLike(user.role) && user.role !== "PROFESSOR") {
       return NextResponse.json(
         { error: "Sem permissão" },
         { status: 403 }
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (user.role !== "ADMIN") {
+    if (!isAdminLike(user.role)) {
       return NextResponse.json(
         { error: "Sem permissão" },
         { status: 403 }
