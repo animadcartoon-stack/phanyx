@@ -211,13 +211,17 @@ export async function POST(req: Request) {
       body.descricao ?? ""
     ).trim();
 
-    const quantidadeSemestres =
+    const quantidadeSemestresInformada =
       body.quantidadeSemestres !== null &&
         body.quantidadeSemestres !==
         undefined &&
         body.quantidadeSemestres !== ""
         ? Number(body.quantidadeSemestres)
         : null;
+
+    // Zero representa curso sem organização por semestres, como o campo vazio.
+    const quantidadeSemestres =
+      quantidadeSemestresInformada === 0 ? null : quantidadeSemestresInformada;
 
     const valorMatricula =
       body.valorMatricula !== null &&
@@ -262,7 +266,8 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            "A quantidade de semestres deve ser um número inteiro maior que zero.",
+            "Informe uma quantidade inteira de semestres ou use 0 para cursos sem semestres.",
+          codigo: "SEMESTRES_INVALIDOS",
         },
         { status: 400 }
       );
@@ -854,7 +859,7 @@ export async function PUT(req: Request) {
         ).trim() || null
         : cursoExistente.descricao;
 
-    const quantidadeSemestres =
+    const quantidadeSemestresInformada =
       body.quantidadeSemestres !== null &&
         body.quantidadeSemestres !==
         undefined &&
@@ -863,6 +868,10 @@ export async function PUT(req: Request) {
           body.quantidadeSemestres
         )
         : null;
+
+    // Zero representa curso sem organização por semestres, como o campo vazio.
+    const quantidadeSemestres =
+      quantidadeSemestresInformada === 0 ? null : quantidadeSemestresInformada;
 
     const valorMatricula =
       body.valorMatricula !== null &&
@@ -1018,7 +1027,8 @@ export async function PUT(req: Request) {
       return NextResponse.json(
         {
           error:
-            "A quantidade de semestres deve ser um número inteiro maior que zero.",
+            "Informe uma quantidade inteira de semestres ou use 0 para cursos sem semestres.",
+          codigo: "SEMESTRES_INVALIDOS",
         },
         { status: 400 }
       );

@@ -11449,6 +11449,7 @@
       "courseForm": {
         "namePlaceholder": "Course name",
         "semestersCount": "Number of course semesters",
+        "semestersHelp": "For courses without semesters, enter 0 or leave blank.",
         "activeCourse": "Active course",
         "descriptionPlaceholder": "Course description",
         "saveLocalValues": "Save local values",
@@ -11506,6 +11507,7 @@
       "loadPoles": "Unable to load campuses.",
       "updateCoursePoles": "Unable to update the course campuses.",
       "createCourse": "Unable to create the course.",
+      "SEMESTRES_INVALIDOS": "Enter a whole number of semesters, or use 0 for courses without semesters.",
       "deleteCourse": "Unable to delete the course.",
       "restoreCourse": "Unable to restore the course.",
       "couldNotSave": "Unable to save",
