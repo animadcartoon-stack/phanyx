@@ -109,10 +109,9 @@ export default function AdminShell({
       else localStorage.setItem(chaveAtividade, String(ultimaAtividadeLocal));
     } catch {}
     let ultimaGravacao = 0;
-    const lerAtividade = () => {
-      try { return Math.max(ultimaAtividadeLocal, Number(localStorage.getItem(chaveAtividade) || 0)); }
-      catch { return ultimaAtividadeLocal; }
-    };
+    // Mouse/scroll events must stay in memory. Read shared activity once at
+    // startup; other tabs deliver changes through the storage event.
+    const lerAtividade = () => ultimaAtividadeLocal;
     const resetTimer = () => {
       clearTimeout(timeout);
       const restante = Math.max(0, tempoInatividade - (Date.now() - lerAtividade()));
@@ -146,17 +145,25 @@ export default function AdminShell({
         try { localStorage.setItem(chaveAtividade, String(ultimaAtividadeLocal)); } catch {}
         ultimaGravacao = ultimaAtividadeLocal;
       }
-      resetTimer();
+      // The pending deadline checks the latest timestamp before expiring.
+      // No synchronous storage read or timer allocation for each pointer event.
     };
-    const sincronizarAtividade = (evento: StorageEvent) => { if (evento.key === chaveAtividade) resetTimer(); };
+    const sincronizarAtividade = (evento: StorageEvent) => {
+      if (evento.key !== chaveAtividade) return;
+      const recebida = Number(evento.newValue || 0);
+      if (Number.isFinite(recebida) && recebida > 0 && recebida <= Date.now()) {
+        ultimaAtividadeLocal = Math.max(ultimaAtividadeLocal, recebida);
+      }
+    };
     // Trabalhar no editor nao prolonga o acesso as outras telas do Admin.
     if (!editorCertificadoAberto) {
-      window.addEventListener("mousemove", registrarAtividade);
+      window.addEventListener("mousemove", registrarAtividade, { passive: true });
       window.addEventListener("keydown", registrarAtividade);
       window.addEventListener("click", registrarAtividade);
-      window.addEventListener("scroll", registrarAtividade);
+      window.addEventListener("scroll", registrarAtividade, { passive: true });
       registrarAtividade();
-    } else resetTimer();
+    }
+    resetTimer();
     window.addEventListener("storage", sincronizarAtividade);
     return () => {
       ativo = false; controle.abort(); clearTimeout(timeout); clearTimeout(redirecionamento);
