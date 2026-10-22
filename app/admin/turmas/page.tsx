@@ -196,49 +196,20 @@ function AdminTurmasPage() {
     setFeedback(mensagem);
   }
 
-  async function carregarTurmas() {
-    const res = await fetch("/api/turma", {
-      credentials: "include",
+  async function carregarTurmas(somenteTurmas = true, signal?: AbortSignal) {
+    const res = await fetch(`/api/admin/turmas/painel${somenteTurmas ? "?somenteTurmas=1" : ""}`, {
+      credentials: "include", cache: "no-store", signal,
     });
-
+    if (!res.ok) throw new Error(t("classesLoadError"));
     const data = await res.json();
-    setTurmas(Array.isArray(data) ? data : []);
-  }
-
-  async function carregarDisciplinas() {
-    const res = await fetch("/api/disciplina", {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setDisciplinas(Array.isArray(data) ? data : []);
-  }
-
-  async function carregarPolos() {
-    const res = await fetch("/api/admin/polos", {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setPolos(Array.isArray(data) ? data : []);
-  }
-
-  async function carregarProfessores() {
-    const res = await fetch("/api/professor", {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setProfessores(Array.isArray(data) ? data : []);
-  }
-
-  async function carregarCursos() {
-    const res = await fetch("/api/curso?gradeOferta=1", {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setCursos(Array.isArray(data) ? data : []);
+    if (signal?.aborted) return;
+    setTurmas(Array.isArray(data.turmas) ? data.turmas : []);
+    if (!somenteTurmas) {
+      setCursos(Array.isArray(data.cursos) ? data.cursos : []);
+      setDisciplinas(Array.isArray(data.disciplinas) ? data.disciplinas : []);
+      setProfessores(Array.isArray(data.professores) ? data.professores : []);
+      setPolos(Array.isArray(data.polos) ? data.polos : []);
+    }
   }
 
   async function criarTurma(e: React.FormEvent) {
@@ -523,11 +494,11 @@ function AdminTurmasPage() {
   }
 
   useEffect(() => {
-    carregarTurmas();
-    carregarDisciplinas();
-    carregarPolos();
-    carregarCursos();
-    carregarProfessores();
+    const controller = new AbortController();
+    void carregarTurmas(false, controller.signal).catch(error => {
+      if (error?.name !== "AbortError") mostrarFeedback("erro", t("classesLoadError"));
+    });
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
