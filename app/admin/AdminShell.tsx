@@ -21,26 +21,7 @@ const ChatGlobalWidget = dynamic(
 
 // PERFORMANCE PHANYX - ADMIN FASE 1
 
-type BibliotecaOperadorMenu = {
-  id: number;
-  ativo: boolean;
-
-  podeCatalogar: boolean;
-  podePublicar: boolean;
-  podeArquivar: boolean;
-  podeGerenciarEmprestimo: boolean;
-  podeGerenciarReserva: boolean;
-  podeGerenciarColecao: boolean;
-  podeGerenciarLicenca: boolean;
-  podeGerenciarOperador: boolean;
-  podeVisualizarRelatorio: boolean;
-  podeGerenciarConfiguracao: boolean;
-};
-
-type BibliotecaAcessoMenu = {
-  disponivel?: boolean;
-  operador?: BibliotecaOperadorMenu | null;
-};
+import { AtualizarAcessoBibliotecaContext, type BibliotecaAcessoMenu } from "@/components/biblioteca/ContextoAcessoBibliotecaAdmin";
 
 type UsuarioLogado = {
   id?: number;
@@ -444,10 +425,12 @@ export default function AdminShell({
               })
             : Promise.resolve(null),
 
-          fetch("/api/admin/biblioteca/acesso", {
-            cache: "no-store",
-            credentials: "include",
-          }),
+          window.location.pathname.startsWith("/admin/biblioteca")
+            ? Promise.resolve(null)
+            : fetch("/api/admin/biblioteca/acesso", {
+                cache: "no-store",
+                credentials: "include",
+              }),
         ]);
 
         if (resUsuario && !resUsuario.ok) {
@@ -473,14 +456,14 @@ export default function AdminShell({
           setPermissoes([]);
         }
 
-        if (resBiblioteca.ok) {
+        if (resBiblioteca?.ok) {
           const bibliotecaData =
             await resBiblioteca.json();
 
           setAcessoBiblioteca(
             bibliotecaData ?? null,
           );
-        } else {
+        } else if (resBiblioteca) {
           setAcessoBiblioteca(null);
         }
       } catch {
@@ -804,72 +787,90 @@ export default function AdminShell({
       ));
 
   const podeVerAcervoBiblioteca =
-    podeAcessar(
-      "biblioteca.catalogo.ver",
-    ) ||
-    Boolean(
-      operadorBiblioteca,
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.catalogo.ver",
+      ) ||
+      Boolean(
+        operadorBiblioteca,
+      )
     );
 
   const podeGerenciarEmprestimosBiblioteca =
-    podeAcessar(
-      "biblioteca.emprestimos.gerenciar",
-    ) ||
-    operadorBiblioteca
-      ?.podeGerenciarEmprestimo ===
-      true;
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.emprestimos.gerenciar",
+      ) ||
+      operadorBiblioteca
+        ?.podeGerenciarEmprestimo ===
+        true
+    );
 
   const podeGerenciarReservasBiblioteca =
-    podeAcessar(
-      "biblioteca.reservas.gerenciar",
-    ) ||
-    operadorBiblioteca
-      ?.podeGerenciarReserva ===
-      true;
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.reservas.gerenciar",
+      ) ||
+      operadorBiblioteca
+        ?.podeGerenciarReserva ===
+        true
+    );
 
   const podeVerRelatoriosBiblioteca =
-    podeAcessar(
-      "biblioteca.relatorios.ver",
-    ) ||
-    operadorBiblioteca
-      ?.podeVisualizarRelatorio ===
-      true;
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.relatorios.ver",
+      ) ||
+      operadorBiblioteca
+        ?.podeVisualizarRelatorio ===
+        true
+    );
 
   const podeVerAuditoriaBiblioteca =
-    podeAcessar(
-      "biblioteca.auditoria.ver",
-    ) ||
-    operadorBiblioteca
-      ?.podeVisualizarRelatorio ===
-      true;
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.auditoria.ver",
+      ) ||
+      operadorBiblioteca
+        ?.podeVisualizarRelatorio ===
+        true
+    );
 
   const podeVerOperadoresBiblioteca =
-    podeAcessar(
-      "biblioteca.operadores.ver",
-    ) ||
-    Boolean(
-      operadorBiblioteca,
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.operadores.ver",
+      ) ||
+      Boolean(
+        operadorBiblioteca,
+      )
     );
 
   const podeVerPrateleirasBiblioteca =
-    podeAcessar("biblioteca.prateleiras.gerenciar") ||
-    operadorBiblioteca?.podeGerenciarColecao === true;
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar("biblioteca.prateleiras.gerenciar") ||
+      operadorBiblioteca?.podeGerenciarColecao === true
+    );
 
   const podeVerLicencasBiblioteca =
-    podeAcessar(
-      "biblioteca.licencas.ver",
-    ) ||
-    Boolean(
-      operadorBiblioteca,
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.licencas.ver",
+      ) ||
+      Boolean(
+        operadorBiblioteca,
+      )
     );
 
   const podeGerenciarConfiguracoesBiblioteca =
-    podeAcessar(
-      "biblioteca.configuracoes.gerenciar",
-    ) ||
-    operadorBiblioteca
-      ?.podeGerenciarConfiguracao ===
-      true;
+    acessoBiblioteca?.disponivel === true && (
+      podeAcessar(
+        "biblioteca.configuracoes.gerenciar",
+      ) ||
+      operadorBiblioteca
+        ?.podeGerenciarConfiguracao ===
+        true
+    );
 
   const podeVerMobilidade =
     podeAcessar("mobilidade.ver") ||
@@ -3110,7 +3111,9 @@ export default function AdminShell({
               </button>
             </div>
           ) : (
-            children
+            <AtualizarAcessoBibliotecaContext.Provider value={setAcessoBiblioteca}>
+              {children}
+            </AtualizarAcessoBibliotecaContext.Provider>
           )}
 
           {recursosSecundariosAtivos ? <ChatGlobalWidget /> : null}

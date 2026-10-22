@@ -23146,5 +23146,28 @@
       "FINALIZADO": "Finalizado",
       "CANCELADO": "Cancelado"
     }
+  },
+  "AdminLibraryPresentation": {
+    "title": "Conoce la Biblioteca por dentro",
+    "description": "Descubre las páginas que tu institución podrá utilizar para organizar el acervo físico y digital, atender a los lectores y gestionar la biblioteca.",
+    "pagesLabel": "Páginas de la Biblioteca",
+    "openPreview": "Ampliar captura: {page}",
+    "previewAlt": "Captura de demostración de la página {page} de la Biblioteca PHANYX",
+    "demoNote": "Capturas del sistema en portugués con datos ficticios de demostración. Haz clic en la imagen para ampliarla.",
+    "planNote": "Las funciones y los límites disponibles dependen del plan contratado y de los permisos de cada usuario.",
+    "pages": {
+      "overview": "Consulta indicadores, materiales recientes y uso del almacenamiento en un solo panel.",
+      "collection": "Cataloga y busca libros, artículos, documentos y contenidos multimedia; importa y exporta el acervo.",
+      "authorities": "Organiza autores, nombres alternativos e identificadores para mantener una catalogación coherente.",
+      "shelves": "Agrupa obras por tema en estanterías y colecciones y define su visibilidad.",
+      "loans": "Gestiona préstamos, vencimientos, devoluciones y renovaciones de ejemplares.",
+      "reservations": "Consulta solicitudes, listas de espera y disponibilidad de las obras reservadas.",
+      "fines": "Revisa retrasos y multas según las reglas configuradas por la institución.",
+      "reports": "Analiza la circulación, el acervo y el uso digital de la biblioteca y exporta informes.",
+      "audit": "Consulta el historial de acciones registradas en la biblioteca y sus responsables.",
+      "licenses": "Registra los derechos de cada obra y los permisos de lectura, copia, descarga e impresión.",
+      "operators": "Define quién administra la biblioteca y qué acciones puede realizar cada operador.",
+      "settings": "Configura préstamos, reservas, renovaciones, avisos, clasificación y multas."
+    }
   }
 }

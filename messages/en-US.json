@@ -23147,5 +23147,28 @@
       "FINALIZADO": "Finalized",
       "CANCELADO": "Canceled"
     }
+  },
+  "AdminLibraryPresentation": {
+    "title": "Explore the Library",
+    "description": "See the pages your institution can use to organize physical and digital collections, support readers, and manage the library.",
+    "pagesLabel": "Library pages",
+    "openPreview": "Enlarge screenshot: {page}",
+    "previewAlt": "Demo screenshot of the PHANYX Library {page} page",
+    "demoNote": "Screenshots of the system in Portuguese, using fictional demo data. Click a screenshot to enlarge it.",
+    "planNote": "Available features and limits depend on the subscription plan and each user’s permissions.",
+    "pages": {
+      "overview": "Track key indicators, recent items, and storage usage in one dashboard.",
+      "collection": "Catalog and search books, articles, documents, and media; import and export your collection.",
+      "authorities": "Manage authors, alternate names, and identifiers to keep cataloging consistent.",
+      "shelves": "Group works by subject into shelves and collections and set their visibility.",
+      "loans": "Manage loans, due dates, returns, and renewals for library copies.",
+      "reservations": "Track requests, waiting lists, and the availability of reserved works.",
+      "fines": "Review overdue items and fines under your institution’s configured rules.",
+      "reports": "Analyze circulation, collections, and digital library usage and export reports.",
+      "audit": "Review the history of recorded library actions and the users responsible.",
+      "licenses": "Record each work’s rights and permissions for reading, copying, downloads, and printing.",
+      "operators": "Choose who manages the library and what each operator can do.",
+      "settings": "Configure loans, reservations, renewals, notifications, classification, and fines."
+    }
   }
 }

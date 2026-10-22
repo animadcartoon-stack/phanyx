@@ -23146,5 +23146,28 @@
       "FINALIZADO": "Finalisé",
       "CANCELADO": "Annulé"
     }
+  },
+  "AdminLibraryPresentation": {
+    "title": "Découvrez la Bibliothèque",
+    "description": "Découvrez les pages que votre établissement pourra utiliser pour organiser les collections physiques et numériques, accompagner les lecteurs et gérer la bibliothèque.",
+    "pagesLabel": "Pages de la Bibliothèque",
+    "openPreview": "Agrandir la capture : {page}",
+    "previewAlt": "Capture de démonstration de la page {page} de la Bibliothèque PHANYX",
+    "demoNote": "Captures du système en portugais, avec des données fictives de démonstration. Cliquez sur une capture pour l’agrandir.",
+    "planNote": "Les fonctionnalités et limites disponibles dépendent de l’abonnement et des autorisations de chaque utilisateur.",
+    "pages": {
+      "overview": "Suivez les indicateurs, les ouvrages récents et l’utilisation du stockage dans un tableau de bord.",
+      "collection": "Cataloguez et recherchez livres, articles, documents et médias ; importez et exportez les collections.",
+      "authorities": "Organisez les auteurs, les noms alternatifs et les identifiants pour un catalogage cohérent.",
+      "shelves": "Regroupez les ouvrages par thème dans des rayonnages et collections et définissez leur visibilité.",
+      "loans": "Gérez les prêts, les échéances, les retours et les renouvellements des exemplaires.",
+      "reservations": "Suivez les demandes, les listes d’attente et la disponibilité des ouvrages réservés.",
+      "fines": "Consultez les retards et les amendes selon les règles définies par l’établissement.",
+      "reports": "Analysez la circulation, les collections et l’usage numérique et exportez les rapports.",
+      "audit": "Consultez l’historique des actions enregistrées et leurs responsables.",
+      "licenses": "Enregistrez les droits de chaque ouvrage et les autorisations de lecture, copie, téléchargement et impression.",
+      "operators": "Définissez les responsables de la bibliothèque et les actions autorisées pour chaque opérateur.",
+      "settings": "Configurez les prêts, réservations, renouvellements, notifications, classifications et amendes."
+    }
   }
 }
