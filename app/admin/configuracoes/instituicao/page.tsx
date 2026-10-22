@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ErroPreparacaoLogo, prepararLogoParaUpload } from "@/lib/imagens/preparar-logo-upload";
 import {
   getCountries,
   type CountryCode,
@@ -507,31 +508,19 @@ export default function ConfigInstituicaoPage() {
       setMensagem("");
       setNomeArquivoLogo(file.name);
 
-      const tiposPermitidos = [
-        "image/png",
-        "image/jpeg",
-        "image/jpg",
-        "image/webp",
-      ];
-
-      if (!tiposPermitidos.includes(file.type)) {
-        throw new Error(
-          "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP."
-        );
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error("A imagem excede o limite de 5 MB.");
-      }
-
+      const arquivoEnvio = await prepararLogoParaUpload(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", arquivoEnvio);
 
       const res = await fetch("/api/admin/upload/logo", {
         method: "POST",
         credentials: "include",
         body: formData,
       });
+
+      if (res.status === 413) {
+        throw new ErroPreparacaoLogo("payloadTooLarge");
+      }
 
       const textoResposta = await res.text();
 
@@ -540,10 +529,7 @@ export default function ConfigInstituicaoPage() {
       try {
         data = textoResposta ? JSON.parse(textoResposta) : {};
       } catch {
-        throw new Error(
-          textoResposta ||
-          `O servidor retornou uma resposta inválida (${res.status}).`
-        );
+        throw new Error(t("logo.messages.uploadStatusError", { status: res.status }));
       }
 
       if (!res.ok) {
@@ -577,8 +563,9 @@ export default function ConfigInstituicaoPage() {
       console.error("ERRO AO ENVIAR LOGO:", error);
 
       setMensagem(
-        error?.message ||
-        t("logo.messages.error")
+        error instanceof ErroPreparacaoLogo
+          ? t(`logo.messages.${error.codigo}`)
+          : error?.message || t("logo.messages.error")
       );
     } finally {
       setEnviandoLogo(false);
@@ -2027,6 +2014,8 @@ export default function ConfigInstituicaoPage() {
                     ? t("common.selectedFile", { name: nomeArquivoLogo })
                     : t("logo.acceptedFormats")}
                 </div>
+
+                <p>{t("logo.uploadHelp")}</p>
 
                 <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900 dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-cyan-100">
                   {t("logo.backgroundRemoval.before")}

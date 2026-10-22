@@ -13378,6 +13378,7 @@
       "deleting": "A eliminar..."
     },
     "logo": {
+      "uploadHelp": "Imagens até 5 MB. As imagens maiores são preparadas automaticamente para envio, preservando a transparência.",
       "title": "Logótipo",
       "edit": "Editar logótipo",
       "change": "Alterar logótipo",
@@ -13398,6 +13399,11 @@
         "description": "O logótipo deixará de aparecer nos documentos, relatórios e restantes áreas institucionais."
       },
       "messages": {
+        "invalidFormat": "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP.",
+        "emptyFile": "O ficheiro selecionado está vazio.",
+        "originalTooLarge": "A imagem excede 5 MB. Exporte uma versão mais pequena e tente novamente.",
+        "prepareError": "Não foi possível preparar a imagem. Exporte novamente em PNG, JPG ou WEBP e tente outra vez.",
+        "payloadTooLarge": "A imagem é demasiado grande para o envio. Exporte uma versão mais pequena e selecione o logótipo novamente.",
         "uploadStatusError": "Erro ao enviar o logótipo ({status}).",
         "urlMissing": "A imagem foi enviada, mas o URL do logótipo não foi devolvido.",
         "success": "Logótipo enviado e guardado com sucesso.",
