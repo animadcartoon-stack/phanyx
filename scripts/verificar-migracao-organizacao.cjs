@@ -1,24 +1,85 @@
-// Read-only preflight: never deploy unrelated pending migrations with this package.
+// Read-only: use the same direct connection as Prisma Migrate, without logging credentials.
 const fs = require('node:fs');
 const path = require('node:path');
-const { PrismaClient } = require('@prisma/client');
 const TARGET = '20261022190000_organizacao_curricular_anual';
-async function main() {
-  const db = new PrismaClient();
-  try {
-    const rows = await db.$queryRawUnsafe('SELECT migration_name, finished_at, rolled_back_at FROM "_prisma_migrations"');
-    if (rows.some(r => !r.finished_at && !r.rolled_back_at)) throw new Error('Há uma migração interrompida. Envie o resultado de prisma migrate status antes de continuar.');
-    const done = new Set(rows.filter(r => r.finished_at && !r.rolled_back_at).map(r => r.migration_name));
-    const directory = path.resolve(__dirname, '../prisma/migrations');
-    const pending = fs.readdirSync(directory).filter(name => fs.existsSync(path.join(directory,name,'migration.sql')) && !done.has(name));
-    const other = pending.filter(name => name !== TARGET);
-    if (other.length) throw new Error('Existem outras migrações pendentes. Nenhuma foi aplicada por este verificador. Migrações: ' + other.join(', '));
-    console.log(done.has(TARGET) ? 'A migração de organização curricular já consta como aplicada.' : 'Verificação concluída: somente a migração de organização curricular está pendente.');
-  } finally { await db.$disconnect(); }
+class ErroVerificacao extends Error {
+  constructor(code, message) { super(message); this.code = code; }
 }
-main().catch(error => {
-  // Do not echo connection strings or underlying driver diagnostics.
-  console.error(error.message?.startsWith('Existem outras') || error.message?.startsWith('Há uma')
-    ? error.message : 'Não foi possível verificar o banco. Confira a configuração local e a conexão; nenhuma migração foi executada.');
-  process.exitCode = 1;
-});
+function carregarConfiguracao(root = path.resolve(__dirname, '..')) {
+  // Standalone node does not get the environment loading of the Prisma CLI.
+  require('@next/env').loadEnvConfig(root, false, { info() {}, error() {} });
+}
+function urlDireta(env = process.env) {
+  if (!env.DIRECT_URL?.trim()) throw new ErroVerificacao('CONFIG_DIRETA_AUSENTE',
+    'DIRECT_URL não foi carregada. Confira a configuração local do projeto; não envie senhas ou URLs na conversa.');
+  let url;
+  try { url = new URL(env.DIRECT_URL.trim()); } catch {
+    throw new ErroVerificacao('CONFIG_URL_INVALIDA', 'A configuração DIRECT_URL não é uma URL PostgreSQL válida.');
+  }
+  if (!['postgres:', 'postgresql:'].includes(url.protocol)) throw new ErroVerificacao('CONFIG_URL_INVALIDA',
+    'A configuração DIRECT_URL não é uma URL PostgreSQL válida.');
+  if (!url.searchParams.has('connect_timeout')) url.searchParams.set('connect_timeout', '20');
+  if (!url.searchParams.has('pool_timeout')) url.searchParams.set('pool_timeout', '20');
+  return url.toString();
+}
+function analisarMigracoes(rows, directory, exigirAplicada = false) {
+  if (rows.some(r => !r.finished_at && !r.rolled_back_at)) throw new ErroVerificacao('MIGRACAO_INTERROMPIDA',
+    'Há uma migração interrompida. Envie o resultado de prisma migrate status antes de continuar.');
+  const done = new Set(rows.filter(r => r.finished_at && !r.rolled_back_at).map(r => r.migration_name));
+  const pending = fs.readdirSync(directory).filter(name => fs.existsSync(path.join(directory, name, 'migration.sql')) && !done.has(name));
+  const other = pending.filter(name => name !== TARGET);
+  if (other.length) throw new ErroVerificacao('OUTRAS_MIGRACOES_PENDENTES',
+    'Existem outras migrações pendentes. Nenhuma foi aplicada por este verificador. Migrações: ' + other.filter(n => /^[\w-]+$/.test(n)).join(', '));
+  if (exigirAplicada && !done.has(TARGET)) throw new ErroVerificacao('MIGRACAO_NAO_APLICADA',
+    'A migração de organização curricular ainda não consta como aplicada. A branch não deve ser integrada.');
+  return { aplicada: done.has(TARGET), pendentes: pending };
+}
+function codigoSeguro(error) {
+  const code = error?.code || error?.errorCode;
+  return typeof code === 'string' && /^[A-Z][A-Z0-9_]{3,48}$/.test(code) ? code : 'SEM_CODIGO';
+}
+function diagnosticoSeguro(error) {
+  if (error instanceof ErroVerificacao) return `[${error.code}] ${error.message}`;
+  const code = codigoSeguro(error);
+  const messages = {
+    P1000: 'A autenticação no banco foi recusada. Confira as credenciais locais.',
+    P1001: 'Não foi possível alcançar o banco pela conexão direta. Confira a conexão de rede e tente novamente.',
+    P1002: 'O banco não respondeu dentro do tempo de conexão.',
+    P1003: 'O banco configurado não foi encontrado.',
+    P1010: 'O usuário do banco não tem acesso à consulta de migrações.',
+    P1011: 'A conexão TLS com o banco falhou.',
+    P1012: 'A configuração de conexão não foi carregada ou é inválida.',
+    P1017: 'O servidor encerrou a conexão.',
+    P2024: 'A conexão com o banco excedeu o tempo de espera.',
+    P2010: 'O banco recusou a consulta de verificação do histórico de migrações.',
+  };
+  return `[${code}] ${messages[code] || 'A checagem do banco falhou. Envie este código para verificarmos.'} Nenhuma migração foi executada pelo verificador.`;
+}
+function transitorio(error) {
+  return ['P1001', 'P1002', 'P1017', 'P2024'].includes(codigoSeguro(error)) ||
+    (codigoSeguro(error) === 'P2010' && ['08000', '08003', '08006', '57P03'].includes(error?.meta?.code));
+}
+async function consultarHistorico(criarCliente, { esperar = ms => new Promise(resolve => setTimeout(resolve, ms)), avisar = console.log } = {}) {
+  for (let tentativa = 1; tentativa <= 3; tentativa++) {
+    let db;
+    try {
+      db = criarCliente();
+      return await db.$queryRawUnsafe('SELECT migration_name, finished_at, rolled_back_at FROM "_prisma_migrations"');
+    } catch (error) {
+      if (tentativa === 3 || !transitorio(error)) throw error;
+      avisar(`Conexão indisponível [${codigoSeguro(error)}]. Nova tentativa ${tentativa + 1}/3...`);
+      await esperar(2000);
+    } finally { if (db) await db.$disconnect().catch(() => {}); }
+  }
+}
+async function main() {
+  carregarConfiguracao();
+  const url = urlDireta();
+  const { PrismaClient } = require('@prisma/client');
+  const rows = await consultarHistorico(() => new PrismaClient({ datasources: { db: { url } } }));
+  const result = analisarMigracoes(rows, path.resolve(__dirname, '../prisma/migrations'), process.argv.includes('--exigir-aplicada'));
+  console.log(result.aplicada ? 'A migração de organização curricular já consta como aplicada.' :
+    'Verificação concluída pela conexão direta: somente a migração de organização curricular está pendente.');
+}
+if (require.main === module) main().catch(error => { console.error(diagnosticoSeguro(error)); process.exitCode = 1; });
+module.exports = { TARGET, carregarConfiguracao, urlDireta, analisarMigracoes, codigoSeguro, diagnosticoSeguro, consultarHistorico };

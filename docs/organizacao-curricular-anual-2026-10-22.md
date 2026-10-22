@@ -34,3 +34,9 @@ Checagem completa de tipos passou. Lint dos arquivos alterados passou com avisos
 Esta etapa não implementa versionamento completo de matrizes, cursos modulares/livres sem etapas, cadastro normalizado do calendário nem nova configuração bimestral/trimestral de avaliações. O período letivo continua como campo textual separado e a cobrança continua contratual. Os relatórios e templates personalizados que escrevem “semestre” literalmente precisam adotar as variáveis neutras; não foram automaticamente reformulados.
 
 Não foram alterados cadastros nem executadas migrações em produção durante o desenvolvimento.
+
+## Retomada da verificação de banco
+
+O verificador standalone agora carrega o ambiente explicitamente, consulta pela DIRECT_URL usada pelo Prisma Migrate e informa códigos de diagnóstico sem expor credenciais ou a mensagem bruta do driver. Falhas transitórias de conexão recebem até três tentativas; falhas de autenticação não são repetidas. A pós-checagem exige que a migração esteja registrada como concluída. Mantêm-se os bloqueios de migrações interrompidas ou outras migrações pendentes.
+
+95 testes passaram: os 88 anteriores e sete verificações do carregamento real do .env em processo separado, escolha da conexão direta, diagnósticos sem segredos, bloqueios do histórico e retentativas limitadas. Não houve conexão nem alteração em banco de produção durante essa correção. O motivo específico da falha no computador do usuário ainda depende do resultado do verificador corrigido; o log anterior não trazia o código do erro.
