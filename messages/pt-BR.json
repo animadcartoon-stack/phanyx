@@ -13377,6 +13377,7 @@
       "deleting": "Excluindo..."
     },
     "logo": {
+      "uploadHelp": "Imagens de até 5 MB. Logos maiores são preparadas automaticamente para envio, preservando a transparência.",
       "title": "Logo",
       "edit": "Editar logo",
       "change": "Trocar logo",
@@ -13397,6 +13398,11 @@
         "description": "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
       },
       "messages": {
+        "invalidFormat": "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP.",
+        "emptyFile": "O arquivo selecionado está vazio.",
+        "originalTooLarge": "A imagem excede 5 MB. Exporte uma versão menor e tente novamente.",
+        "prepareError": "Não foi possível preparar a imagem. Exporte novamente em PNG, JPG ou WEBP e tente outra vez.",
+        "payloadTooLarge": "A imagem ficou grande demais para o envio. Exporte uma versão menor e selecione a logo novamente.",
         "uploadStatusError": "Erro ao enviar logo ({status}).",
         "urlMissing": "A imagem foi enviada, mas a URL da logo não foi retornada.",
         "success": "Logo enviada e salva com sucesso.",

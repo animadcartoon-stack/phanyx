@@ -13377,6 +13377,7 @@
       "deleting": "Eliminando..."
     },
     "logo": {
+      "uploadHelp": "Imágenes de hasta 5 MB. Los logotipos grandes se preparan automáticamente para el envío, conservando la transparencia.",
       "title": "Logotipo",
       "edit": "Editar logotipo",
       "change": "Cambiar logotipo",
@@ -13397,6 +13398,11 @@
         "description": "El logotipo dejará de aparecer en documentos, informes y demás áreas institucionales."
       },
       "messages": {
+        "invalidFormat": "Formato no válido. Seleccione una imagen PNG, JPG, JPEG o WEBP.",
+        "emptyFile": "El archivo seleccionado está vacío.",
+        "originalTooLarge": "La imagen supera los 5 MB. Exporte una versión más pequeña e inténtelo de nuevo.",
+        "prepareError": "No se pudo preparar la imagen. Expórtela de nuevo en PNG, JPG o WEBP e inténtelo otra vez.",
+        "payloadTooLarge": "La imagen es demasiado grande para enviarla. Exporte una versión más pequeña y seleccione de nuevo el logotipo.",
         "uploadStatusError": "Error al cargar el logotipo ({status}).",
         "urlMissing": "La imagen se cargó, pero no se devolvió la URL del logotipo.",
         "success": "Logotipo cargado y guardado correctamente.",

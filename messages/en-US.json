@@ -13378,6 +13378,7 @@
       "deleting": "Deleting..."
     },
     "logo": {
+      "uploadHelp": "Images up to 5 MB. Larger logos are prepared automatically for upload while preserving transparency.",
       "title": "Logo",
       "edit": "Edit logo",
       "change": "Change logo",
@@ -13398,6 +13399,11 @@
         "description": "The logo will no longer appear in documents, reports, or other institutional areas."
       },
       "messages": {
+        "invalidFormat": "Invalid format. Choose a PNG, JPG, JPEG or WEBP image.",
+        "emptyFile": "The selected file is empty.",
+        "originalTooLarge": "The image exceeds 5 MB. Export a smaller version and try again.",
+        "prepareError": "Could not prepare the image. Export it again as PNG, JPG or WEBP and retry.",
+        "payloadTooLarge": "The image is too large to upload. Export a smaller version and select the logo again.",
         "uploadStatusError": "Unable to upload logo ({status}).",
         "urlMissing": "The image was uploaded, but the logo URL was not returned.",
         "success": "Logo uploaded and saved successfully.",
