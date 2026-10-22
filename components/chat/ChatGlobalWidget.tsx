@@ -1,6 +1,7 @@
 "use client";
+import { iniciarAtualizacaoVisivel } from "@/lib/atualizacao-visivel";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type UsuarioChat = {
   id: number;
@@ -164,8 +165,6 @@ export default function ChatGlobalWidget() {
         nome: event.detail?.remetenteNome || `Conversa #${conversaId}`,
         role: event.detail?.remetenteRole || "",
       });
-
-      carregarMensagens(conversaId);
     }
 
     window.addEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
@@ -175,18 +174,34 @@ export default function ChatGlobalWidget() {
     };
   }, []);
 
+  const carregarMensagens = useCallback(async (conversaId: number, signal?: AbortSignal) => {
+    try {
+      const res = await fetch(`/api/chat/conversas/${conversaId}/mensagens`, {
+        credentials: "include", signal,
+      });
+
+      const data = await res.json();
+      if (signal?.aborted) return;
+
+      if (!res.ok) {
+        console.error(data);
+        return;
+      }
+
+      setMensagens(data.mensagens || []);
+
+      if (data.usuarioId) {
+        setMeuUsuarioId(data.usuarioId);
+      }
+    } catch (error) {
+      if (!signal?.aborted) console.error("Erro ao carregar mensagens:", error);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!conversaAberta) return;
-
-    carregarMensagens(conversaAberta.id);
-
-    const intervalo = setInterval(() => {
-      carregarMensagens(conversaAberta.id);
-    }, 5000);
-
-    return () => clearInterval(intervalo);
-  }, [conversaAberta]);
+    if (!aberto || !conversaAberta?.id) return;
+    return iniciarAtualizacaoVisivel(signal => carregarMensagens(conversaAberta.id, signal), 5000);
+  }, [aberto, conversaAberta?.id, carregarMensagens]);
 
   function iniciarArrasteChat(e: React.MouseEvent<HTMLDivElement>) {
     if (chatMaximizado || e.button !== 0) return;
@@ -423,34 +438,11 @@ export default function ChatGlobalWidget() {
 
       setModoNovaConversa(false);
       setModoTurmas(false);
-      await carregarMensagens(data.conversa.id);
     } catch (error) {
       console.error("Erro ao abrir conversa da turma:", error);
     }
   }
 
-  async function carregarMensagens(conversaId: number) {
-    try {
-      const res = await fetch(`/api/chat/conversas/${conversaId}/mensagens`, {
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        console.error(data);
-        return;
-      }
-
-      setMensagens(data.mensagens || []);
-
-      if (data.usuarioId) {
-        setMeuUsuarioId(data.usuarioId);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar mensagens:", error);
-    }
-  }
 
   async function enviarMensagem() {
     if (!conversaAberta) return;

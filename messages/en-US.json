@@ -19334,7 +19334,8 @@
     "validationsStatusSuspended": "Suspended",
     "validationsStatusActive": "Active",
     "validationsStatusCompleted": "Completed",
-    "validationsEnrollmentCancellation": "Enrollment cancellation"
+    "validationsEnrollmentCancellation": "Enrollment cancellation",
+    "classesLoadError": "Could not load class data. Refresh the page to try again."
   },
   "AdminLibraryLicenses": {
     "title": "Library Licenses",

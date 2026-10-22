@@ -19120,7 +19120,8 @@
     "validationsStatusSuspended": "Suspensa",
     "validationsStatusActive": "Ativo",
     "validationsStatusCompleted": "Concluído",
-    "validationsEnrollmentCancellation": "Cancelamento de matrícula"
+    "validationsEnrollmentCancellation": "Cancelamento de matrícula",
+    "classesLoadError": "Não foi possível carregar os dados das turmas. Atualize a página para tentar novamente."
   },
   "AdminLibraryLicenses": {
     "title": "Licenças da Biblioteca",
