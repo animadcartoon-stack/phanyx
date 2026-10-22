@@ -82,6 +82,7 @@ export async function GET() {
 
     const aulas = await prisma.aula.findMany({
       where: {
+        dataEncontro: null,
         instituicaoId: user.instituicaoId,
         OR: [
           {

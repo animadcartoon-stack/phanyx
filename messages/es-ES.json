@@ -23169,5 +23169,61 @@
       "operators": "Define quién administra la biblioteca y qué acciones puede realizar cada operador.",
       "settings": "Configura préstamos, reservas, renovaciones, avisos, clasificación y multas."
     }
+  },
+  "ProfessorMeetingAttendance": {
+    "entry": "Asistencia por fecha",
+    "title": "Asistencia por fecha",
+    "description": "Registre la asistencia del grupo por sesión, sin crear ni publicar una lección.",
+    "back": "Volver a los grupos",
+    "subject": "Asignatura / actividad",
+    "chooseSubject": "Seleccione la asignatura",
+    "date": "Fecha de la sesión",
+    "time": "Hora de inicio",
+    "open": "Abrir asistencia",
+    "loading": "Cargando…",
+    "existing": "Asistencia ya registrada. Puede consultar y corregir los registros.",
+    "newMeeting": "Nueva sesión. La asistencia se registrará al guardar.",
+    "unsaved": "Hay cambios sin guardar.",
+    "search": "Buscar estudiante",
+    "markRemainingPresent": "Marcar los registros pendientes como presentes",
+    "students": "{count, plural, one {# estudiante} other {# estudiantes}}",
+    "unmarked": "Seleccione el estado",
+    "statusFor": "Asistencia de {name}",
+    "reason": "Motivo / justificación (obligatorio)",
+    "observation": "Observación (opcional)",
+    "empty": "No hay estudiantes con una matrícula disponible en esta asignatura y grupo.",
+    "noSearchResults": "No se encontraron estudiantes.",
+    "save": "Guardar asistencia",
+    "saving": "Guardando…",
+    "saved": "Asistencia guardada.",
+    "history": "Registros anteriores",
+    "historyHint": "Últimas 50 sesiones. Seleccione una sesión para consultarla o corregirla. Para otra fecha, use los campos de arriba.",
+    "emptyHistory": "Todavía no hay registros de asistencia en esta asignatura.",
+    "discard": {
+      "title": "Cambios sin guardar",
+      "message": "Hay registros sin guardar. ¿Desea descartarlos y continuar?",
+      "confirm": "Descartar y continuar",
+      "cancel": "Seguir editando"
+    },
+    "statuses": {
+      "PRESENTE": "Presente",
+      "FALTA": "Ausente",
+      "JUSTIFICADA": "Ausencia justificada",
+      "ATESTADO": "Certificado médico"
+    },
+    "errors": {
+      "unauthorized": "Inicie sesión como docente para registrar asistencia.",
+      "invalidClass": "Seleccione un grupo y una asignatura válidos.",
+      "forbidden": "Este grupo o asignatura no está disponible para su cuenta.",
+      "invalidMeeting": "Indique una fecha válida y la hora de inicio de la sesión.",
+      "invalidAttendance": "Seleccione el estado de todos los estudiantes antes de guardar.",
+      "observationTooLong": "Cada observación debe tener como máximo 2.000 caracteres.",
+      "reasonRequired": "Indique el motivo de las ausencias justificadas y los certificados médicos.",
+      "studentOutsideClass": "Hay un estudiante que no pertenece a esta asignatura y grupo. Vuelva a abrir la asistencia.",
+      "rosterChanged": "La lista de matrículas ha cambiado. Vuelva a abrir la asistencia para actualizarla.",
+      "conflict": "La asistencia se modificó simultáneamente. Vuelva a abrir la sesión e inténtelo de nuevo.",
+      "unexpected": "No se pudo completar la operación. Inténtelo de nuevo."
+    }
   }
+
 }

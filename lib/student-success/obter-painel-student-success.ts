@@ -261,7 +261,7 @@ export async function obterPainelStudentSuccess(instituicaoId: number) {
                 in: turmaIds,
               },
 
-              publicada: true,
+              OR: [{ publicada: true }, { dataEncontro: { not: null } }],
             },
           },
 

@@ -89,6 +89,7 @@ export async function GET(
                 include: {
                   aulas: {
                     where: {
+                      dataEncontro: null,
                       instituicaoId: user.instituicaoId,
                     },
                     orderBy: {

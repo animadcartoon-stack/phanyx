@@ -23169,5 +23169,61 @@
       "operators": "Définissez les responsables de la bibliothèque et les actions autorisées pour chaque opérateur.",
       "settings": "Configurez les prêts, réservations, renouvellements, notifications, classifications et amendes."
     }
+  },
+  "ProfessorMeetingAttendance": {
+    "entry": "Présences par date",
+    "title": "Présences par date",
+    "description": "Enregistrez les présences du groupe par séance, sans créer ni publier de leçon.",
+    "back": "Retour aux groupes",
+    "subject": "Matière / activité",
+    "chooseSubject": "Choisissez une matière",
+    "date": "Date de la séance",
+    "time": "Heure de début",
+    "open": "Ouvrir la feuille de présence",
+    "loading": "Chargement…",
+    "existing": "Présences déjà enregistrées. Vous pouvez consulter et corriger les saisies.",
+    "newMeeting": "Nouvelle séance. Les présences seront enregistrées lors de la sauvegarde.",
+    "unsaved": "Des modifications ne sont pas enregistrées.",
+    "search": "Rechercher un élève",
+    "markRemainingPresent": "Marquer les entrées non renseignées comme présentes",
+    "students": "{count, plural, one {# élève} other {# élèves}}",
+    "unmarked": "Choisissez un statut",
+    "statusFor": "Présence de {name}",
+    "reason": "Motif / justification (obligatoire)",
+    "observation": "Observation (facultative)",
+    "empty": "Aucun élève ne dispose d’une inscription éligible dans cette matière et ce groupe.",
+    "noSearchResults": "Aucun élève trouvé.",
+    "save": "Enregistrer les présences",
+    "saving": "Enregistrement…",
+    "saved": "Présences enregistrées.",
+    "history": "Feuilles de présence précédentes",
+    "historyHint": "Les 50 dernières séances. Choisissez une séance pour la consulter ou la corriger. Utilisez les champs ci-dessus pour une autre date.",
+    "emptyHistory": "Aucune présence enregistrée dans cette matière pour le moment.",
+    "discard": {
+      "title": "Modifications non enregistrées",
+      "message": "Certaines saisies ne sont pas enregistrées. Les abandonner et continuer ?",
+      "confirm": "Abandonner et continuer",
+      "cancel": "Continuer la saisie"
+    },
+    "statuses": {
+      "PRESENTE": "Présent",
+      "FALTA": "Absent",
+      "JUSTIFICADA": "Absence justifiée",
+      "ATESTADO": "Certificat médical"
+    },
+    "errors": {
+      "unauthorized": "Connectez-vous avec un compte enseignant pour enregistrer les présences.",
+      "invalidClass": "Choisissez un groupe et une matière valides.",
+      "forbidden": "Ce groupe ou cette matière n’est pas accessible à votre compte.",
+      "invalidMeeting": "Indiquez une date et une heure de début valides.",
+      "invalidAttendance": "Choisissez un statut pour chaque élève avant d’enregistrer.",
+      "observationTooLong": "Chaque observation est limitée à 2 000 caractères.",
+      "reasonRequired": "Indiquez un motif pour les absences justifiées et les certificats médicaux.",
+      "studentOutsideClass": "Un élève n’appartient pas à cette matière et à ce groupe. Rouvrez la feuille de présence.",
+      "rosterChanged": "La liste des inscriptions a changé. Rouvrez la feuille de présence pour la mettre à jour.",
+      "conflict": "Les présences ont été modifiées simultanément. Rouvrez la séance et réessayez.",
+      "unexpected": "L’opération n’a pas pu aboutir. Veuillez réessayer."
+    }
   }
+
 }

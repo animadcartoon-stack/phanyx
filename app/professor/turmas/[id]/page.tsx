@@ -13,6 +13,7 @@ export default function TurmaDetalhePage() {
   const t = useTranslations(
     "ProfessorClassDetail"
   );
+  const ta = useTranslations("ProfessorMeetingAttendance");
 
   const turmaId = String(
     params?.id || ""
@@ -91,6 +92,11 @@ export default function TurmaDetalhePage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
+          <Link href={`/professor/turmas/${turmaId}/chamadas`} className="rounded-3xl border border-emerald-300 bg-white p-6 shadow-sm hover:shadow-md dark:border-emerald-700 dark:bg-slate-900">
+            <h2 className="text-lg font-black text-emerald-800 dark:text-emerald-200">{ta("title")}</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{ta("description")}</p>
+            <p className="mt-5 font-bold text-emerald-800 dark:text-emerald-200">{ta("entry")}</p>
+          </Link>
           <Link
             href={`/professor/turmas/${turmaId}/aulas`}
             className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-blue-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-700"

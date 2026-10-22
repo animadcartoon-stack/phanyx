@@ -80,6 +80,7 @@ if (!turma) {
     const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
+    dataEncontro: null,
     turmaId: turma.id,
     instituicaoId: user.instituicaoId,
   },
@@ -279,6 +280,7 @@ if (!turma) {
     const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
+    dataEncontro: null,
     turmaId: turma.id,
     instituicaoId: user.instituicaoId,
   },

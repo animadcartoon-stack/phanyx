@@ -378,6 +378,7 @@ export default function AulasDaTurmaPage() {
   const t = useTranslations(
     "ProfessorClassLessons"
   );
+  const ta = useTranslations("ProfessorMeetingAttendance");
 
   const turmaIdTexto =
     String(
@@ -1419,6 +1420,13 @@ export default function AulasDaTurmaPage() {
               {t("title")}
             </h1>
 
+            <button
+              type="button"
+              onClick={() => router.push(`/professor/turmas/${turmaId}/chamadas${disciplinaId > 0 ? `?disciplinaId=${disciplinaId}` : ""}`)}
+              className="mt-4 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-800"
+            >
+              {ta("entry")}
+            </button>
             <div className="mt-4 flex flex-wrap gap-3 text-sm">
               <div className="rounded-xl bg-slate-50 px-4 py-2 dark:bg-slate-950">
                 <span className="font-semibold text-slate-500 dark:text-slate-400">

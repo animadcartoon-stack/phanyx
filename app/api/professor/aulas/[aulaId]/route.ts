@@ -42,6 +42,7 @@ export async function DELETE(
   const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
+    dataEncontro: null,
     instituicaoId: user.instituicaoId,
   },
   select: {
@@ -155,6 +156,7 @@ export async function PUT(
   const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
+    dataEncontro: null,
     instituicaoId: user.instituicaoId,
     disciplina: {
       instituicaoId: user.instituicaoId,

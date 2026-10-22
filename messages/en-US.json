@@ -23170,5 +23170,61 @@
       "operators": "Choose who manages the library and what each operator can do.",
       "settings": "Configure loans, reservations, renewals, notifications, classification, and fines."
     }
+  },
+  "ProfessorMeetingAttendance": {
+    "entry": "Attendance by date",
+    "title": "Attendance by date",
+    "description": "Record class attendance for each meeting without creating or publishing a lesson.",
+    "back": "Back to classes",
+    "subject": "Subject / activity",
+    "chooseSubject": "Select a subject",
+    "date": "Meeting date",
+    "time": "Start time",
+    "open": "Open attendance",
+    "loading": "Loading…",
+    "existing": "Attendance already recorded. You can review and correct the entries.",
+    "newMeeting": "New meeting. Attendance will be recorded when you save.",
+    "unsaved": "You have unsaved changes.",
+    "search": "Find a student",
+    "markRemainingPresent": "Mark unfilled entries as present",
+    "students": "{count, plural, one {# student} other {# students}}",
+    "unmarked": "Select attendance status",
+    "statusFor": "Attendance for {name}",
+    "reason": "Reason / justification (required)",
+    "observation": "Note (optional)",
+    "empty": "No students have an eligible enrollment in this subject and class.",
+    "noSearchResults": "No students match your search.",
+    "save": "Save attendance",
+    "saving": "Saving…",
+    "saved": "Attendance saved.",
+    "history": "Previous attendance records",
+    "historyHint": "Latest 50 meetings. Select a meeting to review or correct it. Use the fields above for another date.",
+    "emptyHistory": "No attendance has been recorded for this subject yet.",
+    "discard": {
+      "title": "Unsaved changes",
+      "message": "Some entries have not been saved. Discard them and continue?",
+      "confirm": "Discard and continue",
+      "cancel": "Keep editing"
+    },
+    "statuses": {
+      "PRESENTE": "Present",
+      "FALTA": "Absent",
+      "JUSTIFICADA": "Excused absence",
+      "ATESTADO": "Medical certificate"
+    },
+    "errors": {
+      "unauthorized": "Sign in as a teacher to record attendance.",
+      "invalidClass": "Select a valid class and subject.",
+      "forbidden": "This class or subject is not available to your account.",
+      "invalidMeeting": "Enter a valid meeting date and start time.",
+      "invalidAttendance": "Select an attendance status for every student before saving.",
+      "observationTooLong": "Each note must be no longer than 2,000 characters.",
+      "reasonRequired": "Enter a reason for excused absences and medical certificates.",
+      "studentOutsideClass": "A student does not belong to this subject and class. Reopen attendance.",
+      "rosterChanged": "The enrollment list has changed. Reopen attendance to refresh the roster.",
+      "conflict": "Attendance was changed concurrently. Reopen the meeting and try again.",
+      "unexpected": "The operation could not be completed. Please try again."
+    }
   }
+
 }

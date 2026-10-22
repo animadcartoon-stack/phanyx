@@ -1466,6 +1466,9 @@ model Aula {
   substituicaoDocenteId Int?
   updatedAt             DateTime @updatedAt
   videoUrl              String?
+  // Preenchidos somente para encontros de chamada, sem conteúdo publicado.
+  dataEncontro          DateTime? @db.Date
+  horaEncontro          String?
 
   instituicao         Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   modulo              Modulo?              @relation(fields: [moduloId], references: [id])
@@ -1480,6 +1483,7 @@ model Aula {
   eventosAprendizagem EventoAprendizagemAluno[]
 
   @@unique([turmaId, disciplinaId, ordem])
+  @@unique([turmaId, disciplinaId, dataEncontro, horaEncontro], map: "Aula_chamada_encontro_key")
   @@index([instituicaoId])
   @@index([turmaId])
   @@index([disciplinaId])
@@ -2182,6 +2186,7 @@ model PresencaAula {
   aula                  Aula                 @relation(fields: [aulaId], references: [id], onDelete: Cascade)
   instituicao           Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   substituicaoDocente   SubstituicaoDocente? @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
+  historicoAlteracoes   HistoricoPresencaAula[]
 
   @@unique([aulaId, alunoId])
   @@index([instituicaoId])
@@ -2189,6 +2194,24 @@ model PresencaAula {
   @@index([aulaId])
   @@index([alunoId])
   @@index([status])
+}
+
+model HistoricoPresencaAula {
+  id                Int @id @default(autoincrement())
+  instituicaoId     Int
+  presencaAulaId    Int
+  usuarioId         Int
+  impersonacaoId    Int?
+  statusAnterior    StatusPresencaAula?
+  observacaoAnterior String?
+  status            StatusPresencaAula
+  observacao        String?
+  ip                String?
+  userAgent         String? @db.Text
+  createdAt         DateTime @default(now())
+  presencaAula      PresencaAula @relation(fields: [presencaAulaId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId, presencaAulaId, createdAt])
 }
 
 model Caixa {

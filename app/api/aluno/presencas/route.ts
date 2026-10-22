@@ -55,6 +55,8 @@ const presencas = await prisma.presencaAula.findMany({
         status: p.status,
         observacao: p.observacao,
         data: p.aula?.createdAt,
+        dataEncontro: p.aula?.dataEncontro?.toISOString().slice(0, 10) ?? null,
+        horaEncontro: p.aula?.horaEncontro ?? null,
         aula: p.aula?.titulo,
         turma: p.aula?.turma?.nome,
       })),
