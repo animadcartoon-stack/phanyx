@@ -18,7 +18,8 @@ type Combo = {
   ativo: boolean;
   minimoModalidades: number;
   maximoModalidades: number | null;
-  modoPreco: "FIXO" | "SOMA";
+  modoPreco: "FIXO" | "SOMA" | "PERCENTUAL";
+  descontoPercentual: string | null;
   valorMatricula: string;
   valorMensalidade: string | null;
   quantidadeParcelas: number;
@@ -31,7 +32,8 @@ const novo = () => ({
   ativo: true,
   minimoModalidades: "3",
   maximoModalidades: "",
-  modoPreco: "FIXO" as "FIXO" | "SOMA",
+  modoPreco: "FIXO" as "FIXO" | "SOMA" | "PERCENTUAL",
+  descontoPercentual: "",
   valorMatricula: "",
   valorMensalidade: "",
   quantidadeParcelas: "12",
@@ -93,6 +95,8 @@ function CombosPage() {
             : null,
           valorMensalidade:
             form.modoPreco === "FIXO" ? form.valorMensalidade : null,
+          descontoPercentual:
+            form.modoPreco === "PERCENTUAL" ? form.descontoPercentual : null,
           quantidadeParcelas: Number(form.quantidadeParcelas),
         }),
       });
@@ -116,6 +120,10 @@ function CombosPage() {
       maximoModalidades:
         combo.maximoModalidades === null ? "" : String(combo.maximoModalidades),
       modoPreco: combo.modoPreco,
+      descontoPercentual:
+        combo.descontoPercentual == null
+          ? ""
+          : String(combo.descontoPercentual),
       valorMatricula: String(combo.valorMatricula),
       valorMensalidade:
         combo.valorMensalidade === null ? "" : String(combo.valorMensalidade),
@@ -188,12 +196,13 @@ function CombosPage() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  modoPreco: e.target.value as "FIXO" | "SOMA",
+                  modoPreco: e.target.value as "FIXO" | "SOMA" | "PERCENTUAL",
                 })
               }
             >
               <option value="FIXO">{t("fixed")}</option>
               <option value="SOMA">{t("sum")}</option>
+              <option value="PERCENTUAL">{t("percentage")}</option>
             </select>
           </label>
           <label>
@@ -237,6 +246,26 @@ function CombosPage() {
               }
             />
           </label>
+          {form.modoPreco === "PERCENTUAL" && (
+            <label>
+              {t("discountPercent")}
+              <input
+                required
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                className={input}
+                value={form.descontoPercentual}
+                onChange={(e) =>
+                  setForm({ ...form, descontoPercentual: e.target.value })
+                }
+              />
+              <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
+                {t("percentageHelp")}
+              </span>
+            </label>
+          )}
           {form.modoPreco === "FIXO" && (
             <label>
               {t("packageMonthly")}
@@ -368,7 +397,9 @@ function CombosPage() {
                   {t("enrollmentFee")}: {moeda(c.valorMatricula)} ·{" "}
                   {c.modoPreco === "FIXO"
                     ? `${t("monthly")}: ${moeda(c.valorMensalidade)}`
-                    : t("sum")}
+                    : c.modoPreco === "PERCENTUAL"
+                      ? `${t("discountPercent")}: ${c.descontoPercentual}%`
+                      : t("sum")}
                 </p>
               </div>
               <button

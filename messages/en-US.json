@@ -23349,6 +23349,9 @@
       "ERRO_INTERNO": "The operation could not be completed. Try again.",
       "PARCELAS_INCOMPATIVEIS": "Standalone courses must have the same number of monthly payments. Review course settings or configure a package with its own term."
     },
-    "class": "Class"
+    "class": "Class",
+    "percentage": "Percentage discount on standalone prices",
+    "discountPercent": "Monthly discount (%)",
+    "percentageHelp": "The percentage applies to the sum of standalone monthly fees for courses included in the package. The enrollment fee stays at the amount set above."
   }
 }

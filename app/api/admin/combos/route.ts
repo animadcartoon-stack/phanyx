@@ -12,9 +12,10 @@ const schema = z
     ativo: z.boolean(),
     minimoModalidades: z.number().int().min(2).max(100),
     maximoModalidades: z.number().int().min(2).max(100).nullable(),
-    modoPreco: z.enum(["FIXO", "SOMA"]),
+    modoPreco: z.enum(["FIXO", "SOMA", "PERCENTUAL"]),
     valorMatricula: z.union([z.string(), z.number()]),
     valorMensalidade: z.union([z.string(), z.number()]).nullable(),
+    descontoPercentual: z.union([z.string(), z.number()]).nullable().optional(),
     quantidadeParcelas: z.number().int().min(1).max(120),
     cursoIds: z.array(z.number().int().positive()).min(2).max(100),
     id: z.number().int().positive().optional(),
@@ -78,6 +79,12 @@ async function salvar(req: Request, editar: boolean) {
       dados.modoPreco === "FIXO"
         ? centavos(dados.valorMensalidade) / 100
         : null;
+    const descontoPercentual =
+      dados.modoPreco === "PERCENTUAL"
+        ? centavos(dados.descontoPercentual) / 100
+        : null;
+    if (descontoPercentual !== null && descontoPercentual > 100)
+      throw new ErroModalidades("VALOR_INVALIDO");
     const combo = await prisma.$transaction(
       async (tx) => {
         const homonimo = await tx.comboModalidades.findFirst({
@@ -107,7 +114,12 @@ async function salvar(req: Request, editar: boolean) {
         ) {
           throw new ErroModalidades("PRECO_COMBO_NAO_CONFIGURADO");
         }
-        const data = { ...dados, valorMatricula, valorMensalidade };
+        const data = {
+          ...dados,
+          valorMatricula,
+          valorMensalidade,
+          descontoPercentual,
+        };
         if (editar) {
           const esperado = new Date(versao);
           if (Number.isNaN(esperado.getTime()))

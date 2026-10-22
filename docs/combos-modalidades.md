@@ -5,7 +5,7 @@
 1. Em **Cursos**, mantenha os valores de matrícula e mensalidade avulsos e a quantidade de parcelas. Use zero para isenção, em vez de deixar o preço vazio.
 2. Marque **Participa de combos**. Preencha a mensalidade da modalidade no combo quando utilizar o cálculo por soma.
 3. Acesse **Cursos → Pacotes e combos** (`/admin/combos`). Defina modalidades, mínimo inclusivo, máximo opcional, taxa única e número de mensalidades.
-4. Escolha **Valor fechado do pacote** ou **Soma das mensalidades de combo**. Para mais de três modalidades, configure mínimo quatro.
+4. Escolha **Valor fechado do pacote**, **Soma das mensalidades de combo** ou **Desconto percentual sobre os valores avulsos**. O percentual incide uma vez sobre a soma das mensalidades elegíveis, com arredondamento em centavos, sem reduzir a taxa de matrícula. Para faixas diferentes, cadastre regras com mínimo/máximo próprios (por exemplo, duas, três e quatro ou mais modalidades). Para mais de três modalidades, configure mínimo quatro.
 5. Cadastre as turmas e todos os encontros obrigatórios, com dia, início e fim. Turmas presenciais com horários incompletos ficam indisponíveis no novo fluxo.
 
 ## Matrícula
@@ -26,7 +26,7 @@ A chamada e a frequência continuam vinculadas a cada ItemMatricula. A matrícul
 
 ## Publicação
 
-A migração `20261022210000_combos_modalidades` adiciona campos e tabelas. Os cursos existentes começam com a participação em combos desativada. Contratos e cobranças anteriores não são recalculados.
+As migrações `20261022210000_combos_modalidades` e `20261022211000_combo_percentual` adicionam campos, tabelas e a opção de percentual. Os cursos existentes começam com a participação em combos desativada. Contratos e cobranças anteriores não são recalculados.
 
 Aplique `npx prisma migrate deploy` no ambiente de destino **antes** de disponibilizar o código novo. Gere o Prisma Client e execute o build habitual. Não use `db push` em produção.
 
@@ -38,3 +38,5 @@ Aplique `npx prisma migrate deploy` no ambiente de destino **antes** de disponib
 - `npm run build`
 
 A integração é optativa: `tests/combos-integracao.cjs` aceita apenas PostgreSQL local com banco chamado `phanyx_combos` e schema aplicado. Defina `PHANYX_COMBOS_TEST_DATABASE_URL` e execute `node --test tests/combos-integracao.cjs`. O teste cria e remove somente seus dados sintéticos. A identidade autenticada e a resolução de tradução do Next são adaptadas no processo de teste; as rotas, validações, transações, vínculos, contrato e cobranças utilizam o código real.
+
+A planilha comercial de 2027 foi usada como referência de cenários. Os descontos estão identificados nela como propostas e a taxa dos combos está pendente. Nenhum valor da planilha é cadastrado ou ativado automaticamente em produção. A comparação com o PEVI não troca a contratação do aluno nem estabelece teto de preço.

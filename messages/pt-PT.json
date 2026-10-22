@@ -23135,6 +23135,9 @@
       "ERRO_INTERNO": "Não foi possível concluir a operação. Tente novamente.",
       "PARCELAS_INCOMPATIVEIS": "As modalidades individuais devem ter o mesmo número de mensalidades. Reveja os cursos ou configure um pacote com duração própria."
     },
-    "class": "Turma"
+    "class": "Turma",
+    "percentage": "Desconto percentual sobre os valores individuais",
+    "discountPercent": "Desconto na mensalidade (%)",
+    "percentageHelp": "O percentual aplica-se à soma das mensalidades individuais das modalidades incluídas no pacote. A taxa de inscrição mantém o valor definido acima."
   }
 }

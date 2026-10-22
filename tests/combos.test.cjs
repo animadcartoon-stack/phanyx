@@ -312,3 +312,103 @@ test("combo tem duração própria, mas extras precisam ser compatíveis", () =>
     { codigo: "PARCELAS_INCOMPATIVEIS" },
   );
 });
+
+test("percentual é calculado em centavos sobre a soma avulsa, sem descontar matrícula", () => {
+  const r = calcular(
+    [curso(1, { valorMensalidade: 139 }), curso(2, { valorMensalidade: 189 })],
+    [
+      combo({
+        modoPreco: "PERCENTUAL",
+        descontoPercentual: "5.00",
+        minimoModalidades: 2,
+        maximoModalidades: 2,
+        valorMensalidade: null,
+      }),
+    ],
+  );
+  assert.equal(r.mensalidadeCentavos, 31160);
+  assert.equal(r.matriculaCentavos, 9000);
+  assert.equal(r.descontoPercentual, 5);
+});
+test("255 combinações seguem as faixas percentuais propostas, sem cadastro automático", () => {
+  const precos = [139, 139, 139, 189, 189, 189, 189, 239];
+  const regras = [
+    combo({
+      id: 2,
+      modoPreco: "PERCENTUAL",
+      descontoPercentual: 5,
+      minimoModalidades: 2,
+      maximoModalidades: 2,
+      cursoIds: [1, 2, 3, 4, 5, 6, 7, 8],
+    }),
+    combo({
+      id: 3,
+      modoPreco: "PERCENTUAL",
+      descontoPercentual: 10,
+      minimoModalidades: 3,
+      maximoModalidades: 3,
+      cursoIds: [1, 2, 3, 4, 5, 6, 7, 8],
+    }),
+    combo({
+      id: 4,
+      modoPreco: "PERCENTUAL",
+      descontoPercentual: 15,
+      minimoModalidades: 4,
+      cursoIds: [1, 2, 3, 4, 5, 6, 7, 8],
+    }),
+  ];
+  for (let mask = 1; mask < 256; mask++) {
+    const selecionados = precos.flatMap((p, i) =>
+      mask & (1 << i) ? [curso(i + 1, { valorMensalidade: p })] : [],
+    );
+    const pct =
+      selecionados.length === 1
+        ? 0
+        : selecionados.length === 2
+          ? 5
+          : selecionados.length === 3
+            ? 10
+            : 15;
+    const total = selecionados.reduce(
+      (s, c) => s + 100 * c.valorMensalidade,
+      0,
+    );
+    assert.equal(
+      calcular(selecionados, regras).mensalidadeCentavos,
+      Math.round((total * (100 - pct)) / 100),
+      `combinação ${mask}`,
+    );
+    assert.equal(calcular(selecionados, []).mensalidadeCentavos, total);
+  }
+});
+test("desconto de 100% permite isenção e percentuais inválidos são recusados", () => {
+  const cursos = [curso(1), curso(2), curso(3)];
+  assert.equal(
+    calcular(cursos, [
+      combo({ modoPreco: "PERCENTUAL", descontoPercentual: 100 }),
+    ]).mensalidadeCentavos,
+    0,
+  );
+  for (const pct of [-1, 101, "1.001", null])
+    assert.throws(() =>
+      calcular(cursos, [
+        combo({ modoPreco: "PERCENTUAL", descontoPercentual: pct }),
+      ]),
+    );
+});
+test("arredondamento percentual ocorre uma vez, depois de somar os valores", () => {
+  const r = calcular(
+    [
+      curso(1, { valorMensalidade: "0.05" }),
+      curso(2, { valorMensalidade: "0.05" }),
+    ],
+    [
+      combo({
+        modoPreco: "PERCENTUAL",
+        descontoPercentual: 10,
+        minimoModalidades: 2,
+      }),
+    ],
+  );
+  assert.equal(r.mensalidadeCentavos, 9);
+});

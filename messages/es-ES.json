@@ -23348,6 +23348,9 @@
       "ERRO_INTERNO": "No se pudo completar la operación. Inténtelo nuevamente.",
       "PARCELAS_INCOMPATIVEIS": "Las modalidades individuales deben tener el mismo número de mensualidades. Revise los cursos o configure un paquete con duración propia."
     },
-    "class": "Grupo"
+    "class": "Grupo",
+    "percentage": "Descuento porcentual sobre precios individuales",
+    "discountPercent": "Descuento en mensualidad (%)",
+    "percentageHelp": "El porcentaje se aplica a la suma de mensualidades individuales de las modalidades del paquete. La matrícula mantiene el importe definido arriba."
   }
 }

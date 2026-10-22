@@ -543,6 +543,69 @@ if (!url) {
           );
         },
       );
+      await t.test(
+        "percentual configurável é persistido e gera a cobrança calculada",
+        async () => {
+          const cadastro = await regras.POST(
+            req({
+              ...config,
+              nome: "Percentual teste",
+              minimoModalidades: 2,
+              maximoModalidades: 2,
+              modoPreco: "PERCENTUAL",
+              valorMensalidade: null,
+              descontoPercentual: "5.00",
+            }),
+          );
+          assert.equal(
+            cadastro.status,
+            201,
+            JSON.stringify(await cadastro.clone().json()),
+          );
+          const registro = await prisma.comboModalidades.findUnique({
+            where: { id: (await cadastro.json()).id },
+          });
+          assert.equal(Number(registro.descontoPercentual), 5);
+          const selecao = {
+            ...base,
+            alunoId: aluno2.id,
+            turmaIds: selecionadas.slice(0, 2),
+            acao: "PREVIA",
+          };
+          const res = await api.POST(req(selecao));
+          assert.equal(
+            res.status,
+            200,
+            JSON.stringify(await res.clone().json()),
+          );
+          const p = await res.json();
+          assert.equal(p.calculo.mensalidadeCentavos, 19000);
+          const criar = await api.POST(
+            req({
+              ...pedido,
+              ...selecao,
+              acao: "CONFIRMAR",
+              chave: crypto.randomUUID(),
+              versao: p.versao,
+              confirmacaoMenorAceita: true,
+            }),
+          );
+          assert.equal(
+            criar.status,
+            201,
+            JSON.stringify(await criar.clone().json()),
+          );
+          const m = await prisma.matricula.findUnique({
+            where: { id: (await criar.json()).matricula.id },
+            include: { lancamentosFinanceiros: true },
+          });
+          assert.ok(
+            m.lancamentosFinanceiros
+              .filter((l) => l.tipo === "MENSALIDADE")
+              .every((l) => l.valorFinal === 190),
+          );
+        },
+      );
     } finally {
       // Apenas dados sintéticos do banco local reservado.
       if (instituicaoId) {

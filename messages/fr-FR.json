@@ -23348,6 +23348,9 @@
       "ERRO_INTERNO": "L'opération n'a pas pu aboutir. Réessayez.",
       "PARCELAS_INCOMPATIVEIS": "Les cours individuels doivent avoir le même nombre de mensualités. Vérifiez les cours ou configurez un forfait avec sa propre durée."
     },
-    "class": "Classe"
+    "class": "Classe",
+    "percentage": "Remise en pourcentage sur les tarifs individuels",
+    "discountPercent": "Remise sur la mensualité (%)",
+    "percentageHelp": "Le pourcentage s’applique à la somme des mensualités individuelles des cours du forfait. Les frais d’inscription restent au montant défini ci-dessus."
   }
 }

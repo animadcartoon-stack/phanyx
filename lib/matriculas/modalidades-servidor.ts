@@ -316,6 +316,7 @@ export async function prepararContratacaoModalidades(
       ...c,
       valorMatricula: c.valorMatricula.toString(),
       valorMensalidade: c.valorMensalidade?.toString() ?? null,
+      descontoPercentual: c.descontoPercentual?.toString() ?? null,
       cursoIds: c.cursos.map((v) => v.cursoId),
     })),
   );

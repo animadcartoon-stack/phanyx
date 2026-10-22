@@ -23119,6 +23119,9 @@
       "ERRO_INTERNO": "Não foi possível concluir a operação. Tente novamente.",
       "PARCELAS_INCOMPATIVEIS": "As modalidades avulsas precisam ter a mesma quantidade de mensalidades. Revise os cursos ou configure um pacote com duração própria."
     },
-    "class": "Turma"
+    "class": "Turma",
+    "percentage": "Desconto percentual sobre os valores avulsos",
+    "discountPercent": "Desconto na mensalidade (%)",
+    "percentageHelp": "O percentual se aplica à soma das mensalidades avulsas das modalidades incluídas no pacote. A taxa de matrícula permanece no valor definido acima."
   }
 }

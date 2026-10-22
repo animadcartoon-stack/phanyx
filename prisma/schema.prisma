@@ -11567,6 +11567,7 @@ model BibliotecaAnotacao {
 enum ModoPrecoCombo {
   FIXO
   SOMA
+  PERCENTUAL
 }
 
 model ComboModalidades {
@@ -11577,6 +11578,7 @@ model ComboModalidades {
   minimoModalidades  Int                     @default(3)
   maximoModalidades  Int?
   modoPreco          ModoPrecoCombo          @default(FIXO)
+  descontoPercentual Decimal?                @db.Decimal(5, 2)
   valorMatricula     Decimal                 @db.Decimal(10, 2)
   valorMensalidade   Decimal?                @db.Decimal(10, 2)
   quantidadeParcelas Int                     @default(12)

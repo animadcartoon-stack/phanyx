@@ -25,7 +25,8 @@ export type RegraCombo = {
   ativo: boolean;
   minimoModalidades: number;
   maximoModalidades: number | null;
-  modoPreco: "FIXO" | "SOMA";
+  modoPreco: "FIXO" | "SOMA" | "PERCENTUAL";
+  descontoPercentual?: number | string | null;
   valorMatricula: number | string;
   valorMensalidade: number | string | null;
   quantidadeParcelas: number;
@@ -48,6 +49,23 @@ export function centavos(valor: unknown): number {
   if (!Number.isSafeInteger(total) || total > 9999999999)
     throw new ErroModalidades("VALOR_INVALIDO");
   return total;
+}
+
+export function aplicarDescontoPercentual(
+  valorCentavos: number,
+  percentual: unknown,
+) {
+  const pontosBase = centavos(percentual);
+  if (
+    pontosBase > 10000 ||
+    !Number.isSafeInteger(valorCentavos) ||
+    valorCentavos < 0
+  ) {
+    throw new ErroModalidades("VALOR_INVALIDO");
+  }
+  return Number(
+    (BigInt(valorCentavos) * (10000n - BigInt(pontosBase)) + 5000n) / 10000n,
+  );
 }
 
 export function idsPositivos(valor: unknown, limite = 100): number[] {
@@ -84,6 +102,7 @@ export function calcularContratacaoModalidades(
   const avulso = {
     comboId: null as number | null,
     nome: "AVULSO",
+    descontoPercentual: null as number | null,
     cursoIdsCombo: [] as number[],
     cursoIdsAvulsos: ordenados.map((c) => c.id),
     matriculaCentavos: ordenados.reduce(
@@ -123,6 +142,10 @@ export function calcularContratacaoModalidades(
         {
           comboId: combo.id,
           nome: combo.nome,
+          descontoPercentual:
+            combo.modoPreco === "PERCENTUAL"
+              ? centavos(combo.descontoPercentual) / 100
+              : null,
           cursoIdsCombo: elegiveis.map((c) => c.id),
           cursoIdsAvulsos: extras.map((c) => c.id),
           matriculaCentavos:
@@ -131,10 +154,18 @@ export function calcularContratacaoModalidades(
           mensalidadeCentavos:
             (combo.modoPreco === "FIXO"
               ? centavos(combo.valorMensalidade)
-              : elegiveis.reduce(
-                  (s, c) => s + centavos(c.valorMensalidadeCombo),
-                  0,
-                )) +
+              : combo.modoPreco === "PERCENTUAL"
+                ? aplicarDescontoPercentual(
+                    elegiveis.reduce(
+                      (s, c) => s + centavos(c.valorMensalidade),
+                      0,
+                    ),
+                    combo.descontoPercentual,
+                  )
+                : elegiveis.reduce(
+                    (s, c) => s + centavos(c.valorMensalidadeCombo),
+                    0,
+                  )) +
             extras.reduce((s, c) => s + centavos(c.valorMensalidade), 0),
           quantidadeParcelas: combo.quantidadeParcelas,
         },
