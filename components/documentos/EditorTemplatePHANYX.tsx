@@ -7110,35 +7110,14 @@ export default function EditorTemplatePHANYX({
         .phanyx-document-paper .editor-template-phanyx {
           background-color: #ffffff !important;
           color: #0f172a !important;
-          -webkit-text-fill-color: #0f172a !important;
+          -webkit-text-fill-color: currentColor !important;
           color-scheme: light;
         }
 
-        .phanyx-document-paper
-          .editor-template-phanyx,
-        .phanyx-document-paper
-          .editor-template-phanyx
-          :where(
-            p,
-            div,
-            span,
-            li,
-            strong,
-            em,
-            u,
-            a,
-            h1,
-            h2,
-            h3,
-            h4,
-            h5,
-            h6,
-            blockquote,
-            td,
-            th
-          ) {
-          color: #0f172a !important;
-          -webkit-text-fill-color: #0f172a !important;
+        /* A tinta acompanha a cor escolhida em cada trecho do documento. */
+        .phanyx-document-paper .editor-template-phanyx,
+        .phanyx-document-paper .editor-template-phanyx * {
+          -webkit-text-fill-color: currentColor !important;
         }
 
         .phanyx-a4-guia-cabecalho,

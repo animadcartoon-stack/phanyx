@@ -4504,10 +4504,13 @@ function AdminDocumentosTemplatesPage() {
        * as cores claras dos temas Escuro/Sistema.
        */
       #editor-template-phanyx .phanyx-document-paper,
-      #editor-template-phanyx .phanyx-document-paper .ProseMirror,
-      #editor-template-phanyx .phanyx-document-paper .ProseMirror * {
+      #editor-template-phanyx .phanyx-document-paper .ProseMirror {
         color: #0f172a !important;
-        -webkit-text-fill-color: #0f172a !important;
+        -webkit-text-fill-color: currentColor !important;
+      }
+
+      #editor-template-phanyx .phanyx-document-paper .ProseMirror * {
+        -webkit-text-fill-color: currentColor !important;
       }
 
       #editor-template-phanyx .phanyx-a4-guia-cabecalho,
