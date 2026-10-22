@@ -1,3 +1,4 @@
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -86,7 +87,9 @@ export async function GET() {
       id: turma.id,
       nome: turma.nome,
       codigo: turma.codigo,
-      semestre: turma.semestre,
+      semestre: String(etapaDaOferta(turma) ?? ""),
+      etapaNumero: etapaDaOferta(turma),
+      organizacaoCurricular: turma.organizacaoCurricular,
       periodoLetivo: turma.periodoLetivo,
       ativa: turma.ativa,
       statusTurma: turma.statusTurma,

@@ -485,6 +485,7 @@ const alunoIds: number[] = Array.from(
             ativo: true,
           },
           OR: [
+            { etapaNumero: semestreAtual },
             {
               cursoSemestre: {
                 numero:

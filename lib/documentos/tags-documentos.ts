@@ -8,6 +8,9 @@
  */
 
 export const DOCUMENT_TAG_ALIASES = {
+  "etapaAtual": "currentCurriculumStage",
+  "organizacaoCurricular": "curriculumOrganization",
+  "anoCurricular": "curriculumYear",
   "assinaturaDiretor": "directorSignature",
   "atoLegalCriacao": "legalCreationAct",
   "avisoPrevio": "noticePeriod",

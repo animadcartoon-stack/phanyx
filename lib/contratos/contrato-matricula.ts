@@ -1,3 +1,4 @@
+import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { anexarResumoModalidades } from "./resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { prisma } from "@/lib/prisma";
@@ -572,6 +573,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
           )
         : "-",
 
+    ...valoresEtapaDocumento(matricula),
     semestreAtual:
       matricula.semestre !==
         null &&

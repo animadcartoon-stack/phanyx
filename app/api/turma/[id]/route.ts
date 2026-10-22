@@ -1,5 +1,6 @@
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { mesmaEtapaOferta } from "@/lib/academico/grade-oferta";
-import { ErroIntegridadeAcademica, idOpcionalOferta, idsOferta, protegerHistoricoDasOfertas, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
+import { validarEtapaDoCurso, ErroIntegridadeAcademica, idOpcionalOferta, idsOferta, protegerHistoricoDasOfertas, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -24,6 +25,7 @@ export async function GET(
     const turma = await prisma.turma.findFirst({
       where: { id: turmaId, instituicaoId: user.instituicaoId },
       include: {
+        curso: true,
         polo: true,
         disciplinas: {
           include: {
@@ -52,10 +54,10 @@ export async function GET(
     return NextResponse.json({
       ...turma,
       disciplinas: turma.disciplinas.map((item) => item.disciplina),
-      curso:
+      curso: turma.curso ?? (
         turma.disciplinas.length > 0
           ? turma.disciplinas[0].disciplina.curso ?? null
-          : null,
+          : null),
     });
   } catch (error) {
     console.error(error);
@@ -160,13 +162,6 @@ const poloId = poloFoiEnviado ? idOpcionalOferta(body.poloId) : turmaExistente.p
     const professorId = body.professorId === undefined
       ? turmaExistente.professorId : idOpcionalOferta(body.professorId);
 
-    const semestreNumero = Number(
-  String(
-    body.semestre ??
-      turmaExistente.semestre,
-  ).match(/\d+/)?.[0] || 0,
-);
-
 const modalidade = String(
   body?.modalidade ??
     turmaExistente.modalidade ??
@@ -181,10 +176,14 @@ const turmaAtualizada =
       const vinculosExistentes = await tx.turmaDisciplina.findMany({
         where: { turmaId, instituicaoId: user.instituicaoId },
       });
-      const mesmoSemestre = mesmaEtapaOferta(body.semestre ?? turmaExistente.semestre, turmaExistente.semestre);
+      const etapa = await validarEtapaDoCurso(tx, user.instituicaoId, turmaExistente.cursoId,
+        body.etapaNumero ?? (body.semestre !== undefined && turmaExistente.organizacaoCurricular !== "ANUAL" ? body.semestre : etapaDaOferta(turmaExistente)),
+        turmaExistente.organizacaoCurricular);
+      const semestreNumero = etapa.etapaNumero;
+      const mesmoSemestre = mesmaEtapaOferta(etapa.etapaNumero, etapaDaOferta(turmaExistente));
       if (!mesmoSemestre) await protegerHistoricoDasOfertas(tx, user.instituicaoId, vinculosExistentes, "ETAPA_COM_HISTORICO");
       await validarDisciplinasDaOferta(tx, user.instituicaoId, turmaExistente.cursoId,
-        body.semestre ?? turmaExistente.semestre, disciplinaIds,
+        etapa.etapaNumero, disciplinaIds,
         mesmoSemestre ? vinculosExistentes.map(v => v.disciplinaId) : []);
       await validarResponsaveisDaOferta(tx, user.instituicaoId, poloId, professorId, disciplinaIds, professoresPorDisciplina);
 
@@ -206,11 +205,8 @@ const turmaAtualizada =
                 body.codigo ?? "",
               ).trim() || null,
 
-            semestre:
-              String(
-                body.semestre ??
-                  turmaExistente.semestre,
-              ).trim(),
+            ...etapa,
+            semestre: mesmoSemestre && etapa.organizacaoCurricular === "SEMESTRAL" ? turmaExistente.semestre : etapa.semestre,
 
             periodoLetivo:
               String(
@@ -304,8 +300,9 @@ const turmaAtualizada =
               turmaId,
               instituicaoId:
                 user.instituicaoId,
+              organizacaoCurricular: etapa.organizacaoCurricular,
               numero:
-                semestreNumero || 1,
+                semestreNumero,
             },
 
             orderBy: {
@@ -322,8 +319,9 @@ const turmaAtualizada =
                 turmaId,
                 instituicaoId:
                   user.instituicaoId,
+                organizacaoCurricular: etapa.organizacaoCurricular,
                 numero:
-                  semestreNumero || 1,
+                  semestreNumero,
                 status:
                   "A_INICIAR",
               },

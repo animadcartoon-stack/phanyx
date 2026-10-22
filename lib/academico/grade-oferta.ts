@@ -1,4 +1,5 @@
 export type CursoGradeOferta = {
+  organizacaoCurricular?: string;
   id: number;
   semestres: { numero: number; disciplinas: { disciplinaId: number }[] }[];
 };
@@ -16,7 +17,7 @@ export function disciplinaPermitidaNaOferta(
   semestre: number | null,
 ): boolean {
   if (!curso) return disciplina.cursoId == null && (!semestre || disciplina.semestre === semestre);
-  if (curso.semestres.length) {
+  if (curso.semestres.length || curso.organizacaoCurricular === "ANUAL") {
     return curso.semestres.some(etapa =>
       (!semestre || etapa.numero === semestre) &&
       etapa.disciplinas.some(item => item.disciplinaId === disciplina.id),

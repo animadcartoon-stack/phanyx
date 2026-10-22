@@ -1,3 +1,4 @@
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import {
   Prisma,
   SituacaoItemTransferenciaMatricula,
@@ -352,6 +353,9 @@ export async function POST(
                 cursoId:
                   true,
 
+                organizacaoCurricular: true,
+                etapaNumero: true,
+                semestre: true,
                 cursoSemestreId:
                   true,
 
@@ -572,6 +576,8 @@ export async function POST(
 
                 semestre:
                   true,
+                etapaNumero: true,
+                organizacaoCurricular: true,
 
                 modalidade:
                   true,
@@ -646,6 +652,11 @@ export async function POST(
            * COMPATIBILIDADE
            * =============================================
            */
+
+          if (matricula.organizacaoCurricular === "ANUAL" &&
+            (turmaDestino.organizacaoCurricular !== "ANUAL" || etapaDaOferta(turmaDestino) !== etapaDaOferta(matricula))) {
+            throw new ErroApi(409, "A turma deve pertencer ao mesmo ano curricular. Utilize o fluxo de progressão para outra etapa.", "ETAPA_DIFERENTE");
+          }
 
           const disciplinasDestino =
             new Set(

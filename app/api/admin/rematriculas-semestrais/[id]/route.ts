@@ -1,3 +1,5 @@
+import { validarTurmasDaEtapa, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import {
   NextRequest,
   NextResponse,
@@ -368,7 +370,7 @@ export async function PATCH(
 
     const cursoSemestreId =
       Number(
-        body.cursoSemestreId,
+        body.cursoEtapaId ?? body.cursoSemestreId,
       );
 
     const periodoLetivo =
@@ -453,7 +455,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Selecione o semestre de destino.",
+            "Selecione a etapa de destino.",
         },
         {
           status: 400,
@@ -581,7 +583,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "O semestre não pertence ao curso selecionado.",
+            "A etapa não pertence ao curso selecionado.",
         },
         {
           status: 404,
@@ -590,6 +592,7 @@ export async function PATCH(
     }
 
     if (turmaIds.length > 0) {
+      await validarTurmasDaEtapa(prisma, user.instituicaoId, cursoId, cursoSemestreId, turmaIds);
       const turmasValidas =
         await prisma.turma.findMany(
           {
@@ -608,7 +611,7 @@ export async function PATCH(
 
             select: {
               id: true,
-              semestre: true,
+              semestre: true, etapaNumero: true, organizacaoCurricular: true,
 
               semestres: {
                 select: {
@@ -649,9 +652,7 @@ export async function PATCH(
             }
 
             const numeroTexto =
-              numeroSemestreTexto(
-                turma.semestre,
-              );
+              etapaDaOferta(turma);
 
             if (
               numeroTexto === null
@@ -670,7 +671,7 @@ export async function PATCH(
         return NextResponse.json(
           {
             error:
-              "Uma ou mais turmas selecionadas não pertencem ao semestre de destino.",
+              "Uma ou mais turmas selecionadas não pertencem à etapa de destino.",
           },
           {
             status: 400,
@@ -714,7 +715,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           error:
-            "Já existe outro período para este curso, semestre e período letivo.",
+            "Já existe outro período para este curso, etapa e período letivo.",
         },
         {
           status: 409,
@@ -951,7 +952,7 @@ export async function PATCH(
                         nome: true,
                         codigo: true,
                         cursoId: true,
-                        semestre: true,
+                        semestre: true, etapaNumero: true, organizacaoCurricular: true,
                         periodoLetivo: true,
                         turno: true,
                         modalidade: true,

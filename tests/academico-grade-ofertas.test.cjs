@@ -116,3 +116,126 @@ test('mensagens de integridade têm as mesmas chaves nos cinco idiomas',()=>{let
 
 test('mudança de etapa de turma com aulas é bloqueada e preserva o cadastro',async()=>{reset();tables.history=[{model:'aula',instituicaoId:10,turmaId:31,disciplinaId:11}];const before=structuredClone(tables);await expectCode(classDetail.PUT(req({semestre:'2',disciplinaIds:[11]}),ctx(31)),'ETAPA_COM_HISTORICO',409);assert.deepEqual(tables,before);});
 test('mudança de curso de disciplina com matrículas não altera seu histórico',async()=>{reset();tables.history=[{model:'itemMatricula',instituicaoId:10,turmaId:31,disciplinaId:11}];const before=structuredClone(tables);await expectCode(subjectApi.PUT(req({cursoId:1}),ctx(11)),'ETAPA_COM_HISTORICO',409);assert.deepEqual(tables,before);});
+
+const organization = require('../lib/academico/organizacao.ts');
+function annualFixture() {
+  reset();
+  Object.assign(tables.courses[0],{organizacaoCurricular:'ANUAL',quantidadeEtapas:3,quantidadeSemestres:null});
+  tables.courses[0].semestres=[{numero:2,organizacaoCurricular:'ANUAL',disciplinas:[{disciplinaId:11},{disciplinaId:12}]}];
+  tables.curriculum=[{id:101,cursoId:1,instituicaoId:10,numero:2,organizacaoCurricular:'ANUAL'}];
+  db.cursoSemestre=model('curriculum');
+}
+test('turma anual grava ano 2 com período 2027 e etapa tipada, sem semestre fictício',async()=>{
+  annualFixture();
+  const res=await classApi.POST(req(newClass({semestre:'',etapaNumero:2,periodoLetivo:'2027'})));
+  assert.equal(res.status,200,JSON.stringify(await res.clone().json()));
+  const row=tables.classes.find(t=>t.nome==='Nova turma');
+  assert.equal(row.organizacaoCurricular,'ANUAL');assert.equal(row.etapaNumero,2);assert.equal(row.semestre,'');assert.equal(row.periodoLetivo,'2027');
+  const stage=tables.stages.find(s=>s.turmaId===row.id);assert.equal(stage.organizacaoCurricular,'ANUAL');assert.equal(stage.numero,2);
+  assert.equal(tables.offers.find(o=>o.turmaId===row.id).turmaSemestreId,stage.id);
+});
+test('turma anual não aceita disciplina de outro ano nem fallback direto',async()=>{
+  annualFixture();await expectCode(classApi.POST(req(newClass({etapaNumero:1,semestre:''}))),'GRADE_INCOMPATIVEL');
+  tables.courses[0].semestres=[];await expectCode(classApi.POST(req(newClass({etapaNumero:2,semestre:''}))),'GRADE_INCOMPATIVEL');
+  assert.equal(tables.classes.length,3);
+});
+test('ano informado fora da duração ou malformado é rejeitado sem gravação',async()=>{
+  for(const value of [0,-1,1.5,'2abc','2027.1',true,4]) {
+    annualFixture();await expectCode(classApi.POST(req(newClass({etapaNumero:value,semestre:''}))),'ETAPA_INVALIDA');assert.equal(tables.classes.length,3);
+  }
+});
+test('cliente não pode criar turma semestral para curso anual',async()=>{
+  annualFixture();await expectCode(classApi.POST(req(newClass({etapaNumero:2,organizacaoCurricular:'SEMESTRAL'}))),'ORGANIZACAO_INVALIDA');
+});
+test('editar turma anual mantém etapa, oferta, professor e horários históricos',async()=>{
+  annualFixture();Object.assign(tables.classes[0],{organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:'',periodoLetivo:'2027'});
+  Object.assign(tables.stages[0],{organizacaoCurricular:'ANUAL',numero:2});
+  const before=structuredClone([tables.offers,tables.hours]);
+  const res=await classDetail.PUT(req({nome:'Nome atualizado',disciplinaIds:[11],etapaNumero:2}),ctx(31));
+  assert.equal(res.status,200,JSON.stringify(await res.clone().json()));assert.deepEqual([tables.offers,tables.hours],before);assert.equal(tables.classes[0].semestre,'');
+});
+test('troca de ano curricular com aulas preserva toda a turma e seu histórico',async()=>{
+  annualFixture();Object.assign(tables.classes[0],{organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:''});
+  tables.history=[{model:'aula',instituicaoId:10,turmaId:31,disciplinaId:11}];const before=structuredClone(tables);
+  await expectCode(classDetail.PUT(req({etapaNumero:3,disciplinaIds:[11]}),ctx(31)),'ETAPA_COM_HISTORICO',409);assert.deepEqual(tables,before);
+});
+test('matrícula anual resolve grade e snapshot próprios sem preencher semestre',async()=>{
+  annualFixture();const result=await rules.resolverEtapaDaMatricula(db,10,1,101,null);
+  assert.deepEqual(result,{organizacaoCurricular:'ANUAL',etapaNumero:2,cursoSemestreId:101,semestre:null});
+  assert.deepEqual(await rules.resolverEtapaDaMatricula(db,10,1,null,2),result);
+});
+test('matrícula recusa etapa de outro curso, instituição ou organização e número divergente',async()=>{
+  for(const mutate of [()=>{},()=>tables.curriculum[0].cursoId=2,()=>tables.curriculum[0].instituicaoId=20,()=>tables.curriculum[0].organizacaoCurricular='SEMESTRAL']) {
+    annualFixture();mutate();await assert.rejects(rules.resolverEtapaDaMatricula(db,10,1,101,1),e=>e.codigo==='ETAPA_INVALIDA');
+  }
+  annualFixture();await assert.rejects(rules.resolverEtapaDaMatricula(db,10,1,null,null),e=>e.codigo==='ETAPA_INVALIDA');
+});
+test('matrícula semestral conserva o número e os IDs legados',async()=>{
+  annualFixture();tables.courses[0].organizacaoCurricular='SEMESTRAL';tables.curriculum[0].organizacaoCurricular='SEMESTRAL';
+  assert.deepEqual(await rules.resolverEtapaDaMatricula(db,10,1,101,2),{organizacaoCurricular:'SEMESTRAL',etapaNumero:2,cursoSemestreId:101,semestre:2});
+});
+test('curso em uso não permite trocar organização mesmo se não houver turma ativa',async()=>{
+  for(const inUse of ['cursoSemestre','disciplina','turma','matricula','cursoPublicacaoRede']) {
+    const fixture=Object.fromEntries(['cursoSemestre','disciplina','turma','matricula','cursoPublicacaoRede'].map(name=>[name,{count:async args=>{assert.ok(args.where.instituicaoId===10||args.where.instituicaoOrigemId===10);return name===inUse?1:0;}}]));
+    await assert.rejects(rules.protegerOrganizacaoDoCurso(fixture,10,1),e=>e.codigo==='ORGANIZACAO_EM_USO');
+  }
+});
+test('documentos separam ano curricular de semestre com aliases neutros',()=>{
+  assert.deepEqual(organization.valoresEtapaDocumento({organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:null}),{etapaAtual:'Ano 2',organizacaoCurricular:'Anual',anoCurricular:'2'});
+  assert.equal(organization.valoresEtapaDocumento({semestre:3}).etapaAtual,'Semestre 3');
+  assert.equal(organization.valoresEtapaDocumento({organizacaoCurricular:'ANUAL',etapaNumero:2},'en-US').etapaAtual,'Year 2');
+});
+test('organização tem chaves e traduções completas nos cinco idiomas',()=>{
+  let keys;for(const lang of ['pt-BR','pt-PT','en-US','es-ES','fr-FR']) {
+    const data=JSON.parse(fs.readFileSync(path.resolve(__dirname,`../messages/${lang}.json`),'utf8')).AcademicStructure;
+    if(keys)assert.deepEqual(Object.keys(data).sort(),keys);keys=Object.keys(data).sort();assert.ok(data.ANUAL&&data.SEMESTRAL&&data.annualSubjectHelp);
+  }
+});
+
+const courseApi=require('../app/api/admin/cursos/route.ts');
+function courseEditingFixture() {
+  reset();tables.curriculum=[];tables.matriculas=[];tables.publications=[];
+  db.cursoSemestre=model('curriculum');db.matricula=model('matriculas');db.cursoPublicacaoRede=model('publications');
+  db.curso.update=async ({where,data})=>assignDefined(tables.courses.find(c=>c.id===where.id),data);
+  db.curso.findUnique=async ({where})=>tables.courses.find(c=>c.id===where.id);
+  tables.courses.forEach(c=>Object.assign(c,{organizacaoCurricular:'SEMESTRAL',publicacaoRedeDestino:null,nome:`Curso ${c.id}`,codigo:null}));
+  tables.courses.push({id:3,instituicaoId:10,organizacaoCurricular:'SEMESTRAL',publicacaoRedeDestino:null,nome:'Curso novo',codigo:null});
+}
+test('API de curso vazio permite organização anual sem impor 12 parcelas',async()=>{
+  courseEditingFixture();
+  const res=await courseApi.PUT(req({id:3,organizacaoCurricular:'ANUAL',quantidadeEtapas:2,valorMatricula:80,valorMensalidade:200,quantidadeParcelas:10}));
+  assert.equal(res.status,200,JSON.stringify(await res.clone().json()));const row=tables.courses.find(c=>c.id===3);
+  assert.equal(row.organizacaoCurricular,'ANUAL');assert.equal(row.quantidadeEtapas,2);assert.equal(row.quantidadeSemestres,null);assert.equal(row.quantidadeParcelas,10);assert.equal(row.valorMensalidade,200);
+});
+test('API de curso bloqueia conversão com estrutura e responde 409 sem mudanças',async()=>{
+  courseEditingFixture();const before=structuredClone(tables);
+  await expectCode(courseApi.PUT(req({id:1,organizacaoCurricular:'ANUAL',quantidadeEtapas:1})),'ORGANIZACAO_EM_USO',409);assert.deepEqual(tables,before);
+});
+test('API de curso conserva a organização anual e quantidade quando omitidas',async()=>{
+  courseEditingFixture();Object.assign(tables.courses.find(c=>c.id===3),{organizacaoCurricular:'ANUAL',quantidadeEtapas:2});
+  const res=await courseApi.PUT(req({id:3,nome:'Nome atualizado',valorMensalidade:200,quantidadeParcelas:10}));
+  assert.equal(res.status,200,JSON.stringify(await res.clone().json()));assert.equal(tables.courses.find(c=>c.id===3).organizacaoCurricular,'ANUAL');assert.equal(tables.courses.find(c=>c.id===3).quantidadeEtapas,2);
+});
+test('API de curso não edita outra instituição nem aceita organização desconhecida',async()=>{
+  courseEditingFixture();assert.equal((await courseApi.PUT(req({id:9,organizacaoCurricular:'ANUAL'}))).status,404);
+  await expectCode(courseApi.PUT(req({id:3,organizacaoCurricular:'BIMESTRAL'})),'ORGANIZACAO_INVALIDA');
+});
+test('rematrícula anual aceita turma do ano de destino e rejeita ano, curso ou organização diferentes',async()=>{
+  annualFixture();Object.assign(tables.classes[0],{organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:'',ativa:true});
+  await rules.validarTurmasDaEtapa(db,10,1,101,[31]);
+  for (const delta of [{etapaNumero:1},{cursoId:2},{organizacaoCurricular:'SEMESTRAL'},{instituicaoId:20},{ativa:false}]) {
+    annualFixture();Object.assign(tables.classes[0],{organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:'',ativa:true},delta);
+    await assert.rejects(rules.validarTurmasDaEtapa(db,10,1,101,[31]),e=>e.codigo==='ETAPA_INVALIDA');
+  }
+});
+test('matrícula anual valida todas as novas ofertas principais, preservando ofertas já contratadas',async()=>{
+  annualFixture();Object.assign(tables.classes[0],{organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:'',ativa:true});
+  const item={turmaId:31,disciplinaId:11,tipoItem:'GRADE_PRINCIPAL'};
+  db.cursoSemestreDisciplina={count:async ({where})=>{assert.equal(where.cursoSemestreId,101);assert.equal(where.instituicaoId,10);return where.disciplinaId.in.includes(11)?1:0;}};
+  db.itemMatricula.findMany=async()=>[{...item}];
+  await rules.validarItensAnuaisDaMatricula(db,10,1,101,[item]);
+  await assert.rejects(rules.validarItensAnuaisDaMatricula(db,10,1,101,[{...item,disciplinaId:13}]),e=>e.codigo==='GRADE_INCOMPATIVEL');
+  tables.classes[0].etapaNumero=1;
+  await assert.rejects(rules.validarItensAnuaisDaMatricula(db,10,1,101,[item]),e=>e.codigo==='ETAPA_INVALIDA');
+  await rules.validarItensAnuaisDaMatricula(db,10,1,101,[item],1000);
+});

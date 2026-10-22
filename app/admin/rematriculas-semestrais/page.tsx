@@ -619,6 +619,7 @@ function pontuarDisciplinaNaBusca(
 }
 
 export default function RematriculasSemestraisPage() {
+  const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminSemesterReenrollment");
   const locale = useLocale();
 
@@ -1700,7 +1701,7 @@ export default function RematriculasSemestraisPage() {
 
                 {cursoSelecionado?.semestres.map((semestre) => (
                   <option key={semestre.id} value={semestre.id}>
-                    {semestre.numero}º semestre
+                    {ta("stage")} {semestre.numero}
                     {semestre.titulo ? ` — ${semestre.titulo}` : ""}
                   </option>
                 ))}

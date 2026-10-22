@@ -416,6 +416,8 @@ export async function publicarCursoParaUnidadesIndependentes(
             modalidadeCertificado:
               cursoOrigem
                 .modalidadeCertificado,
+            organizacaoCurricular: cursoOrigem.organizacaoCurricular,
+            quantidadeEtapas: cursoOrigem.quantidadeEtapas,
 
             quantidadeSemestres:
               cursoOrigem
@@ -459,6 +461,8 @@ export async function publicarCursoParaUnidadesIndependentes(
             modalidadeCertificado:
               cursoOrigem
                 .modalidadeCertificado,
+            organizacaoCurricular: cursoOrigem.organizacaoCurricular,
+            quantidadeEtapas: cursoOrigem.quantidadeEtapas,
 
             quantidadeSemestres:
               cursoOrigem
@@ -798,6 +802,7 @@ if (
             data: {
               numero:
                 semestreOrigem.numero,
+              organizacaoCurricular: semestreOrigem.organizacaoCurricular,
 
               titulo:
                 semestreOrigem.titulo,
@@ -830,6 +835,7 @@ if (
 
               numero:
                 semestreOrigem.numero,
+              organizacaoCurricular: semestreOrigem.organizacaoCurricular,
             },
 
             select: {
@@ -848,6 +854,7 @@ if (
             data: {
               numero:
                 semestreOrigem.numero,
+              organizacaoCurricular: semestreOrigem.organizacaoCurricular,
 
               titulo:
                 semestreOrigem.titulo,

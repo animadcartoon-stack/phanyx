@@ -5,12 +5,15 @@
     "VINCULO_INVALIDO": "Uno de los identificadores indicados no es válido.",
     "CURSO_INVALIDO": "El curso no pertenece a esta institución.",
     "DISCIPLINAS_INVALIDAS": "Una o más asignaturas no pertenecen a esta institución.",
-    "GRADE_INCOMPATIVEL": "Una o más asignaturas no forman parte del plan de estudios del curso y semestre seleccionados. Actualice la lista y revise el plan de estudios.",
+    "GRADE_INCOMPATIVEL": "Una o más asignaturas no forman parte del plan de estudios del curso y etapa seleccionadas. Actualice la lista y revise el plan de estudios.",
     "PROFESSOR_INVALIDO": "Uno o más profesores no pertenecen a esta institución.",
     "POLO_INVALIDO": "La sede no pertenece a esta institución.",
     "TURMA_INVALIDA": "Uno o más grupos no pertenecen a esta institución.",
     "PRE_REQUISITO_INVALIDO": "Uno o más requisitos previos no pertenecen a esta institución.",
-    "OFERTA_COM_HISTORICO": "No se puede retirar esta oferta porque tiene matrículas, clases o registros académicos. Mantenga el vínculo y gestione su cierre desde el grupo."
+    "OFERTA_COM_HISTORICO": "No se puede retirar esta oferta porque tiene matrículas, clases o registros académicos. Mantenga el vínculo y gestione su cierre desde el grupo.",
+    "ORGANIZACAO_INVALIDA": "Elija organización anual o semestral.",
+    "ORGANIZACAO_EM_USO": "Este curso ya tiene plan de estudios, asignaturas, grupos o matrículas. Conserve su organización y cree otro curso para una estructura diferente.",
+    "ETAPA_INVALIDA": "Indique una etapa curricular válida para este curso."
   },
   "Common": {
     "cancel": "Cancelar",
@@ -3942,7 +3945,10 @@
     "groups": {
       "currentSemester": "Semestre actual",
       "nextSemester": "Próximo semestre",
-      "completedClasses": "Clases finalizadas"
+      "completedClasses": "Clases finalizadas",
+      "currentCurriculumStage": "Etapa curricular actual",
+      "curriculumOrganization": "Organización curricular",
+      "curriculumYear": "Año curricular"
     },
     "class": "Clase {name}",
     "classToday": "Clase hoy",
@@ -4046,7 +4052,7 @@
     },
     "hero": {
       "available": "Rematrícula disponible",
-      "description": "Selecciona las asignaturas y los grupos que deseas cursar en el semestre {semester}.",
+      "description": "Selecciona las asignaturas y los grupos que deseas cursar en la etapa {semester}.",
       "deadline": "Fecha límite"
     },
     "blocked": {
@@ -4055,13 +4061,13 @@
     "common": {
       "notInformed": "No informado",
       "invalidDate": "Fecha no válida",
-      "semesterNumber": "Semestre {number}",
+      "semesterNumber": "Etapa {number}",
       "hoursValue": "{hours} h",
       "hoursLong": "{hours} horas"
     },
     "summary": {
       "course": "Curso",
-      "destinationSemester": "Semestre de destino",
+      "destinationSemester": "Etapa de destino",
       "classStart": "Inicio de las clases",
       "status": "Estado"
     },
@@ -4070,16 +4076,16 @@
     },
     "groups": {
       "nextSemester": {
-        "title": "Asignaturas del semestre {semester}",
+        "title": "Asignaturas de la etapa {semester}",
         "description": "Asignaturas previstas para tu progresión académica."
       },
       "pending": {
-        "title": "Pendientes de semestres anteriores",
+        "title": "Pendientes de etapas anteriores",
         "description": "Asignaturas todavía no superadas o suspendidas."
       },
       "extras": {
         "title": "Asignaturas extracurriculares",
-        "description": "Opciones adicionales autorizadas para tu curso y semestre."
+        "description": "Opciones adicionales autorizadas para tu curso y etapa."
       }
     },
     "selectionSummary": {
@@ -4139,7 +4145,7 @@
       "availableSeats": "Plazas disponibles: {count}"
     },
     "disciplineTypes": {
-      "nextSemester": "Próximo semestre",
+      "nextSemester": "Próximo etapa",
       "previousPending": "Pendiente anterior",
       "extracurricular": "Extracurricular"
     },
@@ -11338,7 +11344,7 @@
       "course": "Curso",
       "description": "Descripción",
       "modality": "Tipo / modalidad del curso",
-      "semesters": "Semestres",
+      "semesters": "Etapas",
       "enrollmentValue": "Valor de la matrícula",
       "monthlyValue": "Cuota mensual",
       "installments": "Cuotas",
@@ -11389,7 +11395,7 @@
         "namePlaceholder": "Nombre del curso",
         "codePlaceholder": "Código del curso",
         "descriptionPlaceholder": "Descripción",
-        "semestersPlaceholder": "Cantidad de semestres",
+        "semestersPlaceholder": "Cantidad de etapas",
         "enrollmentValuePlaceholder": "Valor de la matrícula",
         "monthlyValuePlaceholder": "Cuota mensual",
         "installmentsPlaceholder": "Cantidad de cuotas",
@@ -11442,7 +11448,7 @@
       "notFound": "Curso no encontrado.",
       "header": {
         "title": "Estructura del Curso",
-        "description": "Registre los semestres y vincule las asignaturas de cada semestre.",
+        "description": "Registre los etapas y vincule las asignaturas de cada etapa.",
         "backCourses": "Volver a Cursos"
       },
       "network": {
@@ -11450,18 +11456,18 @@
         "synced": "Estructura sincronizada",
         "publishedBy": "Este curso fue publicado por <strong>{institution}</strong>.",
         "otherInstitution": "otra institución de la red",
-        "controlledByOrigin": "El nombre, código, descripción, modalidad, semestres, asignaturas y cargas académicas son controlados por la institución de origen.",
+        "controlledByOrigin": "El nombre, código, descripción, modalidad, etapas, asignaturas y cargas académicas son controlados por la institución de origen.",
         "localConfiguration": "Esta unidad solo puede configurar la matrícula, la cuota mensual, las cuotas y los datos operativos locales, como grupos, profesores, horarios, plazas y matrículas.",
         "originCourse": "Curso de origen",
         "originId": "ID de origen",
         "editRestriction": "En este curso recibido de la red, esta unidad solo puede modificar el valor de la matrícula, la cuota mensual y la cantidad de cuotas.",
         "academicStructureReceived": "Estructura académica recibida",
-        "academicStructureHelp": "Los semestres de este curso son publicados y sincronizados por la institución de origen. Esta unidad puede consultarlos, pero no puede crear nuevos semestres ni modificar el plan de estudios."
+        "academicStructureHelp": "Los etapas de este curso son publicados y sincronizados por la institución de origen. Esta unidad puede consultarlos, pero no puede crear nuevos etapas ni modificar el plan de estudios."
       },
       "courseForm": {
         "namePlaceholder": "Nombre del curso",
-        "semestersCount": "Cantidad de semestres del curso",
-        "semestersHelp": "Para cursos sin semestres, introduzca 0 o deje el campo vacío.",
+        "semestersCount": "Cantidad de etapas del curso",
+        "semestersHelp": "Para cursos sin etapas, introduzca 0 o deje el campo vacío.",
         "activeCourse": "Curso activo",
         "descriptionPlaceholder": "Descripción del curso",
         "saveLocalValues": "Guardar valores locales",
@@ -11477,18 +11483,18 @@
         }
       },
       "courseInfo": {
-        "expectedSemesters": "Cantidad prevista de semestres"
+        "expectedSemesters": "Cantidad prevista de etapas"
       },
       "semesters": {
-        "addTitle": "Añadir semestre",
-        "numberPlaceholder": "Número del semestre",
-        "titlePlaceholder": "Título del semestre",
-        "descriptionPlaceholder": "Descripción del semestre",
-        "addButton": "Añadir semestre",
-        "none": "Todavía no hay ningún semestre registrado para este curso.",
-        "semesterLabel": "Semestre {number}",
-        "minimumWorkload": "Carga mínima permitida en el semestre (horas)",
-        "maximumWorkload": "Carga máxima permitida en el semestre (horas)",
+        "addTitle": "Añadir etapa",
+        "numberPlaceholder": "Número de la etapa",
+        "titlePlaceholder": "Título de la etapa",
+        "descriptionPlaceholder": "Descripción de la etapa",
+        "addButton": "Añadir etapa",
+        "none": "Todavía no hay ningún etapa registrado para este curso.",
+        "semesterLabel": "Etapa {number}",
+        "minimumWorkload": "Carga mínima permitida en la etapa (horas)",
+        "maximumWorkload": "Carga máxima permitida en la etapa (horas)",
         "saveWorkload": "Guardar carga",
         "examples": {
           "minimumWorkload": "Ej.: 200",
@@ -11500,7 +11506,7 @@
         "noneLinked": "Todavía no hay ninguna asignatura vinculada.",
         "noneRegistered": "No hay asignaturas registradas.",
         "readOnlyNetwork": "Plan de estudios recibido de la red — solo lectura.",
-        "updateSemester": "Actualizar asignaturas del semestre {number}"
+        "updateSemester": "Actualizar asignaturas de la etapa {number}"
       }
     },
     "messages": {
@@ -11510,8 +11516,8 @@
       "courseRestored": "Curso restaurado correctamente.",
       "localValuesUpdated": "¡Valores locales actualizados correctamente!",
       "courseUpdated": "¡Curso actualizado correctamente!",
-      "semesterCreated": "¡Semestre creado correctamente!",
-      "subjectsSaved": "¡Asignaturas del semestre {semester} guardadas correctamente!",
+      "semesterCreated": "¡Etapa creado correctamente!",
+      "subjectsSaved": "¡Asignaturas de la etapa {semester} guardadas correctamente!",
       "workloadSaved": "¡Carga horaria guardada correctamente!"
     },
     "errors": {
@@ -11519,15 +11525,15 @@
       "loadPoles": "Error al cargar las sedes.",
       "updateCoursePoles": "Error al actualizar las sedes del curso.",
       "createCourse": "Error al crear el curso.",
-      "SEMESTRES_INVALIDOS": "Introduzca un número entero de semestres o use 0 para cursos sin semestres.",
+      "SEMESTRES_INVALIDOS": "Introduzca un número entero de etapas o use 0 para cursos sin etapas.",
       "deleteCourse": "Error al eliminar el curso.",
       "restoreCourse": "Error al restaurar el curso.",
       "couldNotSave": "No se pudo guardar",
       "loadSubjects": "Error al cargar las asignaturas.",
-      "loadCourseSemesters": "Error al cargar los semestres del curso.",
+      "loadCourseSemesters": "Error al cargar los etapas del curso.",
       "loadCourseData": "Error al cargar los datos del curso.",
       "editCourse": "Error al editar el curso.",
-      "createSemester": "Error al crear el semestre.",
+      "createSemester": "Error al crear la etapa.",
       "saveSubjects": "Error al guardar las asignaturas.",
       "saveWorkload": "Error al guardar la carga horaria."
     },
@@ -18361,7 +18367,7 @@
     "header": {
       "eyebrow": "Académico",
       "title": "Rematrículas semestrales",
-      "description": "Define cuándo los estudiantes podrán seleccionar las asignaturas del próximo semestre y qué reglas deberán respetarse."
+      "description": "Define cuándo los estudiantes podrán seleccionar las asignaturas del próxima etapa y qué reglas deberán respetarse."
     },
     "form": {
       "editTitle": "Editar período de rematrícula",
@@ -18370,8 +18376,8 @@
       "newDescription": "El estudiante solo verá la rematrícula dentro de las fechas establecidas.",
       "course": "Curso",
       "selectCourse": "Selecciona el curso",
-      "targetSemester": "Semestre de destino",
-      "selectSemester": "Selecciona el semestre",
+      "targetSemester": "Etapa de destino",
+      "selectSemester": "Selecciona la etapa",
       "academicPeriod": "Período académico",
       "academicPeriodPlaceholder": "Ej.: 2027.1",
       "periodTitle": "Título del período",
@@ -18391,8 +18397,8 @@
       "clearAll": "Desmarcar todos",
       "selectAll": "Seleccionar todos",
       "selectCourseFirst": "Selecciona primero el curso.",
-      "selectSemesterFirst": "Selecciona el semestre de destino.",
-      "noneAvailable": "No se encontró ningún grupo activo para este curso y semestre. Crea o configura un grupo antes de publicar la rematrícula.",
+      "selectSemesterFirst": "Selecciona la etapa de destino.",
+      "noneAvailable": "No se encontró ningún grupo activo para este curso y etapa. Crea o configura un grupo antes de publicar la rematrícula.",
       "code": "Código",
       "disciplineCount": "{count, plural, one {# asignatura} other {# asignaturas}}",
       "selectedCount": "{count, plural, one {# grupo seleccionado.} other {# grupos seleccionados.}}"
@@ -18413,7 +18419,7 @@
     },
     "feedback": {
       "selectCourse": "Selecciona el curso.",
-      "selectSemester": "Selecciona el semestre de destino.",
+      "selectSemester": "Selecciona la etapa de destino.",
       "requiredPeriodFields": "Indica el período académico, la apertura y el cierre de la rematrícula.",
       "selectClassBeforePublish": "Selecciona al menos un grupo participante antes de publicar.",
       "saveError": "No se pudo guardar el período de rematrícula.",
@@ -18431,15 +18437,15 @@
       "selectTargetCourseFirst": "Selecciona primero el curso de destino.",
       "scope": {
         "semester": {
-          "title": "Solo en este semestre",
-          "description": "Las asignaturas se ofrecerán únicamente en el semestre seleccionado."
+          "title": "Solo en este etapa",
+          "description": "Las asignaturas se ofrecerán únicamente en la etapa seleccionada."
         },
         "course": {
-          "title": "Todos los semestres del curso",
-          "description": "Las asignaturas podrán ofrecerse en cualquier semestre de este curso."
+          "title": "Todos los etapas del curso",
+          "description": "Las asignaturas podrán ofrecerse en cualquier etapa de este curso."
         }
       },
-      "selectTargetSemesterToConfigure": "Selecciona el semestre de destino para configurar las asignaturas.",
+      "selectTargetSemesterToConfigure": "Selecciona la etapa de destino para configurar las asignaturas.",
       "search": {
         "label": "Buscar asignatura",
         "placeholder": "Ej.: ética, asesoramiento, gestión, misiones...",
@@ -18473,7 +18479,7 @@
       "feedback": {
         "loadError": "No se pudieron cargar las asignaturas extracurriculares.",
         "selectTargetCourse": "Selecciona el curso de destino.",
-        "selectTargetSemester": "Selecciona el semestre de destino.",
+        "selectTargetSemester": "Selecciona la etapa de destino.",
         "saveError": "No se pudieron guardar las asignaturas extracurriculares.",
         "saved": "Asignaturas extracurriculares guardadas."
       }
@@ -18510,7 +18516,7 @@
       "emptyDescription": "Utiliza el formulario anterior para crear el primer período.",
       "defaultTitle": "Rematrícula {period}",
       "courseNotInformed": "Curso no informado",
-      "semester": "{number}.º semestre",
+      "semester": "{number}.º etapa",
       "opensAt": "Apertura",
       "closesAt": "Cierre",
       "classesStart": "Inicio de las clases",
@@ -18541,7 +18547,7 @@
     "title": "Estudiantes de rematrícula",
     "periodFallback": "Período de rematrícula",
     "periodCard": {
-      "semesterTransition": "{current}.º → {target}.º semestre",
+      "semesterTransition": "{current}.º → {target}.º etapa",
       "deadlineClosed": "Plazo cerrado",
       "deadlineOpen": "Plazo en curso"
     },
@@ -18613,7 +18619,7 @@
       "enrollment": "Matrícula",
       "notProvided": "No informada",
       "noCampus": "Sin campus",
-      "semester": "{semester}.º semestre",
+      "semester": "{semester}.º etapa",
       "protocol": "Protocolo",
       "subjects": "Asignaturas",
       "updatedAt": "Actualizado el",
@@ -18641,7 +18647,7 @@
       "unauthorized": "No tienes autorización para realizar esta operación.",
       "periodNotFound": "Período de rematrícula no encontrado.",
       "noDestinationCourse": "El período no tiene un programa de destino.",
-      "semesterNotIdentified": "No fue posible identificar el semestre de los estudiantes elegibles.",
+      "semesterNotIdentified": "No fue posible identificar la etapa de los estudiantes elegibles.",
       "invalidRestrictionAction": "Acción de restricción inválida.",
       "selectAtLeastOne": "Selecciona al menos un estudiante.",
       "tooManyStudents": "El límite es de 500 estudiantes por operación.",
@@ -23373,5 +23379,22 @@
     "percentage": "Descuento porcentual sobre precios individuales",
     "discountPercent": "Descuento en mensualidad (%)",
     "percentageHelp": "El porcentaje se aplica a la suma de mensualidades individuales de las modalidades del paquete. La matrícula mantiene el importe definido arriba."
+  },
+  "AcademicStructure": {
+    "organization": "Organización curricular",
+    "SEMESTRAL": "Semestral",
+    "ANUAL": "Anual",
+    "organizationHelp": "Elija cómo se divide la formación. El período lectivo y el número de cuotas se definen por separado.",
+    "yearsCount": "Número de años",
+    "semestersCount": "Número de semestres",
+    "quantityHelp": "Número de etapas de la formación. Déjelo vacío si la duración aún no está definida.",
+    "stage": "Etapa curricular",
+    "year": "Año curricular",
+    "semester": "Semestre",
+    "termExample": "Ej.: 2027 o 2027.1",
+    "annualSubjectHelp": "En este curso anual, vincule la asignatura al año correspondiente en el plan de estudios.",
+    "currentStage": "Etapa actual",
+    "organizationInUse": "La organización está vinculada a la estructura y al historial de este curso.",
+    "curriculumPlacement": "Vinculación por año en el plan de estudios"
   }
 }

@@ -1,3 +1,5 @@
+import { validarTurmasDaEtapa, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import {
   NextRequest,
   NextResponse,
@@ -181,7 +183,7 @@ export async function GET() {
                   nome: true,
                   codigo: true,
                   cursoId: true,
-                  semestre: true,
+                  semestre: true, etapaNumero: true, organizacaoCurricular: true,
                   periodoLetivo: true,
                   turno: true,
                   modalidade: true,
@@ -279,7 +281,7 @@ export async function GET() {
           nome: true,
           codigo: true,
           cursoId: true,
-          semestre: true,
+          semestre: true, etapaNumero: true, organizacaoCurricular: true,
           periodoLetivo: true,
           turno: true,
           modalidade: true,
@@ -384,7 +386,7 @@ export async function POST(
     );
 
     const cursoSemestreId = Number(
-      body.cursoSemestreId,
+      body.cursoEtapaId ?? body.cursoSemestreId,
     );
 
     const turmaIds =
@@ -453,7 +455,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Selecione o semestre de destino.",
+            "Selecione a etapa de destino.",
         },
         {
           status: 400,
@@ -572,7 +574,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "O semestre informado não pertence ao curso selecionado.",
+            "A etapa informada não pertence ao curso selecionado.",
         },
         {
           status: 404,
@@ -581,6 +583,7 @@ export async function POST(
     }
 
     if (turmaIds.length > 0) {
+      await validarTurmasDaEtapa(prisma, user.instituicaoId, cursoId, cursoSemestreId, turmaIds);
       const turmasValidas =
         await prisma.turma.findMany(
           {
@@ -668,7 +671,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Já existe um período de rematrícula para este curso, semestre e período letivo.",
+            "Já existe um período de rematrícula para este curso, etapa e período letivo.",
         },
         {
           status: 409,
@@ -797,7 +800,7 @@ export async function POST(
                         nome: true,
                         codigo: true,
                         cursoId: true,
-                        semestre: true,
+                        semestre: true, etapaNumero: true, organizacaoCurricular: true,
                         periodoLetivo: true,
                         turno: true,
                         modalidade: true,

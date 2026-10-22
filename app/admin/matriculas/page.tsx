@@ -852,7 +852,7 @@ function AdminMatriculasPage() {
 
     try {
       const res = await fetch(
-        `/api/admin/curso-semestres?cursoId=${Number(cursoIdValue)}`,
+        `/api/admin/curso-etapas?cursoId=${Number(cursoIdValue)}`,
         {
           cache: "no-store",
         }
@@ -1910,6 +1910,7 @@ function AdminMatriculasPage() {
               : Number(vendedorResponsavelId),
           cursoSemestreId: cursoSemestreIds[0] ?? null,
           cursoSemestreIds,
+          etapaNumero: semestresSelecionados[0]?.numero ?? null,
           semestre: semestresSelecionados[0]?.numero ?? null,
           semestres: semestresSelecionados.map((s) => s.numero),
           turmaPrincipalId:

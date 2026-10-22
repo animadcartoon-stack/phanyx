@@ -4,9 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { disciplinaPermitidaNaOferta, mesmaEtapaOferta, numeroSemestreOferta, type CursoGradeOferta } from "@/lib/academico/grade-oferta";
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
 
 interface Curso {
+  organizacaoCurricular?: string;
   semestres?: CursoGradeOferta["semestres"];
   id: number;
   nome: string;
@@ -58,6 +60,8 @@ type StatusTurma =
   | "NAO_FORMADA";
 
 interface Turma {
+  organizacaoCurricular?: string;
+  etapaNumero?: number | null;
   id: number;
   nome: string;
   codigo?: string | null;
@@ -89,6 +93,7 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 
 function AdminTurmasPage() {
   const t = useTranslations("AdminOperations");
+  const ta = useTranslations("AcademicStructure");
   const locale = useLocale();
   const tIntegridade = useTranslations("AcademicIntegrity");
   const searchParams = useSearchParams();
@@ -249,6 +254,7 @@ function AdminTurmasPage() {
         body: JSON.stringify({
           nome,
           codigo,
+          etapaNumero: numeroSemestreOferta(semestre),
           semestre,
           cursoId,
           periodoLetivo,
@@ -316,7 +322,7 @@ function AdminTurmasPage() {
     setEditandoId(turma.id);
     setEditNome(turma.nome || "");
     setEditCodigo(turma.codigo || "");
-    setEditSemestre(turma.semestre || "");
+    setEditSemestre(String(etapaDaOferta(turma) ?? ""));
     setEditPeriodoLetivo(turma.periodoLetivo || "");
     setEditTurno(turma.turno || "");
 
@@ -450,6 +456,7 @@ function AdminTurmasPage() {
         body: JSON.stringify({
           nome: editNome,
           codigo: editCodigo,
+          etapaNumero: numeroSemestreOferta(editSemestre),
           semestre: editSemestre,
           periodoLetivo: editPeriodoLetivo,
           turno: editTurno,
@@ -548,7 +555,7 @@ function AdminTurmasPage() {
     return turmas.filter((turma) => {
       const nome = String(turma.nome || "").toLowerCase();
       const codigo = String(turma.codigo || "").toLowerCase();
-      const semestre = String(turma.semestre || "").toLowerCase();
+      const semestre = String(etapaDaOferta(turma) || "").toLowerCase();
       const periodoLetivo = String(turma.periodoLetivo || "").toLowerCase();
       const disciplina = String(
         turma.disciplinas?.map((d) => d.nome).join(" | ") || ""
@@ -899,7 +906,7 @@ function AdminTurmasPage() {
       const curso = cursos.find(c => c.id === Number(cursoId));
       if (!curso) return [];
       return disciplinas.filter(disciplina => disciplinaPermitidaNaOferta(
-        disciplina, { id: curso.id, semestres: curso.semestres || [] }, numeroSemestreOferta(semestre),
+        disciplina, { id: curso.id, organizacaoCurricular: curso.organizacaoCurricular, semestres: curso.semestres || [] }, numeroSemestreOferta(semestre),
       ));
     }, [disciplinas, cursos, cursoId, semestre]);
 
@@ -931,11 +938,11 @@ function AdminTurmasPage() {
   const disciplinasBaseEdicao =
     useMemo(() => {
       const curso = cursos.find(c => c.id === turmaEmEdicao?.cursoId);
-      const mesmaEtapa = mesmaEtapaOferta(editSemestre, turmaEmEdicao?.semestre);
+      const mesmaEtapa = mesmaEtapaOferta(editSemestre, turmaEmEdicao ? etapaDaOferta(turmaEmEdicao) : null);
       const idsHistoricos = new Set((turmaEmEdicao?.disciplinas || []).map(d => d.id));
       return disciplinas.filter(disciplina =>
         (mesmaEtapa && idsHistoricos.has(disciplina.id)) ||
-        disciplinaPermitidaNaOferta(disciplina, curso ? { id: curso.id, semestres: curso.semestres || [] } : null,
+        disciplinaPermitidaNaOferta(disciplina, curso ? { id: curso.id, organizacaoCurricular: curso.organizacaoCurricular, semestres: curso.semestres || [] } : null,
           numeroSemestreOferta(editSemestre)),
       );
     }, [disciplinas, cursos, turmaEmEdicao, editSemestre]);
@@ -1150,7 +1157,7 @@ function AdminTurmasPage() {
 
             <select
               value={cursoId}
-              onChange={(e) => setCursoId(e.target.value)}
+              onChange={(e) => { setCursoId(e.target.value); setSemestre(""); }}
               className="w-full border rounded-lg p-2"
               required
             >
@@ -1174,8 +1181,9 @@ function AdminTurmasPage() {
               ))}
             </select>
             <div>
-              <label className="text-sm text-gray-600">{t("classesSemester")}</label>
+              <label className="text-sm text-gray-600">{ta("stage")} · {ta(cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "ANUAL" ? "year" : "semester")}</label>
               <input
+                type="number" min="1" step="1"
                 value={semestre}
                 onChange={(e) => setSemestre(e.target.value)}
                 className="w-full border rounded-lg p-2"
@@ -1193,7 +1201,7 @@ function AdminTurmasPage() {
                 onChange={(e) =>
                   setPeriodoLetivo(e.target.value)
                 }
-                placeholder="Ex.: 2027.1"
+                placeholder={ta("termExample")}
                 className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 required
               />
@@ -1659,8 +1667,9 @@ function AdminTurmasPage() {
                         />
 
                         <div>
-                          <label className="text-sm text-gray-600">{t("classesSemester")}</label>
+                          <label className="text-sm text-gray-600">{ta("stage")}</label>
                           <input
+                            type="number" min="1" step="1"
                             value={editSemestre}
                             onChange={(e) => setEditSemestre(e.target.value)}
                             className="w-full border rounded-lg p-2"
@@ -1680,7 +1689,7 @@ function AdminTurmasPage() {
                               )
                             }
                             className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                            placeholder="Ex.: 2027.1"
+                            placeholder={ta("termExample")}
                           />
                         </div>
 
@@ -2043,7 +2052,7 @@ function AdminTurmasPage() {
                           : "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {t("commonSemesterPrefix")} {turma.semestre}
+                        {ta(turma.organizacaoCurricular === "ANUAL" ? "year" : "semester")} {etapaDaOferta(turma)}
                       </p>
                       <p className="text-sm text-gray-600">
                         {t("commonTermPrefix")} {turma.periodoLetivo || "-"}

@@ -1,3 +1,4 @@
+import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { NextResponse } from "next/server";
@@ -2610,7 +2611,8 @@ export async function POST(req: Request) {
                 )
                 : "-",
 
-            semestreAtual:
+            ...valoresEtapaDocumento(matricula, localeDocumento),
+    semestreAtual:
               matricula?.semestre !==
                 null &&
                 matricula?.semestre !==

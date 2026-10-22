@@ -1,3 +1,4 @@
+import { resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
       dataPrimeiroVencimento,
     } = body;
 
-    if (!alunoId || !cursoId || !semestre) {
+    if (!alunoId || !cursoId) {
       return NextResponse.json(
         { error: "Dados obrigatórios não informados" },
         { status: 400 }
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
     }
 
     const resultado = await prisma.$transaction(async (tx) => {
+      const etapa = await resolverEtapaDaMatricula(tx, user.instituicaoId, Number(cursoId), body.cursoEtapaId ?? body.cursoSemestreId ?? null, body.etapaNumero ?? semestre);
       const aluno = await tx.aluno.findFirst({
         where: {
           id: Number(alunoId),
@@ -215,7 +217,7 @@ export async function POST(req: Request) {
         data: {
           alunoId: Number(alunoId),
           cursoId: Number(cursoId),
-          semestre: Number(semestre),
+          ...etapa,
           instituicaoId: user.instituicaoId,
           poloId,
           numeroMatricula,
@@ -309,6 +311,8 @@ export async function POST(req: Request) {
       matricula: resultado,
     });
   } catch (error: any) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     console.error("Erro ao criar matrícula:", error);
 
     return NextResponse.json(
