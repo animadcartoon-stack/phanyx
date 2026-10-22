@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -164,6 +164,7 @@ export async function PUT(
 
       select: {
         id: true,
+        contratacaoModalidades: true,
       },
     });
 
@@ -172,6 +173,10 @@ export async function PUT(
       { error: "Matrícula não encontrada" },
       { status: 404 }
     );
+  }
+
+  if (matriculaExistente.contratacaoModalidades) {
+    return NextResponse.json({ codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });
   }
 
   const body = await req.json();

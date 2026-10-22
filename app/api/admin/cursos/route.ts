@@ -1,3 +1,6 @@
+import { camposComboCurso } from "@/lib/matriculas/campos-combo-curso";
+import { ErroModalidades } from "@/lib/matriculas/combos";
+import { erroCombos } from "@/lib/matriculas/combos-api";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -193,6 +196,8 @@ export async function POST(req: Request) {
       string,
       unknown
     >;
+
+    const dadosCombo = camposComboCurso(body);
 
     const nome = String(
       body.nome ?? ""
@@ -540,6 +545,7 @@ export async function POST(req: Request) {
                 valorMatricula,
 
                 valorMensalidade,
+                ...dadosCombo,
 
                 quantidadeParcelas,
 
@@ -663,6 +669,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof ErroModalidades) return erroCombos(error);
     console.error(
       "Erro ao criar e publicar curso:",
       error
@@ -764,6 +771,8 @@ export async function PUT(req: Request) {
       string,
       unknown
     >;
+
+    const dadosCombo = camposComboCurso(body);
 
     const id = Number(body.id);
 
@@ -945,6 +954,7 @@ export async function PUT(req: Request) {
           data: {
             valorMatricula,
             valorMensalidade,
+            ...dadosCombo,
             quantidadeParcelas,
           },
           include: {
@@ -1090,6 +1100,7 @@ export async function PUT(req: Request) {
               valorMatricula,
 
               valorMensalidade,
+              ...dadosCombo,
 
               quantidadeParcelas,
 

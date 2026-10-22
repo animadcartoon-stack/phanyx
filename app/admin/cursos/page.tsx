@@ -1,5 +1,6 @@
 "use client";
 
+import CamposComboCurso from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -111,6 +112,7 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 export default function AdminCursosPage() {
   const searchParams = useSearchParams();
   const t = useTranslations("AdminCourses");
+  const tc = useTranslations("EnrollmentCombos");
   const locale = useLocale();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -139,6 +141,8 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
+    participaCombo: false,
+    valorMensalidadeCombo: "",
     quantidadeParcelas: "",
   });
 
@@ -402,6 +406,8 @@ async function salvarPolosDoCurso() {
           valorMatricula: form.valorMatricula
             ? Number(form.valorMatricula)
             : null,
+          participaCombo: form.participaCombo,
+          valorMensalidadeCombo: form.valorMensalidadeCombo || null,
           valorMensalidade: form.valorMensalidade
             ? Number(form.valorMensalidade)
             : null,
@@ -426,6 +432,8 @@ async function salvarPolosDoCurso() {
         quantidadeSemestres: "",
         valorMatricula: "",
         valorMensalidade: "",
+        participaCombo: false,
+        valorMensalidadeCombo: "",
         quantidadeParcelas: "",
       });
       setPolosSelecionados([]);
@@ -699,6 +707,9 @@ if (!termoTexto) return cursosPorStatus;
             }
           />
 
+          <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo}
+            onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />
+
           <input
             type="number"
             placeholder={t("list.create.installmentsPlaceholder")}
@@ -777,6 +788,7 @@ if (!termoTexto) return cursosPorStatus;
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h2 className="text-xl font-semibold">{t("list.registered.title")}</h2>
+          <Link href="/admin/combos" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white">{tc("manageCombos")}</Link>
 
           <input
             type="text"

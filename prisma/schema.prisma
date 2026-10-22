@@ -81,6 +81,7 @@ model Instituicao {
   configuracaoInstituicao        ConfiguracaoInstituicao?
   contratos                      Contrato[]
   cursos                         Curso[]
+  combosModalidades              ComboModalidades[]
   cursoSemestres                 CursoSemestre[]
   cursoSemestreDisciplinas       CursoSemestreDisciplina[]
   Departamento                   Departamento[]
@@ -829,6 +830,9 @@ model Curso {
   quantidadeParcelas         Int?
   valorMatricula             Float?
   valorMensalidade           Float?
+  participaCombo             Boolean               @default(false)
+  valorMensalidadeCombo      Decimal?              @db.Decimal(10, 2)
+  combosModalidades          ComboModalidadesCurso[]
   quantidadeSemestres        Int?
   cargaHorariaMaximaSemestre Int?
   excluidoEm                 DateTime?
@@ -1166,6 +1170,10 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  comboId                                 Int?
+  combo                                   ComboModalidades?         @relation(fields: [comboId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  contratacaoModalidades                   Json?
+  chaveContratacaoModalidades              String?                   @unique
   dataInicioCurso                         DateTime?                 @db.Date
   id                                      Int                       @id @default(autoincrement())
   numeroMatriculaLegado                   String?
@@ -11553,4 +11561,44 @@ model BibliotecaAnotacao {
 
   @@index([instituicaoId, usuarioId, arquivoId, pagina])
   @@index([itemId, instituicaoId])
+}
+
+// Regras comerciais optativas. Os vínculos acadêmicos permanecem em ItemMatricula.
+enum ModoPrecoCombo {
+  FIXO
+  SOMA
+}
+
+model ComboModalidades {
+  id                 Int                     @id @default(autoincrement())
+  instituicaoId      Int
+  nome               String
+  ativo              Boolean                 @default(true)
+  minimoModalidades  Int                     @default(3)
+  maximoModalidades  Int?
+  modoPreco          ModoPrecoCombo          @default(FIXO)
+  valorMatricula     Decimal                 @db.Decimal(10, 2)
+  valorMensalidade   Decimal?                @db.Decimal(10, 2)
+  quantidadeParcelas Int                     @default(12)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  instituicao        Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  cursos             ComboModalidadesCurso[]
+  matriculas         Matricula[]
+
+  @@unique([id, instituicaoId])
+  @@unique([instituicaoId, nome])
+  @@index([instituicaoId, ativo])
+}
+
+model ComboModalidadesCurso {
+  id            Int              @id @default(autoincrement())
+  instituicaoId Int
+  comboId       Int
+  cursoId       Int
+  combo         ComboModalidades @relation(fields: [comboId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  curso         Curso            @relation(fields: [cursoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([comboId, cursoId])
+  @@index([cursoId, instituicaoId])
 }

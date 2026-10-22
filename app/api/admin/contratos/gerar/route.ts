@@ -1,3 +1,5 @@
+import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
+import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -519,7 +521,7 @@ export async function GET(req: Request) {
     );
 
     const cursoNome =
-      matricula.curso?.nome?.trim() ||
+      nomeContratacaoModalidades(matricula.contratacaoModalidades) || matricula.curso?.nome?.trim() ||
       "Curso não informado";
 
     const disciplinasTexto =
@@ -771,7 +773,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
         localeDocumento
       );
 
-    const contratoGerado =
+    const contratoBase =
       substituirTemplate(template, {
         ...dadosBolsaDocumento,
         logoInstituicao: "",
@@ -973,6 +975,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
         blocoAssinaturaDiretor: "",
       });
+
+    const contratoGerado = await anexarResumoModalidades(contratoBase, matricula.contratacaoModalidades, localeDocumento);
 
     let contratoExistente = matricula.contratos?.[0] || null;
 

@@ -1,5 +1,6 @@
 "use client";
 
+import CamposComboCurso from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -65,6 +66,8 @@ type Curso = {
   quantidadeSemestres?: number | null;
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
+  participaCombo?: boolean;
+  valorMensalidadeCombo?: string | number | null;
   quantidadeParcelas?: number | null;
   ativo?: boolean;
   publicacaoRedeDestino?: {
@@ -138,6 +141,8 @@ export default function CursoDetalhePage() {
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
+    participaCombo: false,
+    valorMensalidadeCombo: "",
     quantidadeParcelas: "",
     ativo: true,
   });
@@ -198,6 +203,8 @@ export default function CursoDetalhePage() {
           encontrado.valorMatricula != null
             ? String(encontrado.valorMatricula)
             : "",
+        participaCombo: Boolean(encontrado.participaCombo),
+        valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
         valorMensalidade:
           encontrado.valorMensalidade != null
             ? String(encontrado.valorMensalidade)
@@ -297,6 +304,8 @@ export default function CursoDetalhePage() {
           valorMatricula: formCurso.valorMatricula
             ? Number(formCurso.valorMatricula)
             : null,
+          participaCombo: formCurso.participaCombo,
+          valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
           valorMensalidade: formCurso.valorMensalidade
             ? Number(formCurso.valorMensalidade)
             : null,
@@ -738,6 +747,9 @@ export default function CursoDetalhePage() {
                       placeholder={t("detail.courseForm.examples.monthlyValue")}
                     />
                   </div>
+
+                  <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo}
+                    onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
 
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">

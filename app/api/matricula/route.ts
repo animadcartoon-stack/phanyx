@@ -1,3 +1,7 @@
+import { validarAgendaMatricula } from "@/lib/matriculas/validar-agenda";
+import { ErroModalidades } from "@/lib/matriculas/combos";
+import { getTranslations } from "next-intl/server";
+import { calcularIdade, verificarDadosResponsavel } from "@/lib/matriculas/confirmacao-menor";
 import { processarCancelamentosBancarios } from "@/lib/financeiro/cancelar-cobranca";
 import { prisma } from "@/lib/prisma";
 import { validarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
@@ -424,107 +428,6 @@ function toDateOrNull(value: unknown): Date | null {
 
 function uniqueNumbers(values: number[]) {
   return Array.from(new Set(values.filter((v) => Number.isFinite(v) && v > 0)));
-}
-
-function calcularIdade(
-  dataNascimento: Date,
-  dataReferencia = new Date()
-) {
-  let idade =
-    dataReferencia.getUTCFullYear() -
-    dataNascimento.getUTCFullYear();
-
-  const mesReferencia =
-    dataReferencia.getUTCMonth();
-
-  const mesNascimento =
-    dataNascimento.getUTCMonth();
-
-  const diaReferencia =
-    dataReferencia.getUTCDate();
-
-  const diaNascimento =
-    dataNascimento.getUTCDate();
-
-  const aindaNaoFezAniversario =
-    mesReferencia < mesNascimento ||
-    (mesReferencia === mesNascimento &&
-      diaReferencia < diaNascimento);
-
-  if (aindaNaoFezAniversario) {
-    idade -= 1;
-  }
-
-  return idade;
-}
-
-function verificarDadosResponsavel(
-  aluno: {
-    nomeResponsavel?: string | null;
-    cpfResponsavel?: string | null;
-    telefoneResponsavel?: string | null;
-    emailResponsavel?: string | null;
-    parentescoResponsavel?: string | null;
-  }
-) {
-  const pendentes: string[] = [];
-
-  const nomeResponsavel = String(
-    aluno.nomeResponsavel || ""
-  ).trim();
-
-  const cpfResponsavel = String(
-    aluno.cpfResponsavel || ""
-  ).replace(/\D/g, "");
-
-  const telefoneResponsavel = String(
-    aluno.telefoneResponsavel || ""
-  ).replace(/\D/g, "");
-
-  const emailResponsavel = String(
-    aluno.emailResponsavel || ""
-  )
-    .trim()
-    .toLowerCase();
-
-  const parentescoResponsavel = String(
-    aluno.parentescoResponsavel || ""
-  ).trim();
-
-  if (!nomeResponsavel) {
-    pendentes.push(
-      "nome do responsável"
-    );
-  }
-
-  if (cpfResponsavel.length !== 11) {
-    pendentes.push(
-      "CPF do responsável"
-    );
-  }
-
-  if (telefoneResponsavel.length < 10) {
-    pendentes.push(
-      "telefone do responsável"
-    );
-  }
-
-  if (
-    !emailResponsavel ||
-    !emailResponsavel.includes("@")
-  ) {
-    pendentes.push(
-      "e-mail do responsável"
-    );
-  }
-
-  if (!parentescoResponsavel) {
-    pendentes.push(
-      "parentesco do responsável"
-    );
-  }
-
-  return pendentes;
 }
 
 type VendedorElegivel = {
@@ -1234,16 +1137,18 @@ async function sincronizarItensMatricula(params: {
   instituicaoId: number;
   itens: ItemMatriculaNormalizado[];
   statusNovos: "A_CURSAR" | "EM_CURSO";
+  tx: Prisma.TransactionClient;
 }) {
   const {
     matriculaId,
     instituicaoId,
     itens,
     statusNovos,
+    tx,
   } = params;
 
   const existentes =
-    await prisma.itemMatricula.findMany({
+    await tx.itemMatricula.findMany({
       where: {
         matriculaId,
         instituicaoId,
@@ -1345,73 +1250,70 @@ async function sincronizarItensMatricula(params: {
       })
       .map((item) => item.id);
 
-  await prisma.$transaction(
-    async (tx) => {
-      for (
-        const item of
-        itensParaAtualizar
-      ) {
-        await tx.itemMatricula.update({
-          where: {
-            id: item.id,
-          },
+  for (
+    const item of
+    itensParaAtualizar
+  ) {
+    await tx.itemMatricula.update({
+      where: {
+        id: item.id,
+      },
 
-          data: {
-            tipoItem:
-              item.tipoItem as any,
+      data: {
+        tipoItem:
+          item.tipoItem as any,
 
-            status:
-              item.restaurarStatus
-                ? (statusNovos as any)
-                : undefined,
-          },
-        });
-      }
+        status:
+          item.restaurarStatus
+            ? (statusNovos as any)
+            : undefined,
+      },
+    });
+  }
 
-      if (
-        itensParaCriar.length > 0
-      ) {
-        await tx.itemMatricula.createMany({
-          data:
-            itensParaCriar.map(
-              (item) => ({
-                matriculaId,
-                instituicaoId,
-                turmaId:
-                  item.turmaId,
-                disciplinaId:
-                  item.disciplinaId,
-                tipoItem:
-                  item.tipoItem as any,
-                status:
-                  statusNovos as any,
-              })
-            ),
-        });
-      }
-
-      if (
-        itensParaCancelar.length > 0
-      ) {
-        await tx.itemMatricula.updateMany({
-          where: {
-            id: {
-              in:
-                itensParaCancelar,
-            },
-
+  if (
+    itensParaCriar.length > 0
+  ) {
+    await tx.itemMatricula.createMany({
+      data:
+        itensParaCriar.map(
+          (item) => ({
             matriculaId,
             instituicaoId,
-          },
-
-          data: {
+            turmaId:
+              item.turmaId,
+            disciplinaId:
+              item.disciplinaId,
+            tipoItem:
+              item.tipoItem as any,
             status:
-              "CANCELADO" as any,
-          },
-        });
-      }
-    }
-  );
+              statusNovos as any,
+          })
+        ),
+    });
+  }
+
+  if (
+    itensParaCancelar.length > 0
+  ) {
+    await tx.itemMatricula.updateMany({
+      where: {
+        id: {
+          in:
+            itensParaCancelar,
+        },
+
+        matriculaId,
+        instituicaoId,
+      },
+
+      data: {
+        status:
+          "CANCELADO" as any,
+      },
+    });
+  }
+
 }
 
 const includeMatricula = {
@@ -2793,6 +2695,8 @@ export async function POST(request: Request) {
     const matricula =
       await prisma.$transaction(
         async (tx) => {
+          await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data });
+
           const agoraConversao =
             new Date();
 
@@ -3420,6 +3324,10 @@ return NextResponse.json({
       }
     }
 
+    if (error instanceof ErroModalidades) {
+      const t = await getTranslations("EnrollmentCombos");
+      return NextResponse.json({ error: t(`errors.${error.codigo}`), codigo: error.codigo, detalhes: error.detalhes }, { status: error.status });
+    }
     console.error("ERRO COMPLETO AO CRIAR MATRÍCULA:", error);
     return NextResponse.json(
       { error: error?.message || "Erro ao criar matrícula" },
@@ -4241,6 +4149,11 @@ export async function PUT(request: Request) {
       );
     }
 
+    if (matriculaExistente.contratacaoModalidades) {
+      const t = await getTranslations("EnrollmentCombos");
+      return NextResponse.json({ error: t("comboEditHelp"), codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });
+    }
+
     const valorPagoMatriculaFinal =
       valorPagoMatriculaFoiInformado
         ? valorPagoMatriculaRecebido
@@ -4647,6 +4560,14 @@ export async function PUT(request: Request) {
 
     await prisma.$transaction(
       async (tx) => {
+        if (deveSincronizarItens || alunoIdFinal !== matriculaExistente.alunoId || body.dataInicioCurso !== undefined) {
+          const agendaItens = deveSincronizarItens ? itensClassificados : await tx.itemMatricula.findMany({
+            where: { matriculaId: id, instituicaoId: user.instituicaoId, status: { in: ["A_CURSAR", "EM_CURSO"] } },
+            select: { turmaId: true, disciplinaId: true },
+          });
+          await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId: alunoIdFinal,
+            itens: agendaItens, matriculaId: id, inicio: inicioCurso.data === undefined ? matriculaExistente.dataInicioCurso : inicioCurso.data });
+        }
         await tx.matricula.update({
           where: {
             id,
@@ -4867,33 +4788,34 @@ export async function PUT(request: Request) {
               primeiroVencimentoFinal,
           });
         }
+        if (deveSincronizarItens) {
+          const statusNovos:
+            "A_CURSAR" | "EM_CURSO" =
+            matriculaExistente.status ===
+              "A_INICIAR"
+              ? "A_CURSAR"
+              : "EM_CURSO";
+
+          await sincronizarItensMatricula({
+            tx,
+            matriculaId: id,
+
+            instituicaoId:
+              user.instituicaoId,
+
+            itens:
+              itensClassificados,
+
+            statusNovos,
+          });
+        }
+
       },
       {
         maxWait: 5000,
         timeout: 60000,
       }
     );
-
-    if (deveSincronizarItens) {
-      const statusNovos:
-        "A_CURSAR" | "EM_CURSO" =
-        matriculaExistente.status ===
-          "A_INICIAR"
-          ? "A_CURSAR"
-          : "EM_CURSO";
-
-      await sincronizarItensMatricula({
-        matriculaId: id,
-
-        instituicaoId:
-          user.instituicaoId,
-
-        itens:
-          itensClassificados,
-
-        statusNovos,
-      });
-    }
 
     await prisma.$transaction(
       async (txContrato) => {
@@ -4951,6 +4873,10 @@ export async function PUT(request: Request) {
     }
     return NextResponse.json({ ...retorno, cancelamentosBancarios });
   } catch (error: any) {
+    if (error instanceof ErroModalidades) {
+      const t = await getTranslations("EnrollmentCombos");
+      return NextResponse.json({ error: t(`errors.${error.codigo}`), codigo: error.codigo, detalhes: error.detalhes }, { status: error.status });
+    }
     console.error("ERRO AO ATUALIZAR MATRÍCULA:", error);
     return NextResponse.json(
       { error: error?.message || "Erro ao atualizar matrícula" },

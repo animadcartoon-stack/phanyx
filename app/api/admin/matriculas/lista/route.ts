@@ -1,3 +1,4 @@
+import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -88,6 +89,7 @@ export async function GET(request: Request) {
         { aluno: { nome: termo } },
         { aluno: { nomeSocial: termo } },
         { curso: { nome: termo } },
+        { contratacaoModalidades: { path: ["nome"], string_contains: busca } },
         { vendedorResponsavel: { nome: termo } },
         { vendedorResponsavelNomeSnapshot: termo },
         {
@@ -141,6 +143,7 @@ export async function GET(request: Request) {
           vendedorResponsavelId: true,
           vendedorResponsavelNomeSnapshot: true,
           tipoContratacao: true,
+          contratacaoModalidades: true,
           createdAt: true,
           aluno: {
             select: {
@@ -228,7 +231,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       {
-        data: matriculas,
+        data: matriculas.map(({ contratacaoModalidades, ...matricula }) => ({ ...matricula,
+          contratacaoModalidades: contratacaoModalidades ? { versao: 1, nome: nomeContratacaoModalidades(contratacaoModalidades) } : null,
+        })),
         meta: {
           total,
           page: pagina,

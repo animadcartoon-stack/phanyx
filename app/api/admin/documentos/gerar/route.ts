@@ -1,3 +1,5 @@
+import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
+import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -1493,7 +1495,7 @@ export async function POST(req: Request) {
       aluno = matricula.aluno;
 
       cursoNome =
-        matricula.curso?.nome?.trim() || "Curso não informado";
+        nomeContratacaoModalidades(matricula.contratacaoModalidades) || matricula.curso?.nome?.trim() || "Curso não informado";
 
       disciplinasLista = Array.from(
         new Set(
@@ -2767,11 +2769,13 @@ export async function POST(req: Request) {
 
             valoresTemplate.disciplinas;
 
-          const conteudoFinal =
+          const conteudoBase =
             substituirTemplate(
               template.conteudo,
               valoresTemplate
             );
+
+          const conteudoFinal = template.tipo === "CONTRATO" ? await anexarResumoModalidades(conteudoBase, matricula?.contratacaoModalidades, localeDocumento) : conteudoBase;
 
           const tagsNaoResolvidas =
             listarTagsNaoResolvidas(
