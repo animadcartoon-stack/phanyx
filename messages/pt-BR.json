@@ -22917,5 +22917,28 @@
       "FINALIZADO": "Finalizado",
       "CANCELADO": "Cancelado"
     }
+  },
+  "AdminLibraryPresentation": {
+    "title": "Conheça a Biblioteca por dentro",
+    "description": "Veja as páginas que sua instituição poderá usar para organizar o acervo físico e digital, atender os leitores e acompanhar a biblioteca.",
+    "pagesLabel": "Páginas da Biblioteca",
+    "openPreview": "Ampliar print: {page}",
+    "previewAlt": "Print demonstrativo da página {page} da Biblioteca PHANYX",
+    "demoNote": "Capturas das telas do sistema em português, com dados fictícios de demonstração. Clique no print para ampliar.",
+    "planNote": "Os recursos e limites disponíveis seguem o plano contratado e as permissões de cada usuário.",
+    "pages": {
+      "overview": "Acompanhe os indicadores, os itens recentes e o uso do armazenamento em um só painel.",
+      "collection": "Cadastre e pesquise livros, artigos, documentos e mídias; importe e exporte o acervo.",
+      "authorities": "Organize autores, nomes alternativos e identificadores para manter a catalogação consistente.",
+      "shelves": "Reúna obras por tema em prateleiras e coleções e defina sua visibilidade.",
+      "loans": "Controle empréstimos, vencimentos, devoluções e renovações dos exemplares.",
+      "reservations": "Acompanhe solicitações, fila de espera e disponibilidade das obras reservadas.",
+      "fines": "Consulte atrasos e multas conforme as regras configuradas pela instituição.",
+      "reports": "Analise a circulação, o acervo e o uso digital da biblioteca e exporte relatórios.",
+      "audit": "Consulte o histórico das ações registradas na biblioteca e seus responsáveis.",
+      "licenses": "Registre os direitos de cada obra e as permissões de leitura, cópia, download e impressão.",
+      "operators": "Defina quem administra a biblioteca e quais ações cada operador pode realizar.",
+      "settings": "Ajuste as regras de empréstimo, reservas, renovações, avisos, classificação e multas."
+    }
   }
 }

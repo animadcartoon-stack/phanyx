@@ -22933,5 +22933,28 @@
       "FINALIZADO": "Finalizado",
       "CANCELADO": "Cancelado"
     }
+  },
+  "AdminLibraryPresentation": {
+    "title": "Conheça a Biblioteca por dentro",
+    "description": "Veja as páginas que a sua instituição poderá utilizar para organizar o acervo físico e digital, apoiar os leitores e acompanhar a biblioteca.",
+    "pagesLabel": "Páginas da Biblioteca",
+    "openPreview": "Ampliar captura: {page}",
+    "previewAlt": "Captura demonstrativa da página {page} da Biblioteca PHANYX",
+    "demoNote": "Capturas dos ecrãs do sistema em português, com dados fictícios de demonstração. Clique na imagem para ampliar.",
+    "planNote": "As funcionalidades e os limites disponíveis dependem do plano contratado e das permissões de cada utilizador.",
+    "pages": {
+      "overview": "Acompanhe os indicadores, os itens recentes e a utilização do armazenamento num único painel.",
+      "collection": "Registe e pesquise livros, artigos, documentos e conteúdos multimédia; importe e exporte o acervo.",
+      "authorities": "Organize autores, nomes alternativos e identificadores para manter a catalogação consistente.",
+      "shelves": "Agrupe obras por tema em estantes e coleções e defina a sua visibilidade.",
+      "loans": "Controle empréstimos, prazos, devoluções e renovações dos exemplares.",
+      "reservations": "Acompanhe pedidos, lista de espera e disponibilidade das obras reservadas.",
+      "fines": "Consulte atrasos e multas de acordo com as regras definidas pela instituição.",
+      "reports": "Analise a circulação, o acervo e a utilização digital da biblioteca e exporte relatórios.",
+      "audit": "Consulte o histórico das ações registadas na biblioteca e os seus responsáveis.",
+      "licenses": "Registe os direitos de cada obra e as permissões de leitura, cópia, transferência e impressão.",
+      "operators": "Defina quem administra a biblioteca e as ações permitidas a cada operador.",
+      "settings": "Ajuste as regras de empréstimos, reservas, renovações, avisos, classificação e multas."
+    }
   }
 }

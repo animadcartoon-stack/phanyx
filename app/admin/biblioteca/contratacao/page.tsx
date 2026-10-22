@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import ApresentacaoBiblioteca from "@/components/biblioteca/ApresentacaoBiblioteca";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -268,7 +270,7 @@ function CartaoPlano({
       ].join(" ")}
     >
       {plano.destaque ? (
-        <span className="absolute right-5 top-5 rounded-full bg-emerald-700 px-3 py-1 text-xs font-black uppercase tracking-wide text-white dark:bg-emerald-600">
+        <span className="absolute right-5 top-0 -translate-y-1/2 rounded-full bg-emerald-700 px-3 py-1 text-xs font-black uppercase tracking-wide text-white dark:bg-emerald-600">
           {textos.featured}
         </span>
       ) : null}
@@ -331,6 +333,8 @@ function CartaoPlano({
 
 export default function BibliotecaContratacaoPage() {
   const t = useTranslations("AdminLibraryContracting");
+  const tNav = useTranslations("AdminNavigation");
+  const naVisaoGeral = usePathname() === "/admin/biblioteca";
   const locale = useLocale();
   const [dados, setDados] = useState<DadosContratacao | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -646,10 +650,10 @@ export default function BibliotecaContratacaoPage() {
 
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/admin/biblioteca"
+                href={naVisaoGeral ? "/admin" : "/admin/biblioteca"}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 dark:focus:ring-offset-slate-900"
               >
-                {t("backToLibrary")}
+                {naVisaoGeral ? tNav("backToDashboard") : t("backToLibrary")}
               </Link>
 
               <button
@@ -911,6 +915,7 @@ export default function BibliotecaContratacaoPage() {
             </section>
           </>
         )}
+        <ApresentacaoBiblioteca />
       </div>
 
       {planoSelecionado ? (
