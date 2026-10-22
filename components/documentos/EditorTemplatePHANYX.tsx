@@ -2852,6 +2852,8 @@ type Props = {
     html: string
   ) => void;
 
+  inserirTextoRef?: { current: ((texto: string) => boolean) | null };
+
   formatoImpressao?:
   FormatoImpressaoDocumento;
 
@@ -3380,6 +3382,7 @@ const FreeTablePositionPHANYX =
 export default function EditorTemplatePHANYX({
   value,
   onChange,
+  inserirTextoRef,
 
   formatoImpressao =
   "A4_INTEIRA",
@@ -3636,6 +3639,8 @@ export default function EditorTemplatePHANYX({
       left: 8,
       width: 640,
     });
+
+  const ultimoHtmlEmitidoRef = useRef<string | null>(null);
 
   const editor = useEditor({
 
@@ -4062,11 +4067,9 @@ export default function EditorTemplatePHANYX({
         return;
       }
 
-      onChange(
-        removerQuebrasAutomaticasPaginacaoHtml(
-          editor.getHTML()
-        )
-      );
+      const html = removerQuebrasAutomaticasPaginacaoHtml(editor.getHTML());
+      ultimoHtmlEmitidoRef.current = html;
+      onChange(html);
     },
   }, [
     assinaturaDiretorUrl,
@@ -4295,16 +4298,32 @@ export default function EditorTemplatePHANYX({
   useEffect(() => {
     if (!editor) return;
 
-    const novoConteudo = conteudoParaHtmlSeguro(value);
-    const atual = editor.getHTML();
+    const novoConteudo = removerQuebrasAutomaticasPaginacaoHtml(conteudoParaHtmlSeguro(value));
+    const atual = removerQuebrasAutomaticasPaginacaoHtml(editor.getHTML());
 
-    if (atual === novoConteudo) return;
+    // O retorno do onChange nao substitui o documento vivo nem sua selecao.
+    // As quebras automaticas existem apenas na visualizacao das folhas.
+    if (atual === novoConteudo || ultimoHtmlEmitidoRef.current === novoConteudo) return;
 
     editor.commands.setContent(novoConteudo || "<p></p>", {
       emitUpdate: false,
-      preserveWhitespace: "full",
-    } as any);
+      parseOptions: { preserveWhitespace: "full" },
+    });
+    ultimoHtmlEmitidoRef.current = novoConteudo;
   }, [value, editor]);
+
+  useEffect(() => {
+    if (!editor || !inserirTextoRef) return;
+    const inserir = (texto: string) => {
+      if (editor.isDestroyed || !texto) return false;
+      return editor.chain().focus(undefined, { scrollIntoView: false })
+        .insertContent({ type: "text", text: texto }).run();
+    };
+    inserirTextoRef.current = inserir;
+    return () => {
+      if (inserirTextoRef.current === inserir) inserirTextoRef.current = null;
+    };
+  }, [editor, inserirTextoRef]);
 
   useEffect(() => {
     if (!editor) return;
@@ -4336,7 +4355,10 @@ export default function EditorTemplatePHANYX({
       let tamanho = limparTamanho(attrs.fontSize);
 
       const selection = window.getSelection();
-      const node = selection?.anchorNode;
+      const ancora = selection?.anchorNode;
+      const node = ancora && editor.view.dom.contains(ancora)
+        ? ancora
+        : editor.view.domAtPos(editor.state.selection.from).node;
 
       const elemento =
         node?.nodeType === Node.TEXT_NODE
@@ -4482,14 +4504,18 @@ export default function EditorTemplatePHANYX({
 
     editor.on("selectionUpdate", atualizarSelecao);
     editor.on("transaction", atualizarSelecao);
-    document.addEventListener("selectionchange", atualizarSelecao);
+    const atualizarSelecaoDoDocumento = () => {
+      const selecao = window.getSelection();
+      if (selecao?.anchorNode && editor.view.dom.contains(selecao.anchorNode)) atualizarSelecao();
+    };
+    document.addEventListener("selectionchange", atualizarSelecaoDoDocumento);
 
     atualizarSelecao();
 
     return () => {
       editor.off("selectionUpdate", atualizarSelecao);
       editor.off("transaction", atualizarSelecao);
-      document.removeEventListener("selectionchange", atualizarSelecao);
+      document.removeEventListener("selectionchange", atualizarSelecaoDoDocumento);
     };
   }, [editor]);
 
@@ -4780,6 +4806,7 @@ export default function EditorTemplatePHANYX({
       transaction: any;
     }) {
       if (
+        !transaction.docChanged ||
         transaction.getMeta(
           "phanyxPagination"
         )
@@ -5088,8 +5115,14 @@ export default function EditorTemplatePHANYX({
     ].join(" ");
   }
 
+  function publicarConteudoEditor() {
+    const html = removerQuebrasAutomaticasPaginacaoHtml(editor.getHTML());
+    ultimoHtmlEmitidoRef.current = html;
+    onChange(html);
+  }
+
   function sincronizarTabela() {
-    onChange(editor.getHTML());
+    publicarConteudoEditor();
   }
 
 
@@ -5772,7 +5805,13 @@ export default function EditorTemplatePHANYX({
       obterEstadoPosicaoLivreTabela();
 
     return (
-      <div className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3">
+      <div
+        className="phanyx-editor-toolbar border-b border-slate-700 bg-slate-800 p-3"
+        onMouseDownCapture={(event) => {
+          // Botoes preservam a selecao; selects e cores mantem a interacao nativa.
+          if ((event.target as Element).closest("button")) event.preventDefault();
+        }}
+      >
         <div className="flex flex-wrap gap-2">
           <div
             className="relative z-40 w-full border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800"
@@ -5787,9 +5826,9 @@ export default function EditorTemplatePHANYX({
                   const fonte = e.target.value;
                   if (!fonte) return;
 
-                  editor.chain().focus().setFontFamily(fonte).run();
+                  editor.chain().focus(undefined, { scrollIntoView: false }).setFontFamily(fonte).run();
                   setFonteAtual(fonte);
-                  onChange(editor.getHTML());
+                  publicarConteudoEditor();
                 }}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
@@ -5811,14 +5850,14 @@ export default function EditorTemplatePHANYX({
 
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .setMark("textStyle", {
                       fontSize: `${tamanho}pt`,
                     })
                     .run();
 
                   setTamanhoAtual(tamanho);
-                  onChange(editor.getHTML());
+                  publicarConteudoEditor();
                 }}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
@@ -5840,12 +5879,12 @@ export default function EditorTemplatePHANYX({
 
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .updateAttributes("paragraph", { lineHeight })
                     .updateAttributes("heading", { lineHeight })
                     .run();
 
-                  onChange(editor.getHTML());
+                  publicarConteudoEditor();
                 }}
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
               >
@@ -5867,7 +5906,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .toggleBold()
                     .run()
                 }
@@ -5886,7 +5925,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .toggleItalic()
                     .run()
                 }
@@ -5905,7 +5944,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .toggleUnderline()
                     .run()
                 }
@@ -5924,7 +5963,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .setTextAlign("left")
                     .run()
                 }
@@ -5943,7 +5982,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .setTextAlign("center")
                     .run()
                 }
@@ -5962,7 +6001,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .setTextAlign("right")
                     .run()
                 }
@@ -5981,7 +6020,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .setTextAlign("justify")
                     .run()
                 }
@@ -6000,7 +6039,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .toggleHeading({
                       level: 1,
                     })
@@ -6021,7 +6060,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .toggleHeading({
                       level: 2,
                     })
@@ -6042,7 +6081,7 @@ export default function EditorTemplatePHANYX({
                 onClick={() =>
                   editor
                     .chain()
-                    .focus()
+                    .focus(undefined, { scrollIntoView: false })
                     .toggleBulletList()
                     .run()
                 }
@@ -6056,7 +6095,7 @@ export default function EditorTemplatePHANYX({
               <input
                 type="color"
                 onChange={(e) =>
-                  editor.chain().focus().setColor(e.target.value).run()
+                  editor.chain().focus(undefined, { scrollIntoView: false }).setColor(e.target.value).run()
                 }
                 className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
                 title={tToolbar("main.textColor")}
@@ -6073,7 +6112,7 @@ export default function EditorTemplatePHANYX({
                   onChange={(e) =>
                     editor
                       .chain()
-                      .focus()
+                      .focus(undefined, { scrollIntoView: false })
                       .setMark("textStyle", {
                         backgroundColor:
                           e.target.value,
@@ -6091,7 +6130,7 @@ export default function EditorTemplatePHANYX({
                   onClick={() =>
                     editor
                       .chain()
-                      .focus()
+                      .focus(undefined, { scrollIntoView: false })
                       .setMark("textStyle", {
                         backgroundColor:
                           null,
