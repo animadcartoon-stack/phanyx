@@ -11448,6 +11448,7 @@
       "courseForm": {
         "namePlaceholder": "Nom du cours",
         "semestersCount": "Nombre de semestres du cours",
+        "semestersHelp": "Pour les cours sans semestres, saisissez 0 ou laissez ce champ vide.",
         "activeCourse": "Cours actif",
         "descriptionPlaceholder": "Description du cours",
         "saveLocalValues": "Enregistrer les valeurs locales",
@@ -11505,6 +11506,7 @@
       "loadPoles": "Impossible de charger les sites.",
       "updateCoursePoles": "Impossible de mettre à jour les sites du cours.",
       "createCourse": "Impossible de créer le cours.",
+      "SEMESTRES_INVALIDOS": "Saisissez un nombre entier de semestres, ou 0 pour les cours sans semestres.",
       "deleteCourse": "Impossible de supprimer le cours.",
       "restoreCourse": "Impossible de restaurer le cours.",
       "couldNotSave": "Impossible d'enregistrer",

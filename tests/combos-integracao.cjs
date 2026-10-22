@@ -69,6 +69,7 @@ if (!url) {
   const { prisma } = require("../lib/prisma.ts");
   const api = require("../app/api/admin/matriculas/modalidades/route.ts");
   const regras = require("../app/api/admin/combos/route.ts");
+  const cursosApi = require("../app/api/admin/cursos/route.ts");
   const {
     validarAgendaMatricula,
   } = require("../lib/matriculas/validar-agenda.ts");
@@ -127,6 +128,59 @@ if (!url) {
         role: "ADMIN",
         instituicaoId,
       };
+      await t.test("curso livre aceita zero ou campo vazio sem exigir preço de combo", async () => {
+        for (const [indice, semestres] of [0, "0", "", null].entries()) {
+          const res = await cursosApi.POST(req({
+            nome: `Robótica regressão ${indice}`,
+            codigo: `ROB-${indice}-${unique}`,
+            quantidadeSemestres: semestres,
+            valorMatricula: 98.5,
+            valorMensalidade: 239,
+            quantidadeParcelas: 12,
+            participaCombo: true,
+            valorMensalidadeCombo: null,
+            poloIds: [],
+          }));
+          assert.equal(res.status, 201, JSON.stringify(await res.clone().json()));
+          const curso = await res.json();
+          assert.equal(curso.quantidadeSemestres, null);
+          assert.equal(Number(curso.valorMatricula), 98.5);
+          assert.equal(Number(curso.valorMensalidade), 239);
+          assert.equal(curso.participaCombo, true);
+          assert.equal(curso.valorMensalidadeCombo, null);
+        }
+      });
+      await t.test("curso universitário mantém semestres positivos e edição aceita zero", async () => {
+        const dados = {
+          nome: "Curso universitário regressão",
+          quantidadeSemestres: 8,
+          valorMatricula: 98.5,
+          valorMensalidade: 239,
+          quantidadeParcelas: 12,
+        };
+        const res = await cursosApi.POST(req(dados));
+        assert.equal(res.status, 201, JSON.stringify(await res.clone().json()));
+        const curso = await res.json();
+        assert.equal(curso.quantidadeSemestres, 8);
+        for (const semestres of [0, 6]) {
+          const editar = await cursosApi.PUT(req({ ...dados, id: curso.id, quantidadeSemestres: semestres }));
+          assert.equal(editar.status, 200, JSON.stringify(await editar.clone().json()));
+          assert.equal((await editar.json()).quantidadeSemestres, semestres || null);
+        }
+      });
+      await t.test("semestres negativos ou fracionários são rejeitados na criação e edição", async () => {
+        const curso = await prisma.curso.findFirst({ where: { instituicaoId, nome: "Curso universitário regressão" } });
+        for (const semestres of [-1, 1.5]) {
+          for (const metodo of ["POST", "PUT"]) {
+            const nome = `Curso inválido ${semestres} ${metodo}`;
+            const res = await cursosApi[metodo](req({ id: curso.id, nome, quantidadeSemestres: semestres }));
+            assert.equal(res.status, 400);
+            assert.equal((await res.json()).codigo, "SEMESTRES_INVALIDOS");
+            assert.equal(await prisma.curso.count({ where: { instituicaoId, nome } }), 0);
+          }
+        }
+        assert.equal((await prisma.curso.findUnique({ where: { id: curso.id } })).quantidadeSemestres, 6);
+      });
       const polo = await prisma.polo.create({
         data: { nome: "Polo teste", instituicaoId },
       });

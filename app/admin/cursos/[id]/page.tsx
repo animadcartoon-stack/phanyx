@@ -117,6 +117,7 @@ function formatarMoeda(valor: number, localeAtual: string) {
 export default function CursoDetalhePage() {
   const params = useParams();
   const t = useTranslations("AdminCourses");
+  const tc = useTranslations("EnrollmentCombos");
   const locale = useLocale();
   const cursoId = Number(params.id);
 
@@ -319,7 +320,15 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(t("errors.editCourse"));
+        const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
+        const mensagem = chaveErro && t.has(chaveErro)
+          ? t(chaveErro)
+          : chaveErro && tc.has(chaveErro)
+            ? tc(chaveErro)
+            : typeof data.error === "string" && data.error.trim()
+              ? data.error
+              : t("errors.editCourse");
+        throw new Error(mensagem);
       }
 
       await carregarCurso();
@@ -698,6 +707,9 @@ export default function CursoDetalhePage() {
                     <input
                       disabled={cursoRecebidoDaRede}
                       type="number"
+                      min="0"
+                      step="1"
+                      aria-describedby="curso-semestres-ajuda"
                       value={formCurso.quantidadeSemestres}
                       onChange={(e) =>
                         setFormCurso({
@@ -708,6 +720,9 @@ export default function CursoDetalhePage() {
                       className={`w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 ${classeCampoAcademico}`}
                       placeholder={t("detail.courseForm.examples.semesters")}
                     />
+                    <p id="curso-semestres-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                      {t("detail.courseForm.semestersHelp")}
+                    </p>
                   </div>
 
                   <div>
