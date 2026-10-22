@@ -2,17 +2,25 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { isAdminLike } from "@/lib/server-auth";
+import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
 export async function GET(
   request: Request,
   context: { params: { id: string } }
 ) {
   try {
-    const turmaId = Number(context.params.id);
+    const user = await getUserFromToken();
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
 
-    const turma = await prisma.turma.findUnique({
-      where: { id: turmaId },
+    const turmaId = Number(context.params.id);
+    if (!Number.isInteger(turmaId) || turmaId <= 0) {
+      return NextResponse.json({ error: "ID de turma inválido" }, { status: 400 });
+    }
+
+    const turma = await prisma.turma.findFirst({
+      where: { id: turmaId, instituicaoId: user.instituicaoId },
       include: {
         polo: true,
         disciplinas: {
@@ -756,15 +764,14 @@ export async function DELETE(
       );
     }
 
-    await prisma.turmaDisciplina.deleteMany({
-      where: {
-        turmaId,
-        instituicaoId: user.instituicaoId,
-      },
-    });
-
-    await prisma.turma.delete({
-      where: { id: turmaId },
+    // Both steps must roll back together if academic references block deletion.
+    await prisma.$transaction(async (tx) => {
+      await tx.turmaDisciplina.deleteMany({
+        where: { turmaId, instituicaoId: user.instituicaoId },
+      });
+      await tx.turma.delete({
+        where: { id: turmaId, instituicaoId: user.instituicaoId },
+      });
     });
 
     return NextResponse.json({ message: "Turma excluída com sucesso" });
