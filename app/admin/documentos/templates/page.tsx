@@ -1225,6 +1225,7 @@ function AdminDocumentosTemplatesPage() {
   const [mostrarTodasVariaveis, setMostrarTodasVariaveis] = useState(false);
 
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const inserirTextoDocumentoRef = useRef<((texto: string) => boolean) | null>(null);
 
   const tiposEstruturados = [
     "HISTORICO",
@@ -1339,24 +1340,9 @@ function AdminDocumentosTemplatesPage() {
   }
 
   function inserirVariavelNoEditor(tag: string) {
-    const tagPublica =
-      tagPublicaDocumento(
-        tag
-      );
-
-    editorRef.current?.focus();
-
-    document.execCommand(
-      "insertText",
-      false,
-      tagPublica
-    );
-
-    atualizarConteudoEditor();
-
-    copiarVariavel(
-      tagPublica
-    );
+    const tagPublica = tagPublicaDocumento(tag);
+    inserirTextoDocumentoRef.current?.(tagPublica);
+    void copiarVariavel(tagPublica);
   }
 
   async function copiarVariavel(texto: string) {
@@ -4992,6 +4978,7 @@ function AdminDocumentosTemplatesPage() {
                     />
                   ) : !usaModoGuiado ? (
                     <EditorTemplatePHANYX
+                      inserirTextoRef={inserirTextoDocumentoRef}
                       key={[
                         editingId ?? "novo",
                         formatoImpressao,
