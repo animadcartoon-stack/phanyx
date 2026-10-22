@@ -94,7 +94,7 @@ export async function GET(
     }
 
     const aulas = await prisma.aula.findMany({
-      where: { disciplinaId },
+      where: { disciplinaId, dataEncontro: null },
       orderBy: [{ ordem: "asc" }, { id: "asc" }],
     });
 

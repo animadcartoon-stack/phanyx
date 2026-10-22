@@ -83,7 +83,7 @@ export async function DELETE(
         professorId: professor.id,
       },
       include: {
-        aulas: { select: { id: true } },
+        aulas: { where: { dataEncontro: null }, select: { id: true } },
         turmas: { select: { id: true } },
         provas: { select: { id: true } },
       },

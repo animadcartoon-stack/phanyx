@@ -258,6 +258,7 @@ function TurmaAgrupadaCard({
   buscaAtiva: boolean;
 }) {
   const t = useTranslations("ProfessorClasses");
+  const ta = useTranslations("ProfessorMeetingAttendance");
   const locale = useLocale();
   const [aberta, setAberta] = useState(false);
   const [periodosAbertos, setPeriodosAbertos] = useState<Record<string, boolean>>({});
@@ -465,7 +466,13 @@ function TurmaAgrupadaCard({
                               )}
                             </div>
 
-                            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                              <button
+                                onClick={() => router.push(`/professor/turmas/${disciplina.id}/chamadas?disciplinaId=${disciplina.disciplina?.id}`)}
+                                className="rounded-xl bg-emerald-700 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-800"
+                              >
+                                {ta("entry")}
+                              </button>
                               <button
                                 onClick={() => router.push(`/professor/alunos?turmaId=${disciplina.id}`)}
                                 className="rounded-xl border border-blue-200 px-3 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50"

@@ -22956,5 +22956,61 @@
       "operators": "Defina quem administra a biblioteca e as ações permitidas a cada operador.",
       "settings": "Ajuste as regras de empréstimos, reservas, renovações, avisos, classificação e multas."
     }
+  },
+  "ProfessorMeetingAttendance": {
+    "entry": "Chamada por data",
+    "title": "Chamada por data",
+    "description": "Registre a frequência da turma por encontro, sem cadastrar ou publicar uma aula.",
+    "back": "Voltar às turmas",
+    "subject": "Disciplina / atividade",
+    "chooseSubject": "Selecione a disciplina",
+    "date": "Data do encontro",
+    "time": "Horário de início",
+    "open": "Abrir chamada",
+    "loading": "A carregar…",
+    "existing": "Chamada já registrada. Você pode consultar e corrigir as marcações.",
+    "newMeeting": "Novo encontro. As presenças serão registradas ao salvar a chamada.",
+    "unsaved": "Há alterações por guardar.",
+    "search": "Buscar aluno",
+    "markRemainingPresent": "Marcar não preenchidos como presentes",
+    "students": "{count, plural, one {# aluno} other {# alunos}}",
+    "unmarked": "Selecione a situação",
+    "statusFor": "Frequência de {name}",
+    "reason": "Motivo / justificativa (obrigatório)",
+    "observation": "Observação (opcional)",
+    "empty": "Não há alunos com matrícula disponível nesta disciplina e turma.",
+    "noSearchResults": "Nenhum aluno encontrado na busca.",
+    "save": "Guardar chamada",
+    "saving": "A guardar…",
+    "saved": "Chamada guardada com sucesso.",
+    "history": "Chamadas anteriores",
+    "historyHint": "Últimos 50 encontros. Selecione um encontro para consultar ou corrigir. Para outra data, use os campos acima.",
+    "emptyHistory": "Ainda não há chamadas registradas nesta disciplina.",
+    "discard": {
+      "title": "Alterações não salvas",
+      "message": "Há marcações que ainda não foram salvas. Deseja descartá-las para continuar?",
+      "confirm": "Descartar e continuar",
+      "cancel": "Continuar editando"
+    },
+    "statuses": {
+      "PRESENTE": "Presente",
+      "FALTA": "Falta",
+      "JUSTIFICADA": "Falta justificada",
+      "ATESTADO": "Atestado"
+    },
+    "errors": {
+      "unauthorized": "Entre com o acesso de professor para fazer a chamada.",
+      "invalidClass": "Selecione uma turma e uma disciplina válidas.",
+      "forbidden": "Esta turma ou disciplina não está disponível para o seu acesso.",
+      "invalidMeeting": "Informe uma data válida e o horário de início do encontro.",
+      "invalidAttendance": "Selecione a situação de todos os alunos antes de salvar.",
+      "observationTooLong": "Cada observação deve ter até 2.000 caracteres.",
+      "reasonRequired": "Informe o motivo para as faltas justificadas e os atestados.",
+      "studentOutsideClass": "Há um aluno que não pertence a esta disciplina e turma. Reabra a chamada.",
+      "rosterChanged": "A lista de matrículas mudou. Reabra a chamada para atualizar os alunos.",
+      "conflict": "A chamada foi alterada simultaneamente. Reabra o encontro e tente novamente.",
+      "unexpected": "Não foi possível concluir a operação. Tente novamente."
+    }
   }
+
 }

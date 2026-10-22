@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { formatarDataEncontro } from "@/lib/chamada-encontro";
 
 type Presenca = {
   id: number;
   status: string;
   observacao?: string;
   data?: string;
+  dataEncontro?: string | null;
+  horaEncontro?: string | null;
   aula?: string;
   turma?: string;
 };
@@ -269,7 +272,7 @@ export default function PresencasAlunoPage() {
                         <strong className="font-medium text-slate-800 dark:text-slate-100">
                           {t("item.dateLabel")}:
                         </strong>{" "}
-                        {formatarData(p.data)}
+                        {p.dataEncontro ? `${formatarDataEncontro(p.dataEncontro, locale)} • ${p.horaEncontro || ""}` : formatarData(p.data)}
                       </p>
                     </div>
 

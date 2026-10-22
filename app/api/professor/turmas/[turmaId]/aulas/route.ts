@@ -122,6 +122,7 @@ if (!podeAcessar) {
 
     const aulas = await prisma.aula.findMany({
       where: {
+  dataEncontro: null,
   turmaId,
   instituicaoId: user.instituicaoId,
   ...(Number.isFinite(disciplinaId) && disciplinaId > 0
@@ -265,6 +266,7 @@ const substituicaoAtiva = await prisma.substituicaoDocente.findFirst({
 
     const ultimaAula = await prisma.aula.findFirst({
   where: {
+    dataEncontro: null,
     turmaId,
     disciplinaId,
     instituicaoId: user.instituicaoId,

@@ -75,6 +75,7 @@ if (contratoPendente) {
           },
         },
         aulas: {
+          where: { dataEncontro: null },
           include: {
             presencas: {
               where: {
