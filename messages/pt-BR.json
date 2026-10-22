@@ -1,4 +1,17 @@
 {
+  "AcademicIntegrity": {
+    "ETAPA_COM_HISTORICO": "Não é possível mudar o curso ou a etapa de uma oferta com histórico acadêmico. Preserve a turma atual e organize a progressão por nova oferta ou rematrícula.",
+    "DADOS_ALTERADOS": "Os dados acadêmicos foram alterados simultaneamente. Atualize a página, confira a seleção e tente novamente.",
+    "VINCULO_INVALIDO": "Um dos identificadores informados é inválido.",
+    "CURSO_INVALIDO": "O curso não pertence a esta instituição.",
+    "DISCIPLINAS_INVALIDAS": "Uma ou mais disciplinas não pertencem a esta instituição.",
+    "GRADE_INCOMPATIVEL": "Uma ou mais disciplinas não fazem parte da grade do curso e semestre selecionados. Atualize a lista e confira a grade curricular.",
+    "PROFESSOR_INVALIDO": "Um ou mais professores não pertencem a esta instituição.",
+    "POLO_INVALIDO": "O polo não pertence a esta instituição.",
+    "TURMA_INVALIDA": "Uma ou mais turmas não pertencem a esta instituição.",
+    "PRE_REQUISITO_INVALIDO": "Um ou mais pré-requisitos não pertencem a esta instituição.",
+    "OFERTA_COM_HISTORICO": "Não é possível retirar esta oferta porque ela possui matrículas, aulas ou registros acadêmicos. Mantenha o vínculo e gerencie seu encerramento na turma."
+  },
   "Common": {
     "cancel": "Cancelar",
     "save": "Salvar",

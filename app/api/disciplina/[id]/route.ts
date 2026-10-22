@@ -1,3 +1,4 @@
+import { idsOferta, ErroIntegridadeAcademica, respostaErroAcademico, protegerHistoricoDasOfertas, sincronizarTurmasDaDisciplina } from "@/lib/academico/integridade-ofertas";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
@@ -393,21 +394,18 @@ export async function PUT(
       professorIdFinal = null;
     }
 
-    const turmaIds = Array.isArray(body.turmaIds)
-      ? body.turmaIds.map((id: any) => Number(id)).filter((id: number) => Number.isFinite(id))
-      : [];
-
-    const professoresHabilitadosIds = Array.isArray(body.professoresHabilitadosIds)
-      ? body.professoresHabilitadosIds
-        .map((id: any) => Number(id))
-        .filter((id: number) => Number.isFinite(id) && id > 0)
-      : [];
-    const preRequisitoIds = Array.isArray(body.preRequisitoIds)
-      ? body.preRequisitoIds
-        .map((id: any) => Number(id))
-        .filter((id: number) => Number.isFinite(id) && id > 0 && id !== Number(params.id))
-      : [];
-    if (professoresHabilitadosIds.length > 0) {
+    const turmaIds = body.turmaIds === undefined ? undefined : idsOferta(body.turmaIds);
+    const professoresHabilitadosIds = body.professoresHabilitadosIds === undefined
+      ? undefined : idsOferta(body.professoresHabilitadosIds);
+    const preRequisitoIds = body.preRequisitoIds === undefined ? undefined : idsOferta(body.preRequisitoIds);
+    if (preRequisitoIds?.includes(id)) throw new ErroIntegridadeAcademica("PRE_REQUISITO_INVALIDO");
+    if (preRequisitoIds?.length) {
+      const validos = await prisma.disciplina.count({
+        where: { id: { in: preRequisitoIds }, instituicaoId: user.instituicaoId },
+      });
+      if (validos !== preRequisitoIds.length) throw new ErroIntegridadeAcademica("PRE_REQUISITO_INVALIDO");
+    }
+    if (professoresHabilitadosIds?.length) {
       const professoresValidos = await prisma.professor.findMany({
         where: {
           id: { in: professoresHabilitadosIds },
@@ -434,19 +432,19 @@ export async function PUT(
       ).trim();
 
     const codigoFinal =
-      body.codigo ?? null;
+      body.codigo !== undefined ? body.codigo : disciplinaExistente.codigo;
 
     const descricaoFinal =
-      body.descricao ?? null;
+      body.descricao !== undefined ? body.descricao : disciplinaExistente.descricao;
 
-    const cargaHorariaFinal =
+    const cargaHorariaFinal = body.cargaHoraria === undefined ? disciplinaExistente.cargaHoraria :
       body.cargaHoraria !== null &&
         body.cargaHoraria !== undefined &&
         body.cargaHoraria !== ""
         ? Number(body.cargaHoraria)
         : null;
 
-    const semestreFinal =
+    const semestreFinal = body.semestre === undefined ? disciplinaExistente.semestre :
       body.semestre !== null &&
         body.semestre !== undefined &&
         body.semestre !== ""
@@ -473,6 +471,10 @@ export async function PUT(
     const resultadoSincronizacao =
       await prisma.$transaction(
         async (tx) => {
+          if (cursoIdFinal !== disciplinaExistente.cursoId || semestreFinal !== disciplinaExistente.semestre) {
+            const ofertas = await tx.turmaDisciplina.findMany({ where: { instituicaoId: user.instituicaoId, disciplinaId: id } });
+            await protegerHistoricoDasOfertas(tx, user.instituicaoId, ofertas, "ETAPA_COM_HISTORICO");
+          }
           await tx.disciplina.update({
             where: {
               id,
@@ -488,61 +490,22 @@ export async function PUT(
             },
           });
 
-          await tx.professorDisciplina.deleteMany({
-            where: {
-              disciplinaId: id,
-              instituicaoId: user.instituicaoId,
-            },
-          });
-
-          await tx.disciplinaPreRequisito.deleteMany({
-            where: {
-              disciplinaId: id,
-              instituicaoId: user.instituicaoId,
-            },
-          });
-
-          if (preRequisitoIds.length > 0) {
-            await tx.disciplinaPreRequisito.createMany({
-              data: preRequisitoIds.map((preId: number) => ({
-                disciplinaId: id,
-                prerequisitoId: preId,
-                instituicaoId: user.instituicaoId,
-              })),
+          if (professoresHabilitadosIds !== undefined) {
+            await tx.professorDisciplina.deleteMany({ where: { disciplinaId: id, instituicaoId: user.instituicaoId } });
+            if (professoresHabilitadosIds.length) await tx.professorDisciplina.createMany({
+              data: professoresHabilitadosIds.map(professorId => ({ professorId, disciplinaId: id, instituicaoId: user.instituicaoId })),
               skipDuplicates: true,
             });
           }
-
-          if (professoresHabilitadosIds.length > 0) {
-            await tx.professorDisciplina.createMany({
-              data: professoresHabilitadosIds.map(
-                (professorId: number) => ({
-                  professorId,
-                  disciplinaId: id,
-                  instituicaoId: user.instituicaoId,
-                })
-              ),
+          if (preRequisitoIds !== undefined) {
+            await tx.disciplinaPreRequisito.deleteMany({ where: { disciplinaId: id, instituicaoId: user.instituicaoId } });
+            if (preRequisitoIds.length) await tx.disciplinaPreRequisito.createMany({
+              data: preRequisitoIds.map(prerequisitoId => ({ prerequisitoId, disciplinaId: id, instituicaoId: user.instituicaoId })),
               skipDuplicates: true,
             });
           }
-
-          await tx.turmaDisciplina.deleteMany({
-            where: {
-              disciplinaId: id,
-              instituicaoId: user.instituicaoId,
-            },
-          });
-
-          if (turmaIds.length > 0) {
-            await tx.turmaDisciplina.createMany({
-              data: turmaIds.map((turmaId: number) => ({
-                turmaId,
-                disciplinaId: id,
-                professorId: professorIdFinal,
-                instituicaoId: user.instituicaoId,
-              })),
-              skipDuplicates: true,
-            });
+          if (turmaIds !== undefined) {
+            await sincronizarTurmasDaDisciplina(tx, user.instituicaoId, id, turmaIds, professorIdFinal);
           }
 
           let unidadesAtualizadas = 0;
@@ -579,6 +542,7 @@ export async function PUT(
         {
           maxWait: 10000,
           timeout: 60000,
+          isolationLevel: "Serializable",
         }
       );
 
@@ -635,6 +599,8 @@ export async function PUT(
       },
     });
   } catch (error: any) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     console.error("ERRO API DISCIPLINA PUT:", error);
 
     return NextResponse.json(

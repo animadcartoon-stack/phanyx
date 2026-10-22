@@ -1,4 +1,17 @@
 {
+  "AcademicIntegrity": {
+    "ETAPA_COM_HISTORICO": "An offering with academic history cannot be moved to another course or stage. Keep the current class and manage progression through a new offering or re-enrollment.",
+    "DADOS_ALTERADOS": "Academic data changed concurrently. Refresh the page, check your selection and try again.",
+    "VINCULO_INVALIDO": "One of the supplied identifiers is invalid.",
+    "CURSO_INVALIDO": "The course does not belong to this institution.",
+    "DISCIPLINAS_INVALIDAS": "One or more subjects do not belong to this institution.",
+    "GRADE_INCOMPATIVEL": "One or more subjects are outside the curriculum for the selected course and semester. Refresh the list and check the curriculum.",
+    "PROFESSOR_INVALIDO": "One or more teachers do not belong to this institution.",
+    "POLO_INVALIDO": "The campus does not belong to this institution.",
+    "TURMA_INVALIDA": "One or more classes do not belong to this institution.",
+    "PRE_REQUISITO_INVALIDO": "One or more prerequisites do not belong to this institution.",
+    "OFERTA_COM_HISTORICO": "This offering cannot be removed because it has enrollments, lessons or academic records. Keep the link and manage its closure from the class."
+  },
   "Common": {
     "cancel": "Cancel",
     "save": "Save",

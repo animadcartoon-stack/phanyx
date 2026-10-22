@@ -1,4 +1,17 @@
 {
+  "AcademicIntegrity": {
+    "ETAPA_COM_HISTORICO": "Une offre avec un historique scolaire ne peut pas changer de cours ou d’étape. Conservez la classe actuelle et organisez la progression via une nouvelle offre ou une réinscription.",
+    "DADOS_ALTERADOS": "Les données scolaires ont été modifiées simultanément. Actualisez la page, vérifiez votre sélection et réessayez.",
+    "VINCULO_INVALIDO": "Un des identifiants fournis est invalide.",
+    "CURSO_INVALIDO": "Le cours n’appartient pas à cet établissement.",
+    "DISCIPLINAS_INVALIDAS": "Une ou plusieurs matières n’appartiennent pas à cet établissement.",
+    "GRADE_INCOMPATIVEL": "Une ou plusieurs matières ne font pas partie du programme du cours et du semestre sélectionnés. Actualisez la liste et vérifiez le programme.",
+    "PROFESSOR_INVALIDO": "Un ou plusieurs enseignants n’appartiennent pas à cet établissement.",
+    "POLO_INVALIDO": "Le campus n’appartient pas à cet établissement.",
+    "TURMA_INVALIDA": "Une ou plusieurs classes n’appartiennent pas à cet établissement.",
+    "PRE_REQUISITO_INVALIDO": "Un ou plusieurs prérequis n’appartiennent pas à cet établissement.",
+    "OFERTA_COM_HISTORICO": "Cette offre ne peut pas être retirée car elle possède des inscriptions, des séances ou des dossiers scolaires. Conservez le lien et gérez sa clôture depuis la classe."
+  },
   "Common": {
     "cancel": "Annuler",
     "save": "Enregistrer",

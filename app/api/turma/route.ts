@@ -1,3 +1,4 @@
+import { idOpcionalOferta, idsOferta, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -248,16 +249,9 @@ export async function POST(request: NextRequest) {
     const statusTurma = String(body?.statusTurma ?? "AGUARDANDO").trim();
     const ativa = body?.ativa !== undefined ? Boolean(body.ativa) : true;
 
-    const cursoId =
-      body?.cursoId && Number(body.cursoId) > 0 ? Number(body.cursoId) : null;
-
-    const professorId =
-      body?.professorId && Number(body.professorId) > 0
-        ? Number(body.professorId)
-        : null;
-
-    const poloId =
-      body?.poloId && Number(body.poloId) > 0 ? Number(body.poloId) : null;
+    const cursoId = idOpcionalOferta(body.cursoId);
+    const professorId = idOpcionalOferta(body.professorId);
+    const poloId = idOpcionalOferta(body.poloId);
 
     const capacidadeMinima = body?.capacidadeMinima
       ? Number(body.capacidadeMinima)
@@ -267,9 +261,7 @@ export async function POST(request: NextRequest) {
       ? Number(body.capacidadeMaxima)
       : null;
 
-    const disciplinaIds = Array.isArray(body?.disciplinaIds)
-      ? body.disciplinaIds.map(Number).filter((id: number) => Number.isFinite(id))
-      : [];
+    const disciplinaIds = idsOferta(body.disciplinaIds ?? []);
 
     const professoresPorDisciplina =
       body?.professoresPorDisciplina &&
@@ -317,29 +309,9 @@ export async function POST(request: NextRequest) {
 
     const semestreNumero = Number(String(semestre).match(/\d+/)?.[0] || 0);
 
-    const disciplinasValidas = await prisma.disciplina.findMany({
-      where: {
-        id: { in: disciplinaIds },
-        instituicaoId: user.instituicaoId,
-        cursoId,
-        semestre: semestreNumero || undefined,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (disciplinasValidas.length !== disciplinaIds.length) {
-      return NextResponse.json(
-        {
-          error:
-            "Uma ou mais disciplinas não pertencem ao curso e semestre selecionados.",
-        },
-        { status: 400 }
-      );
-    }
-
     const novaTurma = await prisma.$transaction(async (tx) => {
+      await validarDisciplinasDaOferta(tx, user.instituicaoId, cursoId, semestre, disciplinaIds);
+      await validarResponsaveisDaOferta(tx, user.instituicaoId, poloId, professorId, disciplinaIds, professoresPorDisciplina);
       const turmaCriada = await tx.turma.create({
         data: {
           nome,
@@ -367,7 +339,7 @@ export async function POST(request: NextRequest) {
         data: {
           turmaId: turmaCriada.id,
           instituicaoId: user.instituicaoId,
-          numero: Number(semestre) || 1,
+          numero: semestreNumero || 1,
           status: "A_INICIAR",
         },
       });
@@ -458,10 +430,12 @@ export async function POST(request: NextRequest) {
           },
         },
       });
-    });
+    }, { isolationLevel: "Serializable" });
 
     return NextResponse.json(novaTurma);
   } catch (error: any) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     console.error("ERRO REAL AO CRIAR TURMA:", error);
 
     return NextResponse.json(

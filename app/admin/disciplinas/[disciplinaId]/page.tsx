@@ -59,6 +59,7 @@ export default function DisciplinaDetalhePage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations("AdminSubjects");
+  const tIntegridade = useTranslations("AcademicIntegrity");
   const disciplinaId = Number(params.disciplinaId);
 
   const [loading, setLoading] = useState(true);
@@ -263,7 +264,7 @@ export default function DisciplinaDetalhePage() {
 
       if (!res.ok) {
         console.error("Erro da API ao salvar disciplina:", data?.error);
-        setErro(t("errors.save"));
+        setErro(typeof data.codigo === "string" && tIntegridade.has(data.codigo) ? tIntegridade(data.codigo) : t("errors.save"));
         return;
       }
 

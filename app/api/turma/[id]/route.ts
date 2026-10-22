@@ -1,3 +1,5 @@
+import { mesmaEtapaOferta } from "@/lib/academico/grade-oferta";
+import { ErroIntegridadeAcademica, idOpcionalOferta, idsOferta, protegerHistoricoDasOfertas, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -85,22 +87,7 @@ export async function PUT(
     const turmaId = Number(context.params.id);
     const body = await request.json();
 
-    const disciplinaIds: number[] =
-  Array.isArray(
-    body?.disciplinaIds,
-  )
-    ? Array.from(
-        new Set<number>(
-          body.disciplinaIds
-            .map(Number)
-            .filter(
-              (id: number) =>
-                Number.isInteger(id) &&
-                id > 0,
-            ),
-        ),
-      )
-    : [];
+    const disciplinaIds = idsOferta(body.disciplinaIds ?? []);
 
 const professoresPorDisciplina =
   body?.professoresPorDisciplina &&
@@ -169,31 +156,9 @@ const horariosPorDisciplina =
     "poloId",
   );
 
-const poloId = poloFoiEnviado
-  ? body?.poloId !== null &&
-    String(
-      body.poloId,
-    ).trim() !== ""
-    ? Number(body.poloId)
-    : null
-  : turmaExistente.poloId;
-
-    if (poloId !== null) {
-      const polo = await prisma.polo.findFirst({
-        where: {
-          id: poloId,
-          instituicaoId: user.instituicaoId,
-        },
-        select: { id: true },
-      });
-
-      if (!polo) {
-        return NextResponse.json(
-          { error: "Polo inválido para esta instituição." },
-          { status: 400 }
-        );
-      }
-    }
+const poloId = poloFoiEnviado ? idOpcionalOferta(body.poloId) : turmaExistente.poloId;
+    const professorId = body.professorId === undefined
+      ? turmaExistente.professorId : idOpcionalOferta(body.professorId);
 
     const semestreNumero = Number(
   String(
@@ -213,6 +178,16 @@ const modalidade = String(
 const turmaAtualizada =
   await prisma.$transaction(
     async (tx) => {
+      const vinculosExistentes = await tx.turmaDisciplina.findMany({
+        where: { turmaId, instituicaoId: user.instituicaoId },
+      });
+      const mesmoSemestre = mesmaEtapaOferta(body.semestre ?? turmaExistente.semestre, turmaExistente.semestre);
+      if (!mesmoSemestre) await protegerHistoricoDasOfertas(tx, user.instituicaoId, vinculosExistentes, "ETAPA_COM_HISTORICO");
+      await validarDisciplinasDaOferta(tx, user.instituicaoId, turmaExistente.cursoId,
+        body.semestre ?? turmaExistente.semestre, disciplinaIds,
+        mesmoSemestre ? vinculosExistentes.map(v => v.disciplinaId) : []);
+      await validarResponsaveisDaOferta(tx, user.instituicaoId, poloId, professorId, disciplinaIds, professoresPorDisciplina);
+
       const turmaSalva =
         await tx.turma.update({
           where: {
@@ -292,18 +267,7 @@ const turmaAtualizada =
 
             poloId,
 
-            professorId:
-              body?.professorId !==
-                undefined &&
-              body?.professorId !==
-                null &&
-              String(
-                body.professorId,
-              ).trim() !== ""
-                ? Number(
-                    body.professorId,
-                  )
-                : turmaExistente.professorId,
+            professorId,
 
             capacidadeMinima:
               body.capacidadeMinima !==
@@ -367,17 +331,6 @@ const turmaAtualizada =
           );
       }
 
-      const vinculosExistentes =
-        await tx.turmaDisciplina.findMany(
-          {
-            where: {
-              turmaId,
-              instituicaoId:
-                user.instituicaoId,
-            },
-          },
-        );
-
       const idsSelecionados =
         new Set(disciplinaIds);
 
@@ -392,6 +345,7 @@ const turmaAtualizada =
       if (
         vinculosRemover.length > 0
       ) {
+        await protegerHistoricoDasOfertas(tx, user.instituicaoId, vinculosRemover);
         await tx.turmaDisciplina.deleteMany(
           {
             where: {
@@ -480,39 +434,23 @@ const turmaAtualizada =
               },
 
               update: {
-                turmaSemestreId:
-                  turmaSemestre.id,
-
-                professorId:
-                  professorValor &&
-                  Number(
-                    professorValor,
-                  ) > 0
-                    ? Number(
-                        professorValor,
-                      )
-                    : null,
-
-                dataInicio:
-                  dataInicioValor
-                    ? new Date(
-                        dataInicioValor,
-                      )
-                    : null,
-
-                dataFim:
-                  dataFimValor
-                    ? new Date(
-                        dataFimValor,
-                      )
-                    : null,
-
-                status:
-                  statusValor ||
-                  "A_INICIAR",
+                turmaSemestreId: mesmoSemestre ? undefined : turmaSemestre.id,
+                professorId: Object.prototype.hasOwnProperty.call(professoresPorDisciplina, disciplinaId)
+                  ? idOpcionalOferta(professorValor) : undefined,
+                dataInicio: Object.prototype.hasOwnProperty.call(datasInicioPorDisciplina, disciplinaId)
+                  ? dataInicioValor ? new Date(dataInicioValor) : null : undefined,
+                dataFim: Object.prototype.hasOwnProperty.call(datasFimPorDisciplina, disciplinaId)
+                  ? dataFimValor ? new Date(dataFimValor) : null : undefined,
+                status: Object.prototype.hasOwnProperty.call(statusPorDisciplina, disciplinaId)
+                  ? statusValor || "A_INICIAR" : undefined,
               },
             },
           );
+
+        if (!Object.prototype.hasOwnProperty.call(horariosPorDisciplina, disciplinaId)) continue;
+        if (!Array.isArray(horariosPorDisciplina[disciplinaId])) {
+          throw new ErroIntegridadeAcademica("VINCULO_INVALIDO");
+        }
 
         const horariosRecebidos =
           Array.isArray(
@@ -650,6 +588,7 @@ const turmaAtualizada =
         },
       });
     },
+    { isolationLevel: "Serializable" },
   );
 
 if (!turmaAtualizada) {
@@ -722,6 +661,8 @@ return NextResponse.json({
     null,
 });
   } catch (error) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     console.error(error);
     return NextResponse.json(
       { error: "Erro ao atualizar turma" },
