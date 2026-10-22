@@ -1,4 +1,5 @@
 "use client";
+import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
 import CamposComboCurso from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
@@ -64,6 +65,8 @@ const OPCOES_MODALIDADE_CERTIFICADO: ModalidadeCertificado[] = [
 ];
 
 type Curso = {
+  organizacaoCurricular?: string;
+  quantidadeEtapas?: number | null;
   id: number;
   nome: string;
   codigo?: string | null;
@@ -111,6 +114,8 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 
 export default function AdminCursosPage() {
   const searchParams = useSearchParams();
+  const ti = useTranslations("AcademicIntegrity");
+  const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminCourses");
   const tc = useTranslations("EnrollmentCombos");
   const locale = useLocale();
@@ -138,6 +143,7 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     codigo: "",
     descricao: "",
     modalidadeCertificado: "GERAL" as ModalidadeCertificado,
+    organizacaoCurricular: "SEMESTRAL",
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
@@ -400,6 +406,8 @@ async function salvarPolosDoCurso() {
           codigo: form.codigo || null,
           descricao: form.descricao || null,
           modalidadeCertificado: form.modalidadeCertificado,
+          organizacaoCurricular: form.organizacaoCurricular,
+          quantidadeEtapas: form.quantidadeSemestres ? Number(form.quantidadeSemestres) : null,
           quantidadeSemestres: form.quantidadeSemestres
             ? Number(form.quantidadeSemestres)
             : null,
@@ -422,7 +430,7 @@ async function salvarPolosDoCurso() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = chaveErro && t.has(chaveErro)
+        const mensagem = typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -437,7 +445,8 @@ async function salvarPolosDoCurso() {
         codigo: "",
         descricao: "",
         modalidadeCertificado: "GERAL",
-        quantidadeSemestres: "",
+        organizacaoCurricular: "SEMESTRAL",
+    quantidadeSemestres: "",
         valorMatricula: "",
         valorMensalidade: "",
         participaCombo: false,
@@ -683,6 +692,7 @@ if (!termoTexto) return cursosPorStatus;
             rows={4}
           />
 
+          <OrganizacaoCursoSelect value={form.organizacaoCurricular} onChange={valor => setForm({ ...form, organizacaoCurricular: valor })} />
           <div>
             <input
               type="number"
@@ -690,7 +700,7 @@ if (!termoTexto) return cursosPorStatus;
               step="1"
               aria-label={t("detail.courseForm.semestersCount")}
               aria-describedby="curso-semestres-ajuda"
-              placeholder={t("list.create.semestersPlaceholder")}
+              placeholder={ta(form.organizacaoCurricular === "ANUAL" ? "yearsCount" : "semestersCount")}
               className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
               value={form.quantidadeSemestres}
               onChange={(e) =>
@@ -698,7 +708,7 @@ if (!termoTexto) return cursosPorStatus;
               }
             />
             <p id="curso-semestres-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-              {t("detail.courseForm.semestersHelp")}
+              {ta("quantityHelp")}
             </p>
           </div>
 
@@ -861,8 +871,8 @@ if (!termoTexto) return cursosPorStatus;
                     <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-slate-300">
                       <p>
                         {t("common.semesters")}:{" "}
-                        {curso.quantidadeSemestres != null
-                          ? curso.quantidadeSemestres
+                        {(curso.quantidadeEtapas ?? curso.quantidadeSemestres) != null
+                          ? `${curso.quantidadeEtapas ?? curso.quantidadeSemestres} · ${ta(curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}`
                           : t("common.notInformed")}
                       </p>
                       <p>

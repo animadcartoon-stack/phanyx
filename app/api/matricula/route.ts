@@ -1,3 +1,5 @@
+import { validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { validarAgendaMatricula } from "@/lib/matriculas/validar-agenda";
 import { ErroModalidades } from "@/lib/matriculas/combos";
 import { getTranslations } from "next-intl/server";
@@ -524,6 +526,8 @@ type MatriculaBody = {
   alunoId?: number | string;
   cursoId?: number | string;
   vendedorResponsavelId?: number | string | null;
+  etapaNumero?: number | string;
+  cursoEtapaId?: number | string;
   cursoSemestreId?: number | string;
   periodoMatriculaId?: number | string;
   semestre?: number | string;
@@ -956,6 +960,8 @@ async function validarItensMatriculaExplicitos(
             id: true,
             nome: true,
             semestre: true,
+            etapaNumero: true,
+            organizacaoCurricular: true,
             cursoId: true,
           },
         },
@@ -1103,7 +1109,7 @@ async function validarItensMatriculaExplicitos(
           oferta.turma.nome,
 
         semestre:
-          oferta.turma.semestre,
+          String(etapaDaOferta(oferta.turma) ?? ""),
 
         disciplinaId:
           oferta.disciplina.id,
@@ -1492,6 +1498,8 @@ export async function GET(request: Request) {
       { status: 403 }
     );
   } catch (error: any) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     console.error("ERRO AO BUSCAR MATR?CULAS:", error);
 
     return NextResponse.json(
@@ -1547,7 +1555,7 @@ async function buscarTurmasComDisciplinas(params: {
     return disciplinasParaUsar.map((td) => ({
       id: turma.id,
       nome: turma.nome,
-      semestre: turma.semestre,
+      semestre: String(etapaDaOferta(turma) ?? ""),
       disciplinaId: td.disciplinaId,
       disciplina: td.disciplina,
     }));
@@ -1779,13 +1787,13 @@ export async function POST(request: Request) {
 
     const alunoId = Number(body.alunoId);
     const cursoIdBody = body.cursoId ? Number(body.cursoId) : null;
-    const cursoSemestreId = toPositiveNumberOrNull(body.cursoSemestreId);
+    let cursoSemestreId = toPositiveNumberOrNull(body.cursoEtapaId ?? body.cursoSemestreId);
     const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
     const semestreBody =
-      body.semestre !== undefined &&
-        body.semestre !== null &&
-        body.semestre !== ""
-        ? Number(body.semestre)
+      (body.etapaNumero ?? body.semestre) !== undefined &&
+        (body.etapaNumero ?? body.semestre) !== null &&
+        (body.etapaNumero ?? body.semestre) !== ""
+        ? Number(body.etapaNumero ?? body.semestre)
         : null;
 
     const tipoContratacao =
@@ -2208,20 +2216,6 @@ export async function POST(request: Request) {
       }
     }
 
-    if (semestreFinal === null) {
-      if (semestresEncontrados.length === 1) {
-        semestreFinal = semestresEncontrados[0];
-      } else if (semestresEncontrados.length > 1) {
-        return NextResponse.json(
-          {
-            error:
-              "As turmas selecionadas pertencem a semestres diferentes. Informe o semestre corretamente.",
-          },
-          { status: 400 }
-        );
-      }
-    }
-
     const curso =
       cursoIdFinal !== null
         ? await prisma.curso.findFirst({
@@ -2248,6 +2242,25 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    if (curso?.organizacaoCurricular !== "ANUAL" && semestreFinal === null) {
+      if (semestresEncontrados.length === 1) {
+        semestreFinal = semestresEncontrados[0];
+      } else if (semestresEncontrados.length > 1) {
+        return NextResponse.json(
+          {
+            error:
+              "As turmas selecionadas pertencem a semestres diferentes. Informe o semestre corretamente.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const etapaMatricula = await resolverEtapaDaMatricula(prisma, user.instituicaoId, cursoIdFinal,
+      cursoSemestreId, body.etapaNumero ?? (curso?.organizacaoCurricular === "ANUAL" ? null : semestreFinal));
+    cursoSemestreId = etapaMatricula.cursoSemestreId ?? cursoSemestreId;
+    semestreFinal = etapaMatricula.etapaNumero;
 
     let disciplinasContratadasSnapshot;
 
@@ -2306,7 +2319,8 @@ export async function POST(request: Request) {
       where: {
         alunoId,
         cursoId: cursoIdFinal,
-        semestre: semestreFinal,
+        semestre: etapaMatricula.semestre,
+        ...(etapaMatricula.organizacaoCurricular === "ANUAL" ? { etapaNumero: etapaMatricula.etapaNumero } : {}),
         instituicaoId: user.instituicaoId,
       },
     });
@@ -2368,6 +2382,7 @@ export async function POST(request: Request) {
             user.instituicaoId,
 
           ativa: true,
+          ...(etapaMatricula.organizacaoCurricular === "ANUAL" ? { organizacaoCurricular: "ANUAL" as const, etapaNumero: etapaMatricula.etapaNumero } : {}),
 
           ...(cursoIdFinal
             ? {
@@ -2695,6 +2710,8 @@ export async function POST(request: Request) {
     const matricula =
       await prisma.$transaction(
         async (tx) => {
+          if (etapaMatricula.organizacaoCurricular === "ANUAL" && cursoSemestreId)
+            await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados);
           await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data });
 
           const agoraConversao =
@@ -2732,6 +2749,8 @@ export async function POST(request: Request) {
                   cursoIdFinal,
 
                 cursoSemestreId,
+                organizacaoCurricular: etapaMatricula.organizacaoCurricular,
+                etapaNumero: etapaMatricula.etapaNumero,
                 periodoMatriculaId,
 
                 periodoLetivo:
@@ -2784,8 +2803,7 @@ export async function POST(request: Request) {
                 textoConfirmacaoMenor:
                   textoConfirmacaoMenor,
 
-                semestre:
-                  semestreFinal,
+                semestre: etapaMatricula.semestre,
 
                 instituicaoId:
                   user.instituicaoId,
@@ -3287,6 +3305,8 @@ return NextResponse.json({
       },
     });
   } catch (error: any) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     if (
       error instanceof
       Prisma.PrismaClientKnownRequestError &&
@@ -3813,9 +3833,9 @@ export async function PUT(request: Request) {
     const id = Number(body.id);
     const alunoId = toPositiveNumberOrNull(body.alunoId);
     const cursoId = toPositiveNumberOrNull(body.cursoId);
-    const cursoSemestreId = toPositiveNumberOrNull(body.cursoSemestreId);
+    let cursoSemestreId = toPositiveNumberOrNull(body.cursoEtapaId ?? body.cursoSemestreId);
     const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
-    const semestre = toPositiveNumberOrNull(body.semestre);
+    const semestre = toPositiveNumberOrNull(body.etapaNumero ?? body.semestre);
 
     const tipoContratacaoFoiInformado =
       campoFoiInformado(
@@ -4286,7 +4306,16 @@ export async function PUT(request: Request) {
 
     const alunoIdFinal = alunoId ?? matriculaExistente.alunoId;
     const cursoIdFinal = cursoId ?? matriculaExistente.cursoId ?? null;
-    const semestreFinal = semestre ?? matriculaExistente.semestre ?? null;
+    const semestreFinal = semestre ?? etapaDaOferta(matriculaExistente);
+
+    const etapaMatricula = cursoIdFinal ? await resolverEtapaDaMatricula(prisma, user.instituicaoId, cursoIdFinal,
+      cursoSemestreId ?? matriculaExistente.cursoSemestreId, semestreFinal) : null;
+    if ((matriculaExistente.organizacaoCurricular === "ANUAL" || etapaMatricula?.organizacaoCurricular === "ANUAL") &&
+      (cursoIdFinal !== matriculaExistente.cursoId ||
+      (etapaDaOferta(matriculaExistente) != null && etapaMatricula?.etapaNumero !== etapaDaOferta(matriculaExistente)))) {
+      return NextResponse.json({ codigo: "ETAPA_COM_HISTORICO", error: "Use a transferência ou rematrícula para mudar o curso ou a etapa." }, { status: 409 });
+    }
+    cursoSemestreId = etapaMatricula?.cursoSemestreId ?? cursoSemestreId;
 
     const turmaPrincipalIdFinal =
       turmaPrincipalFoiInformada
@@ -4560,6 +4589,9 @@ export async function PUT(request: Request) {
 
     await prisma.$transaction(
       async (tx) => {
+        if (etapaMatricula?.organizacaoCurricular === "ANUAL" && cursoSemestreId && itensClassificados)
+          await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados, id);
+
         if (deveSincronizarItens || alunoIdFinal !== matriculaExistente.alunoId || body.dataInicioCurso !== undefined) {
           const agendaItens = deveSincronizarItens ? itensClassificados : await tx.itemMatricula.findMany({
             where: { matriculaId: id, instituicaoId: user.instituicaoId, status: { in: ["A_CURSAR", "EM_CURSO"] } },
@@ -4615,7 +4647,9 @@ export async function PUT(request: Request) {
               matriculaExistente.modalidade ||
               null,
 
-            semestre: semestreFinal,
+            semestre: etapaMatricula ? etapaMatricula.semestre : matriculaExistente.semestre,
+            etapaNumero: etapaMatricula?.etapaNumero,
+            organizacaoCurricular: etapaMatricula?.organizacaoCurricular,
             valorMatricula:
               valorPagoMatriculaFinal,
 
@@ -4873,6 +4907,8 @@ export async function PUT(request: Request) {
     }
     return NextResponse.json({ ...retorno, cancelamentosBancarios });
   } catch (error: any) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     if (error instanceof ErroModalidades) {
       const t = await getTranslations("EnrollmentCombos");
       return NextResponse.json({ error: t(`errors.${error.codigo}`), codigo: error.codigo, detalhes: error.detalhes }, { status: error.status });

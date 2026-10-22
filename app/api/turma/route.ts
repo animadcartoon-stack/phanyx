@@ -1,4 +1,4 @@
-import { idOpcionalOferta, idsOferta, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
+import { validarEtapaDoCurso, idOpcionalOferta, idsOferta, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -293,7 +293,7 @@ export async function POST(request: NextRequest) {
         ? body.horariosPorDisciplina
         : {};
 
-    if (!nome || !semestre || !periodoLetivo) {
+    if (!nome || !periodoLetivo) {
       return NextResponse.json(
         { error: "Nome, semestre e período são obrigatórios" },
         { status: 400 }
@@ -307,16 +307,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const semestreNumero = Number(String(semestre).match(/\d+/)?.[0] || 0);
+
 
     const novaTurma = await prisma.$transaction(async (tx) => {
-      await validarDisciplinasDaOferta(tx, user.instituicaoId, cursoId, semestre, disciplinaIds);
+      const etapa = await validarEtapaDoCurso(tx, user.instituicaoId, cursoId, body.etapaNumero ?? semestre, body.organizacaoCurricular);
+      await validarDisciplinasDaOferta(tx, user.instituicaoId, cursoId, etapa.etapaNumero, disciplinaIds);
       await validarResponsaveisDaOferta(tx, user.instituicaoId, poloId, professorId, disciplinaIds, professoresPorDisciplina);
       const turmaCriada = await tx.turma.create({
         data: {
           nome,
           codigo: codigo || null,
-          semestre,
+          ...etapa,
           periodoLetivo,
           statusTurma: statusTurma as any,
           ativa,
@@ -339,7 +340,8 @@ export async function POST(request: NextRequest) {
         data: {
           turmaId: turmaCriada.id,
           instituicaoId: user.instituicaoId,
-          numero: semestreNumero || 1,
+          numero: etapa.etapaNumero,
+          organizacaoCurricular: etapa.organizacaoCurricular,
           status: "A_INICIAR",
         },
       });

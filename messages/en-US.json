@@ -5,12 +5,15 @@
     "VINCULO_INVALIDO": "One of the supplied identifiers is invalid.",
     "CURSO_INVALIDO": "The course does not belong to this institution.",
     "DISCIPLINAS_INVALIDAS": "One or more subjects do not belong to this institution.",
-    "GRADE_INCOMPATIVEL": "One or more subjects are outside the curriculum for the selected course and semester. Refresh the list and check the curriculum.",
+    "GRADE_INCOMPATIVEL": "One or more subjects are outside the curriculum for the selected course and stage. Refresh the list and check the curriculum.",
     "PROFESSOR_INVALIDO": "One or more teachers do not belong to this institution.",
     "POLO_INVALIDO": "The campus does not belong to this institution.",
     "TURMA_INVALIDA": "One or more classes do not belong to this institution.",
     "PRE_REQUISITO_INVALIDO": "One or more prerequisites do not belong to this institution.",
-    "OFERTA_COM_HISTORICO": "This offering cannot be removed because it has enrollments, lessons or academic records. Keep the link and manage its closure from the class."
+    "OFERTA_COM_HISTORICO": "This offering cannot be removed because it has enrollments, lessons or academic records. Keep the link and manage its closure from the class.",
+    "ORGANIZACAO_INVALIDA": "Choose annual or semester based organization.",
+    "ORGANIZACAO_EM_USO": "This course already has a curriculum, subjects, classes or enrollments. Preserve its organization and create another course for a different structure.",
+    "ETAPA_INVALIDA": "Enter a valid curriculum stage for this course."
   },
   "Common": {
     "cancel": "Cancel",
@@ -3942,7 +3945,10 @@
     "groups": {
       "currentSemester": "Current semester",
       "nextSemester": "Next semester",
-      "completedClasses": "Completed classes"
+      "completedClasses": "Completed classes",
+      "currentCurriculumStage": "Current curriculum stage",
+      "curriculumOrganization": "Curriculum organization",
+      "curriculumYear": "Curriculum year"
     },
     "class": "Class {name}",
     "classToday": "Class today",
@@ -4036,7 +4042,7 @@
     "pendingPrerequisite": "Pending prerequisite: {subjects}.",
     "errorTitle": "Unable to load reenrollment",
     "academic": "Academic",
-    "title": "Semester reenrollment",
+    "title": "Stage reenrollment",
     "unavailable": {
       "title": "Reenrollment unavailable",
       "description": "Reenrollment is not available for this student."
@@ -4047,7 +4053,7 @@
     },
     "hero": {
       "available": "Reenrollment available",
-      "description": "Select the subjects and classes you want to take in semester {semester}.",
+      "description": "Select the subjects and classes you want to take in stage {semester}.",
       "deadline": "Final deadline"
     },
     "blocked": {
@@ -4056,13 +4062,13 @@
     "common": {
       "notInformed": "Not provided",
       "invalidDate": "Invalid date",
-      "semesterNumber": "Semester {number}",
+      "semesterNumber": "Stage {number}",
       "hoursValue": "{hours}h",
       "hoursLong": "{hours} hours"
     },
     "summary": {
       "course": "Course",
-      "destinationSemester": "Destination semester",
+      "destinationSemester": "Destination stage",
       "classStart": "Classes begin",
       "status": "Status"
     },
@@ -4071,16 +4077,16 @@
     },
     "groups": {
       "nextSemester": {
-        "title": "Semester {semester} subjects",
+        "title": "Stage {semester} subjects",
         "description": "Subjects planned for your academic progression."
       },
       "pending": {
-        "title": "Pending subjects from previous semesters",
+        "title": "Pending subjects from previous stages",
         "description": "Subjects not yet completed or previously failed."
       },
       "extras": {
         "title": "Extracurricular subjects",
-        "description": "Additional options authorized for your course and semester."
+        "description": "Additional options authorized for your course and stage."
       }
     },
     "selectionSummary": {
@@ -4140,7 +4146,7 @@
       "availableSeats": "Available seats: {count}"
     },
     "disciplineTypes": {
-      "nextSemester": "Next semester",
+      "nextSemester": "Next stage",
       "previousPending": "Previous pending subject",
       "extracurricular": "Extracurricular"
     },
@@ -11339,7 +11345,7 @@
       "course": "Course",
       "description": "Description",
       "modality": "Course type / modality",
-      "semesters": "Semesters",
+      "semesters": "Stages",
       "enrollmentValue": "Enrollment fee",
       "monthlyValue": "Monthly fee",
       "installments": "Installments",
@@ -11390,7 +11396,7 @@
         "namePlaceholder": "Course name",
         "codePlaceholder": "Course code",
         "descriptionPlaceholder": "Description",
-        "semestersPlaceholder": "Number of semesters",
+        "semestersPlaceholder": "Number of stages",
         "enrollmentValuePlaceholder": "Enrollment fee",
         "monthlyValuePlaceholder": "Monthly fee",
         "installmentsPlaceholder": "Number of installments",
@@ -11443,7 +11449,7 @@
       "notFound": "Course not found.",
       "header": {
         "title": "Course Structure",
-        "description": "Create semesters and link the subjects for each semester.",
+        "description": "Create stages and link the subjects for each stage.",
         "backCourses": "Back to Courses"
       },
       "network": {
@@ -11451,18 +11457,18 @@
         "synced": "Synchronized structure",
         "publishedBy": "This course was published by <strong>{institution}</strong>.",
         "otherInstitution": "another institution in the network",
-        "controlledByOrigin": "Name, code, description, modality, semesters, subjects, and academic workloads are controlled by the institution of origin.",
+        "controlledByOrigin": "Name, code, description, modality, stages, subjects, and academic workloads are controlled by the institution of origin.",
         "localConfiguration": "This unit can configure only the enrollment fee, monthly fee, installments, and local operational data such as classes, teachers, schedules, seats, and enrollments.",
         "originCourse": "Origin course",
         "originId": "Origin ID",
         "editRestriction": "For this course received from the network, this unit can change only the enrollment fee, monthly fee, and number of installments.",
         "academicStructureReceived": "Academic structure received",
-        "academicStructureHelp": "The semesters in this course are published and synchronized by the institution of origin. This unit can view them but cannot create new semesters or change the curriculum."
+        "academicStructureHelp": "The stages in this course are published and synchronized by the institution of origin. This unit can view them but cannot create new stages or change the curriculum."
       },
       "courseForm": {
         "namePlaceholder": "Course name",
-        "semestersCount": "Number of course semesters",
-        "semestersHelp": "For courses without semesters, enter 0 or leave blank.",
+        "semestersCount": "Number of course stages",
+        "semestersHelp": "For courses without stages, enter 0 or leave blank.",
         "activeCourse": "Active course",
         "descriptionPlaceholder": "Course description",
         "saveLocalValues": "Save local values",
@@ -11478,18 +11484,18 @@
         }
       },
       "courseInfo": {
-        "expectedSemesters": "Expected number of semesters"
+        "expectedSemesters": "Expected number of stages"
       },
       "semesters": {
-        "addTitle": "Add semester",
-        "numberPlaceholder": "Semester number",
-        "titlePlaceholder": "Semester title",
-        "descriptionPlaceholder": "Semester description",
-        "addButton": "Add semester",
-        "none": "No semester has been registered for this course yet.",
-        "semesterLabel": "Semester {number}",
-        "minimumWorkload": "Minimum workload allowed in the semester (hours)",
-        "maximumWorkload": "Maximum workload allowed in the semester (hours)",
+        "addTitle": "Add stage",
+        "numberPlaceholder": "Stage number",
+        "titlePlaceholder": "Stage title",
+        "descriptionPlaceholder": "Stage description",
+        "addButton": "Add stage",
+        "none": "No stage has been registered for this course yet.",
+        "semesterLabel": "Stage {number}",
+        "minimumWorkload": "Minimum workload allowed in the stage (hours)",
+        "maximumWorkload": "Maximum workload allowed in the stage (hours)",
         "saveWorkload": "Save workload",
         "examples": {
           "minimumWorkload": "e.g. 200",
@@ -11501,7 +11507,7 @@
         "noneLinked": "No subject linked yet.",
         "noneRegistered": "No subjects registered.",
         "readOnlyNetwork": "Curriculum received from the network — read only.",
-        "updateSemester": "Update subjects for semester {number}"
+        "updateSemester": "Update subjects for stage {number}"
       }
     },
     "messages": {
@@ -11511,8 +11517,8 @@
       "courseRestored": "Course restored successfully.",
       "localValuesUpdated": "Local values updated successfully!",
       "courseUpdated": "Course updated successfully!",
-      "semesterCreated": "Semester created successfully!",
-      "subjectsSaved": "Subjects for semester {semester} saved successfully!",
+      "semesterCreated": "Stage created successfully!",
+      "subjectsSaved": "Subjects for stage {semester} saved successfully!",
       "workloadSaved": "Workload saved successfully!"
     },
     "errors": {
@@ -11520,15 +11526,15 @@
       "loadPoles": "Unable to load campuses.",
       "updateCoursePoles": "Unable to update the course campuses.",
       "createCourse": "Unable to create the course.",
-      "SEMESTRES_INVALIDOS": "Enter a whole number of semesters, or use 0 for courses without semesters.",
+      "SEMESTRES_INVALIDOS": "Enter a whole number of stages, or use 0 for courses without stages.",
       "deleteCourse": "Unable to delete the course.",
       "restoreCourse": "Unable to restore the course.",
       "couldNotSave": "Unable to save",
       "loadSubjects": "Unable to load subjects.",
-      "loadCourseSemesters": "Unable to load course semesters.",
+      "loadCourseSemesters": "Unable to load course stages.",
       "loadCourseData": "Unable to load course data.",
       "editCourse": "Unable to edit the course.",
-      "createSemester": "Unable to create the semester.",
+      "createSemester": "Unable to create the stage.",
       "saveSubjects": "Unable to save subjects.",
       "saveWorkload": "Unable to save the workload."
     },
@@ -18361,8 +18367,8 @@
   "AdminSemesterReenrollment": {
     "header": {
       "eyebrow": "Academic",
-      "title": "Semester reenrollment",
-      "description": "Define when students may select subjects for the next semester and which rules must be followed."
+      "title": "Stage reenrollment",
+      "description": "Define when students may select subjects for the next stage and which rules must be followed."
     },
     "form": {
       "editTitle": "Edit reenrollment period",
@@ -18371,8 +18377,8 @@
       "newDescription": "Students will only see reenrollment within the configured dates.",
       "course": "Program",
       "selectCourse": "Select the program",
-      "targetSemester": "Target semester",
-      "selectSemester": "Select the semester",
+      "targetSemester": "Target stage",
+      "selectSemester": "Select the stage",
       "academicPeriod": "Academic term",
       "academicPeriodPlaceholder": "E.g. 2027.1",
       "periodTitle": "Period title",
@@ -18392,8 +18398,8 @@
       "clearAll": "Clear all",
       "selectAll": "Select all",
       "selectCourseFirst": "Select the program first.",
-      "selectSemesterFirst": "Select the target semester.",
-      "noneAvailable": "No active class was found for this program and semester. Create or configure a class before publishing reenrollment.",
+      "selectSemesterFirst": "Select the target stage.",
+      "noneAvailable": "No active class was found for this program and stage. Create or configure a class before publishing reenrollment.",
       "code": "Code",
       "disciplineCount": "{count, plural, one {# subject} other {# subjects}}",
       "selectedCount": "{count, plural, one {# class selected.} other {# classes selected.}}"
@@ -18414,7 +18420,7 @@
     },
     "feedback": {
       "selectCourse": "Select the program.",
-      "selectSemester": "Select the target semester.",
+      "selectSemester": "Select the target stage.",
       "requiredPeriodFields": "Enter the academic term and the reenrollment opening and closing dates.",
       "selectClassBeforePublish": "Select at least one participating class before publishing.",
       "saveError": "The reenrollment period could not be saved.",
@@ -18432,15 +18438,15 @@
       "selectTargetCourseFirst": "Select the target program first.",
       "scope": {
         "semester": {
-          "title": "This semester only",
-          "description": "The subjects will be offered only for the selected semester."
+          "title": "This stage only",
+          "description": "The subjects will be offered only for the selected stage."
         },
         "course": {
-          "title": "All semesters in the program",
-          "description": "The subjects may be offered in any semester of this program."
+          "title": "All stages in the program",
+          "description": "The subjects may be offered in any stage of this program."
         }
       },
-      "selectTargetSemesterToConfigure": "Select the target semester to configure the subjects.",
+      "selectTargetSemesterToConfigure": "Select the target stage to configure the subjects.",
       "search": {
         "label": "Search subjects",
         "placeholder": "E.g. ethics, counseling, management, missions...",
@@ -18474,7 +18480,7 @@
       "feedback": {
         "loadError": "The extracurricular subjects could not be loaded.",
         "selectTargetCourse": "Select the target program.",
-        "selectTargetSemester": "Select the target semester.",
+        "selectTargetSemester": "Select the target stage.",
         "saveError": "The extracurricular subjects could not be saved.",
         "saved": "Extracurricular subjects saved."
       }
@@ -18511,7 +18517,7 @@
       "emptyDescription": "Use the form above to create the first period.",
       "defaultTitle": "Reenrollment {period}",
       "courseNotInformed": "Program not provided",
-      "semester": "Semester {number}",
+      "semester": "Stage {number}",
       "opensAt": "Opens",
       "closesAt": "Closes",
       "classesStart": "Classes start",
@@ -18542,7 +18548,7 @@
     "title": "Reenrollment students",
     "periodFallback": "Reenrollment period",
     "periodCard": {
-      "semesterTransition": "Semester {current} → {target}",
+      "semesterTransition": "Stage {current} → {target}",
       "deadlineClosed": "Deadline closed",
       "deadlineOpen": "Deadline in progress"
     },
@@ -18614,7 +18620,7 @@
       "enrollment": "Enrollment",
       "notProvided": "Not provided",
       "noCampus": "No campus",
-      "semester": "Semester {semester}",
+      "semester": "Stage {semester}",
       "protocol": "Protocol",
       "subjects": "Subjects",
       "updatedAt": "Updated at",
@@ -18642,7 +18648,7 @@
       "unauthorized": "You are not authorized to perform this operation.",
       "periodNotFound": "Reenrollment period not found.",
       "noDestinationCourse": "The period has no destination program.",
-      "semesterNotIdentified": "Could not identify the semester of the eligible students.",
+      "semesterNotIdentified": "Could not identify the stage of the eligible students.",
       "invalidRestrictionAction": "Invalid restriction action.",
       "selectAtLeastOne": "Select at least one student.",
       "tooManyStudents": "The limit is 500 students per operation.",
@@ -23374,5 +23380,22 @@
     "percentage": "Percentage discount on standalone prices",
     "discountPercent": "Monthly discount (%)",
     "percentageHelp": "The percentage applies to the sum of standalone monthly fees for courses included in the package. The enrollment fee stays at the amount set above."
+  },
+  "AcademicStructure": {
+    "organization": "Curriculum organization",
+    "SEMESTRAL": "Semester based",
+    "ANUAL": "Annual",
+    "organizationHelp": "Choose how the program is divided. The academic term and payment installments are set separately.",
+    "yearsCount": "Number of years",
+    "semestersCount": "Number of semesters",
+    "quantityHelp": "Number of curriculum stages. Leave blank if the duration is not yet defined.",
+    "stage": "Curriculum stage",
+    "year": "Curriculum year",
+    "semester": "Semester",
+    "termExample": "E.g. 2027 or 2027.1",
+    "annualSubjectHelp": "For this annual program, assign the subject to its year in the course curriculum.",
+    "currentStage": "Current stage",
+    "organizationInUse": "This organization is linked to the program structure and academic history.",
+    "curriculumPlacement": "Year assignment in course curriculum"
   }
 }

@@ -1,3 +1,4 @@
+import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import {
@@ -292,7 +293,7 @@ export async function GET() {
           id: true,
           numeroMatricula: true,
           status: true,
-          semestre: true,
+          semestre: true, etapaNumero: true, organizacaoCurricular: true,
           periodoLetivo: true,
           cursoId: true,
           cursoSemestreId: true,
@@ -338,7 +339,7 @@ export async function GET() {
 
     const semestreAtual =
       matriculaAtual.cursoSemestre?.numero ??
-      matriculaAtual.semestre ??
+      etapaDaOferta(matriculaAtual) ??
       null;
 
     if (semestreAtual === null) {
@@ -349,7 +350,7 @@ export async function GET() {
         motivoIndisponibilidade:
           "SEM_SEMESTRE_ATUAL",
         mensagem:
-          "A matrícula atual não possui semestre acadêmico definido.",
+          "A matrícula atual não possui etapa curricular definida.",
         aluno,
         matriculaAtual,
         periodo: null,
@@ -431,7 +432,7 @@ export async function GET() {
         motivoIndisponibilidade:
           "SEM_PERIODO_ABERTO",
         mensagem:
-          "Não existe período de rematrícula aberto para o próximo semestre.",
+          "Não existe período de rematrícula aberto para o próxima etapa.",
         aluno,
         matriculaAtual,
         proximoSemestreNumero,
@@ -481,7 +482,7 @@ export async function GET() {
       return NextResponse.json(
         {
           error:
-            "O semestre de destino não foi encontrado para este curso.",
+            "A etapa de destino não foi encontrada para este curso.",
         },
         {
           status: 409,
@@ -1640,7 +1641,7 @@ export async function POST(
           select: {
             id: true,
             cursoId: true,
-            semestre: true,
+            semestre: true, etapaNumero: true, organizacaoCurricular: true,
             poloId: true,
             cursoSemestre: {
               select: {
@@ -1682,14 +1683,14 @@ export async function POST(
     const semestreAtual =
       matriculaAtual.cursoSemestre
         ?.numero ??
-      matriculaAtual.semestre ??
+      etapaDaOferta(matriculaAtual) ??
       null;
 
     if (semestreAtual === null) {
       return NextResponse.json(
         {
           error:
-            "O semestre atual da matrícula não está definido.",
+            "A etapa atual da matrícula não está definida.",
         },
         {
           status: 409,
@@ -1708,7 +1709,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Este período não corresponde ao próximo semestre do aluno.",
+            "Este período não corresponde ao próxima etapa do aluno.",
         },
         {
           status: 409,
@@ -1742,7 +1743,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "O semestre de destino não foi encontrado.",
+            "A etapa de destino não foi encontrada.",
         },
         {
           status: 409,

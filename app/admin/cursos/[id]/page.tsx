@@ -1,4 +1,5 @@
 "use client";
+import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
 import CamposComboCurso from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
@@ -58,6 +59,8 @@ const OPCOES_MODALIDADE_CERTIFICADO: ModalidadeCertificado[] = [
 ];
 
 type Curso = {
+  organizacaoCurricular?: string;
+  quantidadeEtapas?: number | null;
   id: number;
   nome: string;
   codigo?: string | null;
@@ -116,6 +119,8 @@ function formatarMoeda(valor: number, localeAtual: string) {
 
 export default function CursoDetalhePage() {
   const params = useParams();
+  const ti = useTranslations("AcademicIntegrity");
+  const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminCourses");
   const tc = useTranslations("EnrollmentCombos");
   const locale = useLocale();
@@ -139,6 +144,7 @@ export default function CursoDetalhePage() {
     codigo: "",
     descricao: "",
     modalidadeCertificado: "GERAL" as ModalidadeCertificado,
+    organizacaoCurricular: "SEMESTRAL",
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
@@ -196,9 +202,10 @@ export default function CursoDetalhePage() {
         descricao: encontrado.descricao ?? "",
         modalidadeCertificado:
           encontrado.modalidadeCertificado || "GERAL",
+        organizacaoCurricular: encontrado.organizacaoCurricular || "SEMESTRAL",
         quantidadeSemestres:
-          encontrado.quantidadeSemestres != null
-            ? String(encontrado.quantidadeSemestres)
+          (encontrado.quantidadeEtapas ?? encontrado.quantidadeSemestres) != null
+            ? String(encontrado.quantidadeEtapas ?? encontrado.quantidadeSemestres)
             : "",
         valorMatricula:
           encontrado.valorMatricula != null
@@ -234,7 +241,7 @@ export default function CursoDetalhePage() {
   }
 
   async function carregarSemestres() {
-    const res = await fetch(`/api/admin/curso-semestres?cursoId=${cursoId}`, {
+    const res = await fetch(`/api/admin/curso-etapas?cursoId=${cursoId}`, {
       credentials: "include",
       cache: "no-store",
     });
@@ -299,6 +306,8 @@ export default function CursoDetalhePage() {
           codigo: formCurso.codigo || null,
           descricao: formCurso.descricao || null,
           modalidadeCertificado: formCurso.modalidadeCertificado,
+          organizacaoCurricular: formCurso.organizacaoCurricular,
+          quantidadeEtapas: formCurso.quantidadeSemestres ? Number(formCurso.quantidadeSemestres) : null,
           quantidadeSemestres: formCurso.quantidadeSemestres
             ? Number(formCurso.quantidadeSemestres)
             : null,
@@ -321,7 +330,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = chaveErro && t.has(chaveErro)
+        const mensagem = typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -355,7 +364,7 @@ export default function CursoDetalhePage() {
       setFeedback("");
       setFeedbackTipo("");
 
-      const res = await fetch("/api/admin/curso-semestres", {
+      const res = await fetch("/api/admin/curso-etapas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -431,7 +440,7 @@ export default function CursoDetalhePage() {
 
       const disciplinaIds = selecionadas[cursoSemestreId] || [];
 
-      const res = await fetch("/api/admin/curso-semestre-disciplinas", {
+      const res = await fetch("/api/admin/curso-etapa-disciplinas", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -503,7 +512,7 @@ export default function CursoDetalhePage() {
       setFeedback("");
       setFeedbackTipo("");
 
-      const res = await fetch("/api/admin/curso-semestres", {
+      const res = await fetch("/api/admin/curso-etapas", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -700,9 +709,10 @@ export default function CursoDetalhePage() {
                     </select>
                   </div>
 
+                  <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor })} />
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                      {t("detail.courseForm.semestersCount")}
+                      {ta(formCurso.organizacaoCurricular === "ANUAL" ? "yearsCount" : "semestersCount")}
                     </label>
                     <input
                       disabled={cursoRecebidoDaRede}
@@ -721,7 +731,7 @@ export default function CursoDetalhePage() {
                       placeholder={t("detail.courseForm.examples.semesters")}
                     />
                     <p id="curso-semestres-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                      {t("detail.courseForm.semestersHelp")}
+                      {ta("quantityHelp")}
                     </p>
                   </div>
 
@@ -860,7 +870,7 @@ export default function CursoDetalhePage() {
                   <p>{t("common.description")}: {curso.descricao || t("common.notInformedFeminine")}</p>
                   <p>
                     {t("detail.courseInfo.expectedSemesters")}:{" "}
-                    {curso.quantidadeSemestres ?? t("common.notInformed")}
+                    {curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · {ta(curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}
                   </p>
                   <p>
                     {t("common.enrollmentValue")}:{" "}

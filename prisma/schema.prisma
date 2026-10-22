@@ -818,7 +818,14 @@ model Professor {
   @@index([departamentoId])
 }
 
+enum OrganizacaoCurricular {
+  SEMESTRAL
+  ANUAL
+}
+
 model Curso {
+  organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
+  quantidadeEtapas Int?
   id                         Int                   @id @default(autoincrement())
   nome                       String
   descricao                  String?
@@ -874,7 +881,9 @@ model Curso {
   @@index([instituicaoId, modalidadeCertificado])
 }
 
+// Nome físico legado; representa uma etapa tipada (semestre ou ano).
 model CursoSemestre {
+  organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   id                          Int                             @id @default(autoincrement())
   numero                      Int
   titulo                      String?
@@ -1062,6 +1071,8 @@ model Disciplina {
 }
 
 model Turma {
+  organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
+  etapaNumero Int?
   id                              Int                             @id @default(autoincrement())
   nome                            String
   semestre                        String
@@ -1108,7 +1119,7 @@ model Turma {
 
   atividadesExternas AtividadeExternaTurma[]
 
-  @@unique([instituicaoId, nome, semestre, periodoLetivo])
+  // Unicidade semestral/anual por índices parciais na migração de organização curricular.
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([professorId])
@@ -1170,6 +1181,8 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
+  etapaNumero Int?
   comboId                                 Int?
   combo                                   ComboModalidades?         @relation(fields: [comboId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
   contratacaoModalidades                   Json?
@@ -3258,7 +3271,9 @@ model ProfessorDisciplina {
   @@index([instituicaoId])
 }
 
+// Nome físico legado; a organização distingue anos de semestres.
 model TurmaSemestre {
+  organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   id            Int       @id @default(autoincrement())
   turmaId       Int
   instituicaoId Int

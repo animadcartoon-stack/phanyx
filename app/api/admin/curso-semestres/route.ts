@@ -50,6 +50,7 @@ export async function GET(req: Request) {
         },
         select: {
           id: true,
+          organizacaoCurricular: true,
         },
       });
 
@@ -87,85 +88,7 @@ export async function GET(req: Request) {
         },
       });
 
-    const disciplinasDiretas =
-      await prisma.disciplina.findMany({
-        where: {
-          instituicaoId:
-            user.instituicaoId,
-          cursoId,
-          ativo: true,
-          semestre: {
-            not: null,
-          },
-        },
-        orderBy: [
-          {
-            semestre: "asc",
-          },
-          {
-            nome: "asc",
-          },
-        ],
-      });
-
-    const semestresCompletos =
-      semestres.map((semestre) => {
-        const idsJaVinculados =
-          new Set(
-            semestre.disciplinas.map(
-              (item) =>
-                item.disciplinaId
-            )
-          );
-
-        const disciplinasDiretasDoSemestre =
-          disciplinasDiretas
-            .filter(
-              (disciplina) =>
-                Number(
-                  disciplina.semestre
-                ) ===
-                  Number(
-                    semestre.numero
-                  ) &&
-                !idsJaVinculados.has(
-                  disciplina.id
-                )
-            )
-            .map((disciplina) => ({
-              id:
-                -disciplina.id,
-              createdAt:
-                disciplina.createdAt,
-              updatedAt:
-                disciplina.updatedAt,
-              instituicaoId:
-                user.instituicaoId,
-              cursoSemestreId:
-                semestre.id,
-              disciplinaId:
-                disciplina.id,
-              disciplina,
-            }));
-
-        return {
-          ...semestre,
-
-          disciplinas: [
-            ...semestre.disciplinas,
-            ...disciplinasDiretasDoSemestre,
-          ].sort((a, b) =>
-            a.disciplina.nome.localeCompare(
-              b.disciplina.nome,
-              "pt-BR"
-            )
-          ),
-        };
-      });
-
-    return NextResponse.json(
-      semestresCompletos
-    );
+    return NextResponse.json(semestres);
   } catch (error: unknown) {
     console.error(
       "Erro ao buscar semestres do curso:",
@@ -248,6 +171,9 @@ export async function POST(req: Request) {
     },
     select: {
       id: true,
+      organizacaoCurricular: true,
+      quantidadeSemestres: true,
+      quantidadeEtapas: true,
       publicacaoRedeDestino: {
         select: {
           id: true,
@@ -276,6 +202,9 @@ export async function POST(req: Request) {
   );
 }
 
+    const limite = curso.organizacaoCurricular === "ANUAL" ? curso.quantidadeEtapas : curso.quantidadeSemestres;
+    if (limite && numero > limite) return NextResponse.json({ codigo: "ETAPA_INVALIDA", error: "Etapa fora da duração do curso." }, { status: 400 });
+
     const existente =
       await prisma.cursoSemestre.findFirst({
         where: {
@@ -301,11 +230,14 @@ export async function POST(req: Request) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
+          const cursoAtual = await tx.curso.findFirst({ where: { id: cursoId, instituicaoId }, select: { organizacaoCurricular: true } });
+          if (!cursoAtual || cursoAtual.organizacaoCurricular !== curso.organizacaoCurricular) throw new Error("Atualize a organização do curso antes de criar a etapa.");
           const semestre =
             await tx.cursoSemestre.create({
               data: {
                 cursoId,
                 numero,
+                organizacaoCurricular: curso.organizacaoCurricular,
 
                 titulo: body.titulo
                   ? String(
@@ -341,7 +273,7 @@ export async function POST(req: Request) {
             publicacoesSincronizadas:
               publicacoes.length,
           };
-        }
+        }, { isolationLevel: "Serializable" }
       );
 
     return NextResponse.json(
@@ -547,7 +479,7 @@ if (publicacaoRecebida) {
             publicacoesSincronizadas:
               publicacoes.length,
           };
-        }
+        }, { isolationLevel: "Serializable" }
       );
 
     return NextResponse.json({

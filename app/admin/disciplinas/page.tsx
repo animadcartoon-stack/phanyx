@@ -6,6 +6,7 @@ import withAuth from "@/components/auth/withAuth";
 import { useTranslations } from "next-intl";
 
 interface Curso {
+  organizacaoCurricular?: string;
   id: number;
   nome: string;
 }
@@ -29,6 +30,7 @@ type FeedbackTipo = "sucesso" | "erro" | "";
 function AdminDisciplinasPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminSubjects");
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
@@ -189,7 +191,7 @@ function AdminDisciplinasPage() {
 
     disciplinasFiltradas.forEach((disciplina) => {
       const cursoNome = disciplina.curso?.nome || t("list.noCourse");
-      const semestreNome =
+      const semestreNome = disciplina.curso?.organizacaoCurricular === "ANUAL" ? ta("curriculumPlacement") :
         disciplina.semestre !== null && disciplina.semestre !== undefined
           ? t("list.semester", { number: disciplina.semestre })
           : t("list.noSemester");

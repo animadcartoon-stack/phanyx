@@ -444,7 +444,8 @@ export async function PUT(
         ? Number(body.cargaHoraria)
         : null;
 
-    const semestreFinal = body.semestre === undefined ? disciplinaExistente.semestre :
+    const cursoDaClassificacao = cursoIdFinal ? await prisma.curso.findFirst({ where: { id: cursoIdFinal, instituicaoId: user.instituicaoId }, select: { organizacaoCurricular: true } }) : null;
+    const semestreFinal = cursoDaClassificacao?.organizacaoCurricular === "ANUAL" ? null : body.semestre === undefined ? disciplinaExistente.semestre :
       body.semestre !== null &&
         body.semestre !== undefined &&
         body.semestre !== ""

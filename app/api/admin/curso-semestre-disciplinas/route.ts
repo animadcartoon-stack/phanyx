@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     >;
 
     const cursoSemestreId = Number(
-      body.cursoSemestreId
+      body.cursoEtapaId ?? body.cursoSemestreId
     );
 
     if (

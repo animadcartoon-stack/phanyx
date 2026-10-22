@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type Curso = {
+  organizacaoCurricular?: string;
   id: number;
   nome: string;
 };
@@ -58,6 +59,7 @@ function nomeTurma(turma: TurmaApi, fallback: string) {
 export default function DisciplinaDetalhePage() {
   const params = useParams();
   const router = useRouter();
+  const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminSubjects");
   const tIntegridade = useTranslations("AcademicIntegrity");
   const disciplinaId = Number(params.disciplinaId);
@@ -251,7 +253,7 @@ export default function DisciplinaDetalhePage() {
           codigo: codigo || null,
           descricao: descricao || null,
           cargaHoraria: cargaHoraria ? Number(cargaHoraria) : null,
-          semestre: semestre ? Number(semestre) : null,
+          semestre: cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "ANUAL" ? null : (semestre ? Number(semestre) : null),
           cursoId: cursoId ? Number(cursoId) : null,
           turmaIds: turmaIds.length > 0 ? turmaIds.map(Number) : [],
           professorId: professorId ? Number(professorId) : null,
@@ -368,7 +370,7 @@ export default function DisciplinaDetalhePage() {
             />
           </div>
 
-          <div>
+{cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "ANUAL" ? <p className="text-sm text-slate-600 dark:text-slate-300">{ta("annualSubjectHelp")}</p> : (          <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               {t("edit.semester")}
             </label>
@@ -382,6 +384,7 @@ export default function DisciplinaDetalhePage() {
             />
           </div>
 
+)}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               {t("edit.course")}

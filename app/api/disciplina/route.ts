@@ -74,6 +74,7 @@ export async function POST(request: Request) {
     }
 
     let cursoIdFinal: number | null = null;
+    let cursoAnual = false;
 
 let professorIdFinal: number | null = null;
 
@@ -107,6 +108,7 @@ if (body.professorId) {
   },
   select: {
     id: true,
+    organizacaoCurricular: true,
     publicacaoRedeDestino: {
       select: {
         id: true,
@@ -133,6 +135,7 @@ if (body.professorId) {
 }
 
       cursoIdFinal = curso.id;
+      cursoAnual = curso.organizacaoCurricular === "ANUAL";
     }
 
     const usuarioId = Number(user.id);
@@ -174,7 +177,7 @@ const resultado =
                 : null,
 
             semestre:
-              body.semestre !== null &&
+              cursoAnual ? null : body.semestre !== null &&
               body.semestre !==
                 undefined &&
               body.semestre !== ""

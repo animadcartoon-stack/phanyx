@@ -125,7 +125,7 @@ export async function montarEscopoContratado(params: {
 
   for (
     const disciplina
-    of disciplinasDiretas
+    of (semestres.length ? [] : disciplinasDiretas)
   ) {
     if (mapa.has(disciplina.id)) {
       continue;

@@ -303,6 +303,7 @@ export async function GET(
           },
 
           OR: [
+            { etapaNumero: semestreAtual },
             {
               cursoSemestre: {
                 numero:

@@ -1,9 +1,13 @@
+import { etapaDaOferta, numeroEtapa, organizacaoAcademica } from "./organizacao";
 import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { disciplinaPermitidaNaOferta, numeroSemestreOferta } from "./grade-oferta";
 
 type BancoAcademico = Prisma.TransactionClient;
 const mensagens = {
+  ORGANIZACAO_INVALIDA: "Escolha organização anual ou semestral.",
+  ORGANIZACAO_EM_USO: "Este curso já possui grade, disciplinas, turmas ou matrículas. Preserve sua organização e cadastre outro curso para uma estrutura diferente.",
+  ETAPA_INVALIDA: "Informe uma etapa curricular válida para o curso.",
   VINCULO_INVALIDO: "Um dos identificadores informados é inválido.",
   CURSO_INVALIDO: "O curso não pertence a esta instituição.",
   DISCIPLINAS_INVALIDAS: "Uma ou mais disciplinas não pertencem a esta instituição.",
@@ -26,7 +30,7 @@ export class ErroIntegridadeAcademica extends Error {
 export function respostaErroAcademico(error: unknown) {
   if (error instanceof ErroIntegridadeAcademica) {
     return NextResponse.json({ codigo: error.codigo, error: error.message }, {
-      status: ["OFERTA_COM_HISTORICO", "ETAPA_COM_HISTORICO", "DADOS_ALTERADOS"].includes(error.codigo) ? 409 : 400,
+      status: ["ORGANIZACAO_EM_USO", "OFERTA_COM_HISTORICO", "ETAPA_COM_HISTORICO", "DADOS_ALTERADOS"].includes(error.codigo) ? 409 : 400,
     });
   }
   if ((error as { code?: string })?.code === "P2034") {
@@ -58,6 +62,7 @@ export function incluirGradeOferta(instituicaoId: number) {
       where: { instituicaoId },
       select: {
         numero: true,
+        organizacaoCurricular: true,
         disciplinas: {
           where: { instituicaoId, disciplina: { instituicaoId } },
           select: { disciplinaId: true },
@@ -76,9 +81,10 @@ export async function validarDisciplinasDaOferta(
   idsHistoricos: number[] = [],
 ) {
   const curso = cursoId === null ? null : await db.curso.findFirst({
-    where: { id: cursoId, instituicaoId }, select: { id: true, ...incluirGradeOferta(instituicaoId) },
+    where: { id: cursoId, instituicaoId }, select: { id: true, organizacaoCurricular: true, quantidadeSemestres: true, quantidadeEtapas: true, ...incluirGradeOferta(instituicaoId) },
   });
   if (cursoId !== null && !curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
+  if (curso) curso.semestres = curso.semestres.filter(e => e.organizacaoCurricular === undefined || e.organizacaoCurricular === curso.organizacaoCurricular);
   const disciplinas = await db.disciplina.findMany({
     where: { id: { in: disciplinaIds }, instituicaoId },
     select: { id: true, cursoId: true, semestre: true },
@@ -142,7 +148,7 @@ export async function sincronizarTurmasDaDisciplina(
   const remover = existentes.filter(v => !turmaIds.includes(v.turmaId));
   await protegerHistoricoDasOfertas(db, instituicaoId, remover);
   for (const turma of turmas.filter(t => !mantidos.has(t.id))) {
-    await validarDisciplinasDaOferta(db, instituicaoId, turma.cursoId, turma.semestre, [disciplinaId]);
+    await validarDisciplinasDaOferta(db, instituicaoId, turma.cursoId, etapaDaOferta(turma), [disciplinaId]);
   }
   if (remover.length) await db.turmaDisciplina.deleteMany({
     where: { instituicaoId, id: { in: remover.map(v => v.id) } },
@@ -151,12 +157,12 @@ export async function sincronizarTurmasDaDisciplina(
   for (const turma of novas) {
     await validarResponsaveisDaOferta(db, instituicaoId, turma.poloId, turma.professorId,
       [disciplinaId], { [disciplinaId]: professorPadraoId });
-    const numero = numeroSemestreOferta(turma.semestre);
+    const numero = etapaDaOferta(turma);
     let etapa = numero === null ? null : await db.turmaSemestre.findFirst({
-      where: { instituicaoId, turmaId: turma.id, numero }, orderBy: { id: "desc" },
+      where: { instituicaoId, turmaId: turma.id, numero, organizacaoCurricular: turma.organizacaoCurricular }, orderBy: { id: "desc" },
     });
     if (numero !== null && !etapa) etapa = await db.turmaSemestre.create({
-      data: { instituicaoId, turmaId: turma.id, numero, status: "A_INICIAR" },
+      data: { instituicaoId, turmaId: turma.id, numero, organizacaoCurricular: turma.organizacaoCurricular, status: "A_INICIAR" },
     });
     await db.turmaDisciplina.createMany({
       data: [{ turmaId: turma.id, disciplinaId, instituicaoId,
@@ -166,4 +172,95 @@ export async function sincronizarTurmasDaDisciplina(
   }
   // Retained offerings are deliberately untouched: their IDs, schedules,
   // assigned teachers, dates and semester links belong to the offering.
+}
+
+export function validarOrganizacao(valor: unknown) {
+  if (valor !== "SEMESTRAL" && valor !== "ANUAL") throw new ErroIntegridadeAcademica("ORGANIZACAO_INVALIDA");
+  return valor;
+}
+
+export async function protegerOrganizacaoDoCurso(db: BancoAcademico, instituicaoId: number, cursoId: number) {
+  const where = { instituicaoId, cursoId };
+  const usos = await Promise.all([
+    db.cursoSemestre.count({ where }), db.disciplina.count({ where }),
+    db.turma.count({ where }), db.matricula.count({ where }),
+    db.cursoPublicacaoRede.count({ where: { instituicaoOrigemId: instituicaoId, cursoOrigemId: cursoId } }),
+  ]);
+  if (usos.some(n => n > 0)) throw new ErroIntegridadeAcademica("ORGANIZACAO_EM_USO");
+}
+
+export async function validarEtapaDoCurso(db: BancoAcademico, instituicaoId: number, cursoId: number | null,
+  valor: unknown, organizacaoInformada?: unknown) {
+  const curso = cursoId == null ? null : await db.curso.findFirst({
+    where: { id: cursoId, instituicaoId },
+    select: { id: true, organizacaoCurricular: true, quantidadeEtapas: true, quantidadeSemestres: true },
+  });
+  if (cursoId !== null && !curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
+  const organizacaoCurricular = organizacaoAcademica(curso?.organizacaoCurricular);
+  if (organizacaoInformada != null && organizacaoInformada !== organizacaoCurricular)
+    throw new ErroIntegridadeAcademica("ORGANIZACAO_INVALIDA");
+  const etapaNumero = numeroEtapa(valor);
+  const limite = organizacaoCurricular === "ANUAL" ? curso?.quantidadeEtapas : curso?.quantidadeSemestres;
+  if (etapaNumero === null || (limite && etapaNumero > limite)) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+  return { organizacaoCurricular, etapaNumero,
+    semestre: organizacaoCurricular === "SEMESTRAL" ? String(etapaNumero) : "" };
+}
+
+export async function resolverEtapaDaMatricula(db: BancoAcademico, instituicaoId: number, cursoId: number,
+  cursoEtapaId: number | null, valor: unknown) {
+  const curso = await db.curso.findFirst({ where: { id: cursoId, instituicaoId },
+    select: { organizacaoCurricular: true } });
+  if (!curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
+  const organizacaoCurricular = organizacaoAcademica(curso.organizacaoCurricular);
+  const etapa = cursoEtapaId == null ? null : await db.cursoSemestre.findFirst({
+    where: { id: cursoEtapaId, cursoId, instituicaoId, organizacaoCurricular },
+    select: { id: true, numero: true },
+  });
+  if (cursoEtapaId != null && !etapa) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+  const informado = valor == null || valor === "" ? null : numeroEtapa(valor);
+  if ((valor != null && valor !== "" && informado == null) || (etapa && informado && etapa.numero !== informado))
+    throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+  const etapaNumero = etapa?.numero ?? informado;
+  // Registros legados podem não ter etapa. Novas matrículas anuais exigem grade explícita.
+  if (organizacaoCurricular === "ANUAL") {
+    if (!etapaNumero) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+    const grade = etapa ?? await db.cursoSemestre.findFirst({
+      where: { cursoId, instituicaoId, numero: etapaNumero, organizacaoCurricular }, select: { id: true, numero: true },
+    });
+    if (!grade) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+    return { organizacaoCurricular, etapaNumero, cursoSemestreId: grade.id, semestre: null };
+  }
+  return { organizacaoCurricular, etapaNumero, cursoSemestreId: etapa?.id ?? null, semestre: etapaNumero };
+}
+
+export async function validarTurmasDaEtapa(db: BancoAcademico, instituicaoId: number, cursoId: number,
+  cursoEtapaId: number, turmaIds: number[]) {
+  const etapa = await db.cursoSemestre.findFirst({ where: { id: cursoEtapaId, instituicaoId, cursoId },
+    select: { numero: true, organizacaoCurricular: true } });
+  if (!etapa) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+  const turmas = await db.turma.findMany({ where: { id: { in: turmaIds }, instituicaoId, cursoId, ativa: true },
+    select: { id: true, etapaNumero: true, semestre: true, organizacaoCurricular: true,
+      semestres: { where: { instituicaoId }, select: { numero: true } } } });
+  if (turmas.length !== turmaIds.length || turmas.some(t =>
+    t.organizacaoCurricular !== etapa.organizacaoCurricular ||
+    (t.organizacaoCurricular === "ANUAL" ? etapaDaOferta(t) !== etapa.numero
+      : t.semestres.length ? !t.semestres.some(e => e.numero === etapa.numero) : etapaDaOferta(t) !== etapa.numero))) {
+    throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+  }
+}
+
+export async function validarItensAnuaisDaMatricula(db: BancoAcademico, instituicaoId: number, cursoId: number,
+  cursoEtapaId: number, itens: { turmaId: number; disciplinaId: number; tipoItem: string }[], matriculaId?: number) {
+  const anteriores = matriculaId ? await db.itemMatricula.findMany({
+    where: { instituicaoId, matriculaId }, select: { turmaId: true, disciplinaId: true, tipoItem: true },
+  }) : [];
+  const novos = itens.filter(item => item.tipoItem === "GRADE_PRINCIPAL" && !anteriores.some(a =>
+    a.turmaId === item.turmaId && a.disciplinaId === item.disciplinaId && a.tipoItem === item.tipoItem));
+  if (!novos.length) return;
+  await validarTurmasDaEtapa(db, instituicaoId, cursoId, cursoEtapaId, [...new Set(novos.map(i => i.turmaId))]);
+  const ids = [...new Set(novos.map(i => i.disciplinaId))];
+  const validos = await db.cursoSemestreDisciplina.count({ where: {
+    instituicaoId, cursoSemestreId: cursoEtapaId, disciplinaId: { in: ids }, disciplina: { instituicaoId },
+  } });
+  if (validos !== ids.length) throw new ErroIntegridadeAcademica("GRADE_INCOMPATIVEL");
 }

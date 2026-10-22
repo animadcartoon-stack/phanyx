@@ -317,6 +317,9 @@ export function montarValoresPreviewDocumento(
     dataConclusaoAluno:
       "-",
 
+    etapaAtual: "Semestre 1",
+    organizacaoCurricular: "Semestral",
+    anoCurricular: "-",
     semestreAtual:
       "1\u00ba semestre",
 

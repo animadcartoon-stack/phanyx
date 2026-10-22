@@ -1,3 +1,4 @@
+import { ErroIntegridadeAcademica, validarOrganizacao, protegerOrganizacaoDoCurso, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { camposComboCurso } from "@/lib/matriculas/campos-combo-curso";
 import { ErroModalidades } from "@/lib/matriculas/combos";
 import { erroCombos } from "@/lib/matriculas/combos-api";
@@ -211,6 +212,9 @@ export async function POST(req: Request) {
       body.descricao ?? ""
     ).trim();
 
+    const organizacaoCurricular = validarOrganizacao(body.organizacaoCurricular ?? "SEMESTRAL");
+    if (organizacaoCurricular === "ANUAL") body.quantidadeSemestres = body.quantidadeEtapas;
+    if (body.quantidadeSemestres != null && typeof body.quantidadeSemestres !== "string" && typeof body.quantidadeSemestres !== "number") throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const quantidadeSemestresInformada =
       body.quantidadeSemestres !== null &&
         body.quantidadeSemestres !==
@@ -545,7 +549,9 @@ export async function POST(req: Request) {
                     body.modalidadeCertificado
                   ),
 
-                quantidadeSemestres,
+                organizacaoCurricular,
+                quantidadeEtapas: quantidadeSemestres,
+                quantidadeSemestres: organizacaoCurricular === "SEMESTRAL" ? quantidadeSemestres : null,
 
                 valorMatricula,
 
@@ -674,6 +680,8 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     if (error instanceof ErroModalidades) return erroCombos(error);
     console.error(
       "Erro ao criar e publicar curso:",
@@ -807,6 +815,8 @@ export async function PUT(req: Request) {
           descricao: true,
           modalidadeCertificado: true,
           quantidadeSemestres: true,
+          quantidadeEtapas: true,
+          organizacaoCurricular: true,
           cargaHorariaMaximaSemestre: true,
           valorMatricula: true,
           valorMensalidade: true,
@@ -859,6 +869,11 @@ export async function PUT(req: Request) {
         ).trim() || null
         : cursoExistente.descricao;
 
+    const organizacaoCurricular = validarOrganizacao(body.organizacaoCurricular ?? cursoExistente.organizacaoCurricular);
+    body.quantidadeSemestres = organizacaoCurricular === "ANUAL"
+      ? (body.quantidadeEtapas !== undefined ? body.quantidadeEtapas : cursoExistente.quantidadeEtapas)
+      : (body.quantidadeSemestres !== undefined ? body.quantidadeSemestres : cursoExistente.quantidadeSemestres);
+    if (body.quantidadeSemestres != null && typeof body.quantidadeSemestres !== "string" && typeof body.quantidadeSemestres !== "number") throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const quantidadeSemestresInformada =
       body.quantidadeSemestres !== null &&
         body.quantidadeSemestres !==
@@ -1089,6 +1104,12 @@ export async function PUT(req: Request) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
+          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true } });
+          if (cursoAtual?.organizacaoCurricular !== cursoExistente.organizacaoCurricular) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
+          if (organizacaoCurricular !== cursoAtual.organizacaoCurricular)
+            await protegerOrganizacaoDoCurso(tx, instituicaoId, id);
+          if (quantidadeSemestres && await tx.cursoSemestre.count({ where: { cursoId: id, instituicaoId, numero: { gt: quantidadeSemestres } } }))
+            throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
           await tx.curso.update({
             where: {
               id,
@@ -1105,7 +1126,9 @@ export async function PUT(req: Request) {
                     .modalidadeCertificado
                 ),
 
-              quantidadeSemestres,
+              organizacaoCurricular,
+              quantidadeEtapas: quantidadeSemestres,
+              quantidadeSemestres: organizacaoCurricular === "SEMESTRAL" ? quantidadeSemestres : null,
 
               valorMatricula,
 
@@ -1188,7 +1211,7 @@ export async function PUT(req: Request) {
             unidadesAtualizadas:
               publicacoes.length,
           };
-        }
+        }, { isolationLevel: "Serializable" }
       );
 
     return NextResponse.json({
@@ -1207,6 +1230,8 @@ export async function PUT(req: Request) {
       },
     });
   } catch (error: unknown) {
+    const erroAcademico = respostaErroAcademico(error);
+    if (erroAcademico) return erroAcademico;
     console.error(
       "Erro ao editar e sincronizar curso:",
       error
