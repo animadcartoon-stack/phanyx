@@ -19,6 +19,11 @@ const ChatGlobalWidget = dynamic(
   { ssr: false },
 );
 
+const DiagnosticoDesempenho = dynamic(
+  () => import("@/components/admin/DiagnosticoDesempenho"),
+  { ssr: false },
+);
+
 // PERFORMANCE PHANYX - ADMIN FASE 1
 
 import { AtualizarAcessoBibliotecaContext, type BibliotecaAcessoMenu } from "@/components/biblioteca/ContextoAcessoBibliotecaAdmin";
@@ -60,6 +65,10 @@ export default function AdminShell({
   };
   const router = useRouter();
   const pathname = usePathname();
+  const [diagnosticoAtivo, setDiagnosticoAtivo] = useState(false);
+  useEffect(() => {
+    setDiagnosticoAtivo(new URLSearchParams(window.location.search).get("diagnostico") === "desempenho");
+  }, []);
   const sidebarDesktopRef = useRef<HTMLElement | null>(null);
   const editorCertificadoAberto = pathname === "/admin/configuracoes/certificado" || pathname === "/admin/configuracoes/certificado/";
   const esconderSidebar = pathname?.includes(
@@ -1005,6 +1014,7 @@ export default function AdminShell({
 
   return (
     <>
+      {diagnosticoAtivo ? <DiagnosticoDesempenho /> : null}
       {recursosSecundariosAtivos ? <InstallPromptPHANYX /> : null}
 
       <div className="flex min-h-screen bg-gray-100">

@@ -3,64 +3,27 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
-type Tema = "light" | "dark" | "system";
-
-function aplicarTema(tema: Tema) {
-  const root = document.documentElement;
-  const rotaAtual = window.location.pathname;
-
-  const rotaComTemaPrivado =
-  rotaAtual.startsWith("/admin") ||
-  rotaAtual.startsWith("/professor") ||
-  rotaAtual.startsWith("/aluno") ||
-  rotaAtual.startsWith("/master");
-
-  if (!rotaComTemaPrivado) {
-    root.removeAttribute("data-theme");
-    root.dataset.themeChoice = "public";
-    root.classList.remove("dark");
-    return;
-  }
-
-  const prefereEscuro = window.matchMedia(
-    "(prefers-color-scheme: dark)"
-  ).matches;
-
-  const usarEscuro =
-    tema === "dark" ||
-    (tema === "system" && prefereEscuro);
-
-  root.dataset.theme =
-    tema === "system"
-      ? "system"
-      : usarEscuro
-        ? "dark"
-        : "light";
-
-  root.dataset.themeChoice = tema;
-  root.classList.toggle("dark", usarEscuro);
-}
+import { aplicarTemaPhanyx, lerTemaPhanyx, type TemaPhanyx } from "@/lib/tema-phanyx";
 
 export default function PhanyxThemeToggle() {
   const t = useTranslations("Common");
-  const [tema, setTema] = useState<Tema>("light");
+  const [tema, setTema] = useState<TemaPhanyx>("light");
 
   useEffect(() => {
-    const salvo =
-      (localStorage.getItem("phanyx_tema") as Tema) ||
-      "light";
-
-    setTema(salvo);
-    aplicarTema(salvo);
+    const sincronizar = () => setTema(lerTemaPhanyx());
+    sincronizar();
+    window.addEventListener("phanyx-theme-change", sincronizar);
+    window.addEventListener("storage", sincronizar);
+    return () => {
+      window.removeEventListener("phanyx-theme-change", sincronizar);
+      window.removeEventListener("storage", sincronizar);
+    };
   }, []);
 
-  function alterarTema(novoTema: Tema) {
+  function alterarTema(novoTema: TemaPhanyx) {
     setTema(novoTema);
-    localStorage.setItem(
-      "phanyx_tema",
-      novoTema
-    );
-    aplicarTema(novoTema);
+    try { localStorage.setItem("phanyx_tema", novoTema); } catch {}
+    aplicarTemaPhanyx(novoTema);
   }
 
   return (

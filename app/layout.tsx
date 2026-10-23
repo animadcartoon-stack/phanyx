@@ -14,7 +14,6 @@ import GoogleTagManagerInstituicao from "@/components/google/GoogleTagManagerIns
 import GoogleAdsPHANYX from "@/components/google/GoogleAdsPHANYX";
 import PWARegister from "@/components/pwa/PWARegister";
 import SearchConsolePHANYX from "@/components/google/SearchConsolePHANYX";
-import PhanyxThemeBoot from "@/components/theme/PhanyxThemeBoot";
 import PhanyxThemeGuard from "@/components/PhanyxThemeGuard";
 
 const inter = Inter({
@@ -110,7 +109,6 @@ export default async function RootLayout({
 
         className={`${inter.variable} antialiased bg-gray-100`}
       >
-        <PhanyxThemeBoot />
         <PWARegister />
         <NextIntlClientProvider
           locale={locale}

@@ -771,18 +771,16 @@ export default function ConfiguracaoCertificadoPage() {
   const [temaAtual, setTemaAtual] =
     useState<TemaEditorCertificado>("light");
 
-  const [sistemaEscuro, setSistemaEscuro] = useState(false);
-
   const temaAzul = temaAtual === "dark";
 
   const temaEscuro =
     temaAtual === "dark" ||
-    (temaAtual === "system" && sistemaEscuro);
+    temaAtual === "system";
 
   const modoVisual: ModoVisualEditorCertificado =
     temaAtual === "dark"
       ? "dark"
-      : temaAtual === "system" && sistemaEscuro
+      : temaAtual === "system"
         ? "system-dark"
         : "light";
 
@@ -823,7 +821,6 @@ export default function ConfiguracaoCertificadoPage() {
   ];
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
 
     function lerTemaAtual() {
       const escolhaSalva = String(
@@ -841,7 +838,6 @@ export default function ConfiguracaoCertificadoPage() {
             : "light";
 
       setTemaAtual(escolha);
-      setSistemaEscuro(media.matches);
     }
 
     lerTemaAtual();
@@ -857,10 +853,6 @@ export default function ConfiguracaoCertificadoPage() {
       ],
     });
 
-    const aoMudarPreferenciaSistema = () => {
-      setSistemaEscuro(media.matches);
-    };
-
     const aoMudarStorage = (evento: StorageEvent) => {
       if (!evento.key || evento.key === "phanyx_tema") {
         lerTemaAtual();
@@ -871,7 +863,6 @@ export default function ConfiguracaoCertificadoPage() {
       lerTemaAtual();
     };
 
-    media.addEventListener("change", aoMudarPreferenciaSistema);
     window.addEventListener("storage", aoMudarStorage);
     window.addEventListener(
       "phanyx-theme-change",
@@ -880,11 +871,6 @@ export default function ConfiguracaoCertificadoPage() {
 
     return () => {
       observer.disconnect();
-
-      media.removeEventListener(
-        "change",
-        aoMudarPreferenciaSistema,
-      );
 
       window.removeEventListener("storage", aoMudarStorage);
 
