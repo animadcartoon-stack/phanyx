@@ -58,3 +58,14 @@ test('falha de autenticação não repete nem expõe mensagem ou URL do driver',
     const result=helper.diagnosticoSeguro(e);assert.ok(result.includes('P1000'));assert.ok(!result.includes('password'));assert.ok(!result.includes('secret.invalid'));return true;
   });assert.equal(attempts,1);
 });
+test('preflight de combos bloqueia qualquer migração adicional e exige conclusão antes do envio',()=>{
+  const alvo=require('../scripts/verificar-migracao-combos-quantidade.cjs').TARGET;
+  const directory=fixture(); fs.mkdirSync(path.join(directory,alvo));fs.writeFileSync(path.join(directory,alvo,'migration.sql'),'-- fixture');
+  try {
+    const rows=[applied('20261021000000_base'),applied(helper.TARGET)];
+    assert.deepEqual(helper.analisarMigracoes(rows,directory,false,alvo),{aplicada:false,pendentes:[alvo]});
+    assert.throws(()=>helper.analisarMigracoes(rows,directory,true,alvo),e=>e.code==='MIGRACAO_NAO_APLICADA');
+    assert.throws(()=>helper.analisarMigracoes([applied('20261021000000_base')],directory,false,alvo),e=>e.code==='OUTRAS_MIGRACOES_PENDENTES');
+    assert.equal(helper.analisarMigracoes([...rows,applied(alvo)],directory,true,alvo).aplicada,true);
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});

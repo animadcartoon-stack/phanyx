@@ -58,6 +58,7 @@ export async function carregarOfertasModalidades(
           valorMatricula: true,
           valorMensalidade: true,
           valorMensalidadeCombo: true,
+          precosComboPorQuantidade: true,
           quantidadeParcelas: true,
         },
       },

@@ -568,8 +568,9 @@ function ModalidadesPage() {
               <p>
                 {t("appliedRule")}:{" "}
                 <strong>
-                  {previa.calculo.comboId
-                    ? previa.calculo.nome
+                  {previa.calculo.tipoPreco === "QUANTIDADE"
+                    ? t("quantityApplied")
+                    : previa.calculo.comboId ? previa.calculo.nome
                     : t("standalone")}
                 </strong>{" "}
                 ·{" "}
@@ -577,13 +578,21 @@ function ModalidadesPage() {
                   count: previa.calculo.quantidadeModalidades,
                 })}
               </p>
-              {previa.calculo.comboId &&
+              {previa.calculo.tipoPreco !== "AVULSO" &&
                 previa.calculo.cursoIdsAvulsos.length > 0 && (
                   <p className="text-sm">{t("extrasHelp")}</p>
                 )}
               <p className="text-sm text-slate-600 dark:text-slate-300">
                 {t("automaticRuleHelp")}
               </p>
+              {previa.calculo.tipoPreco === "QUANTIDADE" && (
+                <ul className="space-y-1 text-sm">
+                  {previa.calculo.precosPorCurso.map(preco => <li key={preco.cursoId}>
+                    {preco.cursoNome}: {moeda(preco.mensalidadeCentavos)} · {preco.quantidadeAtividades === null
+                      ? t("standalone") : t("priceForActivities", { count: preco.quantidadeAtividades })}
+                  </li>)}
+                </ul>
+              )}
               <dl className="grid grid-cols-2 gap-3">
                 <dt>{t("enrollmentFee")}</dt>
                 <dd className="font-bold">{moeda(finais.taxa)}</dd>

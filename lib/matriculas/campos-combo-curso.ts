@@ -1,8 +1,9 @@
-import { centavos, ErroModalidades } from "./combos";
+import { centavos, ErroModalidades, normalizarPrecosComboPorQuantidade, type PrecoComboPorQuantidade } from "./combos";
 
 export function camposComboCurso(body: Record<string, unknown>) {
   const dados: {
     participaCombo?: boolean;
+    precosComboPorQuantidade?: PrecoComboPorQuantidade[];
     valorMensalidadeCombo?: number | null;
   } = {};
   if (Object.prototype.hasOwnProperty.call(body, "participaCombo")) {
@@ -15,6 +16,9 @@ export function camposComboCurso(body: Record<string, unknown>) {
       body.valorMensalidadeCombo === null || body.valorMensalidadeCombo === ""
         ? null
         : centavos(body.valorMensalidadeCombo) / 100;
+  }
+  if (Object.prototype.hasOwnProperty.call(body, "precosComboPorQuantidade")) {
+    dados.precosComboPorQuantidade = normalizarPrecosComboPorQuantidade(body.precosComboPorQuantidade);
   }
   return dados;
 }

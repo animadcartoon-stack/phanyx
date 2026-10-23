@@ -22,17 +22,17 @@ function urlDireta(env = process.env) {
   if (!url.searchParams.has('pool_timeout')) url.searchParams.set('pool_timeout', '20');
   return url.toString();
 }
-function analisarMigracoes(rows, directory, exigirAplicada = false) {
+function analisarMigracoes(rows, directory, exigirAplicada = false, alvo = TARGET) {
   if (rows.some(r => !r.finished_at && !r.rolled_back_at)) throw new ErroVerificacao('MIGRACAO_INTERROMPIDA',
     'Há uma migração interrompida. Envie o resultado de prisma migrate status antes de continuar.');
   const done = new Set(rows.filter(r => r.finished_at && !r.rolled_back_at).map(r => r.migration_name));
   const pending = fs.readdirSync(directory).filter(name => fs.existsSync(path.join(directory, name, 'migration.sql')) && !done.has(name));
-  const other = pending.filter(name => name !== TARGET);
+  const other = pending.filter(name => name !== alvo);
   if (other.length) throw new ErroVerificacao('OUTRAS_MIGRACOES_PENDENTES',
     'Existem outras migrações pendentes. Nenhuma foi aplicada por este verificador. Migrações: ' + other.filter(n => /^[\w-]+$/.test(n)).join(', '));
-  if (exigirAplicada && !done.has(TARGET)) throw new ErroVerificacao('MIGRACAO_NAO_APLICADA',
-    'A migração de organização curricular ainda não consta como aplicada. A branch não deve ser integrada.');
-  return { aplicada: done.has(TARGET), pendentes: pending };
+  if (exigirAplicada && !done.has(alvo)) throw new ErroVerificacao('MIGRACAO_NAO_APLICADA',
+    'A migração esperada ainda não consta como aplicada. A branch não deve ser integrada.');
+  return { aplicada: done.has(alvo), pendentes: pending };
 }
 function codigoSeguro(error) {
   const code = error?.code || error?.errorCode;

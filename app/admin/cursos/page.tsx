@@ -1,7 +1,7 @@
 "use client";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
-import CamposComboCurso from "@/components/admin/CamposComboCurso";
+import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -149,6 +149,7 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     valorMensalidade: "",
     participaCombo: false,
     valorMensalidadeCombo: "",
+    precosComboPorQuantidade: [] as FaixaComboFormulario[],
     quantidadeParcelas: "",
   });
 
@@ -416,6 +417,7 @@ async function salvarPolosDoCurso() {
             : null,
           participaCombo: form.participaCombo,
           valorMensalidadeCombo: form.valorMensalidadeCombo || null,
+          precosComboPorQuantidade: form.precosComboPorQuantidade,
           valorMensalidade: form.valorMensalidade
             ? Number(form.valorMensalidade)
             : null,
@@ -451,6 +453,7 @@ async function salvarPolosDoCurso() {
         valorMensalidade: "",
         participaCombo: false,
         valorMensalidadeCombo: "",
+    precosComboPorQuantidade: [] as FaixaComboFormulario[],
         quantidadeParcelas: "",
       });
       setPolosSelecionados([]);
@@ -734,7 +737,7 @@ if (!termoTexto) return cursosPorStatus;
             }
           />
 
-          <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo}
+          <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo} precosComboPorQuantidade={form.precosComboPorQuantidade}
             onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />
 
           <input

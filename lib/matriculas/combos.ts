@@ -17,7 +17,46 @@ export type PrecoCursoModalidade = {
   valorMatricula: number | string | null;
   valorMensalidade: number | string | null;
   valorMensalidadeCombo: number | string | null;
+  precosComboPorQuantidade?: unknown;
   quantidadeParcelas: number | null;
+};
+export type PrecoComboPorQuantidade = {
+  quantidadeAtividades: number;
+  valorMensalidade: string;
+};
+
+export function normalizarPrecosComboPorQuantidade(valor: unknown): PrecoComboPorQuantidade[] {
+  if (valor === undefined) return [];
+  if (!Array.isArray(valor) || valor.length > 99)
+    throw new ErroModalidades("REGRA_INVALIDA");
+  const quantidades = new Set<number>();
+  return valor.map((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item))
+      throw new ErroModalidades("REGRA_INVALIDA");
+    const quantidade = item.quantidadeAtividades;
+    if ((typeof quantidade !== "number" && typeof quantidade !== "string") ||
+        !/^\d+$/.test(String(quantidade)) || Number(quantidade) < 2 ||
+        Number(quantidade) > 100 || quantidades.has(Number(quantidade)))
+      throw new ErroModalidades("REGRA_INVALIDA");
+    quantidades.add(Number(quantidade));
+    return {
+      quantidadeAtividades: Number(quantidade),
+      valorMensalidade: (centavos(item.valorMensalidade) / 100).toFixed(2),
+    };
+  }).sort((a, b) => a.quantidadeAtividades - b.quantidadeAtividades);
+}
+
+type CalculoPreco = {
+  tipoPreco: "AVULSO" | "COMBO" | "QUANTIDADE";
+  comboId: number | null;
+  nome: string;
+  descontoPercentual: number | null;
+  cursoIdsCombo: number[];
+  cursoIdsAvulsos: number[];
+  matriculaCentavos: number;
+  mensalidadeCentavos: number;
+  quantidadeParcelas: number;
+  precosPorCurso: { cursoId: number; cursoNome: string; mensalidadeCentavos: number; quantidadeAtividades: number | null }[];
 };
 export type RegraCombo = {
   id: number;
@@ -99,7 +138,8 @@ export function calcularContratacaoModalidades(
     throw new ErroModalidades("SELECAO_INVALIDA");
   }
   const ordenados = [...cursos].sort((a, b) => a.id - b.id);
-  const avulso = {
+  const avulso: CalculoPreco = {
+    tipoPreco: "AVULSO",
     comboId: null as number | null,
     nome: "AVULSO",
     descontoPercentual: null as number | null,
@@ -114,8 +154,10 @@ export function calcularContratacaoModalidades(
       0,
     ),
     quantidadeParcelas: ordenados[0].quantidadeParcelas || 1,
+    precosPorCurso: ordenados.map(c => ({ cursoId: c.id, cursoNome: c.nome,
+      mensalidadeCentavos: centavos(c.valorMensalidade), quantidadeAtividades: null })),
   };
-  const candidatos = combos
+  const candidatos: CalculoPreco[] = combos
     .filter((c) => c.ativo)
     .flatMap((combo) => {
       const elegiveis = ordenados.filter(
@@ -140,6 +182,7 @@ export function calcularContratacaoModalidades(
         return [];
       return [
         {
+          tipoPreco: "COMBO",
           comboId: combo.id,
           nome: combo.nome,
           descontoPercentual:
@@ -168,9 +211,34 @@ export function calcularContratacaoModalidades(
                   )) +
             extras.reduce((s, c) => s + centavos(c.valorMensalidade), 0),
           quantidadeParcelas: combo.quantidadeParcelas,
+          precosPorCurso: [],
         },
       ];
     });
+  // One selected course/modality is one activity. Internal subjects and
+  // courses that opted out never unlock a quantity discount.
+  const quantidadeAtividades = ordenados.filter(c => c.participaCombo).length;
+  const precosPorCurso = ordenados.map(c => {
+    const faixa = c.participaCombo && quantidadeAtividades >= 2
+      ? normalizarPrecosComboPorQuantidade(c.precosComboPorQuantidade)
+          .find(p => p.quantidadeAtividades === quantidadeAtividades)
+      : undefined;
+    return { cursoId: c.id, cursoNome: c.nome,
+      mensalidadeCentavos: centavos(faixa?.valorMensalidade ?? c.valorMensalidade),
+      quantidadeAtividades: faixa ? quantidadeAtividades : null };
+  });
+  if (precosPorCurso.some(p => p.quantidadeAtividades !== null) &&
+      ordenados.every(c => Number.isInteger(c.quantidadeParcelas) &&
+        c.quantidadeParcelas! >= 1 && c.quantidadeParcelas! <= 120 &&
+        c.quantidadeParcelas === avulso.quantidadeParcelas)) {
+    candidatos.push({ ...avulso, tipoPreco: "QUANTIDADE",
+      nome: ordenados.map(c => c.nome).join(" + "),
+      cursoIdsCombo: precosPorCurso.filter(p => p.quantidadeAtividades !== null).map(p => p.cursoId),
+      cursoIdsAvulsos: precosPorCurso.filter(p => p.quantidadeAtividades === null).map(p => p.cursoId),
+      mensalidadeCentavos: precosPorCurso.reduce((s, p) => s + p.mensalidadeCentavos, 0),
+      precosPorCurso,
+    });
+  }
   // Atingido o mínimo, aplica um combo. Entre combos elegíveis, usa o menor
   // total contratual, com desempate estável, independente da ordem dos cliques.
   candidatos.sort(
@@ -178,7 +246,7 @@ export function calcularContratacaoModalidades(
       a.matriculaCentavos +
         a.mensalidadeCentavos * a.quantidadeParcelas -
         (b.matriculaCentavos + b.mensalidadeCentavos * b.quantidadeParcelas) ||
-      a.comboId - b.comboId,
+      (a.comboId ?? Number.MAX_SAFE_INTEGER) - (b.comboId ?? Number.MAX_SAFE_INTEGER),
   );
   if (
     !candidatos.length &&
