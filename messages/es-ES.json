@@ -34,8 +34,8 @@
   "AdminDashboard": {
     "profile": "Perfil administrativo",
     "institutionPanel": "Panel de la institución",
-    "title": "Panel del Estudiante",
-    "description": "Resumen de su trayectoria académica",
+    "title": "Panel administrativo",
+    "description": "Resumen de la institución",
     "searchPlaceholder": "Buscar estudiantes, profesores, cursos, asignaturas, clases o matrículas...",
     "guidedTutorial": "Tutorial guiado",
     "firstSteps": "Primeros pasos",
@@ -118,7 +118,11 @@
       "subjects": "Asignaturas",
       "semesters": "Semestres",
       "certificates": "Certificados"
-    }
+    },
+    "searchResults": "Resultados de búsqueda",
+    "searchResultsCount": "{count, plural, one {# resultado} other {# resultados}}",
+    "clearSearch": "Limpiar",
+    "openResult": "Abrir"
   },
   "AdminNavigation": {
     "oneOffFees": "Tasas Puntuales",
@@ -23413,5 +23417,11 @@
     "currentStage": "Etapa actual",
     "organizationInUse": "La organización está vinculada a la estructura y al historial de este curso.",
     "curriculumPlacement": "Vinculación por año en el plan de estudios"
+  },
+  "PerformanceDiagnostics": {
+    "finished": "Medición finalizada",
+    "measuring": "Midiendo el rendimiento durante un máximo de 3 minutos",
+    "instructions": "Abra las páginas y los menús lentos. El informe registra tiempos y referencias técnicas, sin contenido de formularios. La medición sigue disponible en esta pestaña al cambiar el idioma.",
+    "download": "Descargar informe de rendimiento"
   }
 }

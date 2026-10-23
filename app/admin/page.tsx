@@ -852,209 +852,157 @@ export default function AdminDashboardPage() {
 
   return (
     <>
-      <div className="space-y-8">
+      <div className="space-y-4">
         <CentralAvisosPhanyx />
-        <section className="phanyx-admin-hero relative rounded-[28px] border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-            <div className="max-w-3xl">
-
-              <div className="mb-6 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <button
-                  type="button"
-                  onClick={() => setPerfilAberto((atual) => !atual)}
-                  className="flex w-full items-center justify-between gap-4 text-left"
-                >
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-                      {t("profile")}
-                    </p>
-
-                    {perfilAberto && (
-                      <h2 className="text-xl font-bold text-slate-900">
-                        {perfilAdmin?.nome || t("administratorFallback")}
-                      </h2>
-                    )}
-                  </div>
-
-                  <span className="text-2xl font-black text-slate-500">
-                    {perfilAberto ? "▾" : "▸"}
-                  </span>
-                </button>
-
-                {perfilAberto && (
-                  <div className="mt-4 flex items-center gap-4">
-                    <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
-                      {perfilAdmin?.fotoPerfil ? (
-                        <img
-                          src={perfilAdmin.fotoPerfil}
-                          alt={perfilAdmin?.nome || t("employeePhotoAlt")}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
-                          {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
-                        </div>
-                      )}
+        <section className="phanyx-admin-hero relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold text-slate-900">{t("title")}</h1>
+              <p className="mt-1 text-xs text-slate-600">{t("description")}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPerfilAberto((atual) => !atual)}
+                aria-expanded={perfilAberto}
+                aria-controls="perfil-administrativo"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                {t("profile")} <span aria-hidden="true">{perfilAberto ? "▾" : "▸"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTourAberto(true)}
+                className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+              >
+                {t("guidedTutorial")}
+              </button>
+            </div>
+          </div>
+          <div id="perfil-administrativo">
+            {perfilAberto && (
+              <div className="mt-4 flex items-center gap-4">
+                <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
+                  {perfilAdmin?.fotoPerfil ? (
+                    <img
+                      src={perfilAdmin.fotoPerfil}
+                      alt={perfilAdmin?.nome || t("employeePhotoAlt")}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
+                      {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
                     </div>
+                  )}
+                </div>
 
-                    <div>
-                      <input
-                        ref={inputFotoRef}
-                        type="file"
-                        accept="image/png,image/jpeg,image/jpg,image/webp"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          alterarFoto(file);
-                          e.target.value = "";
-                        }}
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => inputFotoRef.current?.click()}
-                        disabled={enviandoFoto}
-                        className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-60"
-                      >
-                        {enviandoFoto ? t("uploadingPhoto") : t("changePhoto")}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">
-                {t("institutionPanel")}
-              </p>
-
-              <h1 className="mt-3 text-4xl font-bold text-slate-900">
-                {t("title")}
-              </h1>
-
-              <p className="mt-4 text-lg leading-8 text-slate-600">
-                {t("description")}
-              </p>
-
-              <div className="mt-6 flex items-center gap-4">
-                <div className="relative w-full max-w-2xl z-50">
+                <div>
+                  <p className="mb-2 text-sm font-semibold text-slate-900">{perfilAdmin?.nome || t("administratorFallback")}</p>
                   <input
-                    type="text"
-                    value={busca}
-                    onChange={(e) => setBusca(e.target.value)}
-                    placeholder={t("searchPlaceholder")}
-                    className="w-full rounded-2xl border border-slate-200 bg-white/95 py-3.5 pl-20 pr-5 text-sm text-slate-700 shadow-sm backdrop-blur transition placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100"
+                    ref={inputFotoRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      alterarFoto(file);
+                      e.target.value = "";
+                    }}
                   />
 
-                  <div className="pointer-events-none absolute left-3 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-xl border border-blue-100 bg-blue-50">
-                    <img
-                      src="/images/formix-inteligente-direita.png"
-                      alt="Formix inteligente"
-                      className="h-10 w-10 object-contain"
-                      draggable={false}
-                    />
+                  <button
+                    type="button"
+                    onClick={() => inputFotoRef.current?.click()}
+                    disabled={enviandoFoto}
+                    className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-60"
+                  >
+                    {enviandoFoto ? t("uploadingPhoto") : t("changePhoto")}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="relative z-50 mt-3 w-full">
+            <input
+              type="search"
+              aria-label={t("searchPlaceholder")}
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              className="w-full rounded-2xl border border-slate-200 bg-white/95 py-3.5 pl-12 pr-5 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100"
+            />
+
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4.5 4.5" />
+            </svg>
+
+            {termoBusca.length >= 2 && (
+              <div className="absolute left-0 right-0 top-[calc(100%+12px)] z-50 rounded-2xl border border-slate-200 bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {t("searchResults")}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {t("searchResultsCount", { count: totalResultadosBusca })}
+                    </p>
                   </div>
 
-                  {termoBusca.length >= 2 && (
-                    <div className="absolute left-0 right-0 top-[calc(100%+12px)] z-50 rounded-2xl border border-slate-200 bg-white shadow-xl">
-                      <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900">
-                            Resultados da busca
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {totalResultadosBusca} resultado(s)
-                          </p>
-                        </div>
+                  <button
+                    type="button"
+                    onClick={() => setBusca("")}
+                    className="rounded-lg px-2 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                  >
+                    {t("clearSearch")}
+                  </button>
+                </div>
 
-                        <button
-                          type="button"
-                          onClick={() => setBusca("")}
-                          className="rounded-lg px-2 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+                <div className="max-h-80 overflow-y-auto p-3">
+                  {buscaCarregando ? (
+                    <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
+                      <p className="text-sm font-medium text-slate-700">
+                        {tCommon("loading")}
+                      </p>
+                    </div>
+                  ) : totalResultadosBusca > 0 ? (
+                    <div className="space-y-2">
+                      {resultadosBusca.map((item, index) => (
+                        <Link
+                          key={`${tiposResultado[item.tipo]}-${item.id}-${index}`}
+                          href={item.href}
+                          className="block rounded-xl border border-slate-100 px-3 py-3 transition hover:border-blue-200 hover:bg-blue-50/60"
                         >
-                          Limpar
-                        </button>
-                      </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-slate-900">
+                                {item.nome}
+                              </p>
+                              <p className="mt-1 text-xs text-slate-500">
+                                {tiposResultado[item.tipo]}
+                              </p>
+                            </div>
 
-                      <div className="max-h-80 overflow-y-auto p-3">
-                        {buscaCarregando ? (
-                          <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
-                            <p className="text-sm font-medium text-slate-700">
-                              {tCommon("loading")}
-                            </p>
+                            <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-600">
+                              {t("openResult")}
+                            </span>
                           </div>
-                        ) : totalResultadosBusca > 0 ? (
-                          <div className="space-y-2">
-                            {resultadosBusca.map((item, index) => (
-                              <Link
-                                key={`${tiposResultado[item.tipo]}-${item.id}-${index}`}
-                                href={item.href}
-                                className="block rounded-xl border border-slate-100 px-3 py-3 transition hover:border-blue-200 hover:bg-blue-50/60"
-                              >
-                                <div className="flex items-center justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <p className="truncate text-sm font-semibold text-slate-900">
-                                      {item.nome}
-                                    </p>
-                                    <p className="mt-1 text-xs text-slate-500">
-                                      {tiposResultado[item.tipo]}
-                                    </p>
-                                  </div>
-
-                                  <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-600">
-                                    Abrir
-                                  </span>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
-                            <p className="text-sm font-medium text-slate-700">
-                              {t("noResults")}
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500">
-                              {t("searchSuggestion")}
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center">
+                      <p className="text-sm font-medium text-slate-700">
+                        {t("noResults")}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {t("searchSuggestion")}
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
-
-            <div className="rounded-2xl border border-blue-100 bg-white/80 px-5 py-4 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-              <div className="flex items-start gap-3">
-                <img
-                  src="/images/formix-bemvindo.png"
-                  alt="Formix"
-                  className="h-20 w-20 drop-shadow-lg transition hover:scale-105"
-                />
-
-                <div>
-                  <span className="text-xs font-semibold tracking-widest text-blue-600">
-                    {t("guidedTutorial").toUpperCase()}
-                  </span>
-
-                  <h3 className="text-lg font-bold text-slate-900">
-                    {t("firstSteps")}
-                  </h3>
-
-                  <p className="mt-1 text-sm text-slate-600">
-                    {t("tutorialDescription")}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setTourAberto(true)}
-                className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                {t("viewTour")}
-              </button>
-            </div>
+            )}
           </div>
         </section>
 
