@@ -15,7 +15,7 @@ A prévia e a confirmação usam o mesmo cálculo no servidor. O resumo mostra o
 
 ## Banco e atualização
 
-A migração `20261023101500_combo_precos_quantidade` adiciona uma coluna JSONB ao curso, com lista vazia como padrão. Não modifica preços existentes. Deve ser aplicada antes da publicação do código. O verificador `scripts/verificar-migracao-combos-quantidade.cjs` carrega a configuração local e recusa históricos interrompidos ou qualquer outra migração pendente.
+A migração `20261023101500_combo_precos_quantidade` adiciona uma coluna JSONB ao curso, com lista vazia como padrão. Não modifica preços existentes. Deve ser aplicada antes da publicação do código. O verificador `scripts/verificar-migracao-combos-quantidade.cjs` carrega a configuração local e recusa históricos interrompidos ou qualquer outra migração pendente. Ele gera um cliente mínimo separado, exclusivamente para ler o histórico de migrações. Reutiliza o gerador já instalado, sem depender do cliente gerado da aplicação nem alterá-lo. A geração não conecta ao banco.
 
 ## Carregamento de Turmas
 

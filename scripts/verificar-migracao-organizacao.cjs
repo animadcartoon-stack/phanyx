@@ -35,13 +35,28 @@ function analisarMigracoes(rows, directory, exigirAplicada = false, alvo = TARGE
   return { aplicada: done.has(alvo), pendentes: pending };
 }
 function codigoSeguro(error) {
-  const code = error?.code || error?.errorCode;
-  return typeof code === 'string' && /^[A-Z][A-Z0-9_]{3,48}$/.test(code) ? code : 'SEM_CODIGO';
+  for (const code of [error?.code, error?.errorCode, error?.cause?.code, error?.cause?.errorCode]) {
+    if (typeof code === 'string' && /^[A-Z][A-Z0-9_]{3,48}$/.test(code)) return code;
+  }
+  const message = typeof error?.message === 'string' ? error.message : '';
+  if (/did not initialize yet/i.test(message)) return 'CLIENTE_PRISMA_NAO_GERADO';
+  if (/could not locate the Query Engine|unable to require.*query_engine|Query Engine.*not found/i.test(message)) return 'MOTOR_PRISMA_AUSENTE';
+  if (error?.name === 'PrismaClientInitializationError') return 'INICIALIZACAO_PRISMA_FALHOU';
+  if (error?.name === 'PrismaClientValidationError') return 'VALIDACAO_PRISMA_FALHOU';
+  return 'SEM_CODIGO';
 }
 function diagnosticoSeguro(error) {
   if (error instanceof ErroVerificacao) return `[${error.code}] ${error.message}`;
   const code = codigoSeguro(error);
   const messages = {
+    DEPENDENCIAS_PRISMA_AUSENTES: 'Os arquivos do Prisma estão incompletos nas dependências locais.',
+    VERSOES_PRISMA_DIFERENTES: 'Os pacotes prisma e @prisma/client instalados têm versões diferentes.',
+    GERACAO_VERIFICADOR_FALHOU: 'Não foi possível gerar o leitor isolado de migrações. Confira as dependências do Prisma e a conexão para baixar seu motor.',
+    CARREGAMENTO_VERIFICADOR_FALHOU: 'O leitor de migrações foi gerado, mas não pôde ser carregado neste computador.',
+    CLIENTE_PRISMA_NAO_GERADO: 'O cliente Prisma utilizado ainda não foi gerado.',
+    MOTOR_PRISMA_AUSENTE: 'O motor do Prisma não está disponível para este computador.',
+    INICIALIZACAO_PRISMA_FALHOU: 'O motor do Prisma falhou ao iniciar. Confira a geração do cliente e a configuração local.',
+    VALIDACAO_PRISMA_FALHOU: 'O Prisma recusou a configuração ou a consulta antes de executar a verificação.',
     P1000: 'A autenticação no banco foi recusada. Confira as credenciais locais.',
     P1001: 'Não foi possível alcançar o banco pela conexão direta. Confira a conexão de rede e tente novamente.',
     P1002: 'O banco não respondeu dentro do tempo de conexão.',
