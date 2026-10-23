@@ -3540,6 +3540,7 @@ export default function EditorTemplatePHANYX({
 
   const [fonteAtual, setFonteAtual] = useState("");
   const [tamanhoAtual, setTamanhoAtual] = useState("");
+  const [ultimaCorTexto, setUltimaCorTexto] = useState("#000000");
 
   const [
     mostrarPainelTabela,
@@ -6092,14 +6093,38 @@ export default function EditorTemplatePHANYX({
                 • {tToolbar("main.list")}
               </button>
 
-              <input
-                type="color"
-                onChange={(e) =>
-                  editor.chain().focus(undefined, { scrollIntoView: false }).setColor(e.target.value).run()
-                }
-                className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-                title={tToolbar("main.textColor")}
-              />
+              <div className="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950">
+                <button
+                  type="button"
+                  onClick={() =>
+                    editor.chain().focus(undefined, { scrollIntoView: false }).setColor(ultimaCorTexto).run()
+                  }
+                  className="flex h-10 items-center gap-2 px-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800"
+                  title={`${tToolbar("main.textColor")}: ${ultimaCorTexto}`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="border-b-4 px-1 font-black"
+                    style={{ borderBottomColor: ultimaCorTexto }}
+                  >
+                    A
+                  </span>
+                  {tToolbar("main.textColor")}
+                </button>
+                <input
+                  type="color"
+                  value={ultimaCorTexto}
+                  onChange={(e) => {
+                    const cor = e.target.value;
+                    setUltimaCorTexto(cor);
+                    // A selecao do Tiptap permanece ativa enquanto o seletor tem foco.
+                    editor.chain().setColor(cor).run();
+                  }}
+                  className="h-10 w-9 cursor-pointer border-l border-slate-300 bg-transparent p-1 dark:border-slate-700"
+                  aria-label={tToolbar("main.textColor")}
+                  title={tToolbar("main.textColor")}
+                />
+              </div>
 
               <div className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-2 py-1.5 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
                 <span className="!text-slate-900 !opacity-100 dark:!text-white">
