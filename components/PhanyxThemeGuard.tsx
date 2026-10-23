@@ -2,41 +2,20 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-
-type Tema = "light" | "dark" | "system";
+import { aplicarTemaPhanyx, lerTemaPhanyx } from "@/lib/tema-phanyx";
 
 export default function PhanyxThemeGuard() {
   const pathname = usePathname();
 
- useEffect(() => {
-  const root = document.documentElement;
-
-  const rotaComTemaPrivado =
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/professor") ||
-    pathname.startsWith("/aluno");
-
-  if (!rotaComTemaPrivado) {
-  root.removeAttribute("data-theme");
-  root.dataset.themeChoice = "public";
-  root.classList.remove("dark");
-  return;
-}
-
-  const tema = (localStorage.getItem("phanyx_tema") as Tema) || "light";
-
-  const prefereEscuro = window.matchMedia(
-    "(prefers-color-scheme: dark)"
-  ).matches;
-
-  const usarEscuro =
-    tema === "dark" || (tema === "system" && prefereEscuro);
-
-  root.dataset.theme = tema === "system" ? "system" : usarEscuro ? "dark" : "light";
-  root.dataset.themeChoice = tema;
-
-  root.classList.toggle("dark", tema === "system" || usarEscuro);
-}, [pathname]);
+  useEffect(() => {
+    const sincronizar = () => aplicarTemaPhanyx(lerTemaPhanyx(), pathname);
+    const aoMudarOutraAba = (evento: StorageEvent) => {
+      if (!evento.key || evento.key === "phanyx_tema") sincronizar();
+    };
+    sincronizar();
+    window.addEventListener("storage", aoMudarOutraAba);
+    return () => window.removeEventListener("storage", aoMudarOutraAba);
+  }, [pathname]);
 
   return null;
 }
