@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": [
+    "gru1"
+  ],
   "functions": {
     "app/api/internal/crachas/processar-arquivo/route.ts": {
       "maxDuration": 300,
@@ -10,6 +13,14 @@
           "retryAfterSeconds": 60,
           "initialDelaySeconds": 0
         }
+      ],
+      "regions": [
+        "iad1"
+      ]
+    },
+    "app/api/admin/crachas/emitir-massivo/route.ts": {
+      "regions": [
+        "iad1"
       ]
     }
   },
