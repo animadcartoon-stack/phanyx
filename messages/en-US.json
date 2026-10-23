@@ -34,8 +34,8 @@
   "AdminDashboard": {
     "profile": "Administrative profile",
     "institutionPanel": "Institution dashboard",
-    "title": "Student Dashboard",
-    "description": "Overview of your academic journey",
+    "title": "Administrative dashboard",
+    "description": "Overview of the institution",
     "searchPlaceholder": "Search students, teachers, courses, subjects, classes or enrollments...",
     "guidedTutorial": "Guided tutorial",
     "firstSteps": "Getting started",
@@ -118,7 +118,11 @@
       "subjects": "Subjects",
       "semesters": "Semesters",
       "certificates": "Certificates"
-    }
+    },
+    "searchResults": "Search results",
+    "searchResultsCount": "{count, plural, one {# result} other {# results}}",
+    "clearSearch": "Clear",
+    "openResult": "Open"
   },
   "AdminNavigation": {
     "oneOffFees": "One-off Fees",
@@ -23414,5 +23418,11 @@
     "currentStage": "Current stage",
     "organizationInUse": "This organization is linked to the program structure and academic history.",
     "curriculumPlacement": "Year assignment in course curriculum"
+  },
+  "PerformanceDiagnostics": {
+    "finished": "Measurement finished",
+    "measuring": "Measuring performance for up to 3 minutes",
+    "instructions": "Open the slow pages and menus. The report records timings and technical references without form contents. Measurement remains available in this tab after a language change.",
+    "download": "Download performance report"
   }
 }

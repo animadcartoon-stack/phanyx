@@ -34,8 +34,8 @@
   "AdminDashboard": {
     "profile": "Profil administratif",
     "institutionPanel": "Tableau de bord de l'établissement",
-    "title": "Tableau de bord de l’étudiant",
-    "description": "Vue d’ensemble de votre parcours académique",
+    "title": "Tableau de bord administratif",
+    "description": "Vue d’ensemble de l’établissement",
     "searchPlaceholder": "Rechercher des étudiants, enseignants, cours, matières, classes ou inscriptions...",
     "guidedTutorial": "Tutoriel guidé",
     "firstSteps": "Premiers pas",
@@ -118,7 +118,11 @@
       "subjects": "Matières",
       "semesters": "Semestres",
       "certificates": "Certificats"
-    }
+    },
+    "searchResults": "Résultats de recherche",
+    "searchResultsCount": "{count, plural, one {# résultat} other {# résultats}}",
+    "clearSearch": "Effacer",
+    "openResult": "Ouvrir"
   },
   "AdminNavigation": {
     "oneOffFees": "Frais ponctuels",
@@ -23413,5 +23417,11 @@
     "currentStage": "Étape actuelle",
     "organizationInUse": "Cette organisation est liée à la structure et à l’historique du cursus.",
     "curriculumPlacement": "Année définie dans le programme du cursus"
+  },
+  "PerformanceDiagnostics": {
+    "finished": "Mesure terminée",
+    "measuring": "Mesure des performances pendant 3 minutes au maximum",
+    "instructions": "Ouvrez les pages et menus lents. Le rapport contient des durées et des références techniques, sans contenu de formulaires. La mesure reste disponible dans cet onglet après un changement de langue.",
+    "download": "Télécharger le rapport de performances"
   }
 }

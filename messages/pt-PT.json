@@ -34,8 +34,8 @@
   "AdminDashboard": {
     "profile": "Perfil administrativo",
     "institutionPanel": "Painel da instituição",
-    "title": "Painel do Aluno",
-    "description": "Visão geral do seu percurso académico",
+    "title": "Painel administrativo",
+    "description": "Visão geral da instituição",
     "searchPlaceholder": "Pesquisar alunos, professores, cursos, disciplinas, turmas ou matrículas...",
     "guidedTutorial": "Tutorial guiado",
     "firstSteps": "Primeiros passos",
@@ -118,7 +118,11 @@
       "subjects": "Unidades curriculares",
       "semesters": "Semestres",
       "certificates": "Certificados"
-    }
+    },
+    "searchResults": "Resultados da pesquisa",
+    "searchResultsCount": "{count, plural, one {# resultado} other {# resultados}}",
+    "clearSearch": "Limpar",
+    "openResult": "Abrir"
   },
   "AdminNavigation": {
     "oneOffFees": "Taxas Avulsas",
@@ -23200,5 +23204,11 @@
     "currentStage": "Etapa atual",
     "organizationInUse": "A organização está associada à estrutura e ao histórico deste curso.",
     "curriculumPlacement": "Associação por ano na matriz do curso"
+  },
+  "PerformanceDiagnostics": {
+    "finished": "Medição concluída",
+    "measuring": "A medir o desempenho durante até 3 minutos",
+    "instructions": "Abra as páginas e os menus lentos. O relatório regista tempos e referências técnicas, sem conteúdo de formulários. A medição continua disponível neste separador ao mudar o idioma.",
+    "download": "Descarregar relatório de desempenho"
   }
 }

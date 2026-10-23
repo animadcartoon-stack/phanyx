@@ -8,6 +8,7 @@ import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import { useTranslations } from "next-intl";
+import { diagnosticoSolicitado } from "@/lib/diagnostico-desempenho";
 
 const InstallPromptPHANYX = dynamic(
   () => import("@/components/pwa/InstallPromptPHANYX"),
@@ -67,7 +68,11 @@ export default function AdminShell({
   const pathname = usePathname();
   const [diagnosticoAtivo, setDiagnosticoAtivo] = useState(false);
   useEffect(() => {
-    setDiagnosticoAtivo(new URLSearchParams(window.location.search).get("diagnostico") === "desempenho");
+    try {
+      setDiagnosticoAtivo(diagnosticoSolicitado(window.location.search, window.sessionStorage));
+    } catch {
+      setDiagnosticoAtivo(new URLSearchParams(window.location.search).get("diagnostico") === "desempenho");
+    }
   }, []);
   const sidebarDesktopRef = useRef<HTMLElement | null>(null);
   const editorCertificadoAberto = pathname === "/admin/configuracoes/certificado" || pathname === "/admin/configuracoes/certificado/";
