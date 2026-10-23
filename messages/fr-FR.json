@@ -19334,6 +19334,10 @@
     "validationsStatusActive": "Actif",
     "validationsStatusCompleted": "Terminé",
     "validationsEnrollmentCancellation": "Annulation d’inscription",
+    "classesListLoading": "Chargement des classes…",
+    "classesCatalogLoading": "Chargement des options de création et de modification des classes…",
+    "classesCatalogError": "Impossible de charger les options du formulaire.",
+    "classesRetry": "Réessayer",
     "classesLoadError": "Impossible de charger les classes. Actualisez la page pour réessayer."
   },
   "AdminLibraryLicenses": {

@@ -19335,6 +19335,10 @@
     "validationsStatusActive": "Active",
     "validationsStatusCompleted": "Completed",
     "validationsEnrollmentCancellation": "Enrollment cancellation",
+    "classesListLoading": "Loading classes…",
+    "classesCatalogLoading": "Loading options to create and edit classes…",
+    "classesCatalogError": "Could not load the form options.",
+    "classesRetry": "Try again",
     "classesLoadError": "Could not load class data. Refresh the page to try again."
   },
   "AdminLibraryLicenses": {

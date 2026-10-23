@@ -19105,6 +19105,10 @@
     "validationsStatusActive": "Ativo",
     "validationsStatusCompleted": "Concluído",
     "validationsEnrollmentCancellation": "Cancelamento de matrícula",
+    "classesListLoading": "Carregando turmas…",
+    "classesCatalogLoading": "Carregando opções para criar e editar turmas…",
+    "classesCatalogError": "Não foi possível carregar as opções do formulário.",
+    "classesRetry": "Tentar novamente",
     "classesLoadError": "Não foi possível carregar os dados das turmas. Atualize a página para tentar novamente."
   },
   "AdminLibraryLicenses": {

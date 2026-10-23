@@ -153,3 +153,24 @@ test('falha temporária não deixa a atualização permanentemente travada',asyn
   const env=visibility(); let total=0; const original=console.error; console.error=()=>{};
   try {const stop=iniciarAtualizacaoVisivel(async()=>{if(++total===1)throw new Error('temporário');},5000,env);await flush();env.tick();await flush();assert.equal(total,2);stop();} finally {console.error=original;}
 });
+test('catálogos não repetem consulta de turmas nem de ocupação', async () => {
+  reset(); const res=await api.GET(request('?somenteCatalogos=1')); const data=await res.json();
+  assert.equal(res.status,200); assert.ok(!('turmas' in data));
+  assert.deepEqual(calls.map(c=>c.model).sort(),['curso','disciplina','polo','professor']);
+  assert.equal(data.cursos[0].instituicaoId,10); assert.equal(data.professores[0].nome,'Ana');
+});
+test('catálogos separados preservam restrição de disciplinas e autenticação', async () => {
+  reset(); usuario.role='SECRETARIA'; const data=await (await api.GET(request('?somenteCatalogos=1'))).json();
+  assert.deepEqual(data.disciplinas,[]); assert.ok(!calls.some(c=>c.model==='disciplina'));
+  reset(); usuario=null; assert.equal((await api.GET(request('?somenteCatalogos=1'))).status,401); assert.equal(calls.length,0);
+});
+test('lista termina sem depender de catálogo lento ou com falha', async () => {
+  reset(); const original=db.curso.findMany; let liberar;
+  db.curso.findMany=()=>new Promise(resolve=>liberar=resolve);
+  try {
+    const catalogos=api.GET(request('?somenteCatalogos=1'));
+    await flush(); const lista=await api.GET(request('?somenteTurmas=1'));
+    assert.equal((await lista.json()).turmas.length,1);
+    liberar([]); assert.equal((await catalogos).status,200);
+  } finally { db.curso.findMany=original; }
+});

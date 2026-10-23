@@ -19334,6 +19334,10 @@
     "validationsStatusActive": "Activo",
     "validationsStatusCompleted": "Finalizado",
     "validationsEnrollmentCancellation": "Cancelación de matrícula",
+    "classesListLoading": "Cargando grupos…",
+    "classesCatalogLoading": "Cargando opciones para crear y editar grupos…",
+    "classesCatalogError": "No se pudieron cargar las opciones del formulario.",
+    "classesRetry": "Reintentar",
     "classesLoadError": "No se pudieron cargar los grupos. Actualice la página para volver a intentarlo."
   },
   "AdminLibraryLicenses": {
