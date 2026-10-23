@@ -1,7 +1,7 @@
 "use client";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
-import CamposComboCurso from "@/components/admin/CamposComboCurso";
+import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -71,6 +71,7 @@ type Curso = {
   valorMensalidade?: number | null;
   participaCombo?: boolean;
   valorMensalidadeCombo?: string | number | null;
+  precosComboPorQuantidade?: { quantidadeAtividades: number; valorMensalidade: string }[];
   quantidadeParcelas?: number | null;
   ativo?: boolean;
   publicacaoRedeDestino?: {
@@ -150,6 +151,7 @@ export default function CursoDetalhePage() {
     valorMensalidade: "",
     participaCombo: false,
     valorMensalidadeCombo: "",
+    precosComboPorQuantidade: [] as FaixaComboFormulario[],
     quantidadeParcelas: "",
     ativo: true,
   });
@@ -213,6 +215,7 @@ export default function CursoDetalhePage() {
             : "",
         participaCombo: Boolean(encontrado.participaCombo),
         valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
+        precosComboPorQuantidade: (encontrado.precosComboPorQuantidade || []).map(f => ({ quantidadeAtividades: String(f.quantidadeAtividades), valorMensalidade: String(f.valorMensalidade) })),
         valorMensalidade:
           encontrado.valorMensalidade != null
             ? String(encontrado.valorMensalidade)
@@ -316,6 +319,7 @@ export default function CursoDetalhePage() {
             : null,
           participaCombo: formCurso.participaCombo,
           valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
+          precosComboPorQuantidade: formCurso.precosComboPorQuantidade,
           valorMensalidade: formCurso.valorMensalidade
             ? Number(formCurso.valorMensalidade)
             : null,
@@ -773,7 +777,7 @@ export default function CursoDetalhePage() {
                     />
                   </div>
 
-                  <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo}
+                  <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
                     onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
 
                   <div>

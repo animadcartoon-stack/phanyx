@@ -20,9 +20,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Instituição inválida" }, { status: 403 });
     }
 
-    const somenteTurmas = new URL(request.url).searchParams.get("somenteTurmas") === "1";
+    const params = new URL(request.url).searchParams;
+    const somenteTurmas = params.get("somenteTurmas") === "1";
+    const somenteCatalogos = params.get("somenteCatalogos") === "1";
     // Preserve subject catalog permissions while staff can still list courses/classes.
-    const dados = await carregarPainelTurmas(prisma, user.instituicaoId, somenteTurmas, isAdminLike(user.role));
+    const dados = await carregarPainelTurmas(prisma, user.instituicaoId, somenteTurmas, isAdminLike(user.role), somenteCatalogos);
     return NextResponse.json(dados, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("Erro ao carregar painel de turmas", error);

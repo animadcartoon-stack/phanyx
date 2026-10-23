@@ -19105,6 +19105,10 @@
     "validationsStatusActive": "Ativo",
     "validationsStatusCompleted": "Concluído",
     "validationsEnrollmentCancellation": "Cancelamento de matrícula",
+    "classesListLoading": "Carregando turmas…",
+    "classesCatalogLoading": "Carregando opções para criar e editar turmas…",
+    "classesCatalogError": "Não foi possível carregar as opções do formulário.",
+    "classesRetry": "Tentar novamente",
     "classesLoadError": "Não foi possível carregar os dados das turmas. Atualize a página para tentar novamente."
   },
   "AdminLibraryLicenses": {
@@ -23025,6 +23029,18 @@
     }
   },
   "EnrollmentCombos": {
+    "optional": "Opcional",
+    "quantityPrices": "Mensalidade por quantidade de atividades",
+    "activityCount": "Número de atividades no combo",
+    "courseMonthlyInCombo": "Mensalidade deste curso no combo",
+    "addQuantityPrice": "Adicionar valor por quantidade",
+    "removePrice": "Remover",
+    "removeQuantityPrice": "Remover valor {count}",
+    "existingPackagePrice": "Valor para pacotes por soma (opcional)",
+    "quantityApplied": "Combo por quantidade de atividades",
+    "priceForActivities": "Combo com {count} atividades",
+    "quantityCourseHelp": "Cada curso/modalidade conta como uma atividade. Informe o preço mensal deste curso para a quantidade exata de atividades participantes escolhidas pelo aluno. Quantidades sem preço cadastrado usam o valor avulso.",
+    "quantityFeeHelp": "A taxa de matrícula usa os valores já cadastrados nos cursos ou no pacote aplicado. Esta tabela altera apenas a mensalidade.",
     "manageCombos": "Pacotes e combos",
     "courseSettings": "Valores para combos",
     "participates": "Participa de combos",
@@ -23101,7 +23117,7 @@
     "standalone": "Avulso",
     "modalityCount": "{count} modalidade(s)",
     "extrasHelp": "Modalidades fora do pacote são somadas pelos valores avulsos, incluindo suas taxas de matrícula.",
-    "automaticRuleHelp": "Abaixo do mínimo do combo, aplicam-se os valores avulsos. Se houver mais de um combo elegível, vence o de menor total: matrícula + mensalidades.",
+    "automaticRuleHelp": "O sistema aplica a tabela da quantidade exata de atividades participantes e compara com os pacotes elegíveis já cadastrados. Entre opções elegíveis, usa o menor total: matrícula + mensalidades.",
     "total": "Total da contratação",
     "manualAdjustment": "Ajustar valores como administrador",
     "adjustmentReason": "Motivo do ajuste (obrigatório)",

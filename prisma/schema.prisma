@@ -839,6 +839,7 @@ model Curso {
   valorMensalidade           Float?
   participaCombo             Boolean               @default(false)
   valorMensalidadeCombo      Decimal?              @db.Decimal(10, 2)
+  precosComboPorQuantidade   Json                  @default("[]")
   combosModalidades          ComboModalidadesCurso[]
   quantidadeSemestres        Int?
   cargaHorariaMaximaSemestre Int?

@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { incluirGradeOferta } from "./integridade-ofertas";
 
 type Banco = Prisma.TransactionClient;
-export async function carregarPainelTurmas(db: Banco, instituicaoId: number, somenteTurmas = false, incluirDisciplinas = true) {
+export async function carregarPainelTurmas(db: Banco, instituicaoId: number, somenteTurmas = false, incluirDisciplinas = true, somenteCatalogos = false) {
   const cursoSelect = { id: true, nome: true, codigo: true, organizacaoCurricular: true, instituicaoId: true } as const;
   const professorSelect = { id: true, nome: true, instituicaoId: true } as const;
   const carregarTurmas = async () => {
@@ -45,9 +45,9 @@ export async function carregarPainelTurmas(db: Banco, instituicaoId: number, som
     }));
   };
   if (somenteTurmas) return { turmas: await carregarTurmas() };
-  // Catalogs are loaded once; save/delete refresh only classes and occupancy.
+  // The list can render before the catalog request; save/delete only refresh classes.
   const [turmas, cursos, disciplinas, professores, polos] = await Promise.all([
-    carregarTurmas(),
+    somenteCatalogos ? Promise.resolve(undefined) : carregarTurmas(),
     db.curso.findMany({ where: { instituicaoId }, orderBy: { nome: "asc" },
       select: { ...cursoSelect, ...incluirGradeOferta(instituicaoId) } }),
     incluirDisciplinas ? db.disciplina.findMany({ where: { instituicaoId }, orderBy: { nome: "asc" },
@@ -58,7 +58,7 @@ export async function carregarPainelTurmas(db: Banco, instituicaoId: number, som
     // independent institutions. The write API validates the same tenant scope.
     db.polo.findMany({ where: { instituicaoId }, select: { id: true, nome: true }, orderBy: [{ ativo: "desc" }, { nome: "asc" }] }),
   ]);
-  return { turmas, cursos, disciplinas: disciplinas.map(d => ({ ...d,
+  return { ...(somenteCatalogos ? {} : { turmas }), cursos, disciplinas: disciplinas.map(d => ({ ...d,
     curso: d.curso?.instituicaoId === instituicaoId ? d.curso : null,
   })), professores, polos };
 }

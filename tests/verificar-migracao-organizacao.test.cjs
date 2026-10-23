@@ -58,3 +58,58 @@ test('falha de autenticação não repete nem expõe mensagem ou URL do driver',
     const result=helper.diagnosticoSeguro(e);assert.ok(result.includes('P1000'));assert.ok(!result.includes('password'));assert.ok(!result.includes('secret.invalid'));return true;
   });assert.equal(attempts,1);
 });
+test('preflight de combos bloqueia qualquer migração adicional e exige conclusão antes do envio',()=>{
+  const alvo=require('../scripts/verificar-migracao-combos-quantidade.cjs').TARGET;
+  const directory=fixture(); fs.mkdirSync(path.join(directory,alvo));fs.writeFileSync(path.join(directory,alvo,'migration.sql'),'-- fixture');
+  try {
+    const rows=[applied('20261021000000_base'),applied(helper.TARGET)];
+    assert.deepEqual(helper.analisarMigracoes(rows,directory,false,alvo),{aplicada:false,pendentes:[alvo]});
+    assert.throws(()=>helper.analisarMigracoes(rows,directory,true,alvo),e=>e.code==='MIGRACAO_NAO_APLICADA');
+    assert.throws(()=>helper.analisarMigracoes([applied('20261021000000_base')],directory,false,alvo),e=>e.code==='OUTRAS_MIGRACOES_PENDENTES');
+    assert.equal(helper.analisarMigracoes([...rows,applied(alvo)],directory,true,alvo).aplicada,true);
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+});
+test('diagnóstico reconhece cliente não gerado, motor ausente e inicialização sem expor credenciais',()=>{
+  const casos=[
+    [new Error('@prisma/client did not initialize yet. postgresql://user:password@secret.invalid/db'),'CLIENTE_PRISMA_NAO_GERADO'],
+    [new Error('Prisma Client could not locate the Query Engine. postgresql://user:password@secret.invalid/db'),'MOTOR_PRISMA_AUSENTE'],
+    [{name:'PrismaClientInitializationError',message:'postgresql://user:password@secret.invalid/db'},'INICIALIZACAO_PRISMA_FALHOU'],
+    [{name:'PrismaClientValidationError',message:'postgresql://user:password@secret.invalid/db'},'VALIDACAO_PRISMA_FALHOU'],
+    [{cause:{code:'P1001'},message:'postgresql://user:password@secret.invalid/db'},'P1001'],
+  ];
+  for(const [erro,codigo] of casos){
+    assert.equal(helper.codigoSeguro(erro),codigo);
+    const texto=helper.diagnosticoSeguro(erro);
+    assert.ok(texto.includes(codigo)); assert.doesNotMatch(texto,/user:password|secret\.invalid/);
+  }
+});
+test('leitor isolado funciona sem cliente da aplicação gerado e sem tocar no cliente original',async()=>{
+  const Module=require('node:module'),crypto=require('node:crypto');
+  const original=Module._load;
+  const clientePath=require.resolve('.prisma/client/index.js');
+  const hash=()=>crypto.createHash('sha256').update(fs.readFileSync(clientePath)).digest('hex');
+  const antes=hash();let usosClienteAplicacao=0;
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'phanyx-check espaço-'));
+  Module._load=function(req,parent,isMain){
+    if(req==='@prisma/client') {usosClienteAplicacao++;throw new Error('@prisma/client did not initialize yet.');}
+    return original.call(this,req,parent,isMain);
+  };
+  try {
+    const {prepararClienteVerificacao}=require('../scripts/cliente-verificacao-migracao.cjs');
+    const {PrismaClient,Prisma}=prepararClienteVerificacao(root);
+    assert.deepEqual(Prisma.dmmf.datamodel.models.map(m=>m.name),['HistoricoMigracao']);
+    const urlAnterior=process.env.DIRECT_URL;
+    process.env.DIRECT_URL='';
+    const db=new PrismaClient();
+    try {
+      // Empty URL validates/loads the real engine without connecting anywhere.
+      await assert.rejects(db.$connect(),e=>e.errorCode==='P1012');
+    } finally {
+      await db.$disconnect();
+      if(urlAnterior===undefined)delete process.env.DIRECT_URL;else process.env.DIRECT_URL=urlAnterior;
+    }
+    assert.equal(usosClienteAplicacao,0);assert.equal(hash(),antes);
+    const schema=fs.readFileSync(path.join(root,'node_modules/.cache/phanyx-verificacao-banco/schema.prisma'),'utf8');
+    assert.ok(schema.includes('@@map("_prisma_migrations")'));assert.doesNotMatch(schema,/postgresql:\/\//);
+  } finally {Module._load=original; fs.rmSync(root,{recursive:true,force:true});}
+});

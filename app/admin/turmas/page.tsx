@@ -196,24 +196,53 @@ function AdminTurmasPage() {
     setFeedback(mensagem);
   }
 
-  async function carregarTurmas(somenteTurmas = true, signal?: AbortSignal) {
-    const res = await fetch(`/api/admin/turmas/painel${somenteTurmas ? "?somenteTurmas=1" : ""}`, {
-      credentials: "include", cache: "no-store", signal,
-    });
-    if (!res.ok) throw new Error(t("classesLoadError"));
-    const data = await res.json();
-    if (signal?.aborted) return;
-    setTurmas(Array.isArray(data.turmas) ? data.turmas : []);
-    if (!somenteTurmas) {
+  const [carregandoLista, setCarregandoLista] = useState(true);
+  const [erroLista, setErroLista] = useState(false);
+  const [carregandoCatalogos, setCarregandoCatalogos] = useState(true);
+  const [catalogosProntos, setCatalogosProntos] = useState(false);
+
+  async function carregarTurmas(signal?: AbortSignal) {
+    setCarregandoLista(true);
+    setErroLista(false);
+    try {
+      const res = await fetch("/api/admin/turmas/painel?somenteTurmas=1", {
+        credentials: "include", cache: "no-store", signal,
+      });
+      if (!res.ok) throw new Error(t("classesLoadError"));
+      const data = await res.json();
+      if (!signal?.aborted) setTurmas(Array.isArray(data.turmas) ? data.turmas : []);
+    } catch (error) {
+      if (!signal?.aborted) setErroLista(true);
+      throw error;
+    } finally {
+      if (!signal?.aborted) setCarregandoLista(false);
+    }
+  }
+
+  async function carregarCatalogos(signal?: AbortSignal) {
+    setCarregandoCatalogos(true);
+    try {
+      const res = await fetch("/api/admin/turmas/painel?somenteCatalogos=1", {
+        credentials: "include", cache: "no-store", signal,
+      });
+      if (!res.ok) throw new Error(t("classesCatalogError"));
+      const data = await res.json();
+      if (signal?.aborted) return;
       setCursos(Array.isArray(data.cursos) ? data.cursos : []);
       setDisciplinas(Array.isArray(data.disciplinas) ? data.disciplinas : []);
       setProfessores(Array.isArray(data.professores) ? data.professores : []);
       setPolos(Array.isArray(data.polos) ? data.polos : []);
+      setCatalogosProntos(true);
+    } catch {
+      if (!signal?.aborted) setCatalogosProntos(false);
+    } finally {
+      if (!signal?.aborted) setCarregandoCatalogos(false);
     }
   }
 
   async function criarTurma(e: React.FormEvent) {
     e.preventDefault();
+    if (!catalogosProntos) return;
 
     try {
       setCriando(true);
@@ -290,6 +319,7 @@ function AdminTurmasPage() {
   }
 
   function iniciarEdicao(turma: Turma) {
+    if (!catalogosProntos) return;
     setEditandoId(turma.id);
     setEditNome(turma.nome || "");
     setEditCodigo(turma.codigo || "");
@@ -495,8 +525,9 @@ function AdminTurmasPage() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void carregarTurmas(false, controller.signal).catch(error => {
-      if (error?.name !== "AbortError") mostrarFeedback("erro", t("classesLoadError"));
+    // The list is published to state before starting the form catalogs.
+    void carregarTurmas(controller.signal).catch(() => {}).then(() => {
+      if (!controller.signal.aborted) return carregarCatalogos(controller.signal);
     });
     return () => controller.abort();
   }, []);
@@ -1109,7 +1140,13 @@ function AdminTurmasPage() {
           className="phanyx-turmas-form space-y-4 rounded-lg border bg-white p-6"
         >
           <h2 className="font-semibold">{t("classesNew")}</h2>
-
+          {!catalogosProntos && (
+            <div role="status" className="text-sm text-slate-600">
+              {t(carregandoCatalogos ? "classesCatalogLoading" : "classesCatalogError")}
+              {!carregandoCatalogos && <button type="button" onClick={() => void carregarCatalogos()} className="ml-2 text-blue-600 underline">{t("classesRetry")}</button>}
+            </div>
+          )}
+          <fieldset disabled={!catalogosProntos} className="space-y-4 disabled:opacity-60">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               placeholder={t("classesName")}
@@ -1585,6 +1622,7 @@ function AdminTurmasPage() {
           >
             {criando ? t("classesCreating") : t("classesCreate")}
           </button>
+          </fieldset>
         </form>
 
         <div className="space-y-3">
@@ -1600,10 +1638,16 @@ function AdminTurmasPage() {
             />
           </div>
 
+          {carregandoLista && <p role="status" className="rounded-lg border bg-white p-4 text-sm">{t("classesListLoading")}</p>}
+          {erroLista && <div role="alert" className="rounded-lg border bg-white p-4 text-sm">
+            {t("classesLoadError")}
+            <button type="button" onClick={() => void carregarTurmas().catch(() => {})} className="ml-2 text-blue-600 underline">{t("classesRetry")}</button>
+          </div>}
           {turmasFiltradas.length === 0 ? (
+            !carregandoLista && !erroLista && (
             <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
               {t("classesEmpty")}
-            </div>
+            </div>)
           ) : (
             turmasFiltradas.map((turma) => {
               const matriculados = turma.matriculados ?? 0;
@@ -2058,7 +2102,8 @@ function AdminTurmasPage() {
                       <div className="flex gap-4 mt-3">
                         <button
                           onClick={() => iniciarEdicao(turma)}
-                          className="text-blue-600 text-sm"
+                          disabled={!catalogosProntos}
+                          className="text-blue-600 text-sm disabled:opacity-50"
                         >
                           {t("commonEdit")}
                         </button>

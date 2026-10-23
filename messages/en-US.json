@@ -19335,6 +19335,10 @@
     "validationsStatusActive": "Active",
     "validationsStatusCompleted": "Completed",
     "validationsEnrollmentCancellation": "Enrollment cancellation",
+    "classesListLoading": "Loading classes…",
+    "classesCatalogLoading": "Loading options to create and edit classes…",
+    "classesCatalogError": "Could not load the form options.",
+    "classesRetry": "Try again",
     "classesLoadError": "Could not load class data. Refresh the page to try again."
   },
   "AdminLibraryLicenses": {
@@ -23255,6 +23259,18 @@
     }
   },
   "EnrollmentCombos": {
+    "optional": "Optional",
+    "quantityPrices": "Monthly price by activity count",
+    "activityCount": "Number of activities in the combo",
+    "courseMonthlyInCombo": "This course’s monthly price in the combo",
+    "addQuantityPrice": "Add a price for an activity count",
+    "removePrice": "Remove",
+    "removeQuantityPrice": "Remove price {count}",
+    "existingPackagePrice": "Price for sum-based packages (optional)",
+    "quantityApplied": "Combo by activity count",
+    "priceForActivities": "Combo with {count} activities",
+    "quantityCourseHelp": "Each course/modality counts as one activity. Enter this course’s monthly price for the exact number of participating activities chosen by the student. Counts without a configured price use the standalone price.",
+    "quantityFeeHelp": "The enrollment fee uses the existing course fees or the applied package fee. This table only changes the monthly price.",
     "manageCombos": "Packages and bundles",
     "courseSettings": "Bundle pricing",
     "participates": "Eligible for bundles",
@@ -23331,7 +23347,7 @@
     "standalone": "Standalone",
     "modalityCount": "{count} course(s)",
     "extrasHelp": "Courses outside the bundle are added at standalone prices, including their enrollment fees.",
-    "automaticRuleHelp": "Below the bundle minimum, standalone prices apply. Among eligible bundles, the lowest enrollment fee plus all monthly payments wins.",
+    "automaticRuleHelp": "The system uses prices for the exact participating activity count and compares existing eligible packages. Among eligible options, it uses the lowest enrollment fee plus monthly payments total.",
     "total": "Contract total",
     "manualAdjustment": "Adjust prices as administrator",
     "adjustmentReason": "Reason for adjustment (required)",

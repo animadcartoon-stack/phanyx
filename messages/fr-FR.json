@@ -19334,6 +19334,10 @@
     "validationsStatusActive": "Actif",
     "validationsStatusCompleted": "Terminé",
     "validationsEnrollmentCancellation": "Annulation d’inscription",
+    "classesListLoading": "Chargement des classes…",
+    "classesCatalogLoading": "Chargement des options de création et de modification des classes…",
+    "classesCatalogError": "Impossible de charger les options du formulaire.",
+    "classesRetry": "Réessayer",
     "classesLoadError": "Impossible de charger les classes. Actualisez la page pour réessayer."
   },
   "AdminLibraryLicenses": {
@@ -23254,6 +23258,18 @@
     }
   },
   "EnrollmentCombos": {
+    "optional": "Facultatif",
+    "quantityPrices": "Mensualité selon le nombre d’activités",
+    "activityCount": "Nombre d’activités du forfait",
+    "courseMonthlyInCombo": "Mensualité de ce cours dans le forfait",
+    "addQuantityPrice": "Ajouter un tarif par nombre d’activités",
+    "removePrice": "Supprimer",
+    "removeQuantityPrice": "Supprimer le tarif {count}",
+    "existingPackagePrice": "Tarif pour les forfaits par addition (facultatif)",
+    "quantityApplied": "Forfait selon le nombre d’activités",
+    "priceForActivities": "Forfait de {count} activités",
+    "quantityCourseHelp": "Chaque cours/modalité compte comme une activité. Indiquez le prix mensuel de ce cours pour le nombre exact d’activités participantes choisies par l’élève. Les quantités sans tarif défini utilisent le tarif individuel.",
+    "quantityFeeHelp": "Les frais d’inscription utilisent les tarifs déjà définis pour les cours ou le forfait appliqué. Ce tableau modifie uniquement la mensualité.",
     "manageCombos": "Forfaits et offres groupées",
     "courseSettings": "Tarifs des offres groupées",
     "participates": "Éligible aux offres groupées",
@@ -23330,7 +23346,7 @@
     "standalone": "Individuel",
     "modalityCount": "{count} cours",
     "extrasHelp": "Les cours hors forfait sont ajoutés aux tarifs individuels, y compris leurs frais d'inscription.",
-    "automaticRuleHelp": "Sous le minimum requis, les tarifs individuels s'appliquent. Parmi les forfaits éligibles, le total inscription et mensualités le plus bas est retenu.",
+    "automaticRuleHelp": "Le système applique les tarifs du nombre exact d’activités participantes et compare les forfaits admissibles existants. Il retient le total le plus bas : inscription et mensualités.",
     "total": "Total du contrat",
     "manualAdjustment": "Ajuster les tarifs en tant qu'administrateur",
     "adjustmentReason": "Motif de l'ajustement (obligatoire)",
