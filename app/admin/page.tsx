@@ -5,6 +5,7 @@ import Link from "next/link";
 import PhanyxTour from "@/components/tutorial/PhanyxTour";
 import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 import { useTranslations } from "next-intl";
+import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
 
 interface Stats {
   alunos: number;
@@ -884,11 +885,7 @@ export default function AdminDashboardPage() {
               <div className="mt-4 flex items-center gap-4">
                 <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
                   {perfilAdmin?.fotoPerfil ? (
-                    <img
-                      src={perfilAdmin.fotoPerfil}
-                      alt={perfilAdmin?.nome || t("employeePhotoAlt")}
-                      className="h-full w-full object-cover"
-                    />
+                    <FotoPerfilAtual foto={perfilAdmin.fotoPerfil} nome={perfilAdmin?.nome || t("employeePhotoAlt")} />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
                       {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}

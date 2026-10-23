@@ -10,6 +10,7 @@ import {
   useLocale,
   useTranslations,
 } from "next-intl";
+import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
 
 export default function PerfilAdminPage() {
   const t =
@@ -304,16 +305,7 @@ export default function PerfilAdminPage() {
         <div className="mt-6 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/70">
           <div className="h-20 w-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-800">
             {dados?.fotoPerfil ? (
-              <img
-                src={
-                  dados.fotoPerfil
-                }
-                alt={
-                  dados?.nome ||
-                  t("photo.alt")
-                }
-                className="h-full w-full object-cover"
-              />
+              <FotoPerfilAtual foto={dados.fotoPerfil} nome={dados?.nome || t("photo.alt")} />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-700 dark:text-slate-200">
                 {dados?.nome

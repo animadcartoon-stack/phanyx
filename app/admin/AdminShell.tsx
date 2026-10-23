@@ -9,6 +9,7 @@ import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import { useTranslations } from "next-intl";
 import { diagnosticoSolicitado } from "@/lib/diagnostico-desempenho";
+import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
 
 const InstallPromptPHANYX = dynamic(
   () => import("@/components/pwa/InstallPromptPHANYX"),
@@ -1058,11 +1059,7 @@ export default function AdminShell({
                 <div className="flex items-center gap-3">
                   <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-200">
                     {funcionario?.fotoPerfil ? (
-                      <img
-                        src={funcionario.fotoPerfil}
-                        alt={funcionario.nome || tNav("employee")}
-                        className="h-full w-full object-cover"
-                      />
+                      <FotoPerfilAtual foto={funcionario.fotoPerfil} nome={funcionario.nome || tNav("employee")} />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
                         {funcionario?.nome?.charAt(0)?.toUpperCase() || "A"}
