@@ -1192,10 +1192,11 @@ function AdminTurmasPage() {
               <label className="text-sm text-gray-600">{ta("stage")} · {ta(cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "ANUAL" ? "year" : "semester")}</label>
               <input
                 type="number" min="1" step="1"
+                disabled={cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "LIVRE"}
                 value={semestre}
                 onChange={(e) => setSemestre(e.target.value)}
                 className="w-full border rounded-lg p-2"
-                required
+                required={cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular !== "LIVRE"}
               />
             </div>
 
@@ -1685,6 +1686,7 @@ function AdminTurmasPage() {
                           <label className="text-sm text-gray-600">{ta("stage")}</label>
                           <input
                             type="number" min="1" step="1"
+                            disabled={turmaEmEdicao?.organizacaoCurricular === "LIVRE"}
                             value={editSemestre}
                             onChange={(e) => setEditSemestre(e.target.value)}
                             className="w-full border rounded-lg p-2"
@@ -2067,7 +2069,7 @@ function AdminTurmasPage() {
                           : "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {ta(turma.organizacaoCurricular === "ANUAL" ? "year" : "semester")} {etapaDaOferta(turma)}
+                        {turma.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : <>{ta(turma.organizacaoCurricular === "ANUAL" ? "year" : "semester")} {etapaDaOferta(turma)}</>}
                       </p>
                       <p className="text-sm text-gray-600">
                         {t("commonTermPrefix")} {turma.periodoLetivo || "-"}

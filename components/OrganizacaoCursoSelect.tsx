@@ -11,6 +11,7 @@ export function OrganizacaoCursoSelect({ value, onChange, disabled = false }: {
       className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
       <option value="SEMESTRAL">{t("SEMESTRAL")}</option>
       <option value="ANUAL">{t("ANUAL")}</option>
+      <option value="LIVRE">{t("LIVRE")}</option>
     </select>
     <span className="mt-1 block text-xs">{t("organizationHelp")}</span>
   </label>;

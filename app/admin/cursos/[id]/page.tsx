@@ -1,4 +1,5 @@
 "use client";
+import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
 import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
@@ -68,6 +69,7 @@ type Curso = {
   modalidadeCertificado?: ModalidadeCertificado | null;
   quantidadeSemestres?: number | null;
   valorMatricula?: number | null;
+  valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
   participaCombo?: boolean;
   valorMensalidadeCombo?: string | number | null;
@@ -124,6 +126,7 @@ export default function CursoDetalhePage() {
   const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminCourses");
   const tc = useTranslations("EnrollmentCombos");
+  const tl = useTranslations("CoursePeriods");
   const locale = useLocale();
   const cursoId = Number(params.id);
 
@@ -149,6 +152,7 @@ export default function CursoDetalhePage() {
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
+    valorSemanal: "",
     participaCombo: false,
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -216,6 +220,7 @@ export default function CursoDetalhePage() {
         participaCombo: Boolean(encontrado.participaCombo),
         valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
         precosComboPorQuantidade: (encontrado.precosComboPorQuantidade || []).map(f => ({ quantidadeAtividades: String(f.quantidadeAtividades), valorMensalidade: String(f.valorMensalidade) })),
+        valorSemanal: encontrado.valorSemanal == null ? "" : String(encontrado.valorSemanal),
         valorMensalidade:
           encontrado.valorMensalidade != null
             ? String(encontrado.valorMensalidade)
@@ -320,6 +325,7 @@ export default function CursoDetalhePage() {
           participaCombo: formCurso.participaCombo,
           valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
           precosComboPorQuantidade: formCurso.precosComboPorQuantidade,
+          valorSemanal: formCurso.valorSemanal || null,
           valorMensalidade: formCurso.valorMensalidade
             ? Number(formCurso.valorMensalidade)
             : null,
@@ -334,7 +340,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -713,13 +719,14 @@ export default function CursoDetalhePage() {
                     </select>
                   </div>
 
-                  <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor })} />
+                  <Link href="/admin/matriculas/cursos-livres" className="font-semibold text-blue-700 underline dark:text-blue-300">{tl("title")}</Link>
+          <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "" } : {}) })} />
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {ta(formCurso.organizacaoCurricular === "ANUAL" ? "yearsCount" : "semestersCount")}
                     </label>
                     <input
-                      disabled={cursoRecebidoDaRede}
+                      disabled={cursoRecebidoDaRede || formCurso.organizacaoCurricular === "LIVRE"}
                       type="number"
                       min="0"
                       step="1"
@@ -746,7 +753,8 @@ export default function CursoDetalhePage() {
                     <input
                       type="number"
                       step="0.01"
-                      value={formCurso.valorMatricula}
+                      disabled={formCurso.organizacaoCurricular === "LIVRE"}
+              value={formCurso.valorMatricula}
                       onChange={(e) =>
                         setFormCurso({
                           ...formCurso,
@@ -758,14 +766,15 @@ export default function CursoDetalhePage() {
                     />
                   </div>
 
-                  <div>
+                  <div hidden={formCurso.organizacaoCurricular === "LIVRE"}>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.monthlyValue")}
                     </label>
                     <input
                       type="number"
                       step="0.01"
-                      value={formCurso.valorMensalidade}
+                      hidden={formCurso.organizacaoCurricular === "LIVRE"}
+            value={formCurso.valorMensalidade}
                       onChange={(e) =>
                         setFormCurso({
                           ...formCurso,
@@ -777,6 +786,7 @@ export default function CursoDetalhePage() {
                     />
                   </div>
 
+          {formCurso.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={formCurso.valorSemanal} valorMensal={formCurso.valorMensalidade} onChangeMensal={valor => setFormCurso({ ...formCurso, valorMensalidade: valor })} onChange={valor => setFormCurso({ ...formCurso, valorSemanal: valor })} />}
                   <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
                     onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
 
@@ -786,7 +796,8 @@ export default function CursoDetalhePage() {
                     </label>
                     <input
                       type="number"
-                      value={formCurso.quantidadeParcelas}
+                      disabled={formCurso.organizacaoCurricular === "LIVRE"}
+              value={formCurso.quantidadeParcelas}
                       onChange={(e) =>
                         setFormCurso({
                           ...formCurso,
@@ -874,7 +885,7 @@ export default function CursoDetalhePage() {
                   <p>{t("common.description")}: {curso.descricao || t("common.notInformedFeminine")}</p>
                   <p>
                     {t("detail.courseInfo.expectedSemesters")}:{" "}
-                    {curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · {ta(curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}
+                    {curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · {ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}
                   </p>
                   <p>
                     {t("common.enrollmentValue")}:{" "}
@@ -914,7 +925,7 @@ export default function CursoDetalhePage() {
         </div>
       </div>
 
-      {cursoRecebidoDaRede ? (
+      {curso.organizacaoCurricular === "LIVRE" ? <p className="rounded-xl border border-slate-300 p-5 text-slate-900 dark:text-white">{tl("courseHelp")}</p> : cursoRecebidoDaRede ? (
         <div className="rounded-xl border border-slate-300 bg-slate-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
           <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("detail.network.academicStructureReceived")}

@@ -1,3 +1,4 @@
+import { camposPrecoCursoLivre, ErroCursoLivre } from "@/lib/matriculas/cursos-livres";
 import { ErroIntegridadeAcademica, validarOrganizacao, protegerOrganizacaoDoCurso, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { camposComboCurso } from "@/lib/matriculas/campos-combo-curso";
 import { ErroModalidades } from "@/lib/matriculas/combos";
@@ -214,6 +215,8 @@ export async function POST(req: Request) {
 
     const organizacaoCurricular = validarOrganizacao(body.organizacaoCurricular ?? "SEMESTRAL");
     if (organizacaoCurricular === "ANUAL") body.quantidadeSemestres = body.quantidadeEtapas;
+    if (organizacaoCurricular === "LIVRE") Object.assign(body, { quantidadeSemestres: null, quantidadeEtapas: null, valorMatricula: 0, quantidadeParcelas: null });
+    const dadosLivre = camposPrecoCursoLivre(body, organizacaoCurricular);
     if (body.quantidadeSemestres != null && typeof body.quantidadeSemestres !== "string" && typeof body.quantidadeSemestres !== "number") throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const quantidadeSemestresInformada =
       body.quantidadeSemestres !== null &&
@@ -557,6 +560,7 @@ export async function POST(req: Request) {
 
                 valorMensalidade,
                 ...dadosCombo,
+                ...dadosLivre,
 
                 quantidadeParcelas,
 
@@ -680,6 +684,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     if (error instanceof ErroModalidades) return erroCombos(error);
@@ -820,6 +825,7 @@ export async function PUT(req: Request) {
           cargaHorariaMaximaSemestre: true,
           valorMatricula: true,
           valorMensalidade: true,
+          valorSemanal: true,
           quantidadeParcelas: true,
           ativo: true,
 
@@ -873,6 +879,8 @@ export async function PUT(req: Request) {
     body.quantidadeSemestres = organizacaoCurricular === "ANUAL"
       ? (body.quantidadeEtapas !== undefined ? body.quantidadeEtapas : cursoExistente.quantidadeEtapas)
       : (body.quantidadeSemestres !== undefined ? body.quantidadeSemestres : cursoExistente.quantidadeSemestres);
+    if (organizacaoCurricular === "LIVRE") Object.assign(body, { quantidadeSemestres: null, quantidadeEtapas: null, valorMatricula: 0, quantidadeParcelas: null });
+    const dadosLivre = camposPrecoCursoLivre({ ...body, valorSemanal: body.valorSemanal === undefined ? cursoExistente.valorSemanal?.toString() : body.valorSemanal, valorMensalidade: body.valorMensalidade === undefined ? cursoExistente.valorMensalidade : body.valorMensalidade }, organizacaoCurricular);
     if (body.quantidadeSemestres != null && typeof body.quantidadeSemestres !== "string" && typeof body.quantidadeSemestres !== "number") throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const quantidadeSemestresInformada =
       body.quantidadeSemestres !== null &&
@@ -979,6 +987,7 @@ export async function PUT(req: Request) {
             valorMatricula,
             valorMensalidade,
             ...dadosCombo,
+            ...dadosLivre,
             quantidadeParcelas,
           },
           include: {
@@ -1134,6 +1143,7 @@ export async function PUT(req: Request) {
 
               valorMensalidade,
               ...dadosCombo,
+              ...dadosLivre,
 
               quantidadeParcelas,
 
@@ -1230,6 +1240,7 @@ export async function PUT(req: Request) {
       },
     });
   } catch (error: unknown) {
+    if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     console.error(

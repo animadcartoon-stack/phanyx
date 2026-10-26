@@ -2226,6 +2226,7 @@ export async function POST(request: Request) {
         })
         : null;
 
+    if (curso?.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO", error: "Use a matrícula por período para cursos livres." }, { status: 400 });
     if (cursoIdFinal && !curso) {
       return NextResponse.json(
         { error: "Curso inválido para esta instituição" },
@@ -3753,6 +3754,10 @@ export async function PUT(request: Request) {
     }
 
     const body = (await request.json()) as MatriculaBody;
+    const livreExistente = await prisma.matricula.findFirst({ where: { id: Number(body.id), instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE" }, select: { id: true } });
+    const livreDestino = body.cursoId ? await prisma.curso.findFirst({ where: { id: Number(body.cursoId), instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE" }, select: { id: true } }) : null;
+    if (livreExistente || livreDestino) return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO", error: "Use a matrícula por período para cursos livres." }, { status: 400 });
+
     const inicioCurso = validarDataInicioCurso(body.dataInicioCurso);
     if (!inicioCurso.valida) {
       return NextResponse.json({ error: "DATA_INICIO_CURSO_INVALIDA" }, { status: 400 });

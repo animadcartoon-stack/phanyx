@@ -108,11 +108,11 @@ async function teste(nome, fn) { await fn(); total++; console.log(`OK ${nome}`);
       assert.equal(r.status, 200); assert.equal(criadas, ativa ? 1 : 0);
     });
   }
-  for (const valor of [0, 100]) {
-    await teste(`finalização com saldo ${valor}: cancela obrigações corretas e preserva pagos`, async () => {
+  for (const [organizacaoCurricular, valor] of [["SEMESTRAL", 0], ["SEMESTRAL", 100], ["LIVRE", 0], ["LIVRE", 100]]) {
+    await teste(`finalização ${organizacaoCurricular} com saldo ${valor}: cancela obrigações corretas e preserva pagos`, async () => {
       let filtro, alteracao;
       const tx = { $queryRaw: async () => [],
-        matricula: { findFirst: async () => ({ id: 37, status: "ATIVA", canceladaEm: null }), updateMany: async () => ({ count: 1 }) },
+        matricula: { findFirst: async () => ({ id: 37, status: "ATIVA", canceladaEm: null, organizacaoCurricular }), updateMany: async () => ({ count: 1 }) },
         user: { findFirst: async () => ({ nome: "Admin" }) },
         cancelamentoMatricula: { findFirst: async () => ({ id: 4, status: "RASCUNHO", statusAnterior: "ATIVA" }), update: async q => q.data },
         lancamentoFinanceiro: { updateMany: async q => { filtro = q.where; alteracao = q.data; } },
@@ -123,6 +123,10 @@ async function teste(nome, fn) { await fn(); total++; console.log(`OK ${nome}`);
         dataEfetiva: "2026-10-08", valorParcelasVencidas: valor, situacaoFinanceira: valor ? "PENDENTE" : "ISENTO" }), { params: { id: "37" } });
       assert.equal(r.status, 200); assert.equal(filtro.instituicaoId, 7); assert.equal(filtro.matriculaId, 37);
       assert(!filtro.status.in.includes("PAGO")); assert.equal(alteracao.status, "CANCELADO");
+      if (organizacaoCurricular === "LIVRE") {
+        assert.deepEqual(filtro.OR, [{ tipo: { in: ["MATRICULA", "MENSALIDADE"] } }, { periodoCursoLivre: { is: { instituicaoId: 7, matriculaId: 37 } } }]);
+        assert.equal(filtro.tipo, undefined);
+      } else { assert.deepEqual(filtro.tipo, { in: ["MATRICULA", "MENSALIDADE"] }); assert.equal(filtro.OR, undefined); }
       assert.equal("valorPago" in alteracao, false); assert.equal(Boolean(filtro.vencimento), valor > 0);
     });
   }

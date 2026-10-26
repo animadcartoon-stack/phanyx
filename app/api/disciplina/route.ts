@@ -135,7 +135,7 @@ if (body.professorId) {
 }
 
       cursoIdFinal = curso.id;
-      cursoAnual = curso.organizacaoCurricular === "ANUAL";
+      cursoAnual = curso.organizacaoCurricular === "ANUAL" || curso.organizacaoCurricular === "LIVRE";
     }
 
     const usuarioId = Number(user.id);

@@ -183,7 +183,9 @@ export async function horariosAtuaisAluno(
       turmaId: true,
       disciplinaId: true,
       turma: { select: { nome: true, dataInicio: true, dataFim: true } },
-      matricula: { select: { dataInicioCurso: true } },
+      matricula: { select: { dataInicioCurso: true, organizacaoCurricular: true,
+        periodosCursoLivre: { where: { instituicaoId, lancamento: { status: { not: "CANCELADO" } } }, select: { dataInicio: true, dataFim: true } },
+      } },
       disciplina: { select: { nome: true } },
     },
   });
@@ -212,10 +214,12 @@ export async function horariosAtuaisAluno(
     const vinculo = vinculos.find(
       (v) => v.turmaId === i.turmaId && v.disciplinaId === i.disciplinaId,
     );
-    return (vinculo?.horarios || []).map((h) => {
+    const periodos = i.matricula.organizacaoCurricular === "LIVRE" ? i.matricula.periodosCursoLivre : [null];
+    return periodos.flatMap(periodo => (vinculo?.horarios || []).map((h) => {
       const inicios = [
         civil(vinculo.dataInicio || i.turma.dataInicio),
         civil(i.matricula.dataInicioCurso),
+        civil(periodo?.dataInicio ?? null),
       ]
         .filter(Boolean)
         .sort();
@@ -226,9 +230,9 @@ export async function horariosAtuaisAluno(
         turmaNome: i.turma.nome,
         disciplinaNome: i.disciplina.nome,
         dataInicio: inicios.pop() || null,
-        dataFim: civil(vinculo.dataFim || i.turma.dataFim),
+        dataFim: [civil(vinculo.dataFim || i.turma.dataFim), civil(periodo?.dataFim ?? null)].filter(Boolean).sort()[0] || null,
       };
-    });
+    }));
   });
   return { itens, horarios };
 }
@@ -252,6 +256,7 @@ export async function prepararContratacaoModalidades(
   if (selecionadas.some((o) => !o))
     throw new ErroModalidades("TURMA_INDISPONIVEL", 409);
   const escolhidas = selecionadas as OfertaModalidade[];
+  if (escolhidas.length && escolhidas.every(o => o.organizacaoCurricular === "LIVRE")) throw new ErroModalidades("CURSO_LIVRE_FLUXO_PROPRIO");
   if (new Set(escolhidas.map((o) => o.cursoId)).size !== escolhidas.length)
     throw new ErroModalidades("MODALIDADE_DUPLICADA");
   if (new Set(escolhidas.map((o) => o.poloId)).size !== 1)

@@ -7,7 +7,7 @@ import { useToast } from "@/components/providers/ToastProvider";
 import { useConfirmDialog } from "@/components/providers/ConfirmDialogProvider";
 import { formatarDataEncontro, STATUS_CHAMADA, type StatusChamada } from "@/lib/chamada-encontro";
 
-type Aluno = { alunoId: number; nome: string; status: StatusChamada | ""; observacao: string };
+type Aluno = { periodoCursoLivre?: "PAGO" | "PENDENTE" | "SEM_PERIODO" | null; alunoId: number; nome: string; status: StatusChamada | ""; observacao: string };
 type Selecao = { disciplinaId: string; data: string; hora: string };
 type Resposta = {
   turma: { id: number; nome: string };
@@ -30,6 +30,7 @@ export default function ChamadaPorDataPage() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("ProfessorMeetingAttendance");
+  const tl = useTranslations("CoursePeriods");
   const { showToast } = useToast();
   const { confirm } = useConfirmDialog();
   const [ofertas, setOfertas] = useState<{ disciplinaId: number; disciplina: { id: number; nome: string }; nome: string; horarios: { horaInicio: string }[] }[]>([]);
@@ -162,7 +163,7 @@ export default function ChamadaPorDataPage() {
           </div>
           {!alunos.length ? <p className="py-6">{t("empty")}</p> : <div className="space-y-3">
             {visiveis.map((aluno) => <div key={aluno.alunoId} className="grid gap-3 rounded-xl border border-slate-200 p-4 dark:border-slate-700 md:grid-cols-[1fr_200px]">
-              <p className="self-center font-semibold">{aluno.nome}</p>
+              <div className="self-center"><p className="font-semibold">{aluno.nome}</p>{aluno.periodoCursoLivre && <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{tl(`attendance.${aluno.periodoCursoLivre}`)}</p>}</div>
               <label className="text-sm"><span className="sr-only">{t("statusFor", { name: aluno.nome })}</span>
                 <select value={aluno.status} disabled={bloqueado} className={inputClass} onChange={(event) => atualizarAluno(aluno.alunoId, { status: event.target.value as StatusChamada | "" })}>
                   <option value="">{t("unmarked")}</option>{STATUS_CHAMADA.map((status) => <option key={status} value={status}>{t(`statuses.${status}`)}</option>)}

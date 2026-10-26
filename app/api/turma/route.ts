@@ -336,7 +336,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      const novoSemestre = await tx.turmaSemestre.create({
+      const novoSemestre = etapa.etapaNumero === null ? null : await tx.turmaSemestre.create({
         data: {
           turmaId: turmaCriada.id,
           instituicaoId: user.instituicaoId,
@@ -364,7 +364,7 @@ export async function POST(request: NextRequest) {
               : null,
             status: statusPorDisciplina[id] || "A_INICIAR",
             instituicaoId: user.instituicaoId,
-            turmaSemestreId: novoSemestre.id,
+            turmaSemestreId: novoSemestre?.id ?? null,
           },
         });
 

@@ -253,7 +253,7 @@ export default function DisciplinaDetalhePage() {
           codigo: codigo || null,
           descricao: descricao || null,
           cargaHoraria: cargaHoraria ? Number(cargaHoraria) : null,
-          semestre: cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "ANUAL" ? null : (semestre ? Number(semestre) : null),
+          semestre: ["ANUAL", "LIVRE"].includes(cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular || "") ? null : (semestre ? Number(semestre) : null),
           cursoId: cursoId ? Number(cursoId) : null,
           turmaIds: turmaIds.length > 0 ? turmaIds.map(Number) : [],
           professorId: professorId ? Number(professorId) : null,
@@ -370,7 +370,7 @@ export default function DisciplinaDetalhePage() {
             />
           </div>
 
-{cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "ANUAL" ? <p className="text-sm text-slate-600 dark:text-slate-300">{ta("annualSubjectHelp")}</p> : (          <div>
+{["ANUAL", "LIVRE"].includes(cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular || "") ? <p className="text-sm text-slate-600 dark:text-slate-300">{ta(cursos.find(c => c.id === Number(cursoId))?.organizacaoCurricular === "LIVRE" ? "freeSubjectHelp" : "annualSubjectHelp")}</p> : (          <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               {t("edit.semester")}
             </label>

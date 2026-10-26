@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
     excluidaEm: null,
 
     realizadaPeloAluno: false,
+    organizacaoCurricular: { not: "LIVRE" },
 
     aluno: {
       ativo: true,
@@ -96,6 +97,7 @@ export async function POST(req: NextRequest) {
     }> = [];
 
     for (const matricula of matriculas) {
+      if (matricula.organizacaoCurricular === "LIVRE") continue;
       totalMatriculasAnalisadas += 1;
 
       if (!matricula.curso) {
@@ -166,7 +168,7 @@ export async function POST(req: NextRequest) {
           WHERE "id" = ${matricula.id} AND "instituicaoId" = ${user.instituicaoId} FOR UPDATE`;
         const atual = await tx.matricula.findFirst({
           where: { id: matricula.id, instituicaoId: user.instituicaoId,
-            status: "ATIVA", canceladaEm: null, excluidaEm: null },
+            status: "ATIVA", canceladaEm: null, excluidaEm: null, organizacaoCurricular: { not: "LIVRE" } },
           select: { id: true },
         });
         if (!atual) return "IGNORADA";

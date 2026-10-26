@@ -1,3 +1,4 @@
+import { situacaoPeriodosNaChamada } from "@/lib/matriculas/cursos-livres-chamada";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { UsuarioLogado } from "@/lib/server-auth";
@@ -64,7 +65,7 @@ export async function carregarChamadaEncontro(contexto: ContextoChamada, data: u
     }),
     db.itemMatricula.findMany({
       where: filtroAlunos(contexto),
-      select: { matricula: { select: { aluno: { select: { id: true, nome: true } } } } },
+      select: { matricula: { select: { id: true, organizacaoCurricular: true, aluno: { select: { id: true, nome: true } } } } },
       orderBy: { matricula: { aluno: { nome: "asc" } } },
     }),
     db.aula.findMany({
@@ -73,10 +74,12 @@ export async function carregarChamadaEncontro(contexto: ContextoChamada, data: u
       orderBy: [{ dataEncontro: "desc" }, { horaEncontro: "desc" }], take: 50,
     }),
   ]);
+  const periodos = await situacaoPeriodosNaChamada(db, contexto.instituicaoId, encontro.dataEncontro,
+    itens.map(item => ({ alunoId: item.matricula.aluno.id, matriculaId: item.matricula.id, organizacaoCurricular: item.matricula.organizacaoCurricular })));
   const presencas = new Map<number, PresencaAnterior>(aula?.presencas.map((item: PresencaAnterior) => [item.alunoId, item]) ?? []);
   const alunos = new Map(itens.map((item) => {
     const aluno = item.matricula.aluno;
-    return [aluno.id, { alunoId: aluno.id, nome: aluno.nome, status: presencas.get(aluno.id)?.status ?? "", observacao: presencas.get(aluno.id)?.observacao ?? "" }];
+    return [aluno.id, { alunoId: aluno.id, nome: aluno.nome, periodoCursoLivre: periodos.get(aluno.id) ?? null, status: presencas.get(aluno.id)?.status ?? "", observacao: presencas.get(aluno.id)?.observacao ?? "" }];
   }));
   return {
     turma: contexto.turma, disciplina: contexto.disciplina,

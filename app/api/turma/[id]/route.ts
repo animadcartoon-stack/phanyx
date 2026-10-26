@@ -294,7 +294,7 @@ const turmaAtualizada =
         });
 
       let turmaSemestre =
-        await tx.turmaSemestre.findFirst(
+        semestreNumero === null ? null : await tx.turmaSemestre.findFirst(
           {
             where: {
               turmaId,
@@ -311,7 +311,7 @@ const turmaAtualizada =
           },
         );
 
-      if (!turmaSemestre) {
+      if (!turmaSemestre && semestreNumero !== null) {
         turmaSemestre =
           await tx.turmaSemestre.create(
             {
@@ -400,7 +400,7 @@ const turmaAtualizada =
                   user.instituicaoId,
 
                 turmaSemestreId:
-                  turmaSemestre.id,
+                  turmaSemestre?.id ?? null,
 
                 professorId:
                   professorValor &&
@@ -432,7 +432,7 @@ const turmaAtualizada =
               },
 
               update: {
-                turmaSemestreId: mesmoSemestre ? undefined : turmaSemestre.id,
+                turmaSemestreId: mesmoSemestre ? undefined : turmaSemestre?.id ?? null,
                 professorId: Object.prototype.hasOwnProperty.call(professoresPorDisciplina, disciplinaId)
                   ? idOpcionalOferta(professorValor) : undefined,
                 dataInicio: Object.prototype.hasOwnProperty.call(datasInicioPorDisciplina, disciplinaId)
