@@ -1,0 +1,17 @@
+/* O tema Sistema usa cinza; o atalho do tutorial precisa de texto claro. */
+:global(html[data-theme="system"]) :global(aside) .tutorialButton {
+  background: #303030 !important;
+  border-color: #737373 !important;
+  color: #fafafa !important;
+  -webkit-text-fill-color: #fafafa !important;
+}
+
+:global(html[data-theme="system"]) :global(aside) .tutorialButton:hover {
+  background: #404040 !important;
+  border-color: #a3a3a3 !important;
+}
+
+:global(html[data-theme="system"]) :global(aside) .tutorialButton:focus-visible {
+  outline: 2px solid #93c5fd !important;
+  outline-offset: 3px;
+}
