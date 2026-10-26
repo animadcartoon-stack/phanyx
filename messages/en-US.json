@@ -12427,7 +12427,9 @@
       "heading": "Heading",
       "subheading": "Subheading",
       "list": "List",
-      "textColor": "Text color"
+      "textColor": "Text color",
+      "mixedTextColors": "Mixed colors",
+      "textColorHex": "Text color (HEX) — select to copy"
     },
     "preview": {
       "reservedHeaderLogo": "Reserved area for header and logo",

@@ -1,5 +1,7 @@
 "use client";
 
+import { obterCorTextoSelecionado } from "@/lib/documentos/cor-selecao-editor";
+
 import {
   expandDocumentTagValues,
 } from "@/lib/documentos/tags-documentos";
@@ -3541,6 +3543,7 @@ export default function EditorTemplatePHANYX({
   const [fonteAtual, setFonteAtual] = useState("");
   const [tamanhoAtual, setTamanhoAtual] = useState("");
   const [ultimaCorTexto, setUltimaCorTexto] = useState("#000000");
+  const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>("#000000");
 
   const [
     mostrarPainelTabela,
@@ -4350,6 +4353,7 @@ export default function EditorTemplatePHANYX({
     }
 
     function atualizarSelecao() {
+      setCorTextoSelecionado(obterCorTextoSelecionado(editor));
       const attrs = editor.getAttributes("textStyle");
 
       let fonte = limparFonte(attrs.fontFamily);
@@ -6097,32 +6101,47 @@ export default function EditorTemplatePHANYX({
                 <button
                   type="button"
                   onClick={() =>
-                    editor.chain().focus(undefined, { scrollIntoView: false }).setColor(ultimaCorTexto).run()
+                    editor.chain().focus(undefined, { scrollIntoView: false }).setColor(corTextoSelecionado || ultimaCorTexto).run()
                   }
                   className="flex h-10 items-center gap-2 px-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:text-white dark:hover:bg-slate-800"
-                  title={`${tToolbar("main.textColor")}: ${ultimaCorTexto}`}
+                  title={corTextoSelecionado ? `${tToolbar("main.textColor")}: ${corTextoSelecionado.toUpperCase()}` : tToolbar("main.mixedTextColors")}
                 >
                   <span
                     aria-hidden="true"
                     className="border-b-4 px-1 font-black"
-                    style={{ borderBottomColor: ultimaCorTexto }}
+                    style={{ borderBottomColor: corTextoSelecionado || "transparent", ...(corTextoSelecionado ? {} : { borderImage: "linear-gradient(90deg, #2563eb, #ef4444) 1" }) }}
                   >
                     A
                   </span>
                   {tToolbar("main.textColor")}
                 </button>
+                <div
+                  className="relative h-10 w-9 border-l border-slate-300"
+                  style={corTextoSelecionado ? undefined : { background: "repeating-linear-gradient(135deg, #cbd5e1 0 5px, #ffffff 5px 10px)" }}
+                >
                 <input
                   type="color"
-                  value={ultimaCorTexto}
+                  value={corTextoSelecionado || ultimaCorTexto}
                   onChange={(e) => {
                     const cor = e.target.value;
                     setUltimaCorTexto(cor);
                     // A selecao do Tiptap permanece ativa enquanto o seletor tem foco.
                     editor.chain().setColor(cor).run();
                   }}
-                  className="h-10 w-9 cursor-pointer border-l border-slate-300 bg-transparent p-1 dark:border-slate-700"
+                  className="h-10 w-9 cursor-pointer bg-transparent p-1"
+                  style={{ opacity: corTextoSelecionado ? 1 : 0 }}
                   aria-label={tToolbar("main.textColor")}
-                  title={tToolbar("main.textColor")}
+                  title={corTextoSelecionado ? corTextoSelecionado.toUpperCase() : tToolbar("main.mixedTextColors")}
+                />
+                </div>
+                <input
+                  type="text"
+                  readOnly
+                  value={corTextoSelecionado ? corTextoSelecionado.toUpperCase() : tToolbar("main.mixedTextColors")}
+                  onFocus={(event) => event.target.select()}
+                  aria-label={tToolbar("main.textColorHex")}
+                  title={tToolbar("main.textColorHex")}
+                  className="h-10 w-36 border-l border-slate-300 bg-transparent px-2 text-xs text-slate-900 dark:text-white"
                 />
               </div>
 

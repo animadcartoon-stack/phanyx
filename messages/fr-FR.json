@@ -12426,7 +12426,9 @@
       "heading": "Titre",
       "subheading": "Sous-titre",
       "list": "Liste",
-      "textColor": "Couleur du texte"
+      "textColor": "Couleur du texte",
+      "mixedTextColors": "Couleurs différentes",
+      "textColorHex": "Couleur du texte (HEX) — sélectionner pour copier"
     },
     "preview": {
       "reservedHeaderLogo": "Zone réservée à l'en-tête et au logo",
