@@ -1,4 +1,22 @@
 {
+  "CourseStageDeletion": {
+    "delete": "Excluir etapa",
+    "deleteNamed": "Excluir etapa {number} {title}",
+    "deleting": "Excluindo…",
+    "deleted": "Etapa excluída. As disciplinas continuam no catálogo.",
+    "confirm": "Excluir {stage}? Os vínculos das disciplinas com esta etapa serão removidos, mas as disciplinas continuarão no catálogo. A exclusão só será permitida se não houver registros acadêmicos vinculados. Esta ação não pode ser desfeita.",
+    "errors": {
+      "UNAUTHENTICATED": "Sua sessão expirou. Entre novamente.",
+      "FORBIDDEN": "Você não tem permissão para excluir etapas.",
+      "INVALID_STAGE": "Etapa inválida. Atualize a página.",
+      "NOT_FOUND": "Esta etapa não foi encontrada. Atualize a página.",
+      "NETWORK_RECEIVED": "A estrutura deste curso é mantida pela instituição de origem.",
+      "NETWORK_PUBLISHED": "Esta etapa foi publicada para outras unidades. Revise os vínculos da rede antes de excluí-la.",
+      "STAGE_IN_USE": "Esta etapa possui matrículas, turmas, períodos de matrícula ou outras configurações acadêmicas vinculadas. Revise esses vínculos antes de excluir. Os registros foram preservados.",
+      "CONCURRENT_CHANGE": "Houve outra alteração durante a exclusão. Atualize a página e tente novamente.",
+      "DELETE_FAILED": "Não foi possível excluir a etapa. Tente novamente."
+    }
+  },
   "AcademicIntegrity": {
     "ETAPA_COM_HISTORICO": "Não é possível mudar o curso ou a etapa de uma oferta com histórico acadêmico. Preserve a turma atual e organize a progressão por nova oferta ou rematrícula.",
     "DADOS_ALTERADOS": "Os dados acadêmicos foram alterados simultaneamente. Atualize a página, confira a seleção e tente novamente.",

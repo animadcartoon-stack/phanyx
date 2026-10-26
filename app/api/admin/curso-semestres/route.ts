@@ -9,6 +9,109 @@ import { sincronizarPublicacoesAtivasDoCurso } from "@/lib/publicacao-cursos-red
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// A etapa só pode sair da grade enquanto não houver uso acadêmico.
+// Disciplinas do catálogo permanecem; apenas seus vínculos com a etapa saem.
+export async function DELETE(req: Request) {
+  try {
+    const user = await getUserFromToken();
+    if (!user) return NextResponse.json({ codigo: "UNAUTHENTICATED" }, { status: 401 });
+    if (!isAdminLike(user.role)) {
+      return NextResponse.json({ codigo: "FORBIDDEN" }, { status: 403 });
+    }
+
+    const body = await req.json().catch(() => null);
+    const id = Number(body?.id);
+    const cursoId = Number(body?.cursoId);
+    const instituicaoId = Number(user.instituicaoId);
+    if (!Number.isSafeInteger(id) || id <= 0 ||
+        !Number.isSafeInteger(cursoId) || cursoId <= 0) {
+      return NextResponse.json({ codigo: "INVALID_STAGE" }, { status: 400 });
+    }
+
+    return await prisma.$transaction(async (tx) => {
+      const etapa = await tx.cursoSemestre.findFirst({
+        where: { id, cursoId, instituicaoId, curso: { instituicaoId } },
+        select: {
+          numero: true,
+          organizacaoCurricular: true,
+          curso: { select: { publicacaoRedeDestino: { select: { id: true } } } },
+          _count: { select: {
+            matriculas: true,
+            rematriculasDestino: true,
+            periodosMatricula: true,
+            disciplinasExtrasPermitidas: true,
+            semestresPublicadosRede: true,
+          } },
+        },
+      });
+      if (!etapa) return NextResponse.json({ codigo: "NOT_FOUND" }, { status: 404 });
+      if (etapa.curso.publicacaoRedeDestino) {
+        return NextResponse.json({ codigo: "NETWORK_RECEIVED" }, { status: 403 });
+      }
+      if (etapa._count.semestresPublicadosRede > 0) {
+        return NextResponse.json({ codigo: "NETWORK_PUBLISHED" }, { status: 409 });
+      }
+
+      const organizacaoCurricular = etapa.organizacaoCurricular;
+      // Há cadastros legados que guardam o número, sem FK para a etapa.
+      const [matricula, turma, periodo, contratacao] = await Promise.all([
+        tx.matricula.findFirst({
+          where: { instituicaoId, cursoId, organizacaoCurricular,
+            OR: [{ cursoSemestreId: id }, { etapaNumero: etapa.numero },
+              ...(organizacaoCurricular === "SEMESTRAL" ? [{ semestre: etapa.numero }] : [])],
+          },
+          select: { id: true },
+        }),
+        tx.turma.findFirst({
+          where: { instituicaoId, cursoId,
+            OR: [
+              { organizacaoCurricular, etapaNumero: etapa.numero },
+              ...(organizacaoCurricular === "SEMESTRAL"
+                ? [{ organizacaoCurricular, semestre: String(etapa.numero) }] : []),
+              { semestres: { some: { organizacaoCurricular, numero: etapa.numero } } },
+            ],
+          },
+          select: { id: true },
+        }),
+        tx.periodoMatricula.findFirst({
+          where: { instituicaoId, cursoId, semestreNumero: etapa.numero },
+          select: { id: true },
+        }),
+        tx.matriculaDisciplinaContratada.findFirst({
+          where: { OR: [
+            { cursoSemestreIdSnapshot: id },
+            { semestreNumeroSnapshot: etapa.numero,
+              matricula: { instituicaoId, cursoId, organizacaoCurricular } },
+          ] },
+          select: { id: true },
+        }),
+      ]);
+
+      const contagem = etapa._count;
+      if (matricula || turma || periodo || contratacao ||
+          contagem.matriculas || contagem.rematriculasDestino ||
+          contagem.periodosMatricula || contagem.disciplinasExtrasPermitidas) {
+        return NextResponse.json({ codigo: "STAGE_IN_USE" }, { status: 409 });
+      }
+
+      // O cascade remove somente os vínculos curriculares com as disciplinas.
+      await tx.cursoSemestre.deleteMany({ where: { id, cursoId, instituicaoId } });
+      return NextResponse.json({ ok: true, id });
+    }, { isolationLevel: "Serializable" });
+  } catch (error: unknown) {
+    const codigo = error && typeof error === "object" && "code" in error
+      ? String(error.code) : "";
+    if (["P2003", "P2014"].includes(codigo)) {
+      return NextResponse.json({ codigo: "STAGE_IN_USE" }, { status: 409 });
+    }
+    if (["P2034", "P2025"].includes(codigo)) {
+      return NextResponse.json({ codigo: "CONCURRENT_CHANGE" }, { status: 409 });
+    }
+    console.error("Erro ao excluir etapa do curso:", error);
+    return NextResponse.json({ codigo: "DELETE_FAILED" }, { status: 500 });
+  }
+}
+
 export async function GET(req: Request) {
   try {
     const user = await getUserFromToken();

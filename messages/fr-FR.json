@@ -1,4 +1,22 @@
 {
+  "CourseStageDeletion": {
+    "delete": "Supprimer l’étape",
+    "deleteNamed": "Supprimer l’étape {number} {title}",
+    "deleting": "Suppression…",
+    "deleted": "Étape supprimée. Les matières restent dans le catalogue.",
+    "confirm": "Supprimer {stage} ? Les liens des matières avec cette étape seront supprimés, mais les matières resteront dans le catalogue. La suppression n’est autorisée que sans dossiers scolaires associés. Cette action est irréversible.",
+    "errors": {
+      "UNAUTHENTICATED": "Votre session a expiré. Reconnectez-vous.",
+      "FORBIDDEN": "Vous n’avez pas l’autorisation de supprimer des étapes.",
+      "INVALID_STAGE": "Étape non valide. Actualisez la page.",
+      "NOT_FOUND": "Étape introuvable. Actualisez la page.",
+      "NETWORK_RECEIVED": "La structure de ce cours est gérée par l’établissement d’origine.",
+      "NETWORK_PUBLISHED": "Cette étape a été publiée dans d’autres unités. Vérifiez les liens du réseau avant de la supprimer.",
+      "STAGE_IN_USE": "Cette étape comporte des inscriptions, groupes, périodes d’inscription ou d’autres paramètres scolaires associés. Vérifiez ces liens avant la suppression. Les dossiers ont été préservés.",
+      "CONCURRENT_CHANGE": "Une autre modification a eu lieu pendant la suppression. Actualisez la page et réessayez.",
+      "DELETE_FAILED": "Impossible de supprimer l’étape. Réessayez."
+    }
+  },
   "AcademicIntegrity": {
     "ETAPA_COM_HISTORICO": "Une offre avec un historique scolaire ne peut pas changer de cours ou d’étape. Conservez la classe actuelle et organisez la progression via une nouvelle offre ou une réinscription.",
     "DADOS_ALTERADOS": "Les données scolaires ont été modifiées simultanément. Actualisez la page, vérifiez votre sélection et réessayez.",

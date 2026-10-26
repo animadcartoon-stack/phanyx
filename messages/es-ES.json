@@ -1,4 +1,22 @@
 {
+  "CourseStageDeletion": {
+    "delete": "Eliminar etapa",
+    "deleteNamed": "Eliminar etapa {number} {title}",
+    "deleting": "Eliminando…",
+    "deleted": "Etapa eliminada. Las asignaturas siguen en el catálogo.",
+    "confirm": "¿Eliminar {stage}? Se eliminarán los vínculos de las asignaturas con esta etapa, pero las asignaturas seguirán en el catálogo. Solo se permite eliminar si no hay registros académicos vinculados. Esta acción no se puede deshacer.",
+    "errors": {
+      "UNAUTHENTICATED": "Su sesión ha caducado. Inicie sesión de nuevo.",
+      "FORBIDDEN": "No tiene permiso para eliminar etapas.",
+      "INVALID_STAGE": "Etapa no válida. Actualice la página.",
+      "NOT_FOUND": "No se encontró la etapa. Actualice la página.",
+      "NETWORK_RECEIVED": "La estructura de este curso la mantiene la institución de origen.",
+      "NETWORK_PUBLISHED": "Esta etapa se publicó en otras unidades. Revise los vínculos de la red antes de eliminarla.",
+      "STAGE_IN_USE": "Esta etapa tiene matrículas, grupos, períodos de matrícula u otras configuraciones académicas vinculadas. Revise esos vínculos antes de eliminar. Se conservaron los registros.",
+      "CONCURRENT_CHANGE": "Hubo otro cambio durante la eliminación. Actualice la página e inténtelo de nuevo.",
+      "DELETE_FAILED": "No se pudo eliminar la etapa. Inténtelo de nuevo."
+    }
+  },
   "AcademicIntegrity": {
     "ETAPA_COM_HISTORICO": "No se puede cambiar el curso o la etapa de una oferta con historial académico. Conserve el grupo actual y gestione la progresión mediante una nueva oferta o renovación de matrícula.",
     "DADOS_ALTERADOS": "Los datos académicos se modificaron simultáneamente. Actualice la página, revise la selección e inténtelo de nuevo.",
