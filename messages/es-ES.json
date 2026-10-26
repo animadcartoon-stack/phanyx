@@ -12426,7 +12426,9 @@
       "heading": "Título",
       "subheading": "Subtítulo",
       "list": "Lista",
-      "textColor": "Color del texto"
+      "textColor": "Color del texto",
+      "mixedTextColors": "Colores diferentes",
+      "textColorHex": "Color del texto (HEX) — seleccione para copiar"
     },
     "preview": {
       "reservedHeaderLogo": "Área reservada para encabezado y logotipo",
