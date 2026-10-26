@@ -23286,7 +23286,12 @@
       "ERRO_INTERNO": "Não foi possível concluir. Atualize a página e tente novamente.",
       "CURSO_LIVRE_SEM_ETAPAS": "Cursos livres não possuem etapas curriculares.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Cursos livres — pagamento por período para esta contratação."
-    }
+    },
+    "prepaidBilling": "Pagamento antecipado por período",
+    "weeklyOffer": "{value} por semana",
+    "monthlyOffer": "{value} por período mensal",
+    "noAutomaticRenewal": "Sem prestações futuras ou renovação automática.",
+    "viewCoursePrices": "Ver curso e preços"
   },
   "EnrollmentCourseSync": {
     "description": "Gerencie a matrícula conforme a organização do curso e as disciplinas contratadas.",
@@ -23324,6 +23329,37 @@
     "summary": "Desconto do curso: {percent}% · Mensalidade padrão: {value}",
     "errors": {
       "DESCONTO_MENSALIDADE_INVALIDO": "Indique um desconto entre 0 e 100%, com até duas casas decimais."
-    }
+    },
+    "periodSummary": "Desconto mensal: {percent}% · Preço por período mensal: {value}"
+  },
+  "SubjectPricing": {
+    "settingsTitle": "Preço por disciplinas (opcional)",
+    "enable": "Calcular a mensalidade pelas disciplinas escolhidas",
+    "settingsHelp": "O valor mensal do curso passa a ser o preço de uma disciplina. Registe o desconto para cada quantidade exata permitida. O desconto geral e os pacotes entre cursos não se acumulam com esta regra.",
+    "quantity": "Quantidade de disciplinas",
+    "discount": "Desconto nessa quantidade (%)",
+    "remove": "Remover",
+    "add": "Adicionar quantidade",
+    "unitMonthlyLabel": "Valor mensal por disciplina",
+    "chooseHelp": "Escolha as disciplinas para calcular a mensalidade.",
+    "subtotal": "{count} disciplina(s) × {unit} = {value}",
+    "discountTotal": "Desconto de {percent}%: {value}",
+    "monthlyTotal": "Mensalidade: {value}",
+    "feeHelp": "A taxa de matrícula é separada e não é multiplicada pela quantidade de disciplinas. As condições desta contratação ficam registadas.",
+    "useMainEnrollment": "Cursos com preço por disciplina são contratados na página Matrículas.",
+    "errors": {
+      "REGRAS_DISCIPLINAS_INVALIDAS": "Confira as quantidades e descontos: não repita quantidades e use percentuais de 0 a 100.",
+      "REGRAS_DISCIPLINAS_CURSO_LIVRE": "Curso livre usa pagamento por período. Use o fluxo próprio.",
+      "REGRAS_DISCIPLINAS_COMBO": "Escolha preço por disciplinas ou combos entre cursos para esta oferta.",
+      "PRECO_DISCIPLINA_INVALIDO": "Configure um valor mensal por disciplina maior que zero.",
+      "SELECIONE_DISCIPLINAS": "Selecione ao menos uma disciplina para esta contratação.",
+      "QUANTIDADE_DISCIPLINAS_NAO_CONFIGURADA": "Não há preço configurado para essa quantidade de disciplinas. Ajuste a seleção ou as regras do curso.",
+      "PRECO_DISCIPLINAS_ALTERADO": "O preço ou a contratação mudou. Atualize, confira o resumo e tente novamente.",
+      "PRIMEIRO_VENCIMENTO_NECESSARIO": "Informe o primeiro vencimento para gerar as mensalidades.",
+      "DISCIPLINAS_CONTRATADAS_DIVERGENTES": "As disciplinas contratadas devem corresponder às disciplinas e turmas selecionadas.",
+      "CURSO_DISCIPLINAS_COM_HISTORICO": "Esta contratação possui condições registradas. Use transferência para mudar de curso.",
+      "QUANTIDADE_MENSALIDADES_NECESSARIA": "Indique entre 1 e 120 mensalidades para gerar o financeiro desta contratação."
+    },
+    "dueDateHelp": "Indique a quantidade de mensalidades e o primeiro vencimento nos campos financeiros."
   }
 }

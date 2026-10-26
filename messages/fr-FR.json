@@ -23499,7 +23499,12 @@
       "ERRO_INTERNO": "Impossible de terminer. Actualisez la page et réessayez.",
       "CURSO_LIVRE_SEM_ETAPAS": "Les cours libres n’ont pas d’étapes de programme.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Utilisez Cours libres — paiement par période pour cette inscription."
-    }
+    },
+    "prepaidBilling": "Paiement anticipé par période",
+    "weeklyOffer": "{value} par semaine",
+    "monthlyOffer": "{value} par période mensuelle",
+    "noAutomaticRenewal": "Aucune échéance future ni reconduction automatique.",
+    "viewCoursePrices": "Voir le cours et les tarifs"
   },
   "EnrollmentCourseSync": {
     "description": "Gérez les inscriptions selon la structure du cours et les matières souscrites.",
@@ -23537,6 +23542,37 @@
     "summary": "Réduction du cours : {percent}% · Mensualité par défaut : {value}",
     "errors": {
       "DESCONTO_MENSALIDADE_INVALIDO": "Saisissez une réduction de 0 à 100%, avec deux décimales maximum."
-    }
+    },
+    "periodSummary": "Réduction mensuelle : {percent}% · Prix par période mensuelle : {value}"
+  },
+  "SubjectPricing": {
+    "settingsTitle": "Tarif par matières (facultatif)",
+    "enable": "Calculer la mensualité selon les matières choisies",
+    "settingsHelp": "Le tarif mensuel du cours devient le prix d’une matière. Configurez la réduction pour chaque quantité exacte autorisée. La réduction générale et les forfaits entre cours ne se cumulent pas avec cette règle.",
+    "quantity": "Nombre de matières",
+    "discount": "Réduction pour cette quantité (%)",
+    "remove": "Supprimer",
+    "add": "Ajouter une quantité",
+    "unitMonthlyLabel": "Prix mensuel par matière",
+    "chooseHelp": "Choisissez les matières pour calculer la mensualité.",
+    "subtotal": "{count} matière(s) × {unit} = {value}",
+    "discountTotal": "Réduction de {percent}% : {value}",
+    "monthlyTotal": "Mensualité : {value}",
+    "feeHelp": "Les frais d’inscription sont séparés et ne sont pas multipliés par le nombre de matières. Les conditions souscrites sont enregistrées.",
+    "useMainEnrollment": "Les cours tarifés par matière sont souscrits sur la page Inscriptions.",
+    "errors": {
+      "REGRAS_DISCIPLINAS_INVALIDAS": "Vérifiez les quantités et réductions : quantités uniques et pourcentages de 0 à 100.",
+      "REGRAS_DISCIPLINAS_CURSO_LIVRE": "Le cours libre utilise un paiement par période. Utilisez le parcours dédié.",
+      "REGRAS_DISCIPLINAS_COMBO": "Choisissez les tarifs par matières ou les forfaits entre cours pour cette offre.",
+      "PRECO_DISCIPLINA_INVALIDO": "Configurez un prix mensuel par matière supérieur à zéro.",
+      "SELECIONE_DISCIPLINAS": "Sélectionnez au moins une matière pour cette inscription.",
+      "QUANTIDADE_DISCIPLINAS_NAO_CONFIGURADA": "Aucun prix n’est configuré pour ce nombre de matières. Modifiez la sélection ou les règles du cours.",
+      "PRECO_DISCIPLINAS_ALTERADO": "Le prix ou le contrat a changé. Actualisez, vérifiez le récapitulatif et réessayez.",
+      "PRIMEIRO_VENCIMENTO_NECESSARIO": "Indiquez la première échéance pour générer les mensualités.",
+      "DISCIPLINAS_CONTRATADAS_DIVERGENTES": "Les matières souscrites doivent correspondre aux matières et groupes sélectionnés.",
+      "CURSO_DISCIPLINAS_COM_HISTORICO": "Cette inscription possède des conditions enregistrées. Utilisez le transfert pour changer de cours.",
+      "QUANTIDADE_MENSALIDADES_NECESSARIA": "Indiquez de 1 à 120 mensualités pour générer les échéances de cette inscription."
+    },
+    "dueDateHelp": "Indiquez le nombre de mensualités et la première échéance dans les champs financiers."
   }
 }

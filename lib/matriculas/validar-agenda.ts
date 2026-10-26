@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import {
   encontrarConflitos,
+  horarioValido,
   ErroModalidades,
   type HorarioModalidade,
 } from "./combos";
@@ -17,6 +18,7 @@ export async function validarAgendaMatricula(
     matriculaId?: number;
     inicio?: Date | null;
     fim?: Date | null;
+    exigirHorarios?: boolean;
   },
 ) {
   const { instituicaoId, alunoId, itens, matriculaId, inicio, fim } = params;
@@ -47,6 +49,7 @@ export async function validarAgendaMatricula(
       },
     },
   });
+  if (params.exigirHorarios && itens.some(i => !vinculos.some(v => v.turmaId === i.turmaId && v.disciplinaId === i.disciplinaId && v.horarios.length))) throw new ErroModalidades("HORARIOS_INCOMPLETOS", 409);
   const civil = (data: Date | null | undefined) =>
     data?.toISOString().slice(0, 10) || null;
   const horarios: HorarioModalidade[] = vinculos.flatMap((v) =>
@@ -64,6 +67,7 @@ export async function validarAgendaMatricula(
       dataFim: [civil(v.dataFim || v.turma.dataFim), civil(fim)].filter(Boolean).sort()[0] || null,
     })),
   );
+  if (params.exigirHorarios && horarios.some(h => !horarioValido(h))) throw new ErroModalidades("HORARIOS_INCOMPLETOS", 409);
   const existentes = await horariosAtuaisAluno(
     tx,
     instituicaoId,

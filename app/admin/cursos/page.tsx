@@ -1,4 +1,7 @@
 "use client";
+import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
+import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
+import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
 import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
@@ -80,6 +83,7 @@ type Curso = {
   valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
   descontoMensalidadePercentual?: string | number | null;
+  regrasPrecoDisciplinas?: unknown;
   quantidadeParcelas?: number | null;
   createdAt?: string | null;
   excluidoEm?: string | null;
@@ -124,6 +128,7 @@ export default function AdminCursosPage() {
   const tc = useTranslations("EnrollmentCombos");
   const tl = useTranslations("CoursePeriods");
   const td = useTranslations("CourseMonthlyDiscount");
+  const tp = useTranslations("SubjectPricing");
   const locale = useLocale();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -155,6 +160,8 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     valorMensalidade: "",
     valorSemanal: "",
     descontoMensalidadePercentual: "",
+    precoPorDisciplina: false,
+    faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
     participaCombo: false,
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -427,7 +434,8 @@ async function salvarPolosDoCurso() {
           valorMensalidadeCombo: form.valorMensalidadeCombo || null,
           precosComboPorQuantidade: form.precosComboPorQuantidade,
           valorSemanal: form.valorSemanal || null,
-          descontoMensalidadePercentual: form.descontoMensalidadePercentual || null,
+          descontoMensalidadePercentual: form.precoPorDisciplina ? null : form.descontoMensalidadePercentual || null,
+          regrasPrecoDisciplinas: form.precoPorDisciplina ? { versao: 1, faixas: form.faixasDisciplinas } : null,
           valorMensalidade: form.valorMensalidade
             ? Number(form.valorMensalidade)
             : null,
@@ -442,7 +450,7 @@ async function salvarPolosDoCurso() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -463,6 +471,8 @@ async function salvarPolosDoCurso() {
         valorMensalidade: "",
     valorSemanal: "",
     descontoMensalidadePercentual: "",
+    precoPorDisciplina: false,
+    faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
         participaCombo: false,
         valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -708,8 +718,8 @@ if (!termoTexto) return cursosPorStatus;
           />
 
           <Link href="/admin/matriculas/cursos-livres" className="font-semibold text-blue-700 underline dark:text-blue-300">{tl("title")}</Link>
-          <OrganizacaoCursoSelect value={form.organizacaoCurricular} onChange={valor => setForm({ ...form, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "" } : {}) })} />
-          <div>
+          <OrganizacaoCursoSelect value={form.organizacaoCurricular} onChange={valor => setForm({ ...form, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "", precoPorDisciplina: false } : {}) })} />
+          <div hidden={form.organizacaoCurricular === "LIVRE"}>
             <input
               type="number"
               min="0"
@@ -744,7 +754,7 @@ if (!termoTexto) return cursosPorStatus;
           <input
             type="number"
             step="0.01"
-            placeholder={t("list.create.monthlyValuePlaceholder")}
+            placeholder={form.precoPorDisciplina ? tp("unitMonthlyLabel") : t("list.create.monthlyValuePlaceholder")}
             className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             hidden={form.organizacaoCurricular === "LIVRE"}
             value={form.valorMensalidade}
@@ -754,11 +764,12 @@ if (!termoTexto) return cursosPorStatus;
           />
 
           {form.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={form.valorSemanal} valorMensal={form.valorMensalidade} onChangeMensal={valor => setForm({ ...form, valorMensalidade: valor })} onChange={valor => setForm({ ...form, valorSemanal: valor })} />}
-          <CamposDescontoMensalidade valorMensalidade={form.valorMensalidade} percentual={form.descontoMensalidadePercentual} onChange={valor => setForm({ ...form, descontoMensalidadePercentual: valor })} />
-          <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo} precosComboPorQuantidade={form.precosComboPorQuantidade}
-            onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />
+          {form.organizacaoCurricular !== "LIVRE" && <CamposPrecoDisciplinas ativo={form.precoPorDisciplina} faixas={form.faixasDisciplinas} onChange={dados => setForm(prev => ({ ...prev, precoPorDisciplina: dados.ativo ?? prev.precoPorDisciplina, faixasDisciplinas: dados.faixas ?? prev.faixasDisciplinas, ...(dados.ativo ? { participaCombo: false } : {}) }))} />}
+          {!form.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={form.valorMensalidade} percentual={form.descontoMensalidadePercentual} onChange={valor => setForm({ ...form, descontoMensalidadePercentual: valor })} />}
+          {!form.precoPorDisciplina && <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo} precosComboPorQuantidade={form.precosComboPorQuantidade}
+            onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />}
 
-          <input
+          <input hidden={form.organizacaoCurricular === "LIVRE"}
             type="number"
             placeholder={t("list.create.installmentsPlaceholder")}
             className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -892,7 +903,7 @@ if (!termoTexto) return cursosPorStatus;
 
                     <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-slate-300">
                       <p>
-                        {t("common.semesters")}:{" "}
+                        {curso.organizacaoCurricular === "LIVRE" ? ta("organization") : t("common.semesters")}:{" "}
                         {curso.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : (curso.quantidadeEtapas ?? curso.quantidadeSemestres) != null
                           ? `${curso.quantidadeEtapas ?? curso.quantidadeSemestres} · ${ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}`
                           : t("common.notInformed")}
@@ -903,8 +914,9 @@ if (!termoTexto) return cursosPorStatus;
                           ? formatarMoeda(curso.valorMatricula, locale)
                           : t("common.notInformed")}
                       </p>
-                      <p>
-                        {t("common.monthlyValue")}:{" "}
+                      {curso.organizacaoCurricular === "LIVRE" ? <><ResumoPrecosCursoLivre valorSemanal={curso.valorSemanal} valorMensal={curso.valorMensalidade} /><ResumoDescontoMensalidade valorMensalidade={curso.valorMensalidade} percentual={curso.descontoMensalidadePercentual} livre /></> : <>
+<p>
+                        {curso.regrasPrecoDisciplinas ? tp("unitMonthlyLabel") : t("common.monthlyValue")}:{" "}
                         {curso.valorMensalidade != null
                           ? formatarMoeda(curso.valorMensalidade, locale)
                           : t("common.notInformed")}
@@ -916,7 +928,8 @@ if (!termoTexto) return cursosPorStatus;
                           ? curso.quantidadeParcelas
                           : t("common.notInformed")}
                       </p>
-                      <p>
+</>}
+<p>
                         {t("common.poles")}:{" "}
                         {curso.cursosPolos && curso.cursosPolos.length > 0
                           ? curso.cursosPolos
@@ -984,7 +997,7 @@ if (!termoTexto) return cursosPorStatus;
     href={`/admin/cursos/${curso.id}`}
     className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white"
   >
-    {curso.publicacaoRedeDestino
+    {curso.organizacaoCurricular === "LIVRE" ? tl("viewCoursePrices") : curso.publicacaoRedeDestino
       ? t("list.actions.viewStructure")
       : t("list.actions.buildCurriculum")}
   </Link>
