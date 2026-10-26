@@ -839,6 +839,7 @@ model Curso {
   valorMatricula             Float?
   valorSemanal               Decimal?              @db.Decimal(10, 2)
   valorMensalidade           Float?
+  descontoMensalidadePercentual Decimal?             @db.Decimal(5, 2)
   participaCombo             Boolean               @default(false)
   valorMensalidadeCombo      Decimal?              @db.Decimal(10, 2)
   precosComboPorQuantidade   Json                  @default("[]")

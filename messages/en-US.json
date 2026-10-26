@@ -23529,5 +23529,15 @@
     "allSemesterSubjects": "All subjects in this semester",
     "yearCurriculum": "Year / stage curriculum",
     "semesterCurriculum": "Semester curriculum"
+  },
+  "CourseMonthlyDiscount": {
+    "label": "Monthly fee discount (%)",
+    "placeholder": "Optional — no discount",
+    "help": "Blank or 0% keeps the full price. Applies to the standalone monthly fee, without changing enrollment fees, weekly prices or specific bundle prices.",
+    "preview": "Discounted monthly fee: {value}",
+    "summary": "Course discount: {percent}% · Default monthly fee: {value}",
+    "errors": {
+      "DESCONTO_MENSALIDADE_INVALIDO": "Enter a discount from 0 to 100%, with up to two decimal places."
+    }
   }
 }

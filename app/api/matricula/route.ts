@@ -2634,7 +2634,7 @@ export async function POST(request: Request) {
         !Number.isFinite(
           valorMensalidade
         ) ||
-        valorMensalidade <= 0
+        (valorMensalidade < 0 || (valorMensalidade === 0 && Number(curso?.descontoMensalidadePercentual) !== 100 && bolsaPercentual < 100))
       )
     ) {
       return NextResponse.json(
@@ -4041,10 +4041,7 @@ export async function PUT(request: Request) {
         body.valorPagoMatricula
       );
 
-    const valorMensalidadeRecebido =
-      toPositiveNumberOrNull(
-        body.valorMensalidade
-      );
+    const valorMensalidadeRecebido = body.valorMensalidade == null || String(body.valorMensalidade).trim() === "" ? null : Number(body.valorMensalidade);
 
     const quantidadeMensalidadesRecebida =
       toPositiveNumberOrNull(
@@ -4099,7 +4096,7 @@ export async function PUT(request: Request) {
 
     if (
       valorMensalidadeFoiInformadoNaEdicao &&
-      !valorMensalidadeRecebido
+      (valorMensalidadeRecebido == null || !Number.isFinite(valorMensalidadeRecebido) || valorMensalidadeRecebido < 0)
     ) {
       return NextResponse.json(
         {
@@ -4193,11 +4190,7 @@ export async function PUT(request: Request) {
     const valorMensalidadeFinal =
       valorMensalidadeCampoFoiInformado
         ? valorMensalidadeRecebido
-        : Number(
-            matriculaExistente
-              .valorMensalidade ||
-            0
-          ) || null;
+        : matriculaExistente.valorMensalidade == null ? null : Number(matriculaExistente.valorMensalidade);
 
     const quantidadeMensalidadesFinal =
       quantidadeMensalidadesCampoFoiInformada

@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { mensalidadeComDesconto } from "@/lib/matriculas/desconto-curso";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -7,7 +8,7 @@ import withAuth from "@/lib/withAuth";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import { fimSugeridoLivre, type PeriodicidadeLivre, periodoEstaPago } from "@/lib/matriculas/cursos-livres";
 
-type Curso = { id: number; nome: string; valorSemanal: string | null; valorMensalidade: number | null; turmas: { id: number; nome: string }[] };
+type Curso = { id: number; nome: string; valorSemanal: string | null; valorMensalidade: number | null; descontoMensalidadePercentual?: string | number | null; turmas: { id: number; nome: string }[] };
 type Periodo = { id: string; periodicidade: PeriodicidadeLivre; dataInicio: string; dataFim: string; valor: string; lancamentoId: number; lancamento: { status: string; valorPago: number; valorFinal: number } };
 type Vinculo = { id: number; numeroMatricula: string; status: string; aluno: { id: number; nome: string }; curso: Omit<Curso, "turmas">; turmaPrincipal: { id: number; nome: string } | null; periodosCursoLivre: Periodo[]; _count: { periodosCursoLivre: number } };
 const campo = "mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-white";
@@ -29,7 +30,7 @@ function CursosLivresPage() {
   const chave = useRef<{ pedido: string; id: string } | null>(null), operacao = useRef(false);
   const vinculo = vinculos.find(v => String(v.id) === matriculaId);
   const curso = vinculo?.curso || cursos.find(c => String(c.id) === cursoId);
-  const valor = tipo === "SEMANAL" ? curso?.valorSemanal : curso?.valorMensalidade;
+  const valor = tipo === "SEMANAL" ? curso?.valorSemanal : mensalidadeComDesconto(curso?.valorMensalidade, curso?.descontoMensalidadePercentual);
   const moeda = (n: unknown) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(Number(n));
   const data = (s: string) => new Intl.DateTimeFormat(locale, { timeZone: "UTC" }).format(new Date(s));
   const mensagem = useCallback((codigo?: string) => t.has(`errors.${codigo}`) ? t(`errors.${codigo}`) : t("errors.ERRO_INTERNO"), [t]);
@@ -103,7 +104,7 @@ function CursosLivresPage() {
           <label>{t("start")}<input required type="date" className={campo} value={inicio} onChange={e => datas(e.target.value, tipo)} /></label>
           <label>{t("end")}<input required type="date" min={inicio} className={campo} value={fim} onChange={e => setFim(e.target.value)} /></label>
           <p className="text-sm md:col-span-2">{t("datesHelp")}</p>
-          <button disabled={!valor || (vinculo && !["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(vinculo.status))} className="rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white disabled:opacity-50">{busy ? t("saving") : t("contractPeriod")}</button>
+          <button disabled={valor == null || (vinculo && !["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(vinculo.status))} className="rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white disabled:opacity-50">{busy ? t("saving") : t("contractPeriod")}</button>
         </fieldset>
       </form>
       {!cursos.length && !loading && <p className="mt-4">{t("noCourses")} <Link className="underline" href="/admin/cursos">{t("configureCourse")}</Link></p>}

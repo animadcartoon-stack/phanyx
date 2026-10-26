@@ -482,6 +482,7 @@ export async function publicarCursoParaUnidadesIndependentes(
                 .valorMatricula,
 
             valorSemanal: cursoOrigem.valorSemanal,
+            descontoMensalidadePercentual: cursoOrigem.descontoMensalidadePercentual,
             valorMensalidade:
               cursoOrigem
                 .valorMensalidade,

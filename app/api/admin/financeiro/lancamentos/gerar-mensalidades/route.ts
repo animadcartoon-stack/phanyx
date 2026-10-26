@@ -1,3 +1,4 @@
+import { mensalidadeComDesconto } from "@/lib/matriculas/desconto-curso";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -113,8 +114,7 @@ export async function POST(req: NextRequest) {
       const valorMensalidade =
         Number(
           matricula.valorMensalidade ??
-          matricula.curso
-            .valorMensalidade ??
+          mensalidadeComDesconto(matricula.curso.valorMensalidade, matricula.curso.descontoMensalidadePercentual) ??
           0
         );
 

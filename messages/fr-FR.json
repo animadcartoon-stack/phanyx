@@ -23528,5 +23528,15 @@
     "allSemesterSubjects": "Toutes les matières de ce semestre",
     "yearCurriculum": "Programme de l’année / étape",
     "semesterCurriculum": "Programme du semestre"
+  },
+  "CourseMonthlyDiscount": {
+    "label": "Réduction de la mensualité (%)",
+    "placeholder": "Facultatif — aucune réduction",
+    "help": "Vide ou 0% conserve le prix intégral. S’applique à la mensualité individuelle, sans modifier les frais d’inscription, le prix hebdomadaire ni les tarifs spécifiques des forfaits.",
+    "preview": "Mensualité après réduction : {value}",
+    "summary": "Réduction du cours : {percent}% · Mensualité par défaut : {value}",
+    "errors": {
+      "DESCONTO_MENSALIDADE_INVALIDO": "Saisissez une réduction de 0 à 100%, avec deux décimales maximum."
+    }
   }
 }

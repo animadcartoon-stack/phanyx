@@ -3,6 +3,7 @@
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 
 import Link from "next/link";
+import { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { financeiroPadraoCurso } from "@/lib/matriculas/configuracao-curso";
@@ -21,6 +22,7 @@ type CursoOption = {
   quantidadeEtapas?: number | null;
   valorMatricula?: number | string | null;
   valorMensalidade?: number | string | null;
+  descontoMensalidadePercentual?: number | string | null;
   quantidadeParcelas?: number | null;
 };
 
@@ -688,6 +690,7 @@ function AdminMatriculasPage() {
                 quantidadeEtapas: curso?.quantidadeEtapas ?? null,
                 valorMatricula: curso?.valorMatricula ?? null,
                 valorMensalidade: curso?.valorMensalidade ?? null,
+                descontoMensalidadePercentual: curso?.descontoMensalidadePercentual ?? null,
                 quantidadeParcelas: curso?.quantidadeParcelas ?? null,
 
                 nome: String(
@@ -4028,6 +4031,7 @@ function AdminMatriculasPage() {
               className="mt-1 w-full border rounded-xl px-3 py-2"
               placeholder="0,00"
             />
+            <ResumoDescontoMensalidade valorMensalidade={cursoSelecionadoObj?.valorMensalidade} percentual={cursoSelecionadoObj?.descontoMensalidadePercentual} />
           </div>
 
           <div>

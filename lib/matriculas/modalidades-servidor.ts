@@ -57,6 +57,7 @@ export async function carregarOfertasModalidades(
           participaCombo: true,
           valorMatricula: true,
           valorMensalidade: true,
+          descontoMensalidadePercentual: true,
           valorMensalidadeCombo: true,
           precosComboPorQuantidade: true,
           quantidadeParcelas: true,
@@ -150,6 +151,7 @@ export async function carregarOfertasModalidades(
             ),
       curso: {
         ...turma.curso,
+        descontoMensalidadePercentual: turma.curso.descontoMensalidadePercentual?.toString() ?? null,
         valorMensalidadeCombo:
           turma.curso.valorMensalidadeCombo?.toString() ?? null,
       },
@@ -345,6 +347,7 @@ export async function prepararContratacaoModalidades(
         turmaNome: o.nome,
         cursoId: o.cursoId,
         cursoNome: o.curso.nome,
+        descontoMensalidadePercentual: o.curso.descontoMensalidadePercentual,
         disciplinaIds: o.disciplinaIds,
         horarios: adaptarInicio(o.horarios),
         disciplinas: o.disciplinas,

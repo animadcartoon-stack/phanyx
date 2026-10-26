@@ -1,4 +1,5 @@
 "use client";
+import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
@@ -78,6 +79,7 @@ type Curso = {
   valorMatricula?: number | null;
   valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
+  descontoMensalidadePercentual?: string | number | null;
   quantidadeParcelas?: number | null;
   createdAt?: string | null;
   excluidoEm?: string | null;
@@ -121,6 +123,7 @@ export default function AdminCursosPage() {
   const t = useTranslations("AdminCourses");
   const tc = useTranslations("EnrollmentCombos");
   const tl = useTranslations("CoursePeriods");
+  const td = useTranslations("CourseMonthlyDiscount");
   const locale = useLocale();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -151,6 +154,7 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     valorMatricula: "",
     valorMensalidade: "",
     valorSemanal: "",
+    descontoMensalidadePercentual: "",
     participaCombo: false,
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -423,6 +427,7 @@ async function salvarPolosDoCurso() {
           valorMensalidadeCombo: form.valorMensalidadeCombo || null,
           precosComboPorQuantidade: form.precosComboPorQuantidade,
           valorSemanal: form.valorSemanal || null,
+          descontoMensalidadePercentual: form.descontoMensalidadePercentual || null,
           valorMensalidade: form.valorMensalidade
             ? Number(form.valorMensalidade)
             : null,
@@ -437,7 +442,7 @@ async function salvarPolosDoCurso() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -457,6 +462,7 @@ async function salvarPolosDoCurso() {
         valorMatricula: "",
         valorMensalidade: "",
     valorSemanal: "",
+    descontoMensalidadePercentual: "",
         participaCombo: false,
         valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -748,6 +754,7 @@ if (!termoTexto) return cursosPorStatus;
           />
 
           {form.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={form.valorSemanal} valorMensal={form.valorMensalidade} onChangeMensal={valor => setForm({ ...form, valorMensalidade: valor })} onChange={valor => setForm({ ...form, valorSemanal: valor })} />}
+          <CamposDescontoMensalidade valorMensalidade={form.valorMensalidade} percentual={form.descontoMensalidadePercentual} onChange={valor => setForm({ ...form, descontoMensalidadePercentual: valor })} />
           <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo} precosComboPorQuantidade={form.precosComboPorQuantidade}
             onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />
 
@@ -902,7 +909,8 @@ if (!termoTexto) return cursosPorStatus;
                           ? formatarMoeda(curso.valorMensalidade, locale)
                           : t("common.notInformed")}
                       </p>
-                      <p>
+                      <ResumoDescontoMensalidade valorMensalidade={curso.valorMensalidade} percentual={curso.descontoMensalidadePercentual} />
+<p>
                         {t("common.installments")}:{" "}
                         {curso.quantidadeParcelas != null
                           ? curso.quantidadeParcelas

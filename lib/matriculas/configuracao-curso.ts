@@ -1,7 +1,8 @@
+import { mensalidadeComDesconto } from "@/lib/matriculas/desconto-curso";
 import { organizacaoAcademica } from "@/lib/academico/organizacao";
 
 type CursoConfiguracao = { organizacaoCurricular?: string | null; quantidadeEtapas?: number | null;
-  valorMatricula?: unknown; valorMensalidade?: unknown; quantidadeParcelas?: unknown };
+  descontoMensalidadePercentual?: unknown; valorMatricula?: unknown; valorMensalidade?: unknown; quantidadeParcelas?: unknown };
 export function financeiroPadraoCurso(curso?: CursoConfiguracao | null) {
   const numero = (valor: unknown, aceitaZero = false) => {
     if (valor == null || valor === "") return "";
@@ -11,7 +12,7 @@ export function financeiroPadraoCurso(curso?: CursoConfiguracao | null) {
   if (!curso) return { valorMatricula: "", valorMensalidade: "", quantidadeMensalidades: "" };
   if (organizacaoAcademica(curso.organizacaoCurricular) === "LIVRE")
     return { valorMatricula: "0", valorMensalidade: "", quantidadeMensalidades: "" };
-  return { valorMatricula: numero(curso.valorMatricula, true), valorMensalidade: numero(curso.valorMensalidade),
+  return { valorMatricula: numero(curso.valorMatricula, true), valorMensalidade: numero(curso.valorMensalidade) === "" ? "" : numero(mensalidadeComDesconto(curso.valorMensalidade, curso.descontoMensalidadePercentual), true),
     quantidadeMensalidades: Number.isInteger(Number(curso.quantidadeParcelas)) ? numero(curso.quantidadeParcelas) : "" };
 }
 export function anualDeEtapaUnica(curso: CursoConfiguracao) {

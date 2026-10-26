@@ -14,6 +14,7 @@ export type PrecoCursoModalidade = {
   id: number;
   nome: string;
   participaCombo: boolean;
+  descontoMensalidadePercentual?: number | string | null;
   valorMatricula: number | string | null;
   valorMensalidade: number | string | null;
   valorMensalidadeCombo: number | string | null;
@@ -138,6 +139,7 @@ export function calcularContratacaoModalidades(
     throw new ErroModalidades("SELECAO_INVALIDA");
   }
   const ordenados = [...cursos].sort((a, b) => a.id - b.id);
+  const valorAvulso = (c: PrecoCursoModalidade) => aplicarDescontoPercentual(centavos(c.valorMensalidade), c.descontoMensalidadePercentual ?? 0);
   const avulso: CalculoPreco = {
     tipoPreco: "AVULSO",
     comboId: null as number | null,
@@ -150,12 +152,12 @@ export function calcularContratacaoModalidades(
       0,
     ),
     mensalidadeCentavos: ordenados.reduce(
-      (s, c) => s + centavos(c.valorMensalidade),
+      (s, c) => s + valorAvulso(c),
       0,
     ),
     quantidadeParcelas: ordenados[0].quantidadeParcelas || 1,
     precosPorCurso: ordenados.map(c => ({ cursoId: c.id, cursoNome: c.nome,
-      mensalidadeCentavos: centavos(c.valorMensalidade), quantidadeAtividades: null })),
+      mensalidadeCentavos: valorAvulso(c), quantidadeAtividades: null })),
   };
   const candidatos: CalculoPreco[] = combos
     .filter((c) => c.ativo)
@@ -209,7 +211,7 @@ export function calcularContratacaoModalidades(
                     (s, c) => s + centavos(c.valorMensalidadeCombo),
                     0,
                   )) +
-            extras.reduce((s, c) => s + centavos(c.valorMensalidade), 0),
+            extras.reduce((s, c) => s + valorAvulso(c), 0),
           quantidadeParcelas: combo.quantidadeParcelas,
           precosPorCurso: [],
         },
@@ -224,7 +226,7 @@ export function calcularContratacaoModalidades(
           .find(p => p.quantidadeAtividades === quantidadeAtividades)
       : undefined;
     return { cursoId: c.id, cursoNome: c.nome,
-      mensalidadeCentavos: centavos(faixa?.valorMensalidade ?? c.valorMensalidade),
+      mensalidadeCentavos: faixa ? centavos(faixa.valorMensalidade) : valorAvulso(c),
       quantidadeAtividades: faixa ? quantidadeAtividades : null };
   });
   if (precosPorCurso.some(p => p.quantidadeAtividades !== null) &&

@@ -1,3 +1,4 @@
+import { mensalidadeComDesconto } from "./desconto-curso";
 import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import { ErroCursoLivre, idCursoLivre, validarPeriodoLivre, precoLivre } from "./cursos-livres";
@@ -46,9 +47,10 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
   }
   const curso = await db.curso.findFirst({ where: {
     id: matricula?.cursoId ?? cursoId!, instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE", ativo: true, excluidoEm: null,
-  }, select: { id: true, nome: true, valorSemanal: true, valorMensalidade: true } });
+  }, select: { id: true, nome: true, valorSemanal: true, valorMensalidade: true, descontoMensalidadePercentual: true } });
   if (!curso) throw new ErroCursoLivre("CURSO_INVALIDO", 404);
-  const valor = precoLivre(periodo.periodicidade === "SEMANAL" ? curso.valorSemanal?.toString() : curso.valorMensalidade);
+  const valorBase = precoLivre(periodo.periodicidade === "SEMANAL" ? curso.valorSemanal?.toString() : curso.valorMensalidade);
+  const valor = periodo.periodicidade === "MENSAL" ? mensalidadeComDesconto(valorBase, curso.descontoMensalidadePercentual) : valorBase;
   if (valor === null) throw new ErroCursoLivre("PRECO_NAO_CONFIGURADO");
   const turmaFinal = matricula?.turmaPrincipalId ?? turmaId!;
   if (!turmaFinal) throw new ErroCursoLivre("TURMA_INVALIDA");
@@ -111,7 +113,8 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
   const lancamento = await db.lancamentoFinanceiro.create({ data: {
     instituicaoId: user.instituicaoId, matriculaId: matricula.id, alunoId: alunoFinal, poloId: matricula.poloId,
     tipo: "OUTRO", descricao: `${curso.nome} · ${periodo.periodicidade} · ${body.dataInicio} – ${body.dataFim}`,
-    valorOriginal: valor, valorFinal: valor, valorPago: 0, status: "PENDENTE", vencimento: periodo.dataInicio,
+    valorOriginal: valorBase!, descontoValor: Math.round((valorBase! - valor) * 100) / 100, valorFinal: valor, valorPago: 0, status: valor === 0 ? "PAGO" : "PENDENTE", vencimento: periodo.dataInicio,
+    observacao: periodo.periodicidade === "MENSAL" && Number(curso.descontoMensalidadePercentual) > 0 ? `Desconto mensal do curso: ${curso.descontoMensalidadePercentual}%. ${valor === 0 ? "Quitado por desconto integral, sem recebimento ou movimento de caixa." : "Aguardando recebimento."}` : null,
   } });
   const contratado = await db.periodoCursoLivre.create({ data: {
     instituicaoId: user.instituicaoId, matriculaId: matricula.id, lancamentoId: lancamento.id, ...periodo, valor,
