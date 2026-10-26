@@ -56,17 +56,20 @@ export const searchIntentCopy: Record<ForeignLocale, Record<SearchIntent, Intent
   },
   "pt-PT": {
     school: {
-      title: "Software de Gestão Escolar para Instituições | PHANYX",
-      description: "Organize matrículas, turmas, registos académicos, finanças e áreas de acesso por perfil numa plataforma de gestão escolar.",
-      heading: "Gestão escolar ligada à rotina da instituição", intro: "Reúna matrículas, cursos, turmas, docentes e finanças institucionais. A equipa administrativa acompanha a operação enquanto docentes e estudantes usam áreas próprias.",
-      benefitsHeading: "O que pode organizar", benefits: [
-        { title: "Matrículas e estrutura académica", detail: "Organize cursos, períodos, disciplinas, turmas e registos de matrícula." },
-        { title: "Áreas por perfil", detail: "Administração, docentes e estudantes acedem às funções adequadas ao seu papel." },
-        { title: "Documentos e finanças", detail: "Associe documentos e acompanhamento financeiro à atividade académica." },
+      title: "Software de Gestão Escolar em Portugal | PHANYX",
+      description: "Software de gestão escolar em Portugal: organize cursos, matrículas, turmas, registos académicos, documentos e finanças. Consulte os planos PHANYX em euros.",
+      heading: "Software de gestão escolar para instituições em Portugal", intro: "Reúna cursos, turmas, matrículas, registos académicos e acompanhamento financeiro num só software. O PHANYX apoia a equipa administrativa, com áreas próprias para docentes e estudantes, em instituições que procuram ligar a gestão escolar ao ensino presencial, híbrido ou online.",
+      benefitsHeading: "Da matrícula ao acompanhamento dos estudantes", benefits: [
+        { title: "Cursos e turmas organizados", detail: "Estruture cursos, períodos e disciplinas e associe estudantes e docentes às respetivas turmas. A equipa consulta a organização académica sem dispersar os registos por várias folhas de cálculo." },
+        { title: "Matrículas e registos académicos", detail: "Acompanhe as matrículas e mantenha os dados dos estudantes ligados ao curso e à turma. Consulte os registos necessários à rotina da secretaria e ao acompanhamento académico." },
+        { title: "Áreas para docentes e estudantes", detail: "Disponibilize acessos próprios para cada perfil. Nos planos com LMS, ligue aulas, materiais e avaliações à estrutura académica para apoiar o ensino presencial, híbrido ou online." },
+        { title: "Acompanhamento financeiro", detail: "Relacione os registos financeiros com a matrícula e acompanhe pagamentos e valores pendentes. As equipas autorizadas consultam o contexto académico e financeiro na mesma plataforma." },
+        { title: "Documentos com validação pública", detail: "Emita documentos institucionais e certificados com código de validação e QR Code. A pessoa que recebe o documento pode consultar a respetiva página de validação pública." },
+        { title: "Vários polos e permissões", detail: "Organize o acesso da administração, dos docentes e dos estudantes de acordo com as respetivas funções. Confirme no plano escolhido o número de polos incluídos e as condições para ampliar a operação." },
       ],
-      workflowHeading: "Como começar", workflow: ["Configure a instituição, os polos e as permissões.", "Registe cursos, turmas e estudantes.", "Convide docentes e estudantes e acompanhe os resultados."],
-      question: "A plataforma serve instituições com vários polos?", answer: "Sim. O número de polos incluídos e o custo de polos adicionais dependem do plano e da proposta comercial.",
-      nextStep: "Compare os planos e estime o valor em euros",
+      workflowHeading: "Como preparar a utilização do PHANYX na sua instituição", workflow: ["Identifique os cursos, o número de estudantes ativos, os polos e as funções necessárias. Compare os planos e confirme as condições para Portugal com a equipa comercial.", "Configure a instituição e as permissões, organize cursos e turmas e registe os estudantes e as matrículas. Verifique os dados antes de disponibilizar o acesso às equipas.", "Convide docentes e estudantes para as respetivas áreas. Acompanhe a rotina académica, os documentos e os registos financeiros e ative os recursos de ensino incluídos no plano contratado."],
+      question: "Como escolher um software de gestão escolar para uma instituição em Portugal?", answer: "Compare as necessidades da secretaria, dos docentes e dos estudantes: matrículas, cursos, turmas, documentos, acompanhamento financeiro e ensino online. No PHANYX, confirme os recursos incluídos, o número de estudantes ativos e os polos antes de escolher o plano. Os preços de referência em euros podem ser consultados nos planos; a faturação em euros e as condições comerciais para Portugal são confirmadas por proposta comercial.",
+      nextStep: "Conheça os planos e peça uma proposta para Portugal",
     },
     lms: {
       title: "Plataforma de Ensino Online com Gestão Académica | PHANYX",
