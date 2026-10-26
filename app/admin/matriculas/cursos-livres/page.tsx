@@ -18,7 +18,7 @@ function CursosLivresPage() {
   const params = useSearchParams();
   const [cursos, setCursos] = useState<Curso[]>([]), [vinculos, setVinculos] = useState<Vinculo[]>([]);
   const [alunos, setAlunos] = useState<{ id: number; nome: string }[]>([]), [busca, setBusca] = useState("");
-  const [alunoId, setAlunoId] = useState(""), [cursoId, setCursoId] = useState(params.get("cursoId") || "");
+  const [alunoId, setAlunoId] = useState(params.get("alunoId") || ""), [cursoId, setCursoId] = useState(params.get("cursoId") || "");
   const [turmaId, setTurmaId] = useState(""), [matriculaId, setMatriculaId] = useState(params.get("matriculaId") || "");
   const [tipo, setTipo] = useState<PeriodicidadeLivre>("SEMANAL");
   const [inicio, setInicio] = useState(""), [fim, setFim] = useState("");

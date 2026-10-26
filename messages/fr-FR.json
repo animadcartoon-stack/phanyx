@@ -23500,5 +23500,33 @@
       "CURSO_LIVRE_SEM_ETAPAS": "Les cours libres n’ont pas d’étapes de programme.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Utilisez Cours libres — paiement par période pour cette inscription."
     }
+  },
+  "EnrollmentCourseSync": {
+    "description": "Gérez les inscriptions selon la structure du cours et les matières souscrites.",
+    "formHelp": "Sélectionnez un élève et un cours. La structure et les tarifs suivent les paramètres du cours.",
+    "conversionHelp": "Complétez le cours, le groupe, les matières et les conditions financières pour terminer la conversion.",
+    "loadError": "Impossible de charger la structure du cours. Sélectionnez à nouveau le cours.",
+    "selectYear": "Sélectionnez l’année ou l’étape du cours.",
+    "selectSemester": "Sélectionnez le semestre du cours.",
+    "completeSelection": "Complétez l’élève, le cours, le groupe, les matières et l’étape, le cas échéant.",
+    "yearLabel": "Année / étape du cours",
+    "semesterLabel": "Semestre du cours",
+    "annualNoSemester": "Cours annuel — aucune sélection de semestre",
+    "chooseYears": "Sélectionnez l’année / étape...",
+    "chooseSemesters": "Sélectionnez les semestres...",
+    "yearsSelected": "{count} année(s) sélectionnée(s)",
+    "semestersSelected": "{count} semestre(s) sélectionné(s)",
+    "noStructure": "Configurez le programme du cours pour continuer.",
+    "chooseCourse": "Sélectionnez d’abord un cours.",
+    "yearNumber": "Année {number}",
+    "semesterNumber": "Semestre {number}",
+    "feeLabel": "Frais d’inscription",
+    "financialDefaultsHelp": "Renseignés selon le cours et modifiables pour cette inscription. Le paiement est enregistré à la caisse.",
+    "selectedYear": "Année / étape : {number}",
+    "selectedSemester": "Semestre sélectionné : {number}",
+    "allYearSubjects": "Toutes les matières de cette année / étape",
+    "allSemesterSubjects": "Toutes les matières de ce semestre",
+    "yearCurriculum": "Programme de l’année / étape",
+    "semesterCurriculum": "Programme du semestre"
   }
 }

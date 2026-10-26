@@ -23271,5 +23271,33 @@
       "CURSO_LIVRE_SEM_ETAPAS": "Cursos livres não possuem etapas curriculares.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Cursos livres — pagamento por período para esta contratação."
     }
+  },
+  "EnrollmentCourseSync": {
+    "description": "Gerencie a matrícula conforme a organização do curso e as disciplinas contratadas.",
+    "formHelp": "Selecione aluno e curso. A estrutura e os valores acompanham o cadastro do curso.",
+    "conversionHelp": "Complete curso, turma, disciplinas e condições financeiras para finalizar a conversão.",
+    "loadError": "Não foi possível carregar a estrutura do curso. Tente selecionar o curso novamente.",
+    "selectYear": "Selecione o ano ou etapa do curso.",
+    "selectSemester": "Selecione o semestre do curso.",
+    "completeSelection": "Preencha aluno, curso, turma, disciplinas e a etapa, quando houver.",
+    "yearLabel": "Ano / etapa do curso",
+    "semesterLabel": "Semestre do curso",
+    "annualNoSemester": "Curso anual — sem seleção de semestre",
+    "chooseYears": "Selecione o ano / etapa...",
+    "chooseSemesters": "Selecione os semestres...",
+    "yearsSelected": "{count} ano(s) selecionado(s)",
+    "semestersSelected": "{count} semestre(s) selecionado(s)",
+    "noStructure": "Cadastre a estrutura curricular deste curso para continuar.",
+    "chooseCourse": "Selecione um curso primeiro.",
+    "yearNumber": "Ano {number}",
+    "semesterNumber": "{number}º semestre",
+    "feeLabel": "Valor da matrícula (taxa)",
+    "financialDefaultsHelp": "Preenchido conforme o curso. Pode ser ajustado para esta contratação. A baixa do pagamento é feita no Caixa.",
+    "selectedYear": "Ano / etapa: {number}",
+    "selectedSemester": "Semestre selecionado: {number}º semestre",
+    "allYearSubjects": "Todas as disciplinas deste ano / etapa",
+    "allSemesterSubjects": "Todas as disciplinas deste semestre",
+    "yearCurriculum": "Grade do ano / etapa",
+    "semesterCurriculum": "Grade do semestre"
   }
 }

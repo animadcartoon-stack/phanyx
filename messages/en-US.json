@@ -23501,5 +23501,33 @@
       "CURSO_LIVRE_SEM_ETAPAS": "Open courses do not have curriculum stages.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Open courses — pay per period for this enrollment."
     }
+  },
+  "EnrollmentCourseSync": {
+    "description": "Manage enrollment according to the course structure and contracted subjects.",
+    "formHelp": "Select a student and course. Structure and prices follow the course settings.",
+    "conversionHelp": "Complete the course, class, subjects and financial terms to finish the conversion.",
+    "loadError": "The course structure could not be loaded. Select the course again.",
+    "selectYear": "Select the course year or stage.",
+    "selectSemester": "Select the course semester.",
+    "completeSelection": "Complete student, course, class, subjects and stage, when applicable.",
+    "yearLabel": "Course year / stage",
+    "semesterLabel": "Course semester",
+    "annualNoSemester": "Annual course — no semester selection",
+    "chooseYears": "Select the year / stage...",
+    "chooseSemesters": "Select semesters...",
+    "yearsSelected": "{count} year(s) selected",
+    "semestersSelected": "{count} semester(s) selected",
+    "noStructure": "Configure the course curriculum to continue.",
+    "chooseCourse": "Select a course first.",
+    "yearNumber": "Year {number}",
+    "semesterNumber": "Semester {number}",
+    "feeLabel": "Enrollment fee",
+    "financialDefaultsHelp": "Filled from the course settings. Editable for this enrollment. Payments are recorded at the cashier.",
+    "selectedYear": "Year / stage: {number}",
+    "selectedSemester": "Selected semester: {number}",
+    "allYearSubjects": "All subjects in this year / stage",
+    "allSemesterSubjects": "All subjects in this semester",
+    "yearCurriculum": "Year / stage curriculum",
+    "semesterCurriculum": "Semester curriculum"
   }
 }

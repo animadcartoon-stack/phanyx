@@ -5,7 +5,8 @@ import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import Link from "next/link";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { financeiroPadraoCurso } from "@/lib/matriculas/configuracao-curso";
+import { useRouter, useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 import PhanyxToast from "@/components/ui/PhanyxToast";
@@ -16,6 +17,11 @@ type CursoOption = {
   id: number;
   nome: string;
   cargaHorariaMaximaSemestre?: number | null;
+  organizacaoCurricular?: string;
+  quantidadeEtapas?: number | null;
+  valorMatricula?: number | string | null;
+  valorMensalidade?: number | string | null;
+  quantidadeParcelas?: number | null;
 };
 
 type AlunoOption = {
@@ -59,6 +65,8 @@ type OfertaDisciplina = {
 };
 
 type TurmaOption = {
+  etapaNumero?: number | null;
+  organizacaoCurricular?: string;
   id: number;
   nome: string;
   semestre?: string | null;
@@ -90,6 +98,7 @@ type CursoSemestreDisciplina = {
 };
 
 type CursoSemestreOption = {
+  virtual?: boolean;
   id: number;
   numero: number;
   titulo?: string | null;
@@ -101,6 +110,8 @@ type CursoSemestreOption = {
 
 type MatriculaApi = {
   organizacaoCurricular?: string;
+  etapaNumero?: number | null;
+  cursoSemestreId?: number | null;
   contratacaoModalidades?: unknown;
   id: number;
   status?: string;
@@ -269,6 +280,10 @@ function AdminMatriculasPage() {
   const locale = useLocale();
   const tc = useTranslations("EnrollmentCombos");
   const tl = useTranslations("CoursePeriods");
+  const ts = useTranslations("EnrollmentCourseSync");
+  const router = useRouter();
+  const estruturaRequestRef = useRef(0);
+  const estruturaEdicaoRequestRef = useRef(0);
   const [busca, setBusca] = useState("");
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
@@ -352,6 +367,7 @@ function AdminMatriculasPage() {
   const [cursos, setCursos] = useState<CursoOption[]>([]);
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
   const [semestresCurso, setSemestresCurso] = useState<CursoSemestreOption[]>([]);
+  const [semestresCursoEdicao, setSemestresCursoEdicao] = useState<CursoSemestreOption[]>([]);
 
   const [vendedores, setVendedores] =
     useState<VendedorOption[]>([]);
@@ -385,6 +401,7 @@ function AdminMatriculasPage() {
     useRef<HTMLDivElement | null>(null);
 
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
+  const [valorTaxaMatricula, setValorTaxaMatricula] = useState("");
   const [valorPagoMatricula, setValorPagoMatricula] =
     useState<string>("");
 
@@ -665,9 +682,13 @@ function AdminMatriculasPage() {
 
           const listaCursos: CursoOption[] =
             cursosRecebidos
-              .filter((curso: any) => curso.organizacaoCurricular !== "LIVRE")
               .map((curso: any) => ({
                 id: Number(curso?.id),
+                organizacaoCurricular: curso?.organizacaoCurricular ?? "SEMESTRAL",
+                quantidadeEtapas: curso?.quantidadeEtapas ?? null,
+                valorMatricula: curso?.valorMatricula ?? null,
+                valorMensalidade: curso?.valorMensalidade ?? null,
+                quantidadeParcelas: curso?.quantidadeParcelas ?? null,
 
                 nome: String(
                   curso?.nome ??
@@ -785,6 +806,8 @@ function AdminMatriculasPage() {
             id: Number(t.id),
             nome: String(t.nome ?? "Turma"),
             semestre: t?.semestre ?? null,
+            etapaNumero: t?.etapaNumero ?? null,
+            organizacaoCurricular: t?.organizacaoCurricular ?? "SEMESTRAL",
             disciplinaId: primeiraDisciplina?.id ?? null,
             disciplinaNome: primeiraDisciplina?.nome ?? null,
             professorNome: t?.professor?.nome ?? null,
@@ -847,28 +870,36 @@ function AdminMatriculasPage() {
     }
   }
 
-  async function carregarSemestresDoCurso(cursoIdValue: string) {
+  const cursoSelecionadoObj = cursos.find(c => c.id === Number(cursoId)) ?? null;
+  const cursoAnualSelecionado = cursoSelecionadoObj?.organizacaoCurricular === "ANUAL";
+  const cursoEditandoAnual = cursos.find(c => c.id === Number(matriculaEditando?.cursoId))?.organizacaoCurricular === "ANUAL";
+  async function carregarSemestresDoCurso(cursoIdValue: string, edicao = false) {
+    const ref = edicao ? estruturaEdicaoRequestRef : estruturaRequestRef;
+    const definirEtapas = edicao ? setSemestresCursoEdicao : setSemestresCurso;
+    const pedido = ++ref.current;
+    definirEtapas([]);
     if (!cursoIdValue) {
-      setSemestresCurso([]);
+      definirEtapas([]);
       return [];
     }
 
     try {
       const res = await fetch(
-        `/api/admin/curso-etapas?cursoId=${Number(cursoIdValue)}`,
+        `/api/admin/matriculas/configuracao-curso?cursoId=${Number(cursoIdValue)}`,
         {
           cache: "no-store",
         }
       );
 
       const data = await res.json();
+      if (!res.ok) throw new Error(ts("loadError"));
       const lista = Array.isArray(data) ? data : [];
-
-      setSemestresCurso(lista);
+      if (pedido !== ref.current) return [];
+      definirEtapas(lista);
       return lista;
     } catch (err) {
-      console.error("Erro ao carregar semestres:", err);
-      setSemestresCurso([]);
+      console.error("Erro ao carregar estrutura do curso:", err);
+      if (pedido === ref.current) { definirEtapas([]); setErro(ts("loadError")); }
       return [];
     }
   }
@@ -1055,8 +1086,9 @@ function AdminMatriculasPage() {
   }, [searchParams]);
 
   const semestresSelecionados = useMemo(() => {
+    if (cursoAnualSelecionado && semestresCurso.length === 1) return semestresCurso;
     return semestresCurso.filter((s) => cursoSemestreIds.includes(s.id));
-  }, [semestresCurso, cursoSemestreIds]);
+  }, [semestresCurso, cursoSemestreIds, cursoAnualSelecionado]);
 
   const semestreSelecionado = semestresSelecionados[0] ?? null;
 
@@ -1087,6 +1119,33 @@ function AdminMatriculasPage() {
         ),
     }));
   }, [semestresCurso]);
+  const modulosContrataveisEdicao = useMemo(() => {
+    return semestresCursoEdicao.map((semestre) => ({
+      id: semestre.id,
+      numero: semestre.numero,
+      titulo: semestre.titulo,
+      disciplinas: (semestre.disciplinas || [])
+        .map((vinculo) => ({
+          id: Number(
+            vinculo.disciplinaId ??
+            vinculo.disciplina?.id
+          ),
+          nome:
+            vinculo.disciplina?.nome ||
+            `Disciplina ${vinculo.disciplinaId}`,
+          cargaHoraria:
+            Number(
+              vinculo.disciplina?.cargaHoraria ??
+              0
+            ),
+        }))
+        .filter(
+          (disciplina) =>
+            Number.isInteger(disciplina.id) &&
+            disciplina.id > 0
+        ),
+    }));
+  }, [semestresCursoEdicao]);
 
   const todasDisciplinasContrataveisIds =
     useMemo(() => {
@@ -1182,7 +1241,7 @@ function AdminMatriculasPage() {
     moduloId: number
   ) {
     const modulo =
-      modulosContrataveis.find(
+      modulosContrataveisEdicao.find(
         (item) =>
           item.id === moduloId
       );
@@ -1310,12 +1369,13 @@ function AdminMatriculasPage() {
         disciplinasDoSemestreIds.includes(disciplinaId)
       );
 
-      return bateCurso && bateDisciplina;
+      return bateCurso && bateDisciplina && (!cursoAnualSelecionado || turma.etapaNumero === semestreSelecionado.numero);
     });
   }, [
     turmas,
     cursoId,
     semestreSelecionado,
+    cursoAnualSelecionado,
     disciplinasDoSemestreIds,
   ]);
 
@@ -1417,7 +1477,7 @@ function AdminMatriculasPage() {
           turmaId: turma.id,
           turmaNome: turma.nome,
           turmaSemestre:
-            turma.semestre ?? null,
+            turma.organizacaoCurricular === "ANUAL" ? null : turma.semestre ?? null,
 
           professorNome:
             disciplina.professorNome ??
@@ -1574,7 +1634,7 @@ function AdminMatriculasPage() {
   ) {
     switch (tipo) {
       case "GRADE_PRINCIPAL":
-        return "Grade do semestre";
+        return ts(cursoAnualSelecionado ? "yearCurriculum" : "semesterCurriculum");
 
       case "DEPENDENCIA":
         return "Dependência";
@@ -1665,11 +1725,11 @@ function AdminMatriculasPage() {
     if (!matriculaEditando) return null;
 
     return (
-      semestresCurso.find(
+      semestresCursoEdicao.find(
         (s) => s.id === Number(matriculaEditando.cursoSemestreId)
       ) ?? null
     );
-  }, [semestresCurso, matriculaEditando]);
+  }, [semestresCursoEdicao, matriculaEditando]);
 
   const disciplinasEditandoIds = useMemo(() => {
     return semestreEditandoSelecionado
@@ -1734,9 +1794,6 @@ function AdminMatriculasPage() {
 
   const matriculasFiltradas = matriculas;
 
-  const cursoSelecionadoObj = useMemo(() => {
-    return cursos.find((c) => c.id === Number(cursoId)) ?? null;
-  }, [cursos, cursoId]);
 
   const cargaMinimaSemestre = Number(semestreSelecionado?.cargaMinima || 0);
   const limiteCargaHoraria = Number(semestreSelecionado?.cargaMaxima || 0);
@@ -1783,7 +1840,7 @@ function AdminMatriculasPage() {
       a > 0 &&
       Number.isFinite(c) &&
       c > 0 &&
-      cursoSemestreIds.length > 0 &&
+      semestresSelecionados.length > 0 &&
       disciplinasIdsSelecionadasParaEnvio.length > 0 &&
       turmasSelecionadas.length > 0 &&
       todasDisciplinasPossuemOferta &&
@@ -1793,7 +1850,7 @@ function AdminMatriculasPage() {
   }, [
     alunoId,
     cursoId,
-    cursoSemestreIds,
+    semestresSelecionados,
     disciplinasIdsSelecionadasParaEnvio,
     turmasSelecionadas,
     todasDisciplinasPossuemOferta,
@@ -1811,7 +1868,7 @@ function AdminMatriculasPage() {
 
   async function criarMatricula() {
     if (!semestreSelecionado) {
-      setErro("Selecione o semestre do curso antes de matricular o aluno.");
+      setErro(ts(cursoAnualSelecionado ? "selectYear" : "selectSemester"));
       return;
     }
 
@@ -1827,7 +1884,7 @@ function AdminMatriculasPage() {
 
     if (!podeCriar) {
       setErro(
-        "Preencha aluno, curso, semestre, turma e disciplinas antes de matricular."
+        ts("completeSelection")
       );
       return;
     }
@@ -1911,11 +1968,11 @@ function AdminMatriculasPage() {
             vendedorResponsavelId === ""
               ? null
               : Number(vendedorResponsavelId),
-          cursoSemestreId: cursoSemestreIds[0] ?? null,
-          cursoSemestreIds,
+          cursoSemestreId: semestresSelecionados.find(s => s.id > 0)?.id ?? null,
+          cursoSemestreIds: semestresSelecionados.filter(s => s.id > 0).map(s => s.id),
           etapaNumero: semestresSelecionados[0]?.numero ?? null,
-          semestre: semestresSelecionados[0]?.numero ?? null,
-          semestres: semestresSelecionados.map((s) => s.numero),
+          semestre: cursoAnualSelecionado ? null : semestresSelecionados[0]?.numero ?? null,
+          semestres: cursoAnualSelecionado ? [] : semestresSelecionados.map((s) => s.numero),
           turmaPrincipalId:
             turmasSelecionadas[0] ?? null,
 
@@ -1925,6 +1982,7 @@ function AdminMatriculasPage() {
           dataInicioCurso: dataInicioCurso || null,
           status: statusInicialMatricula,
 
+          valorMatricula: valorTaxaMatricula === "" ? null : Number(valorTaxaMatricula),
           valorPagoMatricula:
             Number(valorPagoMatricula || 0),
 
@@ -1970,6 +2028,7 @@ function AdminMatriculasPage() {
       setTipoContratacao("CURSO_COMPLETO");
       setDisciplinasContratadasSelecionadas([]);
       setTurmasSelecionadas([]);
+      setValorTaxaMatricula("");
       setValorPagoMatricula("");
       setFormaPagamentoMatricula("");
       setValorMensalidade("");
@@ -2198,7 +2257,7 @@ function AdminMatriculasPage() {
         : "";
 
     const semestreAtual =
-      matricula.semestre || "";
+      matricula.etapaNumero ?? matricula.semestre ?? "";
 
     const itensAtivos =
       Array.isArray(
@@ -2285,7 +2344,7 @@ function AdminMatriculasPage() {
     let semestreEncontrado: any = null;
 
     if (cursoIdAtual) {
-      const semestres = await carregarSemestresDoCurso(cursoIdAtual);
+      const semestres = await carregarSemestresDoCurso(cursoIdAtual, true);
 
       semestreEncontrado =
         semestres?.find((s: any) => Number(s.numero) === Number(semestreAtual)) ??
@@ -2554,17 +2613,16 @@ function AdminMatriculasPage() {
                 : todasDisciplinasContrataveisIds,
 
             cursoSemestreId:
-              matriculaEditando
-                .cursoSemestreId ===
-                ""
+              !matriculaEditando.cursoSemestreId || Number(matriculaEditando.cursoSemestreId) <= 0
                 ? null
                 : Number(
                   matriculaEditando
                     .cursoSemestreId
                 ),
 
+            etapaNumero: cursoEditandoAnual ? Number(matriculaEditando.semestre) || 1 : undefined,
             semestre:
-              matriculaEditando.semestre ===
+              cursoEditandoAnual ? null : matriculaEditando.semestre ===
                 ""
                 ? null
                 : Number(
@@ -3546,8 +3604,7 @@ function AdminMatriculasPage() {
       <div>
         <h1 className="text-2xl font-bold">📌 Matrículas</h1>
         <p className="text-slate-600 dark:text-slate-300 mt-1">
-          Gerencie a matrícula por curso, semestre do curso e disciplinas
-          contratadas.
+          {ts("description")}
         </p>
       </div>
       {erro && (
@@ -3577,8 +3634,7 @@ function AdminMatriculasPage() {
         <Link href="/admin/matriculas/cursos-livres" className="mr-3 mt-3 inline-block rounded-lg bg-emerald-700 px-4 py-2 font-semibold text-white">{tl("title")}</Link>
         <Link href="/admin/matriculas/modalidades" className="mt-3 inline-block rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">{tc("enroll")}</Link>
         <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-          Selecione aluno, curso, semestre estruturado e as turmas que ele vai
-          cursar.
+          {ts("formHelp")}
         </p>
 
         {conversaoDeLeadAtiva && (
@@ -3623,9 +3679,7 @@ function AdminMatriculasPage() {
             </div>
 
             <p className="mt-3 text-xs leading-5">
-              Complete curso, semestre, turma,
-              disciplinas e condições financeiras
-              para finalizar a conversão.
+              {ts("conversionHelp")}
             </p>
           </div>
         )}
@@ -3757,11 +3811,19 @@ function AdminMatriculasPage() {
               value={cursoId}
               onChange={(e) => {
                 const id = e.target.value;
-                setCursoId(id);
-
-                if (id) {
-                  carregarSemestresDoCurso(id);
+                const curso = cursos.find(c => c.id === Number(id));
+                if (curso?.organizacaoCurricular === "LIVRE") {
+                  const query = new URLSearchParams({ cursoId: id });
+                  if (alunoId) query.set("alunoId", alunoId);
+                  router.push(`/admin/matriculas/cursos-livres?${query}`);
+                  return;
                 }
+                const padrao = financeiroPadraoCurso(curso);
+                setValorTaxaMatricula(padrao.valorMatricula);
+                setValorMensalidade(padrao.valorMensalidade);
+                setQuantidadeParcelas(padrao.quantidadeMensalidades);
+                setValorPagoMatricula(""); setFormaPagamentoMatricula("");
+                setCursoId(id);
               }}
               className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
             >
@@ -3776,9 +3838,9 @@ function AdminMatriculasPage() {
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Semestre do curso
+              {ts(cursoAnualSelecionado ? "yearLabel" : "semesterLabel")}
             </label>
-            <div
+            {cursoAnualSelecionado && semestresCurso.length <= 1 ? <p className="mt-1 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white">{ts("annualNoSemester")}</p> : <div
               ref={semestresDropdownRef}
               className="relative mt-1"
             >
@@ -3790,8 +3852,8 @@ function AdminMatriculasPage() {
               >
                 <span className="truncate">
                   {cursoSemestreIds.length === 0
-                    ? "Selecione os semestres..."
-                    : `${cursoSemestreIds.length} semestre(s) selecionado(s)`}
+                    ? ts(cursoAnualSelecionado ? "chooseYears" : "chooseSemesters")
+                    : ts(cursoAnualSelecionado ? "yearsSelected" : "semestersSelected", { count: cursoSemestreIds.length })}
                 </span>
 
                 <span>{semestresAberto ? "▴" : "▾"}</span>
@@ -3801,7 +3863,7 @@ function AdminMatriculasPage() {
                 <div className="absolute z-20 mt-1 w-full border rounded-xl bg-white p-3 shadow-lg">
                   {semestresCurso.length === 0 ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Selecione um curso primeiro...
+                      {ts(cursoId ? "noStructure" : "chooseCourse")}
                     </p>
                   ) : (
                     <div className="space-y-2">
@@ -3812,14 +3874,14 @@ function AdminMatriculasPage() {
                             checked={cursoSemestreIds.includes(s.id)}
                             onChange={() => {
                               setCursoSemestreIds((prev) =>
-                                prev.includes(s.id)
+                                cursoAnualSelecionado ? [s.id] : prev.includes(s.id)
                                   ? prev.filter((id) => id !== s.id)
                                   : [...prev, s.id]
                               );
                             }}
                           />
                           <span>
-                            {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+                            {ts(cursoAnualSelecionado ? "yearNumber" : "semesterNumber", { number: s.numero })}{s.titulo ? ` — ${s.titulo}` : ""}
                           </span>
                         </label>
                       ))}
@@ -3827,7 +3889,7 @@ function AdminMatriculasPage() {
                   )}
                 </div>
               )}
-            </div>
+            </div>}
           </div>
 
           <div>
@@ -3950,11 +4012,17 @@ function AdminMatriculasPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">
+            <label htmlFor="taxa-matricula-nova" className="text-sm font-medium text-gray-700 dark:text-slate-200">{ts("feeLabel")}</label>
+            <input id="taxa-matricula-nova" type="number" min="0" step="0.01" value={valorTaxaMatricula} onChange={e => setValorTaxaMatricula(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2 bg-white text-slate-900 dark:bg-slate-900 dark:text-white" />
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{ts("financialDefaultsHelp")}</p>
+          </div>
+          <div>
+            <label htmlFor="mensalidade-nova" className="text-sm font-medium text-gray-700">
               Valor da mensalidade
             </label>
             <input
               type="number"
+              id="mensalidade-nova" min="0" step="0.01"
               value={valorMensalidade}
               onChange={(e) => setValorMensalidade(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"
@@ -4019,6 +4087,7 @@ function AdminMatriculasPage() {
             </label>
             <input
               type="number"
+              id="quantidade-mensalidades-nova" min="1" step="1"
               value={quantidadeParcelas}
               onChange={(e) => setQuantidadeParcelas(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"
@@ -4046,6 +4115,7 @@ function AdminMatriculasPage() {
               type="number"
               step="0.01"
               min="0"
+              id="recebido-matricula-nova"
               value={valorPagoMatricula}
               onChange={(e) => {
                 const valor =
@@ -4125,7 +4195,7 @@ function AdminMatriculasPage() {
               valorPagoMatricula || 0
             ) > 0 && (
                 <p className="mt-1 text-xs text-slate-500">
-                  Este valor será registrado como recebimento financeiro no ato da matrícula.
+                  {ts("financialDefaultsHelp")}
                 </p>
               )}
           </div>
@@ -4297,7 +4367,7 @@ function AdminMatriculasPage() {
         {semestreSelecionado ? (
           <div className="mt-5 rounded-2xl border bg-blue-50 p-4">
             <p className="font-semibold text-blue-900">
-              Semestre selecionado: {semestreSelecionado.numero}º semestre
+              {ts(cursoAnualSelecionado ? "selectedYear" : "selectedSemester", { number: semestreSelecionado.numero })}
               {semestreSelecionado.titulo
                 ? ` — ${semestreSelecionado.titulo}`
                 : ""}
@@ -4325,7 +4395,7 @@ function AdminMatriculasPage() {
 
             <div>
               <p className="font-semibold text-slate-900 dark:text-slate-100">
-                Todas as disciplinas deste semestre
+                {ts(cursoAnualSelecionado ? "allYearSubjects" : "allSemesterSubjects")}
               </p>
 
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -4687,7 +4757,7 @@ function AdminMatriculasPage() {
                         </td>
 
                         <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                          {m.semestre ? `${m.semestre}º semestre` : "-"}
+                          {m.organizacaoCurricular === "ANUAL" ? ts("yearNumber", { number: m.etapaNumero || 1 }) : m.semestre ? ts("semesterNumber", { number: m.semestre }) : "-"}
                         </td>
 
                         <td className="px-4 py-3">
@@ -5290,16 +5360,23 @@ function AdminMatriculasPage() {
                   value={matriculaEditando.cursoId}
                   onChange={async (e) => {
                     const novoCursoId = e.target.value;
-                    await carregarSemestresDoCurso(novoCursoId);
+                    const etapas = await carregarSemestresDoCurso(novoCursoId, true);
+                    if (!etapas.length && novoCursoId) return;
+                    const curso = cursos.find(c => c.id === Number(novoCursoId));
+                    const padrao = financeiroPadraoCurso(curso);
+                    const unica = curso?.organizacaoCurricular === "ANUAL" && etapas.length === 1 ? etapas[0] : null;
 
                     setMatriculaEditando((prev) =>
                       prev
                         ? {
                           ...prev,
                           cursoId: novoCursoId,
-                          cursoSemestreId: "",
-                          semestre: "",
+                          cursoSemestreId: unica ? String(unica.id) : "",
+                          semestre: unica?.numero ?? "",
                           turmaPrincipalId: "",
+                          valorPagoMatricula: padrao.valorMatricula,
+                          valorMensalidade: padrao.valorMensalidade,
+                          quantidadeMensalidades: padrao.quantidadeMensalidades,
                         }
                         : prev
                     );
@@ -5307,7 +5384,7 @@ function AdminMatriculasPage() {
                   className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 >
                   <option value="">Selecione...</option>
-                  {cursos.map((c) => (
+                  {cursos.filter(c => c.organizacaoCurricular !== "LIVRE").map((c) => (
                     <option key={c.id} value={String(c.id)}>
                       {c.nome}
                     </option>
@@ -5317,13 +5394,13 @@ function AdminMatriculasPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-                  Semestre do curso
+                  {ts(cursoEditandoAnual ? "yearLabel" : "semesterLabel")}
                 </label>
                 <select
                   value={matriculaEditando.cursoSemestreId}
                   onChange={(e) => {
                     const semestreId = e.target.value;
-                    const semestreObj = semestresCurso.find(
+                    const semestreObj = semestresCursoEdicao.find(
                       (s) => s.id === Number(semestreId)
                     );
 
@@ -5350,12 +5427,12 @@ function AdminMatriculasPage() {
                     );
                   }}
                   className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                  disabled={!matriculaEditando.cursoId}
+                  disabled={!matriculaEditando.cursoId || (cursoEditandoAnual && semestresCursoEdicao.length === 1)}
                 >
                   <option value="">Selecione...</option>
-                  {semestresCurso.map((s) => (
+                  {semestresCursoEdicao.map((s) => (
                     <option key={s.id} value={String(s.id)}>
-                      {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+                      {ts(cursoEditandoAnual ? "yearNumber" : "semesterNumber", { number: s.numero })}{s.titulo ? ` — ${s.titulo}` : ""}
                     </option>
                   ))}
                 </select>
@@ -5614,7 +5691,7 @@ function AdminMatriculasPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-                  Valor pago no ato da matrícula
+                  {ts("feeLabel")}
                 </label>
                 <input
                   type="number"
@@ -5699,7 +5776,7 @@ function AdminMatriculasPage() {
               {tipoContratacaoEdicao ===
                 "PARCIAL" && (
                 <div className="mt-4 space-y-3">
-                  {modulosContrataveis.map(
+                  {modulosContrataveisEdicao.map(
                     (modulo) => {
                       const idsModulo =
                         modulo.disciplinas.map(

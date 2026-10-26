@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export type TipoContratacaoEscopo =
   | "CURSO_COMPLETO"
@@ -61,15 +61,15 @@ export async function montarEscopoContratado(params: {
       },
     });
 
+  const cursoSemGrade = !semestres.length ? await prisma.curso.findFirst({ where: { id: cursoId, instituicaoId }, select: { organizacaoCurricular: true, quantidadeEtapas: true } }) : null;
+  const anualSimples = cursoSemGrade?.organizacaoCurricular === "ANUAL" && (cursoSemGrade.quantidadeEtapas == null || cursoSemGrade.quantidadeEtapas === 1);
   const disciplinasDiretas =
     await prisma.disciplina.findMany({
       where: {
         instituicaoId,
         cursoId,
         ativo: true,
-        semestre: {
-          not: null,
-        },
+        ...(anualSimples ? {} : { semestre: { not: null } }),
       },
       orderBy: [
         { semestre: "asc" },

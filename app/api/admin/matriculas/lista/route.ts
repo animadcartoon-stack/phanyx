@@ -145,6 +145,8 @@ export async function GET(request: Request) {
           tipoContratacao: true,
           contratacaoModalidades: true,
           organizacaoCurricular: true,
+          etapaNumero: true,
+          cursoSemestreId: true,
           createdAt: true,
           aluno: {
             select: {
