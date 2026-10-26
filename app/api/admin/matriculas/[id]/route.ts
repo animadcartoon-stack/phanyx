@@ -176,7 +176,8 @@ export async function PUT(
     );
   }
 
-  if (matriculaExistente.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 409 });
+  if (matriculaExistente.contratacaoDisciplinas) return NextResponse.json({ codigo: "CURSO_PRECO_POR_DISCIPLINA", error: "Use a página de Matrículas com seleção de disciplinas para esta contratação." }, { status: 400 });
+    if (matriculaExistente.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 409 });
 
   if (matriculaExistente.contratacaoModalidades) {
     return NextResponse.json({ codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });

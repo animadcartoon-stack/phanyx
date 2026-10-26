@@ -483,6 +483,7 @@ export async function publicarCursoParaUnidadesIndependentes(
 
             valorSemanal: cursoOrigem.valorSemanal,
             descontoMensalidadePercentual: cursoOrigem.descontoMensalidadePercentual,
+            ...(cursoOrigem.regrasPrecoDisciplinas ? { regrasPrecoDisciplinas: cursoOrigem.regrasPrecoDisciplinas } : {}),
             valorMensalidade:
               cursoOrigem
                 .valorMensalidade,

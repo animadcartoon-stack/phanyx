@@ -840,6 +840,7 @@ model Curso {
   valorSemanal               Decimal?              @db.Decimal(10, 2)
   valorMensalidade           Float?
   descontoMensalidadePercentual Decimal?             @db.Decimal(5, 2)
+  regrasPrecoDisciplinas      Json?
   participaCombo             Boolean               @default(false)
   valorMensalidadeCombo      Decimal?              @db.Decimal(10, 2)
   precosComboPorQuantidade   Json                  @default("[]")
@@ -1193,6 +1194,7 @@ model Matricula {
   comboId                                 Int?
   combo                                   ComboModalidades?         @relation(fields: [comboId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
   contratacaoModalidades                   Json?
+  contratacaoDisciplinas                   Json?
   chaveContratacaoModalidades              String?                   @unique
   dataInicioCurso                         DateTime?                 @db.Date
   id                                      Int                       @id @default(autoincrement())

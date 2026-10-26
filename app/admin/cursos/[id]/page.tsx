@@ -1,4 +1,7 @@
 "use client";
+import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
+import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
+import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
 import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
@@ -73,6 +76,7 @@ type Curso = {
   valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
   descontoMensalidadePercentual?: string | number | null;
+  regrasPrecoDisciplinas?: unknown;
   participaCombo?: boolean;
   valorMensalidadeCombo?: string | number | null;
   precosComboPorQuantidade?: { quantidadeAtividades: number; valorMensalidade: string }[];
@@ -130,6 +134,7 @@ export default function CursoDetalhePage() {
   const tc = useTranslations("EnrollmentCombos");
   const tl = useTranslations("CoursePeriods");
   const td = useTranslations("CourseMonthlyDiscount");
+  const tp = useTranslations("SubjectPricing");
   const locale = useLocale();
   const cursoId = Number(params.id);
 
@@ -157,6 +162,8 @@ export default function CursoDetalhePage() {
     valorMensalidade: "",
     valorSemanal: "",
     descontoMensalidadePercentual: "",
+    precoPorDisciplina: false,
+    faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
     participaCombo: false,
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -224,6 +231,8 @@ export default function CursoDetalhePage() {
         participaCombo: Boolean(encontrado.participaCombo),
         valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
         precosComboPorQuantidade: (encontrado.precosComboPorQuantidade || []).map(f => ({ quantidadeAtividades: String(f.quantidadeAtividades), valorMensalidade: String(f.valorMensalidade) })),
+        precoPorDisciplina: Boolean(encontrado.regrasPrecoDisciplinas),
+        faixasDisciplinas: normalizarRegrasDisciplinas(encontrado.regrasPrecoDisciplinas)?.faixas.map(f => ({ quantidade: String(f.quantidade), descontoPercentual: String(f.descontoPercentual) })) ?? [{ quantidade: "1", descontoPercentual: "0" }],
         descontoMensalidadePercentual: encontrado.descontoMensalidadePercentual == null ? "" : String(encontrado.descontoMensalidadePercentual),
         valorSemanal: encontrado.valorSemanal == null ? "" : String(encontrado.valorSemanal),
         valorMensalidade:
@@ -331,7 +340,8 @@ export default function CursoDetalhePage() {
           valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
           precosComboPorQuantidade: formCurso.precosComboPorQuantidade,
           valorSemanal: formCurso.valorSemanal || null,
-          descontoMensalidadePercentual: formCurso.descontoMensalidadePercentual || null,
+          descontoMensalidadePercentual: formCurso.precoPorDisciplina ? null : formCurso.descontoMensalidadePercentual || null,
+          regrasPrecoDisciplinas: formCurso.precoPorDisciplina ? { versao: 1, faixas: formCurso.faixasDisciplinas } : null,
           valorMensalidade: formCurso.valorMensalidade
             ? Number(formCurso.valorMensalidade)
             : null,
@@ -346,7 +356,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -726,8 +736,8 @@ export default function CursoDetalhePage() {
                   </div>
 
                   <Link href="/admin/matriculas/cursos-livres" className="font-semibold text-blue-700 underline dark:text-blue-300">{tl("title")}</Link>
-          <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "" } : {}) })} />
-                  <div>
+          <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "", precoPorDisciplina: false } : {}) })} />
+                  <div hidden={formCurso.organizacaoCurricular === "LIVRE"}>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {ta(formCurso.organizacaoCurricular === "ANUAL" ? "yearsCount" : "semestersCount")}
                     </label>
@@ -774,7 +784,7 @@ export default function CursoDetalhePage() {
 
                   <div hidden={formCurso.organizacaoCurricular === "LIVRE"}>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                      {t("common.monthlyValue")}
+                      {formCurso.precoPorDisciplina ? tp("unitMonthlyLabel") : t("common.monthlyValue")}
                     </label>
                     <input
                       type="number"
@@ -793,11 +803,12 @@ export default function CursoDetalhePage() {
                   </div>
 
           {formCurso.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={formCurso.valorSemanal} valorMensal={formCurso.valorMensalidade} onChangeMensal={valor => setFormCurso({ ...formCurso, valorMensalidade: valor })} onChange={valor => setFormCurso({ ...formCurso, valorSemanal: valor })} />}
-                  <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />
-          <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
-                    onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
+                  {formCurso.organizacaoCurricular !== "LIVRE" && <CamposPrecoDisciplinas ativo={formCurso.precoPorDisciplina} faixas={formCurso.faixasDisciplinas} onChange={dados => setFormCurso(prev => ({ ...prev, precoPorDisciplina: dados.ativo ?? prev.precoPorDisciplina, faixasDisciplinas: dados.faixas ?? prev.faixasDisciplinas, ...(dados.ativo ? { participaCombo: false } : {}) }))} />}
+          {!formCurso.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />}
+          {!formCurso.precoPorDisciplina && <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
+                    onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />}
 
-                  <div>
+                  <div hidden={formCurso.organizacaoCurricular === "LIVRE"}>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {t("common.installments")}
                     </label>
@@ -891,8 +902,8 @@ export default function CursoDetalhePage() {
 
                   <p>{t("common.description")}: {curso.descricao || t("common.notInformedFeminine")}</p>
                   <p>
-                    {t("detail.courseInfo.expectedSemesters")}:{" "}
-                    {curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · {ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}
+                    {curso.organizacaoCurricular === "LIVRE" ? ta("organization") : t("detail.courseInfo.expectedSemesters")}:{" "}
+                    {curso.organizacaoCurricular === "LIVRE" ? "" : `${curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · `}{ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}
                   </p>
                   <p>
                     {t("common.enrollmentValue")}:{" "}
@@ -900,8 +911,9 @@ export default function CursoDetalhePage() {
                       ? formatarMoeda(curso.valorMatricula, locale)
                       : t("common.notInformed")}
                   </p>
-                  <p>
-                    {t("common.monthlyValue")}:{" "}
+                  {curso.organizacaoCurricular === "LIVRE" ? <><ResumoPrecosCursoLivre valorSemanal={curso.valorSemanal} valorMensal={curso.valorMensalidade} /><ResumoDescontoMensalidade valorMensalidade={curso.valorMensalidade} percentual={curso.descontoMensalidadePercentual} livre /></> : <>
+<p>
+                    {curso.regrasPrecoDisciplinas ? tp("unitMonthlyLabel") : t("common.monthlyValue")}:{" "}
                     {curso.valorMensalidade != null
                       ? formatarMoeda(curso.valorMensalidade, locale)
                       : t("common.notInformed")}
@@ -913,7 +925,8 @@ export default function CursoDetalhePage() {
                       ? curso.quantidadeParcelas
                       : t("common.notInformed")}
                   </p>
-                  <p>{t("common.status")}: {curso.ativo ? t("status.active") : t("status.inactive")}</p>
+</>}
+<p>{t("common.status")}: {curso.ativo ? t("status.active") : t("status.inactive")}</p>
                 </div>
               </>
             )}

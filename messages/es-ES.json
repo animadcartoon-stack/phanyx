@@ -23499,7 +23499,12 @@
       "ERRO_INTERNO": "No fue posible finalizar. Actualice la página e inténtelo de nuevo.",
       "CURSO_LIVRE_SEM_ETAPAS": "Los cursos libres no tienen etapas curriculares.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Cursos libres — pago por período para esta contratación."
-    }
+    },
+    "prepaidBilling": "Pago anticipado por período",
+    "weeklyOffer": "{value} por semana",
+    "monthlyOffer": "{value} por período mensual",
+    "noAutomaticRenewal": "Sin cuotas futuras ni renovación automática.",
+    "viewCoursePrices": "Ver curso y precios"
   },
   "EnrollmentCourseSync": {
     "description": "Gestione la matrícula según la organización del curso y las asignaturas contratadas.",
@@ -23537,6 +23542,37 @@
     "summary": "Descuento del curso: {percent}% · Mensualidad predeterminada: {value}",
     "errors": {
       "DESCONTO_MENSALIDADE_INVALIDO": "Introduzca un descuento entre 0 y 100%, con hasta dos decimales."
-    }
+    },
+    "periodSummary": "Descuento mensual: {percent}% · Precio por período mensual: {value}"
+  },
+  "SubjectPricing": {
+    "settingsTitle": "Precio por asignaturas (opcional)",
+    "enable": "Calcular la mensualidad según las asignaturas elegidas",
+    "settingsHelp": "El precio mensual del curso pasa a ser el precio de una asignatura. Configure el descuento para cada cantidad exacta permitida. El descuento general y los paquetes entre cursos no se acumulan con esta regla.",
+    "quantity": "Número de asignaturas",
+    "discount": "Descuento para esta cantidad (%)",
+    "remove": "Eliminar",
+    "add": "Añadir cantidad",
+    "unitMonthlyLabel": "Precio mensual por asignatura",
+    "chooseHelp": "Elija las asignaturas para calcular la mensualidad.",
+    "subtotal": "{count} asignatura(s) × {unit} = {value}",
+    "discountTotal": "Descuento del {percent}%: {value}",
+    "monthlyTotal": "Mensualidad: {value}",
+    "feeHelp": "La tasa de matrícula es independiente y no se multiplica por el número de asignaturas. Se registran las condiciones contratadas.",
+    "useMainEnrollment": "Los cursos con precio por asignatura se contratan en la página Matrículas.",
+    "errors": {
+      "REGRAS_DISCIPLINAS_INVALIDAS": "Revise cantidades y descuentos: no repita cantidades y use porcentajes de 0 a 100.",
+      "REGRAS_DISCIPLINAS_CURSO_LIVRE": "El curso libre usa pago por período. Utilice el flujo específico.",
+      "REGRAS_DISCIPLINAS_COMBO": "Elija precio por asignaturas o paquetes entre cursos para esta oferta.",
+      "PRECO_DISCIPLINA_INVALIDO": "Configure un precio mensual por asignatura mayor que cero.",
+      "SELECIONE_DISCIPLINAS": "Seleccione al menos una asignatura para esta contratación.",
+      "QUANTIDADE_DISCIPLINAS_NAO_CONFIGURADA": "No hay precio configurado para esta cantidad de asignaturas. Ajuste la selección o las reglas del curso.",
+      "PRECO_DISCIPLINAS_ALTERADO": "El precio o contrato cambió. Actualice, revise el resumen e inténtelo de nuevo.",
+      "PRIMEIRO_VENCIMENTO_NECESSARIO": "Indique el primer vencimiento para generar las mensualidades.",
+      "DISCIPLINAS_CONTRATADAS_DIVERGENTES": "Las asignaturas contratadas deben coincidir con las asignaturas y grupos seleccionados.",
+      "CURSO_DISCIPLINAS_COM_HISTORICO": "Esta contratación tiene condiciones registradas. Use el traslado para cambiar de curso.",
+      "QUANTIDADE_MENSALIDADES_NECESSARIA": "Indique de 1 a 120 mensualidades para generar los cobros de esta contratación."
+    },
+    "dueDateHelp": "Indique el número de mensualidades y el primer vencimiento en los campos financieros."
   }
 }

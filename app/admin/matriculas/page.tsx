@@ -1,5 +1,7 @@
 "use client";
 
+import ResumoPrecoDisciplinas from "@/components/admin/ResumoPrecoDisciplinas";
+import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 
 import Link from "next/link";
@@ -23,6 +25,7 @@ type CursoOption = {
   valorMatricula?: number | string | null;
   valorMensalidade?: number | string | null;
   descontoMensalidadePercentual?: number | string | null;
+  regrasPrecoDisciplinas?: unknown;
   quantidadeParcelas?: number | null;
 };
 
@@ -115,6 +118,7 @@ type MatriculaApi = {
   etapaNumero?: number | null;
   cursoSemestreId?: number | null;
   contratacaoModalidades?: unknown;
+  contratacaoDisciplinas?: unknown;
   id: number;
   status?: string;
   excluidaEm?: string | null;
@@ -198,6 +202,7 @@ type TipoContratacaoMatricula =
   | "PARCIAL";
 
 type MatriculaEdicao = {
+  precoDisciplinas: ContratacaoDisciplinas | null;
   id: number;
   alunoId: string;
   periodoLetivo: string;
@@ -283,6 +288,7 @@ function AdminMatriculasPage() {
   const tc = useTranslations("EnrollmentCombos");
   const tl = useTranslations("CoursePeriods");
   const ts = useTranslations("EnrollmentCourseSync");
+  const tp = useTranslations("SubjectPricing");
   const router = useRouter();
   const estruturaRequestRef = useRef(0);
   const estruturaEdicaoRequestRef = useRef(0);
@@ -691,6 +697,7 @@ function AdminMatriculasPage() {
                 valorMatricula: curso?.valorMatricula ?? null,
                 valorMensalidade: curso?.valorMensalidade ?? null,
                 descontoMensalidadePercentual: curso?.descontoMensalidadePercentual ?? null,
+                regrasPrecoDisciplinas: curso?.regrasPrecoDisciplinas ?? null,
                 quantidadeParcelas: curso?.quantidadeParcelas ?? null,
 
                 nome: String(
@@ -874,6 +881,8 @@ function AdminMatriculasPage() {
   }
 
   const cursoSelecionadoObj = cursos.find(c => c.id === Number(cursoId)) ?? null;
+  const precoPorDisciplinas = Boolean(cursoSelecionadoObj?.regrasPrecoDisciplinas);
+  const precoPorDisciplinasEdicao = matriculaEditando?.precoDisciplinas ?? null;
   const cursoAnualSelecionado = cursoSelecionadoObj?.organizacaoCurricular === "ANUAL";
   const cursoEditandoAnual = cursos.find(c => c.id === Number(matriculaEditando?.cursoId))?.organizacaoCurricular === "ANUAL";
   async function carregarSemestresDoCurso(cursoIdValue: string, edicao = false) {
@@ -1529,6 +1538,17 @@ function AdminMatriculasPage() {
       disciplinasExtrasSelecionadas,
     ]);
 
+  const cotacaoDisciplinas = useMemo(() => {
+    if (!precoPorDisciplinas) return null;
+    try { return calcularPrecoDisciplinas(cursoSelecionadoObj?.valorMensalidade, cursoSelecionadoObj?.regrasPrecoDisciplinas, disciplinasIdsSelecionadasParaEnvio); } catch { return null; }
+  }, [precoPorDisciplinas, cursoSelecionadoObj, disciplinasIdsSelecionadasParaEnvio]);
+  useEffect(() => {
+    if (!precoPorDisciplinas) return;
+    setTipoContratacao("PARCIAL");
+    setDisciplinasContratadasSelecionadas(disciplinasIdsSelecionadasParaEnvio);
+    setValorMensalidade(cotacaoDisciplinas ? String(cotacaoDisciplinas.total) : "");
+  }, [precoPorDisciplinas, disciplinasIdsSelecionadasParaEnvio, cotacaoDisciplinas]);
+
   const todasDisciplinasDoSemestreMarcadas =
     disciplinasDoSemestreIds.length > 0 &&
     disciplinasDoSemestreIds.every((id) =>
@@ -1844,6 +1864,7 @@ function AdminMatriculasPage() {
       Number.isFinite(c) &&
       c > 0 &&
       semestresSelecionados.length > 0 &&
+      (!precoPorDisciplinas || (Boolean(cotacaoDisciplinas) && (cotacaoDisciplinas?.total === 0 || (Boolean(dataPrimeiroVencimento) && Number.isInteger(Number(quantidadeParcelas)) && Number(quantidadeParcelas) >= 1 && Number(quantidadeParcelas) <= 120)))) &&
       disciplinasIdsSelecionadasParaEnvio.length > 0 &&
       turmasSelecionadas.length > 0 &&
       todasDisciplinasPossuemOferta &&
@@ -1854,6 +1875,10 @@ function AdminMatriculasPage() {
     alunoId,
     cursoId,
     semestresSelecionados,
+    precoPorDisciplinas,
+    cotacaoDisciplinas,
+    dataPrimeiroVencimento,
+    quantidadeParcelas,
     disciplinasIdsSelecionadasParaEnvio,
     turmasSelecionadas,
     todasDisciplinasPossuemOferta,
@@ -1961,10 +1986,10 @@ function AdminMatriculasPage() {
           alunoId: Number(alunoId),
           cursoId: Number(cursoId),
 
-          tipoContratacao,
+          tipoContratacao: precoPorDisciplinas ? "PARCIAL" : tipoContratacao,
 
           disciplinaIdsContratadas:
-            tipoContratacao === "CURSO_COMPLETO"
+            precoPorDisciplinas ? disciplinasIdsSelecionadasParaEnvio : tipoContratacao === "CURSO_COMPLETO"
               ? todasDisciplinasContrataveisIds
               : disciplinasContratadasSelecionadas,
           vendedorResponsavelId:
@@ -2018,7 +2043,7 @@ function AdminMatriculasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula.");
+        throw new Error(data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula.");
       }
 
       setSucesso("Matrícula criada com sucesso.");
@@ -2396,6 +2421,7 @@ function AdminMatriculasPage() {
 
     setMatriculaEditando({
       id: matricula.id,
+      precoDisciplinas: lerContratacaoDisciplinas(matricula.contratacaoDisciplinas),
       vendedorResponsavelId:
         matricula.vendedorResponsavel?.id
           ? String(matricula.vendedorResponsavel.id)
@@ -2435,6 +2461,7 @@ function AdminMatriculasPage() {
   }
 
   async function salvarEdicao() {
+    if (precoPorDisciplinasEdicao && !cotacaoDisciplinasEdicao) { setErro(tp("errors.QUANTIDADE_DISCIPLINAS_NAO_CONFIGURADA")); return; }
     if (!matriculaEditando) {
       return;
     }
@@ -2705,7 +2732,7 @@ function AdminMatriculasPage() {
 
       if (!res.ok) {
         throw new Error(
-          (data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error) ||
+          (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error) ||
           "Erro ao atualizar matrícula"
         );
       }
@@ -3379,6 +3406,18 @@ function AdminMatriculasPage() {
       disciplinasExtrasEdicaoSelecionadas,
     ]);
 
+  const cotacaoDisciplinasEdicao = useMemo(() => {
+    if (!precoPorDisciplinasEdicao) return null;
+    try { return calcularPrecoDisciplinas(precoPorDisciplinasEdicao.valorUnitario, precoPorDisciplinasEdicao.regras, disciplinasIdsSelecionadasEdicao); } catch { return null; }
+  }, [precoPorDisciplinasEdicao, disciplinasIdsSelecionadasEdicao]);
+  useEffect(() => {
+    if (!precoPorDisciplinasEdicao) return;
+    setTipoContratacaoEdicao("PARCIAL");
+    setDisciplinasContratadasEdicaoSelecionadas(disciplinasIdsSelecionadasEdicao);
+    const valor = cotacaoDisciplinasEdicao ? String(cotacaoDisciplinasEdicao.total) : "";
+    setMatriculaEditando(prev => prev && prev.valorMensalidade !== valor ? { ...prev, valorMensalidade: valor } : prev);
+  }, [precoPorDisciplinasEdicao, disciplinasIdsSelecionadasEdicao, cotacaoDisciplinasEdicao]);
+
   useEffect(() => {
     if (!matriculaEditando) {
       setTurmaPorDisciplinaEdicao({});
@@ -4025,7 +4064,7 @@ function AdminMatriculasPage() {
             </label>
             <input
               type="number"
-              id="mensalidade-nova" min="0" step="0.01"
+              id="mensalidade-nova" min="0" step="0.01" readOnly={precoPorDisciplinas}
               value={valorMensalidade}
               onChange={(e) => setValorMensalidade(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"
@@ -4105,7 +4144,7 @@ function AdminMatriculasPage() {
             </label>
             <input
               type="date"
-              value={dataPrimeiroVencimento}
+              id="primeiro-vencimento-novo" value={dataPrimeiroVencimento}
               onChange={(e) => setDataPrimeiroVencimento(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"
             />
@@ -4207,7 +4246,7 @@ function AdminMatriculasPage() {
 
 
 
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <div hidden={precoPorDisciplinas} className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <div>
             <h3 className="font-bold text-slate-900 dark:text-slate-100">
               Escopo da contratação
@@ -4279,7 +4318,7 @@ function AdminMatriculasPage() {
             </label>
           </div>
         </div>
-        {tipoContratacao === "PARCIAL" && (
+        {!precoPorDisciplinas && tipoContratacao === "PARCIAL" && (
           <div className="mt-4 space-y-3">
             {modulosContrataveis.map((modulo) => {
               const idsModulo =
@@ -4384,7 +4423,7 @@ function AdminMatriculasPage() {
           </div>
         ) : null}
 
-        {semestreSelecionado && (
+        {semestreSelecionado && !precoPorDisciplinas && (
           <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
             <input
               type="checkbox"
@@ -4419,7 +4458,7 @@ function AdminMatriculasPage() {
             />
           </div>
 
-          <div className="matriculas-multiselect-neutro">
+          <div hidden={precoPorDisciplinas} className="matriculas-multiselect-neutro">
             <MultiSelectDisciplinas
               titulo="Dependências, adiantamentos e outras disciplinas"
               disciplinas={disciplinasExtras}
@@ -4429,6 +4468,7 @@ function AdminMatriculasPage() {
           </div>
         </div>
 
+        {precoPorDisciplinas && <ResumoPrecoDisciplinas valorUnitario={cursoSelecionadoObj?.valorMensalidade} regras={cursoSelecionadoObj?.regrasPrecoDisciplinas} ids={disciplinasIdsSelecionadasParaEnvio} />}
         {disciplinasIdsSelecionadasParaEnvio.length >
           0 && (
             <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
@@ -5361,6 +5401,7 @@ function AdminMatriculasPage() {
                   Curso
                 </label>
                 <select
+                  disabled={Boolean(precoPorDisciplinasEdicao)}
                   value={matriculaEditando.cursoId}
                   onChange={async (e) => {
                     const novoCursoId = e.target.value;
@@ -5598,6 +5639,7 @@ function AdminMatriculasPage() {
                   type="number"
                   step="0.01"
                   min="0"
+                  readOnly={Boolean(precoPorDisciplinasEdicao)}
                   value={matriculaEditando.valorMensalidade}
                   onChange={(e) =>
                     setMatriculaEditando((prev) =>
@@ -5712,7 +5754,8 @@ function AdminMatriculasPage() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+            {precoPorDisciplinasEdicao && <ResumoPrecoDisciplinas valorUnitario={precoPorDisciplinasEdicao.valorUnitario} regras={precoPorDisciplinasEdicao.regras} ids={disciplinasIdsSelecionadasEdicao} />}
+            <div hidden={Boolean(precoPorDisciplinasEdicao)} className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
               <h3 className="font-bold text-slate-900 dark:text-slate-100">
                 Escopo da contratação
               </h3>
@@ -5889,7 +5932,7 @@ function AdminMatriculasPage() {
                 }
               />
 
-              <MultiSelectDisciplinas
+              {!precoPorDisciplinasEdicao && <MultiSelectDisciplinas
                 titulo="Dependências, adiantamentos e outras disciplinas"
                 disciplinas={
                   disciplinasExtrasEdicaoDisponiveis
@@ -5900,7 +5943,7 @@ function AdminMatriculasPage() {
                 setSelecionadas={
                   setDisciplinasExtrasEdicaoSelecionadas
                 }
-              />
+              />}
             </div>
 
             {disciplinasIdsSelecionadasEdicao.length >

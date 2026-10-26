@@ -23500,7 +23500,12 @@
       "ERRO_INTERNO": "Unable to finish. Refresh the page and try again.",
       "CURSO_LIVRE_SEM_ETAPAS": "Open courses do not have curriculum stages.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Open courses — pay per period for this enrollment."
-    }
+    },
+    "prepaidBilling": "Prepaid billing by period",
+    "weeklyOffer": "{value} per week",
+    "monthlyOffer": "{value} per monthly period",
+    "noAutomaticRenewal": "No future installments or automatic renewal.",
+    "viewCoursePrices": "View course and prices"
   },
   "EnrollmentCourseSync": {
     "description": "Manage enrollment according to the course structure and contracted subjects.",
@@ -23538,6 +23543,37 @@
     "summary": "Course discount: {percent}% · Default monthly fee: {value}",
     "errors": {
       "DESCONTO_MENSALIDADE_INVALIDO": "Enter a discount from 0 to 100%, with up to two decimal places."
-    }
+    },
+    "periodSummary": "Monthly discount: {percent}% · Price per monthly period: {value}"
+  },
+  "SubjectPricing": {
+    "settingsTitle": "Pricing by subject (optional)",
+    "enable": "Calculate the monthly fee from selected subjects",
+    "settingsHelp": "The course monthly price becomes the price of one subject. Configure a discount for each exact allowed quantity. General discounts and bundles across courses do not stack with this rule.",
+    "quantity": "Number of subjects",
+    "discount": "Discount for this quantity (%)",
+    "remove": "Remove",
+    "add": "Add quantity",
+    "unitMonthlyLabel": "Monthly price per subject",
+    "chooseHelp": "Choose subjects to calculate the monthly fee.",
+    "subtotal": "{count} subject(s) × {unit} = {value}",
+    "discountTotal": "{percent}% discount: {value}",
+    "monthlyTotal": "Monthly fee: {value}",
+    "feeHelp": "The enrollment fee is separate and is not multiplied by the number of subjects. Contracted terms are recorded.",
+    "useMainEnrollment": "Courses priced by subject are enrolled through the Enrollments page.",
+    "errors": {
+      "REGRAS_DISCIPLINAS_INVALIDAS": "Check quantities and discounts: quantities must be unique and percentages from 0 to 100.",
+      "REGRAS_DISCIPLINAS_CURSO_LIVRE": "Open courses use payment by period. Use the dedicated enrollment flow.",
+      "REGRAS_DISCIPLINAS_COMBO": "Choose subject pricing or bundles across courses for this offering.",
+      "PRECO_DISCIPLINA_INVALIDO": "Set a monthly price per subject greater than zero.",
+      "SELECIONE_DISCIPLINAS": "Select at least one subject for this enrollment.",
+      "QUANTIDADE_DISCIPLINAS_NAO_CONFIGURADA": "No price is configured for this number of subjects. Adjust the selection or course rules.",
+      "PRECO_DISCIPLINAS_ALTERADO": "The price or contract changed. Refresh, review the summary and try again.",
+      "PRIMEIRO_VENCIMENTO_NECESSARIO": "Enter the first due date to generate monthly charges.",
+      "DISCIPLINAS_CONTRATADAS_DIVERGENTES": "Contracted subjects must match the selected subjects and classes.",
+      "CURSO_DISCIPLINAS_COM_HISTORICO": "This enrollment has recorded terms. Use transfer to change courses.",
+      "QUANTIDADE_MENSALIDADES_NECESSARIA": "Enter 1 to 120 monthly installments to generate charges for this enrollment."
+    },
+    "dueDateHelp": "Enter the number of monthly installments and first due date in the financial fields."
   }
 }

@@ -13,10 +13,10 @@ export default function CamposDescontoMensalidade({ valorMensalidade, percentual
   </div>;
 }
 
-export function ResumoDescontoMensalidade({ valorMensalidade, percentual }: { valorMensalidade: unknown; percentual: unknown }) {
+export function ResumoDescontoMensalidade({ valorMensalidade, percentual, livre = false }: { valorMensalidade: unknown; percentual: unknown; livre?: boolean }) {
   const t = useTranslations("CourseMonthlyDiscount"), locale = useLocale();
   if (percentual == null || Number(percentual) <= 0 || valorMensalidade == null) return null;
   const final = mensalidadeComDesconto(valorMensalidade, percentual);
   if (final == null) return null;
-  return <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{t("summary", { percent: Number(percentual), value: new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(final) })}</p>;
+  return <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">{t(livre ? "periodSummary" : "summary", { percent: Number(percentual), value: new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(final) })}</p>;
 }

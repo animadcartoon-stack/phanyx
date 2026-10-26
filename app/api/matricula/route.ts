@@ -1,3 +1,4 @@
+import { normalizarRegrasDisciplinas, calcularPrecoDisciplinas, lerContratacaoDisciplinas, ErroPrecoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { validarAgendaMatricula } from "@/lib/matriculas/validar-agenda";
@@ -1490,7 +1491,7 @@ export async function GET(request: Request) {
         orderBy: { id: "desc" },
       });
 
-      return NextResponse.json(matriculas);
+      return NextResponse.json(matriculas.map(({ contratacaoDisciplinas, ...matricula }) => matricula));
     }
 
     return NextResponse.json(
@@ -1498,6 +1499,7 @@ export async function GET(request: Request) {
       { status: 403 }
     );
   } catch (error: any) {
+    if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     console.error("ERRO AO BUSCAR MATR?CULAS:", error);
@@ -2299,6 +2301,12 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    const regrasPrecoDisciplinas = normalizarRegrasDisciplinas(curso?.regrasPrecoDisciplinas);
+    if (regrasPrecoDisciplinas && tipoContratacao !== "PARCIAL") throw new ErroPrecoDisciplinas("SELECIONE_DISCIPLINAS");
+    const precoDisciplinas = regrasPrecoDisciplinas ? calcularPrecoDisciplinas(curso?.valorMensalidade, regrasPrecoDisciplinas, disciplinasContratadasSnapshot.map(d => d.disciplinaId)) : null;
+    const contratacaoDisciplinas: ContratacaoDisciplinas | null = precoDisciplinas && regrasPrecoDisciplinas ? { versao: 1, cursoId: cursoIdFinal,
+      regras: regrasPrecoDisciplinas, ...precoDisciplinas, criadaEm: new Date().toISOString(), criadaPorId: user.id, auditoria: { ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim().slice(0,100) ?? null, userAgent: request.headers.get("user-agent")?.slice(0,1000) ?? null, impersonacaoId: (user as { impersonacaoId?: number }).impersonacaoId ?? null } } : null;
+
     const periodoMatricula =
       periodoMatriculaId !== null
         ? await prisma.periodoMatricula.findFirst({
@@ -2355,6 +2363,11 @@ export async function POST(request: Request) {
               turmasComDisciplinas,
           })
         );
+
+    if (precoDisciplinas) {
+      const ids = [...new Set(itensClassificados.map(i => i.disciplinaId))].sort((a,b) => a-b);
+      if (JSON.stringify(ids) !== JSON.stringify(precoDisciplinas.disciplinaIds)) throw new ErroPrecoDisciplinas("DISCIPLINAS_CONTRATADAS_DIVERGENTES");
+    }
 
     const turmaPrincipalIdFinal =
       turmaPrincipalIdRecebido ??
@@ -2548,7 +2561,7 @@ export async function POST(request: Request) {
 
     const quantidadeMensalidadesBruta =
       body.quantidadeMensalidades ??
-      body.quantidadeParcelas;
+      body.quantidadeParcelas ?? (precoDisciplinas ? curso?.quantidadeParcelas : undefined);
 
     const quantidadeMensalidadesFoiInformada =
       quantidadeMensalidadesBruta !==
@@ -2572,7 +2585,7 @@ export async function POST(request: Request) {
         primeiroVencimentoBruto
       ).trim() !== "";
 
-    const valorMensalidade =
+    const valorMensalidade = precoDisciplinas ? precoDisciplinas.total :
       valorMensalidadeFoiInformado
         ? Number(
             body.valorMensalidade
@@ -2592,6 +2605,10 @@ export async function POST(request: Request) {
             primeiroVencimentoBruto
           )
         : null;
+
+    if (precoDisciplinas && valorMensalidadeFoiInformado && Number(body.valorMensalidade) !== precoDisciplinas.total) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINAS_ALTERADO", 409);
+    if (precoDisciplinas && precoDisciplinas.total > 0 && (quantidadeParcelas == null || !Number.isInteger(quantidadeParcelas) || quantidadeParcelas < 1 || quantidadeParcelas > 120)) throw new ErroPrecoDisciplinas("QUANTIDADE_MENSALIDADES_NECESSARIA");
+    if (precoDisciplinas && precoDisciplinas.total > 0 && !dataPrimeiroVencimento) throw new ErroPrecoDisciplinas("PRIMEIRO_VENCIMENTO_NECESSARIO");
 
     const bolsaPercentualBruta =
       body.bolsaPercentual;
@@ -2634,7 +2651,7 @@ export async function POST(request: Request) {
         !Number.isFinite(
           valorMensalidade
         ) ||
-        (valorMensalidade < 0 || (valorMensalidade === 0 && Number(curso?.descontoMensalidadePercentual) !== 100 && bolsaPercentual < 100))
+        (valorMensalidade < 0 || (valorMensalidade === 0 && !precoDisciplinas && Number(curso?.descontoMensalidadePercentual) !== 100 && bolsaPercentual < 100))
       )
     ) {
       return NextResponse.json(
@@ -2713,9 +2730,13 @@ export async function POST(request: Request) {
     const matricula =
       await prisma.$transaction(
         async (tx) => {
+          if (precoDisciplinas) {
+            const atual = await tx.curso.findFirst({ where: { id: cursoIdFinal!, instituicaoId: user.instituicaoId }, select: { valorMensalidade: true, regrasPrecoDisciplinas: true } });
+            if (!atual || atual.valorMensalidade !== curso?.valorMensalidade || JSON.stringify(normalizarRegrasDisciplinas(atual.regrasPrecoDisciplinas)) !== JSON.stringify(regrasPrecoDisciplinas)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINAS_ALTERADO", 409);
+          }
           if (etapaMatricula.organizacaoCurricular === "ANUAL")
             await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados);
-          await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data });
+          await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data, exigirHorarios: Boolean(precoDisciplinas) });
 
           const agoraConversao =
             new Date();
@@ -2740,6 +2761,7 @@ export async function POST(request: Request) {
             await tx.matricula.create({
               data: {
                 dataInicioCurso: inicioCurso.data,
+                ...(contratacaoDisciplinas ? { contratacaoDisciplinas: contratacaoDisciplinas as unknown as Prisma.InputJsonValue } : {}),
                 alunoId,
 
                 turmaPrincipalId:
@@ -3308,6 +3330,7 @@ return NextResponse.json({
       },
     });
   } catch (error: any) {
+    if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     if (
@@ -4187,7 +4210,7 @@ export async function PUT(request: Request) {
             0
           ) || null;
 
-    const valorMensalidadeFinal =
+    let valorMensalidadeFinal =
       valorMensalidadeCampoFoiInformado
         ? valorMensalidadeRecebido
         : matriculaExistente.valorMensalidade == null ? null : Number(matriculaExistente.valorMensalidade);
@@ -4245,7 +4268,7 @@ export async function PUT(request: Request) {
         .slice(0, 10);
     };
 
-    const dadosMensalidadeMudaram =
+    let dadosMensalidadeMudaram =
       dadosMensalidadeForamInformados &&
       (
         Number(
@@ -4304,6 +4327,8 @@ export async function PUT(request: Request) {
       }
     }
 
+    const precoDisciplinasAnterior = lerContratacaoDisciplinas(matriculaExistente.contratacaoDisciplinas);
+    let contratacaoDisciplinasEditada: ContratacaoDisciplinas | null = null;
     const alunoIdFinal = alunoId ?? matriculaExistente.alunoId;
     const cursoIdFinal = cursoId ?? matriculaExistente.cursoId ?? null;
     const semestreFinal = semestre ?? etapaDaOferta(matriculaExistente);
@@ -4317,6 +4342,7 @@ export async function PUT(request: Request) {
     }
     cursoSemestreId = etapaMatricula?.cursoSemestreId ?? cursoSemestreId;
 
+    if (precoDisciplinasAnterior && cursoIdFinal !== precoDisciplinasAnterior.cursoId) throw new ErroPrecoDisciplinas("CURSO_DISCIPLINAS_COM_HISTORICO", 409);
     const turmaPrincipalIdFinal =
       turmaPrincipalFoiInformada
         ? turmaPrincipalIdRecebido
@@ -4587,8 +4613,25 @@ export async function PUT(request: Request) {
         );
     }
 
+    if (precoDisciplinasAnterior) {
+      const ids = disciplinasContratadasSnapshotEdicao?.map(d => d.disciplinaId) ?? precoDisciplinasAnterior.disciplinaIds;
+      const preco = calcularPrecoDisciplinas(precoDisciplinasAnterior.valorUnitario, precoDisciplinasAnterior.regras, ids);
+      if (deveSincronizarItens && JSON.stringify([...new Set(itensClassificados.map(i => i.disciplinaId))].sort((a,b) => a-b)) !== JSON.stringify(preco.disciplinaIds)) throw new ErroPrecoDisciplinas("DISCIPLINAS_CONTRATADAS_DIVERGENTES");
+      if (valorMensalidadeFoiInformadoNaEdicao && valorMensalidadeRecebido !== preco.total) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINAS_ALTERADO", 409);
+      dadosMensalidadeMudaram ||= valorMensalidadeFinal !== preco.total;
+      valorMensalidadeFinal = preco.total;
+      contratacaoDisciplinasEditada = { ...precoDisciplinasAnterior, ...preco,
+        revisoes: JSON.stringify(preco.disciplinaIds) === JSON.stringify(precoDisciplinasAnterior.disciplinaIds) ? precoDisciplinasAnterior.revisoes ?? [] : [...(precoDisciplinasAnterior.revisoes ?? []), { antes: { disciplinaIds: precoDisciplinasAnterior.disciplinaIds, total: precoDisciplinasAnterior.total }, depois: { disciplinaIds: preco.disciplinaIds, total: preco.total }, usuarioId: user.id, em: new Date().toISOString(), ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim().slice(0,100) ?? null, userAgent: request.headers.get("user-agent")?.slice(0,1000) ?? null, impersonacaoId: (user as { impersonacaoId?: number }).impersonacaoId ?? null }] };
+    }
+
     await prisma.$transaction(
       async (tx) => {
+        if (precoDisciplinasAnterior) {
+          await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${id} AND "instituicaoId" = ${user.instituicaoId} FOR UPDATE`;
+          const atual = await tx.matricula.findFirst({ where: { id, instituicaoId: user.instituicaoId }, select: { contratacaoDisciplinas: true } });
+          if (JSON.stringify(atual?.contratacaoDisciplinas) !== JSON.stringify(matriculaExistente.contratacaoDisciplinas)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINAS_ALTERADO", 409);
+        }
+
         if (etapaMatricula?.organizacaoCurricular === "ANUAL" && itensClassificados)
           await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados, id);
 
@@ -4598,7 +4641,7 @@ export async function PUT(request: Request) {
             select: { turmaId: true, disciplinaId: true },
           });
           await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId: alunoIdFinal,
-            itens: agendaItens, matriculaId: id, inicio: inicioCurso.data === undefined ? matriculaExistente.dataInicioCurso : inicioCurso.data });
+            itens: agendaItens, matriculaId: id, inicio: inicioCurso.data === undefined ? matriculaExistente.dataInicioCurso : inicioCurso.data, exigirHorarios: Boolean(precoDisciplinasAnterior) });
         }
         await tx.matricula.update({
           where: {
@@ -4647,6 +4690,7 @@ export async function PUT(request: Request) {
               matriculaExistente.modalidade ||
               null,
 
+            ...(contratacaoDisciplinasEditada ? { contratacaoDisciplinas: contratacaoDisciplinasEditada as unknown as Prisma.InputJsonValue } : {}),
             semestre: etapaMatricula ? etapaMatricula.semestre : matriculaExistente.semestre,
             etapaNumero: etapaMatricula?.etapaNumero,
             organizacaoCurricular: etapaMatricula?.organizacaoCurricular,
@@ -4657,7 +4701,7 @@ export async function PUT(request: Request) {
               valorMensalidadeFinal,
 
             bolsaPercentual:
-              bolsaPercentualFinal,
+              valorMensalidadeFinal === 0 ? 100 : bolsaPercentualFinal,
 
             quantidadeMensalidades:
               quantidadeMensalidadesFinal,
@@ -4794,7 +4838,7 @@ export async function PUT(request: Request) {
 
         if (
           dadosMensalidadeMudaram &&
-          valorMensalidadeFinal &&
+          valorMensalidadeFinal !== null &&
           quantidadeMensalidadesFinal &&
           primeiroVencimentoFinal
         ) {
@@ -4907,6 +4951,7 @@ export async function PUT(request: Request) {
     }
     return NextResponse.json({ ...retorno, cancelamentosBancarios });
   } catch (error: any) {
+    if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     if (error instanceof ErroModalidades) {

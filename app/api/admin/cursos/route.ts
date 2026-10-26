@@ -1,3 +1,4 @@
+import { normalizarRegrasDisciplinas, ErroPrecoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { campoDescontoCurso, ErroDescontoCurso } from "@/lib/matriculas/desconto-curso";
 import { camposPrecoCursoLivre, ErroCursoLivre } from "@/lib/matriculas/cursos-livres";
 import { ErroIntegridadeAcademica, validarOrganizacao, protegerOrganizacaoDoCurso, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
@@ -8,6 +9,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import {
+  Prisma,
   ModalidadeCertificado,
   StatusComercialPolo,
   StatusPublicacaoCursoRede,
@@ -217,7 +219,12 @@ export async function POST(req: Request) {
     const organizacaoCurricular = validarOrganizacao(body.organizacaoCurricular ?? "SEMESTRAL");
     if (organizacaoCurricular === "ANUAL") body.quantidadeSemestres = body.quantidadeEtapas;
     if (organizacaoCurricular === "LIVRE") Object.assign(body, { quantidadeSemestres: null, quantidadeEtapas: null, valorMatricula: 0, quantidadeParcelas: null });
-    const dadosDesconto = campoDescontoCurso(body);
+    const regrasDisciplinas = body.regrasPrecoDisciplinas === undefined ? undefined : normalizarRegrasDisciplinas(body.regrasPrecoDisciplinas);
+    if (regrasDisciplinas && organizacaoCurricular === "LIVRE") throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_CURSO_LIVRE");
+    if (regrasDisciplinas && body.participaCombo) throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_COMBO");
+    if (regrasDisciplinas && !(Number(body.valorMensalidade) > 0)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINA_INVALIDO");
+    const dadosDisciplinas = regrasDisciplinas === undefined ? {} : { regrasPrecoDisciplinas: regrasDisciplinas == null ? Prisma.DbNull : regrasDisciplinas as unknown as Prisma.InputJsonValue };
+    const dadosDesconto = regrasDisciplinas ? { descontoMensalidadePercentual: null } : campoDescontoCurso(body);
     const dadosLivre = camposPrecoCursoLivre(body, organizacaoCurricular);
     if (body.quantidadeSemestres != null && typeof body.quantidadeSemestres !== "string" && typeof body.quantidadeSemestres !== "number") throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const quantidadeSemestresInformada =
@@ -564,6 +571,7 @@ export async function POST(req: Request) {
                 ...dadosCombo,
                 ...dadosLivre,
                 ...dadosDesconto,
+                ...dadosDisciplinas,
 
                 quantidadeParcelas,
 
@@ -687,6 +695,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });
     if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
@@ -830,6 +839,8 @@ export async function PUT(req: Request) {
           valorMatricula: true,
           valorMensalidade: true,
           valorSemanal: true,
+          participaCombo: true,
+          regrasPrecoDisciplinas: true,
           quantidadeParcelas: true,
           ativo: true,
 
@@ -884,7 +895,18 @@ export async function PUT(req: Request) {
       ? (body.quantidadeEtapas !== undefined ? body.quantidadeEtapas : cursoExistente.quantidadeEtapas)
       : (body.quantidadeSemestres !== undefined ? body.quantidadeSemestres : cursoExistente.quantidadeSemestres);
     if (organizacaoCurricular === "LIVRE") Object.assign(body, { quantidadeSemestres: null, quantidadeEtapas: null, valorMatricula: 0, quantidadeParcelas: null });
-    const dadosDesconto = campoDescontoCurso(body);
+    const regrasDisciplinas = body.regrasPrecoDisciplinas === undefined ? undefined : normalizarRegrasDisciplinas(body.regrasPrecoDisciplinas);
+    const regrasEfetivas = regrasDisciplinas === undefined ? normalizarRegrasDisciplinas(cursoExistente.regrasPrecoDisciplinas) : regrasDisciplinas;
+    if (regrasEfetivas && organizacaoCurricular === "LIVRE") throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_CURSO_LIVRE");
+    if (regrasEfetivas && (body.participaCombo ?? cursoExistente.participaCombo)) throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_COMBO");
+    if (regrasEfetivas && !(Number(body.valorMensalidade === undefined ? cursoExistente.valorMensalidade : body.valorMensalidade) > 0)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINA_INVALIDO");
+    if (regrasEfetivas) {
+      if (body.valorMensalidade === undefined) body.valorMensalidade = cursoExistente.valorMensalidade;
+      if (body.valorMatricula === undefined) body.valorMatricula = cursoExistente.valorMatricula;
+      if (body.quantidadeParcelas === undefined) body.quantidadeParcelas = cursoExistente.quantidadeParcelas;
+    }
+    const dadosDisciplinas = regrasDisciplinas === undefined ? {} : { regrasPrecoDisciplinas: regrasDisciplinas == null ? Prisma.DbNull : regrasDisciplinas as unknown as Prisma.InputJsonValue };
+    const dadosDesconto = regrasEfetivas ? { descontoMensalidadePercentual: null } : campoDescontoCurso(body);
     const dadosLivre = camposPrecoCursoLivre({ ...body, valorSemanal: body.valorSemanal === undefined ? cursoExistente.valorSemanal?.toString() : body.valorSemanal, valorMensalidade: body.valorMensalidade === undefined ? cursoExistente.valorMensalidade : body.valorMensalidade }, organizacaoCurricular);
     if (body.quantidadeSemestres != null && typeof body.quantidadeSemestres !== "string" && typeof body.quantidadeSemestres !== "number") throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const quantidadeSemestresInformada =
@@ -994,6 +1016,7 @@ export async function PUT(req: Request) {
             ...dadosCombo,
             ...dadosLivre,
                 ...dadosDesconto,
+                ...dadosDisciplinas,
             quantidadeParcelas,
           },
           include: {
@@ -1151,6 +1174,7 @@ export async function PUT(req: Request) {
               ...dadosCombo,
               ...dadosLivre,
                 ...dadosDesconto,
+                ...dadosDisciplinas,
 
               quantidadeParcelas,
 
@@ -1247,6 +1271,7 @@ export async function PUT(req: Request) {
       },
     });
   } catch (error: unknown) {
+    if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });
     if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);

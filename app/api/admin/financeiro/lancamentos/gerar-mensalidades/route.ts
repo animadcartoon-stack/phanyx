@@ -100,6 +100,7 @@ export async function POST(req: NextRequest) {
     for (const matricula of matriculas) {
       if (matricula.organizacaoCurricular === "LIVRE") continue;
       totalMatriculasAnalisadas += 1;
+      if (matricula.curso?.regrasPrecoDisciplinas && matricula.valorMensalidade == null) { totalSemValorMensalidade += 1; continue; }
 
       if (!matricula.curso) {
         totalSemCurso += 1;

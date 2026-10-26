@@ -57,6 +57,7 @@ export async function carregarOfertasModalidades(
           participaCombo: true,
           valorMatricula: true,
           valorMensalidade: true,
+          regrasPrecoDisciplinas: true,
           descontoMensalidadePercentual: true,
           valorMensalidadeCombo: true,
           precosComboPorQuantidade: true,
@@ -104,7 +105,7 @@ export async function carregarOfertasModalidades(
     if (!ocupantes.has(item.turmaId)) ocupantes.set(item.turmaId, new Set());
     ocupantes.get(item.turmaId)!.add(item.matricula.alunoId);
   }
-  return turmas.map((turma) => {
+  return turmas.filter(t => !t.curso.regrasPrecoDisciplinas).map((turma) => {
     const horarios: HorarioModalidade[] = turma.disciplinas.flatMap((td) =>
       td.horarios.map((h) => ({
         ...h,
