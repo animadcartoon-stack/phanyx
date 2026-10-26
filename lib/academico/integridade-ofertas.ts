@@ -210,7 +210,7 @@ export async function validarEtapaDoCurso(db: BancoAcademico, instituicaoId: num
 export async function resolverEtapaDaMatricula(db: BancoAcademico, instituicaoId: number, cursoId: number,
   cursoEtapaId: number | null, valor: unknown) {
   const curso = await db.curso.findFirst({ where: { id: cursoId, instituicaoId },
-    select: { organizacaoCurricular: true } });
+    select: { organizacaoCurricular: true, quantidadeEtapas: true } });
   if (!curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
   const organizacaoCurricular = organizacaoAcademica(curso.organizacaoCurricular);
   if (organizacaoCurricular === "LIVRE") return { organizacaoCurricular, etapaNumero: null, cursoSemestreId: null, semestre: null };
@@ -223,14 +223,16 @@ export async function resolverEtapaDaMatricula(db: BancoAcademico, instituicaoId
   if ((valor != null && valor !== "" && informado == null) || (etapa && informado && etapa.numero !== informado))
     throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
   const etapaNumero = etapa?.numero ?? informado;
-  // Registros legados podem não ter etapa. Novas matrículas anuais exigem grade explícita.
   if (organizacaoCurricular === "ANUAL") {
-    if (!etapaNumero) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
     const grade = etapa ?? await db.cursoSemestre.findFirst({
-      where: { cursoId, instituicaoId, numero: etapaNumero, organizacaoCurricular }, select: { id: true, numero: true },
+      where: { cursoId, instituicaoId, ...(etapaNumero ? { numero: etapaNumero } : {}), organizacaoCurricular }, select: { id: true, numero: true },
     });
-    if (!grade) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
-    return { organizacaoCurricular, etapaNumero, cursoSemestreId: grade.id, semestre: null };
+    if (etapaNumero && grade) return { organizacaoCurricular, etapaNumero, cursoSemestreId: grade.id, semestre: null };
+    // Oferta anual de um único ano pode usar suas disciplinas diretas, sem grade estruturada.
+    const algumaGrade = grade ?? await db.cursoSemestre.findFirst({ where: { cursoId, instituicaoId }, select: { id: true } });
+    if (!algumaGrade && (curso.quantidadeEtapas == null || curso.quantidadeEtapas === 1) && (etapaNumero == null || etapaNumero === 1))
+      return { organizacaoCurricular, etapaNumero: 1, cursoSemestreId: null, semestre: null };
+    throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
   }
   return { organizacaoCurricular, etapaNumero, cursoSemestreId: etapa?.id ?? null, semestre: etapaNumero };
 }
@@ -252,13 +254,23 @@ export async function validarTurmasDaEtapa(db: BancoAcademico, instituicaoId: nu
 }
 
 export async function validarItensAnuaisDaMatricula(db: BancoAcademico, instituicaoId: number, cursoId: number,
-  cursoEtapaId: number, itens: { turmaId: number; disciplinaId: number; tipoItem: string }[], matriculaId?: number) {
+  cursoEtapaId: number | null, itens: { turmaId: number; disciplinaId: number; tipoItem: string }[], matriculaId?: number) {
   const anteriores = matriculaId ? await db.itemMatricula.findMany({
     where: { instituicaoId, matriculaId }, select: { turmaId: true, disciplinaId: true, tipoItem: true },
   }) : [];
   const novos = itens.filter(item => item.tipoItem === "GRADE_PRINCIPAL" && !anteriores.some(a =>
     a.turmaId === item.turmaId && a.disciplinaId === item.disciplinaId && a.tipoItem === item.tipoItem));
   if (!novos.length) return;
+  if (cursoEtapaId == null) {
+    const contexto = await resolverEtapaDaMatricula(db, instituicaoId, cursoId, null, 1);
+    if (contexto.organizacaoCurricular !== "ANUAL" || contexto.cursoSemestreId) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+    const idsTurmas = [...new Set(novos.map(i => i.turmaId))];
+    const turmas = await db.turma.findMany({ where: { id: { in: idsTurmas }, instituicaoId, cursoId, ativa: true, organizacaoCurricular: "ANUAL", etapaNumero: 1 }, select: { id: true } });
+    if (turmas.length !== idsTurmas.length) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+    const ids = [...new Set(novos.map(i => i.disciplinaId))];
+    if (await db.disciplina.count({ where: { id: { in: ids }, instituicaoId, cursoId, ativo: true } }) !== ids.length) throw new ErroIntegridadeAcademica("GRADE_INCOMPATIVEL");
+    return;
+  }
   await validarTurmasDaEtapa(db, instituicaoId, cursoId, cursoEtapaId, [...new Set(novos.map(i => i.turmaId))]);
   const ids = [...new Set(novos.map(i => i.disciplinaId))];
   const validos = await db.cursoSemestreDisciplina.count({ where: {

@@ -23500,5 +23500,33 @@
       "CURSO_LIVRE_SEM_ETAPAS": "Los cursos libres no tienen etapas curriculares.",
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Cursos libres — pago por período para esta contratación."
     }
+  },
+  "EnrollmentCourseSync": {
+    "description": "Gestione la matrícula según la organización del curso y las asignaturas contratadas.",
+    "formHelp": "Seleccione alumno y curso. La estructura y los precios siguen la configuración del curso.",
+    "conversionHelp": "Complete curso, grupo, asignaturas y condiciones económicas para finalizar la conversión.",
+    "loadError": "No se pudo cargar la estructura del curso. Vuelva a seleccionar el curso.",
+    "selectYear": "Seleccione el año o etapa del curso.",
+    "selectSemester": "Seleccione el semestre del curso.",
+    "completeSelection": "Complete alumno, curso, grupo, asignaturas y etapa, cuando corresponda.",
+    "yearLabel": "Año / etapa del curso",
+    "semesterLabel": "Semestre del curso",
+    "annualNoSemester": "Curso anual — sin selección de semestre",
+    "chooseYears": "Seleccione el año / etapa...",
+    "chooseSemesters": "Seleccione los semestres...",
+    "yearsSelected": "{count} año(s) seleccionado(s)",
+    "semestersSelected": "{count} semestre(s) seleccionado(s)",
+    "noStructure": "Configure el plan de estudios del curso para continuar.",
+    "chooseCourse": "Seleccione un curso primero.",
+    "yearNumber": "Año {number}",
+    "semesterNumber": "Semestre {number}",
+    "feeLabel": "Importe de matrícula (tasa)",
+    "financialDefaultsHelp": "Se rellena según el curso y se puede ajustar para esta contratación. El pago se registra en Caja.",
+    "selectedYear": "Año / etapa: {number}",
+    "selectedSemester": "Semestre seleccionado: {number}",
+    "allYearSubjects": "Todas las asignaturas de este año / etapa",
+    "allSemesterSubjects": "Todas las asignaturas de este semestre",
+    "yearCurriculum": "Plan del año / etapa",
+    "semesterCurriculum": "Plan del semestre"
   }
 }

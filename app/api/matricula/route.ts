@@ -2535,6 +2535,8 @@ export async function POST(request: Request) {
       0
     );
 
+    if (!Number.isFinite(valorMatricula) || valorMatricula < 0) return NextResponse.json({ error: "Valor de matrícula inválido." }, { status: 400 });
+
     const valorMensalidadeFoiInformado =
       body.valorMensalidade !==
         undefined &&
@@ -2711,7 +2713,7 @@ export async function POST(request: Request) {
     const matricula =
       await prisma.$transaction(
         async (tx) => {
-          if (etapaMatricula.organizacaoCurricular === "ANUAL" && cursoSemestreId)
+          if (etapaMatricula.organizacaoCurricular === "ANUAL")
             await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados);
           await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data });
 
@@ -4594,7 +4596,7 @@ export async function PUT(request: Request) {
 
     await prisma.$transaction(
       async (tx) => {
-        if (etapaMatricula?.organizacaoCurricular === "ANUAL" && cursoSemestreId && itensClassificados)
+        if (etapaMatricula?.organizacaoCurricular === "ANUAL" && itensClassificados)
           await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados, id);
 
         if (deveSincronizarItens || alunoIdFinal !== matriculaExistente.alunoId || body.dataInicioCurso !== undefined) {
