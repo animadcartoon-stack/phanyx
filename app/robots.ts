@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://phanyx.com.br/sitemap.xml",
+    sitemap: "https://www.phanyx.com.br/sitemap.xml",
   };
 }
