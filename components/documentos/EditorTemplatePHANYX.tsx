@@ -3717,7 +3717,7 @@ export default function EditorTemplatePHANYX({
     editorProps: {
       attributes: {
         class:
-          "editor-template-phanyx relative text-[11pt] leading-[normal] text-slate-900 outline-none",
+          "editor-template-phanyx relative text-[11pt] leading-[normal] outline-none",
       },
       handleKeyDown(view, event) {
         const selecao =
@@ -7155,6 +7155,7 @@ export default function EditorTemplatePHANYX({
           background-color: #ffffff !important;
           color: #0f172a !important;
           -webkit-text-fill-color: currentColor !important;
+          caret-color: #0f172a;
           color-scheme: light;
         }
 
@@ -7321,7 +7322,7 @@ export default function EditorTemplatePHANYX({
           </div>
 
           <div
-            className="phanyx-document-paper bg-white text-slate-900"
+            className="phanyx-document-paper"
             onClickCapture={
               selecionarLinhaTabelaPersistente
             }

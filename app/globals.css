@@ -7250,16 +7250,16 @@ html[data-theme="dark"] .phanyx-doc-templates-page [class*="bg-blue-8"] {
   color: #f8fafc !important;
 }
 
-html[data-theme="dark"] .phanyx-doc-templates-page h1,
-html[data-theme="dark"] .phanyx-doc-templates-page h2,
-html[data-theme="dark"] .phanyx-doc-templates-page h3,
-html[data-theme="dark"] .phanyx-doc-templates-page p,
-html[data-theme="dark"] .phanyx-doc-templates-page label,
-html[data-theme="system"] .phanyx-doc-templates-page h1,
-html[data-theme="system"] .phanyx-doc-templates-page h2,
-html[data-theme="system"] .phanyx-doc-templates-page h3,
-html[data-theme="system"] .phanyx-doc-templates-page p,
-html[data-theme="system"] .phanyx-doc-templates-page label {
+html[data-theme="dark"] .phanyx-doc-templates-page h1:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] .phanyx-doc-templates-page h2:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] .phanyx-doc-templates-page h3:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] .phanyx-doc-templates-page p:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] .phanyx-doc-templates-page label:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page h1:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page h2:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page h3:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page p:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page label:not(:where(.phanyx-document-paper, .phanyx-document-paper *)) {
   color: #f8fafc !important;
 }
 
@@ -7556,13 +7556,13 @@ html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-95
   color: #f8fafc !important;
 }
 
-html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-blue"] *,
-html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-blue"] *,
-html[data-theme="system"] .phanyx-doc-templates-page article[class*="bg-blue"] *,
-html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-900"] *,
-html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-950"] *,
-html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-900"] *,
-html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-950"] * {
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-blue"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-blue"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page article[class*="bg-blue"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-900"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-950"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-900"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-950"] *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)) {
   color: #f8fafc !important;
 }
 
@@ -7896,10 +7896,10 @@ html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-preview-card {
   color: #f8fafc !important;
 }
 
-html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card *,
-html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variables-panel *,
-html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-template-list *,
-html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-preview-card * {
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variables-panel *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-template-list *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-preview-card *:not(:where(.phanyx-document-paper, .phanyx-document-paper *)) {
   color: #f8fafc !important;
 }
 
@@ -8261,11 +8261,11 @@ html[data-theme="system"] .phanyx-doc-templates-page .rounded-3xl {
   color: #f8fafc !important;
 }
 
-html[data-theme="system"] .phanyx-doc-templates-page label,
-html[data-theme="system"] .phanyx-doc-templates-page h1,
-html[data-theme="system"] .phanyx-doc-templates-page h2,
-html[data-theme="system"] .phanyx-doc-templates-page h3,
-html[data-theme="system"] .phanyx-doc-templates-page p {
+html[data-theme="system"] .phanyx-doc-templates-page label:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page h1:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page h2:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page h3:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] .phanyx-doc-templates-page p:not(:where(.phanyx-document-paper, .phanyx-document-paper *)) {
   color: #f8fafc !important;
 }
 
@@ -8316,7 +8316,7 @@ html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card .
 }
 
 html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card .font-semibold,
-html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card p {
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card p:not(:where(.phanyx-document-paper, .phanyx-document-paper *)) {
   color: #f8fafc !important;
 }
 
@@ -9834,14 +9834,14 @@ html[data-theme="system"] main .text-gray-800 {
 }
 
 /* Corrige tÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­tulos como "Materiais salvos" e "INTRODUÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢O..." */
-html[data-theme="dark"] main h1,
-html[data-theme="dark"] main h2,
-html[data-theme="dark"] main h3,
-html[data-theme="dark"] main h4,
-html[data-theme="system"] main h1,
-html[data-theme="system"] main h2,
-html[data-theme="system"] main h3,
-html[data-theme="system"] main h4 {
+html[data-theme="dark"] main h1:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] main h2:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] main h3:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="dark"] main h4:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] main h1:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] main h2:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] main h3:not(:where(.phanyx-document-paper, .phanyx-document-paper *)),
+html[data-theme="system"] main h4:not(:where(.phanyx-document-paper, .phanyx-document-paper *)) {
   color: #ffffff !important;
   opacity: 1 !important;
 }
