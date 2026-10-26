@@ -1,0 +1,75 @@
+/* Escopo local para não disputar cores com as regras globais do painel. */
+.resumoEtapa,
+.buscaPainel {
+  --academico-fundo: #eff6ff;
+  --academico-borda: #bfdbfe;
+  --academico-texto: #1e3a8a;
+  --academico-secundario: #1e40af;
+  --academico-campo: #ffffff;
+  --academico-placeholder: #475569;
+}
+
+.buscaPainel {
+  --academico-fundo: #f8fafc;
+  --academico-borda: #cbd5e1;
+  --academico-texto: #0f172a;
+  --academico-secundario: #475569;
+}
+
+:global(html[data-theme="dark"]) .resumoEtapa,
+:global(html[data-theme="dark"]) .buscaPainel {
+  --academico-fundo: #0f172a;
+  --academico-borda: #475569;
+  --academico-texto: #f8fafc;
+  --academico-secundario: #cbd5e1;
+  --academico-campo: #1e293b;
+  --academico-placeholder: #cbd5e1;
+}
+
+/* O tema Sistema do PHANYX possui uma paleta cinza própria. */
+:global(html[data-theme="system"]) .resumoEtapa,
+:global(html[data-theme="system"]) .buscaPainel {
+  --academico-fundo: #303030;
+  --academico-borda: #737373;
+  --academico-texto: #fafafa;
+  --academico-secundario: #e5e5e5;
+  --academico-campo: #262626;
+  --academico-placeholder: #d4d4d4;
+}
+
+:global(html[data-theme]) :global(main) .resumoEtapa,
+:global(html[data-theme]) :global(main) .buscaPainel {
+  background: var(--academico-fundo) !important;
+  border-color: var(--academico-borda) !important;
+  color: var(--academico-texto) !important;
+  -webkit-text-fill-color: var(--academico-texto) !important;
+}
+
+:global(html[data-theme]) :global(main) .resumoEtapa .etapaTitulo,
+:global(html[data-theme]) :global(main) .buscaPainel .buscaTitulo {
+  color: var(--academico-texto) !important;
+  -webkit-text-fill-color: var(--academico-texto) !important;
+}
+
+:global(html[data-theme]) :global(main) .resumoEtapa .etapaDescricao,
+:global(html[data-theme]) :global(main) .buscaPainel .buscaResumo {
+  color: var(--academico-secundario) !important;
+  -webkit-text-fill-color: var(--academico-secundario) !important;
+}
+
+:global(html[data-theme]) :global(main) .buscaPainel .buscaCampo {
+  background: var(--academico-campo) !important;
+  border-color: var(--academico-borda) !important;
+  color: var(--academico-texto) !important;
+  -webkit-text-fill-color: var(--academico-texto) !important;
+}
+
+:global(html[data-theme]) :global(main) .buscaPainel .buscaCampo::placeholder {
+  color: var(--academico-placeholder) !important;
+  -webkit-text-fill-color: var(--academico-placeholder) !important;
+  opacity: 1 !important;
+}
+
+:global(html[data-theme]) :global(main) .buscaPainel input.buscaCampo:focus {
+  border-color: #3b82f6 !important;
+}
