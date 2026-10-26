@@ -128,6 +128,7 @@ function formatarMoeda(valor: number, localeAtual: string) {
 
 export default function CursoDetalhePage() {
   const params = useParams();
+  const te = useTranslations("CourseStageDeletion");
   const ti = useTranslations("AcademicIntegrity");
   const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminCourses");
@@ -146,6 +147,8 @@ export default function CursoDetalhePage() {
   const [editandoCurso, setEditandoCurso] = useState(false);
   const [salvandoCurso, setSalvandoCurso] = useState(false);
   const [criandoSemestre, setCriandoSemestre] = useState(false);
+  const [excluindoSemestreId, setExcluindoSemestreId] = useState<number | null>(null);
+  const [erroExclusao, setErroExclusao] = useState<{ id: number; mensagem: string } | null>(null);
   const [salvandoSemestreId, setSalvandoSemestreId] = useState<number | null>(null);
 
   const [feedback, setFeedback] = useState("");
@@ -441,6 +444,46 @@ export default function CursoDetalhePage() {
       mostrarFeedback("erro", error?.message || t("errors.createSemester"));
     } finally {
       setCriandoSemestre(false);
+    }
+  }
+
+  async function excluirSemestre(semestre: CursoSemestre) {
+    if (cursoRecebidoDaRede || excluindoSemestreId !== null ||
+        salvandoSemestreId !== null || criandoSemestre) return;
+    const etapa = `${ta(curso?.organizacaoCurricular === "ANUAL" ? "year" : "semester")} ${semestre.numero}${semestre.titulo ? ` — ${semestre.titulo}` : ""}`;
+    if (!window.confirm(te("confirm", { stage: etapa }))) return;
+
+    setExcluindoSemestreId(semestre.id);
+    setErroExclusao(null);
+    try {
+      const res = await fetch("/api/admin/curso-etapas", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: semestre.id, cursoId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const chave = `errors.${data.codigo}`;
+        throw new Error(te.has(chave) ? te(chave) : te("errors.DELETE_FAILED"));
+      }
+      setSemestres((prev) => prev.filter((s) => s.id !== semestre.id));
+      setSelecionadas((prev) => {
+        const proximo = { ...prev };
+        delete proximo[semestre.id];
+        return proximo;
+      });
+      setSemestresAbertos((prev) => {
+        const proximo = { ...prev };
+        delete proximo[semestre.id];
+        return proximo;
+      });
+      mostrarFeedback("sucesso", te("deleted"));
+    } catch (error: unknown) {
+      setErroExclusao({ id: semestre.id, mensagem: error instanceof Error
+        ? error.message : te("errors.DELETE_FAILED") });
+    } finally {
+      setExcluindoSemestreId(null);
     }
   }
 
@@ -998,7 +1041,7 @@ export default function CursoDetalhePage() {
             <div className="md:col-span-3">
               <button
                 type="submit"
-                disabled={criandoSemestre}
+                disabled={criandoSemestre || excluindoSemestreId !== null}
                 className="bg-purple-600 text-white px-5 py-2 rounded-lg disabled:opacity-50"
               >
                 {criandoSemestre ? t("common.adding") : t("detail.semesters.addButton")}
@@ -1023,25 +1066,44 @@ export default function CursoDetalhePage() {
               key={semestre.id}
               className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
             >
-              <button
-                type="button"
-                onClick={() =>
-                  setSemestresAbertos((prev) => ({
-                    ...prev,
-                    [semestre.id]: !prev[semestre.id],
-                  }))
-                }
-                className="mb-4 flex w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-left dark:border-slate-700 dark:bg-slate-950"
-              >
-                <span className="font-bold text-gray-900 dark:text-white">
-                  {t("detail.semesters.semesterLabel", { number: semestre.numero })}
-                  {semestre.titulo ? ` - ${semestre.titulo}` : ""}
-                </span>
+              <div className="mb-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSemestresAbertos((prev) => ({
+                      ...prev,
+                      [semestre.id]: !prev[semestre.id],
+                    }))
+                  }
+                  aria-expanded={Boolean(semestresAbertos[semestre.id])}
+                  className="flex min-w-0 flex-1 items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-left dark:border-slate-700 dark:bg-slate-950"
+                >
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    {t("detail.semesters.semesterLabel", { number: semestre.numero })}
+                    {semestre.titulo ? ` - ${semestre.titulo}` : ""}
+                  </span>
 
-                <span className="text-sm text-gray-500 dark:text-slate-400">
-                  {semestresAbertos[semestre.id] ? t("common.closeWithArrow") : t("common.openWithArrow")}
-                </span>
-              </button>
+                  <span className="text-sm text-gray-500 dark:text-slate-400">
+                    {semestresAbertos[semestre.id] ? t("common.closeWithArrow") : t("common.openWithArrow")}
+                  </span>
+                </button>
+                {!cursoRecebidoDaRede && (
+                  <button
+                    type="button"
+                    onClick={() => excluirSemestre(semestre)}
+                    disabled={excluindoSemestreId !== null || salvandoSemestreId !== null || criandoSemestre}
+                    aria-label={te("deleteNamed", { number: semestre.numero, title: semestre.titulo || "" })}
+                    className="phanyx-delete-stage shrink-0 rounded-lg px-4 py-2 text-sm font-semibold disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {excluindoSemestreId === semestre.id ? te("deleting") : te("delete")}
+                  </button>
+                )}
+              </div>
+              {erroExclusao?.id === semestre.id && (
+                <p role="alert" className="mb-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-700 dark:bg-red-950 dark:text-red-100">
+                  {erroExclusao.mensagem}
+                </p>
+              )}
               {semestresAbertos[semestre.id] && (
                 <>
                   <div className="mb-4">
@@ -1204,7 +1266,7 @@ export default function CursoDetalhePage() {
                             <button
                               type="button"
                               onClick={() => salvarDisciplinas(semestre.id)}
-                              disabled={salvandoSemestreId === semestre.id}
+                              disabled={salvandoSemestreId === semestre.id || excluindoSemestreId !== null}
                               className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                             >
                               {salvandoSemestreId === semestre.id
@@ -1217,7 +1279,7 @@ export default function CursoDetalhePage() {
                             <button
                               type="button"
                               onClick={() => salvarCargaSemestre(semestre)}
-                              disabled={salvandoSemestreId === semestre.id}
+                              disabled={salvandoSemestreId === semestre.id || excluindoSemestreId !== null}
                               className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                             >
                               {salvandoSemestreId === semestre.id ? t("common.saving") : t("detail.semesters.saveWorkload")}
@@ -1235,6 +1297,20 @@ export default function CursoDetalhePage() {
         })
       )}
       <style jsx global>{`
+        html[data-theme] main button.phanyx-delete-stage {
+          background-color: #b91c1c !important;
+          color: #ffffff !important;
+          -webkit-text-fill-color: #ffffff !important;
+          border: 1px solid #fca5a5;
+        }
+        html[data-theme] main button.phanyx-delete-stage:hover:not(:disabled) {
+          background-color: #991b1b !important;
+        }
+        html[data-theme] main button.phanyx-delete-stage:focus-visible {
+          outline: 3px solid #f87171;
+          outline-offset: 3px;
+        }
+
         html[data-theme-choice="system"][data-theme="dark"]
           .phanyx-course-native-select,
         html[data-theme-choice="system"][data-theme="dark"]

@@ -1,4 +1,22 @@
 {
+  "CourseStageDeletion": {
+    "delete": "Delete stage",
+    "deleteNamed": "Delete stage {number} {title}",
+    "deleting": "Deleting…",
+    "deleted": "Stage deleted. Subjects remain in the catalog.",
+    "confirm": "Delete {stage}? Subject links to this stage will be removed, but subjects will remain in the catalog. Deletion is allowed only when there are no linked academic records. This action cannot be undone.",
+    "errors": {
+      "UNAUTHENTICATED": "Your session expired. Sign in again.",
+      "FORBIDDEN": "You do not have permission to delete stages.",
+      "INVALID_STAGE": "Invalid stage. Refresh the page.",
+      "NOT_FOUND": "Stage not found. Refresh the page.",
+      "NETWORK_RECEIVED": "This course structure is maintained by the originating institution.",
+      "NETWORK_PUBLISHED": "This stage was published to other units. Review network links before deleting it.",
+      "STAGE_IN_USE": "This stage has linked enrollments, classes, enrollment periods or other academic settings. Review those links before deleting. Records were preserved.",
+      "CONCURRENT_CHANGE": "Another change occurred during deletion. Refresh the page and try again.",
+      "DELETE_FAILED": "Could not delete the stage. Try again."
+    }
+  },
   "AcademicIntegrity": {
     "ETAPA_COM_HISTORICO": "An offering with academic history cannot be moved to another course or stage. Keep the current class and manage progression through a new offering or re-enrollment.",
     "DADOS_ALTERADOS": "Academic data changed concurrently. Refresh the page, check your selection and try again.",
