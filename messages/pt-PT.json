@@ -23315,5 +23315,15 @@
     "allSemesterSubjects": "Todas as disciplinas deste semestre",
     "yearCurriculum": "Grade do ano / etapa",
     "semesterCurriculum": "Grade do semestre"
+  },
+  "CourseMonthlyDiscount": {
+    "label": "Desconto da mensalidade (%)",
+    "placeholder": "Opcional — sem desconto",
+    "help": "Vazio ou 0% mantém o valor integral. Aplica-se à mensalidade avulsa, sem alterar a taxa de matrícula, o preço semanal ou os preços específicos de combos.",
+    "preview": "Mensalidade com desconto: {value}",
+    "summary": "Desconto do curso: {percent}% · Mensalidade padrão: {value}",
+    "errors": {
+      "DESCONTO_MENSALIDADE_INVALIDO": "Indique um desconto entre 0 e 100%, com até duas casas decimais."
+    }
   }
 }

@@ -23528,5 +23528,15 @@
     "allSemesterSubjects": "Todas las asignaturas de este semestre",
     "yearCurriculum": "Plan del año / etapa",
     "semesterCurriculum": "Plan del semestre"
+  },
+  "CourseMonthlyDiscount": {
+    "label": "Descuento de la mensualidad (%)",
+    "placeholder": "Opcional — sin descuento",
+    "help": "Vacío o 0% mantiene el precio completo. Se aplica a la mensualidad individual, sin cambiar la tasa de matrícula, el precio semanal ni los precios específicos de los paquetes.",
+    "preview": "Mensualidad con descuento: {value}",
+    "summary": "Descuento del curso: {percent}% · Mensualidad predeterminada: {value}",
+    "errors": {
+      "DESCONTO_MENSALIDADE_INVALIDO": "Introduzca un descuento entre 0 y 100%, con hasta dos decimales."
+    }
   }
 }

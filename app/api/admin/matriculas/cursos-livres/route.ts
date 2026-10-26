@@ -20,10 +20,10 @@ export async function GET(request: Request) {
     if (pagina > 100000) throw new ErroCursoLivre("DADOS_INVALIDOS");
     const [cursos, matriculas] = await Promise.all([
       prisma.curso.findMany({ where: { instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE", ativo: true, excluidoEm: null },
-        select: { id: true, nome: true, valorSemanal: true, valorMensalidade: true,
+        select: { id: true, nome: true, valorSemanal: true, valorMensalidade: true, descontoMensalidadePercentual: true,
           turmas: { where: { instituicaoId: user.instituicaoId, ativa: true, organizacaoCurricular: "LIVRE", statusTurma: { in: ["ATIVA", "A_INICIAR", "AGUARDANDO"] } }, select: { id: true, nome: true } } }, orderBy: { nome: "asc" } }),
       prisma.matricula.findMany({ where: { instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE", excluidaEm: null, alunoId, id: matriculaId },
-        select: { id: true, numeroMatricula: true, status: true, aluno: { select: { id: true, nome: true } }, curso: { select: { id: true, nome: true, valorSemanal: true, valorMensalidade: true } },
+        select: { id: true, numeroMatricula: true, status: true, aluno: { select: { id: true, nome: true } }, curso: { select: { id: true, nome: true, valorSemanal: true, valorMensalidade: true, descontoMensalidadePercentual: true } },
           turmaPrincipal: { select: { id: true, nome: true } },
           periodosCursoLivre: { orderBy: [{ dataInicio: "desc" }, { id: "desc" }], take: matriculaId ? 20 : 3, skip: matriculaId ? (pagina - 1) * 20 : 0,
             select: { id: true, periodicidade: true, dataInicio: true, dataFim: true, valor: true, lancamentoId: true,

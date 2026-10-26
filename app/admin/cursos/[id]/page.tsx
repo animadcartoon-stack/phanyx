@@ -1,4 +1,5 @@
 "use client";
+import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
 
@@ -71,6 +72,7 @@ type Curso = {
   valorMatricula?: number | null;
   valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
+  descontoMensalidadePercentual?: string | number | null;
   participaCombo?: boolean;
   valorMensalidadeCombo?: string | number | null;
   precosComboPorQuantidade?: { quantidadeAtividades: number; valorMensalidade: string }[];
@@ -127,6 +129,7 @@ export default function CursoDetalhePage() {
   const t = useTranslations("AdminCourses");
   const tc = useTranslations("EnrollmentCombos");
   const tl = useTranslations("CoursePeriods");
+  const td = useTranslations("CourseMonthlyDiscount");
   const locale = useLocale();
   const cursoId = Number(params.id);
 
@@ -153,6 +156,7 @@ export default function CursoDetalhePage() {
     valorMatricula: "",
     valorMensalidade: "",
     valorSemanal: "",
+    descontoMensalidadePercentual: "",
     participaCombo: false,
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
@@ -220,6 +224,7 @@ export default function CursoDetalhePage() {
         participaCombo: Boolean(encontrado.participaCombo),
         valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
         precosComboPorQuantidade: (encontrado.precosComboPorQuantidade || []).map(f => ({ quantidadeAtividades: String(f.quantidadeAtividades), valorMensalidade: String(f.valorMensalidade) })),
+        descontoMensalidadePercentual: encontrado.descontoMensalidadePercentual == null ? "" : String(encontrado.descontoMensalidadePercentual),
         valorSemanal: encontrado.valorSemanal == null ? "" : String(encontrado.valorSemanal),
         valorMensalidade:
           encontrado.valorMensalidade != null
@@ -326,6 +331,7 @@ export default function CursoDetalhePage() {
           valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
           precosComboPorQuantidade: formCurso.precosComboPorQuantidade,
           valorSemanal: formCurso.valorSemanal || null,
+          descontoMensalidadePercentual: formCurso.descontoMensalidadePercentual || null,
           valorMensalidade: formCurso.valorMensalidade
             ? Number(formCurso.valorMensalidade)
             : null,
@@ -340,7 +346,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -787,7 +793,8 @@ export default function CursoDetalhePage() {
                   </div>
 
           {formCurso.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={formCurso.valorSemanal} valorMensal={formCurso.valorMensalidade} onChangeMensal={valor => setFormCurso({ ...formCurso, valorMensalidade: valor })} onChange={valor => setFormCurso({ ...formCurso, valorSemanal: valor })} />}
-                  <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
+                  <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />
+          <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
                     onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
 
                   <div>
@@ -899,7 +906,8 @@ export default function CursoDetalhePage() {
                       ? formatarMoeda(curso.valorMensalidade, locale)
                       : t("common.notInformed")}
                   </p>
-                  <p>
+                  <ResumoDescontoMensalidade valorMensalidade={curso.valorMensalidade} percentual={curso.descontoMensalidadePercentual} />
+<p>
                     {t("common.installments")}:{" "}
                     {curso.quantidadeParcelas != null
                       ? curso.quantidadeParcelas
