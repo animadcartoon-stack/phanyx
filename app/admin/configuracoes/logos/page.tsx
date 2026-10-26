@@ -9,6 +9,8 @@ import {
 } from "react";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import { useTranslations } from "next-intl";
+import { enviarLogoInstitucional } from "@/lib/client/enviar-logo-institucional";
+import { ErroArquivoLogo, validarArquivoLogo } from "@/lib/logos-upload";
 
 type TipoLogo =
     | "PRINCIPAL"
@@ -131,6 +133,7 @@ function obterDimensoesImagem(
 }
 
 export default function LogosInstitucionaisPage() {
+    const tArquivo = useTranslations("AdminInstitutionSettings.logo.messages");
     const t =
         useTranslations(
             "AdminInstitutionLogos"
@@ -463,43 +466,14 @@ export default function LogosInstitucionaisPage() {
 
             setSalvando(true);
 
+            validarArquivoLogo(arquivo);
+
             const dimensoes =
                 await obterDimensoesImagem(
                     arquivo
                 );
 
-            const formData =
-                new FormData();
-
-            formData.append(
-                "file",
-                arquivo
-            );
-
-            const uploadRes =
-                await fetch(
-                    "/api/admin/configuracoes/logos/upload",
-                    {
-                        method: "POST",
-                        credentials:
-                            "include",
-                        body: formData,
-                    }
-                );
-
-            const uploadData =
-                await uploadRes
-                    .json()
-                    .catch(
-                        () => null
-                    );
-
-            if (!uploadRes.ok) {
-                throw new Error(
-                    uploadData?.error ||
-                    t("messages.uploadImageError")
-                );
-            }
+            const uploadData = await enviarLogoInstitucional(arquivo);
 
             const cadastroRes =
                 await fetch(
@@ -578,7 +552,11 @@ export default function LogosInstitucionaisPage() {
                 titulo:
                     t("messages.registerFailureTitle"),
                 mensagem:
-                    error?.message ||
+                    error instanceof ErroArquivoLogo
+                    ? error.codigo === "uploadError"
+                      ? t("messages.uploadImageError")
+                      : tArquivo(error.codigo)
+                    : error?.message ||
                     t("messages.registerError"),
             });
         } finally {
