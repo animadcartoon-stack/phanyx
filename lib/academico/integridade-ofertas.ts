@@ -5,7 +5,7 @@ import { disciplinaPermitidaNaOferta, numeroSemestreOferta } from "./grade-ofert
 
 type BancoAcademico = Prisma.TransactionClient;
 const mensagens = {
-  ORGANIZACAO_INVALIDA: "Escolha organização anual ou semestral.",
+  ORGANIZACAO_INVALIDA: "Escolha organização anual, semestral ou livre.",
   ORGANIZACAO_EM_USO: "Este curso já possui grade, disciplinas, turmas ou matrículas. Preserve sua organização e cadastre outro curso para uma estrutura diferente.",
   ETAPA_INVALIDA: "Informe uma etapa curricular válida para o curso.",
   VINCULO_INVALIDO: "Um dos identificadores informados é inválido.",
@@ -175,7 +175,7 @@ export async function sincronizarTurmasDaDisciplina(
 }
 
 export function validarOrganizacao(valor: unknown) {
-  if (valor !== "SEMESTRAL" && valor !== "ANUAL") throw new ErroIntegridadeAcademica("ORGANIZACAO_INVALIDA");
+  if (valor !== "SEMESTRAL" && valor !== "ANUAL" && valor !== "LIVRE") throw new ErroIntegridadeAcademica("ORGANIZACAO_INVALIDA");
   return valor;
 }
 
@@ -199,6 +199,7 @@ export async function validarEtapaDoCurso(db: BancoAcademico, instituicaoId: num
   const organizacaoCurricular = organizacaoAcademica(curso?.organizacaoCurricular);
   if (organizacaoInformada != null && organizacaoInformada !== organizacaoCurricular)
     throw new ErroIntegridadeAcademica("ORGANIZACAO_INVALIDA");
+  if (organizacaoCurricular === "LIVRE") return { organizacaoCurricular, etapaNumero: null, semestre: "" };
   const etapaNumero = numeroEtapa(valor);
   const limite = organizacaoCurricular === "ANUAL" ? curso?.quantidadeEtapas : curso?.quantidadeSemestres;
   if (etapaNumero === null || (limite && etapaNumero > limite)) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
@@ -212,6 +213,7 @@ export async function resolverEtapaDaMatricula(db: BancoAcademico, instituicaoId
     select: { organizacaoCurricular: true } });
   if (!curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
   const organizacaoCurricular = organizacaoAcademica(curso.organizacaoCurricular);
+  if (organizacaoCurricular === "LIVRE") return { organizacaoCurricular, etapaNumero: null, cursoSemestreId: null, semestre: null };
   const etapa = cursoEtapaId == null ? null : await db.cursoSemestre.findFirst({
     where: { id: cursoEtapaId, cursoId, instituicaoId, organizacaoCurricular },
     select: { id: true, numero: true },

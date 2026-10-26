@@ -100,6 +100,7 @@ type CursoSemestreOption = {
 };
 
 type MatriculaApi = {
+  organizacaoCurricular?: string;
   contratacaoModalidades?: unknown;
   id: number;
   status?: string;
@@ -267,6 +268,7 @@ function AdminMatriculasPage() {
   const t = useTranslations("AdminMatriculasQuarentena");
   const locale = useLocale();
   const tc = useTranslations("EnrollmentCombos");
+  const tl = useTranslations("CoursePeriods");
   const [busca, setBusca] = useState("");
 
   const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
@@ -663,6 +665,7 @@ function AdminMatriculasPage() {
 
           const listaCursos: CursoOption[] =
             cursosRecebidos
+              .filter((curso: any) => curso.organizacaoCurricular !== "LIVRE")
               .map((curso: any) => ({
                 id: Number(curso?.id),
 
@@ -3571,6 +3574,7 @@ function AdminMatriculasPage() {
       )}
       <div className="matriculas-form-light-fix bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
+        <Link href="/admin/matriculas/cursos-livres" className="mr-3 mt-3 inline-block rounded-lg bg-emerald-700 px-4 py-2 font-semibold text-white">{tl("title")}</Link>
         <Link href="/admin/matriculas/modalidades" className="mt-3 inline-block rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white">{tc("enroll")}</Link>
         <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
           Selecione aluno, curso, semestre estruturado e as turmas que ele vai
@@ -4825,6 +4829,7 @@ function AdminMatriculasPage() {
 
 
 
+                            {m.organizacaoCurricular === "LIVRE" ? <Link href={`/admin/matriculas/cursos-livres?matriculaId=${m.id}`} className="rounded-xl bg-emerald-700 px-3 py-2 text-sm font-semibold text-white">{tl("history")}</Link> : (
                             <button
 
                               onClick={() => abrirEdicao(m)}
@@ -4836,6 +4841,7 @@ function AdminMatriculasPage() {
                               ✏️ Editar
 
                             </button>
+                            )}
 
 
 

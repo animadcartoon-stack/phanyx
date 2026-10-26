@@ -16,9 +16,10 @@ export async function validarAgendaMatricula(
     itens: { turmaId: number; disciplinaId: number }[];
     matriculaId?: number;
     inicio?: Date | null;
+    fim?: Date | null;
   },
 ) {
-  const { instituicaoId, alunoId, itens, matriculaId, inicio } = params;
+  const { instituicaoId, alunoId, itens, matriculaId, inicio, fim } = params;
   await tx.$queryRaw`SELECT "id" FROM "Aluno" WHERE "id" = ${alunoId} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
   const ids = [...new Set(itens.map((i) => i.turmaId))].sort((a, b) => a - b);
   if (ids.length)
@@ -60,7 +61,7 @@ export async function validarAgendaMatricula(
           .filter(Boolean)
           .sort()
           .pop() || null,
-      dataFim: civil(v.dataFim || v.turma.dataFim),
+      dataFim: [civil(v.dataFim || v.turma.dataFim), civil(fim)].filter(Boolean).sort()[0] || null,
     })),
   );
   const existentes = await horariosAtuaisAluno(

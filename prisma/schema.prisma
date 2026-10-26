@@ -821,6 +821,7 @@ model Professor {
 enum OrganizacaoCurricular {
   SEMESTRAL
   ANUAL
+  LIVRE
 }
 
 model Curso {
@@ -836,6 +837,7 @@ model Curso {
   updatedAt                  DateTime              @updatedAt
   quantidadeParcelas         Int?
   valorMatricula             Float?
+  valorSemanal               Decimal?              @db.Decimal(10, 2)
   valorMensalidade           Float?
   participaCombo             Boolean               @default(false)
   valorMensalidadeCombo      Decimal?              @db.Decimal(10, 2)
@@ -953,6 +955,7 @@ model Pagamento {
 }
 
 model LancamentoFinanceiro {
+  periodoCursoLivre PeriodoCursoLivre?
   id              Int                        @id @default(autoincrement())
   tipo            TipoLancamentoFinanceiro
   descricao       String?
@@ -983,6 +986,7 @@ model LancamentoFinanceiro {
 
   cobrancasFinanceiras CobrancaFinanceira[]
 
+  @@unique([id, instituicaoId, matriculaId])
   @@unique([id, instituicaoId])
   @@index([instituicaoId])
   @@index([alunoId])
@@ -1182,6 +1186,7 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  periodosCursoLivre PeriodoCursoLivre[]
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   etapaNumero Int?
   comboId                                 Int?
@@ -11619,4 +11624,32 @@ model ComboModalidadesCurso {
 
   @@unique([comboId, cursoId])
   @@index([cursoId, instituicaoId])
+}
+
+
+enum PeriodicidadeCursoLivre {
+  SEMANAL
+  MENSAL
+}
+
+model PeriodoCursoLivre {
+  id String @id @default(cuid())
+  instituicaoId Int
+  matriculaId Int
+  lancamentoId Int @unique
+  periodicidade PeriodicidadeCursoLivre
+  dataInicio DateTime @db.Date
+  dataFim DateTime @db.Date
+  valor Decimal @db.Decimal(10, 2)
+  criadoPorId Int
+  impersonacaoId Int?
+  criadoEm DateTime @default(now())
+  chaveOperacao String @unique
+  pedidoHash String
+  ip String?
+  userAgent String? @db.Text
+  matricula Matricula @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  lancamento LancamentoFinanceiro @relation(fields: [lancamentoId, instituicaoId, matriculaId], references: [id, instituicaoId, matriculaId], onDelete: Restrict)
+  @@unique([lancamentoId, instituicaoId, matriculaId])
+  @@index([instituicaoId, matriculaId, dataInicio, dataFim])
 }

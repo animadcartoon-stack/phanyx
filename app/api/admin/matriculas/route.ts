@@ -39,6 +39,8 @@ export async function POST(req: Request) {
     }
 
     const resultado = await prisma.$transaction(async (tx) => {
+      const livre = await tx.curso.findFirst({ where: { id: Number(cursoId), instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE" }, select: { id: true } });
+      if (livre) throw new Error("CURSO_LIVRE_FLUXO_PROPRIO");
       const etapa = await resolverEtapaDaMatricula(tx, user.instituicaoId, Number(cursoId), body.cursoEtapaId ?? body.cursoSemestreId ?? null, body.etapaNumero ?? semestre);
       const aluno = await tx.aluno.findFirst({
         where: {
@@ -311,6 +313,7 @@ export async function POST(req: Request) {
       matricula: resultado,
     });
   } catch (error: any) {
+    if (error?.message === "CURSO_LIVRE_FLUXO_PROPRIO") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 400 });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     console.error("Erro ao criar matrícula:", error);

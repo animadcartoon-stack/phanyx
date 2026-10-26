@@ -165,6 +165,7 @@ export async function PUT(
       select: {
         id: true,
         contratacaoModalidades: true,
+        organizacaoCurricular: true,
       },
     });
 
@@ -174,6 +175,8 @@ export async function PUT(
       { status: 404 }
     );
   }
+
+  if (matriculaExistente.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 409 });
 
   if (matriculaExistente.contratacaoModalidades) {
     return NextResponse.json({ codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });

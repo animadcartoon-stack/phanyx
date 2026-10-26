@@ -202,6 +202,7 @@ export async function POST(req: Request) {
   );
 }
 
+    if (curso.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_SEM_ETAPAS" }, { status: 400 });
     const limite = curso.organizacaoCurricular === "ANUAL" ? curso.quantidadeEtapas : curso.quantidadeSemestres;
     if (limite && numero > limite) return NextResponse.json({ codigo: "ETAPA_INVALIDA", error: "Etapa fora da duração do curso." }, { status: 400 });
 

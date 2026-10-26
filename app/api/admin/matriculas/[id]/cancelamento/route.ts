@@ -357,6 +357,7 @@ async function buscarMatricula(
       periodoLetivo: true,
       semestre: true,
       modalidade: true,
+      organizacaoCurricular: true,
       aluno: {
         select: {
           id: true,
@@ -947,7 +948,10 @@ export async function PATCH(
           await tx.lancamentoFinanceiro.updateMany({
             where: {
               instituicaoId: user.instituicaoId, matriculaId,
-              tipo: { in: ["MATRICULA", "MENSALIDADE"] },
+              ...(matricula!.organizacaoCurricular === "LIVRE" ? { OR: [
+                { tipo: { in: ["MATRICULA", "MENSALIDADE"] } },
+                { periodoCursoLivre: { is: { instituicaoId: user.instituicaoId, matriculaId } } },
+              ] } : { tipo: { in: ["MATRICULA", "MENSALIDADE"] } }),
               status: { in: ["PENDENTE", "ATRASADO", "PARCIAL"] },
               // Encerramento sem saldo cancela todas as obrigações remanescentes.
               // Com saldo apurado, preserva parcelas anteriores à data efetiva.

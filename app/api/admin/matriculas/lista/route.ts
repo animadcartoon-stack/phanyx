@@ -144,6 +144,7 @@ export async function GET(request: Request) {
           vendedorResponsavelNomeSnapshot: true,
           tipoContratacao: true,
           contratacaoModalidades: true,
+          organizacaoCurricular: true,
           createdAt: true,
           aluno: {
             select: {

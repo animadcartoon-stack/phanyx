@@ -481,6 +481,7 @@ export async function publicarCursoParaUnidadesIndependentes(
               cursoOrigem
                 .valorMatricula,
 
+            valorSemanal: cursoOrigem.valorSemanal,
             valorMensalidade:
               cursoOrigem
                 .valorMensalidade,
