@@ -1,4 +1,5 @@
 "use client";
+import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
@@ -1375,9 +1376,9 @@ function AdminTurmasPage() {
                 </button>
 
                 {disciplinasAbertas && (
-                  <div className="phanyx-turma-busca-painel mt-2 rounded-xl border p-3">
+                  <div className={`${contraste.buscaPainel} phanyx-turma-busca-painel mt-2 rounded-xl border p-3`}>
                     <label className="block">
-                      <span className="phanyx-turma-busca-titulo mb-2 block text-sm font-bold">
+                      <span className={`${contraste.buscaTitulo} phanyx-turma-busca-titulo mb-2 block text-sm font-bold`}>
                         {t("classesSearchSubject")}
                       </span>
 
@@ -1390,11 +1391,11 @@ function AdminTurmasPage() {
                           )
                         }
                         placeholder={t("classesSubjectExample")}
-                        className="phanyx-turma-busca-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
+                        className={`${contraste.buscaCampo} phanyx-turma-busca-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20`}
                       />
                     </label>
 
-                    <div className="phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className={`${contraste.buscaResumo} phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs`}>
                       <span>
                         {t("classesSuggestionCount", { count: disciplinasFiltradas.length })}
                       </span>
@@ -1857,9 +1858,9 @@ function AdminTurmasPage() {
                           </button>
 
                           {editDisciplinasAbertas && (
-                            <div className="phanyx-turma-busca-painel mt-2 rounded-xl border p-3">
+                            <div className={`${contraste.buscaPainel} phanyx-turma-busca-painel mt-2 rounded-xl border p-3`}>
                               <label className="block">
-                                <span className="phanyx-turma-busca-titulo mb-2 block text-sm font-bold">
+                                <span className={`${contraste.buscaTitulo} phanyx-turma-busca-titulo mb-2 block text-sm font-bold`}>
                                   {t("classesSearchSubject")}
                                 </span>
 
@@ -1874,11 +1875,11 @@ function AdminTurmasPage() {
                                     )
                                   }
                                   placeholder={t("classesSearchSubjectHint")}
-                                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                                  className={`${contraste.buscaCampo} phanyx-turma-busca-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20`}
                                 />
                               </label>
 
-                              <div className="phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                              <div className={`${contraste.buscaResumo} phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs`}>
                                 <span>
                                   {t("classesSuggestionCount", { count: editDisciplinasFiltradas.length })}
                                 </span>

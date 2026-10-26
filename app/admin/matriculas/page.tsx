@@ -1,4 +1,5 @@
 "use client";
+import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
 import ResumoPrecoDisciplinas from "@/components/admin/ResumoPrecoDisciplinas";
 import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
@@ -4408,15 +4409,15 @@ function AdminMatriculasPage() {
           </div>
         )}
         {semestreSelecionado ? (
-          <div className="mt-5 rounded-2xl border bg-blue-50 p-4">
-            <p className="font-semibold text-blue-900">
+          <div className={`${contraste.resumoEtapa} mt-5 rounded-2xl border p-4`}>
+            <p className={`${contraste.etapaTitulo} font-semibold`}>
               {ts(cursoAnualSelecionado ? "selectedYear" : "selectedSemester", { number: semestreSelecionado.numero })}
               {semestreSelecionado.titulo
                 ? ` — ${semestreSelecionado.titulo}`
                 : ""}
             </p>
             {semestreSelecionado.descricao ? (
-              <p className="text-sm text-blue-800 mt-1">
+              <p className={`${contraste.etapaDescricao} text-sm mt-1`}>
                 {semestreSelecionado.descricao}
               </p>
             ) : null}
