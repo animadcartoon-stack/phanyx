@@ -1,4 +1,5 @@
 import { temDisciplinaIncluidaDuplicada } from "./selecao-disciplinas";
+import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import {
@@ -56,6 +57,7 @@ export async function carregarOfertasModalidades(
           id: true,
           nome: true,
           participaCombo: true,
+          requisitosConjuntos: { select: { cursoObrigatorioId: true, cursoObrigatorio: { select: { nome: true } } } },
           valorMatricula: true,
           valorMensalidade: true,
           regrasPrecoDisciplinas: true,
@@ -270,6 +272,10 @@ export async function prepararContratacaoModalidades(
     throw new ErroModalidades("POLOS_DIFERENTES");
   if (new Set(escolhidas.map((o) => o.periodoLetivo || "")).size !== 1)
     throw new ErroModalidades("PERIODOS_DIFERENTES");
+  const requisitosCursos = await validarRequisitosCursos(db, instituicaoId, {
+    alunoId, cursoIds: escolhidas.map(o => o.cursoId!), periodoLetivo: escolhidas[0].periodoLetivo,
+    inicio: inicioCurso.data,
+  });
   if (escolhidas.some((o) => o.horariosPendentes))
     throw new ErroModalidades("HORARIOS_INCOMPLETOS", 409);
   if (escolhidas.some((o) => o.vagas !== null && o.vagas <= 0))
@@ -349,6 +355,7 @@ export async function prepararContratacaoModalidades(
     ? calculo.nome
     : escolhidas.map((o) => o.curso.nome).join(" + ");
   const snapshot = {
+    requisitosCursos,
     versao: 1,
     nome,
     calculo,

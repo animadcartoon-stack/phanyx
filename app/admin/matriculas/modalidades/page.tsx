@@ -1,4 +1,5 @@
 "use client";
+import { faltantesRequisitos, mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -28,6 +29,7 @@ const input =
 
 function ModalidadesPage() {
   const t = useTranslations("EnrollmentCombos");
+  const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
   const [ofertas, setOfertas] = useState<OfertaModalidade[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
@@ -46,6 +48,7 @@ function ModalidadesPage() {
   const [busy, setBusy] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
+  const [pendenciasCursos, setPendenciasCursos] = useState<{ cursoNome: string; obrigatorioNome: string }[]>([]);
   const [confirmacao, setConfirmacao] = useState<{
     mensagem: string;
     acao: () => void;
@@ -134,6 +137,7 @@ function ModalidadesPage() {
   }
   function limpar() {
     setSelecionadas([]);
+    setPendenciasCursos([]);
     setPrevia(null);
     setAjuste(null);
   }
@@ -160,6 +164,14 @@ function ModalidadesPage() {
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data.codigo === "CURSO_CONJUNTO_PENDENTE") {
+          setSelecionadas(pendente.ids);
+          setInicio(pendente.inicio);
+          setPrevia(null);
+          setAjuste(null);
+          setPendenciasCursos(faltantesRequisitos(data.detalhes));
+          return;
+        }
         if (data.codigo === "CONFLITO_HORARIO") {
           setConflito({ ...data.detalhes, pendente });
           return;
@@ -168,6 +180,7 @@ function ModalidadesPage() {
       }
       setSelecionadas(pendente.ids);
       setPrevia(data);
+      setPendenciasCursos([]);
       setInicio(pendente.inicio);
       setAjuste(null);
     } catch (error) {
@@ -225,9 +238,10 @@ function ModalidadesPage() {
             ...data.detalhes,
             pendente: { ids: selecionadas, alunoId, inicio },
           });
-        else setErro(traduzirErro(data.codigo));
+        else setErro(mensagemRequisitoCurso(tr, data) || traduzirErro(data.codigo));
         if (
           [
+            "CURSO_CONJUNTO_PENDENTE",
             "DADOS_ALTERADOS",
             "TURMA_SEM_VAGAS",
             "TURMA_INDISPONIVEL",
@@ -471,6 +485,7 @@ function ModalidadesPage() {
                       >
                         {curso.nome}
                       </label>
+                      {Boolean(curso.requisitosConjuntos?.length) && <p className="mt-1 text-sm">{tr("requires")}: {curso.requisitosConjuntos!.map(r => r.cursoObrigatorio.nome).join(", ")}</p>}
                       <p className="my-2 text-sm text-slate-600 dark:text-slate-300">
                         {t("standaloneMonthly")}:{" "}
                         {curso.valorMensalidade === null
@@ -522,6 +537,11 @@ function ModalidadesPage() {
             )}
             {busy && <p role="status">{t("calculating")}</p>}
           </section>
+          {pendenciasCursos.length > 0 && <section role="alert" className="rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950 dark:bg-amber-950 dark:text-amber-100">
+            <p className="font-semibold">{tr("pendingTitle")}</p>
+            <ul className="mt-2 list-disc pl-5">{pendenciasCursos.map((f, i) => <li key={i}>{tr("dependency", { course: f.cursoNome, required: f.obrigatorioNome })}</li>)}</ul>
+            <p className="mt-2 text-sm">{tr("pendingHelp")}</p>
+          </section>}
           {selecionadas.length > 0 && (
             <section className="space-y-3 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
               <h2 className="font-semibold">{t("selectedSchedule")}</h2>

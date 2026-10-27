@@ -2,6 +2,7 @@
 import SelecaoDisciplinasIncluidas from "@/components/admin/SelecaoDisciplinasIncluidas";
 import { normalizarSelecaoDisciplinas, validarSelecaoDisciplinas, type RegrasSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
 import { copySelecao } from "@/lib/matriculas/selecao-disciplinas-copy";
+import { mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
 import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
 import ResumoPrecoDisciplinas from "@/components/admin/ResumoPrecoDisciplinas";
@@ -296,6 +297,7 @@ function AdminMatriculasPage() {
   const tl = useTranslations("CoursePeriods");
   const ts = useTranslations("EnrollmentCourseSync");
   const tp = useTranslations("SubjectPricing");
+  const tr = useTranslations("CourseRequirements");
   const router = useRouter();
   const estruturaRequestRef = useRef(0);
   const estruturaEdicaoRequestRef = useRef(0);
@@ -2064,7 +2066,7 @@ function AdminMatriculasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula.");
+        throw new Error(mensagemRequisitoCurso(tr, data) || (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula."));
       }
 
       setSucesso("Matrícula criada com sucesso.");
@@ -2757,7 +2759,7 @@ function AdminMatriculasPage() {
 
       if (!res.ok) {
         throw new Error(
-          (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error) ||
+          mensagemRequisitoCurso(tr, data) || (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error) ||
           "Erro ao atualizar matrícula"
         );
       }
