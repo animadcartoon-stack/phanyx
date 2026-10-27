@@ -1,7 +1,7 @@
 import { normalizarRegrasDisciplinas, ErroPrecoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { campoDescontoCurso, ErroDescontoCurso } from "@/lib/matriculas/desconto-curso";
 import { camposPrecoCursoLivre, ErroCursoLivre } from "@/lib/matriculas/cursos-livres";
-import { ErroIntegridadeAcademica, validarOrganizacao, protegerOrganizacaoDoCurso, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
+import { ErroIntegridadeAcademica, validarOrganizacao, converterOrganizacaoDaGradeDoCurso, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { camposComboCurso } from "@/lib/matriculas/campos-combo-curso";
 import { ErroModalidades } from "@/lib/matriculas/combos";
 import { erroCombos } from "@/lib/matriculas/combos-api";
@@ -1145,7 +1145,7 @@ export async function PUT(req: Request) {
           const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true } });
           if (cursoAtual?.organizacaoCurricular !== cursoExistente.organizacaoCurricular) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
           if (organizacaoCurricular !== cursoAtual.organizacaoCurricular)
-            await protegerOrganizacaoDoCurso(tx, instituicaoId, id);
+            await converterOrganizacaoDaGradeDoCurso(tx, instituicaoId, id, cursoAtual.organizacaoCurricular, organizacaoCurricular);
           if (quantidadeSemestres && await tx.cursoSemestre.count({ where: { cursoId: id, instituicaoId, numero: { gt: quantidadeSemestres } } }))
             throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
           await tx.curso.update({

@@ -1,4 +1,8 @@
 {
+  "CourseOrganizationChange": {
+    "keepCurriculum": "Ao salvar, as etapas passam a seguir a organização selecionada, mantendo os mesmos números, títulos e disciplinas. Cada etapa representará um ano ou semestre, conforme a opção escolhida. Os preços, parcelas e descontos continuam conforme os campos deste formulário.",
+    "updated": "Organização atualizada. As etapas e suas disciplinas foram preservadas."
+  },
   "CourseStageDeletion": {
     "delete": "Excluir etapa",
     "deleteNamed": "Excluir etapa {number} {title}",
@@ -31,6 +35,8 @@
     "OFERTA_COM_HISTORICO": "Não é possível retirar esta oferta porque ela possui matrículas, aulas ou registros acadêmicos. Mantenha o vínculo e gerencie seu encerramento na turma.",
     "ORGANIZACAO_INVALIDA": "Escolha organização anual ou semestral.",
     "ORGANIZACAO_EM_USO": "Este curso já possui grade, disciplinas, turmas ou matrículas. Preserve sua organização e cadastre outro curso para uma estrutura diferente.",
+    "ORGANIZACAO_COM_VINCULOS": "Este curso já possui turmas, matrículas, períodos de matrícula ou vínculos de rede. A alteração exige revisão desses vínculos para preservar o histórico.",
+    "ORGANIZACAO_GRADE_NECESSARIA": "Organize as disciplinas diretas em etapas antes de mudar entre semestral e anual. Assim, seus vínculos serão preservados.",
     "ETAPA_INVALIDA": "Informe uma etapa curricular válida para o curso."
   },
   "Common": {

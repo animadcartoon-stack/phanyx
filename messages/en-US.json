@@ -1,4 +1,8 @@
 {
+  "CourseOrganizationChange": {
+    "keepCurriculum": "When saved, existing stages follow the selected organization, retaining their numbers, titles and subjects. Each stage represents a year or semester according to your selection. Prices, installments and discounts follow the fields in this form.",
+    "updated": "Organization updated. Stages and their subjects were preserved."
+  },
   "CourseStageDeletion": {
     "delete": "Delete stage",
     "deleteNamed": "Delete stage {number} {title}",
@@ -31,6 +35,8 @@
     "OFERTA_COM_HISTORICO": "This offering cannot be removed because it has enrollments, lessons or academic records. Keep the link and manage its closure from the class.",
     "ORGANIZACAO_INVALIDA": "Choose annual or semester based organization.",
     "ORGANIZACAO_EM_USO": "This course already has a curriculum, subjects, classes or enrollments. Preserve its organization and create another course for a different structure.",
+    "ORGANIZACAO_COM_VINCULOS": "This course already has classes, enrollments, enrollment periods or network links. Those links must be reviewed before changing its organization to preserve academic history.",
+    "ORGANIZACAO_GRADE_NECESSARIA": "Organize directly assigned subjects into stages before switching between semester based and annual. This preserves their links.",
     "ETAPA_INVALIDA": "Enter a valid curriculum stage for this course."
   },
   "Common": {

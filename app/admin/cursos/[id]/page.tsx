@@ -130,6 +130,7 @@ export default function CursoDetalhePage() {
   const params = useParams();
   const te = useTranslations("CourseStageDeletion");
   const ti = useTranslations("AcademicIntegrity");
+  const to = useTranslations("CourseOrganizationChange");
   const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminCourses");
   const tc = useTranslations("EnrollmentCombos");
@@ -184,7 +185,7 @@ export default function CursoDetalhePage() {
   const [semestresAbertos, setSemestresAbertos] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback || feedbackTipo === "erro") return;
 
     const timer = setTimeout(() => {
       setFeedback("");
@@ -192,7 +193,7 @@ export default function CursoDetalhePage() {
     }, 3500);
 
     return () => clearTimeout(timer);
-  }, [feedback]);
+  }, [feedback, feedbackTipo]);
 
   function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
     setFeedbackTipo(tipo);
@@ -369,13 +370,15 @@ export default function CursoDetalhePage() {
         throw new Error(mensagem);
       }
 
-      await carregarCurso();
+      await Promise.all([carregarCurso(), carregarSemestres()]);
       setEditandoCurso(false);
       mostrarFeedback(
         "sucesso",
         cursoRecebidoDaRede
           ? t("messages.localValuesUpdated")
-          : t("messages.courseUpdated")
+          : curso.organizacaoCurricular !== formCurso.organizacaoCurricular
+            ? to("updated")
+            : t("messages.courseUpdated")
       );
     } catch (error: any) {
       console.error("Erro ao editar curso:", error);
@@ -635,6 +638,7 @@ export default function CursoDetalhePage() {
     <div className="space-y-8 text-slate-900 dark:text-slate-100">
       {feedback && (
         <div
+          role={feedbackTipo === "erro" ? "alert" : "status"}
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
             ? "border-green-200 bg-green-50 text-green-700"
             : "border-red-200 bg-red-50 text-red-700"
@@ -780,6 +784,12 @@ export default function CursoDetalhePage() {
 
                   <Link href="/admin/matriculas/cursos-livres" className="font-semibold text-blue-700 underline dark:text-blue-300">{tl("title")}</Link>
           <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "", precoPorDisciplina: false } : {}) })} />
+                  {curso.organizacaoCurricular !== formCurso.organizacaoCurricular &&
+                    curso.organizacaoCurricular !== "LIVRE" && formCurso.organizacaoCurricular !== "LIVRE" && (
+                      <p role="status" className="md:col-span-2 rounded-lg border border-slate-300 p-3 text-sm text-slate-900 dark:text-slate-100">
+                        {to("keepCurriculum")}
+                      </p>
+                    )}
                   <div hidden={formCurso.organizacaoCurricular === "LIVRE"}>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {ta(formCurso.organizacaoCurricular === "ANUAL" ? "yearsCount" : "semestersCount")}

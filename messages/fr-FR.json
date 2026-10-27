@@ -1,4 +1,8 @@
 {
+  "CourseOrganizationChange": {
+    "keepCurriculum": "Après enregistrement, les étapes suivent l’organisation choisie en conservant leurs numéros, titres et matières. Chaque étape représente une année ou un semestre selon votre choix. Les prix, échéances et réductions suivent les champs de ce formulaire.",
+    "updated": "Organisation mise à jour. Les étapes et leurs matières ont été conservées."
+  },
   "CourseStageDeletion": {
     "delete": "Supprimer l’étape",
     "deleteNamed": "Supprimer l’étape {number} {title}",
@@ -31,6 +35,8 @@
     "OFERTA_COM_HISTORICO": "Cette offre ne peut pas être retirée car elle possède des inscriptions, des séances ou des dossiers scolaires. Conservez le lien et gérez sa clôture depuis la classe.",
     "ORGANIZACAO_INVALIDA": "Choisissez une organisation annuelle ou semestrielle.",
     "ORGANIZACAO_EM_USO": "Ce cours comporte déjà un programme, des matières, des classes ou des inscriptions. Conservez son organisation et créez un autre cours pour une structure différente.",
+    "ORGANIZACAO_COM_VINCULOS": "Ce cours comporte déjà des groupes, inscriptions, périodes d’inscription ou liens réseau. Ces liens doivent être examinés avant de changer l’organisation afin de préserver l’historique.",
+    "ORGANIZACAO_GRADE_NECESSARIA": "Organisez les matières directement associées en étapes avant de passer d’une organisation semestrielle à annuelle ou inversement. Leurs liens seront ainsi préservés.",
     "ETAPA_INVALIDA": "Indiquez une étape valide du cursus."
   },
   "Common": {

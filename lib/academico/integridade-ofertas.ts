@@ -7,6 +7,8 @@ type BancoAcademico = Prisma.TransactionClient;
 const mensagens = {
   ORGANIZACAO_INVALIDA: "Escolha organização anual, semestral ou livre.",
   ORGANIZACAO_EM_USO: "Este curso já possui grade, disciplinas, turmas ou matrículas. Preserve sua organização e cadastre outro curso para uma estrutura diferente.",
+  ORGANIZACAO_COM_VINCULOS: "Este curso já possui turmas, matrículas, períodos de matrícula ou vínculos de rede. A alteração exige revisão desses vínculos para preservar o histórico.",
+  ORGANIZACAO_GRADE_NECESSARIA: "Organize as disciplinas diretas em etapas antes de mudar entre semestral e anual. A grade precisa ser explícita para preservar seus vínculos.",
   ETAPA_INVALIDA: "Informe uma etapa curricular válida para o curso.",
   VINCULO_INVALIDO: "Um dos identificadores informados é inválido.",
   CURSO_INVALIDO: "O curso não pertence a esta instituição.",
@@ -30,7 +32,7 @@ export class ErroIntegridadeAcademica extends Error {
 export function respostaErroAcademico(error: unknown) {
   if (error instanceof ErroIntegridadeAcademica) {
     return NextResponse.json({ codigo: error.codigo, error: error.message }, {
-      status: ["ORGANIZACAO_EM_USO", "OFERTA_COM_HISTORICO", "ETAPA_COM_HISTORICO", "DADOS_ALTERADOS"].includes(error.codigo) ? 409 : 400,
+      status: ["ORGANIZACAO_EM_USO", "ORGANIZACAO_COM_VINCULOS", "ORGANIZACAO_GRADE_NECESSARIA", "OFERTA_COM_HISTORICO", "ETAPA_COM_HISTORICO", "DADOS_ALTERADOS"].includes(error.codigo) ? 409 : 400,
     });
   }
   if ((error as { code?: string })?.code === "P2034") {
@@ -187,6 +189,73 @@ export async function protegerOrganizacaoDoCurso(db: BancoAcademico, instituicao
     db.cursoPublicacaoRede.count({ where: { instituicaoOrigemId: instituicaoId, cursoOrigemId: cursoId } }),
   ]);
   if (usos.some(n => n > 0)) throw new ErroIntegridadeAcademica("ORGANIZACAO_EM_USO");
+}
+
+// Deve ser chamada dentro da mesma transação serializável que salva o curso.
+// Muda apenas o tipo das etapas; mantém IDs, números, títulos e disciplinas.
+export async function converterOrganizacaoDaGradeDoCurso(
+  db: BancoAcademico, instituicaoId: number, cursoId: number,
+  origem: string, destino: string,
+) {
+  const organizacaoOrigem = validarOrganizacao(origem);
+  const organizacaoDestino = validarOrganizacao(destino);
+  if (organizacaoOrigem === organizacaoDestino) return;
+  // LIVRE envolve outras regras financeiras e conserva sua proteção anterior.
+  if (organizacaoOrigem === "LIVRE" || organizacaoDestino === "LIVRE") {
+    await protegerOrganizacaoDoCurso(db, instituicaoId, cursoId);
+    return;
+  }
+  const curso = await db.curso.findFirst({
+    where: { id: cursoId, instituicaoId },
+    select: { organizacaoCurricular: true },
+  });
+  if (!curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
+  if (curso.organizacaoCurricular !== organizacaoOrigem) {
+    throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
+  }
+  const etapas = await db.cursoSemestre.findMany({
+    where: { cursoId, instituicaoId },
+    select: { id: true, organizacaoCurricular: true,
+      _count: { select: { semestresPublicadosRede: true } } },
+  });
+  const ids = etapas.map(etapa => etapa.id);
+  const usos = await Promise.all([
+    db.turma.count({ where: { instituicaoId, cursoId } }),
+    db.matricula.count({ where: { instituicaoId, OR: [
+      { cursoId }, { cursoSemestreId: { in: ids } },
+    ] } }),
+    db.periodoMatricula.count({ where: { instituicaoId, OR: [
+      { cursoId }, { cursoSemestreId: { in: ids } },
+    ] } }),
+    db.rematriculaSemestral.count({
+      where: { instituicaoId, cursoSemestreDestino: { cursoId, instituicaoId } },
+    }),
+    db.matriculaDisciplinaContratada.count({ where: { instituicaoId, OR: [
+      { matricula: { cursoId, instituicaoId } },
+      { cursoSemestreIdSnapshot: { in: ids } },
+    ] } }),
+    db.cursoPublicacaoRede.count({ where: { OR: [
+      { instituicaoOrigemId: instituicaoId, cursoOrigemId: cursoId },
+      { instituicaoDestinoId: instituicaoId, cursoDestinoId: cursoId },
+    ] } }),
+  ]);
+  if (usos.some(n => n > 0) || etapas.some(e => e._count.semestresPublicadosRede > 0)) {
+    throw new ErroIntegridadeAcademica("ORGANIZACAO_COM_VINCULOS");
+  }
+  if (etapas.some(e => e.organizacaoCurricular !== organizacaoOrigem)) {
+    throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
+  }
+  // Não inferimos em qual ano/semestre colocar uma disciplina sem grade.
+  if (!etapas.length && await db.disciplina.count({ where: { cursoId, instituicaoId } })) {
+    throw new ErroIntegridadeAcademica("ORGANIZACAO_GRADE_NECESSARIA");
+  }
+  if (etapas.length) {
+    const alteradas = await db.cursoSemestre.updateMany({
+      where: { cursoId, instituicaoId, organizacaoCurricular: organizacaoOrigem },
+      data: { organizacaoCurricular: organizacaoDestino },
+    });
+    if (alteradas.count !== etapas.length) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
+  }
 }
 
 export async function validarEtapaDoCurso(db: BancoAcademico, instituicaoId: number, cursoId: number | null,
