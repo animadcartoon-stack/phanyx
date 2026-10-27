@@ -305,8 +305,10 @@ export async function POST(req: Request) {
   );
 }
 
-    if (curso.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_SEM_ETAPAS" }, { status: 400 });
-    const limite = curso.organizacaoCurricular === "ANUAL" ? curso.quantidadeEtapas : curso.quantidadeSemestres;
+    // No curso livre, as etapas são agrupamentos opcionais de disciplinas.
+    // Não determinam duração, cobrança ou progressão obrigatória do aluno.
+    const limite = curso.organizacaoCurricular === "LIVRE" ? null
+      : curso.organizacaoCurricular === "ANUAL" ? curso.quantidadeEtapas : curso.quantidadeSemestres;
     if (limite && numero > limite) return NextResponse.json({ codigo: "ETAPA_INVALIDA", error: "Etapa fora da duração do curso." }, { status: 400 });
 
     const existente =

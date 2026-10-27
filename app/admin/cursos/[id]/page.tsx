@@ -989,7 +989,13 @@ export default function CursoDetalhePage() {
         </div>
       </div>
 
-      {curso.organizacaoCurricular === "LIVRE" ? <p className="rounded-xl border border-slate-300 p-5 text-slate-900 dark:text-white">{tl("courseHelp")}</p> : cursoRecebidoDaRede ? (
+      {curso.organizacaoCurricular === "LIVRE" && (
+        <div className="rounded-xl border border-slate-300 p-5 text-slate-900 dark:text-white">
+          <p>{tl("courseHelp")}</p>
+          <p className="mt-2 text-sm">{tl("optionalStagesHelp")}</p>
+        </div>
+      )}
+      {cursoRecebidoDaRede ? (
         <div className="rounded-xl border border-slate-300 bg-slate-50 p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
           <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("detail.network.academicStructureReceived")}
@@ -1010,6 +1016,8 @@ export default function CursoDetalhePage() {
             <input
               type="number"
               placeholder={t("detail.semesters.numberPlaceholder")}
+              min="1"
+              step="1"
               className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
               value={novoSemestre.numero}
               onChange={(e) =>

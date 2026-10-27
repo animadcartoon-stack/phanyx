@@ -23210,7 +23210,7 @@
     "percentageHelp": "O percentual aplica-se à soma das mensalidades individuais das modalidades incluídas no pacote. A taxa de inscrição mantém o valor definido acima."
   },
   "AcademicStructure": {
-    "freeSubjectHelp": "Este curso não exige semestre ou ano curricular. Associe a disciplina à turma onde será lecionada.",
+    "freeSubjectHelp": "Associe a disciplina à turma onde será lecionada. Se desejar, organize-a também nas etapas opcionais do curso. A cobrança semanal ou mensal é definida separadamente.",
     "LIVRE": "Livre — pagamento por período",
     "organization": "Organização curricular",
     "SEMESTRAL": "Semestral",
@@ -23259,7 +23259,8 @@
     "saving": "Salvando…",
     "noCourses": "Nenhum curso livre ativo encontrado.",
     "configureCourse": "Configurar curso",
-    "courseHelp": "Curso livre com pagamento antecipado por período. Sem taxa de matrícula, etapas curriculares ou parcelas futuras. Configure o preço semanal e/ou o valor mensal abaixo. As condições de um combo são contratadas separadamente.",
+    "courseHelp": "Curso livre com pagamento antecipado por período. Sem taxa de matrícula ou prestações futuras. Configure o preço semanal e/ou o valor mensal. As condições de um pacote são contratadas separadamente.",
+    "optionalStagesHelp": "As etapas são opcionais e servem para organizar e associar disciplinas. Pode criar uma etapa única ou várias, conforme o curso. Não alteram a cobrança por semana ou mês e não são obrigatórias na inscrição ou na turma.",
     "weeklyPrice": "Preço semanal (R$)",
     "history": "Vínculos e histórico dos períodos",
     "refresh": "Atualizar pagamentos",

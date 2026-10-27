@@ -23423,7 +23423,7 @@
     "percentageHelp": "Le pourcentage s’applique à la somme des mensualités individuelles des cours du forfait. Les frais d’inscription restent au montant défini ci-dessus."
   },
   "AcademicStructure": {
-    "freeSubjectHelp": "Ce cours n’exige ni semestre ni année de programme. Associez la matière au groupe qui la propose.",
+    "freeSubjectHelp": "Associez la matière au groupe qui la propose. Vous pouvez aussi l’organiser dans les étapes facultatives du cours. La facturation hebdomadaire ou mensuelle est définie séparément.",
     "LIVRE": "Libre — paiement par période",
     "organization": "Organisation du cursus",
     "SEMESTRAL": "Semestrielle",
@@ -23472,7 +23472,8 @@
     "saving": "Enregistrement…",
     "noCourses": "Aucun cours libre actif trouvé.",
     "configureCourse": "Configurer un cours",
-    "courseHelp": "Cours libre payé à l’avance par période, sans frais d’inscription, étapes de programme ni échéances futures. Définissez le prix hebdomadaire et/ou mensuel. Les conditions d’un forfait sont souscrites séparément.",
+    "courseHelp": "Cours libre avec paiement anticipé par période. Sans frais d’inscription ni échéances futures. Configurez le prix hebdomadaire et/ou mensuel. Les conditions d’une offre groupée sont souscrites séparément.",
+    "optionalStagesHelp": "Les étapes sont facultatives et servent à organiser les matières associées. Créez une ou plusieurs étapes selon le cours. Elles ne modifient pas la facturation hebdomadaire ou mensuelle et ne sont pas obligatoires pour l’inscription ou les groupes.",
     "weeklyPrice": "Prix hebdomadaire (BRL)",
     "history": "Inscriptions et historique des périodes",
     "refresh": "Actualiser les paiements",
