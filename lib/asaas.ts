@@ -162,7 +162,7 @@ type AtualizarAssinaturaAsaasInput = Partial<{
   externalReference: string;
 }>;
 
-function getAsaasConfig() {
+export function getAsaasConfig() {
   const apiKey = String(process.env.ASAAS_API_KEY || "").trim();
 
   const baseUrl = String(
