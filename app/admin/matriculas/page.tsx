@@ -10,7 +10,7 @@ import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDi
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 
 import Link from "next/link";
-import { urlCursosAdicionais } from "@/lib/matriculas/cursos-adicionais";
+import dynamic from "next/dynamic";
 import { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -21,6 +21,8 @@ import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import { useLocale, useTranslations } from "next-intl";
+
+const MatriculaModalidadesForm = dynamic(() => import("@/components/admin/MatriculaModalidadesForm"), { ssr: false });
 
 type CursoOption = {
   id: number;
@@ -3901,7 +3903,6 @@ function AdminMatriculasPage() {
                   router.push(`/admin/matriculas/cursos-livres?${query}`);
                   return;
                 }
-                if (curso?.permiteCursosAdicionais) { router.push(urlCursosAdicionais(curso.id, alunoId)); return; }
                 const padrao = financeiroPadraoCurso(curso);
                 setValorTaxaMatricula(padrao.valorMatricula);
                 setValorMensalidade(padrao.valorMensalidade);
@@ -3919,7 +3920,19 @@ function AdminMatriculasPage() {
               ))}
             </select>
           </div>
-
+        </div>
+        {cursoSelecionadoObj?.permiteCursosAdicionais ? (
+          <div className="mt-5">
+            <MatriculaModalidadesForm
+              key={`modalidades-${cursoId}-${alunoId}`}
+              cursoPrincipalId={Number(cursoId)}
+              alunoSelecionadoId={alunoId}
+              integrado
+            />
+          </div>
+        ) : (
+          <>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-sm font-medium text-gray-700">
               {ts(cursoAnualSelecionado ? "yearLabel" : "semesterLabel")}
@@ -4664,6 +4677,8 @@ function AdminMatriculasPage() {
             {creating ? "Criando..." : "Matricular aluno"}
           </button>
         </div>
+          </>
+        )}
       </div>
 
       <div className="matriculas-light-fix bg-white border rounded-2xl shadow-sm overflow-hidden">
