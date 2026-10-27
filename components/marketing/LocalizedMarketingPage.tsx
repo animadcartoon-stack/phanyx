@@ -42,7 +42,7 @@ export default function LocalizedMarketingPage({ locale, section }: { locale: Fo
                   <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">{t.accent}</span>
                 </h1>
                 <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 md:text-base">{section === "academic" ? copy.intro : t.intro}</p>
-                <p className="mt-6 text-slate-300">{t.theologyLead} <a href="/ibe/matricula" className="text-blue-400 underline">{t.theologyLink}</a> {t.theologyEnd}</p>
+                <p className="mt-6 text-slate-300">{t.theologyLead} <a href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">{t.theologyLink}</a> {t.theologyEnd}</p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href={plans} className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold !text-white shadow-lg hover:bg-blue-500">{copy.navPlans}</Link>
                   <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white hover:bg-white/15">{copy.contact}</a>

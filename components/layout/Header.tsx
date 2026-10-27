@@ -130,6 +130,8 @@ export default function Header() {
 
             <Link
               href="/suporte"
+              target="_blank"
+              rel="noopener noreferrer"
               className={`rounded-xl px-4 py-2 text-sm font-medium transition ${isHome
                 ? "border border-blue-300/20 bg-blue-400/10 text-blue-100 hover:bg-blue-400/20"
                 : "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
