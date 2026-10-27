@@ -1,4 +1,5 @@
 "use client";
+import ConfiguracaoDisciplinasIncluidas from "@/components/admin/ConfiguracaoDisciplinasIncluidas";
 import CamposRequisitosCursos, { type CursoOpcaoRequisito } from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
 import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
@@ -673,6 +674,8 @@ export default function CursoDetalhePage() {
           {t("detail.header.backCourses")}
         </Link>
       </div>
+
+      <ConfiguracaoDisciplinasIncluidas key={curso.id} cursoId={curso.id} />
 
       {cursoRecebidoDaRede && (
         <div className="rounded-2xl border border-blue-300 bg-blue-50 p-5 shadow-sm dark:border-blue-800 dark:bg-blue-950/30">

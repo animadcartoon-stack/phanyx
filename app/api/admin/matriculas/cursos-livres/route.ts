@@ -4,9 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { administradorCombos, erroCombos } from "@/lib/matriculas/combos-api";
 import { ErroCursoLivre, idCursoLivre } from "@/lib/matriculas/cursos-livres";
 import { contratarPeriodoCursoLivre } from "@/lib/matriculas/cursos-livres-servidor";
+import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 export const dynamic = "force-dynamic";
 const headers = { "Cache-Control": "private, no-store" };
-function erro(error: unknown) {
+async function erro(error: unknown) {
+  const selecao = await respostaErroSelecao(error);
+  if (selecao) return selecao;
   if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo, detalhes: error.detalhes }, { status: error.status, headers });
   return erroCombos(error);
 }

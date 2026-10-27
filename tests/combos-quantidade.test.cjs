@@ -81,6 +81,7 @@ function banco(cursos) {
         disciplinas:[{disciplinaId:i+1,dataInicio:null,dataFim:null,disciplina:{nome:`Disciplina ${i+1}`,cargaHoraria:40,semestre:1},horarios:[]}]}));
     }},
     itemMatricula:{findMany:async()=>[]},
+    cursoRequisitoConjunto:{findMany:async()=>[]},
     comboModalidades:{findMany:async args=>{assert.equal(args.where.instituicaoId,26);return [];}}
   };
 }

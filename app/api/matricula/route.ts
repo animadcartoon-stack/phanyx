@@ -1,3 +1,5 @@
+import { carregarRegrasSelecao, conferirSelecaoContratada, respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
+import { ErroSelecaoDisciplinas, normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { normalizarRegrasDisciplinas, calcularPrecoDisciplinas, lerContratacaoDisciplinas, ErroPrecoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
@@ -1500,6 +1502,8 @@ export async function GET(request: Request) {
       { status: 403 }
     );
   } catch (error: any) {
+    const erroSelecao = await respostaErroSelecao(error);
+    if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
@@ -2266,6 +2270,8 @@ export async function POST(request: Request) {
     cursoSemestreId = etapaMatricula.cursoSemestreId ?? cursoSemestreId;
     semestreFinal = etapaMatricula.etapaNumero;
 
+    const regrasSelecao = normalizarSelecaoDisciplinas(curso?.regrasSelecaoDisciplinas);
+    if (regrasSelecao && curso) validarModoSelecao(curso);
     let disciplinasContratadasSnapshot;
 
     try {
@@ -2276,9 +2282,11 @@ export async function POST(request: Request) {
           cursoId:
             cursoIdFinal,
           tipoContratacao,
+          regrasSelecaoDisciplinas: regrasSelecao,
           disciplinaIdsContratadas,
         });
     } catch (error) {
+      if (error instanceof ErroSelecaoDisciplinas) throw error;
       return NextResponse.json(
         {
           error:
@@ -2731,6 +2739,10 @@ export async function POST(request: Request) {
     const matricula =
       await prisma.$transaction(
         async (tx) => {
+          await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cursoIdFinal} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
+          const regrasAtuais = await carregarRegrasSelecao(tx, user.instituicaoId, cursoIdFinal!);
+          if (JSON.stringify(regrasAtuais) !== JSON.stringify(regrasSelecao)) throw new ErroSelecaoDisciplinas("SELECAO_ALTERADA", undefined, 409);
+          await conferirSelecaoContratada(tx, { instituicaoId: user.instituicaoId, cursoId: cursoIdFinal!, regras: regrasSelecao, disciplinaIds: disciplinasContratadasSnapshot.map(d => d.disciplinaId), itens: itensClassificados });
           await validarRequisitosCursos(tx, user.instituicaoId, { alunoId,
             cursoIds: cursoIdFinal ? [cursoIdFinal] : [], periodoLetivo: periodoLetivoFinal,
             inicio: inicioCurso.data,
@@ -2741,7 +2753,7 @@ export async function POST(request: Request) {
           }
           if (etapaMatricula.organizacaoCurricular === "ANUAL")
             await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados);
-          await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data, exigirHorarios: Boolean(precoDisciplinas) });
+          await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data, regrasSelecaoDisciplinas: regrasSelecao, exigirHorarios: regrasSelecao ? !regrasSelecao.horariosPendentesPermitidos : Boolean(precoDisciplinas) });
 
           const agoraConversao =
             new Date();
@@ -2851,6 +2863,7 @@ export async function POST(request: Request) {
                     ? valorMatricula
                     : null,
 
+                regrasSelecaoDisciplinas: regrasSelecao ? regrasSelecao as unknown as Prisma.InputJsonValue : Prisma.DbNull,
                 valorMensalidade:
                   valorMensalidade,
 
@@ -3335,6 +3348,8 @@ return NextResponse.json({
       },
     });
   } catch (error: any) {
+    const erroSelecao = await respostaErroSelecao(error);
+    if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
@@ -4332,6 +4347,7 @@ export async function PUT(request: Request) {
       }
     }
 
+    const regrasSelecaoAnterior = normalizarSelecaoDisciplinas(matriculaExistente.regrasSelecaoDisciplinas);
     const precoDisciplinasAnterior = lerContratacaoDisciplinas(matriculaExistente.contratacaoDisciplinas);
     let contratacaoDisciplinasEditada: ContratacaoDisciplinas | null = null;
     const alunoIdFinal = alunoId ?? matriculaExistente.alunoId;
@@ -4347,6 +4363,8 @@ export async function PUT(request: Request) {
     }
     cursoSemestreId = etapaMatricula?.cursoSemestreId ?? cursoSemestreId;
 
+    if (!regrasSelecaoAnterior && cursoIdFinal && cursoIdFinal !== matriculaExistente.cursoId && (await prisma.curso.findFirst({ where: { id: cursoIdFinal, instituicaoId: user.instituicaoId }, select: { regrasSelecaoDisciplinas: true } }))?.regrasSelecaoDisciplinas) throw new ErroSelecaoDisciplinas("SELECAO_CURSO_HISTORICO", undefined, 409);
+    if (regrasSelecaoAnterior && cursoIdFinal !== matriculaExistente.cursoId) throw new ErroSelecaoDisciplinas("SELECAO_CURSO_HISTORICO", undefined, 409);
     if (precoDisciplinasAnterior && cursoIdFinal !== precoDisciplinasAnterior.cursoId) throw new ErroPrecoDisciplinas("CURSO_DISCIPLINAS_COM_HISTORICO", 409);
     const turmaPrincipalIdFinal =
       turmaPrincipalFoiInformada
@@ -4472,6 +4490,7 @@ export async function PUT(request: Request) {
             cursoId:
               cursoIdFinal,
 
+            regrasSelecaoDisciplinas: regrasSelecaoAnterior,
             tipoContratacao:
               tipoContratacaoEdicao!,
 
@@ -4479,6 +4498,7 @@ export async function PUT(request: Request) {
               disciplinaIdsContratadasEdicao,
           });
       } catch (error) {
+        if (error instanceof ErroSelecaoDisciplinas) throw error;
         return NextResponse.json(
           {
             error:
@@ -4631,6 +4651,14 @@ export async function PUT(request: Request) {
 
     await prisma.$transaction(
       async (tx) => {
+        if (regrasSelecaoAnterior) {
+          await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id"=${id} AND "instituicaoId"=${user.instituicaoId} FOR UPDATE`;
+          const atualSelecao = await tx.matricula.findFirst({ where: { id, instituicaoId: user.instituicaoId }, select: { regrasSelecaoDisciplinas: true } });
+          if (JSON.stringify(atualSelecao?.regrasSelecaoDisciplinas) !== JSON.stringify(matriculaExistente.regrasSelecaoDisciplinas)) throw new ErroSelecaoDisciplinas("SELECAO_ALTERADA", undefined, 409);
+          const itensSelecao = deveSincronizarItens ? itensClassificados : await tx.itemMatricula.findMany({ where: { instituicaoId: user.instituicaoId, matriculaId: id, status: { in: ["A_CURSAR", "EM_CURSO"] } }, select: { disciplinaId: true } });
+          const disciplinasSelecao = disciplinasContratadasSnapshotEdicao || await tx.matriculaDisciplinaContratada.findMany({ where: { instituicaoId: user.instituicaoId, matriculaId: id }, select: { disciplinaId: true } });
+          await conferirSelecaoContratada(tx, { instituicaoId: user.instituicaoId, cursoId: cursoIdFinal!, regras: regrasSelecaoAnterior, disciplinaIds: disciplinasSelecao.map(d => d.disciplinaId), itens: itensSelecao });
+        }
         if (cursoIdFinal !== matriculaExistente.cursoId || alunoIdFinal !== matriculaExistente.alunoId) {
           await validarRequisitosCursos(tx, user.instituicaoId, { alunoId: alunoIdFinal,
             cursoIds: cursoIdFinal ? [cursoIdFinal] : [], matriculaId: id,
@@ -4653,7 +4681,7 @@ export async function PUT(request: Request) {
             select: { turmaId: true, disciplinaId: true },
           });
           await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId: alunoIdFinal,
-            itens: agendaItens, matriculaId: id, inicio: inicioCurso.data === undefined ? matriculaExistente.dataInicioCurso : inicioCurso.data, exigirHorarios: Boolean(precoDisciplinasAnterior) });
+            itens: agendaItens, matriculaId: id, inicio: inicioCurso.data === undefined ? matriculaExistente.dataInicioCurso : inicioCurso.data, regrasSelecaoDisciplinas: regrasSelecaoAnterior, exigirHorarios: regrasSelecaoAnterior ? !regrasSelecaoAnterior.horariosPendentesPermitidos : Boolean(precoDisciplinasAnterior) });
         }
         await tx.matricula.update({
           where: {
@@ -4963,6 +4991,8 @@ export async function PUT(request: Request) {
     }
     return NextResponse.json({ ...retorno, cancelamentosBancarios });
   } catch (error: any) {
+    const erroSelecao = await respostaErroSelecao(error);
+    if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;

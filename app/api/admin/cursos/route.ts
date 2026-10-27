@@ -1,3 +1,5 @@
+import { normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
+import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { normalizarIdsRequisitos, salvarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { normalizarRegrasDisciplinas, ErroPrecoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { campoDescontoCurso, ErroDescontoCurso } from "@/lib/matriculas/desconto-curso";
@@ -700,6 +702,8 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    const erroSelecao = await respostaErroSelecao(error);
+    if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });
     if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
@@ -847,6 +851,7 @@ export async function PUT(req: Request) {
           valorSemanal: true,
           participaCombo: true,
           regrasPrecoDisciplinas: true,
+          regrasSelecaoDisciplinas: true,
           quantidadeParcelas: true,
           ativo: true,
 
@@ -903,6 +908,7 @@ export async function PUT(req: Request) {
     if (organizacaoCurricular === "LIVRE") Object.assign(body, { quantidadeSemestres: null, quantidadeEtapas: null, valorMatricula: 0, quantidadeParcelas: null });
     const regrasDisciplinas = body.regrasPrecoDisciplinas === undefined ? undefined : normalizarRegrasDisciplinas(body.regrasPrecoDisciplinas);
     const regrasEfetivas = regrasDisciplinas === undefined ? normalizarRegrasDisciplinas(cursoExistente.regrasPrecoDisciplinas) : regrasDisciplinas;
+    if (normalizarSelecaoDisciplinas(cursoExistente.regrasSelecaoDisciplinas)) validarModoSelecao({ organizacaoCurricular, participaCombo: body.participaCombo ?? cursoExistente.participaCombo, regrasPrecoDisciplinas: regrasEfetivas });
     if (regrasEfetivas && organizacaoCurricular === "LIVRE") throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_CURSO_LIVRE");
     if (regrasEfetivas && (body.participaCombo ?? cursoExistente.participaCombo)) throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_COMBO");
     if (regrasEfetivas && !(Number(body.valorMensalidade === undefined ? cursoExistente.valorMensalidade : body.valorMensalidade) > 0)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINA_INVALIDO");
@@ -1148,7 +1154,8 @@ export async function PUT(req: Request) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
-          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true } });
+          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true, regrasSelecaoDisciplinas: true } });
+          if (cursoAtual?.regrasSelecaoDisciplinas) validarModoSelecao({ organizacaoCurricular, participaCombo: body.participaCombo ?? cursoExistente.participaCombo, regrasPrecoDisciplinas: regrasEfetivas });
           if (cursoAtual?.organizacaoCurricular !== cursoExistente.organizacaoCurricular) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
           if (organizacaoCurricular !== cursoAtual.organizacaoCurricular)
             await converterOrganizacaoDaGradeDoCurso(tx, instituicaoId, id, cursoAtual.organizacaoCurricular, organizacaoCurricular);
@@ -1279,6 +1286,8 @@ export async function PUT(req: Request) {
       },
     });
   } catch (error: unknown) {
+    const erroSelecao = await respostaErroSelecao(error);
+    if (erroSelecao) return erroSelecao;
     if (error instanceof ErroModalidades) return erroCombos(error);
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });

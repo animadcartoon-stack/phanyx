@@ -1,3 +1,4 @@
+import { normalizarSelecaoDisciplinas, validarSelecaoDisciplinas } from "./selecao-disciplinas";
 import { prisma } from "@/lib/prisma";
 
 export type TipoContratacaoEscopo =
@@ -34,6 +35,7 @@ export async function montarEscopoContratado(params: {
   instituicaoId: number;
   cursoId: number;
   tipoContratacao: TipoContratacaoEscopo;
+  regrasSelecaoDisciplinas?: unknown;
   disciplinaIdsContratadas?: Array<number | string>;
 }) {
   const {
@@ -156,6 +158,10 @@ export async function montarEscopoContratado(params: {
     });
   }
 
+  const regras = params.regrasSelecaoDisciplinas === undefined
+    ? normalizarSelecaoDisciplinas((await prisma.curso.findFirst({ where: { id: cursoId, instituicaoId }, select: { regrasSelecaoDisciplinas: true } }))?.regrasSelecaoDisciplinas)
+    : normalizarSelecaoDisciplinas(params.regrasSelecaoDisciplinas);
+
   const todas =
     Array.from(
       mapa.values()
@@ -183,6 +189,7 @@ export async function montarEscopoContratado(params: {
     tipoContratacao ===
     "CURSO_COMPLETO"
   ) {
+    validarSelecaoDisciplinas(regras, todas.map(d => d.disciplinaId), todas.map(d => d.disciplinaId));
     return todas;
   }
 
@@ -220,6 +227,7 @@ export async function montarEscopoContratado(params: {
   const idsSelecionadas =
     new Set(selecionadas);
 
+  validarSelecaoDisciplinas(regras, selecionadas, todas.map(d => d.disciplinaId));
   return todas.filter(
     (item) =>
       idsSelecionadas.has(

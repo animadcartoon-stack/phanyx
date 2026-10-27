@@ -1,3 +1,5 @@
+import { ErroSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
+import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { erroCombos } from "@/lib/matriculas/combos-api";
 import { ErroModalidades } from "@/lib/matriculas/combos";
@@ -44,7 +46,8 @@ export async function POST(req: Request) {
     const resultado = await prisma.$transaction(async (tx) => {
       const livre = await tx.curso.findFirst({ where: { id: Number(cursoId), instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE" }, select: { id: true } });
       if (livre) throw new Error("CURSO_LIVRE_FLUXO_PROPRIO");
-      const porDisciplinas = await tx.curso.findFirst({ where: { id: Number(cursoId), instituicaoId: user.instituicaoId }, select: { regrasPrecoDisciplinas: true } });
+      const porDisciplinas = await tx.curso.findFirst({ where: { id: Number(cursoId), instituicaoId: user.instituicaoId }, select: { regrasPrecoDisciplinas: true, regrasSelecaoDisciplinas: true } });
+      if (porDisciplinas?.regrasSelecaoDisciplinas) throw new ErroSelecaoDisciplinas("SELECAO_USE_MATRICULA");
       if (porDisciplinas?.regrasPrecoDisciplinas) throw new Error("CURSO_PRECO_POR_DISCIPLINA");
       const etapa = await resolverEtapaDaMatricula(tx, user.instituicaoId, Number(cursoId), body.cursoEtapaId ?? body.cursoSemestreId ?? null, body.etapaNumero ?? semestre);
       const aluno = await tx.aluno.findFirst({
@@ -322,6 +325,8 @@ export async function POST(req: Request) {
       matricula: resultado,
     });
   } catch (error: any) {
+    const respostaSelecao = await respostaErroSelecao(error);
+    if (respostaSelecao) return respostaSelecao;
     if (error instanceof ErroModalidades) return erroCombos(error);
     if (error?.message === "CURSO_PRECO_POR_DISCIPLINA") return NextResponse.json({ codigo: "CURSO_PRECO_POR_DISCIPLINA", error: "Use a página de Matrículas com seleção de disciplinas para esta contratação." }, { status: 400 });
     if (error?.message === "CURSO_LIVRE_FLUXO_PROPRIO") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 400 });

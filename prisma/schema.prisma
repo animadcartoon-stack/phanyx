@@ -826,6 +826,7 @@ enum OrganizacaoCurricular {
 }
 
 model Curso {
+  regrasSelecaoDisciplinas Json?
   requisitosConjuntos CursoRequisitoConjunto[] @relation("CursoDependente")
   exigidoEmCursos CursoRequisitoConjunto[] @relation("CursoObrigatorio")
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
@@ -1191,6 +1192,7 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  regrasSelecaoDisciplinas Json?
   periodosCursoLivre PeriodoCursoLivre[]
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   etapaNumero Int?
