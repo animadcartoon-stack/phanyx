@@ -3,7 +3,7 @@ import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servid
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { erroCombos } from "@/lib/matriculas/combos-api";
 import { ErroModalidades } from "@/lib/matriculas/combos";
-import { resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
+import { validarCursoAtivoParaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -44,6 +44,8 @@ export async function POST(req: Request) {
     }
 
     const resultado = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${Number(cursoId)} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
+      await validarCursoAtivoParaMatricula(tx, user.instituicaoId, Number(cursoId));
       const livre = await tx.curso.findFirst({ where: { id: Number(cursoId), instituicaoId: user.instituicaoId, organizacaoCurricular: "LIVRE" }, select: { id: true } });
       if (livre) throw new Error("CURSO_LIVRE_FLUXO_PROPRIO");
       const porDisciplinas = await tx.curso.findFirst({ where: { id: Number(cursoId), instituicaoId: user.instituicaoId }, select: { regrasPrecoDisciplinas: true, regrasSelecaoDisciplinas: true } });

@@ -6,7 +6,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { getTranslations } from "next-intl/server";
-import { buscarFeriadoNacionalBrasil } from "@/lib/phanyx/feriados-brasil";
+import { ANTECEDENCIA_AVISO_FERIADO_DIAS, buscarFeriadoNacionalBrasil, inicioAvisoFeriado } from "@/lib/phanyx/feriados-brasil";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -248,6 +248,8 @@ export async function GET(
       dataPrisma(
         dataLocal
       );
+    const limiteAntecedencia = new Date(hoje);
+    limiteAntecedencia.setUTCDate(limiteAntecedencia.getUTCDate() + ANTECEDENCIA_AVISO_FERIADO_DIAS);
 
     const feriado =
       await prisma
@@ -259,9 +261,10 @@ export async function GET(
             status:
               "PUBLICADO",
 
-            inicioExibicao: {
-              lte: hoje,
-            },
+            OR: [
+              { inicioExibicao: { lte: hoje } },
+              { dataFeriado: { gte: hoje, lte: limiteAntecedencia } },
+            ],
 
             fimExibicao: {
               gte: hoje,
@@ -330,9 +333,6 @@ export async function GET(
             automatico.chave as Parameters<typeof t>[0]
           );
 
-          const inicio = dataPrisma(automatico.dataFeriado);
-          inicio.setUTCDate(inicio.getUTCDate() - 3);
-
           return NextResponse.json({
             ok: true,
             feriado: {
@@ -340,7 +340,7 @@ export async function GET(
               paisCodigo: "BR",
               dataFeriado: automatico.dataFeriado,
               diasRestantes: automatico.diasRestantes,
-              inicioExibicao: dataBancoISO(inicio),
+              inicioExibicao: inicioAvisoFeriado(automatico.dataFeriado),
               fimExibicao: automatico.dataFeriado,
               prioridade: 0,
               emoji: automatico.emoji,
@@ -425,9 +425,7 @@ export async function GET(
         diasRestantes,
 
         inicioExibicao:
-          dataBancoISO(
-            feriado.inicioExibicao
-          ),
+          [dataBancoISO(feriado.inicioExibicao), inicioAvisoFeriado(dataFeriadoISO)].sort()[0],
 
         fimExibicao:
           dataBancoISO(

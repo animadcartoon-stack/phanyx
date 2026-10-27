@@ -1,4 +1,5 @@
 import { normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
+import { exclusaoCursoExpirada, filtroCursosRecuperaveis } from "@/lib/cursos/estado-curso";
 import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { normalizarIdsRequisitos, salvarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { normalizarRegrasDisciplinas, ErroPrecoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
@@ -81,6 +82,7 @@ export async function GET() {
     const cursos = await prisma.curso.findMany({
       where: {
         instituicaoId: user.instituicaoId,
+        ...filtroCursosRecuperaveis(),
       },
       include: {
         requisitosConjuntos: { include: { cursoObrigatorio: { select: { id: true, nome: true, ativo: true } } }, orderBy: { cursoObrigatorioId: "asc" } },
@@ -854,6 +856,8 @@ export async function PUT(req: Request) {
           regrasSelecaoDisciplinas: true,
           quantidadeParcelas: true,
           ativo: true,
+          excluidoEm: true,
+          expiraExclusaoEm: true,
 
           publicacaoRedeDestino: {
             select: {
@@ -874,6 +878,13 @@ export async function PUT(req: Request) {
         },
         { status: 404 }
       );
+    }
+
+    if (exclusaoCursoExpirada(cursoExistente)) {
+      return NextResponse.json({ codigo: "PRAZO_RESTAURACAO_ENCERRADO", error: "O prazo de recuperação deste curso terminou. O histórico acadêmico foi preservado." }, { status: 410 });
+    }
+    if (cursoExistente.excluidoEm && body.ativo === true) {
+      return NextResponse.json({ error: "Use a ação Restaurar durante o prazo de recuperação do curso." }, { status: 409 });
     }
 
     const cursoRecebidoDaRede =
@@ -1386,6 +1397,7 @@ export async function DELETE(req: Request) {
     }
 
     const agora = new Date();
+    if (curso.excluidoEm) return NextResponse.json({ ok: true, curso });
     const expira = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
 
     const atualizado = await prisma.curso.update({
@@ -1423,6 +1435,7 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const id = Number(body.id);
     const ativo = Boolean(body.ativo);
+    if (typeof body.ativo !== "boolean") return NextResponse.json({ error: "Informe um status válido para o curso." }, { status: 400 });
 
     if (!id) {
       return NextResponse.json(
@@ -1460,6 +1473,10 @@ export async function PATCH(req: Request) {
         },
         { status: 403 }
       );
+    }
+
+    if (ativo && exclusaoCursoExpirada(curso)) {
+      return NextResponse.json({ codigo: "PRAZO_RESTAURACAO_ENCERRADO", error: "O prazo de três dias para restaurar este curso terminou. O histórico acadêmico foi preservado." }, { status: 410 });
     }
 
     const atualizado = await prisma.curso.update({

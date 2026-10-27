@@ -11472,7 +11472,7 @@
         "deletedBy": "Supprimé par",
         "restoreUntil": "Disponible pour restauration jusqu'au",
         "lastRestoreDay": "⚠️ Dernier jour pour restaurer. Ce cours ne sera plus disponible après le {date}.",
-        "restoreWindow": "Les cours supprimés restent disponibles pour restauration pendant 3 jours maximum. Passé ce délai, ils pourront être supprimés définitivement du système."
+        "restoreWindow": "Les cours supprimés peuvent être restaurés pendant 3 jours. Ils disparaissent ensuite de la liste ; les dossiers scolaires et financiers sont conservés."
       },
       "actions": {
         "viewStructure": "Voir la structure",
@@ -12708,7 +12708,7 @@
       "countryValidity": "Pays où le jour férié s’applique",
       "countryHint": "Ce pays détermine quels établissements recevront l’avis. Il ne change pas lorsque vous changez la langue de traduction.",
       "date": "Date du jour férié",
-      "threeDaysHint": "Lorsque vous sélectionnez la date du jour férié, PHANYX commence automatiquement l’avis 3 jours avant et le termine le jour même. La période peut être ajustée manuellement.",
+      "advanceDaysHint": "PHANYX affiche l’avis 4 jours avant le jour férié et le termine le jour même. Les jours fériés nationaux publiés respectent ce préavis minimum ; le début peut être avancé.",
       "displayStart": "Début de l’affichage",
       "displayEnd": "Fin de l’affichage",
       "type": "Portée",
@@ -23632,5 +23632,31 @@
       "QUANTIDADE_MENSALIDADES_NECESSARIA": "Indiquez de 1 à 120 mensualités pour générer les échéances de cette inscription."
     },
     "dueDateHelp": "Indiquez le nombre de mensualités et la première échéance dans les champs financiers."
+  },
+  "PlatformMetrics": {
+    "back": "Retour au Master",
+    "title": "Indicateurs de la plateforme",
+    "description": "Comptages consultés dans la base de données PHANYX.",
+    "queriedAt": "Consultation : {date}",
+    "scope": "La base inclut des dossiers de test et de production sans classification explicite. Les utilisateurs actifs sont des comptes activés, pas des personnes connectées simultanément.",
+    "unavailable": "Impossible de consulter les indicateurs. Aucune valeur n’a été remplacée par zéro. Actualisez pour réessayer.",
+    "capacityTitle": "Capacité et tests de charge",
+    "capacityDescription": "Les comptages ne prouvent pas la capacité simultanée. Ce tableau de bord n’exécute ni ne certifie des tests de charge.",
+    "loadTest": "Test avec {count} utilisateurs",
+    "notMeasured": "Non mesuré par ce tableau de bord",
+    "metrics": {
+      "instituicoes": "Établissements enregistrés",
+      "instituicoesAtivas": "Établissements activés",
+      "alunos": "Élèves enregistrés",
+      "alunosAtivos": "Élèves actifs",
+      "professores": "Enseignants enregistrés",
+      "professoresAtivos": "Enseignants actifs",
+      "cursosAtivos": "Cours actifs disponibles",
+      "matriculasAtivas": "Inscriptions actives",
+      "turmasAtivas": "Classes actives",
+      "usuariosAtivos": "Comptes utilisateurs activés",
+      "provas": "Épreuves enregistrées",
+      "documentos": "Documents générés"
+    }
   }
 }

@@ -11472,7 +11472,7 @@
         "deletedBy": "Excluído por",
         "restoreUntil": "Disponível para restauração até",
         "lastRestoreDay": "⚠️ Último dia para restaurar. Este curso não estará mais disponível após {date}.",
-        "restoreWindow": "Cursos excluídos ficam disponíveis para restauração por até 3 dias. Após esse prazo, poderão ser removidos definitivamente do sistema."
+        "restoreWindow": "Cursos excluídos podem ser restaurados por até 3 dias. Depois, deixam de aparecer no cadastro; os vínculos acadêmicos e financeiros são preservados."
       },
       "actions": {
         "viewStructure": "Ver estrutura",
@@ -12708,7 +12708,7 @@
       "countryValidity": "País onde o feriado é válido",
       "countryHint": "Este país define quais instituições receberão o aviso. Ele não muda ao trocar o idioma da tradução.",
       "date": "Data do feriado",
-      "threeDaysHint": "Ao escolher a data do feriado, o PHANYX inicia o aviso automaticamente 3 dias antes e encerra no próprio dia. O período pode ser ajustado manualmente.",
+      "advanceDaysHint": "Ao escolher a data do feriado, o PHANYX inicia o aviso 4 dias antes e encerra no próprio dia. Feriados nacionais publicados são avisados com essa antecedência mínima; o início pode ser antecipado.",
       "displayStart": "Início da exibição",
       "displayEnd": "Fim da exibição",
       "type": "Abrangência",
@@ -23403,5 +23403,31 @@
       "QUANTIDADE_MENSALIDADES_NECESSARIA": "Informe de 1 a 120 mensalidades para gerar o financeiro desta contratação."
     },
     "dueDateHelp": "Informe a quantidade de mensalidades e o primeiro vencimento nos campos financeiros."
+  },
+  "PlatformMetrics": {
+    "back": "Voltar ao Master",
+    "title": "Métricas da plataforma",
+    "description": "Contagens consultadas no banco de dados do PHANYX.",
+    "queriedAt": "Consulta: {date}",
+    "scope": "A base inclui cadastros de teste e produção sem classificação explícita. Usuários ativos são contas habilitadas, não pessoas conectadas simultaneamente.",
+    "unavailable": "Não foi possível consultar as métricas. Nenhum valor foi substituído por zero. Atualize a página para tentar novamente.",
+    "capacityTitle": "Capacidade e testes de carga",
+    "capacityDescription": "As contagens do cadastro não comprovam capacidade simultânea. Este painel não executa nem certifica testes de carga.",
+    "loadTest": "Teste com {count} usuários",
+    "notMeasured": "Não medido por este painel",
+    "metrics": {
+      "instituicoes": "Instituições cadastradas",
+      "instituicoesAtivas": "Instituições habilitadas",
+      "alunos": "Alunos cadastrados",
+      "alunosAtivos": "Alunos ativos",
+      "professores": "Professores cadastrados",
+      "professoresAtivos": "Professores ativos",
+      "cursosAtivos": "Cursos ativos disponíveis",
+      "matriculasAtivas": "Matrículas ativas",
+      "turmasAtivas": "Turmas ativas",
+      "usuariosAtivos": "Contas de usuário habilitadas",
+      "provas": "Provas cadastradas",
+      "documentos": "Documentos gerados"
+    }
   }
 }

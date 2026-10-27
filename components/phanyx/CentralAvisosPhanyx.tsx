@@ -128,10 +128,19 @@ export default function CentralAvisosPhanyx({
     }
 
     carregarFeriado();
+    const atualizarAoVoltar = () => {
+      if (document.visibilityState === "visible") void carregarFeriado();
+    };
+    const intervalo = window.setInterval(atualizarAoVoltar, 60 * 60 * 1000);
+    window.addEventListener("focus", atualizarAoVoltar);
+    document.addEventListener("visibilitychange", atualizarAoVoltar);
 
     return () => {
       ativo = false;
       controller.abort();
+      window.clearInterval(intervalo);
+      window.removeEventListener("focus", atualizarAoVoltar);
+      document.removeEventListener("visibilitychange", atualizarAoVoltar);
     };
   }, [locale]);
 

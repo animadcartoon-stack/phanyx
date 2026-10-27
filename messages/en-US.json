@@ -11473,7 +11473,7 @@
         "deletedBy": "Deleted by",
         "restoreUntil": "Available for restoration until",
         "lastRestoreDay": "⚠️ Last day to restore. This course will no longer be available after {date}.",
-        "restoreWindow": "Deleted courses remain available for restoration for up to 3 days. After that period, they may be permanently removed from the system."
+        "restoreWindow": "Deleted courses can be restored for 3 days. They then disappear from the course list; academic and financial records are preserved."
       },
       "actions": {
         "viewStructure": "View structure",
@@ -12709,7 +12709,7 @@
       "countryValidity": "Country where the holiday applies",
       "countryHint": "This country determines which institutions receive the notice. It does not change when you switch translation language.",
       "date": "Holiday date",
-      "threeDaysHint": "When you select the holiday date, PHANYX automatically starts the notice 3 days before and ends it on the holiday itself. You can adjust the period manually.",
+      "advanceDaysHint": "PHANYX starts holiday notices 4 days before the holiday and ends them on the holiday itself. Published national holidays use this minimum advance notice; the start can be brought forward.",
       "displayStart": "Display starts",
       "displayEnd": "Display ends",
       "type": "Scope",
@@ -23633,5 +23633,31 @@
       "QUANTIDADE_MENSALIDADES_NECESSARIA": "Enter 1 to 120 monthly installments to generate charges for this enrollment."
     },
     "dueDateHelp": "Enter the number of monthly installments and first due date in the financial fields."
+  },
+  "PlatformMetrics": {
+    "back": "Back to Master",
+    "title": "Platform metrics",
+    "description": "Counts queried from the PHANYX database.",
+    "queriedAt": "Queried at: {date}",
+    "scope": "The database contains test and production records without explicit classification. Active users are enabled accounts, not concurrent online users.",
+    "unavailable": "Metrics could not be queried. Values have not been replaced with zero. Refresh to try again.",
+    "capacityTitle": "Capacity and load tests",
+    "capacityDescription": "Record counts do not prove concurrent capacity. This dashboard neither runs nor certifies load tests.",
+    "loadTest": "Test with {count} users",
+    "notMeasured": "Not measured by this dashboard",
+    "metrics": {
+      "instituicoes": "Registered institutions",
+      "instituicoesAtivas": "Enabled institutions",
+      "alunos": "Registered students",
+      "alunosAtivos": "Active students",
+      "professores": "Registered teachers",
+      "professoresAtivos": "Active teachers",
+      "cursosAtivos": "Available active courses",
+      "matriculasAtivas": "Active enrollments",
+      "turmasAtivas": "Active classes",
+      "usuariosAtivos": "Enabled user accounts",
+      "provas": "Registered exams",
+      "documentos": "Generated documents"
+    }
   }
 }
