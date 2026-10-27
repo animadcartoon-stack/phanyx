@@ -13,6 +13,8 @@ export async function GET(request?: Request) {
   const cursos = await prisma.curso.findMany({
     where: {
       instituicaoId: user.instituicaoId,
+      ...(request && new URL(request.url).searchParams.get("somenteAtivos") === "1"
+        ? { ativo: true, excluidoEm: null } : {}),
     },
     include: request && new URL(request.url).searchParams.get("gradeOferta") === "1"
       ? incluirGradeOferta(user.instituicaoId) : undefined,

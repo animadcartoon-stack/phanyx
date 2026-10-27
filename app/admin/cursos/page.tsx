@@ -957,7 +957,7 @@ if (!termoTexto) return cursosPorStatus;
   {t("list.cards.createdBy")}: {curso.criadoPor?.nome || t("common.notInformed")}
 </p>
 
-{!curso.ativo && (() => {
+{!curso.ativo && curso.excluidoEm && (() => {
   const expiraCurso = obterDataExpiracaoCurso(curso);
 
   return (

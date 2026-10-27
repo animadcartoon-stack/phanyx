@@ -1,4 +1,5 @@
 "use client";
+import { ANTECEDENCIA_AVISO_FERIADO_DIAS } from "@/lib/phanyx/feriados-brasil";
 
 import Link from "next/link";
 import BandeiraPais from "@/components/internacionalizacao/BandeiraPais";
@@ -1213,7 +1214,7 @@ export default function MasterFeriadosPage() {
                               valor
                                 ? deslocarDataCivil(
                                     valor,
-                                    -3
+                                    -ANTECEDENCIA_AVISO_FERIADO_DIAS
                                   )
                                 : "",
 
@@ -1225,7 +1226,7 @@ export default function MasterFeriadosPage() {
                       />
                       <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                         {t(
-                          "form.threeDaysHint"
+                          "form.advanceDaysHint"
                         )}
                       </p>
                     </label>

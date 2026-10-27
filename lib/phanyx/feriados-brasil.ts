@@ -5,6 +5,14 @@ export type FeriadoBrasil = {
   emoji: string;
 };
 
+export const ANTECEDENCIA_AVISO_FERIADO_DIAS = 4;
+
+export function inicioAvisoFeriado(dataFeriado: string) {
+  const data = new Date(`${dataFeriado}T00:00:00.000Z`);
+  data.setUTCDate(data.getUTCDate() - ANTECEDENCIA_AVISO_FERIADO_DIAS);
+  return data.toISOString().slice(0, 10);
+}
+
 function dataISO(ano: number, mes: number, dia: number): string {
   return [
     String(ano).padStart(4, "0"),
@@ -126,7 +134,7 @@ export function buscarFeriadoNacionalBrasil(
 
   const hojeUTC = new Date(`${dataLocal}T00:00:00.000Z`);
 
-  if (Number.isNaN(hojeUTC.getTime())) {
+  if (Number.isNaN(hojeUTC.getTime()) || hojeUTC.toISOString().slice(0, 10) !== dataLocal) {
     return null;
   }
 
@@ -145,7 +153,7 @@ export function buscarFeriadoNacionalBrasil(
         86400000
     );
 
-    if (diasRestantes >= 0 && diasRestantes <= 3) {
+    if (diasRestantes >= 0 && diasRestantes <= ANTECEDENCIA_AVISO_FERIADO_DIAS) {
       return {
         ...feriado,
         diasRestantes,

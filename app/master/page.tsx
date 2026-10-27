@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 import Link from "next/link";
 
 type DashboardMasterResponse = {
+  geradoEm: string;
   filtros: {
     busca: string;
     status: string;
@@ -20,6 +21,9 @@ type DashboardMasterResponse = {
     faturamentoPrevisto: number;
     totalInstituicoesFiltradas: number;
     totalAdesoesFiltradas: number;
+    totalInstituicoesAtivas: number;
+    totalInstituicoesIsentas: number;
+    porOrigem: { tipo: string; registros: number; pagos: number; valorMarcadoPago: number }[];
   };
   opcoes: {
     planos: string[];
@@ -37,6 +41,7 @@ type DashboardMasterResponse = {
     };
   }[];
   adesoes: {
+    tipo: string;
     id: string;
     nomeResponsavel: string;
     nomeInstituicao: string;
@@ -150,6 +155,8 @@ function CardResumo({
 }
 
 function MasterPage() {
+  const requisicaoDashboard = useRef(0);
+  const [erroFeedbacks, setErroFeedbacks] = useState("");
   const [data, setData] = useState<DashboardMasterResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -178,6 +185,7 @@ const [erroSuporte, setErroSuporte] =
   useState("");
 
   async function carregarDashboard() {
+    const sequencia = ++requisicaoDashboard.current;
     try {
       setLoading(true);
       setErro("");
@@ -201,11 +209,11 @@ const [erroSuporte, setErroSuporte] =
         throw new Error(json?.error || "Erro ao carregar painel master.");
       }
 
-      setData(json);
+      if (sequencia === requisicaoDashboard.current) setData(json);
     } catch (e: any) {
-      setErro(e?.message || "Erro ao carregar painel master.");
+      if (sequencia === requisicaoDashboard.current) setErro(e?.message || "Erro ao carregar painel master.");
     } finally {
-      setLoading(false);
+      if (sequencia === requisicaoDashboard.current) setLoading(false);
     }
   }
 
@@ -218,17 +226,20 @@ const [erroSuporte, setErroSuporte] =
 
     const json: FeedbackMasterResponse = await res.json();
 
+    if (!res.ok) throw new Error("Falha ao consultar feedbacks.");
+    setErroFeedbacks("");
     if (res.ok) {
       setFeedbacksPhanyx(Array.isArray(json.registros) ? json.registros : []);
     }
   } catch {
+    setErroFeedbacks("Não foi possível consultar os feedbacks. Os indicadores estão indisponíveis.");
     setFeedbacksPhanyx([]);
   }
 }
 
   useEffect(() => {
-  carregarDashboard();
   carregarFeedbacksPhanyx();
+  return () => { requisicaoDashboard.current++; };
 }, []);
 
   useEffect(() => {
@@ -246,32 +257,32 @@ const [erroSuporte, setErroSuporte] =
       {
         titulo: "Instituições",
         valor: data.resumo.totalInstituicoes,
-        descricao: "Instituições reais em operação no PHANYX.",
+        descricao: "Cadastros existentes no banco, incluindo ambientes de teste.",
       },
       {
         titulo: "Adesões",
         valor: data.resumo.totalAdesoes,
-        descricao: "Adesões reais vinculadas às instituições operacionais.",
+        descricao: "Registros de adesão institucional, sem misturar matrículas de alunos.",
       },
       {
         titulo: "Pagas",
         valor: data.resumo.totalPagas,
-        descricao: "Adesões reais pagas, sem registros de teste.",
+        descricao: "Adesões com status pago no cadastro; não é conciliação bancária.",
       },
       {
         titulo: "Pendentes",
         valor: data.resumo.totalPendentes,
-        descricao: "Adesões reais que ainda aguardam confirmação.",
+        descricao: "Adesões com status pendente de pagamento no cadastro.",
       },
       {
         titulo: "Com instituição criada",
         valor: data.resumo.totalComInstituicaoCriada,
-        descricao: "Instituições reais já criadas no ambiente PHANYX.",
+        descricao: "Adesões com vínculo válido a uma instituição cadastrada.",
       },
       {
-        titulo: "Faturamento pago",
+        titulo: "Adesões: valor marcado pago",
         valor: formatarValor(data.resumo.faturamentoPago),
-        descricao: "Receita real confirmada, sem testes e sem instituições isentas.",
+        descricao: "Somente adesões institucionais; exclui isentas e cobranças repetidas. Pode conter testes.",
       },
     ];
   }, [data]);
@@ -716,6 +727,9 @@ async function iniciarAcessoDeSuporte() {
 
         {!loading && !erro && data && (
           <>
+            <div role="note" className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+              Consulta ao banco: {formatarData(data.geradoEm)}. Os registros legados não distinguem teste e produção. Estes valores refletem o cadastro e não comprovam recebimento no Asaas.
+            </div>
             <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {resumoVisual?.map((card) => (
                 <CardResumo
@@ -734,7 +748,7 @@ async function iniciarAcessoDeSuporte() {
         Inteligência PHANYX
       </p>
       <h2 className="mt-2 text-2xl font-bold text-white">
-        Uso real da IA e feedbacks da plataforma
+        Feedbacks recebidos pela plataforma
       </h2>
       <p className="mt-2 text-sm text-slate-400">
         Dados reais enviados pelos administradores das instituições para orientar melhorias do PHANYX.
@@ -749,8 +763,9 @@ async function iniciarAcessoDeSuporte() {
     </a>
   </div>
 
+  {erroFeedbacks && <p role="alert" className="mt-4 text-amber-300">{erroFeedbacks}</p>}
   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-    {resumoIA.map((card) => (
+    {!erroFeedbacks && resumoIA.map((card) => (
       <CardResumo
         key={card.titulo}
         titulo={card.titulo}
@@ -787,7 +802,7 @@ async function iniciarAcessoDeSuporte() {
         </div>
       ))}
 
-      {feedbacksPhanyx.length === 0 && (
+      {!erroFeedbacks && feedbacksPhanyx.length === 0 && (
         <p className="text-sm text-slate-500">
           Nenhum feedback PHANYX recebido ainda.
         </p>
@@ -796,6 +811,12 @@ async function iniciarAcessoDeSuporte() {
   </div>
 </section>
 
+            <section className="grid gap-4 md:grid-cols-3" aria-label="Pagamentos por origem">
+              {data.resumo.porOrigem.map(origem => <CardResumo key={origem.tipo}
+                titulo={origem.tipo === "ADESAO_INSTITUICAO" ? "Adesões PHANYX" : origem.tipo === "MATRICULA_IBE" ? "Matrículas online IBE" : "Checkout PHANYX"}
+                valor={formatarValor(origem.valorMarcadoPago)}
+                descricao={`${origem.pagos} registros com status pago entre ${origem.registros} registros desta origem. Valores não somados entre origens.`} />)}
+            </section>
             <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
               <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
                 <h2 className="text-2xl font-bold">Visão comercial</h2>
@@ -805,7 +826,7 @@ async function iniciarAcessoDeSuporte() {
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5">
-                    <p className="text-sm text-slate-400">Adesões filtradas</p>
+                    <p className="text-sm text-slate-400">Operações filtradas</p>
                     <p className="mt-2 text-3xl font-bold text-white">
                       {data.resumo.totalAdesoesFiltradas}
                     </p>
@@ -822,7 +843,7 @@ async function iniciarAcessoDeSuporte() {
 
                   <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5">
                     <p className="text-sm text-slate-400">
-                      Faturamento previsto
+                      Adesões pendentes: valor cadastrado
                     </p>
                     <p className="mt-2 text-2xl font-bold text-white">
                       {formatarValor(data.resumo.faturamentoPrevisto)}
@@ -831,7 +852,7 @@ async function iniciarAcessoDeSuporte() {
 
                   <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5">
                     <p className="text-sm text-slate-400">
-                      Faturamento confirmado
+                      Adesões: valor marcado pago
                     </p>
                     <p className="mt-2 text-2xl font-bold text-emerald-400">
                       {formatarValor(data.resumo.faturamentoPago)}
@@ -843,7 +864,7 @@ async function iniciarAcessoDeSuporte() {
               <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
                 <h2 className="text-2xl font-bold">Leitura operacional</h2>
                 <p className="mt-2 text-sm text-slate-400">
-                  Resumo do que já virou operação real dentro da base.
+                  Contagens dos registros cadastrados; os totais gerais não mudam com os filtros das listas.
                 </p>
 
                 <div className="mt-6 space-y-4">
@@ -887,7 +908,7 @@ async function iniciarAcessoDeSuporte() {
                 <div>
                   <h2 className="text-2xl font-bold">Adesões</h2>
                   <p className="mt-1 text-sm text-slate-400">
-                    Lista operacional e comercial das adesões mais relevantes.
+                    Adesões institucionais, matrículas online do IBE e checkouts, identificados pela origem.
                   </p>
                 </div>
                 <p className="text-sm text-slate-500">
@@ -916,7 +937,7 @@ async function iniciarAcessoDeSuporte() {
                           colSpan={8}
                           className="px-4 py-8 text-center text-slate-500"
                         >
-                          Nenhuma adesão encontrada com os filtros atuais.
+                          Nenhuma operação encontrada com os filtros atuais.
                         </td>
                       </tr>
                     ) : (
@@ -927,7 +948,7 @@ async function iniciarAcessoDeSuporte() {
                         >
                           <td className="px-4 py-4">
                             <p className="font-semibold text-white">
-                              {adesao.nomeInstituicao}
+                              {adesao.nomeInstituicao}<span className="block text-xs text-slate-400">{adesao.tipo === "ADESAO_INSTITUICAO" ? "Adesão PHANYX" : adesao.tipo === "MATRICULA_IBE" ? "Matrícula IBE" : "Checkout PHANYX"}</span>
                             </p>
                             <p className="mt-1 text-xs text-slate-500">
                               ID: {adesao.id}

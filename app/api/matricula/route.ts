@@ -2,7 +2,7 @@ import { carregarRegrasSelecao, conferirSelecaoContratada, respostaErroSelecao }
 import { ErroSelecaoDisciplinas, normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { normalizarRegrasDisciplinas, calcularPrecoDisciplinas, lerContratacaoDisciplinas, ErroPrecoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
-import { validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
+import { validarCursoAtivoParaMatricula, validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { validarAgendaMatricula } from "@/lib/matriculas/validar-agenda";
 import { ErroModalidades } from "@/lib/matriculas/combos";
@@ -2229,6 +2229,7 @@ export async function POST(request: Request) {
           where: {
             id: cursoIdFinal,
             instituicaoId: user.instituicaoId,
+            ativo: true, excluidoEm: null,
           },
         })
         : null;
@@ -2740,6 +2741,7 @@ export async function POST(request: Request) {
       await prisma.$transaction(
         async (tx) => {
           await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cursoIdFinal} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
+          await validarCursoAtivoParaMatricula(tx, user.instituicaoId, cursoIdFinal!);
           const regrasAtuais = await carregarRegrasSelecao(tx, user.instituicaoId, cursoIdFinal!);
           if (JSON.stringify(regrasAtuais) !== JSON.stringify(regrasSelecao)) throw new ErroSelecaoDisciplinas("SELECAO_ALTERADA", undefined, 409);
           await conferirSelecaoContratada(tx, { instituicaoId: user.instituicaoId, cursoId: cursoIdFinal!, regras: regrasSelecao, disciplinaIds: disciplinasContratadasSnapshot.map(d => d.disciplinaId), itens: itensClassificados });
@@ -4660,6 +4662,8 @@ export async function PUT(request: Request) {
           await conferirSelecaoContratada(tx, { instituicaoId: user.instituicaoId, cursoId: cursoIdFinal!, regras: regrasSelecaoAnterior, disciplinaIds: disciplinasSelecao.map(d => d.disciplinaId), itens: itensSelecao });
         }
         if (cursoIdFinal !== matriculaExistente.cursoId || alunoIdFinal !== matriculaExistente.alunoId) {
+          await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cursoIdFinal} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
+          await validarCursoAtivoParaMatricula(tx, user.instituicaoId, cursoIdFinal!);
           await validarRequisitosCursos(tx, user.instituicaoId, { alunoId: alunoIdFinal,
             cursoIds: cursoIdFinal ? [cursoIdFinal] : [], matriculaId: id,
             periodoLetivo: String(body.periodoLetivo || "").trim() || matriculaExistente.periodoLetivo,

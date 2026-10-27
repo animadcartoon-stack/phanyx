@@ -1,97 +1,10 @@
+import { resumirDashboardMaster } from "@/lib/master/resumo-dashboard";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
 function normalizarTexto(valor: string | null | undefined) {
   return String(valor || "").trim().toUpperCase();
-}
-
-function normalizarChave(valor: string | null | undefined) {
-  return String(valor || "")
-    .trim()
-    .toUpperCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function statusEhPago(status: string | null | undefined) {
-  const valor = normalizarTexto(status);
-
-  return [
-    "PAGO",
-    "PAID",
-    "RECEIVED",
-    "CONFIRMED",
-    "CONFIRMADO",
-    "APROVADO",
-  ].includes(valor);
-}
-
-function statusEhPendente(status: string | null | undefined) {
-  const valor = normalizarTexto(status);
-
-  return [
-    "PENDING",
-    "PENDENTE",
-    "AGUARDANDO_PAGAMENTO",
-    "AGUARDANDO PAGAMENTO",
-  ].includes(valor);
-}
-
-function statusEhCanceladoOuErro(status: string | null | undefined) {
-  const valor = normalizarTexto(status);
-
-  return [
-    "CANCELADO",
-    "CANCELED",
-    "CANCELLED",
-    "ERRO",
-    "ERROR",
-    "FAILED",
-    "FALHOU",
-    "EXPIRADO",
-    "EXPIRED",
-  ].includes(valor);
-}
-
-function ehInstituicaoRealPHANYX(instituicao: {
-  nome?: string | null;
-  slug?: string | null;
-}) {
-  const nome = normalizarChave(instituicao.nome);
-  const slug = normalizarChave(instituicao.slug);
-
-  return (
-    slug === "IBE" ||
-    slug === "CREIA-KIDS" ||
-    nome === "IBE" ||
-    nome.includes("INSTITUTO BATISTA DE EDUCACAO") ||
-    nome.includes("CREIA KIDS")
-  );
-}
-
-function ehAdesaoRealPHANYX(
-  adesao: {
-    nomeInstituicao?: string | null;
-    instituicaoId?: number | null;
-  },
-  idsInstituicoesReais: Set<number>
-) {
-  const instituicaoId = adesao.instituicaoId
-    ? Number(adesao.instituicaoId)
-    : null;
-
-  if (instituicaoId && idsInstituicoesReais.has(instituicaoId)) {
-    return true;
-  }
-
-  const nomeInstituicao = normalizarChave(adesao.nomeInstituicao);
-
-  return (
-    nomeInstituicao === "IBE" ||
-    nomeInstituicao.includes("INSTITUTO BATISTA DE EDUCACAO") ||
-    nomeInstituicao.includes("CREIA KIDS")
-  );
 }
 
 type OperacaoAsaasMaster = {
@@ -108,6 +21,9 @@ type OperacaoAsaasMaster = {
   instituicaoId: number | null;
   asaasId: string | null;
 };
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET(req: Request) {
   try {
@@ -149,7 +65,7 @@ export async function GET(req: Request) {
       todasInstituicoes,
       matriculasOnlineIbe,
       checkoutPagamentos,
-    ] = await Promise.all([
+    ] = await prisma.$transaction([
       prisma.adesaoInstituicao.findMany({
         orderBy: { createdAt: "desc" },
         select: {
@@ -216,27 +132,12 @@ export async function GET(req: Request) {
           createdAt: true,
         },
       }),
-    ]);
+    ], { isolationLevel: "RepeatableRead" });
 
-    const instituicoesReais = todasInstituicoes.filter((instituicao) =>
-      ehInstituicaoRealPHANYX(instituicao)
-    );
+    const instituicoesCadastradas = todasInstituicoes;
+    const adesoesInstitucionais = todasAdesoes;
 
-    const idsInstituicoesReais = new Set<number>(
-      instituicoesReais.map((instituicao) => Number(instituicao.id))
-    );
-
-    const idsInstituicoesIsentas = new Set<number>(
-      instituicoesReais
-        .filter((instituicao) => Boolean(instituicao.isentaPagamento))
-        .map((instituicao) => Number(instituicao.id))
-    );
-
-    const adesoesReais = todasAdesoes.filter((adesao) =>
-      ehAdesaoRealPHANYX(adesao, idsInstituicoesReais)
-    );
-
-    const operacoesAdesaoInstituicao: OperacaoAsaasMaster[] = adesoesReais.map(
+    const operacoesAdesaoInstituicao: OperacaoAsaasMaster[] = adesoesInstitucionais.map(
       (adesao) => ({
         id: adesao.id,
         tipo: "ADESAO_INSTITUICAO",
@@ -331,7 +232,7 @@ export async function GET(req: Request) {
       return bateBusca && bateStatus && batePlano;
     });
 
-    const instituicoesFiltradas = instituicoesReais.filter((instituicao) => {
+    const instituicoesFiltradas = instituicoesCadastradas.filter((instituicao) => {
       const bateBusca =
         !buscaNormalizada ||
         String(instituicao.nome || "")
@@ -352,56 +253,13 @@ export async function GET(req: Request) {
       return bateBusca && batePlano;
     });
 
-    const totalInstituicoes = instituicoesReais.length;
-    const totalAdesoes = operacoesAsaas.length;
-
-    const totalPagas = operacoesAsaas.filter((item) =>
-      statusEhPago(item.status)
-    ).length;
-
-    const totalPendentes = operacoesAsaas.filter((item) =>
-      statusEhPendente(item.status)
-    ).length;
-
-    const totalComInstituicaoCriada = instituicoesReais.length;
-
-    const faturamentoPago = operacoesAsaas
-      .filter((item) => {
-        if (!statusEhPago(item.status)) return false;
-
-        if (
-          item.tipo === "ADESAO_INSTITUICAO" &&
-          item.instituicaoId &&
-          idsInstituicoesIsentas.has(Number(item.instituicaoId))
-        ) {
-          return false;
-        }
-
-        return true;
-      })
-      .reduce((acc, item) => acc + Number(item.valor || 0), 0);
-
-    const faturamentoPrevisto = operacoesAsaas
-      .filter((item) => {
-        if (statusEhCanceladoOuErro(item.status)) return false;
-
-        if (
-          item.tipo === "ADESAO_INSTITUICAO" &&
-          item.instituicaoId &&
-          idsInstituicoesIsentas.has(Number(item.instituicaoId))
-        ) {
-          return false;
-        }
-
-        return true;
-      })
-      .reduce((acc, item) => acc + Number(item.valor || 0), 0);
+    const resumo = resumirDashboardMaster(instituicoesCadastradas, operacoesAsaas);
 
     const planosDisponiveis = Array.from(
       new Set(
         [
           ...operacoesAsaas.map((item) => String(item.plano || "").trim()),
-          ...instituicoesReais.map((item) => String(item.plano || "").trim()),
+          ...instituicoesCadastradas.map((item) => String(item.plano || "").trim()),
         ].filter(Boolean)
       )
     ).sort();
@@ -421,35 +279,19 @@ export async function GET(req: Request) {
         status: status || "TODOS",
         plano: plano || "TODOS",
       },
+      geradoEm: new Date().toISOString(),
       resumo: {
-        totalInstituicoes,
-        totalAdesoes,
-        totalPagas,
-        totalPendentes,
-        totalComInstituicaoCriada,
-        faturamentoPago,
-        faturamentoPrevisto,
+        ...resumo,
         totalInstituicoesFiltradas: instituicoesFiltradas.length,
         totalAdesoesFiltradas: operacoesFiltradas.length,
       },
       diagnostico: {
-        leitura: "OPERACIONAL_REAL_COM_ASAAS",
-        instituicoesConsideradasReais: instituicoesReais.map((item) => ({
-          id: item.id,
-          nome: item.nome,
-          slug: item.slug,
-          plano: item.plano,
-          isentaPagamento: item.isentaPagamento,
-        })),
+        leitura: "CADASTRO_SEM_CLASSIFICACAO_TESTE_PRODUCAO",
+        conciliadoComProvedor: false,
         totalInstituicoesNoBanco: todasInstituicoes.length,
         totalAdesoesInstitucionaisNoBanco: todasAdesoes.length,
         totalMatriculasOnlineIbeNoBanco: matriculasOnlineIbe.length,
         totalCheckoutPagamentosNoBanco: checkoutPagamentos.length,
-        instituicoesIgnoradasComoTeste:
-          todasInstituicoes.length - instituicoesReais.length,
-        adesoesInstitucionaisIgnoradasComoTeste:
-          todasAdesoes.length - adesoesReais.length,
-        totalOperacoesAsaasReais: operacoesAsaas.length,
       },
       opcoes: {
         planos: planosDisponiveis,
@@ -457,7 +299,7 @@ export async function GET(req: Request) {
       },
       instituicoes: instituicoesFiltradas.slice(0, 50),
       adesoes: operacoesFiltradas.slice(0, 50),
-    });
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error: any) {
     console.error("ERRO DASHBOARD MASTER:", error);
 

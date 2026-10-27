@@ -209,6 +209,7 @@ type TipoContratacaoMatricula =
   | "PARCIAL";
 
 type MatriculaEdicao = {
+  cursoNome: string;
   regrasSelecaoDisciplinas: RegrasSelecaoDisciplinas | null;
   precoDisciplinas: ContratacaoDisciplinas | null;
   id: number;
@@ -663,7 +664,7 @@ function AdminMatriculasPage() {
 
       try {
         const resCursos = await fetch(
-          "/api/curso",
+          "/api/curso?somenteAtivos=1",
           {
             credentials: "include",
             cache: "no-store",
@@ -2443,6 +2444,7 @@ function AdminMatriculasPage() {
     );
 
     setMatriculaEditando({
+      cursoNome: matricula.curso?.nome || "",
       id: matricula.id,
       precoDisciplinas: lerContratacaoDisciplinas(matricula.contratacaoDisciplinas),
       regrasSelecaoDisciplinas: normalizarSelecaoDisciplinas(matricula.regrasSelecaoDisciplinas),
@@ -5463,6 +5465,7 @@ function AdminMatriculasPage() {
                   className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 >
                   <option value="">Selecione...</option>
+                  {matriculaEditando.cursoId && !cursos.some(c => c.id === Number(matriculaEditando.cursoId)) && <option value={matriculaEditando.cursoId} disabled>{matriculaEditando.cursoNome || `Curso #${matriculaEditando.cursoId}`}</option>}
                   {cursos.filter(c => c.organizacaoCurricular !== "LIVRE").map((c) => (
                     <option key={c.id} value={String(c.id)}>
                       {c.nome}

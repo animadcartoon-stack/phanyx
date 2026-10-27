@@ -1,4 +1,5 @@
 import { etapaDaOferta, numeroEtapa, organizacaoAcademica } from "./organizacao";
+import { cursoDisponivelParaMatricula } from "@/lib/cursos/estado-curso";
 import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { disciplinaPermitidaNaOferta, numeroSemestreOferta } from "./grade-oferta";
@@ -12,6 +13,7 @@ const mensagens = {
   ETAPA_INVALIDA: "Informe uma etapa curricular válida para o curso.",
   VINCULO_INVALIDO: "Um dos identificadores informados é inválido.",
   CURSO_INVALIDO: "O curso não pertence a esta instituição.",
+  CURSO_INDISPONIVEL: "Este curso está inativo ou excluído e não pode receber uma nova matrícula. Atualize a lista e escolha um curso ativo.",
   DISCIPLINAS_INVALIDAS: "Uma ou mais disciplinas não pertencem a esta instituição.",
   GRADE_INCOMPATIVEL: "Uma ou mais disciplinas não fazem parte da grade do curso e semestre selecionados.",
   PROFESSOR_INVALIDO: "Um ou mais professores não pertencem a esta instituição.",
@@ -39,6 +41,11 @@ export function respostaErroAcademico(error: unknown) {
     return NextResponse.json({ codigo: "DADOS_ALTERADOS", error: mensagens.DADOS_ALTERADOS }, { status: 409 });
   }
   return null;
+}
+
+export async function validarCursoAtivoParaMatricula(db: BancoAcademico, instituicaoId: number, cursoId: number) {
+  const curso = await db.curso.findFirst({ where: { id: cursoId, instituicaoId }, select: { id: true, ativo: true, excluidoEm: true } });
+  if (!cursoDisponivelParaMatricula(curso)) throw new ErroIntegridadeAcademica("CURSO_INDISPONIVEL");
 }
 
 export function idOpcionalOferta(valor: unknown): number | null {
