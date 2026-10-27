@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { idCursoPrincipal } from "@/lib/matriculas/cursos-adicionais";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -12,12 +13,17 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req?: Request) {
   try {
     const user = await administradorCombos();
-    return NextResponse.json({
-      ofertas: await carregarOfertasModalidades(prisma, user.instituicaoId),
+    const principalId = idCursoPrincipal(req ? new URL(req.url).searchParams.get("cursoPrincipalId") : null);
+    const principal = principalId === null ? null : await prisma.curso.findFirst({
+      where: { id: principalId, instituicaoId: user.instituicaoId, ativo: true, excluidoEm: null },
+      select: { id: true, nome: true, permiteCursosAdicionais: true },
     });
+    if (principalId !== null && !principal?.permiteCursosAdicionais) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
+    const ofertas = await carregarOfertasModalidades(prisma, user.instituicaoId);
+    return NextResponse.json({ principal, ofertas: principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || o.curso.disponivelComoAdicional) });
   } catch (error) {
     return erroCombos(error);
   }
@@ -58,6 +64,7 @@ export async function POST(request: Request) {
       .update(
         JSON.stringify({
           alunoId,
+          ...(body.cursoPrincipalId != null ? { cursoPrincipalId: idCursoPrincipal(body.cursoPrincipalId) } : {}),
           turmaIds,
           dataInicioCurso: body.dataInicioCurso || null,
           primeiroVencimento: body.primeiroVencimento,

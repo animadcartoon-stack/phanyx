@@ -20,6 +20,9 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const buscaOriginal = String(searchParams.get("busca") || "").trim();
+    const idTexto = searchParams.get("id");
+    const id = idTexto === null ? null : Number(idTexto);
+    if (idTexto !== null && (!/^\d+$/.test(idTexto) || !Number.isSafeInteger(id) || id! <= 0)) return NextResponse.json({ error: "ID inválido" }, { status: 400 });
 
 function normalizarTexto(texto: string) {
   return texto
@@ -43,6 +46,7 @@ const variantesBusca = Array.from(
     const alunos = await prisma.aluno.findMany({
       where: {
         instituicaoId: user.instituicaoId,
+        ...(id !== null ? { id } : {}),
         ...(busca
           ? {
               OR: variantesBusca.flatMap((termo) => [

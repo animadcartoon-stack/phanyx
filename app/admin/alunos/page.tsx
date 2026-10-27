@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import alunoStyles from "./alunos.module.css";
 
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -2271,7 +2272,7 @@ function AdminAlunosPage() {
                       <tr
                         key={a.id}
                         className={`border-t ${a.statusAluno === "CANCELADO"
-                          ? "bg-slate-50/70"
+                          ? alunoStyles.cancelado
                           : "bg-white"
                           }`}
                       >

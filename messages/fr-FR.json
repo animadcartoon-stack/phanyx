@@ -23658,5 +23658,23 @@
       "provas": "Épreuves enregistrées",
       "documentos": "Documents générés"
     }
+  },
+  "AdditionalCourses": {
+    "title": "Cours supplémentaires dans la même inscription",
+    "allow": "Autoriser des cours supplémentaires lors de cette inscription",
+    "available": "Disponible comme cours autonome/supplémentaire dans les autres inscriptions",
+    "settingsHelp": "Chaque cours conserve son prix et son programme. Les cours supplémentaires nécessitent un groupe, des places et des horaires compatibles. La réduction suit le forfait configuré ; ces options ne créent pas automatiquement de réduction.",
+    "incompatible": "Pour utiliser des cours supplémentaires, désactivez le tarif selon le nombre de matières. Les cours prépayés et les sélections de matières incluses disposent de leur propre parcours.",
+    "chooseSubjects": "Choisissez les matières",
+    "subjectHelp": "Ce cours utilise un tarif par matière : {value} par matière sélectionnée. Choisir le cours ne sélectionne pas automatiquement une matière. Pour des cours à prix différents, utilisez les cours supplémentaires/forfaits.",
+    "principal": "Cours principal : {name}",
+    "principalLabel": "Cours principal",
+    "enrollmentHelp": "Le cours principal fait partie de cette inscription. Choisissez son groupe et ajoutez les cours autonomes disponibles. Les prix individuels sont additionnés et le forfait configuré est appliqué. Les autres cours ne doivent pas figurer dans le programme principal.",
+    "errors": {
+      "ADICIONAIS_CONFIGURACAO_INVALIDA": "Renseignez des options valides pour les cours supplémentaires.",
+      "ADICIONAIS_MODO_INCOMPATIVEL": "Les cours supplémentaires nécessitent un tarif par cours. Désactivez le tarif par matière et vérifiez l’organisation.",
+      "PRINCIPAL_NAO_PERMITE_ADICIONAIS": "Le cours principal est indisponible ou ne permet pas de cours supplémentaires. Actualisez l’inscription.",
+      "CURSO_NAO_DISPONIVEL_ADICIONAL": "Un cours sélectionné n’est pas disponible comme supplément. Actualisez la sélection."
+    }
   }
 }
