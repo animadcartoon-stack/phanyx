@@ -340,7 +340,7 @@ const PROMO_DIAS_GRATIS = 60;
 
 function montarLinkComercial(plano: string) {
   const mensagem = encodeURIComponent(
-    `Olá! Quero saber mais sobre o plano ${plano} do PHANYX.`
+    `Olá! Vim pela página de planos do PHANYX e gostaria de informações comerciais sobre o plano ${plano} para minha instituição.`
   );
   return `${whatsappBase}${mensagem}`;
 }

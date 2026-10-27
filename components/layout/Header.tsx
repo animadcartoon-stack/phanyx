@@ -116,7 +116,7 @@ export default function Header() {
           <div className="flex items-center gap-2 md:gap-3">
             {!isAdmin && (
               <a
-                href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
+                href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20gostaria%20de%20conhecer%20os%20planos%20para%20minha%20institui%C3%A7%C3%A3o."
                 target="_blank"
                 rel="noreferrer"
                 className={`hidden rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition md:inline-flex ${isHome

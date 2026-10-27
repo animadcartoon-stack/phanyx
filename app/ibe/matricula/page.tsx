@@ -199,7 +199,7 @@ function criarLinkWhatsapp({
   mensagem?: string;
 }) {
   const texto = [
-    "Olá! Quero iniciar minha matrícula no curso Bacharel Livre em Teologia do IBE.",
+    "Olá! Vim pela página de Teologia do Instituto Batista de Educação (IBE) no site PHANYX e tenho interesse no curso Bacharel Livre em Teologia.",
     nome ? `Nome: ${nome}` : "",
     whatsapp ? `WhatsApp: ${whatsapp}` : "",
     email ? `Email: ${email}` : "",
@@ -212,7 +212,7 @@ function criarLinkWhatsapp({
 }
 
 const mensagemWhatsappPadrao =
-  "Olá! Quero iniciar minha matrícula no curso Bacharel Livre em Teologia do IBE.\n\nPode me explicar como funciona e quais são os próximos passos?";
+  "Olá! Vim pela página de Teologia do Instituto Batista de Educação (IBE) no site PHANYX e tenho interesse no curso Bacharel Livre em Teologia.\n\nPode me explicar como funciona e quais são os próximos passos?";
 
 const linkWhatsappPadrao = `https://wa.me/5548988101240?text=${encodeURIComponent(
   mensagemWhatsappPadrao

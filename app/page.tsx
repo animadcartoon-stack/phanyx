@@ -285,7 +285,7 @@ export default function HomePage() {
                     </Link>
 
                     <a
-                      href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
+                      href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20gostaria%20de%20conhecer%20os%20planos%20para%20minha%20institui%C3%A7%C3%A3o."
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex w-full items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15 sm:w-auto sm:py-3.5"
@@ -390,7 +390,7 @@ export default function HomePage() {
           </div>
 
           <a
-            href="https://wa.me/5548988101240"
+            href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20preciso%20de%20suporte%20para%20usar%20a%20plataforma."
             target="_blank"
             rel="noopener noreferrer"
             className="fixed bottom-6 right-6 z-50 hidden items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400 md:inline-flex"

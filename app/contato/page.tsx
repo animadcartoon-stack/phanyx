@@ -6,7 +6,7 @@ const canais = [
   {
     titulo: "WhatsApp comercial",
     valor: "+55 48 98810-1240",
-    href: "https://wa.me/5548988101240",
+    href: "https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20gostaria%20de%20conhecer%20os%20planos%20para%20minha%20institui%C3%A7%C3%A3o.",
   },
   {
     titulo: "Telefone comercial",
