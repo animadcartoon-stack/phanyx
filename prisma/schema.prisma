@@ -9,6 +9,7 @@ datasource db {
 }
 
 model Instituicao {
+  requisitosCursos CursoRequisitoConjunto[]
   anotacoesBiblioteca BibliotecaAnotacao[]
 
   id                      Int      @id @default(autoincrement())
@@ -825,6 +826,8 @@ enum OrganizacaoCurricular {
 }
 
 model Curso {
+  requisitosConjuntos CursoRequisitoConjunto[] @relation("CursoDependente")
+  exigidoEmCursos CursoRequisitoConjunto[] @relation("CursoObrigatorio")
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   quantidadeEtapas Int?
   id                         Int                   @id @default(autoincrement())
@@ -11655,4 +11658,19 @@ model PeriodoCursoLivre {
   lancamento LancamentoFinanceiro @relation(fields: [lancamentoId, instituicaoId, matriculaId], references: [id, instituicaoId, matriculaId], onDelete: Restrict)
   @@unique([lancamentoId, instituicaoId, matriculaId])
   @@index([instituicaoId, matriculaId, dataInicio, dataFim])
+}
+
+
+model CursoRequisitoConjunto {
+  id Int @id @default(autoincrement())
+  instituicaoId Int
+  cursoId Int
+  cursoObrigatorioId Int
+  criadoEm DateTime @default(now())
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  curso Curso @relation("CursoDependente", fields: [cursoId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  cursoObrigatorio Curso @relation("CursoObrigatorio", fields: [cursoObrigatorioId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  @@unique([cursoId, cursoObrigatorioId])
+  @@index([instituicaoId, cursoId])
+  @@index([instituicaoId, cursoObrigatorioId])
 }

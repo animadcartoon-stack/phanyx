@@ -1,3 +1,4 @@
+import { normalizarIdsRequisitos, salvarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { normalizarRegrasDisciplinas, ErroPrecoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { campoDescontoCurso, ErroDescontoCurso } from "@/lib/matriculas/desconto-curso";
 import { camposPrecoCursoLivre, ErroCursoLivre } from "@/lib/matriculas/cursos-livres";
@@ -80,6 +81,7 @@ export async function GET() {
         instituicaoId: user.instituicaoId,
       },
       include: {
+        requisitosConjuntos: { include: { cursoObrigatorio: { select: { id: true, nome: true, ativo: true } } }, orderBy: { cursoObrigatorioId: "asc" } },
         cursosPolos: {
           include: {
             polo: true,
@@ -202,6 +204,7 @@ export async function POST(req: Request) {
       unknown
     >;
 
+    const cursoObrigatorioIds = normalizarIdsRequisitos(body.cursoObrigatorioIds);
     const dadosCombo = camposComboCurso(body);
 
     const nome = String(
@@ -586,6 +589,8 @@ export async function POST(req: Request) {
               },
             });
 
+          await salvarRequisitosCursos(tx, instituicaoId, novoCurso.id, cursoObrigatorioIds);
+
           if (
             polosFisicos.length > 0
           ) {
@@ -803,6 +808,7 @@ export async function PUT(req: Request) {
       unknown
     >;
 
+    const cursoObrigatorioIds = normalizarIdsRequisitos(body.cursoObrigatorioIds);
     const dadosCombo = camposComboCurso(body);
 
     const id = Number(body.id);
@@ -1186,6 +1192,8 @@ export async function PUT(req: Request) {
             },
           });
 
+          await salvarRequisitosCursos(tx, instituicaoId, id, cursoObrigatorioIds);
+
           /*
            * Não alteramos CursoPolo aqui.
            *
@@ -1271,6 +1279,7 @@ export async function PUT(req: Request) {
       },
     });
   } catch (error: unknown) {
+    if (error instanceof ErroModalidades) return erroCombos(error);
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });
     if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });

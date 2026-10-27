@@ -1,4 +1,25 @@
 {
+  "CourseRequirements": {
+    "title": "Cours simultanés obligatoires",
+    "help": "Facultatif. Tous les cours cochés sont exigés dans la même inscription ou via une inscription active de l’élève pour la même période. Cette règle n’accorde pas de réduction ; les offres groupées définissent toujours les prix.",
+    "search": "Rechercher un cours obligatoire",
+    "inactive": "Inactif",
+    "none": "Aucun cours ne correspond à cette recherche.",
+    "selected": "{count} cours obligatoire(s) sélectionné(s).",
+    "requires": "Exige aussi",
+    "dependency": "{course} exige {required}",
+    "missing": "Cours obligatoires manquants : {courses}. Ajoutez-les à l’inscription ou vérifiez les inscriptions actives de l’élève pour la même période.",
+    "pendingTitle": "Un cours obligatoire manque",
+    "pendingHelp": "Votre sélection a été conservée. Sélectionnez aussi les cours indiqués pour calculer les prix et permettre la confirmation. Aucun paiement n’a été créé.",
+    "configure": "Configurer une exigence (facultatif)",
+    "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Sélectionnez des cours actifs de cet établissement sans doublons.",
+      "REQUISITO_PROPRIO_CURSO": "Un cours ne peut pas s’exiger lui-même.",
+      "REQUISITOS_CURSOS_CICLICOS": "Les cours obligatoires forment un cycle. Vérifiez les exigences.",
+      "REQUISITOS_CURSOS_REDE": "Cette règle doit être configurée localement. Les cours publiés sur le réseau nécessitent une vérification avant l’ajout d’exigences.",
+      "CURSO_CONJUNTO_PENDENTE": "Ajoutez le cours obligatoire ou vérifiez l’inscription active de l’élève pour la même période."
+    }
+  },
   "CourseOrganizationChange": {
     "keepCurriculum": "Après enregistrement, les étapes suivent l’organisation choisie en conservant leurs numéros, titres et matières. Chaque étape représente une année ou un semestre selon votre choix. Les prix, échéances et réductions suivent les champs de ce formulaire.",
     "updated": "Organisation mise à jour. Les étapes et leurs matières ont été conservées."
@@ -23394,6 +23415,12 @@
     "confirm": "Confirmer",
     "comboEditHelp": "Cette inscription regroupe des cours avec un calcul enregistré. Consultez le récapitulatif ; toute modification ultérieure exige une révision contractuelle et financière.",
     "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Sélectionnez des cours actifs de cet établissement sans doublons.",
+      "REQUISITO_PROPRIO_CURSO": "Un cours ne peut pas s’exiger lui-même.",
+      "REQUISITOS_CURSOS_CICLICOS": "Les cours obligatoires forment un cycle. Vérifiez les exigences.",
+      "REQUISITOS_CURSOS_REDE": "Cette règle doit être configurée localement. Les cours publiés sur le réseau nécessitent une vérification avant l’ajout d’exigences.",
+      "CURSO_CONJUNTO_PENDENTE": "Ajoutez le cours obligatoire ou vérifiez l’inscription active de l’élève pour la même période.",
+
       "CURSO_LIVRE_FLUXO_PROPRIO": "Utilisez Cours libres — paiement par période pour cette inscription.",
       "SEM_PERMISSAO": "Vous n'avez pas l'autorisation de gérer les forfaits.",
       "REGRA_INVALIDA": "Vérifiez le nom, les quantités et les tarifs du forfait.",
@@ -23501,6 +23528,12 @@
       "SEM_PERIODO": "Aucune période réservée à cette date"
     },
     "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Sélectionnez des cours actifs de cet établissement sans doublons.",
+      "REQUISITO_PROPRIO_CURSO": "Un cours ne peut pas s’exiger lui-même.",
+      "REQUISITOS_CURSOS_CICLICOS": "Les cours obligatoires forment un cycle. Vérifiez les exigences.",
+      "REQUISITOS_CURSOS_REDE": "Cette règle doit être configurée localement. Les cours publiés sur le réseau nécessitent une vérification avant l’ajout d’exigences.",
+      "CURSO_CONJUNTO_PENDENTE": "Ajoutez le cours obligatoire ou vérifiez l’inscription active de l’élève pour la même période.",
+
       "DADOS_INVALIDOS": "Vérifiez les informations saisies.",
       "DATA_INVALIDA": "Saisissez une date valide.",
       "PERIODICIDADE_INVALIDA": "Choisissez hebdomadaire ou mensuelle.",

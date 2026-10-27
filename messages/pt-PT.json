@@ -1,4 +1,25 @@
 {
+  "CourseRequirements": {
+    "title": "Cursos obrigatórios em conjunto",
+    "help": "Opcional. Todos os cursos assinalados serão exigidos: na mesma contratação ou com inscrição ativa do aluno no mesmo período. Esta regra não concede desconto; os pacotes continuam a definir os preços.",
+    "search": "Pesquisar curso obrigatório",
+    "inactive": "Inativo",
+    "none": "Nenhum curso disponível para esta pesquisa.",
+    "selected": "{count} curso(s) obrigatório(s) selecionado(s).",
+    "requires": "Exige frequentar também",
+    "dependency": "{course} exige {required}",
+    "missing": "Cursos obrigatórios pendentes: {courses}. Inclua os cursos exigidos na contratação ou verifique as inscrições ativas do aluno no mesmo período.",
+    "pendingTitle": "Falta incluir um curso obrigatório",
+    "pendingHelp": "A seleção foi mantida. Escolha também os cursos indicados para calcular os valores e permitir a finalização. Não foi criada nenhuma cobrança.",
+    "configure": "Configurar exigência (opcional)",
+    "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Selecione cursos ativos desta instituição, sem repetir itens.",
+      "REQUISITO_PROPRIO_CURSO": "Um curso não pode exigir-se a si próprio.",
+      "REQUISITOS_CURSOS_CICLICOS": "Os cursos obrigatórios formam um ciclo. Reveja as exigências.",
+      "REQUISITOS_CURSOS_REDE": "Esta regra deve ser configurada localmente. Cursos publicados na rede exigem revisão antes de associar requisitos.",
+      "CURSO_CONJUNTO_PENDENTE": "Inclua o curso obrigatório na contratação ou verifique a inscrição ativa do aluno no mesmo período."
+    }
+  },
   "CourseOrganizationChange": {
     "keepCurriculum": "Ao guardar, as etapas passam a seguir a organização selecionada, mantendo os mesmos números, títulos e disciplinas. Cada etapa representará um ano ou semestre, conforme a opção escolhida. Os preços, prestações e descontos continuam conforme os campos deste formulário.",
     "updated": "Organização atualizada. As etapas e as suas disciplinas foram preservadas."
@@ -23181,6 +23202,12 @@
     "confirm": "Confirmar",
     "comboEditHelp": "Esta inscrição reúne modalidades e tem um cálculo registado. Consulte o resumo; alterações posteriores exigem revisão contratual e financeira.",
     "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Selecione cursos ativos desta instituição, sem repetir itens.",
+      "REQUISITO_PROPRIO_CURSO": "Um curso não pode exigir-se a si próprio.",
+      "REQUISITOS_CURSOS_CICLICOS": "Os cursos obrigatórios formam um ciclo. Reveja as exigências.",
+      "REQUISITOS_CURSOS_REDE": "Esta regra deve ser configurada localmente. Cursos publicados na rede exigem revisão antes de associar requisitos.",
+      "CURSO_CONJUNTO_PENDENTE": "Inclua o curso obrigatório na contratação ou verifique a inscrição ativa do aluno no mesmo período.",
+
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Cursos livres — pagamento por período para esta contratação.",
       "SEM_PERMISSAO": "Não tem permissão para gerir conjuntos.",
       "REGRA_INVALIDA": "Reveja o nome, as quantidades e os valores do conjunto.",
@@ -23288,6 +23315,12 @@
       "SEM_PERIODO": "Sem período contratado nesta data"
     },
     "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Selecione cursos ativos desta instituição, sem repetir itens.",
+      "REQUISITO_PROPRIO_CURSO": "Um curso não pode exigir-se a si próprio.",
+      "REQUISITOS_CURSOS_CICLICOS": "Os cursos obrigatórios formam um ciclo. Reveja as exigências.",
+      "REQUISITOS_CURSOS_REDE": "Esta regra deve ser configurada localmente. Cursos publicados na rede exigem revisão antes de associar requisitos.",
+      "CURSO_CONJUNTO_PENDENTE": "Inclua o curso obrigatório na contratação ou verifique a inscrição ativa do aluno no mesmo período.",
+
       "DADOS_INVALIDOS": "Confira os dados informados.",
       "DATA_INVALIDA": "Informe uma data válida.",
       "PERIODICIDADE_INVALIDA": "Escolha semanal ou mensal.",

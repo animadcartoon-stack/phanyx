@@ -1,3 +1,4 @@
+import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { mensalidadeComDesconto } from "./desconto-curso";
 import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
@@ -61,6 +62,10 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
   }, select: { id: true, poloId: true, periodoLetivo: true, capacidadeMaxima: true, dataInicio: true, dataFim: true,
     disciplinas: { where: { instituicaoId: user.instituicaoId, disciplina: { instituicaoId: user.instituicaoId, ativo: true } }, select: { disciplinaId: true, disciplina: { select: { nome: true, cargaHoraria: true } } } },
   } });
+  await validarRequisitosCursos(db, user.instituicaoId, { alunoId: alunoFinal, cursoIds: [curso.id],
+    periodoLetivo: turma?.periodoLetivo, inicio: periodo.dataInicio, fim: periodo.dataFim,
+    matriculaId: matricula?.id,
+  });
   if (!turma?.poloId || !turma.disciplinas.length) throw new ErroCursoLivre("TURMA_INVALIDA");
   if ((turma.dataInicio && periodo.dataInicio.toISOString().slice(0, 10) < turma.dataInicio.toISOString().slice(0, 10)) ||
       (turma.dataFim && periodo.dataFim.toISOString().slice(0, 10) > turma.dataFim.toISOString().slice(0, 10))) throw new ErroCursoLivre("PERIODO_FORA_TURMA");
