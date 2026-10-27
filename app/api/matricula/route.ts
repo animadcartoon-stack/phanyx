@@ -1,3 +1,4 @@
+import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { normalizarRegrasDisciplinas, calcularPrecoDisciplinas, lerContratacaoDisciplinas, ErroPrecoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
@@ -2730,6 +2731,10 @@ export async function POST(request: Request) {
     const matricula =
       await prisma.$transaction(
         async (tx) => {
+          await validarRequisitosCursos(tx, user.instituicaoId, { alunoId,
+            cursoIds: cursoIdFinal ? [cursoIdFinal] : [], periodoLetivo: periodoLetivoFinal,
+            inicio: inicioCurso.data,
+          });
           if (precoDisciplinas) {
             const atual = await tx.curso.findFirst({ where: { id: cursoIdFinal!, instituicaoId: user.instituicaoId }, select: { valorMensalidade: true, regrasPrecoDisciplinas: true } });
             if (!atual || atual.valorMensalidade !== curso?.valorMensalidade || JSON.stringify(normalizarRegrasDisciplinas(atual.regrasPrecoDisciplinas)) !== JSON.stringify(regrasPrecoDisciplinas)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINAS_ALTERADO", 409);
@@ -4626,6 +4631,13 @@ export async function PUT(request: Request) {
 
     await prisma.$transaction(
       async (tx) => {
+        if (cursoIdFinal !== matriculaExistente.cursoId || alunoIdFinal !== matriculaExistente.alunoId) {
+          await validarRequisitosCursos(tx, user.instituicaoId, { alunoId: alunoIdFinal,
+            cursoIds: cursoIdFinal ? [cursoIdFinal] : [], matriculaId: id,
+            periodoLetivo: String(body.periodoLetivo || "").trim() || matriculaExistente.periodoLetivo,
+            inicio: inicioCurso.data ?? matriculaExistente.dataInicioCurso,
+          });
+        }
         if (precoDisciplinasAnterior) {
           await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${id} AND "instituicaoId" = ${user.instituicaoId} FOR UPDATE`;
           const atual = await tx.matricula.findFirst({ where: { id, instituicaoId: user.instituicaoId }, select: { contratacaoDisciplinas: true } });

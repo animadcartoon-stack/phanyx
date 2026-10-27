@@ -1,4 +1,5 @@
 "use client";
+import CamposRequisitosCursos from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
 import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
@@ -129,6 +130,7 @@ export default function AdminCursosPage() {
   const tl = useTranslations("CoursePeriods");
   const td = useTranslations("CourseMonthlyDiscount");
   const tp = useTranslations("SubjectPricing");
+  const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -154,6 +156,7 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     codigo: "",
     descricao: "",
     modalidadeCertificado: "GERAL" as ModalidadeCertificado,
+    cursoObrigatorioIds: [] as number[],
     organizacaoCurricular: "SEMESTRAL",
     quantidadeSemestres: "",
     valorMatricula: "",
@@ -423,6 +426,7 @@ async function salvarPolosDoCurso() {
           descricao: form.descricao || null,
           modalidadeCertificado: form.modalidadeCertificado,
           organizacaoCurricular: form.organizacaoCurricular,
+          cursoObrigatorioIds: form.cursoObrigatorioIds,
           quantidadeEtapas: form.quantidadeSemestres ? Number(form.quantidadeSemestres) : null,
           quantidadeSemestres: form.quantidadeSemestres
             ? Number(form.quantidadeSemestres)
@@ -450,7 +454,7 @@ async function salvarPolosDoCurso() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tr.has(`errors.${data.codigo}`) ? tr(`errors.${data.codigo}`) : tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -465,7 +469,8 @@ async function salvarPolosDoCurso() {
         codigo: "",
         descricao: "",
         modalidadeCertificado: "GERAL",
-        organizacaoCurricular: "SEMESTRAL",
+        cursoObrigatorioIds: [] as number[],
+    organizacaoCurricular: "SEMESTRAL",
     quantidadeSemestres: "",
         valorMatricula: "",
         valorMensalidade: "",
@@ -718,6 +723,7 @@ if (!termoTexto) return cursosPorStatus;
           />
 
           <Link href="/admin/matriculas/cursos-livres" className="font-semibold text-blue-700 underline dark:text-blue-300">{tl("title")}</Link>
+          <CamposRequisitosCursos cursos={cursos} ids={form.cursoObrigatorioIds} onChange={ids => setForm(prev => ({ ...prev, cursoObrigatorioIds: ids }))} />
           <OrganizacaoCursoSelect value={form.organizacaoCurricular} onChange={valor => setForm({ ...form, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "", precoPorDisciplina: false } : {}) })} />
           <div hidden={form.organizacaoCurricular === "LIVRE"}>
             <input

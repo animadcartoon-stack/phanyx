@@ -1,4 +1,5 @@
 "use client";
+import { mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
 import Link from "next/link";
 import { mensalidadeComDesconto } from "@/lib/matriculas/desconto-curso";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -15,6 +16,7 @@ const campo = "mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-
 const painel = "rounded-xl border border-slate-200 bg-white p-5 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white";
 function CursosLivresPage() {
   const t = useTranslations("CoursePeriods");
+  const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
   const params = useSearchParams();
   const [cursos, setCursos] = useState<Curso[]>([]), [vinculos, setVinculos] = useState<Vinculo[]>([]);
@@ -40,9 +42,9 @@ function CursosLivresPage() {
     if (matriculaId) { query.set("matriculaId", matriculaId); query.set("pagina", String(pagina)); }
     const res = await fetch(`/api/admin/matriculas/cursos-livres?${query}`, { cache: "no-store", signal });
     const json = await res.json();
-    if (!res.ok) throw new Error(mensagem(json.codigo));
+    if (!res.ok) throw new Error(mensagemRequisitoCurso(tr, json) || mensagem(json.codigo));
     setCursos(json.cursos); setVinculos(json.matriculas);
-  }, [alunoId, matriculaId, pagina, mensagem]);
+  }, [alunoId, matriculaId, pagina, mensagem, tr]);
   useEffect(() => {
     const abort = new AbortController(); setLoading(true);
     carregar(abort.signal).catch(e => { if (!abort.signal.aborted) setErro(e.message); }).finally(() => { if (!abort.signal.aborted) setLoading(false); });
@@ -71,7 +73,7 @@ function CursosLivresPage() {
       const json = await res.json();
       if (!res.ok) {
         if (json.codigo === "CONFIRMACAO_MENOR_NECESSARIA") { setConfirmacao(pedido); return; }
-        throw new Error(mensagem(json.codigo));
+        throw new Error(mensagemRequisitoCurso(tr, json) || mensagem(json.codigo));
       }
       chave.current = null; setMatriculaId(String(json.matriculaId)); setPagina(1);
       setSucesso(t("created")); setInicio(""); setFim("");

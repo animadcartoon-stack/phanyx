@@ -1,4 +1,25 @@
 {
+  "CourseRequirements": {
+    "title": "Required concurrent courses",
+    "help": "Optional. Every checked course is required in the same enrollment or through an active student enrollment in the same term. This rule does not grant a discount; bundles still determine prices.",
+    "search": "Search required courses",
+    "inactive": "Inactive",
+    "none": "No courses match this search.",
+    "selected": "{count} required course(s) selected.",
+    "requires": "Also requires",
+    "dependency": "{course} requires {required}",
+    "missing": "Missing required courses: {courses}. Add them to this enrollment or check the student’s active enrollments for the same term.",
+    "pendingTitle": "A required course is missing",
+    "pendingHelp": "Your selection was kept. Also select the indicated courses to calculate prices and enable confirmation. No charges were created.",
+    "configure": "Configure requirement (optional)",
+    "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Select active courses from this institution without duplicates.",
+      "REQUISITO_PROPRIO_CURSO": "A course cannot require itself.",
+      "REQUISITOS_CURSOS_CICLICOS": "Required courses form a cycle. Review the requirements.",
+      "REQUISITOS_CURSOS_REDE": "This rule must be configured locally. Published network courses require review before adding requirements.",
+      "CURSO_CONJUNTO_PENDENTE": "Add the required course or check the student’s active enrollment for the same term."
+    }
+  },
   "CourseOrganizationChange": {
     "keepCurriculum": "When saved, existing stages follow the selected organization, retaining their numbers, titles and subjects. Each stage represents a year or semester according to your selection. Prices, installments and discounts follow the fields in this form.",
     "updated": "Organization updated. Stages and their subjects were preserved."
@@ -23395,6 +23416,12 @@
     "confirm": "Confirm",
     "comboEditHelp": "This enrollment combines courses with a recorded pricing calculation. Check the contract summary; later changes require contract and billing review.",
     "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Select active courses from this institution without duplicates.",
+      "REQUISITO_PROPRIO_CURSO": "A course cannot require itself.",
+      "REQUISITOS_CURSOS_CICLICOS": "Required courses form a cycle. Review the requirements.",
+      "REQUISITOS_CURSOS_REDE": "This rule must be configured locally. Published network courses require review before adding requirements.",
+      "CURSO_CONJUNTO_PENDENTE": "Add the required course or check the student’s active enrollment for the same term.",
+
       "CURSO_LIVRE_FLUXO_PROPRIO": "Use Open courses — pay per period for this enrollment.",
       "SEM_PERMISSAO": "You do not have permission to manage bundles.",
       "REGRA_INVALIDA": "Review the bundle name, quantities, and prices.",
@@ -23502,6 +23529,12 @@
       "SEM_PERIODO": "No booked period on this date"
     },
     "errors": {
+      "REQUISITOS_CURSOS_INVALIDOS": "Select active courses from this institution without duplicates.",
+      "REQUISITO_PROPRIO_CURSO": "A course cannot require itself.",
+      "REQUISITOS_CURSOS_CICLICOS": "Required courses form a cycle. Review the requirements.",
+      "REQUISITOS_CURSOS_REDE": "This rule must be configured locally. Published network courses require review before adding requirements.",
+      "CURSO_CONJUNTO_PENDENTE": "Add the required course or check the student’s active enrollment for the same term.",
+
       "DADOS_INVALIDOS": "Check the submitted information.",
       "DATA_INVALIDA": "Enter a valid date.",
       "PERIODICIDADE_INVALIDA": "Choose weekly or monthly.",

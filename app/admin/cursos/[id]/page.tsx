@@ -1,4 +1,5 @@
 "use client";
+import CamposRequisitosCursos, { type CursoOpcaoRequisito } from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
 import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
@@ -64,6 +65,7 @@ const OPCOES_MODALIDADE_CERTIFICADO: ModalidadeCertificado[] = [
 ];
 
 type Curso = {
+  requisitosConjuntos?: { cursoObrigatorioId: number; cursoObrigatorio: CursoOpcaoRequisito }[];
   organizacaoCurricular?: string;
   quantidadeEtapas?: number | null;
   id: number;
@@ -137,9 +139,11 @@ export default function CursoDetalhePage() {
   const tl = useTranslations("CoursePeriods");
   const td = useTranslations("CourseMonthlyDiscount");
   const tp = useTranslations("SubjectPricing");
+  const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
   const cursoId = Number(params.id);
 
+  const [cursosRequisitos, setCursosRequisitos] = useState<CursoOpcaoRequisito[]>([]);
   const [curso, setCurso] = useState<Curso | null>(null);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [semestres, setSemestres] = useState<CursoSemestre[]>([]);
@@ -156,6 +160,7 @@ export default function CursoDetalhePage() {
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
 
   const [formCurso, setFormCurso] = useState({
+    cursoObrigatorioIds: [] as number[],
     nome: "",
     codigo: "",
     descricao: "",
@@ -211,6 +216,7 @@ export default function CursoDetalhePage() {
     }
 
     const cursos: Curso[] = await res.json();
+    setCursosRequisitos(cursos);
     const encontrado =
       cursos.find((c) => Number(c.id) === Number(cursoId)) || null;
 
@@ -218,6 +224,7 @@ export default function CursoDetalhePage() {
 
     if (encontrado) {
       setFormCurso({
+        cursoObrigatorioIds: (encontrado.requisitosConjuntos || []).map(r => r.cursoObrigatorioId),
         nome: encontrado.nome ?? "",
         codigo: encontrado.codigo ?? "",
         descricao: encontrado.descricao ?? "",
@@ -333,6 +340,7 @@ export default function CursoDetalhePage() {
           descricao: formCurso.descricao || null,
           modalidadeCertificado: formCurso.modalidadeCertificado,
           organizacaoCurricular: formCurso.organizacaoCurricular,
+          cursoObrigatorioIds: formCurso.cursoObrigatorioIds,
           quantidadeEtapas: formCurso.quantidadeSemestres ? Number(formCurso.quantidadeSemestres) : null,
           quantidadeSemestres: formCurso.quantidadeSemestres
             ? Number(formCurso.quantidadeSemestres)
@@ -360,7 +368,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tr.has(`errors.${data.codigo}`) ? tr(`errors.${data.codigo}`) : tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -782,6 +790,8 @@ export default function CursoDetalhePage() {
                     </select>
                   </div>
 
+                  <CamposRequisitosCursos cursos={cursosRequisitos} ids={formCurso.cursoObrigatorioIds} cursoAtualId={cursoId} disabled={cursoRecebidoDaRede} onChange={ids => setFormCurso(prev => ({ ...prev, cursoObrigatorioIds: ids }))} />
+
                   <Link href="/admin/matriculas/cursos-livres" className="font-semibold text-blue-700 underline dark:text-blue-300">{tl("title")}</Link>
           <OrganizacaoCursoSelect value={formCurso.organizacaoCurricular} disabled={cursoRecebidoDaRede} onChange={valor => setFormCurso({ ...formCurso, organizacaoCurricular: valor, ...(valor === "LIVRE" ? { quantidadeSemestres: "", valorMatricula: "0", quantidadeParcelas: "", precoPorDisciplina: false } : {}) })} />
                   {curso.organizacaoCurricular !== formCurso.organizacaoCurricular &&
@@ -954,6 +964,7 @@ export default function CursoDetalhePage() {
                   </p>
 
                   <p>{t("common.description")}: {curso.descricao || t("common.notInformedFeminine")}</p>
+                  {Boolean(curso.requisitosConjuntos?.length) && <p>{tr("requires")}: {curso.requisitosConjuntos!.map(r => r.cursoObrigatorio.nome).join(", ")}</p>}
                   <p>
                     {curso.organizacaoCurricular === "LIVRE" ? ta("organization") : t("detail.courseInfo.expectedSemesters")}:{" "}
                     {curso.organizacaoCurricular === "LIVRE" ? "" : `${curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · `}{ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}

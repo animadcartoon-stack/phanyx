@@ -1,3 +1,6 @@
+import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
+import { erroCombos } from "@/lib/matriculas/combos-api";
+import { ErroModalidades } from "@/lib/matriculas/combos";
 import { resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -217,6 +220,10 @@ export async function POST(req: Request) {
         );
       }
 
+      await validarRequisitosCursos(tx, user.instituicaoId, { alunoId: Number(alunoId), cursoIds: [Number(cursoId)],
+        periodoLetivo: typeof body.periodoLetivo === "string" ? body.periodoLetivo : null,
+        inicio: body.dataInicioCurso ? new Date(body.dataInicioCurso) : null,
+      });
       const matricula = await tx.matricula.create({
         data: {
           alunoId: Number(alunoId),
@@ -315,6 +322,7 @@ export async function POST(req: Request) {
       matricula: resultado,
     });
   } catch (error: any) {
+    if (error instanceof ErroModalidades) return erroCombos(error);
     if (error?.message === "CURSO_PRECO_POR_DISCIPLINA") return NextResponse.json({ codigo: "CURSO_PRECO_POR_DISCIPLINA", error: "Use a página de Matrículas com seleção de disciplinas para esta contratação." }, { status: 400 });
     if (error?.message === "CURSO_LIVRE_FLUXO_PROPRIO") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 400 });
     const erroAcademico = respostaErroAcademico(error);

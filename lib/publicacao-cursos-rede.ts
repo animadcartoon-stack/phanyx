@@ -1,3 +1,4 @@
+import { ErroModalidades } from "@/lib/matriculas/combos";
 import {
   Prisma,
   StatusPublicacaoCursoRede,
@@ -170,6 +171,10 @@ export async function publicarCursoParaUnidadesIndependentes(
   if (polosDestino.length === 0) {
     return [];
   }
+  if (await tx.cursoRequisitoConjunto.count({ where: { instituicaoId: instituicaoOrigemId, cursoId: cursoOrigemId } })) {
+    throw new ErroModalidades("REQUISITOS_CURSOS_REDE", 409);
+  }
+
 
   const cursoOrigem =
     await tx.curso.findFirst({

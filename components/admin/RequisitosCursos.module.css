@@ -1,0 +1,19 @@
+:global(html[data-theme]) :global(main) .panel {
+  background: var(--req-bg, #ffffff) !important;
+  color: var(--req-fg, #0f172a) !important;
+  border-color: var(--req-border, #94a3b8) !important;
+}
+:global(html[data-theme]) :global(main) .panel :is(legend, summary, p, label, span, input) {
+  color: var(--req-fg, #0f172a) !important;
+  -webkit-text-fill-color: var(--req-fg, #0f172a) !important;
+  border-color: var(--req-border, #94a3b8) !important;
+}
+:global(html[data-theme]) :global(main) .panel input[type="search"] {
+  background: var(--req-bg, #ffffff) !important;
+}
+:global(html[data-theme="dark"]) :global(main) .panel {
+  --req-bg: #0f172a; --req-fg: #f8fafc; --req-border: #64748b;
+}
+:global(html[data-theme="system"]) :global(main) .panel {
+  --req-bg: #303030; --req-fg: #fafafa; --req-border: #a3a3a3;
+}
