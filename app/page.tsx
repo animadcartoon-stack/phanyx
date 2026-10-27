@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
+import SuporteWhatsAppButton from "@/components/marketing/SuporteWhatsAppButton";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import { marketingAlternates } from "@/lib/public-marketing";
@@ -389,14 +390,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <a
-            href={`https://wa.me/5548988101240?text=${encodeURIComponent("Ol??! Vim pelo site PHANYX e preciso de suporte t??cnico para utilizar a plataforma. Poderiam me ajudar?")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="fixed bottom-6 right-6 z-50 hidden items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400 md:inline-flex"
-          >
-            💬 Suporte
-          </a>
+          <SuporteWhatsAppButton />
         </section>
 
         <section className="border-b border-slate-200 bg-white">
