@@ -267,7 +267,7 @@ export default function HomePage() {
 
                 <p className="mt-6 text-slate-300">
                   Quer iniciar sua formação teológica? Conheça nosso{" "}
-                  <a href="/ibe/matricula" className="text-blue-400 underline">
+                  <a href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">
                     curso de teologia EAD
                   </a>{" "}
                   e faça sua matrícula online.
@@ -615,6 +615,8 @@ export default function HomePage() {
 
                   <a
                     href="/ibe/matricula"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
                   >
                     Fazer matrícula em Teologia

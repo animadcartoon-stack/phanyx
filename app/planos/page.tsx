@@ -1094,6 +1094,8 @@ useEffect(() => {
 
                 <Link
                   href="/suporte"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-4 text-sm font-semibold text-white transition hover:bg-white/20"
                 >
                   Tirar dúvidas
@@ -1139,6 +1141,8 @@ useEffect(() => {
 
                 <Link
                   href="/ibe/matricula"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
                 >
                   Ver matrícula do IBE

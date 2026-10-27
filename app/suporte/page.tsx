@@ -40,7 +40,7 @@ export default function SuportePage() {
 
             {/* WhatsApp */}
             <a
-              href="https://wa.me/5548988101240"
+              href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20preciso%20de%20suporte%20para%20usar%20a%20plataforma."
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
@@ -49,7 +49,7 @@ export default function SuportePage() {
                 💬 WhatsApp
               </h2>
               <p className="mt-2 text-slate-600">
-                Fale diretamente com nossa equipe comercial e de suporte.
+                Fale diretamente com nossa equipe de suporte PHANYX.
               </p>
               <p className="mt-4 font-semibold text-green-600">
                 +55 48 98810-1240
@@ -99,7 +99,7 @@ export default function SuportePage() {
             </p>
 
             <a
-              href="https://wa.me/5548988101240"
+              href="https://wa.me/5548988101240?text=Ol%C3%A1!%20Vim%20pelo%20site%20PHANYX%20e%20preciso%20de%20suporte%20para%20usar%20a%20plataforma."
               target="_blank"
               rel="noopener noreferrer"
               className="mt-8 inline-block rounded-2xl bg-green-600 px-6 py-3 font-semibold hover:bg-green-500"

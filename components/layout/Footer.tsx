@@ -62,7 +62,7 @@ export default function Footer() {
             </h3>
 
             <div className="mt-4 flex flex-col gap-3 text-sm text-slate-400">
-              <Link href="/suporte" className="transition hover:text-white">
+              <Link href="/suporte" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
                 Suporte
               </Link>
 
@@ -75,7 +75,7 @@ export default function Footer() {
                 Falar com comercial
               </a>
 
-              <Link href="/ibe/matricula" className="transition hover:text-white">
+              <Link href="/ibe/matricula" target="_blank" rel="noopener noreferrer" className="transition hover:text-white">
                 Matrícula IBE
               </Link>
 
