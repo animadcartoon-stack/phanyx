@@ -73,3 +73,12 @@
 :global(html[data-theme]) :global(main) .buscaPainel input.buscaCampo:focus {
   border-color: #3b82f6 !important;
 }
+
+/* Calendarios da matricula: indicador com contraste no tema ativo. */
+.dataCalendario { color-scheme: light; }
+:global(html[data-theme="dark"]) .dataCalendario,
+:global(html[data-theme="system"].dark) .dataCalendario,
+:global(html[data-theme-choice="system"][data-theme="dark"]) .dataCalendario,
+:global(html.dark) .dataCalendario {
+  color-scheme: dark !important;
+}

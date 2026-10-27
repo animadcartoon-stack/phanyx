@@ -112,3 +112,18 @@ test('aplicador só confirma colunas booleanas não nulas e padrão false',()=>{
  const rows=['permiteCursosAdicionais','disponivelComoAdicional'].map(column_name=>({column_name,data_type:'boolean',is_nullable:'NO',column_default:'false'}));
  validarColunas(rows);assert.throws(()=>validarColunas(rows.slice(0,1)));assert.throws(()=>validarColunas(rows.map(c=>({...c,column_default:'true'}))));
 });
+
+test('ofertas sem polo continuam elegiveis, mantem combo e nao liberam polos inativos', async () => {
+  const f = fixture();
+  f.turmas.forEach(t => { t.poloId = null; t.polo = null; });
+  f.db.turma.findMany = async ({where}) => {
+    assert.deepEqual(plain(where.OR), [{poloId:null},{polo:{ativo:true}}]);
+    return f.turmas;
+  };
+  const ofertas = await f.server.carregarOfertasModalidades(f.db,7);
+  assert.equal(ofertas.length,2);
+  assert.ok(ofertas.every(o => o.poloId === null && o.poloNome === 'Sem polo'));
+  const previa = await f.server.prepararContratacaoModalidades(f.db,7,f.body);
+  assert.equal(previa.calculo.mensalidadeCentavos,38518);
+  assert.equal(previa.calculo.quantidadeModalidades,2);
+});
