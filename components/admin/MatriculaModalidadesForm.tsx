@@ -924,4 +924,3 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
     </section>
   );
 }
-
