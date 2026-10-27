@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 import Link from "next/link";
+import ExtratoAsaasMaster from "@/components/master/ExtratoAsaasMaster";
+import financeiroStyles from "./master-financeiro.module.css";
 
 type DashboardMasterResponse = {
   geradoEm: string;
@@ -267,7 +269,7 @@ const [erroSuporte, setErroSuporte] =
       {
         titulo: "Pagas",
         valor: data.resumo.totalPagas,
-        descricao: "Adesões com status pago no cadastro; não é conciliação bancária.",
+        descricao: "Status interno da adesão. Consulte as movimentações financeiras no extrato Asaas acima.",
       },
       {
         titulo: "Pendentes",
@@ -483,6 +485,8 @@ async function iniciarAcessoDeSuporte() {
             </div>
           </div>
         </section>
+
+        <ExtratoAsaasMaster />
 
         <section className="rounded-3xl border border-amber-400/30 bg-slate-900 p-6 shadow-xl">
   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -727,8 +731,8 @@ async function iniciarAcessoDeSuporte() {
 
         {!loading && !erro && data && (
           <>
-            <div role="note" className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-200">
-              Consulta ao banco: {formatarData(data.geradoEm)}. Os registros legados não distinguem teste e produção. Estes valores refletem o cadastro e não comprovam recebimento no Asaas.
+            <div role="note" className={financeiroStyles.cadastroNote}>
+              Cadastros PHANYX consultados em {formatarData(data.geradoEm)}. Os cartões e listas abaixo representam registros da plataforma, incluindo testes. Confira o saldo e as movimentações financeiras no bloco Asaas acima.
             </div>
             <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {resumoVisual?.map((card) => (
