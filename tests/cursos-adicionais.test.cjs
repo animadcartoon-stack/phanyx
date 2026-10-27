@@ -38,6 +38,23 @@ test('soma preços diferentes e aplica 10% apenas pelo combo configurado; prévi
  const semDesconto=fixture();semDesconto.db.comboModalidades.findMany=async()=>[];
  assert.equal((await semDesconto.server.prepararContratacaoModalidades(semDesconto.db,7,semDesconto.body)).calculo.mensalidadeCentavos,42798);
 });
+test('curso principal sozinho continua válido e não ativa combo de duas modalidades',async()=>{
+  const f=fixture();f.body.turmaIds=[50];
+  const p=await f.server.prepararContratacaoModalidades(f.db,7,f.body);
+  assert.equal(p.calculo.quantidadeModalidades,1);
+  assert.equal(p.calculo.mensalidadeCentavos,18898);
+  assert.equal(p.calculo.comboId,null);
+  assert.equal(f.writes.length,0);
+});
+test('matrícula principal integra o formulário avulso e adicionais começam opcionais',()=>{
+  const main=fs.readFileSync(path.join(root,'app/admin/matriculas/page.tsx'),'utf8');
+  const component=fs.readFileSync(path.join(root,'components/admin/MatriculaModalidadesForm.tsx'),'utf8');
+  assert.doesNotMatch(main,/router\.push\(urlCursosAdicionais/);
+  assert.match(main,/<MatriculaModalidadesForm/);
+  assert.match(component,/mostrarAdicionais, setMostrarAdicionais\] = useState\(false\)/);
+  assert.match(component,/Adicionar outro curso \(opcional\)/);
+  assert.match(component,/curso\.id === principalId \|\| mostrarAdicionais/);
+});
 test('confirmação mantém o principal, mesmo se a turma adicional vier primeiro, e preserva todas as disciplinas',async()=>{
  const f=fixture(),p=await f.server.prepararContratacaoModalidades(f.db,7,f.body);
  await f.server.confirmarContratacaoModalidades(f.db,{id:1,nome:'Admin',instituicaoId:7},{...f.body,versao:p.versao,primeiroVencimento:'2027-03-05',status:'A_INICIAR',chave:'teste',pedidoHash:'teste'},new Request('http://localhost'));
