@@ -17,6 +17,13 @@ export function disciplinaPermitidaNaOferta(
   semestre: number | null,
 ): boolean {
   if (!curso) return disciplina.cursoId == null && (!semestre || disciplina.semestre === semestre);
+  // Etapas livres organizam a grade sem invalidar os vínculos diretos existentes.
+  // A oferta continua sem semestre obrigatório ou filtro pelo período de cobrança.
+  if (curso.organizacaoCurricular === "LIVRE") {
+    return disciplina.cursoId === curso.id || curso.semestres.some(etapa =>
+      etapa.disciplinas.some(item => item.disciplinaId === disciplina.id),
+    );
+  }
   if (curso.semestres.length || curso.organizacaoCurricular === "ANUAL") {
     return curso.semestres.some(etapa =>
       (!semestre || etapa.numero === semestre) &&

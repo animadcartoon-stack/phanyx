@@ -23424,7 +23424,7 @@
     "percentageHelp": "The percentage applies to the sum of standalone monthly fees for courses included in the package. The enrollment fee stays at the amount set above."
   },
   "AcademicStructure": {
-    "freeSubjectHelp": "This course does not require a curriculum semester or year. Link the subject to the class offering it.",
+    "freeSubjectHelp": "Link the subject to the class offering it. You can also organize it in optional course stages. Weekly or monthly billing is configured separately.",
     "LIVRE": "Open — pay per period",
     "organization": "Curriculum organization",
     "SEMESTRAL": "Semester based",
@@ -23473,7 +23473,8 @@
     "saving": "Saving…",
     "noCourses": "No active open courses found.",
     "configureCourse": "Configure course",
-    "courseHelp": "Open course paid in advance per period, without an enrollment fee, curriculum stages or future installments. Set the weekly and/or monthly price below. Bundle terms are contracted separately.",
+    "courseHelp": "Open course with advance payment per period. No enrollment fee or future installments. Set the weekly and/or monthly price. Bundle terms are contracted separately.",
+    "optionalStagesHelp": "Stages are optional and organize subject links. Create one stage or several, as needed. They do not change weekly or monthly billing and are not required for enrollment or classes.",
     "weeklyPrice": "Weekly price (BRL)",
     "history": "Enrollments and period history",
     "refresh": "Refresh payments",

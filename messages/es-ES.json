@@ -23423,7 +23423,7 @@
     "percentageHelp": "El porcentaje se aplica a la suma de mensualidades individuales de las modalidades del paquete. La matrícula mantiene el importe definido arriba."
   },
   "AcademicStructure": {
-    "freeSubjectHelp": "Este curso no requiere semestre ni año curricular. Vincule la asignatura al grupo que la ofrece.",
+    "freeSubjectHelp": "Vincule la asignatura al grupo que la ofrece. También puede organizarla en las etapas opcionales del curso. El cobro semanal o mensual se configura por separado.",
     "LIVRE": "Libre — pago por período",
     "organization": "Organización curricular",
     "SEMESTRAL": "Semestral",
@@ -23472,7 +23472,8 @@
     "saving": "Guardando…",
     "noCourses": "No se encontraron cursos libres activos.",
     "configureCourse": "Configurar curso",
-    "courseHelp": "Curso libre con pago anticipado por período, sin cuota de matrícula, etapas curriculares ni cuotas futuras. Configure el precio semanal y/o mensual. Las condiciones de un paquete se contratan por separado.",
+    "courseHelp": "Curso libre con pago anticipado por período. Sin tasa de matrícula ni cuotas futuras. Configure el precio semanal y/o mensual. Las condiciones de un paquete se contratan por separado.",
+    "optionalStagesHelp": "Las etapas son opcionales y sirven para organizar y vincular asignaturas. Puede crear una o varias, según el curso. No cambian el cobro semanal o mensual y no son obligatorias en la matrícula ni en el grupo.",
     "weeklyPrice": "Precio semanal (BRL)",
     "history": "Vínculos e historial de períodos",
     "refresh": "Actualizar pagos",
