@@ -10,6 +10,7 @@ import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDi
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 
 import Link from "next/link";
+import { urlCursosAdicionais } from "@/lib/matriculas/cursos-adicionais";
 import { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -30,6 +31,8 @@ type CursoOption = {
   valorMatricula?: number | string | null;
   valorMensalidade?: number | string | null;
   descontoMensalidadePercentual?: number | string | null;
+  permiteCursosAdicionais?: boolean;
+  disponivelComoAdicional?: boolean;
   regrasPrecoDisciplinas?: unknown;
   regrasSelecaoDisciplinas?: unknown;
   quantidadeParcelas?: number | null;
@@ -299,6 +302,7 @@ function AdminMatriculasPage() {
   const ts = useTranslations("EnrollmentCourseSync");
   const tp = useTranslations("SubjectPricing");
   const tr = useTranslations("CourseRequirements");
+  const ta = useTranslations("AdditionalCourses");
   const router = useRouter();
   const estruturaRequestRef = useRef(0);
   const estruturaEdicaoRequestRef = useRef(0);
@@ -707,6 +711,8 @@ function AdminMatriculasPage() {
                 valorMatricula: curso?.valorMatricula ?? null,
                 valorMensalidade: curso?.valorMensalidade ?? null,
                 descontoMensalidadePercentual: curso?.descontoMensalidadePercentual ?? null,
+                permiteCursosAdicionais: Boolean(curso?.permiteCursosAdicionais),
+                disponivelComoAdicional: Boolean(curso?.disponivelComoAdicional),
                 regrasPrecoDisciplinas: curso?.regrasPrecoDisciplinas ?? null,
                 regrasSelecaoDisciplinas: curso?.regrasSelecaoDisciplinas ?? null,
                 quantidadeParcelas: curso?.quantidadeParcelas ?? null,
@@ -3895,6 +3901,7 @@ function AdminMatriculasPage() {
                   router.push(`/admin/matriculas/cursos-livres?${query}`);
                   return;
                 }
+                if (curso?.permiteCursosAdicionais) { router.push(urlCursosAdicionais(curso.id, alunoId)); return; }
                 const padrao = financeiroPadraoCurso(curso);
                 setValorTaxaMatricula(padrao.valorMatricula);
                 setValorMensalidade(padrao.valorMensalidade);
@@ -4103,8 +4110,10 @@ function AdminMatriculasPage() {
               value={valorMensalidade}
               onChange={(e) => setValorMensalidade(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"
-              placeholder="0,00"
+              placeholder={precoPorDisciplinas ? ta("chooseSubjects") : "0,00"}
+              aria-describedby={precoPorDisciplinas ? "ajuda-preco-disciplinas" : undefined}
             />
+            {precoPorDisciplinas && <p id="ajuda-preco-disciplinas" className="mt-2 text-sm text-slate-700 dark:text-slate-200">{ta("subjectHelp", { value: new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(Number(cursoSelecionadoObj?.valorMensalidade || 0)) })}</p>}
             <ResumoDescontoMensalidade valorMensalidade={cursoSelecionadoObj?.valorMensalidade} percentual={cursoSelecionadoObj?.descontoMensalidadePercentual} />
           </div>
 

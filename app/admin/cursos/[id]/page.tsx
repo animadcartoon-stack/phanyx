@@ -1,4 +1,5 @@
 "use client";
+import CamposCursosAdicionais from "@/components/admin/CamposCursosAdicionais";
 import ConfiguracaoDisciplinasIncluidas from "@/components/admin/ConfiguracaoDisciplinasIncluidas";
 import CamposRequisitosCursos, { type CursoOpcaoRequisito } from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
@@ -79,7 +80,10 @@ type Curso = {
   valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
   descontoMensalidadePercentual?: string | number | null;
+  permiteCursosAdicionais?: boolean;
+  disponivelComoAdicional?: boolean;
   regrasPrecoDisciplinas?: unknown;
+  regrasSelecaoDisciplinas?: unknown;
   participaCombo?: boolean;
   valorMensalidadeCombo?: string | number | null;
   precosComboPorQuantidade?: { quantidadeAtividades: number; valorMensalidade: string }[];
@@ -141,6 +145,7 @@ export default function CursoDetalhePage() {
   const td = useTranslations("CourseMonthlyDiscount");
   const tp = useTranslations("SubjectPricing");
   const tr = useTranslations("CourseRequirements");
+  const tca = useTranslations("AdditionalCourses");
   const locale = useLocale();
   const cursoId = Number(params.id);
 
@@ -172,6 +177,8 @@ export default function CursoDetalhePage() {
     valorMensalidade: "",
     valorSemanal: "",
     descontoMensalidadePercentual: "",
+    permiteCursosAdicionais: false,
+    disponivelComoAdicional: false,
     precoPorDisciplina: false,
     faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
     participaCombo: false,
@@ -243,6 +250,8 @@ export default function CursoDetalhePage() {
         participaCombo: Boolean(encontrado.participaCombo),
         valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
         precosComboPorQuantidade: (encontrado.precosComboPorQuantidade || []).map(f => ({ quantidadeAtividades: String(f.quantidadeAtividades), valorMensalidade: String(f.valorMensalidade) })),
+        permiteCursosAdicionais: Boolean(encontrado.permiteCursosAdicionais),
+        disponivelComoAdicional: Boolean(encontrado.disponivelComoAdicional),
         precoPorDisciplina: Boolean(encontrado.regrasPrecoDisciplinas),
         faixasDisciplinas: normalizarRegrasDisciplinas(encontrado.regrasPrecoDisciplinas)?.faixas.map(f => ({ quantidade: String(f.quantidade), descontoPercentual: String(f.descontoPercentual) })) ?? [{ quantidade: "1", descontoPercentual: "0" }],
         descontoMensalidadePercentual: encontrado.descontoMensalidadePercentual == null ? "" : String(encontrado.descontoMensalidadePercentual),
@@ -349,6 +358,8 @@ export default function CursoDetalhePage() {
           valorMatricula: formCurso.valorMatricula
             ? Number(formCurso.valorMatricula)
             : null,
+          permiteCursosAdicionais: formCurso.permiteCursosAdicionais,
+          disponivelComoAdicional: formCurso.disponivelComoAdicional,
           participaCombo: formCurso.participaCombo,
           valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
           precosComboPorQuantidade: formCurso.precosComboPorQuantidade,
@@ -369,7 +380,7 @@ export default function CursoDetalhePage() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = tr.has(`errors.${data.codigo}`) ? tr(`errors.${data.codigo}`) : tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tca.has(`errors.${data.codigo}`) ? tca(`errors.${data.codigo}`) : tr.has(`errors.${data.codigo}`) ? tr(`errors.${data.codigo}`) : tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -870,6 +881,7 @@ export default function CursoDetalhePage() {
 
           {formCurso.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={formCurso.valorSemanal} valorMensal={formCurso.valorMensalidade} onChangeMensal={valor => setFormCurso({ ...formCurso, valorMensalidade: valor })} onChange={valor => setFormCurso({ ...formCurso, valorSemanal: valor })} />}
                   {formCurso.organizacaoCurricular !== "LIVRE" && <CamposPrecoDisciplinas ativo={formCurso.precoPorDisciplina} faixas={formCurso.faixasDisciplinas} onChange={dados => setFormCurso(prev => ({ ...prev, precoPorDisciplina: dados.ativo ?? prev.precoPorDisciplina, faixasDisciplinas: dados.faixas ?? prev.faixasDisciplinas, ...(dados.ativo ? { participaCombo: false } : {}) }))} />}
+          <CamposCursosAdicionais permite={formCurso.permiteCursosAdicionais} disponivel={formCurso.disponivelComoAdicional} incompativel={formCurso.precoPorDisciplina || formCurso.organizacaoCurricular === "LIVRE" || Boolean(curso?.regrasSelecaoDisciplinas)} disabled={cursoRecebidoDaRede} onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
           {!formCurso.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />}
           {!formCurso.precoPorDisciplina && <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
                     onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />}

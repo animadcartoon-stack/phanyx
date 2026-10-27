@@ -1,4 +1,5 @@
 "use client";
+import CamposCursosAdicionais from "@/components/admin/CamposCursosAdicionais";
 import CamposRequisitosCursos from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
 import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
@@ -73,6 +74,7 @@ const OPCOES_MODALIDADE_CERTIFICADO: ModalidadeCertificado[] = [
 type Curso = {
   organizacaoCurricular?: string;
   quantidadeEtapas?: number | null;
+  _count?: { semestres: number };
   id: number;
   nome: string;
   codigo?: string | null;
@@ -84,6 +86,8 @@ type Curso = {
   valorSemanal?: string | number | null;
   valorMensalidade?: number | null;
   descontoMensalidadePercentual?: string | number | null;
+  permiteCursosAdicionais?: boolean;
+  disponivelComoAdicional?: boolean;
   regrasPrecoDisciplinas?: unknown;
   quantidadeParcelas?: number | null;
   createdAt?: string | null;
@@ -131,6 +135,7 @@ export default function AdminCursosPage() {
   const td = useTranslations("CourseMonthlyDiscount");
   const tp = useTranslations("SubjectPricing");
   const tr = useTranslations("CourseRequirements");
+  const tca = useTranslations("AdditionalCourses");
   const locale = useLocale();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -163,6 +168,8 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     valorMensalidade: "",
     valorSemanal: "",
     descontoMensalidadePercentual: "",
+    permiteCursosAdicionais: false,
+    disponivelComoAdicional: false,
     precoPorDisciplina: false,
     faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
     participaCombo: false,
@@ -434,6 +441,8 @@ async function salvarPolosDoCurso() {
           valorMatricula: form.valorMatricula
             ? Number(form.valorMatricula)
             : null,
+          permiteCursosAdicionais: form.permiteCursosAdicionais,
+          disponivelComoAdicional: form.disponivelComoAdicional,
           participaCombo: form.participaCombo,
           valorMensalidadeCombo: form.valorMensalidadeCombo || null,
           precosComboPorQuantidade: form.precosComboPorQuantidade,
@@ -454,7 +463,7 @@ async function salvarPolosDoCurso() {
 
       if (!res.ok) {
         const chaveErro = typeof data.codigo === "string" ? `errors.${data.codigo}` : "";
-        const mensagem = tr.has(`errors.${data.codigo}`) ? tr(`errors.${data.codigo}`) : tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
+        const mensagem = tca.has(`errors.${data.codigo}`) ? tca(`errors.${data.codigo}`) : tr.has(`errors.${data.codigo}`) ? tr(`errors.${data.codigo}`) : tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : td.has(`errors.${data.codigo}`) ? td(`errors.${data.codigo}`) : tl.has(`errors.${data.codigo}`) ? tl(`errors.${data.codigo}`) : typeof data.codigo === "string" && ti.has(data.codigo) ? ti(data.codigo) : chaveErro && t.has(chaveErro)
           ? t(chaveErro)
           : chaveErro && tc.has(chaveErro)
             ? tc(chaveErro)
@@ -476,6 +485,8 @@ async function salvarPolosDoCurso() {
         valorMensalidade: "",
     valorSemanal: "",
     descontoMensalidadePercentual: "",
+    permiteCursosAdicionais: false,
+    disponivelComoAdicional: false,
     precoPorDisciplina: false,
     faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
         participaCombo: false,
@@ -771,6 +782,7 @@ if (!termoTexto) return cursosPorStatus;
 
           {form.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={form.valorSemanal} valorMensal={form.valorMensalidade} onChangeMensal={valor => setForm({ ...form, valorMensalidade: valor })} onChange={valor => setForm({ ...form, valorSemanal: valor })} />}
           {form.organizacaoCurricular !== "LIVRE" && <CamposPrecoDisciplinas ativo={form.precoPorDisciplina} faixas={form.faixasDisciplinas} onChange={dados => setForm(prev => ({ ...prev, precoPorDisciplina: dados.ativo ?? prev.precoPorDisciplina, faixasDisciplinas: dados.faixas ?? prev.faixasDisciplinas, ...(dados.ativo ? { participaCombo: false } : {}) }))} />}
+          <CamposCursosAdicionais permite={form.permiteCursosAdicionais} disponivel={form.disponivelComoAdicional} incompativel={form.precoPorDisciplina || form.organizacaoCurricular === "LIVRE"} onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />
           {!form.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={form.valorMensalidade} percentual={form.descontoMensalidadePercentual} onChange={valor => setForm({ ...form, descontoMensalidadePercentual: valor })} />}
           {!form.precoPorDisciplina && <CamposComboCurso participaCombo={form.participaCombo} valorMensalidadeCombo={form.valorMensalidadeCombo} precosComboPorQuantidade={form.precosComboPorQuantidade}
             onChange={dados => setForm(prev => ({ ...prev, ...dados }))} />}
@@ -910,8 +922,8 @@ if (!termoTexto) return cursosPorStatus;
                     <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-slate-300">
                       <p>
                         {curso.organizacaoCurricular === "LIVRE" ? ta("organization") : t("common.semesters")}:{" "}
-                        {curso.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : (curso.quantidadeEtapas ?? curso.quantidadeSemestres) != null
-                          ? `${curso.quantidadeEtapas ?? curso.quantidadeSemestres} · ${ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}`
+                        {curso.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : (curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? (curso._count?.semestres || null)) != null
+                          ? `${curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? curso._count?.semestres} · ${ta(curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}`
                           : t("common.notInformed")}
                       </p>
                       <p>

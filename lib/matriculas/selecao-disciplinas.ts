@@ -63,8 +63,8 @@ export function validarSelecaoDisciplinas(valor: unknown, selecionadas: number[]
   return regras;
 }
 
-export function validarModoSelecao(curso: { organizacaoCurricular?: string; regrasPrecoDisciplinas?: unknown; participaCombo?: boolean }) {
-  if (curso.organizacaoCurricular === "LIVRE" || curso.regrasPrecoDisciplinas || curso.participaCombo)
+export function validarModoSelecao(curso: { organizacaoCurricular?: string; regrasPrecoDisciplinas?: unknown; participaCombo?: boolean; permiteCursosAdicionais?: boolean; disponivelComoAdicional?: boolean }) {
+  if (curso.organizacaoCurricular === "LIVRE" || curso.regrasPrecoDisciplinas || curso.participaCombo || curso.permiteCursosAdicionais || curso.disponivelComoAdicional)
     throw new ErroSelecaoDisciplinas("SELECAO_EXIGE_PRECO_FIXO");
 }
 

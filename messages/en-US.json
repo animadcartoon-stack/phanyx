@@ -23659,5 +23659,23 @@
       "provas": "Registered exams",
       "documentos": "Generated documents"
     }
+  },
+  "AdditionalCourses": {
+    "title": "Additional courses in the same enrollment",
+    "allow": "Allow additional courses when enrolling in this course",
+    "available": "Available as a standalone/additional course in other enrollments",
+    "settingsHelp": "Each course keeps its own price and curriculum. Additional courses need available classes, places and compatible schedules. Discounts follow the configured bundle; these options do not create discounts automatically.",
+    "incompatible": "To use additional courses, disable pricing by number of subjects. Prepaid open courses and included-subject selections use their own enrollment flows.",
+    "chooseSubjects": "Choose subjects",
+    "subjectHelp": "This course uses subject pricing: {value} per selected subject. Choosing the course does not automatically select a subject. Courses with different prices should use additional courses/bundles.",
+    "principal": "Main course: {name}",
+    "principalLabel": "Main course",
+    "enrollmentHelp": "The main course is part of this enrollment. Choose its class and optionally add the available standalone courses below. Individual prices are added and the configured bundle is applied. Other courses do not need to be added to the main curriculum.",
+    "errors": {
+      "ADICIONAIS_CONFIGURACAO_INVALIDA": "Enter valid additional-course options.",
+      "ADICIONAIS_MODO_INCOMPATIVEL": "Additional courses require per-course pricing. Disable subject pricing and review the course organization.",
+      "PRINCIPAL_NAO_PERMITE_ADICIONAIS": "The main course is unavailable or does not allow additional courses. Refresh enrollment.",
+      "CURSO_NAO_DISPONIVEL_ADICIONAL": "A selected course is not available as an additional course. Refresh the selection."
+    }
   }
 }

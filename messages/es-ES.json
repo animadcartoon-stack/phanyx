@@ -23658,5 +23658,23 @@
       "provas": "Pruebas registradas",
       "documentos": "Documentos generados"
     }
+  },
+  "AdditionalCourses": {
+    "title": "Cursos adicionales en la misma matrícula",
+    "allow": "Permitir cursos adicionales en la matrícula de este curso",
+    "available": "Disponible como curso independiente/adicional en otras matrículas",
+    "settingsHelp": "Cada curso conserva su precio y plan de estudios. Los adicionales necesitan grupo, plazas y horarios compatibles. El descuento depende del paquete configurado; estas opciones no crean descuentos automáticamente.",
+    "incompatible": "Para usar cursos adicionales, desactiva el precio por cantidad de asignaturas. Los cursos libres por período y la selección de asignaturas incluidas usan sus propios procesos.",
+    "chooseSubjects": "Elige las asignaturas",
+    "subjectHelp": "Este curso cobra por asignaturas: {value} por asignatura seleccionada. Elegir el curso no selecciona una asignatura automáticamente. Para cursos con precios distintos, usa cursos adicionales/paquetes.",
+    "principal": "Curso principal: {name}",
+    "principalLabel": "Curso principal",
+    "enrollmentHelp": "El principal forma parte de esta matrícula. Elige su grupo y añade, si lo deseas, los cursos independientes disponibles. Se sumarán los precios individuales y se aplicará el paquete configurado. No es necesario incluir otros cursos en el plan del principal.",
+    "errors": {
+      "ADICIONAIS_CONFIGURACAO_INVALIDA": "Introduce opciones válidas para cursos adicionales.",
+      "ADICIONAIS_MODO_INCOMPATIVEL": "Los adicionales requieren precio por curso. Desactiva el precio por asignaturas y revisa la organización.",
+      "PRINCIPAL_NAO_PERMITE_ADICIONAIS": "El principal no está disponible o no permite cursos adicionales. Actualiza la matrícula.",
+      "CURSO_NAO_DISPONIVEL_ADICIONAL": "Un curso elegido no está disponible como adicional. Actualiza la selección."
+    }
   }
 }

@@ -1,0 +1,9 @@
+.cancelado.cancelado { background: #f1f5f9 !important; color: #334155 !important; }
+:global(html.dark) .cancelado.cancelado { background: #1e293b !important; color: #f1f5f9 !important; }
+:global(html[data-theme="system"]) .cancelado.cancelado { background: #303030 !important; color: #ffffff !important; }
+.cancelado.cancelado td { color: inherit !important; }
+.cancelado.cancelado :global(.text-slate-400), .cancelado.cancelado :global(.text-slate-500) { color: #475569 !important; }
+:global(html.dark) .cancelado.cancelado :global(.text-slate-400), :global(html.dark) .cancelado.cancelado :global(.text-slate-500) { color: #cbd5e1 !important; }
+:global(html[data-theme="system"]) .cancelado.cancelado :global(.text-slate-400), :global(html[data-theme="system"]) .cancelado.cancelado :global(.text-slate-500) { color: #e2e8f0 !important; }
+.cancelado.cancelado :global(.text-blue-700) { color: #1d4ed8 !important; }
+:global(html.dark) .cancelado.cancelado :global(.text-blue-700), :global(html[data-theme="system"]) .cancelado.cancelado :global(.text-blue-700) { color: #93c5fd !important; }

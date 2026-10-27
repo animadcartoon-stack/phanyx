@@ -1,3 +1,4 @@
+import { camposCursosAdicionais } from "@/lib/matriculas/cursos-adicionais";
 import { normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
 import { exclusaoCursoExpirada, filtroCursosRecuperaveis } from "@/lib/cursos/estado-curso";
 import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
@@ -85,6 +86,7 @@ export async function GET() {
         ...filtroCursosRecuperaveis(),
       },
       include: {
+        _count: { select: { semestres: true } },
         requisitosConjuntos: { include: { cursoObrigatorio: { select: { id: true, nome: true, ativo: true } } }, orderBy: { cursoObrigatorioId: "asc" } },
         cursosPolos: {
           include: {
@@ -230,6 +232,7 @@ export async function POST(req: Request) {
     if (regrasDisciplinas && organizacaoCurricular === "LIVRE") throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_CURSO_LIVRE");
     if (regrasDisciplinas && body.participaCombo) throw new ErroPrecoDisciplinas("REGRAS_DISCIPLINAS_COMBO");
     if (regrasDisciplinas && !(Number(body.valorMensalidade) > 0)) throw new ErroPrecoDisciplinas("PRECO_DISCIPLINA_INVALIDO");
+    const dadosAdicionais = camposCursosAdicionais({ ...body, organizacaoCurricular, regrasPrecoDisciplinas: regrasDisciplinas ?? null });
     const dadosDisciplinas = regrasDisciplinas === undefined ? {} : { regrasPrecoDisciplinas: regrasDisciplinas == null ? Prisma.DbNull : regrasDisciplinas as unknown as Prisma.InputJsonValue };
     const dadosDesconto = regrasDisciplinas ? { descontoMensalidadePercentual: null } : campoDescontoCurso(body);
     const dadosLivre = camposPrecoCursoLivre(body, organizacaoCurricular);
@@ -579,6 +582,7 @@ export async function POST(req: Request) {
                 ...dadosLivre,
                 ...dadosDesconto,
                 ...dadosDisciplinas,
+                ...dadosAdicionais,
 
                 quantidadeParcelas,
 
@@ -852,6 +856,8 @@ export async function PUT(req: Request) {
           valorMensalidade: true,
           valorSemanal: true,
           participaCombo: true,
+          permiteCursosAdicionais: true,
+          disponivelComoAdicional: true,
           regrasPrecoDisciplinas: true,
           regrasSelecaoDisciplinas: true,
           quantidadeParcelas: true,
@@ -928,6 +934,8 @@ export async function PUT(req: Request) {
       if (body.valorMatricula === undefined) body.valorMatricula = cursoExistente.valorMatricula;
       if (body.quantidadeParcelas === undefined) body.quantidadeParcelas = cursoExistente.quantidadeParcelas;
     }
+    const dadosAdicionais = camposCursosAdicionais({ ...body, organizacaoCurricular, regrasPrecoDisciplinas: regrasEfetivas, regrasSelecaoDisciplinas: cursoExistente.regrasSelecaoDisciplinas }, cursoExistente);
+    if (cursoRecebidoDaRede && Object.entries(dadosAdicionais).some(([campo, valor]) => cursoExistente[campo] !== valor)) throw new ErroModalidades("SEM_PERMISSAO", 403);
     const dadosDisciplinas = regrasDisciplinas === undefined ? {} : { regrasPrecoDisciplinas: regrasDisciplinas == null ? Prisma.DbNull : regrasDisciplinas as unknown as Prisma.InputJsonValue };
     const dadosDesconto = regrasEfetivas ? { descontoMensalidadePercentual: null } : campoDescontoCurso(body);
     const dadosLivre = camposPrecoCursoLivre({ ...body, valorSemanal: body.valorSemanal === undefined ? cursoExistente.valorSemanal?.toString() : body.valorSemanal, valorMensalidade: body.valorMensalidade === undefined ? cursoExistente.valorMensalidade : body.valorMensalidade }, organizacaoCurricular);
@@ -1040,6 +1048,7 @@ export async function PUT(req: Request) {
             ...dadosLivre,
                 ...dadosDesconto,
                 ...dadosDisciplinas,
+                ...dadosAdicionais,
             quantidadeParcelas,
           },
           include: {
@@ -1165,7 +1174,9 @@ export async function PUT(req: Request) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
-          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true, regrasSelecaoDisciplinas: true } });
+          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true, regrasSelecaoDisciplinas: true, regrasPrecoDisciplinas: true, permiteCursosAdicionais: true, disponivelComoAdicional: true } });
+          if (!cursoAtual) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
+          camposCursosAdicionais({ ...body, organizacaoCurricular, regrasPrecoDisciplinas: regrasDisciplinas === undefined ? cursoAtual.regrasPrecoDisciplinas : regrasDisciplinas, regrasSelecaoDisciplinas: cursoAtual.regrasSelecaoDisciplinas }, cursoAtual);
           if (cursoAtual?.regrasSelecaoDisciplinas) validarModoSelecao({ organizacaoCurricular, participaCombo: body.participaCombo ?? cursoExistente.participaCombo, regrasPrecoDisciplinas: regrasEfetivas });
           if (cursoAtual?.organizacaoCurricular !== cursoExistente.organizacaoCurricular) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
           if (organizacaoCurricular !== cursoAtual.organizacaoCurricular)
@@ -1199,6 +1210,7 @@ export async function PUT(req: Request) {
               ...dadosLivre,
                 ...dadosDesconto,
                 ...dadosDisciplinas,
+                ...dadosAdicionais,
 
               quantidadeParcelas,
 

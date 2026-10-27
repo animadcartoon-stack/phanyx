@@ -1,3 +1,4 @@
+import { idCursoPrincipal, validarCursosAdicionais } from "./cursos-adicionais";
 import { temDisciplinaIncluidaDuplicada } from "./selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { createHash } from "node:crypto";
@@ -57,6 +58,8 @@ export async function carregarOfertasModalidades(
           id: true,
           nome: true,
           participaCombo: true,
+          permiteCursosAdicionais: true,
+          disponivelComoAdicional: true,
           requisitosConjuntos: { select: { cursoObrigatorioId: true, cursoObrigatorio: { select: { nome: true } } } },
           valorMatricula: true,
           valorMensalidade: true,
@@ -265,6 +268,8 @@ export async function prepararContratacaoModalidades(
   if (selecionadas.some((o) => !o))
     throw new ErroModalidades("TURMA_INDISPONIVEL", 409);
   const escolhidas = selecionadas as OfertaModalidade[];
+  const principalId = idCursoPrincipal(body.cursoPrincipalId);
+  validarCursosAdicionais(escolhidas.map(o => o.curso), principalId);
   if (escolhidas.length && escolhidas.every(o => o.organizacaoCurricular === "LIVRE")) throw new ErroModalidades("CURSO_LIVRE_FLUXO_PROPRIO");
   if (new Set(escolhidas.map((o) => o.cursoId)).size !== escolhidas.length)
     throw new ErroModalidades("MODALIDADE_DUPLICADA");
@@ -355,6 +360,7 @@ export async function prepararContratacaoModalidades(
     ? calculo.nome
     : escolhidas.map((o) => o.curso.nome).join(" + ");
   const snapshot = {
+    ...(principalId !== null ? { cursoPrincipalId: principalId } : {}),
     requisitosCursos,
     versao: 1,
     nome,
@@ -367,6 +373,7 @@ export async function prepararContratacaoModalidades(
         turmaNome: o.nome,
         cursoId: o.cursoId,
         cursoNome: o.curso.nome,
+        ...(principalId !== null ? { permiteCursosAdicionais: o.curso.permiteCursosAdicionais, disponivelComoAdicional: o.curso.disponivelComoAdicional } : {}),
         descontoMensalidadePercentual: o.curso.descontoMensalidadePercentual,
         disciplinaIds: o.disciplinaIds,
         horarios: adaptarInicio(o.horarios),
@@ -461,6 +468,8 @@ export async function confirmarContratacaoModalidades(
     select: { proximoNumeroMatricula: true },
   });
   const numeroMatricula = `PHX-${user.instituicaoId}-${agora.getUTCFullYear()}-${String(instituicao.proximoNumeroMatricula - 1).padStart(6, "0")}`;
+  const principalId = idCursoPrincipal(body.cursoPrincipalId);
+  const principal = principalId !== null ? escolhidas.find(o => o.cursoId === principalId)! : escolhidas[0];
   const disciplinas = escolhidas.flatMap((o) => o.disciplinas);
   if (new Set(disciplinas.map((d) => d.id)).size !== disciplinas.length)
     throw new ErroModalidades("DISCIPLINA_DUPLICADA");
@@ -469,8 +478,9 @@ export async function confirmarContratacaoModalidades(
       instituicaoId: user.instituicaoId,
       alunoId: aluno.id,
       poloId: escolhidas[0].poloId,
-      cursoId: null,
-      turmaPrincipalId: escolhidas[0].id,
+      cursoId: principalId,
+      ...(principalId !== null ? { organizacaoCurricular: principal.organizacaoCurricular, etapaNumero: principal.etapaNumero } : {}),
+      turmaPrincipalId: principal.id,
       numeroMatricula,
       status: situacao,
       confirmadaEm: agora,

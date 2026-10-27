@@ -1,6 +1,8 @@
 "use client";
 import { faltantesRequisitos, mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { idCursoPrincipal } from "@/lib/matriculas/cursos-adicionais";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/lib/withAuth";
@@ -29,13 +31,19 @@ const input =
 
 function ModalidadesPage() {
   const t = useTranslations("EnrollmentCombos");
+  const ta = useTranslations("AdditionalCourses");
+  const params = useSearchParams();
+  const origemId = (v: string | null) => { try { return idCursoPrincipal(v); } catch { return null; } };
+  const principalId = origemId(params.get("cursoPrincipalId"));
+  const [principal, setPrincipal] = useState<{ id: number; nome: string } | null>(null);
+  const inicializada = useRef(false);
   const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
   const [ofertas, setOfertas] = useState<OfertaModalidade[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [aluno, setAluno] = useState<Aluno | null>(null);
   const [busca, setBusca] = useState("");
-  const [alunoId, setAlunoId] = useState("");
+  const [alunoId, setAlunoId] = useState(() => String(origemId(params.get("alunoId")) || ""));
   const [poloId, setPoloId] = useState("");
   const [periodo, setPeriodo] = useState("__selecione__");
   const [inicio, setInicio] = useState("");
@@ -65,7 +73,7 @@ function ModalidadesPage() {
   const chave = useRef("");
   const operacao = useRef(false);
   const traduzirErro = (codigo?: string) =>
-    t.has(`errors.${codigo}`)
+    ta.has(`errors.${codigo}`) ? ta(`errors.${codigo}`) : t.has(`errors.${codigo}`)
       ? t(`errors.${codigo}`)
       : t("errors.ERRO_INTERNO");
   const moeda = (centavos: number) =>
@@ -85,11 +93,14 @@ function ModalidadesPage() {
 
   useEffect(() => {
     let ativo = true;
-    fetch("/api/admin/matriculas/modalidades", { cache: "no-store" })
+    fetch(`/api/admin/matriculas/modalidades${principalId !== null ? `?cursoPrincipalId=${principalId}` : ""}`, { cache: "no-store" })
       .then(async (res) => {
         const data = await res.json();
         if (!res.ok) throw new Error(traduzirErro(data.codigo));
-        if (ativo) setOfertas(data.ofertas);
+        if (ativo) { setOfertas(data.ofertas); setPrincipal(data.principal || null);
+          const principais = (data.ofertas as OfertaModalidade[]).filter(o => o.cursoId === principalId);
+          if (principais.length === 1) { setPoloId(String(principais[0].poloId)); setPeriodo(principais[0].periodoLetivo || ""); }
+        }
       })
       .catch((error) => {
         if (ativo) setErro(error.message);
@@ -100,7 +111,7 @@ function ModalidadesPage() {
     return () => {
       ativo = false;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [principalId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const abort = new AbortController();
@@ -123,6 +134,24 @@ function ModalidadesPage() {
       abort.abort();
     };
   }, [busca]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!alunoId) return;
+    const controller = new AbortController();
+    fetch(`/api/admin/alunos/busca-simples?id=${encodeURIComponent(alunoId)}`, { cache: "no-store", signal: controller.signal })
+      .then(async r => { if (!r.ok) throw new Error(traduzirErro()); return r.json(); })
+      .then(lista => { if (!controller.signal.aborted) setAluno(lista.find((a: Aluno) => a.id === Number(alunoId)) || null); })
+      .catch(e => { if (!controller.signal.aborted) setErro(e.message); });
+    return () => controller.abort();
+  }, [alunoId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (inicializada.current || principalId === null || loading || !alunoId) return;
+    const principais = ofertas.filter(o => o.cursoId === principalId);
+    if (principais.length !== 1 || principais[0].horariosPendentes) return;
+    inicializada.current = true;
+    void validar({ ids: [principais[0].id], alunoId, inicio });
+  }, [ofertas, principalId, loading, alunoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function revisarAjuste(acao: () => void) {
     if (ajuste)
@@ -157,6 +186,7 @@ function ModalidadesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           acao: "PREVIA",
+          ...(principalId !== null ? { cursoPrincipalId: principalId } : {}),
           alunoId: Number(pendente.alunoId),
           turmaIds: pendente.ids,
           dataInicioCurso: pendente.inicio || null,
@@ -202,6 +232,7 @@ function ModalidadesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           acao: "CONFIRMAR",
+          ...(principalId !== null ? { cursoPrincipalId: principalId } : {}),
           chave: chave.current,
           alunoId: Number(alunoId),
           turmaIds: selecionadas,
@@ -262,26 +293,27 @@ function ModalidadesPage() {
 
   const polos = useMemo(
     () =>
-      Array.from(new Map(ofertas.map((o) => [o.poloId, o.poloNome])).entries()),
-    [ofertas],
+      Array.from(new Map(ofertas.filter(o => principalId === null || o.cursoId === principalId).map((o) => [o.poloId, o.poloNome])).entries()),
+    [ofertas, principalId],
   );
   const periodos = useMemo(
     () =>
       Array.from(
         new Set(
           ofertas
+            .filter(o => principalId === null || o.cursoId === principalId)
             .filter((o) => !poloId || o.poloId === Number(poloId))
             .map((o) => o.periodoLetivo || ""),
         ),
       ).sort(),
-    [ofertas, poloId],
+    [ofertas, poloId, principalId],
   );
   const disponiveis = ofertas.filter(
     (o) => o.poloId === Number(poloId) && (o.periodoLetivo || "") === periodo,
   );
   const cursos = Array.from(
     new Map(disponiveis.map((o) => [o.cursoId, o.curso])).values(),
-  );
+  ).sort((a, b) => Number(b.id === principalId) - Number(a.id === principalId));
   const bloqueado = loading || busy || salvando || Boolean(resultado);
   const finais = ajuste
     ? {
@@ -319,6 +351,7 @@ function ModalidadesPage() {
           </Link>
         </div>
       </div>
+      {principal && <section role="note" className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-700 dark:bg-slate-900 dark:text-slate-100"><strong>{ta("principal", { name: principal.nome })}</strong><p className="mt-1 text-sm">{ta("enrollmentHelp")}</p></section>}
       {resultado ? (
         <section
           role="status"
@@ -479,6 +512,7 @@ function ModalidadesPage() {
                       key={curso.id}
                       className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
                     >
+                      {curso.id === principalId && <p className="mb-2 text-sm font-semibold">{ta("principalLabel")}</p>}
                       <label
                         className="font-semibold"
                         htmlFor={`curso-${curso.id}`}
@@ -508,7 +542,7 @@ function ModalidadesPage() {
                           });
                         }}
                       >
-                        <option value="">{t("notSelected")}</option>
+                        <option value="" disabled={curso.id === principalId}>{t("notSelected")}</option>
                         {disponiveis
                           .filter((o) => o.cursoId === curso.id)
                           .map((o) => (

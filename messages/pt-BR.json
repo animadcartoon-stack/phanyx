@@ -23429,5 +23429,23 @@
       "provas": "Provas cadastradas",
       "documentos": "Documentos gerados"
     }
+  },
+  "AdditionalCourses": {
+    "title": "Cursos adicionais na mesma matrícula",
+    "allow": "Permitir cursos adicionais na matrícula deste curso",
+    "available": "Disponível como curso avulso/adicional em outras matrículas",
+    "settingsHelp": "Cada curso mantém seu próprio preço e sua própria grade. Os adicionais precisam ter turma, vagas e horários compatíveis. O desconto depende da regra de combo configurada; estas opções não criam descontos automaticamente.",
+    "incompatible": "Para usar cursos adicionais, desative o preço por quantidade de disciplinas. Cursos livres por período e cursos com seleção de disciplinas incluídas usam seus próprios fluxos.",
+    "chooseSubjects": "Escolha as disciplinas",
+    "subjectHelp": "Este curso está no modo por disciplinas: {value} por disciplina marcada. Escolher o curso não inclui uma disciplina automaticamente. Cursos com preços diferentes devem ser contratados como cursos adicionais/combos.",
+    "principal": "Curso principal: {name}",
+    "principalLabel": "Curso principal",
+    "enrollmentHelp": "O principal faz parte desta matrícula. Escolha sua turma e, se desejar, acrescente os cursos avulsos disponíveis abaixo. Os preços individuais serão somados e o combo configurado será aplicado. Não é preciso incluir os outros cursos na grade do principal.",
+    "errors": {
+      "ADICIONAIS_CONFIGURACAO_INVALIDA": "Informe opções válidas para os cursos adicionais.",
+      "ADICIONAIS_MODO_INCOMPATIVEL": "Cursos adicionais exigem preço por curso. Desative o preço por disciplinas e confira a organização do curso.",
+      "PRINCIPAL_NAO_PERMITE_ADICIONAIS": "O curso principal não está disponível ou não permite cursos adicionais. Atualize a matrícula.",
+      "CURSO_NAO_DISPONIVEL_ADICIONAL": "Um dos cursos escolhidos não está disponível como adicional. Atualize a seleção."
+    }
   }
 }

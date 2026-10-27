@@ -846,6 +846,8 @@ model Curso {
   descontoMensalidadePercentual Decimal?             @db.Decimal(5, 2)
   regrasPrecoDisciplinas      Json?
   participaCombo             Boolean               @default(false)
+  permiteCursosAdicionais    Boolean               @default(false)
+  disponivelComoAdicional    Boolean               @default(false)
   valorMensalidadeCombo      Decimal?              @db.Decimal(10, 2)
   precosComboPorQuantidade   Json                  @default("[]")
   combosModalidades          ComboModalidadesCurso[]
