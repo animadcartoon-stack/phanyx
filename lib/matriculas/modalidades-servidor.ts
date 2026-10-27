@@ -1,3 +1,4 @@
+import { temDisciplinaIncluidaDuplicada } from "./selecao-disciplinas";
 import { createHash } from "node:crypto";
 import { Prisma } from "@prisma/client";
 import {
@@ -58,6 +59,7 @@ export async function carregarOfertasModalidades(
           valorMatricula: true,
           valorMensalidade: true,
           regrasPrecoDisciplinas: true,
+          regrasSelecaoDisciplinas: true,
           descontoMensalidadePercentual: true,
           valorMensalidadeCombo: true,
           precosComboPorQuantidade: true,
@@ -105,7 +107,7 @@ export async function carregarOfertasModalidades(
     if (!ocupantes.has(item.turmaId)) ocupantes.set(item.turmaId, new Set());
     ocupantes.get(item.turmaId)!.add(item.matricula.alunoId);
   }
-  return turmas.filter(t => !t.curso.regrasPrecoDisciplinas).map((turma) => {
+  return turmas.filter(t => !t.curso.regrasPrecoDisciplinas && !t.curso.regrasSelecaoDisciplinas).map((turma) => {
     const horarios: HorarioModalidade[] = turma.disciplinas.flatMap((td) =>
       td.horarios.map((h) => ({
         ...h,
@@ -134,6 +136,8 @@ export async function carregarOfertasModalidades(
       etapaNumero: turma.etapaNumero,
       organizacaoCurricular: turma.organizacaoCurricular,
       horarios,
+      dataInicio: civil(turma.dataInicio),
+      dataFim: civil(turma.dataFim),
       horariosPendentes,
       eadLivre,
       disciplinaIds: turma.disciplinas.map((td) => td.disciplinaId),
@@ -186,7 +190,7 @@ export async function horariosAtuaisAluno(
       turmaId: true,
       disciplinaId: true,
       turma: { select: { nome: true, dataInicio: true, dataFim: true } },
-      matricula: { select: { dataInicioCurso: true, organizacaoCurricular: true,
+      matricula: { select: { dataInicioCurso: true, organizacaoCurricular: true, regrasSelecaoDisciplinas: true,
         periodosCursoLivre: { where: { instituicaoId, lancamento: { status: { not: "CANCELADO" } } }, select: { dataInicio: true, dataFim: true } },
       } },
       disciplina: { select: { nome: true } },
@@ -273,6 +277,14 @@ export async function prepararContratacaoModalidades(
   const existentes = await horariosAtuaisAluno(db, instituicaoId, alunoId);
   if (escolhidas.some((o) => existentes.itens.some((i) => i.turmaId === o.id)))
     throw new ErroModalidades("ALUNO_JA_MATRICULADO", 409);
+  const novasDisciplinas = escolhidas.flatMap(o => o.disciplinaIds.map(disciplinaId => ({ disciplinaId, incluida: false,
+    inicio: [civil(o.dataInicio ? new Date(o.dataInicio) : null), civil(inicioCurso.data || null)].filter(Boolean).sort().pop() || null,
+    fim: civil(o.dataFim ? new Date(o.dataFim) : null) })));
+  const existentesDisciplinas = existentes.itens.flatMap(i => {
+    const periodos = i.matricula.organizacaoCurricular === "LIVRE" ? i.matricula.periodosCursoLivre : [{ dataInicio: i.matricula.dataInicioCurso || i.turma.dataInicio, dataFim: i.turma.dataFim }];
+    return periodos.map(p => ({ disciplinaId: i.disciplinaId, incluida: Boolean(i.matricula.regrasSelecaoDisciplinas), inicio: civil(p.dataInicio), fim: civil(p.dataFim) }));
+  });
+  if (temDisciplinaIncluidaDuplicada(novasDisciplinas, existentesDisciplinas)) throw new ErroModalidades("ALUNO_JA_MATRICULADO", 409);
   const adaptarInicio = (horarios: HorarioModalidade[]) =>
     horarios.map((h) => ({
       ...h,

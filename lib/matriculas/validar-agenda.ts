@@ -1,3 +1,4 @@
+import { ErroSelecaoDisciplinas, temDisciplinaIncluidaDuplicada } from "./selecao-disciplinas";
 import { Prisma } from "@prisma/client";
 import {
   encontrarConflitos,
@@ -19,6 +20,7 @@ export async function validarAgendaMatricula(
     inicio?: Date | null;
     fim?: Date | null;
     exigirHorarios?: boolean;
+    regrasSelecaoDisciplinas?: unknown;
   },
 ) {
   const { instituicaoId, alunoId, itens, matriculaId, inicio, fim } = params;
@@ -74,6 +76,14 @@ export async function validarAgendaMatricula(
     alunoId,
     matriculaId,
   );
+  const novasDisciplinas = vinculos.map(v => ({ disciplinaId: v.disciplinaId, incluida: Boolean(params.regrasSelecaoDisciplinas),
+    inicio: [civil(v.dataInicio || v.turma.dataInicio), civil(inicio)].filter(Boolean).sort().pop() || null,
+    fim: [civil(v.dataFim || v.turma.dataFim), civil(fim)].filter(Boolean).sort()[0] || null }));
+  const existentesDisciplinas = existentes.itens.flatMap(i => {
+    const periodos = i.matricula.organizacaoCurricular === "LIVRE" ? i.matricula.periodosCursoLivre : [{ dataInicio: i.matricula.dataInicioCurso || i.turma.dataInicio, dataFim: i.turma.dataFim }];
+    return periodos.map(p => ({ disciplinaId: i.disciplinaId, incluida: Boolean(i.matricula.regrasSelecaoDisciplinas), inicio: civil(p.dataInicio), fim: civil(p.dataFim) }));
+  });
+  if (temDisciplinaIncluidaDuplicada(novasDisciplinas, existentesDisciplinas)) throw new ErroSelecaoDisciplinas("DISCIPLINA_JA_INCLUIDA", undefined, 409);
   const conflitos = encontrarConflitos(horarios, existentes.horarios);
   if (conflitos.length)
     throw new ErroModalidades("CONFLITO_HORARIO", 409, { conflitos });

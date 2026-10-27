@@ -825,6 +825,7 @@ enum OrganizacaoCurricular {
 }
 
 model Curso {
+  regrasSelecaoDisciplinas Json?
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   quantidadeEtapas Int?
   id                         Int                   @id @default(autoincrement())
@@ -1188,6 +1189,7 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  regrasSelecaoDisciplinas Json?
   periodosCursoLivre PeriodoCursoLivre[]
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   etapaNumero Int?

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/lib/withAuth";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import { copySelecao } from "@/lib/matriculas/selecao-disciplinas-copy";
 import { fimSugeridoLivre, type PeriodicidadeLivre, periodoEstaPago } from "@/lib/matriculas/cursos-livres";
 
 type Curso = { id: number; nome: string; valorSemanal: string | null; valorMensalidade: number | null; descontoMensalidadePercentual?: string | number | null; turmas: { id: number; nome: string }[] };
@@ -33,7 +34,7 @@ function CursosLivresPage() {
   const valor = tipo === "SEMANAL" ? curso?.valorSemanal : mensalidadeComDesconto(curso?.valorMensalidade, curso?.descontoMensalidadePercentual);
   const moeda = (n: unknown) => new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(Number(n));
   const data = (s: string) => new Intl.DateTimeFormat(locale, { timeZone: "UTC" }).format(new Date(s));
-  const mensagem = useCallback((codigo?: string) => t.has(`errors.${codigo}`) ? t(`errors.${codigo}`) : t("errors.ERRO_INTERNO"), [t]);
+  const mensagem = useCallback((codigo?: string) => copySelecao(locale).errors[codigo || ""] || (t.has(`errors.${codigo}`) ? t(`errors.${codigo}`) : t("errors.ERRO_INTERNO")), [t, locale]);
   const carregar = useCallback(async (signal?: AbortSignal) => {
     const query = new URLSearchParams();
     if (alunoId) query.set("alunoId", alunoId);
