@@ -3998,7 +3998,7 @@ function AdminMatriculasPage() {
                 <label htmlFor="inicio-curso-novo" className="text-sm font-medium text-gray-700 dark:text-slate-200">{t("courseStart.label")}</label>
                 <input id="inicio-curso-novo" type="date" value={dataInicioCurso}
                   onChange={(e) => setDataInicioCurso(e.target.value)}
-                  aria-describedby="inicio-curso-novo-ajuda" className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+                  aria-describedby="inicio-curso-novo-ajuda" className={`mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${contraste.dataCalendario}`} />
                 <p id="inicio-curso-novo-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">{t("courseStart.help")}</p>
               </div>
 
@@ -4203,7 +4203,7 @@ function AdminMatriculasPage() {
               type="date"
               id="primeiro-vencimento-novo" value={dataPrimeiroVencimento}
               onChange={(e) => setDataPrimeiroVencimento(e.target.value)}
-              className="mt-1 w-full border rounded-xl px-3 py-2"
+              className={`mt-1 w-full border rounded-xl px-3 py-2 ${contraste.dataCalendario}`}
             />
           </div>
           <div>
@@ -5586,7 +5586,7 @@ function AdminMatriculasPage() {
                 <label htmlFor="inicio-curso-edicao" className="text-sm font-medium text-gray-700 dark:text-slate-200">{t("courseStart.label")}</label>
                 <input id="inicio-curso-edicao" type="date" value={matriculaEditando.dataInicioCurso}
                   onChange={(e) => setMatriculaEditando((prev) => prev ? { ...prev, dataInicioCurso: e.target.value } : prev)}
-                  aria-describedby="inicio-curso-edicao-ajuda" className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+                  aria-describedby="inicio-curso-edicao-ajuda" className={`mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${contraste.dataCalendario}`} />
                 <p id="inicio-curso-edicao-ajuda" className="mt-1 text-xs text-slate-600 dark:text-slate-300">{t("courseStart.help")}</p>
               </div>
 
@@ -5688,7 +5688,7 @@ function AdminMatriculasPage() {
                       prev ? { ...prev, primeiroVencimento: e.target.value } : prev
                     )
                   }
-                  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  className={`mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${contraste.dataCalendario}`}
                 />
               </div>
 

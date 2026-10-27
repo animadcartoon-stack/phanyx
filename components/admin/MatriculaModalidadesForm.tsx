@@ -9,6 +9,7 @@ import { type HorarioModalidade } from "@/lib/matriculas/combos";
 import type { OfertaModalidade } from "@/lib/matriculas/modalidades-servidor";
 import type { calcularContratacaoModalidades } from "@/lib/matriculas/combos";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
 type Previa = {
   calculo: ReturnType<typeof calcularContratacaoModalidades>;
@@ -27,6 +28,7 @@ type Conflito = { primeiro: HorarioModalidade; segundo: HorarioModalidade };
 type Alternativa = { substituirTurmaId: number; oferta: OfertaModalidade };
 const input =
   "mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100";
+const chavePolo = (id: number | null) => id === null ? "__sem_polo__" : String(id);
 
 type Props = {
   cursoPrincipalId?: number | null;
@@ -105,7 +107,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
         if (!res.ok) throw new Error(traduzirErro(data.codigo));
         if (ativo) { setOfertas(data.ofertas); setPrincipal(data.principal || null);
           const principais = (data.ofertas as OfertaModalidade[]).filter(o => o.cursoId === principalId);
-          if (principais.length === 1) { setPoloId(String(principais[0].poloId)); setPeriodo(principais[0].periodoLetivo || ""); }
+          if (principais.length === 1) { setPoloId(chavePolo(principais[0].poloId)); setPeriodo(principais[0].periodoLetivo || ""); }
         }
       })
       .catch((error) => {
@@ -299,23 +301,29 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
 
   const polos = useMemo(
     () =>
-      Array.from(new Map(ofertas.filter(o => principalId === null || o.cursoId === principalId).map((o) => [o.poloId, o.poloNome])).entries()),
+      Array.from(new Map(
+        ofertas.filter(o => principalId === null || o.cursoId === principalId)
+          .map(o => [chavePolo(o.poloId), o.poloNome] as const),
+      ).entries()),
     [ofertas, principalId],
   );
   const periodos = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          ofertas
-            .filter(o => principalId === null || o.cursoId === principalId)
-            .filter((o) => !poloId || o.poloId === Number(poloId))
-            .map((o) => o.periodoLetivo || ""),
-        ),
-      ).sort(),
+    () => Array.from(new Set(
+      ofertas
+        .filter(o => principalId === null || o.cursoId === principalId)
+        .filter(o => !poloId || chavePolo(o.poloId) === poloId)
+        .map(o => o.periodoLetivo || ""),
+    )).sort(),
     [ofertas, poloId, principalId],
   );
+  useEffect(() => {
+    if (!poloId && polos.length === 1) setPoloId(polos[0][0]);
+  }, [polos, poloId]);
+  useEffect(() => {
+    if (periodo === "__selecione__" && periodos.length === 1) setPeriodo(periodos[0]);
+  }, [periodo, periodos]);
   const disponiveis = ofertas.filter(
-    (o) => o.poloId === Number(poloId) && (o.periodoLetivo || "") === periodo,
+    o => poloId !== "" && chavePolo(o.poloId) === poloId && (o.periodoLetivo || "") === periodo,
   );
   const cursos = Array.from(
     new Map(disponiveis.map((o) => [o.cursoId, o.curso])).values(),
@@ -427,9 +435,8 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
               </>
             )}
             <label>
-              {t("pole")}
+              {t("pole")} <span className="text-xs text-slate-500 dark:text-slate-300">(quando aplicável)</span>
               <select
-                required
                 className={input}
                 value={poloId}
                 onChange={(e) => {
@@ -474,7 +481,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
               {t("startDate")}
               <input
                 type="date"
-                className={input}
+                className={`${input} ${contraste.dataCalendario}`}
                 value={inicio}
                 onChange={(e) => {
                   const data = e.target.value;
@@ -530,8 +537,12 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
             )}
             {loading ? (
               <p>{t("loading")}</p>
-            ) : !alunoId || !poloId ? (
-              <p>{t("selectStudentPole")}</p>
+            ) : !alunoId ? (
+              <p>Selecione o aluno para escolher as turmas.</p>
+            ) : ofertas.length === 0 ? (
+              <p role="status">Não há turmas ativas elegíveis para esta contratação. Confira as turmas e horários dos cursos configurados como adicionais em Cursos.</p>
+            ) : !poloId || periodo === "__selecione__" ? (
+              <p>Selecione o polo, se houver mais de uma opção, e o período letivo da turma.</p>
             ) : cursos.length === 0 ? (
               <p>{t("noOffers")}</p>
             ) : (
@@ -589,7 +600,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
                               value={o.id}
                               disabled={o.horariosPendentes || o.vagas === 0}
                             >
-                              {o.nome} ·{" "}
+                              {o.nome}{o.turno ? ` · ${o.turno}` : ""} ·{" "}
                               {o.horariosPendentes
                                 ? t("schedulePending")
                                 : o.eadLivre
@@ -799,7 +810,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
                   <input
                     required
                     type="date"
-                    className={input}
+                    className={`${input} ${contraste.dataCalendario}`}
                     value={vencimento}
                     onChange={(e) => setVencimento(e.target.value)}
                   />
