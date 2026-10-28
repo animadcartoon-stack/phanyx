@@ -1,12 +1,14 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import { mensagemConflitoHorario } from "@/lib/matriculas/resumo-conflito-horario";
 
 type Curso = { id: number; nome: string; ativo: boolean; disponivelComoAdicional?: boolean };
 type Combo = { id: number; nome: string; ativo: boolean; cursoIds: number[] };
 type Oferta = {
   id: number; nome: string; cursoId: number; poloId: number | null;
   periodoLetivo: string | null; turno: string | null; vagas: number | null;
-  horariosPendentes: boolean; disciplinaIds: number[];
+  horariosPendentes: boolean; capacidadePendente?: boolean; disciplinaIds: number[];
   curso: { id: number; nome: string };
 };
 export type PreviaComboMatricula = {
@@ -26,6 +28,13 @@ type Props = {
   onPreviaChange: (previa: PreviaComboMatricula | null) => void;
 };
 const campo = "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
+// O servidor calcula as vagas apenas para turmas ativas. null nao significa que uma
+// oferta compartilhada tenha capacidade infinita: requer revisao administrativa.
+export function descricaoVagasTurmaAdicional(vagas: number | null): string {
+  if (vagas === null) return "limite de vagas não informado";
+  if (vagas <= 0) return "sem vagas";
+  return vagas === 1 ? "1 vaga disponível" : vagas + " vagas disponíveis";
+}
 export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, turmaPrincipalId, dataInicioCurso, escolhidos, onChange, onPreviaChange }: Props) {
   const [aberto, setAberto] = useState(false);
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -37,6 +46,42 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
   const [carregando, setCarregando] = useState(true);
   const [calculando, setCalculando] = useState(false);
   const [previa, setPrevia] = useState<PreviaComboMatricula | null>(null);
+  const [modalConflito, setModalConflito] = useState<string | null>(null);
+  const audioRef = useRef<AudioContext | null>(null);
+
+  // O navegador costuma autorizar som apenas apos uma interacao do usuario.
+  function prepararSomConflito() {
+    if (typeof window === "undefined") return;
+    try {
+      const construtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!construtor) return;
+      const contexto = audioRef.current || new construtor();
+      audioRef.current = contexto;
+      if (contexto.state === "suspended") void contexto.resume().catch(() => {});
+    } catch { /* Aviso visual permanece funcional se som estiver bloqueado. */ }
+  }
+  function tocarSomConflito() {
+    const contexto = audioRef.current;
+    if (!contexto || contexto.state !== "running") return;
+    try {
+      const oscilador = contexto.createOscillator();
+      const volume = contexto.createGain();
+      const agora = contexto.currentTime;
+      oscilador.type = "sine";
+      oscilador.frequency.setValueAtTime(660, agora);
+      oscilador.frequency.setValueAtTime(520, agora + 0.12);
+      volume.gain.setValueAtTime(0.0001, agora);
+      volume.gain.linearRampToValueAtTime(0.09, agora + 0.02);
+      volume.gain.exponentialRampToValueAtTime(0.0001, agora + 0.28);
+      oscilador.connect(volume);
+      volume.connect(contexto.destination);
+      oscilador.start(agora);
+      oscilador.stop(agora + 0.29);
+    } catch { /* Audio pode estar indisponivel no dispositivo. */ }
+  }
+  useEffect(() => () => {
+    if (audioRef.current) void audioRef.current.close().catch(() => {});
+  }, []);
   const idsEscolhidos = escolhidos.join(",");
   const selecoes = escolhidos.map(id => Number(porCurso[id] || 0));
   const idsTurmas = turmaPrincipalId && selecoes.every(id => id > 0)
@@ -79,7 +124,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
     (o.periodoLetivo || "") === (turmaPrincipal.periodoLetivo || ""));
 
   useEffect(() => {
-    setPrevia(null); onPreviaChange(null); setErroPrevia("");
+    setPrevia(null); onPreviaChange(null); setErroPrevia(""); setModalConflito(null);
     if (!escolhidos.length || !alunoId || !turmaPrincipalId || !chaveTurmas ||
       !turmaPrincipal || idsTurmas.length !== escolhidos.length + 1 || carregando) return;
     const controller = new AbortController();
@@ -91,7 +136,12 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
         turmaIds: idsTurmas, dataInicioCurso: dataInicioCurso || null }),
     }).then(async r => {
       const d = await r.json().catch(() => null);
-      if (!r.ok) throw Error(String(d?.codigo || d?.error || "Não foi possível calcular a matrícula"));
+      if (!r.ok) {
+        const falha = new Error(String(d?.codigo || d?.error || "Não foi possível calcular a matrícula")) as Error & { codigo?: string; detalhes?: unknown };
+        falha.codigo = typeof d?.codigo === "string" ? d.codigo : undefined;
+        falha.detalhes = d?.detalhes;
+        throw falha;
+      }
       return d;
     }).then(d => {
       if (controller.signal.aborted) return;
@@ -102,7 +152,17 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
         calculo: d.calculo,
       };
       setPrevia(p); onPreviaChange(p);
-    }).catch(e => { if (!controller.signal.aborted) setErroPrevia(e?.message || "Falha na prévia"); })
+    }).catch(e => {
+      if (controller.signal.aborted) return;
+      const falha = e as Error & { codigo?: string; detalhes?: unknown };
+      if (falha.codigo === "CONFLITO_HORARIO") {
+        setModalConflito(mensagemConflitoHorario(falha.detalhes));
+        setErroPrevia("Conflito de horários detectado. Selecione outra turma ou horário.");
+        tocarSomConflito();
+      } else {
+        setErroPrevia(falha?.message || "Falha na prévia");
+      }
+    })
       .finally(() => { if (!controller.signal.aborted) setCalculando(false); });
     return () => controller.abort();
   }, [alunoId, cursoPrincipalId, turmaPrincipalId, dataInicioCurso, idsEscolhidos, chaveTurmas, chaveOpcoes, carregando, ofertas, onPreviaChange]);
@@ -111,7 +171,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
   return <section className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
     <label className="flex cursor-pointer items-center gap-2 font-semibold">
       <input type="checkbox" checked={aberto || escolhidos.length > 0} onChange={e => {
-        setAberto(e.target.checked); if (!e.target.checked) { onChange([]); setPorCurso({}); }
+        setAberto(e.target.checked); if (e.target.checked) prepararSomConflito(); if (!e.target.checked) { onChange([]); setPorCurso({}); }
       }} /> Vincular outro curso nesta matrícula (opcional)
     </label>
     <p className="mt-1 text-sm">A matrícula com apenas o curso principal continua disponível. Escolha outra modalidade somente se desejar.</p>
@@ -125,25 +185,30 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
         return <div key={c.id} className="rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
           <label className="flex items-center gap-3 font-medium">
             <input type="checkbox" checked={marcado} onChange={e => {
+              if (e.target.checked) prepararSomConflito();
               setPorCurso(anteriores => { const atual = { ...anteriores }; delete atual[c.id]; return atual; });
               onChange(e.target.checked ? [...escolhidos, c.id] : escolhidos.filter(id => id !== c.id));
             }} /> {c.nome}
           </label>
           {marcado && <div className="mt-3 space-y-2 pl-6">
-            {!turmaPrincipal ? <p className="text-sm text-amber-700 dark:text-amber-300">Selecione primeiro a turma do curso principal.</p> :
+            {!turmaPrincipal ? <p className="text-sm text-amber-700 dark:text-amber-300">{turmaPrincipalId ? "A turma escolhida para o curso principal está inativa ou indisponível para o combo. Verifique a situação da oferta, suas disciplinas e seus horários em Turmas." : "Selecione primeiro a turma do curso principal."}</p> :
               turmas.length === 0 ? <p className="text-sm text-amber-700 dark:text-amber-300">Este curso ainda não tem turma ativa compatível com o período da matrícula. Configure a turma em Turmas.</p> :
               <label className="block text-sm font-medium">Turma de {c.nome}
-                <select className={campo + " mt-1"} value={porCurso[c.id] || ""} onChange={e => setPorCurso(p => ({ ...p, [c.id]: Number(e.target.value) }))}>
+                <select className={campo + " mt-1"} value={porCurso[c.id] || ""} onChange={e => { prepararSomConflito(); setPorCurso(p => ({ ...p, [c.id]: Number(e.target.value) })); }}>
                   <option value="">Selecione a turma...</option>
-                  {turmas.map(o => <option key={o.id} value={o.id} disabled={o.horariosPendentes || o.vagas === 0}>
-                    {o.nome}{o.turno ? " — " + o.turno : ""}{o.horariosPendentes ? " — horários pendentes" : ""}{o.vagas === 0 ? " — sem vagas" : ""}
+                  {turmas.map(o => <option key={o.id} value={o.id} disabled={o.horariosPendentes || o.vagas === 0 || o.capacidadePendente}>
+                    {o.nome}{o.turno ? " — " + o.turno : ""}{" — " + descricaoVagasTurmaAdicional(o.vagas)}{o.horariosPendentes ? " — horários pendentes" : ""}{o.capacidadePendente ? " — configure a capacidade compartilhada" : ""}
                   </option>)}
                 </select>
               </label>}
+            {turmas.length > 0 && <p className="text-xs text-slate-600 dark:text-slate-300">
+              Escolha uma turma com vaga e horário compatível. Turmas sem vaga ou com horário pendente não podem ser selecionadas.
+              Se o limite de vagas não estiver informado, a administração deverá revisar a capacidade antes de ativar ofertas compartilhadas.
+            </p>}
           </div>}
-        </div>;
+        </div>
       })}
-      {escolhidos.length > 0 && !turmaPrincipal && <p role="alert" className="text-amber-700">O curso principal precisa ter uma turma disponível antes de calcular o combo.</p>}
+      {escolhidos.length > 0 && !turmaPrincipal && <p role="alert" className="text-amber-700">{turmaPrincipalId ? "A turma principal selecionada ainda não está disponível para o cálculo do combo (pode estar inativa)." : "O curso principal precisa ter uma turma disponível antes de calcular o combo."}</p>}
       {calculando && <p role="status">Calculando matrícula e verificando horários, vagas e descontos...</p>}
       {erroPrevia && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">Prévia indisponível: {erroPrevia}. A matrícula conjunta não será gravada.</p>}
       {previa && <div className="rounded-lg border border-blue-300 bg-white p-3 text-sm text-slate-900 dark:bg-slate-950 dark:text-white">
@@ -153,5 +218,14 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
         <p className="mt-1 text-xs">A confirmação fará uma nova validação do preço, das vagas e dos horários no servidor.</p>
       </div>}
     </div>}
+    <PhanyxConfirmModal
+      aberto={modalConflito !== null}
+      titulo="Conflito de horários na matrícula"
+      mensagem={modalConflito || ""}
+      textoConfirmar="Entendi"
+      mostrarCancelar={false}
+      onConfirmar={() => setModalConflito(null)}
+      onCancelar={() => setModalConflito(null)}
+    />
   </section>;
 }

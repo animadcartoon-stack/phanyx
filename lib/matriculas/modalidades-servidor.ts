@@ -1,4 +1,5 @@
 import { idCursoPrincipal, validarCursosAdicionais } from "./cursos-adicionais";
+import { origemOfertaVinculada, capacidadePendenteOferta, vagasOfertaCompartilhada, type OfertaParaVagas } from "./vagas-ofertas-compartilhadas";
 import { temDisciplinaIncluidaDuplicada } from "./selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
 import { createHash } from "node:crypto";
@@ -43,6 +44,7 @@ export async function carregarOfertasModalidades(
     select: {
       id: true,
       nome: true,
+      codigo: true,
       cursoId: true,
       poloId: true,
       periodoLetivo: true,
@@ -92,11 +94,35 @@ export async function carregarOfertasModalidades(
     },
     orderBy: [{ curso: { nome: "asc" } }, { nome: "asc" }, { id: "asc" }],
   });
+  // Consulta ofertas vinculadas (inclusive inativas) para impedir que o mesmo
+  // lugar fisico seja vendido por dois cursos. Nunca modifica os registros.
+  const ofertasVinculadas = turmas.length ? await db.turma.findMany({
+    where: { instituicaoId, codigo: { startsWith: "OFERTA-" } },
+    select: { id: true, codigo: true, cursoId: true, capacidadeMaxima: true,
+      disciplinas: { select: { disciplinaId: true } } },
+  }) : [];
+  const metas = new Map<number, OfertaParaVagas>();
+  for (const turma of turmas) metas.set(turma.id, {
+    id: turma.id, codigo: turma.codigo, cursoId: turma.cursoId,
+    capacidadeMaxima: turma.capacidadeMaxima,
+    disciplinas: turma.disciplinas.map(d => ({ disciplinaId: d.disciplinaId })),
+  });
+  for (const oferta of ofertasVinculadas) metas.set(oferta.id, oferta);
+  const origensAusentes = [...new Set(ofertasVinculadas.map(origemOfertaVinculada).filter((n): n is number => n !== null))]
+    .filter(id => !metas.has(id));
+  if (origensAusentes.length) {
+    const origens = await db.turma.findMany({
+      where: { instituicaoId, id: { in: origensAusentes } },
+      select: { id: true, codigo: true, cursoId: true, capacidadeMaxima: true,
+        disciplinas: { select: { disciplinaId: true } } },
+    });
+    for (const origem of origens) metas.set(origem.id, origem);
+  }
   const ocupacoes = turmas.length
     ? await db.itemMatricula.findMany({
         where: {
           instituicaoId,
-          turmaId: { in: turmas.map((t) => t.id) },
+          turmaId: { in: [...metas.keys()] },
           status: { in: [...itensOcupantes] },
           matricula: {
             instituicaoId,
@@ -105,14 +131,10 @@ export async function carregarOfertasModalidades(
             status: { in: [...matriculasOcupantes] },
           },
         },
-        select: { turmaId: true, matricula: { select: { alunoId: true } } },
+        select: { turmaId: true, disciplinaId: true, matricula: { select: { alunoId: true } } },
       })
     : [];
-  const ocupantes = new Map<number, Set<number>>();
-  for (const item of ocupacoes) {
-    if (!ocupantes.has(item.turmaId)) ocupantes.set(item.turmaId, new Set());
-    ocupantes.get(item.turmaId)!.add(item.matricula.alunoId);
-  }
+  const metasTurmas = [...metas.values()];
   return turmas.filter(t => !t.curso.regrasPrecoDisciplinas && !t.curso.regrasSelecaoDisciplinas).map((turma) => {
     const horarios: HorarioModalidade[] = turma.disciplinas.flatMap((td) =>
       td.horarios.map((h) => ({
@@ -154,13 +176,8 @@ export async function carregarOfertasModalidades(
         cargaHoraria: td.disciplina.cargaHoraria,
         semestre: td.disciplina.semestre,
       })),
-      vagas:
-        turma.capacidadeMaxima === null
-          ? null
-          : Math.max(
-              0,
-              turma.capacidadeMaxima - (ocupantes.get(turma.id)?.size || 0),
-            ),
+      capacidadePendente: capacidadePendenteOferta(metas.get(turma.id)!, metasTurmas),
+      vagas: vagasOfertaCompartilhada(metas.get(turma.id)!, metasTurmas, ocupacoes),
       curso: {
         ...turma.curso,
         descontoMensalidadePercentual: turma.curso.descontoMensalidadePercentual?.toString() ?? null,

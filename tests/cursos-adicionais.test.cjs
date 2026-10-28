@@ -20,7 +20,7 @@ function fixture(){
   curso:{id:o.cursoId,nome:o.nome,participaCombo:true,permiteCursosAdicionais:o.permite,disponivelComoAdicional:o.adicional,valorMatricula:98.5,valorMensalidade:o.valor,regrasPrecoDisciplinas:null,regrasSelecaoDisciplinas:null,descontoMensalidadePercentual:null,valorMensalidadeCombo:null,precosComboPorQuantidade:[],quantidadeParcelas:12,requisitosConjuntos:[]},
   disciplinas:[{disciplinaId:o.cursoId,dataInicio:null,dataFim:null,disciplina:{nome:o.nome,cargaHoraria:20,semestre:null},horarios:[{diaSemana:o.dia,horaInicio:'09:00',horaFim:'10:00'}]}]
  }));
- const db={turma:{findMany:async()=>turmas},itemMatricula:{findMany:async()=>[]},turmaDisciplina:{findMany:async()=>[]},aluno:{findFirst:async()=>({id:5,poloId:1,ativo:true,dataNascimento:new Date('2000-01-01')})},cursoRequisitoConjunto:{findMany:async()=>[]},matricula:{findMany:async()=>[],create:async({data})=>{writes.push(['matricula',data]);return{id:77,numeroMatricula:'PHX-7',valorMatricula:data.valorMatricula,valorMensalidade:data.valorMensalidade}}},comboModalidades:{findMany:async()=>[{id:1,nome:'Dois cursos',ativo:true,minimoModalidades:2,maximoModalidades:2,modoPreco:'PERCENTUAL',descontoPercentual:10,valorMatricula:98.5,valorMensalidade:null,quantidadeParcelas:12,cursos:[{cursoId:20},{cursoId:25}]}]},instituicao:{update:async()=>{writes.push(['contador']);return {proximoNumeroMatricula:2}}},lancamentoFinanceiro:{create:async({data})=>writes.push(['taxa',data]),createMany:async({data})=>writes.push(['mensalidades',data])},documentoAluno:{create:async()=>writes.push(['documento'])}};
+ const db={turma:{findMany:async ({where}={})=>where?.codigo?.startsWith==="OFERTA-"?[]:turmas},itemMatricula:{findMany:async()=>[]},turmaDisciplina:{findMany:async()=>[]},aluno:{findFirst:async()=>({id:5,poloId:1,ativo:true,dataNascimento:new Date('2000-01-01')})},cursoRequisitoConjunto:{findMany:async()=>[]},matricula:{findMany:async()=>[],create:async({data})=>{writes.push(['matricula',data]);return{id:77,numeroMatricula:'PHX-7',valorMatricula:data.valorMatricula,valorMensalidade:data.valorMensalidade}}},comboModalidades:{findMany:async()=>[{id:1,nome:'Dois cursos',ativo:true,minimoModalidades:2,maximoModalidades:2,modoPreco:'PERCENTUAL',descontoPercentual:10,valorMatricula:98.5,valorMensalidade:null,quantidadeParcelas:12,cursos:[{cursoId:20},{cursoId:25}]}]},instituicao:{update:async()=>{writes.push(['contador']);return {proximoNumeroMatricula:2}}},lancamentoFinanceiro:{create:async({data})=>writes.push(['taxa',data]),createMany:async({data})=>writes.push(['mensalidades',data])},documentoAluno:{create:async()=>writes.push(['documento'])}};
  return {db,writes,turmas,server:carregar('lib/matriculas/modalidades-servidor.ts'),body:{alunoId:5,cursoPrincipalId:25,turmaIds:[10,50],dataInicioCurso:'2027-03-01'}};
 }
 test('marcações são independentes, opcionais e não aceitam strings ou modos incompatíveis',()=>{
@@ -117,7 +117,11 @@ test('aplicador só confirma colunas booleanas não nulas e padrão false',()=>{
 test('ofertas sem polo continuam elegiveis, mantem combo e nao liberam polos inativos', async () => {
   const f = fixture();
   f.turmas.forEach(t => { t.poloId = null; t.polo = null; });
-  f.db.turma.findMany = async ({where}) => {
+  f.db.turma.findMany = async ({where,select}) => {
+    if (where.codigo?.startsWith === "OFERTA-") {
+      assert.equal(select.codigo,true);
+      return []; // Nao ha ofertas vinculadas nesta fixture.
+    }
     assert.deepEqual(plain(where.OR), [{poloId:null},{polo:{ativo:true}}]);
     return f.turmas;
   };

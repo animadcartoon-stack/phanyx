@@ -5,6 +5,7 @@ import { normalizarRegrasDisciplinas, calcularPrecoDisciplinas, lerContratacaoDi
 import { validarCursoAtivoParaMatricula, validarItensAnuaisDaMatricula, resolverEtapaDaMatricula, respostaErroAcademico } from "@/lib/academico/integridade-ofertas";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { validarAgendaMatricula } from "@/lib/matriculas/validar-agenda";
+import { verificarVagasMatricula } from "@/lib/matriculas/verificar-vagas-matricula";
 import { ErroModalidades } from "@/lib/matriculas/combos";
 import { getTranslations } from "next-intl/server";
 import { calcularIdade, verificarDadosResponsavel } from "@/lib/matriculas/confirmacao-menor";
@@ -2757,6 +2758,14 @@ export async function POST(request: Request) {
             await validarItensAnuaisDaMatricula(tx, user.instituicaoId, cursoIdFinal!, cursoSemestreId, itensClassificados);
           await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId, itens: itensClassificados, inicio: inicioCurso.data, regrasSelecaoDisciplinas: regrasSelecao, exigirHorarios: regrasSelecao ? !regrasSelecao.horariosPendentesPermitidos : Boolean(precoDisciplinas) });
 
+          // Verifica vagas da turma e de ofertas avulsas que compartilham
+          // a mesma atividade PEVI. Bloqueio e contagem no mesmo commit.
+          await verificarVagasMatricula(tx, {
+            instituicaoId: user.instituicaoId,
+            alunoId,
+            itens: itensClassificados,
+          });
+
           const agoraConversao =
             new Date();
 
@@ -4686,6 +4695,22 @@ export async function PUT(request: Request) {
           });
           await validarAgendaMatricula(tx, { instituicaoId: user.instituicaoId, alunoId: alunoIdFinal,
             itens: agendaItens, matriculaId: id, inicio: inicioCurso.data === undefined ? matriculaExistente.dataInicioCurso : inicioCurso.data, regrasSelecaoDisciplinas: regrasSelecaoAnterior, exigirHorarios: regrasSelecaoAnterior ? !regrasSelecaoAnterior.horariosPendentesPermitidos : Boolean(precoDisciplinasAnterior) });
+        }
+        // Ao alterar turma/disciplinas/aluno, revalidar a capacidade
+        // compartilhada. A propria matricula em edicao nao ocupa duas vezes.
+        if (deveSincronizarItens || alunoIdFinal !== matriculaExistente.alunoId) {
+          const itensParaVagas = deveSincronizarItens ? itensClassificados :
+            await tx.itemMatricula.findMany({
+              where: { matriculaId: id, instituicaoId: user.instituicaoId,
+                status: { in: ["A_CURSAR", "EM_CURSO"] } },
+              select: { turmaId: true, disciplinaId: true },
+            });
+          await verificarVagasMatricula(tx, {
+            instituicaoId: user.instituicaoId,
+            alunoId: alunoIdFinal,
+            itens: itensParaVagas,
+            matriculaIdIgnorada: id,
+          });
         }
         await tx.matricula.update({
           where: {
