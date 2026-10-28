@@ -8,9 +8,9 @@ import contraste from "@/components/admin/ContrasteAcademico.module.css";
 import ResumoPrecoDisciplinas from "@/components/admin/ResumoPrecoDisciplinas";
 import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
+import SeletorAdicionaisMatricula, { type PreviaComboMatricula } from "@/components/admin/SeletorAdicionaisMatricula";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -22,7 +22,6 @@ import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import { useLocale, useTranslations } from "next-intl";
 
-const MatriculaModalidadesForm = dynamic(() => import("@/components/admin/MatriculaModalidadesForm"), { ssr: false });
 
 type CursoOption = {
   id: number;
@@ -425,6 +424,11 @@ function AdminMatriculasPage() {
     useRef<HTMLDivElement | null>(null);
 
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
+  const [cursosAdicionaisEscolhidos, setCursosAdicionaisEscolhidos] = useState<number[]>([]);
+  const [previaCombo, setPreviaCombo] = useState<PreviaComboMatricula | null>(null);
+  const [motivoAjusteCombo, setMotivoAjusteCombo] = useState("");
+  const chaveConfirmacaoCombo = useRef("");
+  const haviaCursosAdicionais = useRef(false);
   const [valorTaxaMatricula, setValorTaxaMatricula] = useState("");
   const [valorPagoMatricula, setValorPagoMatricula] =
     useState<string>("");
@@ -1097,6 +1101,26 @@ function AdminMatriculasPage() {
   useEffect(() => {
     console.log("📚 Alunos carregados para matrícula:", alunos);
   }, [alunos]);
+
+  useEffect(() => { setCursosAdicionaisEscolhidos([]); setPreviaCombo(null); setMotivoAjusteCombo(""); chaveConfirmacaoCombo.current = ""; }, [cursoId]);
+  useEffect(() => { chaveConfirmacaoCombo.current = ""; }, [previaCombo?.versao, dataPrimeiroVencimento, valorTaxaMatricula, valorMensalidade, quantidadeParcelas, bolsaPercentual, motivoAjusteCombo]);
+  useEffect(() => {
+    const temAdicionais = cursosAdicionaisEscolhidos.length > 0;
+    if (haviaCursosAdicionais.current && !temAdicionais) {
+      const padrao = financeiroPadraoCurso(cursoSelecionadoObj);
+      setValorTaxaMatricula(padrao.valorMatricula);
+      setValorMensalidade(padrao.valorMensalidade);
+      setQuantidadeParcelas(padrao.quantidadeMensalidades);
+      setMotivoAjusteCombo("");
+    }
+    haviaCursosAdicionais.current = temAdicionais;
+  }, [cursosAdicionaisEscolhidos.length, cursoId]);
+  useEffect(() => {
+    if (!previaCombo || cursosAdicionaisEscolhidos.length === 0) return;
+    setValorTaxaMatricula(String(previaCombo.calculo.matriculaCentavos / 100));
+    setValorMensalidade(String(previaCombo.calculo.mensalidadeCentavos / 100));
+    setQuantidadeParcelas(String(previaCombo.calculo.quantidadeParcelas));
+  }, [previaCombo?.versao, cursosAdicionaisEscolhidos.length]);
 
   useEffect(() => {
     setCursoSemestreId("");
@@ -1923,7 +1947,89 @@ function AdminMatriculasPage() {
     );
   }
 
+  async function criarMatriculaComAdicionais(confirmacaoMenorAceita = false) {
+    if (!previaCombo || !podeCriar || previaCombo.turmaIds.length !== cursosAdicionaisEscolhidos.length + 1 ||
+        previaCombo.turmaIds[0] !== turmasSelecionadas[0] ||
+        [...previaCombo.cursosEscolhidos].sort((a,b)=>a-b).join(",") !== [...cursosAdicionaisEscolhidos].sort((a,b)=>a-b).join(",")) {
+      setErro("Selecione uma turma válida para cada curso e confira todos os campos da matrícula."); return;
+    }
+    // A API de modalidades matricula as disciplinas da turma selecionada.
+    // Não podemos mostrar uma lista e gravar outra silenciosamente.
+    const marcadas = [...disciplinasIdsSelecionadasParaEnvio].sort((a,b) => a-b);
+    const daTurma = [...previaCombo.disciplinasPrincipais].sort((a,b) => a-b);
+    if (marcadas.length !== daTurma.length || marcadas.some((id,i) => id !== daTurma[i])) {
+      setErro("Para contratar vários cursos, as disciplinas marcadas no curso principal devem corresponder às disciplinas da turma principal. Revise a seleção antes de continuar."); return;
+    }
+    if (parametrosConversao.leadId || vendedorResponsavelId) {
+      setErro("A contratação conjunta vinculada a lead ou vendedor comercial ainda não está disponível neste fluxo. Nenhuma matrícula foi gravada."); return;
+    }
+    if (!["ATIVA", "A_INICIAR"].includes(statusInicialMatricula)) {
+      setErro("Para esta contratação conjunta, selecione status Ativa ou A iniciar."); return;
+    }
+    if (!dataPrimeiroVencimento) { setErro("Informe o primeiro vencimento."); return; }
+    const valorTaxa = Number(valorTaxaMatricula), mensalidade = Number(valorMensalidade), parcelas = Number(quantidadeParcelas);
+    const bolsa = Number(bolsaPercentual || 0);
+    if (![valorTaxa, mensalidade, parcelas, bolsa].every(Number.isFinite) || valorTaxa < 0 || mensalidade < 0 || !Number.isInteger(parcelas) || parcelas < 1 || parcelas > 120 || bolsa < 0 || bolsa > 100) {
+      setErro("Confira taxa, mensalidade, parcelas e bolsa antes de confirmar."); return;
+    }
+    const valorPago = Number(valorPagoMatricula || 0);
+    if (!Number.isFinite(valorPago) || valorPago < 0 || (valorPago > 0 && !formaPagamentoMatricula)) {
+      setErro("Confira o valor recebido no ato e a forma de pagamento informada."); return;
+    }
+    const diferente = Math.round(valorTaxa * 100) !== previaCombo.calculo.matriculaCentavos ||
+      Math.round(mensalidade * 100) !== previaCombo.calculo.mensalidadeCentavos ||
+      parcelas !== previaCombo.calculo.quantidadeParcelas;
+    if (diferente && motivoAjusteCombo.trim().length < 3) {
+      setErro("Informe o motivo do ajuste manual para preservar a auditoria dos valores."); return;
+    }
+    setCreating(true);
+    if (!chaveConfirmacaoCombo.current) chaveConfirmacaoCombo.current = crypto.randomUUID();
+    try {
+      const res = await fetch("/api/admin/matriculas/modalidades", {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          acao: "CONFIRMAR", cursoPrincipalId: Number(cursoId), alunoId: Number(alunoId),
+          turmaIds: previaCombo.turmaIds, dataInicioCurso: dataInicioCurso || null,
+          primeiroVencimento: dataPrimeiroVencimento, status: statusInicialMatricula,
+          versao: previaCombo.versao, chave: chaveConfirmacaoCombo.current,
+          bolsaPercentual: bolsa, valorPagoMatricula: valorPago,
+          formaPagamentoMatricula: valorPago > 0 ? formaPagamentoMatricula : null,
+          confirmacaoMenorAceita,
+          ajuste: diferente ? { valorMatricula: valorTaxa, valorMensalidade: mensalidade,
+            quantidadeParcelas: parcelas, motivo: motivoAjusteCombo.trim() } : null,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        if (data?.codigo === "CONFIRMACAO_MENOR_NECESSARIA") {
+          setConfirmTitulo("Confirmação de matrícula de menor");
+          setConfirmMensagem("O aluno é menor de idade. Confira o responsável legal e confirme que os dados necessários foram verificados. Deseja continuar?");
+          setConfirmAcao(() => () => { void criarMatriculaComAdicionais(true); });
+          setConfirmModalAberto(true);
+          return;
+        }
+        const codigo = String(data?.codigo || "");
+        throw new Error(codigo && tc.has("errors." + codigo) ? tc("errors." + codigo) : codigo || data?.error || "Não foi possível confirmar a contratação conjunta.");
+      }
+      setSucesso("Matrícula conjunta criada com sucesso. Cursos e disciplinas foram registrados no contrato.");
+      setAlunoId(""); setCursoId(""); setCursoSemestreIds([]);
+      setTurmasSelecionadas([]); setDisciplinasSelecionadas([]); setDisciplinasExtrasSelecionadas([]);
+      setTurmaPorDisciplina({}); setCursosAdicionaisEscolhidos([]); setPreviaCombo(null);
+      setValorTaxaMatricula(""); setValorPagoMatricula(""); setFormaPagamentoMatricula("");
+      setValorMensalidade(""); setBolsaPercentual("0"); setQuantidadeParcelas("");
+      setDataPrimeiroVencimento(""); setDataInicioCurso(""); setPeriodoLetivo("");
+      setStatusInicialMatricula("ATIVA"); setMotivoAjusteCombo("");
+      await carregarTudo();
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Falha ao confirmar matrícula conjunta.");
+    } finally { setCreating(false); }
+  }
+
   async function criarMatricula() {
+    if (cursosAdicionaisEscolhidos.length > 0) {
+      await criarMatriculaComAdicionais();
+      return;
+    }
     if (regrasIncluidas) {
       try { validarSelecaoDisciplinas(regrasIncluidas, disciplinasIdsSelecionadasParaEnvio); } catch { setErro(copySelecao(locale).invalid); return; }
     }
@@ -3921,18 +4027,7 @@ function AdminMatriculasPage() {
             </select>
           </div>
         </div>
-        {cursoSelecionadoObj?.permiteCursosAdicionais ? (
-          <div className="mt-5">
-            <MatriculaModalidadesForm
-              key={`modalidades-${cursoId}-${alunoId}`}
-              cursoPrincipalId={Number(cursoId)}
-              alunoSelecionadoId={alunoId}
-              integrado
-            />
-          </div>
-        ) : (
-          <>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-sm font-medium text-gray-700">
               {ts(cursoAnualSelecionado ? "yearLabel" : "semesterLabel")}
@@ -4108,6 +4203,23 @@ function AdminMatriculasPage() {
             </select>
           </div>
 
+          {cursoSelecionadoObj?.permiteCursosAdicionais && <div className="md:col-span-4">
+            <SeletorAdicionaisMatricula
+              cursoPrincipalId={Number(cursoId)}
+              alunoId={alunoId}
+              turmaPrincipalId={turmasSelecionadas[0] ?? null}
+              dataInicioCurso={dataInicioCurso}
+              escolhidos={cursosAdicionaisEscolhidos}
+              onChange={setCursosAdicionaisEscolhidos}
+              onPreviaChange={setPreviaCombo}
+            />
+            {cursosAdicionaisEscolhidos.length > 0 && <label className="mt-3 block text-sm font-medium text-slate-800 dark:text-slate-200">
+              Motivo de ajuste manual (preencha somente se alterar taxa, mensalidade ou número de parcelas calculados)
+              <input value={motivoAjusteCombo} onChange={e => setMotivoAjusteCombo(e.target.value)}
+                maxLength={1000} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:bg-slate-950 dark:text-white"
+                placeholder="Ex.: promoção institucional autorizada" />
+            </label>}
+          </div>}
           <div>
             <label htmlFor="taxa-matricula-nova" className="text-sm font-medium text-gray-700 dark:text-slate-200">{ts("feeLabel")}</label>
             <input id="taxa-matricula-nova" type="number" min="0" step="0.01" value={valorTaxaMatricula} onChange={e => setValorTaxaMatricula(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2 bg-white text-slate-900 dark:bg-slate-900 dark:text-white" />
@@ -4666,10 +4778,10 @@ function AdminMatriculasPage() {
           )}
           <button
             onClick={criarMatricula}
-            disabled={!podeCriar || creating}
+            disabled={!podeCriar || creating || (cursosAdicionaisEscolhidos.length > 0 && !previaCombo)}
             className={[
               "px-4 py-2 rounded-xl font-semibold transition",
-              !podeCriar || creating
+              !podeCriar || creating || (cursosAdicionaisEscolhidos.length > 0 && !previaCombo)
                 ? "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             ].join(" ")}
@@ -4677,8 +4789,6 @@ function AdminMatriculasPage() {
             {creating ? "Criando..." : "Matricular aluno"}
           </button>
         </div>
-          </>
-        )}
       </div>
 
       <div className="matriculas-light-fix bg-white border rounded-2xl shadow-sm overflow-hidden">

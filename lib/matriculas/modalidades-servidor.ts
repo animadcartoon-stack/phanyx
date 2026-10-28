@@ -460,6 +460,16 @@ export async function confirmarContratacaoModalidades(
       },
     };
   }
+  const bolsaPercentual = Number(body.bolsaPercentual ?? 0);
+  if (!Number.isFinite(bolsaPercentual) || bolsaPercentual < 0 || bolsaPercentual > 100 ||
+      Math.abs(Number(bolsaPercentual.toFixed(2)) - bolsaPercentual) > 1e-8)
+    throw new ErroModalidades("AJUSTE_INVALIDO");
+  const mensalidadeLiquida = Math.round(mensalidade * (100 - bolsaPercentual) / 100);
+  const recebidoNoAto = Number(body.valorPagoMatricula ?? 0);
+  if (!Number.isFinite(recebidoNoAto) || recebidoNoAto < 0) throw new ErroModalidades("AJUSTE_INVALIDO");
+  const formaPagamentoAto = typeof body.formaPagamentoMatricula === "string"
+    ? body.formaPagamentoMatricula.trim().slice(0,80) : "";
+  if (recebidoNoAto > 0 && !formaPagamentoAto) throw new ErroModalidades("AJUSTE_INVALIDO");
   const vencimento = String(body.primeiroVencimento || "");
   const primeiroVencimento = vencimentoMensal(vencimento, 0);
   const situacao = body.status === "A_INICIAR" ? "A_INICIAR" : "ATIVA";
@@ -498,7 +508,7 @@ export async function confirmarContratacaoModalidades(
         ajuste: auditoriaAjuste,
         finais: {
           matriculaCentavos: taxa,
-          mensalidadeCentavos: mensalidade,
+          mensalidadeCentavos: mensalidadeLiquida,
           quantidadeParcelas: parcelas,
         },
         registradoPorId: user.id,
@@ -507,6 +517,7 @@ export async function confirmarContratacaoModalidades(
       chaveContratacaoModalidades: String(body.chave),
       valorMatricula: taxa / 100,
       valorMensalidade: mensalidade / 100,
+      bolsaPercentual,
       quantidadeMensalidades: parcelas,
       primeiroVencimento,
       alunoMenorNoMomentoMatricula: idade < 18,
@@ -570,9 +581,12 @@ export async function confirmarContratacaoModalidades(
         vencimento: primeiroVencimento,
         valorOriginal: taxa / 100,
         valorFinal: taxa / 100,
+        observacao: recebidoNoAto > 0
+          ? "Pagamento informado no ato: " + formaPagamentoAto + ". A baixa ocorrerá exclusivamente no Caixa."
+          : "Gerado na contratação conjunta. A baixa ocorrerá exclusivamente no Caixa.",
       },
     });
-  if (mensalidade > 0)
+  if (mensalidadeLiquida > 0)
     await db.lancamentoFinanceiro.createMany({
       data: Array.from({ length: parcelas }, (_, i) => ({
         ...base,
@@ -580,7 +594,7 @@ export async function confirmarContratacaoModalidades(
         descricao: `${snapshot.nome} - ${i + 1}/${parcelas}`,
         vencimento: vencimentoMensal(vencimento, i),
         valorOriginal: mensalidade / 100,
-        valorFinal: mensalidade / 100,
+        valorFinal: mensalidadeLiquida / 100,
       })),
     });
   const contrato = await criarContratoPendenteMatricula({

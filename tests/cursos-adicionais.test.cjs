@@ -46,14 +46,15 @@ test('curso principal sozinho continua válido e não ativa combo de duas modali
   assert.equal(p.calculo.comboId,null);
   assert.equal(f.writes.length,0);
 });
-test('matrícula principal integra o formulário avulso e adicionais começam opcionais',()=>{
+test('matrícula principal preserva o formulário tradicional e oferece adicionais sem substituir a tela',()=>{
   const main=fs.readFileSync(path.join(root,'app/admin/matriculas/page.tsx'),'utf8');
-  const component=fs.readFileSync(path.join(root,'components/admin/MatriculaModalidadesForm.tsx'),'utf8');
   assert.doesNotMatch(main,/router\.push\(urlCursosAdicionais/);
-  assert.match(main,/<MatriculaModalidadesForm/);
-  assert.match(component,/mostrarAdicionais, setMostrarAdicionais\] = useState\(false\)/);
-  assert.match(component,/Adicionar outro curso \(opcional\)/);
-  assert.match(component,/curso\.id === principalId \|\| mostrarAdicionais/);
+  assert.doesNotMatch(main,/<MatriculaModalidadesForm/);
+  assert.match(main,/<SeletorAdicionaisMatricula/);
+  assert.match(main,/Turma do aluno/);
+  assert.match(main,/Período \/ horário letivo/);
+  assert.match(main,/Matricular aluno/);
+  assert.match(main,/permiteCursosAdicionais/);
 });
 test('confirmação mantém o principal, mesmo se a turma adicional vier primeiro, e preserva todas as disciplinas',async()=>{
  const f=fixture(),p=await f.server.prepararContratacaoModalidades(f.db,7,f.body);

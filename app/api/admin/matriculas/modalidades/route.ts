@@ -71,6 +71,9 @@ export async function POST(request: Request) {
           status: body.status,
           versao: body.versao,
           ajuste: body.ajuste || null,
+          bolsaPercentual: body.bolsaPercentual ?? 0,
+          valorPagoMatricula: body.valorPagoMatricula ?? 0,
+          formaPagamentoMatricula: body.formaPagamentoMatricula || null,
         }),
       )
       .digest("hex");

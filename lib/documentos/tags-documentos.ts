@@ -50,6 +50,8 @@ export const DOCUMENT_TAG_ALIASES = {
   "crmMedico": "physicianCrm",
   "curriculoAluno": "studentCurriculum",
   "curso": "course",
+  "cursosContratados": "contractedCourses",
+  "disciplinasPorCurso": "subjectsByCourse",
   "dataAdmissaoFuncionario": "employeeHireDate",
   "dataAdvertencia": "warningDate",
   "dataAso": "occupationalHealthExamDate",

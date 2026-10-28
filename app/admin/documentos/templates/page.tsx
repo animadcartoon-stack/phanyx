@@ -2194,6 +2194,8 @@ function AdminDocumentosTemplatesPage() {
     "{{assinaturaDiretor}}",
     "{{blocoAssinaturaDiretor}}",
     "{{curso}}",
+    "{{cursosContratados}}",
+    "{{disciplinasPorCurso}}",
     "{{disciplinas}}",
     "{{disciplinasContratadas}}",
     "{{valorContrato}}",

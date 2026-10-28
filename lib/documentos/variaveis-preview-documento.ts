@@ -380,6 +380,10 @@ export function montarValoresPreviewDocumento(
       "- Teologia B\u00edblica \u2014 64h",
     cursoNome:
       "Bacharel Livre em Teologia",
+    cursosContratados:
+      "- Bacharel Livre em Teologia",
+    disciplinasPorCurso:
+      "Bacharel Livre em Teologia\n- Antigo Testamento A\n- Novo Testamento A",
 
     disciplinasContratadas:
       "- Antigo Testamento A \u2014 96h<br>" +

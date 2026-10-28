@@ -1,3 +1,4 @@
+import { resumoCursosDocumento } from "@/lib/documentos/cursos-contratados";
 import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
@@ -2770,6 +2771,16 @@ export async function POST(req: Request) {
           valoresTemplate.disciplinasContratadas =
 
             valoresTemplate.disciplinas;
+
+          const resumoCursos = resumoCursosDocumento(
+            matricula?.contratacaoModalidades,
+            matricula?.curso?.nome || cursoNome,
+          );
+          valoresTemplate.cursosContratados = resumoCursos.cursosContratados;
+          valoresTemplate.disciplinasPorCurso = resumoCursos.disciplinasPorCurso;
+          if (resumoCursos.temModalidades && resumoCursos.disciplinasContratadasCombo) {
+            valoresTemplate.disciplinasContratadas = resumoCursos.disciplinasContratadasCombo;
+          }
 
           const conteudoBase =
             substituirTemplate(
