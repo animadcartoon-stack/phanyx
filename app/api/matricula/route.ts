@@ -7,6 +7,7 @@ import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { validarAgendaMatricula } from "@/lib/matriculas/validar-agenda";
 import { verificarVagasMatricula } from "@/lib/matriculas/verificar-vagas-matricula";
 import { ErroModalidades } from "@/lib/matriculas/combos";
+import { exigirCursoComGradeNaRotaLegada } from "@/lib/matriculas/bloquear-matricula-direta-na-rota-legada";
 import { getTranslations } from "next-intl/server";
 import { calcularIdade, verificarDadosResponsavel } from "@/lib/matriculas/confirmacao-menor";
 import { processarCancelamentosBancarios } from "@/lib/financeiro/cancelar-cobranca";
@@ -2742,6 +2743,13 @@ export async function POST(request: Request) {
       await prisma.$transaction(
         async (tx) => {
           await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cursoIdFinal} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
+          // Uma turma sem grade nunca pode ser criada como ItemMatricula da rota antiga.
+          // A verificacao usa a versao bloqueada do curso dentro da transacao.
+          const cursoRotaLegada = await tx.curso.findFirst({
+            where: { id: cursoIdFinal!, instituicaoId: user.instituicaoId },
+            select: { matriculaDiretaTurma: true },
+          });
+          exigirCursoComGradeNaRotaLegada(cursoRotaLegada);
           await validarCursoAtivoParaMatricula(tx, user.instituicaoId, cursoIdFinal!);
           const regrasAtuais = await carregarRegrasSelecao(tx, user.instituicaoId, cursoIdFinal!);
           if (JSON.stringify(regrasAtuais) !== JSON.stringify(regrasSelecao)) throw new ErroSelecaoDisciplinas("SELECAO_ALTERADA", undefined, 409);
@@ -4662,6 +4670,16 @@ export async function PUT(request: Request) {
 
     await prisma.$transaction(
       async (tx) => {
+        if (cursoIdFinal) {
+          // Protecao de curso destino em edicoes legadas. A trava FOR SHARE
+          // impede alterar o modo do curso entre verificacao e gravacao.
+          await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cursoIdFinal} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
+          const cursoRotaLegada = await tx.curso.findFirst({
+            where: { id: cursoIdFinal, instituicaoId: user.instituicaoId },
+            select: { matriculaDiretaTurma: true },
+          });
+          exigirCursoComGradeNaRotaLegada(cursoRotaLegada);
+        }
         if (regrasSelecaoAnterior) {
           await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id"=${id} AND "instituicaoId"=${user.instituicaoId} FOR UPDATE`;
           const atualSelecao = await tx.matricula.findFirst({ where: { id, instituicaoId: user.instituicaoId }, select: { regrasSelecaoDisciplinas: true } });

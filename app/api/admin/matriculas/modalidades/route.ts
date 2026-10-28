@@ -20,11 +20,11 @@ export async function GET(req?: Request) {
     const principalId = idCursoPrincipal(req ? new URL(req.url).searchParams.get("cursoPrincipalId") : null);
     const principal = principalId === null ? null : await prisma.curso.findFirst({
       where: { id: principalId, instituicaoId: user.instituicaoId, ativo: true, excluidoEm: null },
-      select: { id: true, nome: true, permiteCursosAdicionais: true },
+      select: { id: true, nome: true, permiteCursosAdicionais: true, matriculaDiretaTurma: true },
     });
-    if (principalId !== null && !principal?.permiteCursosAdicionais) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
+    if (principalId !== null && !principal?.permiteCursosAdicionais && !principal?.matriculaDiretaTurma) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
     const ofertas = await carregarOfertasModalidades(prisma, user.instituicaoId);
-    return NextResponse.json({ principal, ofertas: principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || o.curso.disponivelComoAdicional) });
+    return NextResponse.json({ principal, ofertas: principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || (principal?.permiteCursosAdicionais && o.curso.disponivelComoAdicional)) });
   } catch (error) {
     return erroCombos(error);
   }

@@ -81,6 +81,7 @@ type Curso = {
   valorMensalidade?: number | null;
   descontoMensalidadePercentual?: string | number | null;
   permiteCursosAdicionais?: boolean;
+  matriculaDiretaTurma?: boolean;
   disponivelComoAdicional?: boolean;
   regrasPrecoDisciplinas?: unknown;
   regrasSelecaoDisciplinas?: unknown;
@@ -178,6 +179,7 @@ export default function CursoDetalhePage() {
     valorSemanal: "",
     descontoMensalidadePercentual: "",
     permiteCursosAdicionais: false,
+    matriculaDiretaTurma: false,
     disponivelComoAdicional: false,
     precoPorDisciplina: false,
     faixasDisciplinas: [{ quantidade: "1", descontoPercentual: "0" }] as FaixaDisciplinasFormulario[],
@@ -251,6 +253,7 @@ export default function CursoDetalhePage() {
         valorMensalidadeCombo: encontrado.valorMensalidadeCombo == null ? "" : String(encontrado.valorMensalidadeCombo),
         precosComboPorQuantidade: (encontrado.precosComboPorQuantidade || []).map(f => ({ quantidadeAtividades: String(f.quantidadeAtividades), valorMensalidade: String(f.valorMensalidade) })),
         permiteCursosAdicionais: Boolean(encontrado.permiteCursosAdicionais),
+        matriculaDiretaTurma: encontrado.matriculaDiretaTurma === true,
         disponivelComoAdicional: Boolean(encontrado.disponivelComoAdicional),
         precoPorDisciplina: Boolean(encontrado.regrasPrecoDisciplinas),
         faixasDisciplinas: normalizarRegrasDisciplinas(encontrado.regrasPrecoDisciplinas)?.faixas.map(f => ({ quantidade: String(f.quantidade), descontoPercentual: String(f.descontoPercentual) })) ?? [{ quantidade: "1", descontoPercentual: "0" }],
@@ -359,6 +362,7 @@ export default function CursoDetalhePage() {
             ? Number(formCurso.valorMatricula)
             : null,
           permiteCursosAdicionais: formCurso.permiteCursosAdicionais,
+          matriculaDiretaTurma: formCurso.matriculaDiretaTurma,
           disponivelComoAdicional: formCurso.disponivelComoAdicional,
           participaCombo: formCurso.participaCombo,
           valorMensalidadeCombo: formCurso.valorMensalidadeCombo || null,
@@ -881,6 +885,19 @@ export default function CursoDetalhePage() {
 
           {formCurso.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={formCurso.valorSemanal} valorMensal={formCurso.valorMensalidade} onChangeMensal={valor => setFormCurso({ ...formCurso, valorMensalidade: valor })} onChange={valor => setFormCurso({ ...formCurso, valorSemanal: valor })} />}
                   {formCurso.organizacaoCurricular !== "LIVRE" && <CamposPrecoDisciplinas ativo={formCurso.precoPorDisciplina} faixas={formCurso.faixasDisciplinas} onChange={dados => setFormCurso(prev => ({ ...prev, precoPorDisciplina: dados.ativo ?? prev.precoPorDisciplina, faixasDisciplinas: dados.faixas ?? prev.faixasDisciplinas, ...(dados.ativo ? { participaCombo: false } : {}) }))} />}
+          <div className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+            <label className="flex items-start gap-3 text-sm font-semibold">
+              <input type="checkbox" className="mt-1" disabled={cursoRecebidoDaRede || formCurso.organizacaoCurricular === "LIVRE" || formCurso.precoPorDisciplina || Boolean(curso?.regrasSelecaoDisciplinas)}
+                checked={formCurso.matriculaDiretaTurma}
+                onChange={e => setFormCurso(anterior => ({ ...anterior, matriculaDiretaTurma: e.target.checked }))} />
+              <span>Curso avulso sem grade — matrícula diretamente na turma</span>
+            </label>
+            <p className="mt-2 text-xs leading-5 text-slate-700 dark:text-slate-300">
+              Para cursos sem disciplinas, como Balé ou Robótica. Antes da ativação, o servidor verifica
+              a existência de disciplinas, turmas legadas e matrículas anteriores. Não altera históricos
+              nem permite matrículas reais enquanto a liberação do sistema estiver desativada.
+            </p>
+          </div>
           <CamposCursosAdicionais permite={formCurso.permiteCursosAdicionais} disponivel={formCurso.disponivelComoAdicional} incompativel={formCurso.precoPorDisciplina || formCurso.organizacaoCurricular === "LIVRE" || Boolean(curso?.regrasSelecaoDisciplinas)} disabled={cursoRecebidoDaRede} onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
           {!formCurso.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />}
           {!formCurso.precoPorDisciplina && <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
@@ -1006,6 +1023,7 @@ export default function CursoDetalhePage() {
                   </p>
 </>}
 <p>{t("common.status")}: {curso.ativo ? t("status.active") : t("status.inactive")}</p>
+<p className="text-sm">Matrícula: {curso.matriculaDiretaTurma ? "Direto na turma (sem disciplinas)" : "Grade curricular tradicional"}</p>
                 </div>
               </>
             )}

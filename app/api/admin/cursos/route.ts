@@ -12,6 +12,7 @@ import { ErroModalidades } from "@/lib/matriculas/combos";
 import { erroCombos } from "@/lib/matriculas/combos-api";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ErroCursoAvulsoSemGrade, opcaoMatriculaDireta, prepararConfiguracaoCursoAvulso } from "@/lib/academico/configurar-curso-avulso-sem-grade";
 import { getUserFromToken } from "@/lib/server-auth";
 import {
   Prisma,
@@ -851,6 +852,7 @@ export async function PUT(req: Request) {
           quantidadeSemestres: true,
           quantidadeEtapas: true,
           organizacaoCurricular: true,
+          matriculaDiretaTurma: true,
           cargaHorariaMaximaSemestre: true,
           valorMatricula: true,
           valorMensalidade: true,
@@ -1174,9 +1176,18 @@ export async function PUT(req: Request) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
-          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true, regrasSelecaoDisciplinas: true, regrasPrecoDisciplinas: true, permiteCursosAdicionais: true, disponivelComoAdicional: true } });
+          const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true, regrasSelecaoDisciplinas: true, regrasPrecoDisciplinas: true, matriculaDiretaTurma: true, permiteCursosAdicionais: true, disponivelComoAdicional: true } });
           if (!cursoAtual) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
           camposCursosAdicionais({ ...body, organizacaoCurricular, regrasPrecoDisciplinas: regrasDisciplinas === undefined ? cursoAtual.regrasPrecoDisciplinas : regrasDisciplinas, regrasSelecaoDisciplinas: cursoAtual.regrasSelecaoDisciplinas }, cursoAtual);
+          const modoDireto = await prepararConfiguracaoCursoAvulso(tx, {
+            instituicaoId, cursoId: id,
+            atual: cursoAtual.matriculaDiretaTurma,
+            destino: opcaoMatriculaDireta(body.matriculaDiretaTurma, cursoAtual.matriculaDiretaTurma),
+            organizacaoCurricular,
+            regrasPrecoDisciplinas: regrasDisciplinas === undefined ? cursoAtual.regrasPrecoDisciplinas : regrasDisciplinas,
+            regrasSelecaoDisciplinas: cursoAtual.regrasSelecaoDisciplinas,
+            cursoRecebidoDaRede,
+          });
           if (cursoAtual?.regrasSelecaoDisciplinas) validarModoSelecao({ organizacaoCurricular, participaCombo: body.participaCombo ?? cursoExistente.participaCombo, regrasPrecoDisciplinas: regrasEfetivas });
           if (cursoAtual?.organizacaoCurricular !== cursoExistente.organizacaoCurricular) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
           if (organizacaoCurricular !== cursoAtual.organizacaoCurricular)
@@ -1211,6 +1222,7 @@ export async function PUT(req: Request) {
                 ...dadosDesconto,
                 ...dadosDisciplinas,
                 ...dadosAdicionais,
+                ...modoDireto,
 
               quantidadeParcelas,
 
@@ -1311,6 +1323,7 @@ export async function PUT(req: Request) {
   } catch (error: unknown) {
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
+    if (error instanceof ErroCursoAvulsoSemGrade) return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
     if (error instanceof ErroModalidades) return erroCombos(error);
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });

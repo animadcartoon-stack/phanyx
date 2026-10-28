@@ -34,6 +34,7 @@ type CursoOption = {
   descontoMensalidadePercentual?: number | string | null;
   permiteCursosAdicionais?: boolean;
   disponivelComoAdicional?: boolean;
+  matriculaDiretaTurma?: boolean;
   regrasPrecoDisciplinas?: unknown;
   regrasSelecaoDisciplinas?: unknown;
   quantidadeParcelas?: number | null;
@@ -80,6 +81,8 @@ type OfertaDisciplina = {
 };
 
 type TurmaOption = {
+  ativa?: boolean;
+  turno?: string | null;
   etapaNumero?: number | null;
   organizacaoCurricular?: string;
   id: number;
@@ -719,6 +722,7 @@ function AdminMatriculasPage() {
                 descontoMensalidadePercentual: curso?.descontoMensalidadePercentual ?? null,
                 permiteCursosAdicionais: Boolean(curso?.permiteCursosAdicionais),
                 disponivelComoAdicional: Boolean(curso?.disponivelComoAdicional),
+                matriculaDiretaTurma: curso?.matriculaDiretaTurma === true,
                 regrasPrecoDisciplinas: curso?.regrasPrecoDisciplinas ?? null,
                 regrasSelecaoDisciplinas: curso?.regrasSelecaoDisciplinas ?? null,
                 quantidadeParcelas: curso?.quantidadeParcelas ?? null,
@@ -838,6 +842,8 @@ function AdminMatriculasPage() {
           return {
             id: Number(t.id),
             nome: String(t.nome ?? "Turma"),
+            ativa: t.ativa === true,
+            turno: t.turno ?? null,
             semestre: t?.semestre ?? null,
             etapaNumero: t?.etapaNumero ?? null,
             organizacaoCurricular: t?.organizacaoCurricular ?? "SEMESTRAL",
@@ -904,6 +910,8 @@ function AdminMatriculasPage() {
   }
 
   const cursoSelecionadoObj = cursos.find(c => c.id === Number(cursoId)) ?? null;
+  // Somente opt-in explicito permite matricula por turma sem grade.
+  const cursoSemGrade = cursoSelecionadoObj?.matriculaDiretaTurma === true;
   const regrasIncluidas = useMemo(() => normalizarSelecaoDisciplinas(cursoSelecionadoObj?.regrasSelecaoDisciplinas), [cursoSelecionadoObj?.regrasSelecaoDisciplinas]);
   const regrasIncluidasEdicao = matriculaEditando?.regrasSelecaoDisciplinas ?? null;
   const precoPorDisciplinas = Boolean(cursoSelecionadoObj?.regrasPrecoDisciplinas);
@@ -1116,11 +1124,11 @@ function AdminMatriculasPage() {
     haviaCursosAdicionais.current = temAdicionais;
   }, [cursosAdicionaisEscolhidos.length, cursoId]);
   useEffect(() => {
-    if (!previaCombo || cursosAdicionaisEscolhidos.length === 0) return;
+    if (!previaCombo || (cursosAdicionaisEscolhidos.length === 0 && !cursoSemGrade)) return;
     setValorTaxaMatricula(String(previaCombo.calculo.matriculaCentavos / 100));
     setValorMensalidade(String(previaCombo.calculo.mensalidadeCentavos / 100));
     setQuantidadeParcelas(String(previaCombo.calculo.quantidadeParcelas));
-  }, [previaCombo?.versao, cursosAdicionaisEscolhidos.length]);
+  }, [previaCombo?.versao, cursosAdicionaisEscolhidos.length, cursoSemGrade]);
 
   useEffect(() => {
     setCursoSemestreId("");
@@ -1406,7 +1414,13 @@ function AdminMatriculasPage() {
   }, [semestresSelecionados, turmas]);
 
   const turmasBaseDoSemestre = useMemo(() => {
-    if (!cursoId || !semestreSelecionado) return [];
+    if (!cursoId) return [];
+    if (cursoSemGrade) {
+      // Avulso direto: selecionar a turma nao depende de disciplina/etapa.
+      // Somente turmas ativas entram na lista, a API revalida horario/vagas.
+      return turmas.filter(t => Number(t.cursoId) === Number(cursoId) && t.ativa === true);
+    }
+    if (!semestreSelecionado) return [];
 
     return turmas.filter((turma) => {
       const bateCurso = Number(turma.cursoId) === Number(cursoId);
@@ -1434,6 +1448,7 @@ function AdminMatriculasPage() {
     semestreSelecionado,
     cursoAnualSelecionado,
     disciplinasDoSemestreIds,
+    cursoSemGrade,
   ]);
 
   const turmasExtrasMesmoCurso = useMemo(() => {
@@ -1916,13 +1931,13 @@ function AdminMatriculasPage() {
       a > 0 &&
       Number.isFinite(c) &&
       c > 0 &&
-      semestresSelecionados.length > 0 &&
+      (cursoSemGrade || semestresSelecionados.length > 0) &&
       (!precoPorDisciplinas || (Boolean(cotacaoDisciplinas) && (cotacaoDisciplinas?.total === 0 || (Boolean(dataPrimeiroVencimento) && Number.isInteger(Number(quantidadeParcelas)) && Number(quantidadeParcelas) >= 1 && Number(quantidadeParcelas) <= 120)))) &&
-      disciplinasIdsSelecionadasParaEnvio.length > 0 &&
+      (cursoSemGrade || disciplinasIdsSelecionadasParaEnvio.length > 0) &&
       turmasSelecionadas.length > 0 &&
-      todasDisciplinasPossuemOferta &&
-      !cargaHorariaExcedida &&
-      !cargaHorariaAbaixoMinimo
+      (cursoSemGrade || todasDisciplinasPossuemOferta) &&
+      (cursoSemGrade || !cargaHorariaExcedida) &&
+      (cursoSemGrade || !cargaHorariaAbaixoMinimo)
     );
   }, [
     alunoId,
@@ -1937,6 +1952,7 @@ function AdminMatriculasPage() {
     todasDisciplinasPossuemOferta,
     cargaHorariaExcedida,
     cargaHorariaAbaixoMinimo,
+    cursoSemGrade,
   ]);
 
   function toggleTurma(turmaId: number) {
@@ -2026,7 +2042,9 @@ function AdminMatriculasPage() {
   }
 
   async function criarMatricula() {
-    if (cursosAdicionaisEscolhidos.length > 0) {
+    if (cursoSemGrade || cursosAdicionaisEscolhidos.length > 0) {
+      // Um avulso sozinho usa a mesma confirmacao transacional de modalidades.
+      // O servidor ainda bloqueia a escrita sem grade ate a liberacao segura.
       await criarMatriculaComAdicionais();
       return;
     }
@@ -4028,7 +4046,7 @@ function AdminMatriculasPage() {
           </div>
         </div>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div>
+          {!cursoSemGrade && <div>
             <label className="text-sm font-medium text-gray-700">
               {ts(cursoAnualSelecionado ? "yearLabel" : "semesterLabel")}
             </label>
@@ -4082,7 +4100,7 @@ function AdminMatriculasPage() {
                 </div>
               )}
             </div>}
-          </div>
+          </div>}
 
           <div>
             <label className="text-sm font-medium text-gray-700">
@@ -4195,7 +4213,8 @@ function AdminMatriculasPage() {
               {turmasBaseDoSemestre.map((t) => (
                 <option key={t.id} value={String(t.id)}>
                   {t.nome}
-                  {t.semestre ? ` — ${t.semestre}` : ""}
+                  {!cursoSemGrade && t.semestre ? ` — ${t.semestre}` : ""}
+                  {cursoSemGrade && t.turno ? ` — ${t.turno}` : ""}
                   {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
                 </option>
               ))}
@@ -4203,9 +4222,11 @@ function AdminMatriculasPage() {
             </select>
           </div>
 
-          {cursoSelecionadoObj?.permiteCursosAdicionais && <div className="md:col-span-4">
+          {(cursoSelecionadoObj?.permiteCursosAdicionais || cursoSemGrade) && <div className="md:col-span-4">
             <SeletorAdicionaisMatricula
               cursoPrincipalId={Number(cursoId)}
+              principalSemGrade={cursoSemGrade}
+              permiteAdicionais={Boolean(cursoSelecionadoObj?.permiteCursosAdicionais)}
               alunoId={alunoId}
               turmaPrincipalId={turmasSelecionadas[0] ?? null}
               dataInicioCurso={dataInicioCurso}
@@ -4576,7 +4597,7 @@ function AdminMatriculasPage() {
             })}
           </div>
         )}
-        {semestreSelecionado ? (
+        {!cursoSemGrade && semestreSelecionado ? (
           <div className={`${contraste.resumoEtapa} mt-5 rounded-2xl border p-4`}>
             <p className={`${contraste.etapaTitulo} font-semibold`}>
               {ts(cursoAnualSelecionado ? "selectedYear" : "selectedSemester", { number: semestreSelecionado.numero })}
@@ -4592,7 +4613,7 @@ function AdminMatriculasPage() {
           </div>
         ) : null}
 
-        {semestreSelecionado && !precoPorDisciplinas && !regrasIncluidas && (
+        {!cursoSemGrade && semestreSelecionado && !precoPorDisciplinas && !regrasIncluidas && (
           <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
             <input
               type="checkbox"
@@ -4617,7 +4638,7 @@ function AdminMatriculasPage() {
           </label>
         )}
 
-        <div hidden={Boolean(regrasIncluidas)} className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div hidden={Boolean(regrasIncluidas) || cursoSemGrade} className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="matriculas-multiselect-neutro">
             <MultiSelectDisciplinas
               titulo="Disciplinas a cursar neste período"
@@ -4778,10 +4799,10 @@ function AdminMatriculasPage() {
           )}
           <button
             onClick={criarMatricula}
-            disabled={!podeCriar || creating || (cursosAdicionaisEscolhidos.length > 0 && !previaCombo)}
+            disabled={!podeCriar || creating || ((cursosAdicionaisEscolhidos.length > 0 || cursoSemGrade) && !previaCombo)}
             className={[
               "px-4 py-2 rounded-xl font-semibold transition",
-              !podeCriar || creating || (cursosAdicionaisEscolhidos.length > 0 && !previaCombo)
+              !podeCriar || creating || ((cursosAdicionaisEscolhidos.length > 0 || cursoSemGrade) && !previaCombo)
                 ? "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             ].join(" ")}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { copyTurmasAvulsas } from "@/lib/professor/turmas-avulsas-copy";
 
 type Turma = {
   id: number;
@@ -827,6 +828,11 @@ export default function TurmasProfessorPage() {
         <p className="mt-2 text-slate-600">
           {t("description")}
         </p>
+        <button type="button"
+          onClick={() => router.push("/professor/turmas/avulsas")}
+          className="mt-4 rounded-xl border border-blue-600 bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-800 hover:bg-blue-100 dark:border-blue-500 dark:bg-slate-900 dark:text-blue-300 dark:hover:bg-slate-800">
+          {copyTurmasAvulsas(locale).title}
+        </button>
 
         <div
           className="

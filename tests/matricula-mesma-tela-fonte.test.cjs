@@ -9,8 +9,9 @@ test("curso principal preserva formulário tradicional", () => {
   assert.match(src, /Valor da mensalidade/);
   assert.match(src, /SeletorAdicionaisMatricula/);
 });
-test("curso sozinho continua usando a API tradicional e adicionais usam a confirmação segura", () => {
-  assert.match(src, /if \(cursosAdicionaisEscolhidos\.length > 0\)/);
+test("curso tradicional preserva API antiga e avulso direto ou adicionais usam confirmação segura", () => {
+  assert.match(src, /cursosAdicionaisEscolhidos\.length\s*>\s*0/);
+  assert.match(src, /matriculaDiretaTurma/);
   assert.match(src, /await criarMatriculaComAdicionais\(\)/);
   assert.match(src, /fetch\("\/api\/matricula"/);
   assert.match(src, /acao: "CONFIRMAR"/);

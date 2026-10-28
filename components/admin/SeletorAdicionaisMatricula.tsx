@@ -20,6 +20,8 @@ export type PreviaComboMatricula = {
 };
 type Props = {
   cursoPrincipalId: number;
+  principalSemGrade?: boolean;
+  permiteAdicionais?: boolean;
   alunoId: string;
   turmaPrincipalId: number | null;
   dataInicioCurso: string;
@@ -35,7 +37,7 @@ export function descricaoVagasTurmaAdicional(vagas: number | null): string {
   if (vagas <= 0) return "sem vagas";
   return vagas === 1 ? "1 vaga disponível" : vagas + " vagas disponíveis";
 }
-export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, turmaPrincipalId, dataInicioCurso, escolhidos, onChange, onPreviaChange }: Props) {
+export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principalSemGrade = false, permiteAdicionais = true, alunoId, turmaPrincipalId, dataInicioCurso, escolhidos, onChange, onPreviaChange }: Props) {
   const [aberto, setAberto] = useState(false);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [combos, setCombos] = useState<Combo[]>([]);
@@ -113,11 +115,12 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
   }, [cursoPrincipalId, onPreviaChange]);
 
   const elegiveis = useMemo(() => {
+    if (!permiteAdicionais) return [];
     const pacotes = combos.filter(c => c.ativo && c.cursoIds.includes(cursoPrincipalId));
     const ids = new Set(pacotes.flatMap(c => c.cursoIds));
     return cursos.filter(c => c.ativo && c.id !== cursoPrincipalId && c.disponivelComoAdicional &&
       (pacotes.length === 0 || ids.has(c.id))).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-  }, [combos, cursos, cursoPrincipalId]);
+  }, [combos, cursos, cursoPrincipalId, permiteAdicionais]);
   const turmaPrincipal = ofertas.find(o => o.id === turmaPrincipalId && o.cursoId === cursoPrincipalId);
   const ofertasDoCurso = (cursoId: number) => ofertas.filter(o => o.cursoId === cursoId &&
     turmaPrincipal && o.poloId === turmaPrincipal.poloId &&
@@ -125,7 +128,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
 
   useEffect(() => {
     setPrevia(null); onPreviaChange(null); setErroPrevia(""); setModalConflito(null);
-    if (!escolhidos.length || !alunoId || !turmaPrincipalId || !chaveTurmas ||
+    if ((!escolhidos.length && !principalSemGrade) || !alunoId || !turmaPrincipalId || !chaveTurmas ||
       !turmaPrincipal || idsTurmas.length !== escolhidos.length + 1 || carregando) return;
     const controller = new AbortController();
     setCalculando(true);
@@ -165,15 +168,17 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
     })
       .finally(() => { if (!controller.signal.aborted) setCalculando(false); });
     return () => controller.abort();
-  }, [alunoId, cursoPrincipalId, turmaPrincipalId, dataInicioCurso, idsEscolhidos, chaveTurmas, chaveOpcoes, carregando, ofertas, onPreviaChange]);
+  }, [alunoId, cursoPrincipalId, principalSemGrade, turmaPrincipalId, dataInicioCurso, idsEscolhidos, chaveTurmas, chaveOpcoes, carregando, ofertas, onPreviaChange]);
 
   const moeda = (centavos: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(centavos / 100);
   return <section className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
-    <label className="flex cursor-pointer items-center gap-2 font-semibold">
+    {principalSemGrade && <p className="mb-3 text-sm font-medium">Curso avulso sem grade: escolha sua turma para calcular vagas, horarios e valores. A confirmacao ainda depende da liberacao administrativa segura.</p>}
+    {permiteAdicionais && <label className="flex cursor-pointer items-center gap-2 font-semibold">
       <input type="checkbox" checked={aberto || escolhidos.length > 0} onChange={e => {
         setAberto(e.target.checked); if (e.target.checked) prepararSomConflito(); if (!e.target.checked) { onChange([]); setPorCurso({}); }
       }} /> Vincular outro curso nesta matrícula (opcional)
-    </label>
+    </label>}
+    {principalSemGrade && !permiteAdicionais && <p className="mt-1 text-sm">Curso avulso individual: este curso não está habilitado para contratar outros cursos na mesma matrícula.</p>}
     <p className="mt-1 text-sm">A matrícula com apenas o curso principal continua disponível. Escolha outra modalidade somente se desejar.</p>
     {(aberto || escolhidos.length > 0) && <div className="mt-3 space-y-3">
       {carregando && <p>Consultando as modalidades e as turmas...</p>}
@@ -208,16 +213,23 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, alunoId, 
           </div>}
         </div>
       })}
-      {escolhidos.length > 0 && !turmaPrincipal && <p role="alert" className="text-amber-700">{turmaPrincipalId ? "A turma principal selecionada ainda não está disponível para o cálculo do combo (pode estar inativa)." : "O curso principal precisa ter uma turma disponível antes de calcular o combo."}</p>}
+      {(escolhidos.length > 0 || principalSemGrade) && !turmaPrincipal && <p role="alert" className="text-amber-700">{turmaPrincipalId ? "A turma principal selecionada ainda não está disponível para o cálculo do combo (pode estar inativa)." : "O curso principal precisa ter uma turma disponível antes de calcular o combo."}</p>}
       {calculando && <p role="status">Calculando matrícula e verificando horários, vagas e descontos...</p>}
       {erroPrevia && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">Prévia indisponível: {erroPrevia}. A matrícula conjunta não será gravada.</p>}
-      {previa && <div className="rounded-lg border border-blue-300 bg-white p-3 text-sm text-slate-900 dark:bg-slate-950 dark:text-white">
+      {!principalSemGrade && previa && <div className="rounded-lg border border-blue-300 bg-white p-3 text-sm text-slate-900 dark:bg-slate-950 dark:text-white">
         <strong>Prévia da contratação: {previa.calculo.nome}</strong>
         <p>Modalidades: {previa.calculo.quantidadeModalidades} · Taxa única: {moeda(previa.calculo.matriculaCentavos)}</p>
         <p>Mensalidade antes de bolsa adicional: {moeda(previa.calculo.mensalidadeCentavos)} · {previa.calculo.quantidadeParcelas} parcelas</p>
         <p className="mt-1 text-xs">A confirmação fará uma nova validação do preço, das vagas e dos horários no servidor.</p>
       </div>}
     </div>}
+    {principalSemGrade && previa && <div className="mt-3 rounded-lg border border-blue-300 bg-white p-3 text-sm text-slate-900 dark:bg-slate-950 dark:text-white">
+      <strong>Previa da contratacao: {previa.calculo.nome}</strong>
+      <p>Modalidades: {previa.calculo.quantidadeModalidades} · Taxa unica: {moeda(previa.calculo.matriculaCentavos)}</p>
+      <p>Mensalidade calculada: {moeda(previa.calculo.mensalidadeCentavos)} · {previa.calculo.quantidadeParcelas} parcelas</p>
+      <p className="mt-1 text-xs">Valores do servidor e das regras oficiais de Pacotes e combos. Confirmacao ainda protegida.</p>
+    </div>}
+    {principalSemGrade && erroPrevia && <p role="alert" className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">Previa indisponivel: {erroPrevia}. Nenhuma matricula foi gravada.</p>}
     <PhanyxConfirmModal
       aberto={modalConflito !== null}
       titulo="Conflito de horários na matrícula"

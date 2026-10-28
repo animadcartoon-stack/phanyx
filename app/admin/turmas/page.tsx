@@ -7,8 +7,10 @@ import { useSearchParams } from "next/navigation";
 import { disciplinaPermitidaNaOferta, mesmaEtapaOferta, numeroSemestreOferta, type CursoGradeOferta } from "@/lib/academico/grade-oferta";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
+import TurmasAvulsasSemGrade from "@/components/admin/TurmasAvulsasSemGrade";
 
 interface Curso {
+  matriculaDiretaTurma?: boolean;
   organizacaoCurricular?: string;
   semestres?: CursoGradeOferta["semestres"];
   id: number;
@@ -1174,6 +1176,7 @@ function AdminTurmasPage() {
         )}
 
         <h1 className="text-2xl font-bold">{t("classesTitle")}</h1>
+        <TurmasAvulsasSemGrade />
 
         <form
           onSubmit={criarTurma}
@@ -1210,7 +1213,7 @@ function AdminTurmasPage() {
               required
             >
               <option value="">{t("commonChooseCourse")}</option>
-              {cursos.map((curso) => (
+              {cursos.filter(curso => !curso.matriculaDiretaTurma).map((curso) => (
                 <option key={curso.id} value={curso.id}>
                   {curso.nome}
                 </option>

@@ -1,4 +1,6 @@
 import { idCursoPrincipal, validarCursosAdicionais } from "./cursos-adicionais";
+import { horariosTurmaDiretaSemGrade, vagasTurmaDiretaSemGrade } from "./previa-turmas-avulsas";
+import { validarOfertasDiretasParaGravacao } from "./gravar-matricula-turma-avulsa";
 import { origemOfertaVinculada, capacidadePendenteOferta, vagasOfertaCompartilhada, type OfertaParaVagas } from "./vagas-ofertas-compartilhadas";
 import { temDisciplinaIncluidaDuplicada } from "./selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
@@ -55,6 +57,8 @@ export async function carregarOfertasModalidades(
       dataInicio: true,
       dataFim: true,
       capacidadeMaxima: true,
+      horariosAvulsos: { where: { instituicaoId, ativo: true }, orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }],
+        select: { diaSemana: true, horaInicio: true, horaFim: true } },
       polo: { select: { nome: true } },
       curso: {
         select: {
@@ -63,6 +67,7 @@ export async function carregarOfertasModalidades(
           participaCombo: true,
           permiteCursosAdicionais: true,
           disponivelComoAdicional: true,
+          matriculaDiretaTurma: true,
           requisitosConjuntos: { select: { cursoObrigatorioId: true, cursoObrigatorio: { select: { nome: true } } } },
           valorMatricula: true,
           valorMensalidade: true,
@@ -134,26 +139,46 @@ export async function carregarOfertasModalidades(
         select: { turmaId: true, disciplinaId: true, matricula: { select: { alunoId: true } } },
       })
     : [];
+  // Contagens de alunos por vinculo direto (sem ItemMatricula/Disciplina).
+  // Consulta somente se houver alguma turma que optou pela matricula direta.
+  const idsDiretos = turmas.filter(t => t.curso.matriculaDiretaTurma).map(t => t.id);
+  const ocupacoesDiretas = idsDiretos.length ? await db.matriculaTurmaAvulsa.findMany({
+    where: { instituicaoId, turmaId: { in: idsDiretos }, status: { in: [...itensOcupantes] },
+      matricula: { instituicaoId, excluidaEm: null, canceladaEm: null,
+        status: { in: [...matriculasOcupantes] } } },
+    select: { turmaId: true, matricula: { select: { alunoId: true } } },
+  }) : [];
   const metasTurmas = [...metas.values()];
   return turmas.filter(t => !t.curso.regrasPrecoDisciplinas && !t.curso.regrasSelecaoDisciplinas).map((turma) => {
-    const horarios: HorarioModalidade[] = turma.disciplinas.flatMap((td) =>
-      td.horarios.map((h) => ({
-        ...h,
-        turmaId: turma.id,
-        turmaNome: turma.nome,
-        disciplinaId: td.disciplinaId,
-        disciplinaNome: td.disciplina.nome,
-        dataInicio: civil(td.dataInicio || turma.dataInicio),
-        dataFim: civil(td.dataFim || turma.dataFim),
-      })),
-    );
+    const horarios: HorarioModalidade[] = turma.curso.matriculaDiretaTurma
+      ? horariosTurmaDiretaSemGrade(turma)
+      : turma.disciplinas.flatMap((td) =>
+          td.horarios.map((h) => ({
+            ...h,
+            turmaId: turma.id,
+            turmaNome: turma.nome,
+            disciplinaId: td.disciplinaId,
+            disciplinaNome: td.disciplina.nome,
+            dataInicio: civil(td.dataInicio || turma.dataInicio),
+            dataFim: civil(td.dataFim || turma.dataFim),
+          })),
+        );
     const eadLivre =
       /^(EAD|ONLINE|A_DISTANCIA)$/i.test(turma.modalidade || "") &&
       horarios.length === 0;
-    const horariosPendentes =
-      turma.disciplinas.length === 0 ||
-      horarios.some((h) => !horarioValido(h)) ||
-      (!eadLivre && turma.disciplinas.some((td) => td.horarios.length === 0));
+    // Turma direta nao usa disciplinas; oferta legada OFERTA-... nao pode
+    // ser convertida automaticamente em uma aula direta compartilhada.
+    const turmaDiretaPendente = turma.curso.matriculaDiretaTurma &&
+      (turma.disciplinas.length > 0 || origemOfertaVinculada(turma) !== null);
+    const horariosPendentes = turma.curso.matriculaDiretaTurma
+      ? turmaDiretaPendente || horarios.length === 0 || horarios.some(h => !horarioValido(h))
+      : turma.disciplinas.length === 0 || horarios.some((h) => !horarioValido(h)) ||
+        (!eadLivre && turma.disciplinas.some((td) => td.horarios.length === 0));
+    const vagasDiretas = turma.curso.matriculaDiretaTurma
+      ? vagasTurmaDiretaSemGrade(turma.capacidadeMaxima, [
+          ...ocupacoes.filter(o => o.turmaId === turma.id).map(o => o.matricula.alunoId),
+          ...ocupacoesDiretas.filter(o => o.turmaId === turma.id).map(o => o.matricula.alunoId),
+        ]) : null;
     return {
       id: turma.id,
       nome: turma.nome,
@@ -176,8 +201,12 @@ export async function carregarOfertasModalidades(
         cargaHoraria: td.disciplina.cargaHoraria,
         semestre: td.disciplina.semestre,
       })),
-      capacidadePendente: capacidadePendenteOferta(metas.get(turma.id)!, metasTurmas),
-      vagas: vagasOfertaCompartilhada(metas.get(turma.id)!, metasTurmas, ocupacoes),
+      capacidadePendente: turma.curso.matriculaDiretaTurma
+        ? turma.capacidadeMaxima === null || turma.capacidadeMaxima <= 0 || turmaDiretaPendente
+        : capacidadePendenteOferta(metas.get(turma.id)!, metasTurmas),
+      vagas: turma.curso.matriculaDiretaTurma
+        ? vagasDiretas
+        : vagasOfertaCompartilhada(metas.get(turma.id)!, metasTurmas, ocupacoes),
       curso: {
         ...turma.curso,
         descontoMensalidadePercentual: turma.curso.descontoMensalidadePercentual?.toString() ?? null,
@@ -220,6 +249,18 @@ export async function horariosAtuaisAluno(
       disciplina: { select: { nome: true } },
     },
   });
+  const matriculasDiretas = db.matriculaTurmaAvulsa ? await db.matriculaTurmaAvulsa.findMany({
+    where: { instituicaoId, status: { in: [...itensOcupantes] },
+      matricula: { instituicaoId, alunoId, excluidaEm: null, canceladaEm: null,
+        ...(ignorarMatriculaId ? { id: { not: ignorarMatriculaId } } : {}),
+        status: { in: [...matriculasOcupantes] } } },
+    select: { cursoId: true, turmaId: true,
+      turma: { select: { nome: true, dataInicio: true, dataFim: true,
+        horariosAvulsos: { where: { instituicaoId, ativo: true },
+          select: { diaSemana: true, horaInicio: true, horaFim: true } } } },
+      matricula: { select: { dataInicioCurso: true } },
+    },
+  }) : [];
   const vinculos = itens.length
     ? await db.turmaDisciplina.findMany({
         where: {
@@ -265,7 +306,16 @@ export async function horariosAtuaisAluno(
       };
     }));
   });
-  return { itens, horarios };
+  const horariosDiretos = matriculasDiretas.flatMap(vinculo =>
+    horariosTurmaDiretaSemGrade({
+      id: vinculo.turmaId, nome: vinculo.turma.nome,
+      dataInicio: vinculo.turma.dataInicio, dataFim: vinculo.turma.dataFim,
+      horariosAvulsos: vinculo.turma.horariosAvulsos,
+    }).map(h => ({ ...h,
+      dataInicio: [h.dataInicio, civil(vinculo.matricula.dataInicioCurso)].filter(Boolean).sort().pop() || null,
+    })),
+  );
+  return { itens, horarios: [...horarios, ...horariosDiretos], turmasAvulsas: matriculasDiretas };
 }
 
 export async function prepararContratacaoModalidades(
@@ -302,10 +352,14 @@ export async function prepararContratacaoModalidades(
   });
   if (escolhidas.some((o) => o.horariosPendentes))
     throw new ErroModalidades("HORARIOS_INCOMPLETOS", 409);
+  if (escolhidas.some(o => o.capacidadePendente))
+    throw new ErroModalidades("TURMA_SEM_VAGAS", 409);
   if (escolhidas.some((o) => o.vagas !== null && o.vagas <= 0))
     throw new ErroModalidades("TURMA_SEM_VAGAS", 409);
   const existentes = await horariosAtuaisAluno(db, instituicaoId, alunoId);
-  if (escolhidas.some((o) => existentes.itens.some((i) => i.turmaId === o.id)))
+  if (escolhidas.some((o) =>
+    existentes.itens.some((i) => i.turmaId === o.id) ||
+    existentes.turmasAvulsas.some((i) => i.turmaId === o.id || i.cursoId === o.cursoId)))
     throw new ErroModalidades("ALUNO_JA_MATRICULADO", 409);
   const novasDisciplinas = escolhidas.flatMap(o => o.disciplinaIds.map(disciplinaId => ({ disciplinaId, incluida: false,
     inicio: [civil(o.dataInicio ? new Date(o.dataInicio) : null), civil(inicioCurso.data || null)].filter(Boolean).sort().pop() || null,
@@ -425,6 +479,14 @@ export async function confirmarContratacaoModalidades(
   const { aluno, escolhidas, calculo, snapshot, versao, inicioCurso } =
     await prepararContratacaoModalidades(db, user.instituicaoId, body);
   if (body.versao !== versao) throw new ErroModalidades("DADOS_ALTERADOS", 409);
+  // ETAPA 2C1: o vinculo direto sera gravado na MESMA transacao de matricula,
+  // cobrancas e contrato. A liberacao segue fechada ate validar chamada,
+  // ativacao administrativa e as rotas de cancelamento/transferencia.
+  // Nao configure esta flag em producao antes de concluir a etapa final.
+  if (escolhidas.some(o => o.curso.matriculaDiretaTurma) &&
+      process.env.PHANYX_MATRICULA_SEM_GRADE_HABILITADA !== "true")
+    throw new ErroModalidades("TURMA_INDISPONIVEL", 409);
+  validarOfertasDiretasParaGravacao(escolhidas);
   if (!aluno.dataNascimento)
     throw new ErroModalidades("NASCIMENTO_NAO_INFORMADO");
   const idade = calcularIdade(aluno.dataNascimento);
@@ -499,7 +561,9 @@ export async function confirmarContratacaoModalidades(
   const numeroMatricula = `PHX-${user.instituicaoId}-${agora.getUTCFullYear()}-${String(instituicao.proximoNumeroMatricula - 1).padStart(6, "0")}`;
   const principalId = idCursoPrincipal(body.cursoPrincipalId);
   const principal = principalId !== null ? escolhidas.find(o => o.cursoId === principalId)! : escolhidas[0];
-  const disciplinas = escolhidas.flatMap((o) => o.disciplinas);
+  const ofertasDiretas = escolhidas.filter(o => o.curso.matriculaDiretaTurma);
+  const disciplinas = escolhidas.filter(o => !o.curso.matriculaDiretaTurma)
+    .flatMap((o) => o.disciplinas);
   if (new Set(disciplinas.map((d) => d.id)).size !== disciplinas.length)
     throw new ErroModalidades("DISCIPLINA_DUPLICADA");
   const matricula = await db.matricula.create({
@@ -547,8 +611,18 @@ export async function confirmarContratacaoModalidades(
         idade < 18
           ? `Confirmação de matrícula do menor (${idade} anos) por ${user.nome || user.id}. Pendências: ${pendencias.join(", ") || "nenhuma"}.`
           : null,
+      // Vinculos avulsos nao usam uma disciplina sintetica/ItemMatricula.
+      // Prisma faz o nested create na mesma transacao serializavel do contrato.
+      ...(ofertasDiretas.length ? { turmasAvulsas: {
+        create: ofertasDiretas.map(o => ({
+          instituicaoId: user.instituicaoId,
+          turmaId: o.id,
+          cursoId: o.cursoId!,
+          status: situacao === "ATIVA" ? "EM_CURSO" as const : "A_CURSAR" as const,
+        })),
+      }} : {}),
       itens: {
-        create: escolhidas.flatMap((o) =>
+        create: escolhidas.filter(o => !o.curso.matriculaDiretaTurma).flatMap((o) =>
           o.disciplinaIds.map((disciplinaId) => ({
             instituicaoId: user.instituicaoId,
             turmaId: o.id,

@@ -9,6 +9,7 @@ import {
 
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { possuiVinculoDiretoMatricula } from "@/lib/matriculas/bloqueio-transferencia-avulsa";
 
 class ErroApi extends Error {
   status: number;
@@ -441,6 +442,17 @@ export async function POST(
            * concluida ou cancelada antes de iniciar
            * outra movimentacao.
            */
+          // As transferencias atuais migram apenas ItemMatricula (disciplina).
+          // Vinculos MatriculaTurmaAvulsa exigem um fluxo proprio, ainda nao
+          // implementado. Bloqueamos toda a operacao ANTES de qualquer escrita.
+          if (await possuiVinculoDiretoMatricula(tx, user.instituicaoId, matricula.id)) {
+            throw new ErroApi(
+              409,
+              "Esta matricula possui curso avulso sem disciplinas. A transferencia ainda nao esta disponivel para essa modalidade; nenhum dado foi alterado.",
+              "TRANSFERENCIA_AVULSO_SEM_GRADE_NAO_SUPORTADA"
+            );
+          }
+
           const transferenciaPendente =
             await tx.transferenciaMatricula.findFirst(
               {

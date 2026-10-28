@@ -1,7 +1,7 @@
 import { ErroModalidades, idsPositivos } from "./combos";
 
 export type ConfiguracaoAdicionais = {
-  permiteCursosAdicionais?: boolean; disponivelComoAdicional?: boolean;
+  permiteCursosAdicionais?: boolean; disponivelComoAdicional?: boolean; matriculaDiretaTurma?: boolean;
   organizacaoCurricular?: string; regrasPrecoDisciplinas?: unknown; regrasSelecaoDisciplinas?: unknown;
 };
 export function camposCursosAdicionais(body: Record<string, unknown>, atual: ConfiguracaoAdicionais = {}) {
@@ -25,7 +25,11 @@ export function idCursoPrincipal(valor: unknown) {
 export function validarCursosAdicionais<T extends ConfiguracaoAdicionais & { id: number }>(cursos: T[], principalId: number | null) {
   if (principalId === null) return null; // Mantém o fluxo geral de combos já existente.
   const principal = cursos.find(c => c.id === principalId);
-  if (!principal || !principal.permiteCursosAdicionais) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
+  // A regra de adicionais nao pode obrigar um avulso direto a permitir combos.
+  // Excecao SOMENTE para um unico curso principal opt-in.
+  const avulsoIndividual = cursos.length === 1 && principal?.matriculaDiretaTurma === true;
+  if (!principal || (!principal.permiteCursosAdicionais && !avulsoIndividual))
+    throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
   if (cursos.some(c => c.id !== principalId && !c.disponivelComoAdicional)) throw new ErroModalidades("CURSO_NAO_DISPONIVEL_ADICIONAL", 409);
   return principal;
 }

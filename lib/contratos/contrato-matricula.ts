@@ -299,7 +299,9 @@ export async function montarContratoMatricula(
               `- ${disciplina}`
           )
           .join("\n")
-      : "- N\u00e3o informado";
+      : dadosCursosContratados.temModalidades
+        ? dadosCursosContratados.cursosContratados
+        : "- N\u00e3o informado";
 
   const valorLancamentos =
     matricula.lancamentosFinanceiros.reduce(
