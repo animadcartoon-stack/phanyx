@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ErroCursoAvulsoSemGrade } from "@/lib/academico/configurar-curso-avulso-sem-grade";
 import {
   getUserFromToken,
   isAdminLike,
@@ -165,6 +166,18 @@ if (publicacaoRecebida) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
+          // O modo avulso nao aceita grade. A verificacao ocorre antes de apagar
+          // os vinculos existentes e antes de sincronizar publicacoes.
+          const curso = await tx.curso.findFirst({
+            where: { id: semestre.cursoId, instituicaoId },
+            select: { matriculaDiretaTurma: true },
+          });
+          if (curso?.matriculaDiretaTurma && disciplinaIds.length > 0) {
+            throw new ErroCursoAvulsoSemGrade(
+              "CURSO_SEM_GRADE_NAO_ACEITA_DISCIPLINAS",
+              "Este curso utiliza matrícula direta na turma e não permite vincular disciplinas.",
+            );
+          }
           await tx.cursoSemestreDisciplina.deleteMany(
             {
               where: {
@@ -218,6 +231,7 @@ if (publicacaoRecebida) {
       },
     });
   } catch (error: unknown) {
+    if (error instanceof ErroCursoAvulsoSemGrade) return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
     console.error(
       "Erro ao salvar disciplinas do semestre:",
       error

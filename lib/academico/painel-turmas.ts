@@ -3,7 +3,7 @@ import { incluirGradeOferta } from "./integridade-ofertas";
 
 type Banco = Prisma.TransactionClient;
 export async function carregarPainelTurmas(db: Banco, instituicaoId: number, somenteTurmas = false, incluirDisciplinas = true, somenteCatalogos = false) {
-  const cursoSelect = { id: true, nome: true, codigo: true, organizacaoCurricular: true, instituicaoId: true } as const;
+  const cursoSelect = { id: true, nome: true, codigo: true, organizacaoCurricular: true, matriculaDiretaTurma: true, instituicaoId: true } as const;
   const professorSelect = { id: true, nome: true, instituicaoId: true } as const;
   const carregarTurmas = async () => {
     const turmas = await db.turma.findMany({

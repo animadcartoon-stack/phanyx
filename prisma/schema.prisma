@@ -9,6 +9,9 @@ datasource db {
 }
 
 model Instituicao {
+  // Reservas de turmas avulsas sem grade curricular (isoladas por instituicao).
+  horariosTurmaAvulsa TurmaHorarioAvulso[]
+  vinculosMatriculaTurmaAvulsa MatriculaTurmaAvulsa[]
   requisitosCursos CursoRequisitoConjunto[]
   anotacoesBiblioteca BibliotecaAnotacao[]
 
@@ -826,6 +829,9 @@ enum OrganizacaoCurricular {
 }
 
 model Curso {
+  // Somente cursos explicitamente configurados permitem matricula sem disciplinas.
+  matriculaDiretaTurma Boolean @default(false)
+  vinculosMatriculaTurmaAvulsa MatriculaTurmaAvulsa[]
   regrasSelecaoDisciplinas Json?
   requisitosConjuntos CursoRequisitoConjunto[] @relation("CursoDependente")
   exigidoEmCursos CursoRequisitoConjunto[] @relation("CursoObrigatorio")
@@ -1084,6 +1090,9 @@ model Disciplina {
 }
 
 model Turma {
+  // Horarios proprios de cursos avulsos sem vinculo com TurmaDisciplina.
+  horariosAvulsos TurmaHorarioAvulso[]
+  matriculasAvulsas MatriculaTurmaAvulsa[]
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)
   etapaNumero Int?
   id                              Int                             @id @default(autoincrement())
@@ -1140,6 +1149,47 @@ model Turma {
   @@index([poloId])
 }
 
+// Horario de turma de curso avulso, independente da grade e da disciplina.
+model TurmaHorarioAvulso {
+  id            Int         @id @default(autoincrement())
+  instituicaoId Int
+  turmaId       Int
+  diaSemana     Int
+  horaInicio    String
+  horaFim       String
+  ativo         Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  turma         Turma       @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([turmaId, diaSemana, horaInicio, horaFim])
+  @@index([instituicaoId, diaSemana])
+  @@index([turmaId, ativo])
+}
+
+// Ocupacao da turma por curso avulso sem nenhum ItemMatricula/Disciplina.
+// A validacao de permissao, vagas e conflitos sera integrada na etapa seguinte.
+model MatriculaTurmaAvulsa {
+  id            Int                 @id @default(autoincrement())
+  instituicaoId Int
+  matriculaId   Int
+  turmaId       Int
+  cursoId       Int
+  status        StatusItemMatricula @default(A_CURSAR)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  instituicao   Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula     Matricula           @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+  turma         Turma               @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  curso         Curso               @relation(fields: [cursoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+
+  @@unique([matriculaId, cursoId])
+  @@unique([matriculaId, turmaId])
+  @@index([instituicaoId, turmaId, status])
+  @@index([instituicaoId, cursoId])
+}
+
 model TurmaDisciplina {
   id              Int            @id @default(autoincrement())
   turmaId         Int
@@ -1194,6 +1244,8 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  // Uma contratacao pode reunir diferentes cursos sem disciplinas/grade.
+  turmasAvulsas MatriculaTurmaAvulsa[]
   regrasSelecaoDisciplinas Json?
   periodosCursoLivre PeriodoCursoLivre[]
   organizacaoCurricular OrganizacaoCurricular @default(SEMESTRAL)

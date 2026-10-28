@@ -76,7 +76,12 @@ function banco(cursos) {
   return { chamadas,
     aluno:{findFirst:async args=>{chamadas.push(args);return {id:1,instituicaoId:26,nome:'Teste'};}},
     turma:{findMany:async args=>{
-      chamadas.push(args); assert.equal(args.where.instituicaoId,26);assert.equal(args.select.curso.select.precosComboPorQuantidade,true);
+      chamadas.push(args); assert.equal(args.where.instituicaoId,26);
+      if (args.where.codigo?.startsWith === "OFERTA-") {
+        assert.equal(args.select.codigo,true);
+        return []; // Fixture sem ofertas compartilhadas.
+      }
+      assert.equal(args.select.curso.select.precosComboPorQuantidade,true);
       return cursos.map((c,i)=>({id:i+1,nome:`Turma ${i+1}`,cursoId:c.id,poloId:1,periodoLetivo:'2027',etapaNumero:1,organizacaoCurricular:'ANUAL',modalidade:'EAD',dataInicio:null,dataFim:null,capacidadeMaxima:20,polo:{nome:'Sede'},curso:c,
         disciplinas:[{disciplinaId:i+1,dataInicio:null,dataFim:null,disciplina:{nome:`Disciplina ${i+1}`,cargaHoraria:40,semestre:1},horarios:[]}]}));
     }},

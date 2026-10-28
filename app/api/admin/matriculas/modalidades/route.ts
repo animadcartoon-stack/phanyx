@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { idCursoPrincipal } from "@/lib/matriculas/cursos-adicionais";
+import { origemOfertaVinculada } from "@/lib/matriculas/vagas-ofertas-compartilhadas";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -19,11 +20,11 @@ export async function GET(req?: Request) {
     const principalId = idCursoPrincipal(req ? new URL(req.url).searchParams.get("cursoPrincipalId") : null);
     const principal = principalId === null ? null : await prisma.curso.findFirst({
       where: { id: principalId, instituicaoId: user.instituicaoId, ativo: true, excluidoEm: null },
-      select: { id: true, nome: true, permiteCursosAdicionais: true },
+      select: { id: true, nome: true, permiteCursosAdicionais: true, matriculaDiretaTurma: true },
     });
-    if (principalId !== null && !principal?.permiteCursosAdicionais) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
+    if (principalId !== null && !principal?.permiteCursosAdicionais && !principal?.matriculaDiretaTurma) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
     const ofertas = await carregarOfertasModalidades(prisma, user.instituicaoId);
-    return NextResponse.json({ principal, ofertas: principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || o.curso.disponivelComoAdicional) });
+    return NextResponse.json({ principal, ofertas: principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || (principal?.permiteCursosAdicionais && o.curso.disponivelComoAdicional)) });
   } catch (error) {
     return erroCombos(error);
   }
@@ -104,10 +105,17 @@ export async function POST(request: Request) {
             throw new ErroModalidades("CHAVE_REUTILIZADA", 409);
           return existente;
         }
-        // Ordem fixa evita deadlock entre duas contratações com as mesmas turmas.
-        if (turmaIds.length)
+        // Ofertas vinculadas e a turma PEVI de origem competem pela mesma vaga.
+        // Todas as confirmacoes bloqueiam o mesmo registro de origem.
+        const referencias = turmaIds.length ? await tx.turma.findMany({
+          where: { instituicaoId: user.instituicaoId, id: { in: turmaIds } },
+          select: { id: true, codigo: true, cursoId: true },
+        }) : [];
+        const origens = referencias.map(origemOfertaVinculada).filter((id): id is number => id !== null);
+        const turmasParaBloquear = [...new Set([...turmaIds, ...origens])].sort((a,b) => a-b);
+        if (turmasParaBloquear.length)
           await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "Turma" WHERE "instituicaoId" = ${user.instituicaoId}
-        AND "id" IN (${Prisma.join(turmaIds)}) ORDER BY "id" FOR UPDATE`);
+        AND "id" IN (${Prisma.join(turmasParaBloquear)}) ORDER BY "id" FOR UPDATE`);
         return confirmarContratacaoModalidades(
           tx,
           user,
