@@ -39,6 +39,7 @@ export async function GET() {
           nome: true,
           ativo: true,
           participaCombo: true,
+          disponivelComoAdicional: true,
           valorMatricula: true,
           valorMensalidade: true,
           valorMensalidadeCombo: true,

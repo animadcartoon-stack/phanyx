@@ -49,6 +49,7 @@ const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
 
   "curso",
   "cursoNome",
+  "cursosContratados",
   "statusMatricula",
   "dataMatricula",
   "dataInicioAluno",
@@ -64,6 +65,7 @@ const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
   "percentualConclusao",
   "disciplinas",
   "disciplinasContratadas",
+  "disciplinasPorCurso",
 
   "nomeTitularContrato",
   "cpfTitularContrato",

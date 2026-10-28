@@ -139,6 +139,10 @@ function AdminTurmasPage() {
     Record<number, { diaSemana: string; horaInicio: string; horaFim: string }[]>
   >({});
   const [editandoId, setEditandoId] = useState<number | null>(null);
+  // Oferta avulsa associada a uma turma existente: preserva a turma original.
+  const [cursoOfertaDestino, setCursoOfertaDestino] = useState("");
+  const [disciplinasOfertaDestino, setDisciplinasOfertaDestino] = useState<number[]>([]);
+  const [criandoOfertaVinculada, setCriandoOfertaVinculada] = useState(false);
 
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
@@ -322,6 +326,8 @@ function AdminTurmasPage() {
   function iniciarEdicao(turma: Turma) {
     if (!catalogosProntos) return;
     setEditandoId(turma.id);
+    setCursoOfertaDestino("");
+    setDisciplinasOfertaDestino([]);
     setEditNome(turma.nome || "");
     setEditCodigo(turma.codigo || "");
     setEditSemestre(String(etapaDaOferta(turma) ?? ""));
@@ -445,6 +451,39 @@ function AdminTurmasPage() {
         ? String(turma.professorId)
         : "",
     );
+  }
+
+  async function disponibilizarTurmaEmCurso(turmaId: number) {
+    if (!cursoOfertaDestino || disciplinasOfertaDestino.length === 0) {
+      mostrarFeedback("erro", "Selecione o curso de destino e pelo menos uma disciplina.");
+      return;
+    }
+    try {
+      setCriandoOfertaVinculada(true);
+      const resposta = await fetch(
+        `/api/turma/${turmaId}/vincular-curso`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            cursoDestinoId: Number(cursoOfertaDestino),
+            disciplinaIds: disciplinasOfertaDestino,
+          }),
+        },
+      );
+      const dados = await resposta.json();
+      if (!resposta.ok) throw new Error(dados?.error || "Não foi possível vincular a oferta.");
+      await carregarTurmas();
+      setEditandoId(null);
+      setCursoOfertaDestino("");
+      setDisciplinasOfertaDestino([]);
+      mostrarFeedback("sucesso", "Oferta vinculada criada como inativa para revisão. A turma original foi preservada.");
+    } catch (erro: any) {
+      mostrarFeedback("erro", erro?.message || "Não foi possível vincular a oferta.");
+    } finally {
+      setCriandoOfertaVinculada(false);
+    }
   }
 
   async function salvarEdicao(id: number) {
@@ -2032,6 +2071,36 @@ function AdminTurmasPage() {
                           </option>
                         ))}
                       </select>
+                      <section className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+                        <h3 className="font-semibold">Disponibilizar esta turma em outro curso</h3>
+                        <p className="mt-1 text-xs">Cria uma oferta própria e inicialmente inativa no curso selecionado com as disciplinas e horários escolhidos. Não muda nem exclui a turma atual. Revise horários e capacidade antes da ativação.</p>
+                        <select
+                          aria-label="Curso de destino da oferta"
+                          className="mt-3 w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                          value={cursoOfertaDestino}
+                          onChange={(e) => { setCursoOfertaDestino(e.target.value); setDisciplinasOfertaDestino([]); }}
+                        >
+                          <option value="">Selecione outro curso...</option>
+                          {cursos.filter(c => c.id !== turma.cursoId).map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                        </select>
+                        {cursoOfertaDestino && <div className="mt-3 space-y-2">
+                          <p className="font-medium">Quais disciplinas e horários desta turma serão ofertados nesse curso?</p>
+                          {(turma.disciplinas || []).map(d => <label key={d.id} className="flex items-center gap-2">
+                            <input type="checkbox" checked={disciplinasOfertaDestino.includes(d.id)} onChange={e =>
+                              setDisciplinasOfertaDestino(antes => e.target.checked
+                                ? [...antes, d.id]
+                                : antes.filter(id => id !== d.id))
+                            } />
+                            {d.nome}
+                          </label>)}
+                          <button
+                            type="button"
+                            disabled={criandoOfertaVinculada || disciplinasOfertaDestino.length === 0}
+                            onClick={() => void disponibilizarTurmaEmCurso(turma.id)}
+                            className="rounded-lg bg-blue-700 px-3 py-2 font-semibold text-white disabled:opacity-50"
+                          >{criandoOfertaVinculada ? "Criando oferta..." : "Criar oferta vinculada ao curso"}</button>
+                        </div>}
+                      </section>
                       <div className="flex gap-2">
                         <button
                           onClick={() => salvarEdicao(turma.id)}

@@ -1,3 +1,4 @@
+import { resumoCursosDocumento } from "@/lib/documentos/cursos-contratados";
 import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { anexarResumoModalidades } from "./resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
@@ -284,6 +285,8 @@ export async function montarContratoMatricula(
       )
     );
 
+  const dadosCursosContratados = resumoCursosDocumento(matricula.contratacaoModalidades, matricula.curso?.nome);
+
   const cursoNome =
     nomeContratacaoModalidades(matricula.contratacaoModalidades) || matricula.curso?.nome?.trim() ||
     "Curso não informado";
@@ -544,6 +547,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
       cursoNome,
 
     cursoNome,
+    cursosContratados: dadosCursosContratados.cursosContratados,
+    disciplinasPorCurso: dadosCursosContratados.disciplinasPorCurso,
 
     disciplinas:
       disciplinasTexto,
