@@ -18,13 +18,9 @@ const semUso = (contagens: Record<string, number>, mensagem: string) => {
 const chave = (valor: unknown) => createHash("sha256").update(JSON.stringify(valor)).digest("hex");
 export type EntradaConversao = { tipo?: unknown; id?: unknown; cursoDestinoId?: unknown; dadosTurma?: unknown };
 export type PreviaConversao = { chave: string; tipo: "curso" | "turma"; id: number; nome: string;
-  cursoDestino: string; etapas: number; vinculosDisciplinas: number; disciplinasCatalogo: string[]; horarios: number };
+  cursoDestino: string; etapas: number; vinculosDisciplinas: number; disciplinasCatalogo: string[]; horarios: number; converteCurso?: boolean };
 
-// Sempre executada dentro de uma transação Serializable, na prévia e na confirmação.
-export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, entrada: EntradaConversao) {
-  if (!Number.isSafeInteger(instituicaoId) || instituicaoId <= 0) throw new ErroConversaoAvulsa("SEM_PERMISSAO", "Sem permissão.", 403);
-  const cadastroId = id(entrada.id);
-  if (entrada.tipo === "curso") {
+async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId: number, turmaPropriaId?: number) {
     await db.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cadastroId} AND "instituicaoId"=${instituicaoId} FOR UPDATE`;
     const curso = await db.curso.findFirst({ where: { id: cadastroId, instituicaoId, ativo: true, excluidoEm: null },
       include: {
@@ -35,7 +31,7 @@ export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, 
         disciplinas: { orderBy: { id: "asc" }, include: { _count: { select: {
           itensMatricula: true, aulas: true, atividades: true, provas: true, resultadosFinais: true,
           certificados: true, sessoesVideoAluno: true, eventosAprendizagemAluno: true,
-          substituicoesDocentes: true, itensRematriculaSemestral: true, turmaDisciplinas: true,
+          substituicoesDocentes: true, itensRematriculaSemestral: true, turmaDisciplinas: turmaPropriaId === undefined ? true : { where: { turmaId: { not: turmaPropriaId } } },
           disciplinasPublicadasRede: true,
         } } } },
         _count: { select: { turmas: true, matriculas: true, vinculosMatriculaTurmaAvulsa: true,
@@ -45,7 +41,9 @@ export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, 
     if (curso.matriculaDiretaTurma) falhar("JA_CONVERTIDO", "Este curso já utiliza matrícula direta.");
     if (!["ANUAL", "SEMESTRAL"].includes(curso.organizacaoCurricular) || curso.regrasPrecoDisciplinas || curso.regrasSelecaoDisciplinas)
       falhar("MODO_INCOMPATIVEL", "A conversão exige preço fixo, organização anual ou semestral e ausência de regras de seleção de disciplinas.");
-    semUso(curso._count, "O curso possui turmas, matrículas, documentos ou configurações em uso. Esses vínculos precisam de revisão antes da conversão.");
+    if (turmaPropriaId !== undefined && (curso._count.turmas !== 1 || await db.turma.count({ where: { id: turmaPropriaId, cursoId: cadastroId, instituicaoId } }) !== 1))
+      falhar("OUTRAS_TURMAS", "O curso possui outras turmas. A conversão conjunta exige que esta seja a única turma; os demais cadastros foram preservados.");
+    semUso(turmaPropriaId === undefined ? curso._count : { ...curso._count, turmas: 0 }, "O curso possui turmas, matrículas, documentos ou configurações em uso. Esses vínculos precisam de revisão antes da conversão.");
     if (await db.cursoPublicacaoRede.count({ where: { OR: [{ cursoOrigemId: cadastroId }, { cursoDestinoId: cadastroId }] } }))
       falhar("VINCULO_REDE", "Cursos publicados ou recebidos da rede precisam de revisão própria.");
     for (const etapa of curso.semestres) {
@@ -76,16 +74,22 @@ export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, 
       await db.curso.update({ where: { id: cadastroId }, data: { matriculaDiretaTurma: true } });
       return { id: cadastroId, tipo: "curso", matriculaDiretaTurma: true };
     } };
-  }
+}
+
+// Sempre executada dentro de uma transação Serializable, na prévia e na confirmação.
+export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, entrada: EntradaConversao) {
+  if (!Number.isSafeInteger(instituicaoId) || instituicaoId <= 0) throw new ErroConversaoAvulsa("SEM_PERMISSAO", "Sem permissão.", 403);
+  const cadastroId = id(entrada.id);
+  if (entrada.tipo === "curso") return prepararCursoAvulso(db, instituicaoId, cadastroId);
   if (entrada.tipo !== "turma") throw new ErroConversaoAvulsa("DADOS_INVALIDOS", "Tipo de cadastro inválido.", 400);
   const cursoDestinoId = id(entrada.cursoDestinoId);
   // Ordem fixa dos bloqueios evita deadlock com a conversão de curso.
   await db.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cursoDestinoId} AND "instituicaoId"=${instituicaoId} FOR UPDATE`;
   await db.$queryRaw`SELECT "id" FROM "Turma" WHERE "id"=${cadastroId} AND "instituicaoId"=${instituicaoId} FOR UPDATE`;
-  const destino = await db.curso.findFirst({ where: { id: cursoDestinoId, instituicaoId, ativo: true, excluidoEm: null, matriculaDiretaTurma: true },
+  const destino = await db.curso.findFirst({ where: { id: cursoDestinoId, instituicaoId, ativo: true, excluidoEm: null },
     include: { _count: { select: { semestres: true, disciplinas: true } } } });
   if (!destino) falhar("DESTINO_INVALIDO", "Selecione um curso ativo habilitado para matrícula diretamente na turma.");
-  if (!["ANUAL", "SEMESTRAL"].includes(destino.organizacaoCurricular) || destino.regrasPrecoDisciplinas || destino.regrasSelecaoDisciplinas || destino._count.semestres || destino._count.disciplinas)
+  if (destino.matriculaDiretaTurma && (!["ANUAL", "SEMESTRAL"].includes(destino.organizacaoCurricular) || destino.regrasPrecoDisciplinas || destino.regrasSelecaoDisciplinas || destino._count.semestres || destino._count.disciplinas))
     falhar("DESTINO_INVALIDO", "O curso de destino ainda possui grade ou configuração incompatível.");
   if (await db.cursoPublicacaoRede.count({ where: { OR: [{ cursoOrigemId: cursoDestinoId }, { cursoDestinoId }] } })) falhar("VINCULO_REDE", "Curso de destino vinculado à rede.");
   const turma = await db.turma.findFirst({ where: { id: cadastroId, instituicaoId }, include: {
@@ -124,14 +128,21 @@ export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, 
   if (professorId && !await db.professor.findFirst({ where: { id: professorId, instituicaoId }, select: { id: true } })) falhar("VINCULO_INVALIDO", "Professor não pertence à instituição.");
   if (turma.poloId && !await db.polo.findFirst({ where: { id: turma.poloId, instituicaoId, ativo: true }, select: { id: true } })) falhar("VINCULO_INVALIDO", "Polo inativo ou de outra instituição.");
   if (await db.turma.count({ where: { instituicaoId, cursoId: cursoDestinoId, periodoLetivo, nome, id: { not: cadastroId } } })) falhar("TURMA_DUPLICADA", "Já existe uma turma com este nome no curso e ano de destino.");
+  const converterCursoAtual = !destino.matriculaDiretaTurma;
+  if (converterCursoAtual && turma.cursoId !== cursoDestinoId)
+    falhar("DESTINO_INVALIDO", "Para trocar de curso, selecione um destino já habilitado. A conversão conjunta permite manter o próprio curso da turma.");
+  const planoCurso = converterCursoAtual ? await prepararCursoAvulso(db, instituicaoId, cursoDestinoId, cadastroId) : null;
   const alteracoes = { nome, codigo: codigo || null, periodoLetivo, turno, capacidadeMaxima, capacidadeMinima: minimo, professorId };
-  const previa: PreviaConversao = { chave: chave({ turma, destino, alteracoes, horarios }), tipo: "turma", id: cadastroId, nome,
-    cursoDestino: destino.nome, etapas: turma.semestres.length, vinculosDisciplinas: turma.disciplinas.length,
-    disciplinasCatalogo: turma.disciplinas.map(d => d.disciplina.nome), horarios: horarios.length };
+  const previa: PreviaConversao = { chave: chave({ turma, destino, alteracoes, horarios, curso: planoCurso?.previa.chave }), tipo: "turma", id: cadastroId, nome,
+    cursoDestino: destino.nome, etapas: turma.semestres.length + (planoCurso?.previa.etapas || 0),
+    vinculosDisciplinas: turma.disciplinas.length + (planoCurso?.previa.vinculosDisciplinas || 0),
+    disciplinasCatalogo: [...new Set([...turma.disciplinas.map(d => d.disciplina.nome), ...(planoCurso?.previa.disciplinasCatalogo || [])])],
+    horarios: horarios.length, converteCurso: converterCursoAtual };
   return { previa, async aplicar() {
     // Remove somente ofertas estruturais sem uso desta turma; o catálogo e os outros cursos ficam preservados.
     await db.turmaDisciplina.deleteMany({ where: { turmaId: cadastroId, instituicaoId } });
     await db.turmaSemestre.deleteMany({ where: { turmaId: cadastroId, instituicaoId } });
+    if (planoCurso) await planoCurso.aplicar();
     await db.turma.update({ where: { id: cadastroId }, data: { ...alteracoes, cursoId: cursoDestinoId,
       organizacaoCurricular: destino.organizacaoCurricular, etapaNumero: 1,
       semestre: destino.organizacaoCurricular === "ANUAL" ? "" : "1", ativa: false, statusTurma: "A_INICIAR",

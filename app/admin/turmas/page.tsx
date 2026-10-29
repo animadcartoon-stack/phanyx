@@ -2121,7 +2121,7 @@ function AdminTurmasPage() {
                           </option>
                         ))}
                       </select>
-                        {editSemDisciplinas && <ConverterCadastroAvulso tipo="turma" id={turma.id} cursos={cursos}
+                        {editSemDisciplinas && <ConverterCadastroAvulso tipo="turma" id={turma.id} cursos={cursos} cursoAtual={turma.curso || undefined}
                         horariosIniciais={editDisciplinasSelecionadas.flatMap(id => (horariosPorDisciplina[id] || []).map(h => ({ ...h, diaSemana: Number(h.diaSemana) })))}
                         dadosTurma={{ nome: editNome, codigo: editCodigo, periodoLetivo: editPeriodoLetivo,
                           turno: editTurno, capacidadeMaxima: editCapacidadeMaxima, capacidadeMinima: editCapacidadeMinima,
