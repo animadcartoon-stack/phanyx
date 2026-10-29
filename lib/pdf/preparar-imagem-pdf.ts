@@ -58,7 +58,7 @@ export async function prepararImagemPdf(original: Uint8Array): Promise<{
     .rotate()
     .resize({ width: LADO_MAXIMO_PDF, height: LADO_MAXIMO_PDF, fit: "inside", withoutEnlargement: true })
     .png()
-    .timeout({ seconds: 20 })
+    .timeout({ seconds: 60 })
     .toBuffer();
   return { bytes: reduzida, formato: "png" };
 }
