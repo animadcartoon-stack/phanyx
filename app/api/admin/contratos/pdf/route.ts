@@ -7,6 +7,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
 import crypto from "node:crypto";
 import { renderizarHtmlTipTapNoPdf } from "@/lib/pdf/renderizarHtmlTipTap";
+import { lerImagemPdfLimitada, prepararImagemPdf } from "@/lib/pdf/preparar-imagem-pdf";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -316,23 +317,19 @@ export async function GET(req: Request) {
 
       try {
         const logoResponse = await fetch(
-          urlImagem.startsWith("http") ? urlImagem : `${origem}${urlImagem}`
+          urlImagem.startsWith("http") ? urlImagem : `${origem}${urlImagem}`,
+          { signal: AbortSignal.timeout(20000) }
         );
 
         if (!logoResponse.ok) return null;
 
-        const bytes = await logoResponse.arrayBuffer();
-
-        try {
-          return await pdfDoc.embedPng(bytes);
-        } catch {
-          try {
-            return await pdfDoc.embedJpg(bytes);
-          } catch {
-            return null;
-          }
-        }
-      } catch {
+        const original = await lerImagemPdfLimitada(logoResponse);
+        const imagem = await prepararImagemPdf(original);
+        return imagem.formato === "jpeg"
+          ? await pdfDoc.embedJpg(imagem.bytes)
+          : await pdfDoc.embedPng(imagem.bytes);
+      } catch (error) {
+        console.error("Não foi possível preparar imagem do contrato:", error instanceof Error ? error.message : "Erro de imagem");
         return null;
       }
     }

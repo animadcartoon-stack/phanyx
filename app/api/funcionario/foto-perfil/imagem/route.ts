@@ -1,7 +1,7 @@
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
-import { r2Client } from "@/lib/storage/r2";
+import { getR2Client } from "@/lib/storage/r2";
 import { baixarFotoPerfil, chaveMiniaturaPerfil, gerarMiniaturaPerfil, MAX_BYTES_FOTO_PERFIL_EXIBICAO } from "@/lib/server/miniatura-foto-perfil";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ const semImagem = (status: number) => new Response(null, { status, headers: { "C
 
 async function lerMiniatura(bucket: string, key: string) {
   try {
-    const objeto = await r2Client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    const objeto = await getR2Client().send(new GetObjectCommand({ Bucket: bucket, Key: key }));
     if (!objeto.Body || (objeto.ContentLength || 0) > MAX_BYTES_FOTO_PERFIL_EXIBICAO) return null;
     const bytes = Buffer.from(await objeto.Body.transformToByteArray());
     return bytes.length <= MAX_BYTES_FOTO_PERFIL_EXIBICAO ? bytes : null;
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     if (!miniatura) {
       miniatura = await gerarMiniaturaPerfil(await baixarFotoPerfil(perfil.fotoPerfil));
       try {
-        await r2Client.send(new PutObjectCommand({
+        await getR2Client().send(new PutObjectCommand({
           Bucket: bucket, Key: key, Body: miniatura, ContentType: "image/webp",
           CacheControl: "public, max-age=31536000, immutable",
         }));

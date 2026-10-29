@@ -1,6 +1,6 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
-import { r2Client } from "./r2";
+import { getR2Client } from "./r2";
 
 type UploadArquivoInput = {
   file: File;
@@ -42,7 +42,7 @@ export async function uploadArquivo({
   const nomeSeguro = sanitizeFileName(nomeOriginal);
   const key = `${pasta}/${randomUUID()}-${nomeSeguro}`;
 
-  await r2Client.send(
+  await getR2Client().send(
     new PutObjectCommand({
       Bucket: bucketName,
       Key: key,

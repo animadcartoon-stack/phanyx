@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import { ErroCadastroTurmaAvulsa, validarCapacidadeTurmaAvulsa, validarHorariosTurmaAvulsa } from "@/lib/academico/validar-turma-avulsa";
 import { validarProntidaoAtivacaoTurmaAvulsa } from "@/lib/academico/validar-prontidao-ativacao-turma-avulsa";
+import { ativacaoTurmasAvulsasHabilitada } from "@/lib/academico/liberacao-avulsos";
 
 export const dynamic = "force-dynamic";
 const json = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { "Cache-Control": "private, no-store" } });
 // Flag separada da confirmacao de matriculas. DESATIVADA ate homologacao em banco isolado.
-const ativacaoHabilitada = () => process.env.PHANYX_ATIVACAO_TURMAS_AVULSAS_HABILITADA === "true";
+const ativacaoHabilitada = ativacaoTurmasAvulsasHabilitada;
 const inteiroOpcional = (valor: unknown): number | null => {
   if (valor === null || valor === undefined || valor === "") return null;
   const n = Number(valor);
@@ -70,7 +71,7 @@ export async function GET() {
           orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }] } },
       orderBy: [{ cursoId: "asc" }, { nome: "asc" }],
     }) : [];
-    return json({ cursos, professores, polos, turmas, ativacaoHabilitada: ativacaoHabilitada() });
+    return json({ cursos, professores, polos, turmas, ativacaoHabilitada: ativacaoHabilitada(user.instituicaoId) });
   } catch (error) { return erroResposta(error); }
 }
 
@@ -95,11 +96,12 @@ export async function POST(request: Request) {
         periodoLetivo: form.periodoLetivo }, select: { id: true } }))
         throw new ErroCadastroTurmaAvulsa("TURMA_DUPLICADA", "Esta turma já existe para o mesmo curso e ano.");
       const criada = await tx.turma.create({ data: { instituicaoId: user.instituicaoId, cursoId,
-        nome: form.nome, codigo: form.codigo, semestre: "1", organizacaoCurricular: curso.organizacaoCurricular,
+        nome: form.nome, codigo: form.codigo, semestre: curso.organizacaoCurricular === "ANUAL" ? "" : "1", organizacaoCurricular: curso.organizacaoCurricular,
         etapaNumero: 1, periodoLetivo: form.periodoLetivo, turno: form.turno, modalidade: "PRESENCIAL",
         professorId: form.professorId, poloId: form.poloId, capacidadeMaxima: form.capacidadeMaxima,
         ativa: false, statusTurma: "A_INICIAR",
-        horariosAvulsos: { create: form.horarios.map(h => ({ ...h, instituicaoId: user.instituicaoId, ativo: true })) },
+        // A chave composta da turma já fornece instituicaoId ao nested create.
+        horariosAvulsos: { create: form.horarios.map(h => ({ ...h, ativo: true })) },
       }, select: { id: true, nome: true, ativa: true } });
       return criada;
     }, { isolationLevel: "Serializable", timeout: 20000 });
@@ -137,7 +139,7 @@ async function ativarTurmaAvulsa(instituicaoId: number, turmaId: number) {
 
     // Impede alteracao do curso enquanto se valida a prontidao da turma.
     await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id" = ${atual.cursoId} AND "instituicaoId" = ${instituicaoId} FOR SHARE`;
-    validarProntidaoAtivacaoTurmaAvulsa(atual);
+    validarProntidaoAtivacaoTurmaAvulsa({ ...atual, horarios: atual.horariosAvulsos });
     const [etapas, disciplinasSoltas, vinculosDisciplina, itensLegados, matriculasDiretas] = await Promise.all([
       tx.cursoSemestre.count({ where: { instituicaoId, cursoId: atual.cursoId } }),
       tx.disciplina.count({ where: { instituicaoId, cursoId: atual.cursoId } }),
@@ -166,7 +168,7 @@ export async function PATCH(request: Request) {
     const user = await admin();
     const body = (await request.json()) as Record<string, unknown>;
     if (body?.acao === "ATIVAR_TURMA") {
-      if (!ativacaoHabilitada())
+      if (!ativacaoHabilitada(user.instituicaoId))
         throw new ErroCadastroTurmaAvulsa("ATIVACAO_BLOQUEADA", "Ativacao indisponivel ate a homologacao das matriculas sem grade.");
       const turmaId = inteiroOpcional(body.turmaId);
       if (!turmaId) throw new ErroCadastroTurmaAvulsa("TURMA_INVALIDA", "Selecione a turma que deseja ativar.");

@@ -20,6 +20,6 @@ test('um avulso sozinho ou com adicional usa calculo do servidor com turma propr
 test('registro financeiro continua controlado por backend e flag de confirmacao segura',()=>{
  const s=read('lib/matriculas/modalidades-servidor.ts');
  assert.ok(s.includes('calcularContratacaoModalidades('));
- assert.ok(s.includes('process.env.PHANYX_MATRICULA_SEM_GRADE_HABILITADA !== "true"'));
+ assert.ok(s.includes('!matriculaSemGradeHabilitada(user.instituicaoId)'));
  const p=read('app/admin/matriculas/page.tsx');assert.ok(p.includes('previaCombo.calculo.mensalidadeCentavos'));
 });

@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import Link from "next/link";
 
 type Horario = { diaSemana: number; horaInicio: string; horaFim: string };
 type Curso = { id: number; nome: string; matriculaDiretaTurma: boolean; organizacaoCurricular: string };
@@ -12,7 +13,7 @@ type Turma = {
 };
 type Dados = { cursos: Curso[]; turmas: Turma[]; professores: Referencia[]; polos: Referencia[]; ativacaoHabilitada: boolean };
 const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-const padrao = { cursoId: "", nome: "", codigo: "", periodoLetivo: "2027", turno: "", professorId: "", poloId: "", capacidadeMaxima: "", horarios: [{ diaSemana: 1, horaInicio: "", horaFim: "" }] as Horario[] };
+const padrao = { cursoId: "", nome: "", codigo: "", periodoLetivo: "", turno: "", professorId: "", poloId: "", capacidadeMaxima: "", horarios: [{ diaSemana: 1, horaInicio: "", horaFim: "" }] as Horario[] };
 const entrada = "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
 
 export default function TurmasAvulsasSemGrade() {
@@ -43,7 +44,7 @@ export default function TurmasAvulsasSemGrade() {
   function editar(turma: Turma) {
     setEditarId(turma.id); setErro(""); setSucesso("");
     setForm({ cursoId: String(turma.cursoId), nome: turma.nome, codigo: turma.codigo || "",
-      periodoLetivo: turma.periodoLetivo || "2027", turno: turma.turno || "",
+      periodoLetivo: turma.periodoLetivo || "", turno: turma.turno || "",
       professorId: turma.professorId ? String(turma.professorId) : "",
       poloId: turma.poloId ? String(turma.poloId) : "",
       capacidadeMaxima: turma.capacidadeMaxima === null ? "" : String(turma.capacidadeMaxima),
@@ -97,12 +98,19 @@ export default function TurmasAvulsasSemGrade() {
 
   return <section className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
     <h2 className="font-bold">Turmas de cursos avulsos sem disciplinas</h2>
-    <p className="mt-1 text-sm">Nesta modalidade, o horário é da turma, sem grade de disciplinas. As turmas são criadas inativas e dependem de homologação antes da ativação.</p>
-    {!dados?.ativacaoHabilitada && <p className="mt-2 text-xs font-semibold text-amber-800 dark:text-amber-200">Ativação bloqueada até a conclusão dos testes integrados em banco isolado. Não altere a configuração do ambiente.</p>}
+    <p className="mt-1 text-sm">Escolha o curso e defina professor, vagas, ano letivo e horários. Não é necessário cadastrar disciplinas. A turma é salva inativa para revisão antes da ativação.</p>
+    {dados && !dados.ativacaoHabilitada && <p role="status" className="mt-2 text-sm font-semibold text-amber-800 dark:text-amber-200">Você pode preparar a turma. A ativação para receber matrículas ainda não está liberada para sua instituição.</p>}
     {carregando && <p role="status" className="mt-2 text-sm">Consultando cursos avulsos...</p>}
     {erro && <p role="alert" className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{erro}</p>}
-    {sucesso && <p role="status" className="mt-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-800">{sucesso}</p>}
-    {!carregando && !erro && habilitados.length === 0 && <p className="mt-3 text-sm font-medium text-amber-700 dark:text-amber-300">Nenhum curso está habilitado para matrícula sem disciplinas. Esta opção será ativada após a integração completa, sem alterar as grades do PEVI.</p>}
+    {sucesso && <p role="status" className="mt-3 rounded-lg border border-green-300 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200">{sucesso}</p>}
+    {!carregando && dados && <div className="mt-3 rounded-lg border border-blue-200 p-3 text-sm dark:border-blue-800">
+      <p>{habilitados.length === 0 ? "Nenhum curso está habilitado para turmas sem disciplinas." : "Seu curso não aparece na lista?"} No cadastro do curso, marque “Curso avulso sem grade — matrícula diretamente na turma” e salve.</p>
+      <p className="mt-1">Se o curso possui grade ou matrículas anteriores, preserve os registros. A configuração precisa ser revisada antes de usar este modo.</p>
+      <Link href="/admin/cursos" className="mt-2 inline-block font-semibold text-blue-800 underline dark:text-blue-200">Abrir cadastro de cursos</Link>
+      {habilitados.length === 0 && dados.cursos.length > 0 && <ul className="mt-2 flex flex-wrap gap-3" aria-label="Configurar curso">
+        {dados.cursos.map(curso => <li key={curso.id}><Link href={`/admin/cursos/${curso.id}`} className="text-blue-800 underline dark:text-blue-200">{curso.nome}</Link></li>)}
+      </ul>}
+    </div>}
     {habilitados.length > 0 && <div className="mt-4 space-y-4">
       <form onSubmit={salvar} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
         <h3 className="font-semibold">{editarId ? "Editar turma inativa" : "Preparar nova turma avulsa"}</h3>
@@ -120,7 +128,7 @@ export default function TurmasAvulsasSemGrade() {
             <input value={form.codigo} onChange={e => setForm(f => ({ ...f, codigo: e.target.value }))} className={entrada + " mt-1"}/>
           </label>
           <label className="text-sm font-medium">Ano letivo
-            <input required inputMode="numeric" maxLength={4} value={form.periodoLetivo} onChange={e => setForm(f => ({ ...f, periodoLetivo: e.target.value }))} className={entrada + " mt-1"}/>
+            <input required inputMode="numeric" pattern="[0-9]{4}" placeholder="Ex.: 2027" maxLength={4} value={form.periodoLetivo} onChange={e => setForm(f => ({ ...f, periodoLetivo: e.target.value }))} className={entrada + " mt-1"}/>
           </label>
           <label className="text-sm font-medium">Turno
             <select required value={form.turno} onChange={e => setForm(f => ({ ...f, turno: e.target.value }))} className={entrada + " mt-1"}>
