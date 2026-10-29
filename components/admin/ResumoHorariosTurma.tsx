@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import estilos from "@/components/phanyx/DestaquesPainel.module.css";
 
 type Horario = {
   id?: number;
@@ -27,28 +28,25 @@ export default function ResumoHorariosTurma({ disciplinas = [] }: { disciplinas?
   const texto = textos[locale] || textos["en-US"];
 
   return (
-    <div className="phanyx-turma-horarios-card my-2 rounded-xl border p-3 text-sm" role="group" aria-label={texto.titulo}>
-      <p className="phanyx-turma-horarios-titulo font-semibold">{texto.titulo}</p>
+    <div className={`${estilos.horarios} text-sm`} role="group" aria-label={texto.titulo}>
       {disciplinas.length === 0 ? (
-        <p className="phanyx-turma-horarios-texto">{texto.vazio}</p>
-      ) : disciplinas.map(disciplina => {
+        <span>{texto.vazio}</span>
+      ) : <><span className="font-semibold">{texto.titulo}: </span>{disciplinas.map((disciplina, indiceDisciplina) => {
         const horarios = (disciplina.horarios || []).filter(horario => horario.ativo !== false);
         return (
-          <div key={disciplina.id} className="phanyx-turma-horarios-texto mt-1 break-words">
-            <span className="font-medium">{disciplina.nome}</span>
-            {horarios.length === 0 ? <p>{texto.vazio}</p> : (
-              <ul className="space-y-1">
-                {horarios.map((horario, index) => (
-                  <li key={horario.id ?? index}>
+          <span key={disciplina.id}>
+            {indiceDisciplina > 0 ? " · " : null}
+            {disciplinas.length > 1 ? <span className="font-medium">{disciplina.nome}: </span> : null}
+            {horarios.length === 0 ? <span>{texto.vazio}</span> : horarios.map((horario, index) => (
+                  <span key={horario.id ?? index}>
+                    {index > 0 ? " / " : null}
                     {dias[horario.diaSemana] ? t(dias[horario.diaSemana]) : "—"}{" · "}
-                    {horario.horaInicio || "—"}–{horario.horaFim || "—"}
-                  </li>
+                    <strong className={estilos.hora}>{horario.horaInicio || "—"}–{horario.horaFim || "—"}</strong>
+                  </span>
                 ))}
-              </ul>
-            )}
-          </div>
+          </span>
         );
-      })}
+      })}</>}
     </div>
   );
 }

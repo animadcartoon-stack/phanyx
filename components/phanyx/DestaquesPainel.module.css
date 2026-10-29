@@ -1,0 +1,69 @@
+.horarios {
+  --cor-hora: #b91c1c;
+  overflow-wrap: anywhere;
+}
+
+.hora {
+  color: var(--cor-hora) !important;
+  -webkit-text-fill-color: var(--cor-hora) !important;
+  white-space: nowrap;
+}
+
+:global(html[data-theme="dark"]) .horarios {
+  --cor-hora: #fca5a5;
+}
+
+:global(html[data-theme="system"]) .horarios {
+  --cor-hora: #ffb4b4;
+}
+
+.feriado {
+  --feriado-fundo: linear-gradient(110deg, #fff0a8, #fff8e1 65%, #ffec99);
+  --feriado-texto: #713f12;
+  --feriado-borda: #d97706;
+  --feriado-selo: #fde68a;
+  --feriado-selo-texto: #713f12;
+  --feriado-brilho: 0 0 0 1px #fbbf2466, 0 0 22px #f59e0b33;
+}
+
+:global(html[data-theme="dark"]) .feriado {
+  --feriado-fundo: linear-gradient(110deg, #4a2e09, #241a0d 65%, #3b280c);
+  --feriado-texto: #fef3c7;
+  --feriado-borda: #fbbf24;
+  --feriado-selo: #854d0e;
+  --feriado-selo-texto: #fff7d6;
+  --feriado-brilho: 0 0 0 1px #fbbf2466, 0 0 24px #f59e0b40;
+}
+
+:global(html[data-theme="system"]) .feriado {
+  --feriado-fundo: linear-gradient(110deg, #493718, #30291b 65%, #453215);
+  --feriado-texto: #fff3c4;
+  --feriado-borda: #fbbf24;
+  --feriado-selo: #854d0e;
+  --feriado-selo-texto: #fff7d6;
+  --feriado-brilho: 0 0 0 1px #fbbf2477, 0 0 24px #f59e0b40;
+}
+
+/* Escopo exclusivo do aviso de feriado, inclusive contra as cores globais do painel. */
+:global(html[data-theme]) :global(main) .feriado > div[class] {
+  background: var(--feriado-fundo) !important;
+  border-color: var(--feriado-borda) !important;
+  box-shadow: var(--feriado-brilho) !important;
+}
+
+:global(html[data-theme]) :global(main) .feriado > div[class],
+:global(html[data-theme]) :global(main) .feriado > div[class] :is(p, h2, div, span) {
+  color: var(--feriado-texto) !important;
+  -webkit-text-fill-color: var(--feriado-texto) !important;
+}
+
+:global(html[data-theme]) :global(main) .feriado > div[class] > div:first-child {
+  background: linear-gradient(#fbbf24, #f59e0b) !important;
+}
+
+:global(html[data-theme]) :global(main) .feriado :global(.inline-flex),
+:global(html[data-theme]) :global(main) .feriado > div[class] > div:last-child > div:first-child {
+  background: var(--feriado-selo) !important;
+  color: var(--feriado-selo-texto) !important;
+  -webkit-text-fill-color: var(--feriado-selo-texto) !important;
+}
