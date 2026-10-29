@@ -9,6 +9,7 @@ import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
 import TurmasAvulsasSemGrade from "@/components/admin/TurmasAvulsasSemGrade";
 import HorariosDisciplinaTurma from "@/components/admin/HorariosDisciplinaTurma";
+import ResumoHorariosTurma from "@/components/admin/ResumoHorariosTurma";
 
 interface Curso {
   matriculaDiretaTurma?: boolean;
@@ -2179,6 +2180,7 @@ function AdminTurmasPage() {
                           ? turma.disciplinas.map((d) => d.nome).join(", ")
                           : "-"}
                       </p>
+                      <ResumoHorariosTurma disciplinas={turma.disciplinas} />
                       <p className="text-sm text-gray-600">
                         {turma.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : <>{ta(turma.organizacaoCurricular === "ANUAL" ? "year" : "semester")} {etapaDaOferta(turma)}</>}
                       </p>
