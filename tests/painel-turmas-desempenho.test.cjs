@@ -23,7 +23,7 @@ function project(row, args = {}) {
   }
   return out;
 }
-const db = Object.fromEntries(['turma','itemMatricula','curso','disciplina','professor','polo'].map(model => [model, {
+const db = Object.fromEntries(['turma','itemMatricula','matriculaTurmaAvulsa','curso','disciplina','professor','polo'].map(model => [model, {
   findMany: async args => {
     calls.push({model, args});
     let selected = rows[model].filter(r => match(r,args.where));
@@ -65,6 +65,7 @@ function reset() {
     organizacaoCurricular:'ANUAL',etapaNumero:2,semestre:'',periodoLetivo:'2027',statusTurma:'ATIVA',ativa:true,
     capacidadeMinima:5,capacidadeMaxima:20,modalidade:'PRESENCIAL',sala:'A',dataInicio:new Date('2027-02-01'),disciplinas:[offer]},
     {id:39,instituicaoId:20,nome:'Outra instituição',disciplinas:[]}],
+    matriculaTurmaAvulsa:[],
     itemMatricula:[{turmaId:31,matriculaId:101,instituicaoId:10,status:'ATIVO'},
       {turmaId:31,matriculaId:101,instituicaoId:10,status:'ATIVO'},
       {turmaId:31,matriculaId:102,instituicaoId:10,status:'ATIVO'},
@@ -173,4 +174,16 @@ test('lista termina sem depender de catálogo lento ou com falha', async () => {
     assert.equal((await lista.json()).turmas.length,1);
     liberar([]); assert.equal((await catalogos).status,200);
   } finally { db.curso.findMany=original; }
+});
+
+for (const suffix of ['', '?somenteTurmas=1']) test('lista inclui horários próprios ativos da turma avulsa sem vazar outra instituição: '+(suffix||'completa'), async()=>{
+  reset();const turma=rows.turma[0];turma.curso.matriculaDiretaTurma=true;turma.disciplinas=[];
+  turma.horariosAvulsos=[{id:91,instituicaoId:10,diaSemana:4,horaInicio:'10:00',horaFim:'11:40',ativo:true},
+    {id:92,instituicaoId:10,diaSemana:4,horaInicio:'08:00',horaFim:'09:40',ativo:false},
+    {id:93,instituicaoId:20,diaSemana:5,horaInicio:'10:00',horaFim:'11:40',ativo:true}];
+  const res=await api.GET(request(suffix));assert.equal(res.status,200);const data=await res.json();
+  assert.deepEqual(data.turmas[0].disciplinas,[]);assert.equal(data.turmas[0].curso.matriculaDiretaTurma,true);
+  assert.deepEqual(data.turmas[0].horariosAvulsos,[{id:91,diaSemana:4,horaInicio:'10:00',horaFim:'11:40',ativo:true}]);
+  const query=calls.find(c=>c.model==='turma').args.include.horariosAvulsos;assert.equal(query.where.instituicaoId,10);assert.equal(query.where.ativo,true);
+  assert.deepEqual(query.orderBy,[{diaSemana:'asc'},{horaInicio:'asc'}]);
 });

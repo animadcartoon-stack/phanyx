@@ -89,6 +89,7 @@ interface Turma {
   professorId?: number | null;
   professor?: Professor | null;
   disciplinas?: Disciplina[];
+  horariosAvulsos?: Disciplina["horarios"];
   matriculados?: number;
   _count?: {
     itensMatricula: number;
@@ -2194,7 +2195,8 @@ function AdminTurmasPage() {
                           ? turma.disciplinas.map((d) => d.nome).join(", ")
                           : "-"}
                       </p>
-                      <ResumoHorariosTurma disciplinas={turma.disciplinas} />
+                      <ResumoHorariosTurma disciplinas={turma.disciplinas} horariosAvulsos={turma.horariosAvulsos}
+                        semDisciplinas={Boolean(turma.curso?.matriculaDiretaTurma)} />
                       <p className="text-sm text-gray-600">
                         {turma.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : <>{ta(turma.organizacaoCurricular === "ANUAL" ? "year" : "semester")} {etapaDaOferta(turma)}</>}
                       </p>

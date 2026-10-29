@@ -11,6 +11,9 @@ export async function carregarPainelTurmas(db: Banco, instituicaoId: number, som
       include: {
         curso: { select: cursoSelect }, polo: { select: { id: true, nome: true, instituicaoId: true } },
         professor: { select: professorSelect },
+        horariosAvulsos: { where: { instituicaoId, ativo: true },
+          orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }],
+          select: { id: true, diaSemana: true, horaInicio: true, horaFim: true, ativo: true } },
         disciplinas: {
           where: { instituicaoId, disciplina: { instituicaoId } },
           select: {
