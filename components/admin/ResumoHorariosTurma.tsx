@@ -22,21 +22,27 @@ const textos: Record<string, { titulo: string; vazio: string }> = {
 };
 const dias = ["classesSun", "classesMon", "classesTue", "classesWed", "classesThu", "classesFri", "classesSat"] as const;
 
-export default function ResumoHorariosTurma({ disciplinas = [] }: { disciplinas?: Disciplina[] }) {
+export default function ResumoHorariosTurma({ disciplinas = [], horariosAvulsos = [], semDisciplinas = false }: {
+  disciplinas?: Disciplina[]; horariosAvulsos?: Horario[]; semDisciplinas?: boolean;
+}) {
   const locale = useLocale();
   const t = useTranslations("AdminOperations");
   const texto = textos[locale] || textos["en-US"];
+  const horariosProprios = horariosAvulsos.filter(horario => horario.ativo !== false);
+  const grupos = semDisciplinas || horariosProprios.length > 0
+    ? (horariosProprios.length ? [{ id: "turma", nome: "", horarios: horariosProprios }] : [])
+    : disciplinas;
 
   return (
     <div className={`${estilos.horarios} text-sm`} role="group" aria-label={texto.titulo}>
-      {disciplinas.length === 0 ? (
+      {grupos.length === 0 ? (
         <span>{texto.vazio}</span>
-      ) : <><span className="font-semibold">{texto.titulo}: </span>{disciplinas.map((disciplina, indiceDisciplina) => {
-        const horarios = (disciplina.horarios || []).filter(horario => horario.ativo !== false);
+      ) : <><span className="font-semibold">{texto.titulo}: </span>{grupos.map((grupo, indiceGrupo) => {
+        const horarios = (grupo.horarios || []).filter(horario => horario.ativo !== false);
         return (
-          <span key={disciplina.id}>
-            {indiceDisciplina > 0 ? " · " : null}
-            {disciplinas.length > 1 ? <span className="font-medium">{disciplina.nome}: </span> : null}
+          <span key={grupo.id}>
+            {indiceGrupo > 0 ? " · " : null}
+            {grupos.length > 1 ? <span className="font-medium">{grupo.nome}: </span> : null}
             {horarios.length === 0 ? <span>{texto.vazio}</span> : horarios.map((horario, index) => (
                   <span key={horario.id ?? index}>
                     {index > 0 ? " / " : null}
