@@ -42,7 +42,7 @@ async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId:
     if (!["ANUAL", "SEMESTRAL"].includes(curso.organizacaoCurricular) || curso.regrasPrecoDisciplinas || curso.regrasSelecaoDisciplinas)
       falhar("MODO_INCOMPATIVEL", "A conversão exige preço fixo, organização anual ou semestral e ausência de regras de seleção de disciplinas.");
     if (turmaPropriaId !== undefined && (curso._count.turmas !== 1 || await db.turma.count({ where: { id: turmaPropriaId, cursoId: cadastroId, instituicaoId } }) !== 1))
-      falhar("OUTRAS_TURMAS", "O curso possui outras turmas. A conversão conjunta exige que esta seja a única turma; os demais cadastros foram preservados.");
+      falhar("OUTRAS_TURMAS", `Esta operação mudaria a estrutura de todo o curso “${curso.nome}” e afetaria outras turmas. Para preservar sua grade, edite esta turma no curso atual ou escolha um curso avulso de destino já habilitado. O curso pode continuar com várias turmas.`);
     semUso(turmaPropriaId === undefined ? curso._count : { ...curso._count, turmas: 0 }, "O curso possui turmas, matrículas, documentos ou configurações em uso. Esses vínculos precisam de revisão antes da conversão.");
     if (await db.cursoPublicacaoRede.count({ where: { OR: [{ cursoOrigemId: cadastroId }, { cursoDestinoId: cadastroId }] } }))
       falhar("VINCULO_REDE", "Cursos publicados ou recebidos da rede precisam de revisão própria.");

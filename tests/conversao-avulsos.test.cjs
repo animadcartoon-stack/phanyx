@@ -32,3 +32,9 @@ for(const campo of ['matriculas','documentosGerados','periodosMatricula'])test('
 test('conversão conjunta preserva uso acadêmico da turma e disciplina direta em outra oferta',async()=>{for(const change of [f=>f.state.turma._count.aulas=1,f=>f.state.curso.disciplinas[0]._count.turmaDisciplinas=1,f=>f.state.curso.disciplinas[0]._count.itensMatricula=1]){const f=proprio();change(f);await blocked(f,entradaPropria())}});
 test('conversão conjunta filtra apenas ofertas da própria turma e detecta mudança da grade',async()=>{const f=proprio();const reads=[];const original=f.db.curso.findFirst;f.db.curso.findFirst=async args=>{reads.push(args);return original(args)};const a=await helper.prepararConversaoAvulsa(f.db,26,entradaPropria());assert.equal(reads.at(-1).include.disciplinas.include._count.select.turmaDisciplinas.where.turmaId.not,28);f.state.curso.semestres[0].disciplinas[0].disciplina.nome='Catálogo alterado';const b=await helper.prepararConversaoAvulsa(f.db,26,entradaPropria());assert.notEqual(a.previa.chave,b.previa.chave);assert.equal(f.writes.length,0)});
 test('conversão isolada de curso continua bloqueando a própria turma',async()=>{const f=proprio();await blocked(f,{tipo:'curso',id:34})});
+
+test('recusa de conversão do curso inteiro esclarece que várias turmas continuam permitidas',async()=>{
+ const f=proprio();f.state.curso._count.turmas=2;
+ await assert.rejects(helper.prepararConversaoAvulsa(f.db,26,entradaPropria()),e=>e.codigo==='OUTRAS_TURMAS'&&e.message.includes('estrutura de todo o curso')&&e.message.includes('várias turmas'));
+ assert.equal(f.writes.length,0);
+});
