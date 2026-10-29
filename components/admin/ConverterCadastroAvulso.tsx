@@ -1,11 +1,11 @@
 "use client";
-import { useId, useState } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import type { PreviaConversao } from "@/lib/academico/converter-cadastro-avulso";
 import type { HorarioAvulso } from "@/lib/academico/validar-turma-avulsa";
 
-type Base = { id: number; onConcluido: () => void | Promise<void> };
+type Base = { id: number; onConcluido: () => void | Promise<void>; disabled?: boolean; onOcupadoChange?: (ocupado: boolean) => void };
 type Props = Base & ({ tipo: "curso" } | { tipo: "turma";
   cursoAtual?: { id: number; nome: string; matriculaDiretaTurma?: boolean };
   cursos: { id: number; nome: string; matriculaDiretaTurma?: boolean }[];
@@ -16,7 +16,7 @@ type Props = Base & ({ tipo: "curso" } | { tipo: "turma";
 const pt = {
   titleCourse: "Converter este curso para matrícula sem disciplinas", titleClass: "Vincular esta turma a um curso avulso",
   helpCourse: "A revisão utiliza o cadastro já salvo. Guarde outras alterações antes. A conversão só será permitida se a estrutura estiver sem uso acadêmico.",
-  helpClass: "Escolha um curso avulso de destino para mudar somente esta turma. Para manter o curso atual e sua grade, use “Editar turma no curso atual”. Um curso pode ter várias turmas, inclusive no mesmo horário com professores diferentes.",
+  helpClass: "Esta opção transfere a turma. Para apenas editar, use os campos e o botão Guardar acima, sem escolher outro curso. Um curso pode ter várias turmas, inclusive no mesmo horário com professores diferentes.",
   destination: "Curso avulso de destino", choose: "Selecione o curso...", noCourse: "Habilite primeiro a matrícula direta no cadastro do curso de destino.",
   hours: "Dias e horários após a conversão", add: "Adicionar horário", remove: "Remover horário", start: "Início", end: "Fim", day: "Dia da semana",
   review: "Revisar conversão", reviewing: "Conferindo vínculos...", confirm: "Confirmar conversão", cancel: "Cancelar", processing: "Convertendo...",
@@ -28,11 +28,11 @@ const pt = {
 const textos: Record<string, typeof pt> = {
   "pt-BR": pt, "pt-PT": { ...pt, helpCourse: "A revisão utiliza o registo já guardado. Guarde outras alterações antes. A conversão só será permitida se a estrutura estiver sem utilização académica." },
   "en-US": { titleCourse: "Convert this course to enrollment without subjects", titleClass: "Reuse this class for a standalone course",
-    helpCourse: "This review uses the saved course. Save other changes first. Conversion is allowed only when the structure has no academic use.", helpClass: "Choose a destination standalone course to move only this class. To keep its current course and curriculum, use “Edit class in current course”. A course can have multiple classes, including at the same time with different teachers.",
+    helpCourse: "This review uses the saved course. Save other changes first. Conversion is allowed only when the structure has no academic use.", helpClass: "This option moves the class. To edit it, use the fields and Save button above without selecting another course. A course can have multiple classes, including at the same time with different teachers.",
     destination: "Destination standalone course", choose: "Select a course...", noCourse: "First enable direct enrollment in the destination course settings.", hours: "Days and times after conversion", add: "Add time", remove: "Remove time", start: "Start", end: "End", day: "Day of week", review: "Review conversion", reviewing: "Checking links...", confirm: "Confirm conversion", cancel: "Cancel", processing: "Converting...",
     structure: "Also change the current course structure", structureHelp: "Also convert course “{nome}” to standalone enrollment. This requests removal of its curriculum and stages after review; it is not needed to edit the class.",    coursePlan: "The course will enroll students directly into classes. The stages and curriculum links below will be removed. Subjects will remain in the catalog and in other courses' curricula.", classPlan: "The class will move to the selected course and become inactive. Only its old subject offerings and stages will be removed. Catalog subjects and other classes will be preserved. The entered times will replace the old offerings' times.", stages: "Stages to remove", links: "Subject links to remove", catalog: "Subjects kept in the catalog", meetings: "Weekly meetings", success: "Conversion completed.", error: "Conversion could not be completed. Invalid data, linked records or history need review.", refresh: "The record was converted. Reload the page to update the list." },
-  "es-ES": { titleCourse: "Convertir este curso a matrícula sin asignaturas", titleClass: "Reutilizar esta clase en un curso independiente", helpCourse: "La revisión utiliza el curso guardado. Guarde primero los demás cambios. Solo se permite convertir una estructura sin uso académico.", helpClass: "Elija un curso independiente de destino para mover solo esta clase. Para conservar el curso actual y su plan, use «Editar clase en el curso actual». Un curso puede tener varias clases, incluso a la misma hora con docentes diferentes.", destination: "Curso independiente de destino", choose: "Seleccione el curso...", noCourse: "Habilite primero la matrícula directa en el curso de destino.", hours: "Días y horarios después de convertir", add: "Añadir horario", remove: "Quitar horario", start: "Inicio", end: "Fin", day: "Día de la semana", review: "Revisar conversión", reviewing: "Comprobando vínculos...", confirm: "Confirmar conversión", cancel: "Cancelar", processing: "Convirtiendo...", structure: "Cambiar también la estructura del curso actual", structureHelp: "Convertir también el curso «{nome}» a matrícula independiente. Solicita retirar su plan y etapas tras la revisión; no es necesario para editar la clase.", coursePlan: "El curso recibirá matrículas directamente en clases. Se retirarán las etapas y asociaciones curriculares indicadas. Las asignaturas seguirán en el catálogo y en los planes de los demás cursos.", classPlan: "La clase se vinculará al curso indicado y quedará inactiva. Solo se retirarán sus ofertas y etapas antiguas. Se conservarán las asignaturas del catálogo y las demás clases. Los horarios indicados sustituirán los de las ofertas antiguas.", stages: "Etapas que se retirarán", links: "Asociaciones que se retirarán", catalog: "Asignaturas conservadas en el catálogo", meetings: "Encuentros semanales", success: "Conversión completada.", error: "No se pudo convertir. Hay datos, vínculos o registros que requieren revisión.", refresh: "El registro se convirtió. Recargue la página para actualizar la lista." },
-  "fr-FR": { titleCourse: "Convertir ce cursus en inscription sans matières", titleClass: "Réutiliser cette classe pour un cours indépendant", helpCourse: "La vérification utilise le cursus enregistré. Enregistrez les autres modifications auparavant. Seule une structure sans utilisation académique peut être convertie.", helpClass: "Choisissez un cours indépendant de destination pour déplacer uniquement cette classe. Pour garder le cursus actuel et son programme, utilisez «Modifier la classe dans le cursus actuel». Un cursus peut avoir plusieurs classes, y compris à la même heure avec des enseignants différents.", destination: "Cours indépendant de destination", choose: "Sélectionnez le cours...", noCourse: "Activez d’abord l’inscription directe dans le cursus de destination.", hours: "Jours et horaires après conversion", add: "Ajouter un horaire", remove: "Retirer l’horaire", start: "Début", end: "Fin", day: "Jour de la semaine", review: "Vérifier la conversion", reviewing: "Vérification des liens...", confirm: "Confirmer la conversion", cancel: "Annuler", processing: "Conversion...", structure: "Modifier aussi la structure du cursus actuel", structureHelp: "Convertir aussi le cursus « {nome} » en inscription indépendante. Cette option demande le retrait de son programme et de ses étapes après vérification ; elle est inutile pour modifier la classe.", coursePlan: "Les inscriptions se feront directement dans les classes. Les étapes et liens du programme indiqués seront retirés. Les matières resteront au catalogue et dans les programmes des autres cursus.", classPlan: "La classe sera rattachée au cursus choisi et désactivée. Seules ses anciennes matières proposées et étapes seront retirées. Le catalogue et les autres classes seront conservés. Les horaires saisis remplaceront ceux des anciennes propositions.", stages: "Étapes à retirer", links: "Liens de matières à retirer", catalog: "Matières conservées au catalogue", meetings: "Séances hebdomadaires", success: "Conversion terminée.", error: "Conversion impossible. Des données, liens ou historiques doivent être vérifiés.", refresh: "La fiche a été convertie. Rechargez la page pour actualiser la liste." },
+  "es-ES": { titleCourse: "Convertir este curso a matrícula sin asignaturas", titleClass: "Reutilizar esta clase en un curso independiente", helpCourse: "La revisión utiliza el curso guardado. Guarde primero los demás cambios. Solo se permite convertir una estructura sin uso académico.", helpClass: "Esta opción traslada la clase. Para editarla, use los campos y el botón Guardar de arriba sin elegir otro curso. Un curso puede tener varias clases, incluso a la misma hora con docentes diferentes.", destination: "Curso independiente de destino", choose: "Seleccione el curso...", noCourse: "Habilite primero la matrícula directa en el curso de destino.", hours: "Días y horarios después de convertir", add: "Añadir horario", remove: "Quitar horario", start: "Inicio", end: "Fin", day: "Día de la semana", review: "Revisar conversión", reviewing: "Comprobando vínculos...", confirm: "Confirmar conversión", cancel: "Cancelar", processing: "Convirtiendo...", structure: "Cambiar también la estructura del curso actual", structureHelp: "Convertir también el curso «{nome}» a matrícula independiente. Solicita retirar su plan y etapas tras la revisión; no es necesario para editar la clase.", coursePlan: "El curso recibirá matrículas directamente en clases. Se retirarán las etapas y asociaciones curriculares indicadas. Las asignaturas seguirán en el catálogo y en los planes de los demás cursos.", classPlan: "La clase se vinculará al curso indicado y quedará inactiva. Solo se retirarán sus ofertas y etapas antiguas. Se conservarán las asignaturas del catálogo y las demás clases. Los horarios indicados sustituirán los de las ofertas antiguas.", stages: "Etapas que se retirarán", links: "Asociaciones que se retirarán", catalog: "Asignaturas conservadas en el catálogo", meetings: "Encuentros semanales", success: "Conversión completada.", error: "No se pudo convertir. Hay datos, vínculos o registros que requieren revisión.", refresh: "El registro se convirtió. Recargue la página para actualizar la lista." },
+  "fr-FR": { titleCourse: "Convertir ce cursus en inscription sans matières", titleClass: "Réutiliser cette classe pour un cours indépendant", helpCourse: "La vérification utilise le cursus enregistré. Enregistrez les autres modifications auparavant. Seule une structure sans utilisation académique peut être convertie.", helpClass: "Cette option déplace la classe. Pour la modifier, utilisez les champs et le bouton Enregistrer ci-dessus sans choisir un autre cursus. Un cursus peut avoir plusieurs classes, y compris à la même heure avec des enseignants différents.", destination: "Cours indépendant de destination", choose: "Sélectionnez le cours...", noCourse: "Activez d’abord l’inscription directe dans le cursus de destination.", hours: "Jours et horaires après conversion", add: "Ajouter un horaire", remove: "Retirer l’horaire", start: "Début", end: "Fin", day: "Jour de la semaine", review: "Vérifier la conversion", reviewing: "Vérification des liens...", confirm: "Confirmer la conversion", cancel: "Annuler", processing: "Conversion...", structure: "Modifier aussi la structure du cursus actuel", structureHelp: "Convertir aussi le cursus « {nome} » en inscription indépendante. Cette option demande le retrait de son programme et de ses étapes après vérification ; elle est inutile pour modifier la classe.", coursePlan: "Les inscriptions se feront directement dans les classes. Les étapes et liens du programme indiqués seront retirés. Les matières resteront au catalogue et dans les programmes des autres cursus.", classPlan: "La classe sera rattachée au cursus choisi et désactivée. Seules ses anciennes matières proposées et étapes seront retirées. Le catalogue et les autres classes seront conservés. Les horaires saisis remplaceront ceux des anciennes propositions.", stages: "Étapes à retirer", links: "Liens de matières à retirer", catalog: "Matières conservées au catalogue", meetings: "Séances hebdomadaires", success: "Conversion terminée.", error: "Conversion impossible. Des données, liens ou historiques doivent être vérifiés.", refresh: "La fiche a été convertie. Rechargez la page pour actualiser la liste." },
 };
 const dias = ["classesSun", "classesMon", "classesTue", "classesWed", "classesThu", "classesFri", "classesSat"] as const;
 const entrada = "rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100";
@@ -46,6 +46,11 @@ export default function ConverterCadastroAvulso(props: Props) {
     return unicos.length ? unicos : [{ diaSemana: 1, horaInicio: "", horaFim: "" }];
   });
   const [ocupado, setOcupado] = useState(false), [erro, setErro] = useState(""), [sucesso, setSucesso] = useState("");
+  const onOcupadoChange = props.onOcupadoChange;
+  useEffect(() => {
+    onOcupadoChange?.(ocupado);
+    return () => onOcupadoChange?.(false);
+  }, [ocupado, onOcupadoChange]);
   const [plano, setPlano] = useState<{ previa: PreviaConversao; entrada: Record<string, unknown> } | null>(null);
   const cursos = props.tipo === "turma" ? [...new Map([
     ...(converterCursoAtual && props.cursoAtual ? [props.cursoAtual] : []), ...props.cursos.filter(c => c.matriculaDiretaTurma),
@@ -57,6 +62,7 @@ export default function ConverterCadastroAvulso(props: Props) {
     return dados;
   }
   async function revisar() {
+    if (ocupado || props.disabled || (props.tipo === "turma" && !destino)) return;
     setOcupado(true); setErro(""); setSucesso("");
     try {
       const body = { tipo: props.tipo, id: props.id, ...(props.tipo === "turma" ? { cursoDestinoId: Number(destino), dadosTurma: { ...props.dadosTurma, horarios } } : {}) };
@@ -66,7 +72,7 @@ export default function ConverterCadastroAvulso(props: Props) {
     finally { setOcupado(false); }
   }
   async function confirmar() {
-    if (!plano || ocupado) return;
+    if (!plano || ocupado || props.disabled) return;
     setOcupado(true); setErro("");
     try {
       await solicitar({ ...plano.entrada, confirmar: true, chave: plano.previa.chave });
@@ -79,7 +85,7 @@ export default function ConverterCadastroAvulso(props: Props) {
   return <section className="phanyx-turma-horarios-card space-y-3 rounded-xl border p-4">
     <h3 className="phanyx-turma-horarios-titulo font-semibold">{props.tipo === "curso" ? texto.titleCourse : texto.titleClass}</h3>
     <p className="phanyx-turma-horarios-texto text-sm">{props.tipo === "curso" ? texto.helpCourse : texto.helpClass}</p>
-    {props.tipo === "turma" ? <fieldset disabled={ocupado || plano !== null} className="space-y-3">
+    {props.tipo === "turma" ? <fieldset disabled={ocupado || plano !== null || props.disabled} className="space-y-3">
       {props.cursoAtual && !props.cursoAtual.matriculaDiretaTurma ? <details className="rounded-lg border border-slate-300 p-3 dark:border-slate-700">
         <summary className="phanyx-turma-horarios-texto cursor-pointer text-sm font-semibold">{texto.structure}</summary>
         <label className="phanyx-turma-horarios-texto mt-3 flex items-start gap-2 text-sm">
@@ -108,26 +114,39 @@ export default function ConverterCadastroAvulso(props: Props) {
     </fieldset> : null}
     {erro ? <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{erro}</p> : null}
     {sucesso ? <p role="status" className="phanyx-turma-horarios-texto text-sm">{sucesso}</p> : null}
-    <button type="button" onClick={() => void revisar()} disabled={ocupado || plano !== null || (props.tipo === "turma" && !destino)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{ocupado ? texto.reviewing : texto.review}</button>
+    <button type="button" onClick={() => void revisar()} disabled={ocupado || props.disabled || plano !== null || (props.tipo === "turma" && !destino)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{ocupado ? texto.reviewing : texto.review}</button>
     <PhanyxConfirmModal aberto={plano !== null} titulo={texto.confirm} mensagem={resumo} tipo="perigo" textoConfirmar={texto.confirm} textoCancelar={texto.cancel} textoCarregando={texto.processing} carregando={ocupado} onConfirmar={() => void confirmar()} onCancelar={() => { if (!ocupado) setPlano(null); }}/>
   </section>;
 }
 
-export function ModoEdicaoTurma({ semDisciplinas, onChange }: { semDisciplinas: boolean; onChange: (valor: boolean) => void }) {
+const edicao = {
+  "pt-BR": { hint: "Guarde as alterações para manter esta turma no curso atual. Não é necessário escolher outro curso.", transfer: "Transferir para um curso avulso (opcional)", close: "Fechar transferência", separate: "Esta é uma ação separada. Para editar a turma no curso atual, utilize os campos e o botão Guardar acima." , share: "Disponibilizar em outro curso (opcional)", closeShare: "Fechar oferta em outro curso" },
+  "pt-PT": { hint: "Guarde as alterações para manter esta turma no curso atual. Não é necessário escolher outro curso.", transfer: "Transferir para um curso avulso (opcional)", close: "Fechar transferência", separate: "Esta é uma ação separada. Para editar a turma no curso atual, utilize os campos e o botão Guardar acima." , share: "Disponibilizar noutro curso (opcional)", closeShare: "Fechar oferta noutro curso" },
+  "en-US": { hint: "Save your changes to keep this class in its current course. You do not need to select another course.", transfer: "Move to a standalone course (optional)", close: "Close transfer", separate: "This is a separate action. To edit the class in its current course, use the fields and Save button above." , share: "Offer in another course (optional)", closeShare: "Close offering in another course" },
+  "es-ES": { hint: "Guarde los cambios para mantener esta clase en el curso actual. No necesita elegir otro curso.", transfer: "Trasladar a un curso independiente (opcional)", close: "Cerrar traslado", separate: "Esta es una acción independiente. Para editar la clase en el curso actual, use los campos y el botón Guardar de arriba." , share: "Ofrecer en otro curso (opcional)", closeShare: "Cerrar oferta en otro curso" },
+  "fr-FR": { hint: "Enregistrez les modifications pour garder cette classe dans son cursus actuel. Il est inutile de choisir un autre cursus.", transfer: "Déplacer vers un cours indépendant (facultatif)", close: "Fermer le transfert", separate: "Cette action est distincte. Pour modifier la classe dans son cursus actuel, utilisez les champs et le bouton Enregistrer ci-dessus." , share: "Proposer dans un autre cursus (facultatif)", closeShare: "Fermer la proposition dans un autre cursus" },
+};
+
+export function AvisoEdicaoTurma() {
   const locale = useLocale();
-  const grupo = useId();
-  const labels = ({
-    "pt-BR": ["Ação nesta turma", "Editar turma no curso atual", "Vincular turma a um curso avulso"],
-    "pt-PT": ["Ação nesta turma", "Editar turma no curso atual", "Vincular turma a um curso avulso"],
-    "en-US": ["Class action", "Edit class in current course", "Move class to a standalone course"],
-    "es-ES": ["Acción en esta clase", "Editar clase en el curso actual", "Vincular clase a un curso independiente"],
-    "fr-FR": ["Action sur cette classe", "Modifier la classe dans le cursus actuel", "Rattacher la classe à un cours indépendant"],
-  } as Record<string, string[]>)[locale] || ["Class action", "Edit class in current course", "Move class to a standalone course"];
-  return <fieldset className="phanyx-turma-horarios-card rounded-xl border p-3">
-    <legend className="phanyx-turma-horarios-titulo px-1 text-sm font-semibold">{labels[0]}</legend>
-    <div className="flex flex-wrap gap-4">
-      <label className="phanyx-turma-horarios-texto flex items-center gap-2 text-sm"><input type="radio" name={grupo} checked={!semDisciplinas} onChange={() => onChange(false)}/>{labels[1]}</label>
-      <label className="phanyx-turma-horarios-texto flex items-center gap-2 text-sm"><input type="radio" name={grupo} checked={semDisciplinas} onChange={() => onChange(true)}/>{labels[2]}</label>
-    </div>
-  </fieldset>;
+  const texto = edicao[locale as keyof typeof edicao] || edicao["en-US"];
+  return <p className="phanyx-turma-horarios-texto text-sm">{texto.hint}</p>;
+}
+
+export function AcaoOpcionalTurma({ children, disabled = false, oferta = false }: { children: ReactNode; disabled?: boolean; oferta?: boolean }) {
+  const locale = useLocale();
+  const texto = edicao[locale as keyof typeof edicao] || edicao["en-US"];
+  const [aberto, setAberto] = useState(false);
+  const id = useId();
+  return <section className="phanyx-turma-horarios-card rounded-xl border p-3">
+    <button type="button" disabled={disabled} aria-expanded={aberto} aria-controls={id}
+      onClick={() => setAberto(valor => !valor)}
+      className="phanyx-turma-horarios-titulo text-left text-sm font-semibold underline disabled:opacity-50">
+      {aberto ? (oferta ? texto.closeShare : texto.close) : (oferta ? texto.share : texto.transfer)}
+    </button>
+    {aberto ? <div id={id} className="mt-3 space-y-3">
+      {!oferta && <p className="phanyx-turma-horarios-texto text-sm">{texto.separate}</p>}
+      {children}
+    </div> : null}
+  </section>;
 }
