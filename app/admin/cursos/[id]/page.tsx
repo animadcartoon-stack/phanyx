@@ -8,6 +8,7 @@ import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
 import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
 import { useEffect, useMemo, useState } from "react";
@@ -160,6 +161,7 @@ export default function CursoDetalhePage() {
   const [salvandoCurso, setSalvandoCurso] = useState(false);
   const [criandoSemestre, setCriandoSemestre] = useState(false);
   const [excluindoSemestreId, setExcluindoSemestreId] = useState<number | null>(null);
+  const [etapaParaExcluir, setEtapaParaExcluir] = useState<CursoSemestre | null>(null);
   const [erroExclusao, setErroExclusao] = useState<{ id: number; mensagem: string } | null>(null);
   const [salvandoSemestreId, setSalvandoSemestreId] = useState<number | null>(null);
 
@@ -477,9 +479,6 @@ export default function CursoDetalhePage() {
   async function excluirSemestre(semestre: CursoSemestre) {
     if (cursoRecebidoDaRede || excluindoSemestreId !== null ||
         salvandoSemestreId !== null || criandoSemestre) return;
-    const etapa = `${ta(curso?.organizacaoCurricular === "ANUAL" ? "year" : "semester")} ${semestre.numero}${semestre.titulo ? ` — ${semestre.titulo}` : ""}`;
-    if (!window.confirm(te("confirm", { stage: etapa }))) return;
-
     setExcluindoSemestreId(semestre.id);
     setErroExclusao(null);
     try {
@@ -511,6 +510,7 @@ export default function CursoDetalhePage() {
         ? error.message : te("errors.DELETE_FAILED") });
     } finally {
       setExcluindoSemestreId(null);
+      setEtapaParaExcluir(null);
     }
   }
 
@@ -1152,7 +1152,7 @@ export default function CursoDetalhePage() {
                 {!cursoRecebidoDaRede && (
                   <button
                     type="button"
-                    onClick={() => excluirSemestre(semestre)}
+                    onClick={() => setEtapaParaExcluir(semestre)}
                     disabled={excluindoSemestreId !== null || salvandoSemestreId !== null || criandoSemestre}
                     aria-label={te("deleteNamed", { number: semestre.numero, title: semestre.titulo || "" })}
                     className="phanyx-delete-stage shrink-0 rounded-lg px-4 py-2 text-sm font-semibold disabled:cursor-wait disabled:opacity-60"
@@ -1358,6 +1358,18 @@ export default function CursoDetalhePage() {
           );
         })
       )}
+      <PhanyxConfirmModal
+        aberto={etapaParaExcluir !== null}
+        titulo={te("delete")}
+        mensagem={etapaParaExcluir ? te("confirm", { stage: `${ta(curso?.organizacaoCurricular === "ANUAL" ? "year" : "semester")} ${etapaParaExcluir.numero}${etapaParaExcluir.titulo ? ` — ${etapaParaExcluir.titulo}` : ""}` }) : ""}
+        textoConfirmar={te("delete")}
+        textoCancelar={t("common.cancel")}
+        textoCarregando={te("deleting")}
+        carregando={excluindoSemestreId !== null}
+        tipo="perigo"
+        onConfirmar={() => { if (etapaParaExcluir) void excluirSemestre(etapaParaExcluir); }}
+        onCancelar={() => { if (excluindoSemestreId === null) setEtapaParaExcluir(null); }}
+      />
       <style jsx global>{`
         html[data-theme] main button.phanyx-delete-stage {
           background-color: #b91c1c !important;
