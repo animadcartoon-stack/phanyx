@@ -692,44 +692,67 @@ export async function DELETE(
       return NextResponse.json({ error: "Identificador de turma inválido" }, { status: 400 });
     }
 
-    const turmaExistente = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        instituicaoId: user.instituicaoId,
-      },
-    });
-
-    if (!turmaExistente) {
-      return NextResponse.json(
-        { error: "Turma não encontrada" },
-        { status: 404 }
-      );
-    }
-
-    // Both steps must roll back together if academic references block deletion.
-    await prisma.$transaction(async (tx) => {
-      await tx.turmaDisciplina.deleteMany({
-        where: { turmaId, instituicaoId: user.instituicaoId },
-      });
-      await tx.turma.delete({
+    return await prisma.$transaction(async (tx) => {
+      // Serializa a exclusão com matrículas e alterações que referenciam a turma.
+      await tx.$queryRaw`SELECT "id" FROM "Turma" WHERE "id"=${turmaId} AND "instituicaoId"=${user.instituicaoId} FOR UPDATE`;
+      const turma = await tx.turma.findFirst({
         where: { id: turmaId, instituicaoId: user.instituicaoId },
+        select: {
+          id: true,
+          _count: { select: {
+            atividades: true, aulas: true, itensMatricula: true, matriculasComoPrincipal: true,
+            modulos: true, notas: true, provas: true, sessoesVideoAluno: true,
+            eventosAprendizagemAluno: true, resultadosFinais: true,
+            periodosMatriculaParticipantes: true, reunioes: true, substituicoesDocentes: true,
+            destinosRecomendacoesBiblioteca: true, atividadesExternas: true, matriculasAvulsas: true,
+          } },
+          disciplinas: { select: { _count: { select: { itensRematriculaSemestral: true } } } },
+        },
       });
-    });
-
-    return NextResponse.json({ ok: true, id: turmaId, message: "Turma excluída com sucesso" }, { headers: { "Cache-Control": "no-store" } });
+      if (!turma) return NextResponse.json({ error: "Turma não encontrada" }, { status: 404 });
+      // Cascades e SetNull não são uma autorização para remover histórico.
+      if (Object.values(turma._count).some(total => Number(total) > 0) ||
+          turma.disciplinas.some(d => d._count.itensRematriculaSemestral > 0)) {
+        return NextResponse.json({ codigo: "TURMA_COM_HISTORICO",
+          error: "Não é possível excluir esta turma porque ela possui matrículas, registros ou vínculos acadêmicos. Os dados foram preservados." }, { status: 409 });
+      }
+      const snapshots = await tx.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
+        WHERE "instituicaoId"=${user.instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ turmaId }] })}::jsonb`;
+      if (snapshots[0]?.total) {
+        return NextResponse.json({ codigo: "TURMA_COM_HISTORICO",
+          error: "Esta turma está preservada em uma contratação anterior e não pode ser excluída." }, { status: 409 });
+      }
+      const derivadas = await tx.turma.findMany({
+        where: { instituicaoId: user.instituicaoId, codigo: { startsWith: `OFERTA-${turmaId}-` } },
+        select: { codigo: true, cursoId: true },
+      });
+      if (derivadas.some(d => d.cursoId && d.codigo === `OFERTA-${turmaId}-${d.cursoId}`)) {
+        return NextResponse.json({ codigo: "OFERTAS_VINCULADAS",
+          error: "Esta turma disponibiliza ofertas em outros cursos. Revise esses vínculos antes de excluir a turma de origem." }, { status: 409 });
+      }
+      // Apenas configurações da turma sem uso (ofertas, etapas e horários) podem sair.
+      await tx.turmaDisciplina.deleteMany({ where: { turmaId, instituicaoId: user.instituicaoId } });
+      await tx.turma.delete({ where: { id: turmaId, instituicaoId: user.instituicaoId } });
+      return NextResponse.json({ ok: true, id: turmaId, message: "Turma excluída com sucesso" },
+        { headers: { "Cache-Control": "no-store" } });
+    }, { isolationLevel: "Serializable", timeout: 20000 });
   } catch (error: any) {
     console.error(error);
 
-    if (error?.code === "P2003") {
+    if (["P2003", "P2014"].includes(error?.code)) {
       return NextResponse.json(
         {
           error:
             "Não é possível excluir esta turma porque ela já possui vínculos acadêmicos.",
         },
-        { status: 400 }
+        { status: 409 }
       );
     }
 
+    if (["P2034", "P2025"].includes(error?.code)) {
+      return NextResponse.json({ codigo: "DADOS_ALTERADOS",
+        error: "Os vínculos da turma mudaram durante a operação. Atualize a lista e confira antes de tentar novamente." }, { status: 409 });
+    }
     return NextResponse.json(
       { error: "Erro ao excluir turma" },
       { status: 500 }
