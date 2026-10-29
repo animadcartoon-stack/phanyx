@@ -1,4 +1,5 @@
 "use client";
+import AvisoConflitoHorarioMatricula, { useAvisoConflitoHorario } from "@/components/admin/AvisoConflitoHorarioMatricula";
 import SelecaoDisciplinasIncluidas from "@/components/admin/SelecaoDisciplinasIncluidas";
 import { normalizarSelecaoDisciplinas, validarSelecaoDisciplinas, type RegrasSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
 import { copySelecao } from "@/lib/matriculas/selecao-disciplinas-copy";
@@ -308,6 +309,7 @@ function AdminMatriculasPage() {
   const tr = useTranslations("CourseRequirements");
   const ta = useTranslations("AdditionalCourses");
   const router = useRouter();
+  const { aviso, avisarSeConflito, fechar, prepararSomConflito } = useAvisoConflitoHorario();
   const estruturaRequestRef = useRef(0);
   const estruturaEdicaoRequestRef = useRef(0);
   const [busca, setBusca] = useState("");
@@ -2024,6 +2026,7 @@ function AdminMatriculasPage() {
           setConfirmModalAberto(true);
           return;
         }
+        if (avisarSeConflito(data)) { setPreviaCombo(null); return; }
         const codigo = String(data?.codigo || "");
         throw new Error(codigo && tc.has("errors." + codigo) ? tc("errors." + codigo) : codigo || data?.error || "Não foi possível confirmar a contratação conjunta.");
       }
@@ -2199,6 +2202,7 @@ function AdminMatriculasPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (avisarSeConflito(data)) return;
         throw new Error(mensagemRequisitoCurso(tr, data) || (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula."));
       }
 
@@ -2892,6 +2896,7 @@ function AdminMatriculasPage() {
         await res.json();
 
       if (!res.ok) {
+        if (avisarSeConflito(data)) return;
         throw new Error(
           mensagemRequisitoCurso(tr, data) || (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error) ||
           "Erro ao atualizar matrícula"
@@ -3800,7 +3805,8 @@ function AdminMatriculasPage() {
   }
 
   return (
-    <div className="admin-matriculas-page space-y-6">
+    <div className="admin-matriculas-page space-y-6" onPointerDownCapture={prepararSomConflito} onKeyDownCapture={prepararSomConflito}>
+      <AvisoConflitoHorarioMatricula aviso={aviso} onFechar={fechar} />
 
       {toast && (
         <PhanyxToast

@@ -1,6 +1,7 @@
 "use client";
 import { mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
 import Link from "next/link";
+import AvisoConflitoHorarioMatricula, { useAvisoConflitoHorario } from "@/components/admin/AvisoConflitoHorarioMatricula";
 import { mensalidadeComDesconto } from "@/lib/matriculas/desconto-curso";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -19,6 +20,7 @@ function CursosLivresPage() {
   const t = useTranslations("CoursePeriods");
   const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
+  const { aviso, avisarSeConflito, fechar, prepararSomConflito } = useAvisoConflitoHorario();
   const params = useSearchParams();
   const [cursos, setCursos] = useState<Curso[]>([]), [vinculos, setVinculos] = useState<Vinculo[]>([]);
   const [alunos, setAlunos] = useState<{ id: number; nome: string }[]>([]), [busca, setBusca] = useState("");
@@ -74,6 +76,7 @@ function CursosLivresPage() {
       const json = await res.json();
       if (!res.ok) {
         if (json.codigo === "CONFIRMACAO_MENOR_NECESSARIA") { setConfirmacao(pedido); return; }
+        if (avisarSeConflito(json)) return;
         throw new Error(mensagemRequisitoCurso(tr, json) || mensagem(json.codigo));
       }
       chave.current = null; setMatriculaId(String(json.matriculaId)); setPagina(1);
@@ -82,7 +85,8 @@ function CursosLivresPage() {
     } catch (e) { setErro(e instanceof Error ? e.message : mensagem()); }
     finally { operacao.current = false; setBusy(false); }
   }
-  return <main className="mx-auto max-w-6xl space-y-5 p-5">
+  return <main className="mx-auto max-w-6xl space-y-5 p-5" onPointerDownCapture={prepararSomConflito} onKeyDownCapture={prepararSomConflito}>
+    <AvisoConflitoHorarioMatricula aviso={aviso} onFechar={fechar} />
     <Link href="/admin/matriculas" className="font-semibold text-blue-700 dark:text-blue-300">{t("back")}</Link>
     <header className={painel}><h1 className="text-2xl font-bold">{t("title")}</h1><p className="mt-2">{t("description")}</p></header>
     {erro && <p role="alert" className="rounded-lg bg-red-100 p-3 text-red-950 dark:bg-red-950 dark:text-red-100">{erro}</p>}

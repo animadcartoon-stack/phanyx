@@ -71,7 +71,7 @@ export async function DELETE(req: Request) {
               { semestres: { some: { organizacaoCurricular, numero: etapa.numero } } },
             ],
           },
-          select: { id: true },
+          select: { id: true, nome: true },
         }),
         tx.periodoMatricula.findFirst({
           where: { instituicaoId, cursoId, semestreNumero: etapa.numero },
@@ -91,7 +91,7 @@ export async function DELETE(req: Request) {
       if (matricula || turma || periodo || contratacao ||
           contagem.matriculas || contagem.rematriculasDestino ||
           contagem.periodosMatricula || contagem.disciplinasExtrasPermitidas) {
-        return NextResponse.json({ codigo: "STAGE_IN_USE" }, { status: 409 });
+        return NextResponse.json({ codigo: "STAGE_IN_USE", detalhes: { turma: turma ? { id: turma.id, nome: turma.nome } : null } }, { status: 409 });
       }
 
       // O cascade remove somente os vínculos curriculares com as disciplinas.

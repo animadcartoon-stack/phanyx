@@ -25,6 +25,7 @@
     "updated": "Organisation mise à jour. Les étapes et leurs matières ont été conservées."
   },
   "CourseStageDeletion": {
+    "linkedClass": "Une des classes liées est « {nome} ». Vérifiez ses liens avec cette étape avant de la supprimer.",
     "delete": "Supprimer l’étape",
     "deleteNamed": "Supprimer l’étape {number} {title}",
     "deleting": "Suppression…",

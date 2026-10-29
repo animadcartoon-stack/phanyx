@@ -64,9 +64,15 @@ test('exclusão bloqueada preserva vínculos e turma integralmente',async()=>{
 });
 test('exclusão permitida conclui os dois passos na mesma transação',async()=>{
  admin();bloqueiaExclusao=false;vinculos=2;turmaExiste=true;transacoes=0;
- assert.equal((await api.DELETE(req,ctx(1))).status,200);
+ const resposta=await api.DELETE(req,ctx(1)); assert.equal(resposta.status,200); assert.deepEqual(await resposta.json(),{ok:true,id:1,message:'Turma excluída com sucesso'});
  assert.equal(transacoes,1);assert.equal(vinculos,0);assert.equal(turmaExiste,false);
 });
 test('exclusão de outra instituição não inicia transação',async()=>{
  admin();transacoes=0;assert.equal((await api.DELETE(req,ctx(2))).status,404);assert.equal(transacoes,0);
+});
+
+test('exclusão rejeita IDs inválidos sem iniciar transação',async()=>{
+ admin();transacoes=0;consultas=[];
+ for(const id of ['abc','0','-1','1.5'])assert.equal((await api.DELETE(req,ctx(id))).status,400);
+ assert.equal(transacoes,0);assert.equal(consultas.length,0);
 });

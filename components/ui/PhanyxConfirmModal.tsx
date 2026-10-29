@@ -1,9 +1,11 @@
 "use client";
+import type { ReactNode } from "react";
 
 type PhanyxConfirmModalProps = {
   aberto: boolean;
   titulo: string;
   mensagem: string;
+  children?: ReactNode;
   textoConfirmar?: string;
   textoCancelar?: string;
   textoCarregando?: string;
@@ -18,6 +20,7 @@ export default function PhanyxConfirmModal({
   aberto,
   titulo,
   mensagem,
+  children,
   textoConfirmar = "Confirmar",
   textoCancelar = "Cancelar",
   textoCarregando = "Processando...",
@@ -48,6 +51,8 @@ export default function PhanyxConfirmModal({
         <p className="mt-3 break-words text-sm leading-6 text-slate-600 dark:text-slate-300">
           {mensagem}
         </p>
+
+        {children ? <div className="mt-4 space-y-4 text-slate-900 dark:text-slate-100">{children}</div> : null}
 
         <div className="mt-6 flex justify-end gap-3">
           {mostrarCancelar && (

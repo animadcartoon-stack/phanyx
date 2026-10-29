@@ -412,3 +412,14 @@ test("arredondamento percentual ocorre uma vez, depois de somar os valores", () 
   );
   assert.equal(r.mensalidadeCentavos, 9);
 });
+
+test("dois cursos na mesma manhã são permitidos quando as aulas não se sobrepõem", () => {
+ const pevi=h({turmaId:10,disciplinaId:20,diaSemana:2,horaInicio:"08:00",horaFim:"09:40"});
+ const avulso=h({turmaId:11,disciplinaId:-30,diaSemana:2,horaInicio:"10:00",horaFim:"11:40"});
+ assert.equal(encontrarConflitos([avulso],[pevi]).length,0);
+ assert.equal(encontrarConflitos([pevi,avulso]).length,0);
+ const simultaneo={...avulso,horaInicio:"09:30"};
+ assert.equal(encontrarConflitos([simultaneo],[pevi]).length,1);
+ assert.equal(encontrarConflitos([pevi,simultaneo]).length,1);
+ assert.equal(encontrarConflitos([{...simultaneo,diaSemana:3}],[pevi]).length,0);
+});

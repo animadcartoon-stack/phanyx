@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
-import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
-import { mensagemConflitoHorario } from "@/lib/matriculas/resumo-conflito-horario";
+import { useEffect, useMemo, useState } from "react";
+import AvisoConflitoHorarioMatricula, { useAvisoConflitoHorario } from "@/components/admin/AvisoConflitoHorarioMatricula";
 
 type Curso = { id: number; nome: string; ativo: boolean; disponivelComoAdicional?: boolean };
 type Combo = { id: number; nome: string; ativo: boolean; cursoIds: number[] };
@@ -48,42 +47,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
   const [carregando, setCarregando] = useState(true);
   const [calculando, setCalculando] = useState(false);
   const [previa, setPrevia] = useState<PreviaComboMatricula | null>(null);
-  const [modalConflito, setModalConflito] = useState<string | null>(null);
-  const audioRef = useRef<AudioContext | null>(null);
-
-  // O navegador costuma autorizar som apenas apos uma interacao do usuario.
-  function prepararSomConflito() {
-    if (typeof window === "undefined") return;
-    try {
-      const construtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!construtor) return;
-      const contexto = audioRef.current || new construtor();
-      audioRef.current = contexto;
-      if (contexto.state === "suspended") void contexto.resume().catch(() => {});
-    } catch { /* Aviso visual permanece funcional se som estiver bloqueado. */ }
-  }
-  function tocarSomConflito() {
-    const contexto = audioRef.current;
-    if (!contexto || contexto.state !== "running") return;
-    try {
-      const oscilador = contexto.createOscillator();
-      const volume = contexto.createGain();
-      const agora = contexto.currentTime;
-      oscilador.type = "sine";
-      oscilador.frequency.setValueAtTime(660, agora);
-      oscilador.frequency.setValueAtTime(520, agora + 0.12);
-      volume.gain.setValueAtTime(0.0001, agora);
-      volume.gain.linearRampToValueAtTime(0.09, agora + 0.02);
-      volume.gain.exponentialRampToValueAtTime(0.0001, agora + 0.28);
-      oscilador.connect(volume);
-      volume.connect(contexto.destination);
-      oscilador.start(agora);
-      oscilador.stop(agora + 0.29);
-    } catch { /* Audio pode estar indisponivel no dispositivo. */ }
-  }
-  useEffect(() => () => {
-    if (audioRef.current) void audioRef.current.close().catch(() => {});
-  }, []);
+  const { aviso, avisarSeConflito, fechar, prepararSomConflito } = useAvisoConflitoHorario();
   const idsEscolhidos = escolhidos.join(",");
   const selecoes = escolhidos.map(id => Number(porCurso[id] || 0));
   const idsTurmas = turmaPrincipalId && selecoes.every(id => id > 0)
@@ -127,7 +91,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
     (o.periodoLetivo || "") === (turmaPrincipal.periodoLetivo || ""));
 
   useEffect(() => {
-    setPrevia(null); onPreviaChange(null); setErroPrevia(""); setModalConflito(null);
+    setPrevia(null); onPreviaChange(null); setErroPrevia(""); fechar();
     if ((!escolhidos.length && !principalSemGrade) || !alunoId || !turmaPrincipalId || !chaveTurmas ||
       !turmaPrincipal || idsTurmas.length !== escolhidos.length + 1 || carregando) return;
     const controller = new AbortController();
@@ -158,17 +122,15 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
     }).catch(e => {
       if (controller.signal.aborted) return;
       const falha = e as Error & { codigo?: string; detalhes?: unknown };
-      if (falha.codigo === "CONFLITO_HORARIO") {
-        setModalConflito(mensagemConflitoHorario(falha.detalhes));
+      if (avisarSeConflito(falha)) {
         setErroPrevia("Conflito de horários detectado. Selecione outra turma ou horário.");
-        tocarSomConflito();
       } else {
         setErroPrevia(falha?.message || "Falha na prévia");
       }
     })
       .finally(() => { if (!controller.signal.aborted) setCalculando(false); });
     return () => controller.abort();
-  }, [alunoId, cursoPrincipalId, principalSemGrade, turmaPrincipalId, dataInicioCurso, idsEscolhidos, chaveTurmas, chaveOpcoes, carregando, ofertas, onPreviaChange]);
+  }, [alunoId, cursoPrincipalId, principalSemGrade, turmaPrincipalId, dataInicioCurso, idsEscolhidos, chaveTurmas, chaveOpcoes, carregando, ofertas, onPreviaChange, avisarSeConflito, fechar]);
 
   const moeda = (centavos: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(centavos / 100);
   return <section className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
@@ -230,14 +192,6 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
       <p className="mt-1 text-xs">Valores do servidor e das regras oficiais de Pacotes e combos. Confirmacao ainda protegida.</p>
     </div>}
     {principalSemGrade && erroPrevia && <p role="alert" className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">Previa indisponivel: {erroPrevia}. Nenhuma matricula foi gravada.</p>}
-    <PhanyxConfirmModal
-      aberto={modalConflito !== null}
-      titulo="Conflito de horários na matrícula"
-      mensagem={modalConflito || ""}
-      textoConfirmar="Entendi"
-      mostrarCancelar={false}
-      onConfirmar={() => setModalConflito(null)}
-      onCancelar={() => setModalConflito(null)}
-    />
+    <AvisoConflitoHorarioMatricula aviso={aviso} onFechar={fechar} />
   </section>;
 }

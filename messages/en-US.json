@@ -25,6 +25,7 @@
     "updated": "Organization updated. Stages and their subjects were preserved."
   },
   "CourseStageDeletion": {
+    "linkedClass": "One linked class is “{nome}”. Review its links to this stage before deleting.",
     "delete": "Delete stage",
     "deleteNamed": "Delete stage {number} {title}",
     "deleting": "Deleting…",

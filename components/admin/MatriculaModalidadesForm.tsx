@@ -9,6 +9,7 @@ import { type HorarioModalidade } from "@/lib/matriculas/combos";
 import type { OfertaModalidade } from "@/lib/matriculas/modalidades-servidor";
 import type { calcularContratacaoModalidades } from "@/lib/matriculas/combos";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import { prepararSomConflito, tocarSomConflito } from "@/lib/interface/som-conflito-horario";
 import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
 type Previa = {
@@ -211,7 +212,8 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
           return;
         }
         if (data.codigo === "CONFLITO_HORARIO") {
-          setConflito({ ...data.detalhes, pendente });
+          setConflito({ conflitos: [], alternativas: [], ...data.detalhes, pendente });
+          tocarSomConflito();
           return;
         }
         throw new Error(traduzirErro(data.codigo));
@@ -272,12 +274,13 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
           });
           return;
         }
-        if (data.codigo === "CONFLITO_HORARIO")
+        if (data.codigo === "CONFLITO_HORARIO") {
+          tocarSomConflito();
           setConflito({
-            ...data.detalhes,
+            conflitos: [], alternativas: [], ...data.detalhes,
             pendente: { ids: selecionadas, alunoId, inicio },
           });
-        else setErro(mensagemRequisitoCurso(tr, data) || traduzirErro(data.codigo));
+        } else setErro(mensagemRequisitoCurso(tr, data) || traduzirErro(data.codigo));
         if (
           [
             "CURSO_CONJUNTO_PENDENTE",
@@ -348,7 +351,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
       : alunos;
 
   return (
-    <section className="space-y-6 text-slate-900 dark:text-slate-100">
+    <section className="space-y-6 text-slate-900 dark:text-slate-100" onPointerDownCapture={prepararSomConflito} onKeyDownCapture={prepararSomConflito}>
       {integrado ? (
         <p className="text-sm text-slate-700 dark:text-slate-300">Selecione a turma do curso principal. A matrícula com apenas um curso é válida. Adicione outras modalidades somente se desejar.</p>
       ) : (
@@ -830,15 +833,9 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
         </>
       )}
       {conflito && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-slate-950/60 p-4">
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("scheduleConflict")}
-            className="max-h-[85vh] w-full max-w-xl space-y-4 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-          >
-            <h2 className="text-xl font-bold">{t("scheduleConflict")}</h2>
-            <p>{t("conflictHelp")}</p>
+        <PhanyxConfirmModal aberto titulo={t("scheduleConflict")} mensagem={t("conflictHelp")}
+          textoConfirmar={t("close")} mostrarCancelar={false}
+          onConfirmar={() => setConflito(null)} onCancelar={() => setConflito(null)}>
             {conflito.conflitos.map((c, i) => (
               <div
                 key={i}
@@ -899,16 +896,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
                 </div>
               ))
             )}
-            <button
-              type="button"
-              autoFocus
-              onClick={() => setConflito(null)}
-              className="rounded-lg border border-slate-400 px-4 py-2"
-            >
-              {t("close")}
-            </button>
-          </section>
-        </div>
+        </PhanyxConfirmModal>
       )}
       <PhanyxConfirmModal
         aberto={Boolean(erro)}

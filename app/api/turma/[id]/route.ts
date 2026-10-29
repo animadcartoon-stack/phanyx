@@ -688,6 +688,9 @@ export async function DELETE(
     }
 
     const turmaId = Number(context.params.id);
+    if (!Number.isSafeInteger(turmaId) || turmaId <= 0) {
+      return NextResponse.json({ error: "Identificador de turma inválido" }, { status: 400 });
+    }
 
     const turmaExistente = await prisma.turma.findFirst({
       where: {
@@ -713,7 +716,7 @@ export async function DELETE(
       });
     });
 
-    return NextResponse.json({ message: "Turma excluída com sucesso" });
+    return NextResponse.json({ ok: true, id: turmaId, message: "Turma excluída com sucesso" }, { headers: { "Cache-Control": "no-store" } });
   } catch (error: any) {
     console.error(error);
 
