@@ -46,7 +46,7 @@ test("ativacao verifica permissao, tenant, flag e trava transacional antes de gr
   const api = read("app/api/admin/turmas/avulsas/route.ts");
   assert.match(api, /getUserFromToken/);
   assert.match(api, /isAdminLike/);
-  assert.match(api, /process\.env\.PHANYX_ATIVACAO_TURMAS_AVULSAS_HABILITADA === "true"/);
+  assert.match(api, /ativacaoTurmasAvulsasHabilitada/);
   const bloco = api.split("async function ativarTurmaAvulsa")[1].split("export async function PATCH")[0];
   assert.match(bloco, /FOR UPDATE/); assert.match(bloco, /FOR SHARE/);
   assert.match(bloco, /instituicaoId/);
@@ -57,7 +57,7 @@ test("ativacao verifica permissao, tenant, flag e trava transacional antes de gr
   assert.match(bloco, /tx\.matriculaTurmaAvulsa\.count/);
   assert.match(bloco, /await referenciasValidas/);
   assert.match(bloco, /tx\.turma\.updateMany/);
-  assert.match(api, /if \(!ativacaoHabilitada\(\)\)/);
+  assert.match(api, /if \(!ativacaoHabilitada\(user\.instituicaoId\)\)/);
 });
 test("UI so libera ativacao com flag e usa dialogo PHANYX", () => {
   const ui = read("components/admin/TurmasAvulsasSemGrade.tsx");

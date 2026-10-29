@@ -35,7 +35,7 @@ test('confirmacao de curso sem grade permanece bloqueada ate gravacao transacion
  const s=read('lib/matriculas/modalidades-servidor.ts');
  const a=s.indexOf('export async function confirmarContratacaoModalidades');
  const b=s.indexOf('const instituicao = await db.instituicao.update',a);
- const k=s.indexOf('process.env.PHANYX_MATRICULA_SEM_GRADE_HABILITADA !== "true"',a);
+ const k=s.indexOf('!matriculaSemGradeHabilitada(user.instituicaoId)',a);
  assert.ok(a>=0&&k>a&&b>k);
  assert.ok(s.includes('validarOfertasDiretasParaGravacao(escolhidas)'));
 });

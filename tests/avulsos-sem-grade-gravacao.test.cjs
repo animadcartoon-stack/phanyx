@@ -26,10 +26,10 @@ test('persistencia direta e atomica na matricula e nao cria disciplina sintétic
 });
 test('confirmacao ainda depende de liberacao explicitamente desativada por padrao',()=>{
  const s=source('lib/matriculas/modalidades-servidor.ts');
- assert.ok(s.includes('process.env.PHANYX_MATRICULA_SEM_GRADE_HABILITADA !== "true"'));
+ assert.ok(s.includes('!matriculaSemGradeHabilitada(user.instituicaoId)'));
  const a=s.indexOf('export async function confirmarContratacaoModalidades');
  const b=s.indexOf('const instituicao = await db.instituicao.update',a);
- const k=s.indexOf('PHANYX_MATRICULA_SEM_GRADE_HABILITADA',a);
+ const k=s.indexOf('!matriculaSemGradeHabilitada(user.instituicaoId)',a);
  assert.ok(k>a&&k<b);
 });
 test('registro direto separado dos itens tradicionais preserva os precos oficiais',()=>{

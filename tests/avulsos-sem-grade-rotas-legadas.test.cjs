@@ -34,6 +34,6 @@ test('PUT legado verifica modo do curso antes de atualizar e preserva bloqueio d
 });
 test('rota de modalidades continua unica entrada para confirmacao direta com flag desligada',()=>{
  const modal=ler('lib/matriculas/modalidades-servidor.ts');
- assert.match(modal,/process\.env\.PHANYX_MATRICULA_SEM_GRADE_HABILITADA !== "true"/);
+ assert.match(modal,/!matriculaSemGradeHabilitada\(user\.instituicaoId\)/);
  assert.ok(modal.includes('turmasAvulsas: {'));
 });

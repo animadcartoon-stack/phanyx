@@ -3,7 +3,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),ts=require('typescript');
 const root=path.resolve(__dirname,'..');
-const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8').replace(/\r\n?/g,'\n');
 function resumo(snapshot,cursoPadrao=null){
  const exports={};
  const js=ts.transpileModule(read('lib/documentos/cursos-contratados.ts'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
@@ -46,6 +46,6 @@ test('precos, parcelas e criacao de contrato permanecem no servidor existente',(
  assert.ok(servidor.includes('lancamentoFinanceiro.createMany('));
  assert.ok(servidor.includes('criarContratoPendenteMatricula({'));
  assert.ok(servidor.includes('turmasAvulsas: {'));
- assert.ok(servidor.includes('PHANYX_MATRICULA_SEM_GRADE_HABILITADA'));
+ assert.ok(servidor.includes('!matriculaSemGradeHabilitada(user.instituicaoId)'));
  assert.ok(contrato.includes('anexarResumoModalidades(conteudoBase'));
 });

@@ -196,6 +196,7 @@ const courseApi=require('../app/api/admin/cursos/route.ts');
 function courseEditingFixture() {
   reset();tables.curriculum=[];tables.matriculas=[];tables.publications=[];
   db.cursoSemestre=model('curriculum');db.matricula=model('matriculas');db.cursoPublicacaoRede=model('publications');
+  db.periodoMatricula={count:async()=>0};db.rematriculaSemestral={count:async()=>0};
   db.curso.update=async ({where,data})=>assignDefined(tables.courses.find(c=>c.id===where.id),data);
   db.curso.findUnique=async ({where})=>tables.courses.find(c=>c.id===where.id);
   tables.courses.forEach(c=>Object.assign(c,{organizacaoCurricular:'SEMESTRAL',publicacaoRedeDestino:null,nome:`Curso ${c.id}`,codigo:null}));
@@ -209,7 +210,7 @@ test('API de curso vazio permite organização anual sem impor 12 parcelas',asyn
 });
 test('API de curso bloqueia conversão com estrutura e responde 409 sem mudanças',async()=>{
   courseEditingFixture();const before=structuredClone(tables);
-  await expectCode(courseApi.PUT(req({id:1,organizacaoCurricular:'ANUAL',quantidadeEtapas:1})),'ORGANIZACAO_EM_USO',409);assert.deepEqual(tables,before);
+  await expectCode(courseApi.PUT(req({id:1,organizacaoCurricular:'ANUAL',quantidadeEtapas:1})),'ORGANIZACAO_COM_VINCULOS',409);assert.deepEqual(tables,before);
 });
 test('API de curso conserva a organização anual e quantidade quando omitidas',async()=>{
   courseEditingFixture();Object.assign(tables.courses.find(c=>c.id===3),{organizacaoCurricular:'ANUAL',quantidadeEtapas:2});

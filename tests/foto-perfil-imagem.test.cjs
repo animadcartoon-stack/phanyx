@@ -97,7 +97,7 @@ function rota({ user = { id: 9, instituicaoId: 26 }, perfil = { id: 7, fotoPerfi
     '@aws-sdk/client-s3': { GetObjectCommand, PutObjectCommand },
     '@/lib/prisma': { prisma: { funcionario: { findFirst: async args => { calls.banco.push(args); return perfil; } } } },
     '@/lib/server-auth': { getUserFromToken: async () => user },
-    '@/lib/storage/r2': { r2Client: { send: async command => {
+    '@/lib/storage/r2': { getR2Client: () => ({ send: async command => {
       calls.storage.push(command);
       if (command instanceof GetObjectCommand) {
         if (!cache) throw Object.assign(new Error('ausente'), { name: 'NoSuchKey' });
@@ -105,7 +105,7 @@ function rota({ user = { id: 9, instituicaoId: 26 }, perfil = { id: 7, fotoPerfi
       }
       if (falhaGravacao) throw new Error('storage indisponível');
       return {};
-    } } },
+    } }) },
     '@/lib/server/miniatura-foto-perfil': {
       chaveMiniaturaPerfil: imagens.chaveMiniaturaPerfil,
       MAX_BYTES_FOTO_PERFIL_EXIBICAO: imagens.MAX_BYTES_FOTO_PERFIL_EXIBICAO,

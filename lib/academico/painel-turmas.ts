@@ -29,6 +29,17 @@ export async function carregarPainelTurmas(db: Banco, instituicaoId: number, som
     }) : [];
     const ocupacao = new Map<number, number>();
     for (const o of ocupacoes) ocupacao.set(o.turmaId, (ocupacao.get(o.turmaId) || 0) + 1);
+    const idsDiretos = turmas.filter(t => t.curso?.matriculaDiretaTurma).map(t => t.id);
+    if (idsDiretos.length) {
+      const diretos = await db.matriculaTurmaAvulsa.findMany({
+        where: { instituicaoId, turmaId: { in: idsDiretos }, status: { in: ["A_CURSAR", "EM_CURSO"] },
+          matricula: { instituicaoId, excluidaEm: null, canceladaEm: null,
+            status: { in: ["ATIVA", "A_INICIAR", "AGUARDANDO"] } } },
+        select: { turmaId: true, matriculaId: true }, distinct: ["turmaId", "matriculaId"],
+      });
+      for (const id of idsDiretos) ocupacao.set(id, 0);
+      for (const o of diretos) ocupacao.set(o.turmaId, (ocupacao.get(o.turmaId) || 0) + 1);
+    }
     return turmas.map(t => ({ ...t,
       curso: (t.curso ?? t.disciplinas[0]?.disciplina.curso)?.instituicaoId === instituicaoId
         ? (t.curso ?? t.disciplinas[0]?.disciplina.curso) : null,

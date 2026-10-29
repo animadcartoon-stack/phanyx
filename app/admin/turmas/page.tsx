@@ -107,6 +107,7 @@ function AdminTurmasPage() {
   const [professorId, setProfessorId] = useState("");
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [cursoId, setCursoId] = useState("");
+  const [tipoNovaTurma, setTipoNovaTurma] = useState<"AVULSA" | "CURRICULAR" | null>(null);
   const [poloId, setPoloId] = useState("");
   const [busca, setBusca] = useState("");
   const [nome, setNome] = useState("");
@@ -326,6 +327,11 @@ function AdminTurmasPage() {
   }
 
   function iniciarEdicao(turma: Turma) {
+    if (turma.curso?.matriculaDiretaTurma) {
+      setTipoNovaTurma("AVULSA");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     if (!catalogosProntos) return;
     setEditandoId(turma.id);
     setCursoOfertaDestino("");
@@ -1176,13 +1182,31 @@ function AdminTurmasPage() {
         )}
 
         <h1 className="text-2xl font-bold">{t("classesTitle")}</h1>
-        <TurmasAvulsasSemGrade />
+        <fieldset className="rounded-xl border border-slate-300 bg-white p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+          <legend className="px-2 font-semibold">Que tipo de turma deseja criar?</legend>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 p-4 dark:border-slate-600">
+              <input type="radio" name="tipoNovaTurma" value="AVULSA" checked={tipoNovaTurma === "AVULSA"}
+                onChange={() => setTipoNovaTurma("AVULSA")} className="mt-1" />
+              <span><strong className="block">Curso avulso sem disciplinas</strong>
+                <span className="mt-1 block text-sm">Robótica, Balé e outras modalidades. Professor, vagas e horários definidos diretamente na turma.</span></span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-300 p-4 dark:border-slate-600">
+              <input type="radio" name="tipoNovaTurma" value="CURRICULAR" checked={tipoNovaTurma === "CURRICULAR"}
+                onChange={() => setTipoNovaTurma("CURRICULAR")} className="mt-1" />
+              <span><strong className="block">Curso com disciplinas</strong>
+                <span className="mt-1 block text-sm">Selecione as disciplinas da grade e os horários de cada uma.</span></span>
+            </label>
+          </div>
+        </fieldset>
+        {tipoNovaTurma === "AVULSA" && <TurmasAvulsasSemGrade />}
 
-        <form
+        {tipoNovaTurma === "CURRICULAR" && <form
           onSubmit={criarTurma}
           className="phanyx-turmas-form space-y-4 rounded-lg border bg-white p-6"
         >
           <h2 className="font-semibold">{t("classesNew")}</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300">Este formulário exige disciplinas. Para um curso independente, selecione “Curso avulso sem disciplinas” acima.</p>
           {!catalogosProntos && (
             <div role="status" className="text-sm text-slate-600">
               {t(carregandoCatalogos ? "classesCatalogLoading" : "classesCatalogError")}
@@ -1667,7 +1691,7 @@ function AdminTurmasPage() {
             {criando ? t("classesCreating") : t("classesCreate")}
           </button>
           </fieldset>
-        </form>
+        </form>}
 
         <div className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

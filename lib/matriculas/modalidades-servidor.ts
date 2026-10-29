@@ -19,6 +19,7 @@ import {
 import { validarDataInicioCurso } from "./dataInicioCurso";
 import { calcularIdade, verificarDadosResponsavel } from "./confirmacao-menor";
 import { criarContratoPendenteMatricula } from "@/lib/contratos/contrato-matricula";
+import { matriculaSemGradeHabilitada } from "@/lib/academico/liberacao-avulsos";
 
 // Tanto a leitura de prévia quanto a confirmação usam estas mesmas regras.
 type Banco = Prisma.TransactionClient;
@@ -484,7 +485,7 @@ export async function confirmarContratacaoModalidades(
   // ativacao administrativa e as rotas de cancelamento/transferencia.
   // Nao configure esta flag em producao antes de concluir a etapa final.
   if (escolhidas.some(o => o.curso.matriculaDiretaTurma) &&
-      process.env.PHANYX_MATRICULA_SEM_GRADE_HABILITADA !== "true")
+      !matriculaSemGradeHabilitada(user.instituicaoId))
     throw new ErroModalidades("TURMA_INDISPONIVEL", 409);
   validarOfertasDiretasParaGravacao(escolhidas);
   if (!aluno.dataNascimento)
@@ -615,7 +616,7 @@ export async function confirmarContratacaoModalidades(
       // Prisma faz o nested create na mesma transacao serializavel do contrato.
       ...(ofertasDiretas.length ? { turmasAvulsas: {
         create: ofertasDiretas.map(o => ({
-          instituicaoId: user.instituicaoId,
+          // A relação composta com a matrícula herda a mesma instituição.
           turmaId: o.id,
           cursoId: o.cursoId!,
           status: situacao === "ATIVA" ? "EM_CURSO" as const : "A_CURSAR" as const,
