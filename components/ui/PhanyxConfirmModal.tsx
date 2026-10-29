@@ -35,7 +35,7 @@ export default function PhanyxConfirmModal({
         role="dialog"
         aria-modal="true"
         aria-label={titulo}
-        className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-950"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-950"
       >
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
           PHANYX
@@ -45,7 +45,7 @@ export default function PhanyxConfirmModal({
           {titulo}
         </h2>
 
-        <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        <p className="mt-3 break-words text-sm leading-6 text-slate-600 dark:text-slate-300">
           {mensagem}
         </p>
 
