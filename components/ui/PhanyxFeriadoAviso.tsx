@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import BannerPhanyx from "@/components/phanyx/BannerPhanyx";
 import BandeiraPais from "@/components/internacionalizacao/BandeiraPais";
+import estilos from "@/components/phanyx/DestaquesPainel.module.css";
 
 export type FeriadoAtivoPhanyx = {
   id: number;
@@ -163,7 +164,7 @@ export default function PhanyxFeriadoAviso({
     );
 
   return (
-    <div className="mb-6">
+    <div className={`${estilos.feriado} mb-6`}>
       <BannerPhanyx
         aviso={{
           id:
@@ -179,7 +180,7 @@ export default function PhanyxFeriadoAviso({
           icone,
           categoria:
             t("category"),
-          cor: "azul",
+          cor: "amarelo",
           prioridade:
             feriado.prioridade,
         }}
