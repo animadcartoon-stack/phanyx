@@ -9,6 +9,7 @@ import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
 import TurmasAvulsasSemGrade from "@/components/admin/TurmasAvulsasSemGrade";
 import HorariosDisciplinaTurma from "@/components/admin/HorariosDisciplinaTurma";
+import ConverterCadastroAvulso, { ModoEdicaoTurma } from "@/components/admin/ConverterCadastroAvulso";
 import ResumoHorariosTurma from "@/components/admin/ResumoHorariosTurma";
 
 interface Curso {
@@ -152,6 +153,7 @@ function AdminTurmasPage() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
+  const [editSemDisciplinas, setEditSemDisciplinas] = useState(false);
   const [editNome, setEditNome] = useState("");
   const [editCodigo, setEditCodigo] = useState("");
   const [editSemestre, setEditSemestre] = useState("");
@@ -335,6 +337,7 @@ function AdminTurmasPage() {
       return;
     }
     if (!catalogosProntos) return;
+    setEditSemDisciplinas(false);
     setEditandoId(turma.id);
     setCursoOfertaDestino("");
     setDisciplinasOfertaDestino([]);
@@ -1736,6 +1739,8 @@ function AdminTurmasPage() {
                 <div key={turma.id} className="bg-white border rounded-lg p-4">
                   {editandoId === turma.id ? (
                     <div className="phanyx-turmas-form space-y-3">
+                      <p className="text-sm font-semibold">{t("commonCoursePrefix")} {turma.curso?.nome || "—"}</p>
+                      <ModoEdicaoTurma semDisciplinas={editSemDisciplinas} onChange={setEditSemDisciplinas} />
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <input
                           value={editNome}
@@ -1751,7 +1756,7 @@ function AdminTurmasPage() {
                           placeholder={t("classesCode")}
                         />
 
-                        <div>
+                        {!editSemDisciplinas && <div>
                           <label className="text-sm text-gray-600">{ta("stage")}</label>
                           <input
                             type="number" min="1" step="1"
@@ -1760,7 +1765,7 @@ function AdminTurmasPage() {
                             onChange={(e) => setEditSemestre(e.target.value)}
                             className="w-full border rounded-lg p-2"
                           />
-                        </div>
+                        </div>}
 
                         <div>
                           <label className="text-sm text-gray-600 dark:text-slate-300">
@@ -1892,7 +1897,7 @@ function AdminTurmasPage() {
                           placeholder={t("classesMaxCapacity")}
                         />
 
-                        <select
+                        {!editSemDisciplinas && <select
                           value={editStatusTurma}
                           onChange={(e) =>
                             setEditStatusTurma(e.target.value as StatusTurma)
@@ -1906,9 +1911,10 @@ function AdminTurmasPage() {
                           <option value="CONCLUIDA">{t("classesCompleted")}</option>
                           <option value="CANCELADA">{t("classesCancelled")}</option>
                           <option value="NAO_FORMADA">{t("classesNotFormed")}</option>
-                        </select>
+                        </select>}
 
-                        <div className="md:col-span-2">
+                        {!editSemDisciplinas && <>
+                          <div className="md:col-span-2">
                           <button
                             type="button"
                             onClick={() => setEditDisciplinasAbertas((prev) => !prev)}
@@ -2079,6 +2085,7 @@ function AdminTurmasPage() {
                           )}
                         </div>
 
+
                         <div className="space-y-3 md:col-span-2">
                           {editDisciplinasSelecionadas.map(id => {
                             const disciplina = disciplinasBaseEdicao.find(d => d.id === id) || turma.disciplinas?.find(d => d.id === id);
@@ -2092,14 +2099,15 @@ function AdminTurmasPage() {
                           })}
                         </div>
 
-                        <label className="flex items-center gap-2 text-sm">
+                        </>}
+                        {!editSemDisciplinas && <label className="flex items-center gap-2 text-sm">
                           <input
                             type="checkbox"
                             checked={editAtiva}
                             onChange={(e) => setEditAtiva(e.target.checked)}
                           />
                           {t("classesEnabled")}
-                        </label>
+                        </label>}
                       </div>
                       <select
                         value={editProfessorId}
@@ -2113,7 +2121,13 @@ function AdminTurmasPage() {
                           </option>
                         ))}
                       </select>
-                      <section className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+                        {editSemDisciplinas && <ConverterCadastroAvulso tipo="turma" id={turma.id} cursos={cursos}
+                        horariosIniciais={editDisciplinasSelecionadas.flatMap(id => (horariosPorDisciplina[id] || []).map(h => ({ ...h, diaSemana: Number(h.diaSemana) })))}
+                        dadosTurma={{ nome: editNome, codigo: editCodigo, periodoLetivo: editPeriodoLetivo,
+                          turno: editTurno, capacidadeMaxima: editCapacidadeMaxima, capacidadeMinima: editCapacidadeMinima,
+                          professorId: editProfessorId }}
+                        onConcluido={async () => { setEditandoId(null); setTipoNovaTurma("AVULSA"); await carregarTurmas(); window.scrollTo({ top: 0, behavior: "smooth" }); }} />}
+                      {!editSemDisciplinas && <section className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
                         <h3 className="font-semibold">Disponibilizar esta turma em outro curso</h3>
                         <p className="mt-1 text-xs">Cria uma oferta própria e inicialmente inativa no curso selecionado com as disciplinas e horários escolhidos. Não muda nem exclui a turma atual. Revise horários e capacidade antes da ativação.</p>
                         <select
@@ -2142,15 +2156,15 @@ function AdminTurmasPage() {
                             className="rounded-lg bg-blue-700 px-3 py-2 font-semibold text-white disabled:opacity-50"
                           >{criandoOfertaVinculada ? "Criando oferta..." : "Criar oferta vinculada ao curso"}</button>
                         </div>}
-                      </section>
+                      </section>}
                       <div className="flex gap-2">
-                        <button
+                        {!editSemDisciplinas && <button
                           onClick={() => salvarEdicao(turma.id)}
                           disabled={salvandoId === turma.id}
                           className="bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50"
                         >
                           {salvandoId === turma.id ? t("visitorsSaving") : t("commonSave")}
-                        </button>
+                        </button>}
 
                         <button
                           onClick={() => setEditandoId(null)}

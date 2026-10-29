@@ -8,6 +8,7 @@ import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
 import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
+import ConverterCadastroAvulso from "@/components/admin/ConverterCadastroAvulso";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
@@ -898,6 +899,7 @@ export default function CursoDetalhePage() {
               nem permite matrículas reais enquanto a liberação do sistema estiver desativada.
             </p>
           </div>
+          {!curso?.matriculaDiretaTurma && !cursoRecebidoDaRede && <ConverterCadastroAvulso tipo="curso" id={cursoId} onConcluido={async () => { await Promise.all([carregarCurso(), carregarDisciplinas(), carregarSemestres()]); setEditandoCurso(false); }} />}
           <CamposCursosAdicionais permite={formCurso.permiteCursosAdicionais} disponivel={formCurso.disponivelComoAdicional} incompativel={formCurso.precoPorDisciplina || formCurso.organizacaoCurricular === "LIVRE" || Boolean(curso?.regrasSelecaoDisciplinas)} disabled={cursoRecebidoDaRede} onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
           {!formCurso.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />}
           {!formCurso.precoPorDisciplina && <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
