@@ -8,8 +8,8 @@ import type { LocalePhanyx } from "@/i18n/config";
 export default function EnrollmentPage({ locale }: { locale: LocalePhanyx }) {
   const copy = enrollmentCopy[locale];
   const contactUrl = `https://wa.me/5548988101240?text=${encodeURIComponent(`PHANYX — ${copy.eyebrow} (${locale})`)}`;
-  const pageUrl = `https://phanyx.com.br${marketingPath(locale, "enrollment")}`;
-  const homeUrl = `https://phanyx.com.br${marketingPath(locale, "home")}`;
+  const pageUrl = `https://www.phanyx.com.br${marketingPath(locale, "enrollment")}`;
+  const homeUrl = `https://www.phanyx.com.br${marketingPath(locale, "home")}`;
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [

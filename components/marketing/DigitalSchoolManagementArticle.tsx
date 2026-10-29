@@ -19,7 +19,7 @@ export default function DigitalSchoolManagementArticle({
 }) {
   const copy = digitalSchoolArticleCopy[locale];
   const path = digitalSchoolArticlePath(locale);
-  const pageUrl = `https://phanyx.com.br${path}`;
+  const pageUrl = `https://www.phanyx.com.br${path}`;
   const image = digitalSchoolArticleImages[locale];
 
   const languagePaths = Object.fromEntries(
@@ -37,12 +37,12 @@ export default function DigitalSchoolManagementArticle({
         "@id": `${pageUrl}#article`,
         headline: copy.heading,
         description: copy.description,
-        image: `https://phanyx.com.br${image}`,
+        image: `https://www.phanyx.com.br${image}`,
         mainEntityOfPage: pageUrl,
         publisher: {
           "@type": "Organization",
           name: "PHANYX",
-          url: "https://phanyx.com.br",
+          url: "https://www.phanyx.com.br",
         },
         inLanguage: locale,
       },
@@ -54,7 +54,7 @@ export default function DigitalSchoolManagementArticle({
             "@type": "ListItem",
             position: 1,
             name: "PHANYX",
-            item: `https://phanyx.com.br${marketingPath(locale, "home")}`,
+            item: `https://www.phanyx.com.br${marketingPath(locale, "home")}`,
           },
           {
             "@type": "ListItem",
@@ -62,8 +62,8 @@ export default function DigitalSchoolManagementArticle({
             name: "Blog",
             item:
               locale === "pt-BR"
-                ? "https://phanyx.com.br/blog"
-                : `https://phanyx.com.br/${locale}/blog`,
+                ? "https://www.phanyx.com.br/blog"
+                : `https://www.phanyx.com.br/${locale}/blog`,
           },
           {
             "@type": "ListItem",

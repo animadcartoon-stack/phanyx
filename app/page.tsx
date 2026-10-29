@@ -27,7 +27,7 @@ export const metadata = {
     title: "PHANYX | Plataforma de Gestão Educacional e Acadêmica",
     description:
       "Sistema completo para escolas, faculdades, seminários e cursos livres.",
-    url: "https://phanyx.com.br",
+    url: "https://www.phanyx.com.br",
     siteName: "PHANYX",
     images: [
       {

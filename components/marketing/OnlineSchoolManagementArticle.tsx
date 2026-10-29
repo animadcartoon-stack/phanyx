@@ -21,7 +21,7 @@ export default function OnlineSchoolManagementArticle({
 }) {
   const copy = onlineSchoolArticleCopy[locale];
   const path = onlineSchoolArticlePath(locale);
-  const pageUrl = `https://phanyx.com.br${path}`;
+  const pageUrl = `https://www.phanyx.com.br${path}`;
 
   const languagePaths = Object.fromEntries(
     onlineSchoolArticleLocales.map((item) => [
@@ -38,12 +38,12 @@ export default function OnlineSchoolManagementArticle({
         "@id": `${pageUrl}#article`,
         headline: copy.heading,
         description: copy.description,
-        image: `https://phanyx.com.br${onlineSchoolArticleImage}`,
+        image: `https://www.phanyx.com.br${onlineSchoolArticleImage}`,
         mainEntityOfPage: pageUrl,
         publisher: {
           "@type": "Organization",
           name: "PHANYX",
-          url: "https://phanyx.com.br",
+          url: "https://www.phanyx.com.br",
         },
         inLanguage: locale,
       },
@@ -55,7 +55,7 @@ export default function OnlineSchoolManagementArticle({
             "@type": "ListItem",
             position: 1,
             name: "PHANYX",
-            item: `https://phanyx.com.br${marketingPath(locale, "home")}`,
+            item: `https://www.phanyx.com.br${marketingPath(locale, "home")}`,
           },
           {
             "@type": "ListItem",
@@ -63,8 +63,8 @@ export default function OnlineSchoolManagementArticle({
             name: "Blog",
             item:
               locale === "pt-BR"
-                ? "https://phanyx.com.br/blog"
-                : `https://phanyx.com.br/${locale}/blog`,
+                ? "https://www.phanyx.com.br/blog"
+                : `https://www.phanyx.com.br/${locale}/blog`,
           },
           {
             "@type": "ListItem",
