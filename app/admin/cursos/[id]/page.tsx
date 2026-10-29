@@ -492,7 +492,10 @@ export default function CursoDetalhePage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const chave = `errors.${data.codigo}`;
-        throw new Error(te.has(chave) ? te(chave) : te("errors.DELETE_FAILED"));
+        const base = te.has(chave) ? te(chave) : te("errors.DELETE_FAILED");
+        const nomeTurma = data.codigo === "STAGE_IN_USE" && typeof data.detalhes?.turma?.nome === "string"
+          ? data.detalhes.turma.nome : "";
+        throw new Error(base + (nomeTurma ? " " + te("linkedClass", { nome: nomeTurma }) : ""));
       }
       setSemestres((prev) => prev.filter((s) => s.id !== semestre.id));
       setSelecionadas((prev) => {

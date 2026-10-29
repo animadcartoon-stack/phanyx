@@ -1,13 +1,14 @@
 "use client";
 import contraste from "@/components/admin/ContrasteAcademico.module.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { disciplinaPermitidaNaOferta, mesmaEtapaOferta, numeroSemestreOferta, type CursoGradeOferta } from "@/lib/academico/grade-oferta";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
 import TurmasAvulsasSemGrade from "@/components/admin/TurmasAvulsasSemGrade";
+import { excluirTurmaConferida, ErroExclusaoTurma, mensagemExclusaoNaoConfirmada } from "@/lib/academico/exclusao-turma-interface";
 import HorariosDisciplinaTurma from "@/components/admin/HorariosDisciplinaTurma";
 import ConverterCadastroAvulso, { ModoEdicaoTurma } from "@/components/admin/ConverterCadastroAvulso";
 import ResumoHorariosTurma from "@/components/admin/ResumoHorariosTurma";
@@ -214,7 +215,10 @@ function AdminTurmasPage() {
   const [carregandoCatalogos, setCarregandoCatalogos] = useState(true);
   const [catalogosProntos, setCatalogosProntos] = useState(false);
 
+  const listaRequestRef = useRef(0);
+  const exclusaoRequestRef = useRef(false);
   async function carregarTurmas(signal?: AbortSignal) {
+    const requestId = ++listaRequestRef.current;
     setCarregandoLista(true);
     setErroLista(false);
     try {
@@ -223,12 +227,14 @@ function AdminTurmasPage() {
       });
       if (!res.ok) throw new Error(t("classesLoadError"));
       const data = await res.json();
-      if (!signal?.aborted) setTurmas(Array.isArray(data.turmas) ? data.turmas : []);
+      const lista: Turma[] = Array.isArray(data.turmas) ? data.turmas : [];
+      if (!signal?.aborted && requestId === listaRequestRef.current) setTurmas(lista);
+      return lista;
     } catch (error) {
-      if (!signal?.aborted) setErroLista(true);
+      if (!signal?.aborted && requestId === listaRequestRef.current) setErroLista(true);
       throw error;
     } finally {
-      if (!signal?.aborted) setCarregandoLista(false);
+      if (!signal?.aborted && requestId === listaRequestRef.current) setCarregandoLista(false);
     }
   }
 
@@ -551,28 +557,24 @@ function AdminTurmasPage() {
   }
 
   async function confirmarExclusaoTurma() {
-    if (!turmaParaExcluir) return;
-
+    if (!turmaParaExcluir || exclusaoRequestRef.current) return;
+    const alvo = turmaParaExcluir;
+    exclusaoRequestRef.current = true;
     try {
-      setExcluindoId(turmaParaExcluir.id);
-
-      const res = await fetch(`/api/turma/${turmaParaExcluir.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error((locale.startsWith("pt") ? (data.error || t("classesDeleteError")) : t("classesDeleteError")));
-      }
-
+      setExcluindoId(alvo.id);
+      await excluirTurmaConferida(alvo.id);
+      const lista = await carregarTurmas();
+      if (lista.some(turma => turma.id === alvo.id)) throw new ErroExclusaoTurma("NAO_CONFIRMADA");
       setTurmaParaExcluir(null);
-      await carregarTurmas();
-      mostrarFeedback("sucesso", t("classesDeleted"));
-    } catch (error: any) {
-      mostrarFeedback("erro", (locale.startsWith("pt") ? (error?.message || t("classesDeleteError")) : t("classesDeleteError")));
+      mostrarFeedback("sucesso", `${t("classesDeleted")} ${alvo.nome}`);
+    } catch (error: unknown) {
+      setTurmaParaExcluir(null);
+      const mensagem = error instanceof ErroExclusaoTurma && error.codigo === "RECUSADA"
+        ? (locale.startsWith("pt") && error.message ? error.message : t("classesDeleteError"))
+        : mensagemExclusaoNaoConfirmada(locale, alvo.nome);
+      mostrarFeedback("erro", mensagem);
     } finally {
+      exclusaoRequestRef.current = false;
       setExcluindoId(null);
     }
   }

@@ -26,7 +26,7 @@ function endpoint(options = {}) {
       findFirst: async (args) => {
         calls.push({ model, method: 'findFirst', args });
         return model === 'cursoSemestre' ? (options.missing ? null : etapa)
-          : options.linked === model ? { id: 90 } : null;
+          : options.linked === model ? { id: 90, nome: 'PEVI A' } : null;
       },
       deleteMany: async (args) => {
         calls.push({ model, method: 'deleteMany', args });
@@ -151,4 +151,12 @@ test('trata conflitos de FK e concorrência sem erro genérico', async () => {
 test('rota neutra também expõe DELETE', () => {
   const alias = fs.readFileSync(path.join(root, 'app/api/admin/curso-etapas/route.ts'), 'utf8');
   assert.match(alias, /export \{[^}]*DELETE[^}]*\} from "\.\.\/curso-semestres\/route"/);
+});
+
+test('bloqueio sem matrícula identifica a turma vinculada para revisão', async () => {
+  const app = endpoint({ linked: 'turma' });
+  const resposta = await app.remove();
+  assert.equal(resposta.status, 409);
+  assert.equal(resposta.body.detalhes.turma.nome, 'PEVI A');
+  assertNoDelete(app);
 });

@@ -25,6 +25,7 @@
     "updated": "Organização atualizada. As etapas e suas disciplinas foram preservadas."
   },
   "CourseStageDeletion": {
+    "linkedClass": "Uma das turmas vinculadas é “{nome}”. Revise suas ligações com esta etapa antes de excluir.",
     "delete": "Excluir etapa",
     "deleteNamed": "Excluir etapa {number} {title}",
     "deleting": "Excluindo…",

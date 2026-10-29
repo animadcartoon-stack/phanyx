@@ -23,16 +23,23 @@ test('a prévia do servidor bloqueia conflitos e informa os dados', () => {
   assert.match(api,/encontrarConflitos\(horarios, existentes\.horarios\)/);
   assert.match(api,/ErroModalidades\("CONFLITO_HORARIO", 409/);
 });
-test('a tela utiliza modal PHANYX e alerta sonoro sem confirmar matricula', () => {
-  assert.match(painel,/<PhanyxConfirmModal/);
-  assert.match(painel,/falha\.codigo === "CONFLITO_HORARIO"/);
-  assert.match(painel,/tocarSomConflito\(\)/);
-  assert.match(painel,/prepararSomConflito\(\)/);
-  assert.match(painel,/mensagemConflitoHorario\(falha\.detalhes\)/);
-  assert.match(painel,/A matrícula conjunta não será gravada/);
+test('o seletor usa o mesmo aviso de conflito das matrículas individuais', () => {
+  assert.match(painel, /avisarSeConflito\(falha\)/);
+  assert.match(painel, /<AvisoConflitoHorarioMatricula/);
+  assert.match(painel, /prepararSomConflito\(\)/);
+  assert.match(painel, /A matrícula conjunta não será gravada/);
 });
 test('exige turma por curso adicional e sinaliza oferta principal inativa', () => {
   assert.match(painel,/ofertasDoCurso\(c\.id\)/);
   assert.match(painel,/Turma de \{c\.nome\}/);
   assert.match(painel,/turma escolhida para o curso principal está inativa/);
+});
+
+test('mensagem de conflito traduz dia e instruções nos cinco idiomas', () => {
+  const detalhes = { conflitos: [{ primeiro: { turmaNome: 'PEVI A', disciplinaNome: 'Jiu-jitsu', diaSemana: 2, horaInicio: '10:00', horaFim: '11:40' }, segundo: { turmaNome: 'Avulso B', disciplinaNome: 'Robótica', diaSemana: 2, horaInicio: '10:30', horaFim: '12:00' } }] };
+  for (const [locale, dia, instrucao] of [['pt-BR','terça-feira','Escolha'], ['pt-PT','terça-feira','Escolha'], ['en-US','Tuesday','Choose'], ['es-ES','martes','Elija'], ['fr-FR','mardi','Choisissez']]) {
+    const mensagem = modulo.mensagemConflitoHorario(detalhes, locale);
+    for (const termo of [dia,instrucao === 'Escolha' ? 'bloqueada' : locale === 'en-US' ? 'blocked' : locale === 'es-ES' ? 'bloqueada' : 'bloquée','PEVI A','Avulso B','10:00','10:30']) assert.ok(mensagem.includes(termo), locale + ': ' + termo);
+    assert.ok(modulo.mensagemConflitoHorario({}, locale).includes(instrucao));
+  }
 });
