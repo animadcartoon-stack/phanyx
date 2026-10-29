@@ -8,6 +8,7 @@ import { disciplinaPermitidaNaOferta, mesmaEtapaOferta, numeroSemestreOferta, ty
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
 import TurmasAvulsasSemGrade from "@/components/admin/TurmasAvulsasSemGrade";
+import HorariosDisciplinaTurma from "@/components/admin/HorariosDisciplinaTurma";
 
 interface Curso {
   matriculaDiretaTurma?: boolean;
@@ -2075,6 +2076,19 @@ function AdminTurmasPage() {
                               </div>
                             </div>
                           )}
+                        </div>
+
+                        <div className="space-y-3 md:col-span-2">
+                          {editDisciplinasSelecionadas.map(id => {
+                            const disciplina = disciplinasBaseEdicao.find(d => d.id === id) || turma.disciplinas?.find(d => d.id === id);
+                            if (!disciplina) return null;
+                            return <HorariosDisciplinaTurma key={id}
+                              nome={disciplina.nome || t("classesFallbackSubject", { id })}
+                              horarios={horariosPorDisciplina[id] || []}
+                              disabled={salvandoId === turma.id}
+                              onChange={horarios => setHorariosPorDisciplina(anteriores => ({ ...anteriores, [id]: horarios }))}
+                            />;
+                          })}
                         </div>
 
                         <label className="flex items-center gap-2 text-sm">
