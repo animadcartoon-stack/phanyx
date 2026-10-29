@@ -63,7 +63,7 @@ export default function ImageToolsBlogArticle({
   const copy = imageToolsArticleCopy[kind][locale];
   const image = imageToolsArticleImages[kind][locale];
   const path = imageToolsArticlePath(kind, locale);
-  const pageUrl = `https://phanyx.com.br${path}`;
+  const pageUrl = `https://www.phanyx.com.br${path}`;
   const toolPath = backgroundRemoverPath(locale);
   const otherKind: ImageToolsArticleKind =
     kind === "background-removers" ? "image-editor" : "background-removers";
@@ -83,19 +83,19 @@ export default function ImageToolsBlogArticle({
         "@id": `${pageUrl}#article`,
         headline: copy.heading,
         description: copy.description,
-        image: `https://phanyx.com.br${image}`,
+        image: `https://www.phanyx.com.br${image}`,
         mainEntityOfPage: pageUrl,
         datePublished: "2026-10-06",
         dateModified: "2026-10-06",
         author: {
           "@type": "Organization",
           name: "PHANYX",
-          url: "https://phanyx.com.br",
+          url: "https://www.phanyx.com.br",
         },
         publisher: {
           "@type": "Organization",
           name: "PHANYX",
-          url: "https://phanyx.com.br",
+          url: "https://www.phanyx.com.br",
         },
         inLanguage: locale,
       },
@@ -109,8 +109,8 @@ export default function ImageToolsBlogArticle({
             name: "PHANYX",
             item:
               locale === "pt-BR"
-                ? "https://phanyx.com.br"
-                : `https://phanyx.com.br/${locale}`,
+                ? "https://www.phanyx.com.br"
+                : `https://www.phanyx.com.br/${locale}`,
           },
           {
             "@type": "ListItem",
@@ -118,8 +118,8 @@ export default function ImageToolsBlogArticle({
             name: "Blog",
             item:
               locale === "pt-BR"
-                ? "https://phanyx.com.br/blog"
-                : `https://phanyx.com.br/${locale}/blog`,
+                ? "https://www.phanyx.com.br/blog"
+                : `https://www.phanyx.com.br/${locale}/blog`,
           },
           {
             "@type": "ListItem",
