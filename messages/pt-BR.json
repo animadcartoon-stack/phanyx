@@ -186,6 +186,7 @@
     "accessControl": "Controle de Acesso",
     "commercialPhanyx": "Comercial PHANYX",
     "commercial": "Comercial",
+    "courses": "Cursos",
     "academic": "Acadêmico",
     "virtualLibrary": "Biblioteca Virtual",
     "financial": "Financeiro",
@@ -11477,6 +11478,7 @@
       },
       "actions": {
         "viewStructure": "Ver estrutura",
+        "editData": "Editar dados",
         "buildCurriculum": "Montar grade curricular",
         "editPoles": "Editar polos/unidades"
       },

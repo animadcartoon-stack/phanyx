@@ -186,6 +186,7 @@
     "accessControl": "Contrôle d'accès",
     "commercialPhanyx": "Commercial PHANYX",
     "commercial": "Commercial",
+    "courses": "Cours",
     "academic": "Académique",
     "virtualLibrary": "Bibliothèque numérique",
     "financial": "Finances",
@@ -11477,6 +11478,7 @@
       },
       "actions": {
         "viewStructure": "Voir la structure",
+        "editData": "Modifier les informations",
         "buildCurriculum": "Construire le programme",
         "editPoles": "Modifier les sites/unités"
       },

@@ -1405,6 +1405,14 @@ export default function AdminShell({
                       </Link>
 
                       <Link
+                        href="/admin/cursos"
+                        className={getLinkClass("/admin/cursos")}
+                        data-tour="menu-cursos"
+                      >
+                        🎓 {tNav("courses")}
+                      </Link>
+
+                      <Link
                         href="/admin/disciplinas"
                         className={getLinkClass("/admin/disciplinas")}
                       >
@@ -2296,6 +2304,12 @@ export default function AdminShell({
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
                     >
                       🏢 {tNav("departments")}
+                    </Link>
+                    <Link
+                      href="/admin/cursos"
+                      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                    >
+                      🎓 {tNav("courses")}
                     </Link>
                     <Link
                       href="/admin/disciplinas"

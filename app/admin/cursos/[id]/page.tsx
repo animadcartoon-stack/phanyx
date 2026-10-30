@@ -12,7 +12,7 @@ import ConverterCadastroAvulso from "@/components/admin/ConverterCadastroAvulso"
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -159,6 +159,12 @@ export default function CursoDetalhePage() {
   const [loading, setLoading] = useState(true);
 
   const [editandoCurso, setEditandoCurso] = useState(false);
+  const dadosCursoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (loading || window.location.hash !== "#dados-curso") return;
+    dadosCursoRef.current?.scrollIntoView({ block: "start" });
+  }, [loading, cursoId]);
   const [salvandoCurso, setSalvandoCurso] = useState(false);
   const [criandoSemestre, setCriandoSemestre] = useState(false);
   const [excluindoSemestreId, setExcluindoSemestreId] = useState<number | null>(null);
@@ -332,6 +338,7 @@ export default function CursoDetalhePage() {
 
   useEffect(() => {
     if (!cursoId || Number.isNaN(cursoId)) return;
+    setEditandoCurso(new URLSearchParams(window.location.search).get("editar") === "1");
     carregarTudo();
   }, [cursoId]);
 
@@ -749,7 +756,7 @@ export default function CursoDetalhePage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div id="dados-curso" ref={dadosCursoRef} className="scroll-mt-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             {editandoCurso ? (
