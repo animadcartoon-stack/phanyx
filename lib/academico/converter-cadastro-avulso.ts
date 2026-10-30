@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Prisma } from "@prisma/client";
-import { validarCapacidadeTurmaAvulsa, validarHorariosTurmaAvulsa } from "./validar-turma-avulsa";
+import { validarProntidaoAtivacaoTurmaAvulsa } from "./validar-prontidao-ativacao-turma-avulsa";
+import { validarCapacidadeTurmaAvulsa, validarHorariosTurmaAvulsa, ErroCadastroTurmaAvulsa, type HorarioAvulso } from "./validar-turma-avulsa";
 
 type Banco = Prisma.TransactionClient;
 export class ErroConversaoAvulsa extends Error {
@@ -18,12 +19,26 @@ const semUso = (contagens: Record<string, number>, mensagem: string) => {
 const chave = (valor: unknown) => createHash("sha256").update(JSON.stringify(valor)).digest("hex");
 export type EntradaConversao = { tipo?: unknown; id?: unknown; cursoDestinoId?: unknown; dadosTurma?: unknown };
 export type PreviaConversao = { chave: string; tipo: "curso" | "turma"; id: number; nome: string;
-  cursoDestino: string; etapas: number; vinculosDisciplinas: number; disciplinasCatalogo: string[]; horarios: number; converteCurso?: boolean };
+  cursoDestino: string; etapas: number; vinculosDisciplinas: number; disciplinasCatalogo: string[]; horarios: number; converteCurso?: boolean; turmasMantidas?: { id: number; nome: string; professor: string | null; horarios: HorarioAvulso[]; ativa: boolean; revisar: boolean }[] };
 
-async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId: number, turmaPropriaId?: number) {
+async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId: number, turmaPropriaId?: number, incluirTurmas = false) {
     await db.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${cadastroId} AND "instituicaoId"=${instituicaoId} FOR UPDATE`;
+    const turmasIds = incluirTurmas ? (await db.turma.findMany({ where: { cursoId: cadastroId, instituicaoId }, orderBy: { id: "asc" }, select: { id: true } })).map(t => t.id) : [];
+    if (incluirTurmas) await db.$queryRaw`SELECT "id" FROM "Turma" WHERE "cursoId"=${cadastroId} AND "instituicaoId"=${instituicaoId} ORDER BY "id" FOR UPDATE`;
     const curso = await db.curso.findFirst({ where: { id: cadastroId, instituicaoId, ativo: true, excluidoEm: null },
       include: {
+        turmas: { orderBy: { id: "asc" }, include: {
+          professor: { select: { nome: true, instituicaoId: true } }, polo: { select: { instituicaoId: true } },
+          disciplinas: { orderBy: { id: "asc" }, include: {
+            professor: { select: { nome: true, instituicaoId: true } },
+            disciplina: { select: { id: true, instituicaoId: true } },
+            horarios: { orderBy: { id: "asc" } }, _count: { select: { itensRematriculaSemestral: true } },
+          } }, semestres: true, horariosAvulsos: { orderBy: { id: "asc" } },
+          _count: { select: { atividades: true, aulas: true, itensMatricula: true, matriculasComoPrincipal: true,
+            modulos: true, notas: true, provas: true, sessoesVideoAluno: true, eventosAprendizagemAluno: true,
+            resultadosFinais: true, periodosMatriculaParticipantes: true, reunioes: true, substituicoesDocentes: true,
+            destinosRecomendacoesBiblioteca: true, atividadesExternas: true, matriculasAvulsas: true } },
+        } },
         semestres: { orderBy: { id: "asc" }, include: { disciplinas: { orderBy: { id: "asc" }, include: { disciplina: { select: { id: true, nome: true, instituicaoId: true } } } }, _count: { select: {
           matriculas: true, periodosMatricula: true, rematriculasDestino: true,
           disciplinasExtrasPermitidas: true, semestresPublicadosRede: true,
@@ -31,7 +46,7 @@ async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId:
         disciplinas: { orderBy: { id: "asc" }, include: { _count: { select: {
           itensMatricula: true, aulas: true, atividades: true, provas: true, resultadosFinais: true,
           certificados: true, sessoesVideoAluno: true, eventosAprendizagemAluno: true,
-          substituicoesDocentes: true, itensRematriculaSemestral: true, turmaDisciplinas: turmaPropriaId === undefined ? true : { where: { turmaId: { not: turmaPropriaId } } },
+          substituicoesDocentes: true, itensRematriculaSemestral: true, turmaDisciplinas: incluirTurmas ? { where: { turmaId: { notIn: turmasIds } } } : turmaPropriaId === undefined ? true : { where: { turmaId: { not: turmaPropriaId } } },
           disciplinasPublicadasRede: true,
         } } } },
         _count: { select: { turmas: true, matriculas: true, vinculosMatriculaTurmaAvulsa: true,
@@ -43,7 +58,9 @@ async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId:
       falhar("MODO_INCOMPATIVEL", "A conversão exige preço fixo, organização anual ou semestral e ausência de regras de seleção de disciplinas.");
     if (turmaPropriaId !== undefined && (curso._count.turmas !== 1 || await db.turma.count({ where: { id: turmaPropriaId, cursoId: cadastroId, instituicaoId } }) !== 1))
       falhar("OUTRAS_TURMAS", `Esta operação mudaria a estrutura de todo o curso “${curso.nome}” e afetaria outras turmas. Para preservar sua grade, edite esta turma no curso atual ou escolha um curso avulso de destino já habilitado. O curso pode continuar com várias turmas.`);
-    semUso(turmaPropriaId === undefined ? curso._count : { ...curso._count, turmas: 0 }, "O curso possui turmas, matrículas, documentos ou configurações em uso. Esses vínculos precisam de revisão antes da conversão.");
+    if (incluirTurmas && (curso._count.turmas !== turmasIds.length || curso.turmas.length !== turmasIds.length || curso.turmas.some(t => !turmasIds.includes(t.id))))
+      falhar("DADOS_ALTERADOS", "As turmas do curso mudaram. Solicite uma nova revisão.");
+    semUso(turmaPropriaId === undefined && !incluirTurmas ? curso._count : { ...curso._count, turmas: 0 }, "O curso possui turmas, matrículas, documentos ou configurações em uso. Esses vínculos precisam de revisão antes da conversão.");
     if (await db.cursoPublicacaoRede.count({ where: { OR: [{ cursoOrigemId: cadastroId }, { cursoDestinoId: cadastroId }] } }))
       falhar("VINCULO_REDE", "Cursos publicados ou recebidos da rede precisam de revisão própria.");
     for (const etapa of curso.semestres) {
@@ -62,11 +79,55 @@ async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId:
     const snapshots = await db.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
       WHERE "instituicaoId"=${instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ cursoId: cadastroId }] })}::jsonb`;
     if (snapshots[0]?.total) falhar("CADASTRO_EM_USO", "O curso está registrado em uma contratação anterior.");
+    // A conversão do curso revisa todas as suas turmas sem uso. Cancelamentos e
+    // snapshots históricos continuam protegidos; nenhuma matrícula é excluída.
+    const planosTurmas = [];
+    for (const turma of incluirTurmas ? curso.turmas : []) {
+      semUso(turma._count, `A turma “${turma.nome}” possui registros acadêmicos. Seus dados e histórico foram preservados.`);
+      if (turma.instituicaoId !== instituicaoId || turma.professor && turma.professor.instituicaoId !== instituicaoId || turma.polo && turma.polo.instituicaoId !== instituicaoId ||
+          turma.semestres.some(e => e.instituicaoId !== instituicaoId) || turma.horariosAvulsos.some(h => h.instituicaoId !== instituicaoId) ||
+          turma.disciplinas.some(d => d.instituicaoId !== instituicaoId || d.disciplina.instituicaoId !== instituicaoId || d.professor && d.professor.instituicaoId !== instituicaoId || d.horarios.some(h => h.instituicaoId !== instituicaoId)))
+        falhar("VINCULO_INVALIDO", `A turma “${turma.nome}” possui uma referência de outra instituição.`);
+      for (const oferta of turma.disciplinas) semUso(oferta._count, `A turma “${turma.nome}” tem uma disciplina usada em rematrícula.`);
+      const snapshotTurma = await db.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
+        WHERE "instituicaoId"=${instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ turmaId: turma.id }] })}::jsonb`;
+      const derivadas = await db.turma.findMany({ where: { instituicaoId, codigo: { startsWith: `OFERTA-${turma.id}-` } }, select: { cursoId: true, codigo: true } });
+      if (snapshotTurma[0]?.total || derivadas.some(t => t.codigo === `OFERTA-${turma.id}-${t.cursoId}`))
+        falhar("CADASTRO_EM_USO", `A turma “${turma.nome}” está preservada em uma contratação ou oferta compartilhada.`);
+      const professores = [...new Set([turma.professorId, ...turma.disciplinas.map(d => d.professorId)].filter((v): v is number => v !== null))];
+      if (professores.length > 1) falhar("PROFESSORES_DIVERGENTES", `A turma “${turma.nome}” possui professores diferentes nas disciplinas. Defina o responsável antes de mudar para sem grade.`);
+      const professorId = professores[0] ?? null;
+      const professor = turma.professor?.nome || turma.disciplinas.find(d => d.professorId === professorId)?.professor?.nome || null;
+      const proprios = turma.horariosAvulsos.filter(h => h.ativo);
+      const efetivos: HorarioAvulso[] = [];
+      if (turma.disciplinas.length) for (const oferta of turma.disciplinas) {
+        const especificos = oferta.horarios.filter(h => h.ativo);
+        efetivos.push(...(especificos.length ? especificos : proprios));
+      } else efetivos.push(...proprios);
+      const unicos = [...new Map(efetivos.map(h => [`${h.diaSemana}|${h.horaInicio}|${h.horaFim}`, { diaSemana: h.diaSemana, horaInicio: h.horaInicio, horaFim: h.horaFim }])).values()];
+      let horarios: HorarioAvulso[] = [];
+      try { if (unicos.length) horarios = validarHorariosTurmaAvulsa(unicos); }
+      catch (e) { if (e instanceof ErroCadastroTurmaAvulsa) falhar(e.codigo, `Revise os horários da turma “${turma.nome}”: ${e.message}`); throw e; }
+      let revisar = false;
+      try { validarProntidaoAtivacaoTurmaAvulsa({ curso, professorId, capacidadeMaxima: turma.capacidadeMaxima, periodoLetivo: turma.periodoLetivo, turno: turma.turno, horarios }); }
+      catch (e) { if (!(e instanceof ErroCadastroTurmaAvulsa)) throw e; revisar = true; }
+      planosTurmas.push({ id: turma.id, nome: turma.nome, professor, professorId, horarios, ativa: turma.ativa && !revisar, revisar });
+    }
     const previa: PreviaConversao = { chave: chave(curso), tipo: "curso", id: cadastroId, nome: curso.nome,
       cursoDestino: curso.nome, etapas: etapasIds.length,
-      vinculosDisciplinas: curso.semestres.reduce((total, etapa) => total + etapa.disciplinas.length, 0),
-      disciplinasCatalogo: [...new Map([...curso.disciplinas, ...curso.semestres.flatMap(e => e.disciplinas.map(d => d.disciplina))].map(d => [d.id, d.nome])).values()], horarios: 0 };
+      vinculosDisciplinas: curso.semestres.reduce((total, etapa) => total + etapa.disciplinas.length, 0) + (incluirTurmas ? curso.turmas.reduce((n, t) => n + t.disciplinas.length, 0) : 0),
+      disciplinasCatalogo: [...new Map([...curso.disciplinas, ...curso.semestres.flatMap(e => e.disciplinas.map(d => d.disciplina))].map(d => [d.id, d.nome])).values()], horarios: planosTurmas.reduce((n, t) => n + t.horarios.length, 0),
+      ...(incluirTurmas ? { turmasMantidas: planosTurmas.map(({ professorId: _, ...t }) => t) } : {}) };
     return { previa, async aplicar() {
+      for (const turma of planosTurmas) {
+        await db.turmaDisciplina.deleteMany({ where: { turmaId: turma.id, instituicaoId } });
+        await db.turmaSemestre.deleteMany({ where: { turmaId: turma.id, instituicaoId } });
+        await db.turma.update({ where: { id: turma.id }, data: {
+          professorId: turma.professorId, ativa: turma.ativa,
+          ...(turma.revisar ? { statusTurma: "A_INICIAR" } : {}),
+          horariosAvulsos: { deleteMany: { instituicaoId }, create: turma.horarios.map(h => ({ ...h, ativo: true })) },
+        } });
+      }
       // Mantém IDs, conteúdos e associações das disciplinas às grades dos demais cursos.
       await db.disciplina.updateMany({ where: { id: { in: disciplinaIds }, instituicaoId, cursoId: cadastroId }, data: { cursoId: null } });
       await db.cursoSemestreDisciplina.deleteMany({ where: { instituicaoId, cursoSemestreId: { in: etapasIds } } });
@@ -80,7 +141,7 @@ async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId:
 export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, entrada: EntradaConversao) {
   if (!Number.isSafeInteger(instituicaoId) || instituicaoId <= 0) throw new ErroConversaoAvulsa("SEM_PERMISSAO", "Sem permissão.", 403);
   const cadastroId = id(entrada.id);
-  if (entrada.tipo === "curso") return prepararCursoAvulso(db, instituicaoId, cadastroId);
+  if (entrada.tipo === "curso") return prepararCursoAvulso(db, instituicaoId, cadastroId, undefined, true);
   if (entrada.tipo !== "turma") throw new ErroConversaoAvulsa("DADOS_INVALIDOS", "Tipo de cadastro inválido.", 400);
   const cursoDestinoId = id(entrada.cursoDestinoId);
   // Ordem fixa dos bloqueios evita deadlock com a conversão de curso.
