@@ -214,7 +214,7 @@ export async function converterOrganizacaoDaGradeDoCurso(
   }
   const curso = await db.curso.findFirst({
     where: { id: cursoId, instituicaoId },
-    select: { organizacaoCurricular: true },
+    select: { organizacaoCurricular: true, matriculaDiretaTurma: true },
   });
   if (!curso) throw new ErroIntegridadeAcademica("CURSO_INVALIDO");
   if (curso.organizacaoCurricular !== organizacaoOrigem) {
@@ -227,7 +227,7 @@ export async function converterOrganizacaoDaGradeDoCurso(
   });
   const ids = etapas.map(etapa => etapa.id);
   const usos = await Promise.all([
-    db.turma.count({ where: { instituicaoId, cursoId } }),
+    curso.matriculaDiretaTurma ? Promise.resolve(0) : db.turma.count({ where: { instituicaoId, cursoId } }),
     db.matricula.count({ where: { instituicaoId, OR: [
       { cursoId }, { cursoSemestreId: { in: ids } },
     ] } }),
@@ -255,6 +255,39 @@ export async function converterOrganizacaoDaGradeDoCurso(
   // Não inferimos em qual ano/semestre colocar uma disciplina sem grade.
   if (!etapas.length && await db.disciplina.count({ where: { cursoId, instituicaoId } })) {
     throw new ErroIntegridadeAcademica("ORGANIZACAO_GRADE_NECESSARIA");
+  }
+  if (curso.matriculaDiretaTurma) {
+    // Uma turma sem disciplinas não exige preservar uma grade inexistente.
+    // Só retipamos configurações sem uso; horários e demais dados ficam intactos.
+    if (etapas.length) throw new ErroIntegridadeAcademica("ORGANIZACAO_COM_VINCULOS");
+    await db.$queryRaw`SELECT "id" FROM "Turma" WHERE "cursoId"=${cursoId} AND "instituicaoId"=${instituicaoId} ORDER BY "id" FOR UPDATE`;
+    const turmas = await db.turma.findMany({ where: { cursoId, instituicaoId }, orderBy: { id: "asc" }, select: {
+      id: true, organizacaoCurricular: true, etapaNumero: true, semestre: true,
+      _count: { select: { disciplinas: true, semestres: true, atividades: true, aulas: true, itensMatricula: true,
+        matriculasComoPrincipal: true, modulos: true, notas: true, provas: true, sessoesVideoAluno: true,
+        eventosAprendizagemAluno: true, resultadosFinais: true, periodosMatriculaParticipantes: true,
+        reunioes: true, substituicoesDocentes: true, destinosRecomendacoesBiblioteca: true,
+        atividadesExternas: true, matriculasAvulsas: true } },
+    } });
+    const planos = [];
+    const cursoSnapshot = await db.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
+      WHERE "instituicaoId"=${instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ cursoId }] })}::jsonb`;
+    if (cursoSnapshot[0]?.total) throw new ErroIntegridadeAcademica("ORGANIZACAO_COM_VINCULOS");
+    for (const turma of turmas) {
+      if (turma.organizacaoCurricular !== organizacaoOrigem) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
+      if (Object.values(turma._count).some(n => n > 0)) throw new ErroIntegridadeAcademica("ORGANIZACAO_COM_VINCULOS");
+      const numero = etapaDaOferta(turma);
+      if (!numero) throw new ErroIntegridadeAcademica("ETAPA_INVALIDA");
+      const snapshots = await db.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
+        WHERE "instituicaoId"=${instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ turmaId: turma.id }] })}::jsonb`;
+      const derivadas = await db.turma.findMany({ where: { instituicaoId, codigo: { startsWith: `OFERTA-${turma.id}-` } }, select: { cursoId: true, codigo: true } });
+      if (snapshots[0]?.total || derivadas.some(t => t.codigo === `OFERTA-${turma.id}-${t.cursoId}`)) throw new ErroIntegridadeAcademica("ORGANIZACAO_COM_VINCULOS");
+      planos.push({ id: turma.id, numero });
+    }
+    for (const plano of planos) await db.turma.update({ where: { id: plano.id }, data: {
+      organizacaoCurricular: organizacaoDestino, etapaNumero: plano.numero,
+      semestre: organizacaoDestino === "SEMESTRAL" ? String(plano.numero) : "",
+    } });
   }
   if (etapas.length) {
     const alteradas = await db.cursoSemestre.updateMany({

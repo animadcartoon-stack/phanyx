@@ -1176,6 +1176,7 @@ export async function PUT(req: Request) {
     const resultado =
       await prisma.$transaction(
         async (tx) => {
+          await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${id} AND "instituicaoId"=${instituicaoId} FOR UPDATE`;
           const cursoAtual = await tx.curso.findFirst({ where: { id, instituicaoId }, select: { organizacaoCurricular: true, regrasSelecaoDisciplinas: true, regrasPrecoDisciplinas: true, matriculaDiretaTurma: true, permiteCursosAdicionais: true, disponivelComoAdicional: true } });
           if (!cursoAtual) throw new ErroIntegridadeAcademica("DADOS_ALTERADOS");
           camposCursosAdicionais({ ...body, organizacaoCurricular, regrasPrecoDisciplinas: regrasDisciplinas === undefined ? cursoAtual.regrasPrecoDisciplinas : regrasDisciplinas, regrasSelecaoDisciplinas: cursoAtual.regrasSelecaoDisciplinas }, cursoAtual);
@@ -1302,7 +1303,7 @@ export async function PUT(req: Request) {
             unidadesAtualizadas:
               publicacoes.length,
           };
-        }, { isolationLevel: "Serializable" }
+        }, { isolationLevel: "Serializable", timeout: 20000 }
       );
 
     return NextResponse.json({
