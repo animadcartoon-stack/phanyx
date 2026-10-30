@@ -8,7 +8,7 @@ import ResumoPrecosCursoLivre from "@/components/admin/ResumoPrecosCursoLivre";
 import CamposDescontoMensalidade, { ResumoDescontoMensalidade } from "@/components/admin/CamposDescontoMensalidade";
 import CamposCursoLivre from "@/components/admin/CamposCursoLivre";
 import { OrganizacaoCursoSelect } from "@/components/OrganizacaoCursoSelect";
-import ConverterCadastroAvulso from "@/components/admin/ConverterCadastroAvulso";
+import { ModoMatriculaCurso, AtalhoCursoSemGrade, ResumoModoSemGrade } from "@/components/admin/ConverterCadastroAvulso";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 import CamposComboCurso, { type FaixaComboFormulario } from "@/components/admin/CamposComboCurso";
@@ -166,6 +166,8 @@ export default function CursoDetalhePage() {
     dadosCursoRef.current?.scrollIntoView({ block: "start" });
   }, [loading, cursoId]);
   const [salvandoCurso, setSalvandoCurso] = useState(false);
+  const [convertendoCurso, setConvertendoCurso] = useState(false);
+  const formularioSalvoRef = useRef("");
   const [criandoSemestre, setCriandoSemestre] = useState(false);
   const [excluindoSemestreId, setExcluindoSemestreId] = useState<number | null>(null);
   const [etapaParaExcluir, setEtapaParaExcluir] = useState<CursoSemestre | null>(null);
@@ -242,7 +244,7 @@ export default function CursoDetalhePage() {
     setCurso(encontrado);
 
     if (encontrado) {
-      setFormCurso({
+      const formulario = {
         cursoObrigatorioIds: (encontrado.requisitosConjuntos || []).map(r => r.cursoObrigatorioId),
         nome: encontrado.nome ?? "",
         codigo: encontrado.codigo ?? "",
@@ -277,7 +279,9 @@ export default function CursoDetalhePage() {
             ? String(encontrado.quantidadeParcelas)
             : "",
         ativo: Boolean(encontrado.ativo),
-      });
+      };
+      formularioSalvoRef.current = JSON.stringify(formulario);
+      setFormCurso(formulario);
     }
   }
 
@@ -701,7 +705,7 @@ export default function CursoDetalhePage() {
         </Link>
       </div>
 
-      <ConfiguracaoDisciplinasIncluidas key={curso.id} cursoId={curso.id} />
+      {!curso.matriculaDiretaTurma && <ConfiguracaoDisciplinasIncluidas key={curso.id} cursoId={curso.id} />}
 
       {cursoRecebidoDaRede && (
         <div className="rounded-2xl border border-blue-300 bg-blue-50 p-5 shadow-sm dark:border-blue-800 dark:bg-blue-950/30">
@@ -829,7 +833,7 @@ export default function CursoDetalhePage() {
                         {to("keepCurriculum")}
                       </p>
                     )}
-                  <div hidden={formCurso.organizacaoCurricular === "LIVRE"}>
+                  <div hidden={curso.matriculaDiretaTurma || formCurso.organizacaoCurricular === "LIVRE"}>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">
                       {ta(formCurso.organizacaoCurricular === "ANUAL" ? "yearsCount" : "semestersCount")}
                     </label>
@@ -896,6 +900,7 @@ export default function CursoDetalhePage() {
 
           {formCurso.organizacaoCurricular === "LIVRE" && <CamposCursoLivre valorSemanal={formCurso.valorSemanal} valorMensal={formCurso.valorMensalidade} onChangeMensal={valor => setFormCurso({ ...formCurso, valorMensalidade: valor })} onChange={valor => setFormCurso({ ...formCurso, valorSemanal: valor })} />}
                   {formCurso.organizacaoCurricular !== "LIVRE" && <CamposPrecoDisciplinas ativo={formCurso.precoPorDisciplina} faixas={formCurso.faixasDisciplinas} onChange={dados => setFormCurso(prev => ({ ...prev, precoPorDisciplina: dados.ativo ?? prev.precoPorDisciplina, faixasDisciplinas: dados.faixas ?? prev.faixasDisciplinas, ...(dados.ativo ? { participaCombo: false } : {}) }))} />}
+          {curso.matriculaDiretaTurma ? <>
           <div className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
             <label className="flex items-start gap-3 text-sm font-semibold">
               <input type="checkbox" className="mt-1" disabled={cursoRecebidoDaRede || formCurso.organizacaoCurricular === "LIVRE" || formCurso.precoPorDisciplina || Boolean(curso?.regrasSelecaoDisciplinas)}
@@ -909,7 +914,11 @@ export default function CursoDetalhePage() {
               nem permite matrículas reais enquanto a liberação do sistema estiver desativada.
             </p>
           </div>
-          {!curso?.matriculaDiretaTurma && !cursoRecebidoDaRede && <ConverterCadastroAvulso tipo="curso" id={cursoId} onConcluido={async () => { await Promise.all([carregarCurso(), carregarDisciplinas(), carregarSemestres()]); setEditandoCurso(false); }} />}
+          </> : !cursoRecebidoDaRede && curso.organizacaoCurricular !== "LIVRE" && !curso.regrasPrecoDisciplinas && !curso.regrasSelecaoDisciplinas && <ModoMatriculaCurso id={cursoId}
+            disabled={salvandoCurso || JSON.stringify(formCurso) !== formularioSalvoRef.current}
+            edicoesPendentes={JSON.stringify(formCurso) !== formularioSalvoRef.current}
+            onOcupadoChange={setConvertendoCurso}
+            onConcluido={async () => { await Promise.all([carregarCurso(), carregarDisciplinas(), carregarSemestres()]); setEditandoCurso(false); setErroExclusao(null); setEtapaParaExcluir(null); }} />}
           <CamposCursosAdicionais permite={formCurso.permiteCursosAdicionais} disponivel={formCurso.disponivelComoAdicional} incompativel={formCurso.precoPorDisciplina || formCurso.organizacaoCurricular === "LIVRE" || Boolean(curso?.regrasSelecaoDisciplinas)} disabled={cursoRecebidoDaRede} onChange={dados => setFormCurso(prev => ({ ...prev, ...dados }))} />
           {!formCurso.precoPorDisciplina && <CamposDescontoMensalidade valorMensalidade={formCurso.valorMensalidade} percentual={formCurso.descontoMensalidadePercentual} onChange={valor => setFormCurso({ ...formCurso, descontoMensalidadePercentual: valor })} />}
           {!formCurso.precoPorDisciplina && <CamposComboCurso participaCombo={formCurso.participaCombo} valorMensalidadeCombo={formCurso.valorMensalidadeCombo} precosComboPorQuantidade={formCurso.precosComboPorQuantidade}
@@ -968,7 +977,7 @@ export default function CursoDetalhePage() {
                   <button
                     type="button"
                     onClick={salvarEdicaoCurso}
-                    disabled={salvandoCurso}
+                    disabled={salvandoCurso || convertendoCurso}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                   >
                     {salvandoCurso
@@ -1009,10 +1018,12 @@ export default function CursoDetalhePage() {
 
                   <p>{t("common.description")}: {curso.descricao || t("common.notInformedFeminine")}</p>
                   {Boolean(curso.requisitosConjuntos?.length) && <p>{tr("requires")}: {curso.requisitosConjuntos!.map(r => r.cursoObrigatorio.nome).join(", ")}</p>}
+                  {curso.matriculaDiretaTurma ? <ResumoModoSemGrade /> : <>
                   <p>
                     {curso.organizacaoCurricular === "LIVRE" ? ta("organization") : t("detail.courseInfo.expectedSemesters")}:{" "}
                     {curso.organizacaoCurricular === "LIVRE" ? "" : `${curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? t("common.notInformed")} · `}{ta(curso.organizacaoCurricular === "LIVRE" ? "LIVRE" : curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}
                   </p>
+                  </>}
                   <p>
                     {t("common.enrollmentValue")}:{" "}
                     {curso.valorMatricula != null
@@ -1055,6 +1066,7 @@ export default function CursoDetalhePage() {
         </div>
       </div>
 
+      {!curso.matriculaDiretaTurma && <>
       {curso.organizacaoCurricular === "LIVRE" && (
         <div className="rounded-xl border border-slate-300 p-5 text-slate-900 dark:text-white">
           <p>{tl("courseHelp")}</p>
@@ -1178,6 +1190,10 @@ export default function CursoDetalhePage() {
                   {erroExclusao.mensagem}
                 </p>
               )}
+              {erroExclusao?.id === semestre.id && !cursoRecebidoDaRede && <AtalhoCursoSemGrade onClick={() => {
+                setEditandoCurso(true);
+                requestAnimationFrame(() => document.getElementById("modo-matricula-curso")?.scrollIntoView({ block: "start" }));
+              }} />}
               {semestresAbertos[semestre.id] && (
                 <>
                   <div className="mb-4">
@@ -1370,6 +1386,7 @@ export default function CursoDetalhePage() {
           );
         })
       )}
+      </>}
       <PhanyxConfirmModal
         aberto={etapaParaExcluir !== null}
         titulo={te("delete")}

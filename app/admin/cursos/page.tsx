@@ -1,4 +1,5 @@
 "use client";
+import { ResumoModoSemGrade } from "@/components/admin/ConverterCadastroAvulso";
 import CamposCursosAdicionais from "@/components/admin/CamposCursosAdicionais";
 import CamposRequisitosCursos from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
@@ -75,6 +76,7 @@ type Curso = {
   organizacaoCurricular?: string;
   quantidadeEtapas?: number | null;
   _count?: { semestres: number };
+  matriculaDiretaTurma?: boolean;
   id: number;
   nome: string;
   codigo?: string | null;
@@ -920,12 +922,14 @@ if (!termoTexto) return cursosPorStatus;
                     ) : null}
 
                     <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-slate-300">
+                      {curso.matriculaDiretaTurma ? <ResumoModoSemGrade /> : <>
                       <p>
                         {curso.organizacaoCurricular === "LIVRE" ? ta("organization") : t("common.semesters")}:{" "}
                         {curso.organizacaoCurricular === "LIVRE" ? ta("LIVRE") : (curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? (curso._count?.semestres || null)) != null
                           ? `${curso.quantidadeEtapas ?? curso.quantidadeSemestres ?? curso._count?.semestres} · ${ta(curso.organizacaoCurricular === "ANUAL" ? "ANUAL" : "SEMESTRAL")}`
                           : t("common.notInformed")}
                       </p>
+                      </>}
                       <p>
                         {t("common.enrollmentValue")}:{" "}
                         {curso.valorMatricula != null
@@ -1024,7 +1028,7 @@ if (!termoTexto) return cursosPorStatus;
     href={`/admin/cursos/${curso.id}`}
     className="inline-block rounded-lg bg-slate-100 px-4 py-2 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
   >
-    {curso.organizacaoCurricular === "LIVRE" ? tl("viewCoursePrices") : curso.publicacaoRedeDestino
+    {curso.organizacaoCurricular === "LIVRE" || curso.matriculaDiretaTurma ? tl("viewCoursePrices") : curso.publicacaoRedeDestino
       ? t("list.actions.viewStructure")
       : t("list.actions.buildCurriculum")}
   </Link>

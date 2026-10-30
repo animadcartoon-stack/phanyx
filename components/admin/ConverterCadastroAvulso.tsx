@@ -5,7 +5,7 @@ import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import type { PreviaConversao } from "@/lib/academico/converter-cadastro-avulso";
 import type { HorarioAvulso } from "@/lib/academico/validar-turma-avulsa";
 
-type Base = { id: number; onConcluido: () => void | Promise<void>; disabled?: boolean; onOcupadoChange?: (ocupado: boolean) => void };
+type Base = { id: number; onConcluido: () => void | Promise<void>; disabled?: boolean; onOcupadoChange?: (ocupado: boolean) => void; edicoesPendentes?: boolean };
 type Props = Base & ({ tipo: "curso" } | { tipo: "turma";
   cursoAtual?: { id: number; nome: string; matriculaDiretaTurma?: boolean };
   cursos: { id: number; nome: string; matriculaDiretaTurma?: boolean }[];
@@ -37,7 +37,7 @@ const textos: Record<string, typeof pt> = {
 const dias = ["classesSun", "classesMon", "classesTue", "classesWed", "classesThu", "classesFri", "classesSat"] as const;
 const entrada = "rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100";
 export default function ConverterCadastroAvulso(props: Props) {
-  const locale = useLocale(), t = useTranslations("AdminOperations"), texto = textos[locale] || textos["en-US"];
+  const locale = useLocale(), t = useTranslations("AdminOperations"), texto = textos[locale] || textos["en-US"], cursoTexto = copyModoCurso(locale);
   const [destino, setDestino] = useState(props.tipo === "turma" && props.cursoAtual?.matriculaDiretaTurma ? String(props.cursoAtual.id) : "");
   const [converterCursoAtual, setConverterCursoAtual] = useState(false);
   const [horarios, setHorarios] = useState<HorarioAvulso[]>(() => {
@@ -84,7 +84,7 @@ export default function ConverterCadastroAvulso(props: Props) {
   const resumo = plano ? `${plano.previa.nome} → ${plano.previa.cursoDestino}. ${props.tipo === "curso" ? texto.coursePlan : texto.classPlan} ${plano.previa.converteCurso ? texto.coursePlan : ""} ${texto.stages}: ${plano.previa.etapas}. ${texto.links}: ${plano.previa.vinculosDisciplinas}. ${texto.catalog}: ${plano.previa.disciplinasCatalogo.join(", ") || "—"}. ${props.tipo === "turma" ? `${texto.meetings}: ${plano.previa.horarios}.` : ""}` : "";
   return <section className="phanyx-turma-horarios-card space-y-3 rounded-xl border p-4">
     <h3 className="phanyx-turma-horarios-titulo font-semibold">{props.tipo === "curso" ? texto.titleCourse : texto.titleClass}</h3>
-    <p className="phanyx-turma-horarios-texto text-sm">{props.tipo === "curso" ? texto.helpCourse : texto.helpClass}</p>
+    <p className="phanyx-turma-horarios-texto text-sm">{props.tipo === "curso" ? cursoTexto.help : texto.helpClass}</p>
     {props.tipo === "turma" ? <fieldset disabled={ocupado || plano !== null || props.disabled} className="space-y-3">
       {props.cursoAtual && !props.cursoAtual.matriculaDiretaTurma ? <details className="rounded-lg border border-slate-300 p-3 dark:border-slate-700">
         <summary className="phanyx-turma-horarios-texto cursor-pointer text-sm font-semibold">{texto.structure}</summary>
@@ -112,10 +112,21 @@ export default function ConverterCadastroAvulso(props: Props) {
       </div>)}
       <button type="button" disabled={horarios.length >= 30} onClick={() => setHorarios(antes => [...antes, { diaSemana: 1, horaInicio: "", horaFim: "" }])} className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40">{texto.add}</button>
     </fieldset> : null}
+    {props.edicoesPendentes ? <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100">{cursoTexto.saveFirst}</p> : null}
     {erro ? <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{erro}</p> : null}
     {sucesso ? <p role="status" className="phanyx-turma-horarios-texto text-sm">{sucesso}</p> : null}
     <button type="button" onClick={() => void revisar()} disabled={ocupado || props.disabled || plano !== null || (props.tipo === "turma" && !destino)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">{ocupado ? texto.reviewing : texto.review}</button>
-    <PhanyxConfirmModal aberto={plano !== null} titulo={texto.confirm} mensagem={resumo} tipo="perigo" textoConfirmar={texto.confirm} textoCancelar={texto.cancel} textoCarregando={texto.processing} carregando={ocupado} onConfirmar={() => void confirmar()} onCancelar={() => { if (!ocupado) setPlano(null); }}/>
+    <PhanyxConfirmModal aberto={plano !== null} titulo={texto.confirm} mensagem={resumo} tipo="perigo" textoConfirmar={texto.confirm} textoCancelar={texto.cancel} textoCarregando={texto.processing} carregando={ocupado} onConfirmar={() => void confirmar()} onCancelar={() => { if (!ocupado) setPlano(null); }}>
+      {plano?.previa.turmasMantidas?.length ? <div className="space-y-3 text-sm">
+        <p className="font-semibold">{cursoTexto.classes} ({plano.previa.turmasMantidas.length})</p>
+        {plano.previa.turmasMantidas.map(turma => <div key={turma.id} className="rounded-lg border border-slate-300 p-3 dark:border-slate-700">
+          <p className="font-semibold">{turma.nome}</p>
+          <p>{turma.professor || cursoTexto.noTeacher}</p>
+          {turma.horarios.length ? turma.horarios.map((h, i) => <p key={i}>{t(dias[h.diaSemana])} · <span className="font-semibold text-red-600 dark:text-red-300">{h.horaInicio}–{h.horaFim}</span></p>) : <p>{cursoTexto.noHours}</p>}
+          <p className={turma.revisar ? "font-semibold text-amber-800 dark:text-amber-200" : ""}>{turma.revisar ? cursoTexto.reviewClass : turma.ativa ? cursoTexto.active : cursoTexto.inactive}</p>
+        </div>)}
+      </div> : null}
+    </PhanyxConfirmModal>
   </section>;
 }
 
@@ -150,3 +161,30 @@ export function AcaoOpcionalTurma({ children, disabled = false, oferta = false }
     </div> : null}
   </section>;
 }
+
+
+const modoCurso = {
+  "pt-BR": { direct: "Sem grade — matrícula diretamente na turma", current: "Modo atual: matrícula com grade de disciplinas", help: "Para usar este curso sem grade, revise a mudança aqui. Não é necessário excluir etapas, turmas ou matrículas antes. As turmas sem histórico serão mantidas com seus professores e horários; o catálogo de disciplinas será preservado.", saveFirst: "Salve ou cancele as alterações dos dados do curso antes de revisar a mudança de modo.", classes: "Turmas que serão mantidas", noTeacher: "Professor ainda não definido", noHours: "Sem horário definido", reviewClass: "Ficará inativa para revisar professor, vagas, horário ou preço antes da ativação.", active: "Continuará ativa", inactive: "Continuará inativa", stageHint: "Para utilizar o curso sem grade, não é necessário excluir esta etapa primeiro.", stageAction: "Revisar mudança para sem grade" },
+  "pt-PT": { direct: "Sem plano curricular — matrícula diretamente na turma", current: "Modo atual: matrícula com plano de disciplinas", help: "Para utilizar este curso sem plano curricular, reveja a alteração aqui. Não é necessário eliminar etapas, turmas ou matrículas antes. As turmas sem histórico serão mantidas com os seus professores e horários; o catálogo de disciplinas será preservado.", saveFirst: "Guarde ou cancele as alterações dos dados do curso antes de rever a mudança de modo.", classes: "Turmas que serão mantidas", noTeacher: "Professor ainda não definido", noHours: "Sem horário definido", reviewClass: "Ficará inativa para rever professor, vagas, horário ou preço antes da ativação.", active: "Continuará ativa", inactive: "Continuará inativa", stageHint: "Para utilizar o curso sem plano curricular, não é necessário eliminar esta etapa primeiro.", stageAction: "Rever mudança para sem plano curricular" },
+  "en-US": { direct: "No curriculum — enroll directly into a class", current: "Current mode: enrollment with a subject curriculum", help: "Review the change here to use this course without a curriculum. You do not need to delete stages, classes or enrollments first. Classes without academic history will keep their teachers and schedules; the subject catalog will be preserved.", saveFirst: "Save or cancel course detail changes before reviewing the enrollment mode change.", classes: "Classes that will be kept", noTeacher: "Teacher not yet assigned", noHours: "No schedule defined", reviewClass: "Will become inactive to review teacher, capacity, schedule or pricing before activation.", active: "Will remain active", inactive: "Will remain inactive", stageHint: "You do not need to delete this stage first to use the course without a curriculum.", stageAction: "Review change to enrollment without subjects" },
+  "es-ES": { direct: "Sin plan de asignaturas — matrícula directa en la clase", current: "Modo actual: matrícula con plan de asignaturas", help: "Revise aquí el cambio para utilizar este curso sin plan de asignaturas. No es necesario eliminar etapas, clases o matrículas antes. Las clases sin historial conservarán sus docentes y horarios; se mantendrá el catálogo de asignaturas.", saveFirst: "Guarde o cancele los cambios de los datos del curso antes de revisar el cambio de modalidad.", classes: "Clases que se conservarán", noTeacher: "Docente aún no asignado", noHours: "Sin horario definido", reviewClass: "Quedará inactiva para revisar docente, capacidad, horario o precio antes de activarla.", active: "Seguirá activa", inactive: "Seguirá inactiva", stageHint: "No necesita eliminar esta etapa primero para utilizar el curso sin plan de asignaturas.", stageAction: "Revisar cambio a matrícula sin asignaturas" },
+  "fr-FR": { direct: "Sans programme de matières — inscription directe en classe", current: "Mode actuel : inscription avec programme de matières", help: "Vérifiez ici le changement pour utiliser ce cursus sans programme de matières. Il est inutile de supprimer d’abord des étapes, classes ou inscriptions. Les classes sans historique conserveront leurs enseignants et horaires ; le catalogue des matières sera préservé.", saveFirst: "Enregistrez ou annulez les modifications de la fiche avant de vérifier le changement de mode.", classes: "Classes qui seront conservées", noTeacher: "Enseignant non encore affecté", noHours: "Aucun horaire défini", reviewClass: "Sera désactivée pour vérifier enseignant, capacité, horaire ou tarif avant activation.", active: "Restera active", inactive: "Restera inactive", stageHint: "Il est inutile de supprimer cette étape pour utiliser le cursus sans programme de matières.", stageAction: "Vérifier le passage à une inscription sans matières" },
+};
+export const copyModoCurso = (locale: string) => modoCurso[locale as keyof typeof modoCurso] || modoCurso["en-US"];
+
+export function ModoMatriculaCurso(props: { id: number; disabled: boolean; edicoesPendentes: boolean; onOcupadoChange: (ocupado: boolean) => void; onConcluido: () => Promise<void> }) {
+  const texto = copyModoCurso(useLocale());
+  return <section id="modo-matricula-curso" className="scroll-mt-6 space-y-3 rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+    <p className="font-semibold">{texto.current}</p>
+    <ConverterCadastroAvulso tipo="curso" {...props} />
+  </section>;
+}
+export function AtalhoCursoSemGrade({ onClick }: { onClick: () => void }) {
+  const texto = copyModoCurso(useLocale());
+  return <div className="mb-4 rounded-lg border border-blue-300 bg-blue-50 p-3 text-sm text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
+    <p>{texto.stageHint}</p>
+    <button type="button" onClick={onClick} className="mt-2 rounded-lg bg-blue-700 px-3 py-2 font-semibold text-white">{texto.stageAction}</button>
+  </div>;
+}
+
+export function ResumoModoSemGrade() { return <p>{copyModoCurso(useLocale()).direct}</p>; }
