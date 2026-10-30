@@ -10,20 +10,23 @@ function match(row, where = {}) {
   return Object.entries(where).every(([key,value]) => {
     if (value === undefined) return true;
     if (key === 'OR') return value.some(w => match(row,w));
+    if (value && typeof value === 'object' && 'startsWith' in value) return String(row[key]||'').startsWith(value.startsWith);
     if (value && typeof value === 'object' && 'in' in value) return value.in.includes(row[key]);
     if (value && typeof value === 'object') return !!row[key] && match(row[key],value);
     return row[key] === value;
   });
 }
-const currentClass = row => row && ({...row, disciplinas:tables.offers.filter(o=>o.turmaId===row.id).map(o=>({
+const currentClass = row => row && ({...row, curso:tables.courses.find(c=>c.id===row.cursoId), horariosAvulsos:(tables.ownHours||[]).filter(h=>h.turmaId===row.id&&h.instituicaoId===row.instituicaoId&&h.ativo!==false), disciplinas:tables.offers.filter(o=>o.turmaId===row.id).map(o=>({
   ...o, disciplina:tables.subjects.find(d=>d.id===o.disciplinaId), horarios:tables.hours.filter(h=>h.turmaDisciplinaId===o.id), professor:null,
-})), _count:{itensMatricula:0}});
+})), _count:Object.fromEntries(Object.entries({itensMatricula:'itemMatricula',aulas:'aula',atividades:'atividade',provas:'prova',notas:'nota',matriculasComoPrincipal:'matricula',resultadosFinais:'resultadoFinal',matriculasAvulsas:'matriculaTurmaAvulsa'}).map(([k,m])=>[k,tables.history.filter(h=>h.model===m&&h.turmaId===row.id&&h.instituicaoId===row.instituicaoId).length]))});
 const model = table => ({
   findMany:async ({where}={})=>tables[table].filter(r=>match(r,where)),
   findFirst:async ({where}={})=>tables[table].find(r=>match(r,where)) || null,
   count:async ({where}={})=>tables[table].filter(r=>match(r,where)).length,
 });
 const db = {
+  $queryRaw:async (strings,...values)=>String(strings[0]).includes('count(*)') ? [{total:(tables.snapshots||[]).filter(s=>s.instituicaoId===values[0]&&s.turmaId===JSON.parse(values[1]).ofertas[0].turmaId).length}] : [],
+  turmaHorarioAvulso:{deleteMany:async({where})=>{calls.push(['own.delete',where]);tables.ownHours=tables.ownHours.filter(h=>!match(h,where));},createMany:async({data})=>{calls.push(['own.create',data]);tables.ownHours.push(...data);}},
   curso:model('courses'), professor:model('teachers'), polo:model('campuses'),
   disciplina:{...model('subjects'), findFirst:async ({where})=>{
     const row=tables.subjects.find(r=>match(r,where));
@@ -89,7 +92,7 @@ function reset(){
     teachers:[{id:41,instituicaoId:10},{id:42,instituicaoId:10},{id:49,instituicaoId:20}],campuses:[{id:51,instituicaoId:10},{id:59,instituicaoId:20}],
     offers:[{id:61,instituicaoId:10,turmaId:31,disciplinaId:11,professorId:42,turmaSemestreId:71,dataInicio:new Date('2027-02-01'),dataFim:new Date('2027-12-01'),status:'EM_ANDAMENTO'}],
     stages:[{id:71,instituicaoId:10,turmaId:31,numero:1}],
-    hours:[{id:81,instituicaoId:10,turmaDisciplinaId:61,diaSemana:2,horaInicio:'14:00',horaFim:'15:00',ativo:true}],history:[]};
+    ownHours:[],snapshots:[],hours:[{id:81,instituicaoId:10,turmaDisciplinaId:61,diaSemana:2,horaInicio:'14:00',horaFim:'15:00',ativo:true}],history:[]};
 }
 const ctx=id=>({params:{id:String(id)}});
 const expectCode=async (promise,code,status=400)=>{const res=await promise;assert.equal(res.status,status,JSON.stringify(await res.clone().json()));assert.equal((await res.json()).codigo,code);};
@@ -240,3 +243,22 @@ test('matrícula anual valida todas as novas ofertas principais, preservando ofe
   await assert.rejects(rules.validarItensAnuaisDaMatricula(db,10,1,101,[item]),e=>e.codigo==='ETAPA_INVALIDA');
   await rules.validarItensAnuaisDaMatricula(db,10,1,101,[item],1000);
 });
+
+const geral=(inicio='08:00',fim='09:40')=>[{diaSemana:2,horaInicio:inicio,horaFim:fim}];
+test('edição sem disciplina grava horário da turma e preserva curso, grade, catálogo e outras turmas',async()=>{
+ reset();const preservados=structuredClone([tables.courses,tables.subjects,tables.classes[1],tables.classes[2]]);
+ const res=await classDetail.PUT(req({nome:'I3V PEVI',disciplinaIds:[],horariosTurma:geral(),professorId:42,capacidadeMinima:8,capacidadeMaxima:12}),ctx(31));
+ assert.equal(res.status,200,JSON.stringify(await res.clone().json()));const data=await res.json();assert.equal(data.cursoId,1);assert.equal(data.disciplinas.length,0);assert.equal(data.horariosAvulsos[0].horaInicio,'08:00');assert.equal(tables.offers.length,0);
+ assert.deepEqual([tables.courses,tables.subjects,tables.classes[1],tables.classes[2]],preservados);assert.equal(tables.ownHours[0].instituicaoId,10);
+ const get=await classDetail.GET(new Request('http://localhost/api/turma/31'),ctx(31));assert.equal((await get.json()).horariosAvulsos[0].horaFim,'09:40');
+});
+test('PUT sem lista de disciplinas preserva oferta, datas e horários e dados gerais omitidos',async()=>{reset();tables.classes[0].capacidadeMinima=8;tables.classes[0].capacidadeMaxima=12;tables.classes[0].codigo='PEVI-M';tables.classes[0].sala='Sala 2';const before=structuredClone([tables.offers,tables.hours]);const res=await classDetail.PUT(req({nome:'Renomeada'}),ctx(31));assert.equal(res.status,200);assert.deepEqual([tables.offers,tables.hours],before);for(const [k,v]of Object.entries({capacidadeMinima:8,capacidadeMaxima:12,codigo:'PEVI-M',sala:'Sala 2'}))assert.equal(tables.classes[0][k],v);});
+test('turma já sem disciplina pode ser editada e ficar sem horário, sem mudar o curso',async()=>{reset();tables.offers=[];tables.hours=[];const res=await classDetail.PUT(req({nome:'Turma sem disciplinas',disciplinaIds:[],horariosTurma:[]}),ctx(31));assert.equal(res.status,200);assert.equal(tables.classes[0].cursoId,1);assert.equal(tables.ownHours.length,0);});
+for(const entrada of [null,{},'inválido',[{diaSemana:2,horaInicio:'',horaFim:'09:40'}],[{diaSemana:2,horaInicio:'10:00',horaFim:'09:40'}],Array(31).fill({diaSemana:2,horaInicio:'08:00',horaFim:'09:40'})])test('horário geral inválido não grava dados nem retira ofertas: '+JSON.stringify(entrada).slice(0,60),async()=>{reset();const antes=structuredClone(tables);const res=await classDetail.PUT(req({nome:'Não gravar',disciplinaIds:[],horariosTurma:entrada}),ctx(31));assert.equal(res.status,400);assert.deepEqual(tables,antes);});
+test('horários sobrepostos na mesma turma são rejeitados; adjacentes são aceitos',async()=>{reset();const res=await classDetail.PUT(req({disciplinaIds:[],horariosTurma:[...geral(),...geral('09:00','10:00')]}),ctx(31));assert.equal(res.status,400);const ok=await classDetail.PUT(req({disciplinaIds:[],horariosTurma:[...geral(),...geral('09:40','10:00')]}),ctx(31));assert.equal(ok.status,200);assert.equal(tables.ownHours.length,2);});
+test('duas turmas do mesmo curso e professor podem ter o mesmo horário geral',async()=>{reset();for(const id of [31,32])assert.equal((await classDetail.PUT(req({disciplinaIds:[],professorId:41,horariosTurma:geral()}),ctx(id))).status,200);assert.equal(tables.ownHours.length,2);assert.deepEqual(tables.classes.slice(0,2).map(t=>t.cursoId),[1,1]);});
+for(const model of ['itemMatricula','matricula','aula','nota','prova','matriculaTurmaAvulsa'])test('retirar última disciplina preserva histórico '+model,async()=>{reset();tables.history=[{model,instituicaoId:10,turmaId:31,disciplinaId:11}];const before=structuredClone(tables);await expectCode(classDetail.PUT(req({nome:'Não gravar',disciplinaIds:[],horariosTurma:geral()}),ctx(31)),'OFERTA_COM_HISTORICO',409);assert.deepEqual(tables,before);});
+test('snapshot de contrato e oferta derivada protegem retirada da última disciplina e horário geral',async()=>{for(const tipo of ['snapshot','derivada']){reset();if(tipo==='snapshot')tables.snapshots=[{instituicaoId:10,turmaId:31}];else tables.classes.push({id:44,instituicaoId:10,cursoId:2,codigo:'OFERTA-31-2'});const before=structuredClone(tables);await expectCode(classDetail.PUT(req({disciplinaIds:[],horariosTurma:geral()}),ctx(31)),'OFERTA_COM_HISTORICO',409);assert.deepEqual(tables,before);}});
+test('horário geral inalterado permite renomear turma com histórico sem regravar horários',async()=>{reset();tables.offers=[];tables.hours=[];tables.ownHours=geral().map(h=>({...h,turmaId:31,instituicaoId:10,ativo:true}));tables.history=[{model:'matricula',instituicaoId:10,turmaId:31}];const res=await classDetail.PUT(req({nome:'Novo nome',disciplinaIds:[],horariosTurma:geral()}),ctx(31));assert.equal(res.status,200);assert.equal(calls.some(c=>c[0].startsWith('own.')),false);});
+test('alterar horário geral com matrícula anterior é bloqueado atomicamente',async()=>{reset();tables.offers=[];tables.hours=[];tables.ownHours=geral().map(h=>({...h,turmaId:31,instituicaoId:10,ativo:true}));tables.history=[{model:'matricula',instituicaoId:10,turmaId:31}];const before=structuredClone(tables);await expectCode(classDetail.PUT(req({nome:'Não salvar',disciplinaIds:[],horariosTurma:geral('10:00','11:40')}),ctx(31)),'OFERTA_COM_HISTORICO',409);assert.deepEqual(tables,before);});
+test('edição não atravessa instituição nem usa a rota legada para contornar edição de avulso',async()=>{reset();const before=structuredClone(tables);assert.equal((await classDetail.PUT(req({disciplinaIds:[],horariosTurma:geral()}),ctx(39))).status,404);assert.deepEqual(tables,before);tables.courses[0].matriculaDiretaTurma=true;await expectCode(classDetail.PUT(req({disciplinaIds:[],horariosTurma:geral()}),ctx(31)),'VINCULO_INVALIDO');assert.equal(tables.ownHours.length,0);});

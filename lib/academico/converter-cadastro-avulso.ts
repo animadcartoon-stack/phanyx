@@ -102,13 +102,13 @@ export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, 
       destinosRecomendacoesBiblioteca: true, atividadesExternas: true, matriculasAvulsas: true } },
   } });
   if (!turma) throw new ErroConversaoAvulsa("NAO_ENCONTRADO", "Turma não encontrada nesta instituição.", 404);
-  if (turma.curso?.matriculaDiretaTurma || turma.horariosAvulsos.length) falhar("JA_CONVERTIDO", "Esta turma já possui configuração de matrícula direta.");
+  if (turma.curso?.matriculaDiretaTurma) falhar("JA_CONVERTIDO", "Esta turma já possui configuração de matrícula direta.");
   semUso(turma._count, "A turma possui matrículas, aulas, notas ou outros vínculos. O cadastro e seu histórico serão preservados.");
   for (const oferta of turma.disciplinas) {
     if (oferta.instituicaoId !== instituicaoId || oferta.disciplina.instituicaoId !== instituicaoId || oferta.horarios.some(h => h.instituicaoId !== instituicaoId)) falhar("VINCULO_INVALIDO", "Oferta contém vínculos de outra instituição.");
     semUso(oferta._count, "Uma disciplina da turma está vinculada a uma rematrícula.");
   }
-  if (turma.semestres.some(s => s.instituicaoId !== instituicaoId)) falhar("VINCULO_INVALIDO", "Etapa da turma pertence a outra instituição.");
+  if (turma.horariosAvulsos.some(h => h.instituicaoId !== instituicaoId) || turma.semestres.some(s => s.instituicaoId !== instituicaoId)) falhar("VINCULO_INVALIDO", "Etapa da turma pertence a outra instituição.");
   if (turma.cursoId && await db.cursoPublicacaoRede.count({ where: { OR: [{ cursoOrigemId: turma.cursoId }, { cursoDestinoId: turma.cursoId }] } })) falhar("VINCULO_REDE", "A turma pertence a um curso vinculado à rede.");
   const snapshots = await db.$queryRaw<{ total: number }[]>`SELECT count(*)::int AS total FROM "Matricula"
     WHERE "instituicaoId"=${instituicaoId} AND "contratacaoModalidades" @> ${JSON.stringify({ ofertas: [{ turmaId: cadastroId }] })}::jsonb`;
@@ -146,7 +146,7 @@ export async function prepararConversaoAvulsa(db: Banco, instituicaoId: number, 
     await db.turma.update({ where: { id: cadastroId }, data: { ...alteracoes, cursoId: cursoDestinoId,
       organizacaoCurricular: destino.organizacaoCurricular, etapaNumero: 1,
       semestre: destino.organizacaoCurricular === "ANUAL" ? "" : "1", ativa: false, statusTurma: "A_INICIAR",
-      horariosAvulsos: { create: horarios.map(h => ({ ...h, ativo: true })) } } });
+      horariosAvulsos: { deleteMany: { instituicaoId }, create: horarios.map(h => ({ ...h, ativo: true })) } } });
     return { id: cadastroId, tipo: "turma", ativa: false, cursoId: cursoDestinoId };
   } };
 }
