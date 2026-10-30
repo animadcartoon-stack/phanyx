@@ -12,6 +12,7 @@ function match(row, where = {}) {
     if (value && typeof value === 'object') {
       if ('in' in value) return value.in.includes(row[key]);
       if ('gt' in value) return row[key] > value.gt;
+      if ('startsWith' in value) return String(row[key] || '').startsWith(value.startsWith);
       if ('not' in value) return row[key] !== value.not;
       return row[key] != null && match(row[key], value);
     }
@@ -52,6 +53,7 @@ function fixture(options = {}) {
       Object.assign(row, plain(data));return row;
     },
   };
+  db.$queryRaw = async () => [{ total: state.snapshots || 0 }];
   db.$transaction = async (fn, config) => {
     assert.equal(config.isolationLevel, 'Serializable');
     const snapshot = structuredClone(state);
@@ -198,3 +200,19 @@ test('cinco idiomas incluem orientação e mensagens de impedimento', () => {
     for (const key of ['ORGANIZACAO_COM_VINCULOS', 'ORGANIZACAO_GRADE_NECESSARIA']) assert.ok(msg.AcademicIntegrity[key]);
   }
 });
+
+function semGrade(origem='SEMESTRAL') {
+ const f=fixture({course:{matriculaDiretaTurma:true,organizacaoCurricular:origem,participaCombo:false,regrasSelecaoDisciplinas:null}});f.state().cursoSemestre=[];f.state().cursoSemestreDisciplina=[];f.state().disciplina=[];
+ f.state().turma=[27,28,29].map((id,i)=>({id,instituicaoId:7,cursoId:28,nome:'TESTE Turma '+id,organizacaoCurricular:origem,etapaNumero:1,semestre:origem==='SEMESTRAL'?'1':'',periodoLetivo:'2027',professorId:i===1?8:7,ativa:true,capacidadeMaxima:15,_count:{}}));
+ f.state().horarios=[{id:1,turmaId:27,diaSemana:2,horaInicio:'16:00',horaFim:'17:40'},{id:2,turmaId:28,diaSemana:4,horaInicio:'16:00',horaFim:'17:40'},{id:3,turmaId:29,diaSemana:2,horaInicio:'10:00',horaFim:'11:40'}];return f;
+}
+test('curso sem grade com três turmas salva anual e modalidade pelo mesmo PUT preservando horários e preços',async()=>{
+ const f=semGrade(),before=structuredClone(f.state());const res=await f.save({modalidadeCertificado:'GERAL'});assert.equal(res.status,200,JSON.stringify(res));assert.equal(f.state().curso[0].organizacaoCurricular,'ANUAL');assert.equal(f.state().curso[0].modalidadeCertificado,'GERAL');assert.equal(f.state().curso[0].quantidadeSemestres,null);
+ assert.deepEqual(f.state().turma,before.turma.map(t=>({...t,organizacaoCurricular:'ANUAL',semestre:''})));assert.deepEqual(f.state().horarios,before.horarios);for(const k of ['valorMatricula','valorMensalidade','quantidadeParcelas','matriculaDiretaTurma'])assert.deepEqual(f.state().curso[0][k],before.curso[0][k]);
+});
+test('curso sem grade volta para semestral preservando números, docentes, vagas e estado ativo',async()=>{const f=semGrade('ANUAL'),before=structuredClone(f.state().turma);assert.equal((await f.save({organizacaoCurricular:'SEMESTRAL'})).status,200);assert.deepEqual(f.state().turma,before.map(t=>({...t,organizacaoCurricular:'SEMESTRAL',semestre:'1'})))});
+for(const campo of ['disciplinas','semestres','atividades','aulas','itensMatricula','matriculasComoPrincipal','modulos','notas','provas','sessoesVideoAluno','eventosAprendizagemAluno','resultadosFinais','periodosMatriculaParticipantes','reunioes','substituicoesDocentes','destinosRecomendacoesBiblioteca','atividadesExternas','matriculasAvulsas'])test('mudança anual de curso sem grade preserva vínculo real: '+campo,async()=>{const f=semGrade();f.state().turma[1]._count[campo]=1;const before=structuredClone(f.state());const res=await f.save();assert.equal(res.status,409);assert.deepEqual(f.state(),before);assert.equal(f.writes.length,0)});
+test('snapshot contratual ou oferta compartilhada impede retipar turma sem alterar a organização',async()=>{let f=semGrade();f.state().snapshots=1;assert.equal((await f.save()).status,409);assert.equal(f.writes.length,0);f=semGrade();f.state().turma.push({id:99,instituicaoId:7,cursoId:200,codigo:'OFERTA-27-200'});assert.equal((await f.save()).status,409);assert.equal(f.writes.length,0)});
+test('turmas de outros cursos e instituições não são retipadas',async()=>{const f=semGrade(),other={...f.state().turma[0],id:99,cursoId:100,instituicaoId:9};f.state().turma.push(other);assert.equal((await f.save()).status,200);assert.deepEqual(f.state().turma.find(t=>t.id===99),other)});
+test('turma com organização divergente ou sem número válido exige correção sem gravação parcial',async()=>{for(const delta of [{organizacaoCurricular:'ANUAL'},{etapaNumero:null,semestre:'indefinido'}]){const f=semGrade();Object.assign(f.state().turma[1],delta);const before=structuredClone(f.state());assert.ok([400,409].includes((await f.save()).status));assert.deepEqual(f.state(),before)}});
+test('edição somente da modalidade não é bloqueada por uma matrícula cancelada',async()=>{const f=semGrade();f.state().matricula.push({id:8,instituicaoId:7,cursoId:28,status:'CANCELADA'});const old=structuredClone(f.state().matricula);const res=await f.save({organizacaoCurricular:'SEMESTRAL',modalidadeCertificado:'GERAL'});assert.equal(res.status,200);assert.deepEqual(f.state().matricula,old);assert.equal(f.state().curso[0].modalidadeCertificado,'GERAL')});
