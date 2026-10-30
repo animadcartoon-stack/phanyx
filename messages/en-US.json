@@ -186,6 +186,7 @@
     "accessControl": "Access Control",
     "commercialPhanyx": "PHANYX Sales",
     "commercial": "Sales",
+    "courses": "Courses",
     "academic": "Academic",
     "virtualLibrary": "Digital Library",
     "financial": "Finance",
@@ -11478,6 +11479,7 @@
       },
       "actions": {
         "viewStructure": "View structure",
+        "editData": "Edit details",
         "buildCurriculum": "Build curriculum",
         "editPoles": "Edit campuses/units"
       },

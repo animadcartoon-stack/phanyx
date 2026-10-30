@@ -1012,8 +1012,17 @@ if (!termoTexto) return cursosPorStatus;
 
                     <div className="mt-4 flex flex-wrap gap-2">
   <Link
+    href={`/admin/cursos/${curso.id}?editar=1#dados-curso`}
+    className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+  >
+    {curso.publicacaoRedeDestino
+      ? t("detail.courseForm.configureLocalValues")
+      : t("list.actions.editData")}
+  </Link>
+
+  <Link
     href={`/admin/cursos/${curso.id}`}
-    className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white"
+    className="inline-block rounded-lg bg-slate-100 px-4 py-2 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
   >
     {curso.organizacaoCurricular === "LIVRE" ? tl("viewCoursePrices") : curso.publicacaoRedeDestino
       ? t("list.actions.viewStructure")
