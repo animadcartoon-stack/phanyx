@@ -43,7 +43,8 @@ export async function validarAgendaMatricula(
       disciplinaId: true,
       dataInicio: true,
       dataFim: true,
-      turma: { select: { nome: true, dataInicio: true, dataFim: true } },
+      turma: { select: { nome: true, dataInicio: true, dataFim: true,
+        horariosAvulsos: { where: { instituicaoId, ativo: true }, select: { diaSemana: true, horaInicio: true, horaFim: true } } } },
       disciplina: { select: { nome: true } },
       horarios: {
         where: { instituicaoId, ativo: true },
@@ -51,11 +52,11 @@ export async function validarAgendaMatricula(
       },
     },
   });
-  if (params.exigirHorarios && itens.some(i => !vinculos.some(v => v.turmaId === i.turmaId && v.disciplinaId === i.disciplinaId && v.horarios.length))) throw new ErroModalidades("HORARIOS_INCOMPLETOS", 409);
+  if (params.exigirHorarios && itens.some(i => !vinculos.some(v => v.turmaId === i.turmaId && v.disciplinaId === i.disciplinaId && (v.horarios.length || v.turma.horariosAvulsos?.length)))) throw new ErroModalidades("HORARIOS_INCOMPLETOS", 409);
   const civil = (data: Date | null | undefined) =>
     data?.toISOString().slice(0, 10) || null;
   const horarios: HorarioModalidade[] = vinculos.flatMap((v) =>
-    v.horarios.map((h) => ({
+    (v.horarios.length ? v.horarios : (v.turma.horariosAvulsos || [])).map((h) => ({
       ...h,
       turmaId: v.turmaId,
       disciplinaId: v.disciplinaId,

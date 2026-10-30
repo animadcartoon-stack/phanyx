@@ -154,7 +154,7 @@ export async function carregarOfertasModalidades(
     const horarios: HorarioModalidade[] = turma.curso.matriculaDiretaTurma
       ? horariosTurmaDiretaSemGrade(turma)
       : turma.disciplinas.flatMap((td) =>
-          td.horarios.map((h) => ({
+          (td.horarios.length ? td.horarios : (turma.horariosAvulsos || [])).map((h) => ({
             ...h,
             turmaId: turma.id,
             turmaNome: turma.nome,
@@ -174,7 +174,7 @@ export async function carregarOfertasModalidades(
     const horariosPendentes = turma.curso.matriculaDiretaTurma
       ? turmaDiretaPendente || horarios.length === 0 || horarios.some(h => !horarioValido(h))
       : turma.disciplinas.length === 0 || horarios.some((h) => !horarioValido(h)) ||
-        (!eadLivre && turma.disciplinas.some((td) => td.horarios.length === 0));
+        (!eadLivre && turma.disciplinas.some((td) => td.horarios.length === 0 && !turma.horariosAvulsos?.length));
     const vagasDiretas = turma.curso.matriculaDiretaTurma
       ? vagasTurmaDiretaSemGrade(turma.capacidadeMaxima, [
           ...ocupacoes.filter(o => o.turmaId === turma.id).map(o => o.matricula.alunoId),
@@ -243,7 +243,8 @@ export async function horariosAtuaisAluno(
     select: {
       turmaId: true,
       disciplinaId: true,
-      turma: { select: { nome: true, dataInicio: true, dataFim: true } },
+      turma: { select: { nome: true, dataInicio: true, dataFim: true,
+        horariosAvulsos: { where: { instituicaoId, ativo: true }, select: { diaSemana: true, horaInicio: true, horaFim: true } } } },
       matricula: { select: { dataInicioCurso: true, organizacaoCurricular: true, regrasSelecaoDisciplinas: true,
         periodosCursoLivre: { where: { instituicaoId, lancamento: { status: { not: "CANCELADO" } } }, select: { dataInicio: true, dataFim: true } },
       } },
@@ -288,9 +289,9 @@ export async function horariosAtuaisAluno(
       (v) => v.turmaId === i.turmaId && v.disciplinaId === i.disciplinaId,
     );
     const periodos = i.matricula.organizacaoCurricular === "LIVRE" ? i.matricula.periodosCursoLivre : [null];
-    return periodos.flatMap(periodo => (vinculo?.horarios || []).map((h) => {
+    return periodos.flatMap(periodo => (vinculo?.horarios.length ? vinculo.horarios : (i.turma.horariosAvulsos || [])).map((h) => {
       const inicios = [
-        civil(vinculo.dataInicio || i.turma.dataInicio),
+        civil(vinculo?.dataInicio || i.turma.dataInicio),
         civil(i.matricula.dataInicioCurso),
         civil(periodo?.dataInicio ?? null),
       ]
@@ -303,7 +304,7 @@ export async function horariosAtuaisAluno(
         turmaNome: i.turma.nome,
         disciplinaNome: i.disciplina.nome,
         dataInicio: inicios.pop() || null,
-        dataFim: [civil(vinculo.dataFim || i.turma.dataFim), civil(periodo?.dataFim ?? null)].filter(Boolean).sort()[0] || null,
+        dataFim: [civil(vinculo?.dataFim || i.turma.dataFim), civil(periodo?.dataFim ?? null)].filter(Boolean).sort()[0] || null,
       };
     }));
   });

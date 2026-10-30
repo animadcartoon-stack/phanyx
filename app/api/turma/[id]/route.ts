@@ -1,3 +1,5 @@
+import { mesmosHorariosTurma, protegerEstruturaTurma, validarHorarioGeralTurma } from "@/lib/academico/horarios-proprios-turma";
+import { ErroCadastroTurmaAvulsa } from "@/lib/academico/validar-turma-avulsa";
 import { etapaDaOferta } from "@/lib/academico/organizacao";
 import { mesmaEtapaOferta } from "@/lib/academico/grade-oferta";
 import { validarEtapaDoCurso, ErroIntegridadeAcademica, idOpcionalOferta, idsOferta, protegerHistoricoDasOfertas, respostaErroAcademico, validarDisciplinasDaOferta, validarResponsaveisDaOferta } from "@/lib/academico/integridade-ofertas";
@@ -27,6 +29,7 @@ export async function GET(
       include: {
         curso: true,
         polo: true,
+        horariosAvulsos: { where: { instituicaoId: user.instituicaoId, ativo: true }, orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }] },
         disciplinas: {
           include: {
             disciplina: {
@@ -87,9 +90,12 @@ export async function PUT(
     }
 
     const turmaId = Number(context.params.id);
+    if (!Number.isSafeInteger(turmaId) || turmaId <= 0) return NextResponse.json({ error: "ID de turma inválido" }, { status: 400 });
     const body = await request.json();
+    const horariosGerais = body.horariosTurma === undefined ? undefined : validarHorarioGeralTurma(body.horariosTurma);
 
-    const disciplinaIds = idsOferta(body.disciplinaIds ?? []);
+    // Omissão preserva associações; [] é uma retirada explícita, sujeita ao histórico.
+    const idsRecebidos = body.disciplinaIds === undefined ? undefined : idsOferta(body.disciplinaIds);
 
 const professoresPorDisciplina =
   body?.professoresPorDisciplina &&
@@ -140,42 +146,29 @@ const horariosPorDisciplina =
       );
     }
 
-    if (disciplinaIds.length === 0) {
-  return NextResponse.json(
-    {
-      error:
-        "Selecione pelo menos uma disciplina.",
-    },
-    {
-      status: 400,
-    },
-  );
-}
-
-    const poloFoiEnviado =
-  Object.prototype.hasOwnProperty.call(
-    body,
-    "poloId",
-  );
-
-const poloId = poloFoiEnviado ? idOpcionalOferta(body.poloId) : turmaExistente.poloId;
-    const professorId = body.professorId === undefined
-      ? turmaExistente.professorId : idOpcionalOferta(body.professorId);
-
-const modalidade = String(
-  body?.modalidade ??
-    turmaExistente.modalidade ??
-    "PRESENCIAL",
-)
-  .trim()
-  .toUpperCase();
 
 const turmaAtualizada =
   await prisma.$transaction(
     async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Turma" WHERE "id"=${turmaId} AND "instituicaoId"=${user.instituicaoId} FOR UPDATE`;
+      const atual = await tx.turma.findFirst({ where: { id: turmaId, instituicaoId: user.instituicaoId },
+        include: { curso: { select: { matriculaDiretaTurma: true } }, horariosAvulsos: { where: { instituicaoId: user.instituicaoId, ativo: true } } } });
+      if (!atual) throw new ErroIntegridadeAcademica("TURMA_INVALIDA");
+      // A rota de avulsos mantém suas próprias proteções de ativação e matrícula.
+      if (atual.curso?.matriculaDiretaTurma) throw new ErroIntegridadeAcademica("VINCULO_INVALIDO");
+      const turmaExistente = atual;
+      const poloId = body.poloId === undefined ? atual.poloId : idOpcionalOferta(body.poloId);
+      const professorId = body.professorId === undefined ? atual.professorId : idOpcionalOferta(body.professorId);
+      const modalidade = String(body.modalidade ?? atual.modalidade ?? "PRESENCIAL").trim().toUpperCase();
+      const campo = (nome: "codigo" | "predio" | "ala" | "andar" | "sala") => body[nome] === undefined ? atual[nome] : body[nome];
       const vinculosExistentes = await tx.turmaDisciplina.findMany({
         where: { turmaId, instituicaoId: user.instituicaoId },
       });
+      const disciplinaIds = idsRecebidos ?? vinculosExistentes.map(v => v.disciplinaId);
+      const mudouHorarioGeral = horariosGerais !== undefined && !mesmosHorariosTurma(atual.horariosAvulsos, horariosGerais);
+      if (mudouHorarioGeral || (disciplinaIds.length === 0 && vinculosExistentes.length > 0)) {
+        await protegerEstruturaTurma(tx, user.instituicaoId, turmaId);
+      }
       const etapa = await validarEtapaDoCurso(tx, user.instituicaoId, turmaExistente.cursoId,
         body.etapaNumero ?? (body.semestre !== undefined && turmaExistente.organizacaoCurricular !== "ANUAL" ? body.semestre : etapaDaOferta(turmaExistente)),
         turmaExistente.organizacaoCurricular);
@@ -202,7 +195,7 @@ const turmaAtualizada =
 
             codigo:
               String(
-                body.codigo ?? "",
+                campo("codigo") ?? "",
               ).trim() || null,
 
             ...etapa,
@@ -228,28 +221,28 @@ const turmaAtualizada =
               modalidade === "EAD"
                 ? null
                 : String(
-                    body.predio ?? "",
+                    campo("predio") ?? "",
                   ).trim() || null,
 
             ala:
               modalidade === "EAD"
                 ? null
                 : String(
-                    body.ala ?? "",
+                    campo("ala") ?? "",
                   ).trim() || null,
 
             andar:
               modalidade === "EAD"
                 ? null
                 : String(
-                    body.andar ?? "",
+                    campo("andar") ?? "",
                   ).trim() || null,
 
             sala:
               modalidade === "EAD"
                 ? null
                 : String(
-                    body.sala ?? "",
+                    campo("sala") ?? "",
                   ).trim() || null,
 
             ativa:
@@ -265,7 +258,7 @@ const turmaAtualizada =
 
             professorId,
 
-            capacidadeMinima:
+            capacidadeMinima: body.capacidadeMinima === undefined ? turmaExistente.capacidadeMinima :
               body.capacidadeMinima !==
                 undefined &&
               body.capacidadeMinima !==
@@ -278,7 +271,7 @@ const turmaAtualizada =
                   )
                 : null,
 
-            capacidadeMaxima:
+            capacidadeMaxima: body.capacidadeMaxima === undefined ? turmaExistente.capacidadeMaxima :
               body.capacidadeMaxima !==
                 undefined &&
               body.capacidadeMaxima !==
@@ -537,6 +530,12 @@ const turmaAtualizada =
         }
       }
 
+      if (mudouHorarioGeral) {
+        await tx.turmaHorarioAvulso.deleteMany({ where: { turmaId, instituicaoId: user.instituicaoId } });
+        if (horariosGerais!.length) await tx.turmaHorarioAvulso.createMany({ data: horariosGerais!.map(h => ({
+          ...h, turmaId, instituicaoId: user.instituicaoId, ativo: true,
+        })) });
+      }
       return tx.turma.findFirst({
         where: {
           id: turmaSalva.id,
@@ -547,6 +546,7 @@ const turmaAtualizada =
         include: {
           polo: true,
           curso: true,
+          horariosAvulsos: { where: { instituicaoId: user.instituicaoId, ativo: true }, orderBy: [{ diaSemana: "asc" }, { horaInicio: "asc" }] },
 
           professor: {
             select: {
@@ -586,7 +586,7 @@ const turmaAtualizada =
         },
       });
     },
-    { isolationLevel: "Serializable" },
+    { isolationLevel: "Serializable", timeout: 20000 },
   );
 
 if (!turmaAtualizada) {
@@ -659,6 +659,7 @@ return NextResponse.json({
     null,
 });
   } catch (error) {
+    if (error instanceof ErroCadastroTurmaAvulsa) return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: 400 });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     console.error(error);

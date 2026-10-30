@@ -29,9 +29,10 @@ export default function ResumoHorariosTurma({ disciplinas = [], horariosAvulsos 
   const t = useTranslations("AdminOperations");
   const texto = textos[locale] || textos["en-US"];
   const horariosProprios = horariosAvulsos.filter(horario => horario.ativo !== false);
-  const grupos = semDisciplinas || horariosProprios.length > 0
-    ? (horariosProprios.length ? [{ id: "turma", nome: "", horarios: horariosProprios }] : [])
-    : disciplinas;
+  const gerais = horariosProprios.length ? [{ id: "turma", nome: "", horarios: horariosProprios }] : [];
+  const grupos = semDisciplinas || disciplinas.length === 0 ? gerais : disciplinas.map(d => ({ ...d,
+    horarios: d.horarios?.some(h => h.ativo !== false) ? d.horarios : horariosProprios,
+  }));
 
   return (
     <div className={`${estilos.horarios} text-sm`} role="group" aria-label={texto.titulo}>

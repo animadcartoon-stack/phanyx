@@ -9,7 +9,7 @@ import { etapaDaOferta } from "@/lib/academico/organizacao";
 import withAuth from "@/components/auth/withAuth";
 import TurmasAvulsasSemGrade from "@/components/admin/TurmasAvulsasSemGrade";
 import { excluirTurmaConferida, ErroExclusaoTurma, mensagemExclusaoNaoConfirmada } from "@/lib/academico/exclusao-turma-interface";
-import HorariosDisciplinaTurma from "@/components/admin/HorariosDisciplinaTurma";
+import HorariosDisciplinaTurma, { mensagemErroHorarioTurma } from "@/components/admin/HorariosDisciplinaTurma";
 import ConverterCadastroAvulso, { AcaoOpcionalTurma, AvisoEdicaoTurma } from "@/components/admin/ConverterCadastroAvulso";
 import ResumoHorariosTurma from "@/components/admin/ResumoHorariosTurma";
 
@@ -146,6 +146,7 @@ function AdminTurmasPage() {
   const [horariosPorDisciplina, setHorariosPorDisciplina] = useState<
     Record<number, { diaSemana: string; horaInicio: string; horaFim: string }[]>
   >({});
+  const [editHorariosTurma, setEditHorariosTurma] = useState<{ diaSemana: string; horaInicio: string; horaFim: string }[]>([]);
   const [editandoId, setEditandoId] = useState<number | null>(null);
   // Oferta avulsa associada a uma turma existente: preserva a turma original.
   const [cursoOfertaDestino, setCursoOfertaDestino] = useState("");
@@ -464,6 +465,12 @@ function AdminTurmasPage() {
       ),
     );
 
+    const horariosIniciais = turma.horariosAvulsos?.length ? turma.horariosAvulsos : vinculos.flatMap(d => d.horarios || []);
+    setEditHorariosTurma([...new Map(horariosIniciais.filter(h => h.horaInicio && h.horaFim).map(h => {
+      const horario = { diaSemana: String(h.diaSemana), horaInicio: h.horaInicio, horaFim: h.horaFim || "" };
+      return [`${horario.diaSemana}|${horario.horaInicio}|${horario.horaFim}`, horario] as const;
+    })).values()]);
+
     setEditDisciplinasAbertas(false);
 
     setEditProfessorId(
@@ -532,6 +539,8 @@ function AdminTurmasPage() {
           capacidadeMinima: editCapacidadeMinima,
           capacidadeMaxima: editCapacidadeMaxima,
           disciplinaIds: editDisciplinasSelecionadas,
+          ...(editDisciplinasSelecionadas.length === 0 || turmaEmEdicao?.horariosAvulsos?.length
+            ? { horariosTurma: editHorariosTurma.map(h => ({ ...h, diaSemana: Number(h.diaSemana) })) } : {}),
           professoresPorDisciplina,
           datasInicioPorDisciplina,
           datasFimPorDisciplina,
@@ -544,7 +553,7 @@ function AdminTurmasPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.codigo && tIntegridade.has(data.codigo) ? tIntegridade(data.codigo) : (locale.startsWith("pt") ? (data.error || t("classesUpdateError")) : t("classesUpdateError")));
+        throw new Error(mensagemErroHorarioTurma(data.codigo, locale) || (data.codigo && tIntegridade.has(data.codigo) ? tIntegridade(data.codigo) : (locale.startsWith("pt") ? (data.error || t("classesUpdateError")) : t("classesUpdateError"))));
       }
 
       setEditandoId(null);
@@ -2113,6 +2122,9 @@ function AdminTurmasPage() {
                           {t("classesEnabled")}
                         </label>
                       </div>
+                      {(editDisciplinasSelecionadas.length === 0 || Boolean(turma.horariosAvulsos?.length)) && <HorariosDisciplinaTurma geral
+                        nome={turma.curso?.nome || turma.nome} horarios={editHorariosTurma}
+                        disabled={salvandoId === turma.id || revisandoTransferencia} onChange={setEditHorariosTurma} />}
                       <select
                         value={editProfessorId}
                         onChange={(e) => setEditProfessorId(e.target.value)}
@@ -2147,7 +2159,7 @@ function AdminTurmasPage() {
                       </div>
                       <AcaoOpcionalTurma key={turma.id} disabled={salvandoId === turma.id || revisandoTransferencia}>
                         <ConverterCadastroAvulso tipo="turma" id={turma.id} disabled={salvandoId === turma.id} onOcupadoChange={setRevisandoTransferencia} cursos={cursos} cursoAtual={turma.curso || undefined}
-                        horariosIniciais={editDisciplinasSelecionadas.flatMap(id => (horariosPorDisciplina[id] || []).map(h => ({ ...h, diaSemana: Number(h.diaSemana) })))}
+                        horariosIniciais={editDisciplinasSelecionadas.length === 0 || turma.horariosAvulsos?.length ? editHorariosTurma.map(h => ({ ...h, diaSemana: Number(h.diaSemana) })) : editDisciplinasSelecionadas.flatMap(id => (horariosPorDisciplina[id] || []).map(h => ({ ...h, diaSemana: Number(h.diaSemana) })))}
                         dadosTurma={{ nome: editNome, codigo: editCodigo, periodoLetivo: editPeriodoLetivo,
                           turno: editTurno, capacidadeMaxima: editCapacidadeMaxima, capacidadeMinima: editCapacidadeMinima,
                           professorId: editProfessorId }}
