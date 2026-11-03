@@ -11661,6 +11661,7 @@ model ComboModalidades {
   id                 Int                     @id @default(autoincrement())
   instituicaoId      Int
   nome               String
+  planosPagamento    Json?
   ativo              Boolean                 @default(true)
   minimoModalidades  Int                     @default(3)
   maximoModalidades  Int?
