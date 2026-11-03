@@ -27,6 +27,7 @@ type Combo = {
   quantidadeParcelas: number;
   cursoIds: number[];
   planosPagamento?: ConfiguracaoPlanosPagamento | null;
+  totalMatriculasVinculadas: number;
   updatedAt: string;
 };
 const novo = () => ({
@@ -57,6 +58,8 @@ function CombosPage() {
   const [saving, setSaving] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [confirmacaoCombo, setConfirmacaoCombo] = useState<{ combo: Combo; acao: "EXCLUIR" | "DESATIVAR" } | null>(null);
+  const [processandoAcao, setProcessandoAcao] = useState(false);
   const traduzirErro = (codigo?: string) =>
     t.has(`errors.${codigo}`)
       ? t(`errors.${codigo}`)
@@ -124,6 +127,47 @@ function CombosPage() {
       setErro(error instanceof Error ? error.message : traduzirErro());
     } finally {
       setSaving(false);
+    }
+  }
+  async function executarAcaoCombo() {
+    if (!confirmacaoCombo || processandoAcao) return;
+    const { combo, acao } = confirmacaoCombo;
+    setProcessandoAcao(true);
+    setErro("");
+    setMensagem("");
+    try {
+      const res = await fetch("/api/admin/combos", {
+        method: acao === "EXCLUIR" ? "DELETE" : "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: combo.id, versao: combo.updatedAt }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.codigo === "COMBO_EM_USO") {
+          await carregar();
+          throw new Error("Este pacote possui matrículas ou contratos vinculados e não pode ser excluído. Desative-o para impedir novas contratações.");
+        }
+        if (data.codigo === "DADOS_ALTERADOS") {
+          await carregar();
+          throw new Error("Este pacote foi alterado por outra pessoa. A lista foi atualizada; tente novamente.");
+        }
+        if (data.codigo === "COMBO_NAO_ENCONTRADO") {
+          await carregar();
+          throw new Error("O pacote não foi encontrado nesta instituição. A lista foi atualizada.");
+        }
+        throw new Error(traduzirErro(data.codigo));
+      }
+      if (form.id === combo.id) setForm(novo());
+      setConfirmacaoCombo(null);
+      await carregar();
+      setMensagem(acao === "EXCLUIR"
+        ? "Pacote sem vínculos excluído com segurança."
+        : "Pacote desativado. Matrículas, contratos e cobranças foram preservados.");
+    } catch (error) {
+      setConfirmacaoCombo(null);
+      setErro(error instanceof Error ? error.message : traduzirErro());
+    } finally {
+      setProcessandoAcao(false);
     }
   }
   function editar(combo: Combo) {
@@ -430,18 +474,57 @@ function CombosPage() {
                       : t("sum")}
                 </p>
               </div>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => editar(c)}
-                className="rounded-lg border border-slate-400 px-4 py-2"
-              >
-                {t("edit")}
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  disabled={saving || processandoAcao}
+                  onClick={() => editar(c)}
+                  className="rounded-lg border border-slate-400 px-4 py-2 disabled:opacity-50"
+                >
+                  {t("edit")}
+                </button>
+                <button
+                  type="button"
+                  disabled={saving || processandoAcao || c.totalMatriculasVinculadas > 0}
+                  title={c.totalMatriculasVinculadas > 0 ? "Exclusão bloqueada: o pacote já possui matrículas ou contratos." : "Excluir pacote sem vínculos"}
+                  onClick={() => setConfirmacaoCombo({ combo: c, acao: "EXCLUIR" })}
+                  className="rounded-lg border border-red-500 px-4 py-2 font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-300 dark:hover:bg-red-950"
+                >
+                  Excluir
+                </button>
+                {c.ativo && c.totalMatriculasVinculadas > 0 && (
+                  <button
+                    type="button"
+                    disabled={saving || processandoAcao}
+                    onClick={() => setConfirmacaoCombo({ combo: c, acao: "DESATIVAR" })}
+                    className="rounded-lg border border-amber-500 px-4 py-2 font-medium text-amber-800 hover:bg-amber-50 disabled:opacity-50 dark:text-amber-200 dark:hover:bg-amber-950"
+                  >
+                    Desativar
+                  </button>
+                )}
+                {c.totalMatriculasVinculadas > 0 && (
+                  <p className="w-full text-xs text-amber-800 dark:text-amber-200">
+                    {c.totalMatriculasVinculadas} matrícula(s) vinculada(s). Exclusão protegida.
+                  </p>
+                )}
+              </div>
             </article>
           ))
         )}
       </section>
+      <PhanyxConfirmModal
+        aberto={Boolean(confirmacaoCombo)}
+        titulo={confirmacaoCombo?.acao === "EXCLUIR" ? "Excluir pacote?" : "Desativar pacote?"}
+        mensagem={confirmacaoCombo?.acao === "EXCLUIR"
+          ? `Excluir definitivamente o pacote “${confirmacaoCombo?.combo.nome ?? ""}”? Esta ação só será permitida se não houver matrículas ou contratos vinculados.`
+          : `Desativar o pacote “${confirmacaoCombo?.combo.nome ?? ""}”? Novas contratações serão impedidas, mas todo o histórico será preservado.`}
+        textoConfirmar={confirmacaoCombo?.acao === "EXCLUIR" ? "Sim, excluir" : "Sim, desativar"}
+        textoCancelar="Cancelar"
+        tipo={confirmacaoCombo?.acao === "EXCLUIR" ? "perigo" : "normal"}
+        carregando={processandoAcao}
+        onConfirmar={() => { void executarAcaoCombo(); }}
+        onCancelar={() => { if (!processandoAcao) setConfirmacaoCombo(null); }}
+      />
       <PhanyxConfirmModal
         aberto={Boolean(erro)}
         titulo={t("attention")}
