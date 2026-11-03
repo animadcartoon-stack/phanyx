@@ -1,3 +1,4 @@
+import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
 import { carregarRegrasSelecao, conferirSelecaoContratada, respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { ErroSelecaoDisciplinas, normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
@@ -2796,6 +2797,7 @@ export async function POST(request: Request) {
           const matriculaCriada =
             await tx.matricula.create({
               data: {
+                ...(!body.realizadaPeloAluno ? await condicoesPontualidadeMatricula(tx, user.instituicaoId) : {}),
                 dataInicioCurso: inicioCurso.data,
                 ...(contratacaoDisciplinas ? { contratacaoDisciplinas: contratacaoDisciplinas as unknown as Prisma.InputJsonValue } : {}),
                 alunoId,

@@ -1,3 +1,4 @@
+import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
 import { idCursoPrincipal, validarCursosAdicionais } from "./cursos-adicionais";
 import { horariosTurmaDiretaSemGrade, vagasTurmaDiretaSemGrade } from "./previa-turmas-avulsas";
 import { validarOfertasDiretasParaGravacao } from "./gravar-matricula-turma-avulsa";
@@ -570,6 +571,7 @@ export async function confirmarContratacaoModalidades(
     throw new ErroModalidades("DISCIPLINA_DUPLICADA");
   const matricula = await db.matricula.create({
     data: {
+      ...await condicoesPontualidadeMatricula(db, user.instituicaoId),
       instituicaoId: user.instituicaoId,
       alunoId: aluno.id,
       poloId: escolhidas[0].poloId,

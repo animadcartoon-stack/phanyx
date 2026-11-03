@@ -2209,6 +2209,10 @@ function AdminDocumentosTemplatesPage() {
     "{{valorTotalBeneficioBolsa}}",
     "{{valorTotalMensalidadesComBolsa}}",
     "{{textoBolsaContrato}}",
+    "{{textoDescontoPontualidadeContrato}}",
+    "{{percentualDescontoPontualidade}}",
+    "{{diasAntecedenciaDescontoPontualidade}}",
+    "{{valorMensalidadeComDescontoPontualidade}}",
     "{{cidadeAssinatura}}",
     "{{dataAtual}}",
     "{{referenciaFinanceira}}",
@@ -3212,6 +3216,38 @@ function AdminDocumentosTemplatesPage() {
       ondeUsar: "Cl\u00e1usulas de bolsas em contratos acad\u00eamicos.",
       categoria: "Contratos e Comprovantes",
       palavras: ["bolsa", "cl\u00e1usula", "contrato", "isen\u00e7\u00e3o", "benef\u00edcio", "scholarship"],
+    },
+
+    "{{textoDescontoPontualidadeContrato}}": {
+      titulo: "Cláusula de desconto por pontualidade",
+      descricao: "Insere o percentual e o prazo de pagamento integral conforme a matrícula.",
+      ondeUsar: "Contratos de matrícula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["desconto", "pontualidade", "mensalidade", "vencimento"],
+    },
+
+    "{{percentualDescontoPontualidade}}": {
+      titulo: "Percentual de desconto por pontualidade",
+      descricao: "Mostra o percentual contratado, sem o sinal de porcentagem.",
+      ondeUsar: "Contratos de matrícula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["desconto", "pontualidade", "mensalidade", "vencimento"],
+    },
+
+    "{{diasAntecedenciaDescontoPontualidade}}": {
+      titulo: "Dias de antecedência para o desconto",
+      descricao: "Mostra os dias de antecedência. Zero representa pagamento até o vencimento.",
+      ondeUsar: "Contratos de matrícula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["desconto", "pontualidade", "mensalidade", "vencimento"],
+    },
+
+    "{{valorMensalidadeComDescontoPontualidade}}": {
+      titulo: "Mensalidade com desconto por pontualidade",
+      descricao: "Mostra o valor com o desconto após a aplicação da bolsa.",
+      ondeUsar: "Contratos de matrícula.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["desconto", "pontualidade", "mensalidade", "vencimento"],
     },
 
     "{{referenciaFinanceira}}": {

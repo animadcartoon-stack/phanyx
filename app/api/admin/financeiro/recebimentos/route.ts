@@ -1,3 +1,5 @@
+import { cotarDescontoPontualidade, diaFinanceiro, lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+import { calcularSaldoParcela, centavos } from "@/lib/financeiro/divergencias";
 import { NextRequest, NextResponse } from "next/server";
 import { matriculaCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
@@ -216,6 +218,7 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
 },
       include: {
   polo: true,
+  matricula: { select: { descontoPontualidade: true } },
   aluno: {
           include: {
             user: true,
@@ -232,18 +235,21 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
       },
     });
 
+    const diaPagamento = diaFinanceiro(new Date());
     const normalizados = lancamentos.map((item) => {
-      const valorFinal = calcularValorFinal(
+      const { matricula, ...dados } = item;
+      const temPontualidade = item.tipo === "MENSALIDADE" && lerDescontoPontualidade(matricula?.descontoPontualidade);
+      const valorFinal = temPontualidade ? calcularSaldoParcela(item).valorFinal : calcularValorFinal(
         Number(item.valorOriginal || 0),
         item.descontoValor,
         item.jurosValor,
         item.multaValor
       );
 
-      return {
-        ...item,
-        valorFinal,
-      };
+      const pontualidadeDisponivel = temPontualidade
+        ? cotarDescontoPontualidade(item, valorFinal, diaPagamento)
+        : null;
+      return { ...dados, valorFinal, ...(pontualidadeDisponivel ? { pontualidadeDisponivel } : {}) };
     });
 
     const filtrados = !busca
@@ -417,6 +423,7 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
       status: true,
       canceladaEm: true,
       realizadaPeloAluno: true,
+      descontoPontualidade: true,
     },
   },
 },
@@ -472,14 +479,25 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     const estaAtrasadoParaCalculo =
       !!dataLimite && hoje.getTime() > dataLimite.getTime();
 
-    const descontoValor =
-      descontoInformado !== null
-        ? descontoInformado
-        : Number(lancamento.descontoValor || 0);
+    const temPontualidade = lancamento.tipo === "MENSALIDADE" &&
+      lerDescontoPontualidade(lancamento.matricula?.descontoPontualidade);
+    const valorBase = calcularSaldoParcela(lancamento).valorFinal;
+    const ajustesManuais = [descontoInformado, jurosInformado, multaInformada].some(valor => valor !== null && valor !== 0);
+    const cotacao = ajustesManuais ? null : cotarDescontoPontualidade(lancamento, valorBase, diaFinanceiro(new Date()));
+    const pontualidade = cotacao && centavos(valorPago) === centavos(cotacao.valorComDesconto) ? cotacao : null;
+    if (body.aplicarPontualidade === true && !pontualidade) {
+      return NextResponse.json({ error: "O desconto por pontualidade mudou. Atualize os recebimentos antes de registrar a baixa." }, { status: 409 });
+    }
+
+    const descontoValor = temPontualidade
+      ? (centavos(lancamento.valorOriginal) + centavos(lancamento.jurosValor ?? 0) +
+        centavos(lancamento.multaValor ?? 0) - centavos(valorBase)) / 100 +
+        (descontoInformado ?? 0) + (pontualidade?.desconto ?? 0)
+      : descontoInformado ?? Number(lancamento.descontoValor || 0);
 
     const jurosValor =
       jurosInformado !== null
-        ? jurosInformado
+        ? jurosInformado + (temPontualidade ? Number(lancamento.jurosValor || 0) : 0)
         : estaAtrasadoParaCalculo
         ? Number(
             (
@@ -491,7 +509,7 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
 
     const multaValor =
       multaInformada !== null
-        ? multaInformada
+        ? multaInformada + (temPontualidade ? Number(lancamento.multaValor || 0) : 0)
         : estaAtrasadoParaCalculo
         ? Number(
             (
@@ -597,21 +615,25 @@ if (!caixaAberto) {
   },
 });
 
-      await tx.lancamentoFinanceiro.update({
-        where: {
-          id: lancamento.id,
-        },
-        data: {
-          descontoValor,
-          jurosValor,
-          multaValor,
-          valorFinal,
-          valorPago: novoTotalPago,
-          pagoEm: novoStatus === "PAGO" ? new Date() : lancamento.pagoEm,
-          status: novoStatus,
-          observacao: lancamento.observacao,
-        },
-      });
+      const dadosBaixa = {
+        descontoValor,
+        jurosValor,
+        multaValor,
+        valorFinal,
+        valorPago: novoTotalPago,
+        pagoEm: novoStatus === "PAGO" ? new Date() : lancamento.pagoEm,
+        status: novoStatus,
+        observacao: lancamento.observacao,
+      };
+      if (temPontualidade) {
+        const atualizado = await tx.lancamentoFinanceiro.updateMany({
+          where: { id: lancamento.id, instituicaoId: user.instituicaoId, updatedAt: lancamento.updatedAt },
+          data: dadosBaixa,
+        });
+        if (atualizado.count !== 1) throw new Error("LANCAMENTO_ALTERADO");
+      } else {
+        await tx.lancamentoFinanceiro.update({ where: { id: lancamento.id }, data: dadosBaixa });
+      }
 
       if (
   novoStatus === "PAGO" &&
@@ -718,6 +740,7 @@ await tx.caixa.update({
             novoTotalPago,
             saldoRestante,
             statusFinal: novoStatus,
+            ...(pontualidade ? { pontualidade } : {}),
           },
         },
       });
@@ -755,6 +778,9 @@ await tx.caixa.update({
 
     return NextResponse.json(atualizado);
   } catch (e: any) {
+    if (e?.message === "LANCAMENTO_ALTERADO") {
+      return NextResponse.json({ error: "Este lançamento mudou. Atualize os recebimentos antes de registrar a baixa." }, { status: 409 });
+    }
     console.error("ERRO PATCH RECEBIMENTOS:", e);
     return NextResponse.json(
       { error: e?.message || "Erro ao dar baixa no recebimento" },

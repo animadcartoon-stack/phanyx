@@ -1,4 +1,5 @@
 "use client";
+import { ResumoDescontoPontualidade } from "@/components/admin/ResumoDescontoPontualidade";
 import AvisoConflitoHorarioMatricula, { useAvisoConflitoHorario } from "@/components/admin/AvisoConflitoHorarioMatricula";
 import SelecaoDisciplinasIncluidas from "@/components/admin/SelecaoDisciplinasIncluidas";
 import { normalizarSelecaoDisciplinas, validarSelecaoDisciplinas, type RegrasSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
@@ -4267,6 +4268,7 @@ function AdminMatriculasPage() {
             />
             {precoPorDisciplinas && <p id="ajuda-preco-disciplinas" className="mt-2 text-sm text-slate-700 dark:text-slate-200">{ta("subjectHelp", { value: new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(Number(cursoSelecionadoObj?.valorMensalidade || 0)) })}</p>}
             <ResumoDescontoMensalidade valorMensalidade={cursoSelecionadoObj?.valorMensalidade} percentual={cursoSelecionadoObj?.descontoMensalidadePercentual} />
+            <ResumoDescontoPontualidade mensalidade={Number(valorMensalidade || 0)} bolsa={Number(bolsaPercentual || 0)} />
           </div>
 
           <div>

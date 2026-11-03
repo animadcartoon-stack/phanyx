@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { DescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { useTranslations } from "next-intl";
 
 type ConfigFinanceira = {
   jurosPadrao: number;
   multaPadrao: number;
   descontoPadrao: number;
+  descontoPontualidade: DescontoPontualidade | null;
   diasTolerancia: number;
   bloquearAlunoInadimplente: boolean;
   quantidadeMensalidadesParaBloqueio: number;
@@ -17,6 +19,7 @@ const initialState: ConfigFinanceira = {
   jurosPadrao: 0,
   multaPadrao: 0,
   descontoPadrao: 0,
+  descontoPontualidade: null,
   diasTolerancia: 0,
   bloquearAlunoInadimplente: false,
   quantidadeMensalidadesParaBloqueio: 3,
@@ -391,6 +394,7 @@ export default function ConfiguracoesFinanceirasPage() {
         jurosPadrao: Number(data.jurosPadrao || 0),
         multaPadrao: Number(data.multaPadrao || 0),
         descontoPadrao: Number(data.descontoPadrao || 0),
+        descontoPontualidade: data.descontoPontualidade ?? null,
         diasTolerancia: Number(data.diasTolerancia || 0),
         bloquearAlunoInadimplente: Boolean(data.bloquearAlunoInadimplente),
         quantidadeMensalidadesParaBloqueio: Number(
@@ -549,6 +553,64 @@ export default function ConfiguracoesFinanceirasPage() {
               className={inputClassName}
             />
           </div>
+
+          <fieldset className="space-y-3 rounded-lg border p-4 md:col-span-2">
+            <legend className="px-2 font-semibold">{t("pontualidade.title")}</legend>
+            <p className="text-sm text-slate-700 dark:text-slate-200">{t("pontualidade.help")}</p>
+            <label className="block">
+              <span className="text-sm font-medium">{t("pontualidade.condition")}</span>
+              <select
+                value={!form.descontoPontualidade ? "off" : form.descontoPontualidade.diasAntecedencia ? "early" : "due"}
+                className={inputClassName}
+                onChange={(e) => {
+                  const modo = e.target.value;
+                  setForm((prev) => ({
+                    ...prev,
+                    descontoPontualidade: modo === "off" ? null : {
+                      percentual: prev.descontoPontualidade?.percentual ?? 0,
+                      diasAntecedencia: modo === "early" ? 1 : 0,
+                    },
+                  }));
+                }}
+              >
+                <option value="off">{t("pontualidade.off")}</option>
+                <option value="early">{t("pontualidade.early")}</option>
+                <option value="due">{t("pontualidade.due")}</option>
+              </select>
+            </label>
+            {form.descontoPontualidade && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label>
+                  <span className="text-sm font-medium">{t("pontualidade.percent")}</span>
+                  <input type="number" min="0.01" max="99.99" step="0.01" required
+                    className={inputClassName}
+                    value={form.descontoPontualidade.percentual || ""}
+                    onChange={(e) => {
+                      const percentual = Number(e.target.value);
+                      setForm((prev) => prev.descontoPontualidade ? {
+                        ...prev, descontoPontualidade: { ...prev.descontoPontualidade, percentual },
+                      } : prev);
+                    }}
+                  />
+                </label>
+                {form.descontoPontualidade.diasAntecedencia > 0 && (
+                  <label>
+                    <span className="text-sm font-medium">{t("pontualidade.days")}</span>
+                    <input type="number" min="1" max="365" step="1" required
+                      className={inputClassName}
+                      value={form.descontoPontualidade.diasAntecedencia}
+                      onChange={(e) => {
+                        const diasAntecedencia = Math.max(1, Number(e.target.value));
+                        setForm((prev) => prev.descontoPontualidade ? {
+                          ...prev, descontoPontualidade: { ...prev.descontoPontualidade, diasAntecedencia },
+                        } : prev);
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </fieldset>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">

@@ -1,3 +1,5 @@
+import { descontoPontualidadeEmReais, lerDescontoPontualidade, limiteDescontoPontualidade } from "./desconto-pontualidade";
+
 type Valor = number | { toString(): string } | null;
 
 export type CobrancaConferencia = {
@@ -28,6 +30,7 @@ export type ParcelaConferencia = {
   jurosValor: number | null;
   multaValor: number | null;
   updatedAt: Date;
+  vencimento?: Date | null;
   pagamentos: Array<{ valorPago: number }>;
   matricula?: { realizadaPeloAluno: boolean; status: string } | null;
 };
@@ -42,7 +45,9 @@ export function objetoJson(valor: unknown): Record<string, unknown> {
     : {};
 }
 
-export function calcularSaldoParcela(parcela: ParcelaConferencia) {
+export function calcularSaldoParcela(parcela: Pick<ParcelaConferencia,
+  "valorFinal" | "valorOriginal" | "descontoValor" | "jurosValor" | "multaValor" | "pagamentos" | "valorPago"
+>) {
   const valorFinal = Number((Number(parcela.valorFinal || 0) > 0
     ? Number(parcela.valorFinal)
     : Number(parcela.valorOriginal || 0) - Number(parcela.descontoValor || 0)
@@ -64,6 +69,28 @@ export function analisarDivergencia(
   const valorCobrado = Number(cobranca.valorCobrado);
   const recebido = cobranca.valorCompensado === null ? NaN : Number(cobranca.valorCompensado);
   const valorCompensado = Number.isFinite(recebido) ? recebido : null;
+  const metadata = objetoJson(cobranca.metadata);
+  const cotacao = objetoJson(metadata.pontualidade);
+  const regra = lerDescontoPontualidade(cotacao);
+  const descontoAsaas = objetoJson(objetoJson(metadata.provedor).descontoAsaas);
+  const diaPagamento = metadata.diaPagamentoPontualidade;
+  const desconto = regra ? descontoPontualidadeEmReais(valorCobrado, regra.percentual) : 0;
+  const descontoPontualidade = regra && desconto > 0 &&
+    cotacao.lancamentoId === parcela.id && cobranca.lancamentoFinanceiroId === parcela.id &&
+    valores.totalPagoAnterior === 0 && parcela.vencimento &&
+    cotacao.limite === limiteDescontoPontualidade(parcela.vencimento, regra.diasAntecedencia) &&
+    descontoAsaas.type === "PERCENTAGE" && descontoAsaas.value === regra.percentual &&
+    descontoAsaas.dueDateLimitDays === regra.diasAntecedencia &&
+    typeof diaPagamento === "string" && /^\d{4}-\d{2}-\d{2}$/.test(diaPagamento) &&
+    typeof cotacao.limite === "string" && diaPagamento <= cotacao.limite &&
+    centavos(valores.saldoAtual) === centavos(valorCobrado) &&
+    valorCompensado !== null && centavos(valorCompensado) === centavos(valorCobrado) - centavos(desconto)
+    ? desconto : 0;
+  if (descontoPontualidade) {
+    valores.valorFinal = (centavos(valores.valorFinal) - centavos(descontoPontualidade)) / 100;
+    valores.saldoAtual = valores.valorFinal;
+  }
+
   const bloqueios: string[] = [];
   const divergenciasValores: string[] = [];
   if (cobranca.statusBancario !== "COMPENSADO") bloqueios.push("BANCO_NAO_COMPENSADO");
@@ -78,11 +105,11 @@ export function analisarDivergencia(
   if (valorCompensado !== null && centavos(valorCompensado) > centavos(valores.saldoAtual)) bloqueios.push("VALOR_EXCEDE_SALDO");
   const parcial = valorCompensado !== null && valorCompensado > 0 && centavos(valorCompensado) < centavos(valores.saldoAtual);
   if (parcial && !permitirPagamentoParcial) bloqueios.push("PAGAMENTO_PARCIAL_DESABILITADO");
-  if (valorCompensado !== null && centavos(valorCompensado) !== centavos(valorCobrado)) divergenciasValores.push("VALOR_COMPENSADO_DIFERE_DO_BOLETO");
+  if (!descontoPontualidade && valorCompensado !== null && centavos(valorCompensado) !== centavos(valorCobrado)) divergenciasValores.push("VALOR_COMPENSADO_DIFERE_DO_BOLETO");
   if (valorCompensado !== null && centavos(valorCompensado) !== centavos(valores.saldoAtual)) divergenciasValores.push("VALOR_COMPENSADO_DIFERE_DO_SALDO");
   if (cobranca.lancamentoFinanceiroId === parcela.id && cobranca.matriculaId !== parcela.matriculaId) bloqueios.push("MATRICULA_DIFERENTE");
   return {
-    ...valores, valorCobrado, valorCompensado, parcial,
+    ...valores, valorCobrado, valorCompensado, parcial, descontoPontualidade,
     saldoAposBaixa: valorCompensado === null ? valores.saldoAtual
       : Number(Math.max(0, valores.saldoAtual - valorCompensado).toFixed(2)),
     bloqueios, divergenciasValores,
@@ -93,7 +120,7 @@ export function analisarDivergencia(
 
 export function resolucaoAindaValida(cobranca: CobrancaConferencia, parcela: ParcelaConferencia) {
   const resolucao = objetoJson(objetoJson(cobranca.metadata).resolucaoDivergencia);
-  const valores = calcularSaldoParcela(parcela);
+  const valores = analisarDivergencia(cobranca, parcela);
   return resolucao.estado === "RESOLVIDA"
     && resolucao.instituicaoId === cobranca.instituicaoId
     && resolucao.alunoId === cobranca.alunoId
@@ -106,5 +133,5 @@ export function resolucaoAindaValida(cobranca: CobrancaConferencia, parcela: Par
     && centavos(Number(resolucao.saldoAtual)) === centavos(valores.saldoAtual)
     && centavos(Number(resolucao.valorFinal)) === centavos(valores.valorFinal)
     && centavos(Number(resolucao.totalPagoAnterior)) === centavos(valores.totalPagoAnterior)
-    && (!analisarDivergencia(cobranca, parcela).parcial || resolucao.confirmarPagamentoParcial === true);
+    && (!valores.parcial || resolucao.confirmarPagamentoParcial === true);
 }

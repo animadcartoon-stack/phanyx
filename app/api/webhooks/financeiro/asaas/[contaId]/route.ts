@@ -129,6 +129,7 @@ function extrairReferencias(
     valor,
     pagoEm,
     compensadoEm,
+    diaPagamentoPontualidade: texto(payment?.clientPaymentDate || payment?.paymentDate),
   };
 }
 
@@ -732,6 +733,14 @@ export async function POST(
 
                 statusOperacional:
                   operacional,
+
+                ...(cobrancaAtual.metadata && typeof cobrancaAtual.metadata === "object" &&
+                  !Array.isArray(cobrancaAtual.metadata) && cobrancaAtual.metadata.pontualidade
+                  ? { metadata: {
+                    ...cobrancaAtual.metadata,
+                    diaPagamentoPontualidade: referencias.diaPagamentoPontualidade,
+                  } }
+                  : {}),
 
                 valorCompensado:
                   referencias.valor ===

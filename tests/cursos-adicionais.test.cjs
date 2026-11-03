@@ -20,7 +20,14 @@ function fixture(){
   curso:{id:o.cursoId,nome:o.nome,participaCombo:true,permiteCursosAdicionais:o.permite,disponivelComoAdicional:o.adicional,valorMatricula:98.5,valorMensalidade:o.valor,regrasPrecoDisciplinas:null,regrasSelecaoDisciplinas:null,descontoMensalidadePercentual:null,valorMensalidadeCombo:null,precosComboPorQuantidade:[],quantidadeParcelas:12,requisitosConjuntos:[]},
   disciplinas:[{disciplinaId:o.cursoId,dataInicio:null,dataFim:null,disciplina:{nome:o.nome,cargaHoraria:20,semestre:null},horarios:[{diaSemana:o.dia,horaInicio:'09:00',horaFim:'10:00'}]}]
  }));
- const db={turma:{findMany:async ({where}={})=>where?.codigo?.startsWith==="OFERTA-"?[]:turmas},itemMatricula:{findMany:async()=>[]},turmaDisciplina:{findMany:async()=>[]},aluno:{findFirst:async()=>({id:5,poloId:1,ativo:true,dataNascimento:new Date('2000-01-01')})},cursoRequisitoConjunto:{findMany:async()=>[]},matricula:{findMany:async()=>[],create:async({data})=>{writes.push(['matricula',data]);return{id:77,numeroMatricula:'PHX-7',valorMatricula:data.valorMatricula,valorMensalidade:data.valorMensalidade}}},comboModalidades:{findMany:async()=>[{id:1,nome:'Dois cursos',ativo:true,minimoModalidades:2,maximoModalidades:2,modoPreco:'PERCENTUAL',descontoPercentual:10,valorMatricula:98.5,valorMensalidade:null,quantidadeParcelas:12,cursos:[{cursoId:20},{cursoId:25}]}]},instituicao:{update:async()=>{writes.push(['contador']);return {proximoNumeroMatricula:2}}},lancamentoFinanceiro:{create:async({data})=>writes.push(['taxa',data]),createMany:async({data})=>writes.push(['mensalidades',data])},documentoAluno:{create:async()=>writes.push(['documento'])}};
+ const db={
+   configuracaoFinanceiraInstituicao: {
+     findUnique: async ({ where }) => {
+       assert.equal(where.instituicaoId, 7);
+       return { descontoPontualidade: { percentual: 5, diasAntecedencia: 3 } };
+     },
+   },
+   turma:{findMany:async ({where}={})=>where?.codigo?.startsWith==="OFERTA-"?[]:turmas},itemMatricula:{findMany:async()=>[]},turmaDisciplina:{findMany:async()=>[]},aluno:{findFirst:async()=>({id:5,poloId:1,ativo:true,dataNascimento:new Date('2000-01-01')})},cursoRequisitoConjunto:{findMany:async()=>[]},matricula:{findMany:async()=>[],create:async({data})=>{writes.push(['matricula',data]);return{id:77,numeroMatricula:'PHX-7',valorMatricula:data.valorMatricula,valorMensalidade:data.valorMensalidade}}},comboModalidades:{findMany:async()=>[{id:1,nome:'Dois cursos',ativo:true,minimoModalidades:2,maximoModalidades:2,modoPreco:'PERCENTUAL',descontoPercentual:10,valorMatricula:98.5,valorMensalidade:null,quantidadeParcelas:12,cursos:[{cursoId:20},{cursoId:25}]}]},instituicao:{update:async()=>{writes.push(['contador']);return {proximoNumeroMatricula:2}}},lancamentoFinanceiro:{create:async({data})=>writes.push(['taxa',data]),createMany:async({data})=>writes.push(['mensalidades',data])},documentoAluno:{create:async()=>writes.push(['documento'])}};
  return {db,writes,turmas,server:carregar('lib/matriculas/modalidades-servidor.ts'),body:{alunoId:5,cursoPrincipalId:25,turmaIds:[10,50],dataInicioCurso:'2027-03-01'}};
 }
 test('marcações são independentes, opcionais e não aceitam strings ou modos incompatíveis',()=>{
@@ -60,6 +67,7 @@ test('confirmação mantém o principal, mesmo se a turma adicional vier primeir
  const f=fixture(),p=await f.server.prepararContratacaoModalidades(f.db,7,f.body);
  await f.server.confirmarContratacaoModalidades(f.db,{id:1,nome:'Admin',instituicaoId:7},{...f.body,versao:p.versao,primeiroVencimento:'2027-03-05',status:'A_INICIAR',chave:'teste',pedidoHash:'teste'},new Request('http://localhost'));
  const data=f.writes.find(w=>w[0]==='matricula')[1];assert.equal(data.cursoId,25);assert.equal(data.turmaPrincipalId,50);assert.equal(data.organizacaoCurricular,'ANUAL');assert.equal(data.valorMensalidade,385.18);assert.equal(data.itens.create.length,2);assert.equal(data.contratacaoModalidades.cursoPrincipalId,25);
+ assert.deepEqual(plain(data.descontoPontualidade), { percentual: 5, diasAntecedencia: 3 });
 });
 test('principal ausente, sem permissão ou adicional não marcado são recusados antes de gravar',async()=>{
  for(const alterar of [f=>{f.body.cursoPrincipalId=999},f=>{f.turmas[0].curso.permiteCursosAdicionais=false},f=>{f.turmas[1].curso.disponivelComoAdicional=false},f=>{f.body.turmaIds=[10]}]){

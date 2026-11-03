@@ -14788,6 +14788,19 @@
     }
   },
   "AdminFinanceSettings": {
+    "pontualidade": {
+      "title": "Timely payment discount",
+      "help": "Applies to new enrollments. The discount is based on tuition after scholarships and contracted discounts and requires full payment by the deadline.",
+      "condition": "Payment condition",
+      "off": "Disabled",
+      "early": "Early payment",
+      "due": "By the due date",
+      "percent": "Discount (%)",
+      "days": "Days before due date",
+      "summaryEarly": "Tuition is {valor} with a {percentual}% discount when paid in full at least {dias} day(s) before the due date.",
+      "receivable": "{valor} with timely payment today",
+      "summaryDue": "Tuition is {valor} with a {percentual}% discount when paid in full by the due date."
+    },
     "loading": "Loading financial settings...",
     "title": "Institution financial settings",
     "subtitle": "Define the financial defaults used by the institution.",

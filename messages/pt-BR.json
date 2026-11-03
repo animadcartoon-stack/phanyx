@@ -14558,6 +14558,19 @@
     }
   },
   "AdminFinanceSettings": {
+    "pontualidade": {
+      "title": "Desconto por pontualidade",
+      "help": "A regra vale para novas matrículas. O desconto é aplicado sobre a mensalidade após bolsas e descontos contratados, na quitação integral até a data limite.",
+      "condition": "Condição de pagamento",
+      "off": "Desativado",
+      "early": "Com antecedência",
+      "due": "Até o vencimento",
+      "percent": "Desconto (%)",
+      "days": "Dias de antecedência",
+      "summaryEarly": "Mensalidade de {valor} com {percentual}% de desconto se for quitada até {dias} dia(s) antes do vencimento.",
+      "receivable": "{valor} com pontualidade hoje",
+      "summaryDue": "Mensalidade de {valor} com {percentual}% de desconto se for quitada até o vencimento."
+    },
     "loading": "Carregando configurações financeiras...",
     "title": "Configuração financeira por instituição",
     "subtitle": "Defina os padrões financeiros usados pela instituição.",

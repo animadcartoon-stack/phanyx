@@ -483,6 +483,10 @@ export async function POST(
 
             data: {
               valorFinal,
+              ...(analise.descontoPontualidade ? {
+                descontoValor: (centavos(lancamento.valorOriginal) + centavos(lancamento.jurosValor ?? 0)
+                  + centavos(lancamento.multaValor ?? 0) - centavos(valorFinal)) / 100,
+              } : {}),
 
               valorPago:
                 novoTotalPago,

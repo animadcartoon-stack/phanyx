@@ -1,6 +1,9 @@
+import { descontoPontualidadeEmReais, lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+
 type MatriculaBolsaDocumentoInput = {
   valorMensalidade?: unknown;
   bolsaPercentual?: unknown;
+  descontoPontualidade?: unknown;
   quantidadeMensalidades?: unknown;
 };
 
@@ -547,6 +550,32 @@ export function montarDadosBolsaDocumento(
       valorTotalComBolsaFormatado,
     });
 
+  const pontualidade = lerDescontoPontualidade(matricula?.descontoPontualidade);
+  const descontoPontualidade = pontualidade
+    ? descontoPontualidadeEmReais(valorMensalidadeComBolsa, pontualidade.percentual)
+    : 0;
+  const percentualPontualidade = pontualidade
+    ? formatarPercentualDocumento(pontualidade.percentual, locale)
+    : "";
+  const valorPontualidade = descontoPontualidade > 0
+    ? formatarMoedaDocumento(valorMensalidadeComBolsa - descontoPontualidade, locale)
+    : "";
+  const dias = pontualidade?.diasAntecedencia ?? 0;
+  const condicoes = {
+    "pt-BR": dias ? `com pelo menos ${dias} dia(s) de antecedência` : "até o vencimento",
+    "pt-PT": dias ? `com pelo menos ${dias} dia(s) de antecedência` : "até ao vencimento",
+    "en-US": dias ? `at least ${dias} day(s) before the due date` : "by the due date",
+    "es-ES": dias ? `al menos ${dias} día(s) antes del vencimiento` : "hasta el vencimiento",
+    "fr-FR": dias ? `au moins ${dias} jour(s) avant l’échéance` : "au plus tard à l’échéance",
+  };
+  const clausulas = {
+    "pt-BR": `Cada mensalidade quitada integralmente ${condicoes["pt-BR"]} terá desconto de ${percentualPontualidade}%.`,
+    "pt-PT": `Cada mensalidade paga na íntegra ${condicoes["pt-PT"]} terá um desconto de ${percentualPontualidade}%.`,
+    "en-US": `A ${percentualPontualidade}% discount applies to each monthly tuition payment made in full ${condicoes["en-US"]}.`,
+    "es-ES": `Se aplica un descuento del ${percentualPontualidade}% a cada mensualidad pagada íntegramente ${condicoes["es-ES"]}.`,
+    "fr-FR": `Une remise de ${percentualPontualidade} % s’applique à chaque mensualité réglée intégralement ${condicoes["fr-FR"]}.`,
+  };
+
   return {
     percentualBolsa:
       percentualFormatado,
@@ -572,5 +601,9 @@ export function montarDadosBolsaDocumento(
       valorTotalComBolsaFormatado,
 
     textoBolsaContrato,
+    textoDescontoPontualidadeContrato: pontualidade ? clausulas[locale] : "",
+    percentualDescontoPontualidade: percentualPontualidade,
+    diasAntecedenciaDescontoPontualidade: pontualidade ? String(dias) : "",
+    valorMensalidadeComDescontoPontualidade: valorPontualidade,
   };
 }

@@ -14787,6 +14787,19 @@
     }
   },
   "AdminFinanceSettings": {
+    "pontualidade": {
+      "title": "Descuento por pronto pago",
+      "help": "Se aplica a nuevas matrículas. El descuento se calcula sobre la mensualidad tras becas y descuentos contratados, al pagar el total hasta la fecha límite.",
+      "condition": "Condición de pago",
+      "off": "Desactivado",
+      "early": "Con antelación",
+      "due": "Hasta el vencimiento",
+      "percent": "Descuento (%)",
+      "days": "Días de antelación",
+      "summaryEarly": "Mensualidad de {valor} con un {percentual}% de descuento si se paga en su totalidad al menos {dias} día(s) antes del vencimiento.",
+      "receivable": "{valor} por pronto pago hoy",
+      "summaryDue": "Mensualidad de {valor} con un {percentual}% de descuento si se paga en su totalidad hasta el vencimiento."
+    },
     "loading": "Cargando configuración financiera...",
     "title": "Configuración financiera por institución",
     "subtitle": "Define los valores financieros predeterminados utilizados por la institución.",

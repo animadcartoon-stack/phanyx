@@ -58,6 +58,7 @@ export function montarValoresPreviewDocumento(
       {
         valorMensalidade: 1000,
         bolsaPercentual: 20,
+        descontoPontualidade: { percentual: 5, diasAntecedencia: 3 },
         quantidadeMensalidades: 12,
       },
       localeDocumento
