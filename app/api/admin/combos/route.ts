@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { administradorCombos, erroCombos } from "@/lib/matriculas/combos-api";
 import { centavos, ErroModalidades } from "@/lib/matriculas/combos";
+import { comboPodeSerExcluido } from "@/lib/matriculas/exclusao-combos";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export async function GET() {
     const [combos, cursos] = await Promise.all([
       prisma.comboModalidades.findMany({
         where: { instituicaoId: user.instituicaoId },
-        include: { cursos: true },
+        include: { cursos: true, _count: { select: { matriculas: true } } },
         orderBy: { nome: "asc" },
       }),
       prisma.curso.findMany({
@@ -56,6 +57,8 @@ export async function GET() {
       combos: combos.map((c) => ({
         ...c,
         cursoIds: c.cursos.map((v) => v.cursoId),
+        // Conta inclusive matrículas canceladas/arquivadas, sem filtro de status.
+        totalMatriculasVinculadas: c._count.matriculas,
       })),
       cursos,
     });
@@ -184,4 +187,80 @@ export async function POST(req: Request) {
 }
 export async function PUT(req: Request) {
   return salvar(req, true);
+}
+
+// Somente o combo é alterado. Contratos, matrículas e lançamentos permanecem intocados.
+// Contrato.matriculaId aponta para a matrícula que referencia ComboModalidades.
+const schemaAcaoCombo = z.object({
+  id: z.number().int().positive(),
+  versao: z.string().min(1),
+}).strict();
+
+async function alterarEstadoCombo(req: Request, acao: "EXCLUIR" | "DESATIVAR") {
+  try {
+    const user = await administradorCombos();
+    const parsed = schemaAcaoCombo.safeParse(await req.json());
+    if (!parsed.success) throw new ErroModalidades("REGRA_INVALIDA");
+    const { id, versao } = parsed.data;
+    const esperado = new Date(versao);
+    if (Number.isNaN(esperado.getTime())) throw new ErroModalidades("REGRA_INVALIDA");
+
+    const resultado = await prisma.$transaction(async tx => {
+      const combo = await tx.comboModalidades.findFirst({
+        where: { id, instituicaoId: user.instituicaoId },
+        select: { id: true, ativo: true, updatedAt: true },
+      });
+      if (!combo) throw new ErroModalidades("COMBO_NAO_ENCONTRADO", 404);
+      if (combo.updatedAt.getTime() !== esperado.getTime())
+        throw new ErroModalidades("DADOS_ALTERADOS", 409);
+
+      if (acao === "DESATIVAR") {
+        // PATCH é estritamente unidirecional: não serve para reativar nem editar preço.
+        if (combo.ativo) {
+          const alterado = await tx.comboModalidades.updateMany({
+            where: { id, instituicaoId: user.instituicaoId, updatedAt: esperado },
+            data: { ativo: false },
+          });
+          if (alterado.count !== 1) throw new ErroModalidades("DADOS_ALTERADOS", 409);
+        }
+        return { codigo: "COMBO_DESATIVADO", id };
+      }
+
+      // Jamais excluir mesmo que as matrículas já estejam canceladas ou arquivadas.
+      // Contratos são vinculados através das matrículas; verificamos ambos por segurança.
+      const [totalMatriculas, totalContratos] = await Promise.all([
+        tx.matricula.count({ where: { instituicaoId: user.instituicaoId, comboId: id } }),
+        tx.contrato.count({ where: {
+          instituicaoId: user.instituicaoId,
+          matricula: { is: { instituicaoId: user.instituicaoId, comboId: id } },
+        } }),
+      ]);
+      if (!comboPodeSerExcluido(totalMatriculas, totalContratos))
+        throw new ErroModalidades("COMBO_EM_USO", 409, { totalMatriculas, totalContratos });
+
+      // Matricula.comboId tem FK Restrict: uma nova matrícula concorrente também
+      // impede a exclusão. Nenhum vínculo financeiro ou contratual é apagado.
+      const excluido = await tx.comboModalidades.deleteMany({
+        where: { id, instituicaoId: user.instituicaoId, updatedAt: esperado },
+      });
+      if (excluido.count !== 1) throw new ErroModalidades("DADOS_ALTERADOS", 409);
+      return { codigo: "COMBO_EXCLUIDO", id };
+    }, { isolationLevel: "Serializable" });
+
+    return NextResponse.json(resultado);
+  } catch (error) {
+    // Constraint FK: em uma disputa com outra transação, falhar sem apagar histórico.
+    const codigo = (error as { code?: string })?.code;
+    if (codigo === "P2003" || codigo === "P2014") {
+      return NextResponse.json({ codigo: "COMBO_EM_USO" }, { status: 409 });
+    }
+    return erroCombos(error);
+  }
+}
+
+export async function DELETE(req: Request) {
+  return alterarEstadoCombo(req, "EXCLUIR");
+}
+export async function PATCH(req: Request) {
+  return alterarEstadoCombo(req, "DESATIVAR");
 }
