@@ -1,6 +1,7 @@
 "use client";
 import { ResumoModoSemGrade } from "@/components/admin/ConverterCadastroAvulso";
 import CamposCursosAdicionais from "@/components/admin/CamposCursosAdicionais";
+import CamposPlanosPagamento, { type PlanoPagamentoFormulario } from "@/components/admin/CamposPlanosPagamento";
 import CamposRequisitosCursos from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
 import { normalizarRegrasDisciplinas } from "@/lib/matriculas/preco-disciplinas";
@@ -178,6 +179,7 @@ const [salvandoPolosCurso, setSalvandoPolosCurso] =
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
     quantidadeParcelas: "",
+    planosPagamento: [] as PlanoPagamentoFormulario[],
   });
 
   const [polosSelecionados, setPolosSelecionados] = useState<number[]>([]);
@@ -457,6 +459,7 @@ async function salvarPolosDoCurso() {
           quantidadeParcelas: form.quantidadeParcelas
             ? Number(form.quantidadeParcelas)
             : null,
+          planosPagamento: { versao: 1, planos: form.planosPagamento },
           poloIds: polosSelecionados,
         }),
       });
@@ -495,6 +498,7 @@ async function salvarPolosDoCurso() {
         valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
         quantidadeParcelas: "",
+        planosPagamento: [] as PlanoPagamentoFormulario[],
       });
       setPolosSelecionados([]);
       setPolosAbertos(false);
@@ -799,6 +803,8 @@ if (!termoTexto) return cursosPorStatus;
               setForm({ ...form, quantidadeParcelas: e.target.value })
             }
           />
+
+          <CamposPlanosPagamento planos={form.planosPagamento} onChange={planosPagamento => setForm(prev => ({...prev, planosPagamento}))} disabled={form.organizacaoCurricular === "LIVRE" || form.precoPorDisciplina} />
 
           <div className="md:col-span-2">
             <button
