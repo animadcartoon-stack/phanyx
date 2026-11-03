@@ -1,5 +1,7 @@
 "use client";
 import { ResumoDescontoPontualidade } from "@/components/admin/ResumoDescontoPontualidade";
+import SeletorPlanoPagamentoMatricula from "@/components/admin/SeletorPlanoPagamentoMatricula";
+import { cotarPlanoPagamento, normalizarPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
 import AvisoConflitoHorarioMatricula, { useAvisoConflitoHorario } from "@/components/admin/AvisoConflitoHorarioMatricula";
 import SelecaoDisciplinasIncluidas from "@/components/admin/SelecaoDisciplinasIncluidas";
 import { normalizarSelecaoDisciplinas, validarSelecaoDisciplinas, type RegrasSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
@@ -40,6 +42,7 @@ type CursoOption = {
   regrasPrecoDisciplinas?: unknown;
   regrasSelecaoDisciplinas?: unknown;
   quantidadeParcelas?: number | null;
+  planosPagamento?: unknown;
 };
 
 type AlunoOption = {
@@ -450,6 +453,7 @@ function AdminMatriculasPage() {
   const [bolsaPercentual, setBolsaPercentual] =
     useState<string>("0");
   const [quantidadeParcelas, setQuantidadeParcelas] = useState<string>("");
+  const [planoPagamentoId, setPlanoPagamentoId] = useState("");
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
   const [periodoLetivo, setPeriodoLetivo] = useState<string>("");
   const [modalidade, setModalidade] = useState<string>("");
@@ -729,6 +733,7 @@ function AdminMatriculasPage() {
                 regrasPrecoDisciplinas: curso?.regrasPrecoDisciplinas ?? null,
                 regrasSelecaoDisciplinas: curso?.regrasSelecaoDisciplinas ?? null,
                 quantidadeParcelas: curso?.quantidadeParcelas ?? null,
+                planosPagamento: curso?.planosPagamento ?? null,
 
                 nome: String(
                   curso?.nome ??
@@ -913,6 +918,24 @@ function AdminMatriculasPage() {
   }
 
   const cursoSelecionadoObj = cursos.find(c => c.id === Number(cursoId)) ?? null;
+  const escolherPlanoPagamento = (novoId: string) => {
+    setPlanoPagamentoId(novoId);
+    const plano = (normalizarPlanosPagamento(cursoSelecionadoObj?.planosPagamento)?.planos ?? []).find(p => p.ativo && p.id === novoId);
+    if (!plano) {
+      const padrao = financeiroPadraoCurso(cursoSelecionadoObj);
+      setValorTaxaMatricula(padrao.valorMatricula);
+      setValorMensalidade(padrao.valorMensalidade);
+      setQuantidadeParcelas(padrao.quantidadeMensalidades);
+      return;
+    }
+    const cotacao = cotarPlanoPagamento(plano);
+    setValorTaxaMatricula(String(cotacao.antecipacaoCentavos / 100));
+    setValorMensalidade(plano.valorParcela);
+    setQuantidadeParcelas(String(plano.quantidadeParcelas));
+    setBolsaPercentual("0");
+    setValorPagoMatricula("");
+    setFormaPagamentoMatricula("");
+  };
   // Somente opt-in explicito permite matricula por turma sem grade.
   const cursoSemGrade = cursoSelecionadoObj?.matriculaDiretaTurma === true;
   const regrasIncluidas = useMemo(() => normalizarSelecaoDisciplinas(cursoSelecionadoObj?.regrasSelecaoDisciplinas), [cursoSelecionadoObj?.regrasSelecaoDisciplinas]);
@@ -1113,7 +1136,8 @@ function AdminMatriculasPage() {
     console.log("📚 Alunos carregados para matrícula:", alunos);
   }, [alunos]);
 
-  useEffect(() => { setCursosAdicionaisEscolhidos([]); setPreviaCombo(null); setMotivoAjusteCombo(""); chaveConfirmacaoCombo.current = ""; }, [cursoId]);
+  useEffect(() => { setCursosAdicionaisEscolhidos([]); setPreviaCombo(null); setMotivoAjusteCombo(""); setPlanoPagamentoId(""); chaveConfirmacaoCombo.current = ""; }, [cursoId]);
+  useEffect(() => { if (cursosAdicionaisEscolhidos.length > 0) setPlanoPagamentoId(""); }, [cursosAdicionaisEscolhidos.length]);
   useEffect(() => { chaveConfirmacaoCombo.current = ""; }, [previaCombo?.versao, dataPrimeiroVencimento, valorTaxaMatricula, valorMensalidade, quantidadeParcelas, bolsaPercentual, motivoAjusteCombo]);
   useEffect(() => {
     const temAdicionais = cursosAdicionaisEscolhidos.length > 0;
@@ -1967,6 +1991,7 @@ function AdminMatriculasPage() {
   }
 
   async function criarMatriculaComAdicionais(confirmacaoMenorAceita = false) {
+    if (planoPagamentoId) { setErro("Planos personalizados para combos exigem homologacao especifica. Desmarque o plano."); return; }
     if (!previaCombo || !podeCriar || previaCombo.turmaIds.length !== cursosAdicionaisEscolhidos.length + 1 ||
         previaCombo.turmaIds[0] !== turmasSelecionadas[0] ||
         [...previaCombo.cursosEscolhidos].sort((a,b)=>a-b).join(",") !== [...cursosAdicionaisEscolhidos].sort((a,b)=>a-b).join(",")) {
@@ -2170,6 +2195,7 @@ function AdminMatriculasPage() {
           dataInicioCurso: dataInicioCurso || null,
           status: statusInicialMatricula,
 
+          planoPagamentoId: planoPagamentoId || null,
           valorMatricula: valorTaxaMatricula === "" ? null : Number(valorTaxaMatricula),
           valorPagoMatricula:
             Number(valorPagoMatricula || 0),
@@ -2211,6 +2237,7 @@ function AdminMatriculasPage() {
 
       setAlunoId("");
       setCursoId("");
+      setPlanoPagamentoId("");
       setVendedorResponsavelId("");
       setCursoSemestreId("");
       setCursoSemestreIds([]);
@@ -4035,6 +4062,7 @@ function AdminMatriculasPage() {
                   return;
                 }
                 const padrao = financeiroPadraoCurso(curso);
+                setPlanoPagamentoId("");
                 setValorTaxaMatricula(padrao.valorMatricula);
                 setValorMensalidade(padrao.valorMensalidade);
                 setQuantidadeParcelas(padrao.quantidadeMensalidades);
@@ -4052,6 +4080,12 @@ function AdminMatriculasPage() {
             </select>
           </div>
         </div>
+        <SeletorPlanoPagamentoMatricula
+          configuracao={cursoSelecionadoObj?.planosPagamento}
+          selecionadoId={planoPagamentoId}
+          onChange={escolherPlanoPagamento}
+          indisponivel={Boolean(cursoSemGrade || precoPorDisciplinas || regrasIncluidas || cursosAdicionaisEscolhidos.length > 0)}
+        />
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           {!cursoSemGrade && <div>
             <label className="text-sm font-medium text-gray-700">
@@ -4250,7 +4284,7 @@ function AdminMatriculasPage() {
           </div>}
           <div>
             <label htmlFor="taxa-matricula-nova" className="text-sm font-medium text-gray-700 dark:text-slate-200">{ts("feeLabel")}</label>
-            <input id="taxa-matricula-nova" type="number" min="0" step="0.01" value={valorTaxaMatricula} onChange={e => setValorTaxaMatricula(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2 bg-white text-slate-900 dark:bg-slate-900 dark:text-white" />
+            <input id="taxa-matricula-nova" type="number" min="0" step="0.01" readOnly={Boolean(planoPagamentoId)} value={valorTaxaMatricula} onChange={e => setValorTaxaMatricula(e.target.value)} className="mt-1 w-full border rounded-xl px-3 py-2 bg-white text-slate-900 dark:bg-slate-900 dark:text-white" />
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{ts("financialDefaultsHelp")}</p>
           </div>
           <div>
@@ -4259,7 +4293,7 @@ function AdminMatriculasPage() {
             </label>
             <input
               type="number"
-              id="mensalidade-nova" min="0" step="0.01" readOnly={precoPorDisciplinas}
+              id="mensalidade-nova" min="0" step="0.01" readOnly={precoPorDisciplinas || Boolean(planoPagamentoId)}
               value={valorMensalidade}
               onChange={(e) => setValorMensalidade(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"
@@ -4267,8 +4301,8 @@ function AdminMatriculasPage() {
               aria-describedby={precoPorDisciplinas ? "ajuda-preco-disciplinas" : undefined}
             />
             {precoPorDisciplinas && <p id="ajuda-preco-disciplinas" className="mt-2 text-sm text-slate-700 dark:text-slate-200">{ta("subjectHelp", { value: new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" }).format(Number(cursoSelecionadoObj?.valorMensalidade || 0)) })}</p>}
-            <ResumoDescontoMensalidade valorMensalidade={cursoSelecionadoObj?.valorMensalidade} percentual={cursoSelecionadoObj?.descontoMensalidadePercentual} />
-            <ResumoDescontoPontualidade mensalidade={Number(valorMensalidade || 0)} bolsa={Number(bolsaPercentual || 0)} />
+            {!planoPagamentoId && <ResumoDescontoMensalidade valorMensalidade={cursoSelecionadoObj?.valorMensalidade} percentual={cursoSelecionadoObj?.descontoMensalidadePercentual} />}
+            {!(planoPagamentoId && (normalizarPlanosPagamento(cursoSelecionadoObj?.planosPagamento)?.planos.find(p => p.id === planoPagamentoId)?.precoIncluiPontualidade)) && <ResumoDescontoPontualidade mensalidade={Number(valorMensalidade || 0)} bolsa={Number(bolsaPercentual || 0)} />}
           </div>
 
           <div>
@@ -4282,6 +4316,7 @@ function AdminMatriculasPage() {
               max="100"
               step="0.01"
               value={bolsaPercentual}
+              disabled={Boolean(planoPagamentoId)}
               onChange={(e) =>
                 setBolsaPercentual(
                   e.target.value
@@ -4328,7 +4363,7 @@ function AdminMatriculasPage() {
             </label>
             <input
               type="number"
-              id="quantidade-mensalidades-nova" min="1" step="1"
+              id="quantidade-mensalidades-nova" min="1" step="1" readOnly={Boolean(planoPagamentoId)}
               value={quantidadeParcelas}
               onChange={(e) => setQuantidadeParcelas(e.target.value)}
               className="mt-1 w-full border rounded-xl px-3 py-2"

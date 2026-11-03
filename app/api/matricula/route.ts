@@ -1,4 +1,6 @@
 import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
+import { ErroPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
+import { selecionarPlanoContratado, validarValoresRecebidosDoPlano, congelarPlanoContratado } from "@/lib/matriculas/plano-contratado";
 import { carregarRegrasSelecao, conferirSelecaoContratada, respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { ErroSelecaoDisciplinas, normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
@@ -556,6 +558,7 @@ type MatriculaBody = {
   bolsaPercentual?: number | string | null;
   quantidadeParcelas?: number | string | null;
   quantidadeMensalidades?: number | string | null;
+  planoPagamentoId?: string | null;
   tipoContratacao?: "CURSO_COMPLETO" | "PARCIAL";
   disciplinaIdsContratadas?: Array<number | string>;
   dataPrimeiroVencimento?: string | null;
@@ -1508,6 +1511,7 @@ export async function GET(request: Request) {
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
+    if (error instanceof ErroPlanosPagamento) return NextResponse.json({ codigo: "PLANO_PAGAMENTO_INVALIDO", error: error.message }, { status: 409 });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     console.error("ERRO AO BUSCAR MATR?CULAS:", error);
@@ -2255,6 +2259,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const planoEscolhido = selecionarPlanoContratado(curso?.planosPagamento, body.planoPagamentoId);
+    if (planoEscolhido && (curso?.organizacaoCurricular === "LIVRE" || curso?.matriculaDiretaTurma ||
+        Boolean(curso?.regrasPrecoDisciplinas) || Boolean(curso?.regrasSelecaoDisciplinas)))
+      throw new ErroPlanosPagamento("Este tipo de curso requer integracao financeira especifica antes de oferecer planos personalizados.");
+    if (planoEscolhido && (tipoContratacao !== "CURSO_COMPLETO" ||
+        body.itensMatricula?.some(item => item.tipoItem && item.tipoItem !== "GRADE_PRINCIPAL")))
+      throw new ErroPlanosPagamento("Planos personalizados com disciplinas extras, dependencia ou contratacao parcial exigem homologacao especifica. Use o fluxo tradicional.");
+
     if (curso?.organizacaoCurricular !== "ANUAL" && semestreFinal === null) {
       if (semestresEncontrados.length === 1) {
         semestreFinal = semestresEncontrados[0];
@@ -2554,7 +2566,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const valorMatricula = Number(
+    const valorMatricula = planoEscolhido ? planoEscolhido.cotacao.antecipacaoCentavos / 100 : Number(
       body.valorMatricula ??
       body.valorPagoMatricula ??
       curso?.valorMatricula ??
@@ -2598,7 +2610,7 @@ export async function POST(request: Request) {
         primeiroVencimentoBruto
       ).trim() !== "";
 
-    const valorMensalidade = precoDisciplinas ? precoDisciplinas.total :
+    const valorMensalidade = planoEscolhido ? Number(planoEscolhido.plano.valorParcela) : precoDisciplinas ? precoDisciplinas.total :
       valorMensalidadeFoiInformado
         ? Number(
             body.valorMensalidade
@@ -2606,6 +2618,7 @@ export async function POST(request: Request) {
         : null;
 
     const quantidadeParcelas =
+      planoEscolhido ? planoEscolhido.plano.quantidadeParcelas :
       quantidadeMensalidadesFoiInformada
         ? Number(
             quantidadeMensalidadesBruta
@@ -2714,6 +2727,19 @@ export async function POST(request: Request) {
       );
     }
 
+    if (planoEscolhido) {
+      if (!dataPrimeiroVencimento) throw new ErroPlanosPagamento("Informe o primeiro vencimento do plano personalizado.");
+      validarValoresRecebidosDoPlano(planoEscolhido, {
+        valorMatricula: body.valorMatricula,
+        valorMensalidade: body.valorMensalidade,
+        quantidadeParcelas: body.quantidadeMensalidades ?? body.quantidadeParcelas,
+        bolsaPercentual,
+        valorInformadoNoAto: body.valorPagoMatricula,
+      });
+    }
+    const snapshotPlano = planoEscolhido
+      ? congelarPlanoContratado(planoEscolhido, cursoIdFinal!, dataPrimeiroVencimento!) : null;
+
     const valorMensalidadeComBolsa =
       valorMensalidade !== null
         ? calcularMensalidadeComBolsa(
@@ -2748,8 +2774,13 @@ export async function POST(request: Request) {
           // A verificacao usa a versao bloqueada do curso dentro da transacao.
           const cursoRotaLegada = await tx.curso.findFirst({
             where: { id: cursoIdFinal!, instituicaoId: user.instituicaoId },
-            select: { matriculaDiretaTurma: true },
+            select: { matriculaDiretaTurma: true, planosPagamento: true },
           });
+          if (planoEscolhido) {
+            const atual = selecionarPlanoContratado(cursoRotaLegada?.planosPagamento, body.planoPagamentoId);
+            if (JSON.stringify(atual?.plano) !== JSON.stringify(planoEscolhido.plano))
+              throw new ErroPlanosPagamento("Plano alterado durante a matricula. Atualize a pagina e escolha novamente.");
+          }
           exigirCursoComGradeNaRotaLegada(cursoRotaLegada);
           await validarCursoAtivoParaMatricula(tx, user.instituicaoId, cursoIdFinal!);
           const regrasAtuais = await carregarRegrasSelecao(tx, user.instituicaoId, cursoIdFinal!);
@@ -2798,6 +2829,8 @@ export async function POST(request: Request) {
             await tx.matricula.create({
               data: {
                 ...(!body.realizadaPeloAluno ? await condicoesPontualidadeMatricula(tx, user.instituicaoId) : {}),
+                ...(snapshotPlano ? { planoPagamentoContratado: snapshotPlano as unknown as Prisma.InputJsonValue } : {}),
+                ...(snapshotPlano?.precoIncluiPontualidade ? { descontoPontualidade: Prisma.DbNull } : {}),
                 dataInicioCurso: inicioCurso.data,
                 ...(contratacaoDisciplinas ? { contratacaoDisciplinas: contratacaoDisciplinas as unknown as Prisma.InputJsonValue } : {}),
                 alunoId,
@@ -3020,6 +3053,7 @@ export async function POST(request: Request) {
                 tipo: "MATRICULA",
 
                 descricao:
+                  snapshotPlano ? `Antecipação do plano (abatida da primeira parcela) - ${curso?.nome || "Curso"}` :
                   `Taxa de matrícula - ${curso?.nome || "Curso"
                   }`,
 
@@ -3087,11 +3121,11 @@ export async function POST(request: Request) {
                     }`,
 
                   valorOriginal:
-                    valorMensalidade,
+                    snapshotPlano ? snapshotPlano.parcelasCentavos[indice] / 100 : valorMensalidade,
 
                   valorFinal:
-                    valorMensalidadeComBolsa ??
-                    valorMensalidade,
+                    snapshotPlano ? snapshotPlano.parcelasExigiveisCentavos[indice] / 100 :
+                    (valorMensalidadeComBolsa ?? valorMensalidade),
 
                   valorPago: 0,
 
@@ -3101,7 +3135,7 @@ export async function POST(request: Request) {
                     "PENDENTE",
 
                   observacao:
-                    "Gerado automaticamente na matrícula",
+                    snapshotPlano ? `Plano personalizado ${snapshotPlano.nome}. Parcela conforme cronograma contratado; antecipação lançada à parte e abatida somente da primeira parcela. Sem baixa automática.` : "Gerado automaticamente na matrícula",
 
                   alunoId,
 
@@ -3372,6 +3406,7 @@ return NextResponse.json({
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
+    if (error instanceof ErroPlanosPagamento) return NextResponse.json({ codigo: "PLANO_PAGAMENTO_INVALIDO", error: error.message }, { status: 409 });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     if (
@@ -4237,6 +4272,30 @@ export async function PUT(request: Request) {
       );
     }
 
+    if (matriculaExistente.planoPagamentoContratado) {
+      // Nao reconstruir cronograma historico com os campos financeiros legados.
+      const atualNumero = (campo: string, existente: unknown) => {
+        const recebido = (body as unknown as Record<string, unknown>)[campo];
+        return recebido === undefined || recebido === null || recebido === "" ||
+          (Number.isFinite(Number(recebido)) && Math.round(Number(recebido) * 100) === Math.round(Number(existente ?? 0) * 100));
+      };
+      const primeiroRecebido = body.primeiroVencimento ?? body.dataPrimeiroVencimento;
+      const primeiroAtual = matriculaExistente.primeiroVencimento?.toISOString().slice(0, 10) ?? null;
+      const dataIgual = primeiroRecebido === undefined || primeiroRecebido === null || primeiroRecebido === "" ||
+        (typeof primeiroRecebido === "string" && /^\d{4}-\d{2}-\d{2}$/.test(primeiroRecebido) && primeiroRecebido === primeiroAtual);
+      const atualParcelas = body.quantidadeMensalidades ?? body.quantidadeParcelas;
+      const parcelasIguais = atualParcelas === undefined || atualParcelas === null || atualParcelas === "" ||
+        Number(atualParcelas) === matriculaExistente.quantidadeMensalidades;
+      const cursoIgual = body.cursoId === undefined || body.cursoId === null ||
+        Number(body.cursoId) === matriculaExistente.cursoId;
+      if (!atualNumero("valorPagoMatricula", matriculaExistente.valorMatricula) ||
+          !atualNumero("valorMatricula", matriculaExistente.valorMatricula) ||
+          !atualNumero("valorMensalidade", matriculaExistente.valorMensalidade) ||
+          !atualNumero("bolsaPercentual", matriculaExistente.bolsaPercentual) ||
+          !parcelasIguais || !dataIgual || !cursoIgual || body.planoPagamentoId !== undefined)
+        return NextResponse.json({ codigo: "PLANO_COM_HISTORICO", error: "Este plano possui cronograma contratado. Alterações financeiras exigem uma revisão auditada específica; valores e parcelas não foram alterados." }, { status: 409 });
+    }
+
     if (matriculaExistente.contratacaoModalidades) {
       const t = await getTranslations("EnrollmentCombos");
       return NextResponse.json({ error: t("comboEditHelp"), codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });
@@ -5043,6 +5102,7 @@ export async function PUT(request: Request) {
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo, error: error.codigo }, { status: error.status });
+    if (error instanceof ErroPlanosPagamento) return NextResponse.json({ codigo: "PLANO_PAGAMENTO_INVALIDO", error: error.message }, { status: 409 });
     const erroAcademico = respostaErroAcademico(error);
     if (erroAcademico) return erroAcademico;
     if (error instanceof ErroModalidades) {

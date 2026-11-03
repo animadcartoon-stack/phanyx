@@ -100,6 +100,8 @@ export async function POST(req: NextRequest) {
     for (const matricula of matriculas) {
       if (matricula.organizacaoCurricular === "LIVRE") continue;
       totalMatriculasAnalisadas += 1;
+      // Planos especiais ja geram seu cronograma fechado na matricula: nunca criar mensalidade extra por competencia.
+      if (matricula.planoPagamentoContratado) continue;
       if (matricula.curso?.regrasPrecoDisciplinas && matricula.valorMensalidade == null) { totalSemValorMensalidade += 1; continue; }
 
       if (!matricula.curso) {

@@ -44,6 +44,9 @@ export async function POST(req: Request) {
       );
     }
 
+    if (body.planoPagamentoId !== undefined && body.planoPagamentoId !== null && body.planoPagamentoId !== "")
+      return NextResponse.json({ codigo: "USE_MATRICULA_PRINCIPAL", error: "Planos personalizados exigem a rota principal de matriculas." }, { status: 409 });
+
     const resultado = await prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "Curso" WHERE "id"=${Number(cursoId)} AND "instituicaoId"=${user.instituicaoId} FOR SHARE`;
       await validarCursoAtivoParaMatricula(tx, user.instituicaoId, Number(cursoId));

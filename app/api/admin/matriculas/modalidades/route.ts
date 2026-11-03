@@ -36,6 +36,8 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     if (!body || typeof body !== "object" || Array.isArray(body))
       throw new ErroModalidades("SELECAO_INVALIDA");
+    if (body.planoPagamentoId !== undefined && body.planoPagamentoId !== null && body.planoPagamentoId !== "")
+      throw new ErroModalidades("PLANO_PAGAMENTO_COMBO_NAO_HOMOLOGADO", 409);
     if (body.acao === "PREVIA") {
       const previa = await prisma.$transaction(
         async (tx) => {
