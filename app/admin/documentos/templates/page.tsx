@@ -2213,6 +2213,11 @@ function AdminDocumentosTemplatesPage() {
     "{{percentualDescontoPontualidade}}",
     "{{diasAntecedenciaDescontoPontualidade}}",
     "{{valorMensalidadeComDescontoPontualidade}}",
+    "{{percentualDescontoAntecipado}}",
+    "{{diasAntecedenciaDescontoAntecipado}}",
+    "{{valorMensalidadeComDescontoAntecipado}}",
+    "{{percentualDescontoAteVencimento}}",
+    "{{valorMensalidadeComDescontoAteVencimento}}",
     "{{cidadeAssinatura}}",
     "{{dataAtual}}",
     "{{referenciaFinanceira}}",
@@ -3248,6 +3253,28 @@ function AdminDocumentosTemplatesPage() {
       ondeUsar: "Contratos de matrícula.",
       categoria: "Contratos e Comprovantes",
       palavras: ["desconto", "pontualidade", "mensalidade", "vencimento"],
+    },
+
+    "{{percentualDescontoAntecipado}}": {
+      titulo: "Percentual por pagamento antecipado",
+      descricao: "Percentual da faixa de antecipação, sem o sinal de porcentagem.",
+      ondeUsar: "Contratos de matrícula.", categoria: "Contratos e Comprovantes", palavras: ["antecipado", "pontualidade"],
+    },
+    "{{diasAntecedenciaDescontoAntecipado}}": {
+      titulo: "Dias mínimos de antecedência", descricao: "Prazo mínimo para a faixa antecipada.",
+      ondeUsar: "Contratos de matrícula.", categoria: "Contratos e Comprovantes", palavras: ["antecipado", "prazo"],
+    },
+    "{{valorMensalidadeComDescontoAntecipado}}": {
+      titulo: "Mensalidade com desconto antecipado", descricao: "Mensalidade após bolsa e desconto antecipado.",
+      ondeUsar: "Contratos de matrícula.", categoria: "Contratos e Comprovantes", palavras: ["antecipado", "mensalidade"],
+    },
+    "{{percentualDescontoAteVencimento}}": {
+      titulo: "Percentual até o vencimento", descricao: "Percentual da faixa até o vencimento, sem %.",
+      ondeUsar: "Contratos de matrícula.", categoria: "Contratos e Comprovantes", palavras: ["pontualidade", "vencimento"],
+    },
+    "{{valorMensalidadeComDescontoAteVencimento}}": {
+      titulo: "Mensalidade com desconto até o vencimento", descricao: "Mensalidade após bolsa e desconto até o vencimento.",
+      ondeUsar: "Contratos de matrícula.", categoria: "Contratos e Comprovantes", palavras: ["vencimento", "mensalidade"],
     },
 
     "{{referenciaFinanceira}}": {

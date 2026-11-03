@@ -1,4 +1,4 @@
-import { descontoPontualidadeEmReais, lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+import { descontoPontualidadeEmReais, faixasDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 
 type MatriculaBolsaDocumentoInput = {
   valorMensalidade?: unknown;
@@ -550,31 +550,45 @@ export function montarDadosBolsaDocumento(
       valorTotalComBolsaFormatado,
     });
 
-  const pontualidade = lerDescontoPontualidade(matricula?.descontoPontualidade);
-  const descontoPontualidade = pontualidade
-    ? descontoPontualidadeEmReais(valorMensalidadeComBolsa, pontualidade.percentual)
-    : 0;
-  const percentualPontualidade = pontualidade
-    ? formatarPercentualDocumento(pontualidade.percentual, locale)
-    : "";
-  const valorPontualidade = descontoPontualidade > 0
-    ? formatarMoedaDocumento(valorMensalidadeComBolsa - descontoPontualidade, locale)
-    : "";
-  const dias = pontualidade?.diasAntecedencia ?? 0;
-  const condicoes = {
-    "pt-BR": dias ? `com pelo menos ${dias} dia(s) de antecedência` : "até o vencimento",
-    "pt-PT": dias ? `com pelo menos ${dias} dia(s) de antecedência` : "até ao vencimento",
-    "en-US": dias ? `at least ${dias} day(s) before the due date` : "by the due date",
-    "es-ES": dias ? `al menos ${dias} día(s) antes del vencimiento` : "hasta el vencimiento",
-    "fr-FR": dias ? `au moins ${dias} jour(s) avant l’échéance` : "au plus tard à l’échéance",
+  const faixasPontualidade = faixasDescontoPontualidade(matricula?.descontoPontualidade);
+  const antecipado = faixasPontualidade.antecipado;
+  const ateVencimento = faixasPontualidade.vencimento;
+  const pontualidade = antecipado || ateVencimento;
+  const regraPrincipal = antecipado ?? ateVencimento;
+  const valorComDesconto = (percentual: number) => {
+    const desconto = descontoPontualidadeEmReais(valorMensalidadeComBolsa, percentual);
+    return desconto > 0 ? formatarMoedaDocumento(valorMensalidadeComBolsa - desconto, locale) : "";
   };
-  const clausulas = {
-    "pt-BR": `Cada mensalidade quitada integralmente ${condicoes["pt-BR"]} terá desconto de ${percentualPontualidade}%.`,
-    "pt-PT": `Cada mensalidade paga na íntegra ${condicoes["pt-PT"]} terá um desconto de ${percentualPontualidade}%.`,
-    "en-US": `A ${percentualPontualidade}% discount applies to each monthly tuition payment made in full ${condicoes["en-US"]}.`,
-    "es-ES": `Se aplica un descuento del ${percentualPontualidade}% a cada mensualidad pagada íntegramente ${condicoes["es-ES"]}.`,
-    "fr-FR": `Une remise de ${percentualPontualidade} % s’applique à chaque mensualité réglée intégralement ${condicoes["fr-FR"]}.`,
+  const percentualPontualidade = regraPrincipal ? formatarPercentualDocumento(regraPrincipal.percentual, locale) : "";
+  const valorPontualidade = regraPrincipal ? valorComDesconto(regraPrincipal.percentual) : "";
+  const dias = regraPrincipal?.diasAntecedencia ?? 0;
+  const percentualAntecipado = antecipado ? formatarPercentualDocumento(antecipado.percentual, locale) : "";
+  const percentualAteVencimento = ateVencimento ? formatarPercentualDocumento(ateVencimento.percentual, locale) : "";
+
+  const frasesAntecipado = {
+    "pt-BR": antecipado ? `Cada mensalidade quitada integralmente com pelo menos ${antecipado.diasAntecedencia} dia(s) de antecedência terá desconto de ${percentualAntecipado}%.` : "",
+    "pt-PT": antecipado ? `Cada mensalidade paga na íntegra com pelo menos ${antecipado.diasAntecedencia} dia(s) de antecedência terá desconto de ${percentualAntecipado}%.` : "",
+    "en-US": antecipado ? `A ${percentualAntecipado}% discount applies to each monthly payment made in full at least ${antecipado.diasAntecedencia} day(s) before the due date.` : "",
+    "es-ES": antecipado ? `Cada mensualidad pagada íntegramente con al menos ${antecipado.diasAntecedencia} día(s) de anticipación tendrá un descuento del ${percentualAntecipado}%.` : "",
+    "fr-FR": antecipado ? `Toute mensualité payée intégralement au moins ${antecipado.diasAntecedencia} jour(s) avant l’échéance bénéficie d’une remise de ${percentualAntecipado} %.` : "",
   };
+  const frasesVencimento = {
+    "pt-BR": ateVencimento ? `${antecipado ? "Após esse prazo, o pagamento integral realizado até o vencimento" : "Cada mensalidade quitada integralmente até o vencimento"} terá desconto de ${percentualAteVencimento}%.` : "",
+    "pt-PT": ateVencimento ? `${antecipado ? "Após esse prazo, o pagamento integral efetuado até ao vencimento" : "Cada mensalidade paga na íntegra até ao vencimento"} terá desconto de ${percentualAteVencimento}%.` : "",
+    "en-US": ateVencimento ? `${antecipado ? "After that early-payment deadline, full payment by the due date" : "Full payment by the due date"} receives a ${percentualAteVencimento}% discount.` : "",
+    "es-ES": ateVencimento ? `${antecipado ? "Después de ese plazo, el pago íntegro hasta el vencimiento" : "El pago íntegro hasta el vencimiento"} tendrá un descuento del ${percentualAteVencimento}%.` : "",
+    "fr-FR": ateVencimento ? `${antecipado ? "Après ce délai, le paiement intégral avant l’échéance" : "Le paiement intégral avant l’échéance"} bénéficie d’une remise de ${percentualAteVencimento} %.` : "",
+  };
+  const frasesNaoAcumular = {
+    "pt-BR": "Os descontos não são cumulativos: aplica-se somente a condição correspondente à data do pagamento.",
+    "pt-PT": "Os descontos não são cumulativos: aplica-se apenas a condição correspondente à data do pagamento.",
+    "en-US": "Discounts cannot be combined; only the rate applicable on the payment date applies.",
+    "es-ES": "Los descuentos no son acumulables; solo se aplica la tasa correspondiente a la fecha de pago.",
+    "fr-FR": "Les remises ne se cumulent pas ; seul le taux correspondant à la date de paiement s’applique.",
+  };
+  const clausulaPontualidade = pontualidade
+    ? [frasesAntecipado[locale], frasesVencimento[locale], antecipado && ateVencimento ? frasesNaoAcumular[locale] : ""].filter(Boolean).join(" ")
+    : "";
 
   return {
     percentualBolsa:
@@ -601,9 +615,14 @@ export function montarDadosBolsaDocumento(
       valorTotalComBolsaFormatado,
 
     textoBolsaContrato,
-    textoDescontoPontualidadeContrato: pontualidade ? clausulas[locale] : "",
+    textoDescontoPontualidadeContrato: clausulaPontualidade,
     percentualDescontoPontualidade: percentualPontualidade,
     diasAntecedenciaDescontoPontualidade: pontualidade ? String(dias) : "",
     valorMensalidadeComDescontoPontualidade: valorPontualidade,
+    percentualDescontoAntecipado: percentualAntecipado,
+    diasAntecedenciaDescontoAntecipado: antecipado ? String(antecipado.diasAntecedencia) : "",
+    valorMensalidadeComDescontoAntecipado: antecipado ? valorComDesconto(antecipado.percentual) : "",
+    percentualDescontoAteVencimento: percentualAteVencimento,
+    valorMensalidadeComDescontoAteVencimento: ateVencimento ? valorComDesconto(ateVencimento.percentual) : "",
   };
 }

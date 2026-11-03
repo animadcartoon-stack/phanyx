@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { DescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+import { faixasParaEdicaoPontualidade, type DescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { useTranslations } from "next-intl";
 
 type ConfigFinanceira = {
@@ -450,6 +450,8 @@ export default function ConfiguracoesFinanceirasPage() {
     );
   }
 
+  const faixasPontualidade = faixasParaEdicaoPontualidade(form.descontoPontualidade);
+
   const inputClassName =
     "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-950 dark:text-white";
 
@@ -557,58 +559,80 @@ export default function ConfiguracoesFinanceirasPage() {
           <fieldset className="space-y-3 rounded-lg border p-4 md:col-span-2">
             <legend className="px-2 font-semibold">{t("pontualidade.title")}</legend>
             <p className="text-sm text-slate-700 dark:text-slate-200">{t("pontualidade.help")}</p>
-            <label className="block">
-              <span className="text-sm font-medium">{t("pontualidade.condition")}</span>
-              <select
-                value={!form.descontoPontualidade ? "off" : form.descontoPontualidade.diasAntecedencia ? "early" : "due"}
-                className={inputClassName}
-                onChange={(e) => {
-                  const modo = e.target.value;
-                  setForm((prev) => ({
-                    ...prev,
-                    descontoPontualidade: modo === "off" ? null : {
-                      percentual: prev.descontoPontualidade?.percentual ?? 0,
-                      diasAntecedencia: modo === "early" ? 1 : 0,
-                    },
-                  }));
-                }}
-              >
-                <option value="off">{t("pontualidade.off")}</option>
-                <option value="early">{t("pontualidade.early")}</option>
-                <option value="due">{t("pontualidade.due")}</option>
-              </select>
-            </label>
-            {form.descontoPontualidade && (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label>
-                  <span className="text-sm font-medium">{t("pontualidade.percent")}</span>
-                  <input type="number" min="0.01" max="99.99" step="0.01" required
-                    className={inputClassName}
-                    value={form.descontoPontualidade.percentual || ""}
-                    onChange={(e) => {
-                      const percentual = Number(e.target.value);
-                      setForm((prev) => prev.descontoPontualidade ? {
-                        ...prev, descontoPontualidade: { ...prev.descontoPontualidade, percentual },
-                      } : prev);
-                    }}
-                  />
-                </label>
-                {form.descontoPontualidade.diasAntecedencia > 0 && (
-                  <label>
-                    <span className="text-sm font-medium">{t("pontualidade.days")}</span>
-                    <input type="number" min="1" max="365" step="1" required
-                      className={inputClassName}
-                      value={form.descontoPontualidade.diasAntecedencia}
+            <p className="text-sm text-slate-700 dark:text-slate-200">{t("pontualidade.notCumulative")}</p>
+            {(["antecipado", "vencimento"] as const).map((tipo) => {
+              const faixa = faixasPontualidade[tipo];
+              const habilitado = Boolean(faixa);
+              return (
+                <div key={tipo} className="space-y-3 rounded-lg border border-slate-300 p-3 dark:border-slate-600">
+                  <label className="flex items-center gap-3">
+                    <input type="checkbox" checked={habilitado}
                       onChange={(e) => {
-                        const diasAntecedencia = Math.max(1, Number(e.target.value));
-                        setForm((prev) => prev.descontoPontualidade ? {
-                          ...prev, descontoPontualidade: { ...prev.descontoPontualidade, diasAntecedencia },
-                        } : prev);
+                        const ativo = e.target.checked;
+                        setForm((prev) => {
+                          const atual = faixasParaEdicaoPontualidade(prev.descontoPontualidade);
+                          const proximas = {
+                            ...atual,
+                            [tipo]: ativo ? (atual[tipo] ?? {
+                              percentual: 0,
+                              diasAntecedencia: tipo === "antecipado" ? 3 : 0,
+                            }) : null,
+                          };
+                          return { ...prev, descontoPontualidade:
+                            proximas.antecipado || proximas.vencimento ? proximas : null };
+                        });
                       }}
+                      className="h-4 w-4 accent-blue-600"
                     />
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {tipo === "antecipado" ? t("pontualidade.early") : t("pontualidade.due")}
+                    </span>
                   </label>
-                )}
-              </div>
+                  {habilitado && faixa && (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="text-sm font-medium">{t("pontualidade.percent")}</span>
+                        <input type="number" min="0.01" max="99.99" step="0.01" required
+                          className={inputClassName}
+                          value={faixa.percentual || ""}
+                          onChange={(e) => {
+                            const percentual = Number(e.target.value);
+                            setForm((prev) => {
+                              const atual = faixasParaEdicaoPontualidade(prev.descontoPontualidade);
+                              return { ...prev, descontoPontualidade: {
+                                ...atual, [tipo]: { ...atual[tipo]!, percentual },
+                              }};
+                            });
+                          }}
+                        />
+                      </label>
+                      {tipo === "antecipado" && (
+                        <label className="block">
+                          <span className="text-sm font-medium">{t("pontualidade.days")}</span>
+                          <input type="number" min="1" max="365" step="1" required
+                            className={inputClassName}
+                            value={faixa.diasAntecedencia || ""}
+                            onChange={(e) => {
+                              const diasAntecedencia = Number(e.target.value);
+                              setForm((prev) => {
+                                const atual = faixasParaEdicaoPontualidade(prev.descontoPontualidade);
+                                return { ...prev, descontoPontualidade: {
+                                  ...atual, antecipado: { ...atual.antecipado!, diasAntecedencia },
+                                }};
+                              });
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {faixasPontualidade.antecipado && faixasPontualidade.vencimento && (
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                {t("pontualidade.asaasTwoTiers")}
+              </p>
             )}
           </fieldset>
 

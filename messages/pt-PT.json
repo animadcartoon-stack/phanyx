@@ -14576,6 +14576,8 @@
   "AdminFinanceSettings": {
     "pontualidade": {
       "title": "Desconto por pontualidade",
+      "notCumulative": "Os descontos não são cumulativos: aplica-se apenas a faixa correspondente à data do pagamento.",
+      "asaasTwoTiers": "Atenção: o Asaas aceita apenas uma faixa por boleto. Com ambas ativas, a emissão do boleto ficará bloqueada até à homologação da integração.",
       "help": "A regra aplica-se às novas matrículas. O desconto incide sobre a mensalidade após bolsas e descontos contratados, quando paga na íntegra até à data-limite.",
       "condition": "Condição de pagamento",
       "off": "Desativado",

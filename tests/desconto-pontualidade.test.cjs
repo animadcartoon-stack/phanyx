@@ -215,3 +215,35 @@ test("instituição sem configuração não contrata desconto e outra pode escol
   assert.equal(contratada.descontoPontualidade.percentual, 10);
   assert.equal(contratada.descontoPontualidade.diasAntecedencia, 0);
 });
+
+
+test("duas faixas opcionais escolhem exatamente uma por data", () => {
+  const { cotarDescontoPontualidade, lerDescontoPontualidade, faixasDescontoPontualidade } = carregar("lib/financeiro/desconto-pontualidade.ts");
+  const dupla = { antecipado: { percentual: 10, diasAntecedencia: 3 }, vencimento: { percentual: 5, diasAntecedencia: 0 } };
+  const p = { ...parcela, matricula: { descontoPontualidade: dupla } };
+  assert.equal(cotarDescontoPontualidade(p, 300, "2027-03-07").valorComDesconto, 270);
+  assert.equal(cotarDescontoPontualidade(p, 300, "2027-03-08").valorComDesconto, 285);
+  assert.equal(cotarDescontoPontualidade(p, 300, "2027-03-10").valorComDesconto, 285);
+  assert.equal(cotarDescontoPontualidade(p, 300, "2027-03-11"), null);
+  assert.equal(cotarDescontoPontualidade({ ...p, tipo: "MATRICULA" }, 300, "2027-03-07"), null);
+  assert.equal(cotarDescontoPontualidade({ ...p, status: "PARCIAL" }, 300, "2027-03-07"), null);
+  assert.equal(lerDescontoPontualidade({ antecipado: { percentual: 0, diasAntecedencia: 3 }, vencimento: dupla.vencimento }), null);
+  assert.equal(lerDescontoPontualidade({ vencimento: { percentual: 5, diasAntecedencia: 1 } }), null);
+  assert.equal(faixasDescontoPontualidade({ antecipado: dupla.antecipado }).vencimento, null);
+  assert.equal(faixasDescontoPontualidade({ vencimento: dupla.vencimento }).antecipado, null);
+  assert.equal(faixasDescontoPontualidade({ percentual: 5, diasAntecedencia: 3 }).antecipado.percentual, 5);
+});
+
+test("contrato apresenta as duas faixas e as novas variaveis", () => {
+  const { montarDadosBolsaDocumento } = carregar("lib/documentos/bolsa-documento.ts");
+  const dados = montarDadosBolsaDocumento({ valorMensalidade: 360, bolsaPercentual: 25,
+    descontoPontualidade: { antecipado: { percentual: 10, diasAntecedencia: 3 }, vencimento: { percentual: 5, diasAntecedencia: 0 } },
+  }, "pt-BR");
+  assert.match(dados.textoDescontoPontualidadeContrato, /3 dia\(s\).*10%/);
+  assert.match(dados.textoDescontoPontualidadeContrato, /vencimento.*5%/);
+  assert.match(dados.textoDescontoPontualidadeContrato, /não são cumulativos/);
+  assert.equal(dados.percentualDescontoAntecipado, "10");
+  assert.equal(dados.percentualDescontoAteVencimento, "5");
+  assert.match(dados.valorMensalidadeComDescontoAntecipado, /243,00/);
+  assert.match(dados.valorMensalidadeComDescontoAteVencimento, /256,50/);
+});

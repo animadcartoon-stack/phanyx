@@ -1,4 +1,4 @@
-import { cotarDescontoPontualidade, diaFinanceiro, lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+import { cotarDescontoPontualidade, diaFinanceiro, lerDescontoPontualidade, faixasDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
@@ -640,6 +640,12 @@ export async function POST(
               referenciaCobranca,
           },
         });
+
+    // Uma cobranca Asaas admite somente um desconto e um limite. Nunca fingir duas faixas no mesmo boleto.
+    const faixasDoBoleto = faixasDescontoPontualidade(lancamento.matricula?.descontoPontualidade);
+    if (faixasDoBoleto.antecipado && faixasDoBoleto.vencimento) {
+      return NextResponse.json({ error: "Esta matrícula possui duas faixas de desconto. A emissão de boleto no Asaas está indisponível para essa combinação; registre pagamento manual ou utilize uma única faixa até a homologação bancária." }, { status: 409 });
+    }
 
     const cotacao = cotarDescontoPontualidade(lancamento, saldo, diaFinanceiro(new Date()));
     const pontualidade = cotacao ? { ...cotacao, lancamentoId: lancamento.id } : null;
