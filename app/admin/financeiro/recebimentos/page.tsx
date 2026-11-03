@@ -38,6 +38,7 @@ type RecebimentoItem = {
   descricao?: string | null;
   valorOriginal: number;
   descontoValor?: number | null;
+  pontualidadeDisponivel?: { desconto: number; valorComDesconto: number } | null;
   jurosValor?: number | null;
   multaValor?: number | null;
   valorFinal?: number | null;
@@ -532,6 +533,7 @@ function RecebimentosTour({
 
 export default function AdminFinanceiroRecebimentosPage() {
   const t = useTranslations("AdminFinanceiroRecebimentos");
+  const tPontualidade = useTranslations("AdminFinanceSettings.pontualidade");
   const locale = useLocale();
 
   const searchParams =
@@ -806,6 +808,9 @@ setDocumentosGerados([]);
           descontoValor,
           jurosValor,
           multaValor,
+          aplicarPontualidade: Boolean(recebimento?.pontualidadeDisponivel &&
+            ![descontoValor, jurosValor, multaValor].some(v => numero(v) !== 0) &&
+            numero(valorPago) === recebimento.pontualidadeDisponivel.valorComDesconto),
         }),
       });
 
@@ -871,6 +876,9 @@ setDocumentosGerados([]);
           descontoValor: loteDescontoValor,
           jurosValor: loteJurosValor,
           multaValor: loteMultaValor,
+          aplicarPontualidade: Boolean(item.pontualidadeDisponivel &&
+            ![loteDescontoValor, loteJurosValor, loteMultaValor].some(v => numero(v) !== 0) &&
+            valorFinalCalculado === item.pontualidadeDisponivel.valorComDesconto),
         }),
       });
 
@@ -917,6 +925,9 @@ function calcularValorFinalLote(item: RecebimentoItem) {
   const juros = numero(loteJurosValor);
   const multa = numero(loteMultaValor);
 
+  if (item.pontualidadeDisponivel && !desconto && !juros && !multa) {
+    return item.pontualidadeDisponivel.valorComDesconto;
+  }
   const calculado = valorBase - desconto + juros + multa;
 
   return calculado > 0 ? calculado : 0;
@@ -934,6 +945,9 @@ function calcularValorFinalLote(item: RecebimentoItem) {
     const juros = numero(jurosValor);
     const multa = numero(multaValor);
 
+    if (recebimento?.pontualidadeDisponivel && !desconto && !juros && !multa) {
+      return recebimento.pontualidadeDisponivel.valorComDesconto;
+    }
     const calculado = valorBase - desconto + juros + multa;
 
     return calculado > 0 ? calculado : 0;
@@ -1285,6 +1299,11 @@ useEffect(() => {
                 <div>{formatarMoeda(item.valorOriginal)}</div>
                 <div>
                   {formatarMoeda(item.valorFinal ?? item.valorOriginal ?? 0)}
+                  {item.pontualidadeDisponivel && (
+                    <p className="mt-1 text-xs font-medium text-emerald-800 dark:text-emerald-200">
+                      {tPontualidade("receivable", { valor: formatarMoeda(item.pontualidadeDisponivel.valorComDesconto) })}
+                    </p>
+                  )}
                 </div>
                 <div>{formatarMoeda(item.valorPago || 0)}</div>
 

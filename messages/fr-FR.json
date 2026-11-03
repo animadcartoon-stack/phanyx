@@ -14787,6 +14787,19 @@
     }
   },
   "AdminFinanceSettings": {
+    "pontualidade": {
+      "title": "Remise pour paiement ponctuel",
+      "help": "La règle s’applique aux nouvelles inscriptions. La remise porte sur la mensualité après les bourses et remises contractuelles, réglée intégralement avant la date limite ou ce jour-là.",
+      "condition": "Condition de paiement",
+      "off": "Désactivée",
+      "early": "Paiement anticipé",
+      "due": "Jusqu’à l’échéance",
+      "percent": "Remise (%)",
+      "days": "Jours avant l’échéance",
+      "summaryEarly": "Mensualité de {valor} avec {percentual} % de remise en cas de règlement intégral au moins {dias} jour(s) avant l’échéance.",
+      "receivable": "{valor} avec remise aujourd’hui",
+      "summaryDue": "Mensualité de {valor} avec {percentual} % de remise en cas de règlement intégral au plus tard à l’échéance."
+    },
     "loading": "Chargement des paramètres financiers...",
     "title": "Paramètres financiers de l’établissement",
     "subtitle": "Définissez les valeurs financières par défaut utilisées par l’établissement.",

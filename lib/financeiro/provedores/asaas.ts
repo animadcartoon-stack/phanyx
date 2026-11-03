@@ -1,5 +1,7 @@
 ﻿import "server-only";
 
+import { limiteDescontoPontualidade } from "../desconto-pontualidade";
+
 import {
   descriptografarCredencial,
 } from "@/lib/crypto-credenciais";
@@ -30,6 +32,9 @@ type AsaasPaymentResponse = {
   customer?: string;
   billingType?: string;
   value?: number;
+  clientPaymentDate?: string | null;
+  paymentDate?: string | null;
+  discount?: { type?: string; value?: number; dueDateLimitDays?: number } | null;
   status?: string;
   invoiceUrl?: string;
   bankSlipUrl?: string;
@@ -533,6 +538,8 @@ export function criarProvedorAsaas(
 
       return {
         cobrancaExternaId: pagamento.id,
+        valorPago: pagamento.value,
+        diaPagamento: pagamento.clientPaymentDate || pagamento.paymentDate || undefined,
         statusExterno: String(
           pagamento.status || "PENDING"
         ),
@@ -544,6 +551,7 @@ export function criarProvedorAsaas(
         codigoBarras,
         metadata: {
           recuperadaPorReferencia: true,
+          descontoAsaas: pagamento.discount ?? null,
           customer: pagamento.customer,
           externalReference:
             pagamento.externalReference,
@@ -554,6 +562,15 @@ export function criarProvedorAsaas(
     async criarBoleto(
       input: CriarBoletoFinanceiroInput
     ): Promise<CriarBoletoFinanceiroResult> {
+      const vencimento = vencimentoPermitidoAsaas(input.vencimento);
+      const regra = input.descontoPontualidade;
+      const discount = regra && vencimento === input.vencimento &&
+        hojeAsaas() <= limiteDescontoPontualidade(new Date(vencimento), regra.diasAntecedencia) ? {
+        type: "PERCENTAGE",
+        value: regra.percentual,
+        dueDateLimitDays: regra.diasAntecedencia,
+      } : undefined;
+
       const pagamento =
         await requisicaoAsaas<AsaasPaymentResponse>(
           configuracao,
@@ -571,10 +588,8 @@ export function criarProvedorAsaas(
               value:
                 input.valor,
 
-              dueDate:
-                vencimentoPermitidoAsaas(
-                  input.vencimento
-                ),
+              dueDate: vencimento,
+              discount,
 
               description:
                 input.descricao,
@@ -644,6 +659,8 @@ export function criarProvedorAsaas(
         cobrancaExternaId:
           pagamento.id,
 
+        valorPago: pagamento.value,
+        diaPagamento: pagamento.clientPaymentDate || pagamento.paymentDate || undefined,
         statusExterno:
           String(
             pagamento.status ||
@@ -674,10 +691,8 @@ export function criarProvedorAsaas(
           vencimentoOriginal:
             input.vencimento,
 
-          vencimentoEnviado:
-            vencimentoPermitidoAsaas(
-              input.vencimento
-            ),
+          vencimentoEnviado: vencimento,
+          descontoAsaas: pagamento.discount ?? discount ?? null,
         },
       };
     },

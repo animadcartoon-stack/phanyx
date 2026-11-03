@@ -1,4 +1,5 @@
 "use client";
+import { ResumoDescontoPontualidade } from "@/components/admin/ResumoDescontoPontualidade";
 import { faltantesRequisitos, mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -711,6 +712,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
                   {moeda(finais.taxa + finais.mensalidade * finais.parcelas)}
                 </dd>
               </dl>
+              <ResumoDescontoPontualidade mensalidade={finais.mensalidade / 100} />
               <fieldset
                 disabled={bloqueado}
                 className="space-y-4 disabled:opacity-60"

@@ -7,6 +7,7 @@ function fixture(){
  curso:{id,nome:'Curso '+id,participaCombo:true,valorMatricula:98.5,valorMensalidade:139,regrasPrecoDisciplinas:null,descontoMensalidadePercentual:null,valorMensalidadeCombo:125,precosComboPorQuantidade:[],quantidadeParcelas:12,requisitosConjuntos:[]},
  disciplinas:[{disciplinaId:id,dataInicio:null,dataFim:null,disciplina:{nome:'Disciplina '+id,cargaHoraria:20,semestre:null},horarios:[{diaSemana:id,horaInicio:'09:00',horaFim:'10:00'}]}]}));
  const db={
+  configuracaoFinanceiraInstituicao: { findUnique: async () => null },
   turma:{findMany:async()=>turmas},itemMatricula:{findMany:async()=>itens},turmaDisciplina:{findMany:async()=>[]},
   aluno:{findFirst:async()=>({id:5,poloId:1,ativo:true,dataNascimento:new Date('2000-01-01')})},
   cursoRequisitoConjunto:{findMany:async({where})=>required.filter(r=>where.cursoId.in.includes(r.cursoId))},

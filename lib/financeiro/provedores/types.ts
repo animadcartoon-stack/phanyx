@@ -28,6 +28,7 @@ export type CriarBoletoFinanceiroInput = {
   clienteExternoId: string;
   valor: number;
   vencimento: string;
+  descontoPontualidade?: { percentual: number; diasAntecedencia: number };
   descricao: string;
   referenciaExterna: string;
 };
@@ -35,6 +36,8 @@ export type CriarBoletoFinanceiroInput = {
 export type CriarBoletoFinanceiroResult = {
   cobrancaExternaId: string;
   statusExterno: string;
+  valorPago?: number;
+  diaPagamento?: string;
   invoiceUrl?: string | null;
   boletoUrl?: string | null;
   linhaDigitavel?: string | null;

@@ -1244,6 +1244,7 @@ enum TipoContratacaoMatricula {
 }
 
 model Matricula {
+  descontoPontualidade Json?
   // Uma contratacao pode reunir diferentes cursos sem disciplinas/grade.
   turmasAvulsas MatriculaTurmaAvulsa[]
   regrasSelecaoDisciplinas Json?
@@ -2560,6 +2561,7 @@ model CobrancaFinanceira {
 }
 
 model ConfiguracaoFinanceiraInstituicao {
+  descontoPontualidade Json?
   id                                 Int      @id @default(autoincrement())
   instituicaoId                      Int      @unique
   jurosPadrao                        Decimal  @default(0) @db.Decimal(10, 2)

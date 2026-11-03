@@ -1,3 +1,4 @@
+import { lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { NextResponse } from "next/server";
 import { matriculaCancelada, filtroMatriculaNaoCancelada } from "@/lib/financeiro/matricula-cancelada";
 import { prisma } from "@/lib/prisma";
@@ -76,7 +77,7 @@ export async function POST() {
       include: {
         pagamentos: true,
         matricula: {
-          select: { realizadaPeloAluno: true, status: true, canceladaEm: true },
+          select: { realizadaPeloAluno: true, status: true, canceladaEm: true, descontoPontualidade: true },
         },
       },
       orderBy: {
@@ -117,6 +118,30 @@ export async function POST() {
         hoje > dataLimiteSemAtraso
           ? diferencaEmDias(dataLimiteSemAtraso, hoje)
           : 0;
+
+      // A quitação com pontualidade mantém o valor efetivamente recebido.
+      if (lancamento.tipo === "MENSALIDADE" && lerDescontoPontualidade(lancamento.matricula?.descontoPontualidade)) {
+        if (lancamento.status === "PAGO") continue;
+        const status = diasEmAtraso > 0 ? "ATRASADO" : totalPago > 0 ? "PARCIAL" : "PENDENTE";
+        const atualizacao = await prisma.lancamentoFinanceiro.updateMany({
+          where: {
+            id: lancamento.id, instituicaoId: user.instituicaoId, updatedAt: lancamento.updatedAt,
+            ...filtroMatriculaNaoCancelada(),
+          },
+          data: { status },
+        });
+        if (atualizacao.count === 1) {
+          totalAtualizados += 1;
+          if (status === "PENDENTE") totalPendentes += 1;
+          if (status === "PARCIAL") totalParciais += 1;
+          if (status === "ATRASADO") {
+            totalAtrasados += 1;
+            contadorMensalidadesAtrasadas[lancamento.alunoId] =
+              (contadorMensalidadesAtrasadas[lancamento.alunoId] || 0) + 1;
+          }
+        }
+        continue;
+      }
 
       let valorComDesconto = valorOriginal;
 

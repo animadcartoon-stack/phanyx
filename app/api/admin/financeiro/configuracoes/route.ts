@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+import { lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -38,6 +40,7 @@ export async function GET() {
       jurosPadrao: Number(config.jurosPadrao),
       multaPadrao: Number(config.multaPadrao),
       descontoPadrao: Number(config.descontoPadrao),
+      descontoPontualidade: lerDescontoPontualidade(config.descontoPontualidade),
       diasTolerancia: config.diasTolerancia,
       bloquearAlunoInadimplente: config.bloquearAlunoInadimplente,
       quantidadeMensalidadesParaBloqueio:
@@ -65,6 +68,14 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
+    const descontoPontualidade = lerDescontoPontualidade(body.descontoPontualidade);
+    if (body.descontoPontualidade != null && !descontoPontualidade) {
+      return NextResponse.json({ error: "Informe um percentual entre 0,01 e 99,99 e de 0 a 365 dias de antecedência." }, { status: 400 });
+    }
+    const condicoes = body.descontoPontualidade === undefined
+      ? {}
+      : { descontoPontualidade: descontoPontualidade ?? Prisma.DbNull };
+
     const jurosPadrao = toNumber(body.jurosPadrao);
     const multaPadrao = toNumber(body.multaPadrao);
     const descontoPadrao = toNumber(body.descontoPadrao);
@@ -87,6 +98,7 @@ export async function PUT(req: Request) {
         jurosPadrao,
         multaPadrao,
         descontoPadrao,
+        ...condicoes,
         diasTolerancia,
         bloquearAlunoInadimplente,
         quantidadeMensalidadesParaBloqueio,
@@ -97,6 +109,7 @@ export async function PUT(req: Request) {
         jurosPadrao,
         multaPadrao,
         descontoPadrao,
+        ...condicoes,
         diasTolerancia,
         bloquearAlunoInadimplente,
         quantidadeMensalidadesParaBloqueio,
@@ -112,6 +125,7 @@ export async function PUT(req: Request) {
         jurosPadrao: Number(config.jurosPadrao),
         multaPadrao: Number(config.multaPadrao),
         descontoPadrao: Number(config.descontoPadrao),
+        descontoPontualidade: lerDescontoPontualidade(config.descontoPontualidade),
         diasTolerancia: config.diasTolerancia,
         bloquearAlunoInadimplente: config.bloquearAlunoInadimplente,
         quantidadeMensalidadesParaBloqueio:

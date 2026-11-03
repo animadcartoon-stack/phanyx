@@ -4,6 +4,7 @@ import { anexarResumoModalidades } from "./resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
 import { prisma } from "@/lib/prisma";
 import { replaceDocumentTags } from "@/lib/documentos/tags-documentos";
+import { lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { montarDadosBolsaDocumento } from "@/lib/documentos/bolsa-documento";
 
 type BancoContrato = any;
@@ -343,7 +344,7 @@ Disciplinas contratadas:
 Valor contratado:
 {{valorContrato}}
 
-{{textoBolsaContrato}}
+{{textoBolsaContrato}}${lerDescontoPontualidade(matricula.descontoPontualidade) ? "\n{{textoDescontoPontualidadeContrato}}" : ""}
 
 E por estarem de pleno acordo, firmam o presente contrato.
 

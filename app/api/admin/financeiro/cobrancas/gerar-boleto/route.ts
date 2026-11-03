@@ -1,4 +1,5 @@
-﻿import { randomUUID } from "crypto";
+import { cotarDescontoPontualidade, diaFinanceiro, lerDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 
@@ -411,7 +412,7 @@ export async function POST(
 
           include: {
             pagamentos: true,
-            matricula: { select: { status: true, canceladaEm: true } },
+            matricula: { select: { status: true, canceladaEm: true, descontoPontualidade: true } },
 
             aluno: {
               include: {
@@ -640,6 +641,9 @@ export async function POST(
           },
         });
 
+    const cotacao = cotarDescontoPontualidade(lancamento, saldo, diaFinanceiro(new Date()));
+    const pontualidade = cotacao ? { ...cotacao, lancamentoId: lancamento.id } : null;
+
     if (!cobranca) {
       try {
         cobranca =
@@ -682,6 +686,8 @@ export async function POST(
 
                 valorCobrado:
                   saldo,
+
+                ...(pontualidade ? { metadata: { pontualidade } } : {}),
 
                 vencimento:
                   lancamento.vencimento,
@@ -1150,6 +1156,7 @@ export async function POST(
         await provedor
           .criarBoleto({
             clienteExternoId,
+            descontoPontualidade: pontualidade ?? undefined,
 
             valor:
               saldo,
@@ -1190,8 +1197,13 @@ export async function POST(
 
     const atualizada = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.$queryRaw`SELECT "id" FROM "CobrancaFinanceira" WHERE "id" = ${cobranca!.id} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
-      const atual = await tx.cobrancaFinanceira.findFirst({ where: { id: cobranca!.id, instituicaoId }, select: { metadata: true } });
-      const metadataAtual = atual?.metadata && typeof atual.metadata === "object" && !Array.isArray(atual.metadata) ? atual.metadata : {};
+      const atual = await tx.cobrancaFinanceira.findFirst({ where: { id: cobranca!.id, instituicaoId }, select: { metadata: true, statusBancario: true, statusOperacional: true, valorCompensado: true, pagoEm: true, compensadoEm: true } });
+      if (!atual) throw new Error("COBRANCA_ESTADO_ALTERADO");
+      const metadataAtual = atual.metadata && typeof atual.metadata === "object" && !Array.isArray(atual.metadata)
+        ? atual.metadata : {};
+      const temPontualidade = Boolean(lerDescontoPontualidade(metadataAtual.pontualidade) || (!recuperada && pontualidade));
+      const estadoFinal = temPontualidade && ["COMPENSADO", "ESTORNADO", "CANCELADO"].includes(atual.statusBancario);
+      const { descontoAsaas, ...metadataProvedor } = boleto.metadata || {};
       return tx.cobrancaFinanceira.update({
           where: {
             id:
@@ -1208,30 +1220,15 @@ export async function POST(
             referenciaExterna:
               referenciaCobranca,
 
-            statusBancario,
-
-            statusOperacional,
-
-            valorCobrado:
-              saldo,
-
-            valorCompensado:
-              statusBancario ===
-              "COMPENSADO"
-                ? saldo
+            statusBancario: estadoFinal ? atual.statusBancario : statusBancario,
+            statusOperacional: estadoFinal ? atual.statusOperacional : statusOperacional,
+            valorCobrado: saldo,
+            valorCompensado: estadoFinal ? atual.valorCompensado
+              : statusBancario === "COMPENSADO"
+                ? (temPontualidade ? boleto.valorPago ?? null : saldo)
                 : null,
-
-            pagoEm:
-              statusBancario ===
-              "COMPENSADO"
-                ? agora
-                : null,
-
-            compensadoEm:
-              statusBancario ===
-              "COMPENSADO"
-                ? agora
-                : null,
+            pagoEm: estadoFinal ? atual.pagoEm : statusBancario === "COMPENSADO" ? agora : null,
+            compensadoEm: estadoFinal ? atual.compensadoEm : statusBancario === "COMPENSADO" ? agora : null,
 
             linhaDigitavel:
               boleto
@@ -1258,6 +1255,9 @@ export async function POST(
 
             metadata: {
               ...metadataAtual,
+              ...(!recuperada && pontualidade ? { pontualidade } : {}),
+              ...(temPontualidade && statusBancario === "COMPENSADO" && boleto.diaPagamento && !estadoFinal
+                ? { diaPagamentoPontualidade: boleto.diaPagamento } : {}),
               statusExterno:
                 boleto
                   .statusExterno,
@@ -1265,9 +1265,10 @@ export async function POST(
               recuperadaPorReferencia:
                 recuperada,
 
-              provedor:
-                boleto.metadata ||
-                {},
+              provedor: {
+                ...metadataProvedor,
+                ...(temPontualidade && descontoAsaas != null ? { descontoAsaas } : {}),
+              },
             } as Prisma.InputJsonValue,
           },
         });

@@ -1,3 +1,4 @@
+import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
 import { ErroSelecaoDisciplinas } from "@/lib/matriculas/selecao-disciplinas";
 import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
 import { validarRequisitosCursos } from "@/lib/matriculas/requisitos-cursos";
@@ -231,6 +232,7 @@ export async function POST(req: Request) {
       });
       const matricula = await tx.matricula.create({
         data: {
+          ...await condicoesPontualidadeMatricula(tx, user.instituicaoId),
           alunoId: Number(alunoId),
           cursoId: Number(cursoId),
           ...etapa,
