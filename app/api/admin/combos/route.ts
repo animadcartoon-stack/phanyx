@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+import { normalizarPlanosPagamento, ErroPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { administradorCombos, erroCombos } from "@/lib/matriculas/combos-api";
@@ -18,6 +20,8 @@ const schema = z
     descontoPercentual: z.union([z.string(), z.number()]).nullable().optional(),
     quantidadeParcelas: z.number().int().min(1).max(120),
     cursoIds: z.array(z.number().int().positive()).min(2).max(100),
+    // Ausencia preserva configuracoes de clientes antigos; null limpa explicitamente.
+    planosPagamento: z.unknown().optional(),
     id: z.number().int().positive().optional(),
     versao: z.string().optional(),
   })
@@ -65,7 +69,14 @@ async function salvar(req: Request, editar: boolean) {
     const user = await administradorCombos();
     const parsed = schema.safeParse(await req.json());
     if (!parsed.success) throw new ErroModalidades("REGRA_INVALIDA");
-    const { id, versao, cursoIds, ...dados } = parsed.data;
+    const { id, versao, cursoIds, planosPagamento: planosBrutos, ...dados } = parsed.data;
+    // Validar no servidor; nunca confiar nos valores formatados pelo formulario.
+    const planosValidados = planosBrutos === undefined ? undefined : normalizarPlanosPagamento(planosBrutos);
+    const dadosPlanos = planosBrutos === undefined ? {} : {
+      planosPagamento: planosValidados
+        ? planosValidados as unknown as Prisma.InputJsonValue
+        : Prisma.DbNull,
+    };
     if (
       (editar && (!id || !versao)) ||
       new Set(cursoIds).size !== cursoIds.length ||
@@ -117,6 +128,7 @@ async function salvar(req: Request, editar: boolean) {
         }
         const data = {
           ...dados,
+          ...dadosPlanos,
           valorMatricula,
           valorMensalidade,
           descontoPercentual,
@@ -160,6 +172,10 @@ async function salvar(req: Request, editar: boolean) {
     );
     return NextResponse.json(combo, { status: editar ? 200 : 201 });
   } catch (error) {
+    if (error instanceof ErroPlanosPagamento) return NextResponse.json(
+      { codigo: "PLANOS_PAGAMENTO_INVALIDOS", error: error.message },
+      { status: 400 },
+    );
     return erroCombos(error);
   }
 }

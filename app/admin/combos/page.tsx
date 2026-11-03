@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import withAuth from "@/lib/withAuth";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import CamposPlanosPagamento, { planosParaFormulario, type PlanoPagamentoFormulario } from "@/components/admin/CamposPlanosPagamento";
+import type { ConfiguracaoPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
 
 type Curso = {
   id: number;
@@ -24,6 +26,7 @@ type Combo = {
   valorMensalidade: string | null;
   quantidadeParcelas: number;
   cursoIds: number[];
+  planosPagamento?: ConfiguracaoPlanosPagamento | null;
   updatedAt: string;
 };
 const novo = () => ({
@@ -38,6 +41,7 @@ const novo = () => ({
   valorMensalidade: "",
   quantidadeParcelas: "12",
   cursoIds: [] as number[],
+  planosPagamento: [] as PlanoPagamentoFormulario[],
   versao: "",
 });
 const input =
@@ -98,10 +102,21 @@ function CombosPage() {
           descontoPercentual:
             form.modoPreco === "PERCENTUAL" ? form.descontoPercentual : null,
           quantidadeParcelas: Number(form.quantidadeParcelas),
+          // Cadastro de oferta apenas. Nenhuma cobranca e criada nesta operacao.
+          planosPagamento: form.planosPagamento.length ? {
+            versao: 1,
+            planos: form.planosPagamento.map(p => ({
+              ...p,
+              quantidadeParcelas: Number(p.quantidadeParcelas),
+              valorParcela: p.valorParcela.replace(',', '.'),
+              valorAntecipacao: p.valorAntecipacao.replace(',', '.'),
+              ajustes: p.ajustes.map(a => ({ numero: Number(a.numero), valor: a.valor.replace(',', '.') })),
+            })),
+          } : null,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(traduzirErro(data.codigo));
+      if (!res.ok) throw new Error(data.codigo === "PLANOS_PAGAMENTO_INVALIDOS" ? data.error : traduzirErro(data.codigo));
       setForm(novo());
       setMensagem(t("saved"));
       await carregar();
@@ -129,6 +144,7 @@ function CombosPage() {
         combo.valorMensalidade === null ? "" : String(combo.valorMensalidade),
       quantidadeParcelas: String(combo.quantidadeParcelas),
       cursoIds: combo.cursoIds,
+      planosPagamento: planosParaFormulario(combo.planosPagamento),
       versao: combo.updatedAt,
     });
     document
@@ -349,6 +365,18 @@ function CombosPage() {
                 );
               })}
             </div>
+          </div>
+          <div className="md:col-span-2 space-y-2">
+            <p className="text-sm text-slate-700 dark:text-slate-200">
+              <strong>Planos personalizados do combo (opcional).</strong> Cadastre valores e antecipacao para este pacote.
+              A escolha e as cobrancas so serao liberadas depois da homologacao da proxima etapa.
+              Sem plano selecionado, permanece a regra financeira tradicional do combo.
+            </p>
+            <CamposPlanosPagamento
+              planos={form.planosPagamento}
+              onChange={planosPagamento => setForm(atual => ({ ...atual, planosPagamento }))}
+              disabled={saving || loading}
+            />
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-300 md:col-span-2">
             {t("rulesHelp")}
