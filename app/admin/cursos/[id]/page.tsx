@@ -1,5 +1,7 @@
 "use client";
 import CamposCursosAdicionais from "@/components/admin/CamposCursosAdicionais";
+import CamposPlanosPagamento, { planosParaFormulario, type PlanoPagamentoFormulario } from "@/components/admin/CamposPlanosPagamento";
+import type { ConfiguracaoPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
 import ConfiguracaoDisciplinasIncluidas from "@/components/admin/ConfiguracaoDisciplinasIncluidas";
 import CamposRequisitosCursos, { type CursoOpcaoRequisito } from "@/components/admin/CamposRequisitosCursos";
 import CamposPrecoDisciplinas, { type FaixaDisciplinasFormulario } from "@/components/admin/CamposPrecoDisciplinas";
@@ -91,6 +93,7 @@ type Curso = {
   valorMensalidadeCombo?: string | number | null;
   precosComboPorQuantidade?: { quantidadeAtividades: number; valorMensalidade: string }[];
   quantidadeParcelas?: number | null;
+  planosPagamento?: ConfiguracaoPlanosPagamento | null;
   ativo?: boolean;
   publicacaoRedeDestino?: {
     id: number;
@@ -198,6 +201,7 @@ export default function CursoDetalhePage() {
     valorMensalidadeCombo: "",
     precosComboPorQuantidade: [] as FaixaComboFormulario[],
     quantidadeParcelas: "",
+    planosPagamento: [] as PlanoPagamentoFormulario[],
     ativo: true,
   });
 
@@ -278,6 +282,7 @@ export default function CursoDetalhePage() {
           encontrado.quantidadeParcelas != null
             ? String(encontrado.quantidadeParcelas)
             : "",
+        planosPagamento: planosParaFormulario(encontrado.planosPagamento),
         ativo: Boolean(encontrado.ativo),
       };
       formularioSalvoRef.current = JSON.stringify(formulario);
@@ -390,6 +395,7 @@ export default function CursoDetalhePage() {
           quantidadeParcelas: formCurso.quantidadeParcelas
             ? Number(formCurso.quantidadeParcelas)
             : null,
+          planosPagamento: { versao: 1, planos: formCurso.planosPagamento },
           ativo: formCurso.ativo,
         }),
       });
@@ -942,6 +948,8 @@ export default function CursoDetalhePage() {
                       placeholder={t("detail.courseForm.examples.installments")}
                     />
                   </div>
+
+                  <CamposPlanosPagamento planos={formCurso.planosPagamento} onChange={planosPagamento => setFormCurso(prev => ({...prev, planosPagamento}))} disabled={cursoRecebidoDaRede || formCurso.organizacaoCurricular === "LIVRE" || formCurso.precoPorDisciplina} />
 
                   <label className={`mt-6 flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 ${cursoRecebidoDaRede
                     ? "cursor-not-allowed bg-slate-100 text-slate-500 opacity-80 dark:bg-slate-900 dark:text-slate-400"

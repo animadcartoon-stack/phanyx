@@ -1,4 +1,5 @@
 import { camposCursosAdicionais } from "@/lib/matriculas/cursos-adicionais";
+import { normalizarPlanosPagamento, ErroPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
 import { normalizarSelecaoDisciplinas, validarModoSelecao } from "@/lib/matriculas/selecao-disciplinas";
 import { exclusaoCursoExpirada, filtroCursosRecuperaveis } from "@/lib/cursos/estado-curso";
 import { respostaErroSelecao } from "@/lib/matriculas/selecao-disciplinas-servidor";
@@ -227,6 +228,9 @@ export async function POST(req: Request) {
     ).trim();
 
     const organizacaoCurricular = validarOrganizacao(body.organizacaoCurricular ?? "SEMESTRAL");
+    const planosPagamento = normalizarPlanosPagamento(body.planosPagamento);
+    if (planosPagamento && (organizacaoCurricular === "LIVRE" || body.regrasPrecoDisciplinas)) throw new ErroPlanosPagamento("Planos personalizados não se aplicam a cursos livres por período ou precificados por disciplina.");
+    const dadosPlanos = { planosPagamento: planosPagamento ? planosPagamento as unknown as Prisma.InputJsonValue : Prisma.DbNull };
     if (organizacaoCurricular === "ANUAL") body.quantidadeSemestres = body.quantidadeEtapas;
     if (organizacaoCurricular === "LIVRE") Object.assign(body, { quantidadeSemestres: null, quantidadeEtapas: null, valorMatricula: 0, quantidadeParcelas: null });
     const regrasDisciplinas = body.regrasPrecoDisciplinas === undefined ? undefined : normalizarRegrasDisciplinas(body.regrasPrecoDisciplinas);
@@ -584,6 +588,7 @@ export async function POST(req: Request) {
                 ...dadosDesconto,
                 ...dadosDisciplinas,
                 ...dadosAdicionais,
+                ...dadosPlanos,
 
                 quantidadeParcelas,
 
@@ -711,6 +716,7 @@ export async function POST(req: Request) {
   } catch (error) {
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
+    if (error instanceof ErroPlanosPagamento) return NextResponse.json({ error: error.message, codigo: "PLANOS_PAGAMENTO_INVALIDOS" }, { status: 400 });
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
     if (error instanceof ErroDescontoCurso) return NextResponse.json({ codigo: error.codigo }, { status: 400 });
     if (error instanceof ErroCursoLivre) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
@@ -863,6 +869,7 @@ export async function PUT(req: Request) {
           regrasPrecoDisciplinas: true,
           regrasSelecaoDisciplinas: true,
           quantidadeParcelas: true,
+          planosPagamento: true,
           ativo: true,
           excluidoEm: true,
           expiraExclusaoEm: true,
@@ -921,6 +928,9 @@ export async function PUT(req: Request) {
         : cursoExistente.descricao;
 
     const organizacaoCurricular = validarOrganizacao(body.organizacaoCurricular ?? cursoExistente.organizacaoCurricular);
+    const planosPagamento = body.planosPagamento === undefined ? normalizarPlanosPagamento(cursoExistente.planosPagamento) : normalizarPlanosPagamento(body.planosPagamento);
+    if (planosPagamento && (organizacaoCurricular === "LIVRE" || (body.regrasPrecoDisciplinas ?? cursoExistente.regrasPrecoDisciplinas))) throw new ErroPlanosPagamento("Planos personalizados não se aplicam a cursos livres por período ou precificados por disciplina.");
+    const dadosPlanos = { planosPagamento: planosPagamento ? planosPagamento as unknown as Prisma.InputJsonValue : Prisma.DbNull };
     body.quantidadeSemestres = organizacaoCurricular === "ANUAL"
       ? (body.quantidadeEtapas !== undefined ? body.quantidadeEtapas : cursoExistente.quantidadeEtapas)
       : (body.quantidadeSemestres !== undefined ? body.quantidadeSemestres : cursoExistente.quantidadeSemestres);
@@ -1051,6 +1061,7 @@ export async function PUT(req: Request) {
                 ...dadosDesconto,
                 ...dadosDisciplinas,
                 ...dadosAdicionais,
+                ...dadosPlanos,
             quantidadeParcelas,
           },
           include: {
@@ -1223,6 +1234,7 @@ export async function PUT(req: Request) {
                 ...dadosDesconto,
                 ...dadosDisciplinas,
                 ...dadosAdicionais,
+                ...dadosPlanos,
                 ...modoDireto,
 
               quantidadeParcelas,
@@ -1324,6 +1336,7 @@ export async function PUT(req: Request) {
   } catch (error: unknown) {
     const erroSelecao = await respostaErroSelecao(error);
     if (erroSelecao) return erroSelecao;
+    if (error instanceof ErroPlanosPagamento) return NextResponse.json({ error: error.message, codigo: "PLANOS_PAGAMENTO_INVALIDOS" }, { status: 400 });
     if (error instanceof ErroCursoAvulsoSemGrade) return NextResponse.json({ codigo: error.codigo, error: error.message }, { status: error.status });
     if (error instanceof ErroModalidades) return erroCombos(error);
     if (error instanceof ErroPrecoDisciplinas) return NextResponse.json({ codigo: error.codigo }, { status: error.status });
