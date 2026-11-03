@@ -1,4 +1,4 @@
-import { descontoPontualidadeEmReais, lerDescontoPontualidade, limiteDescontoPontualidade } from "./desconto-pontualidade";
+import { descontoPontualidadeEmReais, lerFaixaDescontoPontualidade, limiteDescontoPontualidade } from "./desconto-pontualidade";
 
 type Valor = number | { toString(): string } | null;
 
@@ -71,7 +71,7 @@ export function analisarDivergencia(
   const valorCompensado = Number.isFinite(recebido) ? recebido : null;
   const metadata = objetoJson(cobranca.metadata);
   const cotacao = objetoJson(metadata.pontualidade);
-  const regra = lerDescontoPontualidade(cotacao);
+  const regra = lerFaixaDescontoPontualidade(cotacao);
   const descontoAsaas = objetoJson(objetoJson(metadata.provedor).descontoAsaas);
   const diaPagamento = metadata.diaPagamentoPontualidade;
   const desconto = regra ? descontoPontualidadeEmReais(valorCobrado, regra.percentual) : 0;

@@ -14789,6 +14789,8 @@
   "AdminFinanceSettings": {
     "pontualidade": {
       "title": "Descuento por pronto pago",
+      "notCumulative": "Los descuentos no son acumulables: solo se aplica la franja correspondiente a la fecha de pago.",
+      "asaasTwoTiers": "Asaas admite una única franja de descuento por boleto. Con ambas franjas activas, la emisión queda bloqueada hasta homologar la integración.",
       "help": "Se aplica a nuevas matrículas. El descuento se calcula sobre la mensualidad tras becas y descuentos contratados, al pagar el total hasta la fecha límite.",
       "condition": "Condición de pago",
       "off": "Desactivado",

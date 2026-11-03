@@ -14790,6 +14790,8 @@
   "AdminFinanceSettings": {
     "pontualidade": {
       "title": "Timely payment discount",
+      "notCumulative": "Discounts are not cumulative; only the rate for the payment date applies.",
+      "asaasTwoTiers": "Asaas supports only one discount tier per bank slip. With both tiers enabled, bank slip issuance is blocked until the integration supports this safely.",
       "help": "Applies to new enrollments. The discount is based on tuition after scholarships and contracted discounts and requires full payment by the deadline.",
       "condition": "Payment condition",
       "off": "Disabled",

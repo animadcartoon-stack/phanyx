@@ -14789,6 +14789,8 @@
   "AdminFinanceSettings": {
     "pontualidade": {
       "title": "Remise pour paiement ponctuel",
+      "notCumulative": "Les remises ne se cumulent pas ; seule celle applicable à la date de paiement s’applique.",
+      "asaasTwoTiers": "Asaas ne prend en charge qu’une seule remise par boleto. Avec deux tranches actives, l’émission est bloquée jusqu’à validation de l’intégration.",
       "help": "La règle s’applique aux nouvelles inscriptions. La remise porte sur la mensualité après les bourses et remises contractuelles, réglée intégralement avant la date limite ou ce jour-là.",
       "condition": "Condition de paiement",
       "off": "Désactivée",
