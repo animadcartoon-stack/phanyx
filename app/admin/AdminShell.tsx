@@ -124,7 +124,7 @@ export default function AdminShell({
       if (armazenada > 0 && armazenada <= Date.now()) ultimaAtividadeLocal = armazenada;
       else localStorage.setItem(chaveAtividade, String(ultimaAtividadeLocal));
     } catch {}
-    let ultimaGravacao = 0;
+    let ultimaGravacao = ultimaAtividadeLocal;
     // Mouse/scroll events must stay in memory. Read shared activity once at
     // startup; other tabs deliver changes through the storage event.
     const lerAtividade = () => ultimaAtividadeLocal;
@@ -156,7 +156,10 @@ export default function AdminShell({
       }, restante);
     };
     const registrarAtividade = () => {
-      ultimaAtividadeLocal = Date.now();
+      const agora = Date.now();
+      // Ao retomar uma aba suspensa, o primeiro evento pode chegar antes do timer vencido.
+      if (agora - lerAtividade() >= tempoInatividade) return;
+      ultimaAtividadeLocal = agora;
       if (ultimaAtividadeLocal - ultimaGravacao >= 1000) {
         try { localStorage.setItem(chaveAtividade, String(ultimaAtividadeLocal)); } catch {}
         ultimaGravacao = ultimaAtividadeLocal;
@@ -177,7 +180,6 @@ export default function AdminShell({
       window.addEventListener("keydown", registrarAtividade);
       window.addEventListener("click", registrarAtividade);
       window.addEventListener("scroll", registrarAtividade, { passive: true });
-      registrarAtividade();
     }
     resetTimer();
     window.addEventListener("storage", sincronizarAtividade);
