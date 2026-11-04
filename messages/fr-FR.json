@@ -15437,6 +15437,7 @@
       "noJobsHelp": "Ce département ne possède encore aucun poste actif. Enregistrez les postes dans Départements."
     },
     "common": {
+      "retry": "Réessayer",
       "inactive": "Inactif",
       "minutes": "minutes",
       "notDefined": "Non défini",
@@ -15562,6 +15563,9 @@
       "unblockTitle": "Débloquer l’accès"
     },
     "errors": {
+      "loadEmployees": "Impossible de charger la liste des employés.",
+      "loadDepartments": "Impossible de charger les services.",
+      "loadCampuses": "Impossible de charger les sites.",
       "loadJobs": "Impossible de charger les postes.",
       "invalidPhotoFormat": "Format invalide. Envoyez une photo JPG, JPEG, PNG ou WEBP.",
       "photoTooLarge": "La photo est trop volumineuse. Envoyez une photo de {max} Mo maximum.",
