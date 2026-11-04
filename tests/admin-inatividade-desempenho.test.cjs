@@ -40,12 +40,13 @@ function start({editor=false,storedAge,fetchStatus=200,referencia='sessao-teste'
     key,requests,expired,redirects,events,values,cleanup,
     get reads(){return reads;}, get writes(){return writes;}, get allocations(){return allocations;},get pending(){return timers.size;},get now(){return now;},
     event:(name,data={})=>events.get(name)?.(data),
+    suspend:ms=>{now+=ms;},
     tick:async ms=>{
       const until=now+ms;
       for(;;){
         const entries=[...timers.entries()].filter(([,t])=>t.at<=until).sort((a,b)=>a[1].at-b[1].at);
         if(!entries.length)break;
-        const [id,t]=entries[0];timers.delete(id);now=t.at;await t.fn();
+        const [id,t]=entries[0];timers.delete(id);now=Math.max(now,t.at);await t.fn();
       }
       now=until;
     },
@@ -68,6 +69,22 @@ test('sessão sem atividade encerra exatamente após cinco minutos e mantém a r
   assert.equal(env.requests[0].options.headers['x-phanyx-sessao-admin'],'sessao-teste');
   assert.equal(env.requests[0].options.headers['x-phanyx-logout-motivo'],'inatividade');
   assert.deepEqual(env.expired,[true]);await env.tick(2500);assert.deepEqual(env.redirects,['/login?portal=admin']);env.cleanup();
+});
+test('reabrir o Admin depois de cinco minutos preserva o prazo vencido, mesmo com movimento do mouse',async()=>{
+  const env=start({storedAge:duration+1});
+  const anterior=env.values.get(env.key);
+  env.event('mousemove');
+  assert.equal(env.values.get(env.key),anterior);
+  await env.tick(0);assert.equal(env.requests.length,1);assert.deepEqual(env.expired,[true]);env.cleanup();
+});
+test('reabrir o Admin antes de cinco minutos mantém o tempo restante até uma interação real',async()=>{
+  const env=start({storedAge:duration-5000});
+  await env.tick(4999);assert.equal(env.requests.length,0);
+  await env.tick(1);assert.equal(env.requests.length,1);env.cleanup();
+});
+test('interagir depois de retomar uma aba suspensa não reativa um prazo vencido',async()=>{
+  const env=start();env.suspend(duration+1000);env.event('click');env.event('keydown');
+  await env.tick(0);assert.equal(env.requests.length,1);assert.deepEqual(env.expired,[true]);env.cleanup();
 });
 test('atividade perto do prazo adia o encerramento até cinco minutos após o último evento',async()=>{
   const env=start();await env.tick(duration-1);env.event('mousemove');
