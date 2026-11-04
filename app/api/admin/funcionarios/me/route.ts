@@ -4,6 +4,13 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 
+const camposPerfil = {
+  nome: true,
+  telefone: true,
+  cargo: true,
+  fotoPerfil: true,
+} as const;
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -17,25 +24,24 @@ export async function GET() {
         userId: user.id,
         instituicaoId: user.instituicaoId,
       },
-      select: {
-        id: true,
-        nome: true,
-        telefone: true,
-        cargo: true,
-        fotoPerfil: true,
-      },
+      select: { id: true, ...camposPerfil },
     });
 
     if (funcionario) {
       return NextResponse.json(funcionario);
     }
 
+    const perfil = await prisma.perfilAdministrativoUsuario.findUnique({
+      where: { userId: user.id },
+      select: camposPerfil,
+    });
+
     return NextResponse.json({
       id: null,
-      nome: user.nome || "Administrador",
-      telefone: "",
-      cargo: "Administrativo",
-      fotoPerfil: null,
+      nome: perfil?.nome ?? (user.nome || "Administrador"),
+      telefone: perfil ? perfil.telefone : "",
+      cargo: perfil ? perfil.cargo : "Administrativo",
+      fotoPerfil: perfil?.fotoPerfil ?? null,
     });
   } catch (e: any) {
     return NextResponse.json(
@@ -55,26 +61,16 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
-    let funcionario = await prisma.funcionario.findFirst({
+    const funcionario = await prisma.funcionario.findFirst({
       where: {
         userId: user.id,
         instituicaoId: user.instituicaoId,
       },
+      select: { id: true, nome: true, fotoPerfil: true },
     });
 
-    if (!funcionario) {
-      funcionario = await prisma.funcionario.create({
-        data: {
-          nome: String(body.nome || user.nome || "Administrador").trim(),
-          telefone: body.telefone || null,
-          cargo: body.cargo || "Administrativo",
-          fotoPerfil: body.fotoPerfil || null,
-          userId: user.id,
-          instituicaoId: user.instituicaoId!,
-        },
-      });
-    } else {
-      funcionario = await prisma.funcionario.update({
+    if (funcionario) {
+      const atualizado = await prisma.funcionario.update({
         where: { id: funcionario.id },
         data: {
           nome: String(body.nome || funcionario.nome || "Administrador").trim(),
@@ -82,16 +78,29 @@ export async function PUT(req: Request) {
           cargo: body.cargo || null,
           fotoPerfil: body.fotoPerfil || funcionario.fotoPerfil || null,
         },
+        select: { id: true, ...camposPerfil },
       });
+      return NextResponse.json(atualizado);
     }
 
-    return NextResponse.json({
-      id: funcionario.id,
-      nome: funcionario.nome,
-      telefone: funcionario.telefone,
-      cargo: funcionario.cargo,
-      fotoPerfil: funcionario.fotoPerfil,
+    const nome = typeof body.nome === "string" && body.nome.trim() ? body.nome.trim() : undefined;
+    const telefone = typeof body.telefone === "string" ? body.telefone || null : undefined;
+    const cargo = typeof body.cargo === "string" ? body.cargo || null : undefined;
+    const fotoPerfil = typeof body.fotoPerfil === "string" && body.fotoPerfil ? body.fotoPerfil : undefined;
+    const perfil = await prisma.perfilAdministrativoUsuario.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        nome: nome ?? (user.nome || "Administrador"),
+        telefone,
+        cargo: cargo ?? "Administrativo",
+        fotoPerfil,
+      },
+      update: { nome, telefone, cargo, fotoPerfil },
+      select: camposPerfil,
     });
+
+    return NextResponse.json({ id: null, ...perfil });
   } catch (e: any) {
     return NextResponse.json(
       { error: e.message || "Erro ao atualizar perfil" },
