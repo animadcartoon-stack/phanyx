@@ -11155,6 +11155,7 @@
       "urlMissing": "Upload concluído, mas o URL da imagem não foi devolvido.",
       "added": "Imagem adicionada ao crachá.",
       "invalidType": "Utilize uma imagem PNG, JPG, JPEG ou WEBP. O formato TIFF não é apresentado corretamente no navegador.",
+      "tooLarge": "Escolha uma imagem até 20 MB.",
       "applyError": "Erro ao aplicar a imagem ao crachá.",
       "applied": "Imagem aplicada ao crachá.",
       "uploaded": "Imagem enviada",
@@ -13743,6 +13744,7 @@
     "page": {
       "kicker": "Configurações",
       "title": "Visibilidade dos Portais",
+      "institutionScope": "Estas configurações aplicam-se a alunos e professores associados a {nome}.",
       "description": "Defina quais páginas aparecem para alunos e professores desta instituição. As páginas associadas a períodos académicos também podem ser apresentadas automaticamente durante as datas configuradas.",
       "loading": "A carregar configurações..."
     },

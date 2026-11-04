@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { QRCodeSVG } from "qrcode.react";
 import JsBarcode from "jsbarcode";
+import { ErroPreparacaoLogo, prepararLogoParaUpload } from "@/lib/imagens/preparar-logo-upload";
 
 type GradientePonto = {
   id: number;
@@ -586,6 +587,8 @@ export default function CrachasClient() {
 
   const inputImagemRef = useRef<HTMLInputElement | null>(null);
   const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
+  const versaoModeloImagemRef = useRef(0);
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
 
   const [avisoCracha, setAvisoCracha] = useState<{
     tipo: "sucesso" | "erro";
@@ -2126,6 +2129,7 @@ export default function CrachasClient() {
   }
 
   function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
+    if (novoTipo !== tipoModeloCracha) versaoModeloImagemRef.current += 1;
     const camposDoNovoTipo = camposDisponiveisPorTipo(novoTipo);
     const campoPadrao = camposDoNovoTipo[0];
 
@@ -3856,79 +3860,50 @@ export default function CrachasClient() {
     }
   }
 
-  async function handleUploadImagemObjeto(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
+  async function handleUploadImagemObjeto(e: React.ChangeEvent<HTMLInputElement>) {
     const arquivo = e.target.files?.[0];
+    e.target.value = "";
+    if (!arquivo || enviandoImagem || objetoAtual?.tipo !== "IMAGEM") return;
 
-    if (!arquivo || !objetoAtual || objetoAtual.tipo !== "IMAGEM") return;
-
-    const tiposPermitidos = ["image/png", "image/jpeg", "image/webp"];
-
-    if (!tiposPermitidos.includes(arquivo.type)) {
-      setAvisoCracha({
-        tipo: "erro",
-        texto:
-          t("image.invalidType"),
-      });
-
-      setTimeout(() => setAvisoCracha(null), 5000);
-      e.target.value = "";
-      return;
-    }
+    const versao = versaoModeloImagemRef.current;
+    setEnviandoImagem(true);
 
     try {
+      const preparada = await prepararLogoParaUpload(arquivo, 20 * 1024 * 1024);
       const formData = new FormData();
-      formData.append("file", arquivo);
+      formData.append("file", preparada);
 
-      const resp = await fetch("/api/upload", {
+      const resposta = await fetch("/api/admin/crachas/imagens", {
         method: "POST",
-        credentials: "include",
         body: formData,
       });
-
-      const json = await resp.json();
-
-      if (!resp.ok) {
-        throw new Error(t("image.uploadError"));
+      const dados = await resposta.json().catch(() => null);
+      if (!resposta.ok || typeof dados?.url !== "string") {
+        throw new Error("Falha no envio da imagem do crachá.");
       }
-
-      const url =
-        json.url ||
-        json.fileUrl ||
-        json.arquivoUrl ||
-        json.publicUrl;
-
-      if (!url) {
-        throw new Error(t("image.urlMissing"));
-      }
+      const url = dados.url;
+      if (versao !== versaoModeloImagemRef.current) return;
 
       atualizarObjeto(objetoAtual.id, {
         url,
         origem: "UPLOAD",
-        rotulo:
-          objetoAtual.rotulo === "Logo" || objetoAtual.origem === "LOGO"
-            ? "Logo"
-            : "Imagem",
+        rotulo: objetoAtual.origem === "LOGO" || objetoAtual.rotulo === "Logo" ? "Logo" : "Imagem",
       });
 
-      setAvisoCracha({
-        tipo: "sucesso",
-        texto: t("image.applied"),
-      });
-
+      setAvisoCracha({ tipo: "sucesso", texto: t("image.applied") });
       setTimeout(() => setAvisoCracha(null), 3000);
     } catch (error) {
-      console.error(error);
+      if (versao !== versaoModeloImagemRef.current) return;
 
-      setAvisoCracha({
-        tipo: "erro",
-        texto: t("image.applyError"),
-      });
-
+      let texto = t("image.applyError");
+      if (error instanceof ErroPreparacaoLogo) {
+        if (error.codigo === "invalidFormat") texto = t("image.invalidType");
+        if (error.codigo === "originalTooLarge") texto = t("image.tooLarge");
+      }
+      setAvisoCracha({ tipo: "erro", texto });
       setTimeout(() => setAvisoCracha(null), 4000);
     } finally {
-      e.target.value = "";
+      setEnviandoImagem(false);
     }
   }
 
@@ -3988,6 +3963,7 @@ export default function CrachasClient() {
   }
 
   function limparHistoricoObjetos() {
+    versaoModeloImagemRef.current += 1;
     for (
       const pendente of
       alteracoesPendentesRef.current.values()
@@ -7942,7 +7918,7 @@ export default function CrachasClient() {
               <button
                 type="button"
                 onClick={salvarModeloCracha}
-                disabled={salvandoModeloCracha || carregandoModeloCracha}
+                disabled={salvandoModeloCracha || carregandoModeloCracha || enviandoImagem}
                 className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {salvandoModeloCracha ? t("common.saving") : t("common.save")}
@@ -9195,25 +9171,25 @@ export default function CrachasClient() {
                         <>
                           <span
                             onMouseDown={(e) => redimensionarImagem(e, objeto, "nw")}
-                            className="absolute -left-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+                            className="absolute -left-1.5 -top-1.5 z-20 h-3 w-3 phanyx-cracha-alca-imagem rounded-full"
                             style={{ cursor: "nwse-resize" }}
                           />
 
                           <span
                             onMouseDown={(e) => redimensionarImagem(e, objeto, "ne")}
-                            className="absolute -right-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+                            className="absolute -right-1.5 -top-1.5 z-20 h-3 w-3 phanyx-cracha-alca-imagem rounded-full"
                             style={{ cursor: "nesw-resize" }}
                           />
 
                           <span
                             onMouseDown={(e) => redimensionarImagem(e, objeto, "sw")}
-                            className="absolute -bottom-1.5 -left-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+                            className="absolute -bottom-1.5 -left-1.5 z-20 h-3 w-3 phanyx-cracha-alca-imagem rounded-full"
                             style={{ cursor: "nesw-resize" }}
                           />
 
                           <span
                             onMouseDown={(e) => redimensionarImagem(e, objeto, "se")}
-                            className="absolute -bottom-1.5 -right-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+                            className="absolute -bottom-1.5 -right-1.5 z-20 h-3 w-3 phanyx-cracha-alca-imagem rounded-full"
                             style={{ cursor: "nwse-resize" }}
                           />
                         </>
@@ -10385,6 +10361,7 @@ export default function CrachasClient() {
                   <button
                     type="button"
                     onClick={() => inputImagemObjetoRef.current?.click()}
+                    disabled={enviandoImagem}
                     className="phanyx-crachas-button-secondary w-full"
                   >
                     {t("image.choose")}

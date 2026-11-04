@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+export const dynamic = "force-dynamic";
+
 type ModoVisibilidadePortal =
   | "AUTOMATICO"
   | "SEMPRE_VISIVEL"
@@ -207,20 +209,16 @@ export async function GET() {
       );
     }
 
-    const existentes =
-      await prisma.configuracaoPortalInstituicao.findMany({
-        where: {
-          instituicaoId: user.instituicaoId,
-        },
-        orderBy: [
-          {
-            portal: "asc",
-          },
-          {
-            chavePagina: "asc",
-          },
-        ],
-      });
+    const [instituicao, existentes] = await Promise.all([
+      prisma.instituicao.findUnique({
+        where: { id: user.instituicaoId },
+        select: { nome: true },
+      }),
+      prisma.configuracaoPortalInstituicao.findMany({
+        where: { instituicaoId: user.instituicaoId },
+        orderBy: [{ portal: "asc" }, { chavePagina: "asc" }],
+      }),
+    ]);
 
     type ConfiguracaoPortalMap = {
   id: number;
@@ -287,6 +285,7 @@ const mapa = new Map<string, ConfiguracaoPortalMap>(
 
     return NextResponse.json({
       ok: true,
+      instituicaoNome: instituicao?.nome ?? null,
       paginas,
     });
   } catch (error) {

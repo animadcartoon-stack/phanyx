@@ -11155,6 +11155,7 @@
       "urlMissing": "La carga se completó, pero no se devolvió la URL de la imagen.",
       "added": "Imagen añadida a la credencial.",
       "invalidType": "Use una imagen PNG, JPG, JPEG o WEBP. El formato TIFF no se muestra correctamente en el navegador.",
+      "tooLarge": "Elige una imagen de hasta 20 MB.",
       "applyError": "Error al aplicar la imagen a la credencial.",
       "applied": "Imagen aplicada a la credencial.",
       "uploaded": "Imagen enviada",
@@ -13742,6 +13743,7 @@
     "page": {
       "kicker": "Configuración",
       "title": "Visibilidad de los portales",
+      "institutionScope": "Esta configuración se aplica a los estudiantes y docentes vinculados a {nome}.",
       "description": "Defina qué páginas se muestran a alumnos y profesores de esta institución. Las páginas vinculadas a períodos académicos también pueden mostrarse automáticamente durante las fechas configuradas.",
       "loading": "Cargando configuración..."
     },

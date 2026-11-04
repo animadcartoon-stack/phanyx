@@ -11155,6 +11155,7 @@
       "urlMissing": "Téléversement terminé, mais l’URL de l’image n’a pas été renvoyée.",
       "added": "Image ajoutée au badge.",
       "invalidType": "Utilisez une image PNG, JPG, JPEG ou WEBP. Le format TIFF ne s’affiche pas correctement dans le navigateur.",
+      "tooLarge": "Choisissez une image de 20 Mo maximum.",
       "applyError": "Impossible d’appliquer l’image au badge.",
       "applied": "Image appliquée au badge.",
       "uploaded": "Image envoyée",
@@ -13742,6 +13743,7 @@
     "page": {
       "kicker": "Paramètres",
       "title": "Visibilité des portails",
+      "institutionScope": "Ces paramètres s’appliquent aux élèves et aux enseignants rattachés à {nome}.",
       "description": "Définissez les pages affichées aux étudiants et aux professeurs de cet établissement. Les pages liées à des périodes académiques peuvent également être affichées automatiquement pendant les dates configurées.",
       "loading": "Chargement des paramètres..."
     },

@@ -82,6 +82,7 @@ function normalizarPaginasPortal(
 
 export default function ConfiguracaoPortaisPage() {
   const t = useTranslations("AdminPortalVisibilitySettings");
+  const [instituicaoNome, setInstituicaoNome] = useState<string | null>(null);
   const [paginas, setPaginas] = useState<PaginaPortal[]>([]);
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -108,9 +109,11 @@ export default function ConfiguracaoPortaisPage() {
         ? data.paginas
         : [];
 
+      setInstituicaoNome(typeof data?.instituicaoNome === "string" ? data.instituicaoNome : null);
       setPaginas(normalizarPaginasPortal(paginasRecebidas));
     } catch (e: any) {
       setErro(e?.message || t("messages.loadError"));
+      setInstituicaoNome(null);
       setPaginas([]);
     } finally {
       setLoading(false);
@@ -215,6 +218,11 @@ export default function ConfiguracaoPortaisPage() {
           <p className="phanyx-config-muted mt-2 text-sm leading-6">
             {t("page.description")}
           </p>
+          {instituicaoNome && (
+            <p className="phanyx-config-muted mt-2 text-sm font-semibold">
+              {t("page.institutionScope", { nome: instituicaoNome })}
+            </p>
+          )}
         </section>
 
         {mensagem && (

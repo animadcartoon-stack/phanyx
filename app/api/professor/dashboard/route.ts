@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { paginaVisivel } from "@/lib/portal-config";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
+
+export const dynamic = "force-dynamic";
 
 type TokenPayload = {
   id?: number;
@@ -32,6 +35,7 @@ export async function GET() {
     const professor = await prisma.professor.findFirst({
       where: {
         userId: decoded.id,
+        instituicaoId: decoded.instituicaoId,
       },
     });
 
@@ -40,6 +44,10 @@ export async function GET() {
         { error: "Professor não encontrado" },
         { status: 404 }
       );
+    }
+
+    if (!(await paginaVisivel(professor.instituicaoId, "PROFESSOR", "professor.painel"))) {
+      return NextResponse.json({ error: "Painel indisponível." }, { status: 404 });
     }
 
     const provas = await prisma.prova.findMany({
