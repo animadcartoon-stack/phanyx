@@ -11156,6 +11156,7 @@
       "urlMissing": "Upload completed, but the image URL was not returned.",
       "added": "Image added to the badge.",
       "invalidType": "Use a PNG, JPG, JPEG, or WEBP image. TIFF is not displayed correctly in the browser.",
+      "tooLarge": "Choose an image up to 20 MB.",
       "applyError": "Unable to apply image to the badge.",
       "applied": "Image applied to the badge.",
       "uploaded": "Uploaded image",
@@ -13743,6 +13744,7 @@
     "page": {
       "kicker": "Settings",
       "title": "Portal Visibility",
+      "institutionScope": "These settings apply to students and teachers affiliated with {nome}.",
       "description": "Choose which pages are shown to students and professors at this institution. Pages linked to academic periods can also be displayed automatically during the configured dates.",
       "loading": "Loading settings..."
     },

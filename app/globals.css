@@ -3141,6 +3141,12 @@ html[data-theme="light"] .phanyx-crachas-card {
   border-color: #cbd5e1 !important;
 }
 
+.phanyx-cracha-alca-imagem {
+  background: #1d4ed8;
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 1px #172554;
+}
+
 html[data-theme="light"] .phanyx-crachas-canvas-area {
   background: #f1f5f9 !important;
   border-color: #cbd5e1 !important;

@@ -10,10 +10,10 @@ export class ErroPreparacaoLogo extends Error {
   }
 }
 
-export async function prepararLogoParaUpload(file: File): Promise<File> {
+export async function prepararLogoParaUpload(file: File, limiteOriginal = LIMITE_LOGO_ORIGINAL): Promise<File> {
   if (!TIPOS_LOGO.includes(file.type)) throw new ErroPreparacaoLogo("invalidFormat");
   if (!file.size) throw new ErroPreparacaoLogo("emptyFile");
-  if (file.size > LIMITE_LOGO_ORIGINAL) throw new ErroPreparacaoLogo("originalTooLarge");
+  if (file.size > limiteOriginal) throw new ErroPreparacaoLogo("originalTooLarge");
   if (file.size <= LIMITE_LOGO_ENVIO) return file;
 
   const url = URL.createObjectURL(file);
