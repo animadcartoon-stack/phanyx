@@ -341,6 +341,7 @@ model User {
   ultimoLoginAt      DateTime?
   aluno              Aluno?
   funcionario        Funcionario?
+  perfilAdministrativo PerfilAdministrativoUsuario?
   professor          Professor?
   resetToken         String?
   resetTokenExpira   DateTime?
@@ -602,6 +603,15 @@ model User {
   @@index([instituicaoId])
   @@index([role])
   @@index([instituicaoId, acessoTodosPolos])
+}
+
+model PerfilAdministrativoUsuario {
+  userId     Int     @id
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nome       String
+  telefone   String?
+  cargo      String?
+  fotoPerfil String?
 }
 
 model UserInstituicaoAcesso {
