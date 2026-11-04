@@ -12,6 +12,7 @@ import {
   useLocale,
   useTranslations,
 } from "next-intl";
+import { PUBLICOS_MOBILIDADE, type PublicoMobilidade } from "@/lib/mobilidade-docente-config";
 
 type StatusOferta =
   | "RASCUNHO"
@@ -64,6 +65,8 @@ type Oferta = {
   codigo: string | null;
   descricao: string | null;
   status: StatusOferta;
+  publico: PublicoMobilidade;
+  requisitosDocentes: string | null;
   ano: number | null;
   periodo: string | null;
   inscricoesInicio: string | null;
@@ -127,6 +130,8 @@ type Formulario = {
   codigo: string;
   descricao: string;
   status: StatusOferta;
+  publico: PublicoMobilidade;
+  requisitosDocentes: string;
   ano: string;
   periodo: string;
   inscricoesInicio: string;
@@ -161,6 +166,8 @@ const FORMULARIO_INICIAL: Formulario = {
   codigo: "",
   descricao: "",
   status: "RASCUNHO",
+  publico: "ALUNOS",
+  requisitosDocentes: "",
   ano: "",
   periodo: "",
   inscricoesInicio: "",
@@ -689,6 +696,8 @@ export default function OfertasMobilidadePage() {
 
       status:
         oferta.status,
+      publico: oferta.publico,
+      requisitosDocentes: oferta.requisitosDocentes ?? "",
 
       ano:
         oferta.ano === null
@@ -1031,6 +1040,8 @@ export default function OfertasMobilidadePage() {
 
                 status:
                   formulario.status,
+                publico: formulario.publico,
+                requisitosDocentes: formulario.requisitosDocentes,
 
                 ano:
                   formulario.ano,
@@ -1536,6 +1547,10 @@ export default function OfertasMobilidadePage() {
                             }
                           </div>
 
+                          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                            {t(`audience.${oferta.publico}`)}
+                          </p>
+
                           {oferta.codigo && (
                             <div className="mt-1 text-xs text-slate-500">
                               {
@@ -1946,6 +1961,24 @@ export default function OfertasMobilidadePage() {
                     </label>
 
                     <label>
+                      <span className="mb-1.5 block text-sm font-semibold">{t("audience.label")}</span>
+                      <select className={campo} value={formulario.publico} onChange={(event) => atualizar("publico", event.target.value as PublicoMobilidade)}>
+                        {PUBLICOS_MOBILIDADE.map((publico) => (
+                          <option key={publico} value={publico}>{t(`audience.${publico}`)}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    {formulario.publico !== "ALUNOS" && (
+                      <label className="md:col-span-2">
+                        <span className="mb-1.5 block text-sm font-semibold">{t("audience.teacherRequirements")}</span>
+                        <textarea className={campo} value={formulario.requisitosDocentes} maxLength={8000} rows={3}
+                          onChange={(event) => atualizar("requisitosDocentes", event.target.value)} />
+                        <span className="mt-1 block text-xs text-slate-600 dark:text-slate-300">{t("audience.teacherHelp")}</span>
+                      </label>
+                    )}
+
+                    <label>
                       <span className="mb-1.5 block text-sm font-semibold">
                         {t(
                           "fields.status"
@@ -2226,6 +2259,8 @@ export default function OfertasMobilidadePage() {
                   </label>
                 </section>
 
+                {formulario.publico !== "PROFESSORES" && (
+                  <>
                 <section className="border-t border-slate-200 pt-6 dark:border-slate-800">
                   <h3 className="text-sm font-bold uppercase tracking-wide text-blue-700 dark:text-blue-300">
                     {t(
@@ -2601,6 +2636,9 @@ export default function OfertasMobilidadePage() {
                     />
                   </label>
                 </section>
+
+                  </>
+                )}
 
                 <section className="border-t border-slate-200 pt-6 dark:border-slate-800">
                   <h3 className="text-sm font-bold uppercase tracking-wide text-blue-700 dark:text-blue-300">

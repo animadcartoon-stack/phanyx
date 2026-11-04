@@ -1,4 +1,5 @@
-﻿import {
+﻿import { publicoMobilidadeValido } from "@/lib/mobilidade-docente-config";
+import {
   MobilidadeStatusOferta,
   MobilidadeStatusPrograma,
   Prisma,
@@ -513,6 +514,11 @@ export async function PATCH(
         unknown
       >;
 
+    const publico = corpo.publico;
+    if (publico !== undefined && !publicoMobilidadeValido(publico)) {
+      throw new ErroMobilidade(400, "PUBLICO_INVALIDO", "Público do edital inválido.");
+    }
+
     const titulo =
       textoOpcional(
         corpo.titulo,
@@ -733,6 +739,10 @@ export async function PATCH(
                 corpo.permiteListaEspera !==
                 false,
 
+              publico: publicoMobilidadeValido(publico) ? publico : undefined,
+              requisitosDocentes: corpo.requisitosDocentes === undefined
+                ? undefined
+                : textoOpcional(corpo.requisitosDocentes, 8000),
               criteriosElegibilidade:
                 criterios as unknown as
                   Prisma.InputJsonValue,

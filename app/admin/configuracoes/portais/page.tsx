@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { CHAVE_INSCRICOES_DOCENTES, CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 
 type ModoVisibilidadePortal =
   | "AUTOMATICO"
@@ -342,7 +343,9 @@ function BlocoPortal({
         return t("pages.professor.assignments");
       case "professor.reunioes":
         return t("pages.professor.meetings");
-      case "professor.mobilidade":
+      case CHAVE_INSCRICOES_DOCENTES:
+        return t("mobilityApplications");
+      case CHAVE_MOBILIDADE_DOCENTE:
         return t("pages.professor.mobility");
       case "professor.ouvidoria":
         return t("pages.professor.ombudsman");
@@ -475,6 +478,7 @@ function BlocoPortal({
             <button
               key={pagina.chavePagina}
               type="button"
+              aria-pressed={pagina.visivel}
               onClick={() =>
                 onAlternar(pagina.chavePagina)
               }
@@ -486,7 +490,9 @@ function BlocoPortal({
                 </p>
 
                 <p className="phanyx-portal-key mt-1 text-xs">
-                  {pagina.chavePagina}
+                  {pagina.chavePagina === CHAVE_INSCRICOES_DOCENTES
+                    ? t("mobilityApplicationsHelp")
+                    : pagina.chavePagina}
                 </p>
               </div>
 

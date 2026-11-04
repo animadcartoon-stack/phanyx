@@ -1827,6 +1827,7 @@
   "ProfessorLayout": {
     "logout": "Log out",
     "mobileNav": {
+      "mobility": "Exchange opportunities",
       "ariaLabel": "Professor main navigation",
       "dashboard": "Dashboard",
       "classes": "Classes",
@@ -4070,11 +4071,33 @@
       "saturday": "Saturday"
     }
   },
+  "ProfessorMobility": {
+    "title": "Exchange opportunities",
+    "subtitle": "Browse mobility calls published for teachers at your institution.",
+    "empty": "There are no teacher exchange opportunities available right now.",
+    "open": "Applications open",
+    "scheduled": "Applications scheduled",
+    "details": "Call details",
+    "registrationStart": "Applications open on",
+    "requirements": "Teacher requirements",
+    "instructions": "Application instructions",
+    "contactInstitution": "Contact your institution’s international mobility office.",
+    "externalRegistration": "Follow the instructions in this call to apply.",
+    "apply": "Apply",
+    "confirm": "Confirm your application. You can follow its review and submit the required documents under My applications.",
+    "confirmButton": "Confirm application",
+    "cancel": "Cancel",
+    "applied": "Application submitted.",
+    "applyError": "We could not submit the application. Refresh the page and try again.",
+    "unavailable": "Applications through PHANYX are unavailable for this call.",
+    "ranking": "Rank {position}"
+  },
   "ProfessorSidebar": {
     "title": "Teacher",
     "role": "Teacher",
     "logout": "Log out",
     "menu": {
+      "mobility": "Exchange opportunities",
       "dashboard": "Teacher Dashboard",
       "classes": "Classes",
       "substitutions": "Teacher Substitutions",
@@ -13006,6 +13029,14 @@
     }
   },
   "AdminMobilityOffers": {
+    "audience": {
+      "label": "Call audience",
+      "ALUNOS": "Students",
+      "PROFESSORES": "Teachers",
+      "AMBOS": "Both",
+      "teacherRequirements": "Teacher requirements",
+      "teacherHelp": "These requirements appear in the Teacher Portal. The call’s document checklist applies to the selected audiences."
+    },
     "back": "International Mobility",
     "title": "Offers / Calls",
     "subtitle": "Publish mobility opportunities and manage applications, seats, eligibility criteria, and mobility periods.",
@@ -13131,6 +13162,7 @@
     }
   },
   "AdminMobilityApplications": {
+    "teacherType": "PHANYX teacher",
     "back": "International Mobility",
     "title": "Applications",
     "subtitle": "Manage applicants, documentation, eligibility, selection, ranking, and international mobility results.",
@@ -13745,6 +13777,8 @@
     }
   },
   "AdminPortalVisibilitySettings": {
+    "mobilityApplications": "Accept teacher applications",
+    "mobilityApplicationsHelp": "Allows teachers to apply through PHANYX when the exchange page is enabled.",
     "page": {
       "kicker": "Settings",
       "title": "Portal Visibility",

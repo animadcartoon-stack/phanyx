@@ -18,6 +18,7 @@ type VisibilidadeProfessor = {
   trabalhos?: boolean;
   reunioes?: boolean;
   ouvidoria?: boolean;
+  mobilidade?: boolean;
   materiais?: boolean;
 };
 
@@ -91,6 +92,10 @@ export default function ProfessorSidebar({
     podeVer.reunioes && {
       label: t("menu.meetings"),
       href: "/professor/reunioes",
+    },
+    visibilidade?.mobilidade && {
+      label: t("menu.mobility"),
+      href: "/professor/mobilidade",
     },
     podeVer.ouvidoria && {
       label: t("menu.ombudsman"),

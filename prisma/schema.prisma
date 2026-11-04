@@ -815,6 +815,7 @@ model Professor {
   polo                        Polo?                    @relation(fields: [poloId], references: [id])
   reunioesCriadas             Reuniao[]                @relation("ReuniaoProfessor")
   atividadesResponsavel       Atividade[]              @relation("AtividadeProfessorResponsavel")
+  candidaturasMobilidade      MobilidadeCandidatura[]
   documentosProfessor         DocumentoProfessor[]
   substituicoesComoTitular    SubstituicaoDocente[]    @relation("ProfessorTitularSubstituicao")
   substituicoesComoSubstituto SubstituicaoDocente[]    @relation("ProfessorSubstitutoSubstituicao")
@@ -11003,9 +11004,16 @@ enum MobilidadeStatusOferta {
   CANCELADA
 }
 
+enum MobilidadePublicoOferta {
+  ALUNOS
+  PROFESSORES
+  AMBOS
+}
+
 enum MobilidadeVinculoCandidato {
   ALUNO_PHANYX
   ALUNO_EXTERNO
+  PROFESSOR_PHANYX
 }
 
 enum MobilidadeStatusCandidatura {
@@ -11191,6 +11199,8 @@ model MobilidadeOferta {
   codigo                 String?
   descricao              String?                @db.Text
   status                 MobilidadeStatusOferta @default(RASCUNHO)
+  publico                MobilidadePublicoOferta @default(ALUNOS)
+  requisitosDocentes     String?                @db.Text
   ano                    Int?
   periodo                String?
   inscricoesInicio       DateTime?
@@ -11275,6 +11285,7 @@ model MobilidadeCandidatura {
   instituicaoId         Int
   ofertaId              Int
   alunoId               Int?
+  professorId           Int?
   matriculaId           Int?
   vinculoCandidato      MobilidadeVinculoCandidato  @default(ALUNO_PHANYX)
   nomeSnapshot          String
@@ -11296,12 +11307,15 @@ model MobilidadeCandidatura {
   instituicao  Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   oferta       MobilidadeOferta @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
   aluno        Aluno?           @relation(fields: [alunoId], references: [id], onDelete: SetNull)
+  professor    Professor?       @relation(fields: [professorId], references: [id], onDelete: SetNull)
   matricula    Matricula?       @relation(fields: [matriculaId], references: [id], onDelete: SetNull)
   criadoPor    User?            @relation("MobilidadeCandidaturaCriadaPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
   analisadoPor User?            @relation("MobilidadeCandidaturaAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
 
   documentos MobilidadeCandidaturaDocumento[]
 
+  @@unique([ofertaId, professorId])
+  @@index([professorId])
   @@unique([ofertaId, alunoId])
   @@index([instituicaoId])
   @@index([ofertaId])

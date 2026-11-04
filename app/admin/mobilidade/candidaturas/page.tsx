@@ -69,6 +69,7 @@ type DocumentoCandidatura = {
 
 type Oferta = {
   id: number;
+  publico: "ALUNOS" | "PROFESSORES" | "AMBOS";
   titulo: string;
   codigo: string | null;
   status: string;
@@ -94,7 +95,7 @@ type Candidatura = {
   ofertaId: number;
   alunoId: number | null;
   matriculaId: number | null;
-  vinculoCandidato: VinculoCandidato;
+  vinculoCandidato: VinculoCandidato | "PROFESSOR_PHANYX";
   nomeSnapshot: string;
   emailSnapshot: string | null;
   telefoneSnapshot: string | null;
@@ -709,7 +710,7 @@ export default function AdminMobilityApplicationsPage() {
     }
 
     const ofertaId =
-      ofertas[0]?.id.toString() ??
+      ofertas.find((oferta) => oferta.publico !== "PROFESSORES")?.id.toString() ??
       "";
 
     setFormNova({
@@ -1101,7 +1102,7 @@ export default function AdminMobilityApplicationsPage() {
       ...NOVA_INICIAL,
 
       ofertaId:
-        ofertas[0]?.id.toString() ??
+        ofertas.find((oferta) => oferta.publico !== "PROFESSORES")?.id.toString() ??
         "",
     });
 
@@ -2297,6 +2298,8 @@ export default function AdminMobilityApplicationsPage() {
                 )}
               </option>
 
+              <option value="PROFESSOR_PHANYX">{t("teacherType")}</option>
+
               <option value="ALUNO_EXTERNO">
                 {t(
                   "types.external"
@@ -2482,14 +2485,11 @@ export default function AdminMobilityApplicationsPage() {
                         </td>
 
                         <td className="px-3 py-4 align-top text-sm break-words">
-                          {candidatura.vinculoCandidato ===
-                          "ALUNO_PHANYX"
-                            ? `🎓 ${t(
-                                "types.phanyx"
-                              )}`
-                            : `🌍 ${t(
-                                "types.external"
-                              )}`}
+                          {candidatura.vinculoCandidato === "PROFESSOR_PHANYX"
+                            ? `👨‍🏫 ${t("teacherType")}`
+                            : candidatura.vinculoCandidato === "ALUNO_PHANYX"
+                              ? `🎓 ${t("types.phanyx")}`
+                              : `🌍 ${t("types.external")}`}
                         </td>
 
                         <td className="px-3 py-4 align-top text-sm break-words">
@@ -2706,7 +2706,7 @@ export default function AdminMobilityApplicationsPage() {
                       )}
                     </option>
 
-                    {ofertas.map(
+                    {ofertas.filter((oferta) => oferta.publico !== "PROFESSORES").map(
                       (oferta) => (
                         <option
                           key={

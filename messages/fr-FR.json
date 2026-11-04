@@ -1827,6 +1827,7 @@
   "ProfessorLayout": {
     "logout": "Se déconnecter",
     "mobileNav": {
+      "mobility": "Opportunités d’échange",
       "ariaLabel": "Navigation principale du professeur",
       "dashboard": "Tableau de bord",
       "classes": "Classes",
@@ -4070,11 +4071,33 @@
       "saturday": "Samedi"
     }
   },
+  "ProfessorMobility": {
+    "title": "Opportunités d’échange",
+    "subtitle": "Consultez les appels à candidatures de mobilité publiés pour les enseignants de votre établissement.",
+    "empty": "Aucune opportunité de mobilité enseignante n’est disponible actuellement.",
+    "open": "Inscriptions ouvertes",
+    "scheduled": "Inscriptions programmées",
+    "details": "Détails de l’appel",
+    "registrationStart": "Début des inscriptions",
+    "requirements": "Critères pour les enseignants",
+    "instructions": "Instructions d’inscription",
+    "contactInstitution": "Contactez le service de mobilité internationale de votre établissement.",
+    "externalRegistration": "Consultez les instructions de l’appel pour vous inscrire.",
+    "apply": "Postuler",
+    "confirm": "Confirmez votre candidature. Vous pourrez suivre son examen et envoyer les documents demandés dans Mes candidatures.",
+    "confirmButton": "Confirmer la candidature",
+    "cancel": "Annuler",
+    "applied": "Candidature enregistrée.",
+    "applyError": "La candidature n’a pas pu être enregistrée. Actualisez la page et réessayez.",
+    "unavailable": "L’inscription via PHANYX est indisponible pour cet appel.",
+    "ranking": "Classement {position}"
+  },
   "ProfessorSidebar": {
     "title": "Enseignant",
     "role": "ENSEIGNANT",
     "logout": "Se déconnecter",
     "menu": {
+      "mobility": "Opportunités d’échange",
       "dashboard": "Tableau de bord",
       "classes": "Classes",
       "substitutions": "Remplacements d’enseignants",
@@ -13005,6 +13028,14 @@
     }
   },
   "AdminMobilityOffers": {
+    "audience": {
+      "label": "Public de l’appel",
+      "ALUNOS": "Étudiants",
+      "PROFESSORES": "Enseignants",
+      "AMBOS": "Les deux",
+      "teacherRequirements": "Critères pour les enseignants",
+      "teacherHelp": "Ces critères figurent dans le portail enseignant. La liste des documents de l’appel s’applique aux publics sélectionnés."
+    },
     "back": "Mobilité Internationale",
     "title": "Offres / Appels",
     "subtitle": "Publiez les opportunités de mobilité et gérez les candidatures, places, critères d'éligibilité et périodes de mobilité.",
@@ -13130,6 +13161,7 @@
     }
   },
   "AdminMobilityApplications": {
+    "teacherType": "Enseignant PHANYX",
     "back": "Mobilité Internationale",
     "title": "Candidatures",
     "subtitle": "Gérez les candidats, les documents, l'éligibilité, la sélection, le classement et les résultats de mobilité internationale.",
@@ -13744,6 +13776,8 @@
     }
   },
   "AdminPortalVisibilitySettings": {
+    "mobilityApplications": "Accepter les candidatures des enseignants",
+    "mobilityApplicationsHelp": "Permet de candidater via PHANYX lorsque la page des échanges est activée.",
     "page": {
       "kicker": "Paramètres",
       "title": "Visibilité des portails",

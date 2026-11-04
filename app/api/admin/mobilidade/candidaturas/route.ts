@@ -231,6 +231,7 @@ async function obterOferta(
   const oferta =
     await prisma.mobilidadeOferta.findFirst({
       where: {
+        publico: { in: ["ALUNOS", "AMBOS"] },
         id: ofertaId,
         instituicaoId,
 
@@ -591,6 +592,7 @@ export async function GET(
             ano: true,
             periodo: true,
             vagas: true,
+            publico: true,
 
             programa: {
               select: {
@@ -767,7 +769,7 @@ export async function POST(
         corpo.vinculoCandidato
       );
 
-    if (!vinculo) {
+    if (!vinculo || vinculo === "PROFESSOR_PHANYX") {
       throw new ErroMobilidade(
         400,
         "VINCULO_INVALIDO",

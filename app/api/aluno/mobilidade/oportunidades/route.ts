@@ -289,6 +289,8 @@ export async function GET(
           instituicaoId:
             usuario.instituicaoId,
 
+          publico: { in: ["ALUNOS", "AMBOS"] },
+
           status:
             MobilidadeStatusOferta.INSCRICOES_ABERTAS,
 
