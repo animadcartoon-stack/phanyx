@@ -1043,7 +1043,8 @@ function AdminFuncionariosPage() {
   const [estadoLista, setEstadoLista] = useState<EstadoConsulta>("inicial");
   const [estadoDepartamentos, setEstadoDepartamentos] = useState<EstadoConsulta>("inicial");
   const [estadoPolos, setEstadoPolos] = useState<EstadoConsulta>("inicial");
-  const [formularioMontado, setFormularioMontado] = useState(false);
+  const [formularioAberto, setFormularioAberto] = useState(false);
+  const [complementosMontados, setComplementosMontados] = useState(false);
   const ultimaConsultaLista = useRef(0);
   const [permissoesUsuario, setPermissoesUsuario] = useState<string[]>([]);
 
@@ -2598,6 +2599,20 @@ function AdminFuncionariosPage() {
     void carregarPermissoesUsuario();
   }, []);
 
+  useEffect(() => {
+    if (!formularioAberto || complementosMontados) return;
+
+    // Deixa os campos iniciais aparecerem antes de montar as seções maiores.
+    let quadroComplementos = 0;
+    const quadroInicial = requestAnimationFrame(() => {
+      quadroComplementos = requestAnimationFrame(() => setComplementosMontados(true));
+    });
+    return () => {
+      cancelAnimationFrame(quadroInicial);
+      cancelAnimationFrame(quadroComplementos);
+    };
+  }, [formularioAberto, complementosMontados]);
+
   const funcionariosFiltrados = useMemo(() => {
     const termoTexto =
       busca.trim().toLowerCase();
@@ -2711,23 +2726,29 @@ function AdminFuncionariosPage() {
         />
       )}
 
-      <details
-        className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-        onToggle={(event) => {
-          if (!event.currentTarget.open) return;
-
-          // Mantém o rascunho e os campos de arquivo montados após a primeira abertura.
-          setFormularioMontado(true);
-          if (estadoDepartamentos === "inicial") void carregarDepartamentos();
-          if (estadoPolos === "inicial") void carregarPolos();
-        }}
-      >
-        <summary className="cursor-pointer px-6 py-4 text-base font-semibold text-slate-900 dark:text-slate-100">
+      <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+        <button
+          type="button"
+          aria-expanded={formularioAberto}
+          aria-controls="formulario-funcionario"
+          className="w-full cursor-pointer px-6 py-4 text-left text-base font-semibold text-slate-900 dark:text-slate-100"
+          onClick={() => {
+            setFormularioAberto(!formularioAberto);
+            if (formularioAberto) return;
+            if (estadoDepartamentos === "inicial") void carregarDepartamentos();
+            if (estadoPolos === "inicial") void carregarPolos();
+          }}
+        >
+          <span aria-hidden="true" className="mr-2">{formularioAberto ? "▾" : "▸"}</span>
           {editandoId ? t("form.editTitle") : t("form.newTitle")}
-        </summary>
-        {formularioMontado && (
+        </button>
+        {(formularioAberto || complementosMontados) && (
         <form
-          onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
+          id="formulario-funcionario"
+          hidden={!formularioAberto}
+          onSubmit={complementosMontados
+            ? (editandoId ? salvarEdicaoFuncionario : criarFuncionario)
+            : (evento) => evento.preventDefault()}
           className="space-y-4 border-t border-slate-200 p-6 dark:border-slate-700"
         >
 
@@ -3075,6 +3096,8 @@ dark:text-white
             )}
           </div>
 
+          {complementosMontados && (
+          <>
           <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/60">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -3379,8 +3402,12 @@ dark:text-white
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
 
+        {complementosMontados ? (
+        <>
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <div className="mb-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -4431,9 +4458,15 @@ dark:text-red-300
             </button>
           ) : null}
         </div>
+        </>
+        ) : (
+          <p role="status" className="text-sm text-slate-700 dark:text-slate-200">
+            {t("common.loading")}
+          </p>
+        )}
         </form>
         )}
-      </details>
+      </div>
 
       <div className="space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
