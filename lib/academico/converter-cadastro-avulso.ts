@@ -109,7 +109,7 @@ async function prepararCursoAvulso(db: Banco, instituicaoId: number, cadastroId:
       try { if (unicos.length) horarios = validarHorariosTurmaAvulsa(unicos); }
       catch (e) { if (e instanceof ErroCadastroTurmaAvulsa) falhar(e.codigo, `Revise os horários da turma “${turma.nome}”: ${e.message}`); throw e; }
       let revisar = false;
-      try { validarProntidaoAtivacaoTurmaAvulsa({ curso, professorId, capacidadeMaxima: turma.capacidadeMaxima, periodoLetivo: turma.periodoLetivo, turno: turma.turno, horarios }); }
+      try { validarProntidaoAtivacaoTurmaAvulsa({ curso, capacidadeMaxima: turma.capacidadeMaxima, periodoLetivo: turma.periodoLetivo, turno: turma.turno, horarios }); }
       catch (e) { if (!(e instanceof ErroCadastroTurmaAvulsa)) throw e; revisar = true; }
       planosTurmas.push({ id: turma.id, nome: turma.nome, professor, professorId, horarios, ativa: turma.ativa && !revisar, revisar });
     }

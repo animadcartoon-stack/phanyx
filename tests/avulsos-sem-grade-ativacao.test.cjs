@@ -23,9 +23,10 @@ const pronto = () => ({ curso: {
   valorMensalidade: "139.00", valorMatricula: "0", quantidadeParcelas: 12,
 }, professorId: 7, capacidadeMaxima: 12, periodoLetivo: "2027", turno: "MATUTINO",
   horarios: [{ diaSemana: 2, horaInicio: "08:00", horaFim: "10:00" }] });
-test("prontidao exige professor, vagas, ano e horarios validos", () => {
+test("prontidao permite professor pendente e exige vagas, ano e horarios validos", () => {
   assert.equal(validar(pronto()).length, 1);
-  for (const [campo, valor] of [["professorId", null], ["capacidadeMaxima", 0], ["periodoLetivo", "202X"], ["turno", ""], ["horarios", []]]) {
+  assert.equal(validar({ ...pronto(), professorId: null }).length, 1);
+  for (const [campo, valor] of [["capacidadeMaxima", 0], ["periodoLetivo", "202X"], ["turno", ""], ["horarios", []]]) {
     const dados = pronto(); dados[campo] = valor;
     assert.throws(() => validar(dados), campo);
   }

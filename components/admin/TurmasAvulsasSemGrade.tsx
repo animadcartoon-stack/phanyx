@@ -11,7 +11,7 @@ type Turma = {
   turno: string | null; professorId: number | null; poloId: number | null;
   capacidadeMaxima: number | null; ativa: boolean; horariosAvulsos: Horario[];
 };
-type Dados = { cursos: Curso[]; turmas: Turma[]; professores: Referencia[]; polos: Referencia[]; ativacaoHabilitada: boolean };
+type Dados = { cursos: Curso[]; turmas: Turma[]; professores: (Referencia & { ativo: boolean })[]; polos: Referencia[]; ativacaoHabilitada: boolean };
 const dias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const padrao = { cursoId: "", nome: "", codigo: "", periodoLetivo: "", turno: "", professorId: "", poloId: "", capacidadeMaxima: "", horarios: [{ diaSemana: 1, horaInicio: "", horaFim: "" }] as Horario[] };
 const entrada = "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
@@ -25,6 +25,8 @@ export default function TurmasAvulsasSemGrade() {
   const [editarId, setEditarId] = useState<number | null>(null);
   const [turmaParaAtivar, setTurmaParaAtivar] = useState<Turma | null>(null);
   const [ativando, setAtivando] = useState(false);
+  const [vinculoProfessor, setVinculoProfessor] = useState<{ turmaId: number; professorId: string } | null>(null);
+  const [vinculando, setVinculando] = useState(false);
   const [form, setForm] = useState({ ...padrao, horarios: [...padrao.horarios] });
   const carregar = useCallback(async (signal?: AbortSignal) => {
     const resposta = await fetch("/api/admin/turmas/avulsas", { credentials: "include", cache: "no-store", signal });
@@ -40,6 +42,7 @@ export default function TurmasAvulsasSemGrade() {
     return () => ctrl.abort();
   }, [carregar]);
 
+  const professoresAtivos = (dados?.professores || []).filter(professor => professor.ativo);
   const habilitados = (dados?.cursos || []).filter(c => c.matriculaDiretaTurma);
   function editar(turma: Turma) {
     setEditarId(turma.id); setErro(""); setSucesso("");
@@ -96,9 +99,38 @@ export default function TurmasAvulsasSemGrade() {
     finally { setAtivando(false); }
   }
 
+  async function vincularProfessor(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!vinculoProfessor?.professorId || vinculando) return;
+
+    const { turmaId } = vinculoProfessor;
+    const professorId = Number(vinculoProfessor.professorId);
+    setErro("");
+    setSucesso("");
+    setVinculando(true);
+    try {
+      const resposta = await fetch("/api/admin/turmas/avulsas", {
+        method: "PATCH", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acao: "VINCULAR_PROFESSOR", turmaId, professorId }),
+      });
+      const corpo = await resposta.json().catch(() => ({}));
+      if (!resposta.ok) throw new Error(corpo.error || "Não foi possível vincular o professor.");
+      setDados(atual => atual && {
+        ...atual,
+        turmas: atual.turmas.map(turma => turma.id === turmaId ? { ...turma, professorId } : turma),
+      });
+      setVinculoProfessor(null);
+      setSucesso("Professor vinculado. A chamada está disponível para esse docente.");
+    } catch (falha) {
+      setErro(falha instanceof Error ? falha.message : "Falha ao vincular professor.");
+    } finally {
+      setVinculando(false);
+    }
+  }
+
   return <section className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
     <h2 className="font-bold">Turmas de cursos avulsos sem disciplinas</h2>
-    <p className="mt-1 text-sm">Escolha o curso e defina professor, vagas, ano letivo e horários. Não é necessário cadastrar disciplinas. A turma é salva inativa para revisão antes da ativação.</p>
+    <p className="mt-1 text-sm">Escolha o curso e defina vagas, ano letivo e horários. A turma é salva inativa para revisão. O professor pode ser vinculado após a ativação e é necessário para a chamada.</p>
     {dados && !dados.ativacaoHabilitada && <p role="status" className="mt-2 text-sm font-semibold text-amber-800 dark:text-amber-200">Você pode preparar a turma. A ativação para receber matrículas ainda não está liberada para sua instituição.</p>}
     {carregando && <p role="status" className="mt-2 text-sm">Consultando cursos avulsos...</p>}
     {erro && <p role="alert" className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{erro}</p>}
@@ -141,7 +173,7 @@ export default function TurmasAvulsasSemGrade() {
           <label className="text-sm font-medium">Vagas máximas
             <input required type="number" min="1" max="5000" value={form.capacidadeMaxima} onChange={e => setForm(f => ({ ...f, capacidadeMaxima: e.target.value }))} className={entrada + " mt-1"}/>
           </label>
-          <label className="text-sm font-medium">Professor
+          <label className="text-sm font-medium">Professor (opcional)
             <select value={form.professorId} onChange={e => setForm(f => ({ ...f, professorId: e.target.value }))} className={entrada + " mt-1"}>
               <option value="">Não definido</option>{(dados?.professores || []).map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
             </select>
@@ -174,9 +206,42 @@ export default function TurmasAvulsasSemGrade() {
         {!dados?.turmas.length && <p className="text-sm text-slate-600 dark:text-slate-300">Nenhuma turma sem grade cadastrada.</p>}
         {dados?.turmas.map(turma => <div key={turma.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
           <div className="text-sm"><strong>{turma.nome}</strong> — {habilitados.find(c => c.id === turma.cursoId)?.nome || "Curso"}
-            <p className="text-slate-600 dark:text-slate-300">{turma.turno || "Sem turno"} · {turma.capacidadeMaxima ?? "?"} vagas · {turma.ativa ? "Ativa (edição bloqueada)" : "Inativa"}</p>
+            <p className="text-slate-600 dark:text-slate-300">{turma.turno || "Sem turno"} · {turma.capacidadeMaxima ?? "?"} vagas · {turma.ativa ? "Ativa" : "Inativa"}</p>
+            {turma.professorId !== null && (
+              <p className="text-slate-600 dark:text-slate-300">
+                Professor: {dados.professores.find(professor => professor.id === turma.professorId)?.nome ?? "Vinculado"}
+              </p>
+            )}
             <p className="text-xs text-slate-600 dark:text-slate-300">{turma.horariosAvulsos.map(h => `${dias[h.diaSemana]} ${h.horaInicio}–${h.horaFim}`).join(" · ")}</p>
           </div>
+          {turma.ativa && turma.professorId === null && (
+            vinculoProfessor?.turmaId === turma.id ? (
+              <form onSubmit={vincularProfessor} className="flex flex-wrap items-end gap-2">
+                <label className="text-sm font-medium">Professor da turma
+                  <select required disabled={vinculando} value={vinculoProfessor.professorId}
+                    onChange={event => setVinculoProfessor({ turmaId: turma.id, professorId: event.target.value })}
+                    className={entrada + " mt-1"}>
+                    <option value="">Selecione...</option>
+                    {professoresAtivos.map(professor => <option key={professor.id} value={professor.id}>{professor.nome}</option>)}
+                  </select>
+                </label>
+                <button type="submit" disabled={vinculando || !vinculoProfessor.professorId}
+                  className="rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Vincular</button>
+                <button type="button" disabled={vinculando} onClick={() => setVinculoProfessor(null)}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-700">Cancelar</button>
+              </form>
+            ) : (
+              <div className="space-y-1 text-sm">
+                <p className="text-slate-600 dark:text-slate-300">Professor a definir para liberar a chamada.</p>
+                <button type="button" disabled={vinculando || professoresAtivos.length === 0}
+                  onClick={() => { setErro(""); setSucesso(""); setVinculoProfessor({ turmaId: turma.id, professorId: "" }); }}
+                  className="rounded-lg border border-blue-300 px-3 py-2 font-semibold text-blue-700 disabled:opacity-50 dark:text-blue-300">
+                  Definir professor
+                </button>
+                {professoresAtivos.length === 0 && <p>Cadastre um professor ativo para vinculá-lo.</p>}
+              </div>
+            )
+          )}
           {!turma.ativa && <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => editar(turma)} className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-semibold text-blue-700 dark:text-blue-300">Editar</button>
             <button type="button" disabled={!dados?.ativacaoHabilitada || ativando || salvando}
@@ -190,7 +255,7 @@ export default function TurmasAvulsasSemGrade() {
     <PhanyxConfirmModal
       aberto={turmaParaAtivar !== null}
       titulo="Confirmar ativação da turma avulsa"
-      mensagem={`Deseja ativar ${turmaParaAtivar?.nome || "esta turma"}? O servidor irá conferir o curso, os horários, o professor, os valores e as vagas. Esta ação não confirma matrículas.`}
+      mensagem={`Deseja ativar ${turmaParaAtivar?.nome || "esta turma"}? O servidor confere o curso, os horários, os valores e as vagas. Se o professor estiver em aberto, a turma pode receber matrículas e a chamada ficará pendente do vínculo.`}
       textoConfirmar="Ativar turma"
       carregando={ativando}
       onConfirmar={() => void confirmarAtivacao()}

@@ -94,7 +94,7 @@ if (!connection) {
               organizacaoCurricular: 'ANUAL', regrasPrecoDisciplinas: null, regrasSelecaoDisciplinas: null, cursoRecebidoDaRede: false });
             await tx.curso.update({ where: { id: curso.id }, data: modo });
           });
-          const body = await resposta(turmasApi.POST(requisicao({ acao: 'CRIAR_TURMA', cursoId: curso.id, nome: `Turma ${nome}`, periodoLetivo: '2027', turno: 'MATUTINO', professorId: professor.id,
+          const body = await resposta(turmasApi.POST(requisicao({ acao: 'CRIAR_TURMA', cursoId: curso.id, nome: `Turma ${nome}`, periodoLetivo: '2027', turno: 'MATUTINO', professorId: i === 0 ? null : professor.id,
             capacidadeMaxima: 10, horarios: [{ diaSemana: i + 1, horaInicio: '08:00', horaFim: '09:50' }] })), 201);
           assert.equal(body.turma.ativa, false);
           turmas.push(body.turma);
@@ -121,7 +121,8 @@ if (!connection) {
         return resposta(matriculasApi.POST(requisicao({ ...body, acao: 'CONFIRMAR', versao: p.versao, chave: randomUUID(), ...extra })), 201);
       }
       let individual;
-      await t.test('um curso sozinho mantém preço integral e gera um contrato mais 13 lançamentos', async () => {
+      await t.test('matrícula sem professor mantém preço integral e gera um contrato mais 13 lançamentos', async () => {
+        assert.equal((await db.turma.findUnique({ where: { id: turmas[0].id } })).professorId, null);
         const body = base(alunos[0], [turmas[0].id]), p = await previa(body);
         assert.equal(p.calculo.matriculaCentavos, 9850); assert.equal(p.calculo.mensalidadeCentavos, 23900);
         const chave = randomUUID();
@@ -166,8 +167,20 @@ if (!connection) {
         assert.equal(conflito.codigo, 'CONFLITO_HORARIO');
         assert.equal(await db.matricula.count({ where: { alunoId: alunos[4].id } }), 0);
       });
-      await t.test('professor salva frequência sem disciplina, com auditoria e proteção institucional', async () => {
+      await t.test('professor só acessa a chamada após vínculo inicial e salva frequência com auditoria', async () => {
         const user = { id: professorUser.id, instituicaoId, role: 'PROFESSOR' };
+        await assert.rejects(chamada.autorizarChamadaTurmaAvulsa(user, turmas[0].id), e => e.status === 403);
+        const outraInstituicao = await db.instituicao.create({ data: { nome: 'TESTE OUTRA INSTITUIÇÃO', slug: `teste-prof-outro-${unique}`, updatedAt: new Date() } });
+        const outroUsuario = await db.user.create({ data: { nome: 'Outro professor', email: `prof-outro-${unique}@example.invalid`, senha: 'sem-login', role: 'PROFESSOR', instituicaoId: outraInstituicao.id } });
+        const outroProfessor = await db.professor.create({ data: { nome: outroUsuario.nome, userId: outroUsuario.id, instituicaoId: outraInstituicao.id } });
+        const vinculo = { acao: 'VINCULAR_PROFESSOR', turmaId: turmas[0].id, professorId: professor.id };
+        await resposta(turmasApi.PATCH(requisicao({ ...vinculo, professorId: outroProfessor.id })), 400);
+        const anterior = await db.turma.findUnique({ where: { id: turmas[0].id } });
+        await resposta(turmasApi.PATCH(requisicao(vinculo)), 200);
+        await resposta(turmasApi.PATCH(requisicao(vinculo)), 409);
+        const vinculada = await db.turma.findUnique({ where: { id: turmas[0].id } });
+        assert.deepEqual({ ...vinculada, professorId: null, updatedAt: anterior.updatedAt }, anterior);
+        assert.equal(await db.matriculaTurmaAvulsa.count({ where: { matriculaId: individual.id } }), 1);
         const contexto = await chamada.autorizarChamadaTurmaAvulsa(user, turmas[0].id);
         const lista = await chamada.carregarChamadaTurmaAvulsa(contexto, '2027-02-01', '08:00');
         assert.equal(lista.alunos.length, 4);

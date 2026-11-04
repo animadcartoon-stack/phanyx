@@ -15,7 +15,6 @@ export function validarProntidaoAtivacaoTurmaAvulsa(dados: {
     valorMatricula: unknown;
     quantidadeParcelas: unknown;
   };
-  professorId: number | null;
   capacidadeMaxima: unknown;
   periodoLetivo: unknown;
   turno: unknown;
@@ -25,9 +24,6 @@ export function validarProntidaoAtivacaoTurmaAvulsa(dados: {
       dados.curso.regrasPrecoDisciplinas != null ||
       dados.curso.regrasSelecaoDisciplinas != null) {
     throw new ErroCadastroTurmaAvulsa("CURSO_COM_GRADE", "Este curso utiliza disciplinas ou possui configuracao curricular incompatível.");
-  }
-  if (!Number.isSafeInteger(dados.professorId) || !(dados.professorId! > 0)) {
-    throw new ErroCadastroTurmaAvulsa("PROFESSOR_OBRIGATORIO", "Defina um professor para liberar a chamada da turma.");
   }
   validarCapacidadeTurmaAvulsa(dados.capacidadeMaxima);
   if (!/^\d{4}$/.test(String(dados.periodoLetivo ?? "")) ||

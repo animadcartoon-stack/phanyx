@@ -59,7 +59,7 @@ export async function GET() {
       prisma.curso.findMany({ where: { instituicaoId: user.instituicaoId, ativo: true, excluidoEm: null,
         organizacaoCurricular: { in: ["ANUAL", "SEMESTRAL"] } },
         select: { id: true, nome: true, organizacaoCurricular: true, matriculaDiretaTurma: true }, orderBy: { nome: "asc" } }),
-      prisma.professor.findMany({ where: { instituicaoId: user.instituicaoId }, select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
+      prisma.professor.findMany({ where: { instituicaoId: user.instituicaoId }, select: { id: true, nome: true, ativo: true }, orderBy: { nome: "asc" } }),
       prisma.polo.findMany({ where: { instituicaoId: user.instituicaoId, ativo: true }, select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
     ]);
     const ativos = cursos.filter(c => c.matriculaDiretaTurma).map(c => c.id);
@@ -173,7 +173,16 @@ export async function PATCH(request: Request) {
       const turmaId = inteiroOpcional(body.turmaId);
       if (!turmaId) throw new ErroCadastroTurmaAvulsa("TURMA_INVALIDA", "Selecione a turma que deseja ativar.");
       const turma = await ativarTurmaAvulsa(user.instituicaoId, turmaId);
-      return json({ turma, mensagem: "Turma ativada com validacoes de capacidade, professor e horarios." });
+      return json({ turma, mensagem: "Turma ativada com validações de capacidade e horários." });
+    }
+    if (body?.acao === "VINCULAR_PROFESSOR") {
+      const turmaId = inteiroOpcional(body.turmaId);
+      const professorId = inteiroOpcional(body.professorId);
+      if (!turmaId || !professorId) {
+        throw new ErroCadastroTurmaAvulsa("DADOS_INVALIDOS", "Selecione a turma e o professor.");
+      }
+      await vincularProfessorTurmaAvulsa(user.instituicaoId, turmaId, professorId);
+      return json({ turma: { id: turmaId, professorId } });
     }
     if (!body || body.acao !== "EDITAR_TURMA") throw new ErroCadastroTurmaAvulsa("ACAO_INVALIDA", "Operação inválida.");
     const turmaId = inteiroOpcional(body.turmaId);
@@ -202,4 +211,30 @@ export async function PATCH(request: Request) {
     }, { isolationLevel: "Serializable", timeout: 20000 });
     return json({ turma });
   } catch (error) { return erroResposta(error); }
+}
+
+async function vincularProfessorTurmaAvulsa(instituicaoId: number, turmaId: number, professorId: number) {
+  await prisma.$transaction(async tx => {
+    const professor = await tx.professor.findFirst({
+      where: { id: professorId, instituicaoId, ativo: true },
+      select: { id: true },
+    });
+    if (!professor) {
+      throw new ErroCadastroTurmaAvulsa("PROFESSOR_INVALIDO", "Selecione um professor ativo da instituição.");
+    }
+
+    // O vínculo inicial é a única alteração permitida aqui, inclusive após receber matrículas.
+    const atualizada = await tx.turma.updateMany({
+      where: {
+        id: turmaId, instituicaoId, ativa: true, professorId: null,
+        statusTurma: { in: ["ATIVA", "A_INICIAR", "AGUARDANDO"] },
+        curso: { instituicaoId, matriculaDiretaTurma: true, ativo: true, excluidoEm: null },
+        horariosAvulsos: { some: { instituicaoId, ativo: true } },
+      },
+      data: { professorId },
+    });
+    if (atualizada.count !== 1) {
+      throw new ErroCadastroTurmaAvulsa("TURMA_ALTERADA", "A turma não está disponível para atribuição inicial. Recarregue a página.");
+    }
+  }, { isolationLevel: "Serializable", timeout: 20000 });
 }
