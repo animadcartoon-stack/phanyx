@@ -2683,22 +2683,14 @@ function AdminFuncionariosPage() {
         />
       )}
 
-      <form
-        onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
-        className="
-  rounded-lg
-  border
-  border-slate-200
-  bg-white
-  p-6
-  space-y-4
-  dark:border-slate-700
-  dark:bg-slate-900
-  "
-      >
-        <h2 className="font-semibold">
+      <details className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+        <summary className="cursor-pointer px-6 py-4 text-base font-semibold text-slate-900 dark:text-slate-100">
           {editandoId ? t("form.editTitle") : t("form.newTitle")}
-        </h2>
+        </summary>
+        <form
+          onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
+          className="space-y-4 border-t border-slate-200 p-6 dark:border-slate-700"
+        >
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {!editandoId && (
@@ -4376,7 +4368,8 @@ dark:text-red-300
             </button>
           ) : null}
         </div>
-      </form>
+        </form>
+      </details>
 
       <div className="space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
