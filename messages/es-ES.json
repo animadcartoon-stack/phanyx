@@ -11030,6 +11030,8 @@
       "typeHint": "Define qué datos usará PHANYX cuando se emita esta plantilla. El código QR sigue usando únicamente {code}."
     },
     "issuance": {
+      "useTemporaryPhoto": "Usar esta foto solo en el PDF de esta emisión",
+      "temporaryPhotoPdfError": "La credencial se emitió, pero no se pudo generar el PDF con la foto temporal. Intenta generar el PDF de nuevo.",
       "title": "Emitir credencial",
       "forModel": "Esta plantilla se emitirá para:",
       "close": "Cerrar emisión",
@@ -11151,6 +11153,8 @@
       "deleteObject": "Eliminar objeto"
     },
     "image": {
+      "temporaryPhotoHelp": "La foto elegida queda en la vista previa y se puede usar en la emisión individual. La plantilla usa la foto del registro.",
+      "removeTemporaryPhoto": "Quitar foto temporal",
       "uploadError": "Error al enviar la imagen.",
       "urlMissing": "La carga se completó, pero no se devolvió la URL de la imagen.",
       "added": "Imagen añadida a la credencial.",

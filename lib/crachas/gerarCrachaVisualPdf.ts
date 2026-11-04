@@ -7,6 +7,7 @@ type GerarCrachaVisualPdfParams = {
   larguraMm: number;
   alturaMm: number;
   possuiVerso: boolean;
+  fotoAvulsaDataUrl?: string;
 };
 
 function numeroPositivo(valor: unknown, padrao: number) {
@@ -61,6 +62,7 @@ export async function gerarCrachaVisualPdf({
   larguraMm,
   alturaMm,
   possuiVerso,
+  fotoAvulsaDataUrl,
 }: GerarCrachaVisualPdfParams) {
   const larguraFinalMm = numeroPositivo(larguraMm, 54);
   const alturaFinalMm = numeroPositivo(alturaMm, 86);
@@ -103,6 +105,18 @@ url.searchParams.set("t", token);
 
     if (erroRender) {
       throw new Error(erroRender);
+    }
+
+    if (fotoAvulsaDataUrl) {
+      await page.evaluate(async (urlFoto) => {
+        const fotos = document.querySelectorAll<HTMLImageElement>("[data-cracha-foto-pessoa]");
+        if (!fotos.length) throw new Error("O modelo não possui o campo Foto da pessoa.");
+
+        await Promise.all(Array.from(fotos, async (foto) => {
+          foto.src = urlFoto;
+          await foto.decode();
+        }));
+      }, fotoAvulsaDataUrl);
     }
 
     const paginasEncontradas = await page.evaluate(() => {

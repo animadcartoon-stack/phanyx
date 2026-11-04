@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import sharp from "sharp";
+import { LIMITE_LOGO_ENVIO } from "@/lib/imagens/preparar-logo-upload";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import { gerarCrachaVisualPdf } from "@/lib/crachas/gerarCrachaVisualPdf";
@@ -41,7 +43,7 @@ function obterOrigin(req: NextRequest) {
   return `${protocolo}://${host}`;
 }
 
-export async function GET(
+async function gerarPdfCracha(
   req: NextRequest,
   { params }: RouteContext
 ) {
@@ -169,6 +171,32 @@ if (!podeEmitirCrachas) {
         ? Number(modelo.alturaMm)
         : 86;
 
+    let fotoAvulsaDataUrl: string | undefined;
+    if (req.method === "POST") {
+      const foto = (await req.formData().catch(() => null))?.get("foto");
+      if (!(foto instanceof File) || !foto.size || foto.size > LIMITE_LOGO_ENVIO) {
+        return NextResponse.json({ error: "Foto avulsa inválida." }, { status: 400 });
+      }
+
+      const imagem = sharp(Buffer.from(await foto.arrayBuffer()), { limitInputPixels: 24_000_000 });
+      const formato = (await imagem.metadata().catch(() => null))?.format;
+      if (formato !== "png" && formato !== "jpeg" && formato !== "webp") {
+        return NextResponse.json({ error: "Formato de foto avulsa inválido." }, { status: 400 });
+      }
+
+      const buffer = await imagem.rotate().resize({
+        width: 1200,
+        height: 1200,
+        fit: "inside",
+        withoutEnlargement: true,
+      }).png().toBuffer().catch(() => null);
+      if (!buffer) {
+        return NextResponse.json({ error: "Foto avulsa inválida." }, { status: 400 });
+      }
+
+      fotoAvulsaDataUrl = `data:image/png;base64,${buffer.toString("base64")}`;
+    }
+
     const origin = obterOrigin(req);
 
     const pdfBuffer = await gerarCrachaVisualPdf({
@@ -177,6 +205,7 @@ if (!podeEmitirCrachas) {
       larguraMm,
       alturaMm,
       possuiVerso,
+      fotoAvulsaDataUrl,
     });
 
     const codigoCracha =
@@ -210,3 +239,5 @@ if (!podeEmitirCrachas) {
     );
   }
 }
+
+export { gerarPdfCracha as GET, gerarPdfCracha as POST };

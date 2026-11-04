@@ -11030,6 +11030,8 @@
       "typeHint": "Définit les données que PHANYX utilisera lors de l’émission de ce modèle. Le code QR continue d’utiliser uniquement {code}."
     },
     "issuance": {
+      "useTemporaryPhoto": "Utiliser cette photo uniquement dans le PDF de ce badge",
+      "temporaryPhotoPdfError": "Le badge a été émis, mais le PDF avec la photo temporaire n’a pas pu être généré. Réessayez de générer le PDF.",
       "title": "Émettre un badge",
       "forModel": "Ce modèle sera émis pour :",
       "close": "Fermer l’émission",
@@ -11151,6 +11153,8 @@
       "deleteObject": "Supprimer l’objet"
     },
     "image": {
+      "temporaryPhotoHelp": "La photo choisie reste dans l’aperçu et peut être utilisée pour une émission individuelle. Le modèle utilise la photo du profil.",
+      "removeTemporaryPhoto": "Retirer la photo temporaire",
       "uploadError": "Impossible d’envoyer l’image.",
       "urlMissing": "Téléversement terminé, mais l’URL de l’image n’a pas été renvoyée.",
       "added": "Image ajoutée au badge.",
