@@ -16,6 +16,8 @@ import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTe
 
 type EstadoConsulta = "inicial" | "carregando" | "pronto" | "erro";
 
+const FUNCIONARIOS_POR_PAGINA = 6;
+
 interface Departamento {
   id: number;
   nome: string;
@@ -1037,6 +1039,7 @@ function AdminFuncionariosPage() {
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
+  const [paginaFuncionarios, setPaginaFuncionarios] = useState(1);
   const [estadoLista, setEstadoLista] = useState<EstadoConsulta>("inicial");
   const [estadoDepartamentos, setEstadoDepartamentos] = useState<EstadoConsulta>("inicial");
   const [estadoPolos, setEstadoPolos] = useState<EstadoConsulta>("inicial");
@@ -2660,6 +2663,26 @@ function AdminFuncionariosPage() {
       }
     );
   }, [funcionarios, busca]);
+
+  // Lista limitada no DOM: a busca continua considerando TODOS os funcionarios.
+  const totalPaginasFuncionarios = Math.max(
+    1, Math.ceil(funcionariosFiltrados.length / FUNCIONARIOS_POR_PAGINA)
+  );
+  const paginaAtualFuncionarios = Math.min(paginaFuncionarios, totalPaginasFuncionarios);
+  const funcionariosPagina = useMemo(
+    () => funcionariosFiltrados.slice(
+      (paginaAtualFuncionarios - 1) * FUNCIONARIOS_POR_PAGINA,
+      paginaAtualFuncionarios * FUNCIONARIOS_POR_PAGINA
+    ),
+    [funcionariosFiltrados, paginaAtualFuncionarios]
+  );
+  const rotulosPaginacao = ({
+    "pt-BR": ["Página anterior", "Próxima página"],
+    "pt-PT": ["Página anterior", "Página seguinte"],
+    "en-US": ["Previous page", "Next page"],
+    "es-ES": ["Página anterior", "Página siguiente"],
+    "fr-FR": ["Page précédente", "Page suivante"],
+  } as Record<string, [string, string]>)[locale] || ["Previous page", "Next page"];
 
   const enderecoUI =
     rotulosEndereco(
@@ -4420,7 +4443,7 @@ dark:text-red-300
             type="text"
             placeholder={t("list.searchPlaceholder")}
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => { setBusca(e.target.value); setPaginaFuncionarios(1); }}
             className="w-full md:w-[500px] border rounded-lg p-2"
           />
         </div>
@@ -4445,7 +4468,7 @@ dark:text-red-300
             {t("list.empty")}
           </div>
         ) : (
-          funcionariosFiltrados.map((f) => (
+          funcionariosPagina.map((f) => (
             <div key={f.id} className="
 border
 border-slate-200
@@ -4462,6 +4485,10 @@ dark:bg-slate-900
                     <img
                       src={f.fotoPerfil}
                       alt={f.nome}
+                      width={64}
+                      height={64}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -4635,6 +4662,30 @@ dark:bg-slate-900
               </div>
             </div>
           ))
+        )}
+        {estadoLista === "pronto" && funcionariosFiltrados.length > FUNCIONARIOS_POR_PAGINA && (
+          <nav aria-label={locale.startsWith("pt") ? "Paginação de funcionários" : locale.startsWith("es") ? "Paginación de empleados" : locale.startsWith("fr") ? "Pagination des employés" : "Employee pagination"}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <span aria-live="polite">{paginaAtualFuncionarios} / {totalPaginasFuncionarios}</span>
+            <div className="flex items-center gap-2">
+              <button type="button"
+                aria-label={rotulosPaginacao[0]}
+                title={rotulosPaginacao[0]}
+                disabled={paginaAtualFuncionarios <= 1}
+                onClick={() => setPaginaFuncionarios(paginaAtualFuncionarios - 1)}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:hover:bg-slate-800">
+                &larr;
+              </button>
+              <button type="button"
+                aria-label={rotulosPaginacao[1]}
+                title={rotulosPaginacao[1]}
+                disabled={paginaAtualFuncionarios >= totalPaginasFuncionarios}
+                onClick={() => setPaginaFuncionarios(paginaAtualFuncionarios + 1)}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 font-semibold hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-600 dark:hover:bg-slate-800">
+                &rarr;
+              </button>
+            </div>
+          </nav>
         )}
       </div>
       <PhanyxConfirmModal
