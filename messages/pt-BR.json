@@ -11030,6 +11030,8 @@
       "typeHint": "Define quais dados o PHANYX usará quando este modelo for emitido. O QR Code continua usando apenas {code}."
     },
     "issuance": {
+      "useTemporaryPhoto": "Usar esta foto só no PDF desta emissão",
+      "temporaryPhotoPdfError": "O crachá foi emitido, mas o PDF com a foto avulsa falhou. Tente gerar o PDF novamente.",
       "title": "Emitir crachá",
       "forModel": "Este modelo será emitido para:",
       "close": "Fechar emissão",
@@ -11151,6 +11153,8 @@
       "deleteObject": "Excluir objeto"
     },
     "image": {
+      "temporaryPhotoHelp": "A foto escolhida fica na prévia e pode ser usada na emissão individual. O modelo usa a foto do cadastro.",
+      "removeTemporaryPhoto": "Remover foto avulsa",
       "uploadError": "Erro ao enviar imagem.",
       "urlMissing": "Upload realizado, mas a URL da imagem não retornou.",
       "added": "Imagem adicionada ao crachá.",

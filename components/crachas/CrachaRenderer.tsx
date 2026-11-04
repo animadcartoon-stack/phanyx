@@ -1009,6 +1009,7 @@ export default function CrachaRenderer({
               >
                 <img
                   src={url}
+                  data-cracha-foto-pessoa={objeto.origem === "FOTO" ? true : undefined}
                   alt=""
                   crossOrigin="anonymous"
                   style={{

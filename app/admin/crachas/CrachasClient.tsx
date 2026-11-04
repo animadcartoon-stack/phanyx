@@ -588,6 +588,20 @@ export default function CrachasClient() {
   const inputImagemRef = useRef<HTMLInputElement | null>(null);
   const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
   const versaoModeloImagemRef = useRef(0);
+  const fotoAvulsaUrlRef = useRef<string | null>(null);
+  const [fotoAvulsa, setFotoAvulsa] = useState<{ arquivo: File; url: string } | null>(null);
+  const [usarFotoAvulsa, setUsarFotoAvulsa] = useState(false);
+  const emissaoAvulsaRef = useRef<{
+    pessoaId: number;
+    modeloId: number | null;
+    crachaId: number;
+    codigo: string;
+  } | null>(null);
+
+  useEffect(() => () => {
+    versaoModeloImagemRef.current += 1;
+    if (fotoAvulsaUrlRef.current) URL.revokeObjectURL(fotoAvulsaUrlRef.current);
+  }, []);
   const [enviandoImagem, setEnviandoImagem] = useState(false);
 
   const [avisoCracha, setAvisoCracha] = useState<{
@@ -2129,7 +2143,10 @@ export default function CrachasClient() {
   }
 
   function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
-    if (novoTipo !== tipoModeloCracha) versaoModeloImagemRef.current += 1;
+    if (novoTipo !== tipoModeloCracha) {
+      versaoModeloImagemRef.current += 1;
+      limparFotoAvulsa();
+    }
     const camposDoNovoTipo = camposDisponiveisPorTipo(novoTipo);
     const campoPadrao = camposDoNovoTipo[0];
 
@@ -2938,6 +2955,8 @@ export default function CrachasClient() {
   }
 
   function abrirModalEmissaoCracha() {
+    setUsarFotoAvulsa(false);
+    emissaoAvulsaRef.current = null;
     setBuscaPessoaEmissao("");
     setErroEmissaoCracha("");
     setAvisoCracha(null);
@@ -2954,6 +2973,8 @@ export default function CrachasClient() {
       return;
     }
 
+    setUsarFotoAvulsa(false);
+    emissaoAvulsaRef.current = null;
     setModalEmissaoAberto(false);
     setBuscaPessoaEmissao("");
     setErroEmissaoCracha("");
@@ -2966,6 +2987,7 @@ export default function CrachasClient() {
   async function buscarPessoasParaEmissaoCracha() {
     try {
       setCarregandoPessoasEmissao(true);
+      setUsarFotoAvulsa(false);
       setErroEmissaoCracha("");
       setPessoaSelecionadaEmissao(null);
       setPessoasEmissaoCracha([]);
@@ -3059,53 +3081,65 @@ export default function CrachasClient() {
       try {
         setEmitindoCracha(true);
 
-        const res = await fetch("/api/admin/crachas/emitir", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tipoPessoa: tipoModeloCracha,
-            pessoaId: pessoaSelecionadaEmissao.id,
-            modeloId: modeloCrachaAtualId || undefined,
-          }),
-        });
+        const foto = usarFotoAvulsa ? fotoAvulsa?.arquivo : undefined;
+        const emissaoAnterior = emissaoAvulsaRef.current;
+        const repetirPdf =
+          emissaoAnterior?.pessoaId === pessoaSelecionadaEmissao.id &&
+          emissaoAnterior.modeloId === modeloCrachaAtualId;
 
-        const data = await res.json();
+        let crachaEmitidoId = repetirPdf ? emissaoAnterior.crachaId : 0;
+        let codigoCracha = repetirPdf ? emissaoAnterior.codigo : "";
+        let nomePessoa = pessoaSelecionadaEmissao.nome || t("issuance.selectedPerson");
 
-        if (!res.ok) {
-          throw new Error(t("issuance.issueError"));
+        if (!repetirPdf) {
+          const res = await fetch("/api/admin/crachas/emitir", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tipoPessoa: tipoModeloCracha,
+              pessoaId: pessoaSelecionadaEmissao.id,
+              modeloId: modeloCrachaAtualId || undefined,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(t("issuance.issueError"));
+
+          crachaEmitidoId = Number(data?.cracha?.id || 0);
+          codigoCracha = String(data?.cracha?.codigoCracha || "");
+          nomePessoa = data?.pessoa?.nome || nomePessoa;
         }
 
-        const codigoCracha = data?.cracha?.codigoCracha
-          ? String(data.cracha.codigoCracha)
-          : "";
-
-        const crachaEmitidoId = Number(data?.cracha?.id || 0);
-
-        if (!crachaEmitidoId) {
-          abaPdf?.close();
-
-          throw new Error(
-            t("issuance.issuedNoId")
-          );
-        }
+        if (!crachaEmitidoId) throw new Error(t("issuance.issuedNoId"));
 
         setUltimoCrachaEmitidoId(crachaEmitidoId);
+        let urlPdf = `/api/admin/crachas/emitidos/${crachaEmitidoId}/pdf`;
 
-        const urlPdf = `/api/admin/crachas/emitidos/${crachaEmitidoId}/pdf`;
+        if (foto) {
+          emissaoAvulsaRef.current = {
+            pessoaId: pessoaSelecionadaEmissao.id,
+            modeloId: modeloCrachaAtualId,
+            crachaId: crachaEmitidoId,
+            codigo: codigoCracha,
+          };
+          const formData = new FormData();
+          formData.append("foto", foto);
+          const respostaPdf = await fetch(urlPdf, {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          });
+          if (!respostaPdf.ok) throw new Error(t("issuance.temporaryPhotoPdfError"));
+          urlPdf = URL.createObjectURL(await respostaPdf.blob());
+          limparFotoAvulsa();
+        }
 
         if (abaPdf) {
           abaPdf.location.href = urlPdf;
         } else {
           window.location.href = urlPdf;
         }
-
-        const nomePessoa =
-          data?.pessoa?.nome ||
-          pessoaSelecionadaEmissao.nome ||
-          t("issuance.selectedPerson");
 
         fecharModalEmissaoCracha(true);
 
@@ -3122,7 +3156,10 @@ export default function CrachasClient() {
         console.error("ERRO AO EMITIR CRACHÁ:", error);
 
         setErroEmissaoCracha(
-          t("issuance.issueGenericError")
+          emissaoAvulsaRef.current?.pessoaId === pessoaSelecionadaEmissao.id &&
+          emissaoAvulsaRef.current.modeloId === modeloCrachaAtualId
+            ? t("issuance.temporaryPhotoPdfError")
+            : t("issuance.issueGenericError")
         );
       } finally {
         setEmitindoCracha(false);
@@ -3860,6 +3897,13 @@ export default function CrachasClient() {
     }
   }
 
+  function limparFotoAvulsa() {
+    if (fotoAvulsaUrlRef.current) URL.revokeObjectURL(fotoAvulsaUrlRef.current);
+    fotoAvulsaUrlRef.current = null;
+    setFotoAvulsa(null);
+    setUsarFotoAvulsa(false);
+  }
+
   async function handleUploadImagemObjeto(e: React.ChangeEvent<HTMLInputElement>) {
     const arquivo = e.target.files?.[0];
     e.target.value = "";
@@ -3870,6 +3914,28 @@ export default function CrachasClient() {
 
     try {
       const preparada = await prepararLogoParaUpload(arquivo, 20 * 1024 * 1024);
+      if (versao !== versaoModeloImagemRef.current) return;
+
+      if (objetoAtual.origem === "FOTO") {
+        const url = URL.createObjectURL(preparada);
+        const imagem = new Image();
+        imagem.src = url;
+        try {
+          await imagem.decode();
+        } catch (error) {
+          URL.revokeObjectURL(url);
+          throw error;
+        }
+        if (versao !== versaoModeloImagemRef.current) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        limparFotoAvulsa();
+        fotoAvulsaUrlRef.current = url;
+        setFotoAvulsa({ arquivo: preparada, url });
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", preparada);
 
@@ -3964,6 +4030,7 @@ export default function CrachasClient() {
 
   function limparHistoricoObjetos() {
     versaoModeloImagemRef.current += 1;
+    limparFotoAvulsa();
     for (
       const pendente of
       alteracoesPendentesRef.current.values()
@@ -8197,6 +8264,7 @@ export default function CrachasClient() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
+                  disabled={emitindoCracha}
                   onClick={() => {
                     setModoEmissaoCracha("INDIVIDUAL");
                     setErroEmissaoCracha("");
@@ -8213,8 +8281,10 @@ export default function CrachasClient() {
 
                 <button
                   type="button"
+                  disabled={emitindoCracha}
                   onClick={() => {
                     setModoEmissaoCracha("LOTE");
+                    setUsarFotoAvulsa(false);
                     setErroEmissaoCracha("");
                     setPessoaSelecionadaEmissao(null);
                   }}
@@ -8251,7 +8321,7 @@ export default function CrachasClient() {
                     <button
                       type="button"
                       onClick={buscarPessoasParaEmissaoCracha}
-                      disabled={carregandoPessoasEmissao}
+                      disabled={carregandoPessoasEmissao || emitindoCracha}
                       className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {carregandoPessoasEmissao
@@ -8281,10 +8351,10 @@ export default function CrachasClient() {
                           <button
                             key={`${pessoa.tipo}-${pessoa.id}`}
                             type="button"
+                            disabled={emitindoCracha}
                             onClick={() => {
-                              setPessoaSelecionadaEmissao(
-                                pessoa
-                              );
+                              if (!selecionada) setUsarFotoAvulsa(false);
+                              setPessoaSelecionadaEmissao(pessoa);
                               setErroEmissaoCracha("");
                             }}
                             className={[
@@ -8327,6 +8397,18 @@ export default function CrachasClient() {
                     </p>
                   )}
                 </div>
+                {fotoAvulsa && pessoaSelecionadaEmissao?.aptoParaCracha && (
+                  <label className="phanyx-crachas-modal-label mt-4 flex items-center gap-3 text-sm font-semibold">
+                    <img src={fotoAvulsa.url} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                    <input
+                      type="checkbox"
+                      checked={usarFotoAvulsa}
+                      disabled={emitindoCracha}
+                      onChange={(event) => setUsarFotoAvulsa(event.target.checked)}
+                    />
+                    {t("issuance.useTemporaryPhoto")}
+                  </label>
+                )}
               </>
             ) : (
               <>
@@ -9068,7 +9150,8 @@ export default function CrachasClient() {
                 }
 
                 if (objeto.tipo === "IMAGEM") {
-                  const ehPlaceholder = !objeto.url;
+                  const urlImagem = objeto.origem === "FOTO" ? fotoAvulsa?.url || objeto.url : objeto.url;
+                  const ehPlaceholder = !urlImagem;
                   const corPlaceholder = "#334155";
                   const fundoPlaceholder = "#f8fafc";
                   const bordaPlaceholder = "#94a3b8";
@@ -9125,9 +9208,9 @@ export default function CrachasClient() {
                           filter: sombraImagemDropCss(objeto),
                         }}
                       >
-                        {objeto.url ? (
+                        {urlImagem ? (
                           <img
-                            src={objeto.url}
+                            src={urlImagem}
                             alt={
                               objeto.origem === "FOTO"
                                 ? t("common.photo")
@@ -10374,6 +10457,21 @@ export default function CrachasClient() {
                     onChange={handleUploadImagemObjeto}
                     className="hidden"
                   />
+                  {objetoAtual.origem === "FOTO" && (
+                    <>
+                      <p className="phanyx-crachas-muted mt-2 text-xs">{t("image.temporaryPhotoHelp")}</p>
+                      {fotoAvulsa && (
+                        <button
+                          type="button"
+                          className="phanyx-crachas-button-secondary mt-2 w-full"
+                          onClick={limparFotoAvulsa}
+                          disabled={enviandoImagem}
+                        >
+                          {t("image.removeTemporaryPhoto")}
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 <select
