@@ -1827,6 +1827,7 @@
   "ProfessorLayout": {
     "logout": "Sair",
     "mobileNav": {
+      "mobility": "Oportunidades de intercâmbio",
       "ariaLabel": "Navegação principal do professor",
       "dashboard": "Painel",
       "classes": "Turmas",
@@ -4070,11 +4071,33 @@
       "saturday": "Sábado"
     }
   },
+  "ProfessorMobility": {
+    "title": "Oportunidades de intercâmbio",
+    "subtitle": "Consulte os avisos de mobilidade publicados para docentes da sua instituição.",
+    "empty": "Nenhuma oportunidade para docentes está disponível de momento.",
+    "open": "Inscrições abertas",
+    "scheduled": "Inscrições agendadas",
+    "details": "Detalhes do aviso",
+    "registrationStart": "Início das inscrições",
+    "requirements": "Requisitos para docentes",
+    "instructions": "Instruções de inscrição",
+    "contactInstitution": "Contacte o serviço de Mobilidade Internacional da sua instituição.",
+    "externalRegistration": "Consulte as instruções do aviso para se inscrever.",
+    "apply": "Candidatar-me",
+    "confirm": "Confirme a sua candidatura. Pode acompanhar a análise e enviar os documentos solicitados em As minhas candidaturas.",
+    "confirmButton": "Confirmar candidatura",
+    "cancel": "Cancelar",
+    "applied": "Candidatura registada.",
+    "applyError": "Não foi possível registar a candidatura. Atualize a página e tente novamente.",
+    "unavailable": "A inscrição através do PHANYX está indisponível para este aviso.",
+    "ranking": "Classificação {position}"
+  },
   "ProfessorSidebar": {
     "title": "Professor",
     "role": "Docente",
     "logout": "Terminar sessão",
     "menu": {
+      "mobility": "Oportunidades de intercâmbio",
       "dashboard": "Painel do Professor",
       "classes": "Turmas",
       "substitutions": "Substituições docentes",
@@ -13006,6 +13029,14 @@
     }
   },
   "AdminMobilityOffers": {
+    "audience": {
+      "label": "Público do aviso",
+      "ALUNOS": "Alunos",
+      "PROFESSORES": "Docentes",
+      "AMBOS": "Ambos",
+      "teacherRequirements": "Requisitos para docentes",
+      "teacherHelp": "Estes requisitos aparecem no Portal do Professor. A lista de documentos do aviso aplica-se aos públicos selecionados."
+    },
     "back": "Mobilidade Internacional",
     "title": "Ofertas / Editais",
     "subtitle": "Publique oportunidades de mobilidade e organize inscrições, vagas, critérios de elegibilidade e períodos da experiência internacional.",
@@ -13131,6 +13162,7 @@
     }
   },
   "AdminMobilityApplications": {
+    "teacherType": "Docente PHANYX",
     "back": "Mobilidade Internacional",
     "title": "Candidaturas",
     "subtitle": "Gira candidatos, documentação, elegibilidade, seleção, classificação e resultados da mobilidade internacional.",
@@ -13745,6 +13777,8 @@
     }
   },
   "AdminPortalVisibilitySettings": {
+    "mobilityApplications": "Receber inscrições de docentes",
+    "mobilityApplicationsHelp": "Permite iniciar candidaturas através do PHANYX quando o separador de intercâmbio está ativo.",
     "page": {
       "kicker": "Configurações",
       "title": "Visibilidade dos Portais",

@@ -12,6 +12,7 @@ import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import SeletorIdioma from "@/components/internacionalizacao/SeletorIdioma";
 import { paginaVisivel } from "@/lib/portal-config";
+import { CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 import { getTranslations } from "next-intl/server";
 import { bibliotecaDisponivel } from "@/lib/biblioteca-catalogo-leitor";
@@ -89,6 +90,7 @@ export default async function ProfessorLayout({
           id: true,
           nome: true,
           fotoPerfil: true,
+          ativo: true,
           instituicaoId:
             true,
         },
@@ -168,6 +170,7 @@ export default async function ProfessorLayout({
           "professor.reunioes"
         ),
 
+      mobilidade: professor.ativo && await paginaVisivel(professor.instituicaoId, "PROFESSOR", CHAVE_MOBILIDADE_DOCENTE, false),
       ouvidoria:
         await paginaVisivel(
           professor.instituicaoId,
@@ -415,6 +418,12 @@ export default async function ProfessorLayout({
                     </a>
                   )}
 
+                  {visibilidadeProfessor.mobilidade && (
+                    <a href="/professor/mobilidade" className={classeItemMobile}>
+                      <span aria-hidden="true" className="text-lg">🌍</span>
+                      <span className="mt-0.5 max-w-full truncate">{t("mobileNav.mobility")}</span>
+                    </a>
+                  )}
                   {visibilidadeProfessor.ouvidoria && (
                     <a
                       href="/professor/ouvidoria"

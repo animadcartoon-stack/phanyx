@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 export async function paginaVisivel(
   instituicaoId: number,
   portal: "ALUNO" | "PROFESSOR",
-  chavePagina: string
+  chavePagina: string,
+  visivelPadrao = true
 ) {
   const configuracao =
     await prisma.configuracaoPortalInstituicao.findUnique({
@@ -20,7 +21,7 @@ export async function paginaVisivel(
     });
 
   if (!configuracao) {
-    return true;
+    return visivelPadrao;
   }
 
   return configuracao.visivel;

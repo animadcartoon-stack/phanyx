@@ -630,7 +630,7 @@ export async function PATCH(
             matricula.id;
         }
       }
-    } else {
+    } else if (atual.vinculoCandidato === MobilidadeVinculoCandidato.ALUNO_EXTERNO) {
       if (
         Object.prototype.hasOwnProperty.call(
           corpo,

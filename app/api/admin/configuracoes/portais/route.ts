@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { CHAVE_INSCRICOES_DOCENTES, CHAVE_MOBILIDADE_DOCENTE } from "@/lib/mobilidade-docente-config";
 
 export const dynamic = "force-dynamic";
 
@@ -132,8 +133,14 @@ const PAGINAS_PADRAO: PaginaPadraoPortal[] = [
   },
   {
     portal: "PROFESSOR",
-    chavePagina: "professor.mobilidade",
+    chavePagina: CHAVE_MOBILIDADE_DOCENTE,
     nome: "Oportunidades de intercâmbio",
+    visivelPadrao: false,
+  },
+  {
+    portal: "PROFESSOR",
+    chavePagina: CHAVE_INSCRICOES_DOCENTES,
+    nome: "Receber inscrições de professores",
     visivelPadrao: false,
   },
   {
