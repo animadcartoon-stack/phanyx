@@ -168,12 +168,56 @@ function gerarSenhaTemporaria() {
   return `Phx@${sufixo}`;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const inicio = performance.now();
     const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (new URL(request.url).searchParams.get("resumo") === "1") {
+      const inicioConsulta = performance.now();
+      const funcionarios = await prisma.funcionario.findMany({
+        where: { instituicaoId: user.instituicaoId },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          nome: true,
+          fotoPerfil: true,
+          cpf: true,
+          rg: true,
+          telefone: true,
+          nacionalidade: true,
+          paisResidencia: true,
+          tipoDocumento: true,
+          numeroDocumento: true,
+          tipoDocumentoFiscal: true,
+          numeroDocumentoFiscal: true,
+          statusFuncionario: true,
+          motivoStatus: true,
+          cargo: true,
+          codigoFuncionario: true,
+          endereco: true,
+          bairro: true,
+          cidade: true,
+          estado: true,
+          cep: true,
+          user: { select: { email: true, role: true, ativo: true } },
+          departamento: { select: { id: true, nome: true } },
+          polo: { select: { id: true, nome: true } },
+        },
+      });
+      const autenticacaoMs = (inicioConsulta - inicio).toFixed(1);
+      const consultaMs = (performance.now() - inicioConsulta).toFixed(1);
+
+      return NextResponse.json(funcionarios, {
+        headers: {
+          "Cache-Control": "private, no-store",
+          "Server-Timing": `auth;dur=${autenticacaoMs}, db;dur=${consultaMs}`,
+        },
+      });
     }
 
     const funcionarios = await prisma.funcionario.findMany({

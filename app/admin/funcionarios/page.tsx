@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
@@ -13,6 +13,8 @@ import {
   type CountryCode,
 } from "libphonenumber-js";
 import CampoTelefoneInternacional from "@/components/internacionalizacao/CampoTelefoneInternacional";
+
+type EstadoConsulta = "inicial" | "carregando" | "pronto" | "erro";
 
 interface Departamento {
   id: number;
@@ -1035,6 +1037,11 @@ function AdminFuncionariosPage() {
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
+  const [estadoLista, setEstadoLista] = useState<EstadoConsulta>("inicial");
+  const [estadoDepartamentos, setEstadoDepartamentos] = useState<EstadoConsulta>("inicial");
+  const [estadoPolos, setEstadoPolos] = useState<EstadoConsulta>("inicial");
+  const [formularioMontado, setFormularioMontado] = useState(false);
+  const ultimaConsultaLista = useRef(0);
   const [permissoesUsuario, setPermissoesUsuario] = useState<string[]>([]);
 
   const [nome, setNome] = useState("");
@@ -1298,20 +1305,42 @@ function AdminFuncionariosPage() {
   const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
 
   async function carregarFuncionarios() {
-    const res = await fetch("/api/funcionario", {
-      credentials: "include",
-      cache: "no-store",
-    });
-    const data = await res.json();
-    setFuncionarios(Array.isArray(data) ? data : []);
+    const consulta = ++ultimaConsultaLista.current;
+    setEstadoLista("carregando");
+
+    try {
+      const res = await fetch("/api/funcionario?resumo=1", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error();
+      if (consulta !== ultimaConsultaLista.current) return;
+
+      setFuncionarios(data);
+      setEstadoLista("pronto");
+    } catch {
+      if (consulta === ultimaConsultaLista.current) setEstadoLista("erro");
+    }
   }
 
   async function carregarDepartamentos() {
-    const res = await fetch("/api/departamento", {
-      credentials: "include",
-    });
-    const data = await res.json();
-    setDepartamentos(Array.isArray(data) ? data : []);
+    setEstadoDepartamentos("carregando");
+
+    try {
+      const res = await fetch("/api/departamento", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error();
+
+      setDepartamentos(data);
+      setEstadoDepartamentos("pronto");
+    } catch {
+      setEstadoDepartamentos("erro");
+    }
   }
 
   async function carregarCargosDoDepartamento(
@@ -1494,36 +1523,18 @@ function AdminFuncionariosPage() {
   }
 
   async function carregarPolos() {
+    setEstadoPolos("carregando");
+
     try {
       const res = await fetch("/api/admin/polos", {
         credentials: "include",
         cache: "no-store",
       });
 
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        console.error(
-          "Erro ao carregar polos:",
-          data?.error || res.statusText
-        );
-
-        setPolos([]);
-        return;
-      }
-
-      /*
-       * A API atual retorna:
-       * {
-       *   polos: [...],
-       *   gestao: {...}
-       * }
-       */
-      const polosRecebidos = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.polos)
-          ? data.polos
-          : [];
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const polosRecebidos = Array.isArray(data) ? data : data?.polos;
+      if (!Array.isArray(polosRecebidos)) throw new Error();
 
       const polosValidos: Polo[] = polosRecebidos
         .map((polo: any) => ({
@@ -1548,13 +1559,9 @@ function AdminFuncionariosPage() {
         );
 
       setPolos(polosValidos);
-    } catch (error) {
-      console.error(
-        "Erro ao carregar polos:",
-        error
-      );
-
-      setPolos([]);
+      setEstadoPolos("pronto");
+    } catch {
+      setEstadoPolos("erro");
     }
   }
 
@@ -2584,10 +2591,8 @@ function AdminFuncionariosPage() {
   }
 
   useEffect(() => {
-    carregarFuncionarios();
-    carregarDepartamentos();
-    carregarPolos();
-    carregarPermissoesUsuario();
+    void carregarFuncionarios();
+    void carregarPermissoesUsuario();
   }, []);
 
   const funcionariosFiltrados = useMemo(() => {
@@ -2683,10 +2688,21 @@ function AdminFuncionariosPage() {
         />
       )}
 
-      <details className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+      <details
+        className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+        onToggle={(event) => {
+          if (!event.currentTarget.open) return;
+
+          // Mantém o rascunho e os campos de arquivo montados após a primeira abertura.
+          setFormularioMontado(true);
+          if (estadoDepartamentos === "inicial") void carregarDepartamentos();
+          if (estadoPolos === "inicial") void carregarPolos();
+        }}
+      >
         <summary className="cursor-pointer px-6 py-4 text-base font-semibold text-slate-900 dark:text-slate-100">
           {editandoId ? t("form.editTitle") : t("form.newTitle")}
         </summary>
+        {formularioMontado && (
         <form
           onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
           className="space-y-4 border-t border-slate-200 p-6 dark:border-slate-700"
@@ -2820,6 +2836,8 @@ dark:text-white
 
             <select
               value={departamentoId}
+              disabled={estadoDepartamentos !== "pronto"}
+              aria-busy={estadoDepartamentos === "carregando"}
               onChange={(e) => {
                 void alterarDepartamentoFuncionario(
                   e.target.value
@@ -2842,7 +2860,9 @@ dark:text-white
                 value=""
                 className="bg-slate-900 text-white"
               >
-                {t("fields.selectDepartment")}
+                {estadoDepartamentos === "carregando"
+                  ? t("common.loading")
+                  : t("fields.selectDepartment")}
               </option>
 
               {departamentos.map((d) => (
@@ -2855,6 +2875,14 @@ dark:text-white
                 </option>
               ))}
             </select>
+            {estadoDepartamentos === "erro" && (
+              <div className="text-sm text-slate-700 dark:text-slate-200">
+                <p role="alert">{t("errors.loadDepartments")}</p>
+                <button type="button" className="underline" onClick={carregarDepartamentos}>
+                  {t("common.retry")}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -2942,7 +2970,8 @@ dark:text-white
               onChange={(e) =>
                 setPoloId(e.target.value)
               }
-              disabled={Boolean(editandoId)}
+              disabled={Boolean(editandoId) || estadoPolos !== "pronto"}
+              aria-busy={estadoPolos === "carregando"}
               required={!editandoId}
               className="
       w-full
@@ -2963,7 +2992,9 @@ dark:text-white
     "
             >
               <option value="">
-                {t("fields.selectCampus")}
+                {estadoPolos === "carregando"
+                  ? t("common.loading")
+                  : t("fields.selectCampus")}
               </option>
 
               {polos.map((polo) => {
@@ -2991,6 +3022,15 @@ dark:text-white
                 );
               })}
             </select>
+
+            {estadoPolos === "erro" && (
+              <div className="text-sm text-slate-700 dark:text-slate-200">
+                <p role="alert">{t("errors.loadCampuses")}</p>
+                <button type="button" className="underline" onClick={carregarPolos}>
+                  {t("common.retry")}
+                </button>
+              </div>
+            )}
 
             {editandoId ? (
               <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
@@ -4346,7 +4386,7 @@ dark:text-red-300
         <div className="flex flex-wrap gap-2">
           <button
             type="submit"
-            disabled={carregando}
+            disabled={carregando || (!editandoId && estadoPolos !== "pronto")}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-60"
           >
             {carregando
@@ -4369,6 +4409,7 @@ dark:text-red-300
           ) : null}
         </div>
         </form>
+        )}
       </details>
 
       <div className="space-y-3">
@@ -4384,7 +4425,22 @@ dark:text-red-300
           />
         </div>
 
-        {funcionariosFiltrados.length === 0 ? (
+        {estadoLista === "erro" && (
+          <div className="rounded-lg border bg-white p-5 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <p role="alert">{t("errors.loadEmployees")}</p>
+            <button type="button" className="mt-2 underline" onClick={carregarFuncionarios}>
+              {t("common.retry")}
+            </button>
+          </div>
+        )}
+
+        {(estadoLista === "inicial" || estadoLista === "carregando") && (
+          <div role="status" className="rounded-lg border bg-white p-5 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            {t("common.loading")}
+          </div>
+        )}
+
+        {estadoLista === "pronto" && funcionariosFiltrados.length === 0 ? (
           <div className="bg-white border rounded-lg p-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
             {t("list.empty")}
           </div>

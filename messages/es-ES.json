@@ -15437,6 +15437,7 @@
       "noJobsHelp": "Este departamento aún no tiene cargos activos registrados. Registra los cargos en Departamentos."
     },
     "common": {
+      "retry": "Intentar de nuevo",
       "inactive": "Inactivo",
       "minutes": "minutos",
       "notDefined": "No definido",
@@ -15562,6 +15563,9 @@
       "unblockTitle": "Desbloquear acceso"
     },
     "errors": {
+      "loadEmployees": "No se pudo cargar la lista de empleados.",
+      "loadDepartments": "No se pudieron cargar los departamentos.",
+      "loadCampuses": "No se pudieron cargar los campus.",
       "loadJobs": "No se pudieron cargar los cargos.",
       "invalidPhotoFormat": "Formato no válido. Sube una foto en JPG, JPEG, PNG o WEBP.",
       "photoTooLarge": "La foto es demasiado grande. Sube una foto de hasta {max} MB.",

@@ -15438,6 +15438,7 @@
       "noJobsHelp": "This department does not have any active job titles yet. Register job titles under Departments."
     },
     "common": {
+      "retry": "Try again",
       "inactive": "Inactive",
       "minutes": "minutes",
       "notDefined": "Not defined",
@@ -15563,6 +15564,9 @@
       "unblockTitle": "Unblock access"
     },
     "errors": {
+      "loadEmployees": "Could not load the employee list.",
+      "loadDepartments": "Could not load departments.",
+      "loadCampuses": "Could not load campuses.",
       "loadJobs": "Could not load job titles.",
       "invalidPhotoFormat": "Invalid format. Upload a JPG, JPEG, PNG, or WEBP photo.",
       "photoTooLarge": "The photo is too large. Upload a photo no larger than {max} MB.",
