@@ -69,6 +69,16 @@ async function obterUsuarioAutorizado() {
 }
 
 function responderErro(error: unknown) {
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2034"
+  ) {
+    return NextResponse.json(
+      { error: "Houve outra alteração no modelo. Confira o rascunho antes de publicar novamente." },
+      { status: 409 },
+    );
+  }
+
   if (error instanceof ErroPublicacaoCertificado) {
     return NextResponse.json(
       {
@@ -102,12 +112,13 @@ function responderErro(error: unknown) {
 }
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   contexto: ContextoRota
 ) {
   try {
     const user = await obterUsuarioAutorizado();
     const modeloId = lerModeloId(contexto.params.id);
+    const rascunhoAtualizadoEm = request.nextUrl.searchParams.get("rascunhoAtualizadoEm");
 
     const modeloAtual =
       await prisma.certificadoModelo.findFirst({
@@ -184,6 +195,8 @@ export async function POST(
 
           modelo: {
             instituicaoId: user.instituicaoId,
+            ativo: true,
+            arquivado: false,
           },
         },
 
@@ -208,6 +221,13 @@ export async function POST(
       throw new ErroPublicacaoCertificado(
         "Este modelo não possui uma versão de rascunho.",
         404
+      );
+    }
+
+    if (rascunhoAtualizadoEm !== null && rascunhoAtual.atualizadoEm.toISOString() !== rascunhoAtualizadoEm) {
+      throw new ErroPublicacaoCertificado(
+        "O rascunho foi alterado. Confira o modelo antes de publicar novamente.",
+        409,
       );
     }
 
@@ -370,7 +390,8 @@ export async function POST(
       totalCamposPublicados:
         rascunhoAtual.campos.length,
     };
-  }
+  },
+  { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
 );
 
     return NextResponse.json({

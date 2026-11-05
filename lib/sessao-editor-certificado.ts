@@ -21,6 +21,7 @@ export function requisicaoPermitidaAoEditorCertificado(caminho: string, metodo: 
   if (path === "/admin/configuracoes/certificado") return leitura;
   if (["/api/admin/plano", "/api/admin/configuracoes/instituicao"].includes(path)) return leitura;
   if (["/api/upload", "/api/admin/configuracoes/certificado/upload", "/api/admin/configuracoes/certificado/sessao"].includes(path)) return method === "POST";
+  if (path === "/api/admin/certificado-modelos/inicial/rascunho") return method === "PATCH";
   if (/^\/api\/admin\/certificado-modelos\/[1-9]\d*\/publicar$/.test(path)) return method === "POST";
   if (/^\/api\/admin\/certificado-modelos\/[1-9]\d*\/rascunho$/.test(path)) return ["GET", "HEAD", "PUT", "PATCH"].includes(method);
   if (["/api/admin/configuracoes/certificado", "/api/admin/certificado-campos", "/api/admin/certificado-modelos"].includes(path) ||
