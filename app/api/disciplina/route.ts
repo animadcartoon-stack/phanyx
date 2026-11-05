@@ -105,6 +105,8 @@ if (body.professorId) {
   where: {
     id: cursoId,
     instituicaoId: user.instituicaoId,
+    ativo: true,
+    excluidoEm: null,
   },
   select: {
     id: true,
@@ -119,7 +121,7 @@ if (body.professorId) {
 
       if (!curso) {
         return NextResponse.json(
-          { error: "Curso inválido para esta instituição" },
+          { error: "Curso inativo, excluído ou inválido para esta instituição" },
           { status: 400 }
         );
       }

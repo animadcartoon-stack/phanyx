@@ -345,16 +345,20 @@ export async function PUT(
       body.cursoId !== null &&
       body.cursoId !== ""
     ) {
+      // É permitido conservar um vínculo histórico, mas não criar outro
+      // com curso inativo ou excluído.
+      const mantemCursoOriginal = Number(body.cursoId) === disciplinaExistente.cursoId;
       const curso = await prisma.curso.findFirst({
         where: {
           id: Number(body.cursoId),
           instituicaoId: user.instituicaoId,
+          ...(mantemCursoOriginal ? {} : { ativo: true, excluidoEm: null }),
         },
       });
 
       if (!curso) {
         return NextResponse.json(
-          { error: "Curso inválido para esta instituição" },
+          { error: "Curso inativo, excluído ou inválido para esta instituição" },
           { status: 400 }
         );
       }
