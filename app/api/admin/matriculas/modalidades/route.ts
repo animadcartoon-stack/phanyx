@@ -1,3 +1,5 @@
+import { idsOptativas } from "@/lib/matriculas/optativas-avulsas";
+import { bloquearSessoesOptativas, carregarOptativas } from "@/lib/matriculas/optativas-avulsas-servidor";
 import { createHash } from "node:crypto";
 import { idCursoPrincipal } from "@/lib/matriculas/cursos-adicionais";
 import { origemOfertaVinculada } from "@/lib/matriculas/vagas-ofertas-compartilhadas";
@@ -24,7 +26,10 @@ export async function GET(req?: Request) {
     });
     if (principalId !== null && !principal?.permiteCursosAdicionais && !principal?.matriculaDiretaTurma) throw new ErroModalidades("PRINCIPAL_NAO_PERMITE_ADICIONAIS", 409);
     const ofertas = await carregarOfertasModalidades(prisma, user.instituicaoId);
-    return NextResponse.json({ principal, ofertas: principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || (principal?.permiteCursosAdicionais && o.curso.disponivelComoAdicional)) });
+    const elegiveis = principalId === null ? ofertas : ofertas.filter(o => o.cursoId === principalId || (principal?.permiteCursosAdicionais && o.curso.disponivelComoAdicional));
+    const turmasOptativas = elegiveis.filter(o => o.curso.matriculaDiretaTurma && o.curso.optativasAvulsasAtivas);
+    const optativas = await carregarOptativas(prisma, user.instituicaoId, turmasOptativas.map(o => o.id));
+    return NextResponse.json({ principal, ofertas: elegiveis, ...(optativas.length ? { optativas } : {}) });
   } catch (error) {
     return erroCombos(error);
   }
@@ -63,12 +68,14 @@ export async function POST(request: Request) {
     }
     const [alunoId] = idsPositivos([body.alunoId]);
     const turmaIds = idsPositivos(body.turmaIds).sort((a, b) => a - b);
+    const optativaSessaoIds = idsOptativas(body.optativaSessaoIds);
     const pedidoHash = createHash("sha256")
       .update(
         JSON.stringify({
           alunoId,
           ...(body.cursoPrincipalId != null ? { cursoPrincipalId: idCursoPrincipal(body.cursoPrincipalId) } : {}),
           turmaIds,
+          ...(optativaSessaoIds.length ? { optativaSessaoIds } : {}),
           dataInicioCurso: body.dataInicioCurso || null,
           primeiroVencimento: body.primeiroVencimento,
           status: body.status,
@@ -118,6 +125,7 @@ export async function POST(request: Request) {
         if (turmasParaBloquear.length)
           await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "Turma" WHERE "instituicaoId" = ${user.instituicaoId}
         AND "id" IN (${Prisma.join(turmasParaBloquear)}) ORDER BY "id" FOR UPDATE`);
+        await bloquearSessoesOptativas(tx, user.instituicaoId, optativaSessaoIds);
         return confirmarContratacaoModalidades(
           tx,
           user,

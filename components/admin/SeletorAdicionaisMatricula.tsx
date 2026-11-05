@@ -1,4 +1,6 @@
 "use client";
+import SelecaoOptativasAvulsas from "@/components/admin/SelecaoOptativasAvulsas";
+import { mensagensOptativas, type SessaoOptativa } from "@/lib/matriculas/optativas-avulsas";
 import { useEffect, useMemo, useState } from "react";
 import AvisoConflitoHorarioMatricula, { useAvisoConflitoHorario } from "@/components/admin/AvisoConflitoHorarioMatricula";
 
@@ -13,6 +15,7 @@ type Oferta = {
 export type PreviaComboMatricula = {
   versao: string;
   turmaIds: number[];
+  optativaSessaoIds?: number[];
   disciplinasPrincipais: number[];
   cursosEscolhidos: number[];
   calculo: { matriculaCentavos: number; mensalidadeCentavos: number; quantidadeParcelas: number; nome: string; quantidadeModalidades: number };
@@ -40,6 +43,8 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
   const [aberto, setAberto] = useState(false);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [combos, setCombos] = useState<Combo[]>([]);
+  const [optativas, setOptativas] = useState<SessaoOptativa[]>([]);
+  const [selecionadasOptativas, setSelecionadasOptativas] = useState<number[]>([]);
   const [ofertas, setOfertas] = useState<Oferta[]>([]);
   const [porCurso, setPorCurso] = useState<Record<number, number>>({});
   const [erroConsulta, setErroConsulta] = useState("");
@@ -53,7 +58,11 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
   const idsTurmas = turmaPrincipalId && selecoes.every(id => id > 0)
     ? [turmaPrincipalId, ...selecoes] : [];
   const chaveTurmas = idsTurmas.join(",");
-  const chaveOpcoes = selecoes.join(",");
+  const sessoesDisponiveis = optativas.filter(s => s.turmaIds.some(id => idsTurmas.includes(id)));
+  const optativaSessaoIds = selecionadasOptativas.filter(id => sessoesDisponiveis.some(s => s.id === id));
+  const chaveOptativas = optativaSessaoIds.join(",");
+  useEffect(() => { setSelecionadasOptativas([]); }, [alunoId, cursoPrincipalId, turmaPrincipalId]);
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -73,6 +82,7 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
       setCursos(Array.isArray(c.cursos) ? c.cursos : []);
       setCombos(Array.isArray(c.combos) ? c.combos : []);
       setOfertas(Array.isArray(o.ofertas) ? o.ofertas : []);
+      setOptativas(Array.isArray(o.optativas) ? o.optativas : []);
     }).catch(e => { if (!controller.signal.aborted) setErroConsulta(e?.message || "Falha na consulta"); })
       .finally(() => { if (!controller.signal.aborted) setCarregando(false); });
     return () => controller.abort();
@@ -92,15 +102,19 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
 
   useEffect(() => {
     setPrevia(null); onPreviaChange(null); setErroPrevia(""); fechar();
-    if ((!escolhidos.length && !principalSemGrade) || !alunoId || !turmaPrincipalId || !chaveTurmas ||
-      !turmaPrincipal || idsTurmas.length !== escolhidos.length + 1 || carregando) return;
+    if ((!escolhidos.length && !principalSemGrade) || !alunoId || !turmaPrincipalId || !chaveTurmas || carregando) return;
+    const principal = ofertas.find(o => o.id === turmaPrincipalId && o.cursoId === cursoPrincipalId);
+    if (!principal) return;
+    const idsDaPrevia = chaveTurmas.split(",").map(Number);
+    const cursosDaPrevia = idsEscolhidos ? idsEscolhidos.split(",").map(Number) : [];
+    const sessoesDaPrevia = chaveOptativas ? chaveOptativas.split(",").map(Number) : [];
     const controller = new AbortController();
     setCalculando(true);
     fetch("/api/admin/matriculas/modalidades", {
       method: "POST", credentials: "include", signal: controller.signal,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ acao: "PREVIA", alunoId: Number(alunoId), cursoPrincipalId,
-        turmaIds: idsTurmas, dataInicioCurso: dataInicioCurso || null }),
+        turmaIds: idsDaPrevia, ...(sessoesDaPrevia.length ? { optativaSessaoIds: sessoesDaPrevia } : {}), dataInicioCurso: dataInicioCurso || null }),
     }).then(async r => {
       const d = await r.json().catch(() => null);
       if (!r.ok) {
@@ -113,9 +127,9 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
     }).then(d => {
       if (controller.signal.aborted) return;
       const p: PreviaComboMatricula = {
-        versao: String(d.versao), turmaIds: idsTurmas,
-        disciplinasPrincipais: turmaPrincipal.disciplinaIds,
-        cursosEscolhidos: [...escolhidos].sort((a,b)=>a-b),
+        versao: String(d.versao), turmaIds: idsDaPrevia, optativaSessaoIds: sessoesDaPrevia,
+        disciplinasPrincipais: principal.disciplinaIds,
+        cursosEscolhidos: cursosDaPrevia.sort((a,b)=>a-b),
         calculo: d.calculo,
       };
       setPrevia(p); onPreviaChange(p);
@@ -125,12 +139,12 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
       if (avisarSeConflito(falha)) {
         setErroPrevia("Conflito de horários detectado. Selecione outra turma ou horário.");
       } else {
-        setErroPrevia(falha?.message || "Falha na prévia");
+        setErroPrevia(mensagensOptativas[falha.codigo ?? ""] || falha?.message || "Falha na prévia");
       }
     })
       .finally(() => { if (!controller.signal.aborted) setCalculando(false); });
     return () => controller.abort();
-  }, [alunoId, cursoPrincipalId, principalSemGrade, turmaPrincipalId, dataInicioCurso, idsEscolhidos, chaveTurmas, chaveOpcoes, carregando, ofertas, onPreviaChange, avisarSeConflito, fechar]);
+  }, [alunoId, cursoPrincipalId, principalSemGrade, turmaPrincipalId, dataInicioCurso, escolhidos.length, idsEscolhidos, chaveTurmas, chaveOptativas, carregando, ofertas, onPreviaChange, avisarSeConflito, fechar]);
 
   const moeda = (centavos: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(centavos / 100);
   return <section className="rounded-xl border border-blue-300 bg-blue-50 p-4 text-slate-900 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-100">
@@ -185,6 +199,8 @@ export default function SeletorAdicionaisMatricula({ cursoPrincipalId, principal
         <p className="mt-1 text-xs">A confirmação fará uma nova validação do preço, das vagas e dos horários no servidor.</p>
       </div>}
     </div>}
+    <SelecaoOptativasAvulsas sessoes={sessoesDisponiveis} selecionadas={optativaSessaoIds}
+      onChange={ids => { setPrevia(null); onPreviaChange(null); setSelecionadasOptativas(ids); }} />
     {principalSemGrade && previa && <div className="mt-3 rounded-lg border border-blue-300 bg-white p-3 text-sm text-slate-900 dark:bg-slate-950 dark:text-white">
       <strong>Previa da contratacao: {previa.calculo.nome}</strong>
       <p>Modalidades: {previa.calculo.quantidadeModalidades} · Taxa unica: {moeda(previa.calculo.matriculaCentavos)}</p>

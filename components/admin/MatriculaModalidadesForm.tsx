@@ -1,6 +1,8 @@
 "use client";
 import { ResumoDescontoPontualidade } from "@/components/admin/ResumoDescontoPontualidade";
 import { faltantesRequisitos, mensagemRequisitoCurso } from "@/lib/matriculas/requisitos-cursos-interface";
+import SelecaoOptativasAvulsas from "@/components/admin/SelecaoOptativasAvulsas";
+import { mensagensOptativas, type SessaoOptativa } from "@/lib/matriculas/optativas-avulsas";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { idCursoPrincipal } from "@/lib/matriculas/cursos-adicionais";
@@ -16,7 +18,7 @@ import contraste from "@/components/admin/ContrasteAcademico.module.css";
 type Previa = {
   calculo: ReturnType<typeof calcularContratacaoModalidades>;
   versao: string;
-  snapshot: { nome: string };
+  snapshot: { nome: string; optativas?: { id: number }[] };
 };
 type Aluno = { id: number; nome: string; matricula?: string; email?: string };
 type Ajuste = {
@@ -25,7 +27,7 @@ type Ajuste = {
   quantidadeParcelas: string;
   motivo: string;
 };
-type Pendente = { ids: number[]; alunoId: string; inicio: string };
+type Pendente = { ids: number[]; alunoId: string; inicio: string; optativaSessaoIds?: number[] };
 type Conflito = { primeiro: HorarioModalidade; segundo: HorarioModalidade };
 type Alternativa = { substituirTurmaId: number; oferta: OfertaModalidade };
 const input =
@@ -48,6 +50,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
   const inicializada = useRef(false);
   const tr = useTranslations("CourseRequirements");
   const locale = useLocale();
+  const [optativas, setOptativas] = useState<SessaoOptativa[]>([]);
   const [ofertas, setOfertas] = useState<OfertaModalidade[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [aluno, setAluno] = useState<Aluno | null>(null);
@@ -83,9 +86,9 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
   const chave = useRef("");
   const operacao = useRef(false);
   const traduzirErro = (codigo?: string) =>
-    ta.has(`errors.${codigo}`) ? ta(`errors.${codigo}`) : t.has(`errors.${codigo}`)
+    mensagensOptativas[codigo ?? ""] || (ta.has(`errors.${codigo}`) ? ta(`errors.${codigo}`) : t.has(`errors.${codigo}`)
       ? t(`errors.${codigo}`)
-      : t("errors.ERRO_INTERNO");
+      : t("errors.ERRO_INTERNO"));
   const moeda = (centavos: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
@@ -108,6 +111,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
         const data = await res.json();
         if (!res.ok) throw new Error(traduzirErro(data.codigo));
         if (ativo) { setOfertas(data.ofertas); setPrincipal(data.principal || null);
+          setOptativas(Array.isArray(data.optativas) ? data.optativas : []);
           const principais = (data.ofertas as OfertaModalidade[]).filter(o => o.cursoId === principalId);
           if (principais.length === 1) { setPoloId(chavePolo(principais[0].poloId)); setPeriodo(principais[0].periodoLetivo || ""); }
         }
@@ -190,6 +194,10 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
     }
     operacao.current = true;
     setBusy(true);
+    setErro("");
+    const optativaSessaoIds = pendente.optativaSessaoIds ?? previa?.snapshot.optativas
+      ?.filter(s => optativas.find(o => o.id === s.id)?.turmaIds.some(id => pendente.ids.includes(id)))
+      .map(s => s.id) ?? [];
     try {
       const res = await fetch("/api/admin/matriculas/modalidades", {
         method: "POST",
@@ -199,6 +207,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
           ...(principalId !== null ? { cursoPrincipalId: principalId } : {}),
           alunoId: Number(pendente.alunoId),
           turmaIds: pendente.ids,
+          ...(optativaSessaoIds.length ? { optativaSessaoIds } : {}),
           dataInicioCurso: pendente.inicio || null,
         }),
       });
@@ -221,6 +230,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
       }
       setSelecionadas(pendente.ids);
       setPrevia(data);
+      chave.current = "";
       setPendenciasCursos([]);
       setInicio(pendente.inicio);
       setAjuste(null);
@@ -247,6 +257,7 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
           chave: chave.current,
           alunoId: Number(alunoId),
           turmaIds: selecionadas,
+          ...(previa.snapshot.optativas?.length ? { optativaSessaoIds: previa.snapshot.optativas.map(s => s.id) } : {}),
           dataInicioCurso: inicio || null,
           primeiroVencimento: vencimento,
           status,
@@ -622,6 +633,12 @@ export default function MatriculaModalidadesForm({ cursoPrincipalId, alunoSeleci
                 })}
               </fieldset>
             )}
+            <SelecaoOptativasAvulsas disabled={bloqueado}
+              sessoes={optativas.filter(s => s.turmaIds.some(id => selecionadas.includes(id)))}
+              selecionadas={previa?.snapshot.optativas?.map(s => s.id) ?? []}
+              onChange={optativaSessaoIds => revisarAjuste(() => {
+                void validar({ ids: selecionadas, alunoId, inicio, optativaSessaoIds });
+              })} />
             {busy && <p role="status">{t("calculating")}</p>}
           </section>
           {pendenciasCursos.length > 0 && <section role="alert" className="rounded-xl border border-amber-400 bg-amber-50 p-4 text-amber-950 dark:bg-amber-950 dark:text-amber-100">

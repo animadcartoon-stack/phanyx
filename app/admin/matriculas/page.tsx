@@ -12,6 +12,7 @@ import contraste from "@/components/admin/ContrasteAcademico.module.css";
 import ResumoPrecoDisciplinas from "@/components/admin/ResumoPrecoDisciplinas";
 import { calcularPrecoDisciplinas, lerContratacaoDisciplinas, type ContratacaoDisciplinas } from "@/lib/matriculas/preco-disciplinas";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
+import { mensagensOptativas } from "@/lib/matriculas/optativas-avulsas";
 import SeletorAdicionaisMatricula, { type PreviaComboMatricula } from "@/components/admin/SeletorAdicionaisMatricula";
 
 import Link from "next/link";
@@ -2033,7 +2034,9 @@ function AdminMatriculasPage() {
         method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           acao: "CONFIRMAR", cursoPrincipalId: Number(cursoId), alunoId: Number(alunoId),
-          turmaIds: previaCombo.turmaIds, dataInicioCurso: dataInicioCurso || null,
+          turmaIds: previaCombo.turmaIds,
+          ...(previaCombo.optativaSessaoIds?.length ? { optativaSessaoIds: previaCombo.optativaSessaoIds } : {}),
+          dataInicioCurso: dataInicioCurso || null,
           primeiroVencimento: dataPrimeiroVencimento, status: statusInicialMatricula,
           versao: previaCombo.versao, chave: chaveConfirmacaoCombo.current,
           bolsaPercentual: bolsa, valorPagoMatricula: valorPago,
@@ -2054,9 +2057,11 @@ function AdminMatriculasPage() {
         }
         if (avisarSeConflito(data)) { setPreviaCombo(null); return; }
         const codigo = String(data?.codigo || "");
-        throw new Error(codigo && tc.has("errors." + codigo) ? tc("errors." + codigo) : codigo || data?.error || "Não foi possível confirmar a contratação conjunta.");
+        throw new Error(mensagensOptativas[codigo] || (codigo && tc.has("errors." + codigo) ? tc("errors." + codigo) : codigo || data?.error || "Não foi possível confirmar a contratação conjunta."));
       }
-      setSucesso("Matrícula conjunta criada com sucesso. Cursos e disciplinas foram registrados no contrato.");
+      setSucesso(previaCombo.optativaSessaoIds?.length
+        ? "Matrícula criada com sucesso. As atividades optativas foram registradas."
+        : "Matrícula conjunta criada com sucesso. Cursos e disciplinas foram registrados no contrato.");
       setAlunoId(""); setCursoId(""); setCursoSemestreIds([]);
       setTurmasSelecionadas([]); setDisciplinasSelecionadas([]); setDisciplinasExtrasSelecionadas([]);
       setTurmaPorDisciplina({}); setCursosAdicionaisEscolhidos([]); setPreviaCombo(null);
@@ -5011,6 +5016,8 @@ function AdminMatriculasPage() {
                 {matriculasFiltradas.map((m) => {
                   const alunoNome = m.aluno?.nome ?? "Aluno";
                   const cursoNome = nomeContratacaoModalidades(m.contratacaoModalidades) || m.curso?.nome || "Curso";
+                  const snapshotOptativas = m.contratacaoModalidades as { optativas?: { id: number; nome: string; horaInicio: string; horaFim: string }[] } | null;
+                  const optativas = Array.isArray(snapshotOptativas?.optativas) ? snapshotOptativas.optativas : [];
                   const itens = Array.isArray(m.itens) ? m.itens : [];
                   const expandida = matriculaExpandidaId === m.id;
 
@@ -5032,6 +5039,9 @@ function AdminMatriculasPage() {
 
                         <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
                           {cursoNome}
+                          {optativas.length > 0 && <ul className="mt-1 text-xs text-slate-600 dark:text-slate-300" aria-label="Optativas incluídas">
+                            {optativas.map(o => <li key={o.id}>{o.nome} · {o.horaInicio}–{o.horaFim}</li>)}
+                          </ul>}
                         </td>
 
                         <td className="px-4 py-3 text-slate-700 dark:text-slate-200">

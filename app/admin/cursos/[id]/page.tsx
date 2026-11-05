@@ -1,4 +1,5 @@
 "use client";
+import OptativasCursoAvulso from "@/components/admin/OptativasCursoAvulso";
 import CamposCursosAdicionais from "@/components/admin/CamposCursosAdicionais";
 import CamposPlanosPagamento, { planosParaFormulario, type PlanoPagamentoFormulario } from "@/components/admin/CamposPlanosPagamento";
 import type { ConfiguracaoPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
@@ -1073,6 +1074,8 @@ export default function CursoDetalhePage() {
           ) : null}
         </div>
       </div>
+
+      {curso.matriculaDiretaTurma && !cursoRecebidoDaRede && !editandoCurso && <OptativasCursoAvulso key={cursoId} cursoId={cursoId} />}
 
       {!curso.matriculaDiretaTurma && <>
       {curso.organizacaoCurricular === "LIVRE" && (

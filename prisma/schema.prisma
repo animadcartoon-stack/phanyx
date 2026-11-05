@@ -771,6 +771,7 @@ model Aluno {
 }
 
 model Professor {
+  sessoesOptativasAvulsas SessaoOptativaAvulsa[]
   id                Int         @id @default(autoincrement())
   nome              String
   createdAt         DateTime    @default(now())
@@ -840,6 +841,8 @@ enum OrganizacaoCurricular {
 }
 
 model Curso {
+  optativasAvulsasAtivas Boolean @default(false)
+  sessoesOptativasAvulsas SessaoOptativaAvulsa[]
   planosPagamento Json?
   // Somente cursos explicitamente configurados permitem matricula sem disciplinas.
   matriculaDiretaTurma Boolean @default(false)
@@ -1055,6 +1058,7 @@ model DocumentoAluno {
 }
 
 model Disciplina {
+  sessoesOptativasAvulsas SessaoOptativaAvulsa[]
   id                              Int                             @id @default(autoincrement())
   nome                            String
   cursoId                         Int?
@@ -1102,6 +1106,7 @@ model Disciplina {
 }
 
 model Turma {
+  sessoesOptativasAvulsas TurmaSessaoOptativaAvulsa[]
   // Horarios proprios de cursos avulsos sem vinculo com TurmaDisciplina.
   horariosAvulsos TurmaHorarioAvulso[]
   matriculasAvulsas MatriculaTurmaAvulsa[]
@@ -1183,6 +1188,7 @@ model TurmaHorarioAvulso {
 // Ocupacao da turma por curso avulso sem nenhum ItemMatricula/Disciplina.
 // A validacao de permissao, vagas e conflitos sera integrada na etapa seguinte.
 model MatriculaTurmaAvulsa {
+  optativas MatriculaOptativaAvulsa[]
   id            Int                 @id @default(autoincrement())
   instituicaoId Int
   matriculaId   Int
@@ -1198,8 +1204,76 @@ model MatriculaTurmaAvulsa {
 
   @@unique([matriculaId, cursoId])
   @@unique([matriculaId, turmaId])
+  @@unique([id, turmaId, instituicaoId])
   @@index([instituicaoId, turmaId, status])
   @@index([instituicaoId, cursoId])
+}
+
+model SessaoOptativaAvulsa {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  cursoId       Int
+  disciplinaId  Int
+  professorId   Int?
+  diaSemana     Int
+  horaInicio    String
+  horaFim       String
+  capacidade    Int
+  ativa         Boolean  @default(true)
+  criadaEm      DateTime @default(now())
+
+  curso         Curso                      @relation(fields: [cursoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  disciplina    Disciplina                 @relation(fields: [disciplinaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  professor     Professor?                 @relation(fields: [professorId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  turmas        TurmaSessaoOptativaAvulsa[]
+
+  @@unique([id, instituicaoId])
+  @@index([instituicaoId, cursoId, ativa])
+  @@index([instituicaoId, professorId, ativa])
+}
+
+model TurmaSessaoOptativaAvulsa {
+  instituicaoId Int
+  sessaoId      Int
+  turmaId       Int
+  sessao        SessaoOptativaAvulsa     @relation(fields: [sessaoId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  turma         Turma                   @relation(fields: [turmaId, instituicaoId], references: [id, instituicaoId], onDelete: Restrict)
+  matriculas    MatriculaOptativaAvulsa[]
+
+  @@id([sessaoId, turmaId, instituicaoId])
+  @@index([instituicaoId, turmaId])
+}
+
+model MatriculaOptativaAvulsa {
+  id                Int      @id @default(autoincrement())
+  instituicaoId     Int
+  matriculaAvulsaId Int
+  turmaId           Int
+  sessaoId          Int
+  criadaEm          DateTime @default(now())
+
+  vinculo           MatriculaTurmaAvulsa       @relation(fields: [matriculaAvulsaId, turmaId, instituicaoId], references: [id, turmaId, instituicaoId], onDelete: Cascade)
+  oferta            TurmaSessaoOptativaAvulsa  @relation(fields: [sessaoId, turmaId, instituicaoId], references: [sessaoId, turmaId, instituicaoId], onDelete: Restrict)
+  presencas         PresencaOptativaAvulsa[]
+
+  @@unique([id, instituicaoId])
+  @@unique([matriculaAvulsaId, sessaoId])
+  @@index([instituicaoId, sessaoId])
+}
+
+model PresencaOptativaAvulsa {
+  id                    Int                @id @default(autoincrement())
+  instituicaoId         Int
+  matriculaOptativaId   Int
+  data                  DateTime           @db.Date
+  status                StatusPresencaAula
+  observacao            String?
+  atualizadaPorId       Int
+  atualizadaEm          DateTime           @updatedAt
+  matriculaOptativa     MatriculaOptativaAvulsa @relation(fields: [matriculaOptativaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@unique([matriculaOptativaId, data])
+  @@index([instituicaoId, data])
 }
 
 model TurmaDisciplina {
