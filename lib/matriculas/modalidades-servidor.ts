@@ -1,3 +1,5 @@
+import { carregarOptativas } from "./optativas-avulsas-servidor";
+import { idsOptativas, selecionarOptativas } from "./optativas-avulsas";
 import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
 import { idCursoPrincipal, validarCursosAdicionais } from "./cursos-adicionais";
 import { horariosTurmaDiretaSemGrade, vagasTurmaDiretaSemGrade } from "./previa-turmas-avulsas";
@@ -70,6 +72,7 @@ export async function carregarOfertasModalidades(
           permiteCursosAdicionais: true,
           disponivelComoAdicional: true,
           matriculaDiretaTurma: true,
+          optativasAvulsasAtivas: true,
           requisitosConjuntos: { select: { cursoObrigatorioId: true, cursoObrigatorio: { select: { nome: true } } } },
           valorMatricula: true,
           valorMensalidade: true,
@@ -418,6 +421,12 @@ export async function prepararContratacaoModalidades(
       alternativas,
     });
   }
+  const sessaoIds = idsOptativas(body.optativaSessaoIds);
+  const optativas = sessaoIds.length ? selecionarOptativas(
+    sessaoIds,
+    await carregarOptativas(db, instituicaoId, turmaIds, sessaoIds),
+    escolhidas.filter(o => o.curso.matriculaDiretaTurma && o.curso.optativasAvulsasAtivas),
+  ).map(({ vagas, turmaIds: turmasDisponiveis, ...sessao }) => sessao) : [];
   const combos = await db.comboModalidades.findMany({
     where: { instituicaoId, ativo: true },
     include: { cursos: true },
@@ -438,6 +447,7 @@ export async function prepararContratacaoModalidades(
   const snapshot = {
     ...(principalId !== null ? { cursoPrincipalId: principalId } : {}),
     requisitosCursos,
+    ...(optativas.length ? { optativas } : {}),
     versao: 1,
     nome,
     calculo,
@@ -466,6 +476,7 @@ export async function prepararContratacaoModalidades(
   return {
     aluno,
     escolhidas,
+    optativas,
     calculo,
     snapshot,
     versao,
@@ -479,7 +490,7 @@ export async function confirmarContratacaoModalidades(
   body: Record<string, unknown>,
   request: Request,
 ) {
-  const { aluno, escolhidas, calculo, snapshot, versao, inicioCurso } =
+  const { aluno, escolhidas, optativas, calculo, snapshot, versao, inicioCurso } =
     await prepararContratacaoModalidades(db, user.instituicaoId, body);
   if (body.versao !== versao) throw new ErroModalidades("DADOS_ALTERADOS", 409);
   // ETAPA 2C1: o vinculo direto sera gravado na MESMA transacao de matricula,
@@ -654,6 +665,20 @@ export async function confirmarContratacaoModalidades(
       valorMensalidade: true,
     },
   });
+  if (optativas.length) {
+    const vinculos = await db.matriculaTurmaAvulsa.findMany({
+      where: { matriculaId: matricula.id, instituicaoId: user.instituicaoId },
+      select: { id: true, turmaId: true },
+    });
+    await db.matriculaOptativaAvulsa.createMany({ data: optativas.map(optativa => {
+      const vinculo = vinculos.find(v => v.turmaId === optativa.turmaId);
+      if (!vinculo) throw new ErroModalidades("OPTATIVA_INDISPONIVEL", 409);
+      return {
+        instituicaoId: user.instituicaoId, matriculaAvulsaId: vinculo.id,
+        turmaId: vinculo.turmaId, sessaoId: optativa.id,
+      };
+    }) });
+  }
   if (!aluno.poloId)
     await db.aluno.update({
       where: { id: aluno.id },

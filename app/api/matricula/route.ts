@@ -1,3 +1,5 @@
+import { possuiOptativasContratadas, verificarVagasOptativasParaRetorno, vinculoOptativaOcupante } from "@/lib/matriculas/optativas-avulsas-servidor";
+import { mensagensOptativas } from "@/lib/matriculas/optativas-avulsas";
 import { condicoesPontualidadeMatricula } from "@/lib/financeiro/desconto-pontualidade-servidor";
 import { ErroPlanosPagamento } from "@/lib/matriculas/planos-pagamento";
 import { selecionarPlanoContratado, validarValoresRecebidosDoPlano, congelarPlanoContratado } from "@/lib/matriculas/plano-contratado";
@@ -1361,7 +1363,7 @@ const includeMatricula = {
       },
     },
   },
-} as const;
+} satisfies Prisma.MatriculaInclude;
 
 const includeMatriculaAdmin = {
   ...includeMatricula,
@@ -3496,6 +3498,9 @@ export async function PATCH(request: Request) {
           },
           select: {
             id: true,
+            status: true,
+            canceladaEm: true,
+            contratacaoModalidades: true,
           },
         });
 
@@ -3509,18 +3514,18 @@ export async function PATCH(request: Request) {
         );
       }
 
-      const restaurada =
-        await prisma.matricula.update({
-          where: {
-            id: idRestaurar,
-          },
-          data: {
-            excluidaEm: null,
-            excluidaPorId: null,
-            motivoExclusao: null,
-          },
-          include: includeMatriculaAdmin,
-        });
+      const restaurar = (db: Prisma.TransactionClient) => db.matricula.update({
+        where: { id: idRestaurar },
+        data: { excluidaEm: null, excluidaPorId: null, motivoExclusao: null },
+        include: includeMatriculaAdmin,
+      });
+      const ocupaOptativas = !matriculaQuarentena.canceladaEm &&
+        vinculoOptativaOcupante.matricula.status.in.some(status => status === matriculaQuarentena.status) &&
+        possuiOptativasContratadas(matriculaQuarentena.contratacaoModalidades);
+      const restaurada = ocupaOptativas ? await prisma.$transaction(async tx => {
+        await verificarVagasOptativasParaRetorno(tx, user.instituicaoId, idRestaurar);
+        return restaurar(tx);
+      }, { isolationLevel: "Serializable" }) : await restaurar(prisma);
 
       return NextResponse.json(restaurada);
     }
@@ -3630,29 +3635,33 @@ export async function PATCH(request: Request) {
      */
     if (status === "CONCLUIDA") statusItens = "CONCLUIDO";
 
-    if (statusItens) {
-      await prisma.itemMatricula.updateMany({
-        where: {
-          matriculaId: id,
-          instituicaoId: user.instituicaoId,
-        },
-        data: {
-          status: statusItens as any,
-        },
+    const atualizarStatus = async (db: Prisma.TransactionClient) => {
+      if (statusItens) {
+        await db.itemMatricula.updateMany({
+          where: { matriculaId: id, instituicaoId: user.instituicaoId },
+          data: { status: statusItens as any },
+        });
+      }
+      return db.matricula.update({
+        where: { id },
+        data: { status: status as any },
+        include: includeMatricula,
       });
-    }
-
-    const atualizada = await prisma.matricula.update({
-      where: { id },
-      data: {
-        status: status as any,
-
-      },
-      include: includeMatricula,
-    });
+    };
+    const voltaAOcupar = !matricula.canceladaEm &&
+      vinculoOptativaOcupante.matricula.status.in.some(s => s === status) &&
+      possuiOptativasContratadas(matricula.contratacaoModalidades);
+    const atualizada = voltaAOcupar ? await prisma.$transaction(async tx => {
+      await verificarVagasOptativasParaRetorno(tx, user.instituicaoId, id);
+      return atualizarStatus(tx);
+    }, { isolationLevel: "Serializable" }) : await atualizarStatus(prisma);
 
     return NextResponse.json(atualizada);
   } catch (error) {
+    if (error instanceof ErroModalidades && mensagensOptativas[error.codigo])
+      return NextResponse.json({ error: mensagensOptativas[error.codigo], codigo: error.codigo }, { status: error.status });
+    if ((error as { code?: string })?.code === "P2034")
+      return NextResponse.json({ error: "As vagas mudaram durante a atualização. Tente novamente." }, { status: 409 });
     console.error(error);
     return NextResponse.json(
       { error: "Erro ao atualizar status da matrícula" },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { copyTurmasAvulsas } from "@/lib/professor/turmas-avulsas-copy";
@@ -22,6 +23,7 @@ export default function TurmasAvulsasProfessorPage() {
   const router = useRouter();
   const locale = useLocale();
   const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [temOptativas, setTemOptativas] = useState(false);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const copy = copyTurmasAvulsas(locale);
@@ -36,6 +38,10 @@ export default function TurmasAvulsasProfessorPage() {
       })
       .catch(error => { if (!controller.signal.aborted) setErro(error?.message || copy.fetchError); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    fetch("/api/professor/turmas/optativas-avulsas", { cache: "no-store", signal: controller.signal })
+      .then(async res => res.ok ? res.json() : null)
+      .then(json => { if (!controller.signal.aborted) setTemOptativas(Boolean(json?.sessoes?.length)); })
+      .catch(() => {});
     return () => controller.abort();
   }, [copy.fetchError]);
   return (
@@ -48,6 +54,8 @@ export default function TurmasAvulsasProfessorPage() {
           {copy.description}
         </p>
       </header>
+      {temOptativas && <Link href="/professor/turmas/optativas-avulsas"
+        className="inline-block rounded-xl bg-blue-700 px-4 py-2.5 font-semibold text-white">Optativas e regência</Link>}
       {loading && <p role="status">{copy.loading}</p>}
       {erro && <p role="alert" className="rounded-xl border border-red-300 p-4 text-red-800 dark:text-red-300">{erro}</p>}
       {!loading && !erro && !turmas.length && <section className={classe}>
