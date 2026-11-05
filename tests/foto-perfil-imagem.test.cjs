@@ -84,18 +84,22 @@ test('cache separa instituição, funcionário e versão do arquivo', () => {
   const keys = new Set([
     imagens.chaveMiniaturaPerfil(1,7,'a'), imagens.chaveMiniaturaPerfil(2,7,'a'),
     imagens.chaveMiniaturaPerfil(1,8,'a'), imagens.chaveMiniaturaPerfil(1,7,'b'),
+    imagens.chaveMiniaturaPerfilAdministrativo(1,7,'a'),
   ]);
-  assert.equal(keys.size, 4);
+  assert.equal(keys.size, 5);
   assert.equal(imagens.chaveMiniaturaPerfil(1,7,'a'), imagens.chaveMiniaturaPerfil(1,7,'a'));
 });
 
-function rota({ user = { id: 9, instituicaoId: 26 }, perfil = { id: 7, fotoPerfil: 'https://storage.example/a.jpg' }, cache = true, falhaGravacao = false } = {}) {
+function rota({ user = { id: 9, instituicaoId: 26 }, perfil = { id: 7, fotoPerfil: 'https://storage.example/a.jpg' }, adminPerfil = null, cache = true, falhaGravacao = false } = {}) {
   const calls = { banco: [], storage: [], download: [], converter: 0 };
   class GetObjectCommand { constructor(input) { this.input = input; } }
   class PutObjectCommand { constructor(input) { this.input = input; } }
   const modulo = carregar('app/api/funcionario/foto-perfil/imagem/route.ts', {
     '@aws-sdk/client-s3': { GetObjectCommand, PutObjectCommand },
-    '@/lib/prisma': { prisma: { funcionario: { findFirst: async args => { calls.banco.push(args); return perfil; } } } },
+    '@/lib/prisma': { prisma: {
+      funcionario: { findFirst: async args => { calls.banco.push(args); return perfil; } },
+      perfilAdministrativoUsuario: { findUnique: async args => { calls.banco.push(args); return adminPerfil; } },
+    } },
     '@/lib/server-auth': { getUserFromToken: async () => user },
     '@/lib/storage/r2': { getR2Client: () => ({ send: async command => {
       calls.storage.push(command);
@@ -108,6 +112,7 @@ function rota({ user = { id: 9, instituicaoId: 26 }, perfil = { id: 7, fotoPerfi
     } }) },
     '@/lib/server/miniatura-foto-perfil': {
       chaveMiniaturaPerfil: imagens.chaveMiniaturaPerfil,
+      chaveMiniaturaPerfilAdministrativo: imagens.chaveMiniaturaPerfilAdministrativo,
       MAX_BYTES_FOTO_PERFIL_EXIBICAO: imagens.MAX_BYTES_FOTO_PERFIL_EXIBICAO,
       baixarFotoPerfil: async url => { calls.download.push(url); return Buffer.from('original'); },
       gerarMiniaturaPerfil: async () => { calls.converter++; return Buffer.from([1,2,3]); },
@@ -124,6 +129,20 @@ test('rota exige autenticação, instituição e perfil antes de acessar arquivo
     assert.equal(r.calls.storage.length, 0);
     assert.equal(r.calls.download.length, 0);
   }
+});
+
+test('perfil administrativo sem funcionário pode exibir a foto sem trocar o escopo de autenticação', async () => {
+  const original = process.env.R2_BUCKET_NAME;
+  process.env.R2_BUCKET_NAME = 'teste';
+  try {
+    const url = 'https://storage.example/admin.jpg';
+    const r = rota({ perfil: null, adminPerfil: { fotoPerfil: url } });
+    assert.equal((await r.GET(request('?v='+encodeURIComponent(url)))).status, 200);
+    assert.deepEqual(r.calls.banco[0].where, { userId:9, instituicaoId:26 });
+    assert.deepEqual(r.calls.banco[1].where, { userId:9 });
+    assert.match(r.calls.storage[0].input.Key, /^miniaturas-perfil\/v1\/26\/admin-9\//);
+    assert.equal((await r.GET(request('?v='+encodeURIComponent('https://outro.example/x')))).status, 404);
+  } finally { if (original===undefined) delete process.env.R2_BUCKET_NAME; else process.env.R2_BUCKET_NAME=original; }
 });
 
 test('rota usa exclusivamente o funcionário autenticado e nunca baixa a URL da query', async () => {

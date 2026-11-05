@@ -6,6 +6,8 @@ import PhanyxTour from "@/components/tutorial/PhanyxTour";
 import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 import { useTranslations } from "next-intl";
 import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
+import { lerRespostaPerfilJson } from "@/lib/client/ler-resposta-perfil";
+import { prepararFotoPerfil } from "@/lib/client/preparar-foto-perfil";
 
 interface Stats {
   alunos: number;
@@ -538,11 +540,8 @@ export default function AdminDashboardPage() {
         cache: "no-store",
       });
 
-      const json = await res.json();
-
-      if (res.ok) {
-        setPerfilAdmin(json);
-      }
+      const json = await lerRespostaPerfilJson(res, "Não foi possível carregar o perfil");
+      setPerfilAdmin(json);
     } catch {
       setPerfilAdmin(null);
     }
@@ -555,7 +554,7 @@ export default function AdminDashboardPage() {
       setEnviandoFoto(true);
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", await prepararFotoPerfil(file));
 
       const resUpload = await fetch("/api/upload", {
         method: "POST",
@@ -563,11 +562,7 @@ export default function AdminDashboardPage() {
         body: formData,
       });
 
-      const jsonUpload = await resUpload.json();
-
-      if (!resUpload.ok) {
-        throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
-      }
+      const jsonUpload = await lerRespostaPerfilJson(resUpload, "Erro ao enviar imagem");
 
       const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
 
@@ -575,7 +570,7 @@ export default function AdminDashboardPage() {
         throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
       }
 
-      const resSalvar = await fetch("/api/funcionario/foto-perfil", {
+      const resSalvar = await fetch("/api/admin/funcionarios/me", {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -586,15 +581,11 @@ export default function AdminDashboardPage() {
         }),
       });
 
-      const jsonSalvar = await resSalvar.json();
-
-      if (!resSalvar.ok) {
-        throw new Error(jsonSalvar?.error || "Erro ao salvar foto.");
-      }
-
-      setPerfilAdmin((prev: any) => ({
-        ...prev,
-        fotoPerfil: fotoUrl,
+      const jsonSalvar = await lerRespostaPerfilJson(resSalvar, "Erro ao salvar foto");
+      if (jsonSalvar?.fotoPerfil !== fotoUrl) throw new Error("A fotografia não foi confirmada pelo servidor.");
+      setPerfilAdmin(jsonSalvar);
+      window.dispatchEvent(new CustomEvent("phanyx:perfil-atualizado", {
+        detail: { nome: jsonSalvar.nome, fotoPerfil: jsonSalvar.fotoPerfil },
       }));
     } catch (e: any) {
       console.error(e);
@@ -800,7 +791,7 @@ export default function AdminDashboardPage() {
       setEnviandoFoto(true);
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", await prepararFotoPerfil(file));
 
       const upload = await fetch("/api/upload", {
         method: "POST",
@@ -808,12 +799,7 @@ export default function AdminDashboardPage() {
         body: formData,
       });
 
-      const uploadJson = await upload.json();
-
-      if (!upload.ok) {
-        console.error("Erro upload:", uploadJson);
-        return;
-      }
+      const uploadJson = await lerRespostaPerfilJson(upload, "Erro ao enviar fotografia");
 
       const fotoUrl = uploadJson?.url || uploadJson?.arquivo?.url;
 
@@ -836,14 +822,12 @@ export default function AdminDashboardPage() {
         }),
       });
 
-      const salvarJson = await salvar.json();
-
-      if (!salvar.ok) {
-        console.error("Erro ao salvar foto:", salvarJson);
-        return;
-      }
-
+      const salvarJson = await lerRespostaPerfilJson(salvar, "Erro ao salvar fotografia");
+      if (salvarJson?.fotoPerfil !== fotoUrl) throw new Error("A fotografia não foi confirmada pelo servidor.");
       setPerfilAdmin(salvarJson);
+      window.dispatchEvent(new CustomEvent("phanyx:perfil-atualizado", {
+        detail: { nome: salvarJson.nome, fotoPerfil: salvarJson.fotoPerfil },
+      }));
     } catch (e) {
       console.error("Erro ao alterar foto:", e);
     } finally {

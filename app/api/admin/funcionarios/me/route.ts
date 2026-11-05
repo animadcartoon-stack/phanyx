@@ -74,8 +74,8 @@ export async function PUT(req: Request) {
         where: { id: funcionario.id },
         data: {
           nome: String(body.nome || funcionario.nome || "Administrador").trim(),
-          telefone: body.telefone || null,
-          cargo: body.cargo || null,
+          telefone: body.telefone === undefined ? undefined : body.telefone || null,
+          cargo: body.cargo === undefined ? undefined : body.cargo || null,
           fotoPerfil: body.fotoPerfil || funcionario.fotoPerfil || null,
         },
         select: { id: true, ...camposPerfil },
