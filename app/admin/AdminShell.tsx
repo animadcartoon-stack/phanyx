@@ -271,6 +271,20 @@ export default function AdminShell({
     nome?: string;
     fotoPerfil?: string | null;
   } | null>(null);
+
+  // O perfil pode ser editado sem desmontar o shell do administrador.
+  useEffect(() => {
+    const atualizar = (evento: Event) => {
+      const dados = (evento as CustomEvent<{ nome?: string; fotoPerfil?: string | null }>).detail;
+      if (!dados) return;
+      setFuncionario(atual => ({
+        nome: dados.nome ?? atual?.nome,
+        fotoPerfil: dados.fotoPerfil ?? atual?.fotoPerfil,
+      }));
+    };
+    window.addEventListener("phanyx:perfil-atualizado", atualizar);
+    return () => window.removeEventListener("phanyx:perfil-atualizado", atualizar);
+  }, []);
   const [acessoBiblioteca, setAcessoBiblioteca] =
     useState<BibliotecaAcessoMenu | null>(null);
 

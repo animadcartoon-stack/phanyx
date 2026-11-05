@@ -12,6 +12,12 @@ export function chaveMiniaturaPerfil(instituicaoId: number, funcionarioId: numbe
   return `miniaturas-perfil/v1/${instituicaoId}/${funcionarioId}/${hash}.webp`;
 }
 
+/** Espaço de cache isolado para administradores sem cadastro em Funcionario. */
+export function chaveMiniaturaPerfilAdministrativo(instituicaoId: number, userId: number, foto: string) {
+  const hash = createHash("sha256").update(foto).digest("hex");
+  return `miniaturas-perfil/v1/${instituicaoId}/admin-${userId}/${hash}.webp`;
+}
+
 /** Somente os provedores públicos de arquivos já utilizados pelo PHANYX. */
 export function origemFotoPerfilPermitida(foto: string, baseR2 = process.env.R2_PUBLIC_URL) {
   try {

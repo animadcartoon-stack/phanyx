@@ -11,6 +11,8 @@ import {
   useTranslations,
 } from "next-intl";
 import FotoPerfilAtual from "@/components/perfil/FotoPerfilAtual";
+import { lerRespostaPerfilJson } from "@/lib/client/ler-resposta-perfil";
+import { prepararFotoPerfil } from "@/lib/client/preparar-foto-perfil";
 
 export default function PerfilAdminPage() {
   const t =
@@ -46,6 +48,7 @@ export default function PerfilAdminPage() {
     enviandoFoto,
     setEnviandoFoto,
   ] = useState(false);
+  const [fotoIndisponivel, setFotoIndisponivel] = useState(false);
 
   useEffect(() => {
     carregar();
@@ -104,7 +107,7 @@ export default function PerfilAdminPage() {
 
       formData.append(
         "file",
-        file
+        await prepararFotoPerfil(file)
       );
 
       const resUpload =
@@ -117,16 +120,7 @@ export default function PerfilAdminPage() {
           }
         );
 
-      const jsonUpload =
-        await resUpload.json();
-
-      if (!resUpload.ok) {
-        setErro(
-          jsonUpload?.error ||
-            t("errors.upload")
-        );
-        return;
-      }
+      const jsonUpload = await lerRespostaPerfilJson(resUpload, t("errors.upload"));
 
       const fotoUrl =
         jsonUpload?.url ||
@@ -156,24 +150,16 @@ export default function PerfilAdminPage() {
           }
         );
 
-      const jsonSalvar =
-        await resSalvar.json();
-
-      if (!resSalvar.ok) {
-        setErro(
-          jsonSalvar?.error ||
-            t(
-              "errors.savePhoto"
-            )
-        );
-        return;
+      const jsonSalvar = await lerRespostaPerfilJson(resSalvar, t("errors.savePhoto"));
+      if (jsonSalvar?.fotoPerfil !== fotoUrl) {
+        throw new Error(t("errors.savePhoto"));
       }
-
+      setFotoIndisponivel(false);
       setDados(jsonSalvar);
-
-      setSucessoKey(
-        "success.photoUpdated"
-      );
+      window.dispatchEvent(new CustomEvent("phanyx:perfil-atualizado", {
+        detail: { nome: jsonSalvar.nome, fotoPerfil: jsonSalvar.fotoPerfil },
+      }));
+      setSucessoKey("success.photoUpdated");
     }
     catch (e: any) {
       setErro(
@@ -195,13 +181,11 @@ export default function PerfilAdminPage() {
           "/api/admin/funcionarios/me"
         );
 
-      const data =
-        await res.json();
-
+      const data = await lerRespostaPerfilJson(res, t("errors.profileCommunication"));
       setDados(data);
     }
     catch (e) {
-      console.error(e);
+      setErro(e instanceof Error ? e.message : t("errors.profileCommunication"));
     }
     finally {
       setLoading(false);
@@ -234,24 +218,12 @@ export default function PerfilAdminPage() {
           }
         );
 
-      const json =
-        await res.json();
-
-      if (!res.ok) {
-        setErro(
-          json?.error ||
-            t(
-              "errors.saveProfile"
-            )
-        );
-        return;
-      }
-
+      const json = await lerRespostaPerfilJson(res, t("errors.saveProfile"));
       setDados(json);
-
-      setSucessoKey(
-        "success.profileUpdated"
-      );
+      window.dispatchEvent(new CustomEvent("phanyx:perfil-atualizado", {
+        detail: { nome: json.nome, fotoPerfil: json.fotoPerfil },
+      }));
+      setSucessoKey("success.profileUpdated");
     }
     catch (e: any) {
       setErro(
@@ -305,7 +277,8 @@ export default function PerfilAdminPage() {
         <div className="mt-6 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/70">
           <div className="h-20 w-20 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-800">
             {dados?.fotoPerfil ? (
-              <FotoPerfilAtual foto={dados.fotoPerfil} nome={dados?.nome || t("photo.alt")} />
+              <FotoPerfilAtual foto={dados.fotoPerfil} nome={dados?.nome || t("photo.alt")}
+                onFalha={() => setFotoIndisponivel(true)} />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-700 dark:text-slate-200">
                 {dados?.nome
@@ -365,6 +338,9 @@ export default function PerfilAdminPage() {
         <p className="mt-2 max-w-sm text-xs leading-5 text-slate-500 dark:text-slate-400">
           {t("photo.help")}
         </p>
+        {fotoIndisponivel && <p role="status" className="mt-2 text-sm text-amber-800 dark:text-amber-200">
+          A fotografia está registada no perfil, mas não foi possível carregar a imagem. Tente atualizar a página; se persistir, contacte o suporte.
+        </p>}
 
         <form
           onSubmit={salvar}
