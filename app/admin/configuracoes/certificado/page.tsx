@@ -256,6 +256,12 @@ const TAMANHOS_PAPEL = {
   },
 } as const;
 
+function lembrarModeloCertificado(modeloId: number) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("modelo", String(modeloId));
+  window.history.replaceState(window.history.state, "", url);
+}
+
 type OrientacaoEditor = "paisagem" | "retrato";
 
 function hexToRgba(hex: string, alpha: number) {
@@ -2507,6 +2513,7 @@ export default function ConfiguracaoCertificadoPage() {
   } | null>(null);
 
   const modeloAtivoIdRef = useRef<number | null>(null);
+  const editorCarregadoRef = useRef(false);
   const versaoRascunhoIdRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -2811,12 +2818,6 @@ export default function ConfiguracaoCertificadoPage() {
       setTrocandoModelo(true);
       setMensagemErro("");
 
-      /*
-       * Remove imediatamente as configurações visuais
-       * pertencentes ao modelo anteriormente aberto.
-       */
-      resetarConfiguracaoVisualCertificado();
-
       const [respostaRascunho, respostaCampos, respostaInstituicao] =
         await Promise.all([
           fetch(`/api/admin/certificado-modelos/${modeloId}/rascunho`, {
@@ -2869,6 +2870,8 @@ export default function ConfiguracaoCertificadoPage() {
       versaoRascunhoIdRef.current = Number(rascunho.id);
 
       setModeloAtivoId(modeloId);
+      editorCarregadoRef.current = true;
+      lembrarModeloCertificado(modeloId);
 
       /*
        * Remove as configurações visuais do modelo anterior
@@ -3330,7 +3333,9 @@ export default function ConfiguracaoCertificadoPage() {
           podeCriar: dataModelos?.resumo?.podeCriar === true,
         });
 
+        const idNaUrl = Number(new URLSearchParams(window.location.search).get("modelo"));
         const modeloInicial =
+          modelosAtivos.find((modelo: any) => Number(modelo.id) === idNaUrl) ||
           modelosAtivos.find((modelo: any) => modelo.padraoGeral === true) ||
           modelosAtivos.find(
             (modelo: any) => modelo.padraoModalidade === true,
@@ -3391,6 +3396,7 @@ export default function ConfiguracaoCertificadoPage() {
           aplicarConfiguracaoVisualCertificado(rascunho, dataInstituicao);
 
           aplicarCamposCarregados(dataCampos);
+          editorCarregadoRef.current = true;
 
           return;
         }
@@ -3436,6 +3442,7 @@ export default function ConfiguracaoCertificadoPage() {
         aplicarConfiguracaoVisualCertificado(dataConfig, dataInstituicao);
 
         aplicarCamposCarregados(dataCampos);
+        editorCarregadoRef.current = true;
       } catch (error: any) {
         console.error("ERRO AO CARREGAR EDITOR DE CERTIFICADO:", error);
 
@@ -7045,13 +7052,15 @@ export default function ConfiguracaoCertificadoPage() {
 
   async function salvarRascunhoCompleto(opcoes?: {
     silencioso?: boolean;
-  }): Promise<boolean> {
+  }): Promise<{ modeloId: number; atualizadoEm: string } | null> {
+    setMensagemSucesso("");
     if (enviandoArquivo) {
-      setMensagemErro(
-        tr("errors.waitImageUpload"),
-      );
-
-      return false;
+      setMensagemErro(tr("errors.waitImageUpload"));
+      return null;
+    }
+    if (!editorCarregadoRef.current) {
+      setMensagemErro(tr("errors.loadCertificateConfig"));
+      return null;
     }
 
     try {
@@ -7059,133 +7068,41 @@ export default function ConfiguracaoCertificadoPage() {
       setMensagemErro("");
 
       const modeloId = modeloAtivoIdRef.current;
-      const versaoRascunhoId = versaoRascunhoIdRef.current;
-
-      if (!modeloId || !versaoRascunhoId) {
-        throw new Error(
-          tr("errors.noDraftModelSelected"),
-        );
-      }
-
-      /*
-       * Salva as configurações visuais somente na versão RASCUNHO.
-       */
-      const resConfig = await fetch(
-        `/api/admin/certificado-modelos/${modeloId}/rascunho`,
+      const resposta = await fetch(
+        `/api/admin/certificado-modelos/${modeloId ?? "inicial"}/rascunho`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             templateUrl: certificadoTemplateUrl || null,
             previewUrl: certificadoPreviewUrl || null,
             assinaturaUrl: certificadoAssinaturaUrl || null,
             coordenadorNome: certificadoCoordenadorNome || null,
             cidade: certificadoCidade || null,
-
             modoFundo,
             corFundoPagina,
             tamanhoPapel,
             orientacao,
-
             larguraBase: baseCanvas.largura,
             alturaBase: baseCanvas.altura,
+            campos,
           }),
         },
       );
-
-      const dataConfig = await resConfig.json();
-
-      if (!resConfig.ok) {
-        throw new Error(
-          dataConfig?.detalhe ||
-          dataConfig?.error ||
-          tr("errors.saveDraftConfig"),
-        );
+      const dados = await resposta.json().catch(() => null);
+      const rascunho = dados?.rascunho;
+      if (!resposta.ok || !rascunho?.modeloId || !rascunho?.id || !rascunho?.atualizadoEm || !Array.isArray(dados?.campos)) {
+        throw new Error(dados?.detalhe || dados?.error || tr("errors.saveDraft"));
       }
 
-      const camposParaSalvar = campos.filter((campo: any) => {
-        if (!campo) return false;
-        if (campo.id === -999999) return false;
-        if (campo.arrayPreview === true) return false;
-        if (campo.idOriginalArray) return false;
-        if (!String(campo.tipo || "").trim()) return false;
+      modeloAtivoIdRef.current = rascunho.modeloId;
+      versaoRascunhoIdRef.current = rascunho.id;
+      setModeloAtivoId(rascunho.modeloId);
+      lembrarModeloCertificado(rascunho.modeloId);
+      aplicarCamposCarregados(dados);
 
-        return true;
-      });
-
-      const payloadCampos = camposParaSalvar.map((campo: any) => {
-        const campoLimpo: any = {
-          ...campo,
-        };
-
-        /*
-         * Remove dados de controle ou pertencentes ao registro antigo.
-         * A API criará novos IDs exclusivamente dentro do RASCUNHO.
-         */
-        delete campoLimpo.id;
-        delete campoLimpo.bancoId;
-        delete campoLimpo.tempId;
-        delete campoLimpo.arrayPreview;
-        delete campoLimpo.idOriginalArray;
-
-        delete campoLimpo.instituicaoId;
-        delete campoLimpo.certificadoModeloVersaoId;
-        delete campoLimpo.createdAt;
-        delete campoLimpo.updatedAt;
-
-        return campoLimpo;
-      });
-
-      /*
-       * Salva somente os campos da versão RASCUNHO selecionada.
-       * A API não tocará no legado nem na versão PUBLICADO.
-       */
-      const resCampos = await fetch(
-        `/api/admin/certificado-campos?versaoId=${versaoRascunhoId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            removerAusentes: true,
-            campos: payloadCampos,
-          }),
-        },
-      );
-
-      const dataCampos = await resCampos.json();
-
-      if (!resCampos.ok) {
-        throw new Error(
-          dataCampos?.detalhe ||
-          dataCampos?.error ||
-          tr("errors.saveDraftFields"),
-        );
-      }
-
-      if (Array.isArray(dataCampos?.campos)) {
-        const camposSalvos = dataCampos.campos.map((campo: any) => {
-          const dados = campo?.dadosJson || {};
-
-          return {
-            ...campo,
-            ...dados,
-
-            id: campo.id,
-            bancoId: campo.id,
-          };
-        }).map(normalizarLinhaCertificado);
-
-        setCampos(camposSalvos);
-        setCampoSelecionadoId(null);
-        setCamposSelecionadosIds([]);
-        setPontoFormaSelecionado(null);
-        limparHistorico();
-    historicoTextoLivreRef.current = {};
-    futuroTextoLivreRef.current = {};
+      if (!modeloId && !opcoes?.silencioso) {
+        void recarregarListaModelosCertificado().catch(console.error);
       }
 
       if (!opcoes?.silencioso) {
@@ -7198,14 +7115,14 @@ export default function ConfiguracaoCertificadoPage() {
         }, 4000);
       }
 
-      return true;
+      return { modeloId: rascunho.modeloId, atualizadoEm: rascunho.atualizadoEm };
     } catch (error: any) {
       console.error("ERRO AO SALVAR RASCUNHO DO CERTIFICADO:", error);
 
       setMensagemErro(
         error?.message || tr("errors.saveDraft"),
       );
-      return false;
+      return null;
     } finally {
       setSalvando(false);
     }
@@ -7215,12 +7132,6 @@ export default function ConfiguracaoCertificadoPage() {
     try {
       setPublicando(true);
       setMensagemErro("");
-
-      const modeloId = modeloAtivoIdRef.current;
-
-      if (!modeloId) {
-        throw new Error(tr("errors.noModelSelected"));
-      }
 
       /*
        * Fecha a confirmação imediatamente.
@@ -7242,15 +7153,15 @@ export default function ConfiguracaoCertificadoPage() {
       }
 
       const resposta = await fetch(
-        `/api/admin/certificado-modelos/${modeloId}/publicar`,
+        `/api/admin/certificado-modelos/${rascunhoSalvo.modeloId}/publicar?rascunhoAtualizadoEm=${encodeURIComponent(rascunhoSalvo.atualizadoEm)}`,
         {
           method: "POST",
         },
       );
 
-      const dados = await resposta.json();
+      const dados = await resposta.json().catch(() => null);
 
-      if (!resposta.ok) {
+      if (!resposta.ok || !dados?.publicacao) {
         throw new Error(
           dados?.detalhe || dados?.error || tr("errors.publishFinal"),
         );
@@ -7272,6 +7183,7 @@ export default function ConfiguracaoCertificadoPage() {
 
       setMensagemErro(error?.message || tr("errors.publishFinal"));
     } finally {
+      void recarregarListaModelosCertificado().catch(console.error);
       setPublicando(false);
     }
   }
@@ -9288,13 +9200,16 @@ export default function ConfiguracaoCertificadoPage() {
     >
 
       <FontesCertificado campos={camposDaCena} />
-      {mensagemErro && (
-        <div className="mb-4">
+      {(mensagemErro || mensagemSucesso) && (
+        <div className="fixed right-4 top-16 z-[10000020] w-[calc(100%-2rem)] max-w-sm">
           <PhanyxToast
-            tipo="erro"
-            titulo={t("toast.errorTitle")}
-            mensagem={mensagemErro}
-            onClose={() => setMensagemErro("")}
+            tipo={mensagemErro ? "erro" : "sucesso"}
+            titulo={t(mensagemErro ? "toast.errorTitle" : "toast.successTitle")}
+            mensagem={mensagemErro || mensagemSucesso}
+            onClose={() => {
+              setMensagemErro("");
+              setMensagemSucesso("");
+            }}
           />
         </div>
       )}
@@ -9605,17 +9520,6 @@ export default function ConfiguracaoCertificadoPage() {
   color: #d4d4d8 !important;
 }
 `}</style>
-
-      {mensagemSucesso && (
-        <div className="mb-4">
-          <PhanyxToast
-            tipo="sucesso"
-            titulo={t("toast.successTitle")}
-            mensagem={mensagemSucesso}
-            onClose={() => setMensagemSucesso("")}
-          />
-        </div>
-      )}
 
       {!podeUsarEditorCertificados && (
         <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
@@ -10426,7 +10330,7 @@ export default function ConfiguracaoCertificadoPage() {
                 onClick={() => {
                   void salvarRascunhoCompleto();
                 }}
-                disabled={salvando || publicando}
+                disabled={salvando || publicando || trocandoModelo}
                 className="inline-flex min-h-9 items-center justify-center rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {salvando ? tr("common.saving") : tr("toolbar.saveDraft")}
@@ -10435,7 +10339,7 @@ export default function ConfiguracaoCertificadoPage() {
               <button
                 type="button"
                 onClick={() => setModalPublicacaoAberto(true)}
-                disabled={salvando || publicando}
+                disabled={salvando || publicando || trocandoModelo}
                 className="inline-flex min-h-9 items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {publicando ? tr("publish.publishing") : tr("toolbar.publishFinal")}
@@ -13830,7 +13734,7 @@ export default function ConfiguracaoCertificadoPage() {
               onClick={() => {
                 void salvarRascunhoCompleto();
               }}
-              disabled={salvando}
+              disabled={salvando || publicando || trocandoModelo}
               className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {salvando ? tr("common.saving") : tr("institutionalData.saveDraftData")}

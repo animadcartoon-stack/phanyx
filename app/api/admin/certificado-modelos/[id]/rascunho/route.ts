@@ -5,6 +5,7 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { prepararCamposCertificado } from "@/lib/certificados/prepararCamposCertificado";
 import {
   getUserFromToken,
   isAdminLike,
@@ -144,6 +145,16 @@ async function buscarModelo(params: {
 }
 
 function responderErro(error: unknown) {
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2034"
+  ) {
+    return NextResponse.json(
+      { error: "Houve outra alteração no modelo. Tente salvar novamente." },
+      { status: 409 },
+    );
+  }
+
   if (error instanceof ErroRascunhoCertificado) {
     return NextResponse.json(
       {
@@ -224,27 +235,22 @@ export async function PATCH(
 ) {
   try {
     const user = await obterUsuarioAutorizado();
-    const modeloId = lerModeloId(contexto.params.id);
+    const primeiroModelo = contexto.params.id === "inicial";
+    const idExistente = primeiroModelo ? null : lerModeloId(contexto.params.id);
+    const body = (await request.json()) as Record<string, unknown>;
 
-    const body = (await request.json()) as Record<
-      string,
-      unknown
-    >;
-
-    const modelo = await buscarModelo({
-      modeloId,
-      instituicaoId: user.instituicaoId,
-    });
-
-    if (modelo.arquivado || !modelo.ativo) {
-      throw new ErroRascunhoCertificado(
-        "Um modelo arquivado ou inativo não pode ser editado.",
-        409
-      );
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      throw new ErroRascunhoCertificado("Dados do rascunho inválidos.");
+    }
+    const campos = body.campos;
+    if ((primeiroModelo || temPropriedade(body, "campos")) && !Array.isArray(campos)) {
+      throw new ErroRascunhoCertificado("Envie a lista de campos do rascunho.");
     }
 
-    const dadosAtualizacao: Prisma.CertificadoModeloVersaoUncheckedUpdateInput =
-      {};
+    const dadosAtualizacao: Pick<Prisma.CertificadoModeloVersaoUncheckedCreateInput,
+      "templateUrl" | "previewUrl" | "textoPadrao" | "assinaturaUrl" |
+      "coordenadorNome" | "cidade" | "modoFundo" | "corFundoPagina" |
+      "tamanhoPapel" | "orientacao" | "larguraBase" | "alturaBase"> = {};
 
     if (temPropriedade(body, "templateUrl")) {
       dadosAtualizacao.templateUrl = textoOpcional(
@@ -375,65 +381,96 @@ export async function PATCH(
         });
     }
 
-    const resultado = await prisma.$transaction(
-      async (tx) => {
-        const rascunho =
-          await tx.certificadoModeloVersao.upsert({
-            where: {
-              modeloId_tipo: {
-                modeloId,
-                tipo: TipoVersaoCertificado.RASCUNHO,
-              },
-            },
+    const resultado = await prisma.$transaction(async (tx) => {
+      const escopo = { instituicaoId: user.instituicaoId, ativo: true, arquivado: false };
+      let modeloId = idExistente;
+      let textoPadraoLegado: string | null = null;
 
-            create: {
-              modeloId,
-              tipo: TipoVersaoCertificado.RASCUNHO,
+      if (modeloId === null) {
+        const existente = await tx.certificadoModelo.findFirst({ where: escopo, select: { id: true } });
+        if (existente) {
+          throw new ErroRascunhoCertificado(
+            "Já existe um modelo de certificado ativo. Abra esse modelo em outra aba para conferir antes de continuar.",
+            409,
+          );
+        }
 
-              templateUrl: null,
-              previewUrl: null,
-              textoPadrao: null,
-              assinaturaUrl: null,
-              coordenadorNome: null,
-              cidade: null,
-
-              modoFundo: "modelo",
-              corFundoPagina: "#ffffff",
-              tamanhoPapel: "A4",
-              orientacao: "paisagem",
-              larguraBase: 1123,
-              alturaBase: 794,
-
-              ...(dadosAtualizacao as any),
-            },
-
-            update: dadosAtualizacao,
-            include: {
-              _count: {
-                select: {
-                  campos: true,
-                },
-              },
-            },
-          });
-
-        await tx.certificadoModelo.update({
-          where: {
-            id: modeloId,
-          },
-          data: {
-            atualizadoEm: new Date(),
-          },
+        const instituicao = await tx.instituicao.findUniqueOrThrow({
+          where: { id: user.instituicaoId },
+          select: { certificadoTextoPadrao: true },
         });
+        textoPadraoLegado = instituicao.certificadoTextoPadrao;
 
-        return rascunho;
+        const modelo = await tx.certificadoModelo.create({
+          data: {
+            instituicaoId: user.instituicaoId,
+            nome: "Modelo da instituição",
+            padraoGeral: true,
+            criadoPorId: user.id,
+          },
+          select: { id: true },
+        });
+        modeloId = modelo.id;
+      } else {
+        const modelo = await tx.certificadoModelo.findFirst({
+          where: { id: modeloId, instituicaoId: user.instituicaoId },
+          select: { ativo: true, arquivado: true },
+        });
+        if (!modelo) {
+          throw new ErroRascunhoCertificado("Modelo de certificado não encontrado.", 404);
+        }
+        if (!modelo.ativo || modelo.arquivado) {
+          throw new ErroRascunhoCertificado("Um modelo arquivado ou inativo não pode ser editado.", 409);
+        }
       }
-    );
+
+      const agora = new Date();
+      const rascunho = await tx.certificadoModeloVersao.upsert({
+        where: { modeloId_tipo: { modeloId, tipo: TipoVersaoCertificado.RASCUNHO } },
+        create: {
+          modeloId,
+          tipo: TipoVersaoCertificado.RASCUNHO,
+          textoPadrao: textoPadraoLegado,
+          ...dadosAtualizacao,
+          atualizadoEm: agora,
+        },
+        update: { ...dadosAtualizacao, atualizadoEm: agora },
+      });
+
+      const whereCampos = {
+        instituicaoId: user.instituicaoId,
+        certificadoModeloVersaoId: rascunho.id,
+      };
+      if (Array.isArray(campos)) {
+        const camposParaCriar = prepararCamposCertificado(campos, user.instituicaoId, rascunho.id);
+        await tx.certificadoCampo.deleteMany({ where: whereCampos });
+        if (camposParaCriar.length) {
+          await tx.certificadoCampo.createMany({ data: camposParaCriar });
+        }
+      }
+
+      const modeloAtualizado = await tx.certificadoModelo.updateMany({
+        where: { id: modeloId, ...escopo },
+        data: { atualizadoEm: agora },
+      });
+      if (!modeloAtualizado.count) {
+        throw new ErroRascunhoCertificado("Um modelo arquivado ou inativo não pode ser editado.", 409);
+      }
+
+      const camposSalvos = await tx.certificadoCampo.findMany({
+        where: whereCampos,
+        orderBy: [{ pagina: "asc" }, { ordem: "asc" }, { id: "asc" }],
+      });
+
+      return {
+        rascunho: { ...rascunho, _count: { campos: camposSalvos.length } },
+        campos: camposSalvos,
+      };
+    }, primeiroModelo ? { isolationLevel: Prisma.TransactionIsolationLevel.Serializable } : undefined);
 
     return NextResponse.json({
-      mensagem:
-        "Configurações do rascunho salvas com sucesso.",
-      rascunho: resultado,
+      mensagem: "Rascunho salvo com sucesso.",
+      ...resultado,
     });
   } catch (error: unknown) {
     return responderErro(error);
