@@ -9,6 +9,8 @@ type Curso = {
   organizacaoCurricular?: string;
   id: number;
   nome: string;
+  ativo?: boolean;
+  excluidoEm?: string | null;
 };
 
 type Professor = {
@@ -61,6 +63,7 @@ export default function DisciplinaDetalhePage() {
   const router = useRouter();
   const ta = useTranslations("AcademicStructure");
   const t = useTranslations("AdminSubjects");
+  const tCursos = useTranslations("AdminCourses");
   const tIntegridade = useTranslations("AcademicIntegrity");
   const disciplinaId = Number(params.disciplinaId);
 
@@ -80,6 +83,7 @@ export default function DisciplinaDetalhePage() {
   const [turmaIds, setTurmaIds] = useState<string[]>([]);
   const [preRequisitoIds, setPreRequisitoIds] = useState<string[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [cursoOriginal, setCursoOriginal] = useState<Curso | null>(null);
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [turmas, setTurmas] = useState<TurmaApi[]>([]);
   const [disciplinas, setDisciplinas] = useState<DisciplinaDetalhe[]>([]);
@@ -146,6 +150,7 @@ export default function DisciplinaDetalhePage() {
             ? String(disciplina.cursoId)
             : ""
         );
+        setCursoOriginal(disciplina.curso ?? null);
 
         setProfessorId(
           disciplina.professorId !== null &&
@@ -184,7 +189,7 @@ export default function DisciplinaDetalhePage() {
         );
 
         try {
-          const resCursos = await fetch("/api/curso", {
+          const resCursos = await fetch("/api/curso?somenteAtivos=1", {
             credentials: "include",
           });
           const dataCursos = await resCursos.json();
@@ -395,6 +400,11 @@ export default function DisciplinaDetalhePage() {
               className="w-full rounded-xl border bg-white px-3 py-2"
             >
               <option value="">{t("common.noCourse")}</option>
+              {cursoOriginal && !cursos.some((curso) => curso.id === cursoOriginal.id) && (
+                <option value={cursoOriginal.id} disabled>
+                  {cursoOriginal.nome}{(cursoOriginal.ativo === false || cursoOriginal.excluidoEm) ? ` — ${tCursos("status.inactive")}` : ""}
+                </option>
+              )}
               {cursos.map((curso) => (
                 <option key={curso.id} value={curso.id}>
                   {curso.nome}

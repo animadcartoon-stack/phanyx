@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import withAuth from "@/components/auth/withAuth";
 import { useTranslations } from "next-intl";
 
@@ -23,6 +24,17 @@ interface Disciplina {
   curso?: Curso | null;
   professor?: Professor | null;
   professorId?: number | null;
+}
+
+function cursoIdDoGrupo(semestres: Record<string, Disciplina[]>): number | null {
+  const ids = new Set<number>();
+  for (const lista of Object.values(semestres)) {
+    for (const disciplina of lista) {
+      if (disciplina.curso?.id) ids.add(disciplina.curso.id);
+    }
+  }
+  // Quando cursos diferentes tiverem o mesmo nome, não abrir o cadastro errado.
+  return ids.size === 1 ? [...ids][0] : null;
 }
 
 type FeedbackTipo = "sucesso" | "erro" | "";
@@ -73,7 +85,7 @@ function AdminDisciplinasPage() {
     setDisciplinas(Array.isArray(dataDisc) ? dataDisc : []);
 
     try {
-      const resCursos = await fetch("/api/curso", {
+      const resCursos = await fetch("/api/curso?somenteAtivos=1", {
         credentials: "include",
       });
       const dataCursos = await resCursos.json();
@@ -304,23 +316,33 @@ function AdminDisciplinasPage() {
                 key={cursoNome}
                 className="rounded-lg border bg-white p-4 shadow"
               >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setCursosAbertos((prev) => ({
-                      ...prev,
-                      [cursoNome]: !prev[cursoNome],
-                    }))
-                  }
-                  className="flex w-full items-center justify-between text-left text-base font-bold text-slate-900"
-                >
-                  <span>🎓 {cursoNome}</span>
-                  <span className="text-sm text-slate-500">
-                    {cursosAbertos[cursoNome]
-                      ? `▲ ${t("common.close")}`
-                      : `▼ ${t("common.open")}`}
-                  </span>
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCursosAbertos((prev) => ({
+                        ...prev,
+                        [cursoNome]: !prev[cursoNome],
+                      }))
+                    }
+                    className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left text-base font-bold text-slate-900"
+                  >
+                    <span>🎓 {cursoNome}</span>
+                    <span className="text-sm text-slate-500">
+                      {cursosAbertos[cursoNome]
+                        ? `▲ ${t("common.close")}`
+                        : `▼ ${t("common.open")}`}
+                    </span>
+                  </button>
+                  {cursoIdDoGrupo(semestres) !== null && (
+                    <Link
+                      href={`/admin/cursos/${cursoIdDoGrupo(semestres)}?editar=1#dados-curso`}
+                      className="shrink-0 rounded-lg border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+                    >
+                      ✏️ {t("common.edit")} {t("edit.course")}
+                    </Link>
+                  )}
+                </div>
 
                 {cursosAbertos[cursoNome] && (
                   <div className="mt-3 space-y-2">
