@@ -34,6 +34,7 @@ import { marcarSelecaoTextoCertificado, recuperarSelecaoTextoCertificado, exibir
 import useEspacoEditor from "./components/useEspacoEditor";
 import { campoTemTextoCertificado, atualizarEstiloIntegralTexto, corInicialTextoCertificado } from "@/lib/certificados/estiloTextoCertificado";
 import { useLocale, useTranslations } from "next-intl";
+import QRCode from "qrcode";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 
@@ -943,6 +944,16 @@ export default function ConfiguracaoCertificadoPage() {
   });
 
   const [previewAberto, setPreviewAberto] = useState(false);
+  const [qrCodePreviewUrl, setQrCodePreviewUrl] = useState("");
+  useEffect(() => {
+    let ativo = true;
+    const linkExemplo = new URL("/validar-certificado", window.location.origin);
+    linkExemplo.searchParams.set("codigo", "ABC123XYZ");
+    void QRCode.toDataURL(linkExemplo.toString(), { width: 300, margin: 1 })
+      .then((url) => { if (ativo) setQrCodePreviewUrl(url); })
+      .catch(() => { if (ativo) setQrCodePreviewUrl(""); });
+    return () => { ativo = false; };
+  }, []);
   const [amostrasVariaveis] = useState(criarAmostrasVariaveisCertificado);
 
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
@@ -952,6 +963,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [certificadoCidade, setCertificadoCidade] = useState("");
   const [planoInstituicao, setPlanoInstituicao] = useState("ESSENCIAL");
   const [certificadoAssinaturaUrl, setCertificadoAssinaturaUrl] = useState("");
+  const [certificadoLogoUrl, setCertificadoLogoUrl] = useState("");
   const [nomeDiretorInstituicao, setNomeDiretorInstituicao] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
   const [popupDisciplinasAberto, setPopupDisciplinasAberto] = useState(false);
@@ -2609,6 +2621,7 @@ export default function ConfiguracaoCertificadoPage() {
     setCertificadoTemplateUrl("");
     setCertificadoPreviewUrl("");
     setCertificadoAssinaturaUrl("");
+    setCertificadoLogoUrl("");
     setCertificadoCoordenadorNome("");
     setCertificadoCidade("");
     setNomeDiretorInstituicao("");
@@ -2647,6 +2660,7 @@ export default function ConfiguracaoCertificadoPage() {
     setCertificadoPreviewUrl(previewUrl);
     setCertificadoCoordenadorNome(coordenadorNome);
     setCertificadoCidade(cidade);
+    setCertificadoLogoUrl(String(dataInstituicao?.logoUrl || ""));
 
     const modoFundoRecebido = String(
       configuracao?.modoFundo ?? configuracao?.certificadoModoFundo ?? "modelo",
@@ -7543,11 +7557,11 @@ export default function ConfiguracaoCertificadoPage() {
       certificadoCoordenadorNome ||
       tr("preview.academicDirector"),
     assinaturaUrl: certificadoAssinaturaUrl || null,
-    logoUrl: null,
+    logoUrl: certificadoLogoUrl || null,
 
     numeroCertificado: "CERT-2026-0001",
     codigoValidacao: "ABC123XYZ",
-    qrCodeUrl: null,
+    qrCodeUrl: qrCodePreviewUrl || null,
   };
 
   function iniciarArrasteBarraSelecao(e: React.MouseEvent<HTMLDivElement>) {
@@ -8806,7 +8820,17 @@ export default function ConfiguracaoCertificadoPage() {
                             ...(ehVariavelSimplesCertificado(c) && modoTextoCertificado(c) === "NORMAL" ? caixaVariavelCertificado(c) : {}),
                           }}
                         >
-                          {ehVariavelSimplesCertificado(c) ? <TextoVariavelCertificado campo={c} texto={String(resolverTextoCampo(c, dadosPreviewCertificado))} amostras={amostrasVariaveis} /> : modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+                          {c.tipo === "LOGO_INSTITUICAO" ? (
+                            dadosPreviewCertificado.logoUrl ? (
+                              <img src={dadosPreviewCertificado.logoUrl} alt={tr("fieldTypes.LOGO_INSTITUICAO")}
+                                draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }} />
+                            ) : tr("fieldTypes.LOGO_INSTITUICAO")
+                          ) : c.tipo === "QR_CODE" ? (
+                            dadosPreviewCertificado.qrCodeUrl ? (
+                              <img src={dadosPreviewCertificado.qrCodeUrl} alt={tr("fieldTypes.QR_CODE")}
+                                draggable={false} style={{ width: "100%", height: "100%", objectFit: "contain", pointerEvents: "none" }} />
+                            ) : tr("fieldTypes.QR_CODE")
+                          ) : ehVariavelSimplesCertificado(c) ? <TextoVariavelCertificado campo={c} texto={String(resolverTextoCampo(c, dadosPreviewCertificado))} amostras={amostrasVariaveis} /> : modoTextoCertificado(c) !== "NORMAL" ? <TextoFormatadoCertificado campo={c} texto={c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
                             <div
                               style={{
                                 width: "100%",

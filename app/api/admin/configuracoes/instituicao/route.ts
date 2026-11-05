@@ -118,13 +118,18 @@ export async function GET() {
       );
     }
 
-    const config = await prisma.configuracaoInstituicao.findUnique({
-      where: {
-        instituicaoId,
-      },
-    });
+    const [config, instituicao] = await Promise.all([
+      prisma.configuracaoInstituicao.findUnique({ where: { instituicaoId } }),
+      prisma.instituicao.findUnique({
+        where: { id: instituicaoId },
+        select: { logoUrl: true },
+      }),
+    ]);
 
-    return NextResponse.json(config || {});
+    return NextResponse.json({
+      ...(config || {}),
+      logoUrl: config?.logoUrl || instituicao?.logoUrl || null,
+    });
   } catch (error) {
     console.error("ERRO AO CARREGAR CONFIGURAÇÕES DA INSTITUIÇÃO:", error);
 

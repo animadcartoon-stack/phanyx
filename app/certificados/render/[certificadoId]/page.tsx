@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import QRCode from "qrcode";
 import { formatarDataInicioCurso } from "@/lib/matriculas/dataInicioCurso";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
 import { validarTokenRenderCertificado } from "@/lib/certificados/certificado-render-token";
@@ -244,6 +245,12 @@ const alturaBase =
     return normalizado;
   });
 
+  const codigoParaValidacao = certificado?.codigo || String(certificado.id);
+  const origemValidacao = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://www.phanyx.com.br";
+  const linkValidacao = new URL("/validar-certificado", origemValidacao);
+  linkValidacao.searchParams.set("codigo", codigoParaValidacao);
+  const qrCodeUrl = await QRCode.toDataURL(linkValidacao.toString(), { width: 300, margin: 1 });
+
   const dados = {
     nomeAluno: aluno?.nome || "",
         numeroMatricula:
@@ -303,14 +310,14 @@ const alturaBase =
       instituicao?.assinaturaUrl ||
       null,
         logoUrl:
-      instituicao?.logoUrl ||
       configuracaoInstituicao?.logoUrl ||
+      instituicao?.logoUrl ||
       instituicao?.logo ||
       null,
 
-    numeroCertificado: certificado?.codigo || String(certificado.id),
-    codigoValidacao: certificado?.codigo || String(certificado.id),
-    qrCodeUrl: null,
+    numeroCertificado: codigoParaValidacao,
+    codigoValidacao: codigoParaValidacao,
+    qrCodeUrl,
   };
 
   const templateUrl =

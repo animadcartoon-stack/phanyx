@@ -423,7 +423,7 @@ function renderImagemCampo(
     campo.tipo === "ASSINATURA"
       ? urlDoCampo || dados.assinaturaUrl
       : campo.tipo === "LOGO_INSTITUICAO"
-      ? urlDoCampo || dados.logoUrl
+      ? dados.logoUrl || urlDoCampo
       : urlDoCampo;
 
   if (!url) return null;
