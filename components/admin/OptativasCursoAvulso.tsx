@@ -14,6 +14,7 @@ type Dados = {
 };
 const dias = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 const campo = "mt-1 block w-full rounded border border-slate-400 bg-white p-2 text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100";
+const campoHorario = campo + " [color-scheme:light] dark:[color-scheme:dark]";
 const botao = "rounded bg-blue-700 px-3 py-2 font-medium text-white disabled:opacity-50";
 const inicial = { disciplinaId: "", diaSemana: 2, horaInicio: "", horaFim: "", capacidade: "", professorId: "", turmaIds: [] as number[] };
 
@@ -82,9 +83,9 @@ export default function OptativasCursoAvulso({ cursoId }: { cursoId: number }) {
           </select></label>
           <label>Capacidade<input required className={campo} type="number" min="1" max="2000" value={novo.capacidade}
             onChange={e => setNovo({ ...novo, capacidade: e.target.value })} /></label>
-          <label>Início<input required className={campo} type="time" value={novo.horaInicio}
+          <label>Início<input required className={campoHorario} type="time" value={novo.horaInicio}
             onChange={e => setNovo({ ...novo, horaInicio: e.target.value })} /></label>
-          <label>Fim<input required className={campo} type="time" value={novo.horaFim}
+          <label>Fim<input required className={campoHorario} type="time" value={novo.horaFim}
             onChange={e => setNovo({ ...novo, horaFim: e.target.value })} /></label>
           <label>Professor da atividade<select className={campo} value={novo.professorId}
             onChange={e => setNovo({ ...novo, professorId: e.target.value })}>
