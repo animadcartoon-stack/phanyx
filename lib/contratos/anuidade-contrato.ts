@@ -1,7 +1,30 @@
 import { descontoPontualidadeEmReais, faixasDescontoPontualidade } from "@/lib/financeiro/desconto-pontualidade";
 import { vencimentoMensal } from "@/lib/matriculas/combos";
 
-const tagsAnuidade = /{{\s*(?:inicioAnuidade|fimAnuidade|baseAnuidade|percentualDescontoConjunto|descontoComercialAnuidade|bolsaAnuidade|totalAnuidadeContratual|quantidadeParcelasAnuidade|primeiroVencimentoAnuidade|ultimoVencimentoAnuidade|antecipacaoAnuidade|vencimentoAntecipacaoAnuidade|percentualPontualidade|descontoPontualidadeAnuidade|totalAnuidadePontual)\s*}}/;
+export const VARIAVEIS_ANUIDADE_CONTRATO = [
+  "inicioAnuidade",
+  "fimAnuidade",
+  "baseAnuidade",
+  "percentualDescontoConjunto",
+  "descontoComercialAnuidade",
+  "bolsaAnuidade",
+  "totalAnuidadeContratual",
+  "quantidadeParcelasAnuidade",
+  "primeiroVencimentoAnuidade",
+  "ultimoVencimentoAnuidade",
+  "antecipacaoAnuidade",
+  "vencimentoAntecipacaoAnuidade",
+  "percentualPontualidade",
+  "descontoPontualidadeAnuidade",
+  "totalAnuidadePontual",
+  "textoMatriculaAnuidade",
+  "textoPontualidadeAnuidade",
+] as const;
+
+const tagsAnuidade = new RegExp(`{{\\s*(?:${VARIAVEIS_ANUIDADE_CONTRATO.join("|")})\\s*}}`);
+
+const tagsAntecipacaoLegadas = /{{\s*(?:antecipacaoAnuidade|vencimentoAntecipacaoAnuidade)\s*}}/;
+const tagsPontualidadeLegadas = /{{\s*(?:percentualPontualidade|descontoPontualidadeAnuidade|totalAnuidadePontual)\s*}}/;
 
 type MatriculaAnuidade = {
   dataInicioCurso?: Date | string | null;
@@ -48,8 +71,11 @@ export function montarDadosAnuidadeContrato(
   const calculo = registro(modalidades?.calculo);
   const avulso = registro(calculo?.avulso);
   const taxa = Math.round(Number(matricula.valorMatricula ?? 0) * 100);
-  if (!plano && taxa > 0) {
-    return erroAnuidade("A matrícula tem taxa separada, mas o modelo de contrato prevê abatimento na primeira parcela. Registre um cronograma contratado com a antecipação abatida antes de emitir o contrato.");
+  if (!Number.isSafeInteger(taxa) || taxa < 0) {
+    return erroAnuidade("Confira o valor da taxa de matrícula registrado.");
+  }
+  if (!plano && taxa > 0 && tagsAntecipacaoLegadas.test(template)) {
+    return erroAnuidade("A matrícula tem taxa separada. No modelo do contrato, substitua a cláusula de antecipação pela variável {{textoMatriculaAnuidade}}.");
   }
 
   const inicio = dataCivil(matricula.dataInicioCurso);
@@ -87,7 +113,7 @@ export function montarDadosAnuidadeContrato(
   } else {
     const mensalidade = Math.round(Number(matricula.valorMensalidade ?? NaN) * 100);
     const percentualBolsa = Number(matricula.bolsaPercentual ?? 0);
-    if (taxa !== 0 || !Number.isSafeInteger(mensalidade) || mensalidade < 0 ||
+    if (!Number.isSafeInteger(mensalidade) || mensalidade < 0 ||
         !Number.isFinite(percentualBolsa) || percentualBolsa < 0 || percentualBolsa > 100) {
       return erroAnuidade("Confira o valor da mensalidade e os descontos registrados na matrícula.");
     }
@@ -107,18 +133,42 @@ export function montarDadosAnuidadeContrato(
   }
 
   const faixas = faixasDescontoPontualidade(matricula.descontoPontualidade);
-  if (faixas.antecipado) {
-    return erroAnuidade("Este modelo descreve desconto até o vencimento. Ajuste a cláusula de pontualidade para o plano com desconto por antecedência.");
+  if (faixas.antecipado && tagsPontualidadeLegadas.test(template)) {
+    return erroAnuidade("A matrícula tem desconto por antecedência. No modelo do contrato, use {{textoPontualidadeAnuidade}} para descrever as condições de pontualidade registradas.");
   }
   const percentualPontualidade = faixas.vencimento?.percentual ?? 0;
-  const descontoPontualidade = parcelas.reduce((total, parcela) =>
-    total + Math.round(descontoPontualidadeEmReais(parcela / 100, percentualPontualidade) * 100), 0);
-  const total = parcelas.reduce((soma, parcela) => soma + parcela, antecipacao);
+  const descontoPara = (percentual: number) => parcelas.reduce((total, parcela) =>
+    total + Math.round(descontoPontualidadeEmReais(parcela / 100, percentual) * 100), 0);
+  const descontoPontualidade = descontoPara(percentualPontualidade);
+  const total = parcelas.reduce((soma, parcela) => soma + parcela, taxa);
   const moeda = new Intl.NumberFormat(locale, { style: "currency", currency: "BRL" });
   const percentual = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 2 });
   const data = new Intl.DateTimeFormat(locale, { dateStyle: "short", timeZone: "UTC" });
   const formatarData = (civil: string) => data.format(new Date(civil + "T12:00:00.000Z"));
-  const vencimentoAntecipacao = dataCivil(lancamentos.find(item => item.tipo === "MATRICULA")?.vencimento);
+  const vencimentoMatricula = dataCivil(lancamentos.find(item => item.tipo === "MATRICULA")?.vencimento);
+  const textoVencimento = vencimentoMatricula ? ` O vencimento é em ${formatarData(vencimentoMatricula)}.` : "";
+  const textoMatriculaAnuidade = taxa === 0
+    ? "Esta contratação não prevê taxa de matrícula nem antecipação."
+    : antecipacao > 0
+      ? `A antecipação de matrícula de ${moeda.format(taxa / 100)} integra o total contratado e é abatida da primeira parcela.${textoVencimento}`
+      : `A taxa de matrícula de ${moeda.format(taxa / 100)} é cobrada separadamente das mensalidades e está incluída no total contratual informado acima.${textoVencimento}`;
+
+  const textoFaixa = (percentualDaFaixa: number, condicao: string) => {
+    const abatimento = descontoPara(percentualDaFaixa);
+    return `Cada parcela quitada integralmente ${condicao} recebe ${percentual.format(percentualDaFaixa / 100)} de desconto. Se todas as parcelas cumprirem essa condição, o abatimento total será de ${moeda.format(abatimento / 100)} e o valor total pago será de ${moeda.format((total - abatimento) / 100)}.`;
+  };
+  const regras: string[] = [];
+  if (faixas.antecipado) {
+    const dias = faixas.antecipado.diasAntecedencia;
+    regras.push(textoFaixa(faixas.antecipado.percentual, `com pelo menos ${dias} ${dias === 1 ? "dia" : "dias"} de antecedência`));
+  }
+  if (faixas.vencimento) {
+    regras.push(textoFaixa(faixas.vencimento.percentual, faixas.antecipado
+      ? "após o prazo de antecipação e até o vencimento"
+      : "até o vencimento"));
+  }
+  if (faixas.antecipado && faixas.vencimento) regras.push("Os descontos são aplicados conforme a data de pagamento, sem acumulação.");
+  const textoPontualidadeAnuidade = regras.join(" ") || "Esta contratação não prevê desconto adicional por pontualidade.";
   const ultimo = vencimentos.length === quantidade
     ? formatarData(vencimentos[quantidade - 1])
     : data.format(vencimentoMensal(primeiro, quantidade - 1));
@@ -138,10 +188,12 @@ export function montarDadosAnuidadeContrato(
       ultimoVencimentoAnuidade: ultimo,
       antecipacaoAnuidade: moeda.format(antecipacao / 100),
       vencimentoAntecipacaoAnuidade: antecipacao === 0 ? "não se aplica" :
-        vencimentoAntecipacao ? formatarData(vencimentoAntecipacao) : "não informado",
+        vencimentoMatricula ? formatarData(vencimentoMatricula) : "não informado",
       percentualPontualidade: percentual.format(percentualPontualidade / 100),
       descontoPontualidadeAnuidade: moeda.format(descontoPontualidade / 100),
       totalAnuidadePontual: moeda.format((total - descontoPontualidade) / 100),
+      textoMatriculaAnuidade,
+      textoPontualidadeAnuidade,
     },
   };
 }
