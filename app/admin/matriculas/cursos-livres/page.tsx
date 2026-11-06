@@ -31,7 +31,7 @@ function CursosLivresPage() {
   const [erro, setErro] = useState(""), [sucesso, setSucesso] = useState("");
   const [busy, setBusy] = useState(false), [loading, setLoading] = useState(true), [pagina, setPagina] = useState(1);
   const [versao, setVersao] = useState(0);
-  const [confirmacao, setConfirmacao] = useState<Record<string, unknown> | null>(null);
+  const [confirmacao, setConfirmacao] = useState<{ pedido: Record<string, unknown>; pendencias: string[] } | null>(null);
   const chave = useRef<{ pedido: string; id: string } | null>(null), operacao = useRef(false);
   const vinculo = vinculos.find(v => String(v.id) === matriculaId);
   const curso = vinculo?.curso || cursos.find(c => String(c.id) === cursoId);
@@ -75,7 +75,10 @@ function CursosLivresPage() {
       const res = await fetch("/api/admin/matriculas/cursos-livres", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...pedido, chave: chave.current.id }) });
       const json = await res.json();
       if (!res.ok) {
-        if (json.codigo === "CONFIRMACAO_MENOR_NECESSARIA") { setConfirmacao(pedido); return; }
+        if (json.codigo === "CONFIRMACAO_MENOR_NECESSARIA") {
+          setConfirmacao({ pedido, pendencias: json.detalhes?.pendencias ?? [] });
+          return;
+        }
         if (avisarSeConflito(json)) return;
         throw new Error(mensagemRequisitoCurso(tr, json) || mensagem(json.codigo));
       }
@@ -130,7 +133,7 @@ function CursosLivresPage() {
       </article>)}
       {!vinculos.length && !loading && <p className="mt-3">{t("empty")}</p>}
     </section>
-    {confirmacao && <PhanyxConfirmModal aberto titulo={t("minorTitle")} mensagem={t("minorHelp")} textoConfirmar={t("confirm")} onCancelar={() => setConfirmacao(null)} onConfirmar={() => { const pedido = confirmacao; setConfirmacao(null); void contratar({ ...pedido, confirmacaoMenorAceita: true }); }} />}
+    {confirmacao && <PhanyxConfirmModal aberto titulo={t("minorTitle")} mensagem={[t("minorHelp"), confirmacao.pendencias.join(", ")].filter(Boolean).join(" ")} textoConfirmar={t("confirm")} onCancelar={() => setConfirmacao(null)} onConfirmar={() => { const { pedido } = confirmacao; setConfirmacao(null); void contratar({ ...pedido, confirmacaoMenorAceita: true }); }} />}
   </main>;
 }
 export default withAuth(CursosLivresPage, ["admin"]);

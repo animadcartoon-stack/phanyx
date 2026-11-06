@@ -376,11 +376,22 @@ if (!url) {
       await t.test(
         "confirmação do menor e validação de ajuste precedem qualquer cobrança",
         async () => {
-          const res = await api.POST(req(pedido));
-          assert.equal(
-            (await res.json()).codigo,
-            "CONFIRMACAO_MENOR_NECESSARIA",
-          );
+          await prisma.aluno.update({
+            where: { id: aluno1.id },
+            data: { emailResponsavel: null },
+          });
+          try {
+            const res = await api.POST(req(pedido));
+            assert.equal(res.status, 409);
+            const aviso = await res.json();
+            assert.equal(aviso.codigo, "CONFIRMACAO_MENOR_NECESSARIA");
+            assert.deepEqual(aviso.detalhes.pendencias, ["e-mail do responsável"]);
+          } finally {
+            await prisma.aluno.update({
+              where: { id: aluno1.id },
+              data: { emailResponsavel: "responsavel@example.invalid" },
+            });
+          }
           const invalido = await api.POST(
             req({
               ...pedido,
@@ -406,9 +417,7 @@ if (!url) {
       await t.test(
         "confirmação grava vínculos, uma taxa, doze mensalidades e contrato",
         async () => {
-          const res = await api.POST(
-            req({ ...pedido, confirmacaoMenorAceita: true }),
-          );
+          const res = await api.POST(req(pedido));
           assert.equal(
             res.status,
             201,
@@ -423,6 +432,9 @@ if (!url) {
               contratos: true,
             },
           });
+          assert.equal(matricula.alunoMenorNoMomentoMatricula, true);
+          assert.equal(matricula.responsavelIncompletoNoMomentoMatricula, false);
+          assert.equal(matricula.confirmacaoMenorEm, null);
           assert.equal(matricula.itens.length, 3);
           assert.equal(
             matricula.lancamentosFinanceiros.filter(

@@ -506,7 +506,7 @@ export async function confirmarContratacaoModalidades(
   const idade = calcularIdade(aluno.dataNascimento);
   if (idade < 0 || idade > 120) throw new ErroModalidades("DATA_INVALIDA");
   const pendencias = idade < 18 ? verificarDadosResponsavel(aluno) : [];
-  if (idade < 18 && body.confirmacaoMenorAceita !== true) {
+  if (pendencias.length > 0 && body.confirmacaoMenorAceita !== true) {
     throw new ErroModalidades("CONFIRMACAO_MENOR_NECESSARIA", 409, {
       idade,
       pendencias,
@@ -619,12 +619,12 @@ export async function confirmarContratacaoModalidades(
       alunoMenorNoMomentoMatricula: idade < 18,
       idadeNoMomentoMatricula: idade,
       responsavelIncompletoNoMomentoMatricula: pendencias.length > 0,
-      confirmacaoMenorEm: idade < 18 ? agora : null,
-      confirmacaoMenorPorUserId: idade < 18 ? user.id : null,
-      confirmacaoMenorPorNomeSnapshot: idade < 18 ? user.nome : null,
+      confirmacaoMenorEm: pendencias.length > 0 ? agora : null,
+      confirmacaoMenorPorUserId: pendencias.length > 0 ? user.id : null,
+      confirmacaoMenorPorNomeSnapshot: pendencias.length > 0 ? user.nome : null,
       textoConfirmacaoMenor:
-        idade < 18
-          ? `Confirmação de matrícula do menor (${idade} anos) por ${user.nome || user.id}. Pendências: ${pendencias.join(", ") || "nenhuma"}.`
+        pendencias.length > 0
+          ? `Confirmação de matrícula do menor (${idade} anos) por ${user.nome || user.id}. Pendências: ${pendencias.join(", ")}.`
           : null,
       // Vinculos avulsos nao usam uma disciplina sintetica/ItemMatricula.
       // Prisma faz o nested create na mesma transacao serializavel do contrato.
