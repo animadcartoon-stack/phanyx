@@ -19,6 +19,10 @@ export function cabeNoHorario(sessao: HorarioOptativa, horarios: (Omit<HorarioOp
     horario.horaInicio <= sessao.horaInicio && horario.horaFim !== null && horario.horaFim >= sessao.horaFim);
 }
 
+export function mesmaDisciplinaNoMesmoDia(a: SessaoOptativa, b: SessaoOptativa) {
+  return a.disciplinaId === b.disciplinaId && a.diaSemana === b.diaSemana;
+}
+
 export function selecionarOptativas(
   ids: number[],
   sessoes: SessaoOptativa[],
@@ -38,7 +42,7 @@ export function selecionarOptativas(
   for (const [i, escolha] of escolhas.entries()) {
     if (!horarioValido(horarios[i])) throw new ErroModalidades("OPTATIVA_INDISPONIVEL", 409);
     if (escolhas.slice(0, i).some((anterior, j) =>
-      (anterior.disciplinaId === escolha.disciplinaId && anterior.diaSemana === escolha.diaSemana) ||
+      mesmaDisciplinaNoMesmoDia(anterior, escolha) ||
       horariosSobrepostos(horarios[j], horarios[i]))) {
       throw new ErroModalidades("OPTATIVAS_EM_CONFLITO", 409);
     }
