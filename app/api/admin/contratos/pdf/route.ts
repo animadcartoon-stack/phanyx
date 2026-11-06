@@ -260,7 +260,10 @@ export async function GET(req: Request) {
     const data = await contratoRes.json();
 
     if (!contratoRes.ok) {
-      throw new Error(data?.error || "Erro ao buscar dados do contrato");
+      return NextResponse.json(
+        { error: data?.error || "Erro ao buscar dados do contrato" },
+        { status: contratoRes.status },
+      );
     }
 
     const siglaInstituicao = String(

@@ -1,3 +1,4 @@
+import { montarDadosAnuidadeContrato } from "@/lib/contratos/anuidade-contrato";
 import { resumoCursosDocumento } from "@/lib/documentos/cursos-contratados";
 import { anexarResumoModalidades } from "@/lib/contratos/resumo-modalidades";
 import { nomeContratacaoModalidades } from "@/lib/matriculas/combos";
@@ -189,6 +190,7 @@ export async function GET(req: Request) {
           instituicaoId: user.instituicaoId,
         },
         include: {
+          turmaPrincipal: { select: { dataFim: true } },
           aluno: {
             include: {
               instituicao: true,
@@ -259,6 +261,7 @@ export async function GET(req: Request) {
           instituicaoId: user.instituicaoId,
         },
         include: {
+          turmaPrincipal: { select: { dataFim: true } },
           aluno: {
             include: {
               instituicao: true,
@@ -699,6 +702,11 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
 {{cidadeAssinatura}}, {{dataAtual}}.`;
 
+    const dadosAnuidade = montarDadosAnuidadeContrato(template, matricula, localeDocumento);
+    if (dadosAnuidade.pendencia) {
+      return NextResponse.json({ error: dadosAnuidade.pendencia }, { status: 422 });
+    }
+
     let numeroMatriculaOficial =
       matricula.numeroMatricula || matricula.aluno?.matricula || "";
 
@@ -779,6 +787,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
     const contratoBase =
       substituirTemplate(template, {
         ...dadosBolsaDocumento,
+        ...dadosAnuidade.valores,
         logoInstituicao: "",
 
         nomeInstituicao:
