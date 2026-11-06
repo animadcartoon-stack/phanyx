@@ -2013,16 +2013,10 @@ export async function POST(request: Request) {
       camposResponsavelPendentes.length > 0;
 
     if (
-      alunoMenorNoMomentoMatricula &&
-      body.confirmacaoMenorAceita !==
-      true
+      responsavelIncompletoNoMomentoMatricula &&
+      body.confirmacaoMenorAceita !== true
     ) {
-      const mensagem =
-        responsavelIncompletoNoMomentoMatricula
-          ? `Este aluno possui ${idadeNoMomentoMatricula} ano(s) e os dados do responsável estão incompletos. Campos pendentes: ${camposResponsavelPendentes.join(
-            ", "
-          )}.`
-          : `Este aluno possui ${idadeNoMomentoMatricula} ano(s) e ainda não atingiu a idade adulta.`;
+      const mensagem = `Os dados do titular do contrato estão incompletos. Campos pendentes: ${camposResponsavelPendentes.join(", ")}.`;
 
       return NextResponse.json(
         {
@@ -2046,7 +2040,7 @@ export async function POST(request: Request) {
     }
 
     const usuarioConfirmador =
-      alunoMenorNoMomentoMatricula
+      responsavelIncompletoNoMomentoMatricula
         ? await prisma.user.findFirst({
           where: {
             id: user.id,
@@ -2069,7 +2063,7 @@ export async function POST(request: Request) {
         : null;
 
     if (
-      alunoMenorNoMomentoMatricula &&
+      responsavelIncompletoNoMomentoMatricula &&
       !usuarioConfirmador
     ) {
       return NextResponse.json(
@@ -2090,12 +2084,8 @@ export async function POST(request: Request) {
       null;
 
     const textoConfirmacaoMenor =
-      alunoMenorNoMomentoMatricula
-        ? responsavelIncompletoNoMomentoMatricula
-          ? `O usuário ${nomeConfirmador || "não identificado"} confirmou a matrícula do aluno menor de idade, com ${idadeNoMomentoMatricula} ano(s), mesmo com dados incompletos do responsável. Campos pendentes: ${camposResponsavelPendentes.join(
-            ", "
-          )}.`
-          : `O usuário ${nomeConfirmador || "não identificado"} confirmou a matrícula do aluno menor de idade, com ${idadeNoMomentoMatricula} ano(s), declarando ciência e responsabilidade pela operação.`
+      responsavelIncompletoNoMomentoMatricula
+        ? `O usuário ${nomeConfirmador || "não identificado"} confirmou a matrícula do aluno menor de idade, com ${idadeNoMomentoMatricula} ano(s), mesmo com dados incompletos do responsável. Campos pendentes: ${camposResponsavelPendentes.join(", ")}.`
         : null;
 
     let turmasComDisciplinas:
@@ -2876,25 +2866,25 @@ export async function POST(request: Request) {
                   responsavelIncompletoNoMomentoMatricula,
 
                 confirmacaoMenorEm:
-                  alunoMenorNoMomentoMatricula
+                  responsavelIncompletoNoMomentoMatricula
                     ? agoraConversao
                     : null,
 
                 confirmacaoMenorPorUserId:
-                  alunoMenorNoMomentoMatricula
+                  responsavelIncompletoNoMomentoMatricula
                     ? usuarioConfirmador?.id ??
                     user.id
                     : null,
 
                 confirmacaoMenorPorFuncionarioId:
-                  alunoMenorNoMomentoMatricula
+                  responsavelIncompletoNoMomentoMatricula
                     ? usuarioConfirmador
                       ?.funcionario
                       ?.id ?? null
                     : null,
 
                 confirmacaoMenorPorNomeSnapshot:
-                  alunoMenorNoMomentoMatricula
+                  responsavelIncompletoNoMomentoMatricula
                     ? nomeConfirmador
                     : null,
 

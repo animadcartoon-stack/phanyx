@@ -94,7 +94,7 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
     const idade = calcularIdade(aluno.dataNascimento);
     if (idade < 0 || idade > 120) throw new ErroCursoLivre("DATA_INVALIDA");
     const pendencias = idade < 18 ? verificarDadosResponsavel(aluno) : [];
-    if (idade < 18 && body.confirmacaoMenorAceita !== true) throw new ErroCursoLivre("CONFIRMACAO_MENOR_NECESSARIA", 409, { idade, pendencias });
+    if (pendencias.length > 0 && body.confirmacaoMenorAceita !== true) throw new ErroCursoLivre("CONFIRMACAO_MENOR_NECESSARIA", 409, { idade, pendencias });
     const contador = await db.instituicao.update({ where: { id: user.instituicaoId }, data: { proximoNumeroMatricula: { increment: 1 } }, select: { proximoNumeroMatricula: true } });
     const numeroMatricula = `PHX-${user.instituicaoId}-${new Date().getFullYear()}-${String(contador.proximoNumeroMatricula - 1).padStart(6, "0")}`;
     matricula = await db.matricula.create({ data: {
@@ -104,9 +104,9 @@ export async function contratarPeriodoCursoLivre(db: Banco, user: Operador, body
       dataInicioCurso: periodo.dataInicio, periodoLetivo: turma.periodoLetivo, valorMatricula: 0,
       valorMensalidade: null, quantidadeMensalidades: null, quantidadeParcelas: null,
       alunoMenorNoMomentoMatricula: idade < 18, idadeNoMomentoMatricula: idade, responsavelIncompletoNoMomentoMatricula: pendencias.length > 0,
-      confirmacaoMenorEm: idade < 18 ? new Date() : null, confirmacaoMenorPorUserId: idade < 18 ? user.id : null,
-      confirmacaoMenorPorNomeSnapshot: idade < 18 ? user.nome : null,
-      textoConfirmacaoMenor: idade < 18 ? JSON.stringify({ idade, pendencias, usuarioId: user.id }) : null,
+      confirmacaoMenorEm: pendencias.length > 0 ? new Date() : null, confirmacaoMenorPorUserId: pendencias.length > 0 ? user.id : null,
+      confirmacaoMenorPorNomeSnapshot: pendencias.length > 0 ? user.nome : null,
+      textoConfirmacaoMenor: pendencias.length > 0 ? JSON.stringify({ idade, pendencias, usuarioId: user.id }) : null,
       itens: { create: turma.disciplinas.map(d => ({ instituicaoId: user.instituicaoId, turmaId: turma.id, disciplinaId: d.disciplinaId, tipoItem: "GRADE_PRINCIPAL", status: "EM_CURSO" })) },
     } });
   }

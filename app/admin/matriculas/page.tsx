@@ -2049,8 +2049,9 @@ function AdminMatriculasPage() {
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         if (data?.codigo === "CONFIRMACAO_MENOR_NECESSARIA") {
-          setConfirmTitulo("Confirmação de matrícula de menor");
-          setConfirmMensagem("O aluno é menor de idade. Confira o responsável legal e confirme que os dados necessários foram verificados. Deseja continuar?");
+          const pendencias = data.detalhes?.pendencias ?? [];
+          setConfirmTitulo("Dados do titular do contrato incompletos");
+          setConfirmMensagem(`Confira os campos pendentes: ${pendencias.join(", ")}. Deseja continuar?`);
           setConfirmAcao(() => () => { void criarMatriculaComAdicionais(true); });
           setConfirmModalAberto(true);
           return;
@@ -2075,7 +2076,7 @@ function AdminMatriculasPage() {
     } finally { setCreating(false); }
   }
 
-  async function criarMatricula() {
+  async function criarMatricula(confirmacaoMenorAceita = false) {
     if (cursoSemGrade || cursosAdicionaisEscolhidos.length > 0) {
       // Um avulso sozinho usa a mesma confirmacao transacional de modalidades.
       // O servidor ainda bloqueia a escrita sem grade ate a liberacao segura.
@@ -2172,6 +2173,7 @@ function AdminMatriculasPage() {
         credentials: "include",
         body: JSON.stringify({
           leadId: parametrosConversao.leadId,
+          confirmacaoMenorAceita,
 
           alunoId: Number(alunoId),
           cursoId: Number(cursoId),
@@ -2234,6 +2236,13 @@ function AdminMatriculasPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data?.codigo === "CONFIRMACAO_MENOR_NECESSARIA") {
+          setConfirmTitulo("Dados do titular do contrato incompletos");
+          setConfirmMensagem(`${data.error} Deseja continuar?`);
+          setConfirmAcao(() => () => { void criarMatricula(true); });
+          setConfirmModalAberto(true);
+          return;
+        }
         if (avisarSeConflito(data)) return;
         throw new Error(mensagemRequisitoCurso(tr, data) || (data?.codigo && tp.has(`errors.${data.codigo}`) ? tp(`errors.${data.codigo}`) : data?.error === "DATA_INICIO_CURSO_INVALIDA" ? t("courseStart.invalid") : data?.error || "Erro ao criar matrícula."));
       }
@@ -4846,7 +4855,7 @@ function AdminMatriculasPage() {
             </div>
           )}
           <button
-            onClick={criarMatricula}
+            onClick={() => { void criarMatricula(); }}
             disabled={!podeCriar || creating || ((cursosAdicionaisEscolhidos.length > 0 || cursoSemGrade) && !previaCombo)}
             className={[
               "px-4 py-2 rounded-xl font-semibold transition",
