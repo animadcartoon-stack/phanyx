@@ -1,3 +1,4 @@
+import { montarDadosAnuidadeContrato } from "@/lib/contratos/anuidade-contrato";
 import { resumoCursosDocumento } from "@/lib/documentos/cursos-contratados";
 import { valoresEtapaDocumento } from "@/lib/academico/organizacao";
 import { anexarResumoModalidades } from "./resumo-modalidades";
@@ -190,6 +191,7 @@ export async function montarContratoMatricula(
       },
 
       include: {
+        turmaPrincipal: { select: { dataFim: true } },
         aluno: {
           include: {
             instituicao: true,
@@ -454,8 +456,11 @@ E por estarem de pleno acordo, firmam o presente contrato.
       matricula
     );
 
+  const dadosAnuidade = montarDadosAnuidadeContrato(template, matricula);
+
   const valores = {
     ...dadosBolsaDocumento,
+    ...dadosAnuidade.valores,
 
     logoInstituicao: "",
 
