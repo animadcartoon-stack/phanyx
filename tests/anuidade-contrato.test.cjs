@@ -50,7 +50,8 @@ test("preenche as 15 variáveis com o crédito congelado no plano e calendário 
     lancamentosFinanceiros: [{ tipo: "MATRICULA", vencimento: new Date("2026-11-30T12:00:00Z") }],
   });
   assert.equal(pendencia, null);
-  assert.deepEqual(Object.keys(valores).sort(), nomes.sort());
+  assert.ok(nomes.every(nome => Object.hasOwn(valores, nome)));
+  assert.match(valores.textoMatriculaAnuidade, /abatida da primeira parcela/);
   assert.doesNotMatch(replaceDocumentTags(template, valores), /{{/);
   assert.equal(valores.inicioAnuidade, "15/02/2027");
   assert.equal(valores.fimAnuidade, "o indicado no Anexo I");
@@ -61,7 +62,7 @@ test("preenche as 15 variáveis com o crédito congelado no plano e calendário 
   assert.equal(valores.totalAnuidadePontual, moeda(3897.85));
 });
 
-test("identifica taxa separada e não a apresenta como antecipação abatida", () => {
+test("pede atualização quando o modelo antigo descreve taxa separada como antecipação", () => {
   const { valores, pendencia } = montarDadosAnuidadeContrato(template, { ...matricula, valorMatricula: 98.5 });
   assert.deepEqual(valores, {});
   assert.match(pendencia, /taxa separada/);
@@ -76,4 +77,50 @@ test("sem antecipação, usa bolsa e fim da turma se informado", () => {
   assert.equal(valores.bolsaAnuidade, moeda(1080));
   assert.equal(valores.totalAnuidadeContratual, moeda(3240));
   assert.equal(valores.vencimentoAntecipacaoAnuidade, "não se aplica");
+});
+
+const templateConfiguravel = "{{totalAnuidadeContratual}} / {{textoMatriculaAnuidade}} / {{textoPontualidadeAnuidade}}";
+
+test("taxa separada é somada ao total e não recebe desconto de pontualidade", () => {
+  const { valores, pendencia } = montarDadosAnuidadeContrato(templateConfiguravel, {
+    ...matricula,
+    valorMatricula: 98.5,
+    lancamentosFinanceiros: [{ tipo: "MATRICULA", vencimento: new Date("2026-12-05T12:00:00Z") }],
+  });
+  assert.equal(pendencia, null);
+  assert.equal(valores.totalAnuidadeContratual, moeda(4418.5));
+  assert.equal(valores.antecipacaoAnuidade, moeda(0));
+  assert.match(valores.textoMatriculaAnuidade, /cobrada separadamente/);
+  assert.match(valores.textoMatriculaAnuidade, /05\/12\/2026/);
+  assert.equal(valores.descontoPontualidadeAnuidade, moeda(432));
+  assert.equal(valores.totalAnuidadePontual, moeda(3986.5));
+  assert.ok(valores.textoPontualidadeAnuidade.includes(moeda(3986.5)));
+  assert.doesNotMatch(replaceDocumentTags(templateConfiguravel, valores), /{{/);
+});
+
+test("sem taxa ou desconto, não inventa cobrança, antecipação ou benefício", () => {
+  const { valores, pendencia } = montarDadosAnuidadeContrato(templateConfiguravel, {
+    ...matricula,
+    descontoPontualidade: null,
+  });
+  assert.equal(pendencia, null);
+  assert.equal(valores.totalAnuidadeContratual, moeda(4320));
+  assert.equal(valores.totalAnuidadePontual, moeda(4320));
+  assert.match(valores.textoMatriculaAnuidade, /não prevê taxa/);
+  assert.match(valores.textoPontualidadeAnuidade, /não prevê desconto/);
+});
+
+test("as duas faixas configuradas na matrícula aparecem com condições e totais próprios", () => {
+  const { valores, pendencia } = montarDadosAnuidadeContrato(templateConfiguravel, {
+    ...matricula,
+    descontoPontualidade: {
+      antecipado: { percentual: 10, diasAntecedencia: 3 },
+      vencimento: { percentual: 5, diasAntecedencia: 0 },
+    },
+  });
+  assert.equal(pendencia, null);
+  assert.match(valores.textoPontualidadeAnuidade, /3 dias de antecedência recebe 10%/);
+  assert.match(valores.textoPontualidadeAnuidade, /até o vencimento recebe 5%/);
+  assert.ok(valores.textoPontualidadeAnuidade.includes(moeda(3888)));
+  assert.ok(valores.textoPontualidadeAnuidade.includes(moeda(4104)));
 });

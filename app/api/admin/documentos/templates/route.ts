@@ -1,3 +1,4 @@
+import { VARIAVEIS_ANUIDADE_CONTRATO } from "@/lib/contratos/anuidade-contrato";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -6,6 +7,7 @@ import {
 } from "@/lib/documentos/tags-documentos";
 
 const TAGS_AUTOMATICAS_DOCUMENTO = new Set([
+  ...VARIAVEIS_ANUIDADE_CONTRATO,
   "logoInstituicao",
   "nomeInstituicao",
   "cnpjInstituicao",

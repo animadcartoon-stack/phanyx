@@ -2210,6 +2210,8 @@ function AdminDocumentosTemplatesPage() {
     "{{valorTotalMensalidadesComBolsa}}",
     "{{textoBolsaContrato}}",
     "{{textoDescontoPontualidadeContrato}}",
+    "{{textoMatriculaAnuidade}}",
+    "{{textoPontualidadeAnuidade}}",
     "{{percentualDescontoPontualidade}}",
     "{{diasAntecedenciaDescontoPontualidade}}",
     "{{valorMensalidadeComDescontoPontualidade}}",
@@ -3229,6 +3231,22 @@ function AdminDocumentosTemplatesPage() {
       ondeUsar: "Contratos de matrícula.",
       categoria: "Contratos e Comprovantes",
       palavras: ["desconto", "pontualidade", "mensalidade", "vencimento"],
+    },
+
+    "{{textoMatriculaAnuidade}}": {
+      titulo: "Cláusula de taxa ou antecipação da matrícula",
+      descricao: "Descreve a taxa separada, a antecipação abatida ou a ausência de cobrança de matrícula.",
+      ondeUsar: "Contratos de matrícula com anuidade.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["matrícula", "anuidade", "taxa", "antecipação"],
+    },
+
+    "{{textoPontualidadeAnuidade}}": {
+      titulo: "Cláusula de pontualidade da anuidade",
+      descricao: "Descreve as condições registradas e o valor total em cada faixa de pontualidade.",
+      ondeUsar: "Contratos de matrícula com anuidade.",
+      categoria: "Contratos e Comprovantes",
+      palavras: ["desconto", "pontualidade", "anuidade", "vencimento"],
     },
 
     "{{percentualDescontoPontualidade}}": {
