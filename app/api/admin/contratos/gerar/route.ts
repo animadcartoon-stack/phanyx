@@ -684,7 +684,7 @@ export async function GET(req: Request) {
     const valorContrato =
       valorLancamentos ||
       Number(matricula.valorMatricula || 0) ||
-      Number(matricula.valorMensalidade || 0) ||
+      Number((Number(matricula.bolsaPercentual) === 100 ? 0 : matricula.valorMensalidade) || 0) ||
       0;
 
     const template =
@@ -999,18 +999,27 @@ E por estarem de pleno acordo, firmam o presente contrato.
     let contratoExistente = matricula.contratos?.[0] || null;
 
     if (!contratoExistente) {
-      contratoExistente = await prisma.contrato.create({
-        data: {
-          alunoId: matricula.aluno.id,
-          instituicaoId: user.instituicaoId,
-          matriculaId: matricula.id,
-          conteudo: contratoGerado,
-          status: "PENDENTE",
-        },
-        include: {
-          assinatura: true,
-        },
+      const instituicaoId = user.instituicaoId;
+      contratoExistente = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${matricula.id} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+        const atual = await tx.matricula.findFirst({
+          where: { id: matricula.id, instituicaoId },
+          select: { updatedAt: true },
+        });
+        if (!atual || atual.updatedAt.getTime() !== matricula.updatedAt.getTime()) return null;
+        const existente = await tx.contrato.findFirst({
+          where: { matriculaId: matricula.id, instituicaoId, status: { not: "CANCELADO" } },
+          include: { assinatura: true }, orderBy: { id: "desc" },
+        });
+        return existente ?? tx.contrato.create({
+          data: { alunoId: matricula.aluno.id, instituicaoId, matriculaId: matricula.id,
+            conteudo: contratoGerado, status: "PENDENTE" },
+          include: { assinatura: true },
+        });
       });
+      if (!contratoExistente) {
+        return NextResponse.json({ error: "A matrícula mudou. Abra o contrato novamente." }, { status: 409 });
+      }
     }
 
     const contratoFinal = contratoGerado;

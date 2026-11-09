@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { dadosEdicaoMatricula, diferencasEdicao, registrarEdicaoMatricula } from "@/lib/matriculas/auditoria-edicao";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -154,64 +155,42 @@ export async function PUT(
     );
   }
 
-  const matriculaExistente =
-    await prisma.matricula.findFirst({
-      where: {
-        id: matriculaId,
-        instituicaoId:
-          user.instituicaoId,
-      },
-
-      select: {
-        id: true,
-        contratacaoModalidades: true,
-        organizacaoCurricular: true,
-      },
-    });
-
-  if (!matriculaExistente) {
-    return NextResponse.json(
-      { error: "Matrícula não encontrada" },
-      { status: 404 }
-    );
-  }
-
-  if (matriculaExistente.contratacaoDisciplinas) return NextResponse.json({ codigo: "CURSO_PRECO_POR_DISCIPLINA", error: "Use a página de Matrículas com seleção de disciplinas para esta contratação." }, { status: 400 });
-    if (matriculaExistente.organizacaoCurricular === "LIVRE") return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 409 });
-
-  if (matriculaExistente.contratacaoModalidades) {
-    return NextResponse.json({ codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });
-  }
-
   const body = await req.json();
-
-  const matricula =
-    await prisma.matricula.update({
-      where: {
-        id: matriculaId,
-      },
-
+  const instituicaoId = user.instituicaoId;
+  const where = { id: matriculaId, instituicaoId };
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${matriculaId} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+    const existente = await tx.matricula.findUnique({
+      where, select: { ...dadosEdicaoMatricula, contratacaoModalidades: true, contratacaoDisciplinas: true },
+    });
+    if (!existente) {
+      return NextResponse.json({ error: "Matrícula não encontrada" }, { status: 404 });
+    }
+    const { contratacaoModalidades, contratacaoDisciplinas, ...anterior } = existente;
+    if (contratacaoDisciplinas) {
+      return NextResponse.json({ codigo: "CURSO_PRECO_POR_DISCIPLINA", error: "Use a página de Matrículas com seleção de disciplinas para esta contratação." }, { status: 400 });
+    }
+    if (anterior.organizacaoCurricular === "LIVRE") {
+      return NextResponse.json({ codigo: "CURSO_LIVRE_FLUXO_PROPRIO" }, { status: 409 });
+    }
+    if (contratacaoModalidades) {
+      return NextResponse.json({ codigo: "CONTRATACAO_MODALIDADES" }, { status: 409 });
+    }
+    const matricula = await tx.matricula.update({
+      where,
       data: {
-        valorMatricula:
-          body.valorMatricula ?? null,
-
-        valorMensalidade:
-          body.valorMensalidade ?? null,
-
-        quantidadeParcelas:
-          body.quantidadeParcelas ?? null,
-
-        dataPrimeiroVencimento:
-          body.dataPrimeiroVencimento
-            ? new Date(
-                body.dataPrimeiroVencimento
-              )
-            : null,
+        valorMatricula: body.valorMatricula ?? null,
+        valorMensalidade: body.valorMensalidade ?? null,
+        quantidadeParcelas: body.quantidadeParcelas ?? null,
+        dataPrimeiroVencimento: body.dataPrimeiroVencimento ? new Date(body.dataPrimeiroVencimento) : null,
       },
     });
-
-  return NextResponse.json(
-    matricula
-  );
+    await registrarEdicaoMatricula(tx, { matriculaId, instituicaoId }, user, "EDICAO", diferencasEdicao(anterior, {
+      valorMatricula: matricula.valorMatricula,
+      valorMensalidade: matricula.valorMensalidade,
+      quantidadeParcelas: matricula.quantidadeParcelas,
+      dataPrimeiroVencimento: matricula.dataPrimeiroVencimento,
+    }));
+    return NextResponse.json(matricula);
+  });
 }
-

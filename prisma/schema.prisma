@@ -1425,6 +1425,8 @@ model Matricula {
 
   cobrancasFinanceiras CobrancaFinanceira[]
 
+  edicoes EdicaoMatricula[]
+
   @@unique([id, instituicaoId])
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -1443,6 +1445,23 @@ model Matricula {
   @@index([turmaPrincipalId])
   @@index([instituicaoId, excluidaEm])
   @@index([instituicaoId, canceladaEm])
+}
+
+model EdicaoMatricula {
+  id            Int      @id @default(autoincrement())
+  matriculaId   Int
+  instituicaoId Int
+  usuarioId     Int
+  funcionarioId Int?
+  usuarioNome   String?
+  masterOriginalId Int?
+  acao          String
+  motivo        String?  @db.Text
+  alteracoes    Json
+  criadoEm      DateTime @default(now())
+  matricula     Matricula @relation(fields: [matriculaId, instituicaoId], references: [id, instituicaoId], onDelete: Cascade)
+
+  @@index([matriculaId, instituicaoId, id], map: "EdicaoMatricula_historico_idx")
 }
 
 enum StatusTrancamentoMatricula {

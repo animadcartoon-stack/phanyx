@@ -24,6 +24,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import HistoricoEdicoesMatriculaModal from "@/components/admin/HistoricoEdicoesMatriculaModal";
+import RevisaoValoresMatriculaModal from "@/components/admin/RevisaoValoresMatriculaModal";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -474,6 +476,8 @@ function AdminMatriculasPage() {
   const [confirmTitulo, setConfirmTitulo] = useState("");
   const [confirmMensagem, setConfirmMensagem] = useState("");
   const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
+  const [historicoEdicoesId, setHistoricoEdicoesId] = useState<number | null>(null);
+  const [revisaoValores, setRevisaoValores] = useState<MatriculaApi | null>(null);
   const [inicioContratacao, setInicioContratacao] = useState<{ id: number; data: string; anterior: string | null } | null>(null);
   const [salvandoInicioContratacao, setSalvandoInicioContratacao] = useState(false);
   const [erroInicioContratacao, setErroInicioContratacao] = useState("");
@@ -3927,6 +3931,23 @@ function AdminMatriculasPage() {
           onCancelar={() => setSucesso("")}
         />
       )}
+      {historicoEdicoesId !== null && (
+        <HistoricoEdicoesMatriculaModal
+          matriculaId={historicoEdicoesId}
+          onFechar={() => setHistoricoEdicoesId(null)}
+        />
+      )}
+      {revisaoValores && (
+        <RevisaoValoresMatriculaModal
+          matricula={revisaoValores}
+          onCancelar={() => setRevisaoValores(null)}
+          onSalvar={() => {
+            setRevisaoValores(null);
+            setSucesso("Valores revisados e novo contrato pronto para assinatura.");
+            void carregarTudo();
+          }}
+        />
+      )}
       {inicioContratacao && (
         <PhanyxConfirmModal
           aberto
@@ -5275,6 +5296,22 @@ function AdminMatriculasPage() {
 
                             </button>
                             )}
+                            {m.organizacaoCurricular !== "LIVRE" && ["ATIVA", "A_INICIAR", "AGUARDANDO"].includes(m.status || "") && (
+                              <button
+                                type="button"
+                                onClick={() => setRevisaoValores(m)}
+                                className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100"
+                              >
+                                Revisar valores
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setHistoricoEdicoesId(m.id)}
+                              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                            >
+                              Histórico de edições
+                            </button>
 
 
 

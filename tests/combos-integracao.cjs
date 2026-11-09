@@ -70,6 +70,9 @@ if (!url) {
   const api = require("../app/api/admin/matriculas/modalidades/route.ts");
   const regras = require("../app/api/admin/combos/route.ts");
   const inicioContratacao = require("../app/api/admin/matriculas/[id]/inicio-contratacao/route.ts");
+  const revisaoValores = require("../app/api/admin/matriculas/[id]/revisao-valores/route.ts");
+  const historicoEdicoes = require("../app/api/admin/matriculas/[id]/historico-edicoes/route.ts");
+  const edicaoLegada = require("../app/api/admin/matriculas/[id]/route.ts");
   const cursosApi = require("../app/api/admin/cursos/route.ts");
   const {
     validarAgendaMatricula,
@@ -128,6 +131,7 @@ if (!url) {
         nome: admin.nome,
         role: "ADMIN",
         instituicaoId,
+        funcionarioId: 127,
       };
       await t.test("curso livre aceita zero ou campo vazio sem exigir preço de combo", async () => {
         for (const [indice, semestres] of [0, "0", "", null].entries()) {
@@ -673,6 +677,70 @@ if (!url) {
           );
         },
       );
+      await t.test("revisão da matrícula comum grava a taxa, a bolsa e o contrato sem duplicar cobranças", async () => {
+        const novoAluno = await aluno("AlunoRevisaoComum");
+        const primeiro = new Date();
+        primeiro.setUTCFullYear(primeiro.getUTCFullYear() + 1);
+        const matricula = await prisma.matricula.create({
+          data: { instituicaoId, alunoId: novoAluno.id, cursoId: cursos[0].id,
+            valorMatricula: 0, valorMensalidade: 0, quantidadeMensalidades: 2,
+            primeiroVencimento: primeiro, dataInicioCurso: primeiro },
+        });
+        const contexto = { params: { id: String(matricula.id) } };
+        const valores = { valorMatricula: "75.00", valorMensalidade: "400.00", bolsaPercentual: "25", motivo: "Condição negociada na secretaria" };
+        const consulta = await revisaoValores.POST(req(valores), contexto);
+        assert.equal(consulta.status, 200, JSON.stringify(await consulta.clone().json()));
+        const previa = await consulta.json();
+        assert.equal(previa.nova.total, 67500);
+        assert.equal(await prisma.lancamentoFinanceiro.count({ where: { matriculaId: matricula.id } }), 0);
+        const confirmar = () => revisaoValores.PATCH(req({ ...valores, versao: previa.versao }), contexto);
+        const resultado = await confirmar();
+        assert.equal(resultado.status, 200, JSON.stringify(await resultado.clone().json()));
+        assert.notEqual((await confirmar()).status, 200);
+        const dados = await prisma.matricula.findUniqueOrThrow({
+          where: { id: matricula.id },
+          include: { contratos: true, lancamentosFinanceiros: true, edicoes: { orderBy: { id: "asc" } } },
+        });
+        assert.equal(Number(dados.valorMatricula), 75);
+        assert.equal(Number(dados.bolsaPercentual), 25);
+        assert.equal(dados.contratos.length, 1);
+        assert.deepEqual(dados.lancamentosFinanceiros.map(l => l.valorFinal).sort((a, b) => a - b), [75, 300, 300]);
+        assert.equal(dados.edicoes[0].motivo, valores.motivo);
+        const autor = dados.edicoes[0];
+        assert.equal(autor.usuarioId, admin.id);
+        assert.equal(autor.funcionarioId, usuario.funcionarioId);
+        assert.ok(autor.criadoEm instanceof Date);
+        assert.deepEqual(autor.alteracoes.valorMatricula, { anterior: 0, novo: 75 });
+        const historico = await historicoEdicoes.GET(req({}), contexto);
+        assert.equal(historico.status, 200);
+        assert.equal((await historico.json()).edicoes[0].id, autor.id);
+        const usuarioOriginal = usuario;
+        try {
+          usuario = { ...usuario, instituicaoId: outraInstituicao.id };
+          assert.equal((await historicoEdicoes.GET(req({}), contexto)).status, 404);
+        } finally {
+          usuario = usuarioOriginal;
+        }
+        const taxa = dados.lancamentosFinanceiros.find(l => l.tipo === "MATRICULA");
+        await prisma.lancamentoFinanceiro.update({ where: { id: taxa.id }, data: { status: "PARCIAL", valorPago: 20 } });
+        const comRecebimento = await revisaoValores.POST(req({ ...valores, valorMatricula: "60" }), contexto);
+        assert.equal(comRecebimento.status, 409);
+        assert.match((await comRecebimento.json()).error, /recebimentos ou cobranças emitidas/);
+        assert.equal(await prisma.edicaoMatricula.count({ where: { matriculaId: matricula.id } }), 1);
+      });
+      await t.test("edição legada registra o autor autenticado e os campos modificados", async () => {
+        const novoAluno = await aluno("AlunoAuditoria");
+        const matricula = await prisma.matricula.create({
+          data: { instituicaoId, alunoId: novoAluno.id, cursoId: cursos[0].id, valorMatricula: 0 },
+        });
+        const contexto = { params: { id: String(matricula.id) } };
+        const resposta = await edicaoLegada.PUT(req({ valorMatricula: 30, usuarioId: 99999 }), contexto);
+        assert.equal(resposta.status, 200);
+        const edicao = await prisma.edicaoMatricula.findFirstOrThrow({ where: { matriculaId: matricula.id } });
+        assert.equal(edicao.acao, "EDICAO");
+        assert.equal(edicao.usuarioId, admin.id);
+        assert.deepEqual(edicao.alteracoes.valorMatricula, { anterior: "0", novo: "30" });
+      });
       await t.test("combo com antecipação grava entrada e somente a primeira parcela reduzida", async () => {
         const combo = await prisma.comboModalidades.findUniqueOrThrow({ where: { id: pacote } });
         const atualizar = await regras.PUT(req({
@@ -682,6 +750,9 @@ if (!url) {
         assert.equal(atualizar.status, 200, JSON.stringify(await atualizar.clone().json()));
         const novoAluno = await aluno("AlunoComAntecipacao");
         const selecao = { ...base, alunoId: novoAluno.id };
+        const vencimentoTeste = new Date();
+        vencimentoTeste.setUTCFullYear(vencimentoTeste.getUTCFullYear() + 1);
+        const primeiroVencimento = vencimentoTeste.toISOString().slice(0, 10);
         const conteudo = "Início {{inicioAnuidade}}. {{textoMatriculaAnuidade}}. {{textoPontualidadeAnuidade}}";
         const modelo = await prisma.documentoTemplate.create({
           data: { instituicaoId, nome: "Contrato para validação", tipo: "CONTRATO", conteudo },
@@ -714,7 +785,7 @@ if (!url) {
         assert.equal(await prisma.contrato.count({ where }), 0);
 
         await prisma.documentoTemplate.update({ where: { id: modelo.id }, data: { conteudo } });
-        const resposta = await api.POST(req({ ...pedido, ...selecao, chave, versao: p.versao }));
+        const resposta = await api.POST(req({ ...pedido, ...selecao, chave, versao: p.versao, primeiroVencimento }));
         assert.equal(resposta.status, 201, JSON.stringify(await resposta.clone().json()));
         const m = await prisma.matricula.findUnique({
           where: { id: (await resposta.json()).matricula.id },
@@ -786,7 +857,35 @@ if (!url) {
         assert.deepEqual(revisada.lancamentosFinanceiros.map(l => l.id).sort(), m.lancamentosFinanceiros.map(l => l.id).sort());
         assert.equal(revisada.contratos.length, 1);
         assert.match(revisada.contratos[0].conteudo, /02\/02\/2027/);
-        await prisma.contrato.update({ where: { id: revisada.contratos[0].id }, data: { assinaturaSecretariaEm: new Date() } });
+        const valores = { valorMatricula: "120.00", valorMensalidade: "920.00", bolsaPercentual: "5", motivo: "Revisão antes da assinatura" };
+        const contexto = { params: { id: String(m.id) } };
+        const consultaValores = await revisaoValores.POST(req(valores), contexto);
+        assert.equal(consultaValores.status, 200, JSON.stringify(await consultaValores.clone().json()));
+        const previaValores = await consultaValores.json();
+        assert.equal(previaValores.nova.antecipacao, 12000);
+        assert.equal(previaValores.nova.liquida, 87400);
+        const confirmaValores = await revisaoValores.PATCH(req({ ...valores, versao: previaValores.versao }), contexto);
+        assert.equal(confirmaValores.status, 200, JSON.stringify(await confirmaValores.clone().json()));
+        const valoresAtualizados = await prisma.matricula.findUniqueOrThrow({
+          where: { id: m.id },
+          include: { contratos: { where: { status: "PENDENTE" } },
+            lancamentosFinanceiros: { orderBy: [{ vencimento: "asc" }, { id: "asc" }] }, edicoes: { orderBy: { id: "asc" } } },
+        });
+        assert.equal(valoresAtualizados.planoPagamentoContratado.antecipacaoCentavos, 12000);
+        assert.equal(valoresAtualizados.lancamentosFinanceiros.length, 13);
+        assert.deepEqual(valoresAtualizados.lancamentosFinanceiros.filter(l => l.tipo === "MENSALIDADE").map(l => l.valorFinal),
+          [754, ...Array(11).fill(874)]);
+        assert.match(valoresAtualizados.contratos[0].conteudo, /120,00/);
+        assert.deepEqual(valoresAtualizados.edicoes.map(e => e.acao), ["DATA_INICIO", "DATA_INICIO", "VALORES"]);
+        assert.deepEqual(valoresAtualizados.edicoes[1].alteracoes.dataInicioCurso, {
+          anterior: "2027-02-08", novo: "2027-02-02",
+        });
+        assert.deepEqual(valoresAtualizados.edicoes[2].alteracoes.valorMatricula, { anterior: 98.5, novo: 120 });
+
+        await prisma.contrato.update({ where: { id: valoresAtualizados.contratos[0].id }, data: { assinaturaSecretariaEm: new Date() } });
+        const comAssinaturaValores = await revisaoValores.POST(req({ ...valores, valorMatricula: "121" }), contexto);
+        assert.equal(comAssinaturaValores.status, 409);
+        assert.match((await comAssinaturaValores.json()).error, /emitido ou assinado/);
         const alteracaoAssinada = await corrigirInicio("2027-02-03", "2027-02-02");
         assert.equal(alteracaoAssinada.status, 422);
         assert.match((await alteracaoAssinada.json()).error, /assinatura/);

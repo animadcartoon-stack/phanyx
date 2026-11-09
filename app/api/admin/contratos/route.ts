@@ -74,50 +74,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Matrícula inválida" }, { status: 400 });
     }
 
-    const contratoExistente = await prisma.contrato.findFirst({
-      where: {
-        matriculaId,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-        assinatura: true,
-      },
-      orderBy: {
-        id: "desc",
-      },
-    });
-
-    if (contratoExistente) {
+    const instituicaoId = user.instituicaoId;
+    return await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Matricula" WHERE "id" = ${matriculaId} AND "instituicaoId" = ${instituicaoId} FOR UPDATE`;
+      const existente = await tx.contrato.findFirst({
+        where: { matriculaId, instituicaoId },
+        include: { assinatura: true },
+        orderBy: { id: "desc" },
+      });
+      if (existente) {
+        return NextResponse.json({
+          id: existente.id, matriculaId: existente.matriculaId, alunoId: existente.alunoId,
+          status: existente.status, tokenAssinatura: existente.tokenAssinatura,
+          dataCriacao: existente.dataCriacao, dataAssinatura: existente.dataAssinatura,
+          assinatura: existente.assinatura, jaExistia: true,
+        });
+      }
+      const { contrato } = await criarContratoPendenteMatricula({ db: tx, matriculaId, instituicaoId });
       return NextResponse.json({
-        id: contratoExistente.id,
-        matriculaId: contratoExistente.matriculaId,
-        alunoId: contratoExistente.alunoId,
-        status: contratoExistente.status,
-        tokenAssinatura: contratoExistente.tokenAssinatura,
-        dataCriacao: contratoExistente.dataCriacao,
-        dataAssinatura: contratoExistente.dataAssinatura,
-        assinatura: contratoExistente.assinatura,
-        jaExistia: true,
+        id: contrato.id, matriculaId: contrato.matriculaId, alunoId: contrato.alunoId,
+        status: contrato.status, tokenAssinatura: contrato.tokenAssinatura,
+        dataCriacao: contrato.dataCriacao, jaExistia: false,
       });
-    }
-
-    const resultado =
-      await criarContratoPendenteMatricula({
-        matriculaId,
-        instituicaoId:
-          user.instituicaoId,
-      });
-
-    const contrato =
-      resultado.contrato;
-    return NextResponse.json({
-      id: contrato.id,
-      matriculaId: contrato.matriculaId,
-      alunoId: contrato.alunoId,
-      status: contrato.status,
-      tokenAssinatura: contrato.tokenAssinatura,
-      dataCriacao: contrato.dataCriacao,
-      jaExistia: false,
     });
   } catch (error: any) {
     if (error instanceof ErroContratoMatricula) {
